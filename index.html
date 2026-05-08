@@ -50,7 +50,6 @@
       z-index: 1;
     }
 
-    /* HEADER */
     .header {
       text-align: center;
       margin-bottom: 28px;
@@ -70,7 +69,6 @@
       margin-top: 4px;
     }
 
-    /* TABS */
     .tabs {
       display: flex;
       gap: 2px;
@@ -98,11 +96,9 @@
       color: white;
     }
 
-    /* TAB PANELS */
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    /* DATE HEADER */
     .date-header {
       font-size: 10px;
       letter-spacing: 3px;
@@ -112,7 +108,6 @@
       text-align: center;
     }
 
-    /* STUDENT BUTTONS GRID */
     .students-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -188,7 +183,6 @@
       50% { opacity: 0.3; }
     }
 
-    /* LOGGING PANEL */
     .log-panel {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -299,7 +293,6 @@
     }
     .btn-cancel:hover { border-color: var(--muted); color: var(--text); }
 
-    /* PAYMENT SECTION */
     .payment-students {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -327,7 +320,6 @@
     }
     .pay-btn.logged { border-color: var(--green); opacity: 0.6; }
 
-    /* LOG FEED */
     .log-feed {
       display: flex;
       flex-direction: column;
@@ -345,7 +337,6 @@
     .log-entry.error { background: rgba(232,70,58,0.08); border-left-color: var(--accent); color: var(--accent); }
     .log-entry.info { background: rgba(240,165,0,0.08); border-left-color: var(--accent2); color: var(--accent2); }
 
-    /* CONFIG */
     .config {
       margin-top: 24px;
       border-top: 1px solid var(--border);
@@ -420,10 +411,8 @@
     <button class="tab-btn" onclick="switchTab('payments')">💰 Payments</button>
   </div>
 
-  <!-- LESSONS TAB -->
   <div class="tab-panel active" id="tab-lessons">
     <div class="date-header" id="todayDate"></div>
-
     <div class="section-label">Today's Students</div>
     <div class="students-grid" id="studentsGrid">
       <div class="empty-state">
@@ -431,7 +420,6 @@
       </div>
     </div>
 
-    <!-- Active logging panel -->
     <div class="log-panel" id="logPanel">
       <div class="log-panel-header">
         <div class="log-panel-name" id="logPanelName">—</div>
@@ -447,7 +435,6 @@
     <div class="log-feed" id="lessonFeed"></div>
   </div>
 
-  <!-- PAYMENTS TAB -->
   <div class="tab-panel" id="tab-payments">
     <div class="section-label">Tap student → speak payment note</div>
     <div class="payment-students" id="paymentGrid">
@@ -456,7 +443,6 @@
       </div>
     </div>
 
-    <!-- Payment log panel -->
     <div class="log-panel" id="payLogPanel">
       <div class="log-panel-header">
         <div class="log-panel-name" id="payLogName">—</div>
@@ -472,7 +458,6 @@
     <div class="log-feed" id="paymentFeed"></div>
   </div>
 
-  <!-- CONFIG -->
   <div class="config">
     <label>Apps Script URL</label>
     <input type="text" id="scriptUrl" placeholder="Paste your Apps Script URL here..." />
@@ -481,31 +466,28 @@
 </div>
 
 <script>
-  // ── State ──────────────────────────────────────────
-  var allStudents = [];       // [{name, time, isTrial}]
-  var activeStudent = null;   // currently selected student
+  var allStudents = [];
+  var activeStudent = null;
   var activePayStudent = null;
   var recognition = null;
   var payRecognition = null;
   var isRecording = false;
   var isPayRecording = false;
-  var loggedCount = 0;
+  var finalTranscript = '';
+  var finalPayTranscript = '';
 
-  // ── Init ───────────────────────────────────────────
   var saved = localStorage.getItem('scriptUrl');
   if (saved) document.getElementById('scriptUrl').value = saved;
   document.getElementById('scriptUrl').addEventListener('change', function() {
     localStorage.setItem('scriptUrl', this.value);
   });
 
-  // Set today's date display
   var now = new Date();
   var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   document.getElementById('todayDate').textContent =
     days[now.getDay()] + ' · ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
 
-  // ── Tab switching ──────────────────────────────────
   function switchTab(tab) {
     document.querySelectorAll('.tab-btn').forEach(function(b, i) {
       b.classList.toggle('active', (i === 0 && tab === 'lessons') || (i === 1 && tab === 'payments'));
@@ -514,13 +496,10 @@
     document.getElementById('tab-payments').classList.toggle('active', tab === 'payments');
   }
 
-  // ── Load today's students ──────────────────────────
   function loadTodaysStudents() {
     var url = getScriptUrl();
     if (!url) return;
-
     addLog('lessonFeed', 'Loading today\'s students from calendar...', 'info');
-
     fetch(url + '?action=getTodayStudents')
       .then(function(r) { return r.json(); })
       .then(function(data) {
@@ -531,20 +510,11 @@
           addLog('lessonFeed', '✓ Loaded ' + data.students.length + ' students', 'success');
         } else {
           addLog('lessonFeed', data.message || 'No students found for today', 'error');
-          // Fallback: show manual entry option
-          renderManualFallback();
         }
       })
       .catch(function() {
         addLog('lessonFeed', '❌ Could not connect. Check your Apps Script URL.', 'error');
-        renderManualFallback();
       });
-  }
-
-  function renderManualFallback() {
-    // Allow typing student names manually
-    document.getElementById('studentsGrid').innerHTML =
-      '<div class="empty-state">Could not load from calendar.<br>Check your Apps Script URL.</div>';
   }
 
   function renderStudents() {
@@ -560,8 +530,7 @@
         '<div class="btn-name">' + s.name + '</div>' +
         (s.time ? '<div class="btn-time">' + s.time + '</div>' : '') +
         '<div class="btn-type ' + (s.isTrial ? 'trial' : 'regular') + '">' +
-          (s.isTrial ? 'TRIAL' : 'LESSON') +
-        '</div>';
+          (s.isTrial ? 'TRIAL' : 'LESSON') + '</div>';
       grid.appendChild(btn);
     });
   }
@@ -579,20 +548,15 @@
     });
   }
 
-  // ── Lesson recording ───────────────────────────────
   function selectStudent(student, idx) {
-    // If already recording this student, stop recording
     if (activeStudent && activeStudent.idx === idx && isRecording) {
       stopRecording();
       return;
     }
-
-    // Stop any other recording
     if (isRecording) stopRecording();
-
     activeStudent = { student: student, idx: idx };
+    finalTranscript = '';
 
-    // Show log panel
     document.getElementById('logPanel').classList.add('active');
     document.getElementById('logPanelName').textContent = student.name;
     document.getElementById('transcriptBox').value = '';
@@ -600,7 +564,6 @@
     document.getElementById('btnLog').className = 'btn-log';
     document.getElementById('btnLog').textContent = 'Log It →';
 
-    // Handle trial paid toggle
     var existing = document.getElementById('trialPaidToggle');
     if (existing) existing.remove();
     if (student.isTrial) {
@@ -617,12 +580,10 @@
       document.getElementById('logActions').insertBefore(toggle, document.getElementById('btnLog'));
     }
 
-    // Mark button as recording
     document.querySelectorAll('.student-btn').forEach(function(b) { b.classList.remove('recording'); });
     document.getElementById('sbtn-' + idx).classList.add('recording');
     document.getElementById('logPanelStatus').textContent = '🔴 recording...';
     document.getElementById('logPanelStatus').classList.remove('idle');
-
     startRecording();
   }
 
@@ -636,33 +597,33 @@
     recognition.continuous = true;
     recognition.interimResults = true;
 
-    recognition.onstart = function() {
-      isRecording = true;
-      playBeep(880, 100);
-    };
+    recognition.onstart = function() { isRecording = true; playBeep(880, 100); };
 
     recognition.onresult = function(event) {
       var interim = '';
-      var final = '';
-      for (var i = 0; i < event.results.length; i++) {
-        if (event.results[i].isFinal) final += event.results[i][0].transcript;
-        else interim += event.results[i][0].transcript;
+      for (var i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript + ' ';
+        } else {
+          interim += event.results[i][0].transcript;
+        }
       }
-      document.getElementById('transcriptBox').value = final || interim;
-      if (final) {
-        document.getElementById('btnLog').disabled = false;
-      }
+      document.getElementById('transcriptBox').value = (finalTranscript + interim).trim();
+      if (finalTranscript.trim()) document.getElementById('btnLog').disabled = false;
     };
 
     recognition.onend = function() {
-      isRecording = false;
+      // Auto-restart if still supposed to be recording
+      if (isRecording) {
+        try { recognition.start(); } catch(e) {}
+        return;
+      }
       playBeep(440, 80, 0.15);
       document.getElementById('logPanelStatus').textContent = 'Review & log ↓';
       document.getElementById('logPanelStatus').classList.add('idle');
       if (document.getElementById('transcriptBox').value.trim()) {
         document.getElementById('btnLog').disabled = false;
       }
-      // Remove recording state from button
       if (activeStudent) {
         var btn = document.getElementById('sbtn-' + activeStudent.idx);
         if (btn) btn.classList.remove('recording');
@@ -670,6 +631,7 @@
     };
 
     recognition.onerror = function(e) {
+      if (e.error === 'no-speech') return; // ignore no-speech, will auto-restart
       isRecording = false;
       addLog('lessonFeed', 'Mic error: ' + e.error, 'error');
     };
@@ -678,25 +640,25 @@
   }
 
   function stopRecording() {
-    if (recognition) recognition.stop();
     isRecording = false;
+    if (recognition) recognition.stop();
   }
 
   function cancelLog() {
     stopRecording();
     document.getElementById('logPanel').classList.remove('active');
-    document.querySelectorAll('.student-btn').forEach(function(b) {
-      b.classList.remove('recording');
-    });
+    document.querySelectorAll('.student-btn').forEach(function(b) { b.classList.remove('recording'); });
     activeStudent = null;
+    finalTranscript = '';
   }
 
   function submitLog() {
     var url = getScriptUrl();
     if (!url) return;
-
     var subject = document.getElementById('transcriptBox').value.trim();
     if (!subject) { addLog('lessonFeed', 'Nothing to log!', 'error'); return; }
+
+    stopRecording();
 
     var student = activeStudent.student;
     var btn = document.getElementById('btnLog');
@@ -708,25 +670,17 @@
     if (paidEl) trialPaid = paidEl.checked;
 
     var action = student.isTrial ? 'logTrial' : 'logLesson';
-    var params = {
-      studentName: student.name,
-      subject: subject,
-      trialPaid: trialPaid ? '1' : '0'
-    };
-
-    callScript(url, action, params, function(data) {
+    callScript(url, action, { studentName: student.name, subject: subject, trialPaid: trialPaid ? '1' : '0' }, function(data) {
       if (data.success) {
         btn.textContent = '✓ Logged!';
         btn.className = 'btn-log success';
-        // Green the student button
         var sbtn = document.getElementById('sbtn-' + activeStudent.idx);
         if (sbtn) sbtn.classList.add('logged');
         addLog('lessonFeed', '✓ ' + student.name + ' — ' + subject, 'success');
-        loggedCount++;
-        // Close panel after a moment
         setTimeout(function() {
           document.getElementById('logPanel').classList.remove('active');
           activeStudent = null;
+          finalTranscript = '';
         }, 1200);
       } else {
         btn.textContent = 'Log It →';
@@ -736,15 +690,14 @@
     });
   }
 
-  // ── Payment recording ──────────────────────────────
   function selectPayStudent(student, idx) {
     if (activePayStudent && activePayStudent.idx === idx && isPayRecording) {
       stopPayRecording();
       return;
     }
     if (isPayRecording) stopPayRecording();
-
     activePayStudent = { student: student, idx: idx };
+    finalPayTranscript = '';
 
     document.getElementById('payLogPanel').classList.add('active');
     document.getElementById('payLogName').textContent = student.name;
@@ -756,7 +709,6 @@
     document.querySelectorAll('.pay-btn').forEach(function(b) { b.classList.remove('recording'); });
     document.getElementById('pbtn-' + idx).classList.add('recording');
     document.getElementById('payLogStatus').textContent = '🔴 recording...';
-
     startPayRecording();
   }
 
@@ -770,17 +722,23 @@
     payRecognition.onstart = function() { isPayRecording = true; playBeep(880, 100); };
 
     payRecognition.onresult = function(event) {
-      var interim = '', final = '';
-      for (var i = 0; i < event.results.length; i++) {
-        if (event.results[i].isFinal) final += event.results[i][0].transcript;
-        else interim += event.results[i][0].transcript;
+      var interim = '';
+      for (var i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          finalPayTranscript += event.results[i][0].transcript + ' ';
+        } else {
+          interim += event.results[i][0].transcript;
+        }
       }
-      document.getElementById('payTranscriptBox').value = final || interim;
-      if (final) document.getElementById('btnPayLog').disabled = false;
+      document.getElementById('payTranscriptBox').value = (finalPayTranscript + interim).trim();
+      if (finalPayTranscript.trim()) document.getElementById('btnPayLog').disabled = false;
     };
 
     payRecognition.onend = function() {
-      isPayRecording = false;
+      if (isPayRecording) {
+        try { payRecognition.start(); } catch(e) {}
+        return;
+      }
       playBeep(440, 80, 0.15);
       document.getElementById('payLogStatus').textContent = 'Review & log ↓';
       if (document.getElementById('payTranscriptBox').value.trim()) {
@@ -792,13 +750,17 @@
       }
     };
 
-    payRecognition.onerror = function() { isPayRecording = false; };
+    payRecognition.onerror = function(e) {
+      if (e.error === 'no-speech') return;
+      isPayRecording = false;
+    };
+
     payRecognition.start();
   }
 
   function stopPayRecording() {
-    if (payRecognition) payRecognition.stop();
     isPayRecording = false;
+    if (payRecognition) payRecognition.stop();
   }
 
   function cancelPayLog() {
@@ -806,14 +768,16 @@
     document.getElementById('payLogPanel').classList.remove('active');
     document.querySelectorAll('.pay-btn').forEach(function(b) { b.classList.remove('recording'); });
     activePayStudent = null;
+    finalPayTranscript = '';
   }
 
   function submitPayLog() {
     var url = getScriptUrl();
     if (!url) return;
-
     var note = document.getElementById('payTranscriptBox').value.trim();
     if (!note) { addLog('paymentFeed', 'Nothing to log!', 'error'); return; }
+
+    stopPayRecording();
 
     var student = activePayStudent.student;
     var btn = document.getElementById('btnPayLog');
@@ -830,6 +794,7 @@
         setTimeout(function() {
           document.getElementById('payLogPanel').classList.remove('active');
           activePayStudent = null;
+          finalPayTranscript = '';
         }, 1200);
       } else {
         btn.textContent = 'Log Payment →';
@@ -839,16 +804,13 @@
     });
   }
 
-  // ── Helpers ────────────────────────────────────────
   function callScript(url, action, params, cb) {
     var query = url + '?action=' + action;
     for (var k in params) query += '&' + k + '=' + encodeURIComponent(params[k]);
     fetch(query)
       .then(function(r) { return r.json(); })
       .then(cb)
-      .catch(function() {
-        addLog('lessonFeed', '❌ Connection error.', 'error');
-      });
+      .catch(function() { addLog('lessonFeed', '❌ Connection error.', 'error'); });
   }
 
   function getScriptUrl() {
@@ -882,7 +844,6 @@
     } catch(e) {}
   }
 
-  // Allow manual typing to enable Log button
   document.getElementById('transcriptBox').addEventListener('input', function() {
     document.getElementById('btnLog').disabled = !this.value.trim();
   });
