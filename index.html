@@ -9,12 +9,14 @@
     :root {
       --bg: #0f0f0f;
       --surface: #1a1a1a;
+      --surface2: #222;
       --accent: #e8463a;
       --accent2: #f0a500;
+      --green: #2ecc71;
+      --blue: #4a9eff;
       --text: #f0ede8;
       --muted: #555;
-      --success: #2ecc71;
-      --error: #e8463a;
+      --border: #2a2a2a;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,8 +29,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 24px;
+      padding: 24px 16px;
     }
 
     body::before {
@@ -44,203 +45,303 @@
 
     .container {
       width: 100%;
-      max-width: 540px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      max-width: 560px;
       position: relative;
       z-index: 1;
     }
 
     .header {
       text-align: center;
-      margin-bottom: 40px;
+      margin-bottom: 28px;
     }
-
     .header h1 {
       font-family: 'Syne', sans-serif;
-      font-size: 36px;
+      font-size: 32px;
       font-weight: 800;
       letter-spacing: -1px;
     }
-
     .header h1 span { color: var(--accent); }
-
     .header p {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--muted);
       letter-spacing: 3px;
       text-transform: uppercase;
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
-    .mic-wrap {
-      position: relative;
-      margin-bottom: 32px;
-    }
-
-    .ring {
-      position: absolute;
-      inset: -16px;
-      border-radius: 50%;
-      border: 1px solid rgba(232,70,58,0.2);
-      pointer-events: none;
-    }
-
-    .ring2 {
-      position: absolute;
-      inset: -32px;
-      border-radius: 50%;
-      border: 1px solid rgba(232,70,58,0.08);
-      pointer-events: none;
-    }
-
-    .mic-btn {
-      width: 130px;
-      height: 130px;
-      border-radius: 50%;
-      border: 2px solid var(--accent);
-      background: var(--surface);
-      cursor: pointer;
+    .tabs {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-      position: relative;
-      z-index: 1;
-      font-size: 48px;
+      gap: 2px;
+      margin-bottom: 24px;
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 3px;
     }
-
-    .mic-btn:hover { background: rgba(232,70,58,0.1); transform: scale(1.04); }
-    .mic-btn:active { transform: scale(0.97); }
-
-    .mic-btn.listening {
-      background: var(--accent);
-      border-color: var(--accent);
-      box-shadow: 0 0 40px rgba(232,70,58,0.4);
-    }
-
-    .mic-btn.listening .ring {
-      animation: ripple 1.4s ease-out infinite;
-      border-color: rgba(232,70,58,0.5);
-    }
-
-    .mic-btn.listening .ring2 {
-      animation: ripple 1.4s ease-out infinite 0.4s;
-    }
-
-    @keyframes ripple {
-      0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(1.5); opacity: 0; }
-    }
-
-    .status {
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
       font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .date-header {
+      font-size: 10px;
       letter-spacing: 3px;
       text-transform: uppercase;
       color: var(--muted);
-      margin-bottom: 12px;
-      text-align: center;
-    }
-
-    .status.active { color: var(--accent); }
-
-    .transcript {
-      font-size: 15px;
-      color: var(--text);
-      font-style: italic;
-      text-align: center;
-      min-height: 24px;
       margin-bottom: 16px;
-      opacity: 0.7;
+      text-align: center;
     }
 
-    .log-feed {
-      width: 100%;
+    .students-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .student-btn {
+      position: relative;
+      padding: 16px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-bottom: 24px;
-      max-height: 200px;
-      overflow-y: auto;
+      gap: 6px;
     }
-
-    .log-entry {
-      padding: 12px 16px;
-      border-radius: 4px;
-      font-size: 13px;
-      line-height: 1.5;
-      border-left: 3px solid transparent;
+    .student-btn:hover { border-color: var(--accent); background: rgba(232,70,58,0.05); }
+    .student-btn.recording {
+      border-color: var(--accent);
+      background: rgba(232,70,58,0.1);
+      box-shadow: 0 0 20px rgba(232,70,58,0.2);
     }
-
-    .log-entry.success {
+    .student-btn.logged {
+      border-color: var(--green);
       background: rgba(46,204,113,0.08);
-      border-left-color: var(--success);
-      color: var(--success);
+    }
+    .student-btn .btn-name {
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Syne', sans-serif;
+    }
+    .student-btn .btn-time {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+    .student-btn .btn-type {
+      font-size: 9px;
+      letter-spacing: 1px;
+      padding: 2px 6px;
+      border-radius: 2px;
+      width: fit-content;
+    }
+    .btn-type.trial { background: rgba(74,158,255,0.15); color: var(--blue); }
+    .btn-type.regular { background: rgba(240,165,0,0.12); color: var(--accent2); }
+    .student-btn .mic-indicator {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: all 0.2s;
+    }
+    .student-btn.recording .mic-indicator {
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 1s infinite;
+    }
+    .student-btn.logged .mic-indicator { background: var(--green); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
     }
 
-    .log-entry.error {
-      background: rgba(232,70,58,0.08);
-      border-left-color: var(--error);
-      color: var(--error);
+    .log-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+      display: none;
     }
+    .log-panel.active { display: block; }
 
-    .log-entry.info {
-      background: rgba(240,165,0,0.08);
-      border-left-color: var(--accent2);
-      color: var(--accent2);
+    .log-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
     }
-
-    .examples {
-      width: 100%;
-      border-top: 1px solid #222;
-      padding-top: 20px;
-      margin-bottom: 20px;
+    .log-panel-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
     }
-
-    .examples p {
+    .log-panel-status {
       font-size: 10px;
       letter-spacing: 2px;
       text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
+      color: var(--accent);
     }
+    .log-panel-status.idle { color: var(--muted); }
 
-    .example-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 7px 0;
-      border-bottom: 1px solid #1e1e1e;
-    }
-
-    .example-row:last-child { border-bottom: none; }
-
-    .tag {
-      font-size: 9px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      padding: 2px 7px;
-      border-radius: 2px;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    .tag.lesson { background: rgba(240,165,0,0.15); color: var(--accent2); }
-    .tag.payment { background: rgba(46,204,113,0.1); color: var(--success); }
-    .tag.stop { background: rgba(232,70,58,0.15); color: var(--accent); }
-
-    .example-text {
-      font-size: 12px;
-      color: #666;
-      font-style: italic;
+    .transcript-box {
+      width: 100%;
+      min-height: 60px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 12px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      resize: none;
+      outline: none;
+      margin-bottom: 12px;
       line-height: 1.5;
     }
+    .transcript-box:focus { border-color: var(--accent); }
+    .transcript-box::placeholder { color: var(--muted); font-style: italic; }
 
-    .config {
-      width: 100%;
+    .log-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
     }
 
+    .trial-paid {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--muted);
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .trial-paid.checked {
+      border-color: var(--green);
+      color: var(--green);
+      background: rgba(46,204,113,0.08);
+    }
+    .trial-paid input { display: none; }
+
+    .btn-log {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 4px;
+      background: var(--accent);
+      color: white;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-log:hover { background: #d63d32; }
+    .btn-log.success {
+      background: var(--green);
+      pointer-events: none;
+    }
+    .btn-log:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+    .btn-cancel {
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-cancel:hover { border-color: var(--muted); color: var(--text); }
+
+    .payment-students {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .pay-btn {
+      padding: 14px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+    .pay-btn:hover { border-color: var(--green); background: rgba(46,204,113,0.05); }
+    .pay-btn.recording {
+      border-color: var(--green);
+      background: rgba(46,204,113,0.1);
+    }
+    .pay-btn.logged { border-color: var(--green); opacity: 0.6; }
+
+    .log-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 16px;
+    }
+    .log-entry {
+      padding: 10px 14px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-left: 3px solid transparent;
+    }
+    .log-entry.success { background: rgba(46,204,113,0.08); border-left-color: var(--green); color: var(--green); }
+    .log-entry.error { background: rgba(232,70,58,0.08); border-left-color: var(--accent); color: var(--accent); }
+    .log-entry.info { background: rgba(240,165,0,0.08); border-left-color: var(--accent2); color: var(--accent2); }
+
+    .config {
+      margin-top: 24px;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
     .config label {
       font-size: 9px;
       letter-spacing: 2px;
@@ -249,11 +350,10 @@
       display: block;
       margin-bottom: 6px;
     }
-
     .config input {
       width: 100%;
       background: var(--surface);
-      border: 1px solid #2a2a2a;
+      border: 1px solid var(--border);
       border-radius: 4px;
       padding: 10px 14px;
       color: var(--muted);
@@ -261,11 +361,41 @@
       font-size: 11px;
       outline: none;
       transition: border-color 0.2s;
+      margin-bottom: 10px;
+    }
+    .config input:focus { border-color: var(--accent); color: var(--text); }
+
+    .btn-load-students {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+    .btn-load-students:hover { border-color: var(--accent2); color: var(--accent2); }
+
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
     }
 
-    .config input:focus {
-      border-color: var(--accent);
-      color: var(--text);
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 2;
     }
   </style>
 </head>
@@ -273,60 +403,404 @@
 <div class="container">
   <div class="header">
     <h1>🎸 RPM<span>Logger</span></h1>
-    <p>tap · speak · zip to stop</p>
+    <p>tap student · speak · tap to stop</p>
   </div>
 
-  <div class="mic-wrap">
-    <div class="ring2"></div>
-    <div class="ring"></div>
-    <button class="mic-btn" id="micBtn" onclick="toggleListening()">🎤</button>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('lessons')">📚 Lessons</button>
+    <button class="tab-btn" onclick="switchTab('payments')">💰 Payments</button>
   </div>
 
-  <div class="status" id="status">tap to start</div>
-  <div class="transcript" id="transcript"></div>
+  <div class="tab-panel active" id="tab-lessons">
+    <div class="date-header" id="todayDate"></div>
+    <div class="section-label">Today's Students</div>
+    <div class="students-grid" id="studentsGrid">
+      <div class="empty-state">
+        Paste your Apps Script URL below<br>then tap "Load Today's Students"
+      </div>
+    </div>
 
-  <div class="log-feed" id="logFeed"></div>
+    <div class="log-panel" id="logPanel">
+      <div class="log-panel-header">
+        <div class="log-panel-name" id="logPanelName">—</div>
+        <div class="log-panel-status" id="logPanelStatus">tap student to record</div>
+      </div>
+      <textarea class="transcript-box" id="transcriptBox" placeholder="Transcription will appear here... or type directly"></textarea>
+      <div class="log-actions" id="logActions">
+        <button class="btn-cancel" onclick="cancelLog()">Cancel</button>
+        <button class="btn-log" id="btnLog" onclick="submitLog()" disabled>Log It →</button>
+      </div>
+    </div>
 
-  <div class="examples">
-    <p>how to speak</p>
-    <div class="example-row">
-      <span class="tag lesson">lesson</span>
-      <span class="example-text">"Student Charlotte Subject South of Heaven review"</span>
+    <div class="log-feed" id="lessonFeed"></div>
+  </div>
+
+  <div class="tab-panel" id="tab-payments">
+    <div class="section-label">Tap student → speak payment note</div>
+    <div class="payment-students" id="paymentGrid">
+      <div class="empty-state">
+        Load students from the Lessons tab first
+      </div>
     </div>
-    <div class="example-row">
-      <span class="tag payment">payment</span>
-      <span class="example-text">"Student Glen Payment 380"</span>
+
+    <div class="log-panel" id="payLogPanel">
+      <div class="log-panel-header">
+        <div class="log-panel-name" id="payLogName">—</div>
+        <div class="log-panel-status" id="payLogStatus">tap student to record</div>
+      </div>
+      <textarea class="transcript-box" id="payTranscriptBox" placeholder="Say the payment note... e.g. 'paid 380 May 8'"></textarea>
+      <div class="log-actions">
+        <button class="btn-cancel" onclick="cancelPayLog()">Cancel</button>
+        <button class="btn-log" id="btnPayLog" onclick="submitPayLog()" disabled>Log Payment →</button>
+      </div>
     </div>
-    <div class="example-row">
-      <span class="tag payment">payment</span>
-      <span class="example-text">"Student Gulya Payment 760"</span>
-    </div>
-    <div class="example-row">
-      <span class="tag stop">stop</span>
-      <span class="example-text">"zip" — stops listening</span>
-    </div>
+
+    <div class="log-feed" id="paymentFeed"></div>
   </div>
 
   <div class="config">
     <label>Apps Script URL</label>
     <input type="text" id="scriptUrl" placeholder="Paste your Apps Script URL here..." />
+    <button class="btn-load-students" onclick="loadTodaysStudents()">⟳ Load Today's Students from Calendar</button>
   </div>
 </div>
 
 <script>
-  const savedUrl = localStorage.getItem('scriptUrl');
-  if (savedUrl) document.getElementById('scriptUrl').value = savedUrl;
+  var allStudents = [];
+  var activeStudent = null;
+  var activePayStudent = null;
+  var recognition = null;
+  var payRecognition = null;
+  var isRecording = false;
+  var isPayRecording = false;
+
+  var saved = localStorage.getItem('scriptUrl');
+  if (saved) document.getElementById('scriptUrl').value = saved;
   document.getElementById('scriptUrl').addEventListener('change', function() {
     localStorage.setItem('scriptUrl', this.value);
   });
 
+  var now = new Date();
+  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('todayDate').textContent =
+    days[now.getDay()] + ' · ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(function(b, i) {
+      b.classList.toggle('active', (i === 0 && tab === 'lessons') || (i === 1 && tab === 'payments'));
+    });
+    document.getElementById('tab-lessons').classList.toggle('active', tab === 'lessons');
+    document.getElementById('tab-payments').classList.toggle('active', tab === 'payments');
+  }
+
+  function loadTodaysStudents() {
+    var url = getScriptUrl();
+    if (!url) return;
+    addLog('lessonFeed', 'Loading today\'s students from calendar...', 'info');
+    fetch(url + '?action=getTodayStudents')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success && data.students && data.students.length > 0) {
+          allStudents = data.students;
+          renderStudents();
+          renderPaymentStudents();
+          addLog('lessonFeed', '✓ Loaded ' + data.students.length + ' students', 'success');
+        } else {
+          addLog('lessonFeed', data.message || 'No students found for today', 'error');
+        }
+      })
+      .catch(function() {
+        addLog('lessonFeed', '❌ Could not connect. Check your Apps Script URL.', 'error');
+      });
+  }
+
+  function renderStudents() {
+    var grid = document.getElementById('studentsGrid');
+    grid.innerHTML = '';
+    allStudents.forEach(function(s, i) {
+      var btn = document.createElement('button');
+      btn.className = 'student-btn';
+      btn.id = 'sbtn-' + i;
+      btn.onclick = function() { selectStudent(s, i); };
+      btn.innerHTML =
+        '<div class="mic-indicator"></div>' +
+        '<div class="btn-name">' + s.name + '</div>' +
+        (s.time ? '<div class="btn-time">' + s.time + '</div>' : '') +
+        '<div class="btn-type ' + (s.isTrial ? 'trial' : 'regular') + '">' +
+          (s.isTrial ? 'TRIAL' : 'LESSON') + '</div>';
+      grid.appendChild(btn);
+    });
+  }
+
+  function renderPaymentStudents() {
+    var grid = document.getElementById('paymentGrid');
+    grid.innerHTML = '';
+    allStudents.forEach(function(s, i) {
+      var btn = document.createElement('button');
+      btn.className = 'pay-btn';
+      btn.id = 'pbtn-' + i;
+      btn.onclick = function() { selectPayStudent(s, i); };
+      btn.textContent = s.name;
+      grid.appendChild(btn);
+    });
+  }
+
+  function selectStudent(student, idx) {
+    if (activeStudent && activeStudent.idx === idx && isRecording) {
+      stopRecording();
+      return;
+    }
+    if (isRecording) stopRecording();
+    activeStudent = { student: student, idx: idx };
+
+    document.getElementById('logPanel').classList.add('active');
+    document.getElementById('logPanelName').textContent = student.name;
+    document.getElementById('transcriptBox').value = '';
+    document.getElementById('btnLog').disabled = true;
+    document.getElementById('btnLog').className = 'btn-log';
+    document.getElementById('btnLog').textContent = 'Log It →';
+
+    var existing = document.getElementById('trialPaidToggle');
+    if (existing) existing.remove();
+    if (student.isTrial) {
+      var toggle = document.createElement('label');
+      toggle.className = 'trial-paid';
+      toggle.id = 'trialPaidToggle';
+      toggle.innerHTML = '<input type="checkbox" id="trialPaidCheck"> ✓ Trial Paid';
+      toggle.onclick = function() {
+        setTimeout(function() {
+          var checked = document.getElementById('trialPaidCheck').checked;
+          toggle.classList.toggle('checked', checked);
+        }, 0);
+      };
+      document.getElementById('logActions').insertBefore(toggle, document.getElementById('btnLog'));
+    }
+
+    document.querySelectorAll('.student-btn').forEach(function(b) { b.classList.remove('recording'); });
+    document.getElementById('sbtn-' + idx).classList.add('recording');
+    document.getElementById('logPanelStatus').textContent = '🔴 recording...';
+    document.getElementById('logPanelStatus').classList.remove('idle');
+    startRecording();
+  }
+
+  function startRecording() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      addLog('lessonFeed', 'Speech not supported. Use Chrome.', 'error');
+      return;
+    }
+    recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = true;
+
+    recognition.onstart = function() { isRecording = true; playBeep(880, 100); };
+
+    recognition.onresult = function(event) {
+      var interim = '', final = '';
+      for (var i = 0; i < event.results.length; i++) {
+        if (event.results[i].isFinal) final += event.results[i][0].transcript;
+        else interim += event.results[i][0].transcript;
+      }
+      document.getElementById('transcriptBox').value = final || interim;
+      if (final) document.getElementById('btnLog').disabled = false;
+    };
+
+    recognition.onend = function() {
+      isRecording = false;
+      playBeep(440, 80, 0.15);
+      document.getElementById('logPanelStatus').textContent = 'Review & log ↓';
+      document.getElementById('logPanelStatus').classList.add('idle');
+      if (document.getElementById('transcriptBox').value.trim()) {
+        document.getElementById('btnLog').disabled = false;
+      }
+      if (activeStudent) {
+        var btn = document.getElementById('sbtn-' + activeStudent.idx);
+        if (btn) btn.classList.remove('recording');
+      }
+    };
+
+    recognition.onerror = function(e) { isRecording = false; addLog('lessonFeed', 'Mic error: ' + e.error, 'error'); };
+    recognition.start();
+  }
+
+  function stopRecording() {
+    if (recognition) recognition.stop();
+    isRecording = false;
+  }
+
+  function cancelLog() {
+    stopRecording();
+    document.getElementById('logPanel').classList.remove('active');
+    document.querySelectorAll('.student-btn').forEach(function(b) { b.classList.remove('recording'); });
+    activeStudent = null;
+  }
+
+  function submitLog() {
+    var url = getScriptUrl();
+    if (!url) return;
+    var subject = document.getElementById('transcriptBox').value.trim();
+    if (!subject) { addLog('lessonFeed', 'Nothing to log!', 'error'); return; }
+
+    var student = activeStudent.student;
+    var btn = document.getElementById('btnLog');
+    btn.textContent = 'Logging...';
+    btn.disabled = true;
+
+    var trialPaid = false;
+    var paidEl = document.getElementById('trialPaidCheck');
+    if (paidEl) trialPaid = paidEl.checked;
+
+    var action = student.isTrial ? 'logTrial' : 'logLesson';
+    callScript(url, action, { studentName: student.name, subject: subject, trialPaid: trialPaid ? '1' : '0' }, function(data) {
+      if (data.success) {
+        btn.textContent = '✓ Logged!';
+        btn.className = 'btn-log success';
+        var sbtn = document.getElementById('sbtn-' + activeStudent.idx);
+        if (sbtn) sbtn.classList.add('logged');
+        addLog('lessonFeed', '✓ ' + student.name + ' — ' + subject, 'success');
+        setTimeout(function() {
+          document.getElementById('logPanel').classList.remove('active');
+          activeStudent = null;
+        }, 1200);
+      } else {
+        btn.textContent = 'Log It →';
+        btn.disabled = false;
+        addLog('lessonFeed', '❌ ' + (data.message || 'Error logging'), 'error');
+      }
+    });
+  }
+
+  function selectPayStudent(student, idx) {
+    if (activePayStudent && activePayStudent.idx === idx && isPayRecording) {
+      stopPayRecording();
+      return;
+    }
+    if (isPayRecording) stopPayRecording();
+    activePayStudent = { student: student, idx: idx };
+
+    document.getElementById('payLogPanel').classList.add('active');
+    document.getElementById('payLogName').textContent = student.name;
+    document.getElementById('payTranscriptBox').value = '';
+    document.getElementById('btnPayLog').disabled = true;
+    document.getElementById('btnPayLog').className = 'btn-log';
+    document.getElementById('btnPayLog').textContent = 'Log Payment →';
+
+    document.querySelectorAll('.pay-btn').forEach(function(b) { b.classList.remove('recording'); });
+    document.getElementById('pbtn-' + idx).classList.add('recording');
+    document.getElementById('payLogStatus').textContent = '🔴 recording...';
+    startPayRecording();
+  }
+
+  function startPayRecording() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
+    payRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    payRecognition.lang = 'en-US';
+    payRecognition.continuous = false;
+    payRecognition.interimResults = true;
+
+    payRecognition.onstart = function() { isPayRecording = true; playBeep(880, 100); };
+
+    payRecognition.onresult = function(event) {
+      var interim = '', final = '';
+      for (var i = 0; i < event.results.length; i++) {
+        if (event.results[i].isFinal) final += event.results[i][0].transcript;
+        else interim += event.results[i][0].transcript;
+      }
+      document.getElementById('payTranscriptBox').value = final || interim;
+      if (final) document.getElementById('btnPayLog').disabled = false;
+    };
+
+    payRecognition.onend = function() {
+      isPayRecording = false;
+      playBeep(440, 80, 0.15);
+      document.getElementById('payLogStatus').textContent = 'Review & log ↓';
+      if (document.getElementById('payTranscriptBox').value.trim()) {
+        document.getElementById('btnPayLog').disabled = false;
+      }
+      if (activePayStudent) {
+        var btn = document.getElementById('pbtn-' + activePayStudent.idx);
+        if (btn) btn.classList.remove('recording');
+      }
+    };
+
+    payRecognition.onerror = function() { isPayRecording = false; };
+    payRecognition.start();
+  }
+
+  function stopPayRecording() {
+    if (payRecognition) payRecognition.stop();
+    isPayRecording = false;
+  }
+
+  function cancelPayLog() {
+    stopPayRecording();
+    document.getElementById('payLogPanel').classList.remove('active');
+    document.querySelectorAll('.pay-btn').forEach(function(b) { b.classList.remove('recording'); });
+    activePayStudent = null;
+  }
+
+  function submitPayLog() {
+    var url = getScriptUrl();
+    if (!url) return;
+    var note = document.getElementById('payTranscriptBox').value.trim();
+    if (!note) { addLog('paymentFeed', 'Nothing to log!', 'error'); return; }
+
+    var student = activePayStudent.student;
+    var btn = document.getElementById('btnPayLog');
+    btn.textContent = 'Logging...';
+    btn.disabled = true;
+
+    callScript(url, 'logPaymentNote', { studentName: student.name, note: note }, function(data) {
+      if (data.success) {
+        btn.textContent = '✓ Logged!';
+        btn.className = 'btn-log success';
+        var pbtn = document.getElementById('pbtn-' + activePayStudent.idx);
+        if (pbtn) pbtn.classList.add('logged');
+        addLog('paymentFeed', '✓ ' + student.name + ' — ' + note, 'success');
+        setTimeout(function() {
+          document.getElementById('payLogPanel').classList.remove('active');
+          activePayStudent = null;
+        }, 1200);
+      } else {
+        btn.textContent = 'Log Payment →';
+        btn.disabled = false;
+        addLog('paymentFeed', '❌ ' + (data.message || 'Error'), 'error');
+      }
+    });
+  }
+
+  function callScript(url, action, params, cb) {
+    var query = url + '?action=' + action;
+    for (var k in params) query += '&' + k + '=' + encodeURIComponent(params[k]);
+    fetch(query)
+      .then(function(r) { return r.json(); })
+      .then(cb)
+      .catch(function() { addLog('lessonFeed', '❌ Connection error.', 'error'); });
+  }
+
+  function getScriptUrl() {
+    var url = document.getElementById('scriptUrl').value.trim();
+    if (!url) { addLog('lessonFeed', 'Paste your Apps Script URL below first.', 'error'); return null; }
+    localStorage.setItem('scriptUrl', url);
+    return url;
+  }
+
+  function addLog(feedId, message, type) {
+    var feed = document.getElementById(feedId);
+    var entry = document.createElement('div');
+    entry.className = 'log-entry ' + (type || 'info');
+    entry.textContent = message;
+    feed.appendChild(entry);
+    feed.scrollTop = feed.scrollHeight;
+  }
+
   function playBeep(freq, duration, vol) {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
       osc.frequency.value = freq || 880;
       osc.type = 'sine';
       gain.gain.setValueAtTime(vol || 0.3, ctx.currentTime);
@@ -336,136 +810,12 @@
     } catch(e) {}
   }
 
-  var recognition;
-  var listening = false;
-
-  function toggleListening() {
-    if (listening) {
-      recognition.stop();
-      return;
-    }
-
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      addLog('Speech not supported. Use Chrome.', 'error');
-      return;
-    }
-
-    recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'en-US';
-    recognition.continuous = true;
-    recognition.interimResults = false;
-
-    recognition.onstart = function() {
-      listening = true;
-      playBeep(880, 120);
-      document.getElementById('micBtn').classList.add('listening');
-      document.getElementById('status').textContent = 'listening... say "zip" to stop';
-      document.getElementById('status').classList.add('active');
-    };
-
-    recognition.onresult = function(event) {
-      for (var i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) {
-          var text = event.results[i][0].transcript.trim();
-          document.getElementById('transcript').textContent = '"' + text + '"';
-
-          if (text.toLowerCase().trim() === 'zip') {
-            recognition.stop();
-            addLog('Done! ✓', 'info');
-            return;
-          }
-
-          processVoice(text);
-        }
-      }
-    };
-
-    recognition.onerror = function(event) {
-      addLog('Mic error: ' + event.error, 'error');
-      stopListening();
-    };
-
-    recognition.onend = function() {
-      stopListening();
-    };
-
-    recognition.start();
-  }
-
-  function stopListening() {
-    listening = false;
-    playBeep(440, 80, 0.15);
-    document.getElementById('micBtn').classList.remove('listening');
-    document.getElementById('status').textContent = 'tap to start';
-    document.getElementById('status').classList.remove('active');
-  }
-
-  function processVoice(text) {
-    var scriptUrl = document.getElementById('scriptUrl').value.trim();
-    if (!scriptUrl) {
-      addLog('Please paste your Apps Script URL below first.', 'error');
-      return;
-    }
-
-    var lower = text.toLowerCase();
-
-    // Extract student name
-    var studentMatch = lower.match(/student\s+(\w+)/);
-    if (!studentMatch) {
-      addLog('❌ Could not find student. Say "Student [name] Subject/Payment ..."', 'error');
-      return;
-    }
-    var studentName = capitalize(studentMatch[1]);
-
-    // Payment?
-    var paymentMatch = lower.match(/payment\s+(\d+)/);
-    if (paymentMatch) {
-      var amount = paymentMatch[1];
-      var blocks = parseInt(amount) > 400 ? 2 : 1;
-      callScript(scriptUrl, 'logPayment', { studentName: studentName, amount: amount, blocks: blocks });
-      return;
-    }
-
-    // Lesson?
-    var subjectMatch = text.match(/[Ss]ubject\s+(.+)/);
-    if (subjectMatch) {
-      var subject = subjectMatch[1].trim();
-      callScript(scriptUrl, 'logLesson', { studentName: studentName, subject: subject });
-      return;
-    }
-
-    addLog('❌ Say "Student [name] Subject [topic]" or "Student [name] Payment [amount]"', 'error');
-  }
-
-  function callScript(scriptUrl, action, params) {
-    var url = scriptUrl + '?action=' + action;
-    for (var key in params) {
-      url += '&' + key + '=' + encodeURIComponent(params[key]);
-    }
-
-    fetch(url)
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        addLog(data.message, data.success ? 'success' : 'error');
-        if (data.success) playBeep(1200, 150);
-      })
-      .catch(function(err) {
-        addLog('❌ Connection error. Check your Apps Script URL.', 'error');
-      });
-  }
-
-  function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  function addLog(message, type) {
-    var feed = document.getElementById('logFeed');
-    var entry = document.createElement('div');
-    entry.className = 'log-entry ' + (type || 'info');
-    entry.textContent = message;
-    feed.appendChild(entry);
-    feed.scrollTop = feed.scrollHeight;
-  }
+  document.getElementById('transcriptBox').addEventListener('input', function() {
+    document.getElementById('btnLog').disabled = !this.value.trim();
+  });
+  document.getElementById('payTranscriptBox').addEventListener('input', function() {
+    document.getElementById('btnPayLog').disabled = !this.value.trim();
+  });
 </script>
 </body>
 </html>
