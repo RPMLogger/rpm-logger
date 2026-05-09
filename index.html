@@ -457,11 +457,13 @@
     var grid = document.getElementById('paymentGrid');
     grid.innerHTML = '';
     students.forEach(function(s, i) {
+      // s may be a plain string or an object with .name
+      var name = typeof s === 'string' ? s : s.name;
       var btn = document.createElement('button');
       btn.className = 'pay-btn';
       btn.id = 'pbtn-' + i;
-      btn.onclick = function() { selectPayStudent(s, i); };
-      btn.textContent = s.name;
+      btn.onclick = function() { selectPayStudent(name, i); };
+      btn.textContent = name;
       grid.appendChild(btn);
     });
   }
@@ -584,14 +586,15 @@
     });
   }
 
-  function selectPayStudent(student, idx) {
+  // selectPayStudent now receives a plain name string
+  function selectPayStudent(name, idx) {
     if (activePayStudent && activePayStudent.idx === idx && isPayRecording) { stopPayRecording(); return; }
     if (isPayRecording) stopPayRecording();
-    activePayStudent = { student: student, idx: idx };
+    activePayStudent = { name: name, idx: idx };
     finalPayTranscript = '';
 
     document.getElementById('payLogPanel').classList.add('active');
-    document.getElementById('payLogName').textContent = student.name;
+    document.getElementById('payLogName').textContent = name;
     document.getElementById('payTranscriptBox').value = '';
     document.getElementById('btnPayLog').disabled = true;
     document.getElementById('btnPayLog').className = 'btn-log';
@@ -651,18 +654,18 @@
     if (!note) { addLog('paymentFeed', 'Nothing to log!', 'error'); return; }
     stopPayRecording();
 
-    var student = activePayStudent.student;
+    var name = activePayStudent.name;
     var btn = document.getElementById('btnPayLog');
     btn.textContent = 'Logging...';
     btn.disabled = true;
 
-    callScript(url, 'logPaymentNote', { studentName: student.name, note: note }, function(data) {
+    callScript(url, 'logPaymentNote', { studentName: name, note: note }, function(data) {
       if (data.success) {
         btn.textContent = '✓ Logged!';
         btn.className = 'btn-log success';
         var pbtn = document.getElementById('pbtn-' + activePayStudent.idx);
         if (pbtn) pbtn.classList.add('logged');
-        addLog('paymentFeed', '✓ ' + student.name + ' — ' + note, 'success');
+        addLog('paymentFeed', '✓ ' + name + ' — ' + note, 'success');
         setTimeout(function() { document.getElementById('payLogPanel').classList.remove('active'); activePayStudent = null; finalPayTranscript = ''; }, 1200);
       } else {
         btn.textContent = 'Log Payment →';
