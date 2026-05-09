@@ -447,8 +447,8 @@
         '<div class="mic-indicator"></div>' +
         '<div class="btn-name">' + s.name + '</div>' +
         (s.time ? '<div class="btn-time">' + s.time + '</div>' : '') +
-        '<div class="btn-type ' + (s.isTrial ? 'trial' : 'regular') + '">' +
-          (s.isTrial ? 'TRIAL' : 'LESSON') + '</div>';
+        '<div class="btn-type ' + (s.trial ? 'trial' : 'regular') + '">' +
+          (s.trial ? 'TRIAL' : 'LESSON') + '</div>';
       grid.appendChild(btn);
     });
   }
@@ -483,7 +483,7 @@
 
     var existing = document.getElementById('trialPaidToggle');
     if (existing) existing.remove();
-    if (student.isTrial) {
+    if (student.trial) {
       var toggle = document.createElement('label');
       toggle.className = 'trial-paid';
       toggle.id = 'trialPaidToggle';
@@ -569,7 +569,7 @@
     var paidEl = document.getElementById('trialPaidCheck');
     if (paidEl) trialPaid = paidEl.checked;
 
-    var action = student.isTrial ? 'logTrial' : 'logLesson';
+    var action = student.trial ? 'logTrial' : 'logLesson';
     callScript(url, action, { studentName: student.name, subject: subject, trialPaid: trialPaid ? '1' : '0' }, function(data) {
       if (data.success) {
         btn.textContent = '✓ Logged!';
