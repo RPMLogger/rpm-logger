@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RPM Logger</title>
+  <title>RPM Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -36,7 +36,7 @@
       content: '';
       position: fixed;
       inset: 0;
-      background-image: 
+      background-image:
         linear-gradient(rgba(232,70,58,0.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(232,70,58,0.03) 1px, transparent 1px);
       background-size: 40px 40px;
@@ -265,6 +265,141 @@
     .log-entry.error { background: rgba(232,70,58,0.08); border-left-color: var(--accent); color: var(--accent); }
     .log-entry.info { background: rgba(240,165,0,0.08); border-left-color: var(--accent2); color: var(--accent2); }
 
+    /* ── PAST LESSONS TAB ── */
+    .past-controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .past-student-select {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .past-student-select:focus { border-color: var(--accent); }
+    .past-student-select option { background: var(--surface2); }
+
+    .btn-load-past {
+      padding: 10px 16px;
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--accent);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-load-past:hover { background: rgba(232,70,58,0.1); }
+
+    .past-lessons-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .past-lesson-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      animation: slideIn 0.3s ease forwards;
+      opacity: 0;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .past-lesson-card:nth-child(1) { animation-delay: 0.05s; }
+    .past-lesson-card:nth-child(2) { animation-delay: 0.1s; }
+    .past-lesson-card:nth-child(3) { animation-delay: 0.15s; }
+    .past-lesson-card:nth-child(4) { animation-delay: 0.2s; }
+
+    .past-lesson-date {
+      min-width: 64px;
+      text-align: center;
+    }
+    .past-lesson-date .date-month {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent2);
+    }
+    .past-lesson-date .date-day {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .past-lesson-divider {
+      width: 1px;
+      background: var(--border);
+      align-self: stretch;
+      min-height: 40px;
+    }
+
+    .past-lesson-content {
+      flex: 1;
+    }
+    .past-lesson-subject {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+    }
+    .past-lesson-meta {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      margin-top: 6px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .past-lesson-paid {
+      color: var(--green);
+      font-size: 10px;
+    }
+
+    .past-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 2;
+    }
+
+    .past-student-name-header {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .past-student-name-header span { color: var(--accent); }
+
+    /* ── CONFIG ── */
     .config { margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px; }
     .config label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
     .config input {
@@ -306,15 +441,17 @@
 <body>
 <div class="container">
   <div class="header">
-    <h1>🎸 RPM<span>Logger</span></h1>
+    <h1>🎸 RPM<span>Portal</span></h1>
     <p>tap student · speak · tap to stop</p>
   </div>
 
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('lessons')">📚 Lessons</button>
     <button class="tab-btn" onclick="switchTab('payments')">💰 Payments</button>
+    <button class="tab-btn" onclick="switchTab('past')">🕒 Past</button>
   </div>
 
+  <!-- LESSONS TAB -->
   <div class="tab-panel active" id="tab-lessons">
     <div class="date-header" id="todayDate"></div>
     <div class="section-label">Today's Students</div>
@@ -335,6 +472,7 @@
     <div class="log-feed" id="lessonFeed"></div>
   </div>
 
+  <!-- PAYMENTS TAB -->
   <div class="tab-panel" id="tab-payments">
     <div class="section-label">All Students</div>
     <div class="payment-students" id="paymentGrid">
@@ -354,6 +492,20 @@
     <div class="log-feed" id="paymentFeed"></div>
   </div>
 
+  <!-- PAST LESSONS TAB -->
+  <div class="tab-panel" id="tab-past">
+    <div class="past-student-name-header" id="pastStudentHeader">— <span id="pastStudentHeaderName"></span></div>
+    <div class="past-controls">
+      <select class="past-student-select" id="pastStudentSelect">
+        <option value="">— Select a student —</option>
+      </select>
+      <button class="btn-load-past" onclick="loadPastLessons()">Load →</button>
+    </div>
+    <div class="past-lessons-container" id="pastLessonsContainer">
+      <div class="past-empty">Select a student to see their last 4 lessons</div>
+    </div>
+  </div>
+
   <div class="config">
     <label>Apps Script URL</label>
     <input type="text" id="scriptUrl" placeholder="Paste your Apps Script URL here..." />
@@ -362,7 +514,26 @@
 </div>
 
 <script>
+  // ── Non-student calendar events to filter out ──
+  var CALENDAR_EXCLUSIONS = [
+    "mother's day", "mothers day", "father's day", "fathers day",
+    "christmas", "thanksgiving", "new year", "easter", "halloween",
+    "memorial day", "labor day", "independence day", "mlk day",
+    "presidents day", "veterans day", "columbus day", "holiday",
+    "vacation", "day off", "closed", "break"
+  ];
+
+  function isRealStudent(name) {
+    if (!name || name.trim() === '') return false;
+    var lower = name.toLowerCase().trim();
+    for (var i = 0; i < CALENDAR_EXCLUSIONS.length; i++) {
+      if (lower.indexOf(CALENDAR_EXCLUSIONS[i]) !== -1) return false;
+    }
+    return true;
+  }
+
   var allStudents = [];
+  var allStudentNames = []; // for payments + past dropdown
   var activeStudent = null;
   var activePayStudent = null;
   var recognition = null;
@@ -384,7 +555,6 @@
   document.getElementById('todayDate').textContent =
     days[now.getDay()] + ' · ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
 
-  // Auto-load everything on startup
   window.onload = function() {
     var url = localStorage.getItem('scriptUrl');
     if (url) {
@@ -395,11 +565,12 @@
   };
 
   function switchTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach(function(b, i) {
-      b.classList.toggle('active', (i === 0 && tab === 'lessons') || (i === 1 && tab === 'payments'));
+    var tabs = ['lessons', 'payments', 'past'];
+    var btns = document.querySelectorAll('.tab-btn');
+    tabs.forEach(function(t, i) {
+      document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+      btns[i].classList.toggle('active', t === tab);
     });
-    document.getElementById('tab-lessons').classList.toggle('active', tab === 'lessons');
-    document.getElementById('tab-payments').classList.toggle('active', tab === 'payments');
   }
 
   function loadTodaysStudents() {
@@ -410,9 +581,16 @@
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (data.success && data.students && data.students.length > 0) {
-          allStudents = data.students;
+          // Filter out non-student events like Mother's Day
+          var filtered = data.students.filter(function(s) {
+            return isRealStudent(s.name);
+          });
+          allStudents = filtered;
           renderStudents();
-          addLog('lessonFeed', '✓ Loaded ' + data.students.length + ' students', 'success');
+          var skipped = data.students.length - filtered.length;
+          var msg = '✓ Loaded ' + filtered.length + ' student' + (filtered.length !== 1 ? 's' : '');
+          if (skipped > 0) msg += ' (' + skipped + ' non-student event' + (skipped !== 1 ? 's' : '') + ' hidden)';
+          addLog('lessonFeed', msg, 'success');
         } else {
           addLog('lessonFeed', data.message || 'No students found for today', 'error');
         }
@@ -429,15 +607,33 @@
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (data.success && data.students) {
+          allStudentNames = data.students;
           renderPaymentStudents(data.students);
+          populatePastDropdown(data.students);
         }
       })
       .catch(function() {});
   }
 
+  function populatePastDropdown(students) {
+    var sel = document.getElementById('pastStudentSelect');
+    sel.innerHTML = '<option value="">— Select a student —</option>';
+    students.forEach(function(s) {
+      var name = typeof s === 'string' ? s : s.name;
+      var opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      sel.appendChild(opt);
+    });
+  }
+
   function renderStudents() {
     var grid = document.getElementById('studentsGrid');
     grid.innerHTML = '';
+    if (allStudents.length === 0) {
+      grid.innerHTML = '<div class="empty-state">No students scheduled today</div>';
+      return;
+    }
     allStudents.forEach(function(s, i) {
       var btn = document.createElement('button');
       btn.className = 'student-btn';
@@ -457,7 +653,6 @@
     var grid = document.getElementById('paymentGrid');
     grid.innerHTML = '';
     students.forEach(function(s, i) {
-      // s may be a plain string or an object with .name
       var name = typeof s === 'string' ? s : s.name;
       var btn = document.createElement('button');
       btn.className = 'pay-btn';
@@ -468,6 +663,80 @@
     });
   }
 
+  // ── PAST LESSONS ──
+  function loadPastLessons() {
+    var sel = document.getElementById('pastStudentSelect');
+    var studentName = sel.value;
+    if (!studentName) {
+      document.getElementById('pastLessonsContainer').innerHTML =
+        '<div class="past-empty">Please select a student first</div>';
+      return;
+    }
+    var url = getScriptUrl();
+    if (!url) return;
+
+    document.getElementById('pastLessonsContainer').innerHTML =
+      '<div class="past-empty">Loading...</div>';
+
+    var header = document.getElementById('pastStudentHeader');
+    document.getElementById('pastStudentHeaderName').textContent = studentName;
+    header.style.display = 'block';
+
+    fetch(url + '?action=getPastLessons&studentName=' + encodeURIComponent(studentName) + '&count=4')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success && data.lessons && data.lessons.length > 0) {
+          renderPastLessons(data.lessons);
+        } else {
+          document.getElementById('pastLessonsContainer').innerHTML =
+            '<div class="past-empty">No lessons found for ' + studentName + '</div>';
+        }
+      })
+      .catch(function() {
+        document.getElementById('pastLessonsContainer').innerHTML =
+          '<div class="past-empty">❌ Could not load lessons. Check your Apps Script URL.</div>';
+      });
+  }
+
+  function renderPastLessons(lessons) {
+    var container = document.getElementById('pastLessonsContainer');
+    container.innerHTML = '';
+
+    lessons.forEach(function(lesson, i) {
+      // Parse date like "May / 7" → month + day
+      var dateParts = parseDate(lesson.date);
+
+      var card = document.createElement('div');
+      card.className = 'past-lesson-card';
+      card.innerHTML =
+        '<div class="past-lesson-date">' +
+          '<div class="date-month">' + dateParts.month + '</div>' +
+          '<div class="date-day">' + dateParts.day + '</div>' +
+        '</div>' +
+        '<div class="past-lesson-divider"></div>' +
+        '<div class="past-lesson-content">' +
+          '<div class="past-lesson-subject">' + (lesson.subject || '—') + '</div>' +
+          '<div class="past-lesson-meta">' +
+            'Lesson ' + (lessons.length - i) +
+            (lesson.paid ? '<span class="past-lesson-paid">✓ paid</span>' : '') +
+            (lesson.paymentNote ? '<span style="color:var(--muted)">' + lesson.paymentNote + '</span>' : '') +
+          '</div>' +
+        '</div>';
+      container.appendChild(card);
+    });
+  }
+
+  function parseDate(dateStr) {
+    if (!dateStr) return { month: '—', day: '—' };
+    // Format: "May / 7"
+    var parts = dateStr.split('/');
+    if (parts.length === 2) {
+      return { month: parts[0].trim(), day: parts[1].trim() };
+    }
+    return { month: dateStr, day: '' };
+  }
+
+  // ── LESSON RECORDING ──
   function selectStudent(student, idx) {
     if (activeStudent && activeStudent.idx === idx && isRecording) { stopRecording(); return; }
     if (isRecording) stopRecording();
@@ -521,7 +790,16 @@
         if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + ' ';
         else interim += event.results[i][0].transcript;
       }
-      document.getElementById('transcriptBox').value = (finalTranscript + interim).trim();
+      var raw = (finalTranscript + interim).trim();
+
+      // ── FIX: strip "zip" from end, fix "subjects?" plural ──
+      // Extract subject after "subject(s)" keyword
+      var subjectMatch = raw.match(/[Ss]ubjects?\s+(.+)/);
+      var display = subjectMatch
+        ? subjectMatch[1].trim().replace(/\s*zip\s*$/i, '')
+        : raw.replace(/\s*zip\s*$/i, '');
+
+      document.getElementById('transcriptBox').value = display;
       if (finalTranscript.trim()) document.getElementById('btnLog').disabled = false;
     };
 
@@ -530,7 +808,10 @@
       playBeep(440, 80, 0.15);
       document.getElementById('logPanelStatus').textContent = 'Review & log ↓';
       document.getElementById('logPanelStatus').classList.add('idle');
-      if (document.getElementById('transcriptBox').value.trim()) document.getElementById('btnLog').disabled = false;
+      // Clean up zip from final box value too
+      var box = document.getElementById('transcriptBox');
+      box.value = box.value.replace(/\s*zip\s*$/i, '').trim();
+      if (box.value) document.getElementById('btnLog').disabled = false;
       if (activeStudent) { var b = document.getElementById('sbtn-' + activeStudent.idx); if (b) b.classList.remove('recording'); }
     };
 
@@ -586,7 +867,7 @@
     });
   }
 
-  // selectPayStudent now receives a plain name string
+  // ── PAYMENT RECORDING ──
   function selectPayStudent(name, idx) {
     if (activePayStudent && activePayStudent.idx === idx && isPayRecording) { stopPayRecording(); return; }
     if (isPayRecording) stopPayRecording();
@@ -675,6 +956,7 @@
     });
   }
 
+  // ── UTILITIES ──
   function callScript(url, action, params, cb) {
     var query = url + '?action=' + action;
     for (var k in params) query += '&' + k + '=' + encodeURIComponent(params[k]);
@@ -717,6 +999,11 @@
   });
   document.getElementById('payTranscriptBox').addEventListener('input', function() {
     document.getElementById('btnPayLog').disabled = !this.value.trim();
+  });
+
+  // Allow pressing Enter on past dropdown to load
+  document.getElementById('pastStudentSelect').addEventListener('change', function() {
+    if (this.value) loadPastLessons();
   });
 </script>
 </body>
