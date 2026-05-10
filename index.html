@@ -1,1010 +1,246 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RPM Portal</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0f0f0f;
-      --surface: #1a1a1a;
-      --surface2: #222;
-      --accent: #e8463a;
-      --accent2: #f0a500;
-      --green: #2ecc71;
-      --blue: #4a9eff;
-      --text: #f0ede8;
-      --muted: #555;
-      --border: #2a2a2a;
-    }
+const SHEET_ID = '1GJB4BGETT4zeG1M7AKk48rhLaQw5ZqlImIDBC4ZepW4';
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+function doGet(e) {
+  var action = e.parameter.action;
+  
+  if (action === 'getTodayStudents') return ContentService.createTextOutput(JSON.stringify(getTodayStudents())).setMimeType(ContentService.MimeType.JSON);
+  if (action === 'getAllStudents') return ContentService.createTextOutput(JSON.stringify(getAllStudents())).setMimeType(ContentService.MimeType.JSON);
+  if (action === 'logLesson') return ContentService.createTextOutput(JSON.stringify(logLesson(e.parameter))).setMimeType(ContentService.MimeType.JSON);
+  if (action === 'logTrial') return ContentService.createTextOutput(JSON.stringify(logTrial(e.parameter))).setMimeType(ContentService.MimeType.JSON);
+  if (action === 'logPaymentNote') return ContentService.createTextOutput(JSON.stringify(logPaymentNote(e.parameter))).setMimeType(ContentService.MimeType.JSON);
+  if (action === 'getPastLessons') return ContentService.createTextOutput(JSON.stringify(getPastLessons(e.parameter))).setMimeType(ContentService.MimeType.JSON);
+  
+  return ContentService.createTextOutput(JSON.stringify({ error: 'Unknown action' })).setMimeType(ContentService.MimeType.JSON);
+}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px 16px;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(232,70,58,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(232,70,58,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 560px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 28px;
-    }
-    .header h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: 32px;
-      font-weight: 800;
-      letter-spacing: -1px;
-    }
-    .header h1 span { color: var(--accent); }
-    .header p {
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-top: 4px;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 2px;
-      margin-bottom: 24px;
-      background: var(--surface);
-      border-radius: 6px;
-      padding: 3px;
-    }
-    .tab-btn {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 4px;
-      background: transparent;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tab-btn.active { background: var(--accent); color: white; }
-
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    .date-header {
-      font-size: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 16px;
-      text-align: center;
-    }
-
-    .students-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 10px;
-      margin-bottom: 24px;
-    }
-
-    .student-btn {
-      position: relative;
-      padding: 16px 12px;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      background: var(--surface);
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-align: left;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .student-btn:hover { border-color: var(--accent); background: rgba(232,70,58,0.05); }
-    .student-btn.recording { border-color: var(--accent); background: rgba(232,70,58,0.1); box-shadow: 0 0 20px rgba(232,70,58,0.2); }
-    .student-btn.logged { border-color: var(--green); background: rgba(46,204,113,0.08); }
-    .student-btn .btn-name { font-size: 14px; font-weight: 700; font-family: 'Syne', sans-serif; }
-    .student-btn .btn-time { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
-    .student-btn .btn-type { font-size: 9px; letter-spacing: 1px; padding: 2px 6px; border-radius: 2px; width: fit-content; }
-    .btn-type.trial { background: rgba(74,158,255,0.15); color: var(--blue); }
-    .btn-type.regular { background: rgba(240,165,0,0.12); color: var(--accent2); }
-    .student-btn .mic-indicator { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transition: all 0.2s; }
-    .student-btn.recording .mic-indicator { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 1s infinite; }
-    .student-btn.logged .mic-indicator { background: var(--green); }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    .log-panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 16px;
-      display: none;
-    }
-    .log-panel.active { display: block; }
-
-    .log-panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-    .log-panel-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; }
-    .log-panel-status { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
-    .log-panel-status.idle { color: var(--muted); }
-
-    .transcript-box {
-      width: 100%;
-      min-height: 60px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 12px;
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
-      font-size: 14px;
-      resize: none;
-      outline: none;
-      margin-bottom: 12px;
-      line-height: 1.5;
-    }
-    .transcript-box:focus { border-color: var(--accent); }
-    .transcript-box::placeholder { color: var(--muted); font-style: italic; }
-
-    .log-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-
-    .trial-paid {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 11px;
-      letter-spacing: 1px;
-      color: var(--muted);
-      transition: all 0.2s;
-      user-select: none;
-    }
-    .trial-paid.checked { border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.08); }
-    .trial-paid input { display: none; }
-
-    .btn-log {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 4px;
-      background: var(--accent);
-      color: white;
-      font-family: 'DM Mono', monospace;
-      font-size: 12px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-log:hover { background: #d63d32; }
-    .btn-log.success { background: var(--green); pointer-events: none; }
-    .btn-log:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
-
-    .btn-cancel {
-      padding: 12px 16px;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      background: transparent;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-cancel:hover { border-color: var(--muted); color: var(--text); }
-
-    .payment-students {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
-    .pay-btn {
-      padding: 12px 10px;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      background: var(--surface);
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-align: left;
-    }
-    .pay-btn:hover { border-color: var(--green); background: rgba(46,204,113,0.05); }
-    .pay-btn.recording { border-color: var(--green); background: rgba(46,204,113,0.1); }
-    .pay-btn.logged { border-color: var(--green); opacity: 0.6; }
-
-    .log-feed { display: flex; flex-direction: column; gap: 6px; margin-top: 16px; }
-    .log-entry { padding: 10px 14px; border-radius: 4px; font-size: 12px; line-height: 1.4; border-left: 3px solid transparent; }
-    .log-entry.success { background: rgba(46,204,113,0.08); border-left-color: var(--green); color: var(--green); }
-    .log-entry.error { background: rgba(232,70,58,0.08); border-left-color: var(--accent); color: var(--accent); }
-    .log-entry.info { background: rgba(240,165,0,0.08); border-left-color: var(--accent2); color: var(--accent2); }
-
-    /* ── PAST LESSONS TAB ── */
-    .past-controls {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .past-student-select {
-      flex: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 10px 14px;
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
-      font-size: 12px;
-      outline: none;
-      cursor: pointer;
-      transition: border-color 0.2s;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-    .past-student-select:focus { border-color: var(--accent); }
-    .past-student-select option { background: var(--surface2); }
-
-    .btn-load-past {
-      padding: 10px 16px;
-      border: 1px solid var(--accent);
-      border-radius: 4px;
-      background: transparent;
-      color: var(--accent);
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .btn-load-past:hover { background: rgba(232,70,58,0.1); }
-
-    .past-lessons-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .past-lesson-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      animation: slideIn 0.3s ease forwards;
-      opacity: 0;
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .past-lesson-card:nth-child(1) { animation-delay: 0.05s; }
-    .past-lesson-card:nth-child(2) { animation-delay: 0.1s; }
-    .past-lesson-card:nth-child(3) { animation-delay: 0.15s; }
-    .past-lesson-card:nth-child(4) { animation-delay: 0.2s; }
-
-    .past-lesson-date {
-      min-width: 64px;
-      text-align: center;
-    }
-    .past-lesson-date .date-month {
-      font-size: 9px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--accent2);
-    }
-    .past-lesson-date .date-day {
-      font-family: 'Syne', sans-serif;
-      font-size: 28px;
-      font-weight: 800;
-      line-height: 1;
-      color: var(--text);
-    }
-
-    .past-lesson-divider {
-      width: 1px;
-      background: var(--border);
-      align-self: stretch;
-      min-height: 40px;
-    }
-
-    .past-lesson-content {
-      flex: 1;
-    }
-    .past-lesson-subject {
-      font-size: 14px;
-      line-height: 1.5;
-      color: var(--text);
-    }
-    .past-lesson-meta {
-      font-size: 10px;
-      color: var(--muted);
-      letter-spacing: 1px;
-      margin-top: 6px;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-    .past-lesson-paid {
-      color: var(--green);
-      font-size: 10px;
-    }
-
-    .past-empty {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 2;
-    }
-
-    .past-student-name-header {
-      font-family: 'Syne', sans-serif;
-      font-size: 20px;
-      font-weight: 800;
-      margin-bottom: 16px;
-      display: none;
-    }
-    .past-student-name-header span { color: var(--accent); }
-
-    /* ── CONFIG ── */
-    .config { margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px; }
-    .config label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
-    .config input {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 10px 14px;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      outline: none;
-      transition: border-color 0.2s;
-      margin-bottom: 10px;
-    }
-    .config input:focus { border-color: var(--accent); color: var(--text); }
-
-    .btn-load-students {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      background: transparent;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-top: 4px;
-    }
-    .btn-load-students:hover { border-color: var(--accent2); color: var(--accent2); }
-
-    .section-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-    .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 12px; line-height: 2; }
-  </style>
-</head>
-<body>
-<div class="container">
-  <div class="header">
-    <h1>🎸 RPM<span>Portal</span></h1>
-    <p>tap student · speak · tap to stop</p>
-  </div>
-
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('lessons')">📚 Lessons</button>
-    <button class="tab-btn" onclick="switchTab('payments')">💰 Payments</button>
-    <button class="tab-btn" onclick="switchTab('past')">🕒 Past</button>
-  </div>
-
-  <!-- LESSONS TAB -->
-  <div class="tab-panel active" id="tab-lessons">
-    <div class="date-header" id="todayDate"></div>
-    <div class="section-label">Today's Students</div>
-    <div class="students-grid" id="studentsGrid">
-      <div class="empty-state">Paste your Apps Script URL below<br>then tap "Load Today's Students"</div>
-    </div>
-    <div class="log-panel" id="logPanel">
-      <div class="log-panel-header">
-        <div class="log-panel-name" id="logPanelName">—</div>
-        <div class="log-panel-status" id="logPanelStatus">tap student to record</div>
-      </div>
-      <textarea class="transcript-box" id="transcriptBox" placeholder="Transcription will appear here... or type directly"></textarea>
-      <div class="log-actions" id="logActions">
-        <button class="btn-cancel" onclick="cancelLog()">Cancel</button>
-        <button class="btn-log" id="btnLog" onclick="submitLog()" disabled>Log It →</button>
-      </div>
-    </div>
-    <div class="log-feed" id="lessonFeed"></div>
-  </div>
-
-  <!-- PAYMENTS TAB -->
-  <div class="tab-panel" id="tab-payments">
-    <div class="section-label">All Students</div>
-    <div class="payment-students" id="paymentGrid">
-      <div class="empty-state">Loading all students...</div>
-    </div>
-    <div class="log-panel" id="payLogPanel">
-      <div class="log-panel-header">
-        <div class="log-panel-name" id="payLogName">—</div>
-        <div class="log-panel-status" id="payLogStatus">tap student to record</div>
-      </div>
-      <textarea class="transcript-box" id="payTranscriptBox" placeholder="Say the payment note... e.g. 'paid 380 May 8'"></textarea>
-      <div class="log-actions">
-        <button class="btn-cancel" onclick="cancelPayLog()">Cancel</button>
-        <button class="btn-log" id="btnPayLog" onclick="submitPayLog()" disabled>Log Payment →</button>
-      </div>
-    </div>
-    <div class="log-feed" id="paymentFeed"></div>
-  </div>
-
-  <!-- PAST LESSONS TAB -->
-  <div class="tab-panel" id="tab-past">
-    <div class="past-student-name-header" id="pastStudentHeader">— <span id="pastStudentHeaderName"></span></div>
-    <div class="past-controls">
-      <select class="past-student-select" id="pastStudentSelect">
-        <option value="">— Select a student —</option>
-      </select>
-      <button class="btn-load-past" onclick="loadPastLessons()">Load →</button>
-    </div>
-    <div class="past-lessons-container" id="pastLessonsContainer">
-      <div class="past-empty">Select a student to see their last 4 lessons</div>
-    </div>
-  </div>
-
-  <div class="config">
-    <label>Apps Script URL</label>
-    <input type="text" id="scriptUrl" placeholder="Paste your Apps Script URL here..." />
-    <button class="btn-load-students" onclick="loadTodaysStudents()">⟳ Load Today's Students from Calendar</button>
-  </div>
-</div>
-
-<script>
-  // ── Non-student calendar events to filter out ──
-  var CALENDAR_EXCLUSIONS = [
-    "mother's day", "mothers day", "father's day", "fathers day",
-    "christmas", "thanksgiving", "new year", "easter", "halloween",
-    "memorial day", "labor day", "independence day", "mlk day",
-    "presidents day", "veterans day", "columbus day", "holiday",
-    "vacation", "day off", "closed", "break"
-  ];
-
-  function isRealStudent(name) {
-    if (!name || name.trim() === '') return false;
-    var lower = name.toLowerCase().trim();
-    for (var i = 0; i < CALENDAR_EXCLUSIONS.length; i++) {
-      if (lower.indexOf(CALENDAR_EXCLUSIONS[i]) !== -1) return false;
-    }
-    return true;
-  }
-
-  var allStudents = [];
-  var allStudentNames = []; // for payments + past dropdown
-  var activeStudent = null;
-  var activePayStudent = null;
-  var recognition = null;
-  var payRecognition = null;
-  var isRecording = false;
-  var isPayRecording = false;
-  var finalTranscript = '';
-  var finalPayTranscript = '';
-
-  var saved = localStorage.getItem('scriptUrl');
-  if (saved) document.getElementById('scriptUrl').value = saved;
-  document.getElementById('scriptUrl').addEventListener('change', function() {
-    localStorage.setItem('scriptUrl', this.value);
-  });
-
-  var now = new Date();
-  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  document.getElementById('todayDate').textContent =
-    days[now.getDay()] + ' · ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
-
-  window.onload = function() {
-    var url = localStorage.getItem('scriptUrl');
-    if (url) {
-      document.getElementById('scriptUrl').value = url;
-      loadTodaysStudents();
-      loadAllStudents();
-    }
-  };
-
-  function switchTab(tab) {
-    var tabs = ['lessons', 'payments', 'past'];
-    var btns = document.querySelectorAll('.tab-btn');
-    tabs.forEach(function(t, i) {
-      document.getElementById('tab-' + t).classList.toggle('active', t === tab);
-      btns[i].classList.toggle('active', t === tab);
-    });
-  }
-
-  function loadTodaysStudents() {
-    var url = getScriptUrl();
-    if (!url) return;
-    addLog('lessonFeed', 'Loading today\'s students...', 'info');
-    fetch(url + '?action=getTodayStudents')
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.success && data.students && data.students.length > 0) {
-          // Filter out non-student events like Mother's Day
-          var filtered = data.students.filter(function(s) {
-            return isRealStudent(s.name);
-          });
-          allStudents = filtered;
-          renderStudents();
-          var skipped = data.students.length - filtered.length;
-          var msg = '✓ Loaded ' + filtered.length + ' student' + (filtered.length !== 1 ? 's' : '');
-          if (skipped > 0) msg += ' (' + skipped + ' non-student event' + (skipped !== 1 ? 's' : '') + ' hidden)';
-          addLog('lessonFeed', msg, 'success');
-        } else {
-          addLog('lessonFeed', data.message || 'No students found for today', 'error');
-        }
-      })
-      .catch(function() {
-        addLog('lessonFeed', '❌ Could not connect. Check your Apps Script URL.', 'error');
+function getTodayStudents() {
+  try {
+    var today = new Date();
+    var startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+    var endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+    
+    var calendars = CalendarApp.getAllCalendars();
+    var students = [];
+    
+    calendars.forEach(function(cal) {
+      var events = cal.getEvents(startOfDay, endOfDay);
+      var calName = cal.getName();
+      var isTrial = calName === 'RPM - Trial';
+      events.forEach(function(event) {
+        var title = event.getTitle();
+        students.push({ name: title, trial: isTrial });
       });
-  }
-
-  function loadAllStudents() {
-    var url = getScriptUrl();
-    if (!url) return;
-    fetch(url + '?action=getAllStudents')
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.success && data.students) {
-          allStudentNames = data.students;
-          renderPaymentStudents(data.students);
-          populatePastDropdown(data.students);
-        }
-      })
-      .catch(function() {});
-  }
-
-  function populatePastDropdown(students) {
-    var sel = document.getElementById('pastStudentSelect');
-    sel.innerHTML = '<option value="">— Select a student —</option>';
-    students.forEach(function(s) {
-      var name = typeof s === 'string' ? s : s.name;
-      var opt = document.createElement('option');
-      opt.value = name;
-      opt.textContent = name;
-      sel.appendChild(opt);
     });
+    
+    return { success: true, students: students };
+  } catch (err) {
+    return { success: false, message: err.toString() };
   }
+}
 
-  function renderStudents() {
-    var grid = document.getElementById('studentsGrid');
-    grid.innerHTML = '';
-    if (allStudents.length === 0) {
-      grid.innerHTML = '<div class="empty-state">No students scheduled today</div>';
-      return;
-    }
-    allStudents.forEach(function(s, i) {
-      var btn = document.createElement('button');
-      btn.className = 'student-btn';
-      btn.id = 'sbtn-' + i;
-      btn.onclick = function() { selectStudent(s, i); };
-      btn.innerHTML =
-        '<div class="mic-indicator"></div>' +
-        '<div class="btn-name">' + s.name + '</div>' +
-        (s.time ? '<div class="btn-time">' + s.time + '</div>' : '') +
-        '<div class="btn-type ' + (s.trial ? 'trial' : 'regular') + '">' +
-          (s.trial ? 'TRIAL' : 'LESSON') + '</div>';
-      grid.appendChild(btn);
-    });
-  }
-
-  function renderPaymentStudents(students) {
-    var grid = document.getElementById('paymentGrid');
-    grid.innerHTML = '';
-    students.forEach(function(s, i) {
-      var name = typeof s === 'string' ? s : s.name;
-      var btn = document.createElement('button');
-      btn.className = 'pay-btn';
-      btn.id = 'pbtn-' + i;
-      btn.onclick = function() { selectPayStudent(name, i); };
-      btn.textContent = name;
-      grid.appendChild(btn);
-    });
-  }
-
-  // ── PAST LESSONS ──
-  function loadPastLessons() {
-    var sel = document.getElementById('pastStudentSelect');
-    var studentName = sel.value;
-    if (!studentName) {
-      document.getElementById('pastLessonsContainer').innerHTML =
-        '<div class="past-empty">Please select a student first</div>';
-      return;
-    }
-    var url = getScriptUrl();
-    if (!url) return;
-
-    document.getElementById('pastLessonsContainer').innerHTML =
-      '<div class="past-empty">Loading...</div>';
-
-    var header = document.getElementById('pastStudentHeader');
-    document.getElementById('pastStudentHeaderName').textContent = studentName;
-    header.style.display = 'block';
-
-    fetch(url + '?action=getPastLessons&studentName=' + encodeURIComponent(studentName) + '&count=4')
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.success && data.lessons && data.lessons.length > 0) {
-          renderPastLessons(data.lessons);
-        } else {
-          document.getElementById('pastLessonsContainer').innerHTML =
-            '<div class="past-empty">No lessons found for ' + studentName + '</div>';
-        }
-      })
-      .catch(function() {
-        document.getElementById('pastLessonsContainer').innerHTML =
-          '<div class="past-empty">❌ Could not load lessons. Check your Apps Script URL.</div>';
-      });
-  }
-
-  function renderPastLessons(lessons) {
-    var container = document.getElementById('pastLessonsContainer');
-    container.innerHTML = '';
-
-    lessons.forEach(function(lesson, i) {
-      // Parse date like "May / 7" → month + day
-      var dateParts = parseDate(lesson.date);
-
-      var card = document.createElement('div');
-      card.className = 'past-lesson-card';
-      card.innerHTML =
-        '<div class="past-lesson-date">' +
-          '<div class="date-month">' + dateParts.month + '</div>' +
-          '<div class="date-day">' + dateParts.day + '</div>' +
-        '</div>' +
-        '<div class="past-lesson-divider"></div>' +
-        '<div class="past-lesson-content">' +
-          '<div class="past-lesson-subject">' + (lesson.subject || '—') + '</div>' +
-          '<div class="past-lesson-meta">' +
-            'Lesson ' + (lessons.length - i) +
-            (lesson.paid ? '<span class="past-lesson-paid">✓ paid</span>' : '') +
-            (lesson.paymentNote ? '<span style="color:var(--muted)">' + lesson.paymentNote + '</span>' : '') +
-          '</div>' +
-        '</div>';
-      container.appendChild(card);
-    });
-  }
-
-  function parseDate(dateStr) {
-    if (!dateStr) return { month: '—', day: '—' };
-    // Format: "May / 7"
-    var parts = dateStr.split('/');
-    if (parts.length === 2) {
-      return { month: parts[0].trim(), day: parts[1].trim() };
-    }
-    return { month: dateStr, day: '' };
-  }
-
-  // ── LESSON RECORDING ──
-  function selectStudent(student, idx) {
-    if (activeStudent && activeStudent.idx === idx && isRecording) { stopRecording(); return; }
-    if (isRecording) stopRecording();
-    activeStudent = { student: student, idx: idx };
-    finalTranscript = '';
-
-    document.getElementById('logPanel').classList.add('active');
-    document.getElementById('logPanelName').textContent = student.name;
-    document.getElementById('transcriptBox').value = '';
-    document.getElementById('btnLog').disabled = true;
-    document.getElementById('btnLog').className = 'btn-log';
-    document.getElementById('btnLog').textContent = 'Log It →';
-
-    var existing = document.getElementById('trialPaidToggle');
-    if (existing) existing.remove();
-    if (student.trial) {
-      var toggle = document.createElement('label');
-      toggle.className = 'trial-paid';
-      toggle.id = 'trialPaidToggle';
-      toggle.innerHTML = '<input type="checkbox" id="trialPaidCheck"> ✓ Trial Paid';
-      toggle.onclick = function() {
-        setTimeout(function() {
-          toggle.classList.toggle('checked', document.getElementById('trialPaidCheck').checked);
-        }, 0);
-      };
-      document.getElementById('logActions').insertBefore(toggle, document.getElementById('btnLog'));
-    }
-
-    document.querySelectorAll('.student-btn').forEach(function(b) { b.classList.remove('recording'); });
-    document.getElementById('sbtn-' + idx).classList.add('recording');
-    document.getElementById('logPanelStatus').textContent = '🔴 recording...';
-    document.getElementById('logPanelStatus').classList.remove('idle');
-    startRecording();
-  }
-
-  function startRecording() {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      addLog('lessonFeed', 'Speech not supported. Use Chrome.', 'error');
-      return;
-    }
-    recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'en-US';
-    recognition.continuous = true;
-    recognition.interimResults = true;
-
-    recognition.onstart = function() { isRecording = true; playBeep(880, 100); };
-
-    recognition.onresult = function(event) {
-      var interim = '';
-      for (var i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + ' ';
-        else interim += event.results[i][0].transcript;
-      }
-      var raw = (finalTranscript + interim).trim();
-
-      // ── FIX: strip "zip" from end, fix "subjects?" plural ──
-      // Extract subject after "subject(s)" keyword
-      var subjectMatch = raw.match(/[Ss]ubjects?\s+(.+)/);
-      var display = subjectMatch
-        ? subjectMatch[1].trim().replace(/\s*zip\s*$/i, '')
-        : raw.replace(/\s*zip\s*$/i, '');
-
-      document.getElementById('transcriptBox').value = display;
-      if (finalTranscript.trim()) document.getElementById('btnLog').disabled = false;
-    };
-
-    recognition.onend = function() {
-      if (isRecording) { try { recognition.start(); } catch(e) {} return; }
-      playBeep(440, 80, 0.15);
-      document.getElementById('logPanelStatus').textContent = 'Review & log ↓';
-      document.getElementById('logPanelStatus').classList.add('idle');
-      // Clean up zip from final box value too
-      var box = document.getElementById('transcriptBox');
-      box.value = box.value.replace(/\s*zip\s*$/i, '').trim();
-      if (box.value) document.getElementById('btnLog').disabled = false;
-      if (activeStudent) { var b = document.getElementById('sbtn-' + activeStudent.idx); if (b) b.classList.remove('recording'); }
-    };
-
-    recognition.onerror = function(e) {
-      if (e.error === 'no-speech') return;
-      isRecording = false;
-      addLog('lessonFeed', 'Mic error: ' + e.error, 'error');
-    };
-
-    recognition.start();
-  }
-
-  function stopRecording() { isRecording = false; if (recognition) recognition.stop(); }
-
-  function cancelLog() {
-    stopRecording();
-    document.getElementById('logPanel').classList.remove('active');
-    document.querySelectorAll('.student-btn').forEach(function(b) { b.classList.remove('recording'); });
-    activeStudent = null;
-    finalTranscript = '';
-  }
-
-  function submitLog() {
-    var url = getScriptUrl();
-    if (!url) return;
-    var subject = document.getElementById('transcriptBox').value.trim();
-    if (!subject) { addLog('lessonFeed', 'Nothing to log!', 'error'); return; }
-    stopRecording();
-
-    var student = activeStudent.student;
-    var btn = document.getElementById('btnLog');
-    btn.textContent = 'Logging...';
-    btn.disabled = true;
-
-    var trialPaid = false;
-    var paidEl = document.getElementById('trialPaidCheck');
-    if (paidEl) trialPaid = paidEl.checked;
-
-    var action = student.trial ? 'logTrial' : 'logLesson';
-    callScript(url, action, { studentName: student.name, subject: subject, trialPaid: trialPaid ? '1' : '0' }, function(data) {
-      if (data.success) {
-        btn.textContent = '✓ Logged!';
-        btn.className = 'btn-log success';
-        var sbtn = document.getElementById('sbtn-' + activeStudent.idx);
-        if (sbtn) sbtn.classList.add('logged');
-        addLog('lessonFeed', '✓ ' + student.name + ' — ' + subject, 'success');
-        setTimeout(function() { document.getElementById('logPanel').classList.remove('active'); activeStudent = null; finalTranscript = ''; }, 1200);
-      } else {
-        btn.textContent = 'Log It →';
-        btn.disabled = false;
-        addLog('lessonFeed', '❌ ' + (data.message || 'Error logging'), 'error');
+function getAllStudents() {
+  try {
+    var ss = SpreadsheetApp.openById(SHEET_ID);
+    var sheets = ss.getSheets();
+    var excluded = ['BLANK', 'LOAD', 'APPLICANTS', 'ZAM', 'FINANCIAL', 'CON', 'CONCERT', 'EXPENSES', 'REVIEW'];
+    var students = [];
+    
+    sheets.forEach(function(sheet) {
+      var name = sheet.getName();
+      if (excluded.indexOf(name) === -1 && name.indexOf('---') === -1) {
+        students.push(name);
       }
     });
+    
+    return { success: true, students: students };
+  } catch (err) {
+    return { success: false, message: err.toString() };
   }
+}
 
-  // ── PAYMENT RECORDING ──
-  function selectPayStudent(name, idx) {
-    if (activePayStudent && activePayStudent.idx === idx && isPayRecording) { stopPayRecording(); return; }
-    if (isPayRecording) stopPayRecording();
-    activePayStudent = { name: name, idx: idx };
-    finalPayTranscript = '';
-
-    document.getElementById('payLogPanel').classList.add('active');
-    document.getElementById('payLogName').textContent = name;
-    document.getElementById('payTranscriptBox').value = '';
-    document.getElementById('btnPayLog').disabled = true;
-    document.getElementById('btnPayLog').className = 'btn-log';
-    document.getElementById('btnPayLog').textContent = 'Log Payment →';
-
-    document.querySelectorAll('.pay-btn').forEach(function(b) { b.classList.remove('recording'); });
-    document.getElementById('pbtn-' + idx).classList.add('recording');
-    document.getElementById('payLogStatus').textContent = '🔴 recording...';
-    startPayRecording();
+function logLesson(params) {
+  try {
+    var studentName = params.studentName;
+    var subject = params.subject;
+    var firstName = studentName.split(' ')[0];
+    
+    var ss = SpreadsheetApp.openById(SHEET_ID);
+    var sheet = findSheet(ss, firstName);
+    if (!sheet) return { success: false, message: 'No sheet found for ' + studentName };
+    
+    var targetRow = findNextLessonRow(sheet);
+    
+    var today = new Date();
+    var monthName = today.toLocaleString('en-US', { month: 'short' });
+    var day = today.getDate();
+    var dateStr = monthName + ' / ' + day;
+    
+    sheet.getRange('B' + targetRow + ':H' + targetRow).merge().setValue(subject).setHorizontalAlignment('right');
+    sheet.getRange('I' + targetRow).setValue(dateStr);
+    
+    return { success: true, message: 'Lesson logged for ' + studentName };
+  } catch (err) {
+    return { success: false, message: err.toString() };
   }
+}
 
-  function startPayRecording() {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
-    payRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    payRecognition.lang = 'en-US';
-    payRecognition.continuous = true;
-    payRecognition.interimResults = true;
+function logTrial(params) {
+  try {
+    var studentName = params.studentName;
+    var subject = params.subject;
+    var paid = params.trialPaid === '1';
+    var firstName = studentName.split(' ')[0].toUpperCase();
+    
+    var ss = SpreadsheetApp.openById(SHEET_ID);
+    var sheet = findSheet(ss, firstName);
+    
+    if (!sheet) {
+      var blankSheet = ss.getSheetByName('---BLANK---');
+      if (!blankSheet) return { success: false, message: 'No BLANK template found' };
+      blankSheet.copyTo(ss).setName(firstName);
+      sheet = ss.getSheetByName(firstName);
+      sheet.getRange('D2:J2').merge().setValue(studentName);
+      sortSheetsAlphabetically();
+    }
+    
+    var today = new Date();
+    var monthName = today.toLocaleString('en-US', { month: 'short' });
+    var day = today.getDate();
+    var dateStr = monthName + ' / ' + day;
+    
+    sheet.getRange('D9:H9').merge().setValue(subject);
+    var i9 = sheet.getRange('I9');
+    i9.setNumberFormat('@STRING@');
+    i9.setValue(dateStr);
+    if (paid) sheet.getRange('J9').setValue(true);
+    
+    return { success: true, message: 'Trial logged for ' + studentName };
+  } catch (err) {
+    return { success: false, message: err.toString() };
+  }
+}
 
-    payRecognition.onstart = function() { isPayRecording = true; playBeep(880, 100); };
+function logPaymentNote(params) {
+  try {
+    var studentName = params.studentName;
+    var note = params.note;
+    var firstName = studentName.split(' ')[0];
 
-    payRecognition.onresult = function(event) {
-      var interim = '';
-      for (var i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) finalPayTranscript += event.results[i][0].transcript + ' ';
-        else interim += event.results[i][0].transcript;
+    var ss = SpreadsheetApp.openById(SHEET_ID);
+    var sheet = findSheet(ss, firstName);
+    if (!sheet) return { success: false, message: 'No sheet found for ' + studentName };
+
+    // Scan J12:J300 for first unchecked checkbox (false, not empty)
+    var data = sheet.getRange('J12:J300').getValues();
+    var targetRow = -1;
+    for (var i = 0; i < data.length; i++) {
+      if (data[i][0] === false) {
+        targetRow = 12 + i;
+        break;
       }
-      document.getElementById('payTranscriptBox').value = (finalPayTranscript + interim).trim();
-      if (finalPayTranscript.trim()) document.getElementById('btnPayLog').disabled = false;
-    };
+    }
 
-    payRecognition.onend = function() {
-      if (isPayRecording) { try { payRecognition.start(); } catch(e) {} return; }
-      playBeep(440, 80, 0.15);
-      document.getElementById('payLogStatus').textContent = 'Review & log ↓';
-      if (document.getElementById('payTranscriptBox').value.trim()) document.getElementById('btnPayLog').disabled = false;
-      if (activePayStudent) { var b = document.getElementById('pbtn-' + activePayStudent.idx); if (b) b.classList.remove('recording'); }
-    };
+    if (targetRow === -1) return { success: false, message: 'No unchecked payment row found for ' + studentName };
 
-    payRecognition.onerror = function(e) { if (e.error === 'no-speech') return; isPayRecording = false; };
-    payRecognition.start();
-  }
+    // Check the checkbox
+    sheet.getRange('J' + targetRow).setValue(true);
 
-  function stopPayRecording() { isPayRecording = false; if (payRecognition) payRecognition.stop(); }
-
-  function cancelPayLog() {
-    stopPayRecording();
-    document.getElementById('payLogPanel').classList.remove('active');
-    document.querySelectorAll('.pay-btn').forEach(function(b) { b.classList.remove('recording'); });
-    activePayStudent = null;
-    finalPayTranscript = '';
-  }
-
-  function submitPayLog() {
-    var url = getScriptUrl();
-    if (!url) return;
-    var note = document.getElementById('payTranscriptBox').value.trim();
-    if (!note) { addLog('paymentFeed', 'Nothing to log!', 'error'); return; }
-    stopPayRecording();
-
-    var name = activePayStudent.name;
-    var btn = document.getElementById('btnPayLog');
-    btn.textContent = 'Logging...';
-    btn.disabled = true;
-
-    callScript(url, 'logPaymentNote', { studentName: name, note: note }, function(data) {
-      if (data.success) {
-        btn.textContent = '✓ Logged!';
-        btn.className = 'btn-log success';
-        var pbtn = document.getElementById('pbtn-' + activePayStudent.idx);
-        if (pbtn) pbtn.classList.add('logged');
-        addLog('paymentFeed', '✓ ' + name + ' — ' + note, 'success');
-        setTimeout(function() { document.getElementById('payLogPanel').classList.remove('active'); activePayStudent = null; finalPayTranscript = ''; }, 1200);
-      } else {
-        btn.textContent = 'Log Payment →';
-        btn.disabled = false;
-        addLog('paymentFeed', '❌ ' + (data.message || 'Error'), 'error');
+    // Find the actual top of the K merged cell using getMergedRanges
+    if (note && note.trim() !== '') {
+      var kCell = sheet.getRange('K' + targetRow);
+      var kMerges = kCell.getMergedRanges();
+      var kTopRow = targetRow;
+      if (kMerges.length > 0) {
+        kTopRow = kMerges[0].getRow();
       }
-    });
-  }
+      sheet.getRange('K' + kTopRow).setValue(note);
+    }
 
-  // ── UTILITIES ──
-  function callScript(url, action, params, cb) {
-    var query = url + '?action=' + action;
-    for (var k in params) query += '&' + k + '=' + encodeURIComponent(params[k]);
-    fetch(query).then(function(r) { return r.json(); }).then(cb)
-      .catch(function() { addLog('lessonFeed', '❌ Connection error.', 'error'); });
+    return { success: true, message: 'Payment logged for ' + studentName + ' row ' + targetRow };
+  } catch (err) {
+    return { success: false, message: err.toString() };
   }
+}
 
-  function getScriptUrl() {
-    var url = document.getElementById('scriptUrl').value.trim();
-    if (!url) { addLog('lessonFeed', 'Paste your Apps Script URL below first.', 'error'); return null; }
-    localStorage.setItem('scriptUrl', url);
-    return url;
+function getPastLessons(params) {
+  try {
+    var studentName = params.studentName;
+    var count = parseInt(params.count) || 4;
+    var firstName = studentName.split(' ')[0];
+
+    var ss = SpreadsheetApp.openById(SHEET_ID);
+    var sheet = findSheet(ss, firstName);
+    if (!sheet) return { success: false, message: 'No sheet found for ' + studentName };
+
+    // Read rows 12 onwards — columns B:K
+    // B:H = subject (merged), I = date, J = payment checkbox, K = payment note
+    var data = sheet.getRange('B12:K300').getValues();
+
+    var lessons = [];
+    for (var i = 0; i < data.length; i++) {
+      var subject = data[i][0]; // Column B (merged B:H, value lands in B)
+      var date    = data[i][7]; // Column I
+      var paid    = data[i][8]; // Column J (checkbox)
+      var note    = data[i][9]; // Column K
+
+      // Only rows with a date are real lesson entries
+      if (date && date.toString().trim() !== '') {
+        lessons.push({
+          subject:     subject ? subject.toString().trim() : '',
+          date:        date.toString().trim(),
+          paid:        paid === true || paid === 'TRUE',
+          paymentNote: note ? note.toString().trim() : ''
+        });
+      }
+    }
+
+    // Return last N lessons, newest first
+    var recent = lessons.slice(-count).reverse();
+
+    return { success: true, lessons: recent };
+  } catch (err) {
+    return { success: false, message: err.toString() };
   }
+}
 
-  function addLog(feedId, message, type) {
-    var feed = document.getElementById(feedId);
-    var entry = document.createElement('div');
-    entry.className = 'log-entry ' + (type || 'info');
-    entry.textContent = message;
-    feed.appendChild(entry);
+function findSheet(ss, studentName) {
+  var sheets = ss.getSheets();
+  var firstName = studentName.split(' ')[0].toUpperCase();
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].getName().toUpperCase() === firstName) {
+      return sheets[i];
+    }
   }
+  return null;
+}
 
-  function playBeep(freq, duration, vol) {
-    try {
-      var ctx = new (window.AudioContext || window.webkitAudioContext)();
-      var osc = ctx.createOscillator();
-      var gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value = freq || 880;
-      osc.type = 'sine';
-      gain.gain.setValueAtTime(vol || 0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (duration || 120) / 1000);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + (duration || 120) / 1000);
-    } catch(e) {}
+function findNextLessonRow(sheet) {
+  var data = sheet.getRange('I12:I300').getValues();
+  var lastRow = 11;
+  for (var i = 0; i < data.length; i++) {
+    if (data[i][0] !== '' && data[i][0] !== null) {
+      lastRow = 12 + i;
+    }
   }
+  return lastRow + 1;
+}
 
-  document.getElementById('transcriptBox').addEventListener('input', function() {
-    document.getElementById('btnLog').disabled = !this.value.trim();
+function sortSheetsAlphabetically() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheets = ss.getSheets();
+  
+  sheets.sort(function(a, b) {
+    return a.getName().localeCompare(b.getName());
   });
-  document.getElementById('payTranscriptBox').addEventListener('input', function() {
-    document.getElementById('btnPayLog').disabled = !this.value.trim();
+  
+  sheets.forEach(function(sheet, i) {
+    ss.moveActiveSheet(i + 1);
+    sheet.activate();
   });
+}
 
-  // Allow pressing Enter on past dropdown to load
-  document.getElementById('pastStudentSelect').addEventListener('change', function() {
-    if (this.value) loadPastLessons();
-  });
-</script>
-</body>
-</html>
+function testTerry() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = findSheet(ss, 'Terry');
+  Logger.log(sheet ? sheet.getName() : 'NOT FOUND');
+}
