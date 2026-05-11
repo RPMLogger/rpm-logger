@@ -87,7 +87,6 @@
     .transcript-box::placeholder { color: var(--muted); font-style: italic; }
 
     .log-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-
     .trial-paid { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 11px; letter-spacing: 1px; color: var(--muted); transition: all 0.2s; user-select: none; }
     .trial-paid.checked { border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.08); }
     .trial-paid input { display: none; }
@@ -113,59 +112,79 @@
     .log-entry.info { background: rgba(240,165,0,0.08); border-left-color: var(--accent2); color: var(--accent2); }
 
     /* ── PAST TAB ── */
-    .past-students-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
-    .past-student-btn { padding: 14px 12px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: left; }
-    .past-student-btn:hover { border-color: var(--accent2); background: rgba(240,165,0,0.05); }
-    .past-student-btn.active-past { border-color: var(--accent2); background: rgba(240,165,0,0.08); }
+    .past-students-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-bottom: 20px; }
 
-    .past-header { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: none; }
+    .past-student-btn {
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      letter-spacing: 0.5px;
+    }
+    .past-student-btn:hover { border-color: var(--accent2); background: rgba(240,165,0,0.05); }
+    .past-student-btn.active-past { border-color: var(--accent2); background: rgba(240,165,0,0.08); color: var(--accent2); }
+
+    .past-header { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: none; }
     .past-header span { color: var(--accent2); }
 
-    .past-lessons-container { display: flex; flex-direction: column; gap: 6px; }
+    .past-lessons-container { display: flex; flex-direction: column; gap: 4px; }
 
-    /* ── COMPACT PAST LESSON ROW ── */
+    /* ── COMPACT LESSON ROW — number left, subject middle, date right ── */
     .past-lesson-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 12px 16px;
-      display: flex;
+      border-radius: 5px;
+      padding: 10px 14px;
+      display: grid;
+      grid-template-columns: 20px 1fr auto;
       align-items: center;
-      justify-content: space-between;
       gap: 12px;
       animation: slideIn 0.2s ease forwards;
       opacity: 0;
     }
     .past-lesson-card:nth-child(1) { animation-delay: 0.03s; }
-    .past-lesson-card:nth-child(2) { animation-delay: 0.07s; }
-    .past-lesson-card:nth-child(3) { animation-delay: 0.11s; }
-    .past-lesson-card:nth-child(4) { animation-delay: 0.15s; }
+    .past-lesson-card:nth-child(2) { animation-delay: 0.06s; }
+    .past-lesson-card:nth-child(3) { animation-delay: 0.09s; }
+    .past-lesson-card:nth-child(4) { animation-delay: 0.12s; }
 
-    @keyframes slideIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .past-lesson-num {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
 
     .past-lesson-subject {
       font-family: 'Syne', sans-serif;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--text);
-      flex: 1;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .past-lesson-meta {
+
+    .past-lesson-right {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-shrink: 0;
     }
     .past-lesson-date {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--accent2);
       letter-spacing: 0.5px;
       white-space: nowrap;
+      font-family: 'DM Mono', monospace;
     }
-    .past-lesson-num { font-size: 10px; color: var(--muted); }
     .past-lesson-paid { font-size: 10px; color: var(--green); }
 
     .past-empty { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 12px; line-height: 2; }
@@ -303,11 +322,11 @@
           renderStudents(); renderPastStudents();
           var skipped = data.students.length - filtered.length;
           var msg = '✓ Loaded ' + filtered.length + ' student' + (filtered.length !== 1 ? 's' : '');
-          if (skipped > 0) msg += ' (' + skipped + ' non-student event' + (skipped !== 1 ? 's' : '') + ' hidden)';
+          if (skipped > 0) msg += ' (' + skipped + ' event' + (skipped !== 1 ? 's' : '') + ' hidden)';
           addLog('lessonFeed', msg, 'success');
         } else { addLog('lessonFeed', data.message || 'No students found for today', 'error'); }
       })
-      .catch(function() { addLog('lessonFeed', '❌ Could not connect. Check your Apps Script URL.', 'error'); });
+      .catch(function() { addLog('lessonFeed', '❌ Could not connect.', 'error'); });
   }
 
   function loadAllStudents() {
@@ -359,14 +378,17 @@
 
   function renderPastLessons(lessons) {
     var container = document.getElementById('pastLessonsContainer'); container.innerHTML = '';
-    lessons.forEach(function(lesson, i) {
+    // lessons come in newest-first from server, reverse to show oldest first (like the sheet)
+    var ordered = lessons.slice().reverse();
+    ordered.forEach(function(lesson, i) {
+      var num = i + 1; // 1, 2, 3, 4 — oldest is 1
       var card = document.createElement('div'); card.className = 'past-lesson-card';
       card.innerHTML =
+        '<div class="past-lesson-num">' + num + '.</div>' +
         '<div class="past-lesson-subject">' + (lesson.subject || '—') + '</div>' +
-        '<div class="past-lesson-meta">' +
+        '<div class="past-lesson-right">' +
           (lesson.paid ? '<span class="past-lesson-paid">✓</span>' : '') +
           '<span class="past-lesson-date">' + (lesson.date || '—') + '</span>' +
-          '<span class="past-lesson-num">L' + (lessons.length - i) + '</span>' +
         '</div>';
       container.appendChild(card);
     });
