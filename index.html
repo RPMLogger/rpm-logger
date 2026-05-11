@@ -18,134 +18,166 @@
       --muted: #555;
       --border: #2a2a2a;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(232,70,58,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(232,70,58,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
+    .container { width: 100%; max-width: 580px; position: relative; z-index: 1; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px 16px;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(232,70,58,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(232,70,58,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-    }
-
-    .container { width: 100%; max-width: 560px; position: relative; z-index: 1; }
-
-    .header { text-align: center; margin-bottom: 28px; }
+    /* HEADER */
+    .header { text-align: center; margin-bottom: 20px; }
     .header h1 { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; letter-spacing: -1px; }
     .header h1 span { color: var(--accent); }
     .header p { font-size: 10px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-top: 4px; }
 
-    .tabs { display: flex; gap: 2px; margin-bottom: 24px; background: var(--surface); border-radius: 6px; padding: 3px; }
-    .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 4px; background: transparent; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
-    .tab-btn.active { background: var(--accent); color: white; }
+    /* WEEK SUMMARY BAR */
+    .week-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .week-bar-left { display: flex; flex-direction: column; gap: 2px; }
+    .week-bar-title { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+    .week-bar-counts { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); }
+    .week-bar-counts span { color: var(--accent2); }
+    .week-bar-right { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-align: right; }
 
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
+    /* WEEK GRID */
+    .week-section { margin-bottom: 28px; }
+    .week-section-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
 
-    .date-header { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; text-align: center; }
+    /* All week students — small */
+    .week-all-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .week-small-btn {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .week-small-btn:hover { border-color: var(--accent); color: var(--text); }
+    .week-small-btn.logged { border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.06); }
+    .week-small-btn.logged .w-check { display: inline; }
+    .week-small-btn .w-check { display: none; font-size: 10px; }
+    .week-small-btn.trial-pill { border-color: rgba(74,158,255,0.3); color: var(--blue); }
 
-    .students-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 24px; }
-
-    .student-btn { position: relative; padding: 16px 12px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; text-align: left; display: flex; flex-direction: column; gap: 6px; }
-    .student-btn:hover { border-color: var(--accent); background: rgba(232,70,58,0.05); }
-    .student-btn.recording { border-color: var(--accent); background: rgba(232,70,58,0.1); box-shadow: 0 0 20px rgba(232,70,58,0.2); }
-    .student-btn.logged { border-color: var(--green); background: rgba(46,204,113,0.08); }
-    .student-btn .btn-name { font-size: 14px; font-weight: 700; font-family: 'Syne', sans-serif; }
-    .student-btn .btn-type { font-size: 9px; letter-spacing: 1px; padding: 2px 6px; border-radius: 2px; width: fit-content; }
+    /* Today's students — big */
+    .today-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+    .today-student-btn {
+      position: relative;
+      padding: 18px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .today-student-btn:hover { border-color: var(--accent); background: rgba(232,70,58,0.05); }
+    .today-student-btn.recording { border-color: var(--accent); background: rgba(232,70,58,0.1); box-shadow: 0 0 20px rgba(232,70,58,0.2); }
+    .today-student-btn.logged { border-color: var(--green); background: rgba(46,204,113,0.08); }
+    .today-student-btn .btn-type { font-size: 9px; letter-spacing: 1px; padding: 2px 6px; border-radius: 2px; width: fit-content; font-family: 'DM Mono', monospace; font-weight: 400; }
     .btn-type.trial { background: rgba(74,158,255,0.15); color: var(--blue); }
     .btn-type.regular { background: rgba(240,165,0,0.12); color: var(--accent2); }
-    .student-btn .mic-indicator { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transition: all 0.2s; }
-    .student-btn.recording .mic-indicator { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 1s infinite; }
-    .student-btn.logged .mic-indicator { background: var(--green); }
+    .today-student-btn .mic-indicator { position: absolute; top: 12px; right: 12px; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transition: all 0.2s; }
+    .today-student-btn.recording .mic-indicator { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 1s infinite; }
+    .today-student-btn.logged .mic-indicator { background: var(--green); }
 
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
+    /* LOG PANEL */
     .log-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; display: none; }
     .log-panel.active { display: block; }
     .log-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .log-panel-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; }
     .log-panel-status { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
     .log-panel-status.idle { color: var(--muted); }
-
     .transcript-box { width: 100%; min-height: 60px; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 12px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; resize: none; outline: none; margin-bottom: 12px; line-height: 1.5; }
     .transcript-box:focus { border-color: var(--accent); }
     .transcript-box::placeholder { color: var(--muted); font-style: italic; }
-
     .log-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .trial-paid { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 11px; letter-spacing: 1px; color: var(--muted); transition: all 0.2s; user-select: none; }
     .trial-paid.checked { border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.08); }
     .trial-paid input { display: none; }
-
     .btn-log { flex: 1; padding: 12px; border: none; border-radius: 4px; background: var(--accent); color: white; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
     .btn-log:hover { background: #d63d32; }
     .btn-log.success { background: var(--green); pointer-events: none; }
     .btn-log:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
-
     .btn-cancel { padding: 12px 16px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px; cursor: pointer; transition: all 0.2s; }
     .btn-cancel:hover { border-color: var(--muted); color: var(--text); }
 
+    /* TABS */
+    .tabs { display: flex; gap: 2px; margin-bottom: 24px; background: var(--surface); border-radius: 6px; padding: 3px; }
+    .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 4px; background: transparent; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+    .tab-btn.active { background: var(--accent); color: white; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* PAYMENTS */
     .payment-students { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin-bottom: 20px; }
     .pay-btn { padding: 12px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; text-align: left; }
     .pay-btn:hover { border-color: var(--green); background: rgba(46,204,113,0.05); }
     .pay-btn.recording { border-color: var(--green); background: rgba(46,204,113,0.1); }
     .pay-btn.logged { border-color: var(--green); opacity: 0.6; }
 
+    /* LOG FEED */
     .log-feed { display: flex; flex-direction: column; gap: 6px; margin-top: 16px; }
     .log-entry { padding: 10px 14px; border-radius: 4px; font-size: 12px; line-height: 1.4; border-left: 3px solid transparent; }
     .log-entry.success { background: rgba(46,204,113,0.08); border-left-color: var(--green); color: var(--green); }
     .log-entry.error { background: rgba(232,70,58,0.08); border-left-color: var(--accent); color: var(--accent); }
     .log-entry.info { background: rgba(240,165,0,0.08); border-left-color: var(--accent2); color: var(--accent2); }
 
-    /* ── PAST TAB ── */
-    .past-students-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-bottom: 20px; }
-
+    /* PAST TAB */
+    .past-students-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-bottom: 20px; }
     .past-student-btn {
-      padding: 10px 12px;
+      padding: 18px 14px;
       border: 1.5px solid var(--border);
-      border-radius: 6px;
+      border-radius: 10px;
       background: var(--surface);
       color: var(--text);
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      font-weight: 500;
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
       cursor: pointer;
       transition: all 0.2s;
       text-align: left;
-      letter-spacing: 0.5px;
     }
     .past-student-btn:hover { border-color: var(--accent2); background: rgba(240,165,0,0.05); }
-    .past-student-btn.active-past { border-color: var(--accent2); background: rgba(240,165,0,0.08); color: var(--accent2); }
+    .past-student-btn.active-past { border-color: var(--accent2); background: rgba(240,165,0,0.08); }
 
     .past-header { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: none; }
     .past-header span { color: var(--accent2); }
-
     .past-lessons-container { display: flex; flex-direction: column; gap: 4px; }
 
-    /* ── COMPACT LESSON ROW — number left, subject middle, date right ── */
+    /* Past lesson rows — small subject, info on right */
     .past-lesson-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 5px;
-      padding: 10px 14px;
+      padding: 9px 14px;
       display: grid;
-      grid-template-columns: 20px 1fr auto;
+      grid-template-columns: 18px 1fr auto;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       animation: slideIn 0.2s ease forwards;
       opacity: 0;
     }
@@ -153,43 +185,19 @@
     .past-lesson-card:nth-child(2) { animation-delay: 0.06s; }
     .past-lesson-card:nth-child(3) { animation-delay: 0.09s; }
     .past-lesson-card:nth-child(4) { animation-delay: 0.12s; }
-
     @keyframes slideIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    .past-lesson-num {
-      font-size: 11px;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-    }
-
-    .past-lesson-subject {
-      font-family: 'Syne', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .past-lesson-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-    .past-lesson-date {
-      font-size: 10px;
-      color: var(--accent2);
-      letter-spacing: 0.5px;
-      white-space: nowrap;
-      font-family: 'DM Mono', monospace;
-    }
+    .past-lesson-num { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; }
+    .past-lesson-subject { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .past-lesson-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .past-lesson-date { font-size: 10px; color: var(--accent2); white-space: nowrap; font-family: 'DM Mono', monospace; }
     .past-lesson-paid { font-size: 10px; color: var(--green); }
 
     .past-empty { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 12px; line-height: 2; }
+    .section-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    .empty-state { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 12px; line-height: 2; }
 
-    /* ── CONFIG ── */
+    /* CONFIG */
     .config { margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px; }
     .config label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
     .config input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 10px 14px; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px; outline: none; transition: border-color 0.2s; margin-bottom: 10px; }
@@ -197,34 +205,59 @@
     .btn-load-students { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
     .btn-load-students:hover { border-color: var(--accent2); color: var(--accent2); }
 
-    .section-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-    .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 12px; line-height: 2; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
   </style>
 </head>
 <body>
 <div class="container">
+
   <div class="header">
     <h1>🎸 RPM<span>Portal</span></h1>
     <p>tap student · speak · tap to stop</p>
   </div>
 
+  <!-- WEEK SUMMARY BAR -->
+  <div class="week-bar" id="weekBar" style="display:none">
+    <div class="week-bar-left">
+      <div class="week-bar-title">This Week</div>
+      <div class="week-bar-counts" id="weekCounts">—</div>
+    </div>
+    <div class="week-bar-right" id="weekDateRange">—</div>
+  </div>
+
+  <!-- TABS -->
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('lessons')">📚 Lessons</button>
     <button class="tab-btn" onclick="switchTab('payments')">💰 Payments</button>
     <button class="tab-btn" onclick="switchTab('past')">🕒 Past</button>
   </div>
 
-  <!-- LESSONS -->
+  <!-- LESSONS TAB -->
   <div class="tab-panel active" id="tab-lessons">
-    <div class="date-header" id="todayDate"></div>
-    <div class="section-label">Today's Students</div>
-    <div class="students-grid" id="studentsGrid">
-      <div class="empty-state">Paste your Apps Script URL below<br>then tap "Load Today's Students"</div>
+
+    <!-- ALL THIS WEEK — small pills -->
+    <div class="week-section">
+      <div class="week-section-label">This Week</div>
+      <div class="week-all-grid" id="weekAllGrid">
+        <div style="color:var(--muted);font-size:11px">Loading week...</div>
+      </div>
     </div>
+
+    <hr class="divider">
+
+    <!-- TODAY — big cards -->
+    <div class="week-section">
+      <div class="week-section-label" id="todayLabel">Today</div>
+      <div class="today-grid" id="todayGrid">
+        <div class="empty-state">Loading...</div>
+      </div>
+    </div>
+
+    <!-- LOG PANEL -->
     <div class="log-panel" id="logPanel">
       <div class="log-panel-header">
         <div class="log-panel-name" id="logPanelName">—</div>
-        <div class="log-panel-status" id="logPanelStatus">tap student to record</div>
+        <div class="log-panel-status" id="logPanelStatus">recording...</div>
       </div>
       <textarea class="transcript-box" id="transcriptBox" placeholder="Transcription will appear here... or type directly"></textarea>
       <div class="log-actions" id="logActions">
@@ -232,10 +265,11 @@
         <button class="btn-log" id="btnLog" onclick="submitLog()" disabled>Log It →</button>
       </div>
     </div>
+
     <div class="log-feed" id="lessonFeed"></div>
   </div>
 
-  <!-- PAYMENTS -->
+  <!-- PAYMENTS TAB -->
   <div class="tab-panel" id="tab-payments">
     <div class="section-label">All Students</div>
     <div class="payment-students" id="paymentGrid">
@@ -255,7 +289,7 @@
     <div class="log-feed" id="paymentFeed"></div>
   </div>
 
-  <!-- PAST -->
+  <!-- PAST TAB -->
   <div class="tab-panel" id="tab-past">
     <div class="section-label">Today's Students</div>
     <div class="past-students-grid" id="pastStudentsGrid">
@@ -268,7 +302,7 @@
   <div class="config">
     <label>Apps Script URL</label>
     <input type="text" id="scriptUrl" placeholder="Paste your Apps Script URL here..." />
-    <button class="btn-load-students" onclick="loadTodaysStudents()">⟳ Load Today's Students from Calendar</button>
+    <button class="btn-load-students" onclick="loadData()">⟳ Load from Calendar</button>
   </div>
 </div>
 
@@ -284,7 +318,10 @@
     return true;
   }
 
-  var allStudents = [], activeStudent = null, activePayStudent = null;
+  var weekStudents = [];   // all this week
+  var todayStudents = [];  // today only
+  var loggedNames = {};    // track who's been logged this session
+  var activeStudent = null, activePayStudent = null;
   var recognition = null, payRecognition = null;
   var isRecording = false, isPayRecording = false;
   var finalTranscript = '', finalPayTranscript = '';
@@ -293,65 +330,147 @@
   if (saved) document.getElementById('scriptUrl').value = saved;
   document.getElementById('scriptUrl').addEventListener('change', function() { localStorage.setItem('scriptUrl', this.value); });
 
+  // Date header
   var now = new Date();
   var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  document.getElementById('todayDate').textContent = days[now.getDay()] + ' · ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear();
+  document.getElementById('todayLabel').textContent = days[now.getDay()] + ' · ' + months[now.getMonth()] + ' ' + now.getDate();
+
+  // Week date range label
+  function getWeekRange() {
+    var d = new Date();
+    var day = d.getDay();
+    var diffToMon = (day === 0) ? -6 : 1 - day;
+    var mon = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diffToMon);
+    var sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
+    return months[mon.getMonth()] + ' ' + mon.getDate() + ' – ' + months[sun.getMonth()] + ' ' + sun.getDate();
+  }
 
   window.onload = function() {
     var url = localStorage.getItem('scriptUrl');
-    if (url) { document.getElementById('scriptUrl').value = url; loadTodaysStudents(); loadAllStudents(); }
+    if (url) { document.getElementById('scriptUrl').value = url; loadData(); }
   };
 
-  function switchTab(tab) {
-    ['lessons','payments','past'].forEach(function(t, i) {
-      document.getElementById('tab-' + t).classList.toggle('active', t === tab);
-      document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t === tab);
-    });
-  }
-
-  function loadTodaysStudents() {
+  function loadData() {
     var url = getScriptUrl(); if (!url) return;
-    addLog('lessonFeed', "Loading today's students...", 'info');
-    fetch(url + '?action=getTodayStudents')
+    // Load week students
+    fetch(url + '?action=getWeekStudents')
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        if (data.success && data.students && data.students.length > 0) {
+        if (data.success && data.students) {
           var filtered = data.students.filter(function(s) { return isRealStudent(s.name); });
-          allStudents = filtered;
-          renderStudents(); renderPastStudents();
-          var skipped = data.students.length - filtered.length;
-          var msg = '✓ Loaded ' + filtered.length + ' student' + (filtered.length !== 1 ? 's' : '');
-          if (skipped > 0) msg += ' (' + skipped + ' event' + (skipped !== 1 ? 's' : '') + ' hidden)';
-          addLog('lessonFeed', msg, 'success');
-        } else { addLog('lessonFeed', data.message || 'No students found for today', 'error'); }
+          weekStudents = filtered;
+          todayStudents = filtered.filter(function(s) { return s.isToday; });
+          renderWeekBar();
+          renderWeekPills();
+          renderTodayGrid();
+          renderPastStudents();
+        } else {
+          addLog('lessonFeed', data.message || 'No students found', 'error');
+        }
       })
       .catch(function() { addLog('lessonFeed', '❌ Could not connect.', 'error'); });
-  }
 
-  function loadAllStudents() {
-    var url = getScriptUrl(); if (!url) return;
-    fetch(url + '?action=getAllStudents').then(function(r) { return r.json(); })
+    // Load all students for payments
+    fetch(url + '?action=getAllStudents')
+      .then(function(r) { return r.json(); })
       .then(function(data) { if (data.success && data.students) renderPaymentStudents(data.students); })
       .catch(function() {});
   }
 
-  function renderStudents() {
-    var grid = document.getElementById('studentsGrid'); grid.innerHTML = '';
-    if (!allStudents.length) { grid.innerHTML = '<div class="empty-state">No students scheduled today</div>'; return; }
-    allStudents.forEach(function(s, i) {
+  function renderWeekBar() {
+    var total = weekStudents.length;
+    var trials = weekStudents.filter(function(s) { return s.trial; }).length;
+    var regular = total - trials;
+    var countStr = total + ' students';
+    if (trials > 0) countStr += ' · <span>' + trials + ' trial' + (trials > 1 ? 's' : '') + '</span>';
+    document.getElementById('weekCounts').innerHTML = countStr;
+    document.getElementById('weekDateRange').textContent = getWeekRange();
+    document.getElementById('weekBar').style.display = 'flex';
+  }
+
+  function renderWeekPills() {
+    var grid = document.getElementById('weekAllGrid');
+    grid.innerHTML = '';
+    if (!weekStudents.length) { grid.innerHTML = '<div style="color:var(--muted);font-size:11px">No students this week</div>'; return; }
+    weekStudents.forEach(function(s) {
       var btn = document.createElement('button');
-      btn.className = 'student-btn'; btn.id = 'sbtn-' + i;
-      btn.onclick = function() { selectStudent(s, i); };
-      btn.innerHTML = '<div class="mic-indicator"></div><div class="btn-name">' + s.name + '</div><div class="btn-type ' + (s.trial ? 'trial' : 'regular') + '">' + (s.trial ? 'TRIAL' : 'LESSON') + '</div>';
+      btn.className = 'week-small-btn' + (s.trial ? ' trial-pill' : '') + (loggedNames[s.name] ? ' logged' : '');
+      btn.id = 'wpill-' + s.name.replace(/\s+/g,'_');
+      btn.innerHTML = '<span class="w-check">✓</span>' + s.name;
+      btn.onclick = function() { openLogForStudent(s); };
       grid.appendChild(btn);
+    });
+  }
+
+  function renderTodayGrid() {
+    var grid = document.getElementById('todayGrid');
+    grid.innerHTML = '';
+    if (!todayStudents.length) { grid.innerHTML = '<div class="empty-state">No students today</div>'; return; }
+    todayStudents.forEach(function(s, i) {
+      var btn = document.createElement('button');
+      btn.className = 'today-student-btn' + (loggedNames[s.name] ? ' logged' : '');
+      btn.id = 'tbtn-' + i;
+      btn.onclick = function() { openLogForStudent(s, 'today', i); };
+      btn.innerHTML =
+        '<div class="mic-indicator"></div>' +
+        s.name +
+        '<div class="btn-type ' + (s.trial ? 'trial' : 'regular') + '">' + (s.trial ? 'TRIAL' : 'LESSON') + '</div>';
+      grid.appendChild(btn);
+    });
+  }
+
+  function openLogForStudent(student, source, idx) {
+    if (isRecording) stopRecording();
+    activeStudent = { student: student, source: source, idx: idx };
+    finalTranscript = '';
+
+    document.getElementById('logPanel').classList.add('active');
+    document.getElementById('logPanelName').textContent = student.name;
+    document.getElementById('transcriptBox').value = '';
+    document.getElementById('btnLog').disabled = true;
+    document.getElementById('btnLog').className = 'btn-log';
+    document.getElementById('btnLog').textContent = 'Log It →';
+
+    var existing = document.getElementById('trialPaidToggle'); if (existing) existing.remove();
+    if (student.trial) {
+      var toggle = document.createElement('label');
+      toggle.className = 'trial-paid'; toggle.id = 'trialPaidToggle';
+      toggle.innerHTML = '<input type="checkbox" id="trialPaidCheck"> ✓ Trial Paid';
+      toggle.onclick = function() { setTimeout(function() { toggle.classList.toggle('checked', document.getElementById('trialPaidCheck').checked); }, 0); };
+      document.getElementById('logActions').insertBefore(toggle, document.getElementById('btnLog'));
+    }
+
+    // Highlight the tapped button
+    document.querySelectorAll('.today-student-btn').forEach(function(b) { b.classList.remove('recording'); });
+    if (source === 'today' && idx !== undefined) {
+      var tbtn = document.getElementById('tbtn-' + idx);
+      if (tbtn) tbtn.classList.add('recording');
+    }
+    document.getElementById('logPanelStatus').textContent = '🔴 recording...';
+    document.getElementById('logPanelStatus').classList.remove('idle');
+    startRecording();
+  }
+
+  function markLogged(name) {
+    loggedNames[name] = true;
+    // Update pill
+    var pill = document.getElementById('wpill-' + name.replace(/\s+/g,'_'));
+    if (pill) pill.classList.add('logged');
+    // Update today button
+    todayStudents.forEach(function(s, i) {
+      if (s.name === name) {
+        var tbtn = document.getElementById('tbtn-' + i);
+        if (tbtn) { tbtn.classList.remove('recording'); tbtn.classList.add('logged'); }
+      }
     });
   }
 
   function renderPastStudents() {
     var grid = document.getElementById('pastStudentsGrid'); grid.innerHTML = '';
-    if (!allStudents.length) { grid.innerHTML = '<div class="empty-state">No students loaded yet</div>'; return; }
-    allStudents.forEach(function(s, i) {
+    var students = todayStudents.length ? todayStudents : weekStudents;
+    if (!students.length) { grid.innerHTML = '<div class="empty-state">No students loaded yet</div>'; return; }
+    students.forEach(function(s, i) {
       var btn = document.createElement('button');
       btn.className = 'past-student-btn'; btn.id = 'pastbtn-' + i;
       btn.textContent = s.name;
@@ -378,13 +497,11 @@
 
   function renderPastLessons(lessons) {
     var container = document.getElementById('pastLessonsContainer'); container.innerHTML = '';
-    // lessons come in newest-first from server, reverse to show oldest first (like the sheet)
-    var ordered = lessons.slice().reverse();
+    var ordered = lessons.slice().reverse(); // oldest first
     ordered.forEach(function(lesson, i) {
-      var num = i + 1; // 1, 2, 3, 4 — oldest is 1
       var card = document.createElement('div'); card.className = 'past-lesson-card';
       card.innerHTML =
-        '<div class="past-lesson-num">' + num + '.</div>' +
+        '<div class="past-lesson-num">' + (i+1) + '.</div>' +
         '<div class="past-lesson-subject">' + (lesson.subject || '—') + '</div>' +
         '<div class="past-lesson-right">' +
           (lesson.paid ? '<span class="past-lesson-paid">✓</span>' : '') +
@@ -405,29 +522,11 @@
     });
   }
 
-  function selectStudent(student, idx) {
-    if (activeStudent && activeStudent.idx === idx && isRecording) { stopRecording(); return; }
-    if (isRecording) stopRecording();
-    activeStudent = { student: student, idx: idx }; finalTranscript = '';
-    document.getElementById('logPanel').classList.add('active');
-    document.getElementById('logPanelName').textContent = student.name;
-    document.getElementById('transcriptBox').value = '';
-    document.getElementById('btnLog').disabled = true;
-    document.getElementById('btnLog').className = 'btn-log';
-    document.getElementById('btnLog').textContent = 'Log It →';
-    var existing = document.getElementById('trialPaidToggle'); if (existing) existing.remove();
-    if (student.trial) {
-      var toggle = document.createElement('label');
-      toggle.className = 'trial-paid'; toggle.id = 'trialPaidToggle';
-      toggle.innerHTML = '<input type="checkbox" id="trialPaidCheck"> ✓ Trial Paid';
-      toggle.onclick = function() { setTimeout(function() { toggle.classList.toggle('checked', document.getElementById('trialPaidCheck').checked); }, 0); };
-      document.getElementById('logActions').insertBefore(toggle, document.getElementById('btnLog'));
-    }
-    document.querySelectorAll('.student-btn').forEach(function(b) { b.classList.remove('recording'); });
-    document.getElementById('sbtn-' + idx).classList.add('recording');
-    document.getElementById('logPanelStatus').textContent = '🔴 recording...';
-    document.getElementById('logPanelStatus').classList.remove('idle');
-    startRecording();
+  function switchTab(tab) {
+    ['lessons','payments','past'].forEach(function(t, i) {
+      document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+      document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t === tab);
+    });
   }
 
   function startRecording() {
@@ -455,17 +554,17 @@
       var box = document.getElementById('transcriptBox');
       box.value = box.value.replace(/\s*zip\s*$/i, '').trim();
       if (box.value) document.getElementById('btnLog').disabled = false;
-      if (activeStudent) { var b = document.getElementById('sbtn-' + activeStudent.idx); if (b) b.classList.remove('recording'); }
     };
-    recognition.onerror = function(e) { if (e.error === 'no-speech') return; isRecording = false; addLog('lessonFeed', 'Mic error: ' + e.error, 'error'); };
+    recognition.onerror = function(e) { if (e.error === 'no-speech') return; isRecording = false; };
     recognition.start();
   }
 
   function stopRecording() { isRecording = false; if (recognition) recognition.stop(); }
 
   function cancelLog() {
-    stopRecording(); document.getElementById('logPanel').classList.remove('active');
-    document.querySelectorAll('.student-btn').forEach(function(b) { b.classList.remove('recording'); });
+    stopRecording();
+    document.getElementById('logPanel').classList.remove('active');
+    document.querySelectorAll('.today-student-btn').forEach(function(b) { b.classList.remove('recording'); });
     activeStudent = null; finalTranscript = '';
   }
 
@@ -480,7 +579,7 @@
     callScript(url, student.trial ? 'logTrial' : 'logLesson', { studentName: student.name, subject: subject, trialPaid: trialPaid ? '1' : '0' }, function(data) {
       if (data.success) {
         btn.textContent = '✓ Logged!'; btn.className = 'btn-log success';
-        var sbtn = document.getElementById('sbtn-' + activeStudent.idx); if (sbtn) sbtn.classList.add('logged');
+        markLogged(student.name);
         addLog('lessonFeed', '✓ ' + student.name + ' — ' + subject, 'success');
         setTimeout(function() { document.getElementById('logPanel').classList.remove('active'); activeStudent = null; finalTranscript = ''; }, 1200);
       } else { btn.textContent = 'Log It →'; btn.disabled = false; addLog('lessonFeed', '❌ ' + (data.message || 'Error logging'), 'error'); }
