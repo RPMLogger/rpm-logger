@@ -107,14 +107,14 @@
 
     .week-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
     .week-bar-label { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px; }
-    .week-bar-counts { font-family: "Syne", sans-serif; font-size: 15px; font-weight: 800; }
+    .week-bar-counts { font-family: "DM Mono", monospace; font-size: 14px; font-weight: 500; }
     .week-bar-counts span { color: var(--accent2); }
     .week-bar-right { font-size: 10px; color: var(--muted); }
 
     .general-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
     .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
     .stat-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-    .stat-value { font-family: "Syne", sans-serif !important; font-size: 32px; font-weight: 800; }
+    .stat-value { font-family: "DM Mono", monospace !important; font-size: 36px; font-weight: 500; color: var(--text); }
     .stat-value.c-accent { color: var(--accent); }
     .stat-value.c-gold { color: var(--accent2); }
     .stat-value.c-blue { color: var(--blue); }
@@ -211,7 +211,7 @@
 
   <!-- GENERAL -->
   <div class="tab-panel" id="tab-general">
-    <div class="week-bar" id="weekBar" style="display:none">
+    <div class="week-bar" id="weekBar">
       <div>
         <div class="week-bar-label">This Week</div>
         <div class="week-bar-counts" id="weekCounts">—</div>
@@ -220,10 +220,10 @@
     </div>
     <div class="section-label">Students Overview</div>
     <div class="general-grid">
-      <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value" id="statTotal">—</div></div>
       <div class="stat-card"><div class="stat-label">Weekly</div><div class="stat-value" id="statWeekly">—</div></div>
       <div class="stat-card"><div class="stat-label">Biweekly</div><div class="stat-value" id="statBiweekly">—</div></div>
       <div class="stat-card"><div class="stat-label">Trial</div><div class="stat-value" id="statTrial">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value" id="statTotal">—</div></div>
     </div>
   </div>
 
