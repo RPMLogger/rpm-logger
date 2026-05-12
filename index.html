@@ -121,14 +121,14 @@
 
     .financial-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 12px; line-height: 3; border: 1px dashed var(--border); border-radius: 8px; }
     .load-table { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
-    .load-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 18px; border-bottom: 1px solid var(--border); }
+    .load-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--border); }
     .load-row:last-child { border-bottom: none; }
     .load-row.highlight { background: rgba(240,165,0,0.06); }
     .load-row.income { background: rgba(46,204,113,0.05); }
-    .load-label { font-size: 11px; color: var(--muted); letter-spacing: 1px; font-family: "DM Mono", monospace; }
-    .load-value { font-family: "DM Mono", monospace; font-size: 14px; font-weight: 500; color: var(--text); }
+    .load-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; font-family: "DM Mono", monospace; }
+    .load-value { font-family: "DM Mono", monospace; font-size: 12px; font-weight: 500; color: var(--text); }
     .load-row.highlight .load-label { color: var(--accent2); }
-    .load-row.highlight .load-value { color: var(--accent2); font-size: 16px; }
+    .load-row.highlight .load-value { color: var(--accent2); font-size: 13px; }
     .load-row.income .load-value { color: var(--green); }
     .summary-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; font-family: "DM Mono", monospace; font-size: 11px; }
     .sum-dot { color: var(--muted); }
@@ -606,8 +606,8 @@
       row.className = "load-row";
       row.innerHTML =
         "<div class='load-label' style='flex:1;color:var(--text)'>"+s.name+"</div>"+
-        "<div class='load-value' style='width:60px;text-align:center;font-size:12px;color:"+(s.ave===1?"var(--accent)":"var(--accent2)")+"'>"+s.ave+"</div>"+
-        "<div class='load-value' style='width:60px;text-align:right;font-size:12px;color:var(--muted)'>$95</div>";
+        "<div class='load-value' style='width:60px;text-align:center;font-size:10px;color:"+(s.ave===1?"var(--accent)":"var(--accent2)")+"'>"+s.ave+"</div>"+
+        "<div class='load-value' style='width:60px;text-align:right;font-size:10px;color:var(--muted)'>$95</div>";
       rows.appendChild(row);
     });
     document.getElementById("listNormTotal").textContent = data.normalized;
