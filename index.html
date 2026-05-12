@@ -120,6 +120,11 @@
     .stat-value.c-blue { color: var(--blue); }
 
     .financial-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 12px; line-height: 3; border: 1px dashed var(--border); border-radius: 8px; }
+    .summary-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; font-family: "DM Mono", monospace; font-size: 13px; }
+    .sum-dot { color: var(--muted); }
+    .sum-weekly { color: #e8463a; }
+    .sum-biweekly { color: #f0a500; }
+    .sum-trial { color: #4a9eff; }
 
     .log-feed { display: flex; flex-direction: column; gap: 5px; margin-top: 12px; }
     .log-entry { padding: 8px 12px; border-radius: 4px; font-size: 11px; line-height: 1.4; border-left: 3px solid transparent; }
@@ -205,12 +210,6 @@
 
   <!-- WEEK -->
   <div class="tab-panel" id="tab-week">
-    <div class="week-tab-header" id="weekTabHeader">This Week</div>
-    <div class="week-tab-grid" id="weekTabGrid"><div class="empty-state">Loading...</div></div>
-  </div>
-
-  <!-- GENERAL -->
-  <div class="tab-panel" id="tab-general">
     <div class="week-bar" id="weekBar">
       <div>
         <div class="week-bar-label">This Week</div>
@@ -218,13 +217,20 @@
       </div>
       <div class="week-bar-right" id="weekDateRange">—</div>
     </div>
-    <div class="section-label">Students Overview</div>
-    <div class="general-grid">
-      <div class="stat-card"><div class="stat-label">Weekly</div><div class="stat-value" id="statWeekly">—</div></div>
-      <div class="stat-card"><div class="stat-label">Biweekly</div><div class="stat-value" id="statBiweekly">—</div></div>
-      <div class="stat-card"><div class="stat-label">Trial</div><div class="stat-value" id="statTrial">—</div></div>
-      <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value" id="statTotal">—</div></div>
+    <div class="summary-box" id="weekSummaryBox" style="display:none">
+      <span id="summWeekly"></span>
+      <span class="sum-dot">·</span>
+      <span id="summBiweekly"></span>
+      <span class="sum-dot">·</span>
+      <span id="summTrial"></span>
     </div>
+    <div class="week-tab-header" id="weekTabHeader" style="display:none"></div>
+    <div class="week-tab-grid" id="weekTabGrid"><div class="empty-state">Loading...</div></div>
+  </div>
+
+  <!-- GENERAL -->
+  <div class="tab-panel" id="tab-general">
+    <div class="financial-empty">Coming soon</div>
   </div>
 
   <!-- FINANCIAL -->
@@ -337,10 +343,11 @@
     var weekly=weekStudents.filter(function(s){return s.calType==="weekly";}).length;
     var biweekly=weekStudents.filter(function(s){return s.calType==="biweekly";}).length;
     var trial=weekStudents.filter(function(s){return s.calType==="trial";}).length;
-    document.getElementById("statTotal").textContent=weekStudents.length;
-    document.getElementById("statWeekly").textContent=weekly;
-    document.getElementById("statBiweekly").textContent=biweekly;
-    document.getElementById("statTrial").textContent=trial;
+    // Populate week summary box
+    document.getElementById("summWeekly").innerHTML="<span class='sum-weekly'>"+weekly+" weekly</span>";
+    document.getElementById("summBiweekly").innerHTML="<span class='sum-biweekly'>"+biweekly+" biweekly</span>";
+    document.getElementById("summTrial").innerHTML="<span class='sum-trial'>"+trial+" trial</span>";
+    document.getElementById("weekSummaryBox").style.display="flex";
   }
 
   function renderPastGrid(){
