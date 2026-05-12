@@ -249,6 +249,20 @@
       <div class="load-row income"><div class="load-label">Total Income</div><div class="load-value" id="loadIncome">—</div></div>
       <div class="load-row income"><div class="load-label">Gregorian Income</div><div class="load-value" id="loadGregorian">—</div></div>
     </div>
+    <div class="section-label" style="margin-top:20px">Student List</div>
+    <div class="load-table" id="studentListTable" style="display:none">
+      <div class="load-row" style="background:var(--surface2)">
+        <div class="load-label" style="flex:1">Name</div>
+        <div class="load-label" style="width:60px;text-align:center">Ave.</div>
+        <div class="load-label" style="width:60px;text-align:right">Rate</div>
+      </div>
+      <div id="studentListRows"></div>
+      <div class="load-row" style="background:var(--surface2)">
+        <div class="load-label" style="flex:1;color:var(--text)">TOTAL</div>
+        <div class="load-value" id="listNormTotal" style="width:60px;text-align:center;font-size:13px;color:var(--accent2)">—</div>
+        <div style="width:60px"></div>
+      </div>
+    </div>
     <div class="log-feed" id="generalFeed"></div>
   </div>
 
@@ -322,6 +336,7 @@
           document.getElementById("loadBiweekly").textContent=data.biweeklyCount;
           document.getElementById("loadIncome").textContent="$"+data.totalIncome.toLocaleString();
           document.getElementById("loadGregorian").textContent="$"+data.gregorian.toLocaleString();
+          renderStudentList(data);
         }
       })
       .catch(function(){});
@@ -576,6 +591,27 @@
         setTimeout(function(){document.getElementById("payLogPanel").classList.remove("active");activePayStudent=null;finalPayTranscript="";},1200);
       }else{btn.textContent="Log Payment →";btn.disabled=false;addLog("paymentFeed","❌ "+(data.message||"Error"),"error");}
     });
+  }
+
+  function renderStudentList(data){
+    var rows = document.getElementById("studentListRows");
+    rows.innerHTML = "";
+    // Combine weekly (1) and biweekly (0.5), sort alphabetically
+    var all = [];
+    (data.weeklyList||[]).forEach(function(n){ all.push({name:n, ave:1}); });
+    (data.biweeklyList||[]).forEach(function(n){ all.push({name:n, ave:0.5}); });
+    all.sort(function(a,b){ return a.name.localeCompare(b.name); });
+    all.forEach(function(s){
+      var row = document.createElement("div");
+      row.className = "load-row";
+      row.innerHTML =
+        "<div class='load-label' style='flex:1;color:var(--text)'>"+s.name+"</div>"+
+        "<div class='load-value' style='width:60px;text-align:center;font-size:12px;color:"+(s.ave===1?"var(--accent)":"var(--accent2)")+"'>"+s.ave+"</div>"+
+        "<div class='load-value' style='width:60px;text-align:right;font-size:12px;color:var(--muted)'>$95</div>";
+      rows.appendChild(row);
+    });
+    document.getElementById("listNormTotal").textContent = data.normalized;
+    document.getElementById("studentListTable").style.display = "block";
   }
 
   function callScript(url,action,params,cb){
