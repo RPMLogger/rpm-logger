@@ -312,6 +312,18 @@
 
   function loadData(){
     var url=getScriptUrl();if(!url)return;
+    // Clear and show loading state
+    document.getElementById("weekPills").innerHTML="<div style='color:var(--muted);font-size:11px'>Loading...</div>";
+    document.getElementById("todayGrid").innerHTML="<div class='empty-state'>Loading...</div>";
+    document.getElementById("weekTabGrid").innerHTML="<div class='empty-state'>Loading...</div>";
+    document.getElementById("pastGrid").innerHTML="<div class='empty-state'>Loading...</div>";
+    document.getElementById("loadTotal").textContent="—";
+    document.getElementById("loadNorm").textContent="—";
+    document.getElementById("loadWeekly").textContent="—";
+    document.getElementById("loadBiweekly").textContent="—";
+    document.getElementById("loadIncome").textContent="—";
+    document.getElementById("loadGregorian").textContent="—";
+    document.getElementById("studentListTable").style.display="none";
     fetch(url+"?action=getWeekStudents")
       .then(function(r){return r.json();})
       .then(function(data){
