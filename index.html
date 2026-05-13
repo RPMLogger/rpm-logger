@@ -158,7 +158,12 @@
     .btn-load { width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; text-align: center; }
     .btn-load:hover { border-color: var(--accent2); color: var(--accent2); }
 
-    
+
+    .week-day-group { margin-bottom: 14px; }
+    .week-day-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; padding-left: 2px; }
+    .week-day-pills { display: flex; flex-wrap: wrap; gap: 7px; }
+    .today-btn .lesson-badge { font-size: 9px; font-family: "DM Mono", monospace; font-weight: 400; color: var(--muted); letter-spacing: 0; margin-top: 2px; }
+    .today-btn .lesson-badge.pay-time { color: var(--accent2); }
   </style>
 </head>
 <body>
@@ -244,7 +249,7 @@
       <span class="sum-dot">·</span>
       <span id="summTrial"></span>
     </div>
-    <div class="week-tab-header" id="weekTabHeader" style="display:none"></div>
+    <div class="week-tab-header" id="weekTabHeader"></div>
     <div class="week-tab-grid" id="weekTabGrid"><div class="empty-state">Loading...</div></div>
   </div>
 
@@ -299,7 +304,7 @@
   var EXCL=["mother's day","mothers day","father's day","fathers day","christmas","thanksgiving","new year","easter","halloween","memorial day","labor day","independence day","mlk day","presidents day","veterans day","columbus day","holiday","vacation","day off","closed","break"];
   function isReal(n){if(!n||!n.trim())return false;var l=n.toLowerCase().trim();for(var i=0;i<EXCL.length;i++)if(l.indexOf(EXCL[i])!==-1)return false;return true;}
 
-  var weekStudents=[],todayStudents=[],loggedNames={};
+  var weekStudents=[],todayStudents=[],loggedNames={},lessonCounts={};
   var activeStudent=null,activePayStudent=null;
   var recognition=null,payRecognition=null;
   var isRecording=false,isPayRecording=false;
@@ -348,6 +353,18 @@
           var f=data.students.filter(function(s){return isReal(s.name);});
           weekStudents=f;todayStudents=f.filter(function(s){return s.isToday;});
           renderWeekBar();renderWeekPills();renderTodayGrid();renderPastGrid();renderWeekTab();renderGeneral();
+          // Fetch lesson counts for today's students (for badge display)
+          todayStudents.forEach(function(s){
+            fetch(url+"?action=getPastLessons&studentName="+encodeURIComponent(s.name)+"&count=1")
+              .then(function(r){return r.json();})
+              .then(function(d){
+                if(d.success&&d.totalLessons!==undefined){
+                  lessonCounts[s.name]=d.totalLessons;
+                  // Refresh today grid to show badge
+                  renderTodayGrid();
+                }
+              }).catch(function(){});
+          });
         }else{addLog("lessonFeed",data.message||"No students found","error");}
       }).catch(function(){addLog("lessonFeed","❌ Could not connect.","error");});
     fetch(url+"?action=getAllStudents")
@@ -398,7 +415,15 @@
       var btn=document.createElement("button");
       btn.className="today-btn"+(loggedNames[s.name]?" logged":"");btn.id="tbtn-"+i;
       btn.onclick=function(){openLog(s,"today",i);};
-      btn.innerHTML="<div class='mic-dot'></div>"+s.name+"<div class='btn-type "+(s.calType==="trial"?"trial":"regular")+"'>"+(s.calType==="trial"?"TRIAL":"LESSON")+"</div>";
+      var badgeHtml="";
+      var cnt=lessonCounts[s.name];
+      if(cnt!==undefined){
+        var next=cnt+1;
+        var ord=next===1?"1st":next===2?"2nd":next===3?"3rd":(next+"th");
+        var payBadge=(next%4===0);
+        badgeHtml="<div class='lesson-badge"+(payBadge?" pay-time":"")+"'>"+ord+" lesson"+(payBadge?" · pay time":"")+"</div>";
+      }
+      btn.innerHTML="<div class='mic-dot'></div>"+s.name+"<div class='btn-type "+(s.calType==="trial"?"trial":"regular")+"'>"+(s.calType==="trial"?"TRIAL":"LESSON")+"</div>"+badgeHtml;
       grid.appendChild(btn);
     });
   }
@@ -407,12 +432,28 @@
     var grid=document.getElementById("weekTabGrid");grid.innerHTML="";
     document.getElementById("weekTabHeader").textContent="This Week · "+getWeekRange();
     if(!weekStudents.length){grid.innerHTML="<div class='empty-state'>No students this week</div>";return;}
+    // Group by day
+    var dayOrder=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+    var groups={};
     weekStudents.forEach(function(s){
-      var btn=document.createElement("button");
-      var cls="week-tab-pill wt-"+s.calType+(loggedNames[s.name]?" logged":"");
-      btn.className=cls;btn.id="wtpill-"+s.name.replace(/\s+/g,"_");
-      btn.innerHTML="<span class='wt-check'>✓</span>"+s.name;
-      btn.onclick=function(){openLog(s);};grid.appendChild(btn);
+      var d=s.dayOfWeek||"Unknown";
+      if(!groups[d])groups[d]=[];
+      groups[d].push(s);
+    });
+    dayOrder.forEach(function(day){
+      if(!groups[day]||!groups[day].length)return;
+      var group=document.createElement("div");group.className="week-day-group";
+      var label=document.createElement("div");label.className="week-day-label";label.textContent=day;
+      group.appendChild(label);
+      var pillRow=document.createElement("div");pillRow.className="week-day-pills";
+      groups[day].forEach(function(s){
+        var btn=document.createElement("button");
+        var cls="week-tab-pill wt-"+s.calType+(loggedNames[s.name]?" logged":"");
+        btn.className=cls;btn.id="wtpill-"+s.name.replace(/\s+/g,"_");
+        btn.innerHTML="<span class='wt-check'>✓</span>"+s.name;
+        btn.onclick=function(){openLog(s);}; pillRow.appendChild(btn);
+      });
+      group.appendChild(pillRow);grid.appendChild(group);
     });
   }
 
