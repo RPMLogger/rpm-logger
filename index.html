@@ -119,6 +119,15 @@
     .stat-value.c-gold { color: var(--accent2); }
     .stat-value.c-blue { color: var(--blue); }
 
+    .inq-badge { display: inline-block; background: var(--accent); color: white; font-size: 9px; border-radius: 10px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
+    .inq-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; }
+    .inq-card.unread { border-left: 3px solid var(--accent); }
+    .inq-card.read { border-left: 3px solid var(--border); opacity: 0.8; }
+    .inq-from { font-family: "Syne", sans-serif; font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .inq-date { font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-bottom: 8px; }
+    .inq-subject { font-size: 10px; color: var(--accent2); letter-spacing: 1px; margin-bottom: 8px; }
+    .inq-body { font-size: 11px; color: var(--muted); line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+    .inq-empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 12px; line-height: 2; }
     .financial-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 12px; line-height: 3; border: 1px dashed var(--border); border-radius: 8px; }
     .load-table { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
     .load-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 14px; border-bottom: 1px solid var(--border); }
@@ -169,6 +178,7 @@
     <button class="tab-btn" onclick="switchTab('week')">Week</button>
     <button class="tab-btn" onclick="switchTab('general')">General</button>
     <button class="tab-btn" onclick="switchTab('financial')">Financial</button>
+    <button class="tab-btn" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
   </div>
 
   <!-- LESSONS -->
@@ -271,6 +281,12 @@
     <div class="financial-empty">Financial tracking<br>coming soon</div>
   </div>
 
+  <!-- INQUIRIES -->
+  <div class="tab-panel" id="tab-inquiries">
+    <div class="section-label">Trial Lesson Inquiries</div>
+    <div id="inquiriesList"><div class="inq-empty">Loading...</div></div>
+  </div>
+
   <div class="config">
     <label>Apps Script URL</label>
     <input type="text" id="scriptUrl" placeholder="Paste your Apps Script URL here..." />
@@ -324,6 +340,7 @@
     document.getElementById("loadIncome").textContent="—";
     document.getElementById("loadGregorian").textContent="—";
     document.getElementById("studentListTable").style.display="none";
+    document.getElementById("inquiriesList").innerHTML="<div class='inq-empty'>Loading...</div>";
     fetch(url+"?action=getWeekStudents")
       .then(function(r){return r.json();})
       .then(function(data){
@@ -485,7 +502,7 @@
   }
 
   function switchTab(tab){
-    ["lessons","payments","past","week","general","financial"].forEach(function(t,i){
+    ["lessons","payments","past","week","general","financial","inquiries"].forEach(function(t,i){
       document.getElementById("tab-"+t).classList.toggle("active",t===tab);
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active",t===tab);
     });
