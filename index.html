@@ -353,18 +353,15 @@
           var f=data.students.filter(function(s){return isReal(s.name);});
           weekStudents=f;todayStudents=f.filter(function(s){return s.isToday;});
           renderWeekBar();renderWeekPills();renderTodayGrid();renderPastGrid();renderWeekTab();renderGeneral();
-          // Fetch lesson counts for today's students (for badge display)
-          todayStudents.forEach(function(s){
-            fetch(url+"?action=getPastLessons&studentName="+encodeURIComponent(s.name)+"&count=1")
-              .then(function(r){return r.json();})
-              .then(function(d){
-                if(d.success&&d.totalLessons!==undefined){
-                  lessonCounts[s.name]=d.totalLessons;
-                  // Refresh today grid to show badge
-                  renderTodayGrid();
-                }
-              }).catch(function(){});
-          });
+          // Fetch cycle counters from RPM Counter sheet (one call for all students)
+          fetch(url+"?action=getCycleCounters")
+            .then(function(r){return r.json();})
+            .then(function(d){
+              if(d.success&&d.counters){
+                lessonCounts=d.counters;
+                renderTodayGrid();
+              }
+            }).catch(function(){});
         }else{addLog("lessonFeed",data.message||"No students found","error");}
       }).catch(function(){addLog("lessonFeed","❌ Could not connect.","error");});
     fetch(url+"?action=getAllStudents")
@@ -418,10 +415,11 @@
       var badgeHtml="";
       var cnt=lessonCounts[s.name];
       if(cnt!==undefined){
-        var next=cnt+1;
-        var ord=next===1?"1st":next===2?"2nd":next===3?"3rd":(next+"th");
-        var payBadge=(next%4===0);
-        badgeHtml="<div class='lesson-badge"+(payBadge?" pay-time":"")+"'>"+ord+" lesson"+(payBadge?" · pay time":"")+"</div>";
+        // Sheet shows lessons completed in cycle. next = cnt+1, wraps: 4->1, 0->1
+        var next=(cnt>=4||cnt<=0)?1:cnt+1;
+        var ord=next===1?"1st":next===2?"2nd":next===3?"3rd":"4th";
+        var payBadge=(next===4);
+        badgeHtml="<div class='lesson-badge"+(payBadge?" pay-time":"")+"'>"+ord+" lesson"+(payBadge?" — payment due":"")+"</div>";
       }
       btn.innerHTML="<div class='mic-dot'></div>"+s.name+"<div class='btn-type "+(s.calType==="trial"?"trial":"regular")+"'>"+(s.calType==="trial"?"TRIAL":"LESSON")+"</div>"+badgeHtml;
       grid.appendChild(btn);
