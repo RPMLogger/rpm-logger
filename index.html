@@ -633,11 +633,17 @@
     inquiries.forEach(function (inq) {
       var card = document.createElement("div");
       card.className = "inq-card " + (inq.unread ? "unread" : "read");
+      // Clean details line: Name · Gender · Age · City
+      var details = [
+        inq.name   || "—",
+        inq.gender || "—",
+        inq.age    ? "Age " + inq.age : "Age —",
+        inq.city   || "—"
+      ].join(" · ");
       card.innerHTML =
-        "<div class='inq-from'>" + (inq.from || "Unknown") + "</div>" +
+        "<div class='inq-from'>TRIAL LESSON REQUEST</div>" +
         "<div class='inq-date'>" + (inq.date || "") + "</div>" +
-        "<div class='inq-subject'>" + (inq.subject || "") + "</div>" +
-        "<div class='inq-body'>" + (inq.body || "") + "</div>";
+        "<div class='inq-body'>" + details + "</div>";
       list.appendChild(card);
     });
   }
