@@ -33,16 +33,28 @@
     .empty-state { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 11px; line-height: 2; }
 
     /* WEEK PILLS */
+    .week-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+    .week-pill {
+      padding: 5px 11px; border: 1px solid var(--border); border-radius: 20px;
+      background: var(--surface); color: var(--muted); font-family: "DM Mono", monospace;
+      font-size: 10px; cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; gap: 5px;
+    }
     .week-pill:hover { border-color: var(--accent); color: var(--text); }
     .week-pill.recording { border-color: var(--accent); color: var(--accent); background: rgba(232,70,58,0.08); }
+    .week-pill.trial-pill { border-color: rgba(74,158,255,0.3); color: var(--blue); }
+    /* forgot = past day, not logged */
+    .week-pill.forgot { border-color: var(--forgot); color: var(--forgot); background: rgba(192,57,43,0.08); }
     .week-pill .pill-date { font-size: 9px; opacity: 0.6; margin-left: 2px; }
+    .week-pill .forgot-dot { display: none; }
+    .week-pill.forgot .forgot-dot { display: inline; margin-right: 2px; }
 
     /* TODAY GRID */
     .today-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; margin-bottom: 18px; }
     .today-btn {
       position: relative; padding: 16px 14px; border: 1.5px solid var(--border);
       border-radius: 10px; background: var(--surface); color: var(--text);
-      font-family: "DM Mono", monospace; font-size: 13px; font-weight: 500;
+      font-family: "Syne", sans-serif; font-size: 13px; font-weight: 700;
       cursor: pointer; transition: all 0.2s; text-align: left;
       display: flex; flex-direction: column; gap: 6px; line-height: 1.3;
     }
@@ -90,7 +102,7 @@
 
     /* PAST */
     .past-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; margin-bottom: 18px; }
-    .past-student-btn { padding: 16px 14px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); font-family: "DM Mono", monospace; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; text-align: left; line-height: 1.3; }
+    .past-student-btn { padding: 16px 14px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); font-family: "Syne", sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: left; line-height: 1.3; }
     .past-student-btn:hover { border-color: var(--accent2); background: rgba(240,165,0,0.05); }
     .past-student-btn.active-past { border-color: var(--accent2); background: rgba(240,165,0,0.08); }
     .past-header { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: none; }
@@ -121,6 +133,12 @@
     .week-tab-grid { display: flex; flex-wrap: wrap; gap: 7px; }
     .week-tab-pill { padding: 7px 14px; border: 1px solid var(--border); border-radius: 20px; background: var(--surface); color: var(--muted); font-family: "DM Mono", monospace; font-size: 11px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
     .week-tab-pill:hover { border-color: var(--accent); color: var(--text); }
+    .week-tab-pill.logged { border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.06); }
+    .week-tab-pill .wt-check { display: none; }
+    .week-tab-pill.logged .wt-check { display: inline; }
+    .week-tab-pill.wt-trial { border-color: rgba(74,158,255,0.3); color: #4a9eff99; }
+    .week-tab-pill.wt-weekly { border-color: rgba(232,70,58,0.25); color: #e8463a99; }
+    .week-tab-pill.wt-biweekly { border-color: rgba(240,165,0,0.25); color: #f0a50099; }
 
     .week-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
     .week-bar-label { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px; }
@@ -188,7 +206,7 @@
 <body>
 <div class="container">
   <div class="header">
-    <img src="data:image/png;base64,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" alt="Red Pick Music">
+    <img src="data:image/png;base64,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" alt="Red Pick Music">
     <div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Lesson Portal</div>
@@ -205,6 +223,7 @@
     <button class="tab-btn" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
   </div>
 
+  <!-- LESSONS -->
   <div class="tab-panel active" id="tab-lessons">
     <div class="section-label">This Week</div>
     <div class="week-pills" id="weekPills"><div style="color:var(--muted);font-size:11px">Loading...</div></div>
@@ -224,6 +243,7 @@
     <div class="log-feed" id="lessonFeed"></div>
   </div>
 
+  <!-- PAYMENTS -->
   <div class="tab-panel" id="tab-payments">
     <div class="section-label">All Students</div>
     <div class="payment-students" id="paymentGrid"><div class="empty-state">Loading...</div></div>
@@ -240,6 +260,7 @@
     <div class="log-feed" id="paymentFeed"></div>
   </div>
 
+  <!-- PAST -->
   <div class="tab-panel" id="tab-past">
     <div class="section-label">Today's Students</div>
     <div class="past-grid" id="pastGrid"><div class="empty-state">Load students first</div></div>
@@ -247,6 +268,7 @@
     <div class="past-lessons-list" id="pastList"></div>
   </div>
 
+  <!-- WEEK -->
   <div class="tab-panel" id="tab-week">
     <div class="week-bar" id="weekBar">
       <div>
@@ -266,6 +288,7 @@
     <div class="week-tab-grid" id="weekTabGrid"><div class="empty-state">Loading...</div></div>
   </div>
 
+  <!-- GENERAL -->
   <div class="tab-panel" id="tab-general">
     <div class="section-label">Student Load</div>
     <div class="load-table" id="loadTable">
@@ -293,10 +316,12 @@
     <div class="log-feed" id="generalFeed"></div>
   </div>
 
+  <!-- FINANCIAL -->
   <div class="tab-panel" id="tab-financial">
     <div class="financial-empty">Financial tracking<br>coming soon</div>
   </div>
 
+  <!-- INQUIRIES -->
   <div class="tab-panel" id="tab-inquiries">
     <div class="section-label">Trial Lesson Inquiries</div>
     <div id="inquiriesList"><div class="inq-empty">Loading...</div></div>
@@ -443,12 +468,15 @@
     var grid = document.getElementById("weekPills"); grid.innerHTML = "";
     if (!weekStudents.length) { grid.innerHTML = "<div style='color:var(--muted);font-size:11px'>No students this week</div>"; return; }
     weekStudents.forEach(function (s) {
-      if (loggedNames[s.name]) return;
+      if (loggedNames[s.name]) return; // FIX #7: disappear when logged
       var btn = document.createElement("button");
-      btn.className = "week-pill";
+      var past = isPastDay(s.eventDate) && !s.isToday;
+      var cls = "week-pill" + (s.calType === "trial" ? " trial-pill" : "") + (past ? " forgot" : "");
+      btn.className = cls;
       btn.id = "pill-" + s.name.replace(/\s+/g, "_");
-      var dateLabel = s.eventDate ? ("<span class='pill-date'>" + formatEventDate(s.eventDate) + "</span>") : "";
-      btn.innerHTML = s.name + " " + dateLabel;
+      // FIX #5: date label
+      var dateLabel = s.eventDate ? (" <span class='pill-date'>" + formatEventDate(s.eventDate) + "</span>") : "";
+      btn.innerHTML = (past ? "<span class='forgot-dot'>!</span>" : "") + s.name + dateLabel;
       btn.onclick = function () { openLog(s); };
       grid.appendChild(btn);
     });
@@ -511,12 +539,14 @@
       group.appendChild(label);
       var pillRow = document.createElement("div"); pillRow.className = "week-day-pills";
       groups[day].forEach(function (s) {
-        if (loggedNames[s.name]) return;
+        if (loggedNames[s.name]) return; // FIX #7: disappear
         var btn = document.createElement("button");
-        btn.className = "week-tab-pill";
+        var past = isPastDay(s.eventDate) && !s.isToday;
+        var cls = "week-tab-pill wt-" + s.calType + (past ? " forgot" : "");
+        btn.className = cls;
         btn.id = "wtpill-" + s.name.replace(/\s+/g, "_");
-        var dateLabel = s.eventDate ? ("<span class='pill-date'>" + formatEventDate(s.eventDate) + "</span>") : "";
-        btn.innerHTML = s.name + " " + dateLabel;
+        var dateLabel = s.eventDate ? (" <span class='pill-date'>" + formatEventDate(s.eventDate) + "</span>") : "";
+        btn.innerHTML = (past ? "<span class='forgot-dot'>!</span>" : "") + s.name + dateLabel;
         btn.onclick = function () { openLog(s); };
         pillRow.appendChild(btn);
       });
