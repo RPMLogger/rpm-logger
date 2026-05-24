@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #222;
@@ -17,10 +17,26 @@
     body::before { content: ""; position: fixed; inset: 0; background-image: linear-gradient(rgba(232,70,58,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(232,70,58,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
     .container { width: 100%; max-width: 600px; position: relative; z-index: 1; }
 
-    .header { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 8px; }
+    /* HEADER */
+    .header { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 8px; position: relative; }
     .header img { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; }
     .header-title { font-family: "Bebas Neue", sans-serif; font-size: 28px; font-weight: 400; color: var(--accent); line-height: 1; letter-spacing: 2px; }
     .header-sub { font-size: 9px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-top: 3px; text-align: center; }
+    .gear-btn { position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-size: 16px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .gear-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+    /* SETTINGS MODAL */
+    .settings-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
+    .settings-overlay.open { display: flex; }
+    .settings-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; width: 90%; max-width: 440px; }
+    .settings-title { font-family: "Bebas Neue", sans-serif; font-size: 20px; color: var(--accent); letter-spacing: 2px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+    .settings-close { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; line-height: 1; }
+    .settings-close:hover { color: var(--text); }
+    .settings-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
+    .settings-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 9px 13px; color: var(--muted); font-family: "DM Mono", monospace; font-size: 11px; outline: none; transition: border-color 0.2s; margin-bottom: 10px; }
+    .settings-input:focus { border-color: var(--accent); color: var(--text); }
+    .btn-settings-load { width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+    .btn-settings-load:hover { border-color: var(--accent2); color: var(--accent2); }
 
     .tabs { display: flex; gap: 2px; margin-top: 24px; margin-bottom: 20px; background: var(--surface); border-radius: 6px; padding: 3px; overflow-x: auto; }
     .tab-btn { flex: 1; min-width: 0; padding: 8px 2px; border: none; border-radius: 4px; background: transparent; color: var(--muted); font-family: "DM Mono", monospace; font-size: 8px; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
@@ -43,18 +59,17 @@
     .week-pill:hover { border-color: var(--accent); color: var(--text); }
     .week-pill.recording { border-color: var(--accent); color: var(--accent); background: rgba(232,70,58,0.08); }
     .week-pill.trial-pill { border-color: rgba(74,158,255,0.3); color: var(--blue); }
-    /* forgot = past day, not logged */
-    .week-pill.forgot { border-color: var(--forgot); color: var(--forgot); background: rgba(192,57,43,0.08); }
+    /* FIX 1: past unlogged = subtle gray warning, not red */
+    .week-pill.forgot { border-color: #444; color: #888; background: rgba(255,255,255,0.03); }
     .week-pill .pill-date { font-size: 9px; opacity: 0.6; margin-left: 2px; }
-    .week-pill .forgot-dot { display: none; }
-    .week-pill.forgot .forgot-dot { display: inline; margin-right: 2px; }
+
 
     /* TODAY GRID */
     .today-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; margin-bottom: 18px; }
     .today-btn {
       position: relative; padding: 16px 14px; border: 1.5px solid var(--border);
       border-radius: 10px; background: var(--surface); color: var(--text);
-      font-family: "Syne", sans-serif; font-size: 13px; font-weight: 700;
+      font-family: "Syne", sans-serif; font-size: 13px; font-weight: 400; /* FIX 5: unbold */
       cursor: pointer; transition: all 0.2s; text-align: left;
       display: flex; flex-direction: column; gap: 6px; line-height: 1.3;
     }
@@ -112,18 +127,14 @@
       background: var(--surface); border: 1px solid var(--border); border-radius: 5px;
       padding: 9px 13px; display: grid;
       grid-template-columns: 18px 1fr auto;
-      align-items: start; /* changed from center to allow wrap */
+      align-items: start;
       gap: 10px;
       animation: fadeUp 0.2s ease forwards; opacity: 0;
     }
     .past-row:nth-child(1){animation-delay:0.03s}.past-row:nth-child(2){animation-delay:0.06s}.past-row:nth-child(3){animation-delay:0.09s}.past-row:nth-child(4){animation-delay:0.12s}
     @keyframes fadeUp { from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)} }
     .past-num { font-size: 10px; color: var(--muted); padding-top: 1px; }
-    /* FIX #10: wrap text instead of truncate */
-    .past-subject {
-      font-family: "DM Mono", monospace; font-size: 11px; color: var(--text);
-      white-space: normal; word-break: break-word; line-height: 1.5;
-    }
+    .past-subject { font-family: "DM Mono", monospace; font-size: 11px; color: var(--text); white-space: normal; word-break: break-word; line-height: 1.5; }
     .past-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; padding-top: 1px; }
     .past-date { font-size: 10px; color: var(--accent2); white-space: nowrap; }
     .past-paid { font-size: 10px; color: var(--green); }
@@ -139,6 +150,7 @@
     .week-tab-pill.wt-trial { border-color: rgba(74,158,255,0.3); color: #4a9eff99; }
     .week-tab-pill.wt-weekly { border-color: rgba(232,70,58,0.25); color: #e8463a99; }
     .week-tab-pill.wt-biweekly { border-color: rgba(240,165,0,0.25); color: #f0a50099; }
+    .week-tab-pill.forgot { border-color: #444; color: #888; background: rgba(255,255,255,0.03); }
 
     .week-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
     .week-bar-label { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px; }
@@ -189,13 +201,6 @@
     .log-entry.error { background: rgba(232,70,58,0.08); border-left-color: var(--accent); color: var(--accent); }
     .log-entry.info { background: rgba(240,165,0,0.08); border-left-color: var(--accent2); color: var(--accent2); }
 
-    .config { margin-top: 24px; border-top: 1px solid var(--border); padding-top: 18px; }
-    .config label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
-    .config input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 9px 13px; color: var(--muted); font-family: "DM Mono", monospace; font-size: 11px; outline: none; transition: border-color 0.2s; margin-bottom: 8px; }
-    .config input:focus { border-color: var(--accent); color: var(--text); }
-    .btn-load { width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; text-align: center; }
-    .btn-load:hover { border-color: var(--accent2); color: var(--accent2); }
-
     .week-day-group { margin-bottom: 14px; }
     .week-day-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; padding-left: 2px; }
     .week-day-pills { display: flex; flex-wrap: wrap; gap: 7px; }
@@ -210,6 +215,21 @@
     <div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Lesson Portal</div>
+    </div>
+    <!-- FIX 6: gear icon -->
+    <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="settings-overlay" id="settingsOverlay" onclick="closeSettingsOutside(event)">
+    <div class="settings-modal">
+      <div class="settings-title">
+        Settings
+        <button class="settings-close" onclick="closeSettings()">✕</button>
+      </div>
+      <label class="settings-label">Apps Script URL</label>
+      <input type="text" class="settings-input" id="scriptUrl" placeholder="Paste your Apps Script URL here..." />
+      <button class="btn-settings-load" onclick="loadFromSettings()">⟳ Save & Load</button>
     </div>
   </div>
 
@@ -326,12 +346,6 @@
     <div class="section-label">Trial Lesson Inquiries</div>
     <div id="inquiriesList"><div class="inq-empty">Loading...</div></div>
   </div>
-
-  <div class="config">
-    <label>Apps Script URL</label>
-    <input type="text" id="scriptUrl" placeholder="Paste your Apps Script URL here..." />
-    <button class="btn-load" onclick="loadData()">⟳ Load from Calendar</button>
-  </div>
 </div>
 
 <script>
@@ -347,8 +361,49 @@
     return true;
   }
 
+  // ─── FIX 4: WEEK KEY for localStorage (resets each Monday) ─────────────────
+  function getWeekKey() {
+    var d = new Date();
+    var day = d.getDay();
+    var diff = (day === 0) ? -6 : 1 - day;
+    var mon = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diff);
+    var y = mon.getFullYear();
+    var m = String(mon.getMonth() + 1).padStart(2, '0');
+    var dd = String(mon.getDate()).padStart(2, '0');
+    return 'logged_' + y + '-' + m + '-' + dd;
+  }
+
+  function loadLoggedSet() {
+    try {
+      var raw = localStorage.getItem(getWeekKey());
+      return raw ? JSON.parse(raw) : {};
+    } catch(e) { return {}; }
+  }
+
+  function saveLoggedSet() {
+    try { localStorage.setItem(getWeekKey(), JSON.stringify(loggedKeys)); } catch(e) {}
+  }
+
+  // loggedKeys: keyed by "name||date" (e.g. "Jean Gabriel Fransisco||2026-05-18")
+  // loggedNames: keyed by name only, for quick today-grid lookup (derived)
+  var loggedKeys = loadLoggedSet();
+
+  function getLessonKey(name, eventDate) {
+    var dateStr = eventDate ? new Date(eventDate).toISOString().slice(0,10) : 'nodate';
+    return name + '||' + dateStr;
+  }
+
+  function isLessonLogged(name, eventDate) {
+    return !!loggedKeys[getLessonKey(name, eventDate)];
+  }
+
+  function markLessonLogged(name, eventDate) {
+    loggedKeys[getLessonKey(name, eventDate)] = true;
+    saveLoggedSet();
+  }
+
   // ─── STATE ──────────────────────────────────────────────────────────────────
-  var weekStudents = [], todayStudents = [], loggedNames = {}, lessonCounts = {};
+  var weekStudents = [], todayStudents = [], lessonCounts = {};
   var activeStudent = null, activePayStudent = null;
   var recognition = null, payRecognition = null;
   var isRecording = false, isPayRecording = false;
@@ -372,13 +427,10 @@
     return MONTHS[mon.getMonth()] + " " + mon.getDate() + " – " + MONTHS[sun.getMonth()] + " " + sun.getDate();
   }
 
-  // Returns true if a dayOfWeek + event date is in the past (before today)
   function isPastDay(eventDateStr) {
     if (!eventDateStr) return false;
-    var today = new Date();
-    today.setHours(0, 0, 0, 0);
-    var d = new Date(eventDateStr);
-    d.setHours(0, 0, 0, 0);
+    var today = new Date(); today.setHours(0,0,0,0);
+    var d = new Date(eventDateStr); d.setHours(0,0,0,0);
     return d < today;
   }
 
@@ -386,6 +438,24 @@
     var url = localStorage.getItem("scriptUrl");
     if (url) { document.getElementById("scriptUrl").value = url; loadData(); }
   };
+
+  // ─── SETTINGS (FIX 6) ───────────────────────────────────────────────────────
+  function openSettings() {
+    document.getElementById("settingsOverlay").classList.add("open");
+  }
+  function closeSettings() {
+    document.getElementById("settingsOverlay").classList.remove("open");
+  }
+  function closeSettingsOutside(e) {
+    if (e.target === document.getElementById("settingsOverlay")) closeSettings();
+  }
+  function loadFromSettings() {
+    var url = document.getElementById("scriptUrl").value.trim();
+    if (!url) return;
+    localStorage.setItem("scriptUrl", url);
+    closeSettings();
+    loadData();
+  }
 
   // ─── LOAD DATA ──────────────────────────────────────────────────────────────
   function loadData() {
@@ -402,32 +472,39 @@
 
     // Week students
     fetch(url + "?action=getWeekStudents")
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
+      .then(function(r){ return r.json(); })
+      .then(function(data){
         if (data.success && data.students) {
-          var f = data.students.filter(function (s) { return isReal(s.name); });
+          // FIX 3: NO dedup — allow same student multiple times (different dates)
+          var f = data.students.filter(function(s){ return isReal(s.name); });
+          // FIX 2: sort chronologically by eventDate
+          f.sort(function(a, b){
+            var da = a.eventDate ? new Date(a.eventDate) : new Date(0);
+            var db = b.eventDate ? new Date(b.eventDate) : new Date(0);
+            return da - db;
+          });
           weekStudents = f;
-          todayStudents = f.filter(function (s) { return s.isToday; });
+          todayStudents = f.filter(function(s){ return s.isToday; });
           renderWeekBar(); renderWeekPills(); renderTodayGrid(); renderPastGrid(); renderWeekTab(); renderGeneral();
           // Cycle counters
           fetch(url + "?action=getCycleCounters")
-            .then(function (r) { return r.json(); })
-            .then(function (d) {
+            .then(function(r){ return r.json(); })
+            .then(function(d){
               if (d.success && d.counters) { lessonCounts = d.counters; renderTodayGrid(); }
-            }).catch(function () {});
+            }).catch(function(){});
         } else { addLog("lessonFeed", data.message || "No students found", "error"); }
-      }).catch(function () { addLog("lessonFeed", "❌ Could not connect.", "error"); });
+      }).catch(function(){ addLog("lessonFeed", "❌ Could not connect.", "error"); });
 
     // All students for payments tab
     fetch(url + "?action=getAllStudents")
-      .then(function (r) { return r.json(); })
-      .then(function (data) { if (data.success && data.students) renderPaymentStudents(data.students); })
-      .catch(function () {});
+      .then(function(r){ return r.json(); })
+      .then(function(data){ if (data.success && data.students) renderPaymentStudents(data.students); })
+      .catch(function(){});
 
     // Student load
     fetch(url + "?action=getStudentLoad")
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
+      .then(function(r){ return r.json(); })
+      .then(function(data){
         if (data.success) {
           document.getElementById("loadTotal").textContent = data.totalStudents;
           document.getElementById("loadNorm").textContent = data.normalized;
@@ -437,15 +514,15 @@
           document.getElementById("loadGregorian").textContent = "$" + data.gregorian.toLocaleString();
           renderStudentList(data);
         }
-      }).catch(function () {});
+      }).catch(function(){});
 
-    // FIX #11: Load inquiries
+    // Inquiries
     fetch(url + "?action=getInquiries")
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
+      .then(function(r){ return r.json(); })
+      .then(function(data){
         if (data.success) renderInquiries(data.inquiries || []);
         else document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty'>No inquiries found</div>";
-      }).catch(function () {
+      }).catch(function(){
         document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty'>Could not load inquiries</div>";
       });
   }
@@ -453,34 +530,34 @@
   // ─── RENDER: WEEK BAR ───────────────────────────────────────────────────────
   function renderWeekBar() {
     var total = weekStudents.length;
-    var trials = weekStudents.filter(function (s) { return s.calType === "trial"; }).length;
+    var trials = weekStudents.filter(function(s){ return s.calType === "trial"; }).length;
     document.getElementById("weekCounts").innerHTML = total + " students" + (trials > 0 ? " · <span>" + trials + " trial" + (trials > 1 ? "s" : "") + "</span>" : "");
     document.getElementById("weekDateRange").textContent = getWeekRange();
     document.getElementById("weekBar").style.display = "flex";
   }
 
-  // ─── RENDER: WEEK PILLS (Lessons tab) ───────────────────────────────────────
-  // FIX #5: show date next to name
-  // FIX #7: logged pills disappear
-  // FIX #8: past unlogged = "forgot" style
-  // FIX #9: today/future = normal
+  // ─── RENDER: WEEK PILLS ─────────────────────────────────────────────────────
+  // FIX 1: gray not red | FIX 2: chronological | FIX 3: no dedup | FIX 4: persist logged
   function renderWeekPills() {
     var grid = document.getElementById("weekPills"); grid.innerHTML = "";
     if (!weekStudents.length) { grid.innerHTML = "<div style='color:var(--muted);font-size:11px'>No students this week</div>"; return; }
-    weekStudents.forEach(function (s) {
-      if (loggedNames[s.name]) return; // FIX #7: disappear when logged
+    var anyShown = false;
+    weekStudents.forEach(function(s) {
+      // FIX 4: skip if already logged (by name+date key)
+      if (isLessonLogged(s.name, s.eventDate)) return;
+      anyShown = true;
       var btn = document.createElement("button");
       var past = isPastDay(s.eventDate) && !s.isToday;
+      // FIX 1: gray style for forgot, not red
       var cls = "week-pill" + (s.calType === "trial" ? " trial-pill" : "") + (past ? " forgot" : "");
       btn.className = cls;
-      btn.id = "pill-" + s.name.replace(/\s+/g, "_");
-      // FIX #5: date label
+      btn.id = "pill-" + s.name.replace(/\s+/g, "_") + "_" + (s.eventDate || "");
       var dateLabel = s.eventDate ? (" <span class='pill-date'>" + formatEventDate(s.eventDate) + "</span>") : "";
-      btn.innerHTML = (past ? "<span class='forgot-dot'>!</span>" : "") + s.name + dateLabel;
-      btn.onclick = function () { openLog(s); };
+      btn.innerHTML = s.name + dateLabel;
+      btn.onclick = function(){ openLog(s); };
       grid.appendChild(btn);
     });
-    if (!grid.children.length) {
+    if (!anyShown) {
       grid.innerHTML = "<div style='color:var(--green);font-size:11px'>All logged ✓</div>";
     }
   }
@@ -495,8 +572,11 @@
   function renderTodayGrid() {
     var grid = document.getElementById("todayGrid"); grid.innerHTML = "";
     if (!todayStudents.length) { grid.innerHTML = "<div class='empty-state'>No students today</div>"; return; }
-    todayStudents.forEach(function (s, i) {
-      if (loggedNames[s.name]) return; // disappear when logged
+    var anyShown = false;
+    todayStudents.forEach(function(s, i) {
+      // FIX 4: skip if logged
+      if (isLessonLogged(s.name, s.eventDate)) return;
+      anyShown = true;
       var btn = document.createElement("button");
       btn.className = "today-btn";
       btn.id = "tbtn-" + i;
@@ -511,11 +591,10 @@
       btn.innerHTML = "<div class='mic-dot'></div>" + s.name +
         "<div class='btn-type " + (s.calType === "trial" ? "trial" : "regular") + "'>" + (s.calType === "trial" ? "TRIAL" : "LESSON") + "</div>" +
         badgeHtml;
-      // FIX #1: toggle mic on same button
-      btn.onclick = function () { toggleLog(s, i); };
+      btn.onclick = function(){ toggleLog(s, i); };
       grid.appendChild(btn);
     });
-    if (!grid.children.length) {
+    if (!anyShown) {
       grid.innerHTML = "<div style='color:var(--green);font-size:11px;text-align:center;padding:20px'>All logged today ✓</div>";
     }
   }
@@ -527,41 +606,42 @@
     if (!weekStudents.length) { grid.innerHTML = "<div class='empty-state'>No students this week</div>"; return; }
     var dayOrder = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
     var groups = {};
-    weekStudents.forEach(function (s) {
+    weekStudents.forEach(function(s){
       var d = s.dayOfWeek || "Unknown";
       if (!groups[d]) groups[d] = [];
       groups[d].push(s);
     });
-    dayOrder.forEach(function (day) {
+    var anyShown = false;
+    dayOrder.forEach(function(day){
       if (!groups[day] || !groups[day].length) return;
       var group = document.createElement("div"); group.className = "week-day-group";
       var label = document.createElement("div"); label.className = "week-day-label"; label.textContent = day;
       group.appendChild(label);
       var pillRow = document.createElement("div"); pillRow.className = "week-day-pills";
-      groups[day].forEach(function (s) {
-        if (loggedNames[s.name]) return; // FIX #7: disappear
+      groups[day].forEach(function(s){
+        if (isLessonLogged(s.name, s.eventDate)) return;
+        anyShown = true;
         var btn = document.createElement("button");
         var past = isPastDay(s.eventDate) && !s.isToday;
         var cls = "week-tab-pill wt-" + s.calType + (past ? " forgot" : "");
         btn.className = cls;
-        btn.id = "wtpill-" + s.name.replace(/\s+/g, "_");
         var dateLabel = s.eventDate ? (" <span class='pill-date'>" + formatEventDate(s.eventDate) + "</span>") : "";
-        btn.innerHTML = (past ? "<span class='forgot-dot'>!</span>" : "") + s.name + dateLabel;
-        btn.onclick = function () { openLog(s); };
+        btn.innerHTML = s.name + dateLabel;
+        btn.onclick = function(){ openLog(s); };
         pillRow.appendChild(btn);
       });
       if (pillRow.children.length) { group.appendChild(pillRow); grid.appendChild(group); }
     });
-    if (!grid.children.length) {
+    if (!anyShown) {
       grid.innerHTML = "<div style='color:var(--green);font-size:11px;text-align:center;padding:20px'>All logged this week ✓</div>";
     }
   }
 
   // ─── RENDER: GENERAL ─────────────────────────────────────────────────────────
   function renderGeneral() {
-    var weekly = weekStudents.filter(function (s) { return s.calType === "weekly"; }).length;
-    var biweekly = weekStudents.filter(function (s) { return s.calType === "biweekly"; }).length;
-    var trial = weekStudents.filter(function (s) { return s.calType === "trial"; }).length;
+    var weekly = weekStudents.filter(function(s){ return s.calType === "weekly"; }).length;
+    var biweekly = weekStudents.filter(function(s){ return s.calType === "biweekly"; }).length;
+    var trial = weekStudents.filter(function(s){ return s.calType === "trial"; }).length;
     document.getElementById("summWeekly").innerHTML = "<span class='sum-weekly'>" + weekly + " weekly</span>";
     document.getElementById("summBiweekly").innerHTML = "<span class='sum-biweekly'>" + biweekly + " biweekly</span>";
     document.getElementById("summTrial").innerHTML = "<span class='sum-trial'>" + trial + " trial</span>";
@@ -573,34 +653,36 @@
     var grid = document.getElementById("pastGrid"); grid.innerHTML = "";
     var students = todayStudents.length ? todayStudents : weekStudents;
     if (!students.length) { grid.innerHTML = "<div class='empty-state'>No students loaded</div>"; return; }
-    students.forEach(function (s, i) {
+    // Dedupe by name for past tab (just needs one entry per student)
+    var seen = {};
+    students.forEach(function(s, i){
+      if (seen[s.name]) return;
+      seen[s.name] = true;
       var btn = document.createElement("button");
       btn.className = "past-student-btn"; btn.id = "pastbtn-" + i; btn.textContent = s.name;
-      btn.onclick = function () { selectPast(s.name, i); };
+      btn.onclick = function(){ selectPast(s.name, i); };
       grid.appendChild(btn);
     });
   }
 
   function selectPast(name, idx) {
-    document.querySelectorAll(".past-student-btn").forEach(function (b) { b.classList.remove("active-past"); });
+    document.querySelectorAll(".past-student-btn").forEach(function(b){ b.classList.remove("active-past"); });
     var btn = document.getElementById("pastbtn-" + idx); if (btn) btn.classList.add("active-past");
     document.getElementById("pastHeaderName").textContent = name;
     document.getElementById("pastHeader").style.display = "block";
     document.getElementById("pastList").innerHTML = "<div class='empty-state'>Loading...</div>";
     var url = getScriptUrl(); if (!url) return;
     fetch(url + "?action=getPastLessons&studentName=" + encodeURIComponent(name) + "&count=4")
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
+      .then(function(r){ return r.json(); })
+      .then(function(data){
         if (data.success && data.lessons && data.lessons.length > 0) renderPastLessons(data.lessons);
         else document.getElementById("pastList").innerHTML = "<div class='empty-state'>No lessons found for " + name + "</div>";
-      }).catch(function () { document.getElementById("pastList").innerHTML = "<div class='empty-state'>❌ Could not load.</div>"; });
+      }).catch(function(){ document.getElementById("pastList").innerHTML = "<div class='empty-state'>❌ Could not load.</div>"; });
   }
 
-  // FIX #10: wrap text (CSS handles it, no truncation)
   function renderPastLessons(lessons) {
     var c = document.getElementById("pastList"); c.innerHTML = "";
-    // backend returns most-recent-first, display as-is (most recent = #1)
-    lessons.forEach(function (l, i) {
+    lessons.forEach(function(l, i){
       var row = document.createElement("div"); row.className = "past-row";
       row.innerHTML =
         "<div class='past-num'>" + (i + 1) + ".</div>" +
@@ -614,10 +696,10 @@
   // ─── RENDER: PAYMENT STUDENTS ────────────────────────────────────────────────
   function renderPaymentStudents(students) {
     var grid = document.getElementById("paymentGrid"); grid.innerHTML = "";
-    students.forEach(function (s, i) {
+    students.forEach(function(s, i){
       var name = typeof s === "string" ? s : s.name;
       var btn = document.createElement("button"); btn.className = "pay-btn"; btn.id = "pbtn-" + i;
-      btn.onclick = function () { selectPay(name, i); }; btn.textContent = name;
+      btn.onclick = function(){ selectPay(name, i); }; btn.textContent = name;
       grid.appendChild(btn);
     });
   }
@@ -631,19 +713,12 @@
       var badge = document.getElementById("inqBadge");
       badge.textContent = unreadCount; badge.style.display = "inline-block";
     }
-    // Sort most recent first
-    inquiries.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
-    inquiries.forEach(function (inq) {
+    inquiries.sort(function(a, b){ return new Date(b.date) - new Date(a.date); });
+    inquiries.forEach(function(inq){
       var card = document.createElement("div");
       card.className = "inq-card " + (inq.unread ? "unread" : "read");
       card.id = "inq-" + inq.id;
-      var gender = inq.gender || "—";
-      var age = inq.age || "—";
-      var details = [
-        inq.name || "—",
-        gender + " / " + age,
-        inq.city || "—"
-      ].join(" · ");
+      var details = [inq.name || "—", (inq.gender || "—") + " / " + (inq.age || "—"), inq.city || "—"].join(" · ");
       card.innerHTML =
         "<div class='inq-from'>Trial Inquiry</div>" +
         "<div class='inq-date'>" + (inq.date || "") + "</div>" +
@@ -654,9 +729,7 @@
   }
 
   function deleteInquiry(id) {
-    var card = document.getElementById("inq-" + id);
-    if (card) card.remove();
-    // Update badge count
+    var card = document.getElementById("inq-" + id); if (card) card.remove();
     var remaining = document.querySelectorAll(".inq-card.unread").length;
     var badge = document.getElementById("inqBadge");
     if (remaining > 0) { badge.textContent = remaining; badge.style.display = "inline-block"; }
@@ -667,10 +740,10 @@
   function renderStudentList(data) {
     var rows = document.getElementById("studentListRows"); rows.innerHTML = "";
     var all = [];
-    (data.weeklyList || []).forEach(function (n) { all.push({ name: n, ave: 1 }); });
-    (data.biweeklyList || []).forEach(function (n) { all.push({ name: n, ave: 0.5 }); });
-    all.sort(function (a, b) { return a.name.localeCompare(b.name); });
-    all.forEach(function (s) {
+    (data.weeklyList || []).forEach(function(n){ all.push({ name: n, ave: 1 }); });
+    (data.biweeklyList || []).forEach(function(n){ all.push({ name: n, ave: 0.5 }); });
+    all.sort(function(a, b){ return a.name.localeCompare(b.name); });
+    all.forEach(function(s){
       var row = document.createElement("div");
       row.className = "load-row"; row.style.padding = "5px 14px";
       row.innerHTML =
@@ -683,28 +756,20 @@
     document.getElementById("studentListTable").style.display = "block";
   }
 
-  // ─── MIC: TOGGLE (FIX #1) ───────────────────────────────────────────────────
-  // Same student button: start → stop → restart (clears transcript)
+  // ─── MIC: TOGGLE ────────────────────────────────────────────────────────────
   function toggleLog(student, idx) {
-    // If a different student is active, switch to this one (reset)
-    if (activeStudent && activeStudent.student.name !== student.name) {
+    if (activeStudent && (activeStudent.student.name !== student.name || activeStudent.student.eventDate !== student.eventDate)) {
       stopRecording();
       openLogFresh(student, idx);
       return;
     }
-    if (!activeStudent) {
-      // Panel not open yet — open and start
-      openLogFresh(student, idx);
-      return;
-    }
+    if (!activeStudent) { openLogFresh(student, idx); return; }
     if (isRecording) {
-      // Currently recording → stop and show transcript for review
       stopRecording();
       setRecordingUI(false, idx);
       document.getElementById("logPanelStatus").textContent = "review & edit";
       document.getElementById("logPanelStatus").classList.add("idle");
     } else {
-      // Stopped → click again = clear and re-record
       document.getElementById("transcriptBox").value = "";
       document.getElementById("btnLog").disabled = true;
       startRecording(idx);
@@ -719,37 +784,34 @@
     document.getElementById("btnLog").disabled = true;
     document.getElementById("btnLog").className = "btn-log";
     document.getElementById("btnLog").textContent = "Log It →";
-    // Trial paid toggle
     var ex = document.getElementById("trialPaidToggle"); if (ex) ex.remove();
     if (student.calType === "trial") {
       var tog = document.createElement("label"); tog.className = "trial-paid"; tog.id = "trialPaidToggle";
       tog.innerHTML = "<input type='checkbox' id='trialPaidCheck'> ✓ Trial Paid";
-      tog.onclick = function () { setTimeout(function () { tog.classList.toggle("checked", document.getElementById("trialPaidCheck").checked); }, 0); };
+      tog.onclick = function(){ setTimeout(function(){ tog.classList.toggle("checked", document.getElementById("trialPaidCheck").checked); }, 0); };
       document.getElementById("logActions").insertBefore(tog, document.getElementById("btnLog"));
     }
     startRecording(idx);
   }
 
   function setRecordingUI(recording, idx) {
-    document.querySelectorAll(".today-btn").forEach(function (b) { b.classList.remove("recording"); });
-    document.querySelectorAll(".week-pill").forEach(function (b) { b.classList.remove("recording"); });
+    document.querySelectorAll(".today-btn").forEach(function(b){ b.classList.remove("recording"); });
+    document.querySelectorAll(".week-pill").forEach(function(b){ b.classList.remove("recording"); });
     if (recording) {
       if (idx !== undefined) { var tb = document.getElementById("tbtn-" + idx); if (tb) tb.classList.add("recording"); }
       if (activeStudent) {
-        var wp = document.getElementById("pill-" + activeStudent.student.name.replace(/\s+/g, "_"));
-        if (wp) wp.classList.add("recording");
+        var key = activeStudent.student.name.replace(/\s+/g, "_") + "_" + (activeStudent.student.eventDate || "");
+        var wp = document.getElementById("pill-" + key); if (wp) wp.classList.add("recording");
       }
       document.getElementById("logPanelStatus").textContent = "🔴 recording...";
       document.getElementById("logPanelStatus").classList.remove("idle");
     }
   }
 
-  // Open log from week pills (uses student's actual event date for logging)
   function openLog(student) {
     if (isRecording) stopRecording();
-    // Find today's button index if applicable
     var idx = undefined;
-    todayStudents.forEach(function (s, i) { if (s.name === student.name) idx = i; });
+    todayStudents.forEach(function(s, i){ if (s.name === student.name && s.eventDate === student.eventDate) idx = i; });
     openLogFresh(student, idx);
   }
 
@@ -760,33 +822,20 @@
     }
     recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = "en-US"; recognition.continuous = true; recognition.interimResults = true;
-
-    recognition.onstart = function () {
-      isRecording = true;
-      setRecordingUI(true, idx);
-      playBeep(880, 100);
-    };
-
-    // FIX #4/#5: raw transcript, no stripping
-    recognition.onresult = function (event) {
-      var interim = "", final = "";
+    recognition.onstart = function(){ isRecording = true; setRecordingUI(true, idx); playBeep(880, 100); };
+    recognition.onresult = function(event){
+      var interim = "";
+      if (!recognition._finalText) recognition._finalText = "";
       for (var i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) final += event.results[i][0].transcript;
+        if (event.results[i].isFinal) recognition._finalText += event.results[i][0].transcript;
         else interim += event.results[i][0].transcript;
       }
-      // Accumulate finals in textarea
       var box = document.getElementById("transcriptBox");
-      // We store final text cumulatively; interim shown appended
-      if (!recognition._finalText) recognition._finalText = "";
-      if (final) recognition._finalText += final;
       box.value = (recognition._finalText + interim).trim();
       if (recognition._finalText.trim()) document.getElementById("btnLog").disabled = false;
     };
-
-    // FIX: do NOT auto-restart on timeout — just stop cleanly
-    recognition.onend = function () {
+    recognition.onend = function(){
       if (isRecording) {
-        // Browser timed out due to silence — stop cleanly, show review state
         isRecording = false;
         setRecordingUI(false, idx);
         playBeep(440, 80, 0.15);
@@ -796,12 +845,7 @@
         if (box.value.trim()) document.getElementById("btnLog").disabled = false;
       }
     };
-
-    recognition.onerror = function (e) {
-      if (e.error === "no-speech") return;
-      isRecording = false;
-    };
-
+    recognition.onerror = function(e){ if (e.error === "no-speech") return; isRecording = false; };
     recognition._finalText = "";
     recognition.start();
   }
@@ -812,21 +856,17 @@
     playBeep(440, 80, 0.15);
   }
 
-  // FIX #2: switching tabs stops mic
   function switchTab(tab) {
-    // Stop mic if active
     if (isRecording) stopRecording();
     if (isPayRecording) stopPayRecording();
-
     var tabs = ["lessons","payments","past","week","general","financial","inquiries"];
-    tabs.forEach(function (t, i) {
+    tabs.forEach(function(t, i){
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
     });
   }
 
   // ─── SUBMIT LESSON LOG ───────────────────────────────────────────────────────
-  // FIX #6: use student's actual event date when logging from week pills
   function submitLog() {
     var url = getScriptUrl(); if (!url) return;
     var subject = document.getElementById("transcriptBox").value.trim();
@@ -835,15 +875,16 @@
     var student = activeStudent.student;
     var btn = document.getElementById("btnLog"); btn.textContent = "Logging..."; btn.disabled = true;
     var trialPaid = false; var pe = document.getElementById("trialPaidCheck"); if (pe) trialPaid = pe.checked;
-    // Pass eventDate so backend can use it instead of today
     var params = { studentName: student.name, subject: subject, trialPaid: trialPaid ? "1" : "0" };
     if (student.eventDate) params.lessonDate = student.eventDate;
-    callScript(url, student.calType === "trial" ? "logTrial" : "logLesson", params, function (data) {
+    callScript(url, student.calType === "trial" ? "logTrial" : "logLesson", params, function(data){
       if (data.success) {
         btn.textContent = "✓ Logged!"; btn.className = "btn-log success";
-        markLogged(student.name);
+        // FIX 4: persist logged state by name+date
+        markLessonLogged(student.name, student.eventDate);
         addLog("lessonFeed", "✓ " + student.name + " — " + subject, "success");
-        setTimeout(function () {
+        renderWeekPills(); renderTodayGrid(); renderWeekTab();
+        setTimeout(function(){
           document.getElementById("logPanel").classList.remove("active");
           activeStudent = null;
         }, 1200);
@@ -852,14 +893,6 @@
         addLog("lessonFeed", "❌ " + (data.message || "Error logging"), "error");
       }
     });
-  }
-
-  function markLogged(name) {
-    loggedNames[name] = true;
-    // Re-render pills and grids (they filter out logged names now)
-    renderWeekPills();
-    renderTodayGrid();
-    renderWeekTab();
   }
 
   // ─── PAYMENT ─────────────────────────────────────────────────────────────────
@@ -872,7 +905,7 @@
     document.getElementById("btnPayLog").disabled = true;
     document.getElementById("btnPayLog").className = "btn-log";
     document.getElementById("btnPayLog").textContent = "Log Payment →";
-    document.querySelectorAll(".pay-btn").forEach(function (b) { b.classList.remove("recording"); });
+    document.querySelectorAll(".pay-btn").forEach(function(b){ b.classList.remove("recording"); });
     document.getElementById("pbtn-" + idx).classList.add("recording");
     document.getElementById("payLogStatus").textContent = "🔴 recording...";
     startPayRecording(idx);
@@ -882,8 +915,8 @@
     if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) return;
     payRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     payRecognition.lang = "en-US"; payRecognition.continuous = true; payRecognition.interimResults = true;
-    payRecognition.onstart = function () { isPayRecording = true; playBeep(880, 100); };
-    payRecognition.onresult = function (event) {
+    payRecognition.onstart = function(){ isPayRecording = true; playBeep(880, 100); };
+    payRecognition.onresult = function(event){
       var interim = "";
       for (var i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
@@ -894,7 +927,7 @@
       document.getElementById("payTranscriptBox").value = ((payRecognition._finalText || "") + interim).trim();
       if (payRecognition._finalText && payRecognition._finalText.trim()) document.getElementById("btnPayLog").disabled = false;
     };
-    payRecognition.onend = function () {
+    payRecognition.onend = function(){
       if (isPayRecording) {
         isPayRecording = false;
         playBeep(440, 80, 0.15);
@@ -903,7 +936,7 @@
         if (document.getElementById("payTranscriptBox").value.trim()) document.getElementById("btnPayLog").disabled = false;
       }
     };
-    payRecognition.onerror = function (e) { if (e.error === "no-speech") return; isPayRecording = false; };
+    payRecognition.onerror = function(e){ if (e.error === "no-speech") return; isPayRecording = false; };
     payRecognition._finalText = "";
     payRecognition.start();
   }
@@ -917,22 +950,22 @@
   function submitPayLog() {
     var url = getScriptUrl(); if (!url) return;
     var note = document.getElementById("payTranscriptBox").value.trim();
-    if (!note) { addLog("paymentFeed", "Nothing to log!", "error"); return; } // FIX #12
+    if (!note) { addLog("paymentFeed", "Nothing to log!", "error"); return; }
     stopPayRecording();
     var name = activePayStudent.name;
     var btn = document.getElementById("btnPayLog"); btn.textContent = "Logging..."; btn.disabled = true;
-    callScript(url, "logPaymentNote", { studentName: name, note: note }, function (data) {
+    callScript(url, "logPaymentNote", { studentName: name, note: note }, function(data){
       if (data.success) {
         btn.textContent = "✓ Logged!"; btn.className = "btn-log success";
         var pb = document.getElementById("pbtn-" + activePayStudent.idx); if (pb) pb.classList.add("logged");
-        addLog("paymentFeed", "✓ " + name + " — " + note, "success"); // FIX #12
-        setTimeout(function () {
+        addLog("paymentFeed", "✓ " + name + " — " + note, "success");
+        setTimeout(function(){
           document.getElementById("payLogPanel").classList.remove("active");
           activePayStudent = null;
         }, 1200);
       } else {
         btn.textContent = "Log Payment →"; btn.disabled = false;
-        addLog("paymentFeed", "❌ " + (data.message || "Error"), "error"); // FIX #12
+        addLog("paymentFeed", "❌ " + (data.message || "Error"), "error");
       }
     });
   }
@@ -941,13 +974,13 @@
   function callScript(url, action, params, cb) {
     var q = url + "?action=" + action;
     for (var k in params) q += "&" + k + "=" + encodeURIComponent(params[k]);
-    fetch(q).then(function (r) { return r.json(); }).then(cb)
-      .catch(function () { addLog("lessonFeed", "❌ Connection error.", "error"); });
+    fetch(q).then(function(r){ return r.json(); }).then(cb)
+      .catch(function(){ addLog("lessonFeed", "❌ Connection error.", "error"); });
   }
 
   function getScriptUrl() {
     var url = document.getElementById("scriptUrl").value.trim();
-    if (!url) { addLog("lessonFeed", "Paste your Apps Script URL first.", "error"); return null; }
+    if (!url) { openSettings(); return null; }
     localStorage.setItem("scriptUrl", url); return url;
   }
 
@@ -968,14 +1001,13 @@
       gain.gain.setValueAtTime(vol || 0.3, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (duration || 120) / 1000);
       osc.start(ctx.currentTime); osc.stop(ctx.currentTime + (duration || 120) / 1000);
-    } catch (e) {}
+    } catch(e) {}
   }
 
-  // Manual textarea edits enable Log It button
-  document.getElementById("transcriptBox").addEventListener("input", function () {
+  document.getElementById("transcriptBox").addEventListener("input", function(){
     document.getElementById("btnLog").disabled = !this.value.trim();
   });
-  document.getElementById("payTranscriptBox").addEventListener("input", function () {
+  document.getElementById("payTranscriptBox").addEventListener("input", function(){
     document.getElementById("btnPayLog").disabled = !this.value.trim();
   });
 </script>
