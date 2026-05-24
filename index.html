@@ -22,7 +22,7 @@
     .header img { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; }
     .header-title { font-family: "Bebas Neue", sans-serif; font-size: 28px; font-weight: 400; color: var(--accent); line-height: 1; letter-spacing: 2px; }
     .header-sub { font-size: 9px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-top: 3px; text-align: center; }
-    .gear-btn { position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-size: 16px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .gear-btn { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-size: 16px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
     .gear-btn:hover { border-color: var(--accent2); color: var(--accent2); }
 
     /* SETTINGS MODAL */
@@ -45,6 +45,7 @@
     .tab-panel.active { display: block; }
 
     .section-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .section-label.today-label { font-size: 14px; letter-spacing: 2px; color: var(--text); margin-bottom: 14px; font-family: "DM Mono", monospace; }
     .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
     .empty-state { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 11px; line-height: 2; }
 
@@ -73,8 +74,8 @@
       cursor: pointer; transition: all 0.2s; text-align: left;
       display: flex; flex-direction: column; gap: 6px; line-height: 1.3;
     }
-    .today-btn:hover { border-color: var(--accent); background: rgba(232,70,58,0.05); }
-    .today-btn.recording { border-color: var(--accent); background: rgba(232,70,58,0.1); box-shadow: 0 0 20px rgba(232,70,58,0.15); }
+    .today-btn:hover { border-color: var(--accent2); background: rgba(240,165,0,0.05); }
+    .today-btn.recording { border-color: var(--accent2); background: rgba(240,165,0,0.1); box-shadow: 0 0 20px rgba(240,165,0,0.15); }
     .today-btn.logged { border-color: var(--green); background: rgba(46,204,113,0.08); opacity: 0.5; pointer-events: none; }
     .today-btn .mic-dot { position: absolute; top: 11px; right: 11px; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: all 0.2s; }
     .today-btn.recording .mic-dot { background: var(--accent); box-shadow: 0 0 6px var(--accent); animation: pulse 1s infinite; }
@@ -88,7 +89,7 @@
     .log-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin-bottom: 14px; display: none; }
     .log-panel.active { display: block; }
     .log-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .log-panel-name { font-family: "Syne", sans-serif; font-size: 17px; font-weight: 800; }
+    .log-panel-name { font-family: "Syne", sans-serif; font-size: 17px; font-weight: 400; }
     .log-panel-status { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
     .log-panel-status.idle { color: var(--muted); }
     .transcript-box {
@@ -216,8 +217,6 @@
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Lesson Portal</div>
     </div>
-    <!-- FIX 6: gear icon -->
-    <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
 
   <!-- SETTINGS MODAL -->
@@ -248,7 +247,7 @@
     <div class="section-label">This Week</div>
     <div class="week-pills" id="weekPills"><div style="color:var(--muted);font-size:11px">Loading...</div></div>
     <hr class="divider">
-    <div class="section-label" id="todayLabel">Today</div>
+    <div class="section-label today-label" id="todayLabel">Today</div>
     <div class="today-grid" id="todayGrid"><div class="empty-state">Loading...</div></div>
     <div class="log-panel" id="logPanel">
       <div class="log-panel-header">
@@ -345,6 +344,11 @@
   <div class="tab-panel" id="tab-inquiries">
     <div class="section-label">Trial Lesson Inquiries</div>
     <div id="inquiriesList"><div class="inq-empty">Loading...</div></div>
+  </div>
+
+  <!-- GEAR BUTTON at bottom -->
+  <div style="display:flex; justify-content:flex-end; margin-top:32px; padding-bottom:16px;">
+    <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
 </div>
 
@@ -543,6 +547,8 @@
     if (!weekStudents.length) { grid.innerHTML = "<div style='color:var(--muted);font-size:11px'>No students this week</div>"; return; }
     var anyShown = false;
     weekStudents.forEach(function(s) {
+      // Skip today's students — they show in Today grid below
+      if (s.isToday) return;
       // FIX 4: skip if already logged (by name+date key)
       if (isLessonLogged(s.name, s.eventDate)) return;
       anyShown = true;
