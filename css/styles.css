@@ -106,7 +106,6 @@ body::before {
 
 /* ─── SHARED ──────────────────────────────────────────────────────────────── */
 .section-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-.section-label.today-label { font-size: 14px; letter-spacing: 2px; color: var(--text); margin-bottom: 14px; font-family: "DM Mono", monospace; }
 .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 .empty-state { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 11px; line-height: 2; }
 
@@ -127,12 +126,21 @@ body::before {
 /* ─── TODAY GRID ──────────────────────────────────────────────────────────── */
 .today-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; margin-bottom: 18px; }
 .today-btn {
-  position: relative; padding: 16px 14px; border: 1.5px solid var(--border);
+  position: relative; padding: 16px 14px; border: 1.5px solid var(--accent2);
   border-radius: 10px; background: var(--surface); color: var(--text);
   font-family: "Syne", sans-serif; font-size: 13px; font-weight: 400;
   cursor: pointer; transition: all 0.2s; text-align: left;
   display: flex; flex-direction: column; gap: 6px; line-height: 1.3;
 }
+.refresh-btn {
+  width: 100%; margin-top: 8px; padding: 14px;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--muted);
+  font-family: "DM Mono", monospace; font-size: 10px;
+  letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+}
+.refresh-btn:hover { border-color: var(--muted); color: var(--text); }
 .today-btn:hover { border-color: var(--accent2); background: rgba(240,165,0,0.05); }
 .today-btn.recording { border-color: var(--accent2); background: rgba(240,165,0,0.1); box-shadow: 0 0 20px rgba(240,165,0,0.15); }
 .today-btn.logged { border-color: var(--green); background: rgba(46,204,113,0.08); opacity: 0.5; pointer-events: none; }

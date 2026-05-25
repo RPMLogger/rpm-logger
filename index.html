@@ -48,12 +48,15 @@
     <div class="section-label">This Week</div>
     <div class="week-pills" id="weekPills"><div style="color:var(--muted);font-size:11px">Loading...</div></div>
     <hr class="divider">
-    <div class="section-label today-label" id="todayLabel">Today</div>
+    <div class="section-label" id="todayLabel">Today</div>
     <div class="today-grid" id="todayGrid"><div class="empty-state">Loading...</div></div>
     <div class="log-panel" id="logPanel">
       <div class="log-panel-header">
         <div class="log-panel-name" id="logPanelName">—</div>
-        <div class="log-panel-status idle" id="logPanelStatus">ready</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="log-panel-status idle" id="logPanelStatus">ready</div>
+          <button onclick="closeLogPanel()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1;padding:0 2px;" title="Close">✕</button>
+        </div>
       </div>
       <textarea class="transcript-box" id="transcriptBox" placeholder="Tap student to start recording... or type directly"></textarea>
       <div class="log-actions" id="logActions">
@@ -61,6 +64,8 @@
       </div>
     </div>
     <div class="log-feed" id="lessonFeed"></div>
+    <hr class="divider">
+    <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
   </div>
 
   <!-- PAYMENTS -->

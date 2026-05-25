@@ -1,6 +1,14 @@
 // ─── TABS / LESSONS.JS ───────────────────────────────────────────────────────
 // Lessons tab: Today grid, Week pills, log panel, mic recording.
 
+function closeLogPanel() {
+  if (isRecording) stopRecording();
+  document.getElementById("logPanel").classList.remove("active");
+  document.querySelectorAll(".today-btn").forEach(function(b) { b.classList.remove("recording"); });
+  document.querySelectorAll(".week-pill").forEach(function(b) { b.classList.remove("recording"); });
+  activeStudent = null;
+}
+
 // ─── RENDER: WEEK BAR ────────────────────────────────────────────────────────
 function renderWeekBar() {
   var total  = weekStudents.length;
