@@ -1,5 +1,9 @@
 // ─── TABS / PAYMENTS.JS ──────────────────────────────────────────────────────
-// Payments tab: student grid, mic recording, payment log submission.
+// Payments tab: student grid, amount + notes panel, cash log to student sheet
+// + RPM Payments sheet.
+
+var payMicRecognition = null;
+var isPayMicRecording = false;
 
 function renderPaymentStudents(students) {
   var grid = document.getElementById("paymentGrid");
@@ -15,81 +19,118 @@ function renderPaymentStudents(students) {
 }
 
 function selectPay(name, idx) {
-  if (isPayRecording) stopPayRecording();
+  if (isPayMicRecording) stopPayMic();
   activePayStudent = { name: name, idx: idx };
+
+  // Highlight selected button
+  document.querySelectorAll(".pay-btn").forEach(function(b) { b.classList.remove("active"); });
+  var pb = document.getElementById("pbtn-" + idx);
+  if (pb) pb.classList.add("active");
+
+  // Open panel
   document.getElementById("payLogPanel").classList.add("active");
   document.getElementById("payLogName").textContent = name;
+  document.getElementById("payLogStatus").textContent = "cash";
+  document.getElementById("payAmount").value = "$380";
   document.getElementById("payTranscriptBox").value = "";
-  document.getElementById("btnPayLog").disabled = true;
   document.getElementById("btnPayLog").className = "btn-log";
   document.getElementById("btnPayLog").textContent = "Log Payment →";
-  document.querySelectorAll(".pay-btn").forEach(function(b) { b.classList.remove("recording"); });
-  document.getElementById("pbtn-" + idx).classList.add("recording");
-  document.getElementById("payLogStatus").textContent = "🔴 recording...";
-  startPayRecording(idx);
+  document.getElementById("payMicBtn").className = "pay-mic-btn";
+  document.getElementById("payMicBtn").textContent = "⏺ Record Note";
 }
 
-function startPayRecording(idx) {
+function closePayLogPanel() {
+  if (isPayMicRecording) stopPayMic();
+  document.getElementById("payLogPanel").classList.remove("active");
+  document.querySelectorAll(".pay-btn").forEach(function(b) { b.classList.remove("active"); });
+  activePayStudent = null;
+}
+
+// ─── MIC TOGGLE ──────────────────────────────────────────────────────────────
+function togglePayMic() {
+  if (isPayMicRecording) {
+    stopPayMic();
+  } else {
+    startPayMic();
+  }
+}
+
+function startPayMic() {
   if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) return;
-  payRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  payRecognition.lang = "en-US"; payRecognition.continuous = true; payRecognition.interimResults = true;
-  payRecognition.onstart = function() { isPayRecording = true; playBeep(880, 100); };
-  payRecognition.onresult = function(event) {
+  payMicRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  payMicRecognition.lang = "en-US"; payMicRecognition.continuous = true; payMicRecognition.interimResults = true;
+  payMicRecognition._finalText = "";
+  payMicRecognition.onstart = function() {
+    isPayMicRecording = true;
+    playBeep(880, 100);
+    document.getElementById("payMicBtn").className = "pay-mic-btn recording";
+    document.getElementById("payMicBtn").textContent = "⏹ Stop Recording";
+  };
+  payMicRecognition.onresult = function(event) {
     var interim = "";
     for (var i = event.resultIndex; i < event.results.length; i++) {
-      if (event.results[i].isFinal) {
-        if (!payRecognition._finalText) payRecognition._finalText = "";
-        payRecognition._finalText += event.results[i][0].transcript;
-      } else { interim += event.results[i][0].transcript; }
+      if (event.results[i].isFinal) payMicRecognition._finalText += event.results[i][0].transcript;
+      else interim += event.results[i][0].transcript;
     }
-    document.getElementById("payTranscriptBox").value =
-      ((payRecognition._finalText || "") + interim).trim();
-    if (payRecognition._finalText && payRecognition._finalText.trim())
-      document.getElementById("btnPayLog").disabled = false;
+    document.getElementById("payTranscriptBox").value = (payMicRecognition._finalText + interim).trim();
   };
-  payRecognition.onend = function() {
-    if (isPayRecording) {
-      isPayRecording = false;
-      playBeep(440, 80, 0.15);
-      document.getElementById("payLogStatus").textContent = "review & edit";
-      var pb = document.getElementById("pbtn-" + idx);
-      if (pb) pb.classList.remove("recording");
-      if (document.getElementById("payTranscriptBox").value.trim())
-        document.getElementById("btnPayLog").disabled = false;
-    }
+  payMicRecognition.onend = function() {
+    if (isPayMicRecording) stopPayMic();
   };
-  payRecognition.onerror = function(e) { if (e.error === "no-speech") return; isPayRecording = false; };
-  payRecognition._finalText = "";
-  payRecognition.start();
+  payMicRecognition.onerror = function(e) { if (e.error === "no-speech") return; isPayMicRecording = false; };
+  payMicRecognition.start();
 }
 
-function stopPayRecording() {
-  isPayRecording = false;
-  if (payRecognition) payRecognition.stop();
+function stopPayMic() {
+  isPayMicRecording = false;
+  if (payMicRecognition) payMicRecognition.stop();
   playBeep(440, 80, 0.15);
+  document.getElementById("payMicBtn").className = "pay-mic-btn";
+  document.getElementById("payMicBtn").textContent = "⏺ Record Note";
 }
 
+// ─── SUBMIT PAYMENT ───────────────────────────────────────────────────────────
 function submitPayLog() {
   var url = getScriptUrl(); if (!url) return;
-  var note = document.getElementById("payTranscriptBox").value.trim();
-  if (!note) { addLog("paymentFeed", "Nothing to log!", "error"); return; }
-  stopPayRecording();
-  var name = activePayStudent.name;
-  var btn  = document.getElementById("btnPayLog");
+  if (!activePayStudent) return;
+  if (isPayMicRecording) stopPayMic();
+
+  var name   = activePayStudent.name;
+  var amount = document.getElementById("payAmount").value.trim() || "$380";
+  var note   = document.getElementById("payTranscriptBox").value.trim();
+  // Note written to student sheet: "Cash [amount] [note]"
+  var fullNote = "Cash " + amount + (note ? " — " + note : "");
+
+  var btn = document.getElementById("btnPayLog");
   btn.textContent = "Logging..."; btn.disabled = true;
-  callScript(url, "logPaymentNote", { studentName: name, note: note }, function(data) {
+
+  callScript(url, "logPaymentNote", { studentName: name, note: fullNote }, function(data) {
     if (data.success) {
+      // Also log to RPM Payments sheet
+      callScript(url, "logPayment", {
+        studentName: name,
+        method: "Cash",
+        amount: amount,
+        notes: note
+      }, function() {});
+
       btn.textContent = "✓ Logged!"; btn.className = "btn-log success";
       var pb = document.getElementById("pbtn-" + activePayStudent.idx);
       if (pb) pb.classList.add("logged");
-      addLog("paymentFeed", "✓ " + name + " — " + note, "success");
+
+      // Show in feed
+      document.getElementById("payDivider").style.display = "block";
+      document.getElementById("payHistoryLabel").style.display = "block";
+      addLog("paymentFeed", "✓ " + name + " · Cash · " + amount + (note ? " · " + note : ""), "success");
+
       setTimeout(function() {
-        document.getElementById("payLogPanel").classList.remove("active");
-        activePayStudent = null;
+        closePayLogPanel();
       }, 1200);
     } else {
       btn.textContent = "Log Payment →"; btn.disabled = false;
       addLog("paymentFeed", "❌ " + (data.message || "Error"), "error");
+      document.getElementById("payDivider").style.display = "block";
+      document.getElementById("payHistoryLabel").style.display = "block";
     }
   });
 }

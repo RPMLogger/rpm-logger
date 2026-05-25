@@ -75,13 +75,26 @@
     <div class="log-panel" id="payLogPanel">
       <div class="log-panel-header">
         <div class="log-panel-name" id="payLogName">—</div>
-        <div class="log-panel-status idle" id="payLogStatus">tap to record</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="log-panel-status idle" id="payLogStatus">cash</div>
+          <button onclick="closePayLogPanel()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1;padding:0 2px;">✕</button>
+        </div>
       </div>
-      <textarea class="transcript-box" id="payTranscriptBox" placeholder="Say payment note..."></textarea>
+      <div class="pay-amount-row">
+        <label class="settings-label" style="margin:0">Amount</label>
+        <input type="text" class="pay-amount-input" id="payAmount" value="$380" />
+      </div>
+      <div class="pay-notes-row">
+        <label class="settings-label" style="margin-bottom:6px;display:block">Notes <span style="color:var(--muted);font-size:8px;letter-spacing:1px">(OPTIONAL)</span></label>
+        <textarea class="transcript-box" id="payTranscriptBox" placeholder="Tap mic to record or type..."></textarea>
+        <button class="pay-mic-btn" id="payMicBtn" onclick="togglePayMic()">⏺ Record Note</button>
+      </div>
       <div class="log-actions">
-        <button class="btn-log" id="btnPayLog" onclick="submitPayLog()" disabled>Log Payment →</button>
+        <button class="btn-log" id="btnPayLog" onclick="submitPayLog()">Log Payment →</button>
       </div>
     </div>
+    <hr class="divider" id="payDivider" style="display:none">
+    <div class="section-label" id="payHistoryLabel" style="display:none">Recent Payments</div>
     <div class="log-feed" id="paymentFeed"></div>
   </div>
 

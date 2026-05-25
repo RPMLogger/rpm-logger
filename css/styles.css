@@ -193,8 +193,29 @@ body::before {
   font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s; text-align: left;
 }
 .pay-btn:hover   { border-color: var(--green); background: rgba(46,204,113,0.05); }
-.pay-btn.recording { border-color: var(--green); background: rgba(46,204,113,0.1); }
+.pay-btn.active  { border-color: var(--green); background: rgba(46,204,113,0.1); }
 .pay-btn.logged  { border-color: var(--green); opacity: 0.6; }
+.pay-amount-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 14px;
+}
+.pay-amount-input {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 4px;
+  padding: 8px 12px; color: var(--text); font-family: "DM Mono", monospace;
+  font-size: 16px; font-weight: 500; width: 120px; text-align: right; outline: none;
+  transition: border-color 0.2s;
+}
+.pay-amount-input:focus { border-color: var(--green); }
+.pay-notes-row { margin-bottom: 12px; }
+.pay-mic-btn {
+  width: 100%; margin-top: 6px; padding: 8px;
+  border: 1px solid var(--border); border-radius: 4px;
+  background: transparent; color: var(--muted);
+  font-family: "DM Mono", monospace; font-size: 10px;
+  letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+}
+.pay-mic-btn:hover { border-color: var(--green); color: var(--green); }
+.pay-mic-btn.recording { border-color: var(--accent); color: var(--accent); background: rgba(232,70,58,0.08); }
 
 /* ─── PAST ────────────────────────────────────────────────────────────────── */
 .past-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; margin-bottom: 18px; }
