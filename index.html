@@ -12,7 +12,7 @@
 
   <!-- HEADER -->
   <div class="header">
-    <img src="Portal Logo.png" alt="Red Pick Music">
+    <img src="assets/Portal Logo.png" alt="Red Pick Music">
     <div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Lesson Portal</div>
@@ -48,7 +48,7 @@
     <div class="section-label">This Week</div>
     <div class="week-pills" id="weekPills"><div style="color:var(--muted);font-size:11px">Loading...</div></div>
     <hr class="divider">
-    <div class="section-label today-label" id="todayLabel">Today</div>
+    <div class="section-label" id="todayLabel">Today</div>
     <div class="today-grid" id="todayGrid"><div class="empty-state">Loading...</div></div>
     <div class="log-panel" id="logPanel">
       <div class="log-panel-header">
@@ -61,6 +61,7 @@
       </div>
     </div>
     <div class="log-feed" id="lessonFeed"></div>
+    <button class="refresh-btn" onclick="loadData()">⟳ Refresh Students</button>
   </div>
 
   <!-- PAYMENTS -->
