@@ -5,214 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #222;
-      --accent: #e8463a; --accent2: #f0a500; --green: #2ecc71;
-      --blue: #4a9eff; --text: #f0ede8; --muted: #555; --border: #2a2a2a;
-      --forgot: #c0392b;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: "DM Mono", monospace; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px; }
-    body::before { content: ""; position: fixed; inset: 0; background-image: linear-gradient(rgba(232,70,58,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(232,70,58,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
-    .container { width: 100%; max-width: 600px; position: relative; z-index: 1; }
-
-    /* HEADER */
-    .header { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 8px; position: relative; }
-    .header img { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; }
-    .header-title { font-family: "Bebas Neue", sans-serif; font-size: 28px; font-weight: 400; color: var(--accent); line-height: 1; letter-spacing: 2px; }
-    .header-sub { font-size: 9px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-top: 3px; text-align: center; }
-    .gear-btn { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-size: 16px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-    .gear-btn:hover { border-color: var(--accent2); color: var(--accent2); }
-
-    /* SETTINGS MODAL */
-    .settings-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; }
-    .settings-overlay.open { display: flex; }
-    .settings-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; width: 90%; max-width: 440px; }
-    .settings-title { font-family: "Bebas Neue", sans-serif; font-size: 20px; color: var(--accent); letter-spacing: 2px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
-    .settings-close { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; line-height: 1; }
-    .settings-close:hover { color: var(--text); }
-    .settings-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
-    .settings-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 9px 13px; color: var(--muted); font-family: "DM Mono", monospace; font-size: 11px; outline: none; transition: border-color 0.2s; margin-bottom: 10px; }
-    .settings-input:focus { border-color: var(--accent); color: var(--text); }
-    .btn-settings-load { width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
-    .btn-settings-load:hover { border-color: var(--accent2); color: var(--accent2); }
-
-    .tabs { display: flex; gap: 2px; margin-top: 24px; margin-bottom: 20px; background: var(--surface); border-radius: 6px; padding: 3px; overflow-x: auto; }
-    .tab-btn { flex: 1; min-width: 0; padding: 8px 2px; border: none; border-radius: 4px; background: transparent; color: var(--muted); font-family: "DM Mono", monospace; font-size: 8px; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-    .tab-btn.active { background: var(--accent); color: white; }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    .section-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-    .section-label.today-label { font-size: 14px; letter-spacing: 2px; color: var(--text); margin-bottom: 14px; font-family: "DM Mono", monospace; }
-    .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
-    .empty-state { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 11px; line-height: 2; }
-
-    /* WEEK PILLS */
-    .week-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
-    .week-pill {
-      padding: 5px 11px; border: 1px solid var(--border); border-radius: 20px;
-      background: var(--surface); color: var(--muted); font-family: "DM Mono", monospace;
-      font-size: 10px; cursor: pointer; transition: all 0.2s;
-      display: flex; align-items: center; gap: 5px;
-    }
-    .week-pill:hover { border-color: var(--accent); color: var(--text); }
-    .week-pill.recording { border-color: var(--accent); color: var(--accent); background: rgba(232,70,58,0.08); }
-    .week-pill.trial-pill { border-color: rgba(74,158,255,0.3); color: var(--blue); }
-    /* FIX 1: past unlogged = subtle gray warning, not red */
-    .week-pill.forgot { border-color: #444; color: #888; background: rgba(255,255,255,0.03); }
-    .week-pill .pill-date { font-size: 9px; opacity: 0.6; margin-left: 2px; }
-
-
-    /* TODAY GRID */
-    .today-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; margin-bottom: 18px; }
-    .today-btn {
-      position: relative; padding: 16px 14px; border: 1.5px solid var(--border);
-      border-radius: 10px; background: var(--surface); color: var(--text);
-      font-family: "Syne", sans-serif; font-size: 13px; font-weight: 400; /* FIX 5: unbold */
-      cursor: pointer; transition: all 0.2s; text-align: left;
-      display: flex; flex-direction: column; gap: 6px; line-height: 1.3;
-    }
-    .today-btn:hover { border-color: var(--accent2); background: rgba(240,165,0,0.05); }
-    .today-btn.recording { border-color: var(--accent2); background: rgba(240,165,0,0.1); box-shadow: 0 0 20px rgba(240,165,0,0.15); }
-    .today-btn.logged { border-color: var(--green); background: rgba(46,204,113,0.08); opacity: 0.5; pointer-events: none; }
-    .today-btn .mic-dot { position: absolute; top: 11px; right: 11px; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: all 0.2s; }
-    .today-btn.recording .mic-dot { background: var(--accent); box-shadow: 0 0 6px var(--accent); animation: pulse 1s infinite; }
-    .today-btn.logged .mic-dot { background: var(--green); }
-    .btn-type { font-size: 9px; letter-spacing: 1px; padding: 2px 6px; border-radius: 2px; width: fit-content; font-family: "DM Mono", monospace; font-weight: 400; }
-    .btn-type.trial { background: rgba(74,158,255,0.15); color: var(--blue); }
-    .btn-type.regular { background: rgba(240,165,0,0.12); color: var(--accent2); }
-    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
-
-    /* LOG PANEL */
-    .log-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin-bottom: 14px; display: none; }
-    .log-panel.active { display: block; }
-    .log-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .log-panel-name { font-family: "Syne", sans-serif; font-size: 17px; font-weight: 400; }
-    .log-panel-status { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
-    .log-panel-status.idle { color: var(--muted); }
-    .transcript-box {
-      width: 100%; min-height: 54px; background: var(--surface2);
-      border: 1px solid var(--border); border-radius: 4px; padding: 11px;
-      color: var(--text); font-family: "DM Mono", monospace; font-size: 13px;
-      resize: none; outline: none; margin-bottom: 11px; line-height: 1.5;
-    }
-    .transcript-box:focus { border-color: var(--accent); }
-    .transcript-box::placeholder { color: var(--muted); font-style: italic; }
-    .log-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .trial-paid { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 11px; color: var(--muted); transition: all 0.2s; user-select: none; }
-    .trial-paid.checked { border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.08); }
-    .trial-paid input { display: none; }
-    .btn-log { flex: 1; padding: 11px; border: none; border-radius: 4px; background: var(--accent); color: white; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
-    .btn-log:hover { background: #d63d32; }
-    .btn-log.success { background: var(--green); pointer-events: none; }
-    .btn-log:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
-
-    /* PAYMENT */
-    .payment-students { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin-bottom: 18px; }
-    .pay-btn { padding: 12px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font-family: "DM Mono", monospace; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s; text-align: left; }
-    .pay-btn:hover { border-color: var(--green); background: rgba(46,204,113,0.05); }
-    .pay-btn.recording { border-color: var(--green); background: rgba(46,204,113,0.1); }
-    .pay-btn.logged { border-color: var(--green); opacity: 0.6; }
-
-    /* PAST */
-    .past-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; margin-bottom: 18px; }
-    .past-student-btn { padding: 16px 14px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); font-family: "Syne", sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: left; line-height: 1.3; }
-    .past-student-btn:hover { border-color: var(--accent2); background: rgba(240,165,0,0.05); }
-    .past-student-btn.active-past { border-color: var(--accent2); background: rgba(240,165,0,0.08); }
-    .past-header { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: none; }
-    .past-header span { color: var(--accent2); }
-    .past-lessons-list { display: flex; flex-direction: column; gap: 4px; }
-    .past-row {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 5px;
-      padding: 9px 13px; display: grid;
-      grid-template-columns: 18px 1fr auto;
-      align-items: start;
-      gap: 10px;
-      animation: fadeUp 0.2s ease forwards; opacity: 0;
-    }
-    .past-row:nth-child(1){animation-delay:0.03s}.past-row:nth-child(2){animation-delay:0.06s}.past-row:nth-child(3){animation-delay:0.09s}.past-row:nth-child(4){animation-delay:0.12s}
-    @keyframes fadeUp { from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)} }
-    .past-num { font-size: 10px; color: var(--muted); padding-top: 1px; }
-    .past-subject { font-family: "DM Mono", monospace; font-size: 11px; color: var(--text); white-space: normal; word-break: break-word; line-height: 1.5; }
-    .past-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; padding-top: 1px; }
-    .past-date { font-size: 10px; color: var(--accent2); white-space: nowrap; }
-    .past-paid { font-size: 10px; color: var(--green); }
-
-    /* WEEK TAB */
-    .week-tab-header { font-family: "Syne", sans-serif; font-size: 13px; font-weight: 800; color: var(--muted); margin-bottom: 14px; }
-    .week-tab-grid { display: flex; flex-wrap: wrap; gap: 7px; }
-    .week-tab-pill { padding: 7px 14px; border: 1px solid var(--border); border-radius: 20px; background: var(--surface); color: var(--muted); font-family: "DM Mono", monospace; font-size: 11px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
-    .week-tab-pill:hover { border-color: var(--accent); color: var(--text); }
-    .week-tab-pill.logged { border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.06); }
-    .week-tab-pill .wt-check { display: none; }
-    .week-tab-pill.logged .wt-check { display: inline; }
-    .week-tab-pill.wt-trial { border-color: rgba(74,158,255,0.3); color: #4a9eff99; }
-    .week-tab-pill.wt-weekly { border-color: rgba(232,70,58,0.25); color: #e8463a99; }
-    .week-tab-pill.wt-biweekly { border-color: rgba(240,165,0,0.25); color: #f0a50099; }
-    .week-tab-pill.forgot { border-color: #444; color: #888; background: rgba(255,255,255,0.03); }
-
-    .week-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
-    .week-bar-label { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px; }
-    .week-bar-counts { font-family: "DM Mono", monospace; font-size: 14px; font-weight: 500; }
-    .week-bar-counts span { color: var(--accent2); }
-    .week-bar-right { font-size: 10px; color: var(--muted); }
-
-    /* GENERAL */
-    .general-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-    .stat-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-    .stat-value { font-family: "DM Mono", monospace !important; font-size: 36px; font-weight: 500; color: var(--text); }
-    .stat-value.c-accent { color: var(--accent); }
-    .stat-value.c-gold { color: var(--accent2); }
-    .stat-value.c-blue { color: var(--blue); }
-
-    /* INQUIRIES */
-    .inq-badge { display: inline-block; background: var(--accent); color: white; font-size: 9px; border-radius: 10px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
-    .inq-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; position: relative; }
-    .inq-card.unread { border-left: 3px solid var(--accent); }
-    .inq-card.read { border-left: 3px solid var(--border); opacity: 0.7; }
-    .inq-from { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent2); white-space: nowrap; }
-    .inq-date { font-size: 9px; color: #fff; white-space: nowrap; }
-    .inq-body { font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
-    .inq-delete { background: none; border: none; color: var(--muted); font-size: 14px; cursor: pointer; padding: 0 4px; flex-shrink: 0; line-height: 1; }
-    .inq-delete:hover { color: var(--accent); }
-    .inq-empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 12px; line-height: 2; }
-    .financial-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 12px; line-height: 3; border: 1px dashed var(--border); border-radius: 8px; }
-    .load-table { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
-    .load-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 14px; border-bottom: 1px solid var(--border); }
-    .load-row:last-child { border-bottom: none; }
-    .load-row.highlight { background: rgba(240,165,0,0.06); }
-    .load-row.income { background: rgba(46,204,113,0.05); }
-    .load-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; font-family: "DM Mono", monospace; }
-    .load-value { font-family: "DM Mono", monospace; font-size: 12px; font-weight: 500; color: var(--text); }
-    .load-row.highlight .load-label { color: var(--accent2); }
-    .load-row.highlight .load-value { color: var(--accent2); font-size: 13px; }
-    .load-row.income .load-value { color: var(--green); }
-    .summary-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; font-family: "DM Mono", monospace; font-size: 11px; }
-    .sum-dot { color: var(--muted); }
-    .sum-weekly { color: #e8463a; }
-    .sum-biweekly { color: #f0a500; }
-    .sum-trial { color: #4a9eff; }
-
-    .log-feed { display: flex; flex-direction: column; gap: 5px; margin-top: 12px; }
-    .log-entry { padding: 8px 12px; border-radius: 4px; font-size: 11px; line-height: 1.4; border-left: 3px solid transparent; }
-    .log-entry.success { background: rgba(46,204,113,0.08); border-left-color: var(--green); color: var(--green); }
-    .log-entry.error { background: rgba(232,70,58,0.08); border-left-color: var(--accent); color: var(--accent); }
-    .log-entry.info { background: rgba(240,165,0,0.08); border-left-color: var(--accent2); color: var(--accent2); }
-
-    .week-day-group { margin-bottom: 14px; }
-    .week-day-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; padding-left: 2px; }
-    .week-day-pills { display: flex; flex-wrap: wrap; gap: 7px; }
-    .today-btn .lesson-badge { font-size: 9px; font-family: "DM Mono", monospace; font-weight: 400; color: var(--muted); letter-spacing: 0; margin-top: 2px; }
-    .today-btn .lesson-badge.pay-time { color: var(--accent2); }
-  </style>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 <div class="container">
+
+  <!-- HEADER -->
   <div class="header">
-    <img src="Portal Logo.png">
+    <img src="Portal Logo.png" alt="Red Pick Music">
     <div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Lesson Portal</div>
@@ -232,6 +32,7 @@
     </div>
   </div>
 
+  <!-- TABS -->
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('lessons')">Lessons</button>
     <button class="tab-btn" onclick="switchTab('payments')">Payments</button>
@@ -346,113 +147,34 @@
     <div id="inquiriesList"><div class="inq-empty">Loading...</div></div>
   </div>
 
-  <!-- GEAR BUTTON at bottom -->
+  <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; margin-top:32px; padding-bottom:16px;">
     <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
+
 </div>
 
+<!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
+<script src="core/state.js"></script>
+<script src="core/storage.js"></script>
+<script src="core/utils.js"></script>
+<script src="core/api.js"></script>
+
+<!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
+<script src="tabs/lessons.js"></script>
+<script src="tabs/payments.js"></script>
+<script src="tabs/past.js"></script>
+<script src="tabs/week.js"></script>
+<script src="tabs/general.js"></script>
+<script src="tabs/financial.js"></script>
+<script src="tabs/inquiries.js"></script>
+
+<!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
-  // ─── EXCLUDED EVENT NAMES ───────────────────────────────────────────────────
-  var EXCL = ["mother's day","mothers day","father's day","fathers day","christmas",
-    "thanksgiving","new year","easter","halloween","memorial day","labor day",
-    "independence day","mlk day","presidents day","veterans day","columbus day",
-    "holiday","vacation","day off","closed","break"];
-  function isReal(n) {
-    if (!n || !n.trim()) return false;
-    var l = n.toLowerCase().trim();
-    for (var i = 0; i < EXCL.length; i++) if (l.indexOf(EXCL[i]) !== -1) return false;
-    return true;
-  }
-
-  // ─── FIX 4: WEEK KEY for localStorage (resets each Monday) ─────────────────
-  function getWeekKey() {
-    var d = new Date();
-    var day = d.getDay();
-    var diff = (day === 0) ? -6 : 1 - day;
-    var mon = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diff);
-    var y = mon.getFullYear();
-    var m = String(mon.getMonth() + 1).padStart(2, '0');
-    var dd = String(mon.getDate()).padStart(2, '0');
-    return 'logged_' + y + '-' + m + '-' + dd;
-  }
-
-  function loadLoggedSet() {
-    try {
-      var raw = localStorage.getItem(getWeekKey());
-      return raw ? JSON.parse(raw) : {};
-    } catch(e) { return {}; }
-  }
-
-  function saveLoggedSet() {
-    try { localStorage.setItem(getWeekKey(), JSON.stringify(loggedKeys)); } catch(e) {}
-  }
-
-  // loggedKeys: keyed by "name||date" (e.g. "Jean Gabriel Fransisco||2026-05-18")
-  // loggedNames: keyed by name only, for quick today-grid lookup (derived)
-  var loggedKeys = loadLoggedSet();
-
-  function getLessonKey(name, eventDate) {
-    var dateStr = eventDate ? new Date(eventDate).toISOString().slice(0,10) : 'nodate';
-    return name + '||' + dateStr;
-  }
-
-  function isLessonLogged(name, eventDate) {
-    return !!loggedKeys[getLessonKey(name, eventDate)];
-  }
-
-  function markLessonLogged(name, eventDate) {
-    loggedKeys[getLessonKey(name, eventDate)] = true;
-    saveLoggedSet();
-  }
-
-  // ─── STATE ──────────────────────────────────────────────────────────────────
-  var weekStudents = [], todayStudents = [], lessonCounts = {};
-  var activeStudent = null, activePayStudent = null;
-  var recognition = null, payRecognition = null;
-  var isRecording = false, isPayRecording = false;
-
-  // ─── INIT ───────────────────────────────────────────────────────────────────
-  var saved = localStorage.getItem("scriptUrl");
-  if (saved) document.getElementById("scriptUrl").value = saved;
-  document.getElementById("scriptUrl").addEventListener("change", function () {
-    localStorage.setItem("scriptUrl", this.value);
-  });
-
-  var now = new Date();
-  var DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-  var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  document.getElementById("todayLabel").textContent = DAYS[now.getDay()] + " · " + MONTHS[now.getMonth()] + " " + now.getDate();
-
-  function getWeekRange() {
-    var d = new Date(), day = d.getDay(), diff = (day === 0) ? -6 : 1 - day;
-    var mon = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diff);
-    var sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
-    return MONTHS[mon.getMonth()] + " " + mon.getDate() + " – " + MONTHS[sun.getMonth()] + " " + sun.getDate();
-  }
-
-  function isPastDay(eventDateStr) {
-    if (!eventDateStr) return false;
-    var today = new Date(); today.setHours(0,0,0,0);
-    var d = new Date(eventDateStr); d.setHours(0,0,0,0);
-    return d < today;
-  }
-
-  window.onload = function () {
-    var url = localStorage.getItem("scriptUrl");
-    if (url) { document.getElementById("scriptUrl").value = url; loadData(); }
-  };
-
-  // ─── SETTINGS (FIX 6) ───────────────────────────────────────────────────────
-  function openSettings() {
-    document.getElementById("settingsOverlay").classList.add("open");
-  }
-  function closeSettings() {
-    document.getElementById("settingsOverlay").classList.remove("open");
-  }
-  function closeSettingsOutside(e) {
-    if (e.target === document.getElementById("settingsOverlay")) closeSettings();
-  }
+  // Settings modal
+  function openSettings() { document.getElementById("settingsOverlay").classList.add("open"); }
+  function closeSettings() { document.getElementById("settingsOverlay").classList.remove("open"); }
+  function closeSettingsOutside(e) { if (e.target === document.getElementById("settingsOverlay")) closeSettings(); }
   function loadFromSettings() {
     var url = document.getElementById("scriptUrl").value.trim();
     if (!url) return;
@@ -461,561 +183,45 @@
     loadData();
   }
 
-  // ─── LOAD DATA ──────────────────────────────────────────────────────────────
-  function loadData() {
-    var url = getScriptUrl(); if (!url) return;
-    document.getElementById("weekPills").innerHTML = "<div style='color:var(--muted);font-size:11px'>Loading...</div>";
-    document.getElementById("todayGrid").innerHTML = "<div class='empty-state'>Loading...</div>";
-    document.getElementById("weekTabGrid").innerHTML = "<div class='empty-state'>Loading...</div>";
-    document.getElementById("pastGrid").innerHTML = "<div class='empty-state'>Loading...</div>";
-    document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty'>Loading...</div>";
-    ["loadTotal","loadNorm","loadWeekly","loadBiweekly","loadIncome","loadGregorian"].forEach(function(id){
-      document.getElementById(id).textContent = "—";
-    });
-    document.getElementById("studentListTable").style.display = "none";
-
-    // Week students
-    fetch(url + "?action=getWeekStudents")
-      .then(function(r){ return r.json(); })
-      .then(function(data){
-        if (data.success && data.students) {
-          // FIX 3: NO dedup — allow same student multiple times (different dates)
-          var f = data.students.filter(function(s){ return isReal(s.name); });
-          // FIX 2: sort chronologically by eventDate
-          f.sort(function(a, b){
-            var da = a.eventDate ? new Date(a.eventDate) : new Date(0);
-            var db = b.eventDate ? new Date(b.eventDate) : new Date(0);
-            return da - db;
-          });
-          weekStudents = f;
-          todayStudents = f.filter(function(s){ return s.isToday; });
-          renderWeekBar(); renderWeekPills(); renderTodayGrid(); renderPastGrid(); renderWeekTab(); renderGeneral();
-          // Cycle counters
-          fetch(url + "?action=getCycleCounters")
-            .then(function(r){ return r.json(); })
-            .then(function(d){
-              if (d.success && d.counters) { lessonCounts = d.counters; renderTodayGrid(); }
-            }).catch(function(){});
-        } else { addLog("lessonFeed", data.message || "No students found", "error"); }
-      }).catch(function(){ addLog("lessonFeed", "❌ Could not connect.", "error"); });
-
-    // All students for payments tab
-    fetch(url + "?action=getAllStudents")
-      .then(function(r){ return r.json(); })
-      .then(function(data){ if (data.success && data.students) renderPaymentStudents(data.students); })
-      .catch(function(){});
-
-    // Student load
-    fetch(url + "?action=getStudentLoad")
-      .then(function(r){ return r.json(); })
-      .then(function(data){
-        if (data.success) {
-          document.getElementById("loadTotal").textContent = data.totalStudents;
-          document.getElementById("loadNorm").textContent = data.normalized;
-          document.getElementById("loadWeekly").textContent = data.weeklyCount;
-          document.getElementById("loadBiweekly").textContent = data.biweeklyCount;
-          document.getElementById("loadIncome").textContent = "$" + data.totalIncome.toLocaleString();
-          document.getElementById("loadGregorian").textContent = "$" + data.gregorian.toLocaleString();
-          renderStudentList(data);
-        }
-      }).catch(function(){});
-
-    // Inquiries
-    fetch(url + "?action=getInquiries")
-      .then(function(r){ return r.json(); })
-      .then(function(data){
-        if (data.success) renderInquiries(data.inquiries || []);
-        else document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty'>No inquiries found</div>";
-      }).catch(function(){
-        document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty'>Could not load inquiries</div>";
-      });
-  }
-
-  // ─── RENDER: WEEK BAR ───────────────────────────────────────────────────────
-  function renderWeekBar() {
-    var total = weekStudents.length;
-    var trials = weekStudents.filter(function(s){ return s.calType === "trial"; }).length;
-    document.getElementById("weekCounts").innerHTML = total + " students" + (trials > 0 ? " · <span>" + trials + " trial" + (trials > 1 ? "s" : "") + "</span>" : "");
-    document.getElementById("weekDateRange").textContent = getWeekRange();
-    document.getElementById("weekBar").style.display = "flex";
-  }
-
-  // ─── RENDER: WEEK PILLS ─────────────────────────────────────────────────────
-  // FIX 1: gray not red | FIX 2: chronological | FIX 3: no dedup | FIX 4: persist logged
-  function renderWeekPills() {
-    var grid = document.getElementById("weekPills"); grid.innerHTML = "";
-    if (!weekStudents.length) { grid.innerHTML = "<div style='color:var(--muted);font-size:11px'>No students this week</div>"; return; }
-    var anyShown = false;
-    weekStudents.forEach(function(s) {
-      // Skip today's students — they show in Today grid below
-      if (s.isToday) return;
-      // FIX 4: skip if already logged (by name+date key)
-      if (isLessonLogged(s.name, s.eventDate)) return;
-      anyShown = true;
-      var btn = document.createElement("button");
-      var past = isPastDay(s.eventDate) && !s.isToday;
-      // FIX 1: gray style for forgot, not red
-      var cls = "week-pill" + (s.calType === "trial" ? " trial-pill" : "") + (past ? " forgot" : "");
-      btn.className = cls;
-      btn.id = "pill-" + s.name.replace(/\s+/g, "_") + "_" + (s.eventDate || "");
-      var dateLabel = s.eventDate ? (" <span class='pill-date'>" + formatEventDate(s.eventDate) + "</span>") : "";
-      btn.innerHTML = s.name + dateLabel;
-      btn.onclick = function(){ openLog(s); };
-      grid.appendChild(btn);
-    });
-    if (!anyShown) {
-      grid.innerHTML = "<div style='color:var(--green);font-size:11px'>All logged ✓</div>";
-    }
-  }
-
-  function formatEventDate(dateStr) {
-    if (!dateStr) return "";
-    var d = new Date(dateStr);
-    return MONTHS[d.getMonth()] + " " + d.getDate();
-  }
-
-  // ─── RENDER: TODAY GRID ──────────────────────────────────────────────────────
-  function renderTodayGrid() {
-    var grid = document.getElementById("todayGrid"); grid.innerHTML = "";
-    if (!todayStudents.length) { grid.innerHTML = "<div class='empty-state'>No students today</div>"; return; }
-    var anyShown = false;
-    todayStudents.forEach(function(s, i) {
-      // FIX 4: skip if logged
-      if (isLessonLogged(s.name, s.eventDate)) return;
-      anyShown = true;
-      var btn = document.createElement("button");
-      btn.className = "today-btn";
-      btn.id = "tbtn-" + i;
-      var cnt = lessonCounts[s.name];
-      var badgeHtml = "";
-      if (cnt !== undefined) {
-        var next = (cnt >= 4 || cnt <= 0) ? 1 : cnt + 1;
-        var ord = next === 1 ? "1st" : next === 2 ? "2nd" : next === 3 ? "3rd" : "4th";
-        var payBadge = (next === 4);
-        badgeHtml = "<div class='lesson-badge" + (payBadge ? " pay-time" : "") + "'>" + ord + " lesson" + (payBadge ? " — payment due" : "") + "</div>";
-      }
-      btn.innerHTML = "<div class='mic-dot'></div>" + s.name +
-        "<div class='btn-type " + (s.calType === "trial" ? "trial" : "regular") + "'>" + (s.calType === "trial" ? "TRIAL" : "LESSON") + "</div>" +
-        badgeHtml;
-      btn.onclick = function(){ toggleLog(s, i); };
-      grid.appendChild(btn);
-    });
-    if (!anyShown) {
-      grid.innerHTML = "<div style='color:var(--green);font-size:11px;text-align:center;padding:20px'>All logged today ✓</div>";
-    }
-  }
-
-  // ─── RENDER: WEEK TAB ────────────────────────────────────────────────────────
-  function renderWeekTab() {
-    var grid = document.getElementById("weekTabGrid"); grid.innerHTML = "";
-    document.getElementById("weekTabHeader").textContent = "This Week · " + getWeekRange();
-    if (!weekStudents.length) { grid.innerHTML = "<div class='empty-state'>No students this week</div>"; return; }
-    var dayOrder = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-    var groups = {};
-    weekStudents.forEach(function(s){
-      var d = s.dayOfWeek || "Unknown";
-      if (!groups[d]) groups[d] = [];
-      groups[d].push(s);
-    });
-    var anyShown = false;
-    dayOrder.forEach(function(day){
-      if (!groups[day] || !groups[day].length) return;
-      var group = document.createElement("div"); group.className = "week-day-group";
-      var label = document.createElement("div"); label.className = "week-day-label"; label.textContent = day;
-      group.appendChild(label);
-      var pillRow = document.createElement("div"); pillRow.className = "week-day-pills";
-      groups[day].forEach(function(s){
-        if (isLessonLogged(s.name, s.eventDate)) return;
-        anyShown = true;
-        var btn = document.createElement("button");
-        var past = isPastDay(s.eventDate) && !s.isToday;
-        var cls = "week-tab-pill wt-" + s.calType + (past ? " forgot" : "");
-        btn.className = cls;
-        var dateLabel = s.eventDate ? (" <span class='pill-date'>" + formatEventDate(s.eventDate) + "</span>") : "";
-        btn.innerHTML = s.name + dateLabel;
-        btn.onclick = function(){ openLog(s); };
-        pillRow.appendChild(btn);
-      });
-      if (pillRow.children.length) { group.appendChild(pillRow); grid.appendChild(group); }
-    });
-    if (!anyShown) {
-      grid.innerHTML = "<div style='color:var(--green);font-size:11px;text-align:center;padding:20px'>All logged this week ✓</div>";
-    }
-  }
-
-  // ─── RENDER: GENERAL ─────────────────────────────────────────────────────────
-  function renderGeneral() {
-    var weekly = weekStudents.filter(function(s){ return s.calType === "weekly"; }).length;
-    var biweekly = weekStudents.filter(function(s){ return s.calType === "biweekly"; }).length;
-    var trial = weekStudents.filter(function(s){ return s.calType === "trial"; }).length;
-    document.getElementById("summWeekly").innerHTML = "<span class='sum-weekly'>" + weekly + " weekly</span>";
-    document.getElementById("summBiweekly").innerHTML = "<span class='sum-biweekly'>" + biweekly + " biweekly</span>";
-    document.getElementById("summTrial").innerHTML = "<span class='sum-trial'>" + trial + " trial</span>";
-    document.getElementById("weekSummaryBox").style.display = "flex";
-  }
-
-  // ─── RENDER: PAST GRID ───────────────────────────────────────────────────────
-  function renderPastGrid() {
-    var grid = document.getElementById("pastGrid"); grid.innerHTML = "";
-    var students = todayStudents.length ? todayStudents : weekStudents;
-    if (!students.length) { grid.innerHTML = "<div class='empty-state'>No students loaded</div>"; return; }
-    // Dedupe by name for past tab (just needs one entry per student)
-    var seen = {};
-    students.forEach(function(s, i){
-      if (seen[s.name]) return;
-      seen[s.name] = true;
-      var btn = document.createElement("button");
-      btn.className = "past-student-btn"; btn.id = "pastbtn-" + i; btn.textContent = s.name;
-      btn.onclick = function(){ selectPast(s.name, i); };
-      grid.appendChild(btn);
-    });
-  }
-
-  function selectPast(name, idx) {
-    document.querySelectorAll(".past-student-btn").forEach(function(b){ b.classList.remove("active-past"); });
-    var btn = document.getElementById("pastbtn-" + idx); if (btn) btn.classList.add("active-past");
-    document.getElementById("pastHeaderName").textContent = name;
-    document.getElementById("pastHeader").style.display = "block";
-    document.getElementById("pastList").innerHTML = "<div class='empty-state'>Loading...</div>";
-    var url = getScriptUrl(); if (!url) return;
-    fetch(url + "?action=getPastLessons&studentName=" + encodeURIComponent(name) + "&count=4")
-      .then(function(r){ return r.json(); })
-      .then(function(data){
-        if (data.success && data.lessons && data.lessons.length > 0) renderPastLessons(data.lessons);
-        else document.getElementById("pastList").innerHTML = "<div class='empty-state'>No lessons found for " + name + "</div>";
-      }).catch(function(){ document.getElementById("pastList").innerHTML = "<div class='empty-state'>❌ Could not load.</div>"; });
-  }
-
-  function renderPastLessons(lessons) {
-    var c = document.getElementById("pastList"); c.innerHTML = "";
-    lessons.forEach(function(l, i){
-      var row = document.createElement("div"); row.className = "past-row";
-      row.innerHTML =
-        "<div class='past-num'>" + (i + 1) + ".</div>" +
-        "<div class='past-subject'>" + (l.subject || "—") + "</div>" +
-        "<div class='past-right'>" + (l.paid ? "<span class='past-paid'>✓</span>" : "") +
-        "<span class='past-date'>" + (l.date || "—") + "</span></div>";
-      c.appendChild(row);
-    });
-  }
-
-  // ─── RENDER: PAYMENT STUDENTS ────────────────────────────────────────────────
-  function renderPaymentStudents(students) {
-    var grid = document.getElementById("paymentGrid"); grid.innerHTML = "";
-    students.forEach(function(s, i){
-      var name = typeof s === "string" ? s : s.name;
-      var btn = document.createElement("button"); btn.className = "pay-btn"; btn.id = "pbtn-" + i;
-      btn.onclick = function(){ selectPay(name, i); }; btn.textContent = name;
-      grid.appendChild(btn);
-    });
-  }
-
-  // ─── RENDER: INQUIRIES ───────────────────────────────────────────────────────
-  function renderInquiries(inquiries) {
-    var list = document.getElementById("inquiriesList"); list.innerHTML = "";
-    if (!inquiries.length) { list.innerHTML = "<div class='inq-empty'>No inquiries found</div>"; return; }
-    var unreadCount = inquiries.filter(function(i){ return i.unread; }).length;
-    if (unreadCount > 0) {
-      var badge = document.getElementById("inqBadge");
-      badge.textContent = unreadCount; badge.style.display = "inline-block";
-    }
-    inquiries.sort(function(a, b){ return new Date(b.date) - new Date(a.date); });
-    inquiries.forEach(function(inq){
-      var card = document.createElement("div");
-      card.className = "inq-card " + (inq.unread ? "unread" : "read");
-      card.id = "inq-" + inq.id;
-      var details = [inq.name || "—", (inq.gender || "—") + " / " + (inq.age || "—"), inq.city || "—"].join(" · ");
-      card.innerHTML =
-        "<div class='inq-from'>Trial Inquiry</div>" +
-        "<div class='inq-date'>" + (inq.date || "") + "</div>" +
-        "<div class='inq-body'>" + details + "</div>" +
-        "<button class='inq-delete' onclick='deleteInquiry(\"" + inq.id + "\")'>✕</button>";
-      list.appendChild(card);
-    });
-  }
-
-  function deleteInquiry(id) {
-    var card = document.getElementById("inq-" + id); if (card) card.remove();
-    var remaining = document.querySelectorAll(".inq-card.unread").length;
-    var badge = document.getElementById("inqBadge");
-    if (remaining > 0) { badge.textContent = remaining; badge.style.display = "inline-block"; }
-    else { badge.style.display = "none"; }
-  }
-
-  // ─── RENDER: STUDENT LIST ────────────────────────────────────────────────────
-  function renderStudentList(data) {
-    var rows = document.getElementById("studentListRows"); rows.innerHTML = "";
-    var all = [];
-    (data.weeklyList || []).forEach(function(n){ all.push({ name: n, ave: 1 }); });
-    (data.biweeklyList || []).forEach(function(n){ all.push({ name: n, ave: 0.5 }); });
-    all.sort(function(a, b){ return a.name.localeCompare(b.name); });
-    all.forEach(function(s){
-      var row = document.createElement("div");
-      row.className = "load-row"; row.style.padding = "5px 14px";
-      row.innerHTML =
-        "<div class='load-label' style='flex:1;color:var(--text)'>" + s.name + "</div>" +
-        "<div class='load-value' style='width:60px;text-align:center;font-size:10px;color:" + (s.ave === 1 ? "var(--accent)" : "var(--accent2)") + "'>" + s.ave + "</div>" +
-        "<div class='load-value' style='width:60px;text-align:right;font-size:10px;color:var(--muted)'>$95</div>";
-      rows.appendChild(row);
-    });
-    document.getElementById("listNormTotal").textContent = data.normalized;
-    document.getElementById("studentListTable").style.display = "block";
-  }
-
-  // ─── MIC: TOGGLE ────────────────────────────────────────────────────────────
-  function toggleLog(student, idx) {
-    if (activeStudent && (activeStudent.student.name !== student.name || activeStudent.student.eventDate !== student.eventDate)) {
-      stopRecording();
-      openLogFresh(student, idx);
-      return;
-    }
-    if (!activeStudent) { openLogFresh(student, idx); return; }
-    if (isRecording) {
-      stopRecording();
-      setRecordingUI(false, idx);
-      document.getElementById("logPanelStatus").textContent = "review & edit";
-      document.getElementById("logPanelStatus").classList.add("idle");
-    } else {
-      document.getElementById("transcriptBox").value = "";
-      document.getElementById("btnLog").disabled = true;
-      startRecording(idx);
-    }
-  }
-
-  function openLogFresh(student, idx) {
-    activeStudent = { student: student, idx: idx };
-    document.getElementById("logPanel").classList.add("active");
-    document.getElementById("logPanelName").textContent = student.name;
-    document.getElementById("transcriptBox").value = "";
-    document.getElementById("btnLog").disabled = true;
-    document.getElementById("btnLog").className = "btn-log";
-    document.getElementById("btnLog").textContent = "Log It →";
-    var ex = document.getElementById("trialPaidToggle"); if (ex) ex.remove();
-    if (student.calType === "trial") {
-      var tog = document.createElement("label"); tog.className = "trial-paid"; tog.id = "trialPaidToggle";
-      tog.innerHTML = "<input type='checkbox' id='trialPaidCheck'> ✓ Trial Paid";
-      tog.onclick = function(){ setTimeout(function(){ tog.classList.toggle("checked", document.getElementById("trialPaidCheck").checked); }, 0); };
-      document.getElementById("logActions").insertBefore(tog, document.getElementById("btnLog"));
-    }
-    startRecording(idx);
-  }
-
-  function setRecordingUI(recording, idx) {
-    document.querySelectorAll(".today-btn").forEach(function(b){ b.classList.remove("recording"); });
-    document.querySelectorAll(".week-pill").forEach(function(b){ b.classList.remove("recording"); });
-    if (recording) {
-      if (idx !== undefined) { var tb = document.getElementById("tbtn-" + idx); if (tb) tb.classList.add("recording"); }
-      if (activeStudent) {
-        var key = activeStudent.student.name.replace(/\s+/g, "_") + "_" + (activeStudent.student.eventDate || "");
-        var wp = document.getElementById("pill-" + key); if (wp) wp.classList.add("recording");
-      }
-      document.getElementById("logPanelStatus").textContent = "🔴 recording...";
-      document.getElementById("logPanelStatus").classList.remove("idle");
-    }
-  }
-
-  function openLog(student) {
-    if (isRecording) stopRecording();
-    var idx = undefined;
-    todayStudents.forEach(function(s, i){ if (s.name === student.name && s.eventDate === student.eventDate) idx = i; });
-    openLogFresh(student, idx);
-  }
-
-  // ─── MIC: START / STOP ──────────────────────────────────────────────────────
-  function startRecording(idx) {
-    if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
-      addLog("lessonFeed", "Speech not supported. Use Chrome.", "error"); return;
-    }
-    recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = "en-US"; recognition.continuous = true; recognition.interimResults = true;
-    recognition.onstart = function(){ isRecording = true; setRecordingUI(true, idx); playBeep(880, 100); };
-    recognition.onresult = function(event){
-      var interim = "";
-      if (!recognition._finalText) recognition._finalText = "";
-      for (var i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) recognition._finalText += event.results[i][0].transcript;
-        else interim += event.results[i][0].transcript;
-      }
-      var box = document.getElementById("transcriptBox");
-      box.value = (recognition._finalText + interim).trim();
-      if (recognition._finalText.trim()) document.getElementById("btnLog").disabled = false;
-    };
-    recognition.onend = function(){
-      if (isRecording) {
-        isRecording = false;
-        setRecordingUI(false, idx);
-        playBeep(440, 80, 0.15);
-        document.getElementById("logPanelStatus").textContent = "review & edit";
-        document.getElementById("logPanelStatus").classList.add("idle");
-        var box = document.getElementById("transcriptBox");
-        if (box.value.trim()) document.getElementById("btnLog").disabled = false;
-      }
-    };
-    recognition.onerror = function(e){ if (e.error === "no-speech") return; isRecording = false; };
-    recognition._finalText = "";
-    recognition.start();
-  }
-
-  function stopRecording() {
-    isRecording = false;
-    if (recognition) { recognition.stop(); }
-    playBeep(440, 80, 0.15);
-  }
-
+  // Tab switching
   function switchTab(tab) {
-    if (isRecording) stopRecording();
+    if (isRecording)    stopRecording();
     if (isPayRecording) stopPayRecording();
     var tabs = ["lessons","payments","past","week","general","financial","inquiries"];
-    tabs.forEach(function(t, i){
+    tabs.forEach(function(t, i) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
     });
   }
 
-  // ─── SUBMIT LESSON LOG ───────────────────────────────────────────────────────
-  function submitLog() {
-    var url = getScriptUrl(); if (!url) return;
-    var subject = document.getElementById("transcriptBox").value.trim();
-    if (!subject) { addLog("lessonFeed", "Nothing to log!", "error"); return; }
-    stopRecording();
-    var student = activeStudent.student;
-    var btn = document.getElementById("btnLog"); btn.textContent = "Logging..."; btn.disabled = true;
-    var trialPaid = false; var pe = document.getElementById("trialPaidCheck"); if (pe) trialPaid = pe.checked;
-    var params = { studentName: student.name, subject: subject, trialPaid: trialPaid ? "1" : "0" };
-    if (student.eventDate) params.lessonDate = student.eventDate;
-    callScript(url, student.calType === "trial" ? "logTrial" : "logLesson", params, function(data){
-      if (data.success) {
-        btn.textContent = "✓ Logged!"; btn.className = "btn-log success";
-        // FIX 4: persist logged state by name+date
-        markLessonLogged(student.name, student.eventDate);
-        addLog("lessonFeed", "✓ " + student.name + " — " + subject, "success");
-        renderWeekPills(); renderTodayGrid(); renderWeekTab();
-        setTimeout(function(){
-          document.getElementById("logPanel").classList.remove("active");
-          activeStudent = null;
-        }, 1200);
-      } else {
-        btn.textContent = "Log It →"; btn.disabled = false;
-        addLog("lessonFeed", "❌ " + (data.message || "Error logging"), "error");
-      }
-    });
-  }
+  // Today label
+  var _now = new Date();
+  var _DAYS   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  var _MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  document.getElementById("todayLabel").textContent =
+    _DAYS[_now.getDay()] + " · " + _MONTHS[_now.getMonth()] + " " + _now.getDate();
 
-  // ─── PAYMENT ─────────────────────────────────────────────────────────────────
-  function selectPay(name, idx) {
-    if (isPayRecording) stopPayRecording();
-    activePayStudent = { name: name, idx: idx };
-    document.getElementById("payLogPanel").classList.add("active");
-    document.getElementById("payLogName").textContent = name;
-    document.getElementById("payTranscriptBox").value = "";
-    document.getElementById("btnPayLog").disabled = true;
-    document.getElementById("btnPayLog").className = "btn-log";
-    document.getElementById("btnPayLog").textContent = "Log Payment →";
-    document.querySelectorAll(".pay-btn").forEach(function(b){ b.classList.remove("recording"); });
-    document.getElementById("pbtn-" + idx).classList.add("recording");
-    document.getElementById("payLogStatus").textContent = "🔴 recording...";
-    startPayRecording(idx);
-  }
+  // Script URL persistence
+  var _saved = localStorage.getItem("scriptUrl");
+  if (_saved) document.getElementById("scriptUrl").value = _saved;
+  document.getElementById("scriptUrl").addEventListener("change", function() {
+    localStorage.setItem("scriptUrl", this.value);
+  });
 
-  function startPayRecording(idx) {
-    if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) return;
-    payRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    payRecognition.lang = "en-US"; payRecognition.continuous = true; payRecognition.interimResults = true;
-    payRecognition.onstart = function(){ isPayRecording = true; playBeep(880, 100); };
-    payRecognition.onresult = function(event){
-      var interim = "";
-      for (var i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) {
-          if (!payRecognition._finalText) payRecognition._finalText = "";
-          payRecognition._finalText += event.results[i][0].transcript;
-        } else { interim += event.results[i][0].transcript; }
-      }
-      document.getElementById("payTranscriptBox").value = ((payRecognition._finalText || "") + interim).trim();
-      if (payRecognition._finalText && payRecognition._finalText.trim()) document.getElementById("btnPayLog").disabled = false;
-    };
-    payRecognition.onend = function(){
-      if (isPayRecording) {
-        isPayRecording = false;
-        playBeep(440, 80, 0.15);
-        document.getElementById("payLogStatus").textContent = "review & edit";
-        var pb = document.getElementById("pbtn-" + idx); if (pb) pb.classList.remove("recording");
-        if (document.getElementById("payTranscriptBox").value.trim()) document.getElementById("btnPayLog").disabled = false;
-      }
-    };
-    payRecognition.onerror = function(e){ if (e.error === "no-speech") return; isPayRecording = false; };
-    payRecognition._finalText = "";
-    payRecognition.start();
-  }
-
-  function stopPayRecording() {
-    isPayRecording = false;
-    if (payRecognition) payRecognition.stop();
-    playBeep(440, 80, 0.15);
-  }
-
-  function submitPayLog() {
-    var url = getScriptUrl(); if (!url) return;
-    var note = document.getElementById("payTranscriptBox").value.trim();
-    if (!note) { addLog("paymentFeed", "Nothing to log!", "error"); return; }
-    stopPayRecording();
-    var name = activePayStudent.name;
-    var btn = document.getElementById("btnPayLog"); btn.textContent = "Logging..."; btn.disabled = true;
-    callScript(url, "logPaymentNote", { studentName: name, note: note }, function(data){
-      if (data.success) {
-        btn.textContent = "✓ Logged!"; btn.className = "btn-log success";
-        var pb = document.getElementById("pbtn-" + activePayStudent.idx); if (pb) pb.classList.add("logged");
-        addLog("paymentFeed", "✓ " + name + " — " + note, "success");
-        setTimeout(function(){
-          document.getElementById("payLogPanel").classList.remove("active");
-          activePayStudent = null;
-        }, 1200);
-      } else {
-        btn.textContent = "Log Payment →"; btn.disabled = false;
-        addLog("paymentFeed", "❌ " + (data.message || "Error"), "error");
-      }
-    });
-  }
-
-  // ─── UTILS ───────────────────────────────────────────────────────────────────
-  function callScript(url, action, params, cb) {
-    var q = url + "?action=" + action;
-    for (var k in params) q += "&" + k + "=" + encodeURIComponent(params[k]);
-    fetch(q).then(function(r){ return r.json(); }).then(cb)
-      .catch(function(){ addLog("lessonFeed", "❌ Connection error.", "error"); });
-  }
-
-  function getScriptUrl() {
-    var url = document.getElementById("scriptUrl").value.trim();
-    if (!url) { openSettings(); return null; }
-    localStorage.setItem("scriptUrl", url); return url;
-  }
-
-  function addLog(feedId, message, type) {
-    var feed = document.getElementById(feedId);
-    var entry = document.createElement("div");
-    entry.className = "log-entry " + (type || "info");
-    entry.textContent = message;
-    feed.appendChild(entry);
-  }
-
-  function playBeep(freq, duration, vol) {
-    try {
-      var ctx = new (window.AudioContext || window.webkitAudioContext)();
-      var osc = ctx.createOscillator(); var gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value = freq || 880; osc.type = "sine";
-      gain.gain.setValueAtTime(vol || 0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (duration || 120) / 1000);
-      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + (duration || 120) / 1000);
-    } catch(e) {}
-  }
-
-  document.getElementById("transcriptBox").addEventListener("input", function(){
+  // Textarea → enable log button
+  document.getElementById("transcriptBox").addEventListener("input", function() {
     document.getElementById("btnLog").disabled = !this.value.trim();
   });
-  document.getElementById("payTranscriptBox").addEventListener("input", function(){
+  document.getElementById("payTranscriptBox").addEventListener("input", function() {
     document.getElementById("btnPayLog").disabled = !this.value.trim();
   });
+
+  // Auto-load on startup
+  window.onload = function() {
+    var url = localStorage.getItem("scriptUrl");
+    if (url) { document.getElementById("scriptUrl").value = url; loadData(); }
+  };
 </script>
+
 </body>
 </html>
