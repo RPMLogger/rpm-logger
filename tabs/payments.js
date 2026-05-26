@@ -4,7 +4,6 @@
 var allStudentData   = [];
 var payHistoryLoaded = false;
 
-// Called by core after getAllStudents resolves
 function renderPaymentStudents(students) {
   allStudentData = students;
   if (typeof populateStudentPicker === "function") populateStudentPicker(students);
@@ -70,7 +69,7 @@ function openCashLogPanel(name, tab, pillEl) {
   activeCashStudent = { name: name, tab: tab };
   document.getElementById("cashLogPanel").classList.add("active");
   document.getElementById("cashLogName").textContent = name;
-  document.getElementById("cashDate").value = todayFormatted(); // pre-fill today
+  document.getElementById("cashDate").value = todayFormatted();
   document.getElementById("cashAmount").value = "$380";
   document.getElementById("cashNotes").value = "";
   var btn = document.getElementById("btnCashLog");
@@ -161,11 +160,17 @@ function loadIncomingPayments() {
           "</div>" +
           "<div style='display:flex;flex-direction:column;gap:6px;flex-shrink:0'>" +
             "<button class='incoming-confirm'>Confirm →</button>" +
-            "<button class='incoming-dismiss' onclick='dismissIncoming(this, \"" + p.id + "\")'>✕ Dismiss</button>" +
+            "<button class='incoming-dismiss'>✕ Dismiss</button>" +
           "</div>";
+
+        // Use addEventListener for both buttons — avoids inline onclick escaping issues
         card.querySelector(".incoming-confirm").addEventListener("click", function() {
           confirmIncoming(p, card);
         });
+        card.querySelector(".incoming-dismiss").addEventListener("click", function() {
+          dismissIncoming(card, p.id);
+        });
+
         container.appendChild(card);
       });
     }).catch(function() {
@@ -197,17 +202,16 @@ function confirmIncoming(payment, cardEl) {
   payHistoryLoaded = false;
 }
 
-function dismissIncoming(btn, threadId) {
+function dismissIncoming(cardEl, threadId) {
   var url = getScriptUrl();
-  var card = btn.closest(".incoming-card");
-  if (card) card.remove();
 
-  // Log to Dismissed sheet so it stays gone on reload
+  if (cardEl) cardEl.remove();
+  checkEmptyIncoming();
+
+  // Save thread ID to Dismissed sheet so it stays gone on reload
   if (url && threadId) {
     callScript(url, "logDismissed", { threadId: threadId }, function() {});
   }
-
-  checkEmptyIncoming();
 }
 
 function checkEmptyIncoming() {
@@ -266,7 +270,6 @@ function loadPaymentHistory() {
         groups[month].forEach(function(row) {
           var item = document.createElement("div");
           item.className = "pay-history-row";
-          // Order: date · name · amount · method (· notes if any)
           var parts = [shortDate(row.date), row.name, row.amount, row.method].filter(Boolean);
           if (row.notes) parts.push(row.notes);
           item.textContent = parts.join(" · ");
