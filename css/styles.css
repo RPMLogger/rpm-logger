@@ -352,10 +352,11 @@ body::before {
 .btn-manual-entry {
   display: block; width: 100%; padding: 12px;
   background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-  color: var(--text); font-family: "Syne", sans-serif; font-size: 13px; font-weight: 700;
-  letter-spacing: 0.5px; cursor: pointer; text-align: center; transition: background 0.15s;
+  color: var(--muted); font-family: "Bebas Neue", sans-serif; font-size: 18px;
+  letter-spacing: 1.5px; cursor: pointer; text-align: left;
+  transition: background 0.15s, color 0.15s;
 }
-.btn-manual-entry:active { background: var(--accent2); color: #000; }
+.btn-manual-entry:active { color: var(--text); }
 
 /* ─── STUDENT PILLS (manual entry modal) ─────────────────────────────────── */
 .student-pills-wrap {
@@ -374,7 +375,7 @@ body::before {
 #cashLogPanel { display: none; }
 #cashLogPanel.active { display: block; }
 .cash-log-name {
-  font-family: "Syne", sans-serif; font-size: 15px; font-weight: 700;
+  font-family: "Bebas Neue", sans-serif; font-size: 17px; letter-spacing: 1px;
   color: var(--text); margin-bottom: 12px;
 }
 .cash-input {
@@ -396,7 +397,7 @@ body::before {
 #payHistorySection { display: none; margin-top: 12px; max-height: 360px; overflow-y: auto; }
 #payHistorySection.active { display: block; }
 .pay-history-month {
-  font-family: "Syne", sans-serif; font-size: 10px; font-weight: 700;
+  font-family: "Bebas Neue", sans-serif; font-size: 13px;
   letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent2); padding: 10px 0 4px;
 }
 .pay-history-row {
