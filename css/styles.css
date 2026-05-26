@@ -353,3 +353,4 @@ body::before {
   cursor: pointer; transition: all 0.2s; white-space: nowrap;
 }
 .incoming-dismiss:hover { border-color: var(--accent); color: var(--accent); }
+.incoming-nomatch { font-size: 9px; color: var(--accent); letter-spacing: 1px; margin-top: 4px; }

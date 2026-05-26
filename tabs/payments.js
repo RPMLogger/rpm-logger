@@ -1,35 +1,31 @@
 // ─── TABS / PAYMENTS.JS ──────────────────────────────────────────────────────
-// Payments tab: student grid, amount + notes panel, cash log to student sheet
-// + RPM Payments sheet.
+// Payments tab: student grid (cash), incoming Venmo/Zelle auto-detection.
 
 var payMicRecognition = null;
 var isPayMicRecording = false;
+var allStudentData = []; // { tab, name } for each student
 
 function renderPaymentStudents(students) {
+  allStudentData = students; // store for matching
   var grid = document.getElementById("paymentGrid");
   grid.innerHTML = "";
   students.forEach(function(s, i) {
-    var name = typeof s === "string" ? s : s.name;
+    var name = typeof s === "string" ? s : (s.name || s.tab);
     var btn  = document.createElement("button");
     btn.className = "pay-btn"; btn.id = "pbtn-" + i;
-    btn.onclick = function() { selectPay(name, i); };
+    btn.onclick = function() { selectPay(name, s.tab || name, i); };
     btn.textContent = name;
     grid.appendChild(btn);
   });
-  // Also populate the student picker overlay
   if (typeof populateStudentPicker === "function") populateStudentPicker(students);
 }
 
-function selectPay(name, idx) {
+function selectPay(name, tab, idx) {
   if (isPayMicRecording) stopPayMic();
-  activePayStudent = { name: name, idx: idx };
-
-  // Highlight selected button
+  activePayStudent = { name: name, tab: tab, idx: idx };
   document.querySelectorAll(".pay-btn").forEach(function(b) { b.classList.remove("active"); });
   var pb = document.getElementById("pbtn-" + idx);
   if (pb) pb.classList.add("active");
-
-  // Open panel
   document.getElementById("payLogPanel").classList.add("active");
   document.getElementById("payLogName").textContent = name;
   document.getElementById("payLogStatus").textContent = "cash";
@@ -48,13 +44,9 @@ function closePayLogPanel() {
   activePayStudent = null;
 }
 
-// ─── MIC TOGGLE ──────────────────────────────────────────────────────────────
+// ─── MIC ─────────────────────────────────────────────────────────────────────
 function togglePayMic() {
-  if (isPayMicRecording) {
-    stopPayMic();
-  } else {
-    startPayMic();
-  }
+  if (isPayMicRecording) stopPayMic(); else startPayMic();
 }
 
 function startPayMic() {
@@ -63,8 +55,7 @@ function startPayMic() {
   payMicRecognition.lang = "en-US"; payMicRecognition.continuous = true; payMicRecognition.interimResults = true;
   payMicRecognition._finalText = "";
   payMicRecognition.onstart = function() {
-    isPayMicRecording = true;
-    playBeep(880, 100);
+    isPayMicRecording = true; playBeep(880, 100);
     document.getElementById("payMicBtn").className = "pay-mic-btn recording";
     document.getElementById("payMicBtn").textContent = "⏹ Stop Recording";
   };
@@ -76,9 +67,7 @@ function startPayMic() {
     }
     document.getElementById("payTranscriptBox").value = (payMicRecognition._finalText + interim).trim();
   };
-  payMicRecognition.onend = function() {
-    if (isPayMicRecording) stopPayMic();
-  };
+  payMicRecognition.onend = function() { if (isPayMicRecording) stopPayMic(); };
   payMicRecognition.onerror = function(e) { if (e.error === "no-speech") return; isPayMicRecording = false; };
   payMicRecognition.start();
 }
@@ -91,48 +80,30 @@ function stopPayMic() {
   document.getElementById("payMicBtn").textContent = "⏺ Record Note";
 }
 
-// ─── SUBMIT PAYMENT ───────────────────────────────────────────────────────────
+// ─── SUBMIT CASH PAYMENT ─────────────────────────────────────────────────────
 function submitPayLog() {
   var url = getScriptUrl(); if (!url) return;
   if (!activePayStudent) return;
   if (isPayMicRecording) stopPayMic();
-
   var name   = activePayStudent.name;
   var amount = document.getElementById("payAmount").value.trim() || "$380";
   var note   = document.getElementById("payTranscriptBox").value.trim();
-  // Note written to student sheet: "Cash [amount] [note]"
   var fullNote = "Cash " + amount + (note ? " — " + note : "");
-
   var btn = document.getElementById("btnPayLog");
   btn.textContent = "Logging..."; btn.disabled = true;
-
   callScript(url, "logPaymentNote", { studentName: name, note: fullNote }, function(data) {
     if (data.success) {
-      // Also log to RPM Payments sheet
-      callScript(url, "logPayment", {
-        studentName: name,
-        method: "Cash",
-        amount: amount,
-        notes: note
-      }, function() {});
-
+      callScript(url, "logPayment", { studentName: name, method: "Cash", amount: amount, notes: note }, function() {});
       btn.textContent = "✓ Logged!"; btn.className = "btn-log success";
       var pb = document.getElementById("pbtn-" + activePayStudent.idx);
       if (pb) pb.classList.add("logged");
-
-      // Show in feed
       document.getElementById("payDivider").style.display = "block";
       document.getElementById("payHistoryLabel").style.display = "block";
       addLog("paymentFeed", "✓ " + name + " · Cash · " + amount + (note ? " · " + note : ""), "success");
-
-      setTimeout(function() {
-        closePayLogPanel();
-      }, 1200);
+      setTimeout(function() { closePayLogPanel(); }, 1200);
     } else {
       btn.textContent = "Log Payment →"; btn.disabled = false;
       addLog("paymentFeed", "❌ " + (data.message || "Error"), "error");
-      document.getElementById("payDivider").style.display = "block";
-      document.getElementById("payHistoryLabel").style.display = "block";
     }
   });
 }
@@ -142,13 +113,12 @@ function loadIncomingPayments() {
   var url = getScriptUrl(); if (!url) return;
   var container = document.getElementById("incomingPayments");
   container.innerHTML = "<div style='color:var(--muted);font-size:11px'>Loading...</div>";
-
   fetch(url + "?action=getIncomingPayments")
     .then(function(r) { return r.json(); })
     .then(function(data) {
       container.innerHTML = "";
       if (!data.success || !data.payments || !data.payments.length) {
-        container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>No recent Venmo or Zelle payments</div>";
+        container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>No pending Venmo or Zelle payments</div>";
         return;
       }
       data.payments.forEach(function(p) {
@@ -162,11 +132,15 @@ function loadIncomingPayments() {
               "<span class='incoming-amount'>" + p.amount + "</span>" +
               "<span class='incoming-date'>" + p.date + "</span>" +
             "</div>" +
+            (p.matched ? "" : "<div class='incoming-nomatch'>⚠ Name not matched in student sheets</div>") +
           "</div>" +
           "<div style='display:flex;flex-direction:column;gap:6px;flex-shrink:0'>" +
-          "<button class='incoming-confirm' onclick='confirmIncoming(" + JSON.stringify(p) + ")'>Confirm →</button>" +
-          "<button class='incoming-dismiss' onclick='dismissIncoming(this)'>✕ Not a student</button>" +
-        "</div>";
+            "<button class='incoming-confirm'>Confirm →</button>" +
+            "<button class='incoming-dismiss' onclick='dismissIncoming(this)'>✕ Dismiss</button>" +
+          "</div>";
+        card.querySelector(".incoming-confirm").addEventListener("click", function() {
+          confirmIncoming(p);
+        });
         container.appendChild(card);
       });
     }).catch(function() {
@@ -175,49 +149,48 @@ function loadIncomingPayments() {
 }
 
 function confirmIncoming(payment) {
-  // Open student picker overlay
-  var overlay = document.getElementById("studentPickerOverlay");
-  document.getElementById("pickerPayment").textContent = payment.name + " · " + payment.amount + " · " + payment.method;
-  overlay.classList.add("open");
-  overlay._payment = payment;
-}
-
-function closeStudentPicker() {
-  document.getElementById("studentPickerOverlay").classList.remove("open");
-}
-
-function pickStudentForPayment(studentName) {
-  var overlay = document.getElementById("studentPickerOverlay");
-  var payment = overlay._payment;
-  overlay.classList.remove("open");
-
   var url = getScriptUrl(); if (!url) return;
-
-  // Log to student sheet
-  callScript(url, "logPaymentNote", {
-    studentName: studentName,
-    note: payment.method + " " + payment.amount + " — " + payment.date
+  // Log to RPM Payments sheet (always, using payment date not today)
+  callScript(url, "logPayment", {
+    studentName: payment.name,
+    method:      payment.method,
+    amount:      payment.amount,
+    notes:       payment.date
   }, function() {});
 
-  // Log to RPM Payments sheet
-  callScript(url, "logPayment", {
-    studentName: studentName,
-    method: payment.method,
-    amount: payment.amount,
-    notes: payment.date
-  }, function(data) {
-    document.getElementById("payDivider").style.display = "block";
-    document.getElementById("payHistoryLabel").style.display = "block";
-    addLog("paymentFeed", "✓ " + studentName + " · " + payment.method + " · " + payment.amount, "success");
+  // If matched to a student sheet, log payment there too
+  if (payment.matchedTab) {
+    callScript(url, "logPaymentNote", {
+      studentName: payment.matchedTab,
+      note: payment.method + " " + payment.amount + " — " + payment.date
+    }, function() {});
+  }
+
+  document.getElementById("payDivider").style.display = "block";
+  document.getElementById("payHistoryLabel").style.display = "block";
+  var label = payment.matchedTab
+    ? "✓ " + payment.name + " · " + payment.method + " · " + payment.amount
+    : "✓ " + payment.name + " · " + payment.method + " · " + payment.amount + " (RPM Payments only — no sheet match)";
+  addLog("paymentFeed", label, "success");
+
+  // Remove card
+  var cards = document.querySelectorAll(".incoming-card");
+  cards.forEach(function(c) {
+    if (c.querySelector(".incoming-name") && c.querySelector(".incoming-name").textContent === payment.name) {
+      c.remove();
+    }
   });
+  var container = document.getElementById("incomingPayments");
+  if (!container.querySelector(".incoming-card")) {
+    container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>No pending Venmo or Zelle payments</div>";
+  }
 }
 
 function dismissIncoming(btn) {
   var card = btn.closest(".incoming-card");
   if (card) card.remove();
-  // Check if any cards left
   var container = document.getElementById("incomingPayments");
   if (!container.querySelector(".incoming-card")) {
-    container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>No pending payments</div>";
+    container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>No pending Venmo or Zelle payments</div>";
   }
 }
