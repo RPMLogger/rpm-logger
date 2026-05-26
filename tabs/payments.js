@@ -163,7 +163,10 @@ function loadIncomingPayments() {
               "<span class='incoming-date'>" + p.date + "</span>" +
             "</div>" +
           "</div>" +
-          "<button class='incoming-confirm' onclick='confirmIncoming(" + JSON.stringify(p) + ")'>Confirm →</button>";
+          "<div style='display:flex;flex-direction:column;gap:6px;flex-shrink:0'>" +
+          "<button class='incoming-confirm' onclick='confirmIncoming(" + JSON.stringify(p) + ")'>Confirm →</button>" +
+          "<button class='incoming-dismiss' onclick='dismissIncoming(this)'>✕ Not a student</button>" +
+        "</div>";
         container.appendChild(card);
       });
     }).catch(function() {
@@ -207,4 +210,14 @@ function pickStudentForPayment(studentName) {
     document.getElementById("payHistoryLabel").style.display = "block";
     addLog("paymentFeed", "✓ " + studentName + " · " + payment.method + " · " + payment.amount, "success");
   });
+}
+
+function dismissIncoming(btn) {
+  var card = btn.closest(".incoming-card");
+  if (card) card.remove();
+  // Check if any cards left
+  var container = document.getElementById("incomingPayments");
+  if (!container.querySelector(".incoming-card")) {
+    container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>No pending payments</div>";
+  }
 }

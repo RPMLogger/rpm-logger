@@ -346,3 +346,10 @@ body::before {
   cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
 }
 .incoming-confirm:hover { background: rgba(46,204,113,0.1); }
+.incoming-dismiss {
+  padding: 5px 10px; border: 1px solid var(--border); border-radius: 4px;
+  background: transparent; color: var(--muted); font-family: "DM Mono", monospace;
+  font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.incoming-dismiss:hover { border-color: var(--accent); color: var(--accent); }
