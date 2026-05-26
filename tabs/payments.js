@@ -16,6 +16,8 @@ function renderPaymentStudents(students) {
     btn.textContent = name;
     grid.appendChild(btn);
   });
+  // Also populate the student picker overlay
+  if (typeof populateStudentPicker === "function") populateStudentPicker(students);
 }
 
 function selectPay(name, idx) {
@@ -132,5 +134,77 @@ function submitPayLog() {
       document.getElementById("payDivider").style.display = "block";
       document.getElementById("payHistoryLabel").style.display = "block";
     }
+  });
+}
+
+// ─── INCOMING PAYMENTS (Venmo / Zelle) ───────────────────────────────────────
+function loadIncomingPayments() {
+  var url = getScriptUrl(); if (!url) return;
+  var container = document.getElementById("incomingPayments");
+  container.innerHTML = "<div style='color:var(--muted);font-size:11px'>Loading...</div>";
+
+  fetch(url + "?action=getIncomingPayments")
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      container.innerHTML = "";
+      if (!data.success || !data.payments || !data.payments.length) {
+        container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>No recent Venmo or Zelle payments</div>";
+        return;
+      }
+      data.payments.forEach(function(p) {
+        var card = document.createElement("div");
+        card.className = "incoming-card";
+        card.innerHTML =
+          "<div class='incoming-left'>" +
+            "<div class='incoming-name'>" + p.name + "</div>" +
+            "<div class='incoming-meta'>" +
+              "<span class='incoming-method " + p.method.toLowerCase() + "'>" + p.method + "</span>" +
+              "<span class='incoming-amount'>" + p.amount + "</span>" +
+              "<span class='incoming-date'>" + p.date + "</span>" +
+            "</div>" +
+          "</div>" +
+          "<button class='incoming-confirm' onclick='confirmIncoming(" + JSON.stringify(p) + ")'>Confirm →</button>";
+        container.appendChild(card);
+      });
+    }).catch(function() {
+      container.innerHTML = "<div style='color:var(--muted);font-size:11px'>Could not load</div>";
+    });
+}
+
+function confirmIncoming(payment) {
+  // Open student picker overlay
+  var overlay = document.getElementById("studentPickerOverlay");
+  document.getElementById("pickerPayment").textContent = payment.name + " · " + payment.amount + " · " + payment.method;
+  overlay.classList.add("open");
+  overlay._payment = payment;
+}
+
+function closeStudentPicker() {
+  document.getElementById("studentPickerOverlay").classList.remove("open");
+}
+
+function pickStudentForPayment(studentName) {
+  var overlay = document.getElementById("studentPickerOverlay");
+  var payment = overlay._payment;
+  overlay.classList.remove("open");
+
+  var url = getScriptUrl(); if (!url) return;
+
+  // Log to student sheet
+  callScript(url, "logPaymentNote", {
+    studentName: studentName,
+    note: payment.method + " " + payment.amount + " — " + payment.date
+  }, function() {});
+
+  // Log to RPM Payments sheet
+  callScript(url, "logPayment", {
+    studentName: studentName,
+    method: payment.method,
+    amount: payment.amount,
+    notes: payment.date
+  }, function(data) {
+    document.getElementById("payDivider").style.display = "block";
+    document.getElementById("payHistoryLabel").style.display = "block";
+    addLog("paymentFeed", "✓ " + studentName + " · " + payment.method + " · " + payment.amount, "success");
   });
 }

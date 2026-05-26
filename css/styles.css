@@ -325,3 +325,24 @@ body::before {
 /* ─── LESSON BADGE ────────────────────────────────────────────────────────── */
 .today-btn .lesson-badge { font-size: 9px; font-family: "DM Mono", monospace; font-weight: 400; color: var(--muted); letter-spacing: 0; margin-top: 2px; }
 .today-btn .lesson-badge.pay-time { color: var(--accent2); }
+
+/* ─── INCOMING PAYMENTS ───────────────────────────────────────────────────── */
+.incoming-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 11px 14px; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.incoming-name { font-family: "Syne", sans-serif; font-size: 13px; margin-bottom: 5px; }
+.incoming-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.incoming-method { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; font-family: "DM Mono", monospace; }
+.incoming-method.venmo { background: rgba(0,130,200,0.15); color: #0082c8; }
+.incoming-method.zelle { background: rgba(110,45,200,0.15); color: #6e2dc8; }
+.incoming-amount { font-family: "DM Mono", monospace; font-size: 12px; color: var(--green); }
+.incoming-date { font-size: 10px; color: var(--muted); }
+.incoming-confirm {
+  padding: 7px 14px; border: 1px solid var(--green); border-radius: 4px;
+  background: transparent; color: var(--green); font-family: "DM Mono", monospace;
+  font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+}
+.incoming-confirm:hover { background: rgba(46,204,113,0.1); }
