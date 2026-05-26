@@ -70,47 +70,47 @@
 
   <!-- PAYMENTS -->
   <div class="tab-panel" id="tab-payments">
-    <div class="section-label">All Students</div>
-    <div class="payment-students" id="paymentGrid"><div class="empty-state">Loading...</div></div>
-    <div class="log-panel" id="payLogPanel">
-      <div class="log-panel-header">
-        <div class="log-panel-name" id="payLogName">—</div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="log-panel-status idle" id="payLogStatus">cash</div>
-          <button onclick="closePayLogPanel()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1;padding:0 2px;">✕</button>
-        </div>
-      </div>
-      <div class="pay-amount-row">
-        <label class="settings-label" style="margin:0">Amount</label>
-        <input type="text" class="pay-amount-input" id="payAmount" value="$380" />
-      </div>
-      <div class="pay-notes-row">
-        <label class="settings-label" style="margin-bottom:6px;display:block">Notes <span style="color:var(--muted);font-size:8px;letter-spacing:1px">(OPTIONAL)</span></label>
-        <textarea class="transcript-box" id="payTranscriptBox" placeholder="Tap mic to record or type..."></textarea>
-        <button class="pay-mic-btn" id="payMicBtn" onclick="togglePayMic()">⏺ Record Note</button>
-      </div>
-      <div class="log-actions">
-        <button class="btn-log" id="btnPayLog" onclick="submitPayLog()">Log Payment →</button>
-      </div>
+
+    <!-- TOP: Manual Entry button -->
+    <button class="btn-manual-entry" onclick="openManualEntryModal()">+ Manual Entry</button>
+
+    <!-- MIDDLE: Incoming Venmo & Zelle -->
+    <div class="section-label" style="margin-top:20px;margin-bottom:10px">
+      Incoming <span style="color:var(--blue)">Venmo &amp; Zelle</span>
     </div>
-    <hr class="divider" style="margin-top:24px">
-    <div class="section-label" style="margin-bottom:10px">Incoming <span style="color:var(--blue)">Venmo & Zelle</span></div>
     <div id="incomingPayments"><div style="color:var(--muted);font-size:11px">Loading...</div></div>
-    <hr class="divider" id="payDivider" style="display:none">
-    <div class="section-label" id="payHistoryLabel" style="display:none">Recent Payments</div>
+
+    <!-- Activity feed (confirmed/dismissed feedback) -->
     <div class="log-feed" id="paymentFeed"></div>
+
+    <!-- BOTTOM: Payment History collapsible -->
+    <hr class="divider" style="margin-top:24px">
+    <button id="btnPayHistory" class="btn-pay-history" onclick="togglePaymentHistory()">▾ View Payment History</button>
+    <div id="payHistorySection">
+      <div id="payHistoryList"></div>
+    </div>
+
   </div>
 
-  <!-- STUDENT PICKER OVERLAY -->
-  <div class="settings-overlay" id="studentPickerOverlay" onclick="closeStudentPickerOutside(event)">
+  <!-- MANUAL ENTRY MODAL -->
+  <div class="settings-overlay" id="manualEntryModal" onclick="closeManualEntryOutside(event)">
     <div class="settings-modal">
       <div class="settings-title">
-        Confirm Payment
-        <button class="settings-close" onclick="closeStudentPicker()">✕</button>
+        Cash Payment
+        <button class="settings-close" onclick="closeManualEntryModal()">✕</button>
       </div>
-      <div id="pickerPayment" style="font-size:11px;color:var(--accent2);margin-bottom:16px;font-family:DM Mono,monospace;"></div>
-      <div class="section-label" style="margin-bottom:10px">Select Student</div>
-      <div id="pickerStudentGrid" class="payment-students"></div>
+
+      <!-- Student pills -->
+      <div id="manualStudentPills" class="student-pills-wrap"></div>
+
+      <!-- Log panel — shown after a pill is tapped -->
+      <div id="cashLogPanel">
+        <div class="cash-log-name" id="cashLogName"></div>
+        <input id="cashDate"   class="cash-input" type="text" placeholder="Date — e.g. May 20">
+        <input id="cashAmount" class="cash-input" type="text" placeholder="Amount" value="$380">
+        <input id="cashNotes"  class="cash-input" type="text" placeholder="Notes (optional)">
+        <button id="btnCashLog" class="btn-log" onclick="submitCashLog()">Log Payment →</button>
+      </div>
     </div>
   </div>
 
@@ -217,35 +217,20 @@
     loadData();
   }
 
+  // Manual entry modal outside-click close
+  function closeManualEntryOutside(e) {
+    if (e.target === document.getElementById("manualEntryModal")) closeManualEntryModal();
+  }
+
   // Tab switching
   function switchTab(tab) {
-    if (isRecording)    stopRecording();
-    if (isPayRecording) stopPayRecording();
+    if (isRecording) stopRecording();
     var tabs = ["lessons","payments","past","week","general","financial","inquiries"];
     tabs.forEach(function(t, i) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
     });
     if (tab === "payments") loadIncomingPayments();
-  }
-
-  // Student picker overlay
-  function closeStudentPickerOutside(e) {
-    if (e.target === document.getElementById("studentPickerOverlay")) closeStudentPicker();
-  }
-
-  // Populate student picker grid when students load
-  function populateStudentPicker(students) {
-    var grid = document.getElementById("pickerStudentGrid");
-    grid.innerHTML = "";
-    students.forEach(function(s) {
-      var name = typeof s === "string" ? s : s.name;
-      var btn = document.createElement("button");
-      btn.className = "pay-btn";
-      btn.textContent = name;
-      btn.onclick = function() { pickStudentForPayment(name); };
-      grid.appendChild(btn);
-    });
   }
 
   // Today label
@@ -262,12 +247,9 @@
     localStorage.setItem("scriptUrl", this.value);
   });
 
-  // Textarea → enable log button
+  // Textarea → enable log button (lessons tab only)
   document.getElementById("transcriptBox").addEventListener("input", function() {
     document.getElementById("btnLog").disabled = !this.value.trim();
-  });
-  document.getElementById("payTranscriptBox").addEventListener("input", function() {
-    document.getElementById("btnPayLog").disabled = !this.value.trim();
   });
 
   // Auto-load on startup
