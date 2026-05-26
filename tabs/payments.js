@@ -1,45 +1,44 @@
 // ─── TABS / PAYMENTS.JS ──────────────────────────────────────────────────────
 // Payments tab: Manual Entry (cash), incoming Venmo/Zelle, payment history.
 
-var allStudentData  = [];
+var allStudentData   = [];
 var payHistoryLoaded = false;
 
-// Called by core after getAllStudents resolves
 function renderPaymentStudents(students) {
   allStudentData = students;
   if (typeof populateStudentPicker === "function") populateStudentPicker(students);
 }
 
-// ─── DATE NORMALIZER ─────────────────────────────────────────────────────────
-// Turns "May 16" → "May 16, 2026". Leaves "May 16, 2026" alone.
+// ─── DATE HELPERS ─────────────────────────────────────────────────────────────
 function normalizePayDate(raw) {
   if (!raw) return raw;
   var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  var currentYear = new Date().getFullYear();
   var hasMonth = false;
   for (var i = 0; i < months.length; i++) {
     if (raw.toLowerCase().indexOf(months[i].toLowerCase()) !== -1) { hasMonth = true; break; }
   }
   if (!hasMonth) return raw;
-  if (/\b20\d\d\b/.test(raw)) return raw; // already has year
-  return raw.trim() + ", " + currentYear;
+  if (/\b20\d\d\b/.test(raw)) return raw;
+  return raw.trim() + ", " + new Date().getFullYear();
 }
 
-// ─── DISPLAY DATE FORMATTER ───────────────────────────────────────────────────
-// Turns "May 26, 2026" or any date string → "May 26" for display only.
 function shortDate(dateStr) {
   if (!dateStr) return '';
-  // Strip year and any trailing comma/space
   var s = dateStr.replace(/,?\s*20\d\d/, '').trim();
-  // If it still looks like a full JS date, parse it
   if (s.length > 10) {
     var d = new Date(dateStr);
     if (!isNaN(d.getTime())) {
-      var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      return months[d.getMonth()] + ' ' + d.getDate();
+      var mn = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      return mn[d.getMonth()] + ' ' + d.getDate();
     }
   }
   return s;
+}
+
+function todayFormatted() {
+  var d = new Date();
+  var mn = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return mn[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
 }
 
 // ─── MANUAL ENTRY MODAL ───────────────────────────────────────────────────────
@@ -70,8 +69,7 @@ function openCashLogPanel(name, tab, pillEl) {
   activeCashStudent = { name: name, tab: tab };
   document.getElementById("cashLogPanel").classList.add("active");
   document.getElementById("cashLogName").textContent = name;
-  document.getElementById("cashDate").value = "";
-  document.getElementById("cashDate").placeholder = "Date — e.g. May 20";
+  document.getElementById("cashDate").value = todayFormatted();
   document.getElementById("cashAmount").value = "$380";
   document.getElementById("cashNotes").value = "";
   var btn = document.getElementById("btnCashLog");
@@ -105,10 +103,7 @@ function submitCashLog() {
     return;
   }
 
-  // Auto-append year if missing, normalize format
-  var date = normalizePayDate(raw);
-
-  // K column note: "May 20, 2026 · $380 · notes" (notes optional)
+  var date  = normalizePayDate(raw);
   var kNote = date + " · " + amount + (notes ? " · " + notes : "");
 
   var btn = document.getElementById("btnCashLog");
@@ -120,8 +115,8 @@ function submitCashLog() {
         date: date, studentName: name, method: "Cash", amount: amount, notes: notes
       }, function() {});
       btn.textContent = "✓ Logged!"; btn.className = "btn-log success";
-      addLog("paymentFeed", "✓ " + name + " · Cash · " + amount + " · " + shortDate(date), "success");
-      payHistoryLoaded = false; // force refresh next time history opens
+      addLog("paymentFeed", "✓ " + shortDate(date) + " · " + name + " · " + amount + " · Cash", "success");
+      payHistoryLoaded = false;
       setTimeout(function() { closeManualEntryModal(); }, 1200);
     } else {
       btn.textContent = "Log Payment →"; btn.disabled = false;
@@ -140,18 +135,14 @@ function loadIncomingPayments() {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       container.innerHTML = "";
-
-      // Update tab badge
       var tabBtn = document.querySelector(".tab-btn[onclick*=\"payments\"]");
 
       if (!data.success || !data.payments || !data.payments.length) {
         container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>No new payments</div>";
-        // Clear badge
         if (tabBtn) tabBtn.innerHTML = "Payments";
         return;
       }
 
-      // Show badge on tab
       if (tabBtn) tabBtn.innerHTML = "Payments <span style='background:var(--accent);color:#fff;font-size:8px;border-radius:8px;padding:1px 5px;vertical-align:middle;margin-left:2px'>!</span>";
 
       data.payments.forEach(function(p) {
@@ -169,11 +160,17 @@ function loadIncomingPayments() {
           "</div>" +
           "<div style='display:flex;flex-direction:column;gap:6px;flex-shrink:0'>" +
             "<button class='incoming-confirm'>Confirm →</button>" +
-            "<button class='incoming-dismiss' onclick='dismissIncoming(this)'>✕ Dismiss</button>" +
+            "<button class='incoming-dismiss'>✕ Dismiss</button>" +
           "</div>";
+
+        // Use addEventListener for both buttons — avoids inline onclick escaping issues
         card.querySelector(".incoming-confirm").addEventListener("click", function() {
           confirmIncoming(p, card);
         });
+        card.querySelector(".incoming-dismiss").addEventListener("click", function() {
+          dismissIncoming(card, p.id);
+        });
+
         container.appendChild(card);
       });
     }).catch(function() {
@@ -184,13 +181,11 @@ function loadIncomingPayments() {
 function confirmIncoming(payment, cardEl) {
   var url = getScriptUrl(); if (!url) return;
 
-  // Log to RPM Payments sheet — email date in column A, notes empty
   callScript(url, "logPayment", {
     date: payment.date, studentName: payment.name,
     method: payment.method, amount: payment.amount, notes: ""
   }, function() {});
 
-  // If matched to student sheet — write checkbox + K note ("Venmo $379.00")
   if (payment.matchedTab) {
     callScript(url, "logPaymentNote", {
       studentName: payment.matchedTab,
@@ -198,33 +193,28 @@ function confirmIncoming(payment, cardEl) {
     }, function() {});
   }
 
-  var label = "✓ " + payment.name + " · " + payment.method + " · " + payment.amount +
+  var label = shortDate(payment.date) + " · " + payment.name + " · " + payment.amount + " · " + payment.method +
     (payment.matched ? "" : " (RPM only — no sheet match)");
-  addLog("paymentFeed", label, "success");
+  addLog("paymentFeed", "✓ " + label, "success");
 
-  // Remove card
-  if (cardEl) {
-    cardEl.remove();
-  } else {
-    document.querySelectorAll(".incoming-card").forEach(function(c) {
-      if (c.querySelector(".incoming-name") && c.querySelector(".incoming-name").textContent === payment.name) c.remove();
-    });
-  }
-
-  var container = document.getElementById("incomingPayments");
-  if (!container.querySelector(".incoming-card")) {
-    container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>No new payments</div>";
-    // Clear tab badge
-    var tabBtn = document.querySelector(".tab-btn[onclick*=\"payments\"]");
-    if (tabBtn) tabBtn.innerHTML = "Payments";
-  }
-
-  payHistoryLoaded = false; // force history refresh
+  if (cardEl) cardEl.remove();
+  checkEmptyIncoming();
+  payHistoryLoaded = false;
 }
 
-function dismissIncoming(btn) {
-  var card = btn.closest(".incoming-card");
-  if (card) card.remove();
+function dismissIncoming(cardEl, threadId) {
+  var url = getScriptUrl();
+
+  if (cardEl) cardEl.remove();
+  checkEmptyIncoming();
+
+  // Save thread ID to Dismissed sheet so it stays gone on reload
+  if (url && threadId) {
+    callScript(url, "logDismissed", { threadId: threadId }, function() {});
+  }
+}
+
+function checkEmptyIncoming() {
   var container = document.getElementById("incomingPayments");
   if (!container.querySelector(".incoming-card")) {
     container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>No new payments</div>";
@@ -263,7 +253,6 @@ function loadPaymentHistory() {
         return;
       }
 
-      // Group by month
       var groups = {};
       var order  = [];
       data.rows.forEach(function(row) {
@@ -275,14 +264,13 @@ function loadPaymentHistory() {
       order.forEach(function(month) {
         var header = document.createElement("div");
         header.className = "pay-history-month";
-        header.textContent = month;
+        header.textContent = month.toUpperCase();
         list.appendChild(header);
 
         groups[month].forEach(function(row) {
           var item = document.createElement("div");
           item.className = "pay-history-row";
-          // Format: "Glen Paulin · Cash · $380 · May 26"
-          var parts = [row.name, row.method, row.amount, shortDate(row.date)].filter(Boolean);
+          var parts = [shortDate(row.date), row.name, row.amount, row.method].filter(Boolean);
           if (row.notes) parts.push(row.notes);
           item.textContent = parts.join(" · ");
           list.appendChild(item);
@@ -302,7 +290,6 @@ function extractMonthKey(dateStr) {
       return months[i] + (yearMatch ? " " + yearMatch[1] : "");
     }
   }
-  // Fallback: try parsing
   var d = new Date(dateStr);
   if (!isNaN(d.getTime())) {
     var mn = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
