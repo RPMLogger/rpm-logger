@@ -352,9 +352,9 @@ body::before {
 .btn-manual-entry {
   display: block; width: 100%; padding: 12px;
   background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-  color: var(--muted); font-family: "Bebas Neue", sans-serif; font-size: 18px;
-  letter-spacing: 1.5px; cursor: pointer; text-align: left;
-  transition: background 0.15s, color 0.15s;
+  color: var(--muted); font-family: "DM Mono", monospace; font-size: 9px;
+  letter-spacing: 3px; text-transform: uppercase; cursor: pointer; text-align: left;
+  transition: color 0.15s;
 }
 .btn-manual-entry:active { color: var(--text); }
 
@@ -391,9 +391,9 @@ body::before {
 .btn-pay-history {
   display: block; width: 100%; padding: 12px;
   background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-  color: var(--muted); font-family: "Bebas Neue", sans-serif; font-size: 18px;
-  letter-spacing: 1.5px; cursor: pointer; text-align: left;
-  transition: background 0.15s, color 0.15s; margin-top: 8px;
+  color: var(--muted); font-family: "DM Mono", monospace; font-size: 9px;
+  letter-spacing: 3px; text-transform: uppercase; cursor: pointer; text-align: left;
+  transition: color 0.15s; margin-top: 8px;
 }
 .btn-pay-history:active { color: var(--text); }
 #payHistorySection { display: none; margin-top: 12px; max-height: 360px; overflow-y: auto; }
