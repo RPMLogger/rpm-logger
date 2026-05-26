@@ -389,9 +389,11 @@ body::before {
 
 /* ─── PAYMENT HISTORY ─────────────────────────────────────────────────────── */
 .btn-pay-history {
-  background: none; border: none; color: var(--muted);
-  font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.5px;
-  cursor: pointer; padding: 4px 0; display: block; width: 100%; text-align: left;
+  display: block; width: 100%; padding: 12px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--muted); font-family: "Bebas Neue", sans-serif; font-size: 18px;
+  letter-spacing: 1.5px; cursor: pointer; text-align: left;
+  transition: background 0.15s, color 0.15s; margin-top: 8px;
 }
 .btn-pay-history:active { color: var(--text); }
 #payHistorySection { display: none; margin-top: 12px; max-height: 360px; overflow-y: auto; }
