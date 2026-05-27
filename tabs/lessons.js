@@ -236,3 +236,78 @@ function submitLog() {
     }
   });
 }
+
+// ─── WEEK CHECK ──────────────────────────────────────────────────────────────
+function renderWeekCheck(results) {
+  var panel = document.getElementById("weekCheckPanel");
+  panel.innerHTML = "";
+
+  // Filter out 'ok' — silent, nothing shown
+  var issues = results.filter(function(r) {
+    return r.status !== 'ok';
+  });
+
+  if (!issues.length) {
+    panel.innerHTML = "<div class='wc-all-good'>✓ All lessons entered</div>";
+    return;
+  }
+
+  // Group by status for display order: duplicate first, then missing, then no_sheet
+  var order = ['duplicate', 'missing', 'no_sheet', 'no_sheet_trial'];
+  issues.sort(function(a, b) {
+    return order.indexOf(a.status) - order.indexOf(b.status);
+  });
+
+  issues.forEach(function(r) {
+    var row = document.createElement("div");
+    row.className = "wc-row wc-" + r.status;
+
+    var dayDate = r.dayOfWeek + " · " + formatEventDate(r.eventDate);
+    var typeTag = r.calType === 'trial' ? " <span class='wc-trial-tag'>TRIAL</span>" : "";
+
+    if (r.status === 'duplicate') {
+      // Duplicate — alert only, no tap action
+      row.innerHTML =
+        "<div class='wc-info'>" +
+          "<div class='wc-name'>" + r.name + typeTag + "</div>" +
+          "<div class='wc-date'>" + dayDate + "</div>" +
+        "</div>" +
+        "<div class='wc-status-tag wc-dup'>🔴 " + r.note + "</div>";
+
+    } else {
+      // Missing or no sheet — tappable → opens log panel
+      var statusLabel = r.status === 'no_sheet_trial'
+        ? "No sheet yet"
+        : r.status === 'no_sheet'
+        ? "No sheet"
+        : "Not entered";
+
+      row.innerHTML =
+        "<div class='wc-info'>" +
+          "<div class='wc-name'>" + r.name + typeTag + "</div>" +
+          "<div class='wc-date'>" + dayDate + "</div>" +
+        "</div>" +
+        "<div class='wc-status-tag wc-missing'>" + statusLabel + "</div>";
+
+      // Find matching student in weekStudents to open log panel
+      row.style.cursor = "pointer";
+      row.onclick = (function(result) {
+        return function() {
+          // Find student object from weekStudents
+          var match = null;
+          for (var i = 0; i < weekStudents.length; i++) {
+            var s = weekStudents[i];
+            if (s.name === result.name && s.eventDate === result.eventDate) {
+              match = s; break;
+            }
+          }
+          if (match) {
+            openLog(match);
+          }
+        };
+      })(r);
+    }
+
+    panel.appendChild(row);
+  });
+}
