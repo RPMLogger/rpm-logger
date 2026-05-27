@@ -67,12 +67,12 @@
     <hr class="divider">
 
     <!-- WEEK CHECK -->
-    <div class="wc-bar">
-      <button class="btn-week-check" id="btnWeekCheck" onclick="fetchWeekCheck()">⟳ Week Check</button>
-    </div>
     <div class="wc-panel" id="weekCheckPanel" style="display:none"></div>
 
-    <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
+      <button class="refresh-btn" id="btnWeekCheck" onclick="toggleWeekCheck()">⟳ Week Check</button>
+    </div>
   </div>
 
   <!-- PAYMENTS -->

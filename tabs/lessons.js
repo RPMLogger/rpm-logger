@@ -238,76 +238,70 @@ function submitLog() {
 }
 
 // ─── WEEK CHECK ──────────────────────────────────────────────────────────────
+var weekCheckOpen = false;
+
+function toggleWeekCheck() {
+  var panel = document.getElementById("weekCheckPanel");
+  var btn   = document.getElementById("btnWeekCheck");
+  if (weekCheckOpen) {
+    panel.style.display = "none";
+    panel.innerHTML = "";
+    weekCheckOpen = false;
+    btn.textContent = "⟳ Week Check";
+  } else {
+    fetchWeekCheck();
+  }
+}
+
 function renderWeekCheck(results) {
   var panel = document.getElementById("weekCheckPanel");
   panel.innerHTML = "";
+  weekCheckOpen = true;
 
-  // Filter out 'ok' — silent, nothing shown
-  var issues = results.filter(function(r) {
-    return r.status !== 'ok';
-  });
+  var issues = results.filter(function(r) { return r.status !== 'ok'; });
 
   if (!issues.length) {
-    panel.innerHTML = "<div class='wc-all-good'>✓ All lessons entered</div>";
+    panel.innerHTML = "<div style='color:var(--green);font-size:11px;padding:6px 0'>✓ All lessons entered</div>";
     return;
   }
 
-  // Group by status for display order: duplicate first, then missing, then no_sheet
+  // Sort: duplicates first, then missing, then no_sheet
   var order = ['duplicate', 'missing', 'no_sheet', 'no_sheet_trial'];
-  issues.sort(function(a, b) {
-    return order.indexOf(a.status) - order.indexOf(b.status);
-  });
+  issues.sort(function(a, b) { return order.indexOf(a.status) - order.indexOf(b.status); });
 
   issues.forEach(function(r) {
-    var row = document.createElement("div");
-    row.className = "wc-row wc-" + r.status;
-
-    var dayDate = r.dayOfWeek + " · " + formatEventDate(r.eventDate);
-    var typeTag = r.calType === 'trial' ? " <span class='wc-trial-tag'>TRIAL</span>" : "";
+    var btn = document.createElement("button");
+    var dateLabel = " <span class='pill-date'>" + r.dayOfWeek.slice(0,3) + " " + formatEventDate(r.eventDate) + "</span>";
+    var trialTag  = r.calType === 'trial' ? " <span class='pill-date'>TRIAL</span>" : "";
 
     if (r.status === 'duplicate') {
-      // Duplicate — alert only, no tap action
-      row.innerHTML =
-        "<div class='wc-info'>" +
-          "<div class='wc-name'>" + r.name + typeTag + "</div>" +
-          "<div class='wc-date'>" + dayDate + "</div>" +
-        "</div>" +
-        "<div class='wc-status-tag wc-dup'>🔴 " + r.note + "</div>";
-
+      // Duplicate — not tappable, red styling
+      btn.className = "week-pill forgot";
+      btn.style.cursor = "default";
+      btn.innerHTML = "🔴 " + r.name + dateLabel + trialTag;
+      btn.title = r.note;
     } else {
-      // Missing or no sheet — tappable → opens log panel
-      var statusLabel = r.status === 'no_sheet_trial'
-        ? "No sheet yet"
-        : r.status === 'no_sheet'
-        ? "No sheet"
-        : "Not entered";
+      // Missing / no sheet — tappable, same as forgot pill
+      btn.className = "week-pill forgot";
+      var statusSuffix = r.status === 'no_sheet_trial' ? " <span class='pill-date'>no sheet</span>" : "";
+      btn.innerHTML = r.name + dateLabel + trialTag + statusSuffix;
 
-      row.innerHTML =
-        "<div class='wc-info'>" +
-          "<div class='wc-name'>" + r.name + typeTag + "</div>" +
-          "<div class='wc-date'>" + dayDate + "</div>" +
-        "</div>" +
-        "<div class='wc-status-tag wc-missing'>" + statusLabel + "</div>";
-
-      // Find matching student in weekStudents to open log panel
-      row.style.cursor = "pointer";
-      row.onclick = (function(result) {
+      // Fix: match by name + date string since ISO may differ slightly
+      btn.onclick = (function(result) {
         return function() {
-          // Find student object from weekStudents
           var match = null;
           for (var i = 0; i < weekStudents.length; i++) {
             var s = weekStudents[i];
-            if (s.name === result.name && s.eventDate === result.eventDate) {
+            if (s.name === result.name &&
+                formatEventDate(s.eventDate) === formatEventDate(result.eventDate)) {
               match = s; break;
             }
           }
-          if (match) {
-            openLog(match);
-          }
+          if (match) openLog(match);
         };
       })(r);
     }
 
-    panel.appendChild(row);
+    panel.appendChild(btn);
   });
 }

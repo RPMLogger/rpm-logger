@@ -102,8 +102,8 @@ function fetchWeekCheck() {
   var url = getScriptUrl(); if (!url) return;
   var panel = document.getElementById("weekCheckPanel");
   var btn   = document.getElementById("btnWeekCheck");
-  panel.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:8px 0'>Checking...</div>";
   panel.style.display = "block";
+  panel.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:6px 0'>Checking...</div>";
   btn.disabled = true;
   btn.textContent = "Checking...";
 
@@ -111,15 +111,15 @@ function fetchWeekCheck() {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       btn.disabled = false;
-      btn.textContent = "⟳ Week Check";
+      btn.textContent = "✕ Close";
       if (!data.success) {
-        panel.innerHTML = "<div style='color:var(--red);font-size:11px;padding:8px 0'>❌ " + (data.message || "Error") + "</div>";
+        panel.innerHTML = "<div style='color:var(--red);font-size:11px;padding:6px 0'>❌ " + (data.message || "Error") + "</div>";
         return;
       }
       renderWeekCheck(data.results);
     }).catch(function() {
       btn.disabled = false;
       btn.textContent = "⟳ Week Check";
-      panel.innerHTML = "<div style='color:var(--red);font-size:11px;padding:8px 0'>❌ Could not connect</div>";
+      panel.innerHTML = "<div style='color:var(--red);font-size:11px;padding:6px 0'>❌ Could not connect</div>";
     });
 }
