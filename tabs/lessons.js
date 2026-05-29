@@ -226,6 +226,7 @@ function submitLog() {
       markLessonLogged(student.name, student.eventDate);
       addLog("lessonFeed", "✓ " + student.name + " — " + subject, "success");
       renderWeekPills(); renderTodayGrid(); renderWeekTab();
+      if (weekCheckOpen) fetchWeekCheck();
       setTimeout(function() {
         document.getElementById("logPanel").classList.remove("active");
         activeStudent = null;
