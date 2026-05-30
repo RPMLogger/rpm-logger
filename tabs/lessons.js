@@ -273,7 +273,7 @@ function submitLog() {
       renderWeekPills();
       renderTodayGrid();
       renderWeekTab();
-      if (weekCheckOpen) fetchWeekCheck();
+
     } else {
       btn.textContent = "Log It →"; btn.disabled = false;
       addLog("lessonFeed", "❌ " + (data.message || "Error logging"), "error");
