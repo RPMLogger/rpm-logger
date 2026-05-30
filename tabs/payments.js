@@ -187,9 +187,10 @@ function confirmIncoming(payment, cardEl) {
   }, function() {});
 
   if (payment.matchedTab) {
+    var kNote = payment.amount + " · " + shortDate(payment.date);
     callScript(url, "logPaymentNote", {
       studentName: payment.matchedTab,
-      note: payment.method + " " + payment.amount
+      note: kNote
     }, function() {});
   }
 
