@@ -42,6 +42,11 @@ function addLog(feedId, message, type) {
   var entry = document.createElement("div");
   entry.className = "log-entry " + (type || "info");
   entry.textContent = message;
+  var x = document.createElement("span");
+  x.textContent = "×";
+  x.style.cssText = "float:right;cursor:pointer;opacity:0.5;margin-left:12px;font-size:16px;line-height:1";
+  x.onclick = function() { entry.remove(); };
+  entry.appendChild(x);
   feed.appendChild(entry);
 }
 
