@@ -1,8 +1,9 @@
 // ─── TABS / LESSONS.JS ───────────────────────────────────────────────────────
 // Lessons tab: Today grid, Week pills, log panel, mic recording.
+// Flow: click student → mic on → click again → mic off → review → Log or Cancel (X)
 
 function closeLogPanel() {
-  if (isRecording) stopRecording();
+  stopRecordingClean();
   document.getElementById("logPanel").classList.remove("active");
   document.querySelectorAll(".today-btn").forEach(function(b) { b.classList.remove("recording"); });
   document.querySelectorAll(".week-pill").forEach(function(b) { b.classList.remove("recording"); });
@@ -31,8 +32,8 @@ function renderWeekPills() {
   }
   var anyShown = false;
   weekStudents.forEach(function(s) {
-    if (s.isToday) return;                              // today's → Today grid
-    if (isLessonLogged(s.name, s.eventDate)) return;   // already logged → hide
+    if (s.isToday) return;
+    if (isLessonLogged(s.name, s.eventDate)) return;
     anyShown = true;
     var btn  = document.createElement("button");
     var past = isPastDay(s.eventDate) && !s.isToday;
@@ -44,7 +45,7 @@ function renderWeekPills() {
       ? " <span class='pill-date'>" + formatEventDate(s.eventDate) + "</span>"
       : "";
     btn.innerHTML = s.name + dateLabel;
-    btn.onclick = function() { openLog(s); };
+    btn.onclick = function() { toggleLog(s, undefined); };
     grid.appendChild(btn);
   });
   if (!anyShown) {
@@ -91,22 +92,35 @@ function renderTodayGrid() {
   }
 }
 
-// ─── MIC: TOGGLE ─────────────────────────────────────────────────────────────
+// ─── MIC: TOGGLE (student button controls mic on/off) ────────────────────────
 function toggleLog(student, idx) {
+  // Clicking a different student while one is active → close old, open new
   if (activeStudent &&
       (activeStudent.student.name !== student.name ||
        activeStudent.student.eventDate !== student.eventDate)) {
-    stopRecording();
+    stopRecordingClean();
+    closeLogPanel();
     openLogFresh(student, idx);
     return;
   }
-  if (!activeStudent) { openLogFresh(student, idx); return; }
+
+  // No active student → open panel and start mic
+  if (!activeStudent) {
+    openLogFresh(student, idx);
+    return;
+  }
+
+  // Same student clicked again → toggle mic on/off
   if (isRecording) {
-    stopRecording();
+    // Second click: stop mic, show transcript for review
+    stopRecordingClean();
     setRecordingUI(false, idx);
     document.getElementById("logPanelStatus").textContent = "review & edit";
     document.getElementById("logPanelStatus").classList.add("idle");
+    var box = document.getElementById("transcriptBox");
+    if (box.value.trim()) document.getElementById("btnLog").disabled = false;
   } else {
+    // Mic was stopped (e.g. redo): clear and restart
     document.getElementById("transcriptBox").value = "";
     document.getElementById("btnLog").disabled = true;
     startRecording(idx);
@@ -121,6 +135,8 @@ function openLogFresh(student, idx) {
   document.getElementById("btnLog").disabled = true;
   document.getElementById("btnLog").className = "btn-log";
   document.getElementById("btnLog").textContent = "Log It →";
+
+  // Trial paid toggle
   var ex = document.getElementById("trialPaidToggle");
   if (ex) ex.remove();
   if (student.calType === "trial") {
@@ -134,6 +150,8 @@ function openLogFresh(student, idx) {
     };
     document.getElementById("logActions").insertBefore(tog, document.getElementById("btnLog"));
   }
+
+  // Start mic immediately on first click
   startRecording(idx);
 }
 
@@ -155,15 +173,6 @@ function setRecordingUI(recording, idx) {
   }
 }
 
-function openLog(student) {
-  if (isRecording) stopRecording();
-  var idx;
-  todayStudents.forEach(function(s, i) {
-    if (s.name === student.name && s.eventDate === student.eventDate) idx = i;
-  });
-  openLogFresh(student, idx);
-}
-
 // ─── MIC: START / STOP ───────────────────────────────────────────────────────
 function startRecording(idx) {
   if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
@@ -172,10 +181,17 @@ function startRecording(idx) {
   }
   recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   recognition.lang = "en-US"; recognition.continuous = true; recognition.interimResults = true;
-  recognition.onstart = function() { isRecording = true; setRecordingUI(true, idx); playBeep(880, 100); };
+  recognition._suppressed = false;
+  recognition._finalText = "";
+
+  recognition.onstart = function() {
+    isRecording = true;
+    setRecordingUI(true, idx);
+    playBeep(880, 100);
+  };
+
   recognition.onresult = function(event) {
     var interim = "";
-    if (!recognition._finalText) recognition._finalText = "";
     for (var i = event.resultIndex; i < event.results.length; i++) {
       if (event.results[i].isFinal) recognition._finalText += event.results[i][0].transcript;
       else interim += event.results[i][0].transcript;
@@ -184,7 +200,10 @@ function startRecording(idx) {
     box.value = (recognition._finalText + interim).trim();
     if (recognition._finalText.trim()) document.getElementById("btnLog").disabled = false;
   };
+
   recognition.onend = function() {
+    // Suppressed means we stopped it intentionally — don't double-fire cleanup
+    if (recognition._suppressed) return;
     if (isRecording) {
       isRecording = false;
       setRecordingUI(false, idx);
@@ -195,15 +214,29 @@ function startRecording(idx) {
       if (box.value.trim()) document.getElementById("btnLog").disabled = false;
     }
   };
-  recognition.onerror = function(e) { if (e.error === "no-speech") return; isRecording = false; };
-  recognition._finalText = "";
+
+  recognition.onerror = function(e) {
+    if (e.error === "no-speech") return;
+    isRecording = false;
+    setRecordingUI(false, idx);
+  };
+
   recognition.start();
 }
 
-function stopRecording() {
+// Clean stop — suppresses onend side effects
+function stopRecordingClean() {
+  if (recognition) {
+    recognition._suppressed = true;
+    recognition.stop();
+  }
   isRecording = false;
-  if (recognition) recognition.stop();
   playBeep(440, 80, 0.15);
+}
+
+// Legacy alias used elsewhere
+function stopRecording() {
+  stopRecordingClean();
 }
 
 // ─── SUBMIT LESSON LOG ───────────────────────────────────────────────────────
@@ -211,26 +244,36 @@ function submitLog() {
   var url = getScriptUrl(); if (!url) return;
   var subject = document.getElementById("transcriptBox").value.trim();
   if (!subject) { addLog("lessonFeed", "Nothing to log!", "error"); return; }
-  stopRecording();
+
+  // Stop mic cleanly before submitting
+  stopRecordingClean();
+  setRecordingUI(false, activeStudent ? activeStudent.idx : undefined);
+
   var student = activeStudent.student;
   var btn = document.getElementById("btnLog");
   btn.textContent = "Logging..."; btn.disabled = true;
+
   var trialPaid = false;
   var pe = document.getElementById("trialPaidCheck");
   if (pe) trialPaid = pe.checked;
+
   var params = { studentName: student.name, subject: subject, trialPaid: trialPaid ? "1" : "0" };
   if (student.eventDate) params.lessonDate = student.eventDate;
+
   callScript(url, student.calType === "trial" ? "logTrial" : "logLesson", params, function(data) {
     if (data.success) {
-      btn.textContent = "✓ Logged!"; btn.className = "btn-log success";
       markLessonLogged(student.name, student.eventDate);
       addLog("lessonFeed", "✓ " + student.name + " — " + subject, "success");
-      renderWeekPills(); renderTodayGrid(); renderWeekTab();
+
+      // Close panel immediately on success
+      document.getElementById("logPanel").classList.remove("active");
+      activeStudent = null;
+
+      // Refresh grids after panel is gone
+      renderWeekPills();
+      renderTodayGrid();
+      renderWeekTab();
       if (weekCheckOpen) fetchWeekCheck();
-      setTimeout(function() {
-        document.getElementById("logPanel").classList.remove("active");
-        activeStudent = null;
-      }, 1200);
     } else {
       btn.textContent = "Log It →"; btn.disabled = false;
       addLog("lessonFeed", "❌ " + (data.message || "Error logging"), "error");
