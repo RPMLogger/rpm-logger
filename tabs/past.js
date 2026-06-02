@@ -2,6 +2,12 @@
 var pastStudents = [];
 var pastCurrentIdx = -1;
 
+function pastShortName(name) {
+  var parts = (name || '').trim().split(' ');
+  if (parts.length === 1) return parts[0];
+  return parts[0] + ' ' + parts[parts.length - 1].charAt(0) + '.';
+}
+
 function renderPastGrid() {
   var url = getScriptUrl(); if (!url) return;
   var grid = document.getElementById("pastGrid");
@@ -28,11 +34,37 @@ function renderPastGrid() {
         var btn = document.createElement("button");
         btn.className = "week-pill";
         btn.id = "pastbtn-" + i;
-        btn.textContent = name;
+        btn.textContent = pastShortName(name);
         btn.onclick = function() { selectPast(name, i); };
         grid.appendChild(btn);
       });
+
+      // Today's students as cards at the bottom
+      renderPastTodayCards();
     });
+}
+
+function renderPastTodayCards() {
+  var section = document.getElementById("pastTodaySection");
+  if (!section) return;
+  if (!todayStudents || !todayStudents.length) {
+    section.style.display = "none";
+    return;
+  }
+  section.style.display = "block";
+  var grid = document.getElementById("pastTodayGrid");
+  grid.innerHTML = "";
+  todayStudents.forEach(function(s, i) {
+    var btn = document.createElement("button");
+    btn.className = "today-btn";
+    btn.textContent = s.name;
+    btn.onclick = function() {
+      var idx = pastStudents.indexOf(s.name);
+      if (idx === -1) idx = 0;
+      selectPast(s.name, idx);
+    };
+    grid.appendChild(btn);
+  });
 }
 
 function selectPast(name, idx) {
@@ -46,7 +78,7 @@ function selectPast(name, idx) {
   document.getElementById("pastNavNext").disabled = (idx === pastStudents.length - 1);
   document.getElementById("pastList").innerHTML = "<div class='empty-state'>Loading...</div>";
   var url = getScriptUrl(); if (!url) return;
-  fetch(url + "?action=getPastLessons&studentName=" + encodeURIComponent(name) + "&count=20")
+  fetch(url + "?action=getPastLessons&studentName=" + encodeURIComponent(name) + "&count=4")
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data.success && data.lessons && data.lessons.length > 0)
@@ -55,7 +87,8 @@ function selectPast(name, idx) {
         document.getElementById("pastList").innerHTML =
           "<div class='empty-state'>No lessons found for " + name + "</div>";
     }).catch(function() {
-      document.getElementById("pastList").innerHTML = "<div class='empty-state'>❌ Could not load.</div>";
+      document.getElementById("pastList").innerHTML =
+        "<div class='empty-state'>❌ Could not load.</div>";
     });
 }
 
@@ -70,11 +103,16 @@ function pastNavNext() {
 function renderPastLessons(lessons) {
   var c = document.getElementById("pastList");
   c.innerHTML = "";
-  var isPaid = lessons[0] && lessons[0].paid === true;
+
+  // Debug: log what paid values look like
+  console.log("Paid values:", lessons.map(function(l) { return l.paid; }));
+
+  var isPaid = lessons[0] && (lessons[0].paid === true || lessons[0].paid === 'TRUE');
   var payStatus = document.createElement("div");
   payStatus.className = "past-pay-status " + (isPaid ? "paid" : "unpaid");
   payStatus.textContent = isPaid ? "✓ Paid" : "✗ Not Paid";
   c.appendChild(payStatus);
+
   lessons.forEach(function(l, i) {
     var row = document.createElement("div");
     row.className = "past-row";
