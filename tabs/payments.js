@@ -103,13 +103,12 @@ function submitCashLog() {
     return;
   }
 
-  var date  = normalizePayDate(raw);
-  var kNote = date + " · " + amount + (notes ? " · " + notes : "");
+  var date = normalizePayDate(raw);
 
   var btn = document.getElementById("btnCashLog");
   btn.textContent = "Logging..."; btn.disabled = true;
 
-  callScript(url, "logPaymentNote", { studentName: tab, note: kNote }, function(data) {
+  callScript(url, "logPaymentNote", { studentName: tab, paymentDate: date, note: notes }, function(data) {
     if (data.success) {
       callScript(url, "logPayment", {
         date: date, studentName: name, method: "Cash", amount: amount, notes: notes
@@ -163,7 +162,6 @@ function loadIncomingPayments() {
             "<button class='incoming-dismiss'>✕ Dismiss</button>" +
           "</div>";
 
-        // Use addEventListener for both buttons — avoids inline onclick escaping issues
         card.querySelector(".incoming-confirm").addEventListener("click", function() {
           confirmIncoming(p, card);
         });
@@ -187,10 +185,10 @@ function confirmIncoming(payment, cardEl) {
   }, function() {});
 
   if (payment.matchedTab) {
-    var kNote = payment.amount + " · " + shortDate(payment.date);
     callScript(url, "logPaymentNote", {
       studentName: payment.matchedTab,
-      note: kNote
+      paymentDate: payment.date,
+      note: ""
     }, function() {});
   }
 
@@ -209,7 +207,6 @@ function dismissIncoming(cardEl, threadId) {
   if (cardEl) cardEl.remove();
   checkEmptyIncoming();
 
-  // Save thread ID to Dismissed sheet so it stays gone on reload
   if (url && threadId) {
     callScript(url, "logDismissed", { threadId: threadId }, function() {});
   }
