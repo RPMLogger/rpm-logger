@@ -124,7 +124,7 @@ function submitCashLog() {
   });
 }
 
-// ─── INCOMING NOTE PANEL (mic + note + log) ───────────────────────────────────
+// ─── INCOMING NOTE PANEL (text + mic + log) ───────────────────────────────────
 var activeIncomingPayment = null;
 var incomingRecognition   = null;
 var incomingRecording     = false;
@@ -140,7 +140,7 @@ function openIncomingNotePanel(payment, cardEl) {
   panel.className = "incoming-note-panel";
   panel.innerHTML =
     "<div class='inp-row'>" +
-      "<textarea class='inp-textarea' placeholder='Optional note...' rows='2'></textarea>" +
+      "<textarea class='inp-textarea' placeholder='Note (optional)...' rows='2'></textarea>" +
       "<button class='inp-mic' title='Dictate note'>🎤</button>" +
     "</div>" +
     "<div class='inp-actions'>" +
@@ -148,9 +148,9 @@ function openIncomingNotePanel(payment, cardEl) {
       "<button class='inp-cancel'>✕</button>" +
     "</div>";
 
-  var textarea = panel.querySelector(".inp-textarea");
-  var micBtn   = panel.querySelector(".inp-mic");
-  var logBtn   = panel.querySelector(".inp-log");
+  var textarea  = panel.querySelector(".inp-textarea");
+  var micBtn    = panel.querySelector(".inp-mic");
+  var logBtn    = panel.querySelector(".inp-log");
   var cancelBtn = panel.querySelector(".inp-cancel");
 
   micBtn.addEventListener("click", function() {
@@ -164,6 +164,7 @@ function openIncomingNotePanel(payment, cardEl) {
   });
 
   logBtn.addEventListener("click", function() {
+    stopIncomingMic();
     submitIncomingWithNote(textarea.value.trim(), logBtn);
   });
 
@@ -173,7 +174,6 @@ function openIncomingNotePanel(payment, cardEl) {
     activeIncomingPayment = null;
   });
 
-  // Insert panel below the card
   cardEl.parentNode.insertBefore(panel, cardEl.nextSibling);
   textarea.focus();
 }
@@ -234,10 +234,10 @@ function submitIncomingWithNote(note, logBtn) {
   var url = getScriptUrl(); if (!url) return;
   if (!activeIncomingPayment) return;
 
-  var payment = activeIncomingPayment.payment;
-  var cardEl  = activeIncomingPayment.cardEl;
+  var payment   = activeIncomingPayment.payment;
+  var cardEl    = activeIncomingPayment.cardEl;
+  var fullNote  = note ? payment.amount + " - " + note : payment.amount;
 
-  stopIncomingMic();
   logBtn.textContent = "Logging..."; logBtn.disabled = true;
 
   callScript(url, "logPayment", {
@@ -249,7 +249,7 @@ function submitIncomingWithNote(note, logBtn) {
     callScript(url, "logPaymentNote", {
       studentName: payment.matchedTab,
       paymentDate: payment.date,
-      note: note
+      note: fullNote
     }, function() {});
   }
 
