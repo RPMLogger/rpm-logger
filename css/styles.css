@@ -322,7 +322,7 @@ body::before {
 /* ─── INCOMING PAYMENTS ───────────────────────────────────────────────────── */
 .incoming-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-  padding: 11px 14px; margin-bottom: 8px;
+  padding: 11px 14px; margin-bottom: 4px;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
 .incoming-name { font-family: "Syne", sans-serif; font-size: 13px; margin-bottom: 5px; }
@@ -347,6 +347,38 @@ body::before {
 }
 .incoming-dismiss:hover { border-color: var(--accent); color: var(--accent); }
 .incoming-nomatch { font-size: 9px; color: var(--accent); letter-spacing: 1px; margin-top: 4px; }
+
+/* ─── INCOMING NOTE PANEL ─────────────────────────────────────────────────── */
+.incoming-note-panel {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-top: none; border-radius: 0 0 8px 8px;
+  padding: 10px 12px 12px; margin-bottom: 8px;
+}
+.inp-textarea {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-family: "DM Mono", monospace;
+  font-size: 12px; padding: 8px 10px; resize: none; outline: none;
+  line-height: 1.5; box-sizing: border-box; transition: border-color 0.2s;
+}
+.inp-textarea:focus { border-color: var(--accent2); }
+.inp-textarea::placeholder { color: var(--muted); font-style: italic; }
+.inp-actions {
+  display: flex; gap: 8px; margin-top: 8px; align-items: center;
+}
+.inp-log {
+  flex: 1; padding: 9px; border: none; border-radius: 4px;
+  background: var(--green); color: #000; font-family: "DM Mono", monospace;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; font-weight: 600;
+}
+.inp-log:hover { background: #27ae60; }
+.inp-log:disabled { opacity: 0.4; cursor: not-allowed; }
+.inp-cancel {
+  padding: 9px 14px; background: none; border: 1px solid var(--border);
+  border-radius: 4px; color: var(--muted); font-family: "DM Mono", monospace;
+  font-size: 10px; letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+}
+.inp-cancel:hover { border-color: var(--accent); color: var(--accent); }
 
 /* ─── MANUAL ENTRY BUTTON ─────────────────────────────────────────────────── */
 .btn-manual-entry {
