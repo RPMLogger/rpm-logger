@@ -124,6 +124,148 @@ function submitCashLog() {
   });
 }
 
+// ─── INCOMING NOTE PANEL (mic + note + log) ───────────────────────────────────
+var activeIncomingPayment = null;
+var incomingRecognition   = null;
+var incomingRecording     = false;
+
+function openIncomingNotePanel(payment, cardEl) {
+  // Close any other open note panel first
+  document.querySelectorAll(".incoming-note-panel").forEach(function(p) { p.remove(); });
+  stopIncomingMic();
+
+  activeIncomingPayment = { payment: payment, cardEl: cardEl };
+
+  var panel = document.createElement("div");
+  panel.className = "incoming-note-panel";
+  panel.innerHTML =
+    "<div class='inp-row'>" +
+      "<textarea class='inp-textarea' placeholder='Optional note...' rows='2'></textarea>" +
+      "<button class='inp-mic' title='Dictate note'>🎤</button>" +
+    "</div>" +
+    "<div class='inp-actions'>" +
+      "<button class='inp-log btn-log'>Log →</button>" +
+      "<button class='inp-cancel'>✕</button>" +
+    "</div>";
+
+  var textarea = panel.querySelector(".inp-textarea");
+  var micBtn   = panel.querySelector(".inp-mic");
+  var logBtn   = panel.querySelector(".inp-log");
+  var cancelBtn = panel.querySelector(".inp-cancel");
+
+  micBtn.addEventListener("click", function() {
+    if (incomingRecording) {
+      stopIncomingMic();
+      micBtn.textContent = "🎤";
+      micBtn.classList.remove("recording");
+    } else {
+      startIncomingMic(textarea, micBtn);
+    }
+  });
+
+  logBtn.addEventListener("click", function() {
+    submitIncomingWithNote(textarea.value.trim(), logBtn);
+  });
+
+  cancelBtn.addEventListener("click", function() {
+    stopIncomingMic();
+    panel.remove();
+    activeIncomingPayment = null;
+  });
+
+  // Insert panel below the card
+  cardEl.parentNode.insertBefore(panel, cardEl.nextSibling);
+  textarea.focus();
+}
+
+function startIncomingMic(textarea, micBtn) {
+  if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
+    addLog("paymentFeed", "Speech not supported. Use Chrome.", "error");
+    return;
+  }
+  incomingRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  incomingRecognition.lang = "en-US";
+  incomingRecognition.continuous = true;
+  incomingRecognition.interimResults = true;
+  incomingRecognition._finalText = "";
+  incomingRecognition._suppressed = false;
+
+  incomingRecognition.onstart = function() {
+    incomingRecording = true;
+    micBtn.textContent = "⏹";
+    micBtn.classList.add("recording");
+  };
+
+  incomingRecognition.onresult = function(event) {
+    var interim = "";
+    for (var i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) incomingRecognition._finalText += event.results[i][0].transcript;
+      else interim += event.results[i][0].transcript;
+    }
+    textarea.value = (incomingRecognition._finalText + interim).trim();
+  };
+
+  incomingRecognition.onend = function() {
+    if (incomingRecognition._suppressed) return;
+    incomingRecording = false;
+    micBtn.textContent = "🎤";
+    micBtn.classList.remove("recording");
+  };
+
+  incomingRecognition.onerror = function(e) {
+    if (e.error === "no-speech") return;
+    incomingRecording = false;
+    micBtn.textContent = "🎤";
+    micBtn.classList.remove("recording");
+  };
+
+  incomingRecognition.start();
+}
+
+function stopIncomingMic() {
+  if (incomingRecognition) {
+    incomingRecognition._suppressed = true;
+    incomingRecognition.stop();
+  }
+  incomingRecording = false;
+}
+
+function submitIncomingWithNote(note, logBtn) {
+  var url = getScriptUrl(); if (!url) return;
+  if (!activeIncomingPayment) return;
+
+  var payment = activeIncomingPayment.payment;
+  var cardEl  = activeIncomingPayment.cardEl;
+
+  stopIncomingMic();
+  logBtn.textContent = "Logging..."; logBtn.disabled = true;
+
+  callScript(url, "logPayment", {
+    date: payment.date, studentName: payment.name,
+    method: payment.method, amount: payment.amount, notes: note
+  }, function() {});
+
+  if (payment.matchedTab) {
+    callScript(url, "logPaymentNote", {
+      studentName: payment.matchedTab,
+      paymentDate: payment.date,
+      note: note
+    }, function() {});
+  }
+
+  var label = shortDate(payment.date) + " · " + payment.name + " · " + payment.amount + " · " + payment.method +
+    (payment.matched ? "" : " (RPM only — no sheet match)");
+  addLog("paymentFeed", "✓ " + label, "success");
+
+  // Remove note panel + card
+  var panel = cardEl.nextSibling;
+  if (panel && panel.classList && panel.classList.contains("incoming-note-panel")) panel.remove();
+  cardEl.remove();
+  activeIncomingPayment = null;
+  checkEmptyIncoming();
+  payHistoryLoaded = false;
+}
+
 // ─── INCOMING PAYMENTS (Venmo / Zelle) ───────────────────────────────────────
 function loadIncomingPayments() {
   var url = getScriptUrl(); if (!url) return;
@@ -163,7 +305,7 @@ function loadIncomingPayments() {
           "</div>";
 
         card.querySelector(".incoming-confirm").addEventListener("click", function() {
-          confirmIncoming(p, card);
+          openIncomingNotePanel(p, card);
         });
         card.querySelector(".incoming-dismiss").addEventListener("click", function() {
           dismissIncoming(card, p.id);
@@ -176,30 +318,6 @@ function loadIncomingPayments() {
     });
 }
 
-function confirmIncoming(payment, cardEl) {
-  var url = getScriptUrl(); if (!url) return;
-
-  callScript(url, "logPayment", {
-    date: payment.date, studentName: payment.name,
-    method: payment.method, amount: payment.amount, notes: ""
-  }, function() {});
-
-  if (payment.matchedTab) {
-    callScript(url, "logPaymentNote", {
-      studentName: payment.matchedTab,
-      paymentDate: payment.date,
-      note: ""
-    }, function() {});
-  }
-
-  var label = shortDate(payment.date) + " · " + payment.name + " · " + payment.amount + " · " + payment.method +
-    (payment.matched ? "" : " (RPM only — no sheet match)");
-  addLog("paymentFeed", "✓ " + label, "success");
-
-  if (cardEl) cardEl.remove();
-  checkEmptyIncoming();
-  payHistoryLoaded = false;
-}
 
 function dismissIncoming(cardEl, threadId) {
   var url = getScriptUrl();
