@@ -75,4 +75,15 @@ function renderPastLessons(lessons) {
   payStatus.className = "past-pay-status " + (isPaid ? "paid" : "unpaid");
   payStatus.textContent = isPaid ? "✓ Paid" : "✗ Not Paid";
   c.appendChild(payStatus);
-  lessons
+  lessons.forEach(function(l, i) {
+    var row = document.createElement("div");
+    row.className = "past-row";
+    row.innerHTML =
+      "<div class='past-num'>" + (i + 1) + ".</div>" +
+      "<div class='past-subject'>" + (l.subject || "—") + "</div>" +
+      "<div class='past-right'>" +
+        "<span class='past-date'>" + (l.date || "—") + "</span>" +
+      "</div>";
+    c.appendChild(row);
+  });
+}
