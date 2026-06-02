@@ -10,6 +10,10 @@ function pastShortName(name) {
 
 function renderPastGrid() {
   var url = getScriptUrl(); if (!url) return;
+
+  // Render today's cards immediately from shared state (no extra fetch needed)
+  renderPastTodayCards();
+
   var grid = document.getElementById("pastGrid");
   grid.innerHTML = "<div style='color:var(--muted);font-size:11px'>Loading...</div>";
   fetch(url + "?action=getAllStudents")
@@ -38,9 +42,6 @@ function renderPastGrid() {
         btn.onclick = function() { selectPast(name, i); };
         grid.appendChild(btn);
       });
-
-      // Today's students as cards at the bottom
-      renderPastTodayCards();
     });
 }
 
@@ -54,13 +55,16 @@ function renderPastTodayCards() {
   section.style.display = "block";
   var grid = document.getElementById("pastTodayGrid");
   grid.innerHTML = "";
-  todayStudents.forEach(function(s, i) {
+  todayStudents.forEach(function(s) {
     var btn = document.createElement("button");
     btn.className = "today-btn";
-    btn.textContent = s.name;
+    btn.innerHTML = "<div class='mic-dot'></div>" + s.name;
     btn.onclick = function() {
       var idx = pastStudents.indexOf(s.name);
-      if (idx === -1) idx = 0;
+      if (idx === -1) {
+        // students may not be loaded yet — find by name after load
+        idx = 0;
+      }
       selectPast(s.name, idx);
     };
     grid.appendChild(btn);
@@ -68,14 +72,18 @@ function renderPastTodayCards() {
 }
 
 function selectPast(name, idx) {
+  // If pastStudents is loaded, find correct index by name (handles early clicks)
+  var realIdx = pastStudents.indexOf(name);
+  if (realIdx !== -1) idx = realIdx;
+
   pastCurrentIdx = idx;
   document.querySelectorAll("#pastGrid .week-pill").forEach(function(b) { b.classList.remove("recording"); });
   var btn = document.getElementById("pastbtn-" + idx);
   if (btn) btn.classList.add("recording");
   document.getElementById("pastHeaderName").textContent = name;
   document.getElementById("pastHeader").style.display = "block";
-  document.getElementById("pastNavPrev").disabled = (idx === 0);
-  document.getElementById("pastNavNext").disabled = (idx === pastStudents.length - 1);
+  document.getElementById("pastNavPrev").disabled = (idx <= 0);
+  document.getElementById("pastNavNext").disabled = (idx >= pastStudents.length - 1);
   document.getElementById("pastList").innerHTML = "<div class='empty-state'>Loading...</div>";
   var url = getScriptUrl(); if (!url) return;
   fetch(url + "?action=getPastLessons&studentName=" + encodeURIComponent(name) + "&count=4")
@@ -103,9 +111,6 @@ function pastNavNext() {
 function renderPastLessons(lessons) {
   var c = document.getElementById("pastList");
   c.innerHTML = "";
-
-  // Debug: log what paid values look like
-  console.log("Paid values:", lessons.map(function(l) { return l.paid; }));
 
   var isPaid = lessons[0] && (lessons[0].paid === true || lessons[0].paid === 'TRUE');
   var payStatus = document.createElement("div");
