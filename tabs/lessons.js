@@ -80,9 +80,6 @@ function renderTodayGrid() {
     btn.innerHTML =
       "<div class='mic-dot'></div>" +
       s.name +
-      "<div class='btn-type " + (s.calType === "trial" ? "trial" : "regular") + "'>" +
-        (s.calType === "trial" ? "TRIAL" : "LESSON") +
-      "</div>" +
       badgeHtml;
     btn.onclick = function() { toggleLog(s, i); };
     grid.appendChild(btn);
