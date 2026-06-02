@@ -70,26 +70,17 @@
 
   <!-- PAYMENTS -->
   <div class="tab-panel" id="tab-payments">
-
-    <!-- TOP: Manual Entry button -->
     <button class="btn-manual-entry" onclick="openManualEntryModal()">Cash Payment</button>
-
-    <!-- MIDDLE: Incoming Venmo & Zelle -->
     <div class="section-label" style="margin-top:20px;margin-bottom:10px">
       Incoming <span style="color:var(--blue)">Venmo &amp; Zelle</span>
     </div>
     <div id="incomingPayments"><div style="color:var(--muted);font-size:11px">Loading...</div></div>
-
-    <!-- Activity feed (confirmed/dismissed feedback) -->
     <div class="log-feed" id="paymentFeed"></div>
-
-    <!-- BOTTOM: Payment History collapsible -->
     <hr class="divider" style="margin-top:24px">
     <button id="btnPayHistory" class="btn-pay-history" onclick="togglePaymentHistory()">▾ View Payment History</button>
     <div id="payHistorySection">
       <div id="payHistoryList"></div>
     </div>
-
   </div>
 
   <!-- MANUAL ENTRY MODAL -->
@@ -99,11 +90,7 @@
         Cash Payment
         <button class="settings-close" onclick="closeManualEntryModal()">✕</button>
       </div>
-
-      <!-- Student pills -->
       <div id="manualStudentPills" class="student-pills-wrap"></div>
-
-      <!-- Log panel — shown after a pill is tapped -->
       <div id="cashLogPanel">
         <div class="cash-log-name" id="cashLogName"></div>
         <input id="cashDate"   class="cash-input" type="text" placeholder="Date — e.g. May 20">
@@ -117,16 +104,14 @@
   <!-- PAST -->
   <div class="tab-panel" id="tab-past">
 
-    <!-- Today's lessons — same cards as Lessons tab, no badge -->
+    <!-- 1. TODAY'S LESSONS -->
     <div id="pastTodaySection" style="display:none">
       <div class="section-label" id="pastTodayLabel">Today</div>
       <div class="today-grid" id="pastTodayGrid"></div>
       <hr class="divider">
     </div>
 
-    <div class="section-label">All Students</div>
-    <div class="past-grid" id="pastGrid"><div class="empty-state">Loading...</div></div>
-    <hr class="divider">
+    <!-- 2. SELECTED STUDENT HEADER + PAST LESSONS -->
     <div id="pastHeader" style="display:none; margin-bottom:12px;">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
         <button id="pastNavPrev" class="past-nav-btn" onclick="pastNavPrev()">←</button>
@@ -135,6 +120,12 @@
       </div>
     </div>
     <div class="past-lessons-list" id="pastList"></div>
+
+    <!-- 3. ALL STUDENTS at bottom -->
+    <hr class="divider" id="pastGridDivider">
+    <div class="section-label">All Students</div>
+    <div class="past-grid" id="pastGrid"><div class="empty-state">Loading...</div></div>
+
   </div>
 
   <!-- WEEK -->
@@ -220,7 +211,6 @@
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
-  // Settings modal
   function openSettings() { document.getElementById("settingsOverlay").classList.add("open"); }
   function closeSettings() { document.getElementById("settingsOverlay").classList.remove("open"); }
   function closeSettingsOutside(e) { if (e.target === document.getElementById("settingsOverlay")) closeSettings(); }
@@ -232,12 +222,10 @@
     loadData();
   }
 
-  // Manual entry modal outside-click close
   function closeManualEntryOutside(e) {
     if (e.target === document.getElementById("manualEntryModal")) closeManualEntryModal();
   }
 
-  // Tab switching
   function switchTab(tab) {
     if (isRecording) stopRecording();
     var tabs = ["lessons","payments","past","week","general","financial","inquiries"];
@@ -248,7 +236,6 @@
     if (tab === "payments") loadIncomingPayments();
   }
 
-  // Today label
   var _now = new Date();
   var _DAYS   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   var _MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -256,19 +243,16 @@
   document.getElementById("todayLabel").textContent = _todayStr;
   document.getElementById("pastTodayLabel").textContent = _todayStr;
 
-  // Script URL persistence
   var _saved = localStorage.getItem("scriptUrl");
   if (_saved) document.getElementById("scriptUrl").value = _saved;
   document.getElementById("scriptUrl").addEventListener("change", function() {
     localStorage.setItem("scriptUrl", this.value);
   });
 
-  // Textarea → enable log button (lessons tab only)
   document.getElementById("transcriptBox").addEventListener("input", function() {
     document.getElementById("btnLog").disabled = !this.value.trim();
   });
 
-  // Auto-load on startup
   window.onload = function() {
     var url = localStorage.getItem("scriptUrl");
     if (url) { document.getElementById("scriptUrl").value = url; loadData(); }
