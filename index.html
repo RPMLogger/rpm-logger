@@ -115,12 +115,19 @@
   </div>
 
   <!-- PAST -->
-  <div class="tab-panel" id="tab-past">
-    <div class="section-label">Today's Students</div>
-    <div class="past-grid" id="pastGrid"><div class="empty-state">Load students first</div></div>
-    <div class="past-header" id="pastHeader">Last 4 — <span id="pastHeaderName"></span></div>
-    <div class="past-lessons-list" id="pastList"></div>
+ <div class="tab-panel" id="tab-past">
+  <div class="section-label">All Students</div>
+  <div class="past-grid" id="pastGrid"><div class="empty-state">Loading...</div></div>
+  <hr class="divider">
+  <div id="pastHeader" style="display:none; margin-bottom:12px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+      <button id="pastNavPrev" class="past-nav-btn" onclick="pastNavPrev()">←</button>
+      <span id="pastHeaderName" class="past-header-name"></span>
+      <button id="pastNavNext" class="past-nav-btn" onclick="pastNavNext()">→</button>
+    </div>
   </div>
+  <div class="past-lessons-list" id="pastList"></div>
+</div>
 
   <!-- WEEK -->
   <div class="tab-panel" id="tab-week">
