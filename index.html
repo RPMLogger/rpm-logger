@@ -115,19 +115,27 @@
   </div>
 
   <!-- PAST -->
- <div class="tab-panel" id="tab-past">
-  <div class="section-label">All Students</div>
-  <div class="past-grid" id="pastGrid"><div class="empty-state">Loading...</div></div>
-  <hr class="divider">
-  <div id="pastHeader" style="display:none; margin-bottom:12px;">
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-      <button id="pastNavPrev" class="past-nav-btn" onclick="pastNavPrev()">←</button>
-      <span id="pastHeaderName" class="past-header-name"></span>
-      <button id="pastNavNext" class="past-nav-btn" onclick="pastNavNext()">→</button>
+  <div class="tab-panel" id="tab-past">
+
+    <!-- Today's lessons — same cards as Lessons tab, no badge -->
+    <div id="pastTodaySection" style="display:none">
+      <div class="section-label" id="pastTodayLabel">Today</div>
+      <div class="today-grid" id="pastTodayGrid"></div>
+      <hr class="divider">
     </div>
+
+    <div class="section-label">All Students</div>
+    <div class="past-grid" id="pastGrid"><div class="empty-state">Loading...</div></div>
+    <hr class="divider">
+    <div id="pastHeader" style="display:none; margin-bottom:12px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+        <button id="pastNavPrev" class="past-nav-btn" onclick="pastNavPrev()">←</button>
+        <span id="pastHeaderName" class="past-header-name"></span>
+        <button id="pastNavNext" class="past-nav-btn" onclick="pastNavNext()">→</button>
+      </div>
+    </div>
+    <div class="past-lessons-list" id="pastList"></div>
   </div>
-  <div class="past-lessons-list" id="pastList"></div>
-</div>
 
   <!-- WEEK -->
   <div class="tab-panel" id="tab-week">
@@ -244,8 +252,9 @@
   var _now = new Date();
   var _DAYS   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   var _MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  document.getElementById("todayLabel").textContent =
-    _DAYS[_now.getDay()] + " · " + _MONTHS[_now.getMonth()] + " " + _now.getDate();
+  var _todayStr = _DAYS[_now.getDay()] + " · " + _MONTHS[_now.getMonth()] + " " + _now.getDate();
+  document.getElementById("todayLabel").textContent = _todayStr;
+  document.getElementById("pastTodayLabel").textContent = _todayStr;
 
   // Script URL persistence
   var _saved = localStorage.getItem("scriptUrl");
