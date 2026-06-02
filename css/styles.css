@@ -354,14 +354,27 @@ body::before {
   border-top: none; border-radius: 0 0 8px 8px;
   padding: 10px 12px 12px; margin-bottom: 8px;
 }
+.inp-row {
+  display: flex; gap: 8px; align-items: flex-start;
+}
 .inp-textarea {
-  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  flex: 1; background: var(--surface); border: 1px solid var(--border);
   border-radius: 6px; color: var(--text); font-family: "DM Mono", monospace;
   font-size: 12px; padding: 8px 10px; resize: none; outline: none;
   line-height: 1.5; box-sizing: border-box; transition: border-color 0.2s;
 }
 .inp-textarea:focus { border-color: var(--accent2); }
 .inp-textarea::placeholder { color: var(--muted); font-style: italic; }
+.inp-mic {
+  padding: 8px 10px; background: none; border: 1px solid var(--border);
+  border-radius: 6px; color: var(--muted); font-size: 15px;
+  cursor: pointer; transition: all 0.2s; flex-shrink: 0; line-height: 1;
+}
+.inp-mic:hover { border-color: var(--accent2); }
+.inp-mic.recording {
+  border-color: var(--accent); color: var(--accent);
+  background: rgba(232,70,58,0.08); animation: pulse 1s infinite;
+}
 .inp-actions {
   display: flex; gap: 8px; margin-top: 8px; align-items: center;
 }
