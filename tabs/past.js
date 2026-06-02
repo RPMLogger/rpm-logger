@@ -11,7 +11,7 @@ function pastShortName(name) {
 function renderPastGrid() {
   var url = getScriptUrl(); if (!url) return;
 
-  // Render today's cards immediately from shared state (no extra fetch needed)
+  // Render today's cards immediately from shared state
   renderPastTodayCards();
 
   var grid = document.getElementById("pastGrid");
@@ -61,10 +61,7 @@ function renderPastTodayCards() {
     btn.innerHTML = "<div class='mic-dot'></div>" + s.name;
     btn.onclick = function() {
       var idx = pastStudents.indexOf(s.name);
-      if (idx === -1) {
-        // students may not be loaded yet — find by name after load
-        idx = 0;
-      }
+      if (idx === -1) idx = 0;
       selectPast(s.name, idx);
     };
     grid.appendChild(btn);
@@ -72,7 +69,6 @@ function renderPastTodayCards() {
 }
 
 function selectPast(name, idx) {
-  // If pastStudents is loaded, find correct index by name (handles early clicks)
   var realIdx = pastStudents.indexOf(name);
   if (realIdx !== -1) idx = realIdx;
 
@@ -112,7 +108,12 @@ function renderPastLessons(lessons) {
   var c = document.getElementById("pastList");
   c.innerHTML = "";
 
-  var isPaid = lessons[0] && (lessons[0].paid === true || lessons[0].paid === 'TRUE');
+  // Check paid — handle boolean true, string "TRUE", string "true"
+  var isPaid = lessons[0] && (
+    lessons[0].paid === true ||
+    (typeof lessons[0].paid === 'string' && lessons[0].paid.toUpperCase() === 'TRUE')
+  );
+
   var payStatus = document.createElement("div");
   payStatus.className = "past-pay-status " + (isPaid ? "paid" : "unpaid");
   payStatus.textContent = isPaid ? "✓ Paid" : "✗ Not Paid";
