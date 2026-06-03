@@ -1,25 +1,10 @@
 // ─── TABS / LESSONS.JS ───────────────────────────────────────────────────────
-// Lessons tab: Today grid, Week pills, log panel, mic recording.
-// Flow: click student → mic on → click again → mic off → review → Log or Cancel (X)
-
 function closeLogPanel() {
   stopRecordingClean();
   document.getElementById("logPanel").classList.remove("active");
   document.querySelectorAll(".today-btn").forEach(function(b) { b.classList.remove("recording"); });
   document.querySelectorAll(".week-pill").forEach(function(b) { b.classList.remove("recording"); });
   activeStudent = null;
-}
-
-// ─── RENDER: WEEK BAR ────────────────────────────────────────────────────────
-function renderWeekBar() {
-  var total  = weekStudents.length;
-  var trials = weekStudents.filter(function(s) { return s.calType === "trial"; }).length;
-  document.getElementById("weekCounts").innerHTML =
-    total + " students" + (trials > 0
-      ? " · <span>" + trials + " trial" + (trials > 1 ? "s" : "") + "</span>"
-      : "");
-  document.getElementById("weekDateRange").textContent = getWeekRange();
-  document.getElementById("weekBar").style.display = "flex";
 }
 
 // ─── RENDER: WEEK PILLS ──────────────────────────────────────────────────────
@@ -89,9 +74,8 @@ function renderTodayGrid() {
   }
 }
 
-// ─── MIC: TOGGLE (student button controls mic on/off) ────────────────────────
+// ─── MIC: TOGGLE ─────────────────────────────────────────────────────────────
 function toggleLog(student, idx) {
-  // Clicking a different student while one is active → close old, open new
   if (activeStudent &&
       (activeStudent.student.name !== student.name ||
        activeStudent.student.eventDate !== student.eventDate)) {
@@ -100,16 +84,11 @@ function toggleLog(student, idx) {
     openLogFresh(student, idx);
     return;
   }
-
-  // No active student → open panel and start mic
   if (!activeStudent) {
     openLogFresh(student, idx);
     return;
   }
-
-  // Same student clicked again → toggle mic on/off
   if (isRecording) {
-    // Second click: stop mic, show transcript for review
     stopRecordingClean();
     setRecordingUI(false, idx);
     document.getElementById("logPanelStatus").textContent = "review & edit";
@@ -117,7 +96,6 @@ function toggleLog(student, idx) {
     var box = document.getElementById("transcriptBox");
     if (box.value.trim()) document.getElementById("btnLog").disabled = false;
   } else {
-    // Mic was stopped (e.g. redo): clear and restart
     document.getElementById("transcriptBox").value = "";
     document.getElementById("btnLog").disabled = true;
     startRecording(idx);
@@ -133,7 +111,6 @@ function openLogFresh(student, idx) {
   document.getElementById("btnLog").className = "btn-log";
   document.getElementById("btnLog").textContent = "Log It →";
 
-  // Trial paid toggle
   var ex = document.getElementById("trialPaidToggle");
   if (ex) ex.remove();
   if (student.calType === "trial") {
@@ -148,7 +125,6 @@ function openLogFresh(student, idx) {
     document.getElementById("logActions").insertBefore(tog, document.getElementById("btnLog"));
   }
 
-  // Start mic immediately on first click
   startRecording(idx);
 }
 
@@ -199,7 +175,6 @@ function startRecording(idx) {
   };
 
   recognition.onend = function() {
-    // Suppressed means we stopped it intentionally — don't double-fire cleanup
     if (recognition._suppressed) return;
     if (isRecording) {
       isRecording = false;
@@ -221,7 +196,6 @@ function startRecording(idx) {
   recognition.start();
 }
 
-// Clean stop — suppresses onend side effects
 function stopRecordingClean() {
   if (recognition) {
     recognition._suppressed = true;
@@ -231,7 +205,6 @@ function stopRecordingClean() {
   playBeep(440, 80, 0.15);
 }
 
-// Legacy alias used elsewhere
 function stopRecording() {
   stopRecordingClean();
 }
@@ -242,7 +215,6 @@ function submitLog() {
   var subject = document.getElementById("transcriptBox").value.trim();
   if (!subject) { addLog("lessonFeed", "Nothing to log!", "error"); return; }
 
-  // Stop mic cleanly before submitting
   stopRecordingClean();
   setRecordingUI(false, activeStudent ? activeStudent.idx : undefined);
 
@@ -261,16 +233,11 @@ function submitLog() {
     if (data.success) {
       markLessonLogged(student.name, student.eventDate);
       addLog("lessonFeed", "✓ " + student.name + " — " + subject, "success");
-
-      // Close panel immediately on success
       document.getElementById("logPanel").classList.remove("active");
       activeStudent = null;
-
-      // Refresh grids after panel is gone
       renderWeekPills();
       renderTodayGrid();
       renderWeekTab();
-
     } else {
       btn.textContent = "Log It →"; btn.disabled = false;
       addLog("lessonFeed", "❌ " + (data.message || "Error logging"), "error");
