@@ -102,7 +102,7 @@ body::before {
   font-size: 8px; letter-spacing: 0.5px; text-transform: uppercase;
   cursor: pointer; transition: all 0.2s; white-space: nowrap;
 }
-.tab-btn.active { background: var(--accent); color: white; }
+.tab-btn.active { background: var(--accent); color: var(--muted); }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
@@ -240,7 +240,7 @@ body::before {
 .past-paid    { font-size: 10px; color: var(--green); }
 
 /* ─── WEEK TAB ────────────────────────────────────────────────────────────── */
-.week-tab-header { font-family: "Syne", sans-serif; font-size: 13px; font-weight: 800; color: var(--muted); margin-bottom: 14px; }
+.week-tab-header { font-family: "DM Mono", monospace; font-size: 11px; font-weight: 400; color: var(--muted); margin-bottom: 14px; letter-spacing: 2px; }
 .week-tab-grid   { display: flex; flex-wrap: wrap; gap: 7px; }
 .week-tab-pill {
   padding: 7px 14px; border: 1px solid var(--border); border-radius: 20px;
@@ -251,17 +251,14 @@ body::before {
 .week-tab-pill.logged  { border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.06); }
 .week-tab-pill .wt-check { display: none; }
 .week-tab-pill.logged .wt-check { display: inline; }
-.week-tab-pill.wt-trial    { border-color: rgba(74,158,255,0.3);  color: #4a9eff99; }
-.week-tab-pill.wt-weekly   { border-color: rgba(232,70,58,0.25);  color: #e8463a99; }
-.week-tab-pill.wt-biweekly { border-color: rgba(240,165,0,0.25);  color: #f0a50099; }
-.week-tab-pill.forgot      { border-color: #444; color: #888; background: rgba(255,255,255,0.03); }
+.week-tab-pill.forgot  { border-color: #444; color: #888; background: rgba(255,255,255,0.03); }
 .week-bar {
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;
 }
 .week-bar-label  { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px; }
-.week-bar-counts { font-family: "DM Mono", monospace; font-size: 14px; font-weight: 500; }
-.week-bar-counts span { color: var(--accent2); }
+.week-bar-counts { font-family: "DM Mono", monospace; font-size: 14px; font-weight: 500; color: var(--muted); }
+.week-bar-counts span { color: var(--muted); }
 .week-bar-right  { font-size: 10px; color: var(--muted); }
 .week-day-group  { margin-bottom: 14px; }
 .week-day-label  { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; padding-left: 2px; }
