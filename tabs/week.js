@@ -1,16 +1,47 @@
 // ─── TABS / WEEK.JS ──────────────────────────────────────────────────────────
 function renderWeekTab() {
   var grid = document.getElementById("weekTabGrid");
+  var header = document.getElementById("weekTabHeader");
   grid.innerHTML = "";
-  document.getElementById("weekTabHeader").textContent = "";
+  header.innerHTML = "";
 
   if (!weekStudents.length) {
     grid.innerHTML = "<div class='empty-state'>No students this week</div>";
     return;
   }
 
+  // ── Counts ──────────────────────────────────────────────────────────────────
+  var total     = weekStudents.length;
+  var weekly    = weekStudents.filter(function(s){ return s.calType === "weekly";    }).length;
+  var biweekly  = weekStudents.filter(function(s){ return s.calType === "biweekly";  }).length;
+  var trial     = weekStudents.filter(function(s){ return s.calType === "trial";     }).length;
+
+  // ── Header block ────────────────────────────────────────────────────────────
+  var hw = document.createElement("div"); hw.className = "wtab-header-wrap";
+
+  var lThisWeek = document.createElement("div"); lThisWeek.className = "wtab-this-week"; lThisWeek.textContent = "THIS WEEK";
+  var lRange    = document.createElement("div"); lRange.className    = "wtab-date-range"; lRange.textContent = getWeekRange();
+  var lTotal    = document.createElement("div"); lTotal.className    = "wtab-total";      lTotal.textContent = "Total: " + total;
+  var lWeekly   = document.createElement("div"); lWeekly.className   = "wtab-sub";        lWeekly.textContent = "Weekly: " + weekly;
+  var lBiweekly = document.createElement("div"); lBiweekly.className = "wtab-sub";        lBiweekly.textContent = "Biweekly: " + biweekly;
+  var lTrial    = document.createElement("div"); lTrial.className    = "wtab-sub";        lTrial.textContent = "Trial: " + trial;
+  var lDivider  = document.createElement("hr");  lDivider.className  = "wtab-divider";
+
+  hw.appendChild(lThisWeek);
+  hw.appendChild(lRange);
+  hw.appendChild(lTotal);
+  hw.appendChild(lWeekly);
+  hw.appendChild(lBiweekly);
+  hw.appendChild(lTrial);
+  hw.appendChild(lDivider);
+  header.appendChild(hw);
+
+  // ── Day groups ──────────────────────────────────────────────────────────────
   var dayOrder = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-  var dayShort = { Monday:"MON", Tuesday:"TUE", Wednesday:"WED", Thursday:"THU", Friday:"FRI", Saturday:"SAT", Sunday:"SUN" };
+  var dayFull  = {
+    Monday:"MONDAY", Tuesday:"TUESDAY", Wednesday:"WEDNESDAY",
+    Thursday:"THURSDAY", Friday:"FRIDAY", Saturday:"SATURDAY", Sunday:"SUNDAY"
+  };
   var groups = {};
   weekStudents.forEach(function(s) {
     var d = s.dayOfWeek || "Unknown";
@@ -18,34 +49,16 @@ function renderWeekTab() {
     groups[d].push(s);
   });
 
-  var anyShown = false;
   dayOrder.forEach(function(day) {
     if (!groups[day] || !groups[day].length) return;
-    var group = document.createElement("div"); group.className = "week-day-group";
-    var label = document.createElement("div"); label.className = "week-day-label";
-    var firstDate = groups[day][0].eventDate ? formatEventDate(groups[day][0].eventDate) : "";
-    if (firstDate) {
-      var parts = firstDate.split(" ");
-      firstDate = parts[0] + " /" + parts[1];
-    }
-    label.textContent = dayShort[day] + (firstDate ? "  " + firstDate : "");
-    group.appendChild(label);
+    var names = groups[day].map(function(s){ return s.name; }).join(", ");
 
-    var pillRow = document.createElement("div"); pillRow.className = "week-day-pills";
-    groups[day].forEach(function(s) {
-      if (isLessonLogged(s.name, s.eventDate)) return;
-      anyShown = true;
-      var btn = document.createElement("button");
-      var past = isPastDay(s.eventDate) && !s.isToday;
-      btn.className = "week-tab-pill" + (past ? " forgot" : "");
-      btn.textContent = s.name;
-      btn.onclick = function() { toggleLog(s, undefined); };
-      pillRow.appendChild(btn);
-    });
-    if (pillRow.children.length) { group.appendChild(pillRow); grid.appendChild(group); }
+    var row = document.createElement("div"); row.className = "wtab-day-row";
+    var lDay = document.createElement("span"); lDay.className = "wtab-day-name"; lDay.textContent = dayFull[day] + ":";
+    var lNames = document.createElement("span"); lNames.className = "wtab-day-names"; lNames.textContent = " " + names;
+
+    row.appendChild(lDay);
+    row.appendChild(lNames);
+    grid.appendChild(row);
   });
-
-  if (!anyShown) {
-    grid.innerHTML = "<div style='color:var(--green);font-size:11px;text-align:center;padding:20px'>All logged this week ✓</div>";
-  }
 }
