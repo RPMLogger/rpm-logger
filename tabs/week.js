@@ -29,8 +29,7 @@ function renderWeekTab() {
   var lDivider = document.createElement("hr");
   lDivider.className = "wtab-divider";
 
-  hw.appendChild(lThisWeek);
-  hw.appendChild(lTotal);
+
   hw.appendChild(lRange);
   hw.appendChild(lDivider);
   header.appendChild(hw);
