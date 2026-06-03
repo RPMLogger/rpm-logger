@@ -103,29 +103,15 @@
 
   <!-- PAST -->
   <div class="tab-panel" id="tab-past">
-
-    <!-- 1. TODAY'S LESSONS -->
     <div id="pastTodaySection" style="display:none">
       <div class="section-label" id="pastTodayLabel">Today</div>
       <div class="today-grid" id="pastTodayGrid"></div>
       <hr class="divider">
     </div>
-
-    <!-- 2. SELECTED STUDENT HEADER + PAST LESSONS -->
     <div id="pastHeader" style="display:none; margin-bottom:12px;">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-        <button id="pastNavPrev" class="past-nav-btn" onclick="pastNavPrev()">←</button>
-        <span id="pastHeaderName" class="past-header-name"></span>
-        <button id="pastNavNext" class="past-nav-btn" onclick="pastNavNext()">→</button>
-      </div>
+      <span id="pastHeaderName" style="font-family:'Syne',sans-serif;font-size:17px;font-weight:400;"></span>
     </div>
     <div class="past-lessons-list" id="pastList"></div>
-
-    <!-- 3. ALL STUDENTS at bottom -->
-    <hr class="divider" id="pastGridDivider">
-    <div class="section-label">All Students</div>
-    <div class="past-grid" id="pastGrid"><div class="empty-state">Loading...</div></div>
-
   </div>
 
   <!-- WEEK -->
