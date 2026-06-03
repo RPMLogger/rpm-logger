@@ -288,9 +288,9 @@ body::before {
   font-family: "DM Mono", monospace; font-size: 11px;
 }
 .sum-dot      { color: var(--muted);   }
-.sum-weekly   { color: #e8463a;        }
-.sum-biweekly { color: #f0a500;        }
-.sum-trial    { color: #4a9eff;        }
+.sum-weekly   { color: var(--muted); }
+.sum-biweekly { color: var(--muted); }
+.sum-trial    { color: var(--muted); }
 
 /* ─── INQUIRIES ───────────────────────────────────────────────────────────── */
 .inq-badge { display: inline-block; background: var(--accent); color: white; font-size: 9px; border-radius: 10px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
