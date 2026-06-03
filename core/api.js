@@ -1,28 +1,20 @@
 // ─── CORE / API.JS ───────────────────────────────────────────────────────────
-// All fetch calls to Apps Script live here.
-// To add a new data source: add a fetch function below and call it from loadData().
-
 function loadData() {
   var url = getScriptUrl();
   if (!url) return;
-
-  // Reset loading states
   document.getElementById("weekPills").innerHTML     = "<div style='color:var(--muted);font-size:11px'>Loading...</div>";
   document.getElementById("todayGrid").innerHTML     = "<div class='empty-state'>Loading...</div>";
   document.getElementById("weekTabGrid").innerHTML   = "<div class='empty-state'>Loading...</div>";
-  document.getElementById("pastGrid").innerHTML      = "<div class='empty-state'>Loading...</div>";
   document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty'>Loading...</div>";
   ["loadTotal","loadNorm","loadWeekly","loadBiweekly","loadIncome","loadGregorian"].forEach(function(id){
     document.getElementById(id).textContent = "—";
   });
   document.getElementById("studentListTable").style.display = "none";
-
   fetchWeekStudents(url);
   fetchAllStudents(url);
   fetchStudentLoad(url);
   fetchInquiries(url);
 }
-
 function fetchWeekStudents(url) {
   fetch(url + "?action=getWeekStudents")
     .then(function(r) { return r.json(); })
@@ -36,14 +28,12 @@ function fetchWeekStudents(url) {
         });
         weekStudents  = f;
         todayStudents = f.filter(function(s) { return s.isToday; });
-
         renderWeekBar();
         renderWeekPills();
         renderTodayGrid();
-        renderPastGrid();
+        renderPastTodayCards();
         renderWeekTab();
         renderGeneral();
-
         fetch(url + "?action=getCycleCounters")
           .then(function(r) { return r.json(); })
           .then(function(d) {
@@ -52,7 +42,6 @@ function fetchWeekStudents(url) {
               renderTodayGrid();
             }
           }).catch(function() {});
-
       } else {
         addLog("lessonFeed", data.message || "No students found", "error");
       }
@@ -60,7 +49,6 @@ function fetchWeekStudents(url) {
       addLog("lessonFeed", "❌ Could not connect.", "error");
     });
 }
-
 function fetchAllStudents(url) {
   fetch(url + "?action=getAllStudents")
     .then(function(r) { return r.json(); })
@@ -68,7 +56,6 @@ function fetchAllStudents(url) {
       if (data.success && data.students) renderPaymentStudents(data.students);
     }).catch(function() {});
 }
-
 function fetchStudentLoad(url) {
   fetch(url + "?action=getStudentLoad")
     .then(function(r) { return r.json(); })
@@ -84,7 +71,6 @@ function fetchStudentLoad(url) {
       }
     }).catch(function() {});
 }
-
 function fetchInquiries(url) {
   fetch(url + "?action=getInquiries")
     .then(function(r) { return r.json(); })

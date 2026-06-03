@@ -1,6 +1,4 @@
 // ─── TABS / WEEK.JS ──────────────────────────────────────────────────────────
-// Week tab: full week view grouped by day.
-
 function renderWeekTab() {
   var grid = document.getElementById("weekTabGrid");
   grid.innerHTML = "";
@@ -33,7 +31,7 @@ function renderWeekTab() {
         ? " <span class='pill-date'>" + formatEventDate(s.eventDate) + "</span>"
         : "";
       btn.innerHTML = s.name + dateLabel;
-      btn.onclick = function() { openLog(s); };
+      btn.onclick = function() { toggleLog(s, undefined); };
       pillRow.appendChild(btn);
     });
     if (pillRow.children.length) { group.appendChild(pillRow); grid.appendChild(group); }

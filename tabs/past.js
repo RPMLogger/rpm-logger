@@ -1,10 +1,5 @@
 // ─── TABS / PAST.JS ──────────────────────────────────────────────────────────
-var pastStudents = [];
-var pastCurrentIdx = -1;
-
-function renderPastGrid() {
-  renderPastTodayCards();
-}
+// Past tab: today's student cards → click to fetch and show past lessons.
 
 function renderPastTodayCards() {
   var section = document.getElementById("pastTodaySection");
@@ -26,6 +21,9 @@ function renderPastTodayCards() {
 }
 
 function selectPast(name) {
+  document.querySelectorAll("#pastTodayGrid .today-btn").forEach(function(b) {
+    b.classList.toggle("recording", b.textContent.trim() === name);
+  });
   document.getElementById("pastHeaderName").textContent = name;
   document.getElementById("pastHeader").style.display = "block";
   document.getElementById("pastList").innerHTML = "<div class='empty-state'>Loading...</div>";
@@ -47,17 +45,18 @@ function selectPast(name) {
 function renderPastLessons(lessons) {
   var c = document.getElementById("pastList");
   c.innerHTML = "";
-
   var isPaid = lessons[0] && (
     lessons[0].paid === true ||
-    (typeof lessons[0].paid === 'string' && lessons[0].paid.toUpperCase() === 'TRUE')
+    (typeof lessons[0].paid === "string" && lessons[0].paid.toUpperCase() === "TRUE")
   );
-
   var payStatus = document.createElement("div");
-  payStatus.className = "past-pay-status " + (isPaid ? "paid" : "unpaid");
+  payStatus.style.cssText = "font-size:10px;letter-spacing:1px;margin-bottom:10px;padding:5px 10px;" +
+    "border-radius:4px;display:inline-block;" +
+    (isPaid
+      ? "color:var(--green);background:rgba(46,204,113,0.08);border:1px solid var(--green)"
+      : "color:var(--accent);background:rgba(232,70,58,0.08);border:1px solid var(--accent)");
   payStatus.textContent = isPaid ? "✓ Paid" : "✗ Not Paid";
   c.appendChild(payStatus);
-
   lessons.forEach(function(l, i) {
     var row = document.createElement("div");
     row.className = "past-row";
