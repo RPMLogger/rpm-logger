@@ -67,11 +67,11 @@ function renderWeekTab() {
 
     var dayLabel = "";
     if (s.eventDate) {
-      var d = new Date(s.eventDate + "T12:00:00");
-      dayLabel = (dayShort[s.dayOfWeek] || s.dayOfWeek) + " · " + months[d.getMonth()] + " " + d.getDate();
-    } else {
-      dayLabel = dayShort[s.dayOfWeek] || s.dayOfWeek;
-    }
+  var parts = s.eventDate.split("T")[0].split("-");
+  dayLabel = (dayShort[s.dayOfWeek] || s.dayOfWeek) + " · " + months[parseInt(parts[1]) - 1] + " " + parseInt(parts[2]);
+} else {
+  dayLabel = dayShort[s.dayOfWeek] || s.dayOfWeek;
+}
     var dayEl = document.createElement("div"); dayEl.className = "load-label"; dayEl.style.width = "100px"; dayEl.style.textAlign = "right"; dayEl.style.color = "var(--accent2)"; dayEl.textContent = dayLabel;
 
     row.appendChild(nameEl);
