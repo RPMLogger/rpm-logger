@@ -102,7 +102,7 @@ body::before {
   font-size: 8px; letter-spacing: 0.5px; text-transform: uppercase;
   cursor: pointer; transition: all 0.2s; white-space: nowrap;
 }
-.tab-btn.active { background: var(--accent); color: var(--muted); }
+.tab-btn.active { background: var(--accent); color: var(--text); }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
