@@ -129,7 +129,7 @@ body::before {
 .today-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; margin-bottom: 18px; }
 .today-btn {
   position: relative; padding: 16px 14px; border: 1.5px solid var(--accent2);
-  border-radius: 10px; background: var(--surface); color: var(--text);
+  border-radius: 10px; background: var(--surface); color: var(--muted);
   font-family: "Syne", sans-serif; font-size: 13px; font-weight: 400;
   cursor: pointer; transition: all 0.2s; text-align: left;
   display: flex; flex-direction: column; gap: 6px; line-height: 1.3;
