@@ -464,3 +464,4 @@ body::before {
 
 #weekTabGrid .pay-history-month { display: block; }
 #weekTabGrid .pay-history-row   { display: block; }
+#weekTabGrid { display: block; }
