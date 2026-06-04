@@ -28,7 +28,6 @@ function fetchWeekStudents(url) {
         });
         weekStudents  = f;
         todayStudents = f.filter(function(s) { return s.isToday; });
-        renderWeekBar();
         renderWeekPills();
         renderTodayGrid();
         renderPastTodayCards();
