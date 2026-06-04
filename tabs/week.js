@@ -11,11 +11,9 @@ function renderWeekTab() {
   }
 
   // ── Counts ──────────────────────────────────────────────────────────────────
-  var total     = weekStudents.length;
-  var weekly    = weekStudents.filter(function(s){ return s.calType === "weekly"; }).length;
-  var biweekly  = weekStudents.filter(function(s){ return s.calType === "biweekly"; }).length;
-  var trials    = weekStudents.filter(function(s){ return s.calType === "trial"; }).length;
-  var normalized = weekly + (biweekly * 0.5) + (trials * 0.5);
+  var total    = weekStudents.length;
+  var weekly   = weekStudents.filter(function(s){ return s.calType === "weekly"; }).length;
+  var biweekly = weekStudents.filter(function(s){ return s.calType === "biweekly"; }).length;
 
   // ── Stats block ─────────────────────────────────────────────────────────────
   var statsWrap = document.createElement("div");
@@ -30,53 +28,38 @@ function renderWeekTab() {
     return row;
   }
 
-statsWrap.appendChild(makeStatRow("Student #", total, "blue"));
-  statsWrap.appendChild(makeStatRow("Weekly #",     weekly,     ""));
-  statsWrap.appendChild(makeStatRow("Biweekly #",   biweekly,   ""));
+  statsWrap.appendChild(makeStatRow("Student #",  total,    "blue"));
+  statsWrap.appendChild(makeStatRow("Weekly #",   weekly,   ""));
+  statsWrap.appendChild(makeStatRow("Biweekly #", biweekly, ""));
 
   header.appendChild(statsWrap);
 
-  // ── Student list ─────────────────────────────────────────────────────────────
+  // ── Day groups ───────────────────────────────────────────────────────────────
   var dayOrder = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-  var dayShort = { Monday:"Mon", Tuesday:"Tue", Wednesday:"Wed", Thursday:"Thu", Friday:"Fri", Saturday:"Sat", Sunday:"Sun" };
+  var dayShort = { Monday:"MON", Tuesday:"TUE", Wednesday:"WED", Thursday:"THU", Friday:"FRI", Saturday:"SAT", Sunday:"SUN" };
   var months   = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-  // Sort by day order
   var sorted = weekStudents.slice().sort(function(a, b) {
     return dayOrder.indexOf(a.dayOfWeek) - dayOrder.indexOf(b.dayOfWeek);
   });
 
-  // Table header
-  var tableWrap = document.createElement("div");
-  tableWrap.className = "load-table";
-
-  var thead = document.createElement("div");
-  thead.className = "load-row";
-  thead.style.background = "var(--surface2)";
-  var thName = document.createElement("div"); thName.className = "load-label"; thName.style.flex = "1"; thName.textContent = "Name";
-  var thDay  = document.createElement("div"); thDay.className  = "load-label"; thDay.style.width = "100px"; thDay.style.textAlign = "right"; thDay.textContent = "Lesson";
-  thead.appendChild(thName);
-  thead.appendChild(thDay);
-  tableWrap.appendChild(thead);
-
+  var currentDay = null;
   sorted.forEach(function(s) {
-    var row = document.createElement("div"); row.className = "load-row";
+    if (s.dayOfWeek !== currentDay) {
+      currentDay = s.dayOfWeek;
 
-    var nameEl = document.createElement("div"); nameEl.className = "load-value"; nameEl.style.flex = "1"; nameEl.style.fontSize = "12px"; nameEl.textContent = s.name;
+      var parts = s.eventDate ? s.eventDate.split("T")[0].split("-") : null;
+      var dateStr = parts ? months[parseInt(parts[1]) - 1] + " " + parseInt(parts[2]) : "";
 
-    var dayLabel = "";
-    if (s.eventDate) {
-  var parts = s.eventDate.split("T")[0].split("-");
-  dayLabel = (dayShort[s.dayOfWeek] || s.dayOfWeek) + " · " + months[parseInt(parts[1]) - 1] + " " + parseInt(parts[2]);
-} else {
-  dayLabel = dayShort[s.dayOfWeek] || s.dayOfWeek;
-}
-    var dayEl = document.createElement("div"); dayEl.className = "load-label"; dayEl.style.width = "100px"; dayEl.style.textAlign = "right"; dayEl.style.color = "var(--accent2)"; dayEl.textContent = dayLabel;
+      var dayHeader = document.createElement("div");
+      dayHeader.className = "pay-history-month";
+      dayHeader.textContent = (dayShort[s.dayOfWeek] || s.dayOfWeek) + (dateStr ? " · " + dateStr : "");
+      grid.appendChild(dayHeader);
+    }
 
-    row.appendChild(nameEl);
-    row.appendChild(dayEl);
-    tableWrap.appendChild(row);
+    var row = document.createElement("div");
+    row.className = "pay-history-row";
+    row.textContent = s.name;
+    grid.appendChild(row);
   });
-
-  grid.appendChild(tableWrap);
 }
