@@ -34,67 +34,46 @@ function renderWeekTab() {
 
   header.appendChild(statsWrap);
 
-  // ── Day cards ────────────────────────────────────────────────────────────────
+  // ── Student list ─────────────────────────────────────────────────────────────
   var dayOrder = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-  var dayShort = { Monday:"MON", Tuesday:"TUE", Wednesday:"WED", Thursday:"THU", Friday:"FRI", Saturday:"SAT", Sunday:"SUN" };
+  var dayShort = { Monday:"Mon", Tuesday:"Tue", Wednesday:"Wed", Thursday:"Thu", Friday:"Fri", Saturday:"Sat", Sunday:"Sun" };
   var months   = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
   var sorted = weekStudents.slice().sort(function(a, b) {
     return dayOrder.indexOf(a.dayOfWeek) - dayOrder.indexOf(b.dayOfWeek);
   });
 
-  var groups = {};
-  var groupOrder = [];
+  var tableWrap = document.createElement("div");
+  tableWrap.className = "load-table";
+
+  var thead = document.createElement("div");
+  thead.className = "load-row";
+  thead.style.background = "var(--surface2)";
+  var thName = document.createElement("div"); thName.className = "load-label"; thName.style.flex = "1"; thName.textContent = "Name";
+  var thDay  = document.createElement("div"); thDay.className  = "load-label"; thDay.style.width = "100px"; thDay.style.textAlign = "right"; thDay.textContent = "Lesson";
+  thead.appendChild(thName);
+  thead.appendChild(thDay);
+  tableWrap.appendChild(thead);
+
   sorted.forEach(function(s) {
-    if (!groups[s.dayOfWeek]) {
-      groups[s.dayOfWeek] = { students: [], eventDate: s.eventDate };
-      groupOrder.push(s.dayOfWeek);
+    var row = document.createElement("div"); row.className = "load-row";
+
+    var nameEl = document.createElement("div"); nameEl.className = "load-value"; nameEl.style.flex = "1"; nameEl.style.fontSize = "12px"; nameEl.textContent = s.name;
+
+    var dayLabel = "";
+    if (s.eventDate) {
+      var parts = s.eventDate.split("T")[0].split("-");
+      dayLabel = (dayShort[s.dayOfWeek] || s.dayOfWeek) + " · " + months[parseInt(parts[1]) - 1] + " " + parseInt(parts[2]);
+    } else {
+      dayLabel = dayShort[s.dayOfWeek] || s.dayOfWeek;
     }
-    groups[s.dayOfWeek].students.push(s);
+
+    var dayEl = document.createElement("div"); dayEl.className = "load-label"; dayEl.style.width = "100px"; dayEl.style.textAlign = "right"; dayEl.style.color = "var(--accent2)"; dayEl.textContent = dayLabel;
+
+    row.appendChild(nameEl);
+    row.appendChild(dayEl);
+    tableWrap.appendChild(row);
   });
 
-  var cardsWrap = document.createElement("div");
-  cardsWrap.style.display = "flex";
-  cardsWrap.style.flexDirection = "column";
-  cardsWrap.style.gap = "8px";
-  cardsWrap.style.marginTop = "4px";
-
-  groupOrder.forEach(function(day) {
-    var g = groups[day];
-    var parts = g.eventDate ? g.eventDate.split("T")[0].split("-") : null;
-    var dateStr = parts ? months[parseInt(parts[1]) - 1] + " " + parseInt(parts[2]) : "";
-
-    var card = document.createElement("div");
-    card.style.background = "var(--surface)";
-    card.style.border = "1px solid var(--border)";
-    card.style.borderRadius = "8px";
-    card.style.padding = "12px 16px";
-
-    var dayLabel = document.createElement("div");
-    dayLabel.style.fontFamily = "'Bebas Neue', sans-serif";
-    dayLabel.style.fontSize = "13px";
-    dayLabel.style.letterSpacing = "1.5px";
-    dayLabel.style.color = "var(--accent2)";
-    dayLabel.style.marginBottom = "8px";
-    dayLabel.textContent = (dayShort[day] || day) + (dateStr ? " · " + dateStr : "");
-    card.appendChild(dayLabel);
-
-    g.students.forEach(function(s) {
-      var nameEl = document.createElement("div");
-      nameEl.style.fontFamily = "'DM Mono', monospace";
-      nameEl.style.fontSize = "11px";
-      nameEl.style.color = "var(--muted)";
-      nameEl.style.padding = "4px 0";
-      nameEl.style.borderBottom = "1px solid var(--border)";
-      nameEl.textContent = s.name;
-      card.appendChild(nameEl);
-    });
-
-    var lastChild = card.lastChild;
-    if (lastChild) lastChild.style.borderBottom = "none";
-
-    cardsWrap.appendChild(card);
-  });
-
-  grid.appendChild(cardsWrap);
+  grid.appendChild(tableWrap);
 }
