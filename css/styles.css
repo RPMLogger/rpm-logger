@@ -461,3 +461,6 @@ body::before {
 
 .load-row.blue .load-label { color: var(--blue); }
 .load-row.blue .load-value { color: var(--blue); font-size: 13px; }
+
+#weekTabGrid .pay-history-month { display: block; }
+#weekTabGrid .pay-history-row   { display: block; }
