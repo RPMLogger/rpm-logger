@@ -19,32 +19,41 @@ function fetchWeekStudents(url) {
   fetch(url + "?action=getWeekStudents")
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      if (data.success && data.students) {
-        var f = data.students.filter(function(s) { return isReal(s.name); });
-        f.sort(function(a, b) {
-          var da = a.eventDate ? new Date(a.eventDate) : new Date(0);
-          var db = b.eventDate ? new Date(b.eventDate) : new Date(0);
-          return da - db;
-        });
-        weekStudents  = f;
-        todayStudents = f.filter(function(s) { return s.isToday; });
+      if (!(data.success && data.students)) {
+        addLog("lessonFeed", data.message || "No students found", "error");
+        return;
+      }
+      var f = data.students.filter(function(s) { return isReal(s.name); });
+      f.sort(function(a, b) {
+        var da = a.eventDate ? new Date(a.eventDate) : new Date(0);
+        var db = b.eventDate ? new Date(b.eventDate) : new Date(0);
+        return da - db;
+      });
+      weekStudents  = f;
+      todayStudents = f.filter(function(s) { return s.isToday; });
+
+      // Render errors get reported honestly — not as a connection failure
+      try {
         renderWeekPills();
         renderTodayGrid();
         renderPastTodayCards();
         renderWeekTab();
         renderGeneral();
-        fetch(url + "?action=getCycleCounters")
-          .then(function(r) { return r.json(); })
-          .then(function(d) {
-            if (d.success && d.counters) {
-              lessonCounts = d.counters;
-              renderTodayGrid();
-            }
-          }).catch(function() {});
-      } else {
-        addLog("lessonFeed", data.message || "No students found", "error");
+      } catch (err) {
+        addLog("lessonFeed", "⚠ Render error: " + (err && err.message ? err.message : err), "error");
       }
-    }).catch(function() {
+
+      fetch(url + "?action=getCycleCounters")
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (d.success && d.counters) {
+            lessonCounts = d.counters;
+            try { renderTodayGrid(); } catch (e) {}
+          }
+        })
+        .catch(function() {});
+    })
+    .catch(function() {
       addLog("lessonFeed", "❌ Could not connect.", "error");
     });
 }
