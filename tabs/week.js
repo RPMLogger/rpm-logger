@@ -68,7 +68,7 @@ function renderWeekTab() {
       dayLabel = dayShort[s.dayOfWeek] || s.dayOfWeek;
     }
 
-    var dayEl = document.createElement("div"); dayEl.className = "load-label"; dayEl.style.width = "75px"; dayEl.style.textAlign = "right"; dayEl.style.color = "var(--blue)"; dayEl.textContent = dayLabel;
+    var dayEl = document.createElement("div"); dayEl.className = "load-label"; dayEl.style.width = "100px"; dayEl.style.textAlign = "right"; dayEl.style.color = "var(--blue)"; dayEl.textContent = dayLabel;
 
     row.appendChild(nameEl);
     row.appendChild(dayEl);
