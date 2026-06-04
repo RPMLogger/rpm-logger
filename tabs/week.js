@@ -30,8 +30,7 @@ function renderWeekTab() {
     return row;
   }
 
-  statsWrap.appendChild(makeStatRow("Student #",    total,      ""));
-  statsWrap.appendChild(makeStatRow("Normalized #", normalized, "highlight"));
+  statsWrap.appendChild(makeStatRow("Student #",    total,      "highlight"));
   statsWrap.appendChild(makeStatRow("Weekly #",     weekly,     ""));
   statsWrap.appendChild(makeStatRow("Biweekly #",   biweekly,   ""));
 
