@@ -34,7 +34,7 @@ function renderWeekTab() {
 
   header.appendChild(statsWrap);
 
-// ── Day cards ────────────────────────────────────────────────────────────────
+  // ── Day cards ────────────────────────────────────────────────────────────────
   var dayOrder = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
   var dayShort = { Monday:"MON", Tuesday:"TUE", Wednesday:"WED", Thursday:"THU", Friday:"FRI", Saturday:"SAT", Sunday:"SUN" };
   var months   = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -43,7 +43,6 @@ function renderWeekTab() {
     return dayOrder.indexOf(a.dayOfWeek) - dayOrder.indexOf(b.dayOfWeek);
   });
 
-  // Group by day
   var groups = {};
   var groupOrder = [];
   sorted.forEach(function(s) {
@@ -91,7 +90,6 @@ function renderWeekTab() {
       card.appendChild(nameEl);
     });
 
-    // Remove border from last student
     var lastChild = card.lastChild;
     if (lastChild) lastChild.style.borderBottom = "none";
 
@@ -99,3 +97,4 @@ function renderWeekTab() {
   });
 
   grid.appendChild(cardsWrap);
+}
