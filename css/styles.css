@@ -458,3 +458,6 @@ body::before {
 .wtab-day-row      { margin-bottom: 10px; font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.6; }
 .wtab-day-name     { color: var(--accent2); font-weight: 500; }
 .wtab-day-names    { color: var(--muted); }
+
+.load-row.blue .load-label { color: var(--blue); }
+.load-row.blue .load-value { color: var(--blue); font-size: 13px; }
