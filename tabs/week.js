@@ -40,7 +40,7 @@ function renderWeekTab() {
   // ── Stats block (mirrors the General tab "Student Load" card) ────────────────
   var secLabel = document.createElement("div");
   secLabel.className = "section-label";
-  secLabel.textContent = "This Week: " + weekRangeLabel();
+  secLabel.textContent = "This Week";
   header.appendChild(secLabel);
 
   var statsWrap = document.createElement("div");
@@ -65,7 +65,6 @@ function renderWeekTab() {
 
   // ── Student list ─────────────────────────────────────────────────────────────
   var dayOrder = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-  var dayShort = { Monday:"Mon", Tuesday:"Tue", Wednesday:"Wed", Thursday:"Thu", Friday:"Fri", Saturday:"Sat", Sunday:"Sun" };
 
   var sorted = weekStudents.slice().sort(function(a, b) {
     return dayOrder.indexOf(a.dayOfWeek) - dayOrder.indexOf(b.dayOfWeek);
@@ -76,32 +75,35 @@ function renderWeekTab() {
 
   var thead = document.createElement("div");
   thead.className = "load-row";
-  thead.style.background = "var(--surface2)";
+  thead.style.background = "rgba(46,204,113,0.05)";
   var thName = document.createElement("div"); thName.className = "load-label"; thName.style.flex = "1"; thName.textContent = "Name";
-  var thDay  = document.createElement("div"); thDay.className  = "load-label"; thDay.style.width = "100px"; thDay.style.textAlign = "right"; thDay.textContent = "Lesson";
+  var thDay  = document.createElement("div"); thDay.className  = "load-label"; thDay.style.width = "100px"; thDay.style.textAlign = "right"; thDay.textContent = "Day";
   thead.appendChild(thName);
   thead.appendChild(thDay);
   tableWrap.appendChild(thead);
 
+  var prevDay = null;
   sorted.forEach(function(s) {
-    var row = document.createElement("div"); row.className = "load-row";
+    var isNewDay = (s.dayOfWeek !== prevDay);
+    prevDay = s.dayOfWeek;
 
-    var nameEl = document.createElement("div"); nameEl.className = "load-value"; nameEl.style.flex = "1"; nameEl.style.fontSize = "12px"; nameEl.textContent = s.name;
+    var row = document.createElement("div"); row.className = "load-row" + (isNewDay ? " highlight" : "");
 
-    var dayLabel = "";
-    if (s.eventDate) {
-      var parts = s.eventDate.split("T")[0].split("-");
-      dayLabel = (dayShort[s.dayOfWeek] || s.dayOfWeek) + " · " + months[parseInt(parts[1]) - 1] + " " + parseInt(parts[2]);
-    } else {
-      dayLabel = dayShort[s.dayOfWeek] || s.dayOfWeek;
-    }
+    var nameEl = document.createElement("div"); nameEl.className = "load-value"; nameEl.style.flex = "1"; nameEl.style.fontSize = "11px"; nameEl.style.color = "var(--muted)"; nameEl.textContent = s.name;
 
-    var dayEl = document.createElement("div"); dayEl.className = "load-label"; dayEl.style.width = "100px"; dayEl.style.textAlign = "right"; dayEl.style.color = "var(--blue)"; dayEl.textContent = dayLabel;
+    var dayLabel = isNewDay ? (s.dayOfWeek || "").toUpperCase() : "";
+
+    var dayEl = document.createElement("div"); dayEl.className = "load-label"; dayEl.style.width = "100px"; dayEl.style.textAlign = "right"; dayEl.textContent = dayLabel;
 
     row.appendChild(nameEl);
     row.appendChild(dayEl);
     tableWrap.appendChild(row);
   });
+
+  var listLabel = document.createElement("div");
+  listLabel.className = "section-label";
+  listLabel.textContent = weekRangeLabel();
+  grid.appendChild(listLabel);
 
   grid.appendChild(tableWrap);
 }
