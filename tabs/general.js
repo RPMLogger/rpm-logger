@@ -2,13 +2,23 @@
 // General tab: student load stats + student list table.
 
 function renderGeneral() {
+  // The week-summary box was removed in the multi-file refactor, so guard every
+  // lookup — a missing element must not throw and abort the render chain.
+  var box = document.getElementById("weekSummaryBox");
+  if (!box) return;
+
   var weekly   = weekStudents.filter(function(s) { return s.calType === "weekly";   }).length;
   var biweekly = weekStudents.filter(function(s) { return s.calType === "biweekly"; }).length;
   var trial    = weekStudents.filter(function(s) { return s.calType === "trial";    }).length;
-  document.getElementById("summWeekly").innerHTML   = "<span class='sum-weekly'>"   + weekly   + " weekly</span>";
-  document.getElementById("summBiweekly").innerHTML = "<span class='sum-biweekly'>" + biweekly + " biweekly</span>";
-  document.getElementById("summTrial").innerHTML    = "<span class='sum-trial'>"    + trial    + " trial</span>";
-  document.getElementById("weekSummaryBox").style.display = "flex";
+
+  var w = document.getElementById("summWeekly");
+  if (w) w.innerHTML = "<span class='sum-weekly'>" + weekly + " weekly</span>";
+  var b = document.getElementById("summBiweekly");
+  if (b) b.innerHTML = "<span class='sum-biweekly'>" + biweekly + " biweekly</span>";
+  var t = document.getElementById("summTrial");
+  if (t) t.innerHTML = "<span class='sum-trial'>" + trial + " trial</span>";
+
+  box.style.display = "flex";
 }
 
 function renderStudentList(data) {
