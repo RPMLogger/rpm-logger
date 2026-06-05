@@ -34,32 +34,32 @@ function renderWeekTab() {
     var dow = (d.getDay() + 6) % 7;                  // 0 = Monday
     var mon = new Date(d); mon.setDate(d.getDate() - dow);
     var sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-    return months[mon.getMonth()] + " " + mon.getDate() + " – " + months[sun.getMonth()] + " " + sun.getDate();
+    return months[mon.getMonth()] + " " + mon.getDate() + " - " + months[sun.getMonth()] + " " + sun.getDate();
   }
 
   // ── Stats block (mirrors the General tab "Student Load" card) ────────────────
   var secLabel = document.createElement("div");
   secLabel.className = "section-label";
-  secLabel.textContent = "This Week";
+  secLabel.textContent = "This Week: " + weekRangeLabel();
   header.appendChild(secLabel);
 
   var statsWrap = document.createElement("div");
   statsWrap.className = "load-table";
   statsWrap.style.marginBottom = "20px";
 
-  function makeStatRow(label, value, cls) {
+  function makeStatRow(label, value, cls, mutedValue) {
     var row = document.createElement("div"); row.className = "load-row" + (cls ? " " + cls : "");
     var lbl = document.createElement("div"); lbl.className = "load-label"; lbl.textContent = label;
     var val = document.createElement("div"); val.className = "load-value"; val.textContent = value;
+    if (mutedValue) val.style.color = "var(--muted)";
     row.appendChild(lbl); row.appendChild(val);
     return row;
   }
 
-  statsWrap.appendChild(makeStatRow("Dates",          weekRangeLabel(), "blue"));
-  statsWrap.appendChild(makeStatRow("Student #",      total,            "highlight"));
-  statsWrap.appendChild(makeStatRow("Weekly #",       weekly,           ""));
-  statsWrap.appendChild(makeStatRow("Biweekly #",     biweekly,         ""));
-  statsWrap.appendChild(makeStatRow("Trial Students", trial,            ""));
+  statsWrap.appendChild(makeStatRow("Student #",      total,    "highlight"));
+  statsWrap.appendChild(makeStatRow("Weekly #",       weekly,   "", true));
+  statsWrap.appendChild(makeStatRow("Biweekly #",     biweekly, "", true));
+  statsWrap.appendChild(makeStatRow("Trial Students", trial,    "", true));
 
   header.appendChild(statsWrap);
 
