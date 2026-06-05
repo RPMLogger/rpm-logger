@@ -28,7 +28,15 @@ function saveLoggedSet() {
 var loggedKeys = loadLoggedSet();
 
 function getLessonKey(name, eventDate) {
-  var dateStr = eventDate ? new Date(eventDate).toISOString().slice(0, 10) : 'nodate';
+  // Use the LOCAL calendar date, not UTC. toISOString() pushed evening
+  // lessons to the next day (a Thu 8:30pm lesson keyed as Friday).
+  var dateStr = 'nodate';
+  if (eventDate) {
+    var d = new Date(eventDate);
+    dateStr = d.getFullYear() + '-' +
+              String(d.getMonth() + 1).padStart(2, '0') + '-' +
+              String(d.getDate()).padStart(2, '0');
+  }
   return name + '||' + dateStr;
 }
 
