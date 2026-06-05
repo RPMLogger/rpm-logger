@@ -32,16 +32,13 @@ function fetchWeekStudents(url) {
       weekStudents  = f;
       todayStudents = f.filter(function(s) { return s.isToday; });
 
-      // Render errors get reported honestly — not as a connection failure
-      try {
-        renderWeekPills();
-        renderTodayGrid();
-        renderPastTodayCards();
-        renderWeekTab();
-        renderGeneral();
-      } catch (err) {
-        addLog("lessonFeed", "⚠ Render error: " + (err && err.message ? err.message : err), "error");
-      }
+      // Render each section independently — a failure in one is reported
+      // but no longer aborts the others.
+      [renderWeekPills, renderTodayGrid, renderPastTodayCards, renderWeekTab, renderGeneral]
+        .forEach(function(fn) {
+          try { fn(); }
+          catch (err) { addLog("lessonFeed", "⚠ Render error: " + (err && err.message ? err.message : err), "error"); }
+        });
 
       fetch(url + "?action=getCycleCounters")
         .then(function(r) { return r.json(); })
