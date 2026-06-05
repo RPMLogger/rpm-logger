@@ -73,30 +73,25 @@ function renderWeekTab() {
   var tableWrap = document.createElement("div");
   tableWrap.className = "load-table";
 
-  var thead = document.createElement("div");
-  thead.className = "load-row";
-  thead.style.background = "rgba(46,204,113,0.05)";
-  var thName = document.createElement("div"); thName.className = "load-label"; thName.style.flex = "1"; thName.textContent = "Name";
-  var thDay  = document.createElement("div"); thDay.className  = "load-label"; thDay.style.width = "100px"; thDay.style.textAlign = "right"; thDay.textContent = "Day";
-  thead.appendChild(thName);
-  thead.appendChild(thDay);
-  tableWrap.appendChild(thead);
-
+  // Rows grouped by day: a gray day-header row before each day's students
   var prevDay = null;
   sorted.forEach(function(s) {
-    var isNewDay = (s.dayOfWeek !== prevDay);
-    prevDay = s.dayOfWeek;
+    if (s.dayOfWeek !== prevDay) {
+      prevDay = s.dayOfWeek;
+      var dayRow = document.createElement("div");
+      dayRow.className = "load-row";
+      dayRow.style.background = "var(--surface2)";
+      var dayCell = document.createElement("div");
+      dayCell.className = "load-label";
+      dayCell.style.flex = "1";
+      dayCell.textContent = (s.dayOfWeek || "").toUpperCase();
+      dayRow.appendChild(dayCell);
+      tableWrap.appendChild(dayRow);
+    }
 
-    var row = document.createElement("div"); row.className = "load-row" + (isNewDay ? " highlight" : "");
-
+    var row = document.createElement("div"); row.className = "load-row";
     var nameEl = document.createElement("div"); nameEl.className = "load-value"; nameEl.style.flex = "1"; nameEl.style.fontSize = "11px"; nameEl.style.color = "var(--muted)"; nameEl.textContent = s.name;
-
-    var dayLabel = isNewDay ? (s.dayOfWeek || "").toUpperCase() : "";
-
-    var dayEl = document.createElement("div"); dayEl.className = "load-label"; dayEl.style.width = "100px"; dayEl.style.textAlign = "right"; dayEl.textContent = dayLabel;
-
     row.appendChild(nameEl);
-    row.appendChild(dayEl);
     tableWrap.appendChild(row);
   });
 
