@@ -80,23 +80,25 @@ function renderWeekTab() {
       prevDay = s.dayOfWeek;
       var dayRow = document.createElement("div");
       dayRow.className = "load-row";
-      dayRow.style.background = "var(--surface2)";
+      dayRow.style.background = "rgba(46,204,113,0.05)";
       var dayCell = document.createElement("div");
       dayCell.className = "load-label";
       dayCell.style.flex = "1";
+      dayCell.style.color = "var(--green)";
       dayCell.textContent = (s.dayOfWeek || "").toUpperCase();
       dayRow.appendChild(dayCell);
       tableWrap.appendChild(dayRow);
     }
 
     var row = document.createElement("div"); row.className = "load-row";
-    var nameEl = document.createElement("div"); nameEl.className = "load-value"; nameEl.style.flex = "1"; nameEl.style.fontSize = "11px"; nameEl.style.color = "var(--muted)"; nameEl.textContent = s.name;
+    var nameEl = document.createElement("div"); nameEl.className = "load-value"; nameEl.style.flex = "1"; nameEl.style.fontSize = "10px"; nameEl.style.color = "var(--muted)"; nameEl.textContent = s.name;
     row.appendChild(nameEl);
     tableWrap.appendChild(row);
   });
 
   var listLabel = document.createElement("div");
   listLabel.className = "section-label";
+  listLabel.style.letterSpacing = "1px";
   listLabel.textContent = weekRangeLabel();
   grid.appendChild(listLabel);
 
