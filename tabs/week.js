@@ -77,10 +77,12 @@ function renderWeekTab() {
   var prevDay = null;
   sorted.forEach(function(s) {
     if (s.dayOfWeek !== prevDay) {
-      prevDay = s.dayOfWeek;
-      var dayRow = document.createElement("div");
-      dayRow.className = "load-row";
-      dayRow.style.background = "rgba(46,204,113,0.05)";
+  prevDay = s.dayOfWeek;
+  var dayRow = document.createElement("div");
+  dayRow.className = "load-row";
+  if (s.dayOfWeek === "Monday") {
+    dayRow.style.background = "rgba(46,204,113,0.05)";
+  }
       var dayCell = document.createElement("div");
       dayCell.className = "load-label";
       dayCell.style.flex = "1";
