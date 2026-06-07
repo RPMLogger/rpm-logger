@@ -220,7 +220,7 @@ function submitLog() {
   var parts = [];
   for (var r = 0; r < 3; r++) {
     var v = document.getElementById("rowInput-" + r).value.trim();
-    if (v) parts.push(v);
+    if (v) parts.push(toTitleCase(v));
   }
   var subject = parts.join(" - ");
   if (!subject) { addLog("lessonFeed", "Nothing to log!", "error"); return; }
@@ -291,4 +291,13 @@ function resetRows() {
   document.querySelectorAll(".transcript-row").forEach(function(el, i) {
     el.classList.toggle("active", i === 0);
   });
+}
+
+function toTitleCase(str) {
+  var small = ["a","an","and","as","at","but","by","for","in","nor","of","on","or","the","to","up","yet","so","if","off","per","via"];
+  var words = str.toLowerCase().split(/\s+/);
+  return words.map(function(w, i) {
+    if (i !== 0 && i !== words.length - 1 && small.indexOf(w) !== -1) return w;
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  }).join(" ");
 }
