@@ -1,4 +1,7 @@
 // ─── TABS / LESSONS.JS ───────────────────────────────────────────────────────
+var activeRow = 0;
+var rowFinals = ["", "", ""];
+
 function closeLogPanel() {
   stopRecordingClean();
   document.getElementById("logPanel").classList.remove("active");
@@ -93,10 +96,9 @@ function toggleLog(student, idx) {
     setRecordingUI(false, idx);
     document.getElementById("logPanelStatus").textContent = "review & edit";
     document.getElementById("logPanelStatus").classList.add("idle");
-    var box = document.getElementById("transcriptBox");
-    if (box.value.trim()) document.getElementById("btnLog").disabled = false;
+    updateLogButton();
   } else {
-    document.getElementById("transcriptBox").value = "";
+    resetRows();
     document.getElementById("btnLog").disabled = true;
     startRecording(idx);
   }
@@ -106,7 +108,7 @@ function openLogFresh(student, idx) {
   activeStudent = { student: student, idx: idx };
   document.getElementById("logPanel").classList.add("active");
   document.getElementById("logPanelName").textContent = student.name;
-  document.getElementById("transcriptBox").value = "";
+  resetRows();
   document.getElementById("btnLog").disabled = true;
   document.getElementById("btnLog").className = "btn-log";
   document.getElementById("btnLog").textContent = "Log It →";
@@ -155,7 +157,6 @@ function startRecording(idx) {
   recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   recognition.lang = "en-US"; recognition.continuous = true; recognition.interimResults = true;
   recognition._suppressed = false;
-  recognition._finalText = "";
 
   recognition.onstart = function() {
     isRecording = true;
@@ -165,13 +166,17 @@ function startRecording(idx) {
 
   recognition.onresult = function(event) {
     var interim = "";
+    var newFinal = "";
     for (var i = event.resultIndex; i < event.results.length; i++) {
-      if (event.results[i].isFinal) recognition._finalText += event.results[i][0].transcript;
+      if (event.results[i].isFinal) newFinal += event.results[i][0].transcript;
       else interim += event.results[i][0].transcript;
     }
-    var box = document.getElementById("transcriptBox");
-    box.value = (recognition._finalText + interim).trim();
-    if (recognition._finalText.trim()) document.getElementById("btnLog").disabled = false;
+    if (newFinal) {
+      rowFinals[activeRow] = (rowFinals[activeRow] + " " + newFinal).replace(/\s+/g, " ").trim();
+    }
+    var inp = document.getElementById("rowInput-" + activeRow);
+    inp.value = (rowFinals[activeRow] + " " + interim).replace(/\s+/g, " ").trim();
+    updateLogButton();
   };
 
   recognition.onend = function() {
@@ -182,8 +187,7 @@ function startRecording(idx) {
       playBeep(440, 80, 0.15);
       document.getElementById("logPanelStatus").textContent = "review & edit";
       document.getElementById("logPanelStatus").classList.add("idle");
-      var box = document.getElementById("transcriptBox");
-      if (box.value.trim()) document.getElementById("btnLog").disabled = false;
+      updateLogButton();
     }
   };
 
@@ -212,7 +216,13 @@ function stopRecording() {
 // ─── SUBMIT LESSON LOG ───────────────────────────────────────────────────────
 function submitLog() {
   var url = getScriptUrl(); if (!url) return;
-  var subject = document.getElementById("transcriptBox").value.trim();
+
+  var parts = [];
+  for (var r = 0; r < 3; r++) {
+    var v = document.getElementById("rowInput-" + r).value.trim();
+    if (v) parts.push(v);
+  }
+  var subject = parts.join(" - ");
   if (!subject) { addLog("lessonFeed", "Nothing to log!", "error"); return; }
 
   stopRecordingClean();
@@ -242,5 +252,43 @@ function submitLog() {
       btn.textContent = "Log It →"; btn.disabled = false;
       addLog("lessonFeed", "❌ " + (data.message || "Error logging"), "error");
     }
+  });
+}
+
+// ─── MULTI-ROW HELPERS ───────────────────────────────────────────────────────
+function setActiveRow(idx) {
+  if (idx === activeRow) return;
+  var oldInp = document.getElementById("rowInput-" + activeRow);
+  if (oldInp) rowFinals[activeRow] = oldInp.value.trim();
+  activeRow = idx;
+  document.querySelectorAll(".transcript-row").forEach(function(el, i) {
+    el.classList.toggle("active", i === idx);
+  });
+}
+
+function onRowInput() {
+  for (var r = 0; r < 3; r++) {
+    rowFinals[r] = document.getElementById("rowInput-" + r).value.trim();
+  }
+  updateLogButton();
+}
+
+function updateLogButton() {
+  var any = false;
+  for (var r = 0; r < 3; r++) {
+    if (document.getElementById("rowInput-" + r).value.trim()) { any = true; break; }
+  }
+  document.getElementById("btnLog").disabled = !any;
+}
+
+function resetRows() {
+  rowFinals = ["", "", ""];
+  for (var r = 0; r < 3; r++) {
+    var el = document.getElementById("rowInput-" + r);
+    if (el) el.value = "";
+  }
+  activeRow = 0;
+  document.querySelectorAll(".transcript-row").forEach(function(el, i) {
+    el.classList.toggle("active", i === 0);
   });
 }
