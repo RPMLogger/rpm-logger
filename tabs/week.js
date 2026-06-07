@@ -30,7 +30,7 @@ function renderWeekTab() {
     var dow = (d.getDay() + 6) % 7;                  // 0 = Monday
     var mon = new Date(d); mon.setDate(d.getDate() - dow);
     var sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-    return months[mon.getMonth()] + " " + mon.getDate() + " - " + months[sun.getMonth()] + " " + sun.getDate();
+    return (months[mon.getMonth()] + " " + mon.getDate() + " - " + months[sun.getMonth()] + " " + sun.getDate()).toUpperCase();
   }
   // ── Stats block (mirrors the General tab "Student Load" card) ────────────────
   var secLabel = document.createElement("div");
@@ -60,14 +60,19 @@ function renderWeekTab() {
   });
   var tableWrap = document.createElement("div");
   tableWrap.className = "load-table";
-  
-  // ── Insert week range label as table title (first element in table) ──────────
-  var listLabel = document.createElement("div");
-  listLabel.className = "section-label";
-  listLabel.style.letterSpacing = "1px";
-  listLabel.textContent = weekRangeLabel();
-  tableWrap.appendChild(listLabel);
-  
+
+  // ── Week range as the first row — styled like a day-header row, green tint ──
+  var rangeRow = document.createElement("div");
+  rangeRow.className = "load-row";
+  rangeRow.style.background = "rgba(46,204,113,0.05)";
+  var rangeCell = document.createElement("div");
+  rangeCell.className = "load-label";
+  rangeCell.style.flex = "1";
+  rangeCell.style.color = "var(--green)";
+  rangeCell.textContent = weekRangeLabel();
+  rangeRow.appendChild(rangeCell);
+  tableWrap.appendChild(rangeRow);
+
   // Rows grouped by day: a gray day-header row before each day's students
   var prevDay = null;
   sorted.forEach(function(s) {
@@ -75,7 +80,6 @@ function renderWeekTab() {
       prevDay = s.dayOfWeek;
       var dayRow = document.createElement("div");
       dayRow.className = "load-row";
-      // ── REMOVED: Monday highlight background ────────────────────────────
       var dayCell = document.createElement("div");
       dayCell.className = "load-label";
       dayCell.style.flex = "1";
@@ -89,6 +93,6 @@ function renderWeekTab() {
     row.appendChild(nameEl);
     tableWrap.appendChild(row);
   });
-  
+
   grid.appendChild(tableWrap);
 }
