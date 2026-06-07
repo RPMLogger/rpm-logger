@@ -58,7 +58,11 @@
           <button onclick="closeLogPanel()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1;padding:0 2px;" title="Close">✕</button>
         </div>
       </div>
-      <textarea class="transcript-box" id="transcriptBox" placeholder="Tap student to start recording... or type directly"></textarea>
+      <div class="log-rows" id="logRows">
+        <textarea class="transcript-row active" id="rowInput-0" rows="2" placeholder="Tap student to start recording..." onclick="setActiveRow(0)" oninput="onRowInput()"></textarea>
+        <textarea class="transcript-row"        id="rowInput-1" rows="2" placeholder="Row 2 — tap to continue here"     onclick="setActiveRow(1)" oninput="onRowInput()"></textarea>
+        <textarea class="transcript-row"        id="rowInput-2" rows="2" placeholder="Row 3 — tap to continue here"     onclick="setActiveRow(2)" oninput="onRowInput()"></textarea>
+      </div>
       <div class="log-actions" id="logActions">
         <button class="btn-log" id="btnLog" onclick="submitLog()" disabled>Log It →</button>
       </div>
@@ -219,10 +223,6 @@
   if (_saved) document.getElementById("scriptUrl").value = _saved;
   document.getElementById("scriptUrl").addEventListener("change", function() {
     localStorage.setItem("scriptUrl", this.value);
-  });
-
-  document.getElementById("transcriptBox").addEventListener("input", function() {
-    document.getElementById("btnLog").disabled = !this.value.trim();
   });
 
   window.onload = function() {
