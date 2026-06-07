@@ -68,7 +68,7 @@ function renderWeekTab() {
   var rangeCell = document.createElement("div");
   rangeCell.className = "load-label";
   rangeCell.style.flex = "1";
-  rangeCell.style.color = "var(--green)";
+  rangeCell.style.color = "var(--muted)";
   rangeCell.textContent = weekRangeLabel();
   rangeRow.appendChild(rangeCell);
   tableWrap.appendChild(rangeRow);
