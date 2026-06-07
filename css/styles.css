@@ -465,3 +465,15 @@ body::before {
 #weekTabGrid .pay-history-month { display: block; }
 #weekTabGrid .pay-history-row   { display: block; }
 #weekTabGrid { display: block; }
+
+/* ─── Multi-row transcript ───────────────────────────────────────────── */
+.log-rows { display: block; margin-bottom: 10px; }
+.log-rows .transcript-row {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 6px;
+  border-left: 3px solid transparent;
+  transition: border-color 0.15s;
+}
+.log-rows .transcript-row.active { border-left-color: var(--accent2, #2ecc71); }
