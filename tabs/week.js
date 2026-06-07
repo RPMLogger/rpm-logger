@@ -59,7 +59,7 @@ function renderWeekTab() {
   statsWrap.appendChild(makeStatRow("Student #",      total,    "highlight"));
   statsWrap.appendChild(makeStatRow("Weekly #",       weekly,   "", true));
   statsWrap.appendChild(makeStatRow("Biweekly #",     biweekly, "", true));
-  statsWrap.appendChild(makeStatRow("Trial Students", trial,    "", true));
+  statsWrap.appendChild(makeStatRow("Trial #", trial,    "", true));
 
   header.appendChild(statsWrap);
 
