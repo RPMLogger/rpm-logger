@@ -475,5 +475,4 @@ body::before {
   margin-bottom: 6px;
   border-left: 3px solid transparent;
   transition: border-color 0.15s;
-}
-.log-rows .transcript-row.active { border-left-color: var(--accent2, #2ecc71); background: rgba(46, 204, 113, 0.10); }
+}.log-rows .transcript-row.active { border-left-color: var(--accent); }
