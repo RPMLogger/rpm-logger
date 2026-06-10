@@ -158,17 +158,17 @@ body::before {
 .log-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin-bottom: 14px; display: none; }
 .log-panel.active { display: block; }
 .log-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.log-panel-name { font-family: "DM Mono", monospace; font-size: 11px; font-weight: 400; letter-spacing: 0.5px; }
+.log-panel-name { font-family: "DM Mono", monospace; font-size: 12px; font-weight: 400; letter-spacing: 0.5px; color: var(--muted); }
 .log-panel-status { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
 .log-panel-status.idle { color: var(--muted); }
 .transcript-box {
   width: 100%; min-height: 54px; background: var(--surface2);
   border: 1px solid var(--border); border-radius: 4px; padding: 11px;
-  color: var(--text); font-family: "DM Mono", monospace; font-size: 13px;
+ color: var(--muted); font-family: "DM Mono", monospace; font-size: 11px;
   resize: none; outline: none; margin-bottom: 11px; line-height: 1.5;
 }
 .transcript-box:focus { border-color: var(--accent); }
-.transcript-box::placeholder { color: var(--muted); font-style: italic; }
+.transcript-box::placeholder { color: var(--muted); font-style: italic; font-size: 11px; }
 .log-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .trial-paid {
   display: flex; align-items: center; gap: 8px; padding: 8px 12px;
@@ -476,4 +476,4 @@ body::before {
   border-left: 3px solid transparent;
   transition: border-color 0.15s;
 }
-.log-rows .transcript-row.active { border-left-color: var(--accent2, #2ecc71); }
+.log-rows .transcript-row.active { border-left-color: var(--accent2, #2ecc71); background: rgba(46, 204, 113, 0.10); }
