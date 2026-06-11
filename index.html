@@ -186,7 +186,69 @@
 
   <!-- FINANCIAL -->
   <div class="tab-panel" id="tab-financial">
-    <div class="financial-empty">Financial tracking<br>coming soon</div>
+
+    <div class="section-label">This Week</div>
+    <div class="load-table" id="finWeekCard">
+      <div class="load-row">
+        <div class="load-label">Week #</div>
+        <div class="load-value" id="fin-week-num">—</div>
+      </div>
+      <div class="load-row">
+        <div class="load-label">Date</div>
+        <div class="load-value" id="fin-week-date">—</div>
+      </div>
+      <div class="load-row highlight">
+        <div class="load-label" style="color:var(--accent2)">Student Income</div>
+        <div class="load-value" id="fin-student-income" style="color:var(--accent2)">—</div>
+      </div>
+      <div class="load-row">
+        <div class="load-label">Gigs</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" id="fin-gigs-input" placeholder="0" min="0" step="1"
+            oninput="finCalcTotal()"
+            style="width:80px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:4px 8px;text-align:right;">
+        </div>
+      </div>
+      <div class="load-row income">
+        <div class="load-label">Total In</div>
+        <div class="load-value" id="fin-total-in" style="color:var(--green)">—</div>
+      </div>
+      <div class="load-row">
+        <div class="load-label"></div>
+        <button class="est-reset-btn" id="fin-log-btn" onclick="finLogWeek()" style="color:var(--green);border-color:var(--green)">↑ Log Week</button>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:20px">This Month</div>
+    <div class="load-table" id="finMonthCard">
+      <div class="load-row">
+        <div class="load-label">Month #</div>
+        <div class="load-value" id="fin-month-num">—</div>
+      </div>
+      <div class="load-row income">
+        <div class="load-label">Month Income</div>
+        <div class="load-value" id="fin-month-income" style="color:var(--green)">—</div>
+      </div>
+      <div class="load-row">
+        <div class="load-label">Avg Expense</div>
+        <div class="load-value" id="fin-avg-expense" style="color:var(--muted)">—</div>
+      </div>
+      <div class="load-row highlight">
+        <div class="load-label" style="color:var(--accent2)">Net Monthly</div>
+        <div class="load-value" id="fin-net-monthly" style="color:var(--accent2)">—</div>
+      </div>
+      <div class="load-row highlight">
+        <div class="load-label" style="color:var(--accent2)">Net Monthly Greg</div>
+        <div class="load-value" id="fin-net-greg" style="color:var(--accent2)">—</div>
+      </div>
+      <div class="load-row">
+        <div class="load-label">Student Avg #</div>
+        <div class="load-value" id="fin-student-avg">—</div>
+      </div>
+    </div>
+
+    <div id="fin-status" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:12px;min-height:16px;text-align:right;"></div>
+
   </div>
 
   <!-- INQUIRIES -->
@@ -236,6 +298,7 @@
 
   function switchTab(tab) {
     if (isRecording) stopRecording();
+    if (tab === "financial") { initFinancialTab(); }
     var tabs = ["lessons","payments","past","week","general","financial","inquiries"];
     tabs.forEach(function(t, i) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);

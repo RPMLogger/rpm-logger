@@ -486,3 +486,8 @@ body::before {
 .est-val        { min-width:52px; height:26px; display:flex; align-items:center; justify-content:center; font-family:"DM Mono",monospace; font-size:12px; font-weight:500; color:var(--text); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
 .est-reset-btn  { font-family:"DM Mono",monospace; font-size:10px; letter-spacing:1px; color:var(--muted); background:none; border:1px solid var(--border); border-radius:4px; padding:4px 10px; cursor:pointer; }
 .est-reset-btn:hover { color:var(--text); border-color:var(--accent2); }
+
+/* ── Financial tab ────────────────────────────────────────────────────────── */
+.financial-empty { font-family:"DM Mono",monospace; font-size:12px; color:var(--muted); text-align:center; padding:40px 0; }
+#fin-gigs-input:focus { outline:none; border-color:var(--accent2); }
+#fin-log-btn:disabled { opacity:0.4; cursor:not-allowed; }
