@@ -476,3 +476,13 @@ body::before {
   border-left: 3px solid transparent;
   transition: border-color 0.15s;
 }.log-rows .transcript-row.active { border-left-color: var(--accent); }
+
+/* ── Estimator ────────────────────────────────────────────────────────── */
+.est-btn        { width:26px; height:26px; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text); font-size:16px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.est-btn:first-child { border-radius:4px 0 0 4px; }
+.est-btn:last-child  { border-radius:0 4px 4px 0; }
+.est-btn:hover  { background:rgba(255,255,255,0.1); }
+.est-btn:active { transform:scale(0.95); }
+.est-val        { min-width:52px; height:26px; display:flex; align-items:center; justify-content:center; font-family:"DM Mono",monospace; font-size:12px; font-weight:500; color:var(--text); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+.est-reset-btn  { font-family:"DM Mono",monospace; font-size:10px; letter-spacing:1px; color:var(--muted); background:none; border:1px solid var(--border); border-radius:4px; padding:4px 10px; cursor:pointer; }
+.est-reset-btn:hover { color:var(--text); border-color:var(--accent2); }

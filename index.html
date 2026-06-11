@@ -150,6 +150,38 @@
       </div>
     </div>
     <div class="log-feed" id="generalFeed"></div>
+
+    <div class="section-label" style="margin-top:20px">Estimate</div>
+    <div class="load-table" id="estimatorTable">
+      <div class="load-row highlight">
+        <div class="load-label" style="color:var(--accent2)">Student #</div>
+        <div style="display:flex;align-items:center;gap:0">
+          <button class="est-btn" onclick="estStep('students',-0.5)">−</button>
+          <span class="est-val" id="est-val-students">—</span>
+          <button class="est-btn" onclick="estStep('students',0.5)">+</button>
+        </div>
+      </div>
+      <div class="load-row highlight">
+        <div class="load-label" style="color:var(--accent2)">Rate</div>
+        <div style="display:flex;align-items:center;gap:0">
+          <button class="est-btn" onclick="estStep('rate',-5)">−</button>
+          <span class="est-val" id="est-val-rate" style="color:var(--accent2)">—</span>
+          <button class="est-btn" onclick="estStep('rate',5)">+</button>
+        </div>
+      </div>
+      <div class="load-row income">
+        <div class="load-label">Total Income</div>
+        <div class="load-value" id="est-total" style="color:var(--green)">—</div>
+      </div>
+      <div class="load-row income">
+        <div class="load-label">Gregorian Income</div>
+        <div class="load-value" id="est-greg" style="color:var(--green)">—</div>
+      </div>
+      <div class="load-row">
+        <div class="load-label"></div>
+        <button class="est-reset-btn" onclick="estReset()">↺ Reset</button>
+      </div>
+    </div>
   </div>
 
   <!-- FINANCIAL -->
