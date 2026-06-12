@@ -1,110 +1,73 @@
 // ─── TABS / FINANCIAL.JS ─────────────────────────────────────────────────────
-
-// ── Week number from date (Jan 6 = week 1) ───────────────────────────────────
-function getWeekNum() {
-  var start = new Date(2026, 0, 6); // Jan 6 2026 = week 1
-  var now   = new Date();
-  var diff  = Math.floor((now - start) / (7 * 24 * 60 * 60 * 1000));
+function finWeekNum() {
+  var start = new Date(2026, 0, 6), now = new Date();
+  var diff = Math.floor((now - start) / (7 * 24 * 60 * 60 * 1000));
   return Math.min(Math.max(diff + 1, 1), 52);
 }
+function finMonthNum(w) { return Math.ceil(w / 4); }
+function finMoney(n) { return '$' + Math.round(n).toLocaleString(); }
 
-function getWeekDateLabel(weekNum) {
-  var start = new Date(2026, 0, 6);
-  start.setDate(start.getDate() + (weekNum - 1) * 7);
-  var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  return months[start.getMonth()] + " / " + start.getDate();
-}
+var FIN_MONTH = finMonthNum(finWeekNum());
+var FIN_WEEKS = [];
 
-function getMonthNum(weekNum) {
-  return Math.ceil(weekNum / 4);
-}
-
-// ── Init Financial tab ────────────────────────────────────────────────────────
 function initFinancialTab() {
-  var weekNum  = getWeekNum();
-  var monthNum = getMonthNum(weekNum);
-
-  document.getElementById("fin-week-num").textContent  = weekNum;
-  document.getElementById("fin-week-date").textContent = getWeekDateLabel(weekNum);
-  document.getElementById("fin-month-num").textContent = monthNum;
-
-  // Pull student income from General tab DOM (already fetched from cal)
-  var incEl = document.getElementById("loadIncome");
-  var inc   = incEl ? incEl.textContent : "—";
-  document.getElementById("fin-student-income").textContent = inc;
-
-  finCalcTotal();
-  fetchFinancialSummary();
+  FIN_MONTH = finMonthNum(finWeekNum());
+  loadFinancialMonth();
 }
 
-// ── Live total calculation ────────────────────────────────────────────────────
-function finCalcTotal() {
-  var incEl  = document.getElementById("loadIncome");
-  var incRaw = incEl ? incEl.textContent.replace(/[$,]/g, "") : "0";
-  var inc    = parseFloat(incRaw) || 0;
-  var gigs   = parseFloat(document.getElementById("fin-gigs-input").value) || 0;
-  var total  = inc + gigs;
-  document.getElementById("fin-total-in").textContent = "$" + total.toLocaleString();
-}
-
-// ── Fetch month summary from Apps Script ─────────────────────────────────────
-function fetchFinancialSummary() {
+function loadFinancialMonth() {
   var url = getScriptUrl();
-  if (!url) return;
-  var monthNum = getMonthNum(getWeekNum());
-  fetch(url + "?action=getFinancialSummary&month=" + monthNum)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.success) return;
-      var fmt = function(v) { return v !== null && v !== "" ? "$" + parseFloat(v).toLocaleString() : "—"; };
-      document.getElementById("fin-month-income").textContent  = fmt(data.monthIncome);
-      document.getElementById("fin-avg-expense").textContent   = fmt(data.avgExpense);
-      document.getElementById("fin-net-monthly").textContent   = fmt(data.netMonthly);
-      document.getElementById("fin-net-greg").textContent      = fmt(data.netGreg);
-      document.getElementById("fin-student-avg").textContent   = data.studentAvg !== null ? data.studentAvg : "—";
+  var c = document.getElementById('financialBody');
+  if (!url) { c.innerHTML = '<div class="fin-empty">Set the script URL first.</div>'; return; }
+  c.innerHTML = '<div class="fin-empty">Loading…</div>';
+  fetch(url + '?action=getMonthIncome&month=' + FIN_MONTH)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d.success) { c.innerHTML = '<div class="fin-empty">' + (d.message || 'Error') + '</div>'; return; }
+      FIN_WEEKS = d.weeks;
+      renderFinancial(d);
     })
-    .catch(function() {
-      document.getElementById("fin-status").textContent = "Could not load month summary.";
-    });
+    .catch(function(e){ c.innerHTML = '<div class="fin-empty">' + e + '</div>'; });
 }
 
-// ── Log week to Income sheet ──────────────────────────────────────────────────
-function finLogWeek() {
-  var url = getScriptUrl();
-  if (!url) return;
+function renderFinancial(d) {
+  var rows = d.weeks.map(function(wk, i) {
+    if (!wk.started) {
+      return '<tr class="fin-future"><td class="fin-date">' + wk.date + '</td>' +
+        '<td class="fin-c">—</td><td class="fin-r">—</td><td class="fin-r">—</td><td class="fin-r">—</td></tr>';
+    }
+    var gig = '<span class="fin-gig" onclick="finEditGig(' + i + ')">' + (wk.gig ? finMoney(wk.gig) : '+ add') + '</span>';
+    return '<tr><td class="fin-date">' + wk.date + '</td>' +
+      '<td class="fin-c">' + wk.count + '</td>' +
+      '<td class="fin-r">' + finMoney(wk.studentIncome) + '</td>' +
+      '<td class="fin-r">' + gig + '</td>' +
+      '<td class="fin-r fin-total">' + finMoney(wk.total) + '</td></tr>';
+  }).join('');
 
-  var weekNum  = getWeekNum();
-  var incEl    = document.getElementById("loadIncome");
-  var incRaw   = incEl ? incEl.textContent.replace(/[$,]/g, "") : "0";
-  var normEl   = document.getElementById("loadNorm");
-  var norm     = normEl ? parseFloat(normEl.textContent) || 0 : 0;
-  var studentIncome = parseFloat(incRaw) || 0;
-  var gigs     = parseFloat(document.getElementById("fin-gigs-input").value) || 0;
+  document.getElementById('financialBody').innerHTML =
+    '<div class="fin-head"><span class="fin-month-label">MONTH</span>' +
+      '<span class="fin-month-num">' + d.monthNum + '</span>' +
+      '<span class="fin-range">' + d.weeks[0].date + ' – ' + d.weeks[3].date + '</span></div>' +
+    '<table class="fin-table"><thead><tr>' +
+      '<th class="fin-date">DATE</th><th class="fin-c">#</th>' +
+      '<th class="fin-r">STUDENT</th><th class="fin-r">GIGS</th><th class="fin-r">TOTAL</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody>' +
+    '<tfoot><tr><td colspan="2" class="fin-month-foot">MONTH IN</td>' +
+      '<td colspan="3" class="fin-r fin-month-total">' + finMoney(d.monthIncome) + '</td></tr></tfoot>' +
+    '</table>' +
+    '<div class="fin-nav"><button onclick="finPrevMonth()">‹ prev</button>' +
+      '<button onclick="finNextMonth()">next ›</button></div>';
+}
 
-  var btn = document.getElementById("fin-log-btn");
-  btn.textContent = "Logging...";
-  btn.disabled    = true;
+function finPrevMonth() { if (FIN_MONTH > 1)  { FIN_MONTH--; loadFinancialMonth(); } }
+function finNextMonth() { if (FIN_MONTH < 13) { FIN_MONTH++; loadFinancialMonth(); } }
 
-  fetch(url + "?action=logWeek&week=" + weekNum +
-              "&norm=" + norm +
-              "&studentIncome=" + studentIncome +
-              "&gigs=" + gigs)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.success) {
-        document.getElementById("fin-status").textContent = "✓ Week " + weekNum + " logged.";
-        document.getElementById("fin-gigs-input").value  = "";
-        finCalcTotal();
-        fetchFinancialSummary();
-      } else {
-        document.getElementById("fin-status").textContent = "Error: " + (data.message || "unknown");
-      }
-      btn.textContent = "↑ Log Week";
-      btn.disabled    = false;
-    })
-    .catch(function() {
-      document.getElementById("fin-status").textContent = "Could not connect.";
-      btn.textContent = "↑ Log Week";
-      btn.disabled    = false;
-    });
+function finEditGig(i) {
+  var wk = FIN_WEEKS[i];
+  var val = prompt('Gig income for ' + wk.date + ' ($):', wk.gig || '');
+  if (val === null) return;
+  var gig = parseFloat(val.replace(/[$,]/g, '')) || 0;
+  fetch(getScriptUrl() + '?action=logGig&week=' + wk.weekNum + '&gig=' + gig)
+    .then(function(r){ return r.json(); })
+    .then(function(){ loadFinancialMonth(); });
 }
