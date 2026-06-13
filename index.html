@@ -41,6 +41,11 @@
     <button class="tab-btn" onclick="switchTab('general')">General</button>
     <button class="tab-btn" onclick="switchTab('financial')">Financial</button>
     <button class="tab-btn" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
+    <button class="tab-btn" onclick="switchTab('notes')">Notes</button>
+    <button class="tab-btn" onclick="switchTab('todo')">To-Do</button>
+    <button class="tab-btn" onclick="switchTab('ctrl')">CTRL</button>
+    <button class="tab-btn" onclick="switchTab('mailcenter')">Mail Center</button>
+    <button class="tab-btn" onclick="switchTab('sheets')">Sheets</button>
   </div>
 
   <!-- LESSONS -->
@@ -219,6 +224,36 @@
     <div id="inquiriesList"><div class="inq-empty">Loading...</div></div>
   </div>
 
+  <!-- NOTES -->
+  <div class="tab-panel" id="tab-notes">
+    <div class="section-label">Notes</div>
+    <div id="notesContent"><div class="empty-state">Coming soon</div></div>
+  </div>
+
+  <!-- TO-DO -->
+  <div class="tab-panel" id="tab-todo">
+    <div class="section-label">To-Do</div>
+    <div id="todoContent"><div class="empty-state">Coming soon</div></div>
+  </div>
+
+  <!-- CTRL -->
+  <div class="tab-panel" id="tab-ctrl">
+    <div class="section-label">CTRL</div>
+    <div id="ctrlContent"><div class="empty-state">Coming soon</div></div>
+  </div>
+
+  <!-- MAIL CENTER -->
+  <div class="tab-panel" id="tab-mailcenter">
+    <div class="section-label">Mail Center</div>
+    <div id="mailcenterContent"><div class="empty-state">Coming soon</div></div>
+  </div>
+
+  <!-- SHEETS -->
+  <div class="tab-panel" id="tab-sheets">
+    <div class="section-label">Sheets</div>
+    <div id="sheetsContent"><div class="empty-state">Coming soon</div></div>
+  </div>
+
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; margin-top:32px; padding-bottom:16px;">
     <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
@@ -240,6 +275,11 @@
 <script src="tabs/general.js"></script>
 <script src="tabs/financial.js"></script>
 <script src="tabs/inquiries.js"></script>
+<script src="tabs/notes.js"></script>
+<script src="tabs/todo.js"></script>
+<script src="tabs/ctrl.js"></script>
+<script src="tabs/mailcenter.js"></script>
+<script src="tabs/sheets.js"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -261,7 +301,7 @@
   function switchTab(tab) {
     if (isRecording) stopRecording();
     if (tab === "financial") { initFinancialTab(); }
-    var tabs = ["lessons","payments","past","week","general","financial","inquiries"];
+    var tabs = ["lessons","payments","past","week","general","financial","inquiries","notes","todo","ctrl","mailcenter","sheets"];
     tabs.forEach(function(t, i) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
