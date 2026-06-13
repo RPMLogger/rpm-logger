@@ -48,11 +48,6 @@ function renderInquiries(inquiries) {
     if (inq.city)   bits.push(inqEsc(inq.city));
     var details = bits.length ? bits.join(" \u00b7 ") : "\u2014";
 
-    var sub = [];
-    if (inq.level)        sub.push(inqEsc(inq.level));
-    if (inq.availability) sub.push(inqEsc(inq.availability));
-    if (inq.phone)        sub.push(inqEsc(inq.phone));
-
     var card = document.createElement("div");
     card.className = "inq-card " + (status === "unread" ? "unread" : "read");
     card.id = "inq-" + emailToId(inq.email);
@@ -66,14 +61,9 @@ function renderInquiries(inquiries) {
     }
 
     card.innerHTML =
-      "<div class='inq-main'>" +
-        "<div class='inq-line1'>" +
-          "<span class='inq-from'>Trial Inquiry</span>" +
-          "<span class='inq-date'>" + inqEsc(inq.date || "") + "</span>" +
-          "<span class='inq-body'>" + details + "</span>" +
-        "</div>" +
-        (sub.length ? "<div class='inq-sub'>" + sub.join(" \u00b7 ") + "</div>" : "") +
-      "</div>" +
+      "<span class='inq-from'>Inquiry</span>" +
+      "<span class='inq-date'>" + inqEsc(inq.date || "") + "</span>" +
+      "<span class='inq-body'>" + details + "</span>" +
       "<div class='inq-actions'>" +
         "<button class='inq-btn inq-respond' onclick='markInquiryResponded(\"" + emailAttr + "\")'>Responded</button>" +
         "<button class='inq-btn inq-delete' onclick='deleteInquiry(\"" + emailAttr + "\")'>\u2715</button>" +
