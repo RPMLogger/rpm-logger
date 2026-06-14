@@ -520,3 +520,21 @@ body::before {
 .financial-empty { font-family:"DM Mono",monospace; font-size:12px; color:var(--muted); text-align:center; padding:40px 0; }
 #fin-gigs-input:focus { outline:none; border-color:var(--accent2); }
 #fin-log-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+.inq-syncbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 0 12px;
+}
+.inq-sync {
+  background: var(--muted);
+  color: var(--text);
+  border: 1px solid var(--muted);
+  padding: 6px 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.inq-sync:hover { border-color: var(--accent2); }
+.inq-sync:disabled { opacity: 0.6; cursor: wait; }
