@@ -14,6 +14,7 @@ function loadData() {
   fetchAllStudents(url);
   fetchStudentLoad(url);
   fetchInquiries(url);
+  fetchCommsSummary(url);
 }
 function fetchWeekStudents(url) {
   fetch(url + "?action=getWeekStudents")
@@ -80,9 +81,34 @@ function fetchInquiries(url) {
   fetch(url + "?action=getInquiries")
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      if (data.success) renderInquiries(data.inquiries || []);
+      if (data.success) {
+        renderInquiries(data.inquiries || []);
+        updateCommsSummary("email", (data.inquiries || []).length);
+      }
       else document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty'>No inquiries found</div>";
     }).catch(function() {
       document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty'>Could not load inquiries</div>";
     });
+}
+function fetchCommsSummary(url) {
+  fetch(url + "?action=getCommsSummary")
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) {
+        updateCommsSummary("sms", data.sms);
+        updateCommsSummary("voicemail", data.voicemail);
+        if (data.unresponded > 0) {
+          document.getElementById("commsOpen").style.display = "";
+          document.getElementById("commsOpenCount").textContent = data.unresponded;
+        }
+        document.getElementById("commsSummary").style.display = "";
+      }
+    }).catch(function() {});
+}
+function updateCommsSummary(type, count) {
+  var map = { email: "commsEmailCount", sms: "commsSmsCount", voicemail: "commsVoicemailCount" };
+  var el = document.getElementById(map[type]);
+  if (el) el.textContent = count;
+  var summary = document.getElementById("commsSummary");
+  if (summary) summary.style.display = "";
 }

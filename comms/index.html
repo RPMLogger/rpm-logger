@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>RPM Comms</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RPM Comms">
+  <meta name="theme-color" content="#0f0f0f">
+  <link rel="apple-touch-icon" href="../Portal Logo.png">
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="comms.css">
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="../Portal Logo.png" alt="Red Pick Music">
+    <div>
+      <div class="header-title">RPM COMMS</div>
+      <div class="header-sub">Inbox</div>
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="sms">💬 Texts</button>
+    <button class="filter-btn" data-filter="voicemail">📞 Voicemail</button>
+    <button class="filter-btn" data-filter="unresponded">⏳ Open</button>
+  </div>
+
+  <!-- INBOX -->
+  <div id="inbox"><div class="empty-state">Loading...</div></div>
+
+  <!-- DETAIL VIEW -->
+  <div id="detailOverlay" class="detail-overlay">
+    <div class="detail-panel">
+      <div class="detail-header">
+        <button class="detail-back" onclick="closeDetail()">← Back</button>
+        <span class="detail-source" id="detailSource"></span>
+      </div>
+      <div class="detail-from" id="detailFrom"></div>
+      <div class="detail-time" id="detailTime"></div>
+      <div class="detail-body" id="detailBody"></div>
+      <div class="detail-audio" id="detailAudio" style="display:none">
+        <audio id="audioPlayer" controls preload="none"></audio>
+      </div>
+      <div class="detail-transcript" id="detailTranscript" style="display:none">
+        <div class="detail-transcript-label">Transcript</div>
+        <div class="detail-transcript-text" id="detailTranscriptText"></div>
+      </div>
+      <label class="responded-toggle" id="respondedToggle">
+        <input type="checkbox" id="respondedCheck" onchange="toggleResponded()">
+        <span class="responded-label">Responded</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="settings-overlay" id="settingsOverlay">
+    <div class="settings-modal">
+      <div class="settings-title">
+        Settings
+        <button class="settings-close" onclick="closeSettings()">✕</button>
+      </div>
+      <label class="settings-label">Apps Script URL</label>
+      <input type="text" class="settings-input" id="scriptUrl" placeholder="Paste your Apps Script URL here...">
+      <button class="btn-save" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <button class="refresh-btn" onclick="loadInbox()">⟳ Refresh</button>
+    <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
+  </div>
+
+</div>
+<script src="comms.js"></script>
+</body>
+</html>

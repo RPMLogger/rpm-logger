@@ -159,8 +159,60 @@
 
   <!-- INQUIRIES -->
   <div class="tab-panel" id="tab-inquiries">
+    <div class="comms-summary" id="commsSummary" style="display:none">
+      <a class="comms-stat" id="commsEmail" href="#" onclick="return false;">
+        <span class="comms-icon">📧</span>
+        <span class="comms-count" id="commsEmailCount">0</span>
+        <span class="comms-label">email</span>
+      </a>
+      <a class="comms-stat" id="commsVoicemail" href="#" onclick="setCommsFilter('voicemail'); return false;">
+        <span class="comms-icon">📞</span>
+        <span class="comms-count" id="commsVoicemailCount">0</span>
+        <span class="comms-label">voicemail</span>
+      </a>
+      <a class="comms-stat" id="commsSms" href="#" onclick="setCommsFilter('sms'); return false;">
+        <span class="comms-icon">💬</span>
+        <span class="comms-count" id="commsSmsCount">0</span>
+        <span class="comms-label">text</span>
+      </a>
+      <div class="comms-open" id="commsOpen" style="display:none">
+        <span class="comms-open-count" id="commsOpenCount">0</span> unresponded
+      </div>
+    </div>
+    <div class="comms-filter" id="commsFilter" style="display:none">
+      <button class="comms-filter-btn active" data-filter="all" onclick="setCommsFilter('all')">All</button>
+      <button class="comms-filter-btn" data-filter="sms" onclick="setCommsFilter('sms')">Texts</button>
+      <button class="comms-filter-btn" data-filter="voicemail" onclick="setCommsFilter('voicemail')">Voicemail</button>
+      <button class="comms-filter-btn" data-filter="unresponded" onclick="setCommsFilter('unresponded')">Open</button>
+    </div>
+    <div id="commsInbox"></div>
+    <hr class="divider">
     <div class="section-label">Trial Lesson Inquiries</div>
     <div id="inquiriesList"><div class="inq-empty">Loading...</div></div>
+  </div>
+
+  <!-- COMMS DETAIL OVERLAY -->
+  <div class="comms-detail-overlay" id="commsDetailOverlay">
+    <div class="comms-detail-panel">
+      <div class="comms-detail-header">
+        <button class="comms-detail-back" onclick="closeCommsDetail()">← BACK</button>
+        <span class="comms-detail-source" id="commsDetailSource"></span>
+      </div>
+      <div class="comms-detail-from" id="commsDetailFrom"></div>
+      <div class="comms-detail-time" id="commsDetailTime"></div>
+      <div class="comms-detail-body" id="commsDetailBody"></div>
+      <div class="comms-detail-audio" id="commsDetailAudio" style="display:none">
+        <audio id="commsAudioPlayer" controls></audio>
+      </div>
+      <div class="comms-detail-transcript" id="commsDetailTranscript" style="display:none">
+        <div class="comms-transcript-label">Transcript</div>
+        <div class="comms-transcript-text" id="commsTranscriptText"></div>
+      </div>
+      <label class="comms-responded-toggle" onclick="toggleCommsResponded()">
+        <input type="checkbox" id="commsRespondedCheck">
+        <span class="comms-responded-label">Responded</span>
+      </label>
+    </div>
   </div>
 
   <!-- GEAR BUTTON -->
@@ -184,6 +236,7 @@
 <script src="tabs/general.js"></script>
 <script src="tabs/financial.js"></script>
 <script src="tabs/inquiries.js"></script>
+<script src="tabs/comms.js"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -210,6 +263,7 @@
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
     });
     if (tab === "payments") loadIncomingPayments();
+    if (tab === "inquiries") { loadCommsInbox(); startCommsPolling(); } else { stopCommsPolling(); }
   }
 
   var _now = new Date();

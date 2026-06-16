@@ -292,6 +292,28 @@ body::before {
 .sum-biweekly { color: var(--muted); }
 .sum-trial    { color: var(--muted); }
 
+/* ─── COMMS SUMMARY WIDGET ───────────────────────────────────────────────── */
+.comms-summary {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 14px; margin-bottom: 16px;
+}
+.comms-stat {
+  display: flex; align-items: center; gap: 6px;
+  text-decoration: none; color: var(--muted);
+  font-family: "DM Mono", monospace; font-size: 11px;
+  padding: 4px 10px; border-radius: 4px; transition: all 0.2s;
+}
+.comms-stat:hover { background: var(--surface2); color: var(--text); }
+.comms-icon { font-size: 13px; }
+.comms-count { color: var(--text); font-weight: 500; }
+.comms-label { color: var(--muted); }
+.comms-open {
+  margin-left: auto; font-size: 9px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--accent2);
+}
+.comms-open-count { font-weight: 500; }
+
 /* ─── INQUIRIES ───────────────────────────────────────────────────────────── */
 .inq-badge { display: inline-block; background: var(--accent); color: white; font-size: 9px; border-radius: 10px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
 .inq-card  { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; position: relative; }
@@ -458,6 +480,103 @@ body::before {
 .wtab-day-row      { margin-bottom: 10px; font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.6; }
 .wtab-day-name     { color: var(--accent2); font-weight: 500; }
 .wtab-day-names    { color: var(--muted); }
+
+/* ─── COMMS INBOX (inside Inquiries tab) ─────────────────────────────────── */
+.comms-filter {
+  display: flex; gap: 2px; margin-bottom: 12px;
+  background: var(--surface); border-radius: 6px; padding: 3px;
+}
+.comms-filter-btn {
+  flex: 1; padding: 7px 4px; border: none; border-radius: 4px;
+  background: transparent; color: var(--muted); font-family: "DM Mono", monospace;
+  font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.comms-filter-btn.active { background: var(--accent); color: var(--text); }
+
+.comms-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 14px; margin-bottom: 8px; cursor: pointer;
+  transition: all 0.15s; position: relative;
+  border-left: 3px solid var(--border);
+}
+.comms-card:active { background: var(--surface2); }
+.comms-card.unresponded { border-left-color: var(--accent2); }
+.comms-card.responded { opacity: 0.55; }
+.comms-card-top {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
+}
+.comms-source { font-size: 14px; margin-right: 8px; flex-shrink: 0; }
+.comms-from {
+  font-family: "Syne", sans-serif; font-size: 13px; font-weight: 400;
+  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.comms-time { font-size: 9px; color: var(--muted); white-space: nowrap; margin-left: 8px; }
+.comms-preview {
+  font-size: 10px; color: var(--muted); line-height: 1.5;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.comms-responded-dot {
+  display: none; position: absolute; top: 12px; right: 12px;
+  width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+}
+.comms-card.responded .comms-responded-dot { display: block; }
+
+/* ─── COMMS DETAIL OVERLAY ──────────────────────────────────────────────── */
+.comms-detail-overlay {
+  display: none; position: fixed; inset: 0; z-index: 50;
+  background: var(--bg); overflow-y: auto;
+  padding: 24px 16px env(safe-area-inset-bottom, 24px);
+}
+.comms-detail-overlay.open { display: block; }
+.comms-detail-panel { max-width: 600px; margin: 0 auto; }
+.comms-detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.comms-detail-back {
+  background: none; border: 1px solid var(--border); border-radius: 4px;
+  color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px;
+  letter-spacing: 1px; padding: 7px 12px; cursor: pointer; transition: all 0.2s;
+}
+.comms-detail-back:hover { border-color: var(--accent); color: var(--text); }
+.comms-detail-source { font-size: 18px; }
+.comms-detail-from {
+  font-family: "Syne", sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 4px;
+}
+.comms-detail-time {
+  font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-bottom: 20px;
+}
+.comms-detail-body {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px; font-size: 13px; line-height: 1.7; margin-bottom: 16px;
+  white-space: pre-wrap; word-break: break-word;
+}
+.comms-detail-audio { margin-bottom: 16px; }
+.comms-detail-audio audio { width: 100%; border-radius: 8px; background: var(--surface); }
+.comms-detail-transcript {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px; margin-bottom: 16px;
+}
+.comms-transcript-label {
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--accent2); margin-bottom: 8px;
+}
+.comms-transcript-text {
+  font-size: 12px; color: var(--muted); line-height: 1.7;
+  white-space: pre-wrap; word-break: break-word;
+}
+.comms-responded-toggle {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer; transition: all 0.2s; user-select: none;
+}
+.comms-responded-toggle:has(input:checked) {
+  border-color: var(--green); background: rgba(46,204,113,0.08);
+}
+.comms-responded-toggle input { display: none; }
+.comms-responded-label {
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+  transition: color 0.2s;
+}
+.comms-responded-toggle:has(input:checked) .comms-responded-label { color: var(--green); }
 
 .load-row.blue .load-label { color: var(--blue); }
 .load-row.blue .load-value { color: var(--blue); font-size: 13px; }

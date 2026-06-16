@@ -1,0 +1,236 @@
+/* ─── RPM COMMS — INBOX ────────────────────────────────────────────────────── */
+
+:root {
+  --bg:      #0f0f0f;
+  --surface: #1a1a1a;
+  --surface2: #222;
+  --accent:  #e8463a;
+  --accent2: #f0a500;
+  --green:   #2ecc71;
+  --blue:    #4a9eff;
+  --text:    #f0ede8;
+  --muted:   #555;
+  --border:  #2a2a2a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg); color: var(--text);
+  font-family: "DM Mono", monospace;
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 24px 16px env(safe-area-inset-bottom, 16px);
+}
+
+body::before {
+  content: ""; position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(232,70,58,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232,70,58,0.03) 1px, transparent 1px);
+  background-size: 40px 40px; pointer-events: none;
+}
+
+.container { width: 100%; max-width: 600px; position: relative; z-index: 1; }
+
+/* ─── HEADER ─────────────────────────────────────────────────────────────── */
+.header {
+  display: flex; align-items: center; justify-content: center;
+  gap: 14px; margin-bottom: 16px;
+}
+.header img { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; }
+.header-title {
+  font-family: "Bebas Neue", sans-serif; font-size: 28px;
+  font-weight: 400; color: var(--accent); line-height: 1; letter-spacing: 2px;
+}
+.header-sub {
+  font-size: 9px; color: var(--muted); letter-spacing: 3px;
+  text-transform: uppercase; margin-top: 3px; text-align: center;
+}
+
+/* ─── FILTER BAR ─────────────────────────────────────────────────────────── */
+.filter-bar {
+  display: flex; gap: 2px; margin-bottom: 16px;
+  background: var(--surface); border-radius: 6px; padding: 3px;
+}
+.filter-btn {
+  flex: 1; padding: 8px 4px; border: none; border-radius: 4px;
+  background: transparent; color: var(--muted); font-family: "DM Mono", monospace;
+  font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.filter-btn.active { background: var(--accent); color: var(--text); }
+
+/* ─── INBOX CARDS ────────────────────────────────────────────────────────── */
+.msg-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 14px; margin-bottom: 8px; cursor: pointer;
+  transition: all 0.15s; position: relative;
+  border-left: 3px solid var(--border);
+}
+.msg-card:active { background: var(--surface2); }
+.msg-card.unresponded { border-left-color: var(--accent2); }
+.msg-card.responded { opacity: 0.55; }
+
+.msg-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 6px;
+}
+.msg-source {
+  font-size: 14px; margin-right: 8px; flex-shrink: 0;
+}
+.msg-from {
+  font-family: "Syne", sans-serif; font-size: 13px; font-weight: 400;
+  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.msg-time {
+  font-size: 9px; color: var(--muted); white-space: nowrap; margin-left: 8px;
+}
+.msg-preview {
+  font-size: 10px; color: var(--muted); line-height: 1.5;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.msg-responded-dot {
+  display: none; position: absolute; top: 12px; right: 12px;
+  width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+}
+.msg-card.responded .msg-responded-dot { display: block; }
+
+.empty-state {
+  text-align: center; padding: 40px 20px; color: var(--muted);
+  font-size: 11px; line-height: 2;
+}
+
+/* ─── DETAIL VIEW ────────────────────────────────────────────────────────── */
+.detail-overlay {
+  display: none; position: fixed; inset: 0; z-index: 50;
+  background: var(--bg);
+  overflow-y: auto;
+  padding: 24px 16px env(safe-area-inset-bottom, 24px);
+}
+.detail-overlay.open { display: block; }
+.detail-panel { max-width: 600px; margin: 0 auto; }
+
+.detail-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+}
+.detail-back {
+  background: none; border: 1px solid var(--border); border-radius: 4px;
+  color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px;
+  letter-spacing: 1px; padding: 7px 12px; cursor: pointer; transition: all 0.2s;
+}
+.detail-back:hover { border-color: var(--accent); color: var(--text); }
+.detail-source { font-size: 18px; }
+.detail-from {
+  font-family: "Syne", sans-serif; font-size: 20px; font-weight: 700;
+  margin-bottom: 4px;
+}
+.detail-time {
+  font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-bottom: 20px;
+}
+.detail-body {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px; font-size: 13px; line-height: 1.7; margin-bottom: 16px;
+  white-space: pre-wrap; word-break: break-word;
+}
+
+.detail-audio {
+  margin-bottom: 16px;
+}
+.detail-audio audio {
+  width: 100%; border-radius: 8px; background: var(--surface);
+}
+
+.detail-transcript {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px; margin-bottom: 16px;
+}
+.detail-transcript-label {
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--accent2); margin-bottom: 8px;
+}
+.detail-transcript-text {
+  font-size: 12px; color: var(--muted); line-height: 1.7;
+  white-space: pre-wrap; word-break: break-word;
+}
+
+.responded-toggle {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer; transition: all 0.2s; user-select: none;
+}
+.responded-toggle:has(input:checked) {
+  border-color: var(--green); background: rgba(46,204,113,0.08);
+}
+.responded-toggle input { display: none; }
+.responded-label {
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+  transition: color 0.2s;
+}
+.responded-toggle:has(input:checked) .responded-label { color: var(--green); }
+
+/* ─── SETTINGS ───────────────────────────────────────────────────────────── */
+.settings-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7); z-index: 100;
+  align-items: center; justify-content: center;
+}
+.settings-overlay.open { display: flex; }
+.settings-modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 24px; width: 90%; max-width: 440px;
+}
+.settings-title {
+  font-family: "Bebas Neue", sans-serif; font-size: 20px;
+  color: var(--accent); letter-spacing: 2px; margin-bottom: 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.settings-close {
+  background: none; border: none; color: var(--muted);
+  font-size: 18px; cursor: pointer; line-height: 1;
+}
+.settings-label {
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted); display: block; margin-bottom: 6px;
+}
+.settings-input {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 4px; padding: 9px 13px; color: var(--muted);
+  font-family: "DM Mono", monospace; font-size: 11px; outline: none;
+  transition: border-color 0.2s; margin-bottom: 12px;
+}
+.settings-input:focus { border-color: var(--accent); color: var(--text); }
+.btn-save {
+  width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 4px;
+  background: transparent; color: var(--muted); font-family: "DM Mono", monospace;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-save:hover { border-color: var(--accent2); color: var(--accent2); }
+
+/* ─── FOOTER ─────────────────────────────────────────────────────────────── */
+.footer {
+  display: flex; gap: 8px; margin-top: 24px; padding-bottom: 16px;
+}
+.refresh-btn {
+  flex: 1; padding: 14px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--muted); font-family: "DM Mono", monospace;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+}
+.refresh-btn:hover { border-color: var(--muted); color: var(--text); }
+.gear-btn {
+  background: none; border: 1px solid var(--border); border-radius: 6px;
+  color: var(--muted); font-size: 16px; width: 44px; height: 44px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.gear-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+/* ─── POLLING INDICATOR ──────────────────────────────────────────────────── */
+.poll-dot {
+  position: fixed; top: 10px; right: 10px; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--muted); opacity: 0; transition: opacity 0.3s;
+  z-index: 200;
+}
+.poll-dot.active { opacity: 1; background: var(--green); }
