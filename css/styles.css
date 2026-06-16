@@ -640,6 +640,42 @@ body::before {
 #fin-gigs-input:focus { outline:none; border-color:var(--accent2); }
 #fin-log-btn:disabled { opacity:0.4; cursor:not-allowed; }
 
+/* ─── AUDIT ──────────────────────────────────────────────────────────────── */
+.audit-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px; margin-bottom: 10px;
+}
+.audit-card-name {
+  font-family: "Syne", sans-serif; font-size: 13px; font-weight: 400;
+  color: var(--text); margin-bottom: 10px;
+}
+.audit-date-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 6px; transition: opacity 0.3s;
+}
+.audit-date-row.logged { opacity: 0.35; pointer-events: none; }
+.audit-date-badge {
+  font-family: "DM Mono", monospace; font-size: 10px; color: var(--accent2);
+  background: rgba(240,165,0,0.1); padding: 4px 8px; border-radius: 4px;
+  white-space: nowrap; min-width: 55px; text-align: center;
+}
+.audit-input {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 4px; padding: 6px 10px; color: var(--text);
+  font-family: "DM Mono", monospace; font-size: 11px; outline: none;
+  transition: border-color 0.2s;
+}
+.audit-input:focus { border-color: var(--accent2); }
+.audit-input::placeholder { color: var(--muted); font-style: italic; }
+.audit-log-btn {
+  padding: 6px 14px; border: 1px solid var(--green); border-radius: 4px;
+  background: transparent; color: var(--green); font-family: "DM Mono", monospace;
+  font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.audit-log-btn:hover { background: rgba(46,204,113,0.1); }
+.audit-log-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .inq-syncbar {
   display: flex;
   justify-content: flex-end;

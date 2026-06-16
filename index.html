@@ -43,7 +43,7 @@
     <button class="tab-btn" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
     <button class="tab-btn" onclick="switchTab('notes')">Notes</button>
     <button class="tab-btn" onclick="switchTab('todo')">To-Do</button>
-    <button class="tab-btn" onclick="switchTab('ctrl')">CTRL</button>
+    <button class="tab-btn" onclick="switchTab('ctrl')">Audit</button>
     <button class="tab-btn" onclick="switchTab('mailcenter')">Mail Center</button>
     <button class="tab-btn" onclick="switchTab('sheets')">Sheets</button>
   </div>
@@ -265,10 +265,22 @@
     <div id="todoContent"><div class="empty-state">Coming soon</div></div>
   </div>
 
-  <!-- CTRL -->
+  <!-- AUDIT -->
   <div class="tab-panel" id="tab-ctrl">
-    <div class="section-label">CTRL</div>
-    <div id="ctrlContent"><div class="empty-state">Coming soon</div></div>
+    <div class="section-label">Lesson Date Log</div>
+    <div id="auditLessonSection"><div class="empty-state">Loading...</div></div>
+    <div class="log-feed" id="auditFeed"></div>
+
+    <hr class="divider">
+    <div class="section-label">Payment Log</div>
+    <div id="auditPaymentSection"><div class="empty-state" style="padding:16px">Coming soon</div></div>
+
+    <hr class="divider">
+    <div class="section-label">System Health</div>
+    <div id="auditHealthSection"><div class="empty-state" style="padding:16px">Coming soon</div></div>
+
+    <hr class="divider">
+    <button class="refresh-btn" onclick="initAuditTab()">⟳ Run Audit</button>
   </div>
 
   <!-- MAIL CENTER -->
@@ -393,6 +405,7 @@
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
     });
     if (tab === "payments") loadIncomingPayments();
+    if (tab === "ctrl") initAuditTab();
     if (tab === "inquiries") { loadCommsInbox(); startCommsPolling(); } else { stopCommsPolling(); }
   }
 
