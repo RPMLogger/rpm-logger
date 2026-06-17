@@ -267,8 +267,10 @@
 
   <!-- AUDIT -->
   <div class="tab-panel" id="tab-ctrl">
-    <div class="section-label">Audit</div>
-    <div class="empty-state" style="padding:16px">Coming soon</div>
+    <div class="section-label">Lesson Date Audit</div>
+    <div id="auditLessonSection"><div class="empty-state">Loading...</div></div>
+    <hr class="divider">
+    <button class="refresh-btn" onclick="initAuditTab()">⟳ Run Audit</button>
   </div>
 
   <!-- MAIL CENTER -->
@@ -363,6 +365,7 @@
 <script src="tabs/comms.js"></script>
 <script src="tabs/notes.js"></script>
 <script src="tabs/todo.js"></script>
+<script src="tabs/ctrl.js"></script>
 <script src="tabs/mailcenter.js"></script>
 <script src="tabs/sheets.js"></script>
 
@@ -392,6 +395,7 @@
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
     });
     if (tab === "payments") loadIncomingPayments();
+    if (tab === "ctrl") initAuditTab();
     if (tab === "inquiries") { loadCommsInbox(); startCommsPolling(); } else { stopCommsPolling(); }
   }
 
