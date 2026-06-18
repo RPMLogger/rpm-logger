@@ -147,7 +147,8 @@ function renderUnpaidCards(audit) {
         var confirmBtn = document.createElement("button");
         confirmBtn.textContent = "Confirm →";
         confirmBtn.style.cssText = "padding:4px 10px;font-size:11px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:4px;cursor:pointer";
-        confirmBtn.onclick = function() {
+        confirmBtn.onclick = function(ev) {
+          ev.stopPropagation();
           if (typeof openIncomingNotePanel === "function") {
             openIncomingNotePanel(p, row);
           } else {
@@ -171,11 +172,24 @@ function renderUnpaidCards(audit) {
       var sendBtn = document.createElement("button");
       sendBtn.textContent = "Send Reminder →";
       sendBtn.style.cssText = "padding:4px 10px;font-size:11px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:4px;cursor:pointer";
-      sendBtn.onclick = function() { _sendReminder(s, sendBtn, reminderInfo); };
+      sendBtn.onclick = function(ev) { ev.stopPropagation(); _sendReminder(s, sendBtn, reminderInfo); };
       reminderRow.appendChild(sendBtn);
 
       actionsWrap.appendChild(reminderRow);
     }
+
+    // ─── CASH button — always available ──────────────────────────────────
+    var cashRow = document.createElement("div");
+    cashRow.style.cssText = "margin-top:8px;display:flex;justify-content:flex-end";
+    var cashBtn = document.createElement("button");
+    cashBtn.textContent = "💵 Log Cash";
+    cashBtn.style.cssText = "padding:4px 10px;font-size:11px;background:rgba(180,180,180,0.10);color:var(--text);border:1px solid var(--border);border-radius:4px;cursor:pointer";
+    cashBtn.onclick = function(ev) {
+      ev.stopPropagation();
+      _openCashFromAudit(s.name, s.lessonDate);
+    };
+    cashRow.appendChild(cashBtn);
+    actionsWrap.appendChild(cashRow);
 
     section.appendChild(card);
   });
@@ -379,6 +393,22 @@ function _logImportRow(subject, date, btn) {
       addLog("auditFeed", "❌ " + (data && data.message ? data.message : "Log failed"), "error");
     }
   });
+}
+
+// Open the Payments tab's Cash Payment modal with this student preselected
+// and the date prefilled with the last lesson date (instead of today).
+function _openCashFromAudit(studentName, lessonDate) {
+  if (typeof openManualEntryModal !== "function" || typeof openCashLogPanel !== "function") {
+    addLog("auditFeed", "Cash payment flow not loaded", "error");
+    return;
+  }
+  openManualEntryModal();
+  var tab = (studentName || "").split(" ")[0].toUpperCase();
+  openCashLogPanel(studentName, tab, null);
+  if (lessonDate) {
+    var input = document.getElementById("cashDate");
+    if (input) input.value = lessonDate; // normalizePayDate adds current year on submit
+  }
 }
 
 function _sendReminder(student, btn, infoEl) {
