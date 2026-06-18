@@ -221,64 +221,50 @@ function _renderFixData(d) {
   var body = document.getElementById("auditFixBody");
   body.innerHTML = "";
 
-  // ─── COUNTER section ─────────────────────────────────────────
-  var counterHdr = document.createElement("div");
-  counterHdr.style.cssText = "font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:0 0 6px";
-  counterHdr.textContent = "RPM Counter (row " + d.counter.row + ")";
-  body.appendChild(counterHdr);
+  // Helper to render a Counter block (4 cells with inline date editing)
+  function counterBlock(label, cells) {
+    var wrap = document.createElement("div");
+    wrap.style.cssText = "margin-bottom:10px";
+    var lbl = document.createElement("div");
+    lbl.style.cssText = "font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px";
+    lbl.textContent = label;
+    wrap.appendChild(lbl);
+    var row = document.createElement("div");
+    row.style.cssText = "display:flex;flex-wrap:wrap;gap:6px";
+    cells.forEach(function(cell) {
+      var pill = document.createElement("span");
+      var isEmpty = cell.empty;
+      pill.style.cssText = "display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px dashed " + (isEmpty ? "rgba(255,165,0,0.5)" : "var(--border)") + ";border-radius:4px;font-size:11px;background:" + (isEmpty ? "rgba(255,165,0,0.05)" : "transparent");
+      pill.innerHTML = "<span style=\"color:var(--muted);opacity:0.6\">" + cell.col + ":</span>";
+      var dateInput = document.createElement("input");
+      dateInput.type = "text"; dateInput.value = cell.value;
+      dateInput.placeholder = isEmpty ? "M/D/YYYY" : "";
+      dateInput.style.cssText = "width:90px;padding:2px 4px;background:transparent;color:var(--muted);border:none;font-size:11px";
+      pill.appendChild(dateInput);
+      var saveBtn = document.createElement("button");
+      saveBtn.textContent = "✓"; saveBtn.style.cssText = "padding:1px 5px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:2px;cursor:pointer";
+      saveBtn.onclick = function() { _saveCounterField(d.counter.row, cell.col, dateInput.value, saveBtn); };
+      pill.appendChild(saveBtn);
+      row.appendChild(pill);
+    });
+    wrap.appendChild(row);
+    return wrap;
+  }
 
-  var eRow = document.createElement("div");
-  eRow.style.cssText = "display:flex;gap:8px;align-items:center;margin-bottom:8px";
-  eRow.innerHTML = "<span style=\"color:var(--muted)\">Finished (E):</span>";
-  var eInput = document.createElement("input");
-  eInput.type = "number"; eInput.min = "0"; eInput.max = "4";
-  eInput.value = d.counter.finished;
-  eInput.style.cssText = "width:50px;padding:3px 6px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:12px";
-  eRow.appendChild(eInput);
-  var eSave = document.createElement("button");
-  eSave.textContent = "Save"; eSave.style.cssText = "padding:3px 10px;font-size:11px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:3px;cursor:pointer";
-  eSave.onclick = function() { _saveCounterField(d.counter.row, "E", eInput.value, eSave); };
-  eRow.appendChild(eSave);
-  body.appendChild(eRow);
-
-  var datesWrap = document.createElement("div");
-  datesWrap.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px";
-  d.counter.dates.forEach(function(cell) {
-    var pill = document.createElement("span");
-    var isEmpty = cell.empty;
-    pill.style.cssText = "display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px dashed " + (isEmpty ? "rgba(255,165,0,0.5)" : "var(--border)") + ";border-radius:4px;font-size:11px;background:" + (isEmpty ? "rgba(255,165,0,0.05)" : "transparent");
-    pill.innerHTML = "<span style=\"color:var(--muted)\">" + cell.col + ":</span>";
-    var dateInput = document.createElement("input");
-    dateInput.type = "text"; dateInput.value = cell.value;
-    dateInput.placeholder = isEmpty ? "M/D/YYYY" : "";
-    dateInput.style.cssText = "width:90px;padding:2px 4px;background:transparent;color:var(--text);border:none;font-size:11px";
-    pill.appendChild(dateInput);
-    var saveBtn = document.createElement("button");
-    saveBtn.textContent = "✓"; saveBtn.style.cssText = "padding:1px 5px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:2px;cursor:pointer";
-    saveBtn.onclick = function() { _saveCounterField(d.counter.row, cell.col, dateInput.value, saveBtn); };
-    pill.appendChild(saveBtn);
-    datesWrap.appendChild(pill);
-  });
-  body.appendChild(datesWrap);
-
-  // ─── STUDENTS IMPORT section ─────────────────────────────────
-  var importHdr = document.createElement("div");
-  importHdr.style.cssText = "font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 6px";
-  importHdr.textContent = "Students Import — last 8";
-  body.appendChild(importHdr);
-
-  if (!d.importLessons.length) {
-    var none = document.createElement("div");
-    none.style.cssText = "font-style:italic;color:var(--muted);margin-bottom:14px";
-    none.textContent = "No lessons logged";
-    body.appendChild(none);
-  } else {
-    d.importLessons.forEach(function(l) {
+  // Helper to render a Students Import block
+  function importBlock(label, lessons) {
+    var wrap = document.createElement("div");
+    wrap.style.cssText = "margin-bottom:10px";
+    var lbl = document.createElement("div");
+    lbl.style.cssText = "font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px";
+    lbl.textContent = label;
+    wrap.appendChild(lbl);
+    lessons.forEach(function(l) {
       var row = document.createElement("div");
-      row.style.cssText = "display:flex;gap:8px;align-items:center;margin:3px 0;font-size:11px;padding:4px 0;border-bottom:1px dashed rgba(255,255,255,0.05)";
-      var prefix = "<span style=\"color:var(--muted);width:60px;display:inline-block\">" + (l.lessonNum != null ? "L" + l.lessonNum : "—") + " row " + l.row + "</span>";
+      row.style.cssText = "display:flex;gap:8px;align-items:center;margin:3px 0;font-size:11px;padding:3px 0;border-bottom:1px dashed rgba(255,255,255,0.05)";
+      var prefix = "<span style=\"color:var(--muted);opacity:0.6;width:24px;display:inline-block\">" + (l.lessonNum != null ? "L" + l.lessonNum : "—") + "</span>";
       if (l.empty) {
-        row.innerHTML = prefix + "<span style=\"color:#ffa500;width:60px\">(empty)</span>";
+        row.innerHTML = prefix + "<span style=\"color:#ffa500;width:60px;font-size:10px\">empty</span>";
         var subjIn = document.createElement("input");
         subjIn.type = "text"; subjIn.placeholder = "Subject";
         subjIn.style.cssText = "flex:1;padding:2px 6px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:11px";
@@ -292,22 +278,69 @@ function _renderFixData(d) {
       } else {
         var paidTag = l.paid ? "<span style=\"color:var(--green);font-size:10px\">✓ paid" + (l.paymentDate ? " " + l.paymentDate : "") + "</span>" : "";
         row.innerHTML = prefix +
-          "<span style=\"color:var(--text);width:60px\">" + (l.date || "—") + "</span>" +
+          "<span style=\"color:var(--muted);width:60px\">" + (l.date || "—") + "</span>" +
           "<span style=\"flex:1\">" + (l.subject || "<em style=\"color:var(--muted)\">(no subject)</em>") + "</span>" +
           paidTag;
       }
-      body.appendChild(row);
+      wrap.appendChild(row);
     });
+    return wrap;
+  }
+
+  // ─── COUNTER section title ───────────────────────────────────
+  var counterTitle = document.createElement("div");
+  counterTitle.style.cssText = "font-size:13px;color:#fff;font-weight:600;margin:0 0 10px;padding-bottom:4px;border-bottom:1px solid var(--border)";
+  counterTitle.textContent = "RPM Counter (row " + d.counter.row + ")";
+  body.appendChild(counterTitle);
+
+  // Counter dates are returned F→M; Block 1 (past) = J-M = indices 4-7; Block 2 (current) = F-I = indices 0-3
+  var pastBlock    = d.counter.dates.slice(4, 8);
+  var currentBlock = d.counter.dates.slice(0, 4);
+  body.appendChild(counterBlock("Block 1 (past)", pastBlock));
+  body.appendChild(counterBlock("Block 2 (current)", currentBlock));
+
+  // Finished E
+  var eRow = document.createElement("div");
+  eRow.style.cssText = "display:flex;gap:8px;align-items:center;margin:10px 0 4px";
+  eRow.innerHTML = "<span style=\"color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:0.5px\">Finished (E):</span>";
+  var eInput = document.createElement("input");
+  eInput.type = "number"; eInput.min = "0"; eInput.max = "4";
+  eInput.value = d.counter.finished;
+  eInput.style.cssText = "width:50px;padding:3px 6px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:12px";
+  eRow.appendChild(eInput);
+  var eSave = document.createElement("button");
+  eSave.textContent = "Save"; eSave.style.cssText = "padding:3px 10px;font-size:11px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:3px;cursor:pointer";
+  eSave.onclick = function() { _saveCounterField(d.counter.row, "E", eInput.value, eSave); };
+  eRow.appendChild(eSave);
+  body.appendChild(eRow);
+
+  // ─── STUDENTS IMPORT section title ───────────────────────────
+  var importTitle = document.createElement("div");
+  importTitle.style.cssText = "font-size:13px;color:#fff;font-weight:600;margin:20px 0 10px;padding-bottom:4px;border-bottom:1px solid var(--border)";
+  importTitle.textContent = "Students Import";
+  body.appendChild(importTitle);
+
+  if (!d.importLessons.length) {
+    var none = document.createElement("div");
+    none.style.cssText = "font-style:italic;color:var(--muted);margin-bottom:14px";
+    none.textContent = "No lessons logged";
+    body.appendChild(none);
+  } else {
+    // importLessons returned chronologically (oldest first). First 4 = past, last 4 = current.
+    var importPast    = d.importLessons.slice(0, 4);
+    var importCurrent = d.importLessons.slice(4, 8);
+    if (importPast.length) body.appendChild(importBlock("Block 1 (past)", importPast));
+    if (importCurrent.length) body.appendChild(importBlock("Block 2 (current)", importCurrent));
   }
 
   // ─── CALENDAR section ────────────────────────────────────────
-  var calHdr = document.createElement("div");
-  calHdr.style.cssText = "font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:18px 0 6px";
-  calHdr.textContent = "Google Calendar — last 8 past events";
-  body.appendChild(calHdr);
+  var calTitle = document.createElement("div");
+  calTitle.style.cssText = "font-size:13px;color:#fff;font-weight:600;margin:20px 0 10px;padding-bottom:4px;border-bottom:1px solid var(--border)";
+  calTitle.textContent = "Google Calendar — last 8 past events";
+  body.appendChild(calTitle);
 
   var calRow = document.createElement("div");
-  calRow.style.cssText = "font-size:11px;color:var(--text);font-family:monospace";
+  calRow.style.cssText = "font-size:11px;color:var(--muted);font-family:monospace";
   calRow.textContent = (d.calendar && d.calendar.length) ? d.calendar.join("  ·  ") : "No past events found";
   body.appendChild(calRow);
 }
