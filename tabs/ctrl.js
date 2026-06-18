@@ -7,10 +7,12 @@ function initAuditTab() {
   if (!url) {
     document.getElementById("auditLessonSection").innerHTML = '<div class="empty-state">No script URL set</div>';
     document.getElementById("auditBlockSection").innerHTML  = '<div class="empty-state">No script URL set</div>';
+    document.getElementById("auditUnpaidSection").innerHTML = '<div class="empty-state">No script URL set</div>';
     return;
   }
   _runAudit1(url);
   _runAudit2(url);
+  _runAudit3(url);
 }
 
 function _runAudit1(url) {
@@ -45,6 +47,87 @@ function _runAudit2(url) {
     .catch(function() {
       section.innerHTML = '<div class="empty-state">Connection failed</div>';
     });
+}
+
+function _runAudit3(url) {
+  var section = document.getElementById("auditUnpaidSection");
+  section.innerHTML = '<div class="empty-state">Running audit...</div>';
+  fetch(url + "?action=auditUnpaid")
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.success) {
+        section.innerHTML = '<div class="empty-state">Audit error: ' + (data.message || "unknown") + '</div>';
+        return;
+      }
+      renderUnpaidCards(data.audit || []);
+    })
+    .catch(function() {
+      section.innerHTML = '<div class="empty-state">Connection failed</div>';
+    });
+}
+
+function renderUnpaidCards(audit) {
+  var section = document.getElementById("auditUnpaidSection");
+  section.innerHTML = "";
+
+  if (!audit.length) {
+    section.innerHTML = '<div style="color:var(--green);font-size:11px;text-align:center;padding:20px">All current blocks are paid ✓</div>';
+    return;
+  }
+
+  audit.forEach(function(s) {
+    var card = document.createElement("div");
+    card.style.cssText = "padding:12px;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;background:var(--panel)";
+
+    var name = document.createElement("div");
+    name.style.cssText = "font-weight:600;margin-bottom:6px;font-size:13px";
+    name.textContent = s.name;
+    card.appendChild(name);
+
+    var current = document.createElement("div");
+    current.style.cssText = "font-size:11px;color:var(--muted);margin:4px 0 10px";
+    current.innerHTML = "On lesson <b style=\"color:#ffa500\">" + (s.lessonNum != null ? s.lessonNum : "?") + "</b> (<b style=\"color:var(--text)\">" + (s.lessonDate || "?") + "</b>) — <span style=\"color:#ffa500\">unpaid</span>";
+    card.appendChild(current);
+
+    if (s.prevBlocks && s.prevBlocks.length) {
+      var pbHdr = document.createElement("div");
+      pbHdr.style.cssText = "font-size:10px;color:var(--muted);margin:6px 0 2px;text-transform:uppercase;letter-spacing:0.5px";
+      pbHdr.textContent = "Past 2 blocks";
+      card.appendChild(pbHdr);
+
+      s.prevBlocks.forEach(function(pb, idx) {
+        var row = document.createElement("div");
+        row.style.cssText = "font-size:11px;color:var(--muted);margin:2px 0";
+        var statusColor = pb.paid ? "var(--green)" : "#ffa500";
+        var statusMark = pb.paid ? "✓ paid" : "✗ unpaid";
+        var dateStr = pb.paymentDate ? " · " + pb.paymentDate : "";
+        var noteStr = pb.paymentNote ? " · " + pb.paymentNote : "";
+        row.innerHTML = "Block −" + (idx + 1) + ": <b style=\"color:" + statusColor + "\">" + statusMark + "</b>" + dateStr + noteStr;
+        card.appendChild(row);
+      });
+    }
+
+    var lpHdr = document.createElement("div");
+    lpHdr.style.cssText = "font-size:10px;color:var(--muted);margin:10px 0 2px;text-transform:uppercase;letter-spacing:0.5px";
+    lpHdr.textContent = "Last 2 RPM Payments";
+    card.appendChild(lpHdr);
+
+    if (s.lastPayments && s.lastPayments.length) {
+      s.lastPayments.forEach(function(p) {
+        var row = document.createElement("div");
+        row.style.cssText = "font-size:11px;color:var(--muted);margin:2px 0";
+        row.innerHTML = "<b style=\"color:var(--text)\">" + (p.amount || "?") + "</b> on <b style=\"color:var(--text)\">" + (p.date || "?") + "</b> via " + (p.method || "?") + (p.notes ? " · " + p.notes : "");
+        card.appendChild(row);
+      });
+    } else {
+      var none = document.createElement("div");
+      none.style.cssText = "font-size:11px;color:var(--muted);font-style:italic";
+      none.textContent = "No payments on file";
+      card.appendChild(none);
+    }
+
+    section.appendChild(card);
+  });
 }
 
 function renderBlockSyncCards(audit) {
