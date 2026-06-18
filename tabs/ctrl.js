@@ -225,6 +225,21 @@ function renderBlockSyncCards(audit) {
     name.textContent = s.name;
     card.appendChild(name);
 
+    if (s.countMismatch) {
+      var cmLine = document.createElement("div");
+      cmLine.style.cssText = "font-size:11px;color:var(--muted);margin:4px 0";
+      cmLine.innerHTML = "Counter says E=<b style=\"color:var(--text)\">" + s.counterLesson + "</b> but only <b style=\"color:var(--text)\">" + s.blockDateCount + "</b> dates in current block";
+      card.appendChild(cmLine);
+
+      var cmBadge = document.createElement("span");
+      cmBadge.style.cssText = "display:inline-block;margin:6px 4px 2px 0;padding:3px 8px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:3px;font-size:11px";
+      cmBadge.textContent = "Counter count mismatch";
+      card.appendChild(cmBadge);
+
+      section.appendChild(card);
+      return;
+    }
+
     var counterLine = document.createElement("div");
     counterLine.style.cssText = "font-size:11px;color:var(--muted);margin:4px 0";
     counterLine.innerHTML = "Counter: lesson <b style=\"color:var(--text)\">" + s.counterLesson + "</b> on <b style=\"color:var(--text)\">" + (s.counterDate || "?") + "</b>";
