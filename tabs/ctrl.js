@@ -230,19 +230,19 @@ function _renderFixData(d) {
     lbl.textContent = label;
     wrap.appendChild(lbl);
     var row = document.createElement("div");
-    row.style.cssText = "display:flex;flex-wrap:wrap;gap:6px";
+    row.style.cssText = "display:grid;grid-template-columns:repeat(4, 1fr);gap:6px";
     cells.forEach(function(cell) {
-      var pill = document.createElement("span");
+      var pill = document.createElement("div");
       var isEmpty = cell.empty;
-      pill.style.cssText = "display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px dashed " + (isEmpty ? "rgba(255,165,0,0.5)" : "var(--border)") + ";border-radius:4px;font-size:11px;background:" + (isEmpty ? "rgba(255,165,0,0.05)" : "transparent");
-      pill.innerHTML = "<span style=\"color:var(--muted);opacity:0.6\">" + cell.col + ":</span>";
+      pill.style.cssText = "display:flex;align-items:center;gap:4px;padding:4px 6px;border:1px dashed " + (isEmpty ? "rgba(255,165,0,0.5)" : "var(--border)") + ";border-radius:4px;font-size:11px;background:" + (isEmpty ? "rgba(255,165,0,0.05)" : "transparent");
+      pill.innerHTML = "<span style=\"color:var(--muted);opacity:0.6;flex-shrink:0\">" + cell.col + ":</span>";
       var dateInput = document.createElement("input");
       dateInput.type = "text"; dateInput.value = cell.value;
       dateInput.placeholder = isEmpty ? "M/D/YYYY" : "";
-      dateInput.style.cssText = "width:90px;padding:2px 4px;background:transparent;color:var(--muted);border:none;font-size:11px";
+      dateInput.style.cssText = "flex:1;min-width:0;padding:2px 4px;background:transparent;color:var(--muted);border:none;font-size:11px";
       pill.appendChild(dateInput);
       var saveBtn = document.createElement("button");
-      saveBtn.textContent = "✓"; saveBtn.style.cssText = "padding:1px 5px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:2px;cursor:pointer";
+      saveBtn.textContent = "✓"; saveBtn.style.cssText = "padding:1px 5px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:2px;cursor:pointer;flex-shrink:0";
       saveBtn.onclick = function() { _saveCounterField(d.counter.row, cell.col, dateInput.value, saveBtn); };
       pill.appendChild(saveBtn);
       row.appendChild(pill);
