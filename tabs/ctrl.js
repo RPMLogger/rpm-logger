@@ -126,7 +126,84 @@ function renderUnpaidCards(audit) {
       card.appendChild(none);
     }
 
+    // ─── ACTIONS ─────────────────────────────────────────────────────────
+    var actionsWrap = document.createElement("div");
+    actionsWrap.style.cssText = "margin-top:12px;padding-top:10px;border-top:1px dashed var(--border)";
+    card.appendChild(actionsWrap);
+
+    if (s.pendingPayments && s.pendingPayments.length) {
+      var ppHdr = document.createElement("div");
+      ppHdr.style.cssText = "font-size:10px;color:var(--muted);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.5px";
+      ppHdr.textContent = "Pending — confirm?";
+      actionsWrap.appendChild(ppHdr);
+
+      s.pendingPayments.forEach(function(p) {
+        var row = document.createElement("div");
+        row.style.cssText = "display:flex;align-items:center;gap:8px;margin:4px 0;font-size:11px;flex-wrap:wrap";
+        row.innerHTML =
+          "<span style=\"color:var(--text)\"><b>" + (p.amount || "?") + "</b> " + (p.method || "?") + "</span>" +
+          "<span style=\"color:var(--muted)\">" + (p.date || "?") + "</span>";
+
+        var confirmBtn = document.createElement("button");
+        confirmBtn.textContent = "Confirm →";
+        confirmBtn.style.cssText = "padding:4px 10px;font-size:11px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:4px;cursor:pointer";
+        confirmBtn.onclick = function() {
+          if (typeof openIncomingNotePanel === "function") {
+            openIncomingNotePanel(p, row);
+          } else {
+            addLog("auditFeed", "Confirm flow not available — open Payments tab", "error");
+          }
+        };
+        row.appendChild(confirmBtn);
+        actionsWrap.appendChild(row);
+      });
+    } else {
+      var reminderRow = document.createElement("div");
+      reminderRow.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px";
+
+      var reminderInfo = document.createElement("div");
+      reminderInfo.style.cssText = "font-size:11px;color:var(--muted)";
+      reminderInfo.textContent = s.lastReminderAt
+        ? "Last reminder sent: " + s.lastReminderAt
+        : "No reminder sent yet";
+      reminderRow.appendChild(reminderInfo);
+
+      var sendBtn = document.createElement("button");
+      sendBtn.textContent = "Send Reminder →";
+      sendBtn.style.cssText = "padding:4px 10px;font-size:11px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:4px;cursor:pointer";
+      sendBtn.onclick = function() { _sendReminder(s, sendBtn, reminderInfo); };
+      reminderRow.appendChild(sendBtn);
+
+      actionsWrap.appendChild(reminderRow);
+    }
+
     section.appendChild(card);
+  });
+}
+
+function _sendReminder(student, btn, infoEl) {
+  var url = getScriptUrl();
+  if (!url) return;
+  btn.textContent = "Sending..."; btn.disabled = true;
+  var completed = (student.completedDates || []).join(",");
+  callScript(url, "sendPaymentReminder", {
+    studentName: student.name,
+    lessonNum:   student.lessonNum,
+    lessonDate:  student.lessonDate,
+    completedDates: completed
+  }, function(data) {
+    if (data && data.success) {
+      btn.textContent = "✓ Sent";
+      btn.style.background = "rgba(0,200,100,0.15)";
+      btn.style.color = "var(--green)";
+      btn.style.borderColor = "rgba(0,200,100,0.4)";
+      var nowStr = (new Date()).toLocaleString();
+      if (infoEl) infoEl.textContent = "Last reminder sent: just now";
+      addLog("auditFeed", "✓ Reminder sent to " + student.name, "success");
+    } else {
+      btn.textContent = "Send Reminder →"; btn.disabled = false;
+      addLog("auditFeed", "❌ " + (data && data.message ? data.message : "Reminder failed"), "error");
+    }
   });
 }
 
