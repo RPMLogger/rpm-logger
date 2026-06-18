@@ -181,6 +181,173 @@ function renderUnpaidCards(audit) {
   });
 }
 
+// ─── AUDIT 2 FIX MODAL ──────────────────────────────────────────────────────
+var _fixCurrentName = null;
+
+function openAuditFixModal(studentName) {
+  _fixCurrentName = studentName;
+  document.getElementById("auditFixOverlay").style.display = "flex";
+  document.getElementById("auditFixTitle").textContent = "Fix: " + studentName;
+  document.getElementById("auditFixBody").innerHTML = '<div class="empty-state" style="padding:24px">Loading...</div>';
+  _loadFixData(studentName);
+}
+
+function closeAuditFixModal(ev) {
+  if (ev && ev.target && ev.target.id !== "auditFixOverlay") return;
+  document.getElementById("auditFixOverlay").style.display = "none";
+  _fixCurrentName = null;
+  // Refresh audit so changes propagate
+  if (typeof initAuditTab === "function") initAuditTab();
+}
+
+function _loadFixData(studentName) {
+  var url = getScriptUrl();
+  if (!url) return;
+  fetch(url + "?action=getStudentFixData&name=" + encodeURIComponent(studentName))
+    .then(function(r) { return r.json(); })
+    .then(function(resp) {
+      if (!resp.success) {
+        document.getElementById("auditFixBody").innerHTML = '<div class="empty-state">Error: ' + (resp.message || "unknown") + '</div>';
+        return;
+      }
+      _renderFixData(resp.data);
+    })
+    .catch(function() {
+      document.getElementById("auditFixBody").innerHTML = '<div class="empty-state">Connection failed</div>';
+    });
+}
+
+function _renderFixData(d) {
+  var body = document.getElementById("auditFixBody");
+  body.innerHTML = "";
+
+  // ─── COUNTER section ─────────────────────────────────────────
+  var counterHdr = document.createElement("div");
+  counterHdr.style.cssText = "font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:0 0 6px";
+  counterHdr.textContent = "RPM Counter (row " + d.counter.row + ")";
+  body.appendChild(counterHdr);
+
+  var eRow = document.createElement("div");
+  eRow.style.cssText = "display:flex;gap:8px;align-items:center;margin-bottom:8px";
+  eRow.innerHTML = "<span style=\"color:var(--muted)\">Finished (E):</span>";
+  var eInput = document.createElement("input");
+  eInput.type = "number"; eInput.min = "0"; eInput.max = "4";
+  eInput.value = d.counter.finished;
+  eInput.style.cssText = "width:50px;padding:3px 6px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:12px";
+  eRow.appendChild(eInput);
+  var eSave = document.createElement("button");
+  eSave.textContent = "Save"; eSave.style.cssText = "padding:3px 10px;font-size:11px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:3px;cursor:pointer";
+  eSave.onclick = function() { _saveCounterField(d.counter.row, "E", eInput.value, eSave); };
+  eRow.appendChild(eSave);
+  body.appendChild(eRow);
+
+  var datesWrap = document.createElement("div");
+  datesWrap.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px";
+  d.counter.dates.forEach(function(cell) {
+    var pill = document.createElement("span");
+    var isEmpty = cell.empty;
+    pill.style.cssText = "display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px dashed " + (isEmpty ? "rgba(255,165,0,0.5)" : "var(--border)") + ";border-radius:4px;font-size:11px;background:" + (isEmpty ? "rgba(255,165,0,0.05)" : "transparent");
+    pill.innerHTML = "<span style=\"color:var(--muted)\">" + cell.col + ":</span>";
+    var dateInput = document.createElement("input");
+    dateInput.type = "text"; dateInput.value = cell.value;
+    dateInput.placeholder = isEmpty ? "M/D/YYYY" : "";
+    dateInput.style.cssText = "width:90px;padding:2px 4px;background:transparent;color:var(--text);border:none;font-size:11px";
+    pill.appendChild(dateInput);
+    var saveBtn = document.createElement("button");
+    saveBtn.textContent = "✓"; saveBtn.style.cssText = "padding:1px 5px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:2px;cursor:pointer";
+    saveBtn.onclick = function() { _saveCounterField(d.counter.row, cell.col, dateInput.value, saveBtn); };
+    pill.appendChild(saveBtn);
+    datesWrap.appendChild(pill);
+  });
+  body.appendChild(datesWrap);
+
+  // ─── STUDENTS IMPORT section ─────────────────────────────────
+  var importHdr = document.createElement("div");
+  importHdr.style.cssText = "font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 6px";
+  importHdr.textContent = "Students Import — last 8";
+  body.appendChild(importHdr);
+
+  if (!d.importLessons.length) {
+    var none = document.createElement("div");
+    none.style.cssText = "font-style:italic;color:var(--muted);margin-bottom:14px";
+    none.textContent = "No lessons logged";
+    body.appendChild(none);
+  } else {
+    d.importLessons.forEach(function(l) {
+      var row = document.createElement("div");
+      row.style.cssText = "display:flex;gap:8px;align-items:center;margin:3px 0;font-size:11px;padding:4px 0;border-bottom:1px dashed rgba(255,255,255,0.05)";
+      var prefix = "<span style=\"color:var(--muted);width:60px;display:inline-block\">" + (l.lessonNum != null ? "L" + l.lessonNum : "—") + " row " + l.row + "</span>";
+      if (l.empty) {
+        row.innerHTML = prefix + "<span style=\"color:#ffa500;width:60px\">(empty)</span>";
+        var subjIn = document.createElement("input");
+        subjIn.type = "text"; subjIn.placeholder = "Subject";
+        subjIn.style.cssText = "flex:1;padding:2px 6px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:11px";
+        var dateIn = document.createElement("input");
+        dateIn.type = "text"; dateIn.placeholder = "Date";
+        dateIn.style.cssText = "width:80px;padding:2px 6px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:11px";
+        var logBtn = document.createElement("button");
+        logBtn.textContent = "Log"; logBtn.style.cssText = "padding:3px 8px;font-size:11px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:3px;cursor:pointer";
+        logBtn.onclick = function() { _logImportRow(subjIn.value, dateIn.value, logBtn); };
+        row.appendChild(subjIn); row.appendChild(dateIn); row.appendChild(logBtn);
+      } else {
+        var paidTag = l.paid ? "<span style=\"color:var(--green);font-size:10px\">✓ paid" + (l.paymentDate ? " " + l.paymentDate : "") + "</span>" : "";
+        row.innerHTML = prefix +
+          "<span style=\"color:var(--text);width:60px\">" + (l.date || "—") + "</span>" +
+          "<span style=\"flex:1\">" + (l.subject || "<em style=\"color:var(--muted)\">(no subject)</em>") + "</span>" +
+          paidTag;
+      }
+      body.appendChild(row);
+    });
+  }
+
+  // ─── CALENDAR section ────────────────────────────────────────
+  var calHdr = document.createElement("div");
+  calHdr.style.cssText = "font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:18px 0 6px";
+  calHdr.textContent = "Google Calendar — last 8 past events";
+  body.appendChild(calHdr);
+
+  var calRow = document.createElement("div");
+  calRow.style.cssText = "font-size:11px;color:var(--text);font-family:monospace";
+  calRow.textContent = (d.calendar && d.calendar.length) ? d.calendar.join("  ·  ") : "No past events found";
+  body.appendChild(calRow);
+}
+
+function _saveCounterField(row, col, value, btn) {
+  var url = getScriptUrl(); if (!url) return;
+  var orig = btn.textContent;
+  btn.textContent = "..."; btn.disabled = true;
+  callScript(url, "setCounterField", { row: row, col: col, value: value }, function(data) {
+    if (data && data.success) {
+      btn.textContent = "✓";
+      setTimeout(function() { if (_fixCurrentName) _loadFixData(_fixCurrentName); }, 400);
+    } else {
+      btn.textContent = orig; btn.disabled = false;
+      addLog("auditFeed", "❌ " + (data && data.message ? data.message : "Save failed"), "error");
+    }
+  });
+}
+
+function _logImportRow(subject, date, btn) {
+  if (!subject || !date) { btn.textContent = "Subj+Date"; return; }
+  var url = getScriptUrl(); if (!url) return;
+  btn.textContent = "..."; btn.disabled = true;
+  // Reuse existing logLesson endpoint: writes to next empty I row with subject + date
+  callScript(url, "logLesson", {
+    studentName: _fixCurrentName,
+    subject:     toTitleCase ? toTitleCase(subject) : subject,
+    lessonDate:  date,
+    trialPaid:   "0"
+  }, function(data) {
+    if (data && data.success) {
+      btn.textContent = "✓";
+      setTimeout(function() { if (_fixCurrentName) _loadFixData(_fixCurrentName); }, 400);
+    } else {
+      btn.textContent = "Log"; btn.disabled = false;
+      addLog("auditFeed", "❌ " + (data && data.message ? data.message : "Log failed"), "error");
+    }
+  });
+}
+
 function _sendReminder(student, btn, infoEl) {
   var url = getScriptUrl();
   if (!url) return;
@@ -218,7 +385,8 @@ function renderBlockSyncCards(audit) {
 
   audit.forEach(function(s) {
     var card = document.createElement("div");
-    card.style.cssText = "padding:12px;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;background:var(--panel)";
+    card.style.cssText = "padding:12px;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;background:var(--panel);cursor:pointer";
+    card.onclick = function() { openAuditFixModal(s.name); };
 
     var name = document.createElement("div");
     name.style.cssText = "font-weight:600;margin-bottom:8px;font-size:13px";
