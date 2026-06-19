@@ -1,36 +1,212 @@
 // ─── TABS / TODO.JS ─────────────────────────────────────────────────────────
-// Personal to-do list. Active tasks on top, completed at the bottom,
-// 3-line textarea + mic for input.
+// Personal to-do list. 3-row recording panel (same pattern as Lessons): tap a
+// row to make it active, mic dictates into the active row, LOG IT submits each
+// non-empty row as a separate task.
 
-var _todoCache = [];
+var _todoCache    = [];
+var _todoActive   = 0;        // active row index (0/1/2)
+var _todoFinals   = ["", "", ""];
+var _todoRec      = null;     // SpeechRecognition instance
+var _todoIsRec    = false;
 
 function initTodoTab() {
   var section = document.getElementById("todoContent");
   if (!section) return;
   if (section.dataset.built !== "1") {
     section.innerHTML =
-      '<div style="display:flex;gap:6px;align-items:flex-start;margin-bottom:10px">' +
-        '<textarea id="todoInput" rows="3" placeholder="New task..." style="flex:1;padding:6px 8px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:12px;font-family:inherit;resize:vertical"></textarea>' +
-        '<button id="todoMic" title="Dictate" style="padding:6px 10px;font-size:14px;background:transparent;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text);flex-shrink:0">🎤</button>' +
-        '<button id="todoAdd" style="padding:6px 14px;font-size:12px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:4px;cursor:pointer;flex-shrink:0">Add</button>' +
+      '<div id="todoPanel" style="border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px;background:var(--panel)">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+          '<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">New To-Dos</div>' +
+          '<div id="todoStatus" style="font-size:11px;color:var(--muted)">tap row to record</div>' +
+        '</div>' +
+        _todoRowHtml(0, "Tap to start recording...") +
+        _todoRowHtml(1, "Row 2 — tap to continue here") +
+        _todoRowHtml(2, "Row 3 — tap to continue here") +
+        '<div style="display:flex;gap:8px;margin-top:8px">' +
+          '<button id="todoMic" title="Toggle mic" style="padding:6px 12px;font-size:14px;background:transparent;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text)">🎤</button>' +
+          '<button id="todoLog" style="flex:1;padding:8px;font-size:13px;background:rgba(180,40,40,0.25);color:#ff6b6b;border:1px solid rgba(180,40,40,0.5);border-radius:4px;cursor:pointer;letter-spacing:0.5px">LOG IT →</button>' +
+        '</div>' +
       '</div>' +
       '<div id="todoActive"></div>' +
       '<div id="todoDoneWrap" style="margin-top:18px"></div>' +
       '<div class="log-feed" id="todoFeed"></div>';
     section.dataset.built = "1";
 
-    document.getElementById("todoAdd").onclick = _todoAdd;
-    var micState = { recording: false, recognizer: null };
-    document.getElementById("todoMic").onclick = function() {
-      _todoToggleMic(document.getElementById("todoInput"), document.getElementById("todoMic"), micState);
-    };
-    document.getElementById("todoInput").addEventListener("keydown", function(e) {
-      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); _todoAdd(); }
-    });
+    for (var r = 0; r < 3; r++) {
+      (function(idx) {
+        var input = document.getElementById("todoRowInput-" + idx);
+        var wrap  = document.getElementById("todoRow-" + idx);
+        wrap.onclick = function(e) {
+          if (e.target === input) return; // clicking the input itself shouldn't switch
+          _todoSetActive(idx);
+          if (!_todoIsRec) _todoStartRec();
+        };
+        input.addEventListener("focus", function() { _todoSetActive(idx); });
+        input.addEventListener("input", function() {
+          _todoFinals[idx] = input.value;
+          _todoUpdateLogBtn();
+        });
+      })(r);
+    }
+
+    document.getElementById("todoMic").onclick = _todoToggleMic;
+    document.getElementById("todoLog").onclick = _todoSubmitAll;
+    _todoSetActive(0);
   }
   _loadTodos();
 }
 
+function _todoRowHtml(idx, placeholder) {
+  return '<div id="todoRow-' + idx + '" class="todo-rec-row" style="display:flex;align-items:stretch;border:1px solid var(--border);border-left:3px solid transparent;border-radius:4px;margin:4px 0;cursor:pointer">' +
+    '<input id="todoRowInput-' + idx + '" type="text" placeholder="' + placeholder + '" style="flex:1;padding:8px 10px;background:transparent;color:var(--text);border:none;font-size:12px;font-family:inherit;outline:none">' +
+    '</div>';
+}
+
+function _todoSetActive(idx) {
+  if (idx === _todoActive) {
+    // ensure highlight in case rows were re-styled
+    _todoApplyActiveStyle();
+    return;
+  }
+  // preserve current value before switching
+  var oldInp = document.getElementById("todoRowInput-" + _todoActive);
+  if (oldInp) _todoFinals[_todoActive] = oldInp.value;
+  _todoActive = idx;
+  _todoApplyActiveStyle();
+}
+
+function _todoApplyActiveStyle() {
+  for (var r = 0; r < 3; r++) {
+    var row = document.getElementById("todoRow-" + r);
+    if (!row) continue;
+    if (r === _todoActive) {
+      row.style.borderLeftColor = _todoIsRec ? "#ff5050" : "var(--green)";
+      row.style.background = _todoIsRec ? "rgba(255,80,80,0.05)" : "rgba(0,200,100,0.04)";
+    } else {
+      row.style.borderLeftColor = "transparent";
+      row.style.background = "transparent";
+    }
+  }
+}
+
+function _todoStartRec() {
+  if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
+    addLog("todoFeed", "Speech recognition not supported (use Chrome)", "error");
+    return;
+  }
+  if (_todoRec) { try { _todoRec._suppressed = true; _todoRec.stop(); } catch (e) {} }
+  var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var rec = new Rec();
+  rec.lang = "en-US"; rec.continuous = true; rec.interimResults = true;
+  rec._suppressed = false;
+  rec.onstart = function() {
+    _todoIsRec = true;
+    document.getElementById("todoStatus").innerHTML = '<span style="color:#ff5050">● RECORDING...</span>';
+    document.getElementById("todoMic").textContent = "⏹";
+    document.getElementById("todoMic").style.background = "rgba(255,80,80,0.2)";
+    _todoApplyActiveStyle();
+  };
+  rec.onresult = function(ev) {
+    var newFinal = "", interim = "";
+    for (var i = ev.resultIndex; i < ev.results.length; i++) {
+      if (ev.results[i].isFinal) newFinal += ev.results[i][0].transcript;
+      else interim += ev.results[i][0].transcript;
+    }
+    if (newFinal) {
+      _todoFinals[_todoActive] = (_todoFinals[_todoActive] + " " + newFinal).replace(/\s+/g, " ").trim();
+    }
+    var inp = document.getElementById("todoRowInput-" + _todoActive);
+    if (inp) inp.value = (_todoFinals[_todoActive] + " " + interim).replace(/\s+/g, " ").trim();
+    _todoUpdateLogBtn();
+  };
+  rec.onend = function() {
+    if (rec._suppressed) return;
+    _todoIsRec = false;
+    document.getElementById("todoStatus").textContent = "tap row to record";
+    document.getElementById("todoMic").textContent = "🎤";
+    document.getElementById("todoMic").style.background = "transparent";
+    _todoApplyActiveStyle();
+  };
+  rec.onerror = function(e) {
+    if (e.error === "no-speech") return;
+    _todoIsRec = false;
+    document.getElementById("todoMic").textContent = "🎤";
+    document.getElementById("todoMic").style.background = "transparent";
+    _todoApplyActiveStyle();
+  };
+  _todoRec = rec;
+  rec.start();
+}
+
+function _todoToggleMic() {
+  if (_todoIsRec) {
+    if (_todoRec) { _todoRec._suppressed = true; _todoRec.stop(); }
+    _todoIsRec = false;
+    document.getElementById("todoStatus").textContent = "tap row to record";
+    document.getElementById("todoMic").textContent = "🎤";
+    document.getElementById("todoMic").style.background = "transparent";
+    _todoApplyActiveStyle();
+  } else {
+    _todoStartRec();
+  }
+}
+
+function _todoUpdateLogBtn() {
+  var any = false;
+  for (var r = 0; r < 3; r++) {
+    var inp = document.getElementById("todoRowInput-" + r);
+    if (inp && inp.value.trim()) { any = true; break; }
+  }
+  document.getElementById("todoLog").disabled = !any;
+  document.getElementById("todoLog").style.opacity = any ? "1" : "0.5";
+}
+
+function _todoSubmitAll() {
+  var url = getScriptUrl(); if (!url) return;
+  if (_todoIsRec && _todoRec) { _todoRec._suppressed = true; _todoRec.stop(); _todoIsRec = false; }
+
+  var tasks = [];
+  for (var r = 0; r < 3; r++) {
+    var v = document.getElementById("todoRowInput-" + r).value.trim();
+    if (v) tasks.push(v);
+  }
+  if (!tasks.length) return;
+
+  var btn = document.getElementById("todoLog");
+  var orig = btn.textContent;
+  btn.textContent = "Logging..."; btn.disabled = true;
+
+  var done = 0, errors = 0;
+  tasks.forEach(function(task) {
+    callScript(url, "addTodo", { task: task }, function(data) {
+      done++;
+      if (!data || !data.success) errors++;
+      if (done === tasks.length) {
+        if (errors) {
+          addLog("todoFeed", "⚠ " + (tasks.length - errors) + "/" + tasks.length + " added, " + errors + " failed", "error");
+        } else {
+          addLog("todoFeed", "✓ Added " + tasks.length + " task" + (tasks.length > 1 ? "s" : ""), "success");
+        }
+        btn.textContent = orig; btn.disabled = false;
+        _todoResetRows();
+        _loadTodos();
+      }
+    });
+  });
+}
+
+function _todoResetRows() {
+  _todoFinals = ["", "", ""];
+  for (var r = 0; r < 3; r++) {
+    var inp = document.getElementById("todoRowInput-" + r);
+    if (inp) inp.value = "";
+  }
+  _todoActive = 0;
+  _todoApplyActiveStyle();
+  _todoUpdateLogBtn();
+}
+
+// ─── LIST RENDERING ────────────────────────────────────────────────────────
 function _loadTodos() {
   var url = getScriptUrl();
   if (!url) return;
@@ -58,7 +234,7 @@ function _renderTodos() {
   if (!active.length) {
     act.innerHTML = '<div class="empty-state" style="padding:12px">No active tasks</div>';
   } else {
-    active.forEach(function(t) { act.appendChild(_todoRow(t)); });
+    active.forEach(function(t) { act.appendChild(_todoListRow(t)); });
   }
 
   var doneWrap = document.getElementById("todoDoneWrap");
@@ -76,11 +252,11 @@ function _renderTodos() {
     };
     header.appendChild(clearBtn);
     doneWrap.appendChild(header);
-    done.forEach(function(t) { doneWrap.appendChild(_todoRow(t)); });
+    done.forEach(function(t) { doneWrap.appendChild(_todoListRow(t)); });
   }
 }
 
-function _todoRow(t) {
+function _todoListRow(t) {
   var row = document.createElement("div");
   row.style.cssText = "display:flex;align-items:flex-start;gap:8px;padding:6px 4px;border-bottom:1px dashed rgba(255,255,255,0.05)";
 
@@ -112,26 +288,6 @@ function _todoRow(t) {
   row.appendChild(del);
 
   return row;
-}
-
-function _todoAdd() {
-  var input = document.getElementById("todoInput");
-  var btn   = document.getElementById("todoAdd");
-  var task  = (input.value || "").trim();
-  if (!task) return;
-  var orig = btn.textContent;
-  btn.textContent = "..."; btn.disabled = true;
-  var url = getScriptUrl(); if (!url) return;
-  callScript(url, "addTodo", { task: task }, function(data) {
-    btn.textContent = orig; btn.disabled = false;
-    if (data && data.success) {
-      input.value = "";
-      addLog("todoFeed", "✓ Added: " + task, "success");
-      _loadTodos();
-    } else {
-      addLog("todoFeed", "❌ " + (data && data.message ? data.message : "Add failed"), "error");
-    }
-  });
 }
 
 function _todoToggle(row, done, cb) {
@@ -171,46 +327,4 @@ function _todoClearCompleted(btn) {
       addLog("todoFeed", "❌ " + (data && data.message ? data.message : "Clear failed"), "error");
     }
   });
-}
-
-function _todoToggleMic(textarea, btn, state) {
-  if (state.recording) {
-    if (state.recognizer) { state.recognizer._suppressed = true; state.recognizer.stop(); }
-    state.recording = false;
-    btn.textContent = "🎤"; btn.style.background = "transparent";
-    return;
-  }
-  if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
-    addLog("todoFeed", "Speech recognition not supported (use Chrome)", "error");
-    return;
-  }
-  var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
-  var rec = new Rec();
-  rec.lang = "en-US"; rec.continuous = true; rec.interimResults = true;
-  rec._finalText = textarea.value ? (textarea.value + " ") : "";
-  rec._suppressed = false;
-  rec.onstart = function() {
-    state.recording = true;
-    btn.textContent = "⏹"; btn.style.background = "rgba(255,80,80,0.2)";
-  };
-  rec.onresult = function(ev) {
-    var interim = "";
-    for (var i = ev.resultIndex; i < ev.results.length; i++) {
-      if (ev.results[i].isFinal) rec._finalText += ev.results[i][0].transcript;
-      else interim += ev.results[i][0].transcript;
-    }
-    textarea.value = (rec._finalText + interim).trim();
-  };
-  rec.onend = function() {
-    if (rec._suppressed) return;
-    state.recording = false;
-    btn.textContent = "🎤"; btn.style.background = "transparent";
-  };
-  rec.onerror = function(e) {
-    if (e.error === "no-speech") return;
-    state.recording = false;
-    btn.textContent = "🎤"; btn.style.background = "transparent";
-  };
-  state.recognizer = rec;
-  rec.start();
 }
