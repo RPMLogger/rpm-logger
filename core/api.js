@@ -15,6 +15,7 @@ function loadData() {
   fetchStudentLoad(url);
   fetchInquiries(url);
   fetchCommsSummary(url);
+  if (typeof fetchGBusinessUnread === "function") fetchGBusinessUnread();
 }
 function fetchWeekStudents(url) {
   fetch(url + "?action=getWeekStudents")
