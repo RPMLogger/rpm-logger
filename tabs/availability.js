@@ -196,16 +196,9 @@ function _availLogBoth(row, availability, notes, btn, recStates) {
         }
       });
       setTimeout(function() {
-        btn.textContent = orig; btn.disabled = false;
-        btn.style.background = "rgba(0,200,100,0.15)";
+        _availOpen = null;
         _renderAvailabilityList();
-        var idx = -1;
-        for (var i = 0; i < _availStudents.length; i++) {
-          if (_availStudents[i].row === row) { idx = i; break; }
-        }
-        var cards = document.getElementById("availabilityList").children;
-        if (idx !== -1 && cards[idx]) _toggleAvailRow(row, cards[idx]);
-      }, 800);
+      }, 700);
     });
   });
 }
