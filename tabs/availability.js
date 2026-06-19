@@ -68,8 +68,22 @@ function _toggleAvailRow(row, card) {
   panel.id = "availPanel-" + row;
   panel.style.cssText = "padding:10px 12px;border-top:1px solid var(--border);background:rgba(0,0,0,0.2)";
 
-  panel.appendChild(_buildAvailField("Availability", "availability", s));
-  panel.appendChild(_buildAvailField("Notes", "notes", s));
+  var availField = _buildAvailField("Availability", "availability", s);
+  var notesField = _buildAvailField("Notes", "notes", s);
+  panel.appendChild(availField.wrap);
+  panel.appendChild(notesField.wrap);
+
+  var logRow = document.createElement("div");
+  logRow.style.cssText = "display:flex;justify-content:flex-end;margin-top:10px";
+  var logBtn = document.createElement("button");
+  logBtn.textContent = "Log";
+  logBtn.style.cssText = "padding:6px 18px;font-size:12px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:4px;cursor:pointer";
+  logBtn.onclick = function() {
+    _availLogBoth(s.row, availField.ta.value, notesField.ta.value, logBtn,
+      [availField.recState, notesField.recState]);
+  };
+  logRow.appendChild(logBtn);
+  panel.appendChild(logRow);
 
   card.appendChild(panel);
   _availOpen = row;
@@ -101,14 +115,8 @@ function _buildAvailField(label, type, student) {
   micBtn.onclick = function() { _availToggleMic(ta, micBtn, recState); };
   row.appendChild(micBtn);
 
-  var logBtn = document.createElement("button");
-  logBtn.textContent = "Log";
-  logBtn.style.cssText = "padding:6px 14px;font-size:12px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:4px;cursor:pointer;flex-shrink:0";
-  logBtn.onclick = function() { _availLog(student.row, type, ta.value, logBtn, recState); };
-  row.appendChild(logBtn);
-
   wrap.appendChild(row);
-  return wrap;
+  return { wrap: wrap, ta: ta, recState: recState };
 }
 
 function _availToggleMic(textarea, btn, state) {
@@ -153,45 +161,51 @@ function _availToggleMic(textarea, btn, state) {
   rec.start();
 }
 
-function _availLog(row, type, value, btn, recState) {
-  if (recState && recState.recognizer && recState.recording) {
-    recState.recognizer._suppressed = true; recState.recognizer.stop();
-    recState.recording = false;
-  }
+function _availLogBoth(row, availability, notes, btn, recStates) {
+  // Stop any active mic recordings on this card
+  (recStates || []).forEach(function(s) {
+    if (s && s.recognizer && s.recording) {
+      s.recognizer._suppressed = true; s.recognizer.stop(); s.recording = false;
+    }
+  });
   var url = getScriptUrl(); if (!url) return;
   var orig = btn.textContent;
   btn.textContent = "..."; btn.disabled = true;
-  callScript(url, "setAvailabilityField", {
-    row: row, type: type, value: value
-  }, function(data) {
-    if (data && data.success) {
+
+  callScript(url, "setAvailabilityField", { row: row, type: "availability", value: availability }, function(a) {
+    if (!a || !a.success) {
+      btn.textContent = orig; btn.disabled = false;
+      addLog("availFeed", "❌ availability save failed: " + (a && a.message ? a.message : "?"), "error");
+      return;
+    }
+    callScript(url, "setAvailabilityField", { row: row, type: "notes", value: notes }, function(b) {
+      if (!b || !b.success) {
+        btn.textContent = orig; btn.disabled = false;
+        addLog("availFeed", "❌ notes save failed: " + (b && b.message ? b.message : "?"), "error");
+        return;
+      }
       btn.textContent = "✓ Logged";
       btn.style.background = "rgba(0,200,100,0.3)";
-      addLog("availFeed", "✓ " + type + " saved for row " + row + " (" + (data.dateTaken || "now") + ")", "success");
-      // Update local cache so future toggles show fresh data
+      addLog("availFeed", "✓ Saved for row " + row + " (" + (b.dateTaken || "now") + ")", "success");
+      // Update local cache
       _availStudents.forEach(function(s) {
-        if (s.row === row) { s[type] = value; s.dateTaken = data.dateTaken || s.dateTaken; }
+        if (s.row === row) {
+          s.availability = availability;
+          s.notes = notes;
+          s.dateTaken = b.dateTaken || s.dateTaken;
+        }
       });
-      // Update the header timestamp without re-rendering whole list
       setTimeout(function() {
         btn.textContent = orig; btn.disabled = false;
         btn.style.background = "rgba(0,200,100,0.15)";
         _renderAvailabilityList();
-        // Re-expand the same row so user can keep editing
-        var stillThere = _availStudents.filter(function(x) { return x.row === row; })[0];
-        if (stillThere) {
-          var card = document.getElementById("availabilityList").querySelectorAll("div")[
-            _availStudents.indexOf(stillThere) * 1 // pick the card by index
-          ];
-          // simpler: re-find and toggle
-          var cards = document.getElementById("availabilityList").children;
-          var idx = _availStudents.indexOf(stillThere);
-          if (cards[idx]) _toggleAvailRow(row, cards[idx]);
+        var idx = -1;
+        for (var i = 0; i < _availStudents.length; i++) {
+          if (_availStudents[i].row === row) { idx = i; break; }
         }
+        var cards = document.getElementById("availabilityList").children;
+        if (idx !== -1 && cards[idx]) _toggleAvailRow(row, cards[idx]);
       }, 800);
-    } else {
-      btn.textContent = orig; btn.disabled = false;
-      addLog("availFeed", "❌ " + (data && data.message ? data.message : "Save failed"), "error");
-    }
+    });
   });
 }
