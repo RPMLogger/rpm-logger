@@ -37,8 +37,19 @@ function initTodoTab() {
         var input = document.getElementById("todoRowInput-" + idx);
         var wrap  = document.getElementById("todoRow-" + idx);
         var rowClickHandler = function() {
+          var prevActive = _todoActive;
+          var wasRec = _todoIsRec;
           _todoSetActive(idx);
-          if (!_todoIsRec) _todoStartRec();
+          if (wasRec && idx !== prevActive) {
+            // Switching mid-recording — stop current recognizer cleanly
+            // so any pending audio doesn't bleed into the new row, then
+            // start a fresh recognizer for the new row.
+            if (_todoRec) { _todoRec._suppressed = true; _todoRec.stop(); }
+            _todoIsRec = false;
+            _todoStartRec();
+          } else if (!_todoIsRec) {
+            _todoStartRec();
+          }
         };
         wrap.onclick = rowClickHandler;
         input.addEventListener("focus", rowClickHandler);
@@ -99,6 +110,17 @@ function _todoStartRec() {
   var rec = new Rec();
   rec.lang = "en-US"; rec.continuous = true; rec.interimResults = true;
   rec._suppressed = false;
+
+  // Capture current selection on the active row's input. If the user has
+  // highlighted text, new audio will REPLACE that range instead of appending.
+  var activeInput = document.getElementById("todoRowInput-" + _todoActive);
+  var selStart = activeInput ? activeInput.selectionStart : 0;
+  var selEnd   = activeInput ? activeInput.selectionEnd   : 0;
+  var hasSelection = activeInput && (selStart !== selEnd);
+  var beforeSel = hasSelection ? activeInput.value.substring(0, selStart) : "";
+  var afterSel  = hasSelection ? activeInput.value.substring(selEnd) : "";
+  rec._spliced = "";
+
   rec.onstart = function() {
     _todoIsRec = true;
     document.getElementById("todoStatus").innerHTML = '<span style="color:#ff5050">● RECORDING...</span>';
@@ -111,11 +133,20 @@ function _todoStartRec() {
       if (ev.results[i].isFinal) newFinal += ev.results[i][0].transcript;
       else interim += ev.results[i][0].transcript;
     }
-    if (newFinal) {
-      _todoFinals[_todoActive] = (_todoFinals[_todoActive] + " " + newFinal).replace(/\s+/g, " ").trim();
-    }
     var inp = document.getElementById("todoRowInput-" + _todoActive);
-    if (inp) inp.value = (_todoFinals[_todoActive] + " " + interim).replace(/\s+/g, " ").trim();
+    if (!inp) return;
+
+    if (hasSelection) {
+      if (newFinal) rec._spliced = (rec._spliced + " " + newFinal).replace(/\s+/g, " ").trim();
+      var middle = (rec._spliced + " " + interim).replace(/\s+/g, " ").trim();
+      inp.value = (beforeSel + (beforeSel && middle ? " " : "") + middle + (afterSel && middle ? " " : "") + afterSel).replace(/\s+/g, " ").trimRight();
+      _todoFinals[_todoActive] = inp.value;
+    } else {
+      if (newFinal) {
+        _todoFinals[_todoActive] = (_todoFinals[_todoActive] + " " + newFinal).replace(/\s+/g, " ").trim();
+      }
+      inp.value = (_todoFinals[_todoActive] + " " + interim).replace(/\s+/g, " ").trim();
+    }
     _todoUpdateLogBtn();
   };
   rec.onend = function() {
@@ -220,7 +251,7 @@ function _renderTodos() {
   if (!active.length) {
     act.innerHTML = '<div class="empty-state" style="padding:12px">No active tasks</div>';
   } else {
-    active.forEach(function(t) { act.appendChild(_todoListRow(t)); });
+    active.forEach(function(t, i) { act.appendChild(_todoListRow(t, i + 1)); });
   }
 
   var doneWrap = document.getElementById("todoDoneWrap");
@@ -238,13 +269,18 @@ function _renderTodos() {
     };
     header.appendChild(clearBtn);
     doneWrap.appendChild(header);
-    done.forEach(function(t) { doneWrap.appendChild(_todoListRow(t)); });
+    done.forEach(function(t, i) { doneWrap.appendChild(_todoListRow(t, i + 1)); });
   }
 }
 
-function _todoListRow(t) {
+function _todoListRow(t, num) {
   var row = document.createElement("div");
   row.style.cssText = "display:flex;align-items:flex-start;gap:8px;padding:6px 4px;border-bottom:1px dashed rgba(255,255,255,0.05)";
+
+  var numEl = document.createElement("div");
+  numEl.style.cssText = "font-size:11px;color:var(--muted);min-width:22px;flex-shrink:0;text-align:right";
+  numEl.textContent = (num || "") + ".";
+  row.appendChild(numEl);
 
   var cb = document.createElement("input");
   cb.type = "checkbox";
