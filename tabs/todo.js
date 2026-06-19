@@ -36,12 +36,12 @@ function initTodoTab() {
       (function(idx) {
         var input = document.getElementById("todoRowInput-" + idx);
         var wrap  = document.getElementById("todoRow-" + idx);
-        wrap.onclick = function(e) {
-          if (e.target === input) return; // clicking the input itself shouldn't switch
+        var rowClickHandler = function() {
           _todoSetActive(idx);
           if (!_todoIsRec) _todoStartRec();
         };
-        input.addEventListener("focus", function() { _todoSetActive(idx); });
+        wrap.onclick = rowClickHandler;
+        input.addEventListener("focus", rowClickHandler);
         input.addEventListener("input", function() {
           _todoFinals[idx] = input.value;
           _todoUpdateLogBtn();
