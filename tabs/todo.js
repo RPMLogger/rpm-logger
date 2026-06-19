@@ -173,7 +173,6 @@ function _todoSubmitAll() {
   callScript(url, "addTodo", { task: task }, function(data) {
     btn.textContent = orig; btn.disabled = false;
     if (data && data.success) {
-      addLog("todoFeed", "✓ Added: " + task, "success");
       _todoResetRows();
       _loadTodos();
     } else {
