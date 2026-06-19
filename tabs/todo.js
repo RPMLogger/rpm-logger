@@ -23,7 +23,7 @@ function initTodoTab() {
         _todoRowHtml(1, "Row 2 — tap to continue here") +
         _todoRowHtml(2, "Row 3 — tap to continue here") +
         '<div style="display:flex;gap:8px;margin-top:8px">' +
-          '<button id="todoMic" title="Toggle mic" style="padding:6px 12px;font-size:14px;background:transparent;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text)">🎤</button>' +
+          '<button id="todoMic" title="Stop recording" style="display:none;padding:6px 12px;font-size:14px;background:rgba(255,80,80,0.2);border:1px solid rgba(255,80,80,0.5);border-radius:4px;cursor:pointer;color:#ff5050">⏹</button>' +
           '<button id="todoLog" style="flex:1;padding:8px;font-size:13px;background:rgba(180,40,40,0.25);color:#ff6b6b;border:1px solid rgba(180,40,40,0.5);border-radius:4px;cursor:pointer;letter-spacing:0.5px">LOG IT →</button>' +
         '</div>' +
       '</div>' +
@@ -102,8 +102,7 @@ function _todoStartRec() {
   rec.onstart = function() {
     _todoIsRec = true;
     document.getElementById("todoStatus").innerHTML = '<span style="color:#ff5050">● RECORDING...</span>';
-    document.getElementById("todoMic").textContent = "⏹";
-    document.getElementById("todoMic").style.background = "rgba(255,80,80,0.2)";
+    document.getElementById("todoMic").style.display = "inline-block";
     _todoApplyActiveStyle();
   };
   rec.onresult = function(ev) {
@@ -122,16 +121,14 @@ function _todoStartRec() {
   rec.onend = function() {
     if (rec._suppressed) return;
     _todoIsRec = false;
-    document.getElementById("todoStatus").textContent = "tap row to record";
-    document.getElementById("todoMic").textContent = "🎤";
-    document.getElementById("todoMic").style.background = "transparent";
+    document.getElementById("todoStatus").textContent = "tap a row to record";
+    document.getElementById("todoMic").style.display = "none";
     _todoApplyActiveStyle();
   };
   rec.onerror = function(e) {
     if (e.error === "no-speech") return;
     _todoIsRec = false;
-    document.getElementById("todoMic").textContent = "🎤";
-    document.getElementById("todoMic").style.background = "transparent";
+    document.getElementById("todoMic").style.display = "none";
     _todoApplyActiveStyle();
   };
   _todoRec = rec;
@@ -139,16 +136,12 @@ function _todoStartRec() {
 }
 
 function _todoToggleMic() {
-  if (_todoIsRec) {
-    if (_todoRec) { _todoRec._suppressed = true; _todoRec.stop(); }
-    _todoIsRec = false;
-    document.getElementById("todoStatus").textContent = "tap row to record";
-    document.getElementById("todoMic").textContent = "🎤";
-    document.getElementById("todoMic").style.background = "transparent";
-    _todoApplyActiveStyle();
-  } else {
-    _todoStartRec();
-  }
+  // Button is only visible while recording, so it always means STOP.
+  if (_todoRec) { _todoRec._suppressed = true; _todoRec.stop(); }
+  _todoIsRec = false;
+  document.getElementById("todoStatus").textContent = "tap a row to record";
+  document.getElementById("todoMic").style.display = "none";
+  _todoApplyActiveStyle();
 }
 
 function _todoUpdateLogBtn() {
@@ -165,33 +158,27 @@ function _todoSubmitAll() {
   var url = getScriptUrl(); if (!url) return;
   if (_todoIsRec && _todoRec) { _todoRec._suppressed = true; _todoRec.stop(); _todoIsRec = false; }
 
-  var tasks = [];
+  var parts = [];
   for (var r = 0; r < 3; r++) {
     var v = document.getElementById("todoRowInput-" + r).value.trim();
-    if (v) tasks.push(v);
+    if (v) parts.push(v);
   }
-  if (!tasks.length) return;
+  var task = parts.join(" - ");
+  if (!task) return;
 
   var btn = document.getElementById("todoLog");
   var orig = btn.textContent;
   btn.textContent = "Logging..."; btn.disabled = true;
 
-  var done = 0, errors = 0;
-  tasks.forEach(function(task) {
-    callScript(url, "addTodo", { task: task }, function(data) {
-      done++;
-      if (!data || !data.success) errors++;
-      if (done === tasks.length) {
-        if (errors) {
-          addLog("todoFeed", "⚠ " + (tasks.length - errors) + "/" + tasks.length + " added, " + errors + " failed", "error");
-        } else {
-          addLog("todoFeed", "✓ Added " + tasks.length + " task" + (tasks.length > 1 ? "s" : ""), "success");
-        }
-        btn.textContent = orig; btn.disabled = false;
-        _todoResetRows();
-        _loadTodos();
-      }
-    });
+  callScript(url, "addTodo", { task: task }, function(data) {
+    btn.textContent = orig; btn.disabled = false;
+    if (data && data.success) {
+      addLog("todoFeed", "✓ Added: " + task, "success");
+      _todoResetRows();
+      _loadTodos();
+    } else {
+      addLog("todoFeed", "❌ " + (data && data.message ? data.message : "Add failed"), "error");
+    }
   });
 }
 
