@@ -53,34 +53,6 @@ function _renderBiweekly(data) {
   cols.appendChild(_biweeklyColumn(a, true));
   cols.appendChild(_biweeklyColumn(b, false));
   section.appendChild(cols);
-
-  // --- per-week timeline ----------------------------------------------
-  if (data.timeline && data.timeline.length) {
-    var tl = document.createElement("div");
-    tl.style.cssText = "margin-top:18px";
-    var tlHdr = document.createElement("div");
-    tlHdr.style.cssText = "font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px";
-    tlHdr.textContent = "Lessons per week · next " + data.windowDays + " days";
-    tl.appendChild(tlHdr);
-
-    var max = data.timeline.reduce(function(m, w) { return Math.max(m, w.count); }, 1);
-    var strip = document.createElement("div");
-    strip.style.cssText = "display:flex;gap:4px;align-items:flex-end;height:90px;overflow-x:auto;padding-bottom:4px";
-    data.timeline.forEach(function(w) {
-      var bar = document.createElement("div");
-      bar.title = w.weekStart + " — " + w.count + " lessons (" + w.group + " week)";
-      bar.style.cssText = "flex:0 0 26px;display:flex;flex-direction:column;align-items:center;gap:3px";
-      var h = Math.round((w.count / max) * 60) + 4;
-      bar.innerHTML =
-        "<span style='font-size:9px;color:var(--muted)'>" + w.count + "</span>" +
-        "<div style='width:18px;height:" + h + "px;border-radius:3px;background:" +
-          (w.group === "This" ? "var(--green)" : "#5b9dff") + "'></div>" +
-        "<span style='font-size:8px;color:var(--muted);writing-mode:vertical-rl;margin-top:2px'>" + w.weekStart + "</span>";
-      strip.appendChild(bar);
-    });
-    tl.appendChild(strip);
-    section.appendChild(tl);
-  }
 }
 
 function _biweeklyColumn(group, isThis) {
@@ -112,8 +84,8 @@ function _biweeklyColumn(group, isThis) {
       "<span style='font-weight:600;font-size:13px'>" + s.name +
         (s.split ? " <span title='Also has lessons in the other week' style='color:#ffb400;font-size:10px'>⚠</span>" : "") +
       "</span>" +
-      "<span style='font-size:10px;color:var(--muted);text-align:right;flex-shrink:0'>" +
-        s.date + "<br>" + s.time + "</span>";
+      "<span style='font-size:11px;color:var(--muted);text-align:right;flex-shrink:0;letter-spacing:0.3px'>" +
+        (s.day || "").toUpperCase() + " · " + s.time + "</span>";
     col.appendChild(row);
   });
 
