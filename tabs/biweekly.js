@@ -48,6 +48,35 @@ function _renderBiweekly(data) {
   section.appendChild(banner);
 
   // --- two-column groups ----------------------------------------------
+  // --- matching pairs (shared weekday + time across the two weeks) -----
+  if (data.pairs && data.pairs.length) {
+    var pairsWrap = document.createElement("div");
+    pairsWrap.style.cssText = "border:1px solid var(--border);border-radius:6px;background:var(--panel);overflow:hidden;margin-bottom:14px";
+
+    var pHdr = document.createElement("div");
+    pHdr.style.cssText = "padding:8px 12px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)";
+    pHdr.textContent = "Matching Pairs · same slot, alternating weeks";
+    pairsWrap.appendChild(pHdr);
+
+    data.pairs.forEach(function(p) {
+      var row = document.createElement("div");
+      row.style.cssText = "padding:8px 12px;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:center;gap:10px";
+
+      var names = p.students.map(function(s) {
+        var color = s.week === "A" ? "var(--green)" : "#5b9dff";
+        return "<span style='font-weight:600;font-size:13px'>" + s.name +
+          " <span style='font-size:9px;color:" + color + "'>(" + s.week + ")</span></span>";
+      }).join("<span style='color:var(--muted);margin:0 6px'>·</span>");
+
+      row.innerHTML =
+        "<span>" + names + "</span>" +
+        "<span style='font-size:11px;color:var(--muted);flex-shrink:0;letter-spacing:0.3px'>" +
+          (p.day || "").toUpperCase() + " · " + p.time + "</span>";
+      pairsWrap.appendChild(row);
+    });
+    section.appendChild(pairsWrap);
+  }
+
   var cols = document.createElement("div");
   cols.style.cssText = "display:flex;gap:12px;align-items:flex-start";
   cols.appendChild(_biweeklyColumn(a, true));
