@@ -42,6 +42,7 @@
     <button class="tab-btn" onclick="switchTab('financial')">Financial</button>
     <button class="tab-btn" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
     <button class="tab-btn" onclick="switchTab('availability')">Availability</button>
+    <button class="tab-btn" onclick="switchTab('biweekly')">Biweekly</button>
     <button class="tab-btn" onclick="switchTab('notes')">Notes</button>
     <button class="tab-btn" onclick="switchTab('todo')">To-Do</button>
     <button class="tab-btn" onclick="switchTab('ctrl')">Audit</button>
@@ -273,6 +274,14 @@
     <div class="log-feed" id="availFeed"></div>
   </div>
 
+  <!-- BIWEEKLY -->
+  <div class="tab-panel" id="tab-biweekly">
+    <div class="section-label">Biweekly Balancer · next 90 days</div>
+    <div id="biweeklyBody"><div class="empty-state">Loading...</div></div>
+    <hr class="divider">
+    <button class="refresh-btn" onclick="initBiweeklyTab()">⟳ Rescan</button>
+  </div>
+
   <!-- AUDIT -->
   <div class="tab-panel" id="tab-ctrl">
     <div class="section-label">Lesson Date Audit</div>
@@ -396,6 +405,7 @@
 <script src="tabs/notes.js"></script>
 <script src="tabs/todo.js"></script>
 <script src="tabs/availability.js"></script>
+<script src="tabs/biweekly.js"></script>
 <script src="tabs/ctrl.js"></script>
 <script src="tabs/mailcenter.js"></script>
 <script src="tabs/sheets.js"></script>
@@ -420,7 +430,7 @@
   function switchTab(tab) {
     if (isRecording) stopRecording();
     if (tab === "financial") { initFinancialTab(); }
-    var tabs = ["lessons","payments","past","week","general","financial","inquiries","availability","notes","todo","ctrl","mailcenter","sheets"];
+    var tabs = ["lessons","payments","past","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","mailcenter","sheets"];
     tabs.forEach(function(t, i) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
@@ -428,6 +438,7 @@
     if (tab === "payments") loadIncomingPayments();
     if (tab === "ctrl") initAuditTab();
     if (tab === "availability") initAvailabilityTab();
+    if (tab === "biweekly") initBiweeklyTab();
     if (tab === "todo") initTodoTab();
     if (tab === "notes") initNotesTab();
     if (tab === "mailcenter") initMailCenterTab();
