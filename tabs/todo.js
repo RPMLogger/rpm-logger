@@ -14,10 +14,13 @@ function initTodoTab() {
   if (!section) return;
   if (section.dataset.built !== "1") {
     section.innerHTML =
-      '<div id="todoPanel" style="border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px;background:var(--panel)">' +
+      '<div id="todoPanel" style="display:none;border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px;background:var(--panel)">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
           '<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">New To-Dos</div>' +
-          '<div id="todoStatus" style="font-size:11px;color:var(--muted)">tap row to record</div>' +
+          '<div style="display:flex;align-items:center;gap:10px">' +
+            '<div id="todoStatus" style="font-size:11px;color:var(--muted)">tap row to record</div>' +
+            '<button id="todoClose" title="Close" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1;padding:0 2px">✕</button>' +
+          '</div>' +
         '</div>' +
         _todoRowHtml(0, "Tap to start recording...") +
         _todoRowHtml(1, "Row 2 — tap to continue here") +
@@ -29,7 +32,10 @@ function initTodoTab() {
       '</div>' +
       '<div id="todoActive"></div>' +
       '<div id="todoDoneWrap" style="margin-top:18px"></div>' +
-      '<div class="log-feed" id="todoFeed"></div>';
+      '<div class="log-feed" id="todoFeed"></div>' +
+      '<div style="margin-top:14px;display:flex;justify-content:center">' +
+        '<button id="todoAddBtn" style="padding:10px 18px;font-size:13px;background:rgba(180,40,40,0.18);color:#ff6b6b;border:1px solid rgba(180,40,40,0.45);border-radius:6px;cursor:pointer;letter-spacing:0.5px">+ New To-Do</button>' +
+      '</div>';
     section.dataset.built = "1";
 
     for (var r = 0; r < 3; r++) {
@@ -62,9 +68,32 @@ function initTodoTab() {
 
     document.getElementById("todoMic").onclick = _todoToggleMic;
     document.getElementById("todoLog").onclick = _todoSubmitAll;
+    document.getElementById("todoAddBtn").onclick = _todoOpenPanel;
+    document.getElementById("todoClose").onclick = _todoClosePanel;
     _todoSetActive(0);
   }
   _loadTodos();
+}
+
+function _todoOpenPanel() {
+  var p = document.getElementById("todoPanel");
+  var b = document.getElementById("todoAddBtn");
+  if (p) p.style.display = "block";
+  if (b) b.style.display = "none";
+  var inp = document.getElementById("todoRowInput-0");
+  if (inp) inp.focus();
+}
+
+function _todoClosePanel() {
+  if (_todoIsRec && _todoRec) { _todoRec._suppressed = true; _todoRec.stop(); _todoIsRec = false; }
+  _todoResetRows();
+  _todoResetMicStyle();
+  var s = document.getElementById("todoStatus");
+  if (s) s.textContent = "tap row to record";
+  var p = document.getElementById("todoPanel");
+  var b = document.getElementById("todoAddBtn");
+  if (p) p.style.display = "none";
+  if (b) b.style.display = "";
 }
 
 function _todoRowHtml(idx, placeholder) {
@@ -222,7 +251,7 @@ function _todoSubmitAll() {
   callScript(url, "addTodo", { task: task }, function(data) {
     btn.textContent = orig; btn.disabled = false;
     if (data && data.success) {
-      _todoResetRows();
+      _todoClosePanel();
       _loadTodos();
     } else {
       addLog("todoFeed", "❌ " + (data && data.message ? data.message : "Add failed"), "error");

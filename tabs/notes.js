@@ -13,10 +13,13 @@ function initNotesTab() {
   if (!section) return;
   if (section.dataset.built !== "1") {
     section.innerHTML =
-      '<div id="notesPanel" style="border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px;background:var(--panel)">' +
+      '<div id="notesPanel" style="display:none;border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px;background:var(--panel)">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
           '<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">New Note</div>' +
-          '<div id="notesStatus" style="font-size:11px;color:var(--muted)">tap row to record</div>' +
+          '<div style="display:flex;align-items:center;gap:10px">' +
+            '<div id="notesStatus" style="font-size:11px;color:var(--muted)">tap row to record</div>' +
+            '<button id="notesClose" title="Close" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1;padding:0 2px">✕</button>' +
+          '</div>' +
         '</div>' +
         _notesRowHtml(0, "Tap to start recording...") +
         _notesRowHtml(1, "Row 2 — tap to continue here") +
@@ -27,7 +30,10 @@ function initNotesTab() {
         '</div>' +
       '</div>' +
       '<div id="notesList"></div>' +
-      '<div class="log-feed" id="notesFeed"></div>';
+      '<div class="log-feed" id="notesFeed"></div>' +
+      '<div style="margin-top:14px;display:flex;justify-content:center">' +
+        '<button id="notesAddBtn" style="padding:10px 18px;font-size:13px;background:rgba(180,40,40,0.18);color:#ff6b6b;border:1px solid rgba(180,40,40,0.45);border-radius:6px;cursor:pointer;letter-spacing:0.5px">+ New Note</button>' +
+      '</div>';
     section.dataset.built = "1";
 
     for (var r = 0; r < 3; r++) {
@@ -57,9 +63,31 @@ function initNotesTab() {
 
     document.getElementById("notesMic").onclick = _notesToggleMic;
     document.getElementById("notesLog").onclick = _notesSubmit;
+    document.getElementById("notesAddBtn").onclick = _notesOpenPanel;
+    document.getElementById("notesClose").onclick = _notesClosePanel;
     _notesSetActive(0);
   }
   _loadNotes();
+}
+
+function _notesOpenPanel() {
+  var p = document.getElementById("notesPanel");
+  var b = document.getElementById("notesAddBtn");
+  if (p) p.style.display = "block";
+  if (b) b.style.display = "none";
+  var inp = document.getElementById("notesRowInput-0");
+  if (inp) inp.focus();
+}
+
+function _notesClosePanel() {
+  if (_notesIsRec && _notesRec) { _notesRec._suppressed = true; _notesRec.stop(); _notesIsRec = false; }
+  _notesResetRows();
+  _notesResetMicStyle();
+  document.getElementById("notesStatus").textContent = "tap row to record";
+  var p = document.getElementById("notesPanel");
+  var b = document.getElementById("notesAddBtn");
+  if (p) p.style.display = "none";
+  if (b) b.style.display = "";
 }
 
 function _notesRowHtml(idx, placeholder) {
@@ -205,7 +233,7 @@ function _notesSubmit() {
   callScript(url, "addNote", { note: note }, function(data) {
     btn.textContent = orig; btn.disabled = false;
     if (data && data.success) {
-      _notesResetRows();
+      _notesClosePanel();
       _loadNotes();
     } else {
       addLog("notesFeed", "❌ " + (data && data.message ? data.message : "Add failed"), "error");
