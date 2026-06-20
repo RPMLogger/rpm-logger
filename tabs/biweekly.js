@@ -48,10 +48,16 @@ function _renderBiweekly(data) {
   section.appendChild(banner);
 
   // --- two-column groups ----------------------------------------------
+  var cols = document.createElement("div");
+  cols.style.cssText = "display:flex;gap:12px;align-items:flex-start";
+  cols.appendChild(_biweeklyColumn(a, true));
+  cols.appendChild(_biweeklyColumn(b, false));
+  section.appendChild(cols);
+
   // --- matching pairs (shared weekday + time across the two weeks) -----
   if (data.pairs && data.pairs.length) {
     var pairsWrap = document.createElement("div");
-    pairsWrap.style.cssText = "border:1px solid var(--border);border-radius:6px;background:var(--panel);overflow:hidden;margin-bottom:14px";
+    pairsWrap.style.cssText = "border:1px solid var(--border);border-radius:6px;background:var(--panel);overflow:hidden;margin-top:14px";
 
     var pHdr = document.createElement("div");
     pHdr.style.cssText = "padding:8px 12px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)";
@@ -76,12 +82,6 @@ function _renderBiweekly(data) {
     });
     section.appendChild(pairsWrap);
   }
-
-  var cols = document.createElement("div");
-  cols.style.cssText = "display:flex;gap:12px;align-items:flex-start";
-  cols.appendChild(_biweeklyColumn(a, true));
-  cols.appendChild(_biweeklyColumn(b, false));
-  section.appendChild(cols);
 }
 
 function _biweeklyColumn(group, isThis) {
