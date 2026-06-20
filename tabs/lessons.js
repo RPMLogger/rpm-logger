@@ -8,6 +8,8 @@ function closeLogPanel() {
   document.querySelectorAll(".today-btn").forEach(function(b) { b.classList.remove("recording"); });
   document.querySelectorAll(".week-pill").forEach(function(b) { b.classList.remove("recording"); });
   activeStudent = null;
+  window._auditFixActive = false;
+  if (typeof _unfloatLogPanel === "function") _unfloatLogPanel();
 }
 
 // ─── RENDER: WEEK PILLS ──────────────────────────────────────────────────────
@@ -248,6 +250,13 @@ function submitLog() {
       renderWeekPills();
       renderTodayGrid();
       renderWeekTab();
+      // If this log came from the Audit tab's fix-1 flow, restore the modal to
+      // its home and re-run the audit so the resolved date drops off the list.
+      if (window._auditFixActive) {
+        window._auditFixActive = false;
+        if (typeof _unfloatLogPanel === "function") _unfloatLogPanel();
+        if (typeof initAuditTab === "function") initAuditTab();
+      }
     } else {
       btn.textContent = "Log It →"; btn.disabled = false;
       addLog("lessonFeed", "❌ " + (data.message || "Error logging"), "error");

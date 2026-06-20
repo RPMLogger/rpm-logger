@@ -492,6 +492,67 @@ function renderBlockSyncCards(audit) {
   });
 }
 
+// Convert an audit display date like "Jun 19" into a local-noon date string
+// that logLesson can parse without any timezone off-by-one. Picks the year
+// that lands the date closest to today (handles Dec dates viewed in Jan).
+function _auditDateToEventDate(disp) {
+  var m = (disp || "").trim().match(/^([A-Za-z]{3})\s+(\d{1,2})$/);
+  if (!m) return null;
+  var mon = MONTHS.indexOf(m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase());
+  if (mon < 0) return null;
+  var day = parseInt(m[2], 10);
+  var now = new Date();
+  var year = now.getFullYear();
+  var cand = new Date(year, mon, day);
+  // If the candidate is far in the future, it's really last year's date.
+  if ((cand - now) > 60 * 24 * 60 * 60 * 1000) year--;
+  var mm = String(mon + 1).length === 1 ? "0" + (mon + 1) : "" + (mon + 1);
+  var dd = day < 10 ? "0" + day : "" + day;
+  return year + "-" + mm + "-" + dd + "T12:00:00";
+}
+
+// Open the same lesson-log modal used on the Lessons tab, pre-set to this
+// student + this missing date. LOG IT writes the lesson (date + notes) into
+// Students Import via logLesson, exactly like a normal lesson.
+function openAuditLessonLog(name, disp) {
+  var eventDate = _auditDateToEventDate(disp);
+  if (!eventDate) { addLog("auditFeed", "Could not read date: " + disp, "error"); return; }
+  window._auditFixActive = true;
+  _floatLogPanel();
+  openLogFresh({ name: name, eventDate: eventDate, calType: "regular" }, undefined);
+}
+
+// The log modal lives inside the Lessons tab (display:none when another tab is
+// active). To use it from the Audit tab, lift it into a floating overlay on
+// <body>, then restore it to its original spot when it closes.
+function _floatLogPanel() {
+  var panel = document.getElementById("logPanel");
+  if (!panel || window._logPanelHome) return; // already floated
+  window._logPanelHome = {
+    parent: panel.parentNode,
+    next:   panel.nextSibling,
+    css:    panel.style.cssText
+  };
+  var back = document.createElement("div");
+  back.id = "auditLogBackdrop";
+  back.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px";
+  back.onclick = function(e) { if (e.target === back) closeLogPanel(); };
+  document.body.appendChild(back);
+  back.appendChild(panel);
+  panel.style.cssText = "width:min(560px,94vw);max-height:88vh;overflow:auto;margin:0;z-index:9999";
+}
+
+function _unfloatLogPanel() {
+  var home = window._logPanelHome;
+  if (!home) return;
+  var panel = document.getElementById("logPanel");
+  panel.style.cssText = home.css;
+  home.parent.insertBefore(panel, home.next);
+  var back = document.getElementById("auditLogBackdrop");
+  if (back) back.remove();
+  window._logPanelHome = null;
+}
+
 function renderAuditCards(audit) {
   var section = document.getElementById("auditLessonSection");
   section.innerHTML = "";
@@ -508,18 +569,25 @@ function renderAuditCards(audit) {
     var nameEl = document.createElement("div");
     nameEl.style.cssText = "font-weight:600;margin-bottom:8px;font-size:13px";
     nameEl.textContent = student.name;
+    if (student.missing && student.missing.length) {
+      nameEl.style.cursor = "pointer";
+      nameEl.title = "Log " + student.missing[0] + " into Students Import";
+      nameEl.onclick = function() { openAuditLessonLog(student.name, student.missing[0]); };
+    }
     card.appendChild(nameEl);
 
     if (student.missing && student.missing.length) {
       var hdr = document.createElement("div");
       hdr.style.cssText = "font-size:10px;color:var(--muted);margin:6px 0 4px;text-transform:uppercase;letter-spacing:0.5px";
-      hdr.textContent = "In Counter, missing from Students Import";
+      hdr.textContent = "In Counter, missing from Students Import — tap a date to log it";
       card.appendChild(hdr);
 
       student.missing.forEach(function(d) {
         var b = document.createElement("span");
-        b.style.cssText = "display:inline-block;margin:2px 4px 2px 0;padding:3px 8px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:3px;font-size:11px;font-weight:500";
+        b.style.cssText = "display:inline-block;margin:2px 4px 2px 0;padding:3px 8px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:3px;font-size:11px;font-weight:500;cursor:pointer";
         b.textContent = d;
+        b.title = "Log " + d + " into Students Import";
+        b.onclick = function() { openAuditLessonLog(student.name, d); };
         card.appendChild(b);
       });
     }
