@@ -16,8 +16,43 @@ var _travelState = {
   arriving:  '', // yyyy-mm-dd — the hard travel date (return)
   firstOff:  '', // yyyy-mm-dd — first day off teaching; defaults to leaving, can be earlier
   firstBack: '', // yyyy-mm-dd — first day back teaching; defaults to arriving, can be later
-  preview:   null
+  preview:   null,
+  testMode:  localStorage.getItem('travelTestMode') === '1'
 };
+
+function _travelTestParam() { return _travelState.testMode ? '&test=1' : ''; }
+function _travelTestArgs(o)  { if (_travelState.testMode) o.test = '1'; return o; }
+
+function _travelToggleTestMode() {
+  _travelState.testMode = !_travelState.testMode;
+  localStorage.setItem('travelTestMode', _travelState.testMode ? '1' : '0');
+  // Re-render current screen
+  if (document.getElementById('travelLeaving')) _travelRenderPreview();
+  else _travelLoadDashboard();
+}
+
+function _travelTopBar() {
+  var bar = document.createElement('div');
+  bar.style.cssText =
+    'display:flex;justify-content:space-between;align-items:center;gap:10px;' +
+    'padding:8px 12px;border-radius:6px;margin-bottom:12px;font-size:11px;' +
+    (_travelState.testMode
+      ? 'background:rgba(255,180,0,0.12);border:1px solid rgba(255,180,0,0.5);color:#ffb400'
+      : 'background:transparent;border:1px solid var(--border);color:var(--muted)');
+  var label = _travelState.testMode
+    ? '🧪 TEST MODE — using calendar: redpickmusic@gmail.com'
+    : 'LIVE MODE — Weekly + Biweekly calendars';
+  bar.innerHTML =
+    "<span style='letter-spacing:0.5px;text-transform:uppercase;font-weight:600'>" + label + "</span>" +
+    "<button id='travelTestToggle' style='padding:4px 10px;font-size:10px;background:transparent;color:inherit;border:1px solid currentColor;border-radius:4px;cursor:pointer;letter-spacing:0.5px'>" +
+      (_travelState.testMode ? 'Switch to LIVE' : 'Switch to TEST') +
+    "</button>";
+  setTimeout(function() {
+    var t = document.getElementById('travelTestToggle');
+    if (t) t.onclick = _travelToggleTestMode;
+  }, 0);
+  return bar;
+}
 
 function initTravelTab() {
   _travelLoadDashboard();
@@ -51,6 +86,7 @@ function _travelLoadDashboard() {
 function _travelRenderDashboard(trips) {
   var section = document.getElementById('travelBody');
   section.innerHTML = '';
+  section.appendChild(_travelTopBar());
 
   var newBtn = document.createElement('button');
   newBtn.textContent = '+ Plan New Trip';
@@ -72,12 +108,15 @@ function _travelRenderDashboard(trips) {
 
     var hdr = document.createElement('div');
     var allConfirmed = trip.confirmed === trip.students.length;
+    var isTest = trip.students.some(function(s) { return (s.method || '').toUpperCase() === 'TEST'; });
     hdr.style.cssText =
       'padding:10px 12px;display:flex;justify-content:space-between;align-items:center;' +
       'border-bottom:1px solid var(--border);border-left:3px solid ' +
-      (allConfirmed ? 'var(--green)' : '#ffb400');
+      (isTest ? '#ffb400' : (allConfirmed ? 'var(--green)' : '#ffb400'));
     hdr.innerHTML =
-      "<span style='font-weight:700;font-size:13px'>" + trip.tripStart + ' → ' + trip.tripEnd + '</span>' +
+      "<span style='font-weight:700;font-size:13px'>" + trip.tripStart + ' → ' + trip.tripEnd +
+        (isTest ? " <span style='font-size:9px;background:rgba(255,180,0,0.2);color:#ffb400;padding:1px 6px;border-radius:3px;margin-left:6px'>TEST</span>" : "") +
+      "</span>" +
       "<span style='font-size:11px;color:var(--muted)'>" + trip.confirmed + ' / ' + trip.students.length + ' confirmed</span>';
     card.appendChild(hdr);
 
@@ -129,6 +168,7 @@ function _travelStudentRow(s) {
 function _travelRenderPreview() {
   var section = document.getElementById('travelBody');
   section.innerHTML = '';
+  section.appendChild(_travelTopBar());
 
   // Pre-fill leaving/arriving with today so the year is already set —
   // user just nudges the month/day from there.
@@ -273,7 +313,7 @@ function _travelFetchPreview() {
   document.getElementById('travelSummary').innerHTML = "<div class='empty-state'>Scanning calendar…</div>";
 
   var url = getScriptUrl(); if (!url) return;
-  fetch(url + '?action=getTravelPreview&start=' + encodeURIComponent(off) + '&end=' + encodeURIComponent(back))
+  fetch(url + '?action=getTravelPreview&start=' + encodeURIComponent(off) + '&end=' + encodeURIComponent(back) + _travelTestParam())
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data.success) {
@@ -337,6 +377,7 @@ function _travelRenderReview() {
 
   var section = document.getElementById('travelBody');
   section.innerHTML = '';
+  section.appendChild(_travelTopBar());
 
   var hdr = document.createElement('div');
   hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px';
@@ -385,7 +426,7 @@ function _travelRenderReview() {
 
 function _travelExecute() {
   var url = getScriptUrl(); if (!url) return;
-  callScript(url, 'executeTravel', { start: _travelState.firstOff, end: _travelState.firstBack }, function(data) {
+  callScript(url, 'executeTravel', _travelTestArgs({ start: _travelState.firstOff, end: _travelState.firstBack }), function(data) {
     if (data && data.success) {
       addLog('travelFeed', '✓ Deleted ' + data.deleted + ' events · logged ' + data.studentsLogged + ' students', 'success');
       _travelState.leaving = ''; _travelState.arriving = '';
