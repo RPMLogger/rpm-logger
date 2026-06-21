@@ -2,7 +2,9 @@
 // Travel Agent — vacation planner. Three screens:
 //   1) DASHBOARD — list of past + active trips with per-student confirm status,
 //      "+ Plan New Trip" button at top. This is the landing view.
-//   2) PREVIEW — date pickers, live impact summary (lessons / students / $).
+//   2) PREVIEW — Leaving + Arriving inputs anchor two Mon-Sun day strips;
+//      tap any day to extend the buffer (before-leaving or after-arriving).
+//      Live impact (lessons / students / $ loss) updates instantly on every tap.
 //   3) REVIEW — per-student breakdown with skip dates + first lesson back,
 //      "GO LIVE" deletes the events and writes to the Travel sheet.
 //
@@ -10,14 +12,19 @@
 // duplicate that path. Confirmations are marked manually in v1.
 
 var _travelState = {
-  start: '',
-  end:   '',
-  preview: null
+  leaving:   '', // yyyy-mm-dd — the hard travel date (departure)
+  arriving:  '', // yyyy-mm-dd — the hard travel date (return)
+  firstOff:  '', // yyyy-mm-dd — first day off teaching; defaults to leaving, can be earlier
+  firstBack: '', // yyyy-mm-dd — first day back teaching; defaults to arriving, can be later
+  preview:   null
 };
 
 function initTravelTab() {
   _travelLoadDashboard();
 }
+
+
+// ─── DASHBOARD ──────────────────────────────────────────────────────────────
 
 function _travelLoadDashboard() {
   var section = document.getElementById('travelBody');
@@ -131,46 +138,132 @@ function _travelRenderPreview() {
   section.appendChild(hdr);
   document.getElementById('travelBackToDash').onclick = _travelLoadDashboard;
 
+  // Leaving + Arriving inputs (the hard travel dates)
   var inputs = document.createElement('div');
-  inputs.style.cssText = 'display:flex;gap:10px;margin-bottom:12px';
+  inputs.style.cssText = 'display:flex;gap:10px;margin-bottom:10px';
   inputs.innerHTML =
     "<div style='flex:1'>" +
-      "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Trip Start (first day off)</div>" +
-      "<input type='date' id='travelStart' value='" + (_travelState.start || '') + "' style='width:100%;padding:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:13px'>" +
+      "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Leaving</div>" +
+      "<input type='date' id='travelLeaving' value='" + (_travelState.leaving || '') + "' style='width:100%;padding:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:13px'>" +
     "</div>" +
     "<div style='flex:1'>" +
-      "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Trip End (first day back)</div>" +
-      "<input type='date' id='travelEnd' value='" + (_travelState.end || '') + "' style='width:100%;padding:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:13px'>" +
+      "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Arriving</div>" +
+      "<input type='date' id='travelArriving' value='" + (_travelState.arriving || '') + "' style='width:100%;padding:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:13px'>" +
     "</div>";
   section.appendChild(inputs);
 
+  // Mon-Sun day strips for buffer selection
+  var leavingWeek = document.createElement('div');
+  leavingWeek.id = 'travelLeavingWeek';
+  leavingWeek.style.cssText = 'margin-bottom:8px';
+  section.appendChild(leavingWeek);
+
+  var arrivingWeek = document.createElement('div');
+  arrivingWeek.id = 'travelArrivingWeek';
+  arrivingWeek.style.cssText = 'margin-bottom:14px';
+  section.appendChild(arrivingWeek);
+
+  // Live impact summary
   var summary = document.createElement('div');
   summary.id = 'travelSummary';
   summary.style.cssText = 'border:1px solid var(--border);border-radius:6px;padding:14px;background:var(--panel)';
-  summary.innerHTML = "<div class='empty-state'>Enter both dates to see impact</div>";
+  summary.innerHTML = "<div class='empty-state'>Pick leaving + arriving dates to see impact</div>";
   section.appendChild(summary);
 
-  document.getElementById('travelStart').addEventListener('change', _travelFetchPreview);
-  document.getElementById('travelEnd').addEventListener('change', _travelFetchPreview);
+  document.getElementById('travelLeaving').addEventListener('change', function() {
+    _travelState.leaving  = this.value;
+    _travelState.firstOff = this.value; // reset to zero buffer on new pick
+    _travelRebuildWeeks();
+    _travelFetchPreview();
+  });
+  document.getElementById('travelArriving').addEventListener('change', function() {
+    _travelState.arriving  = this.value;
+    _travelState.firstBack = this.value;
+    _travelRebuildWeeks();
+    _travelFetchPreview();
+  });
 
-  if (_travelState.start && _travelState.end) _travelFetchPreview();
+  if (_travelState.leaving && _travelState.arriving) {
+    _travelRebuildWeeks();
+    _travelFetchPreview();
+  }
+}
+
+function _travelRebuildWeeks() {
+  _renderWeekStrip('travelLeavingWeek',  'First day off  (tap to buffer earlier)',
+                   _travelState.leaving,  _travelState.firstOff,  'before');
+  _renderWeekStrip('travelArrivingWeek', 'First day back  (tap to buffer later)',
+                   _travelState.arriving, _travelState.firstBack, 'after');
+}
+
+// One Mon-Sun strip of clickable day pills. `mode === 'before'` means days
+// AFTER the anchor are disabled (you can only buffer earlier, not later);
+// 'after' means days BEFORE the anchor are disabled.
+function _renderWeekStrip(wrapId, label, anchorYmd, selectedYmd, mode) {
+  var wrap = document.getElementById(wrapId);
+  wrap.innerHTML = '';
+  if (!anchorYmd) return;
+
+  var lbl = document.createElement('div');
+  lbl.style.cssText = 'font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px';
+  lbl.textContent = label;
+  wrap.appendChild(lbl);
+
+  var pillRow = document.createElement('div');
+  pillRow.style.cssText = 'display:flex;gap:4px;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:6px';
+
+  var anchor = _ymdToDate(anchorYmd);
+  var monday = _mondayOfWeek(anchor);
+
+  for (var i = 0; i < 7; i++) {
+    var d        = new Date(monday.getTime() + i * 24 * 60 * 60 * 1000);
+    var ymd      = _dateToYmd(d);
+    var enabled  = mode === 'before' ? (d <= anchor) : (d >= anchor);
+    var selected = ymd === selectedYmd;
+    var isAnchor = ymd === anchorYmd;
+    var dayName  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+
+    var btn = document.createElement('button');
+    btn.innerHTML =
+      "<div style='font-size:9px;line-height:1;letter-spacing:0.5px'>" + dayName.toUpperCase() + "</div>" +
+      "<div style='font-size:15px;font-weight:600;line-height:1.3'>" + d.getDate() + "</div>";
+    btn.style.cssText =
+      'flex:1;padding:6px 4px;border-radius:4px;font-family:inherit;' +
+      'border:1px solid ' + (selected ? 'var(--accent)' : 'transparent') + ';' +
+      'background:' + (selected ? 'rgba(232,70,58,0.18)' : 'transparent') + ';' +
+      'color:' + (enabled ? (selected ? 'var(--accent)' : 'var(--text)') : 'rgba(180,180,180,0.25)') + ';' +
+      'cursor:' + (enabled ? 'pointer' : 'default') + ';' +
+      'opacity:' + (enabled ? '1' : '0.5') + ';' +
+      (isAnchor && !selected ? 'box-shadow:inset 0 -2px 0 var(--muted);' : '');
+
+    if (enabled) {
+      (function(ymdCap) {
+        btn.onclick = function() {
+          if (mode === 'before') _travelState.firstOff  = ymdCap;
+          else                   _travelState.firstBack = ymdCap;
+          _travelRebuildWeeks();
+          _travelFetchPreview();
+        };
+      })(ymd);
+    }
+    pillRow.appendChild(btn);
+  }
+  wrap.appendChild(pillRow);
 }
 
 function _travelFetchPreview() {
-  var start = document.getElementById('travelStart').value;
-  var end   = document.getElementById('travelEnd').value;
-  if (!start || !end) return;
-  if (start >= end) {
+  var off  = _travelState.firstOff;
+  var back = _travelState.firstBack;
+  if (!off || !back) return;
+  if (off >= back) {
     document.getElementById('travelSummary').innerHTML =
-      "<div class='empty-state' style='color:#ffb400'>Trip End must be after Trip Start</div>";
+      "<div class='empty-state' style='color:#ffb400'>First day off must be before first day back</div>";
     return;
   }
-  _travelState.start = start;
-  _travelState.end   = end;
   document.getElementById('travelSummary').innerHTML = "<div class='empty-state'>Scanning calendar…</div>";
 
   var url = getScriptUrl(); if (!url) return;
-  fetch(url + '?action=getTravelPreview&start=' + encodeURIComponent(start) + '&end=' + encodeURIComponent(end))
+  fetch(url + '?action=getTravelPreview&start=' + encodeURIComponent(off) + '&end=' + encodeURIComponent(back))
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data.success) {
@@ -189,8 +282,18 @@ function _travelFetchPreview() {
 
 function _travelRenderSummary(data) {
   var box = document.getElementById('travelSummary');
+  var bufferBefore = _daysBetween(_travelState.firstOff,  _travelState.leaving);
+  var bufferAfter  = _daysBetween(_travelState.arriving, _travelState.firstBack);
+  var bufferTxt    = '';
+  if (bufferBefore > 0 || bufferAfter > 0) {
+    var parts = [];
+    if (bufferBefore > 0) parts.push('+' + bufferBefore + ' day' + (bufferBefore === 1 ? '' : 's') + ' before');
+    if (bufferAfter  > 0) parts.push('+' + bufferAfter  + ' day' + (bufferAfter  === 1 ? '' : 's') + ' after');
+    bufferTxt = "<div style='text-align:center;font-size:10px;color:var(--muted);margin-bottom:10px;letter-spacing:0.5px;text-transform:uppercase'>Buffer: " + parts.join(' · ') + "</div>";
+  }
+
   if (!data.totalLessons) {
-    box.innerHTML = "<div class='empty-state' style='color:var(--green)'>No lessons in this range — you're clear to go</div>";
+    box.innerHTML = bufferTxt + "<div class='empty-state' style='color:var(--green)'>No lessons in this range — you're clear to go</div>";
     return;
   }
 
@@ -201,7 +304,7 @@ function _travelRenderSummary(data) {
       "</div>"
     : "";
 
-  box.innerHTML =
+  box.innerHTML = bufferTxt +
     "<div style='display:flex;gap:18px;align-items:center;justify-content:space-around;text-align:center'>" +
       "<div><div style='font-size:24px;font-weight:700;color:var(--text)'>" + data.totalLessons + "</div>" +
       "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px'>lessons</div></div>" +
@@ -229,7 +332,7 @@ function _travelRenderReview() {
   hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px';
   hdr.innerHTML =
     "<div>" +
-      "<div style='font-size:13px;font-weight:600'>" + _travelState.start + ' → ' + _travelState.end + "</div>" +
+      "<div style='font-size:13px;font-weight:600'>" + _travelState.firstOff + ' → ' + _travelState.firstBack + "</div>" +
       "<div style='font-size:11px;color:var(--muted)'>" +
         data.totalLessons + ' lessons · ' + data.totalStudents + ' students · $' + (data.totalRevenue || 0).toLocaleString() + ' loss' +
       "</div>" +
@@ -272,14 +375,47 @@ function _travelRenderReview() {
 
 function _travelExecute() {
   var url = getScriptUrl(); if (!url) return;
-  callScript(url, 'executeTravel', { start: _travelState.start, end: _travelState.end }, function(data) {
+  callScript(url, 'executeTravel', { start: _travelState.firstOff, end: _travelState.firstBack }, function(data) {
     if (data && data.success) {
       addLog('travelFeed', '✓ Deleted ' + data.deleted + ' events · logged ' + data.studentsLogged + ' students', 'success');
-      _travelState.start = ''; _travelState.end = ''; _travelState.preview = null;
+      _travelState.leaving = ''; _travelState.arriving = '';
+      _travelState.firstOff = ''; _travelState.firstBack = '';
+      _travelState.preview = null;
       _travelLoadDashboard();
     } else {
       addLog('travelFeed', '❌ ' + (data && data.message ? data.message : 'Execute failed'), 'error');
       _travelRenderReview();
     }
   });
+}
+
+
+// ─── DATE HELPERS ───────────────────────────────────────────────────────────
+
+function _ymdToDate(s) {
+  var m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return null;
+  return new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10));
+}
+
+function _dateToYmd(d) {
+  var y = d.getFullYear();
+  var m = d.getMonth() + 1;
+  var day = d.getDate();
+  return y + '-' + (m < 10 ? '0' + m : m) + '-' + (day < 10 ? '0' + day : day);
+}
+
+function _mondayOfWeek(d) {
+  var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  var dow = (x.getDay() + 6) % 7; // 0 = Monday
+  x.setDate(x.getDate() - dow);
+  return x;
+}
+
+function _daysBetween(earlierYmd, laterYmd) {
+  if (!earlierYmd || !laterYmd) return 0;
+  var a = _ymdToDate(earlierYmd);
+  var b = _ymdToDate(laterYmd);
+  if (!a || !b) return 0;
+  return Math.round((b - a) / (24 * 60 * 60 * 1000));
 }
