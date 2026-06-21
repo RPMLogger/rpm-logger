@@ -130,6 +130,16 @@ function _travelRenderPreview() {
   var section = document.getElementById('travelBody');
   section.innerHTML = '';
 
+  // Pre-fill leaving/arriving with today so the year is already set —
+  // user just nudges the month/day from there.
+  if (!_travelState.leaving) {
+    var today = _dateToYmd(new Date());
+    _travelState.leaving   = today;
+    _travelState.arriving  = today;
+    _travelState.firstOff  = today;
+    _travelState.firstBack = today;
+  }
+
   var hdr = document.createElement('div');
   hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px';
   hdr.innerHTML =
