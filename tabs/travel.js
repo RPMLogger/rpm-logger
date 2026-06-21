@@ -242,7 +242,7 @@ function _travelRenderPreview() {
 function _travelRebuildWeeks() {
   _renderWeekStrip('travelLeavingWeek',  'First day off  (tap to buffer earlier)',
                    _travelState.leaving,  _travelState.firstOff,  'before');
-  _renderWeekStrip('travelArrivingWeek', 'First day back  (tap to buffer later)',
+  _renderWeekStrip('travelArrivingWeek', 'Last day off  (tap to buffer later)',
                    _travelState.arriving, _travelState.firstBack, 'after');
 }
 
