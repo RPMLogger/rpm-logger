@@ -398,6 +398,9 @@ function _travelRenderReview() {
   data.students.forEach(function(s, i) {
     var row = document.createElement('div');
     row.style.cssText = 'padding:10px 12px;' + (i > 0 ? 'border-top:1px solid rgba(255,255,255,0.04);' : '');
+    var beforeLine = (s.beforeDates && s.beforeDates.length)
+      ? "<div style='font-size:11px;color:#5b9dff;margin-bottom:2px'>Before: " + s.beforeDates.join(', ') + "</div>"
+      : '';
     row.innerHTML =
       "<div style='display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px'>" +
         "<span style='font-weight:600;font-size:13px'>" + s.name + "</span>" +
@@ -405,15 +408,25 @@ function _travelRenderReview() {
           s.lessonCount + " × $" + s.rate + " = $" + s.revenueLoss +
         "</span>" +
       "</div>" +
+      beforeLine +
       "<div style='font-size:11px;color:#ffa500;margin-bottom:2px'>Skip: " + s.skipDates.join(', ') + "</div>" +
       "<div style='font-size:11px;color:var(--green)'>Resume: " + s.firstBack + "</div>";
     list.appendChild(row);
   });
   section.appendChild(list);
 
+  var actions = document.createElement('div');
+  actions.style.cssText = 'display:flex;gap:8px';
+
+  var back = document.createElement('button');
+  back.textContent = '← Back';
+  back.style.cssText = 'flex:0 0 auto;padding:12px 18px;font-size:13px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.5px';
+  back.onclick = _travelRenderPreview;
+  actions.appendChild(back);
+
   var go = document.createElement('button');
   go.textContent = 'GO LIVE — delete ' + data.totalLessons + ' lessons';
-  go.style.cssText = 'width:100%;padding:12px;font-size:13px;background:rgba(232,70,58,0.25);color:var(--accent);border:1px solid var(--accent);border-radius:4px;cursor:pointer;letter-spacing:0.5px;font-weight:600';
+  go.style.cssText = 'flex:1;padding:12px;font-size:13px;background:rgba(232,70,58,0.25);color:var(--accent);border:1px solid var(--accent);border-radius:4px;cursor:pointer;letter-spacing:0.5px;font-weight:600';
   go.onclick = function() {
     var msg = 'Delete ' + data.totalLessons + ' lessons across ' +
       data.totalStudents + ' students?\n\nSecretary will auto-send cancellation emails on its next hourly run.';
@@ -421,7 +434,8 @@ function _travelRenderReview() {
     go.disabled = true; go.textContent = 'Deleting…';
     _travelExecute();
   };
-  section.appendChild(go);
+  actions.appendChild(go);
+  section.appendChild(actions);
 }
 
 function _travelExecute() {
