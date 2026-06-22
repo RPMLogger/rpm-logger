@@ -47,6 +47,7 @@
     <button class="tab-btn" onclick="switchTab('todo')">To-Do</button>
     <button class="tab-btn" onclick="switchTab('ctrl')">Audit</button>
     <button class="tab-btn" onclick="switchTab('travel')">Travel</button>
+    <button class="tab-btn" onclick="switchTab('skips')">Skips</button>
     <button class="tab-btn" onclick="switchTab('mailcenter')">Mail Center<span class="inq-badge" id="gbNavBadge" style="display:none"></span></button>
     <button class="tab-btn" onclick="switchTab('sheets')">Sheets</button>
   </div>
@@ -307,6 +308,13 @@
     <div class="log-feed" id="travelFeed"></div>
   </div>
 
+  <!-- SKIPS -->
+  <div class="tab-panel" id="tab-skips">
+    <div class="section-label">Skips</div>
+    <div id="skipsBody"><div class="empty-state">Loading...</div></div>
+    <div class="log-feed" id="skipsFeed"></div>
+  </div>
+
   <!-- MAIL CENTER -->
   <div class="tab-panel" id="tab-mailcenter">
     <div class="section-label">Mail Center</div>
@@ -413,6 +421,7 @@
 <script src="tabs/availability.js"></script>
 <script src="tabs/biweekly.js"></script>
 <script src="tabs/travel.js"></script>
+<script src="tabs/skips.js"></script>
 <script src="tabs/ctrl.js"></script>
 <script src="tabs/mailcenter.js"></script>
 <script src="tabs/sheets.js"></script>
@@ -437,7 +446,7 @@
   function switchTab(tab) {
     if (isRecording) stopRecording();
     if (tab === "financial") { initFinancialTab(); }
-    var tabs = ["lessons","payments","past","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","mailcenter","sheets"];
+    var tabs = ["lessons","payments","past","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","skips","mailcenter","sheets"];
     tabs.forEach(function(t, i) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
@@ -445,6 +454,7 @@
     if (tab === "payments") loadIncomingPayments();
     if (tab === "ctrl") initAuditTab();
     if (tab === "travel") initTravelTab();
+    if (tab === "skips") initSkipsTab();
     if (tab === "availability") initAvailabilityTab();
     if (tab === "biweekly") initBiweeklyTab();
     if (tab === "todo") initTodoTab();
