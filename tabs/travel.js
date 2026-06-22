@@ -188,19 +188,16 @@ function _travelRenderPreview() {
   section.appendChild(hdr);
   document.getElementById('travelBackToDash').onclick = _travelLoadDashboard;
 
-  // Leaving + Arriving inputs (the hard travel dates)
+  // Leaving + Arriving spinner widgets (month + day with up/down arrows)
   var inputs = document.createElement('div');
   inputs.style.cssText = 'display:flex;gap:10px;margin-bottom:10px';
   inputs.innerHTML =
-    "<div style='flex:1'>" +
-      "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Leaving</div>" +
-      "<input type='date' id='travelLeaving' value='" + (_travelState.leaving || '') + "' style='width:100%;padding:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:13px'>" +
-    "</div>" +
-    "<div style='flex:1'>" +
-      "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Arriving</div>" +
-      "<input type='date' id='travelArriving' value='" + (_travelState.arriving || '') + "' style='width:100%;padding:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:13px'>" +
-    "</div>";
+    "<div id='travelLeavingSlot'  style='flex:1'></div>" +
+    "<div id='travelArrivingSlot' style='flex:1'></div>";
   section.appendChild(inputs);
+
+  _travelRenderDateSpinner('travelLeavingSlot',  'Leaving',  'leaving');
+  _travelRenderDateSpinner('travelArrivingSlot', 'Arriving', 'arriving');
 
   // Mon-Sun day strips for buffer selection
   var leavingWeek = document.createElement('div');
@@ -220,23 +217,112 @@ function _travelRenderPreview() {
   summary.innerHTML = "<div class='empty-state'>Pick leaving + arriving dates to see impact</div>";
   section.appendChild(summary);
 
-  document.getElementById('travelLeaving').addEventListener('change', function() {
-    _travelState.leaving  = this.value;
-    _travelState.firstOff = this.value; // reset to zero buffer on new pick
-    _travelRebuildWeeks();
-    _travelFetchPreview();
-  });
-  document.getElementById('travelArriving').addEventListener('change', function() {
-    _travelState.arriving  = this.value;
-    _travelState.firstBack = this.value;
-    _travelRebuildWeeks();
-    _travelFetchPreview();
-  });
-
   if (_travelState.leaving && _travelState.arriving) {
     _travelRebuildWeeks();
     _travelFetchPreview();
   }
+}
+
+// ─── DATE SPINNER WIDGET ────────────────────────────────────────────────────
+// Month + day picker with ▲▼ arrows. Year is implicit (current year, auto-rolls
+// to next year if the chosen month/day is already in the past so you never end
+// up planning a trip backwards).
+
+var _SK_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function _travelRenderDateSpinner(slotId, label, stateKey) {
+  var wrap = document.getElementById(slotId);
+  if (!wrap) return;
+  wrap.innerHTML = '';
+
+  var lbl = document.createElement('div');
+  lbl.style.cssText = 'font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px';
+  lbl.textContent = label;
+  wrap.appendChild(lbl);
+
+  var d = _ymdToDate(_travelState[stateKey] || _dateToYmd(new Date()));
+  var month = d.getMonth();
+  var day   = d.getDate();
+
+  var box = document.createElement('div');
+  box.style.cssText = 'display:flex;background:var(--bg);border:1px solid var(--border);border-radius:4px;overflow:hidden';
+
+  box.appendChild(_travelSpinnerColumn(_SK_MONTHS[month], function(dir) {
+    var nm = (month + dir + 12) % 12;
+    _travelSetSpinnerDate(stateKey, nm, day);
+  }));
+  box.appendChild(_travelSpinnerColumn(String(day), function(dir) {
+    var maxDay = new Date(d.getFullYear(), month + 1, 0).getDate();
+    var nd = day + dir;
+    if (nd < 1)      nd = maxDay;
+    if (nd > maxDay) nd = 1;
+    _travelSetSpinnerDate(stateKey, month, nd);
+  }, true));
+
+  wrap.appendChild(box);
+}
+
+// One stacked column: ▲ on top, value in middle, ▼ on bottom.
+function _travelSpinnerColumn(text, onStep, leftBorder) {
+  var col = document.createElement('div');
+  col.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:stretch;' +
+    (leftBorder ? 'border-left:1px solid var(--border);' : '');
+
+  var up = _travelSpinnerBtn('▲');
+  up.onclick = function() { onStep(+1); };
+  col.appendChild(up);
+
+  var val = document.createElement('div');
+  val.style.cssText = 'text-align:center;padding:4px;font-size:18px;font-weight:600;color:var(--text);line-height:1.1';
+  val.textContent = text;
+  col.appendChild(val);
+
+  var down = _travelSpinnerBtn('▼');
+  down.onclick = function() { onStep(-1); };
+  col.appendChild(down);
+
+  return col;
+}
+
+function _travelSpinnerBtn(glyph) {
+  var b = document.createElement('button');
+  b.textContent = glyph;
+  b.style.cssText = 'background:transparent;border:none;color:var(--muted);cursor:pointer;padding:4px;font-size:11px;line-height:1;font-family:inherit';
+  b.onmouseenter = function() { b.style.color = 'var(--accent)'; };
+  b.onmouseleave = function() { b.style.color = 'var(--muted)'; };
+  return b;
+}
+
+// Pick the year automatically: current year, or next year if the month/day
+// has already passed.
+function _travelSetSpinnerDate(stateKey, monthIdx, day) {
+  var today = new Date();
+  var todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  var year = today.getFullYear();
+
+  // Clamp day to month length first (current year context for now).
+  var maxDay = new Date(year, monthIdx + 1, 0).getDate();
+  if (day > maxDay) day = maxDay;
+  if (day < 1)      day = 1;
+
+  var candidate = new Date(year, monthIdx, day);
+  if (candidate < todayMid) {
+    year++;
+    // Re-clamp in case Feb 29 → Feb 28 across leap years.
+    maxDay = new Date(year, monthIdx + 1, 0).getDate();
+    if (day > maxDay) day = maxDay;
+    candidate = new Date(year, monthIdx, day);
+  }
+  var ymd = _dateToYmd(candidate);
+
+  _travelState[stateKey] = ymd;
+  if (stateKey === 'leaving')  _travelState.firstOff  = ymd;
+  if (stateKey === 'arriving') _travelState.firstBack = ymd;
+
+  _travelRenderDateSpinner('travelLeavingSlot',  'Leaving',  'leaving');
+  _travelRenderDateSpinner('travelArrivingSlot', 'Arriving', 'arriving');
+  _travelRebuildWeeks();
+  _travelFetchPreview();
 }
 
 function _travelRebuildWeeks() {
