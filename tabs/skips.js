@@ -78,13 +78,13 @@ function _skipsRenderList() {
       (i > 0 ? 'border-top:1px solid rgba(255,255,255,0.04);' : '');
 
     var totals = '';
-    if (s.totalStudent || s.totalTeacher) {
-      totals =
-        "<span style='font-size:11px;color:var(--muted)'>" +
-          (s.totalStudent ? "<span style='color:#5b9dff'>S " + s.totalStudent + "</span>" : '') +
-          (s.totalStudent && s.totalTeacher ? " · " : '') +
-          (s.totalTeacher ? "<span style='color:#ffa500'>T " + s.totalTeacher + "</span>" : '') +
-        "</span>";
+    var parts = [];
+    if (s.totalStudent)  parts.push("<span style='color:#5b9dff'>S " + s.totalStudent + "</span>");
+    if (s.totalTeacher)  parts.push("<span style='color:#ffa500'>T " + s.totalTeacher + "</span>");
+    if (s.totalVacation) parts.push("<span style='color:#a78bfa'>V " + s.totalVacation + "</span>");
+    if (parts.length) {
+      totals = "<span style='font-size:11px;color:var(--muted)'>" +
+        parts.join(" <span style='color:var(--muted)'>·</span> ") + "</span>";
     } else {
       totals = "<span style='font-size:11px;color:var(--muted)'>—</span>";
     }
@@ -135,7 +135,8 @@ function _skipsRenderStudent() {
     ? ("<div style='font-size:11px;color:var(--muted);margin-top:2px'>" +
         _skipsState.year + " · " +
         "<span style='color:#5b9dff'>Student " + summary.totalStudent + "</span> · " +
-        "<span style='color:#ffa500'>Teacher " + summary.totalTeacher + "</span>" +
+        "<span style='color:#ffa500'>Teacher " + summary.totalTeacher + "</span> · " +
+        "<span style='color:#a78bfa'>Vacation " + (summary.totalVacation || 0) + "</span>" +
        "</div>")
     : '';
   hdr.innerHTML =
