@@ -126,6 +126,34 @@ function _travelRenderDashboard(trips) {
 
     section.appendChild(card);
   });
+
+  // Subtle "Clear test data" link at the bottom — only when test rows exist.
+  var hasTest = trips.some(function(trip) {
+    return trip.students.some(function(s) { return (s.method || '').toUpperCase() === 'TEST'; });
+  });
+  if (hasTest) {
+    var clearWrap = document.createElement('div');
+    clearWrap.style.cssText = 'margin-top:18px;display:flex;justify-content:center';
+    var clearBtn = document.createElement('button');
+    clearBtn.textContent = '× Clear test data (Travel + Skip Logs)';
+    clearBtn.style.cssText = 'padding:6px 12px;font-size:10px;background:transparent;color:var(--muted);border:1px dashed var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.3px';
+    clearBtn.onclick = _travelClearTestData;
+    clearWrap.appendChild(clearBtn);
+    section.appendChild(clearWrap);
+  }
+}
+
+function _travelClearTestData() {
+  if (!confirm('Delete all TEST trip rows and [TEST] Skip Logs entries?\n\nReal data is untouched. This cannot be undone.')) return;
+  var url = getScriptUrl(); if (!url) return;
+  callScript(url, 'clearTravelTestData', {}, function(data) {
+    if (data && data.success) {
+      addLog('travelFeed', '✓ Cleared ' + data.travelDeleted + ' travel rows · ' + data.logsDeleted + ' skip log rows', 'success');
+      _travelLoadDashboard();
+    } else {
+      addLog('travelFeed', '❌ ' + (data && data.message ? data.message : 'Clear failed'), 'error');
+    }
+  });
 }
 
 function _travelStudentRow(s) {
