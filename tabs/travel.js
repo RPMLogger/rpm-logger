@@ -224,9 +224,8 @@ function _travelRenderPreview() {
 }
 
 // ─── DATE SPINNER WIDGET ────────────────────────────────────────────────────
-// Month + day picker with ▲▼ arrows. Year is implicit (current year, auto-rolls
-// to next year if the chosen month/day is already in the past so you never end
-// up planning a trip backwards).
+// Inline keyboard-driven date picker: [Jun] / [02] / [2026]. Click a segment
+// to focus it, then arrow keys nudge that segment up/down. Compact, single line.
 
 var _SK_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -240,89 +239,97 @@ function _travelRenderDateSpinner(slotId, label, stateKey) {
   lbl.textContent = label;
   wrap.appendChild(lbl);
 
-  var d = _ymdToDate(_travelState[stateKey] || _dateToYmd(new Date()));
-  var month = d.getMonth();
-  var day   = d.getDate();
-
   var box = document.createElement('div');
-  box.style.cssText = 'display:flex;background:var(--bg);border:1px solid var(--border);border-radius:4px;overflow:hidden';
+  box.style.cssText = 'display:inline-flex;align-items:center;background:var(--bg);border:1px solid var(--border);' +
+    'border-radius:4px;padding:6px 10px;font-size:15px;color:var(--text);font-family:inherit';
 
-  box.appendChild(_travelSpinnerColumn(_SK_MONTHS[month], function(dir) {
-    var nm = (month + dir + 12) % 12;
-    _travelSetSpinnerDate(stateKey, nm, day);
-  }));
-  box.appendChild(_travelSpinnerColumn(String(day), function(dir) {
-    var maxDay = new Date(d.getFullYear(), month + 1, 0).getDate();
-    var nd = day + dir;
-    if (nd < 1)      nd = maxDay;
-    if (nd > maxDay) nd = 1;
-    _travelSetSpinnerDate(stateKey, month, nd);
-  }, true));
+  var monthSeg = _travelDateSeg();
+  var daySeg   = _travelDateSeg();
+  var yearSeg  = _travelDateSeg();
+
+  function refresh() {
+    var d = _ymdToDate(_travelState[stateKey]);
+    monthSeg.textContent = _SK_MONTHS[d.getMonth()];
+    daySeg.textContent   = _travelZeroPad(d.getDate());
+    yearSeg.textContent  = String(d.getFullYear());
+  }
+
+  function step(which, dir) {
+    var d = _ymdToDate(_travelState[stateKey]);
+    var y = d.getFullYear();
+    var m = d.getMonth();
+    var dd = d.getDate();
+    if (which === 'month')      m  = (m + dir + 12) % 12;
+    else if (which === 'year')  y  = y + dir;
+    else if (which === 'day') {
+      var maxNow = new Date(y, m + 1, 0).getDate();
+      dd = dd + dir;
+      if (dd < 1)        dd = maxNow;
+      if (dd > maxNow)   dd = 1;
+    }
+    // Clamp day to new month length (e.g., May 31 → Apr clamps to 30).
+    var maxNew = new Date(y, m + 1, 0).getDate();
+    if (dd > maxNew) dd = maxNew;
+
+    var ymd = y + '-' + _travelZeroPad(m + 1) + '-' + _travelZeroPad(dd);
+    _travelState[stateKey] = ymd;
+    if (stateKey === 'leaving')  _travelState.firstOff  = ymd;
+    if (stateKey === 'arriving') _travelState.firstBack = ymd;
+
+    refresh();
+    _travelRebuildWeeks();
+    _travelFetchPreview();
+  }
+
+  function arrowHandler(which) {
+    return function(e) {
+      if (e.key === 'ArrowUp')   { e.preventDefault(); step(which, +1); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); step(which, -1); }
+    };
+  }
+
+  monthSeg.onkeydown = arrowHandler('month');
+  daySeg.onkeydown   = arrowHandler('day');
+  yearSeg.onkeydown  = arrowHandler('year');
+
+  box.appendChild(monthSeg);
+  box.appendChild(_travelDateSlash());
+  box.appendChild(daySeg);
+  box.appendChild(_travelDateSlash());
+  box.appendChild(yearSeg);
 
   wrap.appendChild(box);
+  refresh();
 }
 
-// One stacked column: ▲ on top, value in middle, ▼ on bottom.
-function _travelSpinnerColumn(text, onStep, leftBorder) {
-  var col = document.createElement('div');
-  col.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:stretch;' +
-    (leftBorder ? 'border-left:1px solid var(--border);' : '');
-
-  var up = _travelSpinnerBtn('▲');
-  up.onclick = function() { onStep(+1); };
-  col.appendChild(up);
-
-  var val = document.createElement('div');
-  val.style.cssText = 'text-align:center;padding:4px;font-size:18px;font-weight:600;color:var(--text);line-height:1.1';
-  val.textContent = text;
-  col.appendChild(val);
-
-  var down = _travelSpinnerBtn('▼');
-  down.onclick = function() { onStep(-1); };
-  col.appendChild(down);
-
-  return col;
-}
-
-function _travelSpinnerBtn(glyph) {
+function _travelDateSeg() {
   var b = document.createElement('button');
-  b.textContent = glyph;
-  b.style.cssText = 'background:transparent;border:none;color:var(--muted);cursor:pointer;padding:4px;font-size:11px;line-height:1;font-family:inherit';
-  b.onmouseenter = function() { b.style.color = 'var(--accent)'; };
-  b.onmouseleave = function() { b.style.color = 'var(--muted)'; };
+  b.type = 'button';
+  b.tabIndex = 0;
+  b.style.cssText =
+    'background:transparent;border:none;color:inherit;font-family:inherit;font-size:inherit;font-weight:600;' +
+    'padding:2px 6px;cursor:pointer;border-radius:3px;outline:none;letter-spacing:0.3px';
+  b.onfocus = function() {
+    b.style.background = 'rgba(232,70,58,0.18)';
+    b.style.color = 'var(--accent)';
+  };
+  b.onblur = function() {
+    b.style.background = 'transparent';
+    b.style.color = 'inherit';
+  };
+  b.onclick = function() { b.focus(); };
   return b;
 }
 
-// Pick the year automatically: current year, or next year if the month/day
-// has already passed.
-function _travelSetSpinnerDate(stateKey, monthIdx, day) {
-  var today = new Date();
-  var todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  var year = today.getFullYear();
+function _travelDateSlash() {
+  var s = document.createElement('span');
+  s.textContent = '/';
+  s.style.cssText = 'color:var(--muted);margin:0 1px;font-weight:400';
+  return s;
+}
 
-  // Clamp day to month length first (current year context for now).
-  var maxDay = new Date(year, monthIdx + 1, 0).getDate();
-  if (day > maxDay) day = maxDay;
-  if (day < 1)      day = 1;
-
-  var candidate = new Date(year, monthIdx, day);
-  if (candidate < todayMid) {
-    year++;
-    // Re-clamp in case Feb 29 → Feb 28 across leap years.
-    maxDay = new Date(year, monthIdx + 1, 0).getDate();
-    if (day > maxDay) day = maxDay;
-    candidate = new Date(year, monthIdx, day);
-  }
-  var ymd = _dateToYmd(candidate);
-
-  _travelState[stateKey] = ymd;
-  if (stateKey === 'leaving')  _travelState.firstOff  = ymd;
-  if (stateKey === 'arriving') _travelState.firstBack = ymd;
-
-  _travelRenderDateSpinner('travelLeavingSlot',  'Leaving',  'leaving');
-  _travelRenderDateSpinner('travelArrivingSlot', 'Arriving', 'arriving');
-  _travelRebuildWeeks();
-  _travelFetchPreview();
+function _travelZeroPad(n) {
+  return n < 10 ? '0' + n : '' + n;
 }
 
 function _travelRebuildWeeks() {
