@@ -442,7 +442,8 @@ function _travelExecute() {
   var url = getScriptUrl(); if (!url) return;
   callScript(url, 'executeTravel', _travelTestArgs({ start: _travelState.firstOff, end: _travelState.firstBack }), function(data) {
     if (data && data.success) {
-      addLog('travelFeed', '✓ Deleted ' + data.deleted + ' events · logged ' + data.studentsLogged + ' students', 'success');
+      var skipsLine = (data.skipsLogged != null) ? ' · ' + data.skipsLogged + ' teacher skips logged' : '';
+      addLog('travelFeed', '✓ Deleted ' + data.deleted + ' events · logged ' + data.studentsLogged + ' students' + skipsLine, 'success');
       _travelState.leaving = ''; _travelState.arriving = '';
       _travelState.firstOff = ''; _travelState.firstBack = '';
       _travelState.preview = null;
