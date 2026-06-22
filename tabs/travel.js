@@ -224,8 +224,8 @@ function _travelRenderPreview() {
     "<div id='travelArrivingSlot' style='flex:1'></div>";
   section.appendChild(inputs);
 
-  _travelRenderDateSpinner('travelLeavingSlot',  'Leaving',  'leaving');
-  _travelRenderDateSpinner('travelArrivingSlot', 'Arriving', 'arriving');
+  _travelRenderDateSpinner('travelLeavingSlot',  'Leaving',  'leaving',  0);
+  _travelRenderDateSpinner('travelArrivingSlot', 'Arriving', 'arriving', 2);
 
   // Mon-Sun day strips for buffer selection
   var leavingWeek = document.createElement('div');
@@ -253,11 +253,12 @@ function _travelRenderPreview() {
 
 // ─── DATE SPINNER WIDGET ────────────────────────────────────────────────────
 // Inline keyboard-driven date picker: [Jun] / [02] / [2026]. Click a segment
-// to focus it, then arrow keys nudge that segment up/down. Compact, single line.
+// to focus it, then ↑↓ nudges the value, ←→ moves focus across the four main
+// fields (Leaving Mo, Leaving Day, Arriving Mo, Arriving Day), skipping year.
 
 var _SK_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-function _travelRenderDateSpinner(slotId, label, stateKey) {
+function _travelRenderDateSpinner(slotId, label, stateKey, baseOrder) {
   var wrap = document.getElementById(slotId);
   if (!wrap) return;
   wrap.innerHTML = '';
@@ -272,7 +273,9 @@ function _travelRenderDateSpinner(slotId, label, stateKey) {
     'border-radius:4px;padding:6px 10px;font-size:15px;color:var(--text);font-family:inherit';
 
   var monthSeg = _travelDateSeg();
+  monthSeg.dataset.navOrder = String(baseOrder);     // 0 or 2
   var daySeg   = _travelDateSeg();
+  daySeg.dataset.navOrder = String(baseOrder + 1);   // 1 or 3
   var yearSeg  = _travelDateSeg();
 
   function refresh() {
@@ -309,16 +312,18 @@ function _travelRenderDateSpinner(slotId, label, stateKey) {
     _travelFetchPreview();
   }
 
-  function arrowHandler(which) {
+  function arrowHandler(which, hasLeftRight) {
     return function(e) {
-      if (e.key === 'ArrowUp')   { e.preventDefault(); step(which, +1); }
-      if (e.key === 'ArrowDown') { e.preventDefault(); step(which, -1); }
+      if (e.key === 'ArrowUp')    { e.preventDefault(); step(which, +1); return; }
+      if (e.key === 'ArrowDown')  { e.preventDefault(); step(which, -1); return; }
+      if (hasLeftRight && e.key === 'ArrowRight') { e.preventDefault(); _travelNavSeg(this, +1); return; }
+      if (hasLeftRight && e.key === 'ArrowLeft')  { e.preventDefault(); _travelNavSeg(this, -1); return; }
     };
   }
 
-  monthSeg.onkeydown = arrowHandler('month');
-  daySeg.onkeydown   = arrowHandler('day');
-  yearSeg.onkeydown  = arrowHandler('year');
+  monthSeg.onkeydown = arrowHandler('month', true);  // in nav rail
+  daySeg.onkeydown   = arrowHandler('day',   true);  // in nav rail
+  yearSeg.onkeydown  = arrowHandler('year',  false); // year is off the rail
 
   box.appendChild(monthSeg);
   box.appendChild(_travelDateSlash());
@@ -358,6 +363,18 @@ function _travelDateSlash() {
 
 function _travelZeroPad(n) {
   return n < 10 ? '0' + n : '' + n;
+}
+
+// Move focus along the 4-spot nav rail: Leaving Mo → Leaving Day → Arriving Mo →
+// Arriving Day. Year segments are intentionally off the rail (click/Tab only).
+// dir = +1 (right) or -1 (left). Clamps at endpoints.
+function _travelNavSeg(seg, dir) {
+  var order = parseInt(seg.dataset.navOrder, 10);
+  if (isNaN(order)) return;
+  var target = order + dir;
+  if (target < 0 || target > 3) return;
+  var next = document.querySelector('[data-nav-order="' + target + '"]');
+  if (next) next.focus();
 }
 
 function _travelRebuildWeeks() {
