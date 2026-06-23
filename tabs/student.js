@@ -241,11 +241,30 @@ function _stRenderAudit(data) {
     "<div style='font-size:14px;color:" + color + ";font-weight:600'>● " + (data.paymentStatus || '—') + "</div>";
   section.appendChild(payBox);
 
-  // Counter dates vs Import dates
+  // Sync check: only flags Counter dates absent from Import. Import naturally
+  // has more entries (full history vs active block), so we don't surface that
+  // as a problem.
+  var missing = data.missingFromImport || [];
+  var syncBox = document.createElement('div');
+  syncBox.style.cssText = 'padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--panel);margin-bottom:10px';
+  if (!missing.length) {
+    syncBox.innerHTML =
+      "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Counter ↔ Import</div>" +
+      "<div style='font-size:13px;color:var(--green);font-weight:600'>✓ All Counter dates present in Import</div>";
+  } else {
+    syncBox.innerHTML =
+      "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Missing from Import</div>" +
+      missing.map(function(d) {
+        return "<div style='font-size:13px;color:#ffb400;font-weight:600'>● " + d + "</div>";
+      }).join('');
+  }
+  section.appendChild(syncBox);
+
+  // Reference view: raw recent dates from each source, collapsed by default.
   var datesBox = document.createElement('div');
   datesBox.style.cssText = 'padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--panel);margin-bottom:10px';
   datesBox.innerHTML =
-    "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px'>Last 12 lesson dates</div>" +
+    "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px'>Last 12 lesson dates <span style=\"text-transform:none;letter-spacing:0;color:var(--muted);opacity:0.7\">(reference)</span></div>" +
     "<div style='display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:11px'>" +
       "<div>" +
         "<div style='color:var(--muted);margin-bottom:4px;letter-spacing:0.3px'>COUNTER</div>" +
@@ -260,7 +279,7 @@ function _stRenderAudit(data) {
 
   var hint = document.createElement('div');
   hint.style.cssText = 'font-size:11px;color:var(--muted);padding:0 4px';
-  hint.textContent = 'Mismatches between Counter and Import indicate the lesson logger missed a date. Use the main Audit tab to drill into specific cells.';
+  hint.textContent = 'Import is the full lesson history; Counter is just the active block. Extra entries in Import are normal.';
   section.appendChild(hint);
 }
 
