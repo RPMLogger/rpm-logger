@@ -231,6 +231,87 @@ function _loadFixData(studentName) {
     });
 }
 
+// ─── MON/DAY DATE SPINNER (no year) — same feel as the Travel picker ────────
+var _FIX_MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function _fixParseMonDay(disp) {
+  var m = (disp || "").trim().match(/([A-Za-z]{3})[^\d]*(\d{1,2})/);
+  if (!m) return null;
+  var mon = _FIX_MONTHS.indexOf(m[1].charAt(0).toUpperCase() + m[1].slice(1, 3).toLowerCase());
+  if (mon < 0) return null;
+  return { mon: mon, day: parseInt(m[2], 10) };
+}
+
+// Pick the year that lands mon/day nearest today (handles Dec viewed in Jan).
+function _fixInferYear(mon, day) {
+  var now = new Date(), y = now.getFullYear();
+  var cand = new Date(y, mon, day);
+  if ((cand - now) > 60 * 24 * 60 * 60 * 1000) y--;
+  return y;
+}
+
+function _fixDateSeg() {
+  var b = document.createElement("button");
+  b.type = "button"; b.tabIndex = 0;
+  b.style.cssText = "background:transparent;border:none;color:inherit;font-family:inherit;font-size:11px;font-weight:600;padding:2px 5px;cursor:pointer;border-radius:3px;outline:none";
+  b.onfocus = function() { b.style.background = "rgba(232,70,58,0.18)"; b.style.color = "var(--accent)"; };
+  b.onblur  = function() { b.style.background = "transparent"; b.style.color = "inherit"; };
+  b.onclick = function() { b.focus(); };
+  return b;
+}
+
+// Inline [Mon] [DD] spinner, no year. Click a segment, ↑↓ nudges it.
+// Returns { box, getValue }. getValue() → "" if blank, else "MMM d, yyyy"
+// (year inferred on save so the cell stays a real date).
+function _fixDateSpinner(initialDisp) {
+  var p = _fixParseMonDay(initialDisp);
+  var state = { mon: p ? p.mon : null, day: p ? p.day : null };
+
+  var box = document.createElement("span");
+  box.style.cssText = "display:inline-flex;align-items:center;gap:2px;color:var(--muted)";
+  var monSeg = _fixDateSeg(), daySeg = _fixDateSeg();
+
+  function refresh() {
+    monSeg.textContent = (state.mon != null) ? _FIX_MONTHS[state.mon] : "—";
+    daySeg.textContent = (state.day != null) ? String(state.day) : "—";
+  }
+  function step(which, dir) {
+    if (state.mon == null || state.day == null) {
+      var t = new Date(); state.mon = t.getMonth(); state.day = t.getDate(); refresh(); return;
+    }
+    if (which === "mon") {
+      state.mon = (state.mon + dir + 12) % 12;
+    } else {
+      var max = new Date(2024, state.mon + 1, 0).getDate();
+      state.day += dir;
+      if (state.day < 1) state.day = max;
+      if (state.day > max) state.day = 1;
+    }
+    var maxNew = new Date(2024, state.mon + 1, 0).getDate();
+    if (state.day > maxNew) state.day = maxNew;
+    refresh();
+  }
+  function handler(which) {
+    return function(e) {
+      if (e.key === "ArrowUp")   { e.preventDefault(); step(which, +1); }
+      if (e.key === "ArrowDown") { e.preventDefault(); step(which, -1); }
+    };
+  }
+  monSeg.onkeydown = handler("mon");
+  daySeg.onkeydown = handler("day");
+
+  box.appendChild(monSeg); box.appendChild(daySeg);
+  refresh();
+
+  return {
+    box: box,
+    getValue: function() {
+      if (state.mon == null || state.day == null) return "";
+      return _FIX_MONTHS[state.mon] + " " + state.day + ", " + _fixInferYear(state.mon, state.day);
+    }
+  };
+}
+
 function _renderFixData(d) {
   var body = document.getElementById("auditFixBody");
   body.innerHTML = "";
@@ -250,14 +331,12 @@ function _renderFixData(d) {
       var isEmpty = cell.empty;
       pill.style.cssText = "display:flex;align-items:center;gap:4px;padding:4px 6px;border:1px dashed " + (isEmpty ? "rgba(255,165,0,0.5)" : "var(--border)") + ";border-radius:4px;font-size:11px;background:" + (isEmpty ? "rgba(255,165,0,0.05)" : "transparent");
       pill.innerHTML = "<span style=\"color:var(--muted);opacity:0.6;flex-shrink:0\">" + cell.col + ":</span>";
-      var dateInput = document.createElement("input");
-      dateInput.type = "text"; dateInput.value = cell.value;
-      dateInput.placeholder = isEmpty ? "M/D/YYYY" : "";
-      dateInput.style.cssText = "flex:1;min-width:0;padding:2px 4px;background:transparent;color:var(--muted);border:none;font-size:11px";
-      pill.appendChild(dateInput);
+      var sp = _fixDateSpinner(cell.value);
+      sp.box.style.flex = "1";
+      pill.appendChild(sp.box);
       var saveBtn = document.createElement("button");
       saveBtn.textContent = "✓"; saveBtn.style.cssText = "padding:1px 5px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:2px;cursor:pointer;flex-shrink:0";
-      saveBtn.onclick = function() { _saveCounterField(d.counter.row, cell.col, dateInput.value, saveBtn); };
+      saveBtn.onclick = function() { _saveCounterField(d.counter.row, cell.col, sp.getValue(), saveBtn); };
       pill.appendChild(saveBtn);
       row.appendChild(pill);
     });
@@ -278,23 +357,23 @@ function _renderFixData(d) {
       row.style.cssText = "display:flex;gap:8px;align-items:center;margin:3px 0;font-size:11px;padding:3px 0;border-bottom:1px dashed rgba(255,255,255,0.05)";
       var prefix = "<span style=\"color:var(--muted);opacity:0.6;width:24px;display:inline-block\">" + (l.lessonNum != null ? "L" + l.lessonNum : "—") + "</span>";
       if (l.empty) {
-        row.innerHTML = prefix + "<span style=\"color:#ffa500;width:60px;font-size:10px\">empty</span>";
+        var pfx = document.createElement("span");
+        pfx.style.cssText = "color:var(--muted);opacity:0.6;width:24px;display:inline-block;flex-shrink:0";
+        pfx.textContent = (l.lessonNum != null ? "L" + l.lessonNum : "—");
+        row.appendChild(pfx);
         var subjIn = document.createElement("input");
         subjIn.type = "text"; subjIn.placeholder = "Subject";
         subjIn.style.cssText = "flex:1;padding:2px 6px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:11px";
-        var dateIn = document.createElement("input");
-        dateIn.type = "text"; dateIn.placeholder = "Date";
-        dateIn.style.cssText = "width:80px;padding:2px 6px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:11px";
+        var sp = _fixDateSpinner("");
+        sp.box.style.cssText += ";border:1px solid var(--border);border-radius:3px;padding:2px 6px;flex-shrink:0";
         var logBtn = document.createElement("button");
-        logBtn.textContent = "Log"; logBtn.style.cssText = "padding:3px 8px;font-size:11px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:3px;cursor:pointer";
-        logBtn.onclick = function() { _logImportRow(subjIn.value, dateIn.value, logBtn); };
-        row.appendChild(subjIn); row.appendChild(dateIn); row.appendChild(logBtn);
+        logBtn.textContent = "Log"; logBtn.style.cssText = "padding:3px 8px;font-size:11px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:3px;cursor:pointer;flex-shrink:0";
+        logBtn.onclick = function() { _logImportRow(subjIn.value, sp.getValue(), logBtn); };
+        row.appendChild(subjIn); row.appendChild(sp.box); row.appendChild(logBtn);
       } else {
-        var paidTag = l.paid ? "<span style=\"color:var(--green);font-size:10px\">✓ paid" + (l.paymentDate ? " " + l.paymentDate : "") + "</span>" : "";
         row.innerHTML = prefix +
           "<span style=\"color:var(--muted);width:60px\">" + (l.date || "—") + "</span>" +
-          "<span style=\"flex:1\">" + (l.subject || "<em style=\"color:var(--muted)\">(no subject)</em>") + "</span>" +
-          paidTag;
+          "<span style=\"flex:1\">" + (l.subject || "<em style=\"color:var(--muted)\">(no subject)</em>") + "</span>";
       }
       wrap.appendChild(row);
     });
@@ -307,11 +386,11 @@ function _renderFixData(d) {
   counterTitle.textContent = "RPM Counter (row " + d.counter.row + ")";
   body.appendChild(counterTitle);
 
-  // Counter dates are returned F→M; Block 1 (past) = J-M = indices 4-7; Block 2 (current) = F-I = indices 0-3
-  var pastBlock    = d.counter.dates.slice(4, 8);
-  var currentBlock = d.counter.dates.slice(0, 4);
-  body.appendChild(counterBlock("Block 1 (past)", pastBlock));
-  body.appendChild(counterBlock("Block 2 (current)", currentBlock));
+  // Counter dates come back oldest→newest: previous block first, current block last.
+  // Past block on top, current below (only show Past if there's a prior block).
+  var cDates = d.counter.dates || [];
+  if (cDates.length > 4) body.appendChild(counterBlock("Block (Past)", cDates.slice(0, cDates.length - 4)));
+  body.appendChild(counterBlock("Block (Current)", cDates.slice(Math.max(0, cDates.length - 4))));
 
   // Finished E
   var eRow = document.createElement("div");
@@ -340,11 +419,10 @@ function _renderFixData(d) {
     none.textContent = "No lessons logged";
     body.appendChild(none);
   } else {
-    // importLessons returned chronologically (oldest first). First 4 = past, last 4 = current.
-    var importPast    = d.importLessons.slice(0, 4);
-    var importCurrent = d.importLessons.slice(4, 8);
-    if (importPast.length) body.appendChild(importBlock("Block 1 (past)", importPast));
-    if (importCurrent.length) body.appendChild(importBlock("Block 2 (current)", importCurrent));
+    // importLessons returned chronologically (oldest first): previous block then current.
+    var imp = d.importLessons;
+    if (imp.length > 4) body.appendChild(importBlock("Block (Past)", imp.slice(0, imp.length - 4)));
+    body.appendChild(importBlock("Block (Current)", imp.slice(Math.max(0, imp.length - 4))));
   }
 
   // ─── CALENDAR section ────────────────────────────────────────
