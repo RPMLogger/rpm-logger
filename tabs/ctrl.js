@@ -326,11 +326,11 @@ function _renderFixData(d) {
     wrap.appendChild(lbl);
     var row = document.createElement("div");
     row.style.cssText = "display:grid;grid-template-columns:repeat(4, 1fr);gap:6px";
-    cells.forEach(function(cell) {
+    cells.forEach(function(cell, i) {
       var pill = document.createElement("div");
       var isEmpty = cell.empty;
       pill.style.cssText = "display:flex;align-items:center;gap:4px;padding:4px 6px;border:1px dashed " + (isEmpty ? "rgba(255,165,0,0.5)" : "var(--border)") + ";border-radius:4px;font-size:11px;background:" + (isEmpty ? "rgba(255,165,0,0.05)" : "transparent");
-      pill.innerHTML = "<span style=\"color:var(--muted);opacity:0.6;flex-shrink:0\">" + cell.col + ":</span>";
+      pill.innerHTML = "<span style=\"color:var(--muted);opacity:0.6;flex-shrink:0\">" + (i + 1) + ":</span>";
       var sp = _fixDateSpinner(cell.value);
       sp.box.style.flex = "1";
       pill.appendChild(sp.box);
@@ -352,14 +352,15 @@ function _renderFixData(d) {
     lbl.style.cssText = "font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px";
     lbl.textContent = label;
     wrap.appendChild(lbl);
-    lessons.forEach(function(l) {
+    lessons.forEach(function(l, i) {
       var row = document.createElement("div");
       row.style.cssText = "display:flex;gap:8px;align-items:center;margin:3px 0;font-size:11px;padding:3px 0;border-bottom:1px dashed rgba(255,255,255,0.05)";
-      var prefix = "<span style=\"color:var(--muted);opacity:0.6;width:24px;display:inline-block\">" + (l.lessonNum != null ? "L" + l.lessonNum : "—") + "</span>";
+      var num = (l.lessonNum != null ? l.lessonNum : (i + 1));
+      var prefix = "<span style=\"color:var(--muted);opacity:0.6;width:24px;display:inline-block\">" + num + "</span>";
       if (l.empty) {
         var pfx = document.createElement("span");
         pfx.style.cssText = "color:var(--muted);opacity:0.6;width:24px;display:inline-block;flex-shrink:0";
-        pfx.textContent = (l.lessonNum != null ? "L" + l.lessonNum : "—");
+        pfx.textContent = num;
         row.appendChild(pfx);
         var subjIn = document.createElement("input");
         subjIn.type = "text"; subjIn.placeholder = "Subject";
@@ -383,14 +384,14 @@ function _renderFixData(d) {
   // ─── COUNTER section title ───────────────────────────────────
   var counterTitle = document.createElement("div");
   counterTitle.style.cssText = "font-size:13px;color:#fff;font-weight:600;margin:0 0 10px;padding-bottom:4px;border-bottom:1px solid var(--border)";
-  counterTitle.textContent = "RPM Counter (row " + d.counter.row + ")";
+  counterTitle.textContent = "RPM Counter";
   body.appendChild(counterTitle);
 
   // Counter dates come back oldest→newest: previous block first, current block last.
   // Past block on top, current below (only show Past if there's a prior block).
   var cDates = d.counter.dates || [];
-  if (cDates.length > 4) body.appendChild(counterBlock("Block (Past)", cDates.slice(0, cDates.length - 4)));
-  body.appendChild(counterBlock("Block (Current)", cDates.slice(Math.max(0, cDates.length - 4))));
+  if (cDates.length > 4) body.appendChild(counterBlock("Previous Block", cDates.slice(0, cDates.length - 4)));
+  body.appendChild(counterBlock("Current Block", cDates.slice(Math.max(0, cDates.length - 4))));
 
   // Finished E
   var eRow = document.createElement("div");
@@ -421,8 +422,8 @@ function _renderFixData(d) {
   } else {
     // importLessons returned chronologically (oldest first): previous block then current.
     var imp = d.importLessons;
-    if (imp.length > 4) body.appendChild(importBlock("Block (Past)", imp.slice(0, imp.length - 4)));
-    body.appendChild(importBlock("Block (Current)", imp.slice(Math.max(0, imp.length - 4))));
+    if (imp.length > 4) body.appendChild(importBlock("Previous Block", imp.slice(0, imp.length - 4)));
+    body.appendChild(importBlock("Current Block", imp.slice(Math.max(0, imp.length - 4))));
   }
 
   // ─── CALENDAR section ────────────────────────────────────────
