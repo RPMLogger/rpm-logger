@@ -1,0 +1,27 @@
+#!/bin/sh
+# Auto-stamp a monotonic build number into index.html on every commit, and
+# cache-bust the local script/style URLs with the same number (?v=N).
+#
+# Why: lets you tell at a glance whether a push went live — when you open the
+# app, the big BUILD number on the Home tab ticks up. The matching ?v=N on the
+# asset URLs forces the browser to fetch fresh JS/CSS, so no more hard-refresh.
+#
+# Installed by scripts/install-hooks.sh into .git/hooks/pre-commit.
+set -e
+
+ROOT="$(git rev-parse --show-toplevel)"
+F="$ROOT/index.html"
+[ -f "$F" ] || exit 0
+
+# Number of the commit about to be created = existing count + 1.
+N=$(( $(git rev-list --count HEAD 2>/dev/null || echo 0) + 1 ))
+
+tmp="$F.tmp.$$"
+sed -E \
+  -e "s#(src=\"tabs/[A-Za-z0-9._-]+\.js)(\?v=[0-9]+)?\"#\1?v=${N}\"#g" \
+  -e "s#(href=\"css/[A-Za-z0-9._-]+\.css)(\?v=[0-9]+)?\"#\1?v=${N}\"#g" \
+  -e "s#(id=\"buildNo\"[^>]*>)[0-9]+(<)#\1${N}\2#g" \
+  "$F" > "$tmp"
+mv "$tmp" "$F"
+
+git add "$F"
