@@ -308,7 +308,8 @@ function _fixDateSpinner(initialDisp) {
     getValue: function() {
       if (state.mon == null || state.day == null) return "";
       return _FIX_MONTHS[state.mon] + " " + state.day + ", " + _fixInferYear(state.mon, state.day);
-    }
+    },
+    clear: function() { state.mon = null; state.day = null; refresh(); }
   };
 }
 
@@ -334,10 +335,14 @@ function _renderFixData(d) {
       var sp = _fixDateSpinner(cell.value);
       sp.box.style.flex = "1";
       pill.appendChild(sp.box);
-      var saveBtn = document.createElement("button");
-      saveBtn.textContent = "✓"; saveBtn.style.cssText = "padding:1px 5px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:2px;cursor:pointer;flex-shrink:0";
-      saveBtn.onclick = function() { _saveCounterField(d.counter.row, cell.col, sp.getValue(), saveBtn); };
-      pill.appendChild(saveBtn);
+      var logBtn = document.createElement("button");
+      logBtn.textContent = "Log"; logBtn.style.cssText = "padding:1px 6px;font-size:10px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:3px;cursor:pointer;flex-shrink:0";
+      logBtn.onclick = function() { _saveCounterField(d.counter.row, cell.col, sp.getValue(), logBtn); };
+      pill.appendChild(logBtn);
+      var clrBtn = document.createElement("button");
+      clrBtn.textContent = "✕"; clrBtn.title = "Clear date"; clrBtn.style.cssText = "padding:1px 5px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:3px;cursor:pointer;flex-shrink:0";
+      clrBtn.onclick = function() { sp.clear(); _saveCounterField(d.counter.row, cell.col, "", clrBtn); };
+      pill.appendChild(clrBtn);
       row.appendChild(pill);
     });
     wrap.appendChild(row);
