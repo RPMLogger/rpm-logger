@@ -358,6 +358,15 @@ function _stBuildWeekStrip(monday, byDate, today, studentName) {
     var isPast = d < today;
     var dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
 
+    // On the 1st of a month, show the month abbreviation instead of the
+    // weekday so the start of each month is visible at a glance.
+    var isFirst = d.getDate() === 1;
+    var topLabel = isFirst
+      ? ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()]
+      : dayName.toUpperCase();
+    var topStyle = 'font-size:9px;line-height:1;letter-spacing:0.5px'
+      + (isFirst ? ';color:var(--accent);font-weight:700' : '');
+
     var cell = document.createElement('button');
     cell.style.cssText = 'flex:1;padding:6px 4px;border-radius:4px;font-family:inherit;border:1px solid transparent;';
     if (lesson && !isPast) {
@@ -365,7 +374,7 @@ function _stBuildWeekStrip(monday, byDate, today, studentName) {
         'background:rgba(232,70,58,0.18);color:var(--accent);' +
         'border:1px solid rgba(232,70,58,0.5);cursor:pointer';
       cell.innerHTML =
-        "<div style='font-size:9px;line-height:1;letter-spacing:0.5px'>" + dayName.toUpperCase() + "</div>" +
+        "<div style='" + topStyle + "'>" + topLabel + "</div>" +
         "<div style='font-size:15px;font-weight:700;line-height:1.3'>" + d.getDate() + "</div>" +
         "<div style='font-size:9px;line-height:1.2;color:var(--accent);opacity:0.85'>" + lesson.time + "</div>";
       (function(l) {
@@ -375,7 +384,7 @@ function _stBuildWeekStrip(monday, byDate, today, studentName) {
       cell.style.cssText +=
         'background:transparent;color:' + (isPast ? 'rgba(180,180,180,0.2)' : 'rgba(180,180,180,0.4)') + ';cursor:default';
       cell.innerHTML =
-        "<div style='font-size:9px;line-height:1;letter-spacing:0.5px'>" + dayName.toUpperCase() + "</div>" +
+        "<div style='" + topStyle + "'>" + topLabel + "</div>" +
         "<div style='font-size:13px;line-height:1.3'>" + d.getDate() + "</div>" +
         "<div style='font-size:9px;line-height:1.2'>&nbsp;</div>";
     }
