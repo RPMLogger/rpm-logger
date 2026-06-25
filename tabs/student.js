@@ -18,7 +18,8 @@ var _stState = {
   view:     'search',  // 'search' | 'detail' | 'audit' | 'calendar'
   roster:   null,      // cached list of student names
   current:  null,      // current student detail object
-  lessons:  null       // current student's upcoming lessons (calendar view)
+  lessons:  null,      // current student's upcoming lessons (calendar view)
+  reschedule: null     // { studentName, lesson } while a drag-to-move is active
 };
 
 function initStudentTab() {
@@ -287,6 +288,7 @@ function _stRenderAudit(data) {
 // ─── 4) CALENDAR DRILL-DOWN (per-student 8-week strips) ─────────────────────
 
 function _stOpenCalendar() {
+  _stState.reschedule = null; // never resume a stale drag on a fresh load
   var section = document.getElementById('studentBody');
   section.innerHTML = '<div class="empty-state">Loading calendar...</div>';
   var url = getScriptUrl(); if (!url) return;
@@ -344,8 +346,12 @@ function _stRenderCalendar() {
 
   var hint = document.createElement('div');
   hint.style.cssText = 'font-size:11px;color:var(--muted);text-align:center;margin-top:12px';
-  hint.textContent = 'Tap a red lesson day to mark it as skipped.';
+  hint.textContent = _stState.reschedule
+    ? 'Drag the highlighted lesson onto a new day.'
+    : 'Tap a lesson day to reschedule or skip it.';
   section.appendChild(hint);
+
+  if (_stState.reschedule) _stEnableRescheduleDrag(section);
 }
 
 function _stBuildWeekStrip(monday, byDate, today, studentName) {
@@ -369,6 +375,11 @@ function _stBuildWeekStrip(monday, byDate, today, studentName) {
 
     var cell = document.createElement('button');
     cell.style.cssText = 'flex:1;padding:6px 4px;border-radius:4px;font-family:inherit;border:1px solid transparent;';
+    // Tag every cell with its date + whether it holds a lesson, so the
+    // reschedule drag can find drop targets and skip past/lesson days.
+    cell.dataset.ymd  = ymd;
+    cell.dataset.past = isPast ? '1' : '0';
+    cell.dataset.has  = (lesson && !isPast) ? '1' : '0';
     if (lesson && !isPast) {
       cell.style.cssText +=
         'background:rgba(232,70,58,0.18);color:var(--accent);' +
@@ -378,7 +389,7 @@ function _stBuildWeekStrip(monday, byDate, today, studentName) {
         "<div style='font-size:15px;font-weight:700;line-height:1.3'>" + d.getDate() + "</div>" +
         "<div style='font-size:9px;line-height:1.2;color:var(--accent);opacity:0.85'>" + lesson.time + "</div>";
       (function(l) {
-        cell.onclick = function() { _stOpenSkipModal(studentName, l); };
+        cell.onclick = function() { _stOpenLessonActions(studentName, l); };
       })(lesson);
     } else {
       cell.style.cssText +=
@@ -402,11 +413,11 @@ function _stOpenSkipModal(studentName, lesson) {
 
   var overlay = document.createElement('div');
   overlay.id = 'stSkipModal';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px';
   overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
 
   var box = document.createElement('div');
-  box.style.cssText = 'background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:18px;max-width:420px;width:100%';
+  box.style.cssText = 'background:#141414;border:1px solid var(--border);border-radius:8px;padding:18px;max-width:420px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,0.6)';
   overlay.appendChild(box);
   box.innerHTML =
     "<div style='font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Mark Skip</div>" +
@@ -467,6 +478,222 @@ function _stOpenSkipModal(studentName, lesson) {
     });
   };
 }
+
+
+// ─── LESSON ACTIONS (Reschedule / Skip chooser) ─────────────────────────────
+// Tapping a red lesson day opens this chooser first. Skip → the existing skip
+// modal (unchanged). Reschedule → drag-to-move mode within the 8-week grid.
+
+function _stOpenLessonActions(studentName, lesson) {
+  var existing = document.getElementById('stActionModal');
+  if (existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'stActionModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px';
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+
+  var box = document.createElement('div');
+  box.style.cssText = 'background:#141414;border:1px solid var(--border);border-radius:8px;padding:18px;max-width:420px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,0.6)';
+  box.innerHTML =
+    "<div style='font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Lesson</div>" +
+    "<div style='font-weight:700;font-size:14px;margin-bottom:2px'>" + studentName + "</div>" +
+    "<div style='font-size:12px;color:var(--muted);margin-bottom:16px'>" + lesson.dateLabel + " · " + lesson.time + "</div>" +
+    "<div style='display:flex;gap:8px;margin-bottom:8px'>" +
+      "<button id='stActReschedule' style='flex:1;padding:12px;font-size:13px;background:rgba(91,157,255,0.16);color:#5b9dff;border:1px solid rgba(91,157,255,0.55);border-radius:5px;cursor:pointer;font-weight:600;letter-spacing:0.5px'>Reschedule</button>" +
+      "<button id='stActSkip' style='flex:1;padding:12px;font-size:13px;background:rgba(232,70,58,0.16);color:var(--accent);border:1px solid rgba(232,70,58,0.55);border-radius:5px;cursor:pointer;font-weight:600;letter-spacing:0.5px'>Skip</button>" +
+    "</div>" +
+    "<button id='stActCancel' style='width:100%;padding:9px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:5px;cursor:pointer'>Cancel</button>";
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  document.getElementById('stActCancel').onclick     = function() { overlay.remove(); };
+  document.getElementById('stActSkip').onclick       = function() { overlay.remove(); _stOpenSkipModal(studentName, lesson); };
+  document.getElementById('stActReschedule').onclick = function() { overlay.remove(); _stBeginReschedule(studentName, lesson); };
+}
+
+
+// ─── RESCHEDULE (drag a lesson to a new day, within the visible 8 weeks) ─────
+
+function _stBeginReschedule(studentName, lesson) {
+  _stState.reschedule = { studentName: studentName, lesson: lesson };
+  _stRenderCalendar();
+}
+
+function _stCancelReschedule() {
+  _stState.reschedule = null;
+  _stRenderCalendar();
+}
+
+// Called from _stRenderCalendar when a reschedule is in progress. Adds the
+// banner and wires pointer-drag from the source lesson cell onto any other
+// (non-past) day cell in the grid.
+function _stEnableRescheduleDrag(section) {
+  var rs      = _stState.reschedule;
+  var lesson  = rs.lesson;
+  var srcCell = section.querySelector('[data-ymd="' + lesson.date + '"]');
+
+  // Banner at the top of the calendar.
+  var banner = document.createElement('div');
+  banner.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px;background:rgba(91,157,255,0.12);border:1px solid rgba(91,157,255,0.45);border-radius:6px;padding:10px 12px;margin-bottom:12px';
+  banner.innerHTML =
+    "<div style='font-size:12px;color:#9ec3ff;line-height:1.4'>Drag <b>" + rs.studentName + "</b>'s lesson (" + lesson.dateLabel + ") to a new day.</div>" +
+    "<button id='stRsCancel' style='flex:0 0 auto;padding:6px 12px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>Cancel</button>";
+  section.insertBefore(banner, section.children[1] || null);
+  banner.querySelector('#stRsCancel').onclick = _stCancelReschedule;
+
+  if (!srcCell) return;
+
+  // Highlight the source cell as "the one being moved".
+  srcCell.style.outline = '2px dashed #5b9dff';
+  srcCell.style.outlineOffset = '1px';
+  srcCell.style.touchAction = 'none';
+
+  var ghost = null, lastTarget = null, dragging = false;
+
+  function clearTarget() {
+    if (lastTarget) { lastTarget.style.boxShadow = ''; lastTarget.style.background = lastTarget.dataset.bg || ''; }
+    lastTarget = null;
+  }
+
+  function targetUnder(x, y) {
+    var el = document.elementFromPoint(x, y);
+    if (!el) return null;
+    var cell = el.closest ? el.closest('[data-ymd]') : null;
+    if (!cell || !section.contains(cell)) return null;
+    if (cell === srcCell) return null;
+    if (cell.dataset.past === '1') return null; // can't move into the past
+    return cell;
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    if (ghost) { ghost.style.left = e.clientX + 'px'; ghost.style.top = e.clientY + 'px'; }
+    var t = targetUnder(e.clientX, e.clientY);
+    if (t !== lastTarget) {
+      clearTarget();
+      if (t) {
+        if (!t.dataset.bg) t.dataset.bg = t.style.background || '';
+        t.style.boxShadow = 'inset 0 0 0 2px #5b9dff';
+        t.style.background = 'rgba(91,157,255,0.14)';
+        lastTarget = t;
+      }
+    }
+  }
+
+  function onUp(e) {
+    if (!dragging) return;
+    dragging = false;
+    document.removeEventListener('pointermove', onMove, true);
+    document.removeEventListener('pointerup', onUp, true);
+    if (ghost) { ghost.remove(); ghost = null; }
+    var t = lastTarget;
+    clearTarget();
+    if (t) _stOpenTimeConfirm(rs.studentName, lesson, t.dataset.ymd);
+  }
+
+  srcCell.addEventListener('pointerdown', function(e) {
+    e.preventDefault();
+    dragging = true;
+    ghost = document.createElement('div');
+    ghost.style.cssText = 'position:fixed;left:' + e.clientX + 'px;top:' + e.clientY + 'px;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;background:rgba(91,157,255,0.95);color:#06203f;font-weight:700;font-size:12px;padding:6px 10px;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,0.5)';
+    ghost.textContent = rs.studentName.split(' ')[0] + ' · ' + lesson.time;
+    document.body.appendChild(ghost);
+    document.addEventListener('pointermove', onMove, true);
+    document.addEventListener('pointerup', onUp, true);
+  });
+}
+
+// After a drop, confirm the new day and let the user adjust the time
+// (prefilled from the original lesson). Confirm → backend move → refresh.
+function _stOpenTimeConfirm(studentName, lesson, newYmd) {
+  var t = _stParseTime(lesson.time); // { h12, min, ap }
+  var state = { h12: t.h12, min: t.min, ap: t.ap };
+
+  var parts = newYmd.split('-');
+  var nd = new Date(parseInt(parts[0],10), parseInt(parts[1],10) - 1, parseInt(parts[2],10));
+  var dayLabel = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][nd.getDay()] + ' ' +
+                 ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][nd.getMonth()] + ' ' + nd.getDate();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'stTimeModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px';
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+
+  var box = document.createElement('div');
+  box.style.cssText = 'background:#141414;border:1px solid var(--border);border-radius:8px;padding:18px;max-width:420px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,0.6)';
+  function spinSeg(id, val) {
+    return "<div style='display:flex;flex-direction:column;align-items:center;gap:4px'>" +
+      "<button data-spin='" + id + "' data-dir='1' style='width:42px;padding:4px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>▲</button>" +
+      "<div id='stSeg_" + id + "' style='font-size:20px;font-weight:700;min-width:42px;text-align:center'>" + val + "</div>" +
+      "<button data-spin='" + id + "' data-dir='-1' style='width:42px;padding:4px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>▼</button>" +
+    "</div>";
+  }
+  box.innerHTML =
+    "<div style='font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Reschedule</div>" +
+    "<div style='font-weight:700;font-size:14px;margin-bottom:2px'>" + studentName + "</div>" +
+    "<div style='font-size:12px;color:var(--muted);margin-bottom:14px'>Move to <b style='color:#5b9dff'>" + dayLabel + "</b></div>" +
+    "<div style='display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px'>" +
+      spinSeg('h', state.h12) +
+      "<div style='font-size:20px;font-weight:700;color:var(--muted)'>:</div>" +
+      spinSeg('m', _stPad2(state.min)) +
+      spinSeg('ap', state.ap) +
+    "</div>" +
+    "<div style='display:flex;gap:8px'>" +
+      "<button id='stTimeCancel' style='flex:0 0 auto;padding:10px 16px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>Cancel</button>" +
+      "<button id='stTimeConfirm' style='flex:1;padding:10px;font-size:12px;background:rgba(91,157,255,0.22);color:#5b9dff;border:1px solid #5b9dff;border-radius:4px;cursor:pointer;font-weight:600;letter-spacing:0.5px'>Confirm Move</button>" +
+    "</div>";
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  function redraw() {
+    document.getElementById('stSeg_h').textContent  = state.h12;
+    document.getElementById('stSeg_m').textContent  = _stPad2(state.min);
+    document.getElementById('stSeg_ap').textContent = state.ap;
+  }
+  box.querySelectorAll('[data-spin]').forEach(function(btn) {
+    btn.onclick = function() {
+      var seg = btn.dataset.spin, dir = parseInt(btn.dataset.dir, 10);
+      if (seg === 'h')  { state.h12 = ((state.h12 - 1 + dir + 12) % 12) + 1; }
+      if (seg === 'm')  { state.min = (state.min + dir * 5 + 60) % 60; }
+      if (seg === 'ap') { state.ap  = state.ap === 'AM' ? 'PM' : 'AM'; }
+      redraw();
+    };
+  });
+
+  document.getElementById('stTimeCancel').onclick = function() { overlay.remove(); };
+  document.getElementById('stTimeConfirm').onclick = function() {
+    var btn = document.getElementById('stTimeConfirm');
+    btn.disabled = true; btn.textContent = '…';
+    var h24 = (state.h12 % 12) + (state.ap === 'PM' ? 12 : 0);
+    var hhmm = _stPad2(h24) + ':' + _stPad2(state.min);
+    var url = getScriptUrl(); if (!url) { overlay.remove(); return; }
+    callScript(url, 'rescheduleLesson', {
+      name: studentName, date: lesson.date, newDate: newYmd, time: hhmm
+    }, function(data) {
+      if (data && data.success) {
+        overlay.remove();
+        _stState.reschedule = null;
+        addLog('studentFeed', '📅 ' + studentName + ' moved to ' + data.newLabel + ' · ' + data.newTime, 'success');
+        _stOpenCalendar(); // refresh — lesson now sits on the new day
+      } else {
+        var b = document.getElementById('stTimeConfirm');
+        if (b) { b.disabled = false; b.textContent = 'Confirm Move'; }
+        addLog('studentFeed', '❌ ' + (data && data.message ? data.message : 'Reschedule failed'), 'error');
+      }
+    });
+  };
+}
+
+function _stParseTime(s) {
+  // "3:30 PM" -> { h12:3, min:30, ap:'PM' }. Falls back to 3:00 PM.
+  var m = String(s || '').match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  if (!m) return { h12: 3, min: 0, ap: 'PM' };
+  return { h12: parseInt(m[1], 10), min: parseInt(m[2], 10), ap: m[3].toUpperCase() };
+}
+
+function _stPad2(n) { n = parseInt(n, 10); return n < 10 ? '0' + n : '' + n; }
 
 
 // ─── EXTERNAL LINKS ─────────────────────────────────────────────────────────
