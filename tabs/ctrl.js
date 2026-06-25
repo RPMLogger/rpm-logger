@@ -313,9 +313,30 @@ function _fixDateSpinner(initialDisp) {
   };
 }
 
+// Single-value keyboard cycler (e.g. Finished 1→2→3→4→1). ↑↓ steps, wraps.
+function _fixCycleSpinner(initial, min, max) {
+  var val = parseInt(initial, 10);
+  if (isNaN(val) || val < min || val > max) val = min;
+  var box = document.createElement("span");
+  box.style.cssText = "display:inline-flex;align-items:center;color:var(--text)";
+  var seg = _fixDateSeg();
+  function refresh() { seg.textContent = String(val); }
+  function step(dir) { val += dir; if (val > max) val = min; if (val < min) val = max; refresh(); }
+  seg.onkeydown = function(e) {
+    if (e.key === "ArrowUp")   { e.preventDefault(); step(+1); }
+    if (e.key === "ArrowDown") { e.preventDefault(); step(-1); }
+  };
+  box.appendChild(seg);
+  refresh();
+  return { box: box, getValue: function() { return String(val); } };
+}
+
 function _renderFixData(d) {
   var body = document.getElementById("auditFixBody");
   body.innerHTML = "";
+
+  var counterControls = []; // { col, sp } across both Counter blocks
+  var importControls  = []; // { subjIn, sp } for empty Students Import rows
 
   // Helper to render a Counter block (4 cells with inline date editing)
   function counterBlock(label, cells) {
@@ -335,13 +356,10 @@ function _renderFixData(d) {
       var sp = _fixDateSpinner(cell.value);
       sp.box.style.flex = "1";
       pill.appendChild(sp.box);
-      var logBtn = document.createElement("button");
-      logBtn.textContent = "Log"; logBtn.style.cssText = "padding:1px 6px;font-size:10px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:3px;cursor:pointer;flex-shrink:0";
-      logBtn.onclick = function() { _saveCounterField(d.counter.row, cell.col, sp.getValue(), logBtn); };
-      pill.appendChild(logBtn);
+      counterControls.push({ col: cell.col, sp: sp });
       var clrBtn = document.createElement("button");
       clrBtn.textContent = "✕"; clrBtn.title = "Clear date"; clrBtn.style.cssText = "padding:1px 5px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:3px;cursor:pointer;flex-shrink:0";
-      clrBtn.onclick = function() { sp.clear(); _saveCounterField(d.counter.row, cell.col, "", clrBtn); };
+      clrBtn.onclick = function() { sp.clear(); };
       pill.appendChild(clrBtn);
       row.appendChild(pill);
     });
@@ -372,10 +390,8 @@ function _renderFixData(d) {
         subjIn.style.cssText = "flex:1;padding:2px 6px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:11px";
         var sp = _fixDateSpinner("");
         sp.box.style.cssText += ";border:1px solid var(--border);border-radius:3px;padding:2px 6px;flex-shrink:0";
-        var logBtn = document.createElement("button");
-        logBtn.textContent = "Log"; logBtn.style.cssText = "padding:3px 8px;font-size:11px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:3px;cursor:pointer;flex-shrink:0";
-        logBtn.onclick = function() { _logImportRow(subjIn.value, sp.getValue(), logBtn); };
-        row.appendChild(subjIn); row.appendChild(sp.box); row.appendChild(logBtn);
+        row.appendChild(subjIn); row.appendChild(sp.box);
+        importControls.push({ subjIn: subjIn, sp: sp });
       } else {
         row.innerHTML = prefix +
           "<span style=\"color:var(--muted);width:60px\">" + (l.date || "—") + "</span>" +
@@ -398,20 +414,24 @@ function _renderFixData(d) {
   if (cDates.length > 4) body.appendChild(counterBlock("Previous Block", cDates.slice(0, cDates.length - 4)));
   body.appendChild(counterBlock("Current Block", cDates.slice(Math.max(0, cDates.length - 4))));
 
-  // Finished E
+  // Finished (E): keyboard 1→2→3→4 cycler (↑↓).
   var eRow = document.createElement("div");
-  eRow.style.cssText = "display:flex;gap:8px;align-items:center;margin:10px 0 4px";
+  eRow.style.cssText = "display:flex;gap:10px;align-items:center;margin:10px 0 4px";
   eRow.innerHTML = "<span style=\"color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:0.5px\">Finished (E):</span>";
-  var eInput = document.createElement("input");
-  eInput.type = "number"; eInput.min = "0"; eInput.max = "4";
-  eInput.value = d.counter.finished;
-  eInput.style.cssText = "width:50px;padding:3px 6px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:12px";
-  eRow.appendChild(eInput);
-  var eSave = document.createElement("button");
-  eSave.textContent = "Save"; eSave.style.cssText = "padding:3px 10px;font-size:11px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:3px;cursor:pointer";
-  eSave.onclick = function() { _saveCounterField(d.counter.row, "E", eInput.value, eSave); };
-  eRow.appendChild(eSave);
+  var finishedSp = _fixCycleSpinner(d.counter.finished, 1, 4);
+  finishedSp.box.style.cssText += ";border:1px solid var(--border);border-radius:3px;padding:2px 12px;font-size:13px";
+  eRow.appendChild(finishedSp.box);
   body.appendChild(eRow);
+
+  // One Log button commits the whole Counter row (all cells + Finished).
+  var counterLog = document.createElement("button");
+  counterLog.textContent = "Log to Counter";
+  counterLog.style.cssText = "margin-top:8px;padding:6px 16px;font-size:12px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:4px;cursor:pointer;font-weight:600";
+  counterLog.onclick = function() {
+    var fields = counterControls.map(function(c) { return { col: c.col, value: c.sp.getValue() }; });
+    _saveCounterRow(d.counter.row, fields, finishedSp.getValue(), counterLog);
+  };
+  body.appendChild(counterLog);
 
   // ─── STUDENTS IMPORT section title ───────────────────────────
   var importTitle = document.createElement("div");
@@ -431,6 +451,15 @@ function _renderFixData(d) {
     body.appendChild(importBlock("Current Block", imp.slice(Math.max(0, imp.length - 4))));
   }
 
+  // One Log button commits all filled-in Students Import rows.
+  if (importControls.length) {
+    var importLog = document.createElement("button");
+    importLog.textContent = "Log to Students Import";
+    importLog.style.cssText = "margin-top:6px;padding:6px 16px;font-size:12px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:4px;cursor:pointer;font-weight:600";
+    importLog.onclick = function() { _logImportSection(importControls, importLog); };
+    body.appendChild(importLog);
+  }
+
   // ─── CALENDAR section ────────────────────────────────────────
   var calTitle = document.createElement("div");
   calTitle.style.cssText = "font-size:13px;color:#fff;font-weight:600;margin:20px 0 10px;padding-bottom:4px;border-bottom:1px solid var(--border)";
@@ -441,6 +470,58 @@ function _renderFixData(d) {
   calRow.style.cssText = "font-size:11px;color:var(--muted);font-family:monospace";
   calRow.textContent = (d.calendar && d.calendar.length) ? d.calendar.join("  ·  ") : "No past events found";
   body.appendChild(calRow);
+}
+
+// Commit the whole Counter row at once: every block cell + Finished (E).
+function _saveCounterRow(row, fields, finished, btn) {
+  var url = getScriptUrl(); if (!url) return;
+  var orig = btn.textContent;
+  btn.textContent = "Saving..."; btn.disabled = true;
+  callScript(url, "saveCounterRow", {
+    row: row,
+    finished: finished,
+    fields: JSON.stringify(fields)
+  }, function(data) {
+    if (data && data.success) {
+      btn.textContent = "✓ Saved";
+      setTimeout(function() { if (_fixCurrentName) _loadFixData(_fixCurrentName); }, 500);
+    } else {
+      btn.textContent = orig; btn.disabled = false;
+      addLog("auditFeed", "❌ " + (data && data.message ? data.message : "Save failed"), "error");
+    }
+  });
+}
+
+// Log every filled-in empty Students Import row (subject + date) in sequence
+// via the existing logLesson endpoint. One button, N rows.
+function _logImportSection(controls, btn) {
+  var pending = controls.filter(function(c) { return c.subjIn.value.trim() && c.sp.getValue(); });
+  if (!pending.length) {
+    btn.textContent = "Fill subject + date";
+    setTimeout(function() { btn.textContent = "Log to Students Import"; btn.disabled = false; }, 1500);
+    return;
+  }
+  var url = getScriptUrl(); if (!url) return;
+  btn.textContent = "Logging..."; btn.disabled = true;
+  var i = 0, ok = 0;
+  function next() {
+    if (i >= pending.length) {
+      btn.textContent = "✓ Logged " + ok;
+      setTimeout(function() { if (_fixCurrentName) _loadFixData(_fixCurrentName); }, 600);
+      return;
+    }
+    var c = pending[i++];
+    callScript(url, "logLesson", {
+      studentName: _fixCurrentName,
+      subject:     (typeof toTitleCase === "function") ? toTitleCase(c.subjIn.value) : c.subjIn.value,
+      lessonDate:  c.sp.getValue(),
+      trialPaid:   "0"
+    }, function(data) {
+      if (data && data.success) ok++;
+      next();
+    });
+  }
+  next();
 }
 
 function _saveCounterField(row, col, value, btn) {
