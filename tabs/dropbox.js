@@ -259,10 +259,14 @@ function _dbRenderSharing(d, box) {
     return;
   }
   var labels = {
-    wrong:        { c: 'var(--accent)',  t: 'shared with a different email' },
-    notshared:    { c: 'var(--accent)',  t: 'not shared with anyone' },
+    notshared:    { c: 'var(--accent)',  t: 'NOT shared with anyone — student can\'t access' },
+    wrong:        { c: 'var(--accent2)', t: 'shared with a different address than on file — likely their other email, worth a glance' },
     noEmailOnFile:{ c: 'var(--muted)',   t: 'no email on file to compare' }
   };
+  var rank = { notshared: 0, wrong: 1, noEmailOnFile: 2 };
+  problems = problems.slice().sort(function (a, b) {
+    return (rank[a.status] || 9) - (rank[b.status] || 9);
+  });
   var html = '';
   problems.forEach(function (p) {
     var L = labels[p.status] || { c: 'var(--accent2)', t: p.status };
