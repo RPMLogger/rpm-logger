@@ -168,6 +168,10 @@ function renderDropbox(d) {
   // ── Audit: roster vs folders ──
   html += _dbAuditHtml(d.audit);
 
+  // ── On-demand sharing-recipient check ──
+  html += '<button class="refresh-btn" style="margin-bottom:14px" onclick="_dbCheckSharing()">🔗 Check who folders are shared with</button>';
+  html += '<div id="dbSharingResult" style="margin-bottom:8px"></div>';
+
   // ── Folders that have files ──
   if (full.length) {
     full.forEach(function (f, idx) {
@@ -229,6 +233,51 @@ function renderDropbox(d) {
   html += '<hr class="divider" style="margin-top:22px"><button class="refresh-btn" onclick="initDropboxTab()">⟳ Re-check Dropbox</button>';
 
   body.innerHTML = html;
+}
+
+// On-demand: check who each folder is actually shared with vs the email on file.
+function _dbCheckSharing() {
+  var url = getScriptUrl();
+  var box = document.getElementById('dbSharingResult');
+  if (!url || !box) return;
+  box.innerHTML = '<div class="empty-state">Checking who each folder is shared with… (a few seconds)</div>';
+  fetch(url + '?action=getDropboxSharing')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) { box.innerHTML = '<div class="empty-state">⚠ ' + (d.message || 'failed') + '</div>'; return; }
+      _dbRenderSharing(d, box);
+    })
+    .catch(function () { box.innerHTML = '<div class="empty-state">❌ Could not check sharing.</div>'; });
+}
+
+function _dbRenderSharing(d, box) {
+  var problems = d.problems || [];
+  if (!problems.length) {
+    box.innerHTML = '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);' +
+      'border-radius:10px;padding:13px 16px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted)">' +
+      '<span style="color:var(--green)">✓</span> All ' + d.total + ' folders shared with the student on file</div>';
+    return;
+  }
+  var labels = {
+    wrong:        { c: 'var(--accent)',  t: 'shared with a different email' },
+    notshared:    { c: 'var(--accent)',  t: 'not shared with anyone' },
+    noEmailOnFile:{ c: 'var(--muted)',   t: 'no email on file to compare' }
+  };
+  var html = '';
+  problems.forEach(function (p) {
+    var L = labels[p.status] || { c: 'var(--accent2)', t: p.status };
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' + L.c + ';' +
+      'border-radius:10px;padding:12px 16px;margin-bottom:8px">' +
+      '<div style="font-family:\'Syne\',sans-serif;font-size:15px;color:var(--text)">' + p.name + '</div>' +
+      '<div style="font-size:10px;color:var(--muted);margin:2px 0 6px">' + L.t + '</div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' +
+        '<span style="color:var(--muted)">On file:</span> ' + (p.expected || '—') + '<br>' +
+        '<span style="color:var(--muted)">Shared with:</span> ' + (p.sharedWith && p.sharedWith.length ? p.sharedWith.join(', ') : '(nobody)') +
+      '</div>' +
+    '</div>';
+  });
+  box.innerHTML = '<div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:4px 0 8px">' +
+    problems.length + ' to review · ' + d.okCount + ' ok</div>' + html;
 }
 
 function _dbToggleEmpty() {
