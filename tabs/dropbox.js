@@ -118,9 +118,8 @@ function _dbAuditHtml(audit) {
             '<span style="color:var(--muted)">Sheet:</span> <span style="color:var(--text)">' + mm.roster + '</span>' +
             '<span style="color:var(--muted)"> · Dropbox:</span> <span style="color:var(--text)">' + mm.folder + '</span>' +
           '</div>' +
-          '<div style="display:flex;gap:8px;margin-top:6px">' +
-            '<button class="db-mini-btn" onclick="_dbUseDropbox(\'' + r + '\',\'' + f + '\')">Use Dropbox spelling (fix sheet)</button>' +
-            '<button class="db-mini-btn" onclick="_dbUseSheet(\'' + r + '\',\'' + f + '\')">Use sheet spelling (rename folder)</button>' +
+          '<div style="margin-top:6px">' +
+            '<button class="db-mini-btn" onclick="_dbUseDropbox(\'' + r + '\',\'' + f + '\')">✓ Fix sheet → "' + mm.folder + '"</button>' +
           '</div>' +
         '</div>';
       }).join('') +
@@ -190,6 +189,9 @@ function renderDropbox(d) {
         '<div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:5px">need attention</div>' +
       '</div>' +
     '</div>';
+
+  // ── Inline status (no popups) ──
+  html += '<div id="dbActionStatus"></div>';
 
   // ── Audit: roster vs folders ──
   html += _dbAuditHtml(d.audit);
@@ -266,11 +268,20 @@ function _dbEsc(s) {
   return (s || '').toString().replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
 
-// Generic write call: POST an action, then refresh the tab on success.
-function _dbAction(params, confirmMsg) {
+// Quiet inline status (no popups).
+function _dbStatus(msg, color) {
+  var st = document.getElementById('dbActionStatus');
+  if (!st) return;
+  st.innerHTML = msg ? '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' +
+    (color || 'var(--muted)') + ';border-radius:8px;padding:10px 14px;margin-bottom:12px;' +
+    'font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' + msg + '</div>' : '';
+}
+
+// Generic write call: POST an action, refresh the tab on success, inline error otherwise.
+function _dbAction(params) {
   var url = getScriptUrl();
   if (!url) return;
-  if (confirmMsg && !confirm(confirmMsg)) return;
+  _dbStatus('Working…', 'var(--accent2)');
   var qs = Object.keys(params).map(function (k) {
     return k + '=' + encodeURIComponent(params[k]);
   }).join('&');
@@ -278,21 +289,14 @@ function _dbAction(params, confirmMsg) {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (d.success) { initDropboxTab(); }
-      else { alert('⚠ ' + (d.message || 'Failed')); }
+      else { _dbStatus('⚠ ' + (d.message || 'Failed'), 'var(--accent)'); }
     })
-    .catch(function () { alert('❌ Could not reach the portal.'); });
+    .catch(function () { _dbStatus('❌ Could not reach the portal.', 'var(--accent)'); });
 }
 
-// Mismatch: keep the Dropbox spelling → fix the sheet's name.
+// Mismatch: keep the Dropbox spelling → fix the sheet's name (no popup).
 function _dbUseDropbox(sheetName, dropboxName) {
-  _dbAction({ action: 'fixStudentName', from: sheetName, to: dropboxName },
-    'Change the sheet name\n\n  "' + sheetName + '"  →  "' + dropboxName + '"\n\nThe Dropbox folder stays as is. Continue?');
-}
-
-// Mismatch: keep the sheet spelling → rename the Dropbox folder.
-function _dbUseSheet(sheetName, dropboxName) {
-  _dbAction({ action: 'renameDropboxFolder', from: dropboxName, to: sheetName },
-    'Rename the Dropbox folder\n\n  "' + dropboxName + '"  →  "' + sheetName + '"\n\nThe share stays intact. Continue?');
+  _dbAction({ action: 'fixStudentName', from: sheetName, to: dropboxName });
 }
 
 // Missing: reveal the email field for a student.
@@ -301,13 +305,12 @@ function _dbShowCreate(i) {
   if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
-// Missing: create the folder and share it with the entered email.
+// Missing: create the folder and share it with the entered email (no popup).
 function _dbCreateFolder(name, i) {
   var input = document.getElementById('dbCreateEmail-' + i);
   var email = input ? input.value.trim() : '';
-  if (!email || email.indexOf('@') === -1) { alert('Enter a valid email to share the folder with.'); return; }
-  _dbAction({ action: 'createDropboxFolder', name: name, email: email },
-    'Create a Dropbox folder\n\n  "' + name + '"\n\nand share it with:\n  ' + email + '\n\nThis sends them an invite. Continue?');
+  if (!email || email.indexOf('@') === -1) { _dbStatus('Enter a valid email to share the folder with.', 'var(--accent)'); return; }
+  _dbAction({ action: 'createDropboxFolder', name: name, email: email });
 }
 
 // On-demand: check who each folder is actually shared with vs the email on file.
