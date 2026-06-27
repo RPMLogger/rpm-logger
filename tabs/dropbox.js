@@ -78,6 +78,41 @@ function _dbToggleFolder(idx) {
   panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
 }
 
+// Audit block: students missing a folder, and folders with no student.
+function _dbAuditHtml(audit) {
+  if (!audit) return '';
+  var missing = audit.missing || [];
+  var orphans = audit.orphans || [];
+  var html = '<div class="section-label" style="margin-top:4px;margin-bottom:10px">Folder Audit</div>';
+
+  if (!missing.length && !orphans.length) {
+    return html + '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);' +
+      'border-radius:10px;padding:13px 16px;margin-bottom:18px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted)">' +
+      '<span style="color:var(--green)">✓</span> Every student has a folder · no leftover folders</div>';
+  }
+
+  function block(title, names, color, sub) {
+    return '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' + color + ';' +
+      'border-radius:10px;padding:13px 16px;margin-bottom:10px">' +
+      '<div style="font-family:\'Syne\',sans-serif;font-size:14px;color:var(--text)">' + title + '</div>' +
+      '<div style="font-size:10px;color:var(--muted);margin:3px 0 8px">' + sub + '</div>' +
+      names.map(function (n) {
+        return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);padding:3px 0">' + n + '</div>';
+      }).join('') +
+    '</div>';
+  }
+
+  if (missing.length) {
+    html += block('⚠ ' + missing.length + ' student' + (missing.length === 1 ? '' : 's') + ' missing a folder',
+      missing, 'var(--accent)', 'In your roster but no Dropbox folder — needs one created');
+  }
+  if (orphans.length) {
+    html += block('🗑 ' + orphans.length + ' folder' + (orphans.length === 1 ? '' : 's') + ' with no student',
+      orphans, 'var(--accent2)', 'Dropbox folder but not in roster — likely former students');
+  }
+  return html + '<div style="height:8px"></div>';
+}
+
 function renderDropbox(d) {
   var body = document.getElementById('dropboxBody');
   var full = d.folders.filter(function (f) { return !f.empty; });
@@ -96,6 +131,9 @@ function renderDropbox(d) {
         '<div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:5px">need attention</div>' +
       '</div>' +
     '</div>';
+
+  // ── Audit: roster vs folders ──
+  html += _dbAuditHtml(d.audit);
 
   // ── Folders that have files ──
   if (full.length) {
