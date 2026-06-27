@@ -52,6 +52,32 @@ function _dbWebUrl(name) {
   return 'https://www.dropbox.com/home/' + encodeURIComponent(name);
 }
 
+// "Oct 16" style short date from an ISO string.
+function _dbShortDate(iso) {
+  if (!iso) return '';
+  var d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return M[d.getMonth()] + ' ' + d.getDate();
+}
+
+// Pick an icon by file extension.
+function _dbIcon(name) {
+  var ext = (name.split('.').pop() || '').toLowerCase();
+  if (['mp3','wav','m4a','aac','flac','aiff'].indexOf(ext) !== -1) return '🎵';
+  if (['mp4','mov','avi','m4v','mkv'].indexOf(ext) !== -1) return '🎬';
+  if (['jpg','jpeg','png','gif','heic','webp'].indexOf(ext) !== -1) return '🖼️';
+  if (ext === 'pdf') return '📕';
+  return '📄';
+}
+
+// Toggle a folder's inline file list open/closed.
+function _dbToggleFolder(idx) {
+  var panel = document.getElementById('dbFiles-' + idx);
+  if (!panel) return;
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
 function renderDropbox(d) {
   var body = document.getElementById('dropboxBody');
   var full = d.folders.filter(function (f) { return !f.empty; });
@@ -73,24 +99,38 @@ function renderDropbox(d) {
 
   // ── Folders that have files ──
   if (full.length) {
-    full.forEach(function (f) {
+    full.forEach(function (f, idx) {
       var col = _dbAgeColor(f.ageDays);
+      // Clickable header row — toggles the file list below it (stays in portal).
       html +=
-        '<a href="' + _dbWebUrl(f.name) + '" target="_blank" rel="noopener" ' +
-          'style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;' +
-          'background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' + col + ';' +
-          'border-radius:10px;padding:14px 16px;margin-bottom:10px">' +
-          '<div style="min-width:0">' +
-            '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + f.name + '</div>' +
-            '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:3px">' +
-              f.files + ' file' + (f.files === 1 ? '' : 's') + ' · ' + _dbSize(f.bytes) +
+        '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' + col + ';' +
+          'border-radius:10px;margin-bottom:10px;overflow:hidden">' +
+          '<div onclick="_dbToggleFolder(' + idx + ')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px">' +
+            '<div style="min-width:0">' +
+              '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + f.name + '</div>' +
+              '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:3px">' +
+                f.files + ' file' + (f.files === 1 ? '' : 's') + ' · ' + _dbSize(f.bytes) +
+              '</div>' +
+            '</div>' +
+            '<div style="text-align:right;flex-shrink:0;margin-left:12px">' +
+              '<div style="font-family:\'DM Mono\',monospace;font-size:13px;font-weight:500;color:' + col + '">' + _dbAgeText(f.ageDays) + '</div>' +
+              '<div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:3px">since added</div>' +
             '</div>' +
           '</div>' +
-          '<div style="text-align:right;flex-shrink:0;margin-left:12px">' +
-            '<div style="font-family:\'DM Mono\',monospace;font-size:13px;font-weight:500;color:' + col + '">' + _dbAgeText(f.ageDays) + '</div>' +
-            '<div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:3px">since added</div>' +
+          // Inline file list (hidden until tapped).
+          '<div id="dbFiles-' + idx + '" style="display:none;border-top:1px solid var(--border);padding:8px 16px 12px">' +
+            f.items.map(function (it) {
+              return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-family:\'DM Mono\',monospace;font-size:12px">' +
+                '<span style="min-width:0;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
+                  _dbIcon(it.name) + ' ' + it.name +
+                '</span>' +
+                '<span style="flex-shrink:0;margin-left:12px;color:var(--muted)">' + _dbSize(it.bytes) + ' · ' + _dbShortDate(it.modified) + '</span>' +
+              '</div>';
+            }).join('') +
+            '<a href="' + _dbWebUrl(f.name) + '" target="_blank" rel="noopener" ' +
+              'style="display:inline-block;margin-top:8px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--blue);text-decoration:none">Open in Dropbox ↗</a>' +
           '</div>' +
-        '</a>';
+        '</div>';
     });
   } else {
     html += '<div class="empty-state" style="color:var(--green)">🟢 All folders are empty — nothing to clean up.</div>';
