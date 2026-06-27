@@ -110,16 +110,16 @@ function _dbAuditHtml(audit) {
       'border-radius:10px;padding:13px 16px;margin-bottom:10px">' +
       '<div style="font-family:\'Syne\',sans-serif;font-size:14px;color:var(--text)">🔤 ' + mismatches.length +
         ' spelling mismatch' + (mismatches.length === 1 ? '' : 'es') + '</div>' +
-      '<div style="font-size:10px;color:var(--muted);margin:3px 0 8px">Same person spelled differently — make the sheet match Dropbox (or vice-versa)</div>' +
+      '<div style="font-size:10px;color:var(--muted);margin:3px 0 8px">Dropbox folder name doesn\'t match the Counter sheet — correct the folder</div>' +
       mismatches.map(function (mm) {
         var r = _dbEsc(mm.roster), f = _dbEsc(mm.folder);
         return '<div style="padding:6px 0">' +
           '<div style="font-family:\'DM Mono\',monospace;font-size:12px">' +
-            '<span style="color:var(--muted)">Sheet:</span> <span style="color:var(--text)">' + mm.roster + '</span>' +
+            '<span style="color:var(--muted)">Counter:</span> <span style="color:var(--text)">' + mm.roster + '</span>' +
             '<span style="color:var(--muted)"> · Dropbox:</span> <span style="color:var(--text)">' + mm.folder + '</span>' +
           '</div>' +
           '<div style="margin-top:6px">' +
-            '<button class="db-mini-btn" onclick="_dbUseDropbox(\'' + r + '\',\'' + f + '\')">✓ Fix sheet → "' + mm.folder + '"</button>' +
+            '<button class="db-mini-btn" onclick="_dbCorrectFolder(\'' + f + '\',\'' + r + '\')">✓ Correct folder → "' + mm.roster + '"</button>' +
           '</div>' +
         '</div>';
       }).join('') +
@@ -294,9 +294,9 @@ function _dbAction(params) {
     .catch(function () { _dbStatus('❌ Could not reach the portal.', 'var(--accent)'); });
 }
 
-// Mismatch: keep the Dropbox spelling → fix the sheet's name (no popup).
-function _dbUseDropbox(sheetName, dropboxName) {
-  _dbAction({ action: 'fixStudentName', from: sheetName, to: dropboxName });
+// Mismatch: rename the Dropbox folder to match the Counter sheet (no popup).
+function _dbCorrectFolder(folderName, counterName) {
+  _dbAction({ action: 'renameDropboxFolder', from: folderName, to: counterName });
 }
 
 // Missing: reveal the email field for a student.
