@@ -119,7 +119,7 @@ function renderDropbox(d) {
           '</div>' +
           // Inline file list (hidden until tapped).
           '<div id="dbFiles-' + idx + '" style="display:none;border-top:1px solid var(--border);padding:8px 16px 12px">' +
-            f.items.map(function (it) {
+            (f.items || []).map(function (it) {
               return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-family:\'DM Mono\',monospace;font-size:12px">' +
                 '<span style="min-width:0;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
                   _dbIcon(it.name) + ' ' + it.name +
