@@ -112,16 +112,42 @@ function _dbAuditHtml(audit) {
         ' spelling mismatch' + (mismatches.length === 1 ? '' : 'es') + '</div>' +
       '<div style="font-size:10px;color:var(--muted);margin:3px 0 8px">Same person spelled differently — make the sheet match Dropbox (or vice-versa)</div>' +
       mismatches.map(function (mm) {
-        return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;padding:4px 0">' +
-          '<span style="color:var(--muted)">Sheet:</span> <span style="color:var(--text)">' + mm.roster + '</span>' +
-          '<span style="color:var(--muted)"> · Dropbox:</span> <span style="color:var(--text)">' + mm.folder + '</span>' +
+        var r = _dbEsc(mm.roster), f = _dbEsc(mm.folder);
+        return '<div style="padding:6px 0">' +
+          '<div style="font-family:\'DM Mono\',monospace;font-size:12px">' +
+            '<span style="color:var(--muted)">Sheet:</span> <span style="color:var(--text)">' + mm.roster + '</span>' +
+            '<span style="color:var(--muted)"> · Dropbox:</span> <span style="color:var(--text)">' + mm.folder + '</span>' +
+          '</div>' +
+          '<div style="display:flex;gap:8px;margin-top:6px">' +
+            '<button class="db-mini-btn" onclick="_dbUseDropbox(\'' + r + '\',\'' + f + '\')">Use Dropbox spelling (fix sheet)</button>' +
+            '<button class="db-mini-btn" onclick="_dbUseSheet(\'' + r + '\',\'' + f + '\')">Use sheet spelling (rename folder)</button>' +
+          '</div>' +
         '</div>';
       }).join('') +
     '</div>';
   }
   if (missing.length) {
-    html += block('⚠ ' + missing.length + ' student' + (missing.length === 1 ? '' : 's') + ' missing a folder',
-      missing, 'var(--accent)', 'In your roster but no Dropbox folder — needs one created');
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);' +
+      'border-radius:10px;padding:13px 16px;margin-bottom:10px">' +
+      '<div style="font-family:\'Syne\',sans-serif;font-size:14px;color:var(--text)">⚠ ' + missing.length +
+        ' student' + (missing.length === 1 ? '' : 's') + ' missing a folder</div>' +
+      '<div style="font-size:10px;color:var(--muted);margin:3px 0 8px">In your roster but no Dropbox folder — create one and share it</div>' +
+      missing.map(function (m, i) {
+        var nm = _dbEsc(m.name);
+        return '<div style="padding:6px 0;border-top:1px solid var(--border)">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">' +
+            '<span style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' + m.name + '</span>' +
+            '<button class="db-mini-btn" onclick="_dbShowCreate(' + i + ')">＋ Create folder</button>' +
+          '</div>' +
+          '<div id="dbCreate-' + i + '" style="display:none;margin-top:6px">' +
+            '<input id="dbCreateEmail-' + i + '" type="text" value="' + _dbEsc(m.email || '') + '" placeholder="student email to share with" ' +
+              'style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:6px;' +
+              'padding:7px 10px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:12px;margin-bottom:6px">' +
+            '<button class="db-mini-btn" onclick="_dbCreateFolder(\'' + nm + '\',' + i + ')">Create &amp; share →</button>' +
+          '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>';
   }
   if (notShared.length) {
     html += block('🔒 ' + notShared.length + ' folder' + (notShared.length === 1 ? '' : 's') + ' not shared',
@@ -233,6 +259,55 @@ function renderDropbox(d) {
   html += '<hr class="divider" style="margin-top:22px"><button class="refresh-btn" onclick="initDropboxTab()">⟳ Re-check Dropbox</button>';
 
   body.innerHTML = html;
+}
+
+// Escape a string for safe use inside a single-quoted onclick attribute.
+function _dbEsc(s) {
+  return (s || '').toString().replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// Generic write call: POST an action, then refresh the tab on success.
+function _dbAction(params, confirmMsg) {
+  var url = getScriptUrl();
+  if (!url) return;
+  if (confirmMsg && !confirm(confirmMsg)) return;
+  var qs = Object.keys(params).map(function (k) {
+    return k + '=' + encodeURIComponent(params[k]);
+  }).join('&');
+  fetch(url + '?' + qs)
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.success) { initDropboxTab(); }
+      else { alert('⚠ ' + (d.message || 'Failed')); }
+    })
+    .catch(function () { alert('❌ Could not reach the portal.'); });
+}
+
+// Mismatch: keep the Dropbox spelling → fix the sheet's name.
+function _dbUseDropbox(sheetName, dropboxName) {
+  _dbAction({ action: 'fixStudentName', from: sheetName, to: dropboxName },
+    'Change the sheet name\n\n  "' + sheetName + '"  →  "' + dropboxName + '"\n\nThe Dropbox folder stays as is. Continue?');
+}
+
+// Mismatch: keep the sheet spelling → rename the Dropbox folder.
+function _dbUseSheet(sheetName, dropboxName) {
+  _dbAction({ action: 'renameDropboxFolder', from: dropboxName, to: sheetName },
+    'Rename the Dropbox folder\n\n  "' + dropboxName + '"  →  "' + sheetName + '"\n\nThe share stays intact. Continue?');
+}
+
+// Missing: reveal the email field for a student.
+function _dbShowCreate(i) {
+  var el = document.getElementById('dbCreate-' + i);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// Missing: create the folder and share it with the entered email.
+function _dbCreateFolder(name, i) {
+  var input = document.getElementById('dbCreateEmail-' + i);
+  var email = input ? input.value.trim() : '';
+  if (!email || email.indexOf('@') === -1) { alert('Enter a valid email to share the folder with.'); return; }
+  _dbAction({ action: 'createDropboxFolder', name: name, email: email },
+    'Create a Dropbox folder\n\n  "' + name + '"\n\nand share it with:\n  ' + email + '\n\nThis sends them an invite. Continue?');
 }
 
 // On-demand: check who each folder is actually shared with vs the email on file.

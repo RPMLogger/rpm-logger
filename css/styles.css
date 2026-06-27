@@ -693,3 +693,17 @@ body::before {
 }
 .inq-sync:hover { border-color: var(--accent2); }
 .inq-sync:disabled { opacity: 0.6; cursor: wait; }
+
+/* ─── DROPBOX TAB — small action buttons ─────────────────────────────────── */
+.db-mini-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.db-mini-btn:hover { border-color: var(--accent2); color: var(--accent2); }
