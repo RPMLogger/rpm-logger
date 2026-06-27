@@ -83,9 +83,10 @@ function _dbAuditHtml(audit) {
   if (!audit) return '';
   var missing = audit.missing || [];
   var orphans = audit.orphans || [];
+  var mismatches = audit.mismatches || [];
   var html = '<div class="section-label" style="margin-top:4px;margin-bottom:10px">Folder Audit</div>';
 
-  if (!missing.length && !orphans.length) {
+  if (!missing.length && !orphans.length && !mismatches.length) {
     return html + '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);' +
       'border-radius:10px;padding:13px 16px;margin-bottom:18px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted)">' +
       '<span style="color:var(--green)">✓</span> Every student has a folder · no leftover folders</div>';
@@ -102,6 +103,20 @@ function _dbAuditHtml(audit) {
     '</div>';
   }
 
+  if (mismatches.length) {
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--blue);' +
+      'border-radius:10px;padding:13px 16px;margin-bottom:10px">' +
+      '<div style="font-family:\'Syne\',sans-serif;font-size:14px;color:var(--text)">🔤 ' + mismatches.length +
+        ' spelling mismatch' + (mismatches.length === 1 ? '' : 'es') + '</div>' +
+      '<div style="font-size:10px;color:var(--muted);margin:3px 0 8px">Same person spelled differently — make the sheet match Dropbox (or vice-versa)</div>' +
+      mismatches.map(function (mm) {
+        return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;padding:4px 0">' +
+          '<span style="color:var(--muted)">Sheet:</span> <span style="color:var(--text)">' + mm.roster + '</span>' +
+          '<span style="color:var(--muted)"> · Dropbox:</span> <span style="color:var(--text)">' + mm.folder + '</span>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
   if (missing.length) {
     html += block('⚠ ' + missing.length + ' student' + (missing.length === 1 ? '' : 's') + ' missing a folder',
       missing, 'var(--accent)', 'In your roster but no Dropbox folder — needs one created');
