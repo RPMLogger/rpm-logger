@@ -84,9 +84,11 @@ function _dbAuditHtml(audit) {
   var missing = audit.missing || [];
   var orphans = audit.orphans || [];
   var mismatches = audit.mismatches || [];
+  var notShared = audit.notShared || [];
+  var duplicates = audit.duplicates || [];
   var html = '<div class="section-label" style="margin-top:4px;margin-bottom:10px">Folder Audit</div>';
 
-  if (!missing.length && !orphans.length && !mismatches.length) {
+  if (!missing.length && !orphans.length && !mismatches.length && !notShared.length && !duplicates.length) {
     return html + '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);' +
       'border-radius:10px;padding:13px 16px;margin-bottom:18px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted)">' +
       '<span style="color:var(--green)">✓</span> Every student has a folder · no leftover folders</div>';
@@ -121,9 +123,25 @@ function _dbAuditHtml(audit) {
     html += block('⚠ ' + missing.length + ' student' + (missing.length === 1 ? '' : 's') + ' missing a folder',
       missing, 'var(--accent)', 'In your roster but no Dropbox folder — needs one created');
   }
+  if (notShared.length) {
+    html += block('🔒 ' + notShared.length + ' folder' + (notShared.length === 1 ? '' : 's') + ' not shared',
+      notShared, 'var(--accent)', 'Folder exists but isn\'t shared — the student can\'t see their homework');
+  }
   if (orphans.length) {
     html += block('🗑 ' + orphans.length + ' folder' + (orphans.length === 1 ? '' : 's') + ' with no student',
       orphans, 'var(--accent2)', 'Dropbox folder but not in roster — likely former students');
+  }
+  if (duplicates.length) {
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent2);' +
+      'border-radius:10px;padding:13px 16px;margin-bottom:10px">' +
+      '<div style="font-family:\'Syne\',sans-serif;font-size:14px;color:var(--text)">👯 ' + duplicates.length +
+        ' possible duplicate' + (duplicates.length === 1 ? '' : 's') + '</div>' +
+      '<div style="font-size:10px;color:var(--muted);margin:3px 0 8px">Two folders with near-identical names — one may be a stray</div>' +
+      duplicates.map(function (dp) {
+        return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);padding:4px 0">' +
+          dp.a + ' <span style="color:var(--muted)">↔</span> ' + dp.b + '</div>';
+      }).join('') +
+    '</div>';
   }
   return html + '<div style="height:8px"></div>';
 }
