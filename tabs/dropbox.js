@@ -5,7 +5,7 @@
 // way. Backend: action=getDropboxFolders (RPM_Dropbox.js).
 
 // Default invite message (editable per student in the create panel).
-var DB_INVITE_MSG = 'Please save your homework to your own device or computer, then delete our shared folder — make it empty. Thanks! — Bilgehan, Red Pick Music';
+var DB_INVITE_MSG = "Make sure to read the \"Dropbox Instructions\" email I sent you before using our shared Dropbox folder.\n\n• Download the Dropbox app (it's much better than using Dropbox in a web browser).\n• Save your homework to your own device or computer. Once you've confirmed everything is saved, delete the contents of our shared Dropbox folder so it's empty.";
 
 function initDropboxTab() {
   var url = getScriptUrl();
