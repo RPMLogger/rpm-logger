@@ -4,6 +4,9 @@
 // folders (need attention) float to the top; empty folders collapse out of the
 // way. Backend: action=getDropboxFolders (RPM_Dropbox.js).
 
+// Default invite message (editable per student in the create panel).
+var DB_INVITE_MSG = 'Please save your homework to your own device or computer, then delete our shared folder — make it empty. Thanks! — Bilgehan, Red Pick Music';
+
 function initDropboxTab() {
   var url = getScriptUrl();
   var body = document.getElementById('dropboxBody');
@@ -142,6 +145,10 @@ function _dbAuditHtml(audit) {
             '<input id="dbCreateEmail-' + i + '" type="text" value="' + _dbEsc(m.email || '') + '" placeholder="student email to share with" ' +
               'style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:6px;' +
               'padding:7px 10px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:12px;margin-bottom:6px">' +
+            '<textarea id="dbCreateMsg-' + i + '" rows="3" placeholder="invite message" ' +
+              'style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:6px;' +
+              'padding:7px 10px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:12px;margin-bottom:6px;resize:vertical">' +
+              _dbEsc(DB_INVITE_MSG) + '</textarea>' +
             '<button class="db-mini-btn" onclick="_dbCreateFolder(\'' + nm + '\',' + i + ')">Create &amp; share →</button>' +
           '</div>' +
         '</div>';
@@ -308,9 +315,11 @@ function _dbShowCreate(i) {
 // Missing: create the folder and share it with the entered email (no popup).
 function _dbCreateFolder(name, i) {
   var input = document.getElementById('dbCreateEmail-' + i);
+  var msgEl = document.getElementById('dbCreateMsg-' + i);
   var email = input ? input.value.trim() : '';
+  var message = msgEl ? msgEl.value.trim() : '';
   if (!email || email.indexOf('@') === -1) { _dbStatus('Enter a valid email to share the folder with.', 'var(--accent)'); return; }
-  _dbAction({ action: 'createDropboxFolder', name: name, email: email });
+  _dbAction({ action: 'createDropboxFolder', name: name, email: email, message: message });
 }
 
 // On-demand: check who each folder is actually shared with vs the email on file.
