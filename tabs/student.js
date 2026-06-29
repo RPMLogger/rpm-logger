@@ -743,43 +743,20 @@ function _stOpenDropbox(studentName) {
   addLog('studentFeed', '📁 Opening ' + studentName + ' folder…', 'info');
 }
 
-// Upload one or more files into the student's shared Dropbox folder.
-// Reads each file as base64 and POSTs it (text/plain body → no CORS preflight).
-// Files go in one at a time so the drop zone can show clear per-file progress.
+// Upload dropped/picked files into the student's shared Dropbox folder, showing
+// per-file progress in the drop zone. Heavy lifting is in uploadFilesToDropbox.
 function _stUploadToDropbox(folderName, fileList, zone) {
-  var url = getScriptUrl();
-  if (!url) { zone.textContent = '⚠ Portal URL not set.'; return; }
-  var files = Array.prototype.slice.call(fileList);
-  var MAX = 25 * 1024 * 1024; // 25 MB per file (Apps Script payload ceiling)
-  var ok = 0, fail = 0, total = files.length;
-
-  function finish() {
-    zone.textContent = (fail ? '⚠ ' : '✓ ') + ok + '/' + total + ' uploaded' +
-      (fail ? ' — ' + fail + ' failed' : '') + ' · click to add more';
-    addLog('studentFeed', '📁 ' + ok + '/' + total + ' file(s) → ' + folderName + "'s Dropbox", fail ? 'warn' : 'success');
-    setTimeout(function () { if (zone) zone.textContent = zone.dataset.idle; }, 6000);
-  }
-
-  function next(i) {
-    if (i >= files.length) { finish(); return; }
-    var file = files[i];
-    zone.textContent = 'Uploading ' + (i + 1) + '/' + total + ': ' + file.name + ' …';
-    if (file.size > MAX) { fail++; next(i + 1); return; }
-    var reader = new FileReader();
-    reader.onload = function () {
-      var b64 = String(reader.result).split(',')[1] || '';
-      fetch(url, {
-        method: 'post',
-        body: JSON.stringify({ action: 'uploadDropboxFile', folder: folderName, filename: file.name, dataB64: b64 })
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (d) { if (d.success) ok++; else fail++; next(i + 1); })
-        .catch(function () { fail++; next(i + 1); });
-    };
-    reader.onerror = function () { fail++; next(i + 1); };
-    reader.readAsDataURL(file);
-  }
-  next(0);
+  uploadFilesToDropbox(folderName, fileList, {
+    onProgress: function (name, i, total) {
+      zone.textContent = 'Uploading ' + (i + 1) + '/' + total + ': ' + name + ' …';
+    },
+    onDone: function (ok, fail, total) {
+      zone.textContent = (fail ? '⚠ ' : '✓ ') + ok + '/' + total + ' uploaded' +
+        (fail ? ' — ' + fail + ' failed' : '') + ' · click to add more';
+      addLog('studentFeed', '📁 ' + ok + '/' + total + ' file(s) → ' + folderName + ' Dropbox', fail ? 'warn' : 'success');
+      setTimeout(function () { if (zone) zone.textContent = zone.dataset.idle; }, 6000);
+    }
+  });
 }
 
 function _stOpenMessages() {

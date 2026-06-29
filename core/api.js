@@ -113,3 +113,47 @@ function updateCommsSummary(type, count) {
   var summary = document.getElementById("commsSummary");
   if (summary) summary.style.display = "";
 }
+
+// ─── DROPBOX UPLOAD (shared by the student page + Dropbox tab) ───────────────
+// Reads each file as base64 and POSTs it one at a time. text/plain body avoids
+// a CORS preflight; the Apps Script doPost handles action=uploadDropboxFile.
+//   opts.onProgress(filename, index, total) — before each file
+//   opts.onDone(ok, fail, total)            — when all files are finished
+function uploadFilesToDropbox(folderName, fileList, opts) {
+  opts = opts || {};
+  var url = getScriptUrl();
+  var files = Array.prototype.slice.call(fileList);
+  var total = files.length;
+  if (!url) { if (opts.onDone) opts.onDone(0, total, total); return; }
+  var MAX = 25 * 1024 * 1024; // 25 MB per file (Apps Script payload ceiling)
+  var ok = 0, fail = 0;
+  function next(i) {
+    if (i >= total) { if (opts.onDone) opts.onDone(ok, fail, total); return; }
+    var file = files[i];
+    if (opts.onProgress) opts.onProgress(file.name, i, total);
+    if (file.size > MAX) { fail++; next(i + 1); return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      var b64 = String(reader.result).split(",")[1] || "";
+      fetch(url, {
+        method: "post",
+        body: JSON.stringify({ action: "uploadDropboxFile", folder: folderName, filename: file.name, dataB64: b64 })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (d.success) ok++; else fail++; next(i + 1); })
+        .catch(function () { fail++; next(i + 1); });
+    };
+    reader.onerror = function () { fail++; next(i + 1); };
+    reader.readAsDataURL(file);
+  }
+  next(0);
+}
+
+// Stop the browser from opening/navigating to a file dropped outside a drop zone.
+// Zone-specific handlers still fire first (this only kills the default fallback).
+(function () {
+  if (window._dbxDropGuard) return;
+  window._dbxDropGuard = true;
+  window.addEventListener("dragover", function (e) { e.preventDefault(); }, false);
+  window.addEventListener("drop", function (e) { e.preventDefault(); }, false);
+})();
