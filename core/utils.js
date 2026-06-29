@@ -36,6 +36,26 @@ function getWeekRange() {
   return MONTHS[mon.getMonth()] + " " + mon.getDate() + " – " + MONTHS[sun.getMonth()] + " " + sun.getDate();
 }
 
+// Open a student's Dropbox folder in the local Finder/Dropbox app. Copies the
+// name to the clipboard and fires the "Open Student Folder" macOS Shortcut,
+// which reads the clipboard and opens that folder. Shared by the student page
+// and the Dropbox tab.
+function openDropboxLocalFolder(name) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(name);
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = name;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+  } catch (e) {}
+  window.location.href = 'shortcuts://run-shortcut?name=Open%20Student%20Folder';
+}
+
 function addLog(feedId, message, type) {
   var feed = document.getElementById(feedId);
   if (!feed) return;

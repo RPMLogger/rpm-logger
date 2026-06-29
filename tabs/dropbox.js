@@ -50,37 +50,6 @@ function _dbAgeText(age) {
   return age + ' days';
 }
 
-// Open a folder on the Dropbox website in a new tab.
-function _dbWebUrl(name) {
-  return 'https://www.dropbox.com/home/' + encodeURIComponent(name);
-}
-
-// "Oct 16" style short date from an ISO string.
-function _dbShortDate(iso) {
-  if (!iso) return '';
-  var d = new Date(iso);
-  if (isNaN(d.getTime())) return '';
-  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return M[d.getMonth()] + ' ' + d.getDate();
-}
-
-// Pick an icon by file extension.
-function _dbIcon(name) {
-  var ext = (name.split('.').pop() || '').toLowerCase();
-  if (['mp3','wav','m4a','aac','flac','aiff'].indexOf(ext) !== -1) return '🎵';
-  if (['mp4','mov','avi','m4v','mkv'].indexOf(ext) !== -1) return '🎬';
-  if (['jpg','jpeg','png','gif','heic','webp'].indexOf(ext) !== -1) return '🖼️';
-  if (ext === 'pdf') return '📕';
-  return '📄';
-}
-
-// Toggle a folder's inline file list open/closed.
-function _dbToggleFolder(idx) {
-  var panel = document.getElementById('dbFiles-' + idx);
-  if (!panel) return;
-  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-}
-
 // Audit block: students missing a folder, and folders with no student.
 function _dbAuditHtml(audit) {
   if (!audit) return '';
@@ -200,10 +169,6 @@ function renderDropbox(d) {
   // ── Inline status (no popups) ──
   html += '<div id="dbActionStatus"></div>';
 
-  // ── Upload hint ──
-  html += '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-bottom:12px">' +
-    '⬆ Tip: drag files onto a folder below to upload to that student\'s Dropbox.</div>';
-
   // ── Audit: roster vs folders ──
   html += _dbAuditHtml(d.audit);
 
@@ -215,34 +180,20 @@ function renderDropbox(d) {
   if (full.length) {
     full.forEach(function (f, idx) {
       var col = _dbAgeColor(f.ageDays);
-      // Clickable header row — toggles the file list below it (stays in portal).
+      // Click the card to open the student's folder in the local Dropbox app.
       html +=
-        '<div data-dbfolder="' + _dbAttr(f.name) + '" style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' + col + ';' +
-          'border-radius:10px;margin-bottom:10px;overflow:hidden">' +
-          '<div onclick="_dbToggleFolder(' + idx + ')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px">' +
-            '<div style="min-width:0">' +
-              '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + f.name + '</div>' +
-              '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:3px">' +
-                f.files + ' file' + (f.files === 1 ? '' : 's') + ' · ' + _dbSize(f.bytes) +
-              '</div>' +
-            '</div>' +
-            '<div style="text-align:right;flex-shrink:0;margin-left:12px">' +
-              '<div style="font-family:\'DM Mono\',monospace;font-size:13px;font-weight:500;color:' + col + '">' + _dbAgeText(f.ageDays) + '</div>' +
-              '<div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:3px">since added</div>' +
+        '<div onclick="openDropboxLocalFolder(\'' + _dbEsc(f.name) + '\')" title="Open in Dropbox app" ' +
+          'style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' + col + ';' +
+          'border-radius:10px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px">' +
+          '<div style="min-width:0">' +
+            '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + f.name + '</div>' +
+            '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:3px">' +
+              f.files + ' file' + (f.files === 1 ? '' : 's') + ' · ' + _dbSize(f.bytes) +
             '</div>' +
           '</div>' +
-          // Inline file list (hidden until tapped).
-          '<div id="dbFiles-' + idx + '" style="display:none;border-top:1px solid var(--border);padding:8px 16px 12px">' +
-            (f.items || []).map(function (it) {
-              return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-family:\'DM Mono\',monospace;font-size:12px">' +
-                '<span style="min-width:0;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
-                  _dbIcon(it.name) + ' ' + it.name +
-                '</span>' +
-                '<span style="flex-shrink:0;margin-left:12px;color:var(--muted)">' + _dbSize(it.bytes) + ' · ' + _dbShortDate(it.modified) + '</span>' +
-              '</div>';
-            }).join('') +
-            '<a href="' + _dbWebUrl(f.name) + '" target="_blank" rel="noopener" ' +
-              'style="display:inline-block;margin-top:8px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--blue);text-decoration:none">Open in Dropbox ↗</a>' +
+          '<div style="text-align:right;flex-shrink:0;margin-left:12px">' +
+            '<div style="font-family:\'DM Mono\',monospace;font-size:13px;font-weight:500;color:' + col + '">' + _dbAgeText(f.ageDays) + '</div>' +
+            '<div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:3px">since added</div>' +
           '</div>' +
         '</div>';
     });
@@ -261,9 +212,9 @@ function renderDropbox(d) {
       '</div>' +
       '<div id="dbEmptyList" style="display:none;padding:6px 4px 0">' +
         empty.map(function (f) {
-          return '<a href="' + _dbWebUrl(f.name) + '" target="_blank" rel="noopener" data-dbfolder="' + _dbAttr(f.name) + '" ' +
-            'style="display:block;text-decoration:none;font-family:\'DM Mono\',monospace;font-size:12px;' +
-            'color:var(--muted);padding:6px 12px">' + f.name + '</a>';
+          return '<div onclick="openDropboxLocalFolder(\'' + _dbEsc(f.name) + '\')" title="Open in Dropbox app" ' +
+            'style="cursor:pointer;font-family:\'DM Mono\',monospace;font-size:12px;' +
+            'color:var(--muted);padding:6px 12px">' + f.name + '</div>';
         }).join('') +
       '</div>';
   }
@@ -272,47 +223,11 @@ function renderDropbox(d) {
   html += '<hr class="divider" style="margin-top:22px"><button class="refresh-btn" onclick="initDropboxTab()">⟳ Re-check Dropbox</button>';
 
   body.innerHTML = html;
-  _dbWireDropTargets(body);
 }
 
 // Escape a string for safe use inside a single-quoted onclick attribute.
 function _dbEsc(s) {
   return (s || '').toString().replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-}
-
-// Escape a string for safe use inside a double-quoted HTML attribute.
-function _dbAttr(s) {
-  return (s || '').toString().replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-}
-
-// Make every [data-dbfolder] element a drop target that uploads into that folder.
-function _dbWireDropTargets(root) {
-  var zones = root.querySelectorAll('[data-dbfolder]');
-  Array.prototype.forEach.call(zones, function (z) {
-    var folder = z.getAttribute('data-dbfolder');
-    z.addEventListener('dragover', function (ev) { ev.preventDefault(); z.style.outline = '2px dashed var(--accent)'; z.style.outlineOffset = '-2px'; });
-    z.addEventListener('dragleave', function () { z.style.outline = ''; });
-    z.addEventListener('drop', function (ev) {
-      ev.preventDefault();
-      z.style.outline = '';
-      if (ev.dataTransfer && ev.dataTransfer.files.length) _dbUploadToFolder(folder, ev.dataTransfer.files);
-    });
-  });
-}
-
-// Upload dropped files into a folder, showing progress in the inline status bar,
-// then refreshing the dashboard so file counts/sizes update.
-function _dbUploadToFolder(folderName, fileList) {
-  uploadFilesToDropbox(folderName, fileList, {
-    onProgress: function (name, i, total) {
-      _dbStatus('⬆ Uploading to ' + folderName + ' — ' + (i + 1) + '/' + total + ': ' + name + ' …', 'var(--accent2)');
-    },
-    onDone: function (ok, fail, total) {
-      _dbStatus((fail ? '⚠ ' : '✓ ') + ok + '/' + total + ' uploaded to ' + folderName +
-        (fail ? ' — ' + fail + ' failed' : ''), fail ? 'var(--accent)' : 'var(--green)');
-      setTimeout(function () { initDropboxTab(); }, 2500);
-    }
-  });
 }
 
 // Quiet inline status (no popups).

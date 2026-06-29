@@ -723,23 +723,7 @@ function _stPad2(n) { n = parseInt(n, 10); return n < 10 ? '0' + n : '' + n; }
 // ─── EXTERNAL LINKS ─────────────────────────────────────────────────────────
 
 function _stOpenDropbox(studentName) {
-  // Two-channel approach: copy name to clipboard AND fire the macOS Shortcut
-  // URL. The Shortcut reads the clipboard and opens that Finder folder. If the
-  // Shortcut isn't set up, the clipboard still has the path so the user can
-  // paste it into Finder's Cmd+Shift+G.
-  try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(studentName);
-    } else {
-      var ta = document.createElement('textarea');
-      ta.value = studentName;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-    }
-  } catch (e) {}
-  window.location.href = 'shortcuts://run-shortcut?name=Open%20Student%20Folder';
+  openDropboxLocalFolder(studentName);
   addLog('studentFeed', '📁 Opening ' + studentName + ' folder…', 'info');
 }
 
