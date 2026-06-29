@@ -153,17 +153,19 @@ function renderDropbox(d) {
   var empty = d.folders.filter(function (f) { return f.empty; });
   var html = '';
 
-  // ── Summary bar ──
+  // ── Analysis ──
+  html += '<div class="section-label" style="margin-top:4px;margin-bottom:10px">Analysis</div>';
+  function _dbStat(val, color, label) {
+    return '<div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:center">' +
+      '<div style="font-size:24px;font-weight:800;color:' + color + ';line-height:1">' + val + '</div>' +
+      '<div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:5px">' + label + '</div>' +
+    '</div>';
+  }
   html +=
     '<div style="display:flex;gap:10px;margin-bottom:18px">' +
-      '<div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:center">' +
-        '<div style="font-size:24px;font-weight:800;color:var(--text);line-height:1">' + _dbSize(d.totalBytes) + '</div>' +
-        '<div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:5px">in shared folders</div>' +
-      '</div>' +
-      '<div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:center">' +
-        '<div style="font-size:24px;font-weight:800;color:' + (d.nonEmpty ? 'var(--accent)' : 'var(--green)') + ';line-height:1">' + d.nonEmpty + '</div>' +
-        '<div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:5px">need attention</div>' +
-      '</div>' +
+      _dbStat(_dbSize(d.totalBytes), 'var(--text)', 'in shared folders') +
+      _dbStat(d.nonEmpty, d.nonEmpty ? 'var(--accent)' : 'var(--green)', 'need attention') +
+      _dbStat(empty.length, 'var(--green)', 'all clear') +
     '</div>';
 
   // ── Inline status (no popups) ──
@@ -176,53 +178,49 @@ function renderDropbox(d) {
   html += '<button class="refresh-btn" style="margin-bottom:14px" onclick="_dbCheckSharing()">🔗 Check who folders are shared with</button>';
   html += '<div id="dbSharingResult" style="margin-bottom:8px"></div>';
 
-  // ── Folders that have files ──
-  if (full.length) {
-    full.forEach(function (f, idx) {
-      var col = _dbAgeColor(f.ageDays);
-      // Click the card to open the student's folder in the local Dropbox app.
-      html +=
-        '<div onclick="openDropboxLocalFolder(\'' + _dbEsc(f.name) + '\')" title="Open in Dropbox app" ' +
-          'style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' + col + ';' +
-          'border-radius:10px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px">' +
-          '<div style="min-width:0">' +
-            '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + f.name + '</div>' +
-            '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:3px">' +
-              f.files + ' file' + (f.files === 1 ? '' : 's') + ' · ' + _dbSize(f.bytes) +
-            '</div>' +
-          '</div>' +
-          '<div style="text-align:right;flex-shrink:0;margin-left:12px">' +
-            '<div style="font-family:\'DM Mono\',monospace;font-size:13px;font-weight:500;color:' + col + '">' + _dbAgeText(f.ageDays) + '</div>' +
-            '<div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:3px">since added</div>' +
-          '</div>' +
-        '</div>';
-    });
+  // ── Students: one card each (folders with files first, then empty) ──
+  html += '<div class="section-label" style="margin-top:8px;margin-bottom:10px">Students</div>';
+  if (d.folders.length) {
+    full.forEach(function (f) { html += _dbCard(f); });
+    empty.forEach(function (f) { html += _dbCard(f); });
   } else {
-    html += '<div class="empty-state" style="color:var(--green)">🟢 All folders are empty — nothing to clean up.</div>';
-  }
-
-  // ── Empty folders (collapsed) ──
-  if (empty.length) {
-    html +=
-      '<div onclick="_dbToggleEmpty()" style="cursor:pointer;display:flex;align-items:center;gap:8px;' +
-        'margin-top:18px;padding:12px 16px;background:transparent;border:1px dashed var(--border);border-radius:10px;color:var(--muted);font-size:12px">' +
-        '<span style="color:var(--green)">🟢</span>' +
-        '<span id="dbEmptyToggleLabel">' + empty.length + ' empty folder' + (empty.length === 1 ? '' : 's') + ' — all clear</span>' +
-        '<span style="margin-left:auto" id="dbEmptyChevron">▾</span>' +
-      '</div>' +
-      '<div id="dbEmptyList" style="display:none;padding:6px 4px 0">' +
-        empty.map(function (f) {
-          return '<div onclick="openDropboxLocalFolder(\'' + _dbEsc(f.name) + '\')" title="Open in Dropbox app" ' +
-            'style="cursor:pointer;font-family:\'DM Mono\',monospace;font-size:12px;' +
-            'color:var(--muted);padding:6px 12px">' + f.name + '</div>';
-        }).join('') +
-      '</div>';
+    html += '<div class="empty-state">No student folders found.</div>';
   }
 
   // ── Refresh ──
   html += '<hr class="divider" style="margin-top:22px"><button class="refresh-btn" onclick="initDropboxTab()">⟳ Re-check Dropbox</button>';
 
   body.innerHTML = html;
+}
+
+// One student folder card — click opens the folder in the local Dropbox app.
+// Empty folders show a green "CLEAR" badge; full ones show file count + age.
+function _dbCard(f) {
+  var open = 'onclick="openDropboxLocalFolder(\'' + _dbEsc(f.name) + '\')" title="Open in Dropbox app" ';
+  var col = f.empty ? 'var(--green)' : _dbAgeColor(f.ageDays);
+  var chrome = 'style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' + col + ';' +
+    'border-radius:10px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px"';
+  var name = '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + f.name + '</div>';
+  if (f.empty) {
+    return '<div ' + open + chrome + '>' +
+      '<div style="min-width:0">' + name +
+        '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:3px">Empty</div>' +
+      '</div>' +
+      '<div style="flex-shrink:0;margin-left:12px;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;' +
+        'color:var(--green);border:1px solid var(--green);border-radius:6px;padding:3px 9px">CLEAR</div>' +
+    '</div>';
+  }
+  return '<div ' + open + chrome + '>' +
+    '<div style="min-width:0">' + name +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:3px">' +
+        f.files + ' file' + (f.files === 1 ? '' : 's') + ' · ' + _dbSize(f.bytes) +
+      '</div>' +
+    '</div>' +
+    '<div style="text-align:right;flex-shrink:0;margin-left:12px">' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:13px;font-weight:500;color:' + col + '">' + _dbAgeText(f.ageDays) + '</div>' +
+      '<div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:3px">since added</div>' +
+    '</div>' +
+  '</div>';
 }
 
 // Escape a string for safe use inside a single-quoted onclick attribute.
@@ -331,11 +329,3 @@ function _dbRenderSharing(d, box) {
     problems.length + ' to review · ' + d.okCount + ' ok</div>' + html;
 }
 
-function _dbToggleEmpty() {
-  var list = document.getElementById('dbEmptyList');
-  var chev = document.getElementById('dbEmptyChevron');
-  if (!list) return;
-  var open = list.style.display !== 'none';
-  list.style.display = open ? 'none' : 'block';
-  if (chev) chev.textContent = open ? '▾' : '▴';
-}
