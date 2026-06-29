@@ -190,6 +190,30 @@ function _stRenderDetail() {
   linksRow.appendChild(msgBtn);
   section.appendChild(linksRow);
 
+  // Drag-and-drop upload straight into the student's shared Dropbox folder.
+  var drop = document.createElement('div');
+  drop.id = 'stDropZone';
+  drop.dataset.folder = d.name;
+  drop.dataset.idle = '⬆ Drag homework here to upload to ' + d.name + "'s Dropbox";
+  drop.textContent = drop.dataset.idle;
+  drop.style.cssText = 'margin-bottom:14px;padding:16px;border:1.5px dashed var(--border);border-radius:8px;' +
+    'text-align:center;font-size:12px;color:var(--muted);cursor:pointer;transition:border-color .15s,background .15s';
+  var fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.multiple = true;
+  fileInput.style.display = 'none';
+  fileInput.onchange = function () { if (fileInput.files.length) _stUploadToDropbox(d.name, fileInput.files, drop); fileInput.value = ''; };
+  drop.onclick = function () { fileInput.click(); };
+  drop.ondragover = function (ev) { ev.preventDefault(); drop.style.borderColor = 'var(--accent)'; drop.style.background = 'rgba(232,70,58,0.06)'; };
+  drop.ondragleave = function () { drop.style.borderColor = 'var(--border)'; drop.style.background = 'transparent'; };
+  drop.ondrop = function (ev) {
+    ev.preventDefault();
+    drop.style.borderColor = 'var(--border)'; drop.style.background = 'transparent';
+    if (ev.dataTransfer && ev.dataTransfer.files.length) _stUploadToDropbox(d.name, ev.dataTransfer.files, drop);
+  };
+  section.appendChild(drop);
+  section.appendChild(fileInput);
+
   // Primary action: + Log this lesson
   var logBtn = document.createElement('button');
   logBtn.textContent = '+ Log this lesson';
@@ -717,6 +741,45 @@ function _stOpenDropbox(studentName) {
   } catch (e) {}
   window.location.href = 'shortcuts://run-shortcut?name=Open%20Student%20Folder';
   addLog('studentFeed', '📁 Opening ' + studentName + ' folder…', 'info');
+}
+
+// Upload one or more files into the student's shared Dropbox folder.
+// Reads each file as base64 and POSTs it (text/plain body → no CORS preflight).
+// Files go in one at a time so the drop zone can show clear per-file progress.
+function _stUploadToDropbox(folderName, fileList, zone) {
+  var url = getScriptUrl();
+  if (!url) { zone.textContent = '⚠ Portal URL not set.'; return; }
+  var files = Array.prototype.slice.call(fileList);
+  var MAX = 25 * 1024 * 1024; // 25 MB per file (Apps Script payload ceiling)
+  var ok = 0, fail = 0, total = files.length;
+
+  function finish() {
+    zone.textContent = (fail ? '⚠ ' : '✓ ') + ok + '/' + total + ' uploaded' +
+      (fail ? ' — ' + fail + ' failed' : '') + ' · click to add more';
+    addLog('studentFeed', '📁 ' + ok + '/' + total + ' file(s) → ' + folderName + "'s Dropbox", fail ? 'warn' : 'success');
+    setTimeout(function () { if (zone) zone.textContent = zone.dataset.idle; }, 6000);
+  }
+
+  function next(i) {
+    if (i >= files.length) { finish(); return; }
+    var file = files[i];
+    zone.textContent = 'Uploading ' + (i + 1) + '/' + total + ': ' + file.name + ' …';
+    if (file.size > MAX) { fail++; next(i + 1); return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      var b64 = String(reader.result).split(',')[1] || '';
+      fetch(url, {
+        method: 'post',
+        body: JSON.stringify({ action: 'uploadDropboxFile', folder: folderName, filename: file.name, dataB64: b64 })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (d.success) ok++; else fail++; next(i + 1); })
+        .catch(function () { fail++; next(i + 1); });
+    };
+    reader.onerror = function () { fail++; next(i + 1); };
+    reader.readAsDataURL(file);
+  }
+  next(0);
 }
 
 function _stOpenMessages() {
