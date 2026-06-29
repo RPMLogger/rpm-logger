@@ -130,8 +130,18 @@ function _dbAuditHtml(audit) {
       notShared, 'var(--accent)', 'Folder exists but isn\'t shared — the student can\'t see their homework');
   }
   if (orphans.length) {
-    html += block('🗑 ' + orphans.length + ' folder' + (orphans.length === 1 ? '' : 's') + ' with no student',
-      orphans, 'var(--accent2)', 'Dropbox folder but not in roster — likely former students');
+    html += '<div style="border-left:3px solid var(--accent2);padding:2px 0 10px 14px;margin-bottom:14px">' +
+      '<div style="font-family:\'Syne\',sans-serif;font-size:14px;color:var(--text)">🗑 ' + orphans.length +
+        ' folder' + (orphans.length === 1 ? '' : 's') + ' with no student</div>' +
+      '<div style="font-size:10px;color:var(--muted);margin:3px 0 8px">Dropbox folder but not in roster — likely former students · delete moves it to Dropbox trash (recoverable ~30 days)</div>' +
+      orphans.map(function (n) {
+        var nm = _dbEsc(n);
+        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0">' +
+          '<span style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + n + '</span>' +
+          '<button class="db-mini-btn" onclick="_dbDeleteFolder(\'' + nm + '\',this)">🗑 Delete</button>' +
+        '</div>';
+      }).join('') +
+    '</div>';
   }
   if (duplicates.length) {
     html += '<div style="border-left:3px solid var(--accent2);padding:2px 0 10px 14px;margin-bottom:14px">' +
@@ -303,12 +313,12 @@ function _dbStatus(msg, color) {
 
 // Generic write call: POST an action, refresh the tab on success, inline error otherwise.
 // On failure, re-enable the button passed as `btn` (if any) so it isn't stuck on "Working…".
-function _dbAction(params, btn) {
+function _dbAction(params, btn, restoreLabel) {
   var url = getScriptUrl();
   if (!url) return;
   _dbStatus('Working…', 'var(--accent2)');
-  function _restore(label) {
-    if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; btn.textContent = label; }
+  function _restore() {
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; btn.textContent = restoreLabel || 'Create & share →'; }
   }
   var qs = Object.keys(params).map(function (k) {
     return k + '=' + encodeURIComponent(params[k]);
@@ -317,14 +327,20 @@ function _dbAction(params, btn) {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (d.success) { initDropboxTab(); }
-      else { _dbStatus('⚠ ' + (d.message || 'Failed'), 'var(--accent)'); _restore('Create & share →'); }
+      else { _dbStatus('⚠ ' + (d.message || 'Failed'), 'var(--accent)'); _restore(); }
     })
-    .catch(function () { _dbStatus('❌ Could not reach the portal.', 'var(--accent)'); _restore('Create & share →'); });
+    .catch(function () { _dbStatus('❌ Could not reach the portal.', 'var(--accent)'); _restore(); });
 }
 
 // Mismatch: rename the Dropbox folder to match the Counter sheet (no popup).
 function _dbCorrectFolder(folderName, counterName) {
   _dbAction({ action: 'renameDropboxFolder', from: folderName, to: counterName });
+}
+
+// Orphan: unshare + delete the folder (one click; goes to Dropbox trash).
+function _dbDeleteFolder(folderName, btn) {
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Deleting…'; }
+  _dbAction({ action: 'deleteDropboxFolder', name: folderName }, btn, '🗑 Delete');
 }
 
 // Missing: reveal the email field for a student.
