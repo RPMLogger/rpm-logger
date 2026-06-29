@@ -173,6 +173,12 @@ function renderDropbox(d) {
   html += '<button class="refresh-btn" style="margin-bottom:14px" onclick="_dbCheckSharing()">🔗 Check who folders are shared with</button>';
   html += '<div id="dbSharingResult" style="margin-bottom:8px"></div>';
 
+  // ── Teacher: non-student folders (Video Lessons, AAA-*), same card style ──
+  if (d.categories && d.categories.length) {
+    html += '<div class="section-label" style="margin-top:8px;margin-bottom:10px">Teacher</div>';
+    d.categories.forEach(function (c) { html += _dbTeacherCard(c); });
+  }
+
   // ── Students: one card each (folders with files first, then empty) ──
   html += '<div class="section-label" style="margin-top:8px;margin-bottom:10px">Students</div>';
   if (d.folders.length) {
@@ -180,20 +186,6 @@ function renderDropbox(d) {
     empty.forEach(function (f) { html += _dbCard(f); });
   } else {
     html += '<div class="empty-state">No student folders found.</div>';
-  }
-
-  // ── Other folders (non-student categories: Video Lessons, AAA-*) ──
-  // Not cards — just a flat name + size row, click opens the folder locally.
-  if (d.categories && d.categories.length) {
-    html += '<div class="section-label" style="margin-top:20px;margin-bottom:10px">Other folders</div>';
-    d.categories.forEach(function (c) {
-      html += '<div onclick="openDropboxLocalFolder(\'' + _dbEsc(c.name) + '\')" title="Open in Dropbox app" ' +
-        'style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;' +
-        'padding:8px 0 8px 14px;border-left:3px solid var(--muted);margin-bottom:8px">' +
-        '<span style="font-family:\'DM Mono\',monospace;font-size:13px;color:var(--text)">' + c.name + '</span>' +
-        '<span style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted)">' + _dbSize(c.bytes) + '</span>' +
-      '</div>';
-    });
   }
 
   // ── Refresh ──
@@ -229,6 +221,23 @@ function _dbCard(f) {
       '<div style="font-family:\'DM Mono\',monospace;font-size:13px;font-weight:500;color:' + col + '">' + _dbAgeText(f.ageDays) + '</div>' +
       '<div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:3px">since added</div>' +
     '</div>' +
+  '</div>';
+}
+
+// A teacher (non-student) folder card — same card shape, neutral blue spine,
+// file count + size, no age/cleanup signal. Click opens it locally.
+function _dbTeacherCard(c) {
+  return '<div onclick="openDropboxLocalFolder(\'' + _dbEsc(c.name) + '\')" title="Open in Dropbox app" ' +
+    'style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--blue);' +
+    'border-radius:10px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px">' +
+    '<div style="min-width:0">' +
+      '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + c.name + '</div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:3px">' +
+        c.files + ' file' + (c.files === 1 ? '' : 's') + ' · ' + _dbSize(c.bytes) +
+      '</div>' +
+    '</div>' +
+    '<div style="flex-shrink:0;margin-left:12px;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;' +
+      'color:var(--blue);border:1px solid var(--blue);border-radius:6px;padding:3px 9px">TEACHER</div>' +
   '</div>';
 }
 
