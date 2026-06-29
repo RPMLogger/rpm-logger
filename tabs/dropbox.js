@@ -5,7 +5,7 @@
 // way. Backend: action=getDropboxFolders (RPM_Dropbox.js).
 
 // Default invite message (editable per student in the create panel).
-var DB_INVITE_MSG = "IMPORTANT: Please read the \"Dropbox Instructions\" sent via email to see how we will be using Dropbox.";
+var DB_INVITE_MSG = "IMPORTANT: Please read the [Dropbox Instructions] sent via email to see how we will be using Dropbox.";
 
 function initDropboxTab() {
   var url = getScriptUrl();
