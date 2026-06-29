@@ -7,6 +7,11 @@
 // Default invite message (editable per student in the create panel).
 var DB_INVITE_MSG = "IMPORTANT: Please read the [Dropbox Instructions] sent via email to see how we will be using Dropbox.";
 
+// Student folder list + current sort, so the Students list can re-sort in place
+// without re-fetching. Modes: 'attention' (default), 'az', 'size'.
+var _dbFolders = [];
+var _dbSort = 'attention';
+
 function initDropboxTab() {
   var url = getScriptUrl();
   var body = document.getElementById('dropboxBody');
@@ -144,7 +149,6 @@ function _dbAuditHtml(audit) {
 
 function renderDropbox(d) {
   var body = document.getElementById('dropboxBody');
-  var full = d.folders.filter(function (f) { return !f.empty; });
   var empty = d.folders.filter(function (f) { return f.empty; });
   var html = '';
 
@@ -179,14 +183,9 @@ function renderDropbox(d) {
     d.categories.forEach(function (c) { html += _dbTeacherCard(c); });
   }
 
-  // ── Students: one card each (folders with files first, then empty) ──
-  html += '<div class="section-label" style="margin-top:8px;margin-bottom:10px">Students</div>';
-  if (d.folders.length) {
-    full.forEach(function (f) { html += _dbCard(f); });
-    empty.forEach(function (f) { html += _dbCard(f); });
-  } else {
-    html += '<div class="empty-state">No student folders found.</div>';
-  }
+  // ── Students: one card each, sortable in place (attention / A–Z / size) ──
+  _dbFolders = d.folders || [];
+  html += '<div id="dbStudentsSection">' + _dbStudentsHtml() + '</div>';
 
   // ── Refresh ──
   html += '<hr class="divider" style="margin-top:22px"><button class="refresh-btn" onclick="initDropboxTab()">⟳ Re-check Dropbox</button>';
@@ -239,6 +238,53 @@ function _dbTeacherCard(c) {
     '<div style="flex-shrink:0;margin-left:12px;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;' +
       'color:var(--blue);border:1px solid var(--blue);border-radius:6px;padding:3px 9px">TEACHER</div>' +
   '</div>';
+}
+
+// ── Students list: sortable in place ────────────────────────────────────────
+// Returns the Students header (with sort pills) + the cards in the current order.
+function _dbStudentsHtml() {
+  var sorted = _dbSortFolders(_dbFolders.slice(), _dbSort);
+  var header =
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;margin-bottom:10px">' +
+      '<span class="section-label" style="margin:0">Students</span>' +
+      '<span>' + _dbPill('attention', 'Attention') + _dbPill('az', 'A–Z') + _dbPill('size', 'Size') + '</span>' +
+    '</div>';
+  var cards = sorted.length
+    ? sorted.map(function (f) { return _dbCard(f); }).join('')
+    : '<div class="empty-state">No student folders found.</div>';
+  return header + cards;
+}
+
+// Sort a copy of the student folders by the chosen mode.
+function _dbSortFolders(arr, mode) {
+  if (mode === 'az') {
+    arr.sort(function (a, b) { return a.name.localeCompare(b.name); });
+  } else if (mode === 'size') {
+    arr.sort(function (a, b) { return (b.bytes || 0) - (a.bytes || 0) || a.name.localeCompare(b.name); });
+  } else { // 'attention': folders with files first (oldest first), then empty
+    arr.sort(function (a, b) {
+      if (a.empty !== b.empty) return a.empty ? 1 : -1;
+      if (!a.empty && !b.empty) return (b.ageDays || 0) - (a.ageDays || 0);
+      return a.name.localeCompare(b.name);
+    });
+  }
+  return arr;
+}
+
+// One sort pill; the active mode is highlighted in accent.
+function _dbPill(mode, label) {
+  var active = _dbSort === mode;
+  return '<span onclick="_dbSetSort(\'' + mode + '\')" style="cursor:pointer;font-family:\'DM Mono\',monospace;font-size:10px;' +
+    'letter-spacing:1px;text-transform:uppercase;padding:4px 9px;border-radius:6px;margin-left:6px;' +
+    'border:1px solid ' + (active ? 'var(--accent)' : 'var(--border)') + ';' +
+    'color:' + (active ? 'var(--accent)' : 'var(--muted)') + '">' + label + '</span>';
+}
+
+// Switch sort and re-render just the Students section (no re-fetch).
+function _dbSetSort(mode) {
+  _dbSort = mode;
+  var sec = document.getElementById('dbStudentsSection');
+  if (sec) sec.innerHTML = _dbStudentsHtml();
 }
 
 // Escape a string for safe use inside a single-quoted onclick attribute.
