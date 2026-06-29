@@ -5,7 +5,7 @@
 // way. Backend: action=getDropboxFolders (RPM_Dropbox.js).
 
 // Default invite message (editable per student in the create panel).
-var DB_INVITE_MSG = "IMPORTANT: Please read the \"Dropbox Instructions\" sent via email to see how we will be using Dropbox. Remember to save your work—any items not saved will be automatically deleted after 30 days, so keep your homework!";
+var DB_INVITE_MSG = "IMPORTANT: Please read the \"Dropbox Instructions\" sent via email to see how we will be using Dropbox.";
 
 function initDropboxTab() {
   var url = getScriptUrl();
@@ -149,7 +149,7 @@ function _dbAuditHtml(audit) {
               'style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:6px;' +
               'padding:7px 10px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:12px;margin-bottom:6px;resize:vertical">' +
               _dbEsc(DB_INVITE_MSG) + '</textarea>' +
-            '<button class="db-mini-btn" onclick="_dbCreateFolder(\'' + nm + '\',' + i + ')">Create &amp; share →</button>' +
+            '<button class="db-mini-btn" onclick="_dbCreateFolder(\'' + nm + '\',' + i + ',this)">Create &amp; share →</button>' +
           '</div>' +
         '</div>';
       }).join('') +
@@ -285,10 +285,14 @@ function _dbStatus(msg, color) {
 }
 
 // Generic write call: POST an action, refresh the tab on success, inline error otherwise.
-function _dbAction(params) {
+// On failure, re-enable the button passed as `btn` (if any) so it isn't stuck on "Working…".
+function _dbAction(params, btn) {
   var url = getScriptUrl();
   if (!url) return;
   _dbStatus('Working…', 'var(--accent2)');
+  function _restore(label) {
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; btn.textContent = label; }
+  }
   var qs = Object.keys(params).map(function (k) {
     return k + '=' + encodeURIComponent(params[k]);
   }).join('&');
@@ -296,9 +300,9 @@ function _dbAction(params) {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (d.success) { initDropboxTab(); }
-      else { _dbStatus('⚠ ' + (d.message || 'Failed'), 'var(--accent)'); }
+      else { _dbStatus('⚠ ' + (d.message || 'Failed'), 'var(--accent)'); _restore('Create & share →'); }
     })
-    .catch(function () { _dbStatus('❌ Could not reach the portal.', 'var(--accent)'); });
+    .catch(function () { _dbStatus('❌ Could not reach the portal.', 'var(--accent)'); _restore('Create & share →'); });
 }
 
 // Mismatch: rename the Dropbox folder to match the Counter sheet (no popup).
@@ -313,13 +317,14 @@ function _dbShowCreate(i) {
 }
 
 // Missing: create the folder and share it with the entered email (no popup).
-function _dbCreateFolder(name, i) {
+function _dbCreateFolder(name, i, btn) {
   var input = document.getElementById('dbCreateEmail-' + i);
   var msgEl = document.getElementById('dbCreateMsg-' + i);
   var email = input ? input.value.trim() : '';
   var message = msgEl ? msgEl.value.trim() : '';
   if (!email || email.indexOf('@') === -1) { _dbStatus('Enter a valid email to share the folder with.', 'var(--accent)'); return; }
-  _dbAction({ action: 'createDropboxFolder', name: name, email: email, message: message });
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Working…'; }
+  _dbAction({ action: 'createDropboxFolder', name: name, email: email, message: message }, btn);
 }
 
 // On-demand: check who each folder is actually shared with vs the email on file.
