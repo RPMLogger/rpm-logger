@@ -5,11 +5,44 @@
 // active list. Two-step (preview → confirm) because the cleanup is irreversible.
 // Backend: getEndingPreview / finishStudent (RPM_Ending.js).
 
+// ── Your Google review link ──────────────────────────────────────────────────
+// Paste your g.page review link here (the one in your "would love your feedback"
+// text cards). It gets baked into templates A and C below.
+var EN_REVIEW_LINK = 'PASTE_YOUR_G.PAGE_LINK_HERE';
+
 var _enState = {
-  roster:  null,   // cached list of student names
-  filter:  '',     // current search text
-  preview: null    // last loaded preview (so confirm reuses the name)
+  roster:    null,  // cached list of student names
+  filter:    '',    // current search text
+  preview:   null,  // last loaded preview (so confirm reuses the name)
+  templates: []     // ask-for-review templates for the current student (copy buttons)
 };
+
+// Three ask-for-review templates in Bilgehan's voice. [brackets] are left for
+// him to fill per student (the personal callback). [Name] is auto-filled.
+function _enBuildTemplates(name) {
+  var link = EN_REVIEW_LINK;
+  return [
+    { label: 'A · Warm — you clicked',
+      text:
+        name + '!\n\n' +
+        '[personal callback — e.g. "That video came out so cool, I\'m glad we took it."] It was a fun journey with you, and you can come back anytime if you change your mind.\n\n' +
+        'Quick favor — would you leave a review on my Google page? It helps me and other people looking for lessons. Here\'s the link:\n' +
+        link + '\n\n' +
+        'Stay in touch and keep playing!' },
+    { label: 'B · Life got busy',
+      text:
+        'Hey ' + name + ',\n\n' +
+        'Sorry to see you go, man — you do what you have to do. It was a pleasure, and good luck with the guitar and everything else.\n\n' +
+        'If you find the time, a quick review would really help — my reviews are getting old and I could use some fresh ones. Google or Yelp, whatever\'s easier. No rush at all.\n\n' +
+        'Take care, stay in touch.\nBilgehan..' },
+    { label: 'C · Short & friendly',
+      text:
+        name + '!\n\n' +
+        'Thanks for all the lessons — it was a lot of fun. Quick favor if you have a minute: a Google review really helps me out and means a lot. Here\'s the link:\n' +
+        link + '\n\n' +
+        'Keep playing!' }
+  ];
+}
 
 function initEndingTab() {
   var url = getScriptUrl();
@@ -101,11 +134,26 @@ function _enRenderPreview(d) {
   // ── Review gate ──
   if (d.reviewGate && d.reviewGate.needsAsk) {
     html += '<div style="border-left:3px solid var(--accent);background:var(--surface2);border:1px solid var(--border);' +
-      'border-radius:10px;padding:12px 16px;margin-bottom:16px">' +
+      'border-radius:10px;padding:12px 16px;margin-bottom:12px">' +
       '<div style="font-family:\'Syne\',sans-serif;font-size:15px;color:var(--text)">⭐ No review yet' +
         (d.reviewGate.askedWhen ? ' · asked ' + _enEsc(d.reviewGate.askedWhen) : ' · never asked') + '</div>' +
-      '<div style="font-size:11px;color:var(--muted);margin-top:4px">This is your last clean moment to ask. Send a request before you archive them.</div>' +
+      '<div style="font-size:11px;color:var(--muted);margin-top:4px">This is your last clean moment to ask. Copy a template, send it, then archive.</div>' +
     '</div>';
+
+    // Ask-for-review templates with tap-to-copy. Stored so the copy button can
+    // read the exact text (including newlines) without inlining it in onclick.
+    _enState.templates = _enBuildTemplates(d.name);
+    html += '<div style="margin-bottom:18px">';
+    _enState.templates.forEach(function (t, i) {
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">' +
+          '<span style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">' + _enEsc(t.label) + '</span>' +
+          '<button class="db-mini-btn" id="enCopyBtn-' + i + '" onclick="_enCopyTemplate(' + i + ')">⧉ Copy</button>' +
+        '</div>' +
+        '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);white-space:pre-wrap;line-height:1.5">' + _enEsc(t.text) + '</div>' +
+      '</div>';
+    });
+    html += '</div>';
   } else if (d.reviewGate) {
     html += '<div style="border-left:3px solid var(--green);padding:2px 0 2px 14px;margin-bottom:16px;' +
       'font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> Already left a review</div>';
@@ -204,6 +252,37 @@ function _enStatus(msg, color) {
 
 function _enBackBtn() {
   return '<button class="refresh-btn" style="margin-top:14px" onclick="_enRenderSearch()">← back</button>';
+}
+
+// Copy a template to the clipboard. Falls back to a hidden textarea + execCommand
+// for older WebViews. Flashes the button label so the tap registers.
+function _enCopyTemplate(i) {
+  var t = _enState.templates[i];
+  if (!t) return;
+  var btn = document.getElementById('enCopyBtn-' + i);
+  function flash(ok) {
+    if (!btn) return;
+    var orig = '⧉ Copy';
+    btn.textContent = ok ? '✓ Copied' : '⚠ Select & copy';
+    setTimeout(function () { btn.textContent = orig; }, 1600);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(t.text).then(function () { flash(true); }, function () { _enCopyFallback(t.text, flash); });
+  } else {
+    _enCopyFallback(t.text, flash);
+  }
+}
+function _enCopyFallback(text, flash) {
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    var ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    flash(ok);
+  } catch (e) { flash(false); }
 }
 
 function _enEsc(s) {
