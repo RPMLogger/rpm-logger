@@ -152,19 +152,23 @@ function _enRenderPreview(d) {
   html += '<div class="section-label" style="margin-bottom:8px">Snapshot → Eski</div>';
   html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:6px 16px;margin-bottom:18px">';
   var sk = s.skips || {};
+  // Only render fields that actually have a value — empty ones (no Phone, no
+  // demographics for old students) drop out instead of showing a "—".
   [
     ['Email', s.email], ['Phone', s.phone],
     ['Gender / Age', [s.gender, s.age].filter(Boolean).join(' · ')],
     ['City', s.city], ['Level', s.level],
     ['Started', s.startDate], ['Last lesson', s.lastLesson],
     ['Lifetime', s.lifetime], ['Total lessons', s.totalLessons],
-    ['Payments', s.paidChecks], ['Frequency', s.frequency],
-    ['Skips (S/T/V)', (sk.student || 0) + ' / ' + (sk.teacher || 0) + ' / ' + (sk.vacation || 0)]
-  ].forEach(function (row) {
+    ['Frequency', s.frequency],
+    ['Skips (S/T/V)', (sk.student || sk.teacher || sk.vacation)
+      ? (sk.student || 0) + ' / ' + (sk.teacher || 0) + ' / ' + (sk.vacation || 0) : '']
+  ].filter(function (row) {
+    return !(row[1] === '' || row[1] == null);
+  }).forEach(function (row) {
     html += '<div style="display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--border)">' +
       '<span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">' + row[0] + '</span>' +
-      '<span style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);text-align:right">' +
-        (row[1] === '' || row[1] == null ? '—' : _enEsc(String(row[1]))) + '</span>' +
+      '<span style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);text-align:right">' + _enEsc(String(row[1])) + '</span>' +
     '</div>';
   });
   html += '</div>';
