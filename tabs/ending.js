@@ -121,7 +121,7 @@ function _enRenderPreview(d) {
     ['City', s.city], ['Level', s.level],
     ['Started', s.startDate], ['Last lesson', s.lastLesson],
     ['Lifetime', s.lifetime], ['Total lessons', s.totalLessons],
-    ['Paid checks', s.paidChecks], ['Frequency', s.frequency],
+    ['Payments', s.paidChecks], ['Frequency', s.frequency],
     ['Skips (S/T/V)', (sk.student || 0) + ' / ' + (sk.teacher || 0) + ' / ' + (sk.vacation || 0)]
   ].forEach(function (row) {
     html += '<div style="display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--border)">' +
