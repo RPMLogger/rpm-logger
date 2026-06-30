@@ -8,7 +8,7 @@
 // ── Your Google review link ──────────────────────────────────────────────────
 // Paste your g.page review link here (the one in your "would love your feedback"
 // text cards). It gets baked into templates A and C below.
-var EN_REVIEW_LINK = 'PASTE_YOUR_G.PAGE_LINK_HERE';
+var EN_REVIEW_LINK = 'https://g.page/r/CdeK_Lah36oBEBM/review';
 
 var _enState = {
   roster:    null,  // cached list of student names
