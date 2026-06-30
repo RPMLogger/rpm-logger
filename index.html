@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=291">
+  <link rel="stylesheet" href="css/styles.css?v=292">
 </head>
 <body>
 <div class="container">
@@ -50,6 +50,7 @@
     <button class="tab-btn" onclick="switchTab('travel')">Travel</button>
     <button class="tab-btn" onclick="switchTab('mailcenter')">Mail Center<span class="inq-badge" id="gbNavBadge" style="display:none"></span></button>
     <button class="tab-btn" onclick="switchTab('dropbox')">Dropbox</button>
+    <button class="tab-btn" onclick="switchTab('trial')">Trial</button>
     <button class="tab-btn" onclick="switchTab('ending')">Terminate</button>
     <button class="tab-btn" onclick="switchTab('sheets')">Sheets</button>
   </div>
@@ -58,7 +59,7 @@
   <div class="tab-panel active" id="tab-student">
     <div style="text-align:center;padding:10px 0 6px">
       <div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Build</div>
-      <div id="buildNo" style="font-size:46px;font-weight:800;line-height:1;color:var(--text)">291</div>
+      <div id="buildNo" style="font-size:46px;font-weight:800;line-height:1;color:var(--text)">292</div>
     </div>
     <div id="studentBody"><div class="empty-state">Loading...</div></div>
     <div class="log-feed" id="studentFeed"></div>
@@ -332,6 +333,12 @@
     <div id="dropboxBody"><div class="empty-state">Loading...</div></div>
   </div>
 
+  <!-- TRIAL -->
+  <div class="tab-panel" id="tab-trial">
+    <div class="section-label">Trial · Book a Student</div>
+    <div id="trialBody"><div class="empty-state">Loading...</div></div>
+  </div>
+
   <!-- FINISHED -->
   <div class="tab-panel" id="tab-ending">
     <div class="section-label">Terminate · Archive a Student</div>
@@ -428,25 +435,26 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/lessons.js?v=291"></script>
-<script src="tabs/payments.js?v=291"></script>
-<script src="tabs/past.js?v=291"></script>
-<script src="tabs/week.js?v=291"></script>
-<script src="tabs/general.js?v=291"></script>
-<script src="tabs/financial.js?v=291"></script>
-<script src="tabs/inquiries.js?v=291"></script>
-<script src="tabs/comms.js?v=291"></script>
-<script src="tabs/notes.js?v=291"></script>
-<script src="tabs/todo.js?v=291"></script>
-<script src="tabs/availability.js?v=291"></script>
-<script src="tabs/biweekly.js?v=291"></script>
-<script src="tabs/travel.js?v=291"></script>
-<script src="tabs/student.js?v=291"></script>
-<script src="tabs/ctrl.js?v=291"></script>
-<script src="tabs/mailcenter.js?v=291"></script>
-<script src="tabs/dropbox.js?v=291"></script>
-<script src="tabs/ending.js?v=291"></script>
-<script src="tabs/sheets.js?v=291"></script>
+<script src="tabs/lessons.js?v=292"></script>
+<script src="tabs/payments.js?v=292"></script>
+<script src="tabs/past.js?v=292"></script>
+<script src="tabs/week.js?v=292"></script>
+<script src="tabs/general.js?v=292"></script>
+<script src="tabs/financial.js?v=292"></script>
+<script src="tabs/inquiries.js?v=292"></script>
+<script src="tabs/comms.js?v=292"></script>
+<script src="tabs/notes.js?v=292"></script>
+<script src="tabs/todo.js?v=292"></script>
+<script src="tabs/availability.js?v=292"></script>
+<script src="tabs/biweekly.js?v=292"></script>
+<script src="tabs/travel.js?v=292"></script>
+<script src="tabs/student.js?v=292"></script>
+<script src="tabs/ctrl.js?v=292"></script>
+<script src="tabs/mailcenter.js?v=292"></script>
+<script src="tabs/dropbox.js?v=292"></script>
+<script src="tabs/trial.js?v=292"></script>
+<script src="tabs/ending.js?v=292"></script>
+<script src="tabs/sheets.js?v=292"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -468,7 +476,7 @@
   function switchTab(tab) {
     if (isRecording) stopRecording();
     if (tab === "financial") { initFinancialTab(); }
-    var tabs = ["student","lessons","payments","past","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","mailcenter","dropbox","ending","sheets"];
+    var tabs = ["student","lessons","payments","past","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","mailcenter","dropbox","trial","ending","sheets"];
     tabs.forEach(function(t, i) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
@@ -483,6 +491,7 @@
     if (tab === "notes") initNotesTab();
     if (tab === "mailcenter") initMailCenterTab();
     if (tab === "dropbox") initDropboxTab();
+    if (tab === "trial") initTrialTab();
     if (tab === "ending") initEndingTab();
     if (tab === "inquiries") { loadCommsInbox(); startCommsPolling(); } else { stopCommsPolling(); }
   }
