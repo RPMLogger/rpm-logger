@@ -75,7 +75,7 @@ function _enRenderSearch() {
   var body = document.getElementById('endingBody');
   body.innerHTML =
     '<div style="font-size:11px;color:var(--muted);margin-bottom:12px">' +
-      'Finishing a student archives them to Eski and removes them from every active list. Pick who\'s stopping.' +
+      'Terminating a student archives them to Eski and removes them from every active list. Pick who\'s stopping.' +
     '</div>' +
     '<input id="enSearch" type="text" placeholder="Search a student…" oninput="_enFilter(this.value)" ' +
       'style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:8px;' +
@@ -101,7 +101,7 @@ function _enRenderList() {
       'style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;' +
       'display:flex;align-items:center;justify-content:space-between;padding:13px 16px">' +
       '<span style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text)">' + n + '</span>' +
-      '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)">Finish →</span>' +
+      '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)">Terminate →</span>' +
     '</div>';
   }).join('');
 }
@@ -137,23 +137,12 @@ function _enRenderPreview(d) {
       'border-radius:10px;padding:12px 16px;margin-bottom:12px">' +
       '<div style="font-family:\'Syne\',sans-serif;font-size:15px;color:var(--text)">⭐ No review yet' +
         (d.reviewGate.askedWhen ? ' · asked ' + _enEsc(d.reviewGate.askedWhen) : ' · never asked') + '</div>' +
-      '<div style="font-size:11px;color:var(--muted);margin-top:4px">This is your last clean moment to ask. Copy a template, send it, then archive.</div>' +
+      '<div style="font-size:11px;color:var(--muted);margin-top:4px">This is your last clean moment to ask. Send a request, then archive.</div>' +
     '</div>';
 
-    // Ask-for-review templates with tap-to-copy. Stored so the copy button can
-    // read the exact text (including newlines) without inlining it in onclick.
-    _enState.templates = _enBuildTemplates(d.name);
-    html += '<div style="margin-bottom:18px">';
-    _enState.templates.forEach(function (t, i) {
-      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px">' +
-        '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">' +
-          '<span style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">' + _enEsc(t.label) + '</span>' +
-          '<button class="db-mini-btn" id="enCopyBtn-' + i + '" onclick="_enCopyTemplate(' + i + ')">⧉ Copy</button>' +
-        '</div>' +
-        '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);white-space:pre-wrap;line-height:1.5">' + _enEsc(t.text) + '</div>' +
-      '</div>';
-    });
-    html += '</div>';
+    // Templates stay hidden until you ask for them — kept out of the way.
+    html += '<button class="refresh-btn" style="margin-bottom:12px" onclick="_enToggleTemplates(\'' + _enEsc(d.name) + '\')">✍ Ask for a review</button>';
+    html += '<div id="enTemplates" style="display:none;margin-bottom:18px"></div>';
   } else if (d.reviewGate) {
     html += '<div style="border-left:3px solid var(--green);padding:2px 0 2px 14px;margin-bottom:16px;' +
       'font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> Already left a review</div>';
@@ -195,7 +184,7 @@ function _enRenderPreview(d) {
   html += '<button id="enConfirmBtn" onclick="_enConfirmFinish()" ' +
     'style="width:100%;box-sizing:border-box;background:var(--accent);color:#fff;border:none;border-radius:10px;' +
     'padding:14px;font-family:\'Syne\',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px">' +
-    '⚑ Finish & Archive ' + d.name + '</button>';
+    '⚑ Terminate & Archive ' + d.name + '</button>';
   html += '<div style="font-size:10px;color:var(--muted);text-align:center">Archives first, then deletes. Cannot be undone.</div>';
 
   body.innerHTML = html;
@@ -214,14 +203,14 @@ function _enConfirmFinish() {
     .then(function (res) {
       if (!res.success) {
         _enStatus('⚠ ' + (res.message || 'Failed — nothing may have been deleted.'), 'var(--accent)');
-        if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer'; btn.textContent = '⚑ Finish & Archive ' + d.name; }
+        if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer'; btn.textContent = '⚑ Terminate & Archive ' + d.name; }
         return;
       }
       _enRenderDone(res);
     })
     .catch(function () {
       _enStatus('❌ Could not reach the portal.', 'var(--accent)');
-      if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer'; btn.textContent = '⚑ Finish & Archive ' + d.name; }
+      if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer'; btn.textContent = '⚑ Terminate & Archive ' + d.name; }
     });
 }
 
@@ -229,7 +218,7 @@ function _enRenderDone(res) {
   // The finished student is gone — drop them from the cached roster.
   if (_enState.roster) _enState.roster = _enState.roster.filter(function (n) { return n !== res.name; });
   var body = document.getElementById('endingBody');
-  var html = '<div style="font-family:\'Syne\',sans-serif;font-size:22px;color:var(--text);margin-bottom:4px">✓ ' + res.name + ' finished</div>' +
+  var html = '<div style="font-family:\'Syne\',sans-serif;font-size:22px;color:var(--text);margin-bottom:4px">✓ ' + res.name + ' terminated</div>' +
     '<div style="font-size:11px;color:var(--muted);margin-bottom:16px">Archived to Eski as "' + _enEsc(res.archivedAs || res.name) + '"</div>';
   html += '<div style="border-left:3px solid var(--green);padding:2px 0 2px 14px;margin-bottom:18px">' +
     (res.steps || []).map(function (st) {
@@ -237,7 +226,7 @@ function _enRenderDone(res) {
         '<span style="color:var(--green)">✓</span> ' + _enEsc(st) + '</div>';
     }).join('') +
   '</div>';
-  html += '<button class="refresh-btn" onclick="_enRenderSearch()">← Finish another student</button>';
+  html += '<button class="refresh-btn" onclick="_enRenderSearch()">← Terminate another student</button>';
   body.innerHTML = html;
 }
 
@@ -254,22 +243,53 @@ function _enBackBtn() {
   return '<button class="refresh-btn" style="margin-top:14px" onclick="_enRenderSearch()">← back</button>';
 }
 
-// Copy a template to the clipboard. Falls back to a hidden textarea + execCommand
-// for older WebViews. Flashes the button label so the tap registers.
+// Toggle the templates panel (built on first open). Each template is an editable
+// textarea so you can tweak the wording before copying.
+function _enToggleTemplates(name) {
+  var box = document.getElementById('enTemplates');
+  if (!box) return;
+  if (box.style.display === 'none') {
+    if (!box.innerHTML) box.innerHTML = _enTemplatesHtml(name);
+    box.style.display = 'block';
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+// Build the three editable templates. Textareas hold the raw text directly, so
+// apostrophes render normally (no escaping artifacts) and you can edit in place.
+function _enTemplatesHtml(name) {
+  var tpl = _enBuildTemplates(name);
+  return tpl.map(function (t, i) {
+    return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">' +
+        '<span style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">' + _enEscHtml(t.label) + '</span>' +
+        '<button class="db-mini-btn" id="enCopyBtn-' + i + '" onclick="_enCopyTemplate(' + i + ')">⧉ Copy</button>' +
+      '</div>' +
+      '<textarea id="enTA-' + i + '" rows="9" ' +
+        'style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:8px;' +
+        'padding:10px 12px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:12px;line-height:1.5;resize:vertical">' +
+        _enEscHtml(t.text) + '</textarea>' +
+    '</div>';
+  }).join('');
+}
+
+// Copy the (possibly edited) textarea text to the clipboard. Falls back to
+// execCommand for older WebViews. Flashes the button label so the tap registers.
 function _enCopyTemplate(i) {
-  var t = _enState.templates[i];
-  if (!t) return;
+  var ta = document.getElementById('enTA-' + i);
+  if (!ta) return;
+  var text = ta.value;
   var btn = document.getElementById('enCopyBtn-' + i);
   function flash(ok) {
     if (!btn) return;
-    var orig = '⧉ Copy';
     btn.textContent = ok ? '✓ Copied' : '⚠ Select & copy';
-    setTimeout(function () { btn.textContent = orig; }, 1600);
+    setTimeout(function () { btn.textContent = '⧉ Copy'; }, 1600);
   }
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(t.text).then(function () { flash(true); }, function () { _enCopyFallback(t.text, flash); });
+    navigator.clipboard.writeText(text).then(function () { flash(true); }, function () { _enCopyFallback(text, flash); });
   } else {
-    _enCopyFallback(t.text, flash);
+    _enCopyFallback(text, flash);
   }
 }
 function _enCopyFallback(text, flash) {
@@ -285,6 +305,12 @@ function _enCopyFallback(text, flash) {
   } catch (e) { flash(false); }
 }
 
+// Escape for single-quoted onclick attributes (used by the roster list).
 function _enEsc(s) {
   return (s || '').toString().replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+// Escape for HTML text / textarea content — only the markup-significant chars,
+// so apostrophes and quotes stay literal (fixes the stray backslashes).
+function _enEscHtml(s) {
+  return (s || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
