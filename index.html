@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=285">
+  <link rel="stylesheet" href="css/styles.css?v=286">
 </head>
 <body>
 <div class="container">
@@ -50,6 +50,7 @@
     <button class="tab-btn" onclick="switchTab('travel')">Travel</button>
     <button class="tab-btn" onclick="switchTab('mailcenter')">Mail Center<span class="inq-badge" id="gbNavBadge" style="display:none"></span></button>
     <button class="tab-btn" onclick="switchTab('dropbox')">Dropbox</button>
+    <button class="tab-btn" onclick="switchTab('ending')">Finished</button>
     <button class="tab-btn" onclick="switchTab('sheets')">Sheets</button>
   </div>
 
@@ -57,7 +58,7 @@
   <div class="tab-panel active" id="tab-student">
     <div style="text-align:center;padding:10px 0 6px">
       <div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Build</div>
-      <div id="buildNo" style="font-size:46px;font-weight:800;line-height:1;color:var(--text)">285</div>
+      <div id="buildNo" style="font-size:46px;font-weight:800;line-height:1;color:var(--text)">286</div>
     </div>
     <div id="studentBody"><div class="empty-state">Loading...</div></div>
     <div class="log-feed" id="studentFeed"></div>
@@ -331,6 +332,12 @@
     <div id="dropboxBody"><div class="empty-state">Loading...</div></div>
   </div>
 
+  <!-- FINISHED -->
+  <div class="tab-panel" id="tab-ending">
+    <div class="section-label">Finished · Archive a Student</div>
+    <div id="endingBody"><div class="empty-state">Loading...</div></div>
+  </div>
+
   <!-- SHEETS -->
   <div class="tab-panel" id="tab-sheets">
 
@@ -421,24 +428,25 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/lessons.js?v=285"></script>
-<script src="tabs/payments.js?v=285"></script>
-<script src="tabs/past.js?v=285"></script>
-<script src="tabs/week.js?v=285"></script>
-<script src="tabs/general.js?v=285"></script>
-<script src="tabs/financial.js?v=285"></script>
-<script src="tabs/inquiries.js?v=285"></script>
-<script src="tabs/comms.js?v=285"></script>
-<script src="tabs/notes.js?v=285"></script>
-<script src="tabs/todo.js?v=285"></script>
-<script src="tabs/availability.js?v=285"></script>
-<script src="tabs/biweekly.js?v=285"></script>
-<script src="tabs/travel.js?v=285"></script>
-<script src="tabs/student.js?v=285"></script>
-<script src="tabs/ctrl.js?v=285"></script>
-<script src="tabs/mailcenter.js?v=285"></script>
-<script src="tabs/dropbox.js?v=285"></script>
-<script src="tabs/sheets.js?v=285"></script>
+<script src="tabs/lessons.js?v=286"></script>
+<script src="tabs/payments.js?v=286"></script>
+<script src="tabs/past.js?v=286"></script>
+<script src="tabs/week.js?v=286"></script>
+<script src="tabs/general.js?v=286"></script>
+<script src="tabs/financial.js?v=286"></script>
+<script src="tabs/inquiries.js?v=286"></script>
+<script src="tabs/comms.js?v=286"></script>
+<script src="tabs/notes.js?v=286"></script>
+<script src="tabs/todo.js?v=286"></script>
+<script src="tabs/availability.js?v=286"></script>
+<script src="tabs/biweekly.js?v=286"></script>
+<script src="tabs/travel.js?v=286"></script>
+<script src="tabs/student.js?v=286"></script>
+<script src="tabs/ctrl.js?v=286"></script>
+<script src="tabs/mailcenter.js?v=286"></script>
+<script src="tabs/dropbox.js?v=286"></script>
+<script src="tabs/ending.js?v=286"></script>
+<script src="tabs/sheets.js?v=286"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -460,7 +468,7 @@
   function switchTab(tab) {
     if (isRecording) stopRecording();
     if (tab === "financial") { initFinancialTab(); }
-    var tabs = ["student","lessons","payments","past","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","mailcenter","dropbox","sheets"];
+    var tabs = ["student","lessons","payments","past","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","mailcenter","dropbox","ending","sheets"];
     tabs.forEach(function(t, i) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
@@ -475,6 +483,7 @@
     if (tab === "notes") initNotesTab();
     if (tab === "mailcenter") initMailCenterTab();
     if (tab === "dropbox") initDropboxTab();
+    if (tab === "ending") initEndingTab();
     if (tab === "inquiries") { loadCommsInbox(); startCommsPolling(); } else { stopCommsPolling(); }
   }
 
