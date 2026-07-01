@@ -196,6 +196,7 @@ function renderInquiries(inquiries) {
         "<button class='inq-btn' onclick='inqDecide(\"yes\",\"" + emailToId(inq.email) + "\")' style='" + _inqDecBtn("var(--green)") + "'>✓ Yes</button>" +
         "<button class='inq-btn' onclick='inqDecide(\"maybe\",\"" + emailToId(inq.email) + "\")' style='" + _inqDecBtn("#d98e04") + "'>Maybe</button>" +
         "<button class='inq-btn' onclick='inqDecide(\"no\",\"" + emailToId(inq.email) + "\")' style='" + _inqDecBtn("var(--accent)") + "'>No</button>" +
+        "<button class='inq-btn' onclick='inqDecide(\"noreply\",\"" + emailToId(inq.email) + "\")' style='" + _inqDecBtn("var(--muted)") + "' title='Silent clear — no email, keeps their address on the list'>No reply</button>" +
         "<button class='inq-btn' onclick='inqScam(\"" + emailToId(inq.email) + "\")' style='" + _inqDecBtn("var(--muted)") + "' title='Scammer — delete + trash email'>🚫 Scam</button>" +
         "<button class='inq-btn inq-delete' onclick='deleteInquiry(\"" + inqEsc(inq.email) + "\")' title='Delete'>✕</button>" +
       "</div>";
@@ -253,6 +254,8 @@ function inqDecide(decision, domId) {
   if (!card || !card._inq) return;
   var inq = card._inq;
   if (decision === "yes") return _inqSendDecision("yes", inq, null);
+  // No reply → silent clear, no popup, no email (still keeps the address).
+  if (decision === "noreply") return _inqSendDecision("noreply", inq, { send: false, subject: "", body: "" });
   // Maybe / No → open the editable template popup.
   _inqOpenTemplate(decision, inq);
 }
@@ -351,10 +354,18 @@ function _inqSendDecision(decision, inq, tpl) {
       }
       _inqCloseModal();
       _inqRemoveCard(inq.email);
-      var note = decision === "yes"
-        ? "✓ " + (inq.name || "Accepted") + " — now book them in the Trial tab"
-        : "✓ Filed" + (d.sent ? " + emailed" : "") + " — " + (decision === "maybe" ? "warm list" : "cold list");
-      _inqToast(note, decision === "no" ? "var(--accent)" : "var(--green)");
+      var note, color;
+      if (decision === "yes") {
+        note = "✓ " + (inq.name || "Accepted") + " — now book them in the Trial tab";
+        color = "var(--green)";
+      } else if (decision === "noreply") {
+        note = "· Cleared silently — address kept on the list";
+        color = "var(--muted)";
+      } else {
+        note = "✓ Filed" + (d.sent ? " + emailed" : "") + " — " + (decision === "maybe" ? "warm list" : "cold list");
+        color = decision === "no" ? "var(--accent)" : "var(--green)";
+      }
+      _inqToast(note, color);
     })
     .catch(function () {
       var st = document.getElementById("inqModalStatus");
@@ -412,6 +423,7 @@ function syncInquiriesNow() {
     });
 }
 
+// Read/unread is a frontend-only visual cue now (no Status cell to persist to).
 function markInquiryRead(email) {
   var card = document.getElementById("inq-" + emailToId(email));
   if (card && card.classList.contains("unread")) {
@@ -420,7 +432,6 @@ function markInquiryRead(email) {
     var badge = document.getElementById("inqBadge");
     if (badge) { var n = parseInt(badge.textContent) - 1; if (n > 0) badge.textContent = n; else badge.style.display = "none"; }
   }
-  inqAction("markInquiryStatus", email, "&status=read");
 }
 
 function deleteInquiry(email) {
