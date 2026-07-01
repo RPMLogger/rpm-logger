@@ -356,6 +356,30 @@ body::before {
 .inq-archive:hover { color: var(--accent2); }
 .financial-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 12px; line-height: 3; border: 1px dashed var(--border); border-radius: 8px; }
 
+/* ─── Inquiries: decision cards (clean) ─────────────────────────────────── */
+.inq-dcard { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+.inq-dcard.unread { border-left-color: var(--accent); }
+.inq-dcard.read   { opacity: 0.62; }
+.inq-drow  { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.inq-chan  { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+.inq-when  { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); white-space: nowrap; }
+.inq-name-line { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin: 7px 0 5px; }
+.inq-name  { font-family: "Syne", sans-serif; font-size: 16px; font-weight: 600; color: var(--text); }
+.inq-meta  { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
+.inq-text  { font-family: "DM Mono", monospace; font-size: 12px; line-height: 1.65; color: var(--muted); }
+.inq-text b { color: var(--text); font-weight: 500; }
+.inq-acts  { display: flex; align-items: center; gap: 6px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
+.inq-db    { font-family: "DM Mono", monospace; font-size: 11px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: background .12s, color .12s; }
+.inq-db:hover { background: var(--surface2); }
+.inq-db.yes   { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); }
+.inq-db.yes:hover   { background: color-mix(in srgb, var(--green) 16%, transparent); }
+.inq-db.maybe { color: #d9a441; border-color: color-mix(in srgb, #d9a441 55%, transparent); }
+.inq-db.maybe:hover { background: color-mix(in srgb, #d9a441 16%, transparent); }
+.inq-db.no    { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+.inq-db.no:hover    { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.inq-x     { background: none; border: none; color: var(--muted); font-size: 14px; cursor: pointer; padding: 4px 6px; line-height: 1; }
+.inq-x:hover { color: var(--accent); }
+
 /* ─── LOG FEED ────────────────────────────────────────────────────────────── */
 .log-feed  { display: flex; flex-direction: column; gap: 5px; margin-top: 12px; }
 .log-entry { padding: 8px 12px; border-radius: 4px; font-size: 11px; line-height: 1.4; border-left: 3px solid transparent; }

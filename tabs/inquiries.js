@@ -79,7 +79,7 @@ function renderBusinessStrip(load, biweekly) {
 
   function chip(label, value, color) {
     return '<div style="flex:1;min-width:78px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center">' +
-      '<div style="font-family:\'Syne\',sans-serif;font-size:19px;font-weight:700;color:' + (color || 'var(--text)') + '">' + value + '</div>' +
+      '<div style="font-family:\'Syne\',sans-serif;font-size:18px;font-weight:600;color:' + (color || 'var(--text)') + '">' + value + '</div>' +
       '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-top:2px">' + label + '</div>' +
     '</div>';
   }
@@ -96,11 +96,11 @@ function renderBusinessStrip(load, biweekly) {
         '<div style="display:flex;align-items:center;gap:10px">' +
           '<span style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)">Ideal load</span>' +
           '<button onclick="_inqStepIdeal(-0.5)" style="' + _inqStepBtn() + '">−</button>' +
-          '<span style="font-family:\'Syne\',sans-serif;font-size:22px;font-weight:700;color:' + loadColor + '">' + _inqFmt(norm) + '<span style="color:var(--muted);font-size:15px"> / ' + _inqFmt(ideal) + '</span></span>' +
+          '<span style="font-family:\'Syne\',sans-serif;font-size:21px;font-weight:600;color:' + loadColor + '">' + _inqFmt(norm) + '<span style="color:var(--muted);font-size:15px"> / ' + _inqFmt(ideal) + '</span></span>' +
           '<button onclick="_inqStepIdeal(0.5)" style="' + _inqStepBtn() + '">＋</button>' +
         '</div>' +
         '<div style="text-align:right">' +
-          '<div style="font-family:\'Syne\',sans-serif;font-size:20px;font-weight:700;color:var(--text)">$' + incNow.toLocaleString() + '</div>' +
+          '<div style="font-family:\'Syne\',sans-serif;font-size:20px;font-weight:600;color:var(--text)">$' + incNow.toLocaleString() + '</div>' +
           '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted)">' + gapLine + '</div>' +
         '</div>' +
       '</div>' +
@@ -156,63 +156,72 @@ function renderInquiries(inquiries) {
 
   active.forEach(function (inq) {
     var status = inq.status || "unread";
+    var id = emailToId(inq.email);
     var card = document.createElement("div");
-    card.className = "inq-card " + (status === "unread" ? "unread" : "read");
-    card.id = "inq-" + emailToId(inq.email);
+    card.className = "inq-dcard " + (status === "unread" ? "unread" : "read");
+    card.id = "inq-" + id;
     card.setAttribute("data-email", inq.email || "");
-    card.style.flexDirection = "column";
-    card.style.alignItems = "stretch";
-    card.style.gap = "8px";
 
-    // Who line: Name · Gender / Age (child|adult) · City
-    var who = [];
-    if (inq.name) who.push("<b style='color:var(--text);font-family:\"Syne\",sans-serif;font-size:15px'>" + inqEsc(inq.name) + "</b>");
+    // Channel source (all current inquiries arrive via Gmail; text/voicemail later).
+    var chan = inq.channel || "Gmail";
+
+    // Name line: Name · Gender / Age (child|adult) · City
+    var meta = [];
     var ga = [];
     if (inq.gender) ga.push(inqEsc(inq.gender));
-    if (inq.age) ga.push(inqEsc(inq.age) + (_inqIsChild(inq.age) ? " (child)" : " (adult)"));
-    if (ga.length) who.push(ga.join(" / "));
-    if (inq.city) who.push(inqEsc(inq.city));
+    if (inq.age)    ga.push(_inqAgeShort(inq.age) + (_inqIsChild(inq.age) ? " (child)" : " (adult)"));
+    if (ga.length)  meta.push(ga.join(" / "));
+    if (inq.city)   meta.push(inqEsc(inq.city));
 
-    // Motivation / fit line
-    var fit = [];
-    if (inq.level)     fit.push("Level: " + inqEsc(inq.level));
-    if (inq.interests) fit.push("Interests: " + inqEsc(inq.interests));
+    // One flowing body: Level · Interests · message — all the same muted colour.
+    var body = [];
+    if (inq.level)     body.push("<b>Level:</b> " + inqEsc(inq.level));
+    if (inq.interests) body.push("<b>Interests:</b> " + inqEsc(inq.interests));
+    var bodyLine = body.join(" &nbsp;·&nbsp; ");
+    if (inq.message) bodyLine += (bodyLine ? "&nbsp; " : "") + inqEsc(inq.message);
 
-    var msg = inq.message ? "<div style='background:var(--bg);border-radius:7px;padding:8px 10px;font-size:12px;color:var(--text);white-space:pre-wrap;line-height:1.5'>" + inqEsc(inq.message) + "</div>" : "";
-    var contact = [];
-    if (inq.email) contact.push(inqEsc(inq.email));
-    if (inq.phone) contact.push(inqEsc(inq.phone));
+    function btn(cls, dec, label, title) {
+      return "<button class='inq-db " + cls + "' " + (title ? "title='" + title + "' " : "") +
+        "onclick='" + (dec === "scam" ? "inqScam" : "inqDecide") +
+        "(" + (dec === "scam" ? "" : "\"" + dec + "\",") + "\"" + id + "\")'>" + label + "</button>";
+    }
 
     card.innerHTML =
-      "<div style='display:flex;align-items:center;justify-content:space-between;gap:8px'>" +
-        "<span class='inq-from'>Inquiry</span>" +
-        "<span class='inq-date'>" + inqEsc(inq.date || "") + "</span>" +
+      "<div class='inq-drow'>" +
+        "<span class='inq-chan'>" + inqEsc(chan) + "</span>" +
+        "<span class='inq-when'>" + inqEsc(inq.date || "") + "</span>" +
       "</div>" +
-      "<div style='font-size:12px;color:var(--muted)'>" + (who.join(" · ") || "—") + "</div>" +
-      (fit.length ? "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--accent2)'>" + fit.join(" · ") + "</div>" : "") +
-      msg +
-      (contact.length ? "<div style='font-family:\"DM Mono\",monospace;font-size:10px;color:var(--muted)'>" + contact.join(" · ") + "</div>" : "") +
-      "<div class='inq-actions' style='justify-content:flex-end;margin-top:2px'>" +
-        "<button class='inq-btn' onclick='inqDecide(\"yes\",\"" + emailToId(inq.email) + "\")' style='" + _inqDecBtn("var(--green)") + "'>✓ Yes</button>" +
-        "<button class='inq-btn' onclick='inqDecide(\"maybe\",\"" + emailToId(inq.email) + "\")' style='" + _inqDecBtn("#d98e04") + "'>Maybe</button>" +
-        "<button class='inq-btn' onclick='inqDecide(\"no\",\"" + emailToId(inq.email) + "\")' style='" + _inqDecBtn("var(--accent)") + "'>No</button>" +
-        "<button class='inq-btn' onclick='inqDecide(\"noreply\",\"" + emailToId(inq.email) + "\")' style='" + _inqDecBtn("var(--muted)") + "' title='Silent clear — no email, keeps their address on the list'>No reply</button>" +
-        "<button class='inq-btn' onclick='inqScam(\"" + emailToId(inq.email) + "\")' style='" + _inqDecBtn("var(--muted)") + "' title='Scammer — delete + trash email'>🚫 Scam</button>" +
-        "<button class='inq-btn inq-delete' onclick='deleteInquiry(\"" + inqEsc(inq.email) + "\")' title='Delete'>✕</button>" +
+      "<div class='inq-name-line'>" +
+        "<span class='inq-name'>" + inqEsc(inq.name || "—") + "</span>" +
+        (meta.length ? "<span class='inq-meta'>" + meta.join(" · ") + "</span>" : "") +
+      "</div>" +
+      (bodyLine ? "<div class='inq-text'>" + bodyLine + "</div>" : "") +
+      "<div class='inq-acts'>" +
+        btn("yes",   "yes",     "✓ Yes") +
+        btn("maybe", "maybe",   "Maybe") +
+        btn("no",    "no",      "No") +
+        btn("",      "noreply", "No reply", "Silent clear — no email, keeps their address on the list") +
+        btn("",      "scam",    "Scam",     "Scammer — delete + trash email") +
+        "<button class='inq-x' onclick='deleteInquiry(\"" + inqEsc(inq.email) + "\")' title='Delete'>✕</button>" +
       "</div>";
 
-    // Stash the full record on the node for the modal.
     card._inq = inq;
 
     if (status === "unread") {
-      var head = card.querySelector(".inq-from");
       card.addEventListener("click", function (ev) {
-        if (ev.target.closest(".inq-btn")) return;
+        if (ev.target.closest(".inq-db") || ev.target.closest(".inq-x")) return;
         markInquiryRead(inq.email);
       });
     }
     list.appendChild(card);
   });
+}
+
+// "10 Years Old" → "10". Leaves anything non-numeric as-is.
+function _inqAgeShort(age) {
+  var s = (age || "").toString().trim();
+  var m = s.match(/\d+/);
+  return m ? m[0] : inqEsc(s);
 }
 
 // Scam → confirm, then log to Scam sheet + trash Gmail thread + remove card.
@@ -242,10 +251,6 @@ function inqScam(domId) {
 function _inqIsChild(age) {
   var n = parseInt(age, 10);
   return isFinite(n) && n > 0 && n < 18;
-}
-function _inqDecBtn(color) {
-  return "background:none;border:1px solid " + color + ";color:" + color +
-    ";font-size:11px;font-family:'DM Mono',monospace;border-radius:6px;padding:5px 11px;cursor:pointer";
 }
 
 // ── Decision dispatch ────────────────────────────────────────────────────────
