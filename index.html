@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=292">
+  <link rel="stylesheet" href="css/styles.css?v=293">
 </head>
 <body>
 <div class="container">
@@ -59,7 +59,7 @@
   <div class="tab-panel active" id="tab-student">
     <div style="text-align:center;padding:10px 0 6px">
       <div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Build</div>
-      <div id="buildNo" style="font-size:46px;font-weight:800;line-height:1;color:var(--text)">292</div>
+      <div id="buildNo" style="font-size:46px;font-weight:800;line-height:1;color:var(--text)">293</div>
     </div>
     <div id="studentBody"><div class="empty-state">Loading...</div></div>
     <div class="log-feed" id="studentFeed"></div>
@@ -265,6 +265,8 @@
     </div>
     <div id="commsInbox"></div>
     <hr class="divider">
+    <div class="section-label">Business Situation</div>
+    <div id="inqBizStrip"></div>
     <div class="section-label">Trial Lesson Inquiries</div>
     <div id="inquiriesList"><div class="inq-empty">Loading...</div></div>
     <a class="inq-archive" href="https://docs.google.com/spreadsheets/d/1JE0KugItYkWF19Pp8zqw6xCyLxjS-ryZMplC6XijOSM/edit" target="_blank" rel="noopener">Open inquiry archive ↗</a>
@@ -435,26 +437,26 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/lessons.js?v=292"></script>
-<script src="tabs/payments.js?v=292"></script>
-<script src="tabs/past.js?v=292"></script>
-<script src="tabs/week.js?v=292"></script>
-<script src="tabs/general.js?v=292"></script>
-<script src="tabs/financial.js?v=292"></script>
-<script src="tabs/inquiries.js?v=292"></script>
-<script src="tabs/comms.js?v=292"></script>
-<script src="tabs/notes.js?v=292"></script>
-<script src="tabs/todo.js?v=292"></script>
-<script src="tabs/availability.js?v=292"></script>
-<script src="tabs/biweekly.js?v=292"></script>
-<script src="tabs/travel.js?v=292"></script>
-<script src="tabs/student.js?v=292"></script>
-<script src="tabs/ctrl.js?v=292"></script>
-<script src="tabs/mailcenter.js?v=292"></script>
-<script src="tabs/dropbox.js?v=292"></script>
-<script src="tabs/trial.js?v=292"></script>
-<script src="tabs/ending.js?v=292"></script>
-<script src="tabs/sheets.js?v=292"></script>
+<script src="tabs/lessons.js?v=293"></script>
+<script src="tabs/payments.js?v=293"></script>
+<script src="tabs/past.js?v=293"></script>
+<script src="tabs/week.js?v=293"></script>
+<script src="tabs/general.js?v=293"></script>
+<script src="tabs/financial.js?v=293"></script>
+<script src="tabs/inquiries.js?v=293"></script>
+<script src="tabs/comms.js?v=293"></script>
+<script src="tabs/notes.js?v=293"></script>
+<script src="tabs/todo.js?v=293"></script>
+<script src="tabs/availability.js?v=293"></script>
+<script src="tabs/biweekly.js?v=293"></script>
+<script src="tabs/travel.js?v=293"></script>
+<script src="tabs/student.js?v=293"></script>
+<script src="tabs/ctrl.js?v=293"></script>
+<script src="tabs/mailcenter.js?v=293"></script>
+<script src="tabs/dropbox.js?v=293"></script>
+<script src="tabs/trial.js?v=293"></script>
+<script src="tabs/ending.js?v=293"></script>
+<script src="tabs/sheets.js?v=293"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -493,7 +495,7 @@
     if (tab === "dropbox") initDropboxTab();
     if (tab === "trial") initTrialTab();
     if (tab === "ending") initEndingTab();
-    if (tab === "inquiries") { loadCommsInbox(); startCommsPolling(); } else { stopCommsPolling(); }
+    if (tab === "inquiries") { initInquiriesTab(); loadCommsInbox(); startCommsPolling(); } else { stopCommsPolling(); }
   }
 
   var _now = new Date();
