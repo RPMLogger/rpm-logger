@@ -235,21 +235,16 @@ function inqScam(domId) {
   var card = document.getElementById("inq-" + domId);
   if (!card || !card._inq) return;
   var inq = card._inq;
-  if (!confirm("Mark this a scam?\n\nIt'll be logged to the Scam sheet, removed from the portal, and its Bandzoogle email moved to Trash.")) return;
+  if (!confirm("Mark as scam?\n\nIt stays in the Inquiries archive marked \"Scam\" and leaves the list.")) return;
   var url = getScriptUrl();
   if (!url) return;
-  var qs = "action=markInquiryScam" +
-    "&email=" + encodeURIComponent(inq.email || "") +
-    "&name=" + encodeURIComponent(inq.name || "") +
-    "&phone=" + encodeURIComponent(inq.phone || "") +
-    "&city=" + encodeURIComponent(inq.city || "") +
-    "&message=" + encodeURIComponent(inq.message || "");
+  var qs = "action=markInquiryScam&email=" + encodeURIComponent(inq.email || "");
   fetch(url + "?" + qs)
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d || !d.success) { _inqToast("⚠ " + ((d && d.message) || "Scam failed"), "var(--accent)"); return; }
       _inqRemoveCard(inq.email);
-      _inqToast("🚫 Scam filed" + (d.trashed ? " · email trashed" : ""), "var(--muted)");
+      _inqToast("🚫 Marked Scam", "var(--muted)");
     })
     .catch(function () { _inqToast("❌ Could not reach the portal.", "var(--accent)"); });
 }
