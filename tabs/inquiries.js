@@ -173,12 +173,19 @@ function renderInquiries(inquiries) {
     if (ga.length)  meta.push(ga.join(" / "));
     if (inq.city)   meta.push(inqEsc(inq.city));
 
-    // One flowing body: Level · Interests · message — all the same muted colour.
-    var body = [];
-    if (inq.level)     body.push("<b>Level:</b> " + inqEsc(inq.level));
-    if (inq.interests) body.push("<b>Interests:</b> " + inqEsc(inq.interests));
-    var bodyLine = body.join(" &nbsp;·&nbsp; ");
-    if (inq.message) bodyLine += (bodyLine ? "&nbsp; " : "") + inqEsc(inq.message);
+    // Every category on its own line, aligned like the sheet. Empty → "-".
+    var fields = [
+      ["Date",         inq.date],
+      ["Level",        inq.level],
+      ["Interests",    inq.interests],
+      ["Availability", inq.availability],
+      ["Daytime",      inq.daytime],
+      ["Message",      inq.message]
+    ];
+    var fieldsHtml = fields.map(function (f) {
+      var v = (f[1] != null && f[1].toString().trim()) ? inqEsc(f[1]) : "-";
+      return "<span class='inq-flabel'>" + f[0] + "</span><span class='inq-fval'>" + v + "</span>";
+    }).join("");
 
     function btn(cls, dec, label, title) {
       return "<button class='inq-db " + cls + "' " + (title ? "title='" + title + "' " : "") +
@@ -189,15 +196,14 @@ function renderInquiries(inquiries) {
     card.innerHTML =
       "<div class='inq-drow'>" +
         "<span class='inq-chan'>" + inqEsc(chan) + "</span>" +
-        "<span class='inq-when'>" + inqEsc(inq.date || "") + "</span>" +
       "</div>" +
       "<div class='inq-name-line'>" +
         "<span class='inq-name'>" + inqEsc(inq.name || "—") + "</span>" +
         (meta.length ? "<span class='inq-meta'>" + meta.join(" · ") + "</span>" : "") +
       "</div>" +
-      (bodyLine ? "<div class='inq-text'>" + bodyLine + "</div>" : "") +
+      "<div class='inq-fields'>" + fieldsHtml + "</div>" +
       "<div class='inq-acts'>" +
-        btn("yes",   "yes",     "✓ Yes") +
+        btn("yes",   "yes",     "Yes") +
         btn("maybe", "maybe",   "Maybe") +
         btn("no",    "no",      "No") +
         btn("",      "noreply", "No reply", "Silent clear — no email, keeps their address on the list") +
