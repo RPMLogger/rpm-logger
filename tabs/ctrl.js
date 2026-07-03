@@ -367,8 +367,10 @@ function _renderFixData(d) {
     return wrap;
   }
 
-  // Helper to render a Students Import block
-  function importBlock(label, lessons) {
+  // Helper to render a Students Import block. counterCells (optional) is the
+  // matching Counter block's cells — empty Import rows auto-fill their date
+  // from the same block position when Counter has a date the Import is missing.
+  function importBlock(label, lessons, counterCells) {
     var wrap = document.createElement("div");
     wrap.style.cssText = "margin-bottom:10px";
     var lbl = document.createElement("div");
@@ -388,8 +390,13 @@ function _renderFixData(d) {
         var subjIn = document.createElement("input");
         subjIn.type = "text"; subjIn.placeholder = "Subject";
         subjIn.style.cssText = "flex:1;padding:2px 6px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:11px";
-        var sp = _fixDateSpinner("");
-        sp.box.style.cssText += ";border:1px solid var(--border);border-radius:3px;padding:2px 6px;flex-shrink:0";
+        // Pre-fill the date from the Counter cell at the same block position,
+        // when Counter has a date this Import row is missing. Green-tinted so
+        // it's clearly auto-filled; still fully editable via the spinner.
+        var autoDate = "";
+        if (counterCells && counterCells[i] && !counterCells[i].empty) autoDate = counterCells[i].value || "";
+        var sp = _fixDateSpinner(autoDate);
+        sp.box.style.cssText += ";border:1px solid " + (autoDate ? "rgba(0,200,100,0.5)" : "var(--border)") + ";border-radius:3px;padding:2px 6px;flex-shrink:0";
         row.appendChild(subjIn); row.appendChild(sp.box);
         importControls.push({ subjIn: subjIn, sp: sp });
       } else {
@@ -411,8 +418,9 @@ function _renderFixData(d) {
   // Counter dates come back oldest→newest: previous block first, current block last.
   // Past block on top, current below (only show Past if there's a prior block).
   var cDates = d.counter.dates || [];
+  var counterCurrentCells = cDates.slice(Math.max(0, cDates.length - 4));
   if (cDates.length > 4) body.appendChild(counterBlock("Previous Block", cDates.slice(0, cDates.length - 4)));
-  body.appendChild(counterBlock("Current Block", cDates.slice(Math.max(0, cDates.length - 4))));
+  body.appendChild(counterBlock("Current Block", counterCurrentCells));
 
   // Finished (E): keyboard 1→2→3→4 cycler (↑↓).
   var eRow = document.createElement("div");
@@ -447,8 +455,8 @@ function _renderFixData(d) {
   } else {
     // importLessons returned chronologically (oldest first): previous block then current.
     var imp = d.importLessons;
-    if (imp.length > 4) body.appendChild(importBlock("Previous Block", imp.slice(0, imp.length - 4)));
-    body.appendChild(importBlock("Current Block", imp.slice(Math.max(0, imp.length - 4))));
+    if (imp.length > 4) body.appendChild(importBlock("Previous Block", imp.slice(0, imp.length - 4), null));
+    body.appendChild(importBlock("Current Block", imp.slice(Math.max(0, imp.length - 4)), counterCurrentCells));
   }
 
   // One Log button commits all filled-in Students Import rows.
@@ -738,6 +746,11 @@ function _auditCheckAllClear() {
   if (!section.querySelector('[data-audit-student]')) {
     section.innerHTML = '<div style="color:var(--green);font-size:11px;text-align:center;padding:20px">All Counter dates exist in Students Import ✓</div>';
   }
+}
+
+// 📅 Calendar button — open Google Calendar in a new tab.
+function openGoogleCalendar() {
+  window.open("https://calendar.google.com/calendar/r", "_blank", "noopener");
 }
 
 // ↻ Refresh button — re-run all three audits against the live sheets.
