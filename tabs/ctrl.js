@@ -6,47 +6,49 @@ function initAuditTab() {
   var url = getScriptUrl();
   if (!url) {
     document.getElementById("auditLessonSection").innerHTML = '<div class="empty-state">No script URL set</div>';
-    document.getElementById("auditBlockSection").innerHTML  = '<div class="empty-state">No script URL set</div>';
     document.getElementById("auditUnpaidSection").innerHTML = '<div class="empty-state">No script URL set</div>';
     return;
   }
-  _runAudit1(url);
-  _runAudit2(url);
+  _runSyncAudits(url);
   _runAudit3(url);
 }
 
-function _runAudit1(url) {
+// Audits 1 (lesson dates) + 2 (block sync) fetch in parallel and render as ONE
+// merged card list — one card per student, so the same problem never shows up
+// twice. Both backend audits stay untouched; only the presentation merges.
+function _runSyncAudits(url) {
   var section = document.getElementById("auditLessonSection");
   section.innerHTML = '<div class="empty-state">Running audit...</div>';
+  var results = { dates: null, sync: null };
+  var failed = false;
+
+  function done() {
+    if (failed || results.dates === null || results.sync === null) return;
+    renderMergedAuditCards(results.dates, results.sync);
+  }
+  function fail(msg) {
+    if (failed) return;
+    failed = true;
+    section.innerHTML = '<div class="empty-state">Audit error: ' + msg + '</div>';
+  }
+
   fetch(url + "?action=auditLessonDates")
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      if (!data.success) {
-        section.innerHTML = '<div class="empty-state">Audit error: ' + (data.message || "unknown") + '</div>';
-        return;
-      }
-      renderAuditCards(data.audit || []);
+      if (!data.success) { fail(data.message || "unknown"); return; }
+      results.dates = data.audit || [];
+      done();
     })
-    .catch(function() {
-      section.innerHTML = '<div class="empty-state">Connection failed</div>';
-    });
-}
+    .catch(function() { fail("connection failed"); });
 
-function _runAudit2(url) {
-  var section = document.getElementById("auditBlockSection");
-  section.innerHTML = '<div class="empty-state">Running audit...</div>';
   fetch(url + "?action=auditBlockSync")
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      if (!data.success) {
-        section.innerHTML = '<div class="empty-state">Audit error: ' + (data.message || "unknown") + '</div>';
-        return;
-      }
-      renderBlockSyncCards(data.audit || []);
+      if (!data.success) { fail(data.message || "unknown"); return; }
+      results.sync = data.audit || [];
+      done();
     })
-    .catch(function() {
-      section.innerHTML = '<div class="empty-state">Connection failed</div>';
-    });
+    .catch(function() { fail("connection failed"); });
 }
 
 function _runAudit3(url) {
@@ -610,61 +612,6 @@ function _sendReminder(student, btn, infoEl) {
   });
 }
 
-function renderBlockSyncCards(audit) {
-  var section = document.getElementById("auditBlockSection");
-  section.innerHTML = "";
-
-  if (!audit.length) {
-    section.innerHTML = '<div style="color:var(--green);font-size:11px;text-align:center;padding:20px">Counter and Students Import last lessons are in sync ✓</div>';
-    return;
-  }
-
-  audit.forEach(function(s) {
-    var card = document.createElement("div");
-    card.style.cssText = "padding:12px;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;background:var(--panel);cursor:pointer";
-    card.onclick = function() { openAuditFixModal(s.name); };
-
-    var name = document.createElement("div");
-    name.style.cssText = "font-weight:600;margin-bottom:8px;font-size:13px";
-    name.textContent = s.name;
-    card.appendChild(name);
-
-    var counterLine = document.createElement("div");
-    counterLine.style.cssText = "font-size:11px;color:var(--muted);margin:4px 0";
-    counterLine.innerHTML = "Counter: lesson <b style=\"color:var(--text)\">" + s.counterLesson + "</b> on <b style=\"color:var(--text)\">" + (s.counterDate || "?") + "</b>";
-    card.appendChild(counterLine);
-
-    var importLine = document.createElement("div");
-    importLine.style.cssText = "font-size:11px;color:var(--muted);margin:4px 0";
-    importLine.innerHTML = "Students Import: lesson <b style=\"color:var(--text)\">" + (s.importLesson != null ? s.importLesson : "?") + "</b> on <b style=\"color:var(--text)\">" + (s.importDate || "?") + "</b>";
-    card.appendChild(importLine);
-
-    var diff = document.createElement("div");
-    diff.style.cssText = "margin-top:6px";
-    if (!s.dateMatch) {
-      var b = document.createElement("span");
-      b.style.cssText = "display:inline-block;margin:2px 4px 2px 0;padding:3px 8px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:3px;font-size:11px";
-      b.textContent = "Date mismatch";
-      diff.appendChild(b);
-    }
-    if (!s.posMatch) {
-      var b2 = document.createElement("span");
-      b2.style.cssText = "display:inline-block;margin:2px 4px 2px 0;padding:3px 8px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:3px;font-size:11px";
-      b2.textContent = "Lesson # mismatch";
-      diff.appendChild(b2);
-    }
-    if (s.countMatch === false) {
-      var b3 = document.createElement("span");
-      b3.style.cssText = "display:inline-block;margin:2px 4px 2px 0;padding:3px 8px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:3px;font-size:11px";
-      b3.textContent = "E vs dates mismatch (" + s.blockDateCount + " dates, E=" + s.counterLesson + ")";
-      diff.appendChild(b3);
-    }
-    card.appendChild(diff);
-
-    section.appendChild(card);
-  });
-}
-
 // Convert an audit display date like "Jun 19" into a local-noon date string
 // that logLesson can parse without any timezone off-by-one. Picks the year
 // that lands the date closest to today (handles Dec dates viewed in Jan).
@@ -728,7 +675,9 @@ function _auditRemoveResolved(name, disp) {
 }
 
 // When a card has no missing chips AND no format warnings left, fade it out.
-// Cards with warnings stay put — those still need a manual look.
+// Cards with warnings stay put — those still need a manual look. Block-sync
+// chips don't block the fade: logging the missing date is what fixes the sync,
+// so the leftover mismatch info is stale — ↻ Refresh re-verifies for real.
 function _auditCollapseIfEmpty(card) {
   if (!card) return;
   var missing = card.querySelectorAll('.audit-missing-chip').length;
@@ -744,7 +693,7 @@ function _auditCheckAllClear() {
   var section = document.getElementById("auditLessonSection");
   if (!section) return;
   if (!section.querySelector('[data-audit-student]')) {
-    section.innerHTML = '<div style="color:var(--green);font-size:11px;text-align:center;padding:20px">All Counter dates exist in Students Import ✓</div>';
+    section.innerHTML = '<div style="color:var(--green);font-size:11px;text-align:center;padding:20px">Counter and Students Import are in sync ✓</div>';
   }
 }
 
@@ -795,56 +744,118 @@ function _unfloatLogPanel() {
   window._logPanelHome = null;
 }
 
-function renderAuditCards(audit) {
+// One card per student, merging audit 1 (missing dates → tappable chips) with
+// audit 2 (block sync context + mismatch chips). A "Fix →" button opens the
+// existing Fix modal. Optimistic chip removal keeps working unchanged.
+function renderMergedAuditCards(dateAudit, syncAudit) {
   var section = document.getElementById("auditLessonSection");
   section.innerHTML = "";
 
-  if (!audit.length) {
-    section.innerHTML = '<div style="color:var(--green);font-size:11px;text-align:center;padding:20px">All Counter dates exist in Students Import ✓</div>';
+  // Merge by student name — date-audit students first, then sync-only ones.
+  var byName = {}, order = [];
+  dateAudit.forEach(function(s) {
+    byName[s.name] = { name: s.name, missing: s.missing || [], warnings: s.warnings || [], sync: null };
+    order.push(s.name);
+  });
+  syncAudit.forEach(function(s) {
+    if (!byName[s.name]) {
+      byName[s.name] = { name: s.name, missing: [], warnings: [], sync: s };
+      order.push(s.name);
+    } else {
+      byName[s.name].sync = s;
+    }
+  });
+
+  if (!order.length) {
+    section.innerHTML = '<div style="color:var(--green);font-size:11px;text-align:center;padding:20px">Counter and Students Import are in sync ✓</div>';
     return;
   }
 
-  audit.forEach(function(student) {
+  function mismatchChip(text) {
+    var b = document.createElement("span");
+    b.className = "audit-bs-chip";
+    b.style.cssText = "display:inline-block;margin:2px 4px 2px 0;padding:3px 8px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:3px;font-size:11px";
+    b.textContent = text;
+    return b;
+  }
+
+  order.forEach(function(nm) {
+    var st = byName[nm];
     var card = document.createElement("div");
     card.className = "audit-card";
-    card.setAttribute("data-audit-student", student.name);
+    card.setAttribute("data-audit-student", st.name);
     card.style.cssText = "padding:12px;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;background:var(--panel)";
 
+    // Name row + Fix → button (opens the combined Counter/Import/Calendar modal)
+    var nameRow = document.createElement("div");
+    nameRow.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px";
     var nameEl = document.createElement("div");
-    nameEl.style.cssText = "font-weight:600;margin-bottom:8px;font-size:13px";
-    nameEl.textContent = student.name;
-    if (student.missing && student.missing.length) {
-      nameEl.style.cursor = "pointer";
-      nameEl.title = "Log " + student.missing[0] + " into Students Import";
-      nameEl.onclick = function() { openAuditLessonLog(student.name, student.missing[0]); };
-    }
-    card.appendChild(nameEl);
+    nameEl.style.cssText = "font-weight:600;font-size:13px";
+    nameEl.textContent = st.name;
+    nameRow.appendChild(nameEl);
+    var fixBtn = document.createElement("button");
+    fixBtn.textContent = "Fix →";
+    fixBtn.title = "Open the Fix window: Counter + Students Import + Calendar side by side";
+    fixBtn.style.cssText = "padding:3px 12px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;letter-spacing:0.5px";
+    fixBtn.onclick = function() { openAuditFixModal(st.name); };
+    nameRow.appendChild(fixBtn);
+    card.appendChild(nameRow);
 
-    if (student.missing && student.missing.length) {
+    // Block sync context: latest lesson per sheet + mismatch chips
+    if (st.sync) {
+      var s = st.sync;
+      var counterLine = document.createElement("div");
+      counterLine.style.cssText = "font-size:11px;color:var(--muted);margin:4px 0";
+      counterLine.innerHTML = "Counter: lesson <b style=\"color:var(--text)\">" + s.counterLesson + "</b> on <b style=\"color:var(--text)\">" + (s.counterDate || "?") + "</b>";
+      card.appendChild(counterLine);
+
+      var importLine = document.createElement("div");
+      importLine.style.cssText = "font-size:11px;color:var(--muted);margin:4px 0";
+      importLine.innerHTML = "Students Import: lesson <b style=\"color:var(--text)\">" + (s.importLesson != null ? s.importLesson : "?") + "</b> on <b style=\"color:var(--text)\">" + (s.importDate || "?") + "</b>";
+      card.appendChild(importLine);
+
+      var diff = document.createElement("div");
+      diff.style.cssText = "margin-top:6px";
+      if (!s.dateMatch)  diff.appendChild(mismatchChip("Date mismatch"));
+      if (!s.posMatch)   diff.appendChild(mismatchChip("Lesson # mismatch"));
+      if (s.countMatch === false) diff.appendChild(mismatchChip("E vs dates mismatch (" + s.blockDateCount + " dates, E=" + s.counterLesson + ")"));
+      card.appendChild(diff);
+    }
+
+    // Missing dates: tappable chips + the two-cause diagnosis
+    if (st.missing.length) {
       var hdr = document.createElement("div");
-      hdr.style.cssText = "font-size:10px;color:var(--muted);margin:6px 0 4px;text-transform:uppercase;letter-spacing:0.5px";
-      hdr.textContent = "In Counter, missing from Students Import — tap a date to log it";
+      hdr.style.cssText = "font-size:10px;color:var(--muted);margin:" + (st.sync ? "10px" : "6px") + " 0 4px;text-transform:uppercase;letter-spacing:0.5px";
+      hdr.textContent = "In Counter, missing from Students Import";
       card.appendChild(hdr);
 
-      student.missing.forEach(function(d) {
+      var chipWrap = document.createElement("div");
+      st.missing.forEach(function(d) {
         var b = document.createElement("span");
         b.className = "audit-missing-chip";
         b.setAttribute("data-audit-date", d);
         b.style.cssText = "display:inline-block;margin:2px 4px 2px 0;padding:3px 8px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:3px;font-size:11px;font-weight:500;cursor:pointer;transition:opacity 0.3s,background 0.3s,color 0.3s";
         b.textContent = d;
         b.title = "Log " + d + " into Students Import";
-        b.onclick = function() { openAuditLessonLog(student.name, d); };
-        card.appendChild(b);
+        b.onclick = function() { openAuditLessonLog(st.name, d); };
+        chipWrap.appendChild(b);
       });
+      card.appendChild(chipWrap);
+
+      var diag = document.createElement("div");
+      diag.style.cssText = "font-size:10px;color:var(--muted);margin-top:5px;line-height:1.5";
+      diag.innerHTML = "Forgot to log it? <b style=\"color:var(--text)\">Tap the date.</b> &nbsp;·&nbsp; Lesson never happened (forgotten calendar event)? <b style=\"color:var(--text)\">Fix →</b> and clear it from Counter.";
+      card.appendChild(diag);
     }
 
-    if (student.warnings && student.warnings.length) {
+    // Format warnings (unchanged)
+    if (st.warnings.length) {
       var whdr = document.createElement("div");
       whdr.style.cssText = "font-size:10px;color:var(--muted);margin:10px 0 4px;text-transform:uppercase;letter-spacing:0.5px";
       whdr.textContent = "⚠ Format warnings — manual check needed";
       card.appendChild(whdr);
 
-      student.warnings.forEach(function(w) {
+      st.warnings.forEach(function(w) {
         var b = document.createElement("div");
         b.className = "audit-warn-chip";
         b.style.cssText = "display:inline-block;margin:2px 4px 2px 0;padding:3px 8px;background:rgba(255,220,0,0.12);color:#d4a800;border:1px solid rgba(255,220,0,0.4);border-radius:3px;font-size:11px";
