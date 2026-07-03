@@ -265,7 +265,7 @@ function _fixDateSeg() {
 // Inline [Mon] [DD] spinner, no year. Click a segment, ↑↓ nudges it.
 // Returns { box, getValue }. getValue() → "" if blank, else "MMM d, yyyy"
 // (year inferred on save so the cell stays a real date).
-function _fixDateSpinner(initialDisp) {
+function _fixDateSpinner(initialDisp, onChange) {
   var p = _fixParseMonDay(initialDisp);
   var state = { mon: p ? p.mon : null, day: p ? p.day : null };
 
@@ -276,6 +276,7 @@ function _fixDateSpinner(initialDisp) {
   function refresh() {
     monSeg.textContent = (state.mon != null) ? _FIX_MONTHS[state.mon] : "—";
     daySeg.textContent = (state.day != null) ? String(state.day) : "—";
+    if (typeof onChange === "function") onChange();
   }
   function step(which, dir) {
     if (state.mon == null || state.day == null) {
@@ -330,7 +331,16 @@ function _fixCycleSpinner(initial, min, max) {
   };
   box.appendChild(seg);
   refresh();
-  return { box: box, getValue: function() { return String(val); } };
+  return {
+    box: box,
+    getValue: function() { return String(val); },
+    setValue: function(v) {
+      var n = parseInt(v, 10);
+      if (isNaN(n)) return;
+      val = Math.max(0, Math.min(max, n));
+      refresh();
+    }
+  };
 }
 
 function _renderFixData(d) {
@@ -340,8 +350,10 @@ function _renderFixData(d) {
   var counterControls = []; // { col, sp } across both Counter blocks
   var importControls  = []; // { subjIn, sp } for empty Students Import rows
 
-  // Helper to render a Counter block (4 cells with inline date editing)
-  function counterBlock(label, cells) {
+  // Helper to render a Counter block (4 cells with inline date editing).
+  // Current-block cells get an onChange hook so Finished (E) auto-tracks the
+  // number of filled dates.
+  function counterBlock(label, cells, isCurrent, onCellChange) {
     var wrap = document.createElement("div");
     wrap.style.cssText = "margin-bottom:10px";
     var lbl = document.createElement("div");
@@ -355,10 +367,10 @@ function _renderFixData(d) {
       var isEmpty = cell.empty;
       pill.style.cssText = "display:flex;align-items:center;gap:4px;padding:4px 6px;border:1px dashed " + (isEmpty ? "rgba(255,165,0,0.5)" : "var(--border)") + ";border-radius:4px;font-size:11px;background:" + (isEmpty ? "rgba(255,165,0,0.05)" : "transparent");
       pill.innerHTML = "<span style=\"color:var(--muted);opacity:0.6;flex-shrink:0\">" + (i + 1) + ":</span>";
-      var sp = _fixDateSpinner(cell.value);
+      var sp = _fixDateSpinner(cell.value, isCurrent ? onCellChange : null);
       sp.box.style.flex = "1";
       pill.appendChild(sp.box);
-      counterControls.push({ col: cell.col, sp: sp });
+      counterControls.push({ col: cell.col, sp: sp, current: !!isCurrent });
       var clrBtn = document.createElement("button");
       clrBtn.textContent = "✕"; clrBtn.title = "Clear date"; clrBtn.style.cssText = "padding:1px 5px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:3px;cursor:pointer;flex-shrink:0";
       clrBtn.onclick = function() { sp.clear(); };
@@ -417,21 +429,40 @@ function _renderFixData(d) {
   counterTitle.textContent = "RPM Counter";
   body.appendChild(counterTitle);
 
+  // Finished (E) auto-tracks the count of filled current-block dates. Declared
+  // here (reassigned once finishedSp exists) so current-block cells can call it.
+  var recomputeFinished = function() {};
+  function onCurrentCellChange() { recomputeFinished(); }
+
   // Counter dates come back oldest→newest: previous block first, current block last.
   // Past block on top, current below (only show Past if there's a prior block).
   var cDates = d.counter.dates || [];
   var counterCurrentCells = cDates.slice(Math.max(0, cDates.length - 4));
-  if (cDates.length > 4) body.appendChild(counterBlock("Previous Block", cDates.slice(0, cDates.length - 4)));
-  body.appendChild(counterBlock("Current Block", counterCurrentCells));
+  if (cDates.length > 4) body.appendChild(counterBlock("Previous Block", cDates.slice(0, cDates.length - 4), false, null));
+  body.appendChild(counterBlock("Current Block", counterCurrentCells, true, onCurrentCellChange));
 
-  // Finished (E): keyboard 1→2→3→4 cycler (↑↓).
+  // Count filled current-block dates from the live spinners.
+  function countFilledCurrent() {
+    var n = 0;
+    counterControls.forEach(function(c) { if (c.current && c.sp.getValue()) n++; });
+    return n;
+  }
+
+  // Finished (E): auto-set to the current-block date count; still cyclable (↑↓).
   var eRow = document.createElement("div");
   eRow.style.cssText = "display:flex;gap:10px;align-items:center;margin:10px 0 4px";
   eRow.innerHTML = "<span style=\"color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:0.5px\">Finished (E):</span>";
-  var finishedSp = _fixCycleSpinner(d.counter.finished, 1, 4);
+  var finishedSp = _fixCycleSpinner(countFilledCurrent(), 1, 4);
   finishedSp.box.style.cssText += ";border:1px solid var(--border);border-radius:3px;padding:2px 12px;font-size:13px";
   eRow.appendChild(finishedSp.box);
+  var eHint = document.createElement("span");
+  eHint.style.cssText = "font-size:9px;color:var(--muted);opacity:0.7";
+  eHint.textContent = "auto from dates";
+  eRow.appendChild(eHint);
   body.appendChild(eRow);
+
+  // Now that finishedSp exists, live-sync it whenever a current date changes.
+  recomputeFinished = function() { finishedSp.setValue(countFilledCurrent()); };
 
   // One Log button commits the whole Counter row (all cells + Finished).
   var counterLog = document.createElement("button");
@@ -456,22 +487,22 @@ function _renderFixData(d) {
     body.appendChild(none);
   } else {
     // importLessons returned chronologically (oldest first): previous block then current.
+    // Import comes back anchored to Counter: exactly 2 blocks that line up with
+    // Counter's Previous/Current. Label them the same way and auto-fill the
+    // block aligned with Counter's current block from the Counter dates.
     var imp = d.importLessons;
-    var numBlocks = Math.ceil(imp.length / 4);
-    for (var bi = 0; bi < numBlocks; bi++) {
-      var slice = imp.slice(bi * 4, Math.min(bi * 4 + 4, imp.length));
-      var isLast = (bi === numBlocks - 1);
-      var allEmpty = slice.every(function(l) { return l.empty; });
-      var label;
-      if (allEmpty && isLast) {
-        label = "Next Block";
-      } else if (isLast || (isLast === false && bi === numBlocks - 2 && imp.slice((numBlocks - 1) * 4).every(function(l) { return l.empty; }))) {
-        label = "Current Block";
-      } else {
-        label = "Previous Block";
+    var hasPrev = cDates.length > 4;
+    var block0 = imp.slice(0, 4);
+    var block1 = imp.slice(4, 8);
+    if (hasPrev) {
+      if (block0.length) body.appendChild(importBlock("Previous Block", block0, null));
+      if (block1.length) body.appendChild(importBlock("Current Block", block1, counterCurrentCells));
+    } else {
+      // No previous block in Counter → block0 is the current block.
+      if (block0.length) body.appendChild(importBlock("Current Block", block0, counterCurrentCells));
+      if (block1.length && !block1.every(function(l) { return l.empty; })) {
+        body.appendChild(importBlock("Next Block", block1, null));
       }
-      var cc = isLast ? counterCurrentCells : null;
-      body.appendChild(importBlock(label, slice, cc));
     }
   }
 
@@ -490,10 +521,74 @@ function _renderFixData(d) {
   calTitle.textContent = "Google Calendar — last 8 past events";
   body.appendChild(calTitle);
 
-  var calRow = document.createElement("div");
-  calRow.style.cssText = "font-size:11px;color:var(--muted);font-family:monospace";
-  calRow.textContent = (d.calendar && d.calendar.length) ? d.calendar.join("  ·  ") : "No past events found";
-  body.appendChild(calRow);
+  if (!d.calendar || !d.calendar.length) {
+    var calNone = document.createElement("div");
+    calNone.style.cssText = "font-size:11px;color:var(--muted);font-family:monospace";
+    calNone.textContent = "No past events found";
+    body.appendChild(calNone);
+  } else {
+    // Vertical list — one date per line, unnumbered (a calendar date isn't
+    // tied to a lesson number). Each has a 2-tap delete that removes ONLY that
+    // event from Google Calendar (for clearing a forgotten event).
+    d.calendar.forEach(function(ev) {
+      var isObj = (ev && typeof ev === "object");
+      var dateText = isObj ? ev.date : ev;
+
+      var line = document.createElement("div");
+      line.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;color:var(--muted);font-family:monospace;padding:4px 0;border-bottom:1px dashed rgba(255,255,255,0.05)";
+
+      var dateEl = document.createElement("span");
+      dateEl.textContent = dateText;
+      line.appendChild(dateEl);
+
+      // Only offer delete when we have the event id + calendar id.
+      if (isObj && ev.id && ev.calId) {
+        var delBtn = document.createElement("button");
+        delBtn.textContent = "✕";
+        delBtn.title = "Delete this event from Google Calendar";
+        delBtn.style.cssText = "padding:1px 8px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:3px;cursor:pointer;flex-shrink:0";
+        var armed = false;
+        delBtn.onclick = function() {
+          if (!armed) {
+            armed = true;
+            delBtn.textContent = "Delete?";
+            delBtn.style.color = "#ff6b6b";
+            delBtn.style.borderColor = "rgba(255,107,107,0.5)";
+            setTimeout(function() {
+              if (!armed) return;
+              armed = false;
+              delBtn.textContent = "✕";
+              delBtn.style.color = "var(--muted)";
+              delBtn.style.borderColor = "var(--border)";
+            }, 3000);
+            return;
+          }
+          _deleteCalEvent(ev.calId, ev.id, dateText, line, delBtn);
+        };
+        line.appendChild(delBtn);
+      }
+
+      body.appendChild(line);
+    });
+  }
+}
+
+// Delete one calendar event (2nd tap of the delete control confirmed it).
+function _deleteCalEvent(calId, eventId, dateText, lineEl, btn) {
+  var url = getScriptUrl(); if (!url) return;
+  btn.textContent = "..."; btn.disabled = true;
+  callScript(url, "deleteCalendarEvent", { calId: calId, eventId: eventId }, function(data) {
+    if (data && data.success) {
+      addLog("auditFeed", "✓ Deleted calendar event " + dateText, "success");
+      lineEl.style.transition = "opacity 0.3s";
+      lineEl.style.opacity = "0";
+      setTimeout(function() { lineEl.remove(); }, 300);
+    } else {
+      btn.textContent = "✕"; btn.disabled = false;
+      btn.style.color = "var(--muted)"; btn.style.borderColor = "var(--border)";
+      addLog("auditFeed", "❌ " + (data && data.message ? data.message : "Delete failed"), "error");
+    }
+  });
 }
 
 // Commit the whole Counter row at once: every block cell + Finished (E).
