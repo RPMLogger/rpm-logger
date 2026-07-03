@@ -683,8 +683,72 @@ function openAuditLessonLog(name, disp) {
   var eventDate = _auditDateToEventDate(disp);
   if (!eventDate) { addLog("auditFeed", "Could not read date: " + disp, "error"); return; }
   window._auditFixActive = true;
+  window._auditResolve = { name: name, disp: disp };
   _floatLogPanel();
   openLogFresh({ name: name, eventDate: eventDate, calType: "regular" }, undefined);
+}
+
+// ─── OPTIMISTIC REMOVAL ──────────────────────────────────────────────────────
+// After a successful log from the audit flow we already know that one date is
+// resolved — so drop the chip locally instead of re-running the whole audit.
+// The ↻ Refresh button re-verifies against the sheets whenever you want.
+function _auditRemoveResolved(name, disp) {
+  var section = document.getElementById("auditLessonSection");
+  if (!section) return;
+  var cards = section.querySelectorAll('[data-audit-student]');
+  for (var i = 0; i < cards.length; i++) {
+    if (cards[i].getAttribute("data-audit-student") !== name) continue;
+    var card = cards[i];
+    var chips = card.querySelectorAll('.audit-missing-chip');
+    for (var j = 0; j < chips.length; j++) {
+      if (chips[j].getAttribute("data-audit-date") !== disp) continue;
+      var chip = chips[j];
+      chip.style.background = "rgba(0,200,0,0.18)";
+      chip.style.color = "#3ddc84";
+      chip.style.borderColor = "rgba(0,200,0,0.5)";
+      chip.onclick = null;
+      chip.style.cursor = "default";
+      setTimeout(function() {
+        chip.style.opacity = "0";
+        setTimeout(function() { chip.remove(); _auditCollapseIfEmpty(card); }, 300);
+      }, 350);
+      return;
+    }
+    _auditCollapseIfEmpty(card);
+    return;
+  }
+}
+
+// When a card has no missing chips AND no format warnings left, fade it out.
+// Cards with warnings stay put — those still need a manual look.
+function _auditCollapseIfEmpty(card) {
+  if (!card) return;
+  var missing = card.querySelectorAll('.audit-missing-chip').length;
+  var warns   = card.querySelectorAll('.audit-warn-chip').length;
+  if (missing > 0 || warns > 0) return;
+  card.style.transition = "opacity 0.4s";
+  card.style.opacity = "0";
+  setTimeout(function() { card.remove(); _auditCheckAllClear(); }, 400);
+}
+
+// If every card is gone, show the green all-clear message.
+function _auditCheckAllClear() {
+  var section = document.getElementById("auditLessonSection");
+  if (!section) return;
+  if (!section.querySelector('[data-audit-student]')) {
+    section.innerHTML = '<div style="color:var(--green);font-size:11px;text-align:center;padding:20px">All Counter dates exist in Students Import ✓</div>';
+  }
+}
+
+// ↻ Refresh button — re-run all three audits against the live sheets.
+function refreshAudit(btn) {
+  if (btn) {
+    var orig = btn.textContent;
+    btn.textContent = "↻ Refreshing...";
+    btn.disabled = true;
+    setTimeout(function() { btn.textContent = orig; btn.disabled = false; }, 2500);
+  }
+  if (typeof initAuditTab === "function") initAuditTab();
 }
 
 // The log modal lives inside the Lessons tab (display:none when another tab is
@@ -729,6 +793,8 @@ function renderAuditCards(audit) {
 
   audit.forEach(function(student) {
     var card = document.createElement("div");
+    card.className = "audit-card";
+    card.setAttribute("data-audit-student", student.name);
     card.style.cssText = "padding:12px;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;background:var(--panel)";
 
     var nameEl = document.createElement("div");
@@ -749,7 +815,9 @@ function renderAuditCards(audit) {
 
       student.missing.forEach(function(d) {
         var b = document.createElement("span");
-        b.style.cssText = "display:inline-block;margin:2px 4px 2px 0;padding:3px 8px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:3px;font-size:11px;font-weight:500;cursor:pointer";
+        b.className = "audit-missing-chip";
+        b.setAttribute("data-audit-date", d);
+        b.style.cssText = "display:inline-block;margin:2px 4px 2px 0;padding:3px 8px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:3px;font-size:11px;font-weight:500;cursor:pointer;transition:opacity 0.3s,background 0.3s,color 0.3s";
         b.textContent = d;
         b.title = "Log " + d + " into Students Import";
         b.onclick = function() { openAuditLessonLog(student.name, d); };
@@ -765,6 +833,7 @@ function renderAuditCards(audit) {
 
       student.warnings.forEach(function(w) {
         var b = document.createElement("div");
+        b.className = "audit-warn-chip";
         b.style.cssText = "display:inline-block;margin:2px 4px 2px 0;padding:3px 8px;background:rgba(255,220,0,0.12);color:#d4a800;border:1px solid rgba(255,220,0,0.4);border-radius:3px;font-size:11px";
         b.textContent = w.sheet + " " + w.cell + ": \"" + (w.value || "") + "\"";
         card.appendChild(b);

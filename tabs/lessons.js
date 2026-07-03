@@ -9,6 +9,7 @@ function closeLogPanel() {
   document.querySelectorAll(".week-pill").forEach(function(b) { b.classList.remove("recording"); });
   activeStudent = null;
   window._auditFixActive = false;
+  window._auditResolve = null;
   if (typeof _unfloatLogPanel === "function") _unfloatLogPanel();
 }
 
@@ -251,11 +252,18 @@ function submitLog() {
       renderTodayGrid();
       renderWeekTab();
       // If this log came from the Audit tab's fix-1 flow, restore the modal to
-      // its home and re-run the audit so the resolved date drops off the list.
+      // its home and optimistically drop just the resolved chip — no full
+      // re-audit. The ↻ Refresh button re-verifies against the sheets on demand.
       if (window._auditFixActive) {
         window._auditFixActive = false;
         if (typeof _unfloatLogPanel === "function") _unfloatLogPanel();
-        if (typeof initAuditTab === "function") initAuditTab();
+        var res = window._auditResolve;
+        window._auditResolve = null;
+        if (res && typeof _auditRemoveResolved === "function") {
+          _auditRemoveResolved(res.name, res.disp);
+        } else if (typeof initAuditTab === "function") {
+          initAuditTab();
+        }
       }
     } else {
       btn.textContent = "Log It →"; btn.disabled = false;
