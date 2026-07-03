@@ -457,8 +457,22 @@ function _renderFixData(d) {
   } else {
     // importLessons returned chronologically (oldest first): previous block then current.
     var imp = d.importLessons;
-    if (imp.length > 4) body.appendChild(importBlock("Previous Block", imp.slice(0, imp.length - 4), null));
-    body.appendChild(importBlock("Current Block", imp.slice(Math.max(0, imp.length - 4)), counterCurrentCells));
+    var numBlocks = Math.ceil(imp.length / 4);
+    for (var bi = 0; bi < numBlocks; bi++) {
+      var slice = imp.slice(bi * 4, Math.min(bi * 4 + 4, imp.length));
+      var isLast = (bi === numBlocks - 1);
+      var allEmpty = slice.every(function(l) { return l.empty; });
+      var label;
+      if (allEmpty && isLast) {
+        label = "Next Block";
+      } else if (isLast || (isLast === false && bi === numBlocks - 2 && imp.slice((numBlocks - 1) * 4).every(function(l) { return l.empty; }))) {
+        label = "Current Block";
+      } else {
+        label = "Previous Block";
+      }
+      var cc = isLast ? counterCurrentCells : null;
+      body.appendChild(importBlock(label, slice, cc));
+    }
   }
 
   // One Log button commits all filled-in Students Import rows.
