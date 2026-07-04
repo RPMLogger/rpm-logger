@@ -925,8 +925,11 @@ function renderMergedAuditCards(dateAudit, syncAudit) {
 
       var diff = document.createElement("div");
       diff.style.cssText = "margin-top:6px";
-      if (!s.dateMatch)  diff.appendChild(mismatchChip("Date mismatch"));
-      if (!s.posMatch)   diff.appendChild(mismatchChip("Lesson # mismatch"));
+      // The two lines above already show each sheet's exact date + lesson #, so
+      // separate "Date mismatch" / "Lesson # mismatch" chips just restate what's
+      // visible — one "Mismatch" chip is enough. The E-vs-dates chip stays: it
+      // surfaces counts (block dates, Counter's E) shown nowhere else.
+      if (!s.dateMatch || !s.posMatch) diff.appendChild(mismatchChip("Mismatch"));
       if (s.countMatch === false) diff.appendChild(mismatchChip("E vs dates mismatch (" + s.blockDateCount + " dates, E=" + s.counterLesson + ")"));
       card.appendChild(diff);
     }
