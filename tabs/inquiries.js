@@ -273,7 +273,7 @@ function _inqTemplate(decision, name) {
     return {
       subject: "RED PICK MUSIC — your guitar lesson inquiry",
       body: "Hey " + first + ",\n\n" +
-        "Thanks for your inquiry. I'm fully booked right now, but I'll keep your info on file and reach out when something opens up.\n\n" +
+        "Thanks for your inquiry. I'm fully booked right now and don't see anything opening up for a while, but I'll keep your info on file and reach out when something does. You can also check back in a couple months.\n\n" +
         "Bilgehan / RED PICK MUSIC"
     };
   }
