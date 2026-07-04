@@ -806,6 +806,14 @@ function _auditCheckAllClear() {
   }
 }
 
+// 📊 Counter / Students Import buttons — open the two source sheets in a new tab.
+function openCounterSheet() {
+  window.open("https://docs.google.com/spreadsheets/d/1n-vZaaIgbs1nBCwrE-dAUNyz3q8LWjkB4uO0BSKTCQc/edit", "_blank", "noopener");
+}
+function openImportSheet() {
+  window.open("https://docs.google.com/spreadsheets/d/1GJB4BGETT4zeG1M7AKk48rhLaQw5ZqlImIDBC4ZepW4/edit", "_blank", "noopener");
+}
+
 // 📅 Calendar button — open Google Calendar in a new tab.
 function openGoogleCalendar() {
   window.open("https://calendar.google.com/calendar/r", "_blank", "noopener");
