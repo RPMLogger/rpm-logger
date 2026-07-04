@@ -76,14 +76,46 @@ function _stRenderSearch() {
 
   section.appendChild(wrap);
 
+  _stState.searchHi = 0;
   input.addEventListener('input', _stUpdateSearchResults);
-  // Enter picks the student the moment the list has narrowed to exactly one.
+  // Keyboard: ↓/↑ move the highlight, Enter opens whichever result is highlighted
+  // (the top one by default) — so you never have to type all the way to one name.
   input.addEventListener('keydown', function(e) {
-    if (e.key !== 'Enter') return;
     var matches = _stSearchMatches();
-    if (matches.length === 1) { e.preventDefault(); _stOpenStudent(matches[0]); }
+    if (!matches.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      _stState.searchHi = Math.min(_stState.searchHi + 1, matches.length - 1);
+      _stApplyHighlight();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      _stState.searchHi = Math.max(_stState.searchHi - 1, 0);
+      _stApplyHighlight();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      var i = Math.min(_stState.searchHi, matches.length - 1);
+      _stOpenStudent(matches[i]);
+    }
   });
   setTimeout(function() { input.focus(); }, 50);
+}
+
+// Result-button styles, shared so hover/keyboard highlight stay identical.
+var _ST_RESULT_BASE =
+  'width:100%;padding:9px 14px;background:var(--panel);color:var(--text);' +
+  'border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:inherit;font-size:13px;text-align:left';
+var _ST_RESULT_HI =
+  'width:100%;padding:9px 14px;background:rgba(232,70,58,0.12);color:var(--text);' +
+  'border:1px solid var(--accent);border-radius:4px;cursor:pointer;font-family:inherit;font-size:13px;text-align:left';
+
+// Paint the highlight onto whichever result index is currently selected.
+function _stApplyHighlight() {
+  var results = document.getElementById('studentSearchResults');
+  if (!results) return;
+  var kids = results.children;
+  for (var i = 0; i < kids.length; i++) {
+    kids[i].style.cssText = (i === _stState.searchHi) ? _ST_RESULT_HI : _ST_RESULT_BASE;
+  }
 }
 
 // Single source of truth for what the current search query matches — used by
@@ -92,26 +124,31 @@ function _stSearchMatches() {
   var el = document.getElementById('studentSearch');
   var q = (el ? el.value : '').trim().toLowerCase();
   if (!q) return [];
+  // Match the START of any word in the name, not any substring — so "a" finds
+  // "Antonio" only (not every name containing an 'a'), while a last name like
+  // "green" still matches "Gail Greenwald".
   return (_stState.roster || []).filter(function(name) {
-    return name.toLowerCase().indexOf(q) !== -1;
+    return name.toLowerCase().split(/\s+/).some(function(word) {
+      return word.indexOf(q) === 0;
+    });
   }).slice(0, 8);
 }
 
 function _stUpdateSearchResults() {
   var results = document.getElementById('studentSearchResults');
   results.innerHTML = '';
+  _stState.searchHi = 0;             // every keystroke re-highlights the top match
   var matches = _stSearchMatches();
-  matches.forEach(function(name) {
+  matches.forEach(function(name, idx) {
     var btn = document.createElement('button');
     btn.textContent = name;
-    btn.style.cssText =
-      'width:100%;padding:9px 14px;background:var(--panel);color:var(--text);' +
-      'border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:inherit;font-size:13px;text-align:left';
-    btn.onmouseenter = function() { btn.style.background = 'rgba(232,70,58,0.12)'; btn.style.borderColor = 'var(--accent)'; };
-    btn.onmouseleave = function() { btn.style.background = 'var(--panel)'; btn.style.borderColor = 'var(--border)'; };
+    btn.style.cssText = _ST_RESULT_BASE;
+    // Hovering a row makes it the active highlight, so mouse and keyboard agree.
+    btn.onmouseenter = function() { _stState.searchHi = idx; _stApplyHighlight(); };
     btn.onclick = function() { _stOpenStudent(name); };
     results.appendChild(btn);
   });
+  _stApplyHighlight();
 }
 
 
