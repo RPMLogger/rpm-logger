@@ -2,7 +2,6 @@
 function loadData() {
   var url = getScriptUrl();
   if (!url) return;
-  document.getElementById("weekPills").innerHTML     = "<div style='color:var(--muted);font-size:11px'>Loading...</div>";
   document.getElementById("todayGrid").innerHTML     = "<div class='empty-state'>Loading...</div>";
   document.getElementById("weekTabGrid").innerHTML   = "<div class='empty-state'>Loading...</div>";
   document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty'>Loading...</div>";
@@ -36,7 +35,7 @@ function fetchWeekStudents(url) {
 
       // Render each section independently — a failure in one is reported
       // but no longer aborts the others.
-      [renderWeekPills, renderTodayGrid, renderPastTodayCards, renderWeekTab]
+      [renderTodayGrid, renderPastTodayCards, renderWeekTab]
         .forEach(function(fn) {
           try { fn(); }
           catch (err) { addLog("lessonFeed", "⚠ Render error: " + (err && err.message ? err.message : err), "error"); }

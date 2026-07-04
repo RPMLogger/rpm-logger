@@ -6,42 +6,10 @@ function closeLogPanel() {
   stopRecordingClean();
   document.getElementById("logPanel").classList.remove("active");
   document.querySelectorAll(".today-btn").forEach(function(b) { b.classList.remove("recording"); });
-  document.querySelectorAll(".week-pill").forEach(function(b) { b.classList.remove("recording"); });
   activeStudent = null;
   window._auditFixActive = false;
   window._auditResolve = null;
   if (typeof _unfloatLogPanel === "function") _unfloatLogPanel();
-}
-
-// ─── RENDER: WEEK PILLS ──────────────────────────────────────────────────────
-function renderWeekPills() {
-  var grid = document.getElementById("weekPills");
-  grid.innerHTML = "";
-  if (!weekStudents.length) {
-    grid.innerHTML = "<div style='color:var(--muted);font-size:11px'>No students this week</div>";
-    return;
-  }
-  var anyShown = false;
-  weekStudents.forEach(function(s) {
-    if (s.isToday) return;
-    if (isLessonLogged(s.name, s.eventDate)) return;
-    anyShown = true;
-    var btn  = document.createElement("button");
-    var past = isPastDay(s.eventDate) && !s.isToday;
-    btn.className = "week-pill" +
-      (s.calType === "trial" ? " trial-pill" : "") +
-      (past ? " forgot" : "");
-    btn.id = "pill-" + s.name.replace(/\s+/g, "_") + "_" + (s.eventDate || "");
-    var dateLabel = s.eventDate
-      ? " <span class='pill-date'>" + formatEventDate(s.eventDate) + "</span>"
-      : "";
-    btn.innerHTML = s.name + dateLabel;
-    btn.onclick = function() { toggleLog(s, undefined); };
-    grid.appendChild(btn);
-  });
-  if (!anyShown) {
-    grid.innerHTML = "<div style='color:var(--green);font-size:11px'>All logged ✓</div>";
-  }
 }
 
 // ─── RENDER: TODAY GRID ──────────────────────────────────────────────────────
@@ -54,7 +22,7 @@ function renderTodayGrid() {
   }
   var anyShown = false;
   todayStudents.forEach(function(s, i) {
-    if (isLessonLogged(s.name, s.eventDate)) return;
+    if (s.alreadyLogged) return;
     anyShown = true;
     var btn = document.createElement("button");
     btn.className = "today-btn";
@@ -135,16 +103,10 @@ function openLogFresh(student, idx) {
 
 function setRecordingUI(recording, idx) {
   document.querySelectorAll(".today-btn").forEach(function(b) { b.classList.remove("recording"); });
-  document.querySelectorAll(".week-pill").forEach(function(b) { b.classList.remove("recording"); });
   if (recording) {
     if (idx !== undefined) {
       var tb = document.getElementById("tbtn-" + idx);
       if (tb) tb.classList.add("recording");
-    }
-    if (activeStudent) {
-      var key = activeStudent.student.name.replace(/\s+/g, "_") + "_" + (activeStudent.student.eventDate || "");
-      var wp  = document.getElementById("pill-" + key);
-      if (wp) wp.classList.add("recording");
     }
     document.getElementById("logPanelStatus").textContent = "🔴 recording...";
     document.getElementById("logPanelStatus").classList.remove("idle");
@@ -244,13 +206,16 @@ function submitLog() {
 
   callScript(url, student.calType === "trial" ? "logTrial" : "logLesson", params, function(data) {
     if (data.success) {
-      markLessonLogged(student.name, student.eventDate);
+      // No client-side memory: the sheet is the source of truth. Flag this
+      // student optimistically so the button drops off the Today grid now; the
+      // next loadData re-derives alreadyLogged straight from the sheet.
+      todayStudents.forEach(function(t) {
+        if (t.name === student.name && t.eventDate === student.eventDate) t.alreadyLogged = true;
+      });
       addLog("lessonFeed", "✓ " + student.name + " — " + subject, "success");
       document.getElementById("logPanel").classList.remove("active");
       activeStudent = null;
-      renderWeekPills();
       renderTodayGrid();
-      renderWeekTab();
       // If this log came from the Audit tab's fix-1 flow, restore the modal to
       // its home and optimistically drop just the resolved chip — no full
       // re-audit. The ↻ Refresh button re-verifies against the sheets on demand.
