@@ -165,17 +165,12 @@ function renderInquiries(inquiries) {
     // Channel source (all current inquiries arrive via Gmail; text/voicemail later).
     var chan = inq.channel || "Gmail";
 
-    // Name line: Name · Gender / Age (child|adult) · City
-    var meta = [];
-    var ga = [];
-    if (inq.gender) ga.push(inqEsc(inq.gender));
-    if (inq.age)    ga.push(_inqAgeShort(inq.age) + (_inqIsChild(inq.age) ? " (child)" : " (adult)"));
-    if (ga.length)  meta.push(ga.join(" / "));
-    if (inq.city)   meta.push(inqEsc(inq.city));
-
-    // Every category on its own line, aligned like the sheet. Empty → "-".
+    // Every category on its own labeled line, aligned like the sheet. Empty → "-".
     var fields = [
       ["Date",         inq.date],
+      ["Gender",       inq.gender],
+      ["Age",          inq.age ? _inqAgeShort(inq.age) : ""],
+      ["City",         inq.city],
       ["Level",        inq.level],
       ["Interests",    inq.interests],
       ["Availability", inq.availability],
@@ -199,7 +194,6 @@ function renderInquiries(inquiries) {
       "</div>" +
       "<div class='inq-name-line'>" +
         "<span class='inq-name'>" + inqEsc(inq.name || "—") + "</span>" +
-        (meta.length ? "<span class='inq-meta'>" + meta.join(" · ") + "</span>" : "") +
       "</div>" +
       "<div class='inq-fields'>" + fieldsHtml + "</div>" +
       "<div class='inq-acts'>" +
@@ -223,11 +217,12 @@ function renderInquiries(inquiries) {
   });
 }
 
-// "10 Years Old" → "10". Leaves anything non-numeric as-is.
+// "10 Years Old" → "10". Leaves anything non-numeric as-is. (Raw — the field
+// renderer escapes it.)
 function _inqAgeShort(age) {
   var s = (age || "").toString().trim();
   var m = s.match(/\d+/);
-  return m ? m[0] : inqEsc(s);
+  return m ? m[0] : s;
 }
 
 // Scam → confirm, then log to Scam sheet + trash Gmail thread + remove card.
@@ -249,10 +244,6 @@ function inqScam(domId) {
     .catch(function () { _inqToast("❌ Could not reach the portal.", "var(--accent)"); });
 }
 
-function _inqIsChild(age) {
-  var n = parseInt(age, 10);
-  return isFinite(n) && n > 0 && n < 18;
-}
 
 // ── Decision dispatch ────────────────────────────────────────────────────────
 function inqDecide(decision, domId) {

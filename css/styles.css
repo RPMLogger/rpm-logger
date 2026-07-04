@@ -364,9 +364,8 @@ body::before {
 .inq-chan  { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
 .inq-when  { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); white-space: nowrap; }
 .inq-name-line { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin: 7px 0 5px; }
-.inq-name  { font-family: "Syne", sans-serif; font-size: 17px; font-weight: 400; color: var(--text); }
-.inq-meta  { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
-.inq-fields { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; margin-top: 9px; font-family: "DM Mono", monospace; font-size: 12px; line-height: 1.5; }
+.inq-name  { font-family: "Syne", sans-serif; font-size: 16px; font-weight: 400; color: var(--text); }
+.inq-fields { display: grid; grid-template-columns: auto 1fr; gap: 3px 16px; margin-top: 8px; font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.5; }
 .inq-flabel { color: rgba(255,255,255,0.82); white-space: nowrap; }
 .inq-fval   { color: rgba(255,255,255,0.5); }
 .inq-acts  { display: flex; align-items: center; gap: 6px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
