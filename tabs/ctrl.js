@@ -929,8 +929,16 @@ function renderMergedAuditCards(dateAudit, syncAudit) {
       // separate "Date mismatch" / "Lesson # mismatch" chips just restate what's
       // visible — one "Mismatch" chip is enough. The E-vs-dates chip stays: it
       // surfaces counts (block dates, Counter's E) shown nowhere else.
-      if (!s.dateMatch || !s.posMatch) diff.appendChild(mismatchChip("Mismatch"));
-      if (s.countMatch === false) diff.appendChild(mismatchChip("E vs dates mismatch (" + s.blockDateCount + " dates, E=" + s.counterLesson + ")"));
+      // Both chips are tappable — they open the Fix window straight away.
+      function fixChip(text) {
+        var c = mismatchChip(text);
+        c.style.cursor = "pointer";
+        c.title = "Open the Fix window";
+        c.onclick = function() { openAuditFixModal(st.name); };
+        return c;
+      }
+      if (!s.dateMatch || !s.posMatch) diff.appendChild(fixChip("Mismatch"));
+      if (s.countMatch === false) diff.appendChild(fixChip("E vs dates mismatch (" + s.blockDateCount + " dates, E=" + s.counterLesson + ")"));
       card.appendChild(diff);
     }
 
@@ -953,11 +961,6 @@ function renderMergedAuditCards(dateAudit, syncAudit) {
         chipWrap.appendChild(b);
       });
       card.appendChild(chipWrap);
-
-      var diag = document.createElement("div");
-      diag.style.cssText = "font-size:10px;color:var(--muted);margin-top:5px;line-height:1.5";
-      diag.innerHTML = "Forgot to log it? <b style=\"color:var(--text)\">Tap the date.</b> &nbsp;·&nbsp; Lesson never happened (forgotten calendar event)? <b style=\"color:var(--text)\">Fix →</b> and clear it from Counter.";
-      card.appendChild(diag);
     }
 
     // Format warnings (unchanged)
