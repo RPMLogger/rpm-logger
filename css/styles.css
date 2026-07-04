@@ -731,3 +731,46 @@ body::before {
   transition: all 0.2s;
 }
 .db-mini-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+/* ─── HOLIDAYS ALERTS ─────────────────────────────────────────────── */
+.hol-note { color: var(--muted); font-size: 11px; line-height: 1.6; margin-bottom: 16px; }
+.hol-watch {
+  background: rgba(232,70,58,0.06);
+  border: 1px solid rgba(232,70,58,0.28);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+}
+.hol-watch-title {
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 10px;
+}
+.hol-watch-item {
+  display: flex; align-items: baseline; gap: 8px;
+  font-size: 12px; color: var(--text); padding: 3px 0;
+}
+.hol-watch-item .hol-when { color: var(--muted); font-size: 10px; font-family: "DM Mono", monospace; }
+
+.hol-table { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 18px; }
+.hol-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+}
+.hol-row:last-child { border-bottom: none; }
+.hol-row.high { background: rgba(232,70,58,0.05); }
+.hol-main { flex: 1; min-width: 0; }
+.hol-name { font-size: 13px; color: var(--text); font-weight: 500; }
+.hol-when2 { font-size: 10px; color: var(--muted); font-family: "DM Mono", monospace; margin-top: 2px; }
+.hol-badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.hol-lw {
+  font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 4px; white-space: nowrap;
+  border: 1px solid var(--border); color: var(--muted);
+}
+.hol-lw.yes { color: var(--green); border-color: rgba(46,204,113,0.35); background: rgba(46,204,113,0.06); }
+.hol-impact {
+  font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px; white-space: nowrap; font-weight: 600;
+}
+.hol-impact.vhigh { color: var(--accent);  background: rgba(232,70,58,0.12); }
+.hol-impact.mod   { color: var(--accent2); background: rgba(240,165,0,0.12); }
