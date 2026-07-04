@@ -77,17 +77,30 @@ function _stRenderSearch() {
   section.appendChild(wrap);
 
   input.addEventListener('input', _stUpdateSearchResults);
+  // Enter picks the student the moment the list has narrowed to exactly one.
+  input.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    var matches = _stSearchMatches();
+    if (matches.length === 1) { e.preventDefault(); _stOpenStudent(matches[0]); }
+  });
   setTimeout(function() { input.focus(); }, 50);
 }
 
-function _stUpdateSearchResults() {
-  var q = (document.getElementById('studentSearch').value || '').trim().toLowerCase();
-  var results = document.getElementById('studentSearchResults');
-  results.innerHTML = '';
-  if (!q) return;
-  var matches = (_stState.roster || []).filter(function(name) {
+// Single source of truth for what the current search query matches — used by
+// both the live result render and the Enter-to-pick shortcut so they never drift.
+function _stSearchMatches() {
+  var el = document.getElementById('studentSearch');
+  var q = (el ? el.value : '').trim().toLowerCase();
+  if (!q) return [];
+  return (_stState.roster || []).filter(function(name) {
     return name.toLowerCase().indexOf(q) !== -1;
   }).slice(0, 8);
+}
+
+function _stUpdateSearchResults() {
+  var results = document.getElementById('studentSearchResults');
+  results.innerHTML = '';
+  var matches = _stSearchMatches();
   matches.forEach(function(name) {
     var btn = document.createElement('button');
     btn.textContent = name;
