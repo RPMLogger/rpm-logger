@@ -57,21 +57,28 @@ function _stRenderSearch() {
   section.innerHTML = '';
 
   var wrap = document.createElement('div');
-  wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;padding:60px 0 40px';
+  wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;padding:56px 0 40px';
+
+  var label = document.createElement('div');
+  label.textContent = 'Student Name';
+  label.style.cssText = 'font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:14px';
+  wrap.appendChild(label);
 
   var input = document.createElement('input');
   input.type = 'text';
   input.id = 'studentSearch';
-  input.placeholder = 'Type a name…';
   input.autocomplete = 'off';
   input.style.cssText =
-    'width:280px;padding:12px 16px;font-size:16px;font-family:inherit;' +
-    'background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;outline:none';
+    'width:300px;padding:15px 18px;font-size:17px;font-family:inherit;text-align:center;letter-spacing:0.3px;' +
+    'background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:12px;outline:none;' +
+    'transition:border-color .15s, box-shadow .15s';
+  input.onfocus = function() { input.style.borderColor = 'var(--accent)'; input.style.boxShadow = '0 0 0 3px rgba(232,70,58,0.14)'; };
+  input.onblur  = function() { input.style.borderColor = 'var(--border)'; input.style.boxShadow = 'none'; };
   wrap.appendChild(input);
 
   var results = document.createElement('div');
   results.id = 'studentSearchResults';
-  results.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:14px;width:280px';
+  results.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:16px;width:300px';
   wrap.appendChild(results);
 
   section.appendChild(wrap);
