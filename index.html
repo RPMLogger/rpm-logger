@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=311">
+  <link rel="stylesheet" href="css/styles.css?v=312">
 </head>
 <body>
 <div class="container">
@@ -52,6 +52,16 @@
     <button class="tab-btn" onclick="switchTab('dropbox')">Dropbox</button>
     <button class="tab-btn" onclick="switchTab('trial')">Trial</button>
     <button class="tab-btn" onclick="switchTab('ending')">Terminate</button>
+    <button class="tab-btn" onclick="switchTab('holidays')">Holidays Alerts</button>
+    <button class="tab-btn" onclick="switchTab('zoom')">Zoom</button>
+    <button class="tab-btn" onclick="switchTab('video')">Video Lesson</button>
+    <button class="tab-btn" onclick="switchTab('gbusiness')">Google Business</button>
+    <button class="tab-btn" onclick="switchTab('tax')">Tax</button>
+    <button class="tab-btn" onclick="switchTab('eoy')">End of Year</button>
+    <button class="tab-btn" onclick="switchTab('recs')">Recommendations</button>
+    <button class="tab-btn" onclick="switchTab('ratedecision')">Rate Decision</button>
+    <button class="tab-btn" onclick="switchTab('reviews')">Reviews</button>
+    <button class="tab-btn" onclick="switchTab('thisyear')">This Year</button>
     <button class="tab-btn" onclick="switchTab('sheets')">Sheets</button>
   </div>
 
@@ -59,7 +69,7 @@
   <div class="tab-panel active" id="tab-student">
     <div style="text-align:center;padding:10px 0 6px">
       <div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Build</div>
-      <div id="buildNo" style="font-size:46px;font-weight:800;line-height:1;color:var(--text)">311</div>
+      <div id="buildNo" style="font-size:46px;font-weight:800;line-height:1;color:var(--text)">312</div>
     </div>
     <div id="studentBody"><div class="empty-state">Loading...</div></div>
     <div class="log-feed" id="studentFeed"></div>
@@ -348,6 +358,65 @@
     <div id="endingBody"><div class="empty-state">Loading...</div></div>
   </div>
 
+  <!-- HOLIDAYS ALERTS -->
+  <div class="tab-panel" id="tab-holidays">
+    <div class="section-label">Holidays Alerts</div>
+    <div class="empty-state">Coming soon</div>
+  </div>
+
+  <!-- ZOOM -->
+  <div class="tab-panel" id="tab-zoom">
+    <div class="section-label">Zoom</div>
+    <div class="empty-state">Coming soon</div>
+  </div>
+
+  <!-- VIDEO LESSON -->
+  <div class="tab-panel" id="tab-video">
+    <div class="section-label">Video Lesson</div>
+    <div class="empty-state">Coming soon</div>
+  </div>
+
+  <!-- GOOGLE BUSINESS -->
+  <div class="tab-panel" id="tab-gbusiness">
+    <div class="section-label">Google Business</div>
+    <div class="empty-state">Coming soon</div>
+  </div>
+
+  <!-- TAX -->
+  <div class="tab-panel" id="tab-tax">
+    <div class="section-label">Tax</div>
+    <div class="empty-state">Coming soon</div>
+  </div>
+
+  <!-- END OF YEAR -->
+  <div class="tab-panel" id="tab-eoy">
+    <div class="section-label">End of Year</div>
+    <div class="empty-state">Coming soon</div>
+  </div>
+
+  <!-- RECOMMENDATIONS -->
+  <div class="tab-panel" id="tab-recs">
+    <div class="section-label">Recommendations</div>
+    <div class="empty-state">Coming soon</div>
+  </div>
+
+  <!-- RATE DECISION -->
+  <div class="tab-panel" id="tab-ratedecision">
+    <div class="section-label">Rate Decision</div>
+    <div class="empty-state">Coming soon</div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div class="tab-panel" id="tab-reviews">
+    <div class="section-label">Reviews</div>
+    <div class="empty-state">Coming soon</div>
+  </div>
+
+  <!-- THIS YEAR -->
+  <div class="tab-panel" id="tab-thisyear">
+    <div id="thisyearBody"><div class="empty-state">Loading...</div></div>
+  </div>
+
   <!-- SHEETS -->
   <div class="tab-panel" id="tab-sheets">
 
@@ -438,26 +507,27 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/lessons.js?v=311"></script>
-<script src="tabs/payments.js?v=311"></script>
-<script src="tabs/past.js?v=311"></script>
-<script src="tabs/week.js?v=311"></script>
-<script src="tabs/general.js?v=311"></script>
-<script src="tabs/financial.js?v=311"></script>
-<script src="tabs/inquiries.js?v=311"></script>
-<script src="tabs/comms.js?v=311"></script>
-<script src="tabs/notes.js?v=311"></script>
-<script src="tabs/todo.js?v=311"></script>
-<script src="tabs/availability.js?v=311"></script>
-<script src="tabs/biweekly.js?v=311"></script>
-<script src="tabs/travel.js?v=311"></script>
-<script src="tabs/student.js?v=311"></script>
-<script src="tabs/ctrl.js?v=311"></script>
-<script src="tabs/mailcenter.js?v=311"></script>
-<script src="tabs/dropbox.js?v=311"></script>
-<script src="tabs/trial.js?v=311"></script>
-<script src="tabs/ending.js?v=311"></script>
-<script src="tabs/sheets.js?v=311"></script>
+<script src="tabs/lessons.js?v=312"></script>
+<script src="tabs/payments.js?v=312"></script>
+<script src="tabs/past.js?v=312"></script>
+<script src="tabs/week.js?v=312"></script>
+<script src="tabs/general.js?v=312"></script>
+<script src="tabs/financial.js?v=312"></script>
+<script src="tabs/inquiries.js?v=312"></script>
+<script src="tabs/comms.js?v=312"></script>
+<script src="tabs/notes.js?v=312"></script>
+<script src="tabs/todo.js?v=312"></script>
+<script src="tabs/availability.js?v=312"></script>
+<script src="tabs/biweekly.js?v=312"></script>
+<script src="tabs/travel.js?v=312"></script>
+<script src="tabs/student.js?v=312"></script>
+<script src="tabs/ctrl.js?v=312"></script>
+<script src="tabs/mailcenter.js?v=312"></script>
+<script src="tabs/dropbox.js?v=312"></script>
+<script src="tabs/trial.js?v=312"></script>
+<script src="tabs/ending.js?v=312"></script>
+<script src="tabs/thisyear.js?v=312"></script>
+<script src="tabs/sheets.js?v=312"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -479,7 +549,7 @@
   function switchTab(tab) {
     if (isRecording) stopRecording();
     if (tab === "financial") { initFinancialTab(); }
-    var tabs = ["student","lessons","payments","past","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","mailcenter","dropbox","trial","ending","sheets"];
+    var tabs = ["student","lessons","payments","past","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","mailcenter","dropbox","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","ratedecision","reviews","thisyear","sheets"];
     tabs.forEach(function(t, i) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
@@ -496,6 +566,7 @@
     if (tab === "dropbox") initDropboxTab();
     if (tab === "trial") initTrialTab();
     if (tab === "ending") initEndingTab();
+    if (tab === "thisyear") initThisYearTab();
     if (tab === "inquiries") { initInquiriesTab(); loadCommsInbox(); startCommsPolling(); } else { stopCommsPolling(); }
   }
 

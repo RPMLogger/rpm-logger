@@ -11,11 +11,64 @@ function initTrialTab() {
   var url = getScriptUrl();
   var body = document.getElementById('trialBody');
   if (!url) { body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>'; return; }
-  body.innerHTML = _trManualFormHtml() + '<div id="trStatus"></div>' +
+  body.innerHTML =
+    '<div class="section-label" style="margin-bottom:10px">Accepted — book them in</div>' +
+    '<div id="trAccepted"><div class="empty-state">Loading…</div></div>' +
+    '<hr class="divider" style="margin:22px 0 16px">' +
+    _trManualFormHtml() + '<div id="trStatus"></div>' +
     '<hr class="divider" style="margin:22px 0 16px">' +
     '<div class="section-label" style="margin-bottom:10px">From the calendar</div>' +
     '<div id="trCalList"><div class="empty-state">Loading trial events…</div></div>';
+  _trLoadAccepted();
   _trLoadCalendar();
+}
+
+// ── Accepted (Yes from Inquiries, not yet booked) ────────────────────────────
+function _trLoadAccepted() {
+  var url = getScriptUrl();
+  var box = document.getElementById('trAccepted');
+  if (!box || !url) return;
+  fetch(url + '?action=getTrialAccepted')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) { box.innerHTML = '<div class="empty-state">⚠ ' + (d.message || 'Could not load') + '</div>'; return; }
+      if (!d.accepted || !d.accepted.length) { box.innerHTML = '<div class="empty-state">No accepted inquiries waiting.</div>'; return; }
+      box.innerHTML = d.accepted.map(_trAcceptedCard).join('');
+    })
+    .catch(function () { box.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
+}
+
+function _trAcceptedCard(a) {
+  var fields = [
+    ['Level', a.level], ['Availability', a.availability], ['Daytime', a.daytime]
+  ].filter(function (f) { return f[1] && f[1].toString().trim(); })
+   .map(function (f) { return '<span style="color:rgba(255,255,255,.82)">' + _trEsc(f[0]) + '</span> <span style="color:rgba(255,255,255,.5)">' + _trEsc(f[1]) + '</span>'; })
+   .join('<br>');
+  var nm = _trEsc(a.name), em = _trEsc(a.email);
+  return '<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:10px;padding:13px 15px;margin-bottom:9px">' +
+    '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">' +
+      '<span style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text)">' + (a.name || '—') + '</span>' +
+      '<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted)">' + _trEsc(a.date || '') + '</span>' +
+    '</div>' +
+    (a.email ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:2px">' + em + '</div>' : '') +
+    (fields ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.6;margin-top:6px">' + fields + '</div>' : '') +
+    '<div style="margin-top:10px;text-align:right">' +
+      '<button class="db-mini-btn" onclick="_trBookAccepted(\'' + nm + '\',\'' + em + '\')">Book →</button>' +
+    '</div>' +
+  '</div>';
+}
+
+// Prefill the manual booking form from an accepted card + scroll to it.
+function _trBookAccepted(name, email) {
+  var parts = (name || '').split(' ');
+  var first = parts.shift() || '';
+  var last = parts.pop() || '';
+  var middle = parts.join(' ');
+  function set(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; }
+  set('trFirst', first); set('trMiddle', middle); set('trLast', last); set('trEmail', email);
+  var f = document.getElementById('trFirst');
+  if (f) { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.focus(); }
+  _trStatus('Filled in ' + name + ' — pick a date + time, then Book trial.', 'var(--accent2)');
 }
 
 // ── Door 1: manual booking form ──────────────────────────────────────────────
@@ -64,6 +117,7 @@ function _trBook() {
       _trStatus('✓ Booked ' + d.name + ' — ' + d.dateLabel + (d.created ? ' · tab created' : ' · tab already existed'), 'var(--green)');
       ['trFirst','trMiddle','trLast','trEmail','trDate','trTime'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
       _trLoadCalendar();
+      _trLoadAccepted();
     })
     .catch(function () { _trRestoreBook(); _trStatus('❌ Could not reach the portal.', 'var(--accent)'); });
 }
@@ -113,6 +167,7 @@ function _trPull(name, email, btn) {
       if (!d.success) { _trStatus('⚠ ' + (d.message || 'Failed'), 'var(--accent)'); if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer'; btn.textContent = 'Pull in →'; } return; }
       _trStatus('✓ Pulled in ' + d.name + (d.created ? ' · tab created' : ' · tab already existed'), 'var(--green)');
       _trLoadCalendar();
+      _trLoadAccepted();
     })
     .catch(function () { _trStatus('❌ Could not reach the portal.', 'var(--accent)'); if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer'; btn.textContent = 'Pull in →'; } });
 }
