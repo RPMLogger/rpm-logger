@@ -161,6 +161,12 @@ function _stUpdateSearchResults() {
 
 // ─── 2) STUDENT DETAIL VIEW ─────────────────────────────────────────────────
 
+// Section headings inside the detail view — wide-tracked uppercase gray, matching
+// the portal's section-label look (e.g. "TERMINATE · ARCHIVE A STUDENT").
+var _ST_SECTION_TITLE =
+  "font-family:'DM Mono',monospace;font-weight:500;font-size:12px;color:var(--text);" +
+  "letter-spacing:3px;text-transform:uppercase;margin-bottom:11px";
+
 function _stOpenStudent(name) {
   var section = document.getElementById('studentBody');
   section.innerHTML = '<div class="empty-state">Loading ' + name + '...</div>';
@@ -183,29 +189,35 @@ function _stRenderDetail() {
   var d = _stState.current;
   section.innerHTML = '';
 
-  // Top: back link + name + lesson #
+  // Top: name with lesson # underneath it, back link on the right
   var hdr = document.createElement('div');
-  hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px';
+  hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px';
   hdr.innerHTML =
     "<div>" +
-      "<div style='font-weight:700;font-size:18px;letter-spacing:0.3px'>" + d.name + "</div>" +
-      "<div style='font-size:11px;color:var(--muted);margin-top:2px'>Lesson <span style='color:var(--accent);font-weight:600'>" + d.lessonInBlock + "</span> of block</div>" +
+      "<div style='font-family:\"Syne\",sans-serif;font-weight:400;font-size:20px;letter-spacing:0.3px'>" + d.name + "</div>" +
+      "<div style='font-size:11px;color:var(--muted);margin-top:2px;text-transform:none;letter-spacing:0.5px'>Lesson " + d.lessonInBlock + "</div>" +
     "</div>" +
-    "<button id='stBack' style='padding:6px 12px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>← Search</button>";
+    "<button id='stBack' title='Close' style='padding:5px 10px;font-size:15px;line-height:1;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>✕</button>";
   section.appendChild(hdr);
   document.getElementById('stBack').onclick = function() { _stState.view = 'search'; _stRenderSearch(); };
 
-  // Past lessons
+  // PAST section
+  var pastLabel = document.createElement('div');
+  pastLabel.style.cssText = _ST_SECTION_TITLE;
+  pastLabel.textContent = 'Past';
+  section.appendChild(pastLabel);
+
   var pastBox = document.createElement('div');
-  pastBox.style.cssText = 'border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:10px 12px;margin-bottom:12px';
-  pastBox.innerHTML = "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px'>Past 4 lessons</div>";
+  pastBox.style.cssText = 'border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:10px 12px;margin-bottom:16px';
+  pastBox.innerHTML = '';
   if (d.pastLessons && d.pastLessons.length) {
-    d.pastLessons.forEach(function(p) {
+    d.pastLessons.forEach(function(p, i) {
       var row = document.createElement('div');
-      row.style.cssText = 'display:flex;justify-content:space-between;gap:10px;padding:4px 0;font-size:12px';
+      row.style.cssText = 'padding:4px 0;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
       row.innerHTML =
-        "<span style='color:var(--muted);flex-shrink:0;width:90px'>" + (p.date || '—') + "</span>" +
-        "<span style='color:var(--text);text-align:right;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" + (p.subject || '—') + "</span>";
+        "<span style='color:var(--muted)'>" + (i + 1) + ". </span>" +
+        "<span style='color:#8f8f8f'>" + (p.subject || '—') + "</span>" +
+        "<span style='color:var(--muted)'> · " + (p.date || '—') + "</span>";
       pastBox.appendChild(row);
     });
   } else {
@@ -213,23 +225,40 @@ function _stRenderDetail() {
   }
   section.appendChild(pastBox);
 
-  // Payment + Audit
+  // PAYMENT section
+  var payLabel = document.createElement('div');
+  payLabel.style.cssText = _ST_SECTION_TITLE;
+  payLabel.textContent = 'Payment';
+  section.appendChild(payLabel);
+
   var payRow = document.createElement('div');
-  payRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--panel);margin-bottom:10px';
-  var payColors = { 'Paid': 'var(--green)', 'Due': '#ffb400', 'Overdue': '#ff5050' };
+  payRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--panel);margin-bottom:16px';
+  var payColors = { 'Paid': '#8f8f8f', 'Due': '#ffb400', 'Overdue': '#ff5050' };
   var payColor = payColors[d.paymentStatus] || 'var(--muted)';
   payRow.innerHTML =
-    "<span style='font-size:13px'>Payment: <span style='color:" + payColor + ";font-weight:600'>● " + (d.paymentStatus || '—') + "</span></span>" +
+    "<span style='font-size:12px;color:" + payColor + "'>" + (d.paymentStatus || '—') + "</span>" +
     "<button id='stAuditBtn' style='padding:6px 12px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>Audit →</button>";
   section.appendChild(payRow);
   document.getElementById('stAuditBtn').onclick = _stOpenAudit;
 
-  // Calendar
-  var calBtn = document.createElement('button');
-  calBtn.textContent = '📅 Calendar';
-  calBtn.style.cssText = 'width:100%;padding:10px;font-size:13px;background:rgba(91,157,255,0.12);color:#5b9dff;border:1px solid rgba(91,157,255,0.4);border-radius:6px;cursor:pointer;margin-bottom:10px;letter-spacing:0.3px';
-  calBtn.onclick = _stOpenCalendar;
-  section.appendChild(calBtn);
+  // SUBJECT section
+  var subjLabel = document.createElement('div');
+  subjLabel.style.cssText = _ST_SECTION_TITLE;
+  subjLabel.textContent = 'Subject';
+  section.appendChild(subjLabel);
+
+  // Primary action: Log Lesson — styled like Calendar
+  var logBtn = document.createElement('button');
+  logBtn.textContent = '📊 Log Lesson';
+  logBtn.style.cssText = 'width:100%;padding:10px;font-size:13px;background:rgba(46,204,113,0.12);color:var(--green);border:1px solid rgba(46,204,113,0.4);border-radius:6px;cursor:pointer;margin-bottom:18px;letter-spacing:0.3px';
+  logBtn.onclick = function() { _stLogLessonFor(d.name); };
+  section.appendChild(logBtn);
+
+  // HW section
+  var hwLabel = document.createElement('div');
+  hwLabel.style.cssText = _ST_SECTION_TITLE;
+  hwLabel.textContent = 'HW';
+  section.appendChild(hwLabel);
 
   // External links: Dropbox + Messages
   var linksRow = document.createElement('div');
@@ -247,13 +276,13 @@ function _stRenderDetail() {
   linksRow.appendChild(msgBtn);
   section.appendChild(linksRow);
 
-  // Drag-and-drop upload straight into the student's shared Dropbox folder.
+  // Drag-and-drop upload straight into the student's shared Dropbox folder. Double height.
   var drop = document.createElement('div');
   drop.id = 'stDropZone';
   drop.dataset.folder = d.name;
   drop.dataset.idle = '⬆ Drag homework here to upload to ' + d.name + "'s Dropbox";
   drop.textContent = drop.dataset.idle;
-  drop.style.cssText = 'margin-bottom:14px;padding:16px;border:1.5px dashed var(--border);border-radius:8px;' +
+  drop.style.cssText = 'margin-bottom:14px;padding:40px 16px;border:1.5px dashed rgba(91,157,255,0.4);border-radius:8px;' +
     'text-align:center;font-size:12px;color:var(--muted);cursor:pointer;transition:border-color .15s,background .15s';
   var fileInput = document.createElement('input');
   fileInput.type = 'file';
@@ -261,22 +290,28 @@ function _stRenderDetail() {
   fileInput.style.display = 'none';
   fileInput.onchange = function () { if (fileInput.files.length) _stUploadToDropbox(d.name, fileInput.files, drop); fileInput.value = ''; };
   drop.onclick = function () { fileInput.click(); };
-  drop.ondragover = function (ev) { ev.preventDefault(); drop.style.borderColor = 'var(--accent)'; drop.style.background = 'rgba(232,70,58,0.06)'; };
-  drop.ondragleave = function () { drop.style.borderColor = 'var(--border)'; drop.style.background = 'transparent'; };
+  drop.ondragover = function (ev) { ev.preventDefault(); drop.style.borderColor = '#5b9dff'; drop.style.background = 'rgba(91,157,255,0.08)'; };
+  drop.ondragleave = function () { drop.style.borderColor = 'rgba(91,157,255,0.4)'; drop.style.background = 'transparent'; };
   drop.ondrop = function (ev) {
     ev.preventDefault();
-    drop.style.borderColor = 'var(--border)'; drop.style.background = 'transparent';
+    drop.style.borderColor = 'rgba(91,157,255,0.4)'; drop.style.background = 'transparent';
     if (ev.dataTransfer && ev.dataTransfer.files.length) _stUploadToDropbox(d.name, ev.dataTransfer.files, drop);
   };
   section.appendChild(drop);
   section.appendChild(fileInput);
 
-  // Primary action: + Log this lesson
-  var logBtn = document.createElement('button');
-  logBtn.textContent = '+ Log this lesson';
-  logBtn.style.cssText = 'width:100%;padding:12px;font-size:14px;background:rgba(232,70,58,0.2);color:var(--accent);border:1px solid var(--accent);border-radius:6px;cursor:pointer;font-weight:600;letter-spacing:0.5px';
-  logBtn.onclick = function() { _stLogLessonFor(d.name); };
-  section.appendChild(logBtn);
+  // SCHEDULE section
+  var schedLabel = document.createElement('div');
+  schedLabel.style.cssText = _ST_SECTION_TITLE;
+  schedLabel.textContent = 'Schedule';
+  section.appendChild(schedLabel);
+
+  // Calendar — all the way at the bottom
+  var calBtn = document.createElement('button');
+  calBtn.textContent = '📅 Calendar';
+  calBtn.style.cssText = 'width:100%;padding:10px;font-size:13px;background:transparent;color:var(--text);border:1px solid rgba(232,70,58,0.55);border-radius:6px;cursor:pointer;margin-top:6px;letter-spacing:0.3px';
+  calBtn.onclick = _stOpenCalendar;
+  section.appendChild(calBtn);
 }
 
 
