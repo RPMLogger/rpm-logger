@@ -192,10 +192,13 @@ function _stRenderDetail() {
   // Top: name with lesson # underneath it, back link on the right
   var hdr = document.createElement('div');
   hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px';
+  var todayBadge = d.isLessonToday
+    ? "<span style='margin-left:8px;padding:1px 7px;border-radius:10px;background:rgba(46,204,113,0.16);color:var(--green);border:1px solid rgba(46,204,113,0.5);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;vertical-align:middle'>Today</span>"
+    : "";
   hdr.innerHTML =
     "<div>" +
       "<div style='font-family:\"Syne\",sans-serif;font-weight:400;font-size:20px;letter-spacing:0.3px'>" + d.name + "</div>" +
-      "<div style='font-size:11px;color:var(--muted);margin-top:2px;text-transform:none;letter-spacing:0.5px'>Lesson " + d.lessonInBlock + "</div>" +
+      "<div style='font-size:11px;color:var(--muted);margin-top:2px;text-transform:none;letter-spacing:0.5px'>Lesson " + d.lessonInBlock + todayBadge + "</div>" +
     "</div>" +
     "<button id='stBack' title='Close' style='padding:5px 10px;font-size:15px;line-height:1;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>✕</button>";
   section.appendChild(hdr);

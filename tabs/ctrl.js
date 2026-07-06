@@ -414,9 +414,27 @@ function _renderFixData(d) {
         row.appendChild(subjIn); row.appendChild(sp.box);
         importControls.push({ subjIn: subjIn, sp: sp });
       } else {
-        row.innerHTML = prefix +
-          "<span style=\"color:var(--muted);width:60px\">" + (l.date || "—") + "</span>" +
-          "<span style=\"flex:1\">" + (l.subject || "<em style=\"color:var(--muted)\">(no subject)</em>") + "</span>";
+        var pfx2 = document.createElement("span");
+        pfx2.style.cssText = "color:var(--muted);opacity:0.6;width:24px;display:inline-block;flex-shrink:0";
+        pfx2.textContent = num;
+        var dateSpan = document.createElement("span");
+        dateSpan.style.cssText = "color:var(--muted);width:60px;flex-shrink:0";
+        dateSpan.textContent = l.date || "—";
+        var subjSpan = document.createElement("span");
+        subjSpan.style.cssText = "flex:1";
+        subjSpan.innerHTML = l.subject || "<em style=\"color:var(--muted)\">(no subject)</em>";
+        row.appendChild(pfx2); row.appendChild(dateSpan); row.appendChild(subjSpan);
+        // ✕ removes this logged line from Students Import (undo a mistaken/dup log).
+        if (l.row) {
+          var del = document.createElement("button");
+          del.textContent = "✕";
+          del.title = "Remove this logged line from Students Import";
+          del.style.cssText = "flex-shrink:0;padding:1px 7px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:3px;cursor:pointer";
+          (function(rowNum, label, btn) {
+            btn.onclick = function() { _clearImportLesson(rowNum, label, btn); };
+          })(l.row, (l.date || "") + " " + (l.subject || ""), del);
+          row.appendChild(del);
+        }
       }
       wrap.appendChild(row);
     });
@@ -607,6 +625,23 @@ function _saveCounterRow(row, fields, finished, btn) {
     } else {
       btn.textContent = orig; btn.disabled = false;
       addLog("auditFeed", "❌ " + (data && data.message ? data.message : "Save failed"), "error");
+    }
+  });
+}
+
+// Remove a single already-logged Students Import line (the ✕ on a filled row).
+// Confirms first, then clears that row's subject + date and reloads the modal.
+function _clearImportLesson(row, label, btn) {
+  if (!window.confirm("Remove this logged line?\n\n" + (label || "").trim())) return;
+  var url = getScriptUrl(); if (!url) return;
+  btn.textContent = "…"; btn.disabled = true;
+  callScript(url, "clearImportLesson", { name: _fixCurrentName, row: row }, function(data) {
+    if (data && data.success) {
+      addLog("auditFeed", "🗑 Removed Students Import line: " + (label || "").trim(), "success");
+      if (_fixCurrentName) _loadFixData(_fixCurrentName);
+    } else {
+      btn.textContent = "✕"; btn.disabled = false;
+      addLog("auditFeed", "❌ " + (data && data.message ? data.message : "Remove failed"), "error");
     }
   });
 }
