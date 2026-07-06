@@ -52,6 +52,33 @@ function _stLoadRoster() {
 
 // ─── 1) SEARCH VIEW ─────────────────────────────────────────────────────────
 
+// Quick-open link row (source sheets + Google Calendar) shown at the top of a
+// student's page. Small, right-aligned, opens each in a new tab so the portal
+// stays put.
+function _stMakeLinksBar() {
+  var bar = document.createElement('div');
+  bar.style.cssText = 'display:flex;justify-content:flex-end;gap:6px;margin-bottom:14px';
+  var btnStyle =
+    'padding:4px 10px;font-size:10px;letter-spacing:0.5px;text-decoration:none;white-space:nowrap;' +
+    'background:var(--panel);color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer';
+  // Student Import deep-links straight to the open student's tab + last filled
+  // row when the backend supplied it; otherwise falls back to the whole sheet.
+  var importUrl = (_stState.current && _stState.current.importUrl) ||
+                  'https://docs.google.com/spreadsheets/d/1GJB4BGETT4zeG1M7AKk48rhLaQw5ZqlImIDBC4ZepW4/edit';
+  [['📊 Student Import',  importUrl],
+   ['📊 RPM-Counter',     'https://docs.google.com/spreadsheets/d/1n-vZaaIgbs1nBCwrE-dAUNyz3q8LWjkB4uO0BSKTCQc/edit'],
+   ['📅 Google Calendar', 'https://calendar.google.com/calendar/u/0/r']].forEach(function(s) {
+    var a = document.createElement('a');
+    a.href = s[1];
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = s[0];
+    a.style.cssText = btnStyle;
+    bar.appendChild(a);
+  });
+  return bar;
+}
+
 function _stRenderSearch() {
   var section = document.getElementById('studentBody');
   section.innerHTML = '';
@@ -78,7 +105,8 @@ function _stRenderSearch() {
 
   var results = document.createElement('div');
   results.id = 'studentSearchResults';
-  results.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:16px;width:300px';
+  // Narrower than the 300px search box above it, and centered under it.
+  results.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:16px;width:220px';
   wrap.appendChild(results);
 
   section.appendChild(wrap);
@@ -109,11 +137,11 @@ function _stRenderSearch() {
 
 // Result-button styles, shared so hover/keyboard highlight stay identical.
 var _ST_RESULT_BASE =
-  'width:100%;padding:9px 14px;background:var(--panel);color:var(--text);' +
-  'border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:inherit;font-size:13px;text-align:left';
+  'width:100%;padding:4px 9px;background:var(--panel);color:var(--accent2);' +
+  'border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:inherit;font-size:9px;text-align:left';
 var _ST_RESULT_HI =
-  'width:100%;padding:9px 14px;background:rgba(232,70,58,0.12);color:var(--text);' +
-  'border:1px solid var(--accent);border-radius:4px;cursor:pointer;font-family:inherit;font-size:13px;text-align:left';
+  'width:100%;padding:4px 9px;background:rgba(240,165,0,0.12);color:var(--accent2);' +
+  'border:1px solid var(--accent2);border-radius:4px;cursor:pointer;font-family:inherit;font-size:9px;text-align:left';
 
 // Paint the highlight onto whichever result index is currently selected.
 function _stApplyHighlight() {
@@ -131,13 +159,12 @@ function _stSearchMatches() {
   var el = document.getElementById('studentSearch');
   var q = (el ? el.value : '').trim().toLowerCase();
   if (!q) return [];
-  // Match the START of any word in the name, not any substring — so "a" finds
-  // "Antonio" only (not every name containing an 'a'), while a last name like
-  // "green" still matches "Gail Greenwald".
+  // Prefix-match the START of the full name only. You always type the first
+  // name letter by letter, so "G" → every name starting with G, "Ga" narrows to
+  // "Gail Greenwald" — and does NOT match "Jean Gabriel..." just because "Ga"
+  // appears mid-name.
   return (_stState.roster || []).filter(function(name) {
-    return name.toLowerCase().split(/\s+/).some(function(word) {
-      return word.indexOf(q) === 0;
-    });
+    return name.toLowerCase().indexOf(q) === 0;
   }).slice(0, 8);
 }
 
@@ -189,16 +216,28 @@ function _stRenderDetail() {
   var d = _stState.current;
   section.innerHTML = '';
 
+  // Top: quick-open links to the source sheets + Google Calendar.
+  section.appendChild(_stMakeLinksBar());
+
   // Top: name with lesson # underneath it, back link on the right
   var hdr = document.createElement('div');
   hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px';
-  var todayBadge = d.isLessonToday
-    ? "<span style='margin-left:8px;padding:1px 7px;border-radius:10px;background:rgba(46,204,113,0.16);color:var(--green);border:1px solid rgba(46,204,113,0.5);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;vertical-align:middle'>Today</span>"
-    : "";
+  // Lesson-in-block number only matters on the actual lesson day — off-day it's
+  // noise. On a lesson day: yellow TODAY badge + "Lesson N". Otherwise just tell
+  // me when the last lesson was.
+  var lastLessonDate = (d.pastLessons && d.pastLessons.length) ? d.pastLessons[0].date : '';
+  var subLine = d.isLessonToday
+    ? "<div style='font-size:11px;color:var(--muted);margin-top:4px;text-transform:none;letter-spacing:0.5px'>" +
+        "<span style='padding:1px 7px;border-radius:10px;background:rgba(240,165,0,0.16);color:var(--accent2);border:1px solid rgba(240,165,0,0.5);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;vertical-align:middle'>Today</span>" +
+        "<span style='margin-left:8px'>Lesson " + d.lessonInBlock + "</span>" +
+      "</div>"
+    : "<div style='font-size:11px;color:var(--muted);margin-top:4px;text-transform:none;letter-spacing:0.5px'>" +
+        "(last lesson on: " + (lastLessonDate || '—') + ")" +
+      "</div>";
   hdr.innerHTML =
     "<div>" +
       "<div style='font-family:\"Syne\",sans-serif;font-weight:400;font-size:20px;letter-spacing:0.3px'>" + d.name + "</div>" +
-      "<div style='font-size:11px;color:var(--muted);margin-top:2px;text-transform:none;letter-spacing:0.5px'>Lesson " + d.lessonInBlock + todayBadge + "</div>" +
+      subLine +
     "</div>" +
     "<button id='stBack' title='Close' style='padding:5px 10px;font-size:15px;line-height:1;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>✕</button>";
   section.appendChild(hdr);
@@ -311,7 +350,7 @@ function _stRenderDetail() {
 
   // Calendar — all the way at the bottom
   var calBtn = document.createElement('button');
-  calBtn.textContent = '📅 Calendar';
+  calBtn.textContent = '📅 Reschedule';
   calBtn.style.cssText = 'width:100%;padding:10px;font-size:13px;background:transparent;color:var(--text);border:1px solid rgba(232,70,58,0.55);border-radius:6px;cursor:pointer;margin-top:6px;letter-spacing:0.3px';
   calBtn.onclick = _stOpenCalendar;
   section.appendChild(calBtn);
