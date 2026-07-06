@@ -223,13 +223,12 @@ function _stRenderDetail() {
   var hdr = document.createElement('div');
   hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px';
   // Lesson-in-block number only matters on the actual lesson day — off-day it's
-  // noise. On a lesson day: yellow TODAY badge + "Lesson N". Otherwise just tell
-  // me when the last lesson was.
+  // noise. On a lesson day: plain yellow "Today · Lesson N" text (no pill).
+  // Otherwise just tell me when the last lesson was.
   var lastLessonDate = (d.pastLessons && d.pastLessons.length) ? d.pastLessons[0].date : '';
   var subLine = d.isLessonToday
-    ? "<div style='font-size:11px;color:var(--muted);margin-top:4px;text-transform:none;letter-spacing:0.5px'>" +
-        "<span style='padding:1px 7px;border-radius:10px;background:rgba(240,165,0,0.16);color:var(--accent2);border:1px solid rgba(240,165,0,0.5);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;vertical-align:middle'>Today</span>" +
-        "<span style='margin-left:8px'>Lesson " + d.lessonInBlock + "</span>" +
+    ? "<div style='font-size:11px;color:var(--accent2);margin-top:4px;letter-spacing:0.5px'>" +
+        "Today · Lesson " + d.lessonInBlock +
       "</div>"
     : "<div style='font-size:11px;color:var(--muted);margin-top:4px;text-transform:none;letter-spacing:0.5px'>" +
         "(last lesson on: " + (lastLessonDate || '—') + ")" +
@@ -249,23 +248,56 @@ function _stRenderDetail() {
   pastLabel.textContent = 'Past';
   section.appendChild(pastLabel);
 
-  var pastBox = document.createElement('div');
-  pastBox.style.cssText = 'border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:10px 12px;margin-bottom:16px';
-  pastBox.innerHTML = '';
-  if (d.pastLessons && d.pastLessons.length) {
-    d.pastLessons.forEach(function(p, i) {
-      var row = document.createElement('div');
-      row.style.cssText = 'padding:4px 0;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
-      row.innerHTML =
-        "<span style='color:var(--muted)'>" + (i + 1) + ". </span>" +
-        "<span style='color:#8f8f8f'>" + (p.subject || '—') + "</span>" +
-        "<span style='color:var(--muted)'> · " + (p.date || '—') + "</span>";
-      pastBox.appendChild(row);
+  if (d.pastBlocks && d.pastBlocks.length) {
+    // Block view: each block is a card of 4 lesson slots (1-4). Filled slots show
+    // subject + date; empty slots are dimmed placeholders so you can see exactly
+    // where the student is in the current block. Previous block first, then current.
+    d.pastBlocks.forEach(function(blk) {
+      var box = document.createElement('div');
+      box.style.cssText = 'border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:8px 12px;margin-bottom:10px';
+
+      blk.lessons.forEach(function(p) {
+        var row = document.createElement('div');
+        // Let long subjects wrap onto multiple lines instead of being clipped;
+        // wrapped lines hang-indent under the subject, clear of the "N." number.
+        row.style.cssText = 'padding:3px 0 3px 18px;text-indent:-18px;font-size:12px;line-height:1.4;word-break:break-word';
+        if (p.empty) {
+          row.innerHTML =
+            "<span style='color:var(--border)'>" + p.n + ". </span>" +
+            "<span style='color:var(--border)'>—</span>";
+        } else {
+          row.innerHTML =
+            "<span style='color:var(--muted)'>" + p.n + ". </span>" +
+            "<span style='color:#8f8f8f'>" + (p.subject || '—') + "</span>" +
+            "<span style='color:var(--muted)'> · " + (p.date || '—') + "</span>";
+        }
+        box.appendChild(row);
+      });
+      section.appendChild(box);
     });
+    // small gap before the next section
+    var spacer = document.createElement('div');
+    spacer.style.cssText = 'height:6px';
+    section.appendChild(spacer);
   } else {
-    pastBox.innerHTML += "<div style='font-size:12px;color:var(--muted);padding:4px 0'>No lessons logged yet</div>";
+    // Fallback (older backend without pastBlocks): flat last-4 list.
+    var pastBox = document.createElement('div');
+    pastBox.style.cssText = 'border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:10px 12px;margin-bottom:16px';
+    if (d.pastLessons && d.pastLessons.length) {
+      d.pastLessons.forEach(function(p, i) {
+        var row = document.createElement('div');
+        row.style.cssText = 'padding:4px 0 4px 18px;text-indent:-18px;font-size:12px;line-height:1.4;word-break:break-word';
+        row.innerHTML =
+          "<span style='color:var(--muted)'>" + (i + 1) + ". </span>" +
+          "<span style='color:#8f8f8f'>" + (p.subject || '—') + "</span>" +
+          "<span style='color:var(--muted)'> · " + (p.date || '—') + "</span>";
+        pastBox.appendChild(row);
+      });
+    } else {
+      pastBox.innerHTML = "<div style='font-size:12px;color:var(--muted);padding:4px 0'>No lessons logged yet</div>";
+    }
+    section.appendChild(pastBox);
   }
-  section.appendChild(pastBox);
 
   // PAYMENT section
   var payLabel = document.createElement('div');
@@ -289,12 +321,67 @@ function _stRenderDetail() {
   subjLabel.textContent = 'Subject';
   section.appendChild(subjLabel);
 
-  // Primary action: Log Lesson — styled like Calendar
-  var logBtn = document.createElement('button');
-  logBtn.textContent = '📊 Log Lesson';
-  logBtn.style.cssText = 'width:100%;padding:10px;font-size:13px;background:rgba(46,204,113,0.12);color:var(--green);border:1px solid rgba(46,204,113,0.4);border-radius:6px;cursor:pointer;margin-bottom:18px;letter-spacing:0.3px';
-  logBtn.onclick = function() { _stLogLessonFor(d.name); };
-  section.appendChild(logBtn);
+  // Primary action: Log Lesson.
+  //  · On the lesson day  → one-click "Log Today's Lesson".
+  //  · Off-day (late-log / correcting) → a date stepper that starts at today and
+  //    steps ±1 day (▲/▼ buttons or keyboard Up/Down), plus a Log button that
+  //    records for the chosen date.
+  var _stLogGreen = 'width:100%;padding:10px;font-size:13px;background:rgba(46,204,113,0.12);' +
+    'color:var(--green);border:1px solid rgba(46,204,113,0.4);border-radius:6px;cursor:pointer;letter-spacing:0.3px';
+
+  if (d.isLessonToday) {
+    // Lesson day → yellow box, matching the yellow "Today" line up top.
+    var logBtn = document.createElement('button');
+    logBtn.textContent = "📊 Log Today's Lesson";
+    logBtn.style.cssText = 'width:100%;padding:10px;font-size:13px;background:rgba(240,165,0,0.14);' +
+      'color:var(--accent2);border:1px solid rgba(240,165,0,0.5);border-radius:6px;cursor:pointer;' +
+      'letter-spacing:0.3px;margin-bottom:18px';
+    logBtn.onclick = function() { _stLogLessonFor(d.name, _stToday()); };
+    section.appendChild(logBtn);
+  } else {
+    var logWrap = document.createElement('div');
+    logWrap.style.cssText = 'margin-bottom:18px';
+    var logDate = _stToday();   // adjustable log date, starts at today
+
+    var logBtn2 = document.createElement('button');
+    logBtn2.style.cssText = _stLogGreen;
+    logBtn2.onclick = function() { _stLogLessonFor(d.name, logDate); };
+
+    var stepper = document.createElement('div');
+    stepper.tabIndex = 0;
+    stepper.title = 'Focus and use ↑/↓ to change the day';
+    stepper.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:8px;' +
+      'padding:7px;border:1px solid rgba(46,204,113,0.4);border-radius:6px;outline:none';
+    var stepBtn = 'background:transparent;border:none;color:var(--green);font-size:14px;cursor:pointer;padding:2px 10px;line-height:1';
+    var down = document.createElement('button'); down.textContent = '▼'; down.title = 'Earlier day'; down.style.cssText = stepBtn;
+    var up   = document.createElement('button'); up.textContent   = '▲'; up.title   = 'Later day';    up.style.cssText   = stepBtn;
+    var dateLbl = document.createElement('span');
+    dateLbl.style.cssText = 'font-size:14px;color:var(--green);min-width:84px;text-align:center;letter-spacing:0.5px';
+
+    function _stPaintLogDate() {
+      dateLbl.textContent = _stMonDay(logDate);
+      logBtn2.textContent = '📊 Log Lesson · ' + _stMonDay(logDate);
+    }
+    function _stShiftLogDate(delta) {
+      logDate = new Date(logDate.getFullYear(), logDate.getMonth(), logDate.getDate() + delta);
+      _stPaintLogDate();
+    }
+    _stPaintLogDate();
+
+    down.onclick = function() { _stShiftLogDate(-1); };
+    up.onclick   = function() { _stShiftLogDate(1); };
+    stepper.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowRight')      { e.preventDefault(); _stShiftLogDate(1); }
+      else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { e.preventDefault(); _stShiftLogDate(-1); }
+    });
+
+    stepper.appendChild(down);
+    stepper.appendChild(dateLbl);
+    stepper.appendChild(up);
+    logWrap.appendChild(stepper);
+    logWrap.appendChild(logBtn2);
+    section.appendChild(logWrap);
+  }
 
   // HW section
   var hwLabel = document.createElement('div');
@@ -324,7 +411,7 @@ function _stRenderDetail() {
   drop.dataset.folder = d.name;
   drop.dataset.idle = '⬆ Drag homework here to upload to ' + d.name + "'s Dropbox";
   drop.textContent = drop.dataset.idle;
-  drop.style.cssText = 'margin-bottom:14px;padding:40px 16px;border:1.5px dashed rgba(91,157,255,0.4);border-radius:8px;' +
+  drop.style.cssText = 'margin-bottom:14px;padding:60px 16px;border:1.5px dashed rgba(91,157,255,0.4);border-radius:8px;' +
     'text-align:center;font-size:12px;color:var(--muted);cursor:pointer;transition:border-color .15s,background .15s';
   var fileInput = document.createElement('input');
   fileInput.type = 'file';
@@ -389,6 +476,30 @@ function _stRenderAudit(data) {
     "<button id='stBackToDetail' style='padding:6px 12px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>← Back</button>";
   section.appendChild(hdr);
   document.getElementById('stBackToDetail').onclick = function() { _stState.view = 'detail'; _stRenderDetail(); };
+
+  // Verdict banner — one glance: is this student clean, or is something off?
+  // Problem = Counter dates missing from Import, or an overdue payment.
+  var _missing = data.missingFromImport || [];
+  var problems = [];
+  if (_missing.length) problems.push(_missing.length + ' date' + (_missing.length > 1 ? 's' : '') + ' missing from Import');
+  if (data.paymentStatus === 'Overdue') problems.push('payment overdue');
+  var hasProblem = problems.length > 0;
+
+  var verdict = document.createElement('div');
+  verdict.style.cssText = 'padding:10px 12px;border-radius:6px;margin-bottom:10px;font-size:13px;font-weight:600;border:1px solid ' +
+    (hasProblem ? 'rgba(255,180,0,0.5);background:rgba(255,180,0,0.10);color:#ffb400'
+                : 'rgba(46,204,113,0.5);background:rgba(46,204,113,0.10);color:var(--green)');
+  verdict.textContent = hasProblem ? ('⚠ Needs attention — ' + problems.join(' · ')) : '✓ Looks good — nothing to fix';
+  section.appendChild(verdict);
+
+  // Fixes live in the Audit tab — jump straight there.
+  var fixBtn = document.createElement('button');
+  fixBtn.textContent = hasProblem ? '🔧 Fix in Audit tab →' : 'Open Audit tab →';
+  fixBtn.style.cssText = 'width:100%;padding:9px;font-size:12px;border-radius:6px;cursor:pointer;margin-bottom:14px;letter-spacing:0.3px;' +
+    (hasProblem ? 'background:rgba(255,180,0,0.14);color:#ffb400;border:1px solid rgba(255,180,0,0.5)'
+                : 'background:transparent;color:var(--muted);border:1px solid var(--border)');
+  fixBtn.onclick = function() { if (typeof switchTab === 'function') switchTab('ctrl'); };
+  section.appendChild(fixBtn);
 
   // Payment
   var payBox = document.createElement('div');
@@ -889,14 +1000,20 @@ function _stOpenMessages() {
 // We piggyback on the lesson-log infrastructure that already exists in lessons.js
 // by populating the `activeStudent` and calling openLogFresh.
 
-function _stLogLessonFor(name) {
-  // openLogFresh from lessons.js expects { name, eventDate, calType }
-  // We don't have a calendar eventDate handy here, so we pass an empty string
-  // and the existing logLesson backend will fall back to "today" for the date.
+function _stLogLessonFor(name, dateObj) {
+  // openLogFresh from lessons.js expects { name, eventDate, calType }.
+  // Pass the chosen date as yyyy/MM/dd — SLASHES parse in LOCAL time on the
+  // backend's new Date(), avoiding the ISO-UTC day-roll. Empty string → the
+  // backend falls back to "today".
+  var eventDate = '';
+  if (dateObj) {
+    var y = dateObj.getFullYear(), m = dateObj.getMonth() + 1, dd = dateObj.getDate();
+    eventDate = y + '/' + (m < 10 ? '0' + m : m) + '/' + (dd < 10 ? '0' + dd : dd);
+  }
   window._auditFixActive = false;
   if (typeof _floatLogPanel === 'function') _floatLogPanel();
   if (typeof openLogFresh === 'function') {
-    openLogFresh({ name: name, eventDate: '', calType: 'regular' }, undefined);
+    openLogFresh({ name: name, eventDate: eventDate, calType: 'regular' }, undefined);
   } else {
     addLog('studentFeed', '❌ Log function not available', 'error');
   }
@@ -908,6 +1025,12 @@ function _stLogLessonFor(name) {
 function _stToday() {
   var n = new Date();
   return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+}
+
+// "Jul 6" — short month + day, for the log-date stepper.
+function _stMonDay(d) {
+  var mon = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+  return mon + ' ' + d.getDate();
 }
 
 function _stMondayOf(d) {
