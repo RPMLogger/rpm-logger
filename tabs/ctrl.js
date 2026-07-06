@@ -350,6 +350,19 @@ function _renderFixData(d) {
   var counterControls = []; // { col, sp } across both Counter blocks
   var importControls  = []; // { subjIn, sp } for empty Students Import rows
 
+  // Dates already logged in Students Import, as normalized "mon-day" keys. The
+  // current-block auto-fill uses this so it only SUGGESTS Counter dates that are
+  // genuinely missing from Import — never ones already logged. When Import is
+  // caught up with Counter, every current-block box stays blank ("you decide");
+  // if only 1 date is missing, only 1 box pre-fills, and so on.
+  var _importDateKeys = {};
+  (d.importLessons || []).forEach(function(l) {
+    if (l && !l.empty && l.date) {
+      var p = _fixParseMonDay(l.date);
+      if (p) _importDateKeys[p.mon + "-" + p.day] = true;
+    }
+  });
+
   // Helper to render a Counter block (4 cells with inline date editing).
   // Current-block cells get an onChange hook so Finished (E) auto-tracks the
   // number of filled dates.
@@ -408,7 +421,12 @@ function _renderFixData(d) {
         // when Counter has a date this Import row is missing. Green-tinted so
         // it's clearly auto-filled; still fully editable via the spinner.
         var autoDate = "";
-        if (counterCells && counterCells[i] && !counterCells[i].empty) autoDate = counterCells[i].value || "";
+        if (counterCells && counterCells[i] && !counterCells[i].empty) {
+          var cd = counterCells[i].value || "";
+          var cp = _fixParseMonDay(cd);
+          // Only pre-fill when this Counter date is NOT already logged in Import.
+          if (cp && !_importDateKeys[cp.mon + "-" + cp.day]) autoDate = cd;
+        }
         var sp = _fixDateSpinner(autoDate);
         sp.box.style.cssText += ";border:1px solid " + (autoDate ? "rgba(0,200,100,0.5)" : "var(--border)") + ";border-radius:3px;padding:2px 6px;flex-shrink:0";
         row.appendChild(subjIn); row.appendChild(sp.box);
