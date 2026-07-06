@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=317">
+  <link rel="stylesheet" href="css/styles.css?v=318">
 </head>
 <body>
 <div class="container">
@@ -35,7 +35,6 @@
   <!-- TABS -->
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('student')">Home</button>
-    <button class="tab-btn" onclick="switchTab('lessons')">Today</button>
     <button class="tab-btn" onclick="switchTab('payments')">Payments</button>
     <button class="tab-btn" onclick="switchTab('past')">Past</button>
     <button class="tab-btn" onclick="switchTab('week')">Week</button>
@@ -577,7 +576,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">317</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">318</span></span>
     <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
 
@@ -604,27 +603,27 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/lessons.js?v=317"></script>
-<script src="tabs/payments.js?v=317"></script>
-<script src="tabs/past.js?v=317"></script>
-<script src="tabs/week.js?v=317"></script>
-<script src="tabs/general.js?v=317"></script>
-<script src="tabs/financial.js?v=317"></script>
-<script src="tabs/inquiries.js?v=317"></script>
-<script src="tabs/comms.js?v=317"></script>
-<script src="tabs/notes.js?v=317"></script>
-<script src="tabs/todo.js?v=317"></script>
-<script src="tabs/availability.js?v=317"></script>
-<script src="tabs/biweekly.js?v=317"></script>
-<script src="tabs/travel.js?v=317"></script>
-<script src="tabs/student.js?v=317"></script>
-<script src="tabs/ctrl.js?v=317"></script>
-<script src="tabs/mailcenter.js?v=317"></script>
-<script src="tabs/dropbox.js?v=317"></script>
-<script src="tabs/trial.js?v=317"></script>
-<script src="tabs/ending.js?v=317"></script>
-<script src="tabs/thisyear.js?v=317"></script>
-<script src="tabs/sheets.js?v=317"></script>
+<script src="tabs/lessons.js?v=318"></script>
+<script src="tabs/payments.js?v=318"></script>
+<script src="tabs/past.js?v=318"></script>
+<script src="tabs/week.js?v=318"></script>
+<script src="tabs/general.js?v=318"></script>
+<script src="tabs/financial.js?v=318"></script>
+<script src="tabs/inquiries.js?v=318"></script>
+<script src="tabs/comms.js?v=318"></script>
+<script src="tabs/notes.js?v=318"></script>
+<script src="tabs/todo.js?v=318"></script>
+<script src="tabs/availability.js?v=318"></script>
+<script src="tabs/biweekly.js?v=318"></script>
+<script src="tabs/travel.js?v=318"></script>
+<script src="tabs/student.js?v=318"></script>
+<script src="tabs/ctrl.js?v=318"></script>
+<script src="tabs/mailcenter.js?v=318"></script>
+<script src="tabs/dropbox.js?v=318"></script>
+<script src="tabs/trial.js?v=318"></script>
+<script src="tabs/ending.js?v=318"></script>
+<script src="tabs/thisyear.js?v=318"></script>
+<script src="tabs/sheets.js?v=318"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -646,7 +645,11 @@
   function switchTab(tab) {
     if (isRecording) stopRecording();
     if (tab === "financial") { initFinancialTab(); }
-    var tabs = ["student","lessons","payments","past","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","mailcenter","dropbox","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","ratedecision","reviews","thisyear","sheets"];
+    // NOTE: "lessons" (the old Today tab) is intentionally NOT in this list — its
+    // tab button is removed. The #tab-lessons panel div still lives in the DOM
+    // because it hosts the log panel that the Home + Audit tabs borrow (float)
+    // when they log a lesson; it's just no longer a reachable tab.
+    var tabs = ["student","payments","past","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","mailcenter","dropbox","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","ratedecision","reviews","thisyear","sheets"];
     tabs.forEach(function(t, i) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
