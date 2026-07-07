@@ -400,6 +400,16 @@ function _travelRenderReview() {
   section.appendChild(hdr);
   document.getElementById('travelBackToPrev').onclick = _travelRenderPlan;
 
+  var noPhone = data.students.filter(function(s) { return !s.phone; }).map(function(s) { return s.name; });
+  if (noPhone.length) {
+    var warn = document.createElement('div');
+    warn.style.cssText = 'border:1px solid rgba(255,107,107,0.5);background:rgba(255,107,107,0.1);color:#ff6b6b;border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.5';
+    warn.innerHTML = "<b>⚠ " + noPhone.length + " student" + (noPhone.length === 1 ? '' : 's') +
+      " with no number on file — will NOT be texted:</b><br>" + _escapeHtml(noPhone.join(', ')) +
+      "<br><span style='color:var(--muted)'>Add a number in the Inquiries sheet, or text them by hand.</span>";
+    section.appendChild(warn);
+  }
+
   var list = document.createElement('div');
   list.style.cssText = 'border:1px solid var(--border);border-radius:6px;background:var(--panel);overflow:hidden;margin-bottom:14px';
 
@@ -409,11 +419,15 @@ function _travelRenderReview() {
     var beforeLine = (s.beforeDates && s.beforeDates.length)
       ? "<div style='font-size:11px;color:#5b9dff;margin-bottom:2px'>Before: " + s.beforeDates.join(', ') + "</div>"
       : '';
+    var phoneLine = s.phone
+      ? "<div style='font-size:11px;color:var(--muted);margin-bottom:2px'>📱 " + _escapeHtml(s.phone) + "</div>"
+      : "<div style='font-size:11px;color:#ff6b6b;margin-bottom:2px;font-weight:600'>⚠ No number on file — will NOT be texted</div>";
     row.innerHTML =
       "<div style='display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px'>" +
         "<span style='font-weight:600;font-size:13px'>" + s.name + "</span>" +
         "<span style='font-size:11px;color:var(--muted)'>" + s.lessonCount + " × $" + s.rate + " = $" + s.revenueLoss + "</span>" +
       "</div>" +
+      phoneLine +
       beforeLine +
       "<div style='font-size:11px;color:#ffa500;margin-bottom:2px'>Skip: " + s.skipDates.join(', ') + "</div>" +
       "<div style='font-size:11px;color:var(--green);margin-bottom:6px'>Resume: " + s.firstBack + "</div>" +
