@@ -109,7 +109,7 @@ function _travelRenderPlan() {
 
   if (_travelState.leaving && _travelState.arriving) {
     _travelRebuildWeeks();
-    _travelFetchPreview();
+    _travelMarkStale();
   }
 }
 
@@ -166,7 +166,7 @@ function _travelRenderDateSpinner(slotId, label, stateKey, baseOrder) {
 
     refresh();
     _travelRebuildWeeks();
-    _travelFetchPreview();
+    _travelMarkStale();
   }
 
   function arrowHandler(which, hasLeftRight) {
@@ -277,7 +277,7 @@ function _renderWeekStrip(wrapId, label, anchorYmd, selectedYmd, mode, accentVar
           if (mode === 'before') _travelState.firstOff  = ymdCap;
           else                   _travelState.firstBack = ymdCap;
           _travelRebuildWeeks();
-          _travelFetchPreview();
+          _travelMarkStale();
         };
       })(ymd);
     }
@@ -286,47 +286,59 @@ function _renderWeekStrip(wrapId, label, anchorYmd, selectedYmd, mode, accentVar
   wrap.appendChild(pillRow);
 }
 
-// Every date nudge calls this. Two guards keep fast tapping from showing stale
-// numbers: (1) debounce — wait until you stop moving before scanning, so rapid
-// taps collapse into one request; (2) sequence token — each call bumps a
-// counter, and a response only paints if it's still the newest, so an older
-// scan that finishes late is discarded instead of overwriting a newer one.
-var _travelPreviewSeq   = 0;
-var _travelPreviewTimer = null;
+// Manual calculate flow: moving the dates NEVER auto-scans. It just clears any
+// previous result and shows the Calculate button, so a scan only runs when you
+// press it — you're always sure you're on the right dates first. The sequence
+// token still guards a stray double-tap (only the newest response paints).
+var _travelPreviewSeq = 0;
 
-function _travelFetchPreview() {
-  var mySeq = ++_travelPreviewSeq;   // this call is now the newest intent
-  if (_travelPreviewTimer) { clearTimeout(_travelPreviewTimer); _travelPreviewTimer = null; }
+// Called on every date change — wipes the old number, shows Calculate again.
+function _travelMarkStale() {
+  _travelState.preview = null;
+  _travelPreviewSeq++;               // invalidate anything in flight
+  _travelRenderCalcPrompt();
+}
 
+function _travelRenderCalcPrompt() {
+  var box = document.getElementById('travelSummary');
+  if (!box) return;
   var off = _travelState.firstOff, back = _travelState.firstBack;
-  if (!off || !back) return;
-  if (off >= back) {
-    _travelState.preview = null;
-    document.getElementById('travelSummary').innerHTML =
-      "<div class='empty-state' style='color:#ffb400'>First day off must be before first day back</div>";
-    return;
+  var ready = off && back && off < back;
+  box.innerHTML =
+    (ready ? "" :
+      "<div class='empty-state' style='margin-bottom:10px'>Set a first day off and a later first day back</div>") +
+    "<button id='travelCalcBtn'" + (ready ? "" : " disabled") +
+      " style='width:100%;padding:12px;font-size:13px;background:rgba(232,70,58,0.15);color:var(--accent);" +
+      "border:1px solid rgba(232,70,58,0.4);border-radius:4px;letter-spacing:0.5px;" +
+      "cursor:" + (ready ? 'pointer' : 'default') + ";opacity:" + (ready ? '1' : '0.45') + "'>Calculate</button>";
+  if (ready) {
+    var b = document.getElementById('travelCalcBtn');
+    if (b) b.onclick = _travelRunCalc;
   }
-  document.getElementById('travelSummary').innerHTML = "<div class='empty-state'>Scanning calendar…</div>";
+}
 
-  _travelPreviewTimer = setTimeout(function() {
-    var url = getScriptUrl(); if (!url) return;
-    fetch(url + '?action=getTravelPreview&start=' + encodeURIComponent(off) + '&end=' + encodeURIComponent(back) + _travelTestParam())
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (mySeq !== _travelPreviewSeq) return; // a newer nudge superseded this scan
-        if (!data.success) {
-          document.getElementById('travelSummary').innerHTML =
-            "<div class='empty-state'>Error: " + (data.message || 'unknown') + "</div>";
-          return;
-        }
-        _travelState.preview = data;
-        _travelRenderSummary(data);
-      })
-      .catch(function() {
-        if (mySeq !== _travelPreviewSeq) return;
-        document.getElementById('travelSummary').innerHTML = "<div class='empty-state'>Connection failed</div>";
-      });
-  }, 250);
+function _travelRunCalc() {
+  var off = _travelState.firstOff, back = _travelState.firstBack;
+  if (!off || !back || off >= back) return;
+  var url = getScriptUrl(); if (!url) return;
+  var mySeq = ++_travelPreviewSeq;
+  document.getElementById('travelSummary').innerHTML = "<div class='empty-state'>Scanning calendar…</div>";
+  fetch(url + '?action=getTravelPreview&start=' + encodeURIComponent(off) + '&end=' + encodeURIComponent(back) + _travelTestParam())
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (mySeq !== _travelPreviewSeq) return;   // a date changed mid-scan → drop it
+      if (!data.success) {
+        document.getElementById('travelSummary').innerHTML =
+          "<div class='empty-state'>Error: " + (data.message || 'unknown') + "</div>";
+        return;
+      }
+      _travelState.preview = data;
+      _travelRenderSummary(data);
+    })
+    .catch(function() {
+      if (mySeq !== _travelPreviewSeq) return;
+      document.getElementById('travelSummary').innerHTML = "<div class='empty-state'>Connection failed</div>";
+    });
 }
 
 function _travelRenderSummary(data) {
@@ -353,12 +365,10 @@ function _travelRenderSummary(data) {
     : "";
 
   box.innerHTML = bufferTxt +
-    "<div style='display:flex;gap:18px;align-items:center;justify-content:space-around;text-align:center'>" +
-      "<div><div style='font-size:24px;font-weight:700;color:var(--text)'>" + data.totalLessons + "</div>" +
+    "<div style='display:flex;gap:28px;align-items:center;justify-content:center;text-align:center'>" +
+      "<div><div style='font-size:28px;font-weight:700;color:var(--text)'>" + data.totalLessons + "</div>" +
       "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px'>lessons</div></div>" +
-      "<div><div style='font-size:24px;font-weight:700;color:var(--text)'>" + data.totalStudents + "</div>" +
-      "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px'>students</div></div>" +
-      "<div><div style='font-size:24px;font-weight:700;color:#ff6b6b'>" + rev + "</div>" +
+      "<div><div style='font-size:28px;font-weight:700;color:#ff6b6b'>" + rev + "</div>" +
       "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px'>revenue loss</div></div>" +
     "</div>" + warn +
     "<button id='travelNextBtn' style='width:100%;margin-top:14px;padding:10px;font-size:13px;background:rgba(232,70,58,0.15);color:var(--accent);border:1px solid rgba(232,70,58,0.4);border-radius:4px;cursor:pointer;letter-spacing:0.5px'>NEXT — review & texts →</button>";
@@ -383,7 +393,7 @@ function _travelRenderReview() {
     "<div>" +
       "<div style='font-size:13px;font-weight:600'>" + _travelState.firstOff + ' → ' + _travelState.firstBack + "</div>" +
       "<div style='font-size:11px;color:var(--muted)'>" +
-        data.totalLessons + ' lessons · ' + data.totalStudents + ' students · $' + (data.totalRevenue || 0).toLocaleString() + ' loss' +
+        data.totalLessons + ' lessons · $' + (data.totalRevenue || 0).toLocaleString() + ' loss' +
       "</div>" +
     "</div>" +
     "<button id='travelBackToPrev' style='padding:6px 12px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>← Back</button>";
