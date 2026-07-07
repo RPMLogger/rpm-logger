@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=324">
+  <link rel="stylesheet" href="css/styles.css?v=325">
 </head>
 <body>
 <div class="container">
@@ -45,7 +45,8 @@
     <button class="tab-btn" onclick="switchTab('notes')">Notes</button>
     <button class="tab-btn" onclick="switchTab('todo')">To-Do</button>
     <button class="tab-btn" onclick="switchTab('ctrl')">Audit</button>
-    <button class="tab-btn" onclick="switchTab('travel')">Travel</button>
+    <button class="tab-btn" onclick="switchTab('travel')">Travel Plan</button>
+    <button class="tab-btn" onclick="switchTab('tripsummary')">Trip Summary</button>
     <button class="tab-btn" onclick="switchTab('mailcenter')">Mail Center<span class="inq-badge" id="gbNavBadge" style="display:none"></span></button>
     <button class="tab-btn" onclick="switchTab('dropbox')">Dropbox</button>
     <button class="tab-btn" onclick="switchTab('trial')">Trial</button>
@@ -308,11 +309,18 @@
     <button class="refresh-btn" onclick="initAuditTab()">⟳ Run Audit</button>
   </div>
 
-  <!-- TRAVEL -->
+  <!-- TRAVEL PLAN -->
   <div class="tab-panel" id="tab-travel">
-    <div class="section-label">Travel Agent</div>
+    <div class="section-label">Travel Plan</div>
     <div id="travelBody"><div class="empty-state">Loading...</div></div>
     <div class="log-feed" id="travelFeed"></div>
+  </div>
+
+  <!-- TRIP SUMMARY -->
+  <div class="tab-panel" id="tab-tripsummary">
+    <div class="section-label">Trip Summary</div>
+    <div id="tripsummaryBody"><div class="empty-state">Loading...</div></div>
+    <div class="log-feed" id="tripsummaryFeed"></div>
   </div>
 
   <!-- MAIL CENTER -->
@@ -562,7 +570,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">324</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">325</span></span>
     <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
 
@@ -589,26 +597,27 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/lessons.js?v=324"></script>
-<script src="tabs/payments.js?v=324"></script>
-<script src="tabs/week.js?v=324"></script>
-<script src="tabs/general.js?v=324"></script>
-<script src="tabs/financial.js?v=324"></script>
-<script src="tabs/inquiries.js?v=324"></script>
-<script src="tabs/comms.js?v=324"></script>
-<script src="tabs/notes.js?v=324"></script>
-<script src="tabs/todo.js?v=324"></script>
-<script src="tabs/availability.js?v=324"></script>
-<script src="tabs/biweekly.js?v=324"></script>
-<script src="tabs/travel.js?v=324"></script>
-<script src="tabs/student.js?v=324"></script>
-<script src="tabs/ctrl.js?v=324"></script>
-<script src="tabs/mailcenter.js?v=324"></script>
-<script src="tabs/dropbox.js?v=324"></script>
-<script src="tabs/trial.js?v=324"></script>
-<script src="tabs/ending.js?v=324"></script>
-<script src="tabs/thisyear.js?v=324"></script>
-<script src="tabs/sheets.js?v=324"></script>
+<script src="tabs/lessons.js?v=325"></script>
+<script src="tabs/payments.js?v=325"></script>
+<script src="tabs/week.js?v=325"></script>
+<script src="tabs/general.js?v=325"></script>
+<script src="tabs/financial.js?v=325"></script>
+<script src="tabs/inquiries.js?v=325"></script>
+<script src="tabs/comms.js?v=325"></script>
+<script src="tabs/notes.js?v=325"></script>
+<script src="tabs/todo.js?v=325"></script>
+<script src="tabs/availability.js?v=325"></script>
+<script src="tabs/biweekly.js?v=325"></script>
+<script src="tabs/travel.js?v=325"></script>
+<script src="tabs/tripsummary.js?v=325"></script>
+<script src="tabs/student.js?v=325"></script>
+<script src="tabs/ctrl.js?v=325"></script>
+<script src="tabs/mailcenter.js?v=325"></script>
+<script src="tabs/dropbox.js?v=325"></script>
+<script src="tabs/trial.js?v=325"></script>
+<script src="tabs/ending.js?v=325"></script>
+<script src="tabs/thisyear.js?v=325"></script>
+<script src="tabs/sheets.js?v=325"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -634,7 +643,7 @@
     // tab button is removed. The #tab-lessons panel div still lives in the DOM
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
-    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","mailcenter","dropbox","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","ratedecision","reviews","thisyear","sheets"];
+    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","mailcenter","dropbox","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","ratedecision","reviews","thisyear","sheets"];
     tabs.forEach(function(t, i) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
@@ -643,6 +652,7 @@
     if (tab === "payments") loadIncomingPayments();
     if (tab === "ctrl") initAuditTab();
     if (tab === "travel") initTravelTab();
+    if (tab === "tripsummary") initTripSummaryTab();
     if (tab === "availability") initAvailabilityTab();
     if (tab === "biweekly") initBiweeklyTab();
     if (tab === "todo") initTodoTab();

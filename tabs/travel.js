@@ -1,21 +1,18 @@
-// ─── TABS / TRAVEL.JS ───────────────────────────────────────────────────────
-// Travel Agent — vacation planner. Three screens:
-//   1) DASHBOARD — list of past + active trips with per-student confirm status,
-//      "+ Plan New Trip" button at top. This is the landing view.
-//   2) PREVIEW — Leaving + Arriving inputs anchor two Mon-Sun day strips;
-//      tap any day to extend the buffer (before-leaving or after-arriving).
-//      Live impact (lessons / students / $ loss) updates instantly on every tap.
-//   3) REVIEW — per-student breakdown with skip dates + first lesson back,
-//      "GO LIVE" deletes the events and writes to the Travel sheet.
+// ─── TABS / TRAVEL.JS  (TRAVEL PLAN) ────────────────────────────────────────
+// The "doing" surface. Two screens:
+//   1) PLAN   — Leaving + Arriving spinners anchor two Mon-Sun day strips; tap a
+//               day to extend the buffer. Live impact ($ / lessons / students)
+//               updates on every change.
+//   2) REVIEW — per-student breakdown (before / skip / resume) + the exact text
+//               each student will receive. GO LIVE deletes the events, texts the
+//               students (TEST → your own phone), and logs the trip.
 //
-// Going live triggers Secretary's hourly auto-cancellation email; we don't
-// duplicate that path. Confirmations are marked manually in v1.
+// After GO LIVE everything lives in the TRIP SUMMARY tab (sent status, replies,
+// confirmations, history). This tab is only for planning + running a trip.
 
 var _travelState = {
-  leaving:   '', // yyyy-mm-dd — the hard travel date (departure)
-  arriving:  '', // yyyy-mm-dd — the hard travel date (return)
-  firstOff:  '', // yyyy-mm-dd — first day off teaching; defaults to leaving, can be earlier
-  firstBack: '', // yyyy-mm-dd — first day back teaching; defaults to arriving, can be later
+  leaving:   '', arriving:  '',
+  firstOff:  '', firstBack: '',
   preview:   null,
   testMode:  localStorage.getItem('travelTestMode') === '1'
 };
@@ -26,9 +23,7 @@ function _travelTestArgs(o)  { if (_travelState.testMode) o.test = '1'; return o
 function _travelToggleTestMode() {
   _travelState.testMode = !_travelState.testMode;
   localStorage.setItem('travelTestMode', _travelState.testMode ? '1' : '0');
-  // Re-render current screen
-  if (document.getElementById('travelLeaving')) _travelRenderPreview();
-  else _travelLoadDashboard();
+  _travelRenderPlan();
 }
 
 function _travelTopBar() {
@@ -40,8 +35,8 @@ function _travelTopBar() {
       ? 'background:rgba(255,180,0,0.12);border:1px solid rgba(255,180,0,0.5);color:#ffb400'
       : 'background:transparent;border:1px solid var(--border);color:var(--muted)');
   var label = _travelState.testMode
-    ? '🧪 TEST MODE — using calendar: redpickmusic@gmail.com'
-    : 'LIVE MODE — Weekly + Biweekly calendars';
+    ? '🧪 TEST MODE — texts go to YOUR phone · calendar: redpickmusic@gmail.com'
+    : 'LIVE MODE — texts go to students · Weekly + Biweekly calendars';
   bar.innerHTML =
     "<span style='letter-spacing:0.5px;text-transform:uppercase;font-weight:600'>" + label + "</span>" +
     "<button id='travelTestToggle' style='padding:4px 10px;font-size:10px;background:transparent;color:inherit;border:1px solid currentColor;border-radius:4px;cursor:pointer;letter-spacing:0.5px'>" +
@@ -55,168 +50,37 @@ function _travelTopBar() {
 }
 
 function initTravelTab() {
-  _travelLoadDashboard();
+  _travelRenderPlan();
 }
 
 
-// ─── DASHBOARD ──────────────────────────────────────────────────────────────
+// ─── PLAN SCREEN ────────────────────────────────────────────────────────────
 
-function _travelLoadDashboard() {
+function _travelRenderPlan() {
   var section = document.getElementById('travelBody');
   if (!section) return;
-  section.innerHTML = '<div class="empty-state">Loading...</div>';
-
-  var url = getScriptUrl();
-  if (!url) { section.innerHTML = '<div class="empty-state">No script URL set</div>'; return; }
-
-  fetch(url + '?action=getTravelStatus')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.success) {
-        section.innerHTML = '<div class="empty-state">Error: ' + (data.message || 'unknown') + '</div>';
-        return;
-      }
-      _travelRenderDashboard(data.trips || []);
-    })
-    .catch(function() {
-      section.innerHTML = '<div class="empty-state">Connection failed</div>';
-    });
-}
-
-function _travelRenderDashboard(trips) {
-  var section = document.getElementById('travelBody');
   section.innerHTML = '';
   section.appendChild(_travelTopBar());
 
-  var newBtn = document.createElement('button');
-  newBtn.textContent = '+ Plan New Trip';
-  newBtn.style.cssText = 'width:100%;padding:10px 18px;font-size:13px;background:rgba(180,40,40,0.18);color:#ff6b6b;border:1px solid rgba(180,40,40,0.45);border-radius:6px;cursor:pointer;letter-spacing:0.5px;margin-bottom:14px';
-  newBtn.onclick = _travelRenderPreview;
-  section.appendChild(newBtn);
-
-  if (!trips.length) {
-    var empty = document.createElement('div');
-    empty.className = 'empty-state';
-    empty.textContent = 'No trips planned yet';
-    section.appendChild(empty);
-    return;
-  }
-
-  trips.forEach(function(trip) {
-    var card = document.createElement('div');
-    card.style.cssText = 'border:1px solid var(--border);border-radius:6px;background:var(--panel);overflow:hidden;margin-bottom:14px';
-
-    var hdr = document.createElement('div');
-    var allConfirmed = trip.confirmed === trip.students.length;
-    var isTest = trip.students.some(function(s) { return (s.method || '').toUpperCase() === 'TEST'; });
-    hdr.style.cssText =
-      'padding:10px 12px;display:flex;justify-content:space-between;align-items:center;' +
-      'border-bottom:1px solid var(--border);border-left:3px solid ' +
-      (isTest ? '#ffb400' : (allConfirmed ? 'var(--green)' : '#ffb400'));
-    hdr.innerHTML =
-      "<span style='font-weight:700;font-size:13px'>" + trip.tripStart + ' → ' + trip.tripEnd +
-        (isTest ? " <span style='font-size:9px;background:rgba(255,180,0,0.2);color:#ffb400;padding:1px 6px;border-radius:3px;margin-left:6px'>TEST</span>" : "") +
-      "</span>" +
-      "<span style='font-size:11px;color:var(--muted)'>" + trip.confirmed + ' / ' + trip.students.length + ' confirmed</span>';
-    card.appendChild(hdr);
-
-    trip.students.forEach(function(s) {
-      card.appendChild(_travelStudentRow(s));
-    });
-
-    section.appendChild(card);
-  });
-
-  // Subtle "Clear test data" link at the bottom — only when test rows exist.
-  var hasTest = trips.some(function(trip) {
-    return trip.students.some(function(s) { return (s.method || '').toUpperCase() === 'TEST'; });
-  });
-  if (hasTest) {
-    var clearWrap = document.createElement('div');
-    clearWrap.style.cssText = 'margin-top:18px;display:flex;justify-content:center';
-    var clearBtn = document.createElement('button');
-    clearBtn.textContent = '× Clear test data (Travel + Skip Logs)';
-    clearBtn.style.cssText = 'padding:6px 12px;font-size:10px;background:transparent;color:var(--muted);border:1px dashed var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.3px';
-    clearBtn.onclick = _travelClearTestData;
-    clearWrap.appendChild(clearBtn);
-    section.appendChild(clearWrap);
-  }
-}
-
-function _travelClearTestData() {
-  if (!confirm('Delete all TEST trip rows and [TEST] Skip Logs entries?\n\nReal data is untouched. This cannot be undone.')) return;
-  var url = getScriptUrl(); if (!url) return;
-  callScript(url, 'clearTravelTestData', {}, function(data) {
-    if (data && data.success) {
-      addLog('travelFeed', '✓ Cleared ' + data.travelDeleted + ' travel rows · ' + data.logsDeleted + ' skip log rows', 'success');
-      _travelLoadDashboard();
-    } else {
-      addLog('travelFeed', '❌ ' + (data && data.message ? data.message : 'Clear failed'), 'error');
-    }
-  });
-}
-
-function _travelStudentRow(s) {
-  var row = document.createElement('div');
-  var isConfirmed = !!s.confirmedAt;
-  row.style.cssText = 'padding:8px 12px;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:center;gap:10px';
-
-  var left = document.createElement('div');
-  left.style.cssText = 'flex:1;min-width:0';
-  left.innerHTML =
-    "<div style='font-weight:600;font-size:13px'>" + s.name + '</div>' +
-    "<div style='font-size:10px;color:var(--muted);margin-top:2px'>" +
-      'Skip: ' + (s.skipDates || '—') + " · Resume: " + (s.firstBack || '—') + '</div>';
-  row.appendChild(left);
-
-  var btn = document.createElement('button');
-  if (isConfirmed) {
-    btn.textContent = '✓ ' + s.confirmedAt;
-    btn.style.cssText = 'padding:6px 10px;font-size:10px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:4px;cursor:pointer;flex-shrink:0';
-    btn.title = 'Click to undo';
-  } else {
-    btn.textContent = 'Mark Confirmed';
-    btn.style.cssText = 'padding:6px 10px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0';
-  }
-  btn.onclick = function() {
-    var url = getScriptUrl(); if (!url) return;
-    var action = isConfirmed ? 'clearTravelConfirmed' : 'markTravelConfirmed';
-    btn.disabled = true; btn.textContent = '…';
-    callScript(url, action, { row: s.row }, function() {
-      _travelLoadDashboard();
-    });
-  };
-  row.appendChild(btn);
-  return row;
-}
-
-
-// ─── PREVIEW SCREEN ─────────────────────────────────────────────────────────
-
-function _travelRenderPreview() {
-  var section = document.getElementById('travelBody');
-  section.innerHTML = '';
-  section.appendChild(_travelTopBar());
-
-  // Pre-fill leaving/arriving with today so the year is already set —
-  // user just nudges the month/day from there.
+  // Pre-fill with today so the year is already right — just nudge month/day.
   if (!_travelState.leaving) {
     var today = _dateToYmd(new Date());
-    _travelState.leaving   = today;
-    _travelState.arriving  = today;
-    _travelState.firstOff  = today;
-    _travelState.firstBack = today;
+    _travelState.leaving = _travelState.arriving = today;
+    _travelState.firstOff = _travelState.firstBack = today;
   }
 
   var hdr = document.createElement('div');
   hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px';
   hdr.innerHTML =
     "<div style='font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px'>Plan a Trip</div>" +
-    "<button id='travelBackToDash' style='padding:6px 12px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>← Dashboard</button>";
+    "<button id='travelReset' style='padding:6px 12px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>↺ Reset dates</button>";
   section.appendChild(hdr);
-  document.getElementById('travelBackToDash').onclick = _travelLoadDashboard;
+  document.getElementById('travelReset').onclick = function() {
+    _travelState.leaving = _travelState.arriving = _travelState.firstOff = _travelState.firstBack = '';
+    _travelState.preview = null;
+    _travelRenderPlan();
+  };
 
-  // Leaving + Arriving spinner widgets (month + day with up/down arrows)
   var inputs = document.createElement('div');
   inputs.style.cssText = 'display:flex;gap:10px;margin-bottom:10px';
   inputs.innerHTML =
@@ -227,7 +91,6 @@ function _travelRenderPreview() {
   _travelRenderDateSpinner('travelLeavingSlot',  'Leaving',  'leaving',  0);
   _travelRenderDateSpinner('travelArrivingSlot', 'Arriving', 'arriving', 2);
 
-  // Mon-Sun day strips for buffer selection
   var leavingWeek = document.createElement('div');
   leavingWeek.id = 'travelLeavingWeek';
   leavingWeek.style.cssText = 'margin-bottom:8px';
@@ -238,7 +101,6 @@ function _travelRenderPreview() {
   arrivingWeek.style.cssText = 'margin-bottom:14px';
   section.appendChild(arrivingWeek);
 
-  // Live impact summary
   var summary = document.createElement('div');
   summary.id = 'travelSummary';
   summary.style.cssText = 'border:1px solid var(--border);border-radius:6px;padding:14px;background:var(--panel)';
@@ -251,10 +113,8 @@ function _travelRenderPreview() {
   }
 }
 
+
 // ─── DATE SPINNER WIDGET ────────────────────────────────────────────────────
-// Inline keyboard-driven date picker: [Jun] / [02] / [2026]. Click a segment
-// to focus it, then ↑↓ nudges the value, ←→ moves focus across the four main
-// fields (Leaving Mo, Leaving Day, Arriving Mo, Arriving Day), skipping year.
 
 var _SK_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -273,10 +133,10 @@ function _travelRenderDateSpinner(slotId, label, stateKey, baseOrder) {
     'border-radius:4px;padding:6px 10px;font-size:15px;color:var(--text);font-family:inherit';
 
   var monthSeg = _travelDateSeg();
-  monthSeg.dataset.navOrder = String(baseOrder);     // 0 or 2
-  var daySeg   = _travelDateSeg();
-  daySeg.dataset.navOrder = String(baseOrder + 1);   // 1 or 3
-  var yearSeg  = _travelDateSeg();
+  monthSeg.dataset.navOrder = String(baseOrder);
+  var daySeg = _travelDateSeg();
+  daySeg.dataset.navOrder = String(baseOrder + 1);
+  var yearSeg = _travelDateSeg();
 
   function refresh() {
     var d = _ymdToDate(_travelState[stateKey]);
@@ -287,18 +147,15 @@ function _travelRenderDateSpinner(slotId, label, stateKey, baseOrder) {
 
   function step(which, dir) {
     var d = _ymdToDate(_travelState[stateKey]);
-    var y = d.getFullYear();
-    var m = d.getMonth();
-    var dd = d.getDate();
-    if (which === 'month')      m  = (m + dir + 12) % 12;
-    else if (which === 'year')  y  = y + dir;
+    var y = d.getFullYear(), m = d.getMonth(), dd = d.getDate();
+    if (which === 'month')      m = (m + dir + 12) % 12;
+    else if (which === 'year')  y = y + dir;
     else if (which === 'day') {
       var maxNow = new Date(y, m + 1, 0).getDate();
       dd = dd + dir;
-      if (dd < 1)        dd = maxNow;
-      if (dd > maxNow)   dd = 1;
+      if (dd < 1)      dd = maxNow;
+      if (dd > maxNow) dd = 1;
     }
-    // Clamp day to new month length (e.g., May 31 → Apr clamps to 30).
     var maxNew = new Date(y, m + 1, 0).getDate();
     if (dd > maxNew) dd = maxNew;
 
@@ -314,16 +171,16 @@ function _travelRenderDateSpinner(slotId, label, stateKey, baseOrder) {
 
   function arrowHandler(which, hasLeftRight) {
     return function(e) {
-      if (e.key === 'ArrowUp')    { e.preventDefault(); step(which, +1); return; }
-      if (e.key === 'ArrowDown')  { e.preventDefault(); step(which, -1); return; }
+      if (e.key === 'ArrowUp')   { e.preventDefault(); step(which, +1); return; }
+      if (e.key === 'ArrowDown') { e.preventDefault(); step(which, -1); return; }
       if (hasLeftRight && e.key === 'ArrowRight') { e.preventDefault(); _travelNavSeg(this, +1); return; }
       if (hasLeftRight && e.key === 'ArrowLeft')  { e.preventDefault(); _travelNavSeg(this, -1); return; }
     };
   }
 
-  monthSeg.onkeydown = arrowHandler('month', true);  // in nav rail
-  daySeg.onkeydown   = arrowHandler('day',   true);  // in nav rail
-  yearSeg.onkeydown  = arrowHandler('year',  false); // year is off the rail
+  monthSeg.onkeydown = arrowHandler('month', true);
+  daySeg.onkeydown   = arrowHandler('day',   true);
+  yearSeg.onkeydown  = arrowHandler('year',  false);
 
   box.appendChild(monthSeg);
   box.appendChild(_travelDateSlash());
@@ -342,14 +199,8 @@ function _travelDateSeg() {
   b.style.cssText =
     'background:transparent;border:none;color:inherit;font-family:inherit;font-size:inherit;font-weight:600;' +
     'padding:2px 6px;cursor:pointer;border-radius:3px;outline:none;letter-spacing:0.3px';
-  b.onfocus = function() {
-    b.style.background = 'rgba(232,70,58,0.18)';
-    b.style.color = 'var(--accent)';
-  };
-  b.onblur = function() {
-    b.style.background = 'transparent';
-    b.style.color = 'inherit';
-  };
+  b.onfocus = function() { b.style.background = 'rgba(232,70,58,0.18)'; b.style.color = 'var(--accent)'; };
+  b.onblur  = function() { b.style.background = 'transparent';          b.style.color = 'inherit'; };
   b.onclick = function() { b.focus(); };
   return b;
 }
@@ -361,13 +212,8 @@ function _travelDateSlash() {
   return s;
 }
 
-function _travelZeroPad(n) {
-  return n < 10 ? '0' + n : '' + n;
-}
+function _travelZeroPad(n) { return n < 10 ? '0' + n : '' + n; }
 
-// Move focus along the 4-spot nav rail: Leaving Mo → Leaving Day → Arriving Mo →
-// Arriving Day. Year segments are intentionally off the rail (click/Tab only).
-// dir = +1 (right) or -1 (left). Clamps at endpoints.
 function _travelNavSeg(seg, dir) {
   var order = parseInt(seg.dataset.navOrder, 10);
   if (isNaN(order)) return;
@@ -384,9 +230,6 @@ function _travelRebuildWeeks() {
                    _travelState.arriving, _travelState.firstBack, 'after');
 }
 
-// One Mon-Sun strip of clickable day pills. `mode === 'before'` means days
-// AFTER the anchor are disabled (you can only buffer earlier, not later);
-// 'after' means days BEFORE the anchor are disabled.
 function _renderWeekStrip(wrapId, label, anchorYmd, selectedYmd, mode) {
   var wrap = document.getElementById(wrapId);
   wrap.innerHTML = '';
@@ -440,8 +283,7 @@ function _renderWeekStrip(wrapId, label, anchorYmd, selectedYmd, mode) {
 }
 
 function _travelFetchPreview() {
-  var off  = _travelState.firstOff;
-  var back = _travelState.firstBack;
+  var off = _travelState.firstOff, back = _travelState.firstBack;
   if (!off || !back) return;
   if (off >= back) {
     document.getElementById('travelSummary').innerHTML =
@@ -463,8 +305,7 @@ function _travelFetchPreview() {
       _travelRenderSummary(data);
     })
     .catch(function() {
-      document.getElementById('travelSummary').innerHTML =
-        "<div class='empty-state'>Connection failed</div>";
+      document.getElementById('travelSummary').innerHTML = "<div class='empty-state'>Connection failed</div>";
     });
 }
 
@@ -472,7 +313,7 @@ function _travelRenderSummary(data) {
   var box = document.getElementById('travelSummary');
   var bufferBefore = _daysBetween(_travelState.firstOff,  _travelState.leaving);
   var bufferAfter  = _daysBetween(_travelState.arriving, _travelState.firstBack);
-  var bufferTxt    = '';
+  var bufferTxt = '';
   if (bufferBefore > 0 || bufferAfter > 0) {
     var parts = [];
     if (bufferBefore > 0) parts.push('+' + bufferBefore + ' day' + (bufferBefore === 1 ? '' : 's') + ' before');
@@ -488,8 +329,7 @@ function _travelRenderSummary(data) {
   var rev = '$' + (data.totalRevenue || 0).toLocaleString();
   var warn = data.missingRate && data.missingRate.length
     ? "<div style='margin-top:10px;padding:8px;background:rgba(255,180,0,0.1);border:1px solid rgba(255,180,0,0.3);border-radius:4px;font-size:11px;color:#ffb400'>" +
-        "⚠ No rate found for: " + data.missingRate.join(', ') + " — counted as $0 for now" +
-      "</div>"
+        "⚠ No rate found for: " + data.missingRate.join(', ') + " — counted as $0 for now</div>"
     : "";
 
   box.innerHTML = bufferTxt +
@@ -501,7 +341,7 @@ function _travelRenderSummary(data) {
       "<div><div style='font-size:24px;font-weight:700;color:#ff6b6b'>" + rev + "</div>" +
       "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px'>revenue loss</div></div>" +
     "</div>" + warn +
-    "<button id='travelNextBtn' style='width:100%;margin-top:14px;padding:10px;font-size:13px;background:rgba(232,70,58,0.15);color:var(--accent);border:1px solid rgba(232,70,58,0.4);border-radius:4px;cursor:pointer;letter-spacing:0.5px'>NEXT — per-student breakdown →</button>";
+    "<button id='travelNextBtn' style='width:100%;margin-top:14px;padding:10px;font-size:13px;background:rgba(232,70,58,0.15);color:var(--accent);border:1px solid rgba(232,70,58,0.4);border-radius:4px;cursor:pointer;letter-spacing:0.5px'>NEXT — review & texts →</button>";
 
   document.getElementById('travelNextBtn').onclick = _travelRenderReview;
 }
@@ -511,7 +351,7 @@ function _travelRenderSummary(data) {
 
 function _travelRenderReview() {
   var data = _travelState.preview;
-  if (!data) return _travelRenderPreview();
+  if (!data) return _travelRenderPlan();
 
   var section = document.getElementById('travelBody');
   section.innerHTML = '';
@@ -528,7 +368,7 @@ function _travelRenderReview() {
     "</div>" +
     "<button id='travelBackToPrev' style='padding:6px 12px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>← Back</button>";
   section.appendChild(hdr);
-  document.getElementById('travelBackToPrev').onclick = _travelRenderPreview;
+  document.getElementById('travelBackToPrev').onclick = _travelRenderPlan;
 
   var list = document.createElement('div');
   list.style.cssText = 'border:1px solid var(--border);border-radius:6px;background:var(--panel);overflow:hidden;margin-bottom:14px';
@@ -542,13 +382,15 @@ function _travelRenderReview() {
     row.innerHTML =
       "<div style='display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px'>" +
         "<span style='font-weight:600;font-size:13px'>" + s.name + "</span>" +
-        "<span style='font-size:11px;color:var(--muted)'>" +
-          s.lessonCount + " × $" + s.rate + " = $" + s.revenueLoss +
-        "</span>" +
+        "<span style='font-size:11px;color:var(--muted)'>" + s.lessonCount + " × $" + s.rate + " = $" + s.revenueLoss + "</span>" +
       "</div>" +
       beforeLine +
       "<div style='font-size:11px;color:#ffa500;margin-bottom:2px'>Skip: " + s.skipDates.join(', ') + "</div>" +
-      "<div style='font-size:11px;color:var(--green)'>Resume: " + s.firstBack + "</div>";
+      "<div style='font-size:11px;color:var(--green);margin-bottom:6px'>Resume: " + s.firstBack + "</div>" +
+      "<div style='font-size:11px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:8px;line-height:1.5'>" +
+        "<span style='display:block;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:3px'>📱 Text they'll get</span>" +
+        _escapeHtml(s.smsText || '') +
+      "</div>";
     list.appendChild(row);
   });
   section.appendChild(list);
@@ -559,17 +401,23 @@ function _travelRenderReview() {
   var back = document.createElement('button');
   back.textContent = '← Back';
   back.style.cssText = 'flex:0 0 auto;padding:12px 18px;font-size:13px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.5px';
-  back.onclick = _travelRenderPreview;
+  back.onclick = _travelRenderPlan;
   actions.appendChild(back);
 
   var go = document.createElement('button');
-  go.textContent = 'GO LIVE — delete ' + data.totalLessons + ' lessons';
-  go.style.cssText = 'flex:1;padding:12px;font-size:13px;background:rgba(232,70,58,0.25);color:var(--accent);border:1px solid var(--accent);border-radius:4px;cursor:pointer;letter-spacing:0.5px;font-weight:600';
+  var goLabel = _travelState.testMode
+    ? 'GO (TEST) — delete ' + data.totalLessons + ' · text YOU ×' + data.totalStudents
+    : 'GO LIVE — delete ' + data.totalLessons + ' · text ' + data.totalStudents + ' students';
+  go.textContent = goLabel;
+  go.style.cssText = 'flex:1;padding:12px;font-size:12px;background:rgba(232,70,58,0.25);color:var(--accent);border:1px solid var(--accent);border-radius:4px;cursor:pointer;letter-spacing:0.5px;font-weight:600';
   go.onclick = function() {
-    var msg = 'Delete ' + data.totalLessons + ' lessons across ' +
-      data.totalStudents + ' students?\n\nSecretary will auto-send cancellation emails on its next hourly run.';
+    var who = _travelState.testMode
+      ? 'Texts go to YOUR phone (test).'
+      : 'Each student will be TEXTED their trip message now.';
+    var msg = 'Delete ' + data.totalLessons + ' lessons across ' + data.totalStudents + ' students?\n\n' +
+      who + '\n\nSecretary also emails on its next hourly run.';
     if (!confirm(msg)) return;
-    go.disabled = true; go.textContent = 'Deleting…';
+    go.disabled = true; go.textContent = 'Working…';
     _travelExecute();
   };
   actions.appendChild(go);
@@ -580,17 +428,54 @@ function _travelExecute() {
   var url = getScriptUrl(); if (!url) return;
   callScript(url, 'executeTravel', _travelTestArgs({ start: _travelState.firstOff, end: _travelState.firstBack }), function(data) {
     if (data && data.success) {
-      var skipsLine = (data.skipsLogged != null) ? ' · ' + data.skipsLogged + ' teacher skips logged' : '';
-      addLog('travelFeed', '✓ Deleted ' + data.deleted + ' events · logged ' + data.studentsLogged + ' students' + skipsLine, 'success');
-      _travelState.leaving = ''; _travelState.arriving = '';
-      _travelState.firstOff = ''; _travelState.firstBack = '';
+      var noPhone = (data.noPhone && data.noPhone.length) ? ' · ⚠ no phone: ' + data.noPhone.join(', ') : '';
+      var failed  = data.textsFailed ? ' · ' + data.textsFailed + ' failed' : '';
+      addLog('travelFeed',
+        '✓ Deleted ' + data.deleted + ' · texted ' + data.textsSent + '/' + data.studentsLogged +
+        (data.skipsLogged != null ? ' · ' + data.skipsLogged + ' skips logged' : '') + failed + noPhone,
+        'success');
+      _travelState.leaving = _travelState.arriving = _travelState.firstOff = _travelState.firstBack = '';
       _travelState.preview = null;
-      _travelLoadDashboard();
+      _travelRenderDone(data);
     } else {
       addLog('travelFeed', '❌ ' + (data && data.message ? data.message : 'Execute failed'), 'error');
       _travelRenderReview();
     }
   });
+}
+
+function _travelRenderDone(data) {
+  var section = document.getElementById('travelBody');
+  section.innerHTML = '';
+  section.appendChild(_travelTopBar());
+
+  var card = document.createElement('div');
+  card.style.cssText = 'border:1px solid var(--green);border-radius:6px;background:rgba(0,200,100,0.08);padding:18px;text-align:center;margin-bottom:14px';
+  card.innerHTML =
+    "<div style='font-size:15px;font-weight:700;color:var(--green);margin-bottom:8px'>✓ Trip is live</div>" +
+    "<div style='font-size:12px;color:var(--text);line-height:1.6'>" +
+      data.deleted + " lessons cancelled<br>" +
+      data.textsSent + " / " + data.studentsLogged + " students texted" +
+      (data.isTest ? " <span style='color:#ffb400'>(to your phone — test)</span>" : "") +
+      (data.textsFailed ? "<br><span style='color:#ff6b6b'>" + data.textsFailed + " texts failed</span>" : "") +
+      ((data.noPhone && data.noPhone.length) ? "<br><span style='color:#ffb400'>No phone on file: " + data.noPhone.join(', ') + "</span>" : "") +
+    "</div>";
+  section.appendChild(card);
+
+  var btns = document.createElement('div');
+  btns.style.cssText = 'display:flex;gap:8px';
+  var summaryBtn = document.createElement('button');
+  summaryBtn.textContent = 'View in Trip Summary →';
+  summaryBtn.style.cssText = 'flex:1;padding:12px;font-size:13px;background:rgba(232,70,58,0.15);color:var(--accent);border:1px solid rgba(232,70,58,0.4);border-radius:4px;cursor:pointer;letter-spacing:0.5px';
+  summaryBtn.onclick = function() { if (typeof switchTab === 'function') switchTab('tripsummary'); };
+  btns.appendChild(summaryBtn);
+
+  var planBtn = document.createElement('button');
+  planBtn.textContent = 'Plan another';
+  planBtn.style.cssText = 'flex:0 0 auto;padding:12px 18px;font-size:13px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer';
+  planBtn.onclick = _travelRenderPlan;
+  btns.appendChild(planBtn);
+  section.appendChild(btns);
 }
 
 
@@ -603,23 +488,26 @@ function _ymdToDate(s) {
 }
 
 function _dateToYmd(d) {
-  var y = d.getFullYear();
-  var m = d.getMonth() + 1;
-  var day = d.getDate();
+  var y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate();
   return y + '-' + (m < 10 ? '0' + m : m) + '-' + (day < 10 ? '0' + day : day);
 }
 
 function _mondayOfWeek(d) {
   var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  var dow = (x.getDay() + 6) % 7; // 0 = Monday
+  var dow = (x.getDay() + 6) % 7;
   x.setDate(x.getDate() - dow);
   return x;
 }
 
 function _daysBetween(earlierYmd, laterYmd) {
   if (!earlierYmd || !laterYmd) return 0;
-  var a = _ymdToDate(earlierYmd);
-  var b = _ymdToDate(laterYmd);
+  var a = _ymdToDate(earlierYmd), b = _ymdToDate(laterYmd);
   if (!a || !b) return 0;
   return Math.round((b - a) / (24 * 60 * 60 * 1000));
+}
+
+function _escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, function(c) {
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
 }
