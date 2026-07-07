@@ -225,15 +225,19 @@ function _travelNavSeg(seg, dir) {
 
 function _travelRebuildWeeks() {
   _renderWeekStrip('travelLeavingWeek',  'First day off  (tap to buffer earlier)',
-                   _travelState.leaving,  _travelState.firstOff,  'before');
-  _renderWeekStrip('travelArrivingWeek', 'Last day off  (tap to buffer later)',
-                   _travelState.arriving, _travelState.firstBack, 'after');
+                   _travelState.leaving,  _travelState.firstOff,  'before', 'var(--accent)');
+  _renderWeekStrip('travelArrivingWeek', 'First day teaching  (tap to buffer later)',
+                   _travelState.arriving, _travelState.firstBack, 'after',  'var(--green)');
 }
 
-function _renderWeekStrip(wrapId, label, anchorYmd, selectedYmd, mode) {
+function _renderWeekStrip(wrapId, label, anchorYmd, selectedYmd, mode, accentVar) {
   var wrap = document.getElementById(wrapId);
   wrap.innerHTML = '';
   if (!anchorYmd) return;
+  accentVar = accentVar || 'var(--accent)';
+  // Tint the selected pill's background from the accent (accent for off, green
+  // for the resume day). Fixed low-alpha wash keeps it subtle in both cases.
+  var accentBg = accentVar === 'var(--green)' ? 'rgba(0,200,100,0.18)' : 'rgba(232,70,58,0.18)';
 
   var lbl = document.createElement('div');
   lbl.style.cssText = 'font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px';
@@ -260,9 +264,9 @@ function _renderWeekStrip(wrapId, label, anchorYmd, selectedYmd, mode) {
       "<div style='font-size:15px;font-weight:600;line-height:1.3'>" + d.getDate() + "</div>";
     btn.style.cssText =
       'flex:1;padding:6px 4px;border-radius:4px;font-family:inherit;' +
-      'border:1px solid ' + (selected ? 'var(--accent)' : 'transparent') + ';' +
-      'background:' + (selected ? 'rgba(232,70,58,0.18)' : 'transparent') + ';' +
-      'color:' + (enabled ? (selected ? 'var(--accent)' : 'var(--text)') : 'rgba(180,180,180,0.25)') + ';' +
+      'border:1px solid ' + (selected ? accentVar : 'transparent') + ';' +
+      'background:' + (selected ? accentBg : 'transparent') + ';' +
+      'color:' + (enabled ? (selected ? accentVar : 'var(--text)') : 'rgba(180,180,180,0.25)') + ';' +
       'cursor:' + (enabled ? 'pointer' : 'default') + ';' +
       'opacity:' + (enabled ? '1' : '0.5') + ';' +
       (isAnchor && !selected ? 'box-shadow:inset 0 -2px 0 var(--muted);' : '');
