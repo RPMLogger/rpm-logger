@@ -136,7 +136,7 @@ function _tsStudentRow(s, readOnly) {
       var out = m.dir === 'out';
       var bubble = document.createElement('div');
       bubble.style.cssText =
-        'max-width:85%;font-size:11px;line-height:1.4;padding:6px 9px;border-radius:8px;' +
+        'max-width:85%;font-size:11px;line-height:1.4;padding:6px 9px;border-radius:8px;white-space:pre-wrap;' +
         (out
           ? 'align-self:flex-end;background:rgba(232,70,58,0.15);border:1px solid rgba(232,70,58,0.3);color:var(--text)'
           : 'align-self:flex-start;background:var(--bg);border:1px solid var(--border);color:var(--text)');
