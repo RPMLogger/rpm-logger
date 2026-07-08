@@ -112,11 +112,31 @@ function _tsActiveCard(trip) {
     "</div>" +
     "<div style='font-size:10px;color:var(--muted);margin-top:3px'>" + _tsPlural(trip.days, 'day') + ' · ' + _tsPlural(trip.lessonCount, 'lesson') + ' · $' + (trip.revenue || 0).toLocaleString() + ' lost</div>';
   card.appendChild(hdr);
+  card.appendChild(_tsRosterStrip(trip));
 
-  // Confirmed students float to the top (per request).
-  var ordered = trip.students.slice().sort(function(a, b) { return (b.confirmedAt ? 1 : 0) - (a.confirmedAt ? 1 : 0); });
+  // Detail rows alphabetical, matching the roster strip above.
+  var ordered = trip.students.slice().sort(function(a, b) { return a.name.localeCompare(b.name); });
   ordered.forEach(function(s) { card.appendChild(_tsStudentRow(s, false)); });
   return card;
+}
+
+// At-a-glance roster: every student's name, alphabetical, colored by status —
+// green = confirmed, orange = replied but needs you, red = not yet confirmed.
+function _tsRosterStrip(trip) {
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'padding:10px 12px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px';
+  var sorted = trip.students.slice().sort(function(a, b) { return a.name.localeCompare(b.name); });
+  sorted.forEach(function(s) {
+    var color, bg, bd;
+    if (s.confirmedAt)      { color = 'var(--green)'; bg = 'rgba(0,200,100,0.12)';  bd = 'rgba(0,200,100,0.4)'; }
+    else if (s.needsReview) { color = '#ff7a3c';      bg = 'rgba(255,120,60,0.12)'; bd = 'rgba(255,120,60,0.4)'; }
+    else                    { color = '#ff6b6b';      bg = 'rgba(255,107,107,0.1)'; bd = 'rgba(255,107,107,0.35)'; }
+    var chip = document.createElement('span');
+    chip.textContent = s.name;
+    chip.style.cssText = 'font-size:11px;padding:3px 8px;border-radius:4px;color:' + color + ';background:' + bg + ';border:1px solid ' + bd;
+    wrap.appendChild(chip);
+  });
+  return wrap;
 }
 
 function _tsStatusPill(s) {
