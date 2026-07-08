@@ -31,8 +31,20 @@ function _tsRender(active, past) {
   var section = document.getElementById('tripsummaryBody');
   section.innerHTML = '';
 
+  var bar = document.createElement('div');
+  bar.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:10px';
+  var refreshBtn = document.createElement('button');
+  refreshBtn.textContent = '⟳ Refresh';
+  refreshBtn.style.cssText = 'padding:6px 14px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.5px';
+  refreshBtn.onclick = initTripSummaryTab;
+  bar.appendChild(refreshBtn);
+  section.appendChild(bar);
+
   if (!active.length && !past.length) {
-    section.innerHTML = "<div class='empty-state'>No trips yet — plan one in the Travel Plan tab</div>";
+    var empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.textContent = 'No trips yet — plan one in the Travel Plan tab';
+    section.appendChild(empty);
     return;
   }
 
@@ -101,7 +113,9 @@ function _tsActiveCard(trip) {
     "<div style='font-size:10px;color:var(--muted);margin-top:3px'>" + _tsPlural(trip.days, 'day') + ' · ' + _tsPlural(trip.lessonCount, 'lesson') + ' · $' + (trip.revenue || 0).toLocaleString() + ' lost</div>';
   card.appendChild(hdr);
 
-  trip.students.forEach(function(s) { card.appendChild(_tsStudentRow(s, false)); });
+  // Confirmed students float to the top (per request).
+  var ordered = trip.students.slice().sort(function(a, b) { return (b.confirmedAt ? 1 : 0) - (a.confirmedAt ? 1 : 0); });
+  ordered.forEach(function(s) { card.appendChild(_tsStudentRow(s, false)); });
   return card;
 }
 
