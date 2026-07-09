@@ -1011,6 +1011,11 @@ function _stLogLessonFor(name, dateObj) {
     eventDate = y + '/' + (m < 10 ? '0' + m : m) + '/' + (dd < 10 ? '0' + dd : dd);
   }
   window._auditFixActive = false;
+  // Flag so submitLog re-fetches this student's detail after a successful log,
+  // refreshing the Past section (and lesson #/payment) to the post-log state —
+  // you keep working on this page after logging, so it should show the lesson
+  // you just entered, not the view from before.
+  window._stLogActive = name;
   if (typeof _floatLogPanel === 'function') _floatLogPanel();
   if (typeof openLogFresh === 'function') {
     openLogFresh({ name: name, eventDate: eventDate, calType: 'regular' }, undefined);

@@ -216,6 +216,14 @@ function submitLog() {
       document.getElementById("logPanel").classList.remove("active");
       activeStudent = null;
       renderTodayGrid();
+      // If this log came from the Home/student page, re-fetch that student's
+      // detail so the Past section reflects the lesson just logged. Same hook
+      // pattern as the Audit fix flow below.
+      if (window._stLogActive && typeof _stOpenStudent === "function") {
+        var _stName = window._stLogActive;
+        window._stLogActive = null;
+        _stOpenStudent(_stName);
+      }
       // If this log came from the Audit tab's fix-1 flow, restore the modal to
       // its home and optimistically drop just the resolved chip — no full
       // re-audit. The ↻ Refresh button re-verifies against the sheets on demand.
