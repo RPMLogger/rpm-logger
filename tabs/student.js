@@ -225,7 +225,11 @@ function _stRenderDetail() {
   // Lesson-in-block number only matters on the actual lesson day — off-day it's
   // noise. On a lesson day: plain yellow "Today · Lesson N" text (no pill).
   // Otherwise just tell me when the last lesson was.
-  var lastLessonDate = (d.pastLessons && d.pastLessons.length) ? d.pastLessons[0].date : '';
+  // "Last lesson" date comes from the Counter — the absolute lesson record — since
+  // Students Import can lag behind it. Fall back to Import's newest row only if the
+  // Counter had no date at all.
+  var lastLessonDate = d.counterLastDate ||
+    ((d.pastLessons && d.pastLessons.length) ? d.pastLessons[0].date : '');
   var subLine = d.isLessonToday
     ? "<div style='font-size:11px;color:var(--accent2);margin-top:4px;letter-spacing:0.5px'>" +
         "Today · Lesson " + d.lessonInBlock +
