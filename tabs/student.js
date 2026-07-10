@@ -229,6 +229,8 @@ function _stRenderDetail() {
   var subLine = d.isLessonToday
     ? "<div style='font-size:11px;color:var(--accent2);margin-top:4px;letter-spacing:0.5px'>" +
         "Today · Lesson " + d.lessonInBlock +
+        // Today's lesson already in Import → mark it done right on the header line.
+        (d.loggedToday ? " <span style='color:var(--green)'>· logged ✓</span>" : "") +
       "</div>"
     : "<div style='font-size:11px;color:var(--muted);margin-top:4px;text-transform:none;letter-spacing:0.5px'>" +
         "(last lesson on: " + (lastLessonDate || '—') + ")" +
@@ -329,7 +331,17 @@ function _stRenderDetail() {
   var _stLogGreen = 'width:100%;padding:10px;font-size:13px;background:rgba(46,204,113,0.12);' +
     'color:var(--green);border:1px solid rgba(46,204,113,0.4);border-radius:6px;cursor:pointer;letter-spacing:0.3px';
 
-  if (d.isLessonToday) {
+  if (d.isLessonToday && d.loggedToday) {
+    // Today's lesson is already in Import → a done bar instead of a live log
+    // button, so you can't double-log. After an in-session log the page re-fetches
+    // detail and lands here automatically, flipping the button to this state.
+    var doneBar = document.createElement('div');
+    doneBar.textContent = "✓ Lesson Logged";
+    doneBar.style.cssText = 'width:100%;padding:10px;font-size:13px;background:rgba(46,204,113,0.12);' +
+      'color:var(--green);border:1px solid rgba(46,204,113,0.4);border-radius:6px;text-align:center;' +
+      'letter-spacing:0.3px;margin-bottom:18px;box-sizing:border-box';
+    section.appendChild(doneBar);
+  } else if (d.isLessonToday) {
     // Lesson day → yellow box, matching the yellow "Today" line up top.
     var logBtn = document.createElement('button');
     logBtn.textContent = "📊 Log Today's Lesson";
