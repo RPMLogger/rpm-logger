@@ -191,20 +191,27 @@ function _tsStudentRow(s, readOnly) {
 
   if (readOnly) return row;
 
-  // Actions: reply box + manual confirm toggle
+  // Actions: reply box (multi-line, auto-growing) on top, buttons below.
   var actions = document.createElement('div');
-  actions.style.cssText = 'display:flex;gap:6px;margin-top:8px;align-items:center';
+  actions.style.cssText = 'display:flex;flex-direction:column;gap:6px;margin-top:8px';
 
-  var input = document.createElement('input');
-  input.type = 'text';
+  var input = document.createElement('textarea');
+  input.rows = 1;
   input.placeholder = s.phone ? 'Text ' + _tsFirst(s.name) + '…' : 'No phone on file';
   input.disabled = !s.phone;
-  input.style.cssText = 'flex:1;min-width:0;padding:7px 9px;font-size:12px;font-family:inherit;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text)';
+  input.style.cssText = 'width:100%;box-sizing:border-box;resize:none;overflow:hidden;min-height:36px;' +
+    'padding:8px 9px;font-size:12px;line-height:1.5;font-family:inherit;background:var(--bg);' +
+    'border:1px solid var(--border);border-radius:4px;color:var(--text)';
+  function _tsAutoGrow() { input.style.height = 'auto'; input.style.height = input.scrollHeight + 'px'; }
+  input.addEventListener('input', _tsAutoGrow);
+
+  var btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:6px';
 
   var sendBtn = document.createElement('button');
   sendBtn.textContent = 'Send';
   sendBtn.disabled = !s.phone;
-  sendBtn.style.cssText = 'flex:0 0 auto;padding:7px 12px;font-size:11px;background:rgba(232,70,58,0.15);color:var(--accent);border:1px solid rgba(232,70,58,0.4);border-radius:4px;cursor:pointer';
+  sendBtn.style.cssText = 'flex:0 0 auto;padding:7px 14px;font-size:11px;background:rgba(232,70,58,0.15);color:var(--accent);border:1px solid rgba(232,70,58,0.4);border-radius:4px;cursor:pointer';
   sendBtn.onclick = function() {
     var body = input.value.trim();
     if (!body) return;
@@ -220,13 +227,16 @@ function _tsStudentRow(s, readOnly) {
       }
     });
   };
-  input.addEventListener('keydown', function(e) { if (e.key === 'Enter') sendBtn.onclick(); });
+  // Enter sends; Shift+Enter for a new line.
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.onclick(); }
+  });
 
   var confirmBtn = document.createElement('button');
   var isC = !!s.confirmedAt;
-  confirmBtn.textContent = isC ? '✓' : 'Confirm';
+  confirmBtn.textContent = isC ? '✓ Confirmed' : 'Confirm';
   confirmBtn.title = isC ? 'Confirmed — click to undo' : 'Mark confirmed manually';
-  confirmBtn.style.cssText = 'flex:0 0 auto;padding:7px 10px;font-size:11px;border-radius:4px;cursor:pointer;' +
+  confirmBtn.style.cssText = 'flex:0 0 auto;padding:7px 12px;font-size:11px;border-radius:4px;cursor:pointer;' +
     (isC ? 'background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4)'
          : 'background:transparent;color:var(--muted);border:1px solid var(--border)');
   confirmBtn.onclick = function() {
@@ -237,8 +247,7 @@ function _tsStudentRow(s, readOnly) {
     });
   };
 
-  actions.appendChild(input);
-  actions.appendChild(sendBtn);
+  btnRow.appendChild(sendBtn);
 
   // Nudge: pre-fill a friendly follow-up asking an unconfirmed student to reply Y.
   if (!s.confirmedAt) {
@@ -246,17 +255,20 @@ function _tsStudentRow(s, readOnly) {
     nudgeBtn.textContent = 'Nudge';
     nudgeBtn.title = 'Pre-fill a follow-up asking them to confirm';
     nudgeBtn.disabled = !s.phone;
-    nudgeBtn.style.cssText = 'flex:0 0 auto;padding:7px 10px;font-size:11px;background:transparent;color:#ffb400;border:1px solid rgba(255,180,0,0.4);border-radius:4px;cursor:pointer';
+    nudgeBtn.style.cssText = 'flex:0 0 auto;padding:7px 12px;font-size:11px;background:transparent;color:#ffb400;border:1px solid rgba(255,180,0,0.4);border-radius:4px;cursor:pointer';
     nudgeBtn.onclick = function() {
       input.value = "Hi " + _tsFirst(s.name) + " — quick follow-up: we'll resume your lessons on " +
         (s.firstBack || '') + ". Please reply Y to confirm. (If the resume date doesn't work for you, " +
         "please let me know at least a week in advance.)";
       input.focus();
+      _tsAutoGrow();
     };
-    actions.appendChild(nudgeBtn);
+    btnRow.appendChild(nudgeBtn);
   }
 
-  actions.appendChild(confirmBtn);
+  btnRow.appendChild(confirmBtn);
+  actions.appendChild(input);
+  actions.appendChild(btnRow);
   row.appendChild(actions);
   return row;
 }
