@@ -133,7 +133,8 @@ function _tsRosterStrip(trip) {
     else                    { color = '#ff6b6b';      bg = 'rgba(255,107,107,0.1)'; bd = 'rgba(255,107,107,0.35)'; }
     var chip = document.createElement('span');
     chip.textContent = s.name;
-    chip.style.cssText = 'font-size:11px;padding:3px 8px;border-radius:4px;color:' + color + ';background:' + bg + ';border:1px solid ' + bd;
+    chip.style.cssText = 'font-size:11px;padding:3px 8px;border-radius:4px;cursor:pointer;color:' + color + ';background:' + bg + ';border:1px solid ' + bd;
+    (function(rowId) { chip.onclick = function() { _tsJumpToStudent(rowId); }; })('ts-row-' + s.row);
     wrap.appendChild(chip);
   });
   return wrap;
@@ -148,6 +149,7 @@ function _tsStatusPill(s) {
 
 function _tsStudentRow(s, readOnly) {
   var row = document.createElement('div');
+  if (s.row) row.id = 'ts-row-' + s.row; // jump target for the roster chips
   row.style.cssText = 'padding:10px 12px;border-top:1px solid rgba(255,255,255,0.04)';
 
   var head = document.createElement('div');
@@ -295,6 +297,18 @@ function _tsClearTestData() {
 
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
+
+// Scroll a student's detail row into view when their roster chip is tapped,
+// with a brief highlight flash so it's clear where you landed.
+function _tsJumpToStudent(rowId) {
+  var el = document.getElementById(rowId);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  var prev = el.style.background;
+  el.style.transition = 'background 0.3s';
+  el.style.background = 'rgba(232,70,58,0.14)';
+  setTimeout(function() { el.style.background = prev || ''; }, 1100);
+}
 
 function _tsFirst(name) { return String(name || '').trim().split(/\s+/)[0] || ''; }
 
