@@ -93,10 +93,28 @@ body::before {
 
 /* ─── TABS ────────────────────────────────────────────────────────────────── */
 .tabs {
-  display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px;
+  display: flex; flex-direction: column; gap: 4px;
   margin-top: 24px; margin-bottom: 20px;
-  background: var(--surface); border-radius: 6px; padding: 3px;
+  background: var(--surface); border-radius: 6px; padding: 6px;
 }
+.tab-group-header {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 7px 8px; border: none; border-radius: 4px;
+  background: transparent; cursor: pointer;
+  color: var(--muted); font-family: "DM Mono", monospace;
+  font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+  transition: color 0.15s;
+}
+.tab-group-header:hover { color: var(--text); }
+.tg-meta { display: flex; align-items: center; gap: 8px; }
+.tg-count { opacity: 0.4; font-size: 9px; }
+.tg-chev { font-size: 9px; transition: transform 0.2s; }
+.tab-group.collapsed .tg-chev { transform: rotate(-90deg); }
+.tab-group-items {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px;
+  margin: 2px 0 6px;
+}
+.tab-group.collapsed .tab-group-items { display: none; }
 .tab-btn {
   min-width: 0; padding: 9px 2px; border: none; border-radius: 4px;
   background: transparent; color: var(--muted); font-family: "DM Mono", monospace;

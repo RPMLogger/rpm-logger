@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=335">
+  <link rel="stylesheet" href="css/styles.css?v=336">
 </head>
 <body>
 <div class="container">
@@ -32,36 +32,92 @@
     </div>
   </div>
 
-  <!-- TABS -->
+  <!-- TABS — grouped & collapsible. Regroup freely: just move a button under a
+       different .tab-group. Order no longer matters (switchTab selects by data-tab). -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('student')">Home</button>
-    <button class="tab-btn" onclick="switchTab('payments')">Payments</button>
-    <button class="tab-btn" onclick="switchTab('week')">Week</button>
-    <button class="tab-btn" onclick="switchTab('general')">General</button>
-    <button class="tab-btn" onclick="switchTab('financial')">Financial</button>
-    <button class="tab-btn" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
-    <button class="tab-btn" onclick="switchTab('availability')">Availability</button>
-    <button class="tab-btn" onclick="switchTab('biweekly')">Biweekly</button>
-    <button class="tab-btn" onclick="switchTab('notes')">Notes</button>
-    <button class="tab-btn" onclick="switchTab('todo')">To-Do</button>
-    <button class="tab-btn" onclick="switchTab('ctrl')">Audit</button>
-    <button class="tab-btn" onclick="switchTab('travel')">Travel Plan</button>
-    <button class="tab-btn" onclick="switchTab('tripsummary')">Trip Summary</button>
-    <button class="tab-btn" onclick="switchTab('mailcenter')">Mail Center<span class="inq-badge" id="gbNavBadge" style="display:none"></span></button>
-    <button class="tab-btn" onclick="switchTab('dropbox')">Dropbox</button>
-    <button class="tab-btn" onclick="switchTab('trial')">Trial</button>
-    <button class="tab-btn" onclick="switchTab('ending')">Terminate</button>
-    <button class="tab-btn" onclick="switchTab('holidays')">Holidays Alerts</button>
-    <button class="tab-btn" onclick="switchTab('zoom')">Zoom</button>
-    <button class="tab-btn" onclick="switchTab('video')">Video Lesson</button>
-    <button class="tab-btn" onclick="switchTab('gbusiness')">Google Business</button>
-    <button class="tab-btn" onclick="switchTab('tax')">Tax</button>
-    <button class="tab-btn" onclick="switchTab('eoy')">End of Year</button>
-    <button class="tab-btn" onclick="switchTab('recs')">Recommendations</button>
-    <button class="tab-btn" onclick="switchTab('ratedecision')">Rate Decision</button>
-    <button class="tab-btn" onclick="switchTab('reviews')">Reviews</button>
-    <button class="tab-btn" onclick="switchTab('thisyear')">This Year</button>
-    <button class="tab-btn" onclick="switchTab('sheets')">Sheets</button>
+
+    <div class="tab-group" data-group="daily">
+      <button class="tab-group-header" onclick="toggleGroup('daily')">
+        <span class="tg-label">Daily</span>
+        <span class="tg-meta"><span class="tg-count">6</span><span class="tg-chev">▾</span></span>
+      </button>
+      <div class="tab-group-items">
+        <button class="tab-btn active" data-tab="student" onclick="switchTab('student')">Home</button>
+        <button class="tab-btn" data-tab="payments" onclick="switchTab('payments')">Payments</button>
+        <button class="tab-btn" data-tab="week" onclick="switchTab('week')">Week</button>
+        <button class="tab-btn" data-tab="inquiries" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
+        <button class="tab-btn" data-tab="todo" onclick="switchTab('todo')">To-Do</button>
+        <button class="tab-btn" data-tab="notes" onclick="switchTab('notes')">Notes</button>
+      </div>
+    </div>
+
+    <div class="tab-group collapsed" data-group="students">
+      <button class="tab-group-header" onclick="toggleGroup('students')">
+        <span class="tg-label">Students</span>
+        <span class="tg-meta"><span class="tg-count">4</span><span class="tg-chev">▾</span></span>
+      </button>
+      <div class="tab-group-items">
+        <button class="tab-btn" data-tab="trial" onclick="switchTab('trial')">Trial</button>
+        <button class="tab-btn" data-tab="ending" onclick="switchTab('ending')">Terminate</button>
+        <button class="tab-btn" data-tab="availability" onclick="switchTab('availability')">Availability</button>
+        <button class="tab-btn" data-tab="biweekly" onclick="switchTab('biweekly')">Biweekly</button>
+      </div>
+    </div>
+
+    <div class="tab-group collapsed" data-group="money">
+      <button class="tab-group-header" onclick="toggleGroup('money')">
+        <span class="tg-label">Money</span>
+        <span class="tg-meta"><span class="tg-count">6</span><span class="tg-chev">▾</span></span>
+      </button>
+      <div class="tab-group-items">
+        <button class="tab-btn" data-tab="financial" onclick="switchTab('financial')">Financial</button>
+        <button class="tab-btn" data-tab="general" onclick="switchTab('general')">General</button>
+        <button class="tab-btn" data-tab="tax" onclick="switchTab('tax')">Tax</button>
+        <button class="tab-btn" data-tab="eoy" onclick="switchTab('eoy')">End of Year</button>
+        <button class="tab-btn" data-tab="ratedecision" onclick="switchTab('ratedecision')">Rate Decision</button>
+        <button class="tab-btn" data-tab="thisyear" onclick="switchTab('thisyear')">This Year</button>
+      </div>
+    </div>
+
+    <div class="tab-group collapsed" data-group="outreach">
+      <button class="tab-group-header" onclick="toggleGroup('outreach')">
+        <span class="tg-label">Outreach</span>
+        <span class="tg-meta"><span class="tg-count">4</span><span class="tg-chev">▾</span></span>
+      </button>
+      <div class="tab-group-items">
+        <button class="tab-btn" data-tab="mailcenter" onclick="switchTab('mailcenter')">Mail Center<span class="inq-badge" id="gbNavBadge" style="display:none"></span></button>
+        <button class="tab-btn" data-tab="reviews" onclick="switchTab('reviews')">Reviews</button>
+        <button class="tab-btn" data-tab="gbusiness" onclick="switchTab('gbusiness')">Google Business</button>
+        <button class="tab-btn" data-tab="recs" onclick="switchTab('recs')">Recommendations</button>
+      </div>
+    </div>
+
+    <div class="tab-group collapsed" data-group="travel">
+      <button class="tab-group-header" onclick="toggleGroup('travel')">
+        <span class="tg-label">Travel</span>
+        <span class="tg-meta"><span class="tg-count">3</span><span class="tg-chev">▾</span></span>
+      </button>
+      <div class="tab-group-items">
+        <button class="tab-btn" data-tab="travel" onclick="switchTab('travel')">Travel Plan</button>
+        <button class="tab-btn" data-tab="tripsummary" onclick="switchTab('tripsummary')">Trip Summary</button>
+        <button class="tab-btn" data-tab="holidays" onclick="switchTab('holidays')">Holidays Alerts</button>
+      </div>
+    </div>
+
+    <div class="tab-group collapsed" data-group="tools">
+      <button class="tab-group-header" onclick="toggleGroup('tools')">
+        <span class="tg-label">Tools</span>
+        <span class="tg-meta"><span class="tg-count">5</span><span class="tg-chev">▾</span></span>
+      </button>
+      <div class="tab-group-items">
+        <button class="tab-btn" data-tab="ctrl" onclick="switchTab('ctrl')">Audit</button>
+        <button class="tab-btn" data-tab="dropbox" onclick="switchTab('dropbox')">Dropbox</button>
+        <button class="tab-btn" data-tab="zoom" onclick="switchTab('zoom')">Zoom</button>
+        <button class="tab-btn" data-tab="video" onclick="switchTab('video')">Video Lesson</button>
+        <button class="tab-btn" data-tab="sheets" onclick="switchTab('sheets')">Sheets</button>
+      </div>
+    </div>
+
   </div>
 
   <!-- STUDENT -->
@@ -570,7 +626,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">335</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">336</span></span>
     <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
 
@@ -597,27 +653,27 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/lessons.js?v=335"></script>
-<script src="tabs/payments.js?v=335"></script>
-<script src="tabs/week.js?v=335"></script>
-<script src="tabs/general.js?v=335"></script>
-<script src="tabs/financial.js?v=335"></script>
-<script src="tabs/inquiries.js?v=335"></script>
-<script src="tabs/comms.js?v=335"></script>
-<script src="tabs/notes.js?v=335"></script>
-<script src="tabs/todo.js?v=335"></script>
-<script src="tabs/availability.js?v=335"></script>
-<script src="tabs/biweekly.js?v=335"></script>
-<script src="tabs/travel.js?v=335"></script>
-<script src="tabs/tripsummary.js?v=335"></script>
-<script src="tabs/student.js?v=335"></script>
-<script src="tabs/ctrl.js?v=335"></script>
-<script src="tabs/mailcenter.js?v=335"></script>
-<script src="tabs/dropbox.js?v=335"></script>
-<script src="tabs/trial.js?v=335"></script>
-<script src="tabs/ending.js?v=335"></script>
-<script src="tabs/thisyear.js?v=335"></script>
-<script src="tabs/sheets.js?v=335"></script>
+<script src="tabs/lessons.js?v=336"></script>
+<script src="tabs/payments.js?v=336"></script>
+<script src="tabs/week.js?v=336"></script>
+<script src="tabs/general.js?v=336"></script>
+<script src="tabs/financial.js?v=336"></script>
+<script src="tabs/inquiries.js?v=336"></script>
+<script src="tabs/comms.js?v=336"></script>
+<script src="tabs/notes.js?v=336"></script>
+<script src="tabs/todo.js?v=336"></script>
+<script src="tabs/availability.js?v=336"></script>
+<script src="tabs/biweekly.js?v=336"></script>
+<script src="tabs/travel.js?v=336"></script>
+<script src="tabs/tripsummary.js?v=336"></script>
+<script src="tabs/student.js?v=336"></script>
+<script src="tabs/ctrl.js?v=336"></script>
+<script src="tabs/mailcenter.js?v=336"></script>
+<script src="tabs/dropbox.js?v=336"></script>
+<script src="tabs/trial.js?v=336"></script>
+<script src="tabs/ending.js?v=336"></script>
+<script src="tabs/thisyear.js?v=336"></script>
+<script src="tabs/sheets.js?v=336"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -644,10 +700,14 @@
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
     var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","mailcenter","dropbox","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","ratedecision","reviews","thisyear","sheets"];
-    tabs.forEach(function(t, i) {
+    tabs.forEach(function(t) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
-      document.querySelectorAll(".tab-btn")[i].classList.toggle("active", t === tab);
+      var btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
+      if (btn) btn.classList.toggle("active", t === tab);
     });
+    // make sure the active tab's group is open so you can see where you are
+    var activeBtn = document.querySelector('.tab-btn[data-tab="' + tab + '"]');
+    if (activeBtn) { var grp = activeBtn.closest('.tab-group'); if (grp) grp.classList.remove('collapsed'); }
     if (tab === "student") initStudentTab();
     if (tab === "payments") loadIncomingPayments();
     if (tab === "ctrl") initAuditTab();
@@ -664,6 +724,32 @@
     if (tab === "thisyear") initThisYearTab();
     if (tab === "inquiries") { initInquiriesTab(); loadCommsInbox(); startCommsPolling(); } else { stopCommsPolling(); }
   }
+
+  // ─── Collapsible nav groups ──────────────────────────────────────────────
+  function toggleGroup(g) {
+    var el = document.querySelector('.tab-group[data-group="' + g + '"]');
+    if (!el) return;
+    el.classList.toggle('collapsed');
+    saveGroupState();
+  }
+  function saveGroupState() {
+    var st = {};
+    document.querySelectorAll('.tab-group').forEach(function(el) {
+      st[el.getAttribute('data-group')] = el.classList.contains('collapsed');
+    });
+    try { localStorage.setItem('navGroups', JSON.stringify(st)); } catch (e) {}
+  }
+  function restoreGroupState() {
+    var st;
+    try { st = JSON.parse(localStorage.getItem('navGroups') || 'null'); } catch (e) { st = null; }
+    if (!st) return; // first visit: keep the HTML defaults (Daily open, rest collapsed)
+    document.querySelectorAll('.tab-group').forEach(function(el) {
+      var g = el.getAttribute('data-group');
+      if (st[g] === true) el.classList.add('collapsed');
+      else if (st[g] === false) el.classList.remove('collapsed');
+    });
+  }
+  restoreGroupState();
 
   var _now = new Date();
   var _DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
