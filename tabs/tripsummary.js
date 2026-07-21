@@ -239,6 +239,23 @@ function _tsStudentRow(s, readOnly) {
 
   actions.appendChild(input);
   actions.appendChild(sendBtn);
+
+  // Nudge: pre-fill a friendly follow-up asking an unconfirmed student to reply Y.
+  if (!s.confirmedAt) {
+    var nudgeBtn = document.createElement('button');
+    nudgeBtn.textContent = 'Nudge';
+    nudgeBtn.title = 'Pre-fill a follow-up asking them to confirm';
+    nudgeBtn.disabled = !s.phone;
+    nudgeBtn.style.cssText = 'flex:0 0 auto;padding:7px 10px;font-size:11px;background:transparent;color:#ffb400;border:1px solid rgba(255,180,0,0.4);border-radius:4px;cursor:pointer';
+    nudgeBtn.onclick = function() {
+      input.value = "Hi " + _tsFirst(s.name) + " — quick follow-up: we'll resume your lessons on " +
+        (s.firstBack || '') + ". Please reply Y to confirm. (If the resume date doesn't work for you, " +
+        "please let me know at least a week in advance.)";
+      input.focus();
+    };
+    actions.appendChild(nudgeBtn);
+  }
+
   actions.appendChild(confirmBtn);
   row.appendChild(actions);
   return row;
