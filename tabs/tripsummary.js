@@ -262,7 +262,7 @@ function _tsStudentRow(s, readOnly) {
         "Quick follow-up on my earlier note.\n\n" +
         "We'll resume on " + _tsResumePretty(s.firstBack) + ".\n\n" +
         "Please REPLY to THIS MESSAGE with Y to confirm.\n\n" +
-        "(If the resume date doesn't work for you, please let me know at least a week in advance.)";
+        "(Please let me know at least a week in advance if you have a scheduling conflict.)";
       input.focus();
       _tsAutoGrow();
     };
