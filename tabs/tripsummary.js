@@ -40,41 +40,17 @@ function _tsRender(active, past) {
   bar.appendChild(refreshBtn);
   section.appendChild(bar);
 
-  if (!active.length && !past.length) {
+  if (!active.length) {
     var empty = document.createElement('div');
     empty.className = 'empty-state';
-    empty.textContent = 'No trips yet — plan one in the Travel Plan tab';
+    empty.textContent = 'No active trips — plan one in Travel Plan. (Past trips live in Trip History.)';
     section.appendChild(empty);
-    return;
-  }
-
-  // ── ACTIVE ──
-  var aHdr = document.createElement('div');
-  aHdr.style.cssText = 'font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px';
-  aHdr.textContent = 'Active trips';
-  section.appendChild(aHdr);
-
-  if (!active.length) {
-    var none = document.createElement('div');
-    none.className = 'empty-state';
-    none.style.cssText = 'padding:14px;font-size:12px';
-    none.textContent = 'No active trips';
-    section.appendChild(none);
   } else {
     active.forEach(function(trip) { section.appendChild(_tsActiveCard(trip)); });
   }
 
-  // ── PAST ──
-  if (past.length) {
-    var pHdr = document.createElement('div');
-    pHdr.style.cssText = 'font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:22px 0 8px';
-    pHdr.textContent = 'Past trips';
-    section.appendChild(pHdr);
-    past.forEach(function(trip) { section.appendChild(_tsPastRow(trip)); });
-  }
-
-  // ── clear test data (only when test rows exist) ──
-  var hasTest = active.concat(past).some(function(t) { return t.isTest; });
+  // ── clear test data (only when test rows exist, active or past) ──
+  var hasTest = active.concat(past || []).some(function(t) { return t.isTest; });
   if (hasTest) {
     var wrap = document.createElement('div');
     wrap.style.cssText = 'margin-top:20px;display:flex;justify-content:center';
@@ -112,6 +88,24 @@ function _tsActiveCard(trip) {
     "</div>" +
     "<div style='font-size:10px;color:var(--muted);margin-top:3px'>" + _tsPlural(trip.days, 'day') + ' · ' + _tsPlural(trip.lessonCount, 'lesson') + ' · $' + (trip.revenue || 0).toLocaleString() + ' lost</div>';
   card.appendChild(hdr);
+
+  // Editable location (shows in Trip History).
+  var locBar = document.createElement('div');
+  locBar.style.cssText = 'padding:6px 12px;border-bottom:1px solid var(--border);font-size:11px;color:var(--muted);cursor:pointer';
+  locBar.innerHTML = trip.location
+    ? "📍 " + _tsEsc(trip.location) + " <span style='opacity:0.55'>· edit</span>"
+    : "📍 <span style='opacity:0.7'>Set location…</span>";
+  locBar.onclick = function() {
+    var v = prompt('Trip location (e.g. Turkey):', trip.location || '');
+    if (v === null) return;
+    var url = getScriptUrl(); if (!url) return;
+    callScript(url, 'setTripLocation', { tripStart: trip.tripStart, tripEnd: trip.tripEnd, location: v.trim() }, function(data) {
+      if (data && data.success) initTripSummaryTab();
+      else addLog('tripsummaryFeed', '❌ ' + (data && data.message ? data.message : 'Location update failed'), 'error');
+    });
+  };
+  card.appendChild(locBar);
+
   card.appendChild(_tsRosterStrip(trip));
 
   // Detail rows alphabetical, matching the roster strip above.

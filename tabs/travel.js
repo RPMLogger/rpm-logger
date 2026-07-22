@@ -13,6 +13,7 @@
 var _travelState = {
   leaving:   '', arriving:  '',
   firstOff:  '', firstBack: '',
+  location:  '',
   preview:   null,
   testMode:  localStorage.getItem('travelTestMode') === '1'
 };
@@ -439,6 +440,19 @@ function _travelRenderReview() {
   });
   section.appendChild(list);
 
+  // Location (optional) — stored on the trip, shown in Trip History.
+  var locWrap = document.createElement('div');
+  locWrap.style.cssText = 'margin-bottom:12px';
+  locWrap.innerHTML = "<label style='display:block;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Location (optional — shows in Trip History)</label>";
+  var locInput = document.createElement('input');
+  locInput.type = 'text';
+  locInput.placeholder = 'e.g. Turkey';
+  locInput.value = _travelState.location || '';
+  locInput.style.cssText = 'width:100%;box-sizing:border-box;padding:9px 10px;font-size:13px;font-family:inherit;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text)';
+  locInput.oninput = function() { _travelState.location = locInput.value; };
+  locWrap.appendChild(locInput);
+  section.appendChild(locWrap);
+
   var actions = document.createElement('div');
   actions.style.cssText = 'display:flex;gap:8px';
 
@@ -470,7 +484,7 @@ function _travelRenderReview() {
 
 function _travelExecute() {
   var url = getScriptUrl(); if (!url) return;
-  callScript(url, 'executeTravel', _travelTestArgs({ start: _travelState.firstOff, end: _travelState.firstBack }), function(data) {
+  callScript(url, 'executeTravel', _travelTestArgs({ start: _travelState.firstOff, end: _travelState.firstBack, location: _travelState.location || '' }), function(data) {
     if (data && data.success) {
       var noPhone = (data.noPhone && data.noPhone.length) ? ' · ⚠ no phone: ' + data.noPhone.join(', ') : '';
       var failed  = data.textsFailed ? ' · ' + data.textsFailed + ' failed' : '';
@@ -479,6 +493,7 @@ function _travelExecute() {
         (data.skipsLogged != null ? ' · ' + data.skipsLogged + ' skips logged' : '') + failed + noPhone,
         'success');
       _travelState.leaving = _travelState.arriving = _travelState.firstOff = _travelState.firstBack = '';
+      _travelState.location = '';
       _travelState.preview = null;
       _travelRenderDone(data);
     } else {
