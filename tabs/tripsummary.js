@@ -257,9 +257,12 @@ function _tsStudentRow(s, readOnly) {
     nudgeBtn.disabled = !s.phone;
     nudgeBtn.style.cssText = 'flex:0 0 auto;padding:7px 12px;font-size:11px;background:transparent;color:#ffb400;border:1px solid rgba(255,180,0,0.4);border-radius:4px;cursor:pointer';
     nudgeBtn.onclick = function() {
-      input.value = "Hi " + _tsFirst(s.name) + " — quick follow-up: we'll resume your lessons on " +
-        (s.firstBack || '') + ". Please reply Y to confirm. (If the resume date doesn't work for you, " +
-        "please let me know at least a week in advance.)";
+      input.value =
+        "Hi " + _tsFirst(s.name) + "!\n\n" +
+        "Quick follow-up on my earlier note.\n\n" +
+        "We'll resume on " + _tsResumePretty(s.firstBack) + ".\n\n" +
+        "Please REPLY to THIS MESSAGE with Y to confirm.\n\n" +
+        "(If the resume date doesn't work for you, please let me know at least a week in advance.)";
       input.focus();
       _tsAutoGrow();
     };
@@ -340,6 +343,14 @@ function _tsJumpToStudent(rowId) {
 }
 
 function _tsFirst(name) { return String(name || '').trim().split(/\s+/)[0] || ''; }
+
+// "Sun Aug 30, 10:30 AM" -> "Sun, Aug 30 at 10:30 AM" (match the travel text format)
+function _tsResumePretty(fb) {
+  var parts = String(fb || '').split(', ');
+  if (parts.length < 2) return String(fb || '');
+  var dp = parts[0].replace(/^(\S+)\s+/, '$1, ');
+  return dp + ' at ' + parts.slice(1).join(', ');
+}
 
 function _tsPlural(n, word) { return n + ' ' + word + (Number(n) === 1 ? '' : 's'); }
 
