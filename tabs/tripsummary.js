@@ -82,12 +82,33 @@ function _tsActiveCard(trip) {
     ? " <span style='font-size:9px;background:rgba(255,180,0,0.2);color:#ffb400;padding:1px 6px;border-radius:3px;margin-left:6px'>TEST</span>"
     : "";
   hdr.innerHTML =
-    "<div style='display:flex;justify-content:space-between;align-items:center'>" +
+    "<div style='display:flex;justify-content:space-between;align-items:center;gap:8px'>" +
       "<span style='font-weight:700;font-size:13px'>" + trip.tripStart + ' → ' + trip.tripEnd + testBadge + reviewBadge + "</span>" +
-      "<span style='font-size:11px;color:var(--muted)'>" + trip.confirmed + ' / ' + trip.students.length + " confirmed</span>" +
+      "<span style='display:flex;align-items:center;gap:8px;flex-shrink:0'>" +
+        "<span style='font-size:11px;color:var(--muted)'>" + trip.confirmed + ' / ' + trip.students.length + " confirmed</span>" +
+        "<button class='ts-archive-btn' style='font-size:10px;padding:3px 9px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>Archive</button>" +
+      "</span>" +
     "</div>" +
     "<div style='font-size:10px;color:var(--muted);margin-top:3px'>" + _tsPlural(trip.days, 'day') + ' · ' + _tsPlural(trip.lessonCount, 'lesson') + ' · $' + (trip.revenue || 0).toLocaleString() + ' lost</div>';
   card.appendChild(hdr);
+
+  var _arch = hdr.querySelector('.ts-archive-btn');
+  if (_arch) _arch.onclick = function() {
+    var msg = 'Archive this trip?\n\n' + trip.tripStart + ' → ' + trip.tripEnd +
+      '\n\nIt leaves Active Trips and moves to Trip History. (' + trip.confirmed + '/' + trip.students.length + ' confirmed)';
+    if (!confirm(msg)) return;
+    var url = getScriptUrl(); if (!url) return;
+    _arch.disabled = true; _arch.textContent = '…';
+    callScript(url, 'archiveTrip', { tripStart: trip.tripStart, tripEnd: trip.tripEnd }, function(data) {
+      if (data && data.success) {
+        addLog('tripsummaryFeed', '✓ Archived ' + trip.tripStart + ' → ' + trip.tripEnd + ' → Trip History', 'success');
+        initTripSummaryTab();
+      } else {
+        addLog('tripsummaryFeed', '❌ ' + (data && data.message ? data.message : 'Archive failed'), 'error');
+        _arch.disabled = false; _arch.textContent = 'Archive';
+      }
+    });
+  };
 
   // Editable location (shows in Trip History).
   var locBar = document.createElement('div');
