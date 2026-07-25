@@ -216,8 +216,11 @@ function _dbCard(f) {
       '<div style="min-width:0">' + name +
         '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:3px">Empty</div>' +
       '</div>' +
-      '<div style="flex-shrink:0;margin-left:12px;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;' +
-        'color:var(--green);border:1px solid var(--green);border-radius:6px;padding:3px 9px">EMPTY</div>' +
+      '<div style="flex-shrink:0;margin-left:12px;text-align:right">' +
+        '<div style="display:inline-block;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;' +
+          'color:var(--green);border:1px solid var(--green);border-radius:6px;padding:3px 9px">EMPTY</div>' +
+        '<div>' + _dbRecoverBtn(f.name) + '</div>' +
+      '</div>' +
     '</div>';
   }
   return '<div ' + open + chrome + '>' +
@@ -229,8 +232,18 @@ function _dbCard(f) {
     '<div style="text-align:right;flex-shrink:0;margin-left:12px">' +
       '<div style="font-family:\'DM Mono\',monospace;font-size:13px;font-weight:500;color:' + col + '">' + _dbAgeText(f.ageDays) + '</div>' +
       '<div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:3px">since added</div>' +
+      _dbRecoverBtn(f.name) +
     '</div>' +
   '</div>';
+}
+
+// Small "Recover" button for a student card. stopPropagation so it doesn't also
+// trigger the card's open-in-Dropbox click. Present on every student card.
+function _dbRecoverBtn(name) {
+  return '<button onclick="event.stopPropagation();_dbRecoverFolder(\'' + _dbEsc(name) + '\',this)" ' +
+    'title="Put back this student’s recently-deleted files (last 30 days)" ' +
+    'style="margin-top:7px;font-family:\'DM Mono\',monospace;font-size:10px;background:transparent;color:var(--muted);' +
+    'border:1px solid var(--border);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap">↺ Recover</button>';
 }
 
 // A teacher (non-student) folder card — same card shape, neutral blue spine,
@@ -335,6 +348,33 @@ function _dbAction(params, btn, restoreLabel) {
 // Mismatch: rename the Dropbox folder to match the Counter sheet (no popup).
 function _dbCorrectFolder(folderName, counterName) {
   _dbAction({ action: 'renameDropboxFolder', from: folderName, to: counterName });
+}
+
+// Recover: put back a student's recently-deleted files (last 30 days), give them a
+// fresh 14-day window, and email them. Reports the count inline rather than doing a
+// silent refresh, so you can see how many came back.
+function _dbRecoverFolder(name, btn) {
+  var url = getScriptUrl();
+  if (!url) return;
+  if (!confirm('Put ' + name + '’s recently-deleted files back?\n\nRestores anything deleted in the last 30 days, resets their 14-day copy window, and emails them.')) return;
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Recovering…'; }
+  _dbStatus('Recovering ' + name + '’s deleted files…', 'var(--accent2)');
+  fetch(url + '?action=restoreDropboxFolder&name=' + encodeURIComponent(name))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; btn.textContent = '↺ Recover'; }
+      if (!d.success) { _dbStatus('⚠ ' + (d.message || 'Recover failed'), 'var(--accent)'); return; }
+      if (d.restored > 0) {
+        _dbStatus('✓ Put ' + d.restored + ' file' + (d.restored === 1 ? '' : 's') + ' back for ' + name + ' — fresh 14-day window, email sent.', 'var(--green)');
+        setTimeout(initDropboxTab, 2400);
+      } else {
+        _dbStatus('Nothing to recover for ' + name + ' — no deleted files in the last 30 days.', 'var(--muted)');
+      }
+    })
+    .catch(function () {
+      if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; btn.textContent = '↺ Recover'; }
+      _dbStatus('❌ Could not reach the portal.', 'var(--accent)');
+    });
 }
 
 // Orphan: unshare + delete the folder (one click; goes to Dropbox trash).
