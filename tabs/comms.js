@@ -100,7 +100,7 @@ function openCommsDetail(msg) {
     bodyEl.style.display = "none";
     if (msg.audioUrl) {
       audioSection.style.display = "block";
-      document.getElementById("commsAudioPlayer").src = msg.audioUrl;
+      loadCommsAudio(msg.audioUrl);
     } else {
       audioSection.style.display = "none";
     }
@@ -116,6 +116,30 @@ function openCommsDetail(msg) {
 
   document.getElementById("commsRespondedCheck").checked = msg.responded;
   document.getElementById("commsDetailOverlay").classList.add("open");
+}
+
+// Twilio recording URLs need Basic Auth, so we can't point <audio> at them
+// directly (browser shows a Twilio login prompt). Fetch the mp3 through the
+// Apps Script proxy, which authenticates server-side and returns a data URI.
+function loadCommsAudio(audioUrl) {
+  var player = document.getElementById("commsAudioPlayer");
+  player.removeAttribute("src");
+  player.load();
+
+  var url = getScriptUrl();
+  if (!url) return;
+
+  fetch(url + "?action=getRecordingAudio&url=" + encodeURIComponent(audioUrl))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      // Guard against a stale response after the user closed/switched cards.
+      if (!commsDetail || commsDetail.audioUrl !== audioUrl) return;
+      if (data.success && data.dataUri) {
+        player.src = data.dataUri;
+        player.load();
+      }
+    })
+    .catch(function() {});
 }
 
 function closeCommsDetail() {
