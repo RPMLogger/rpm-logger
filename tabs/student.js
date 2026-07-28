@@ -248,6 +248,48 @@ function _stRenderDetail() {
   section.appendChild(hdr);
   document.getElementById('stBack').onclick = function() { _stState.view = 'search'; _stRenderSearch(); };
 
+  // Wrong-number warning — raised by the Student Line's "Misplaced" action when
+  // this student texted the RPM line by mistake. Shows the offending text; the
+  // checkbox clears it once you've reminded them in person. (Built with DOM
+  // nodes, not innerHTML, so the student's text can't inject markup.)
+  if (d.wrongNumberFlag) {
+    var wn = document.createElement('div');
+    wn.style.cssText = 'border:1px solid rgba(255,120,60,0.5);background:rgba(255,120,60,0.1);border-radius:6px;padding:12px 14px;margin-bottom:18px';
+
+    var wnTitle = document.createElement('div');
+    wnTitle.style.cssText = 'color:#ff7a3c;font-weight:600;font-size:12px;margin-bottom:6px';
+    wnTitle.textContent = '⚠ Texted the RPM line by mistake';
+
+    var wnMsg = document.createElement('div');
+    wnMsg.style.cssText = 'font-size:12px;color:var(--text);margin-bottom:4px;white-space:pre-wrap';
+    wnMsg.textContent = '“' + (d.wrongNumberFlag.text || '') + '”';
+
+    var wnWhen = document.createElement('div');
+    wnWhen.style.cssText = 'font-size:10px;color:var(--muted);margin-bottom:10px';
+    wnWhen.textContent = d.wrongNumberFlag.flaggedAt || '';
+
+    var wnLbl = document.createElement('label');
+    wnLbl.style.cssText = 'display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text);cursor:pointer;line-height:1.4';
+    var wnCb = document.createElement('input');
+    wnCb.type = 'checkbox';
+    wnCb.style.marginTop = '2px';
+    wnLbl.appendChild(wnCb);
+    wnLbl.appendChild(document.createTextNode('Remind them: save two contacts (RPM vs personal) & keep chat on personal — tick when done'));
+
+    wn.appendChild(wnTitle); wn.appendChild(wnMsg); wn.appendChild(wnWhen); wn.appendChild(wnLbl);
+    section.appendChild(wn);
+
+    wnCb.onchange = function() {
+      if (!wnCb.checked) return;
+      var url = getScriptUrl(); if (!url) { wnCb.checked = false; return; }
+      wnCb.disabled = true;
+      fetch(url + '?action=clearWrongNumberFlag&student=' + encodeURIComponent(d.name))
+        .then(function(r) { return r.json(); })
+        .then(function() { d.wrongNumberFlag = null; wn.remove(); })
+        .catch(function() { wnCb.disabled = false; wnCb.checked = false; });
+    };
+  }
+
   // PAST section
   var pastLabel = document.createElement('div');
   pastLabel.style.cssText = _ST_SECTION_TITLE;
