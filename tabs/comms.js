@@ -17,7 +17,6 @@ function loadCommsInbox() {
       if (data.success) {
         commsMessages = data.messages || [];
         renderCommsInbox();
-        document.getElementById("commsFilter").style.display = "";
       }
     })
     .catch(function() {});

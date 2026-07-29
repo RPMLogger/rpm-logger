@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=349">
+  <link rel="stylesheet" href="css/styles.css?v=350">
 </head>
 <body>
 <div class="container">
@@ -229,18 +229,20 @@
 
   <!-- INQUIRIES -->
   <div class="tab-panel" id="tab-inquiries">
+    <!-- The three counts ARE the view selector. Click one → see ONLY that.
+         No "All" and no "Open" — never a mixed everything-at-once view. -->
     <div class="comms-summary" id="commsSummary" style="display:none">
-      <a class="comms-stat" id="commsEmail" href="#" onclick="return false;">
+      <a class="comms-stat" id="commsEmail" href="#" onclick="setInqView('email'); return false;">
         <span class="comms-icon">📧</span>
         <span class="comms-count" id="commsEmailCount">0</span>
         <span class="comms-label">email</span>
       </a>
-      <a class="comms-stat" id="commsVoicemail" href="#" onclick="setCommsFilter('voicemail'); return false;">
+      <a class="comms-stat" id="commsVoicemail" href="#" onclick="setInqView('voicemail'); return false;">
         <span class="comms-icon">📞</span>
         <span class="comms-count" id="commsVoicemailCount">0</span>
         <span class="comms-label">voicemail</span>
       </a>
-      <a class="comms-stat" id="commsSms" href="#" onclick="setCommsFilter('sms'); return false;">
+      <a class="comms-stat" id="commsSms" href="#" onclick="setInqView('sms'); return false;">
         <span class="comms-icon">💬</span>
         <span class="comms-count" id="commsSmsCount">0</span>
         <span class="comms-label">text</span>
@@ -249,19 +251,18 @@
         <span class="comms-open-count" id="commsOpenCount">0</span> unresponded
       </div>
     </div>
-    <div class="comms-filter" id="commsFilter" style="display:none">
-      <button class="comms-filter-btn active" data-filter="all" onclick="setCommsFilter('all')">All</button>
-      <button class="comms-filter-btn" data-filter="sms" onclick="setCommsFilter('sms')">Texts</button>
-      <button class="comms-filter-btn" data-filter="voicemail" onclick="setCommsFilter('voicemail')">Voicemail</button>
-      <button class="comms-filter-btn" data-filter="unresponded" onclick="setCommsFilter('unresponded')">Open</button>
+
+    <!-- TEXT / VOICEMAIL view -->
+    <div id="commsInbox" style="display:none"></div>
+
+    <!-- EMAIL view (default) -->
+    <div id="inqEmailView">
+      <div class="section-label">Business Situation</div>
+      <div id="inqBizStrip"></div>
+      <div class="section-label">Trial Lesson Inquiries</div>
+      <div id="inquiriesList"><div class="inq-empty">Loading...</div></div>
+      <a class="inq-archive" href="https://docs.google.com/spreadsheets/d/1JE0KugItYkWF19Pp8zqw6xCyLxjS-ryZMplC6XijOSM/edit" target="_blank" rel="noopener">Open inquiry archive ↗</a>
     </div>
-    <div id="commsInbox"></div>
-    <hr class="divider">
-    <div class="section-label">Business Situation</div>
-    <div id="inqBizStrip"></div>
-    <div class="section-label">Trial Lesson Inquiries</div>
-    <div id="inquiriesList"><div class="inq-empty">Loading...</div></div>
-    <a class="inq-archive" href="https://docs.google.com/spreadsheets/d/1JE0KugItYkWF19Pp8zqw6xCyLxjS-ryZMplC6XijOSM/edit" target="_blank" rel="noopener">Open inquiry archive ↗</a>
   </div>
 
   <!-- NOTES -->
@@ -586,7 +587,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">349</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">350</span></span>
     <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
 
@@ -613,29 +614,29 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/lessons.js?v=349"></script>
-<script src="tabs/payments.js?v=349"></script>
-<script src="tabs/week.js?v=349"></script>
-<script src="tabs/general.js?v=349"></script>
-<script src="tabs/financial.js?v=349"></script>
-<script src="tabs/inquiries.js?v=349"></script>
-<script src="tabs/comms.js?v=349"></script>
-<script src="tabs/notes.js?v=349"></script>
-<script src="tabs/todo.js?v=349"></script>
-<script src="tabs/availability.js?v=349"></script>
-<script src="tabs/biweekly.js?v=349"></script>
-<script src="tabs/travel.js?v=349"></script>
-<script src="tabs/tripsummary.js?v=349"></script>
-<script src="tabs/triphistory.js?v=349"></script>
-<script src="tabs/student.js?v=349"></script>
-<script src="tabs/ctrl.js?v=349"></script>
-<script src="tabs/mailcenter.js?v=349"></script>
-<script src="tabs/dropbox.js?v=349"></script>
-<script src="tabs/trial.js?v=349"></script>
-<script src="tabs/ending.js?v=349"></script>
-<script src="tabs/thisyear.js?v=349"></script>
-<script src="tabs/sheets.js?v=349"></script>
-<script src="tabs/studentline.js?v=349"></script>
+<script src="tabs/lessons.js?v=350"></script>
+<script src="tabs/payments.js?v=350"></script>
+<script src="tabs/week.js?v=350"></script>
+<script src="tabs/general.js?v=350"></script>
+<script src="tabs/financial.js?v=350"></script>
+<script src="tabs/inquiries.js?v=350"></script>
+<script src="tabs/comms.js?v=350"></script>
+<script src="tabs/notes.js?v=350"></script>
+<script src="tabs/todo.js?v=350"></script>
+<script src="tabs/availability.js?v=350"></script>
+<script src="tabs/biweekly.js?v=350"></script>
+<script src="tabs/travel.js?v=350"></script>
+<script src="tabs/tripsummary.js?v=350"></script>
+<script src="tabs/triphistory.js?v=350"></script>
+<script src="tabs/student.js?v=350"></script>
+<script src="tabs/ctrl.js?v=350"></script>
+<script src="tabs/mailcenter.js?v=350"></script>
+<script src="tabs/dropbox.js?v=350"></script>
+<script src="tabs/trial.js?v=350"></script>
+<script src="tabs/ending.js?v=350"></script>
+<script src="tabs/thisyear.js?v=350"></script>
+<script src="tabs/sheets.js?v=350"></script>
+<script src="tabs/studentline.js?v=350"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>

@@ -21,12 +21,43 @@ function inqEsc(s) {
 // ── Entry point (called from switchTab) ──────────────────────────────────────
 function initInquiriesTab() {
   loadBusinessStrip();
+  setInqView("email");   // always land on Email — never a mixed view
   var url = getScriptUrl();
   if (!url) return;
   fetch(url + "?action=getInquiries")
     .then(function (r) { return r.json(); })
     .then(function (d) { if (d && d.inquiries) renderInquiries(d.inquiries); })
     .catch(function () {});
+}
+
+// The Inquiries tab shows exactly ONE category at a time, chosen from the
+// summary-strip counts. 'email' → inquiry cards + Business Situation; 'sms' /
+// 'voicemail' → the comms inbox filtered to that type. No "all", no "open".
+function setInqView(view) {
+  window._inqView = view;
+  var isEmail = (view === "email");
+
+  var emailView = document.getElementById("inqEmailView");
+  var inbox     = document.getElementById("commsInbox");
+  if (emailView) emailView.style.display = isEmail ? "" : "none";
+  if (inbox)     inbox.style.display     = isEmail ? "none" : "";
+
+  // Highlight the active count; dim the others.
+  var ids = { email: "commsEmail", voicemail: "commsVoicemail", sms: "commsSms" };
+  Object.keys(ids).forEach(function (k) {
+    var el = document.getElementById(ids[k]);
+    if (!el) return;
+    var on = (k === view);
+    el.style.opacity = on ? "1" : "0.4";
+    el.style.borderBottom = on ? "2px solid var(--accent)" : "2px solid transparent";
+    el.style.paddingBottom = "3px";
+  });
+
+  // Text / Voicemail → drive the shared comms inbox filter (from comms.js).
+  if (!isEmail && typeof renderCommsInbox === "function") {
+    commsFilter = view; // 'sms' or 'voicemail'
+    renderCommsInbox();
+  }
 }
 
 // ── Top strip: Business Situation ────────────────────────────────────────────
