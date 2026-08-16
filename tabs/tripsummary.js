@@ -81,19 +81,33 @@ function _tsActiveCard(trip) {
   var testBadge = trip.isTest
     ? " <span style='font-size:9px;background:rgba(255,180,0,0.2);color:#ffb400;padding:1px 6px;border-radius:3px;margin-left:6px'>TEST</span>"
     : "";
+  // Archive is the trip's big finishing action, so it gates on completion: gray
+  // and disabled while anyone is still unconfirmed, then it lights up solid
+  // yellow (and becomes clickable) once every student has confirmed.
+  var _archReady = allConfirmed;
+  var archStyle  = _archReady
+    ? 'font-size:11px;padding:5px 13px;font-weight:700;letter-spacing:.3px;background:#ffb400;color:#1a1200;border:1px solid #ffb400;border-radius:5px;cursor:pointer;box-shadow:0 0 10px rgba(255,180,0,0.35);transition:transform .1s,box-shadow .1s'
+    : 'font-size:11px;padding:5px 13px;font-weight:600;letter-spacing:.3px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:5px;cursor:not-allowed;opacity:.55';
+  var archAttrs  = _archReady
+    ? " title='Archive this trip → Trip History'"
+    : " disabled title='All students must confirm before this trip can be archived'";
   hdr.innerHTML =
     "<div style='display:flex;justify-content:space-between;align-items:center;gap:8px'>" +
       "<span style='font-weight:700;font-size:13px'>" + trip.tripStart + ' → ' + trip.tripEnd + testBadge + reviewBadge + "</span>" +
       "<span style='display:flex;align-items:center;gap:8px;flex-shrink:0'>" +
         "<span style='font-size:11px;color:var(--muted)'>" + trip.confirmed + ' / ' + trip.students.length + " confirmed</span>" +
-        "<button class='ts-archive-btn' style='font-size:10px;padding:3px 9px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>Archive</button>" +
+        "<button class='ts-archive-btn'" + archAttrs + " style='" + archStyle + "'>Archive</button>" +
       "</span>" +
     "</div>" +
     "<div style='font-size:10px;color:var(--muted);margin-top:3px'>" + _tsPlural(trip.days, 'day') + ' · ' + _tsPlural(trip.lessonCount, 'lesson') + ' · $' + (trip.revenue || 0).toLocaleString() + ' lost</div>';
   card.appendChild(hdr);
 
   var _arch = hdr.querySelector('.ts-archive-btn');
-  if (_arch) _arch.onclick = function() {
+  if (_arch && _archReady) {
+    _arch.onmouseenter = function() { _arch.style.transform = 'translateY(-1px)'; _arch.style.boxShadow = '0 0 16px rgba(255,180,0,0.55)'; };
+    _arch.onmouseleave = function() { _arch.style.transform = ''; _arch.style.boxShadow = '0 0 10px rgba(255,180,0,0.35)'; };
+  }
+  if (_arch && _archReady) _arch.onclick = function() {
     var msg = 'Archive this trip?\n\n' + trip.tripStart + ' → ' + trip.tripEnd +
       '\n\nIt leaves Active Trips and moves to Trip History. (' + trip.confirmed + '/' + trip.students.length + ' confirmed)';
     if (!confirm(msg)) return;
