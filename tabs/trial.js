@@ -39,23 +39,44 @@ function _trLoadAccepted() {
 }
 
 function _trAcceptedCard(a) {
-  var fields = [
-    ['Level', a.level], ['Availability', a.availability], ['Daytime', a.daytime]
-  ].filter(function (f) { return f[1] && f[1].toString().trim(); })
-   .map(function (f) { return '<span style="color:rgba(255,255,255,.82)">' + _trEsc(f[0]) + '</span> <span style="color:rgba(255,255,255,.5)">' + _trEsc(f[1]) + '</span>'; })
-   .join('<br>');
-  var nm = _trEsc(a.name), em = _trEsc(a.email);
-  return '<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:10px;padding:13px 15px;margin-bottom:9px">' +
-    '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">' +
-      '<span style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text)">' + (a.name || '—') + '</span>' +
-      '<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted)">' + _trEsc(a.date || '') + '</span>' +
-    '</div>' +
-    (a.email ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:2px">' + em + '</div>' : '') +
-    (fields ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.6;margin-top:6px">' + fields + '</div>' : '') +
-    '<div style="margin-top:10px;text-align:right">' +
-      '<button class="db-mini-btn" onclick="_trBookAccepted(\'' + nm + '\',\'' + em + '\')">Book →</button>' +
-    '</div>' +
-  '</div>';
+  // Identical markup to an Inquiries card (same classes, same field renderer),
+  // so a student's card doesn't change shape when they cross from Inquiries to
+  // Trial. Only the action row differs: Book / send back instead of Yes/No.
+  var em = _trEsc(a.email || "");
+  return '<div class="inq-dcard accepted">' +
+      '<div class="inq-drow"><span class="inq-chan">' + inqEsc(a.channel || "Gmail") + '</span></div>' +
+      '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || "\u2014") + '</span></div>' +
+      '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
+      '<div class="inq-acts">' +
+        '<button class="db-mini-btn" onclick="_trReopen(\'' + em + '\', this)" ' +
+          'title="Send back to Inquiries as undecided">\u2190 Inquiries</button>' +
+        '<button class="db-mini-btn" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')">Book \u2192</button>' +
+      '</div>' +
+    '</div>';
+}
+
+// Send an accepted student back to the Inquiries tab. Clears the Decision cell;
+// nothing is deleted, so they reappear there as an open card with every field
+// intact. For the ones you said Yes to and then never booked.
+function _trReopen(email, btn) {
+  var url = getScriptUrl();
+  if (!url || !email) return;
+  if (btn) { btn.disabled = true; btn.textContent = "Sending back\u2026"; }
+  fetch(url + '?action=reopenInquiry&email=' + encodeURIComponent(email))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) {
+        if (btn) { btn.disabled = false; btn.textContent = "\u2190 Inquiries"; }
+        _trStatus('\u26a0 ' + (d.message || 'Could not send back.'), 'var(--accent)');
+        return;
+      }
+      _trLoadAccepted();
+      _trStatus('Sent back to Inquiries \u2014 waiting there as an open card.', 'var(--accent2)');
+    })
+    .catch(function () {
+      if (btn) { btn.disabled = false; btn.textContent = "\u2190 Inquiries"; }
+      _trStatus('\u274c Could not reach the portal.', 'var(--accent)');
+    });
 }
 
 // Prefill the manual booking form from an accepted card + scroll to it.

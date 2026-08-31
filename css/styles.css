@@ -360,6 +360,7 @@ body::before {
 .inq-dcard { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
 .inq-dcard.unread { border-left-color: var(--accent); }
 .inq-dcard.read   { opacity: 0.62; }
+.inq-dcard.accepted { border-left-color: var(--green); }   /* Trial tab: same card, accepted edge */
 .inq-drow  { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .inq-chan  { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
 .inq-when  { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); white-space: nowrap; }

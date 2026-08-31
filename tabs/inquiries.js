@@ -154,6 +154,27 @@ function _inqStepBtn() {
 }
 
 // ── The inquiry cards ────────────────────────────────────────────────────────
+// Every category on its own labeled line, aligned like the sheet. Empty → "-".
+// SHARED: the Trial tab's Accepted cards call this too, so an inquiry looks
+// identical before and after you say Yes. Change the fields here, both follow.
+function inqCardFieldsHtml(inq) {
+  var fields = [
+    ["Date",         inq.date],
+    ["Gender",       inq.gender],
+    ["Age",          inq.age ? _inqAgeShort(inq.age) : ""],
+    ["City",         inq.city],
+    ["Level",        inq.level],
+    ["Interests",    inq.interests],
+    ["Availability", inq.availability],
+    ["Daytime",      inq.daytime],
+    ["Message",      inq.message]
+  ];
+  return fields.map(function (f) {
+    var v = (f[1] != null && f[1].toString().trim()) ? inqEsc(f[1]) : "-";
+    return "<span class='inq-flabel'>" + f[0] + "</span><span class='inq-fval'>" + v + "</span>";
+  }).join("");
+}
+
 function renderInquiries(inquiries) {
   var list = document.getElementById("inquiriesList");
   list.innerHTML = "";
@@ -196,22 +217,7 @@ function renderInquiries(inquiries) {
     // Channel source (all current inquiries arrive via Gmail; text/voicemail later).
     var chan = inq.channel || "Gmail";
 
-    // Every category on its own labeled line, aligned like the sheet. Empty → "-".
-    var fields = [
-      ["Date",         inq.date],
-      ["Gender",       inq.gender],
-      ["Age",          inq.age ? _inqAgeShort(inq.age) : ""],
-      ["City",         inq.city],
-      ["Level",        inq.level],
-      ["Interests",    inq.interests],
-      ["Availability", inq.availability],
-      ["Daytime",      inq.daytime],
-      ["Message",      inq.message]
-    ];
-    var fieldsHtml = fields.map(function (f) {
-      var v = (f[1] != null && f[1].toString().trim()) ? inqEsc(f[1]) : "-";
-      return "<span class='inq-flabel'>" + f[0] + "</span><span class='inq-fval'>" + v + "</span>";
-    }).join("");
+    var fieldsHtml = inqCardFieldsHtml(inq);
 
     function btn(cls, dec, label, title) {
       return "<button class='inq-db " + cls + "' " + (title ? "title='" + title + "' " : "") +
