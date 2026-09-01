@@ -35,6 +35,7 @@ function _trLoadAccepted() {
       _trAcceptedCache = d.accepted || [];
       if (!d.accepted || !d.accepted.length) { box.innerHTML = '<div class="empty-state">No accepted inquiries waiting.</div>'; return; }
       box.innerHTML = d.accepted.map(_trAcceptedCard).join('');
+      _trLoadThreads();
     })
     .catch(function () { box.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
 }
@@ -48,6 +49,7 @@ function _trAcceptedCard(a) {
       '<div class="inq-drow"><span class="inq-chan">' + inqEsc(a.channel || "Gmail") + '</span></div>' +
       '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || "\u2014") + '</span></div>' +
       '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
+      '<div class="fc-thread" id="fcth-' + emailToId(a.email || "") + '"></div>' +
       '<div class="inq-acts">' +
         '<button class="db-mini-btn" onclick="_trReopen(\'' + em + '\', this)" ' +
           'title="Send back to Inquiries as undecided">\u2190 Inquiries</button>' +
@@ -100,12 +102,65 @@ function _trSmsText(first) {
          "I received your request for a trial lesson and just responded via email.";
 }
 
+// Show the email exchange on each card. Gmail is the record, nothing is stored
+// here. Incoming messages get a green edge so a reply is obvious at a glance.
+function _trLoadThreads() {
+  var url = getScriptUrl();
+  if (!url) return;
+  fetch(url + '?action=getFirstContactThreads')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success || !d.threads) return;
+      Object.keys(d.threads).forEach(function (email) {
+        var box = document.getElementById('fcth-' + emailToId(email));
+        if (!box) return;
+        var t = d.threads[email];
+        if (!t.messages || !t.messages.length) { box.innerHTML = ''; return; }
+        box.innerHTML =
+          '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:9px">' +
+            t.messages.map(_trMsgRow).join('') +
+          '</div>';
+      });
+    })
+    .catch(function () { /* leave the cards alone if Gmail is unreachable */ });
+}
+
+function _trMsgRow(m) {
+  var mine = !!m.fromMe;
+  var who  = mine ? 'You' : 'Them';
+  var edge = mine ? 'var(--border)' : 'var(--green)';
+  return '<div style="border-left:2px solid ' + edge + ';padding:0 0 0 9px;margin-bottom:8px">' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted)">' +
+        inqEsc(who) + ' · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) +
+      '</div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.5;color:rgba(255,255,255,.62);margin-top:2px">' +
+        inqEsc(m.text) +
+      '</div>' +
+    '</div>';
+}
+
+function _trPhonePretty(raw) {
+  var d = (raw || "").toString().replace(/\D/g, "");
+  if (d.length === 11 && d.charAt(0) === "1") d = d.slice(1);
+  if (d.length !== 10) return (raw || "").toString();
+  return "(" + d.slice(0, 3) + ") " + d.slice(3, 6) + "-" + d.slice(6);
+}
+
+function _trCopyPhone(btn, digits) {
+  var done = function () { btn.textContent = "Copied \u2713"; setTimeout(function () { btn.textContent = "Copy number"; }, 1600); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(digits).then(done, done);
+  } else { done(); }
+}
+
 function _trOpenEmail(email) {
   var a = _trFindAccepted(email);
   if (!a) return;
   var first = (a.name || "").split(" ")[0];
   var body  = "Hi " + first + "!\n\n";
   var sms   = _trSmsText(first);
+  var phoneDigits = (a.phone || "").toString().replace(/\D/g, "");
+  var phonePretty = _trPhonePretty(a.phone);
 
   var inp = "box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);" +
             "border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px";
@@ -133,6 +188,13 @@ function _trOpenEmail(email) {
       "<div class='section-label' style='margin-bottom:6px'>Then text them</div>" +
       "<textarea id='trFcSms' rows='3' readonly style='" + inp + ";line-height:1.55;resize:vertical'>" + inqEsc(sms) + "</textarea>" +
       "<button onclick='_trCopySms(this)' style='width:100%;margin-top:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:11px;font-family:\"DM Mono\",monospace;font-size:12px;cursor:pointer'>Copy for iMessage</button>" +
+      (phoneDigits
+        ? "<div style='display:flex;align-items:center;gap:10px;margin-top:10px'>" +
+            "<span style='font-family:\"DM Mono\",monospace;font-size:14px;color:var(--text);letter-spacing:.5px'>" + inqEsc(phonePretty) + "</span>" +
+            "<button onclick='_trCopyPhone(this,\"" + phoneDigits + "\")' style='margin-left:auto;background:var(--bg);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:7px 12px;font-family:\"DM Mono\",monospace;font-size:11px;cursor:pointer'>Copy number</button>" +
+            "<a href='sms:" + phoneDigits + "' style='background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 12px;font-family:\"DM Mono\",monospace;font-size:11px;text-decoration:none'>Open Messages</a>" +
+          "</div>"
+        : "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--accent);margin-top:10px'>No phone number on file for this inquiry.</div>") +
     "</div>";
   overlay.addEventListener("click", function (ev) { if (ev.target === overlay) _trCloseEmail(); });
   document.body.appendChild(overlay);
