@@ -566,10 +566,13 @@ function _trLoadCalendar() {
 }
 
 function _trEventCard(ev) {
-  var nm = _trEsc(ev.name);
-  var right = ev.hasTab
-    ? '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--green)">✓ pulled in</span>'
-    : '<button class="db-mini-btn" onclick="_trPull(\'' + nm + '\',\'' + _trEsc(ev.email) + '\',this)">Pull in →</button>';
+  // "Pull in" is DISABLED on purpose (2026-09-01). Its only job was to create a
+  // Students Import tab for an event booked outside the portal, and a booked
+  // trial is no longer given a student record at all: that happens at
+  // conversion. A trial made straight in Google Calendar now shows up in the
+  // Trial tab by itself, because the event IS the stage marker. The listing is
+  // kept because it is still a useful view of what is on the trial calendar.
+  var right = '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)">on the calendar</span>';
   return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;' +
     'display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px">' +
     '<div style="min-width:0">' +
@@ -606,4 +609,70 @@ function _trStatus(msg, color) {
 }
 function _trEsc(s) {
   return (s || '').toString().replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+
+// ─── TRIAL STAGE TAB ─────────────────────────────────────────────────────────
+// Booked, and not yet a student. Same card and same conversation as Initiate,
+// carried across untouched; only the booked slot is added. Nothing is copied,
+// the card is rebuilt from the same inquiry archive and the thread is read from
+// Gmail, so there is no second copy of anything to drift.
+var _trStageCache = [];
+
+function initTrialStageTab() {
+  var url = getScriptUrl();
+  var body = document.getElementById('trialStageBody');
+  if (!body) return;
+  if (!url) { body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>'; return; }
+  body.innerHTML = '<div class="empty-state">Loading…</div>';
+
+  fetch(url + '?action=getTrialStage')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) { body.innerHTML = '<div class="empty-state">⚠ ' + (d.message || 'Could not load') + '</div>'; return; }
+      _trStageCache = d.booked || [];
+      if (!_trStageCache.length) { body.innerHTML = '<div class="empty-state">No booked trials.</div>'; return; }
+      body.innerHTML = _trStageCache.map(_trStageCard).join('');
+      _trLoadStageThreads();
+    })
+    .catch(function () { body.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
+}
+
+function _trStageCard(a) {
+  var when = a.trialDateLabel || '';
+  return '<div class="inq-dcard accepted">' +
+      '<div class="inq-drow"><span class="inq-chan">' + inqEsc(a.channel || 'Gmail') + '</span></div>' +
+      '<div class="inq-name-line">' +
+        '<span class="inq-name">' + inqEsc(a.name || '—') + '</span>' +
+        (when
+          ? '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:' +
+              (a.trialPast ? 'var(--muted)' : 'var(--green)') + '">' +
+              (a.trialPast ? 'trial was ' : 'trial ') + inqEsc(when) +
+            '</span>'
+          : '') +
+      '</div>' +
+      '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
+      '<div class="fc-thread" id="fcth-' + emailToId(a.email || '') + '"></div>' +
+    '</div>';
+}
+
+// Same reader as Initiate; it returns both stages in one payload.
+function _trLoadStageThreads() {
+  var url = getScriptUrl();
+  if (!url) return;
+  fetch(url + '?action=getFirstContactThreads')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success || !d.threads) return;
+      _trStageCache.forEach(function (a) {
+        var t = d.threads[a.email];
+        var box = document.getElementById('fcth-' + emailToId(a.email || ''));
+        if (!box || !t || !t.messages || !t.messages.length) return;
+        box.innerHTML =
+          '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:9px">' +
+            t.messages.map(_trMsgRow).join('') +
+          '</div>';
+      });
+    })
+    .catch(function () { /* leave the cards alone */ });
 }
