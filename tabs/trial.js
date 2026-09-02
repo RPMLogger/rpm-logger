@@ -116,13 +116,69 @@ function _trLoadThreads() {
         if (!box) return;
         var t = d.threads[email];
         if (!t.messages || !t.messages.length) { box.innerHTML = ''; return; }
+        var id = emailToId(email);
         box.innerHTML =
           '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:9px">' +
             t.messages.map(_trMsgRow).join('') +
+            (t.threadId
+              ? '<div id="fcrp-' + id + '">' +
+                  '<button class="db-mini-btn" onclick="_trOpenReply(\'' + id + '\',\'' + t.threadId + '\')">Reply</button>' +
+                '</div>'
+              : '') +
           '</div>';
       });
     })
     .catch(function () { /* leave the cards alone if Gmail is unreachable */ });
+}
+
+function _trOpenReply(id, threadId) {
+  var box = document.getElementById('fcrp-' + id);
+  if (!box) return;
+  var inp = "box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);" +
+            "border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px";
+  box.innerHTML =
+    '<textarea id="fcrpb-' + id + '" rows="5" placeholder="Reply in this thread…" style="' + inp + ';line-height:1.55;resize:vertical"></textarea>' +
+    '<div id="fcrps-' + id + '"></div>' +
+    '<div style="display:flex;gap:8px;margin-top:8px">' +
+      '<button class="db-mini-btn" onclick="_trCancelReply(\'' + id + '\',\'' + threadId + '\')">Cancel</button>' +
+      '<button class="db-mini-btn" id="fcrpbtn-' + id + '" onclick="_trSendReply(\'' + id + '\',\'' + threadId + '\')" style="border-color:var(--green);color:var(--green)">Send reply</button>' +
+    '</div>';
+  var ta = document.getElementById('fcrpb-' + id);
+  if (ta) ta.focus();
+}
+
+function _trCancelReply(id, threadId) {
+  var box = document.getElementById('fcrp-' + id);
+  if (box) box.innerHTML = '<button class="db-mini-btn" onclick="_trOpenReply(\'' + id + '\',\'' + threadId + '\')">Reply</button>';
+}
+
+function _trSendReply(id, threadId) {
+  var url = getScriptUrl();
+  var ta  = document.getElementById('fcrpb-' + id);
+  var st  = document.getElementById('fcrps-' + id);
+  var btn = document.getElementById('fcrpbtn-' + id);
+  if (!url || !ta) return;
+  var body = ta.value || '';
+  if (!body.trim()) {
+    if (st) st.innerHTML = '<div style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px;margin-top:6px">Write something first.</div>';
+    return;
+  }
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+  fetch(url + '?action=replyFirstContact&threadId=' + encodeURIComponent(threadId) +
+        '&body=' + encodeURIComponent(body))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Send reply'; }
+        if (st) st.innerHTML = '<div style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px;margin-top:6px">⚠ ' + (d.message || 'Could not send') + '</div>';
+        return;
+      }
+      _trLoadThreads();   // redraw so the reply appears in the thread
+    })
+    .catch(function () {
+      if (btn) { btn.disabled = false; btn.textContent = 'Send reply'; }
+      if (st) st.innerHTML = '<div style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px;margin-top:6px">❌ Could not reach the portal.</div>';
+    });
 }
 
 function _trMsgRow(m) {
@@ -133,7 +189,7 @@ function _trMsgRow(m) {
       '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted)">' +
         inqEsc(who) + ' · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) +
       '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.5;color:rgba(255,255,255,.62);margin-top:2px">' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.5;color:rgba(255,255,255,.62);margin-top:2px;white-space:pre-wrap">' +
         inqEsc(m.text) +
       '</div>' +
     '</div>';

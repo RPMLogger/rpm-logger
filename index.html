@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=355">
+  <link rel="stylesheet" href="css/styles.css?v=356">
 </head>
 <body>
 <div class="container">
@@ -47,6 +47,7 @@
     <button class="tab-btn" data-tab="holidays" onclick="switchTab('holidays')">Holidays Alerts</button>
     <button class="tab-btn active" data-tab="student" onclick="switchTab('student')">Home</button>
     <button class="tab-btn" data-tab="inquiries" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
+    <button class="tab-btn" data-tab="initiate" onclick="switchTab('initiate')">Initiate</button>
     <button class="tab-btn" data-tab="mailcenter" onclick="switchTab('mailcenter')">Mail Center<span class="inq-badge" id="gbNavBadge" style="display:none"></span></button>
     <button class="tab-btn" data-tab="notes" onclick="switchTab('notes')">Notes</button>
     <button class="tab-btn" data-tab="payments" onclick="switchTab('payments')">Payments</button>
@@ -360,10 +361,16 @@
     <div id="dropboxBody"><div class="empty-state">Loading...</div></div>
   </div>
 
-  <!-- TRIAL -->
-  <div class="tab-panel" id="tab-trial">
-    <div class="section-label">Trial · Book a Student</div>
+  <!-- INITIATE — reach out, converse, and book -->
+  <div class="tab-panel" id="tab-initiate">
+    <div class="section-label">Initiate · Reach Out and Book</div>
     <div id="trialBody"><div class="empty-state">Loading...</div></div>
+  </div>
+
+  <!-- TRIAL — booked, through the lesson, until they become a student -->
+  <div class="tab-panel" id="tab-trial">
+    <div class="section-label">Trial · Booked</div>
+    <div id="trialStageBody"><div class="empty-state">Nothing here yet.</div></div>
   </div>
 
   <!-- FINISHED -->
@@ -595,7 +602,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">355</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">356</span></span>
     <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
 
@@ -622,30 +629,30 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/lessons.js?v=355"></script>
-<script src="tabs/payments.js?v=355"></script>
-<script src="tabs/week.js?v=355"></script>
-<script src="tabs/general.js?v=355"></script>
-<script src="tabs/financial.js?v=355"></script>
-<script src="tabs/inquiries.js?v=355"></script>
-<script src="tabs/comms.js?v=355"></script>
-<script src="tabs/notes.js?v=355"></script>
-<script src="tabs/todo.js?v=355"></script>
-<script src="tabs/availability.js?v=355"></script>
-<script src="tabs/biweekly.js?v=355"></script>
-<script src="tabs/travel.js?v=355"></script>
-<script src="tabs/tripsummary.js?v=355"></script>
-<script src="tabs/triphistory.js?v=355"></script>
-<script src="tabs/skips.js?v=355"></script>
-<script src="tabs/student.js?v=355"></script>
-<script src="tabs/ctrl.js?v=355"></script>
-<script src="tabs/mailcenter.js?v=355"></script>
-<script src="tabs/dropbox.js?v=355"></script>
-<script src="tabs/trial.js?v=355"></script>
-<script src="tabs/ending.js?v=355"></script>
-<script src="tabs/thisyear.js?v=355"></script>
-<script src="tabs/sheets.js?v=355"></script>
-<script src="tabs/studentline.js?v=355"></script>
+<script src="tabs/lessons.js?v=356"></script>
+<script src="tabs/payments.js?v=356"></script>
+<script src="tabs/week.js?v=356"></script>
+<script src="tabs/general.js?v=356"></script>
+<script src="tabs/financial.js?v=356"></script>
+<script src="tabs/inquiries.js?v=356"></script>
+<script src="tabs/comms.js?v=356"></script>
+<script src="tabs/notes.js?v=356"></script>
+<script src="tabs/todo.js?v=356"></script>
+<script src="tabs/availability.js?v=356"></script>
+<script src="tabs/biweekly.js?v=356"></script>
+<script src="tabs/travel.js?v=356"></script>
+<script src="tabs/tripsummary.js?v=356"></script>
+<script src="tabs/triphistory.js?v=356"></script>
+<script src="tabs/skips.js?v=356"></script>
+<script src="tabs/student.js?v=356"></script>
+<script src="tabs/ctrl.js?v=356"></script>
+<script src="tabs/mailcenter.js?v=356"></script>
+<script src="tabs/dropbox.js?v=356"></script>
+<script src="tabs/trial.js?v=356"></script>
+<script src="tabs/ending.js?v=356"></script>
+<script src="tabs/thisyear.js?v=356"></script>
+<script src="tabs/sheets.js?v=356"></script>
+<script src="tabs/studentline.js?v=356"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -671,7 +678,7 @@
     // tab button is removed. The #tab-lessons panel div still lives in the DOM
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
-    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","ratedecision","reviews","thisyear","sheets","skips","studentline"];
+    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","ratedecision","reviews","thisyear","sheets","skips","studentline"];
     tabs.forEach(function(t) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       var btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
@@ -690,7 +697,7 @@
     if (tab === "notes") initNotesTab();
     if (tab === "mailcenter") initMailCenterTab();
     if (tab === "dropbox") initDropboxTab();
-    if (tab === "trial") initTrialTab();
+    if (tab === "initiate") initTrialTab();
     if (tab === "ending") initEndingTab();
     if (tab === "thisyear") initThisYearTab();
     if (tab === "inquiries") { initInquiriesTab(); loadCommsInbox(); startCommsPolling(); } else { stopCommsPolling(); }
