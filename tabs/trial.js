@@ -114,6 +114,79 @@ function _trSmsText(first) {
 // Top strip. ACTIVE = an email exchange exists. WAITING = nobody has written
 // to them yet, so they are waiting on him. This is the glance that stops
 // someone sitting unnoticed.
+// ── Offered times → one-click booking ────────────────────────────────────────
+// Parse the times out of HIS OWN sent messages, never out of their reply.
+// "Monday generally works, we can try Sep 7" is prose and any parser for it
+// would be confidently wrong sometimes. The offered lines are a format he
+// controls: "Wed, Sep 2 at 4:30 pm". He reads which one they took and clicks it.
+// Year comes from the card's inquiry date, per his rule.
+var _TR_MONTHS = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11 };
+
+function _trYearFromCard(a) {
+  var m = /(\d{4})/.exec((a && a.date) || '');
+  return m ? parseInt(m[1], 10) : (new Date()).getFullYear();
+}
+
+function _trPad(n) { return (n < 10 ? '0' : '') + n; }
+
+// Returns [{label, date:"yyyy-mm-dd", time:"HH:mm"}], in the order offered,
+// de-duplicated.
+function _trParseOfferedTimes(text, year) {
+  var out = [], seen = {};
+  var re = /\b(?:mon|tue|tues|wed|thu|thur|thurs|fri|sat|sun)[a-z]*\.?,?\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(\d{1,2})\s*(?:at|@|,)?\s*(\d{1,2}):(\d{2})\s*([ap])\.?m\.?/gi;
+  var m;
+  while ((m = re.exec(text || '')) !== null) {
+    var mon = _TR_MONTHS[m[1].slice(0, 3).toLowerCase()];
+    var day = parseInt(m[2], 10);
+    var hr  = parseInt(m[3], 10) % 12;
+    var min = parseInt(m[4], 10);
+    if (m[5].toLowerCase() === 'p') hr += 12;
+    if (mon === undefined || day < 1 || day > 31) continue;
+    var iso = year + '-' + _trPad(mon + 1) + '-' + _trPad(day);
+    var hhmm = _trPad(hr) + ':' + _trPad(min);
+    var key = iso + 'T' + hhmm;
+    if (seen[key]) continue;
+    seen[key] = true;
+    var d = new Date(year, mon, day);
+    var dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+    var monName = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][mon];
+    var h12 = (hr % 12) || 12;
+    out.push({
+      label: dayName + ' ' + monName + ' ' + day + ', ' + h12 + ':' + _trPad(min) + ' ' + (hr < 12 ? 'am' : 'pm'),
+      date:  iso,
+      time:  hhmm
+    });
+  }
+  return out;
+}
+
+function _trOfferedHtml(a, msgs) {
+  var mine = (msgs || []).filter(function (m) { return m.fromMe; })
+                         .map(function (m) { return m.text; }).join('\n');
+  var slots = _trParseOfferedTimes(mine, _trYearFromCard(a));
+  if (!slots.length) return '';
+  var nm = _trEsc(a.name || ''), em = _trEsc(a.email || '');
+  return '<div style="margin-top:10px">' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);margin-bottom:6px">TIMES YOU OFFERED</div>' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+        slots.map(function (s) {
+          return '<button class="db-mini-btn" onclick="_trBookAt(\'' + nm + '\',\'' + em + '\',\'' + s.date + '\',\'' + s.time + '\')">' +
+                   inqEsc(s.label) +
+                 '</button>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+}
+
+// Fill the booking form completely: name, email, date and time, then reveal it.
+function _trBookAt(name, email, date, time) {
+  _trBookAccepted(name, email);
+  function set(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; }
+  set('trDate', date);
+  set('trTime', time);
+  _trStatus('Filled in ' + name + ' for ' + date + ' at ' + time + '. Check it, then Book trial.', 'var(--accent2)');
+}
+
 function _trRenderStrip(threads) {
   var el = document.getElementById('trStrip');
   if (!el) return;
@@ -159,6 +232,7 @@ function _trLoadThreads() {
         box.innerHTML =
           '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:9px">' +
             t.messages.map(_trMsgRow).join('') +
+            _trOfferedHtml(_trFindAccepted(email) || {}, t.messages) +
             (t.threadId
               ? '<div id="fcrp-' + id + '">' +
                   '<button class="db-mini-btn" onclick="_trOpenReply(\'' + id + '\',\'' + t.threadId + '\')">Reply</button>' +
