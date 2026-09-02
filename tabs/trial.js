@@ -11,16 +11,23 @@ function initTrialTab() {
   var url = getScriptUrl();
   var body = document.getElementById('trialBody');
   if (!url) { body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>'; return; }
+  // Booking is the exit door of this tab, not its furniture: the form and the
+  // calendar list stay hidden until he actually decides to book someone.
   body.innerHTML =
-    '<div class="section-label" style="margin-bottom:10px">Accepted — book them in</div>' +
-    '<div id="trAccepted"><div class="empty-state">Loading…</div></div>' +
-    '<hr class="divider" style="margin:22px 0 16px">' +
-    _trManualFormHtml() + '<div id="trStatus"></div>' +
-    '<hr class="divider" style="margin:22px 0 16px">' +
-    '<div class="section-label" style="margin-bottom:10px">From the calendar</div>' +
-    '<div id="trCalList"><div class="empty-state">Loading trial events…</div></div>';
+    '<div id="trStrip"></div>' +
+    '<div class="section-label" style="margin-bottom:10px">Reach out</div>' +
+    '<div id="trAccepted"><div class="empty-state">Loading\u2026</div></div>' +
+    '<div id="trBookArea" style="display:none">' +
+      '<hr class="divider" style="margin:22px 0 16px">' +
+      _trManualFormHtml() + '<div id="trStatus"></div>' +
+      '<hr class="divider" style="margin:22px 0 16px">' +
+      '<div class="section-label" style="margin-bottom:10px">From the calendar</div>' +
+      '<div id="trCalList"><div class="empty-state">Loading trial events\u2026</div></div>' +
+    '</div>' +
+    '<div id="trBookToggle" style="margin-top:18px;text-align:center">' +
+      '<button class="db-mini-btn" onclick="_trShowBookArea(true)">Book someone manually</button>' +
+    '</div>';
   _trLoadAccepted();
-  _trLoadCalendar();
 }
 
 // ── Accepted (Yes from Inquiries, not yet booked) ────────────────────────────
@@ -104,13 +111,45 @@ function _trSmsText(first) {
 
 // Show the email exchange on each card. Gmail is the record, nothing is stored
 // here. Incoming messages get a green edge so a reply is obvious at a glance.
+// Top strip. ACTIVE = an email exchange exists. WAITING = nobody has written
+// to them yet, so they are waiting on him. This is the glance that stops
+// someone sitting unnoticed.
+function _trRenderStrip(threads) {
+  var el = document.getElementById('trStrip');
+  if (!el) return;
+  var active = [], waiting = [];
+  _trAcceptedCache.forEach(function (a) {
+    var t = threads && threads[a.email];
+    var first = (a.name || '').split(' ')[0];
+    if (t && t.count > 0) active.push(first); else waiting.push(first);
+  });
+  if (!active.length && !waiting.length) { el.innerHTML = ''; return; }
+
+  function group(label, names, color) {
+    if (!names.length) return '';
+    return '<span style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;color:' + color + '">' +
+             label + ':</span> ' +
+           '<span style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' +
+             names.map(inqEsc).join(', ') +
+           '</span>';
+  }
+  var parts = [group('ACTIVE', active, 'var(--green)'), group('WAITING', waiting, 'var(--accent)')]
+                .filter(function (x) { return x; });
+  el.innerHTML =
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;' +
+        'padding:11px 14px;margin-bottom:14px;display:flex;gap:22px;flex-wrap:wrap">' +
+      parts.join('') +
+    '</div>';
+}
+
 function _trLoadThreads() {
   var url = getScriptUrl();
   if (!url) return;
   fetch(url + '?action=getFirstContactThreads')
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (!d.success || !d.threads) return;
+      if (!d.success || !d.threads) { _trRenderStrip(null); return; }
+      _trRenderStrip(d.threads);
       Object.keys(d.threads).forEach(function (email) {
         var box = document.getElementById('fcth-' + emailToId(email));
         if (!box) return;
@@ -336,8 +375,26 @@ function _trSendEmail() {
     });
 }
 
+// The booking half is hidden until it is wanted. Loading the calendar list is
+// deferred too, so opening the tab costs one fetch instead of two.
+var _trCalLoaded = false;
+
+function _trShowBookArea(scroll) {
+  var area = document.getElementById('trBookArea');
+  var tog  = document.getElementById('trBookToggle');
+  if (!area) return;
+  area.style.display = '';
+  if (tog) tog.style.display = 'none';
+  if (!_trCalLoaded) { _trCalLoaded = true; _trLoadCalendar(); }
+  if (scroll) {
+    var f = document.getElementById('trFirst');
+    if (f) f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
 // Prefill the manual booking form from an accepted card + scroll to it.
 function _trBookAccepted(name, email) {
+  _trShowBookArea(false);
   var parts = (name || '').split(' ');
   var first = parts.shift() || '';
   var last = parts.pop() || '';
