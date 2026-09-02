@@ -120,6 +120,7 @@ function _trSmsText(first) {
 // would be confidently wrong sometimes. The offered lines are a format he
 // controls: "Wed, Sep 2 at 4:30 pm". He reads which one they took and clicks it.
 // Year comes from the card's inquiry date, per his rule.
+var _trThreadCache = {};
 var _TR_MONTHS = { jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11 };
 
 function _trYearFromCard(a) {
@@ -160,17 +161,26 @@ function _trParseOfferedTimes(text, year) {
   return out;
 }
 
-function _trOfferedHtml(a, msgs) {
-  var mine = (msgs || []).filter(function (m) { return m.fromMe; })
-                         .map(function (m) { return m.text; }).join('\n');
+// Paint the offered times INTO the booking step. They belong next to the date
+// and time fields they fill, not under the conversation.
+function _trRenderOfferedSlots(email) {
+  var box = document.getElementById('trOfferedSlots');
+  if (!box) return;
+  var a = _trFindAccepted(email);
+  var t = _trThreadCache && _trThreadCache[email];
+  if (!a || !t || !t.messages) { box.innerHTML = ''; return; }
+
+  var mine = t.messages.filter(function (m) { return m.fromMe; })
+                       .map(function (m) { return m.text; }).join('\n');
   var slots = _trParseOfferedTimes(mine, _trYearFromCard(a));
-  if (!slots.length) return '';
-  var nm = _trEsc(a.name || ''), em = _trEsc(a.email || '');
-  return '<div style="margin-top:10px">' +
+  if (!slots.length) { box.innerHTML = ''; return; }
+
+  box.innerHTML =
+    '<div style="margin:2px 0 2px">' +
       '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);margin-bottom:6px">TIMES YOU OFFERED</div>' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
         slots.map(function (s) {
-          return '<button class="db-mini-btn" onclick="_trBookAt(\'' + nm + '\',\'' + em + '\',\'' + s.date + '\',\'' + s.time + '\')">' +
+          return '<button class="db-mini-btn" onclick="_trPickSlot(\'' + s.date + '\',\'' + s.time + '\')">' +
                    inqEsc(s.label) +
                  '</button>';
         }).join('') +
@@ -178,13 +188,12 @@ function _trOfferedHtml(a, msgs) {
     '</div>';
 }
 
-// Fill the booking form completely: name, email, date and time, then reveal it.
-function _trBookAt(name, email, date, time) {
-  _trBookAccepted(name, email);
+// Chip click just fills date and time; name and email are already in place.
+function _trPickSlot(date, time) {
   function set(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; }
   set('trDate', date);
   set('trTime', time);
-  _trStatus('Filled in ' + name + ' for ' + date + ' at ' + time + '. Check it, then Book trial.', 'var(--accent2)');
+  _trStatus('Set to ' + date + ' at ' + time + '. Check it, then Book trial.', 'var(--accent2)');
 }
 
 function _trRenderStrip(threads) {
@@ -222,6 +231,7 @@ function _trLoadThreads() {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d.success || !d.threads) { _trRenderStrip(null); return; }
+      _trThreadCache = d.threads;
       _trRenderStrip(d.threads);
       Object.keys(d.threads).forEach(function (email) {
         var box = document.getElementById('fcth-' + emailToId(email));
@@ -232,7 +242,6 @@ function _trLoadThreads() {
         box.innerHTML =
           '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:9px">' +
             t.messages.map(_trMsgRow).join('') +
-            _trOfferedHtml(_trFindAccepted(email) || {}, t.messages) +
             (t.threadId
               ? '<div id="fcrp-' + id + '">' +
                   '<button class="db-mini-btn" onclick="_trOpenReply(\'' + id + '\',\'' + t.threadId + '\')">Reply</button>' +
@@ -460,6 +469,8 @@ function _trShowBookArea(scroll) {
   area.style.display = '';
   if (tog) tog.style.display = 'none';
   if (!_trCalLoaded) { _trCalLoaded = true; _trLoadCalendar(); }
+  var sb = document.getElementById('trOfferedSlots');
+  if (sb && scroll) sb.innerHTML = '';   // opened manually: no card, no offers
   if (scroll) {
     var f = document.getElementById('trFirst');
     if (f) f.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -475,6 +486,8 @@ function _trBookAccepted(name, email) {
   var middle = parts.join(' ');
   function set(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; }
   set('trFirst', first); set('trMiddle', middle); set('trLast', last); set('trEmail', email);
+  set('trDate', ''); set('trTime', '');
+  _trRenderOfferedSlots(email);
   var f = document.getElementById('trFirst');
   if (f) { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.focus(); }
   _trStatus('Filled in ' + name + ' — pick a date + time, then Book trial.', 'var(--accent2)');
@@ -495,6 +508,7 @@ function _trManualFormHtml() {
         '<span style="flex:1">' + inp('trLast', 'Last') + '</span>' +
       '</div>' +
       inp('trEmail', 'student email (goes in calendar Guests)', 'email') +
+      '<div id="trOfferedSlots"></div>' +
       '<div style="display:flex;gap:8px">' +
         '<span style="flex:2">' + inp('trDate', '', 'date') + '</span>' +
         '<span style="flex:1">' + inp('trTime', '', 'time') + '</span>' +
