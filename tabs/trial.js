@@ -1,11 +1,11 @@
 // ─── TRIAL TAB ───────────────────────────────────────────────────────────────
-// The entrance of the student lifecycle: book a trial student. Two doors —
+// Reach out, converse, and book. One door: the booking form below the cards.
 //   Door 1  Manual: type First/Middle/Last + email + date + time. The portal
 //           creates the RPM - Trial calendar event AND the Students Import tab.
 //   Door 2  From calendar: you made the event yourself (email in Guests). The
 //           portal lists upcoming RPM - Trial events; tap one to pull it in
 //           (creates the Students Import tab). Events already pulled show a ✓.
-// Backend: bookTrialManual / getTrialEvents / pullTrialFromCalendar (RPM_Trial.js).
+// Backend: bookTrialManual / getTrialAccepted / getTrialStage (RPM_Trial.js).
 
 function initTrialTab() {
   var url = getScriptUrl();
@@ -20,9 +20,6 @@ function initTrialTab() {
     '<div id="trBookArea" style="display:none">' +
       '<hr class="divider" style="margin:22px 0 16px">' +
       _trManualFormHtml() + '<div id="trStatus"></div>' +
-      '<hr class="divider" style="margin:22px 0 16px">' +
-      '<div class="section-label" style="margin-bottom:10px">From the calendar</div>' +
-      '<div id="trCalList"><div class="empty-state">Loading trial events\u2026</div></div>' +
     '</div>' +
     '<div id="trBookToggle" style="margin-top:18px;text-align:center">' +
       '<button class="db-mini-btn" onclick="_trShowBookArea(true)">Book someone manually</button>' +
@@ -458,17 +455,13 @@ function _trSendEmail() {
     });
 }
 
-// The booking half is hidden until it is wanted. Loading the calendar list is
-// deferred too, so opening the tab costs one fetch instead of two.
-var _trCalLoaded = false;
-
+// The booking half is hidden until it is wanted.
 function _trShowBookArea(scroll) {
   var area = document.getElementById('trBookArea');
   var tog  = document.getElementById('trBookToggle');
   if (!area) return;
   area.style.display = '';
   if (tog) tog.style.display = 'none';
-  if (!_trCalLoaded) { _trCalLoaded = true; _trLoadCalendar(); }
   var sb = document.getElementById('trOfferedSlots');
   if (sb && scroll) sb.innerHTML = '';   // opened manually: no card, no offers
   if (scroll) {
@@ -537,9 +530,10 @@ function _trBook() {
     .then(function (d) {
       _trRestoreBook();
       if (!d.success) { _trStatus('⚠ ' + (d.message || 'Failed'), 'var(--accent)'); return; }
-      _trStatus('✓ Booked ' + d.name + ' — ' + d.dateLabel + (d.created ? ' · tab created' : ' · tab already existed'), 'var(--green)');
+      // No tab is created any more: a booked trial is not a student yet.
+      _trStatus('✓ Booked ' + d.name + ' — ' + d.dateLabel + ' · they are in the Trial tab now', 'var(--green)');
       ['trFirst','trMiddle','trLast','trEmail','trDate','trTime'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
-      _trLoadCalendar();
+      var sb = document.getElementById('trOfferedSlots'); if (sb) sb.innerHTML = '';
       _trLoadAccepted();
     })
     .catch(function () { _trRestoreBook(); _trStatus('❌ Could not reach the portal.', 'var(--accent)'); });
@@ -548,54 +542,6 @@ function _trBook() {
 function _trRestoreBook() {
   var btn = document.getElementById('trBookBtn');
   if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer'; btn.textContent = '＋ Book trial'; }
-}
-
-// ── Door 2: list trial calendar events, pull one in ──────────────────────────
-function _trLoadCalendar() {
-  var url = getScriptUrl();
-  var box = document.getElementById('trCalList');
-  if (!box) return;
-  fetch(url + '?action=getTrialEvents')
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (!d.success) { box.innerHTML = '<div class="empty-state">⚠ ' + (d.message || 'Could not load') + '</div>'; return; }
-      if (!d.events || !d.events.length) { box.innerHTML = '<div class="empty-state">No upcoming trial events on the calendar.</div>'; return; }
-      box.innerHTML = d.events.map(_trEventCard).join('');
-    })
-    .catch(function () { box.innerHTML = '<div class="empty-state">❌ Could not load trial events.</div>'; });
-}
-
-function _trEventCard(ev) {
-  // "Pull in" is DISABLED on purpose (2026-09-01). Its only job was to create a
-  // Students Import tab for an event booked outside the portal, and a booked
-  // trial is no longer given a student record at all: that happens at
-  // conversion. A trial made straight in Google Calendar now shows up in the
-  // Trial tab by itself, because the event IS the stage marker. The listing is
-  // kept because it is still a useful view of what is on the trial calendar.
-  var right = '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)">on the calendar</span>';
-  return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;' +
-    'display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px">' +
-    '<div style="min-width:0">' +
-      '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (ev.name || '(no title)') + '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:3px">' +
-        ev.dateLabel + (ev.email ? ' · ' + ev.email : ' · no guest email') + '</div>' +
-    '</div>' +
-    '<div style="flex-shrink:0">' + right + '</div>' +
-  '</div>';
-}
-
-function _trPull(name, email, btn) {
-  var url = getScriptUrl();
-  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Pulling…'; }
-  fetch(url + '?action=pullTrialFromCalendar&name=' + encodeURIComponent(name) + '&email=' + encodeURIComponent(email || ''))
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (!d.success) { _trStatus('⚠ ' + (d.message || 'Failed'), 'var(--accent)'); if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer'; btn.textContent = 'Pull in →'; } return; }
-      _trStatus('✓ Pulled in ' + d.name + (d.created ? ' · tab created' : ' · tab already existed'), 'var(--green)');
-      _trLoadCalendar();
-      _trLoadAccepted();
-    })
-    .catch(function () { _trStatus('❌ Could not reach the portal.', 'var(--accent)'); if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer'; btn.textContent = 'Pull in →'; } });
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
