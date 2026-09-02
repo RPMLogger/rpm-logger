@@ -95,8 +95,9 @@ function _trReopen(email, btn) {
 var _trAcceptedCache = [];
 
 function _trFindAccepted(email) {
-  for (var i = 0; i < _trAcceptedCache.length; i++) {
-    if ((_trAcceptedCache[i].email || "") === email) return _trAcceptedCache[i];
+  var all = _trAcceptedCache.concat(_trStageCache || []);
+  for (var i = 0; i < all.length; i++) {
+    if ((all[i].email || "") === email) return all[i];
   }
   return null;
 }
@@ -292,7 +293,7 @@ function _trSendReply(id, threadId) {
         if (st) st.innerHTML = '<div style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px;margin-top:6px">⚠ ' + (d.message || 'Could not send') + '</div>';
         return;
       }
-      _trLoadThreads();   // redraw so the reply appears in the thread
+      _trRefreshThreads();   // redraw so the reply appears in the thread
     })
     .catch(function () {
       if (btn) { btn.disabled = false; btn.textContent = 'Send reply'; }
@@ -602,6 +603,13 @@ function _trStageCard(a) {
     '</div>';
 }
 
+// After a reply lands, redraw whichever stage is on screen.
+function _trRefreshThreads() {
+  var trial = document.getElementById('tab-trial');
+  if (trial && trial.classList.contains('active')) { _trLoadStageThreads(); return; }
+  _trLoadThreads();
+}
+
 // Same reader as Initiate; it returns both stages in one payload.
 function _trLoadStageThreads() {
   var url = getScriptUrl();
@@ -611,12 +619,22 @@ function _trLoadStageThreads() {
     .then(function (d) {
       if (!d.success || !d.threads) return;
       _trStageCache.forEach(function (a) {
+        var id  = emailToId(a.email || '');
+        var box = document.getElementById('fcth-' + id);
+        if (!box) return;
         var t = d.threads[a.email];
-        var box = document.getElementById('fcth-' + emailToId(a.email || ''));
-        if (!box || !t || !t.messages || !t.messages.length) return;
+        var hasThread = !!(t && t.messages && t.messages.length && t.threadId);
         box.innerHTML =
           '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:9px">' +
-            t.messages.map(_trMsgRow).join('') +
+            (t && t.messages ? t.messages.map(_trMsgRow).join('') : '') +
+            (hasThread
+              // Reply lands inside the existing Gmail thread.
+              ? '<div id="fcrp-' + id + '">' +
+                  '<button class="db-mini-btn" onclick="_trOpenReply(\'' + id + '\',\'' + t.threadId + '\')">Reply</button>' +
+                '</div>'
+              // No thread to reply into (booked without an email exchange), so
+              // fall back to the composer, which starts one.
+              : '<button class="db-mini-btn" onclick="_trOpenEmail(\'' + _trEsc(a.email || '') + '\')" style="border-color:var(--green);color:var(--green)">Email</button>') +
           '</div>';
       });
     })
