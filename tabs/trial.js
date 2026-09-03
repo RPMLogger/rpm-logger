@@ -223,6 +223,37 @@ function _trRenderStrip(threads) {
     '</div>';
 }
 
+// The Initiate nav badge: how many people are waiting on a reply FROM HIM.
+// Fetched once at portal load, so a reply is visible without opening the tab.
+// This is a load-time fetch, not polling; the same call also renders the tab,
+// so opening Initiate costs nothing extra.
+var _trThreadsPrimed = null;
+
+function _trSetInitiateBadge(threads) {
+  var el = document.getElementById('initNavBadge');
+  if (!el) return;
+  var n = 0;
+  Object.keys(threads || {}).forEach(function (em) {
+    var t = threads[em];
+    if (t && t.stage === 'initiate' && t.theirTurn) n++;
+  });
+  if (n > 0) { el.textContent = n; el.style.display = 'inline-block'; }
+  else       { el.style.display = 'none'; }
+}
+
+function refreshInitiateBadge() {
+  var url = getScriptUrl();
+  if (!url) return;
+  fetch(url + '?action=getFirstContactThreads')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success || !d.threads) return;
+      _trThreadsPrimed = d.threads;      // reused by the tab so it does not refetch
+      _trSetInitiateBadge(d.threads);
+    })
+    .catch(function () {});
+}
+
 function _trLoadThreads() {
   var url = getScriptUrl();
   if (!url) return;
@@ -231,6 +262,7 @@ function _trLoadThreads() {
     .then(function (d) {
       if (!d.success || !d.threads) { _trRenderStrip(null); return; }
       _trThreadCache = d.threads;
+      _trSetInitiateBadge(d.threads);
       _trRenderStrip(d.threads);
       Object.keys(d.threads).forEach(function (email) {
         var box = document.getElementById('fcth-' + emailToId(email));
