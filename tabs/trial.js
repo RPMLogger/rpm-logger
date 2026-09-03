@@ -21,9 +21,7 @@ function initTrialTab() {
       '<hr class="divider" style="margin:22px 0 16px">' +
       _trManualFormHtml() + '<div id="trStatus"></div>' +
     '</div>' +
-    '<div id="trBookToggle" style="margin-top:18px;text-align:center">' +
-      '<button class="db-mini-btn" onclick="_trShowBookArea(true)">Book someone manually</button>' +
-    '</div>';
+    '';
   _trLoadAccepted();
 }
 
@@ -197,13 +195,14 @@ function _trPickSlot(date, time) {
 function _trRenderStrip(threads) {
   var el = document.getElementById('trStrip');
   if (!el) return;
-  var active = [], waiting = [];
+  var active = [], waiting = [], bounced = [];
   _trAcceptedCache.forEach(function (a) {
     var t = threads && threads[a.email];
     var first = (a.name || '').split(' ')[0];
+    if (t && t.bouncedOn) { bounced.push(first); return; }
     if (t && t.count > 0) active.push(first); else waiting.push(first);
   });
-  if (!active.length && !waiting.length) { el.innerHTML = ''; return; }
+  if (!active.length && !waiting.length && !bounced.length) { el.innerHTML = ''; return; }
 
   function group(label, names, color) {
     if (!names.length) return '';
@@ -213,7 +212,9 @@ function _trRenderStrip(threads) {
              names.map(inqEsc).join(', ') +
            '</span>';
   }
-  var parts = [group('ACTIVE', active, 'var(--green)'), group('WAITING', waiting, 'var(--accent)')]
+  var parts = [group('ACTIVE', active, 'var(--green)'),
+               group('WAITING', waiting, 'var(--accent2)'),
+               group('BOUNCED', bounced, 'var(--accent)')]
                 .filter(function (x) { return x; });
   el.innerHTML =
     '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;' +
@@ -239,6 +240,7 @@ function _trLoadThreads() {
         var id = emailToId(email);
         box.innerHTML =
           '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:9px">' +
+            _trBounceRow(t) +
             t.messages.map(_trMsgRow).join('') +
             (t.threadId
               ? '<div id="fcrp-' + id + '">' +
@@ -299,6 +301,17 @@ function _trSendReply(id, threadId) {
       if (btn) { btn.disabled = false; btn.textContent = 'Send reply'; }
       if (st) st.innerHTML = '<div style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px;margin-top:6px">❌ Could not reach the portal.</div>';
     });
+}
+
+// A delivery failure is the one state that looks identical to "they just have
+// not answered yet". Say it plainly, at the top of the thread.
+function _trBounceRow(t) {
+  if (!t || !t.bouncedOn) return '';
+  return '<div style="border-left:2px solid var(--accent);padding:0 0 0 9px;margin-bottom:10px">' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent)">' +
+        '⚠ Mail to this address bounced on ' + inqEsc(t.bouncedOn) + '. Check the spelling.' +
+      '</div>' +
+    '</div>';
 }
 
 function _trMsgRow(m) {
@@ -488,7 +501,8 @@ function _trBookAccepted(name, email) {
 }
 
 // ── Door 1: manual booking form ──────────────────────────────────────────────
-function _trManualFormHtml() {
+function _trManualFormHtml(p) {
+  p = p || 'tr';
   function inp(id, ph, type) {
     return '<input id="' + id + '" type="' + (type || 'text') + '" placeholder="' + ph + '" ' +
       'style="box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:8px;' +
@@ -497,31 +511,36 @@ function _trManualFormHtml() {
   return '<div class="section-label" style="margin-bottom:10px">Book a trial</div>' +
     '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">' +
       '<div style="display:flex;gap:8px">' +
-        '<span style="flex:1">' + inp('trFirst', 'First') + '</span>' +
-        '<span style="flex:1">' + inp('trMiddle', 'Middle (optional)') + '</span>' +
-        '<span style="flex:1">' + inp('trLast', 'Last') + '</span>' +
+        '<span style="flex:1">' + inp(p + 'First', 'First') + '</span>' +
+        '<span style="flex:1">' + inp(p + 'Middle', 'Middle (optional)') + '</span>' +
+        '<span style="flex:1">' + inp(p + 'Last', 'Last') + '</span>' +
       '</div>' +
-      inp('trEmail', 'student email (goes in calendar Guests)', 'email') +
-      '<div id="trOfferedSlots"></div>' +
+      inp(p + 'Email', 'student email (goes in calendar Guests)', 'email') +
+      '<div id="' + p + 'OfferedSlots"></div>' +
       '<div style="display:flex;gap:8px">' +
-        '<span style="flex:2">' + inp('trDate', '', 'date') + '</span>' +
-        '<span style="flex:1">' + inp('trTime', '', 'time') + '</span>' +
+        '<span style="flex:2">' + inp(p + 'Date', '', 'date') + '</span>' +
+        '<span style="flex:1">' + inp(p + 'Time', '', 'time') + '</span>' +
       '</div>' +
     '</div>' +
-    '<button id="trBookBtn" onclick="_trBook()" ' +
+    '<button id="' + p + 'BookBtn" onclick="_trBook(\'' + p + '\')" ' +
       'style="width:100%;box-sizing:border-box;background:var(--accent);color:#fff;border:none;border-radius:10px;' +
       'padding:13px;font-family:\'Syne\',sans-serif;font-size:15px;font-weight:700;cursor:pointer">＋ Book trial</button>';
 }
 
-function _trBook() {
+function _trBook(p) {
+  p = p || 'tr';
   var url = getScriptUrl();
-  var first = _trVal('trFirst'), middle = _trVal('trMiddle'), last = _trVal('trLast');
-  var email = _trVal('trEmail'), date = _trVal('trDate'), time = _trVal('trTime');
-  if (!first)         { _trStatus('Enter at least a first name.', 'var(--accent)'); return; }
-  if (!date || !time) { _trStatus('Pick a date and time.', 'var(--accent)'); return; }
-  var btn = document.getElementById('trBookBtn');
+  var first = _trVal(p + 'First'), middle = _trVal(p + 'Middle'), last = _trVal(p + 'Last');
+  var email = _trVal(p + 'Email'), date = _trVal(p + 'Date'), time = _trVal(p + 'Time');
+  // All four are required. Without an email the calendar event has no guest,
+  // so Secretary sends no confirmation and they arrive knowing nothing.
+  if (!first)                    { _trStatus('Enter at least a first name.', 'var(--accent)', p); return; }
+  if (!email)                    { _trStatus('Email is required, otherwise they never get the confirmation.', 'var(--accent)', p); return; }
+  if (email.indexOf('@') === -1) { _trStatus('That email looks off.', 'var(--accent)', p); return; }
+  if (!date || !time)            { _trStatus('Pick a date and time.', 'var(--accent)', p); return; }
+  var btn = document.getElementById(p + 'BookBtn');
   if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Booking…'; }
-  _trStatus('Creating the calendar event + student tab…', 'var(--accent2)');
+  _trStatus('Creating the calendar event…', 'var(--accent2)', p);
   var qs = 'action=bookTrialManual' +
     '&first=' + encodeURIComponent(first) + '&middle=' + encodeURIComponent(middle) +
     '&last=' + encodeURIComponent(last) + '&email=' + encodeURIComponent(email) +
@@ -529,26 +548,28 @@ function _trBook() {
   fetch(url + '?' + qs)
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      _trRestoreBook();
-      if (!d.success) { _trStatus('⚠ ' + (d.message || 'Failed'), 'var(--accent)'); return; }
+      _trRestoreBook(p);
+      if (!d.success) { _trStatus('⚠ ' + (d.message || 'Failed'), 'var(--accent)', p); return; }
       // No tab is created any more: a booked trial is not a student yet.
-      _trStatus('✓ Booked ' + d.name + ' — ' + d.dateLabel + ' · they are in the Trial tab now', 'var(--green)');
-      ['trFirst','trMiddle','trLast','trEmail','trDate','trTime'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
-      var sb = document.getElementById('trOfferedSlots'); if (sb) sb.innerHTML = '';
-      _trLoadAccepted();
+      _trStatus('✓ Booked ' + d.name + ' — ' + d.dateLabel +
+                (d.cardMade ? ' · card created, they are in the Trial tab now'
+                            : ' · they are in the Trial tab now'), 'var(--green)', p);
+      ['First','Middle','Last','Email','Date','Time'].forEach(function (f) { var el = document.getElementById(p + f); if (el) el.value = ''; });
+      var sb = document.getElementById(p + 'OfferedSlots'); if (sb) sb.innerHTML = '';
+      if (p === 'tr') _trLoadAccepted(); else initTrialStageTab();
     })
-    .catch(function () { _trRestoreBook(); _trStatus('❌ Could not reach the portal.', 'var(--accent)'); });
+    .catch(function () { _trRestoreBook(p); _trStatus('❌ Could not reach the portal.', 'var(--accent)', p); });
 }
 
-function _trRestoreBook() {
-  var btn = document.getElementById('trBookBtn');
+function _trRestoreBook(p) {
+  var btn = document.getElementById((p || 'tr') + 'BookBtn');
   if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer'; btn.textContent = '＋ Book trial'; }
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 function _trVal(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
-function _trStatus(msg, color) {
-  var st = document.getElementById('trStatus');
+function _trStatus(msg, color, p) {
+  var st = document.getElementById((p || 'tr') + 'Status');
   if (!st) return;
   st.innerHTML = msg ? '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' +
     (color || 'var(--muted)') + ';border-radius:8px;padding:10px 14px;margin-top:10px;' +
@@ -578,8 +599,8 @@ function initTrialStageTab() {
     .then(function (d) {
       if (!d.success) { body.innerHTML = '<div class="empty-state">⚠ ' + (d.message || 'Could not load') + '</div>'; return; }
       _trStageCache = d.booked || [];
-      if (!_trStageCache.length) { body.innerHTML = '<div class="empty-state">No booked trials.</div>'; return; }
-      body.innerHTML = _trStageCache.map(_trStageCard).join('');
+      if (!_trStageCache.length) { body.innerHTML = '<div class="empty-state">No booked trials.</div>' + _trStageBookHtml(); return; }
+      body.innerHTML = _trStageCache.map(_trStageCard).join('') + _trStageBookHtml();
       _trLoadStageThreads();
     })
     .catch(function () { body.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
@@ -626,6 +647,7 @@ function _trLoadStageThreads() {
         var hasThread = !!(t && t.messages && t.messages.length && t.threadId);
         box.innerHTML =
           '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:9px">' +
+            _trBounceRow(t) +
             (t && t.messages ? t.messages.map(_trMsgRow).join('') : '') +
             (hasThread
               // Reply lands inside the existing Gmail thread.
@@ -639,4 +661,27 @@ function _trLoadStageThreads() {
       });
     })
     .catch(function () { /* leave the cards alone */ });
+}
+
+// Booking someone by hand belongs here, not in Initiate. Initiate is for people
+// who inquired, and booking one of them is driven from their card. This is the
+// other case: a trial that never came through the form. Own id prefix ("ts") so
+// its fields cannot collide with Initiate's, since both panels live in the DOM.
+function _trStageBookHtml() {
+  return '<div id="tsBookToggle" style="margin-top:18px;text-align:center">' +
+      '<button class="db-mini-btn" onclick="_tsShowBook()">Book a trial manually</button>' +
+    '</div>' +
+    '<div id="tsBookArea" style="display:none">' +
+      '<hr class="divider" style="margin:22px 0 16px">' +
+      _trManualFormHtml('ts') + '<div id="tsStatus"></div>' +
+    '</div>';
+}
+
+function _tsShowBook() {
+  var area = document.getElementById('tsBookArea');
+  var tog  = document.getElementById('tsBookToggle');
+  if (area) area.style.display = '';
+  if (tog)  tog.style.display = 'none';
+  var f = document.getElementById('tsFirst');
+  if (f) { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.focus(); }
 }
