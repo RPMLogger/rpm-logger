@@ -618,6 +618,7 @@ function _trEsc(s) {
 // the card is rebuilt from the same inquiry archive and the thread is read from
 // Gmail, so there is no second copy of anything to drift.
 var _trStageCache = [];
+var _trStageLoaded = false;   // has the booked list arrived yet?
 
 function initTrialStageTab() {
   var url = getScriptUrl();
@@ -626,11 +627,20 @@ function initTrialStageTab() {
   if (!url) { body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>'; return; }
   body.innerHTML = '<div class="empty-state">Loading…</div>';
 
+  // Payments go first and run in parallel. Reading the booked list means
+  // reading the inquiry archive and the calendar, which is slow, and the
+  // payments are the thing to see before clicking on anyone.
+  _trLoadPayments();
+
   fetch(url + '?action=getTrialStage')
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d.success) { body.innerHTML = '<div class="empty-state">⚠ ' + (d.message || 'Could not load') + '</div>'; return; }
       _trStageCache = d.booked || [];
+      _trStageLoaded = true;
+      // The payments list is already on screen by now, drawn without matches.
+      // Now that we know who is booked, redraw just those notes.
+      _trPayRender();
       if (!_trStageCache.length) { body.innerHTML = '<div class="empty-state">No booked trials.</div>' + _trStageBookHtml(); return; }
       body.innerHTML = _trStageCache.map(_trStageCard).join('') + _trStageBookHtml();
       _trLoadStageThreads();
@@ -716,4 +726,100 @@ function _tsShowBook() {
   if (tog)  tog.style.display = 'none';
   var f = document.getElementById('tsFirst');
   if (f) { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.focus(); }
+}
+
+
+// ─── TRIAL PAYMENTS ──────────────────────────────────────────────────────────
+// Top of the tab, before any student is clicked, because a payment can arrive
+// from someone you have not thought about yet. A per-student view only answers
+// questions you already knew to ask.
+//
+// The filter is the trial rate, read from the rates chart, so a price change
+// carries itself. There is no fallback rate on purpose: if the rate cannot be
+// read we say so instead of filtering for the wrong number and looking empty.
+var _trPayCache = [];
+var _trPayOk    = false;   // did the payments call actually succeed?
+
+function _trLoadPayments() {
+  var url  = getScriptUrl();
+  var body = document.getElementById('trialPayBody');
+  var rlab = document.getElementById('trialPayRate');
+  if (!body) return;
+  if (!url) { body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>'; return; }
+  body.innerHTML = '<div class="empty-state">Loading…</div>';
+
+  fetch(url + '?action=getTrialPayments')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      _trPayCache = [];
+      _trPayOk    = false;
+      if (!d.success) {
+        if (rlab) rlab.textContent = '';
+        // d.error catches a missing router line, which otherwise reads as a
+        // vague "could not load" and sends you looking in the wrong place.
+        body.innerHTML = '<div class="empty-state">⚠ ' + inqEsc(d.message || d.error || 'Could not load') + '</div>';
+        return;
+      }
+      if (rlab) rlab.textContent = '$' + d.rate;
+      _trPayCache = d.payments || [];
+      _trPayOk    = true;
+      _trPayRender();
+    })
+    .catch(function () { body.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
+}
+
+// Drawn twice: once as soon as the payments land, then again when the booked
+// list arrives and the match notes can be filled in.
+function _trPayRender() {
+  var body = document.getElementById('trialPayBody');
+  if (!body) return;
+  // Never draw over a failure. The booked list arriving is not news about the
+  // payments, and redrawing here once turned "could not load" into the much
+  // worse "No trial payments waiting", which reads as "nobody has paid".
+  if (!_trPayOk) return;
+  if (!_trPayCache.length) { body.innerHTML = '<div class="empty-state">No trial payments waiting.</div>'; return; }
+  body.innerHTML = _trPayCache.map(_trPayCard).join('');
+}
+
+// Which booked trial does this payment look like? Full name first, then first
+// name, the same order getIncomingPayments uses against the student sheets.
+//
+// A miss is not a failure, it is the interesting case: the name on the bank
+// account is often the person's actual name, and the inquiry form has whatever
+// they introduced themselves as. Seeing both before the lesson gives you
+// something to ask them about in the first three minutes.
+function _trPayMatch(name) {
+  var n = (name || '').toLowerCase().trim();
+  if (!n) return null;
+  var first = n.split(' ')[0];
+  var byFull = null, byFirst = null;
+  (_trStageCache || []).forEach(function (a) {
+    var an = (a.name || '').toLowerCase().trim();
+    if (!an) return;
+    if (an === n) byFull = a;
+    else if (!byFirst && an.split(' ')[0] === first) byFirst = a;
+  });
+  return byFull || byFirst;
+}
+
+function _trPayCard(p) {
+  // Until the booked list has loaded there is nothing to match against, and
+  // claiming "not one of your booked trials" then would be a lie that corrects
+  // itself a second later. Say nothing instead.
+  var hit  = _trStageLoaded ? _trPayMatch(p.name) : null;
+  var note = !_trStageLoaded ? ''
+    : hit
+      ? '<div class="incoming-nomatch" style="color:var(--green)">→ ' + inqEsc(hit.name) + '</div>'
+      : '<div class="incoming-nomatch">⚠ Not one of your booked trials</div>';
+  return '<div class="incoming-card">' +
+      '<div class="incoming-left">' +
+        '<div class="incoming-name">' + inqEsc(p.name || '—') + '</div>' +
+        '<div class="incoming-meta">' +
+          '<span class="incoming-method ' + inqEsc((p.method || '').toLowerCase()) + '">' + inqEsc(p.method || '') + '</span>' +
+          '<span class="incoming-amount">' + inqEsc(p.amount || '') + '</span>' +
+          '<span class="incoming-date">' + inqEsc(p.date || '') + '</span>' +
+        '</div>' +
+        note +
+      '</div>' +
+    '</div>';
 }
