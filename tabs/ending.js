@@ -224,12 +224,25 @@ function _enRenderDone(res) {
   var body = document.getElementById('endingBody');
   var html = '<div style="font-family:\'Syne\',sans-serif;font-size:22px;color:var(--text);margin-bottom:4px">✓ ' + res.name + ' terminated</div>' +
     '<div style="font-size:11px;color:var(--muted);margin-bottom:16px">Archived to Eski as "' + _enEsc(res.archivedAs || res.name) + '"</div>';
-  html += '<div style="border-left:3px solid var(--green);padding:2px 0 2px 14px;margin-bottom:18px">' +
+  // A step that failed must NOT read as a success. Everything used to render
+  // with a green tick, so "Dropbox folder NOT deleted" looked identical to a
+  // completed step and slipped past unnoticed.
+  var failed = (res.steps || []).filter(function (st) { return st.indexOf('⚠') === 0; });
+  html += '<div style="border-left:3px solid ' + (failed.length ? 'var(--accent)' : 'var(--green)') +
+    ';padding:2px 0 2px 14px;margin-bottom:18px">' +
     (res.steps || []).map(function (st) {
-      return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;padding:3px 0;color:var(--text)">' +
-        '<span style="color:var(--green)">✓</span> ' + _enEsc(st) + '</div>';
+      var bad = st.indexOf('⚠') === 0;
+      return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;padding:3px 0;color:' +
+        (bad ? 'var(--accent)' : 'var(--text)') + '">' +
+        (bad ? '' : '<span style="color:var(--green)">✓</span> ') + _enEscHtml(st) + '</div>';
     }).join('') +
   '</div>';
+  if (failed.length) {
+    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);' +
+      'border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--muted)">' +
+      failed.length + ' step' + (failed.length > 1 ? 's' : '') + ' did not complete. The archive and the sheet ' +
+      'cleanup still went through; finish the flagged item by hand.</div>';
+  }
   html += '<button class="refresh-btn" onclick="_enRenderSearch()">← Terminate another student</button>';
   body.innerHTML = html;
 }
