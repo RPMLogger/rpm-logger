@@ -45,6 +45,18 @@ function _renderBiweekly(data) {
     ? "Balanced — " + a.count + " vs " + b.count + " biweekly students"
     : "Off by " + diff + " — " + heavier + " is heavier (" + a.count + " vs " + b.count + "). Move " +
       Math.ceil(diff / 2) + " to even it out.";
+
+  // Headcount balance is only half the story: a biweekly student alone in a
+  // slot leaves that hour empty every other week. Count how many slots are
+  // actually shared vs. half-empty, and list the halves below the pairs.
+  var halves = _biweeklyOpenHalves(data);
+  var pairedCount = (data.pairs || []).length;
+  var sub = document.createElement("div");
+  sub.style.cssText = "margin-top:4px;font-size:11px;font-weight:400;opacity:0.8";
+  sub.textContent = pairedCount + " slot" + (pairedCount === 1 ? "" : "s") + " paired · " +
+    halves.length + " half-empty slot" + (halves.length === 1 ? "" : "s") +
+    (halves.length ? " (next biweekly student goes there)" : "");
+  banner.appendChild(sub);
   section.appendChild(banner);
 
   // --- two-column groups ----------------------------------------------
@@ -82,6 +94,49 @@ function _renderBiweekly(data) {
     });
     section.appendChild(pairsWrap);
   }
+
+  // --- open halves: unpaired biweeklies, the slot is free the other week --
+  if (halves.length) {
+    var hWrap = document.createElement("div");
+    hWrap.style.cssText = "border:1px solid var(--border);border-radius:6px;background:var(--panel);overflow:hidden;margin-top:14px";
+
+    var hHdr = document.createElement("div");
+    hHdr.style.cssText = "padding:8px 12px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)";
+    hHdr.textContent = "Open Halves · offer these to the next biweekly student";
+    hWrap.appendChild(hHdr);
+
+    halves.forEach(function(h) {
+      var row = document.createElement("div");
+      row.style.cssText = "padding:8px 12px;border-top:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;gap:10px";
+      var openColor = h.openWeek === "A" ? "var(--green)" : "#5b9dff";
+      var withColor = h.student.week === "A" ? "var(--green)" : "#5b9dff";
+      row.innerHTML =
+        "<span style='font-size:9px;letter-spacing:0.5px;text-transform:uppercase;padding:2px 6px;border-radius:3px;" +
+          "border:1px solid;color:" + openColor + ";opacity:0.9;white-space:nowrap;width:64px;text-align:center'>" +
+          h.openWeek + " week</span>" +
+        "<span style='font-weight:600;font-size:13px;white-space:nowrap'>" +
+          (h.day || "").toUpperCase() + " · " + h.time + "</span>" +
+        "<span style='font-size:10px;color:var(--muted);margin-left:auto;text-align:right'>pairs with " +
+          h.student.name + " <span style='color:" + withColor + "'>(" + h.student.week + ")</span></span>";
+      hWrap.appendChild(row);
+    });
+    section.appendChild(hWrap);
+  }
+}
+
+// A biweekly student whose slot has nobody in the other week. The empty
+// half is in the opposite week from the student who holds it.
+function _biweeklyOpenHalves(data) {
+  var pairedKeys = {};
+  (data.pairs || []).forEach(function(p) { pairedKeys[p.dow + "|" + p.mins] = true; });
+  var all = (data.weekA.students || []).concat(data.weekB.students || []);
+  return all
+    .filter(function(s) { return !pairedKeys[s.dow + "|" + s.mins]; })
+    .map(function(s) {
+      return { day: s.day, time: s.time, dow: s.dow, mins: s.mins,
+               openWeek: s.week === "A" ? "B" : "A", student: s };
+    })
+    .sort(function(a, b) { return (a.dow - b.dow) || (a.mins - b.mins); });
 }
 
 function _biweeklyColumn(group, isThis) {
