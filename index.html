@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=367">
+  <link rel="stylesheet" href="css/styles.css?v=368">
 </head>
 <body>
 <div class="container">
@@ -54,6 +54,7 @@
     <button class="tab-btn" data-tab="ratedecision" onclick="switchTab('ratedecision')">Rate Decision</button>
     <button class="tab-btn" data-tab="recs" onclick="switchTab('recs')">Recommendations</button>
     <button class="tab-btn" data-tab="reviews" onclick="switchTab('reviews')">Reviews</button>
+    <button class="tab-btn" data-tab="newsched" onclick="switchTab('newsched')">New Students</button>
     <button class="tab-btn" data-tab="sheets" onclick="switchTab('sheets')">Sheets</button>
     <button class="tab-btn" data-tab="skips" onclick="switchTab('skips')">Skips</button>
     <button class="tab-btn" data-tab="studentline" onclick="switchTab('studentline')">Student Line<span class="inq-badge" id="slNavBadge" style="display:none"></span></button>
@@ -536,6 +537,80 @@
     <div class="empty-state">Coming soon</div>
   </div>
 
+  <!-- SCHEDULE FOR NEW STUDENTS — static reference. Read this when placing a student feels like too much. -->
+  <div class="tab-panel" id="tab-newsched">
+    <div class="section-label">Schedule for New Students</div>
+
+    <div class="ns-rule">
+      You do not fit students into your life.<br>
+      Students pick from your menu.
+    </div>
+    <div class="ns-sub">
+      Asking everyone for all their free times and solving the puzzle is what made this feel like too much.
+      The grid below is the whole supply. Everything outside it is not for sale.
+    </div>
+
+    <div class="ns-card">
+      <div class="ns-card-hdr">The grid <span class="ns-snap">snapshot · Sep 2026</span></div>
+      <table class="ns-grid">
+        <tr><td class="ns-day">Mon</td><td>2:30 · 3:30 · 4:30 · 5:30</td><td class="ns-blk">2:30 to 6:30 · 4 slots</td></tr>
+        <tr><td class="ns-day">Tue</td><td>6:30 · 7:30 · 8:30</td><td class="ns-blk">6:30 to 9:30 · 3 slots</td></tr>
+        <tr><td class="ns-day">Wed</td><td>5:30 · 6:30 · 7:30 · 8:30</td><td class="ns-blk">5:30 to 9:30 · 4 slots</td></tr>
+        <tr><td class="ns-day">Thu</td><td>6:30 · 7:30 · 8:30</td><td class="ns-blk">6:30 to 9:30 · 3 slots</td></tr>
+        <tr><td class="ns-day">Fri</td><td>6:30 · 7:30 · 8:30</td><td class="ns-blk">6:30 to 9:30 · 3 slots</td></tr>
+        <tr class="ns-off"><td class="ns-day">Sat</td><td>OFF</td><td class="ns-blk">stays off</td></tr>
+        <tr><td class="ns-day">Sun</td><td>10:30 · 11:30 · 12:30</td><td class="ns-blk">10:30 to 1:30 · 3 slots</td></tr>
+      </table>
+      <div class="ns-foot">20 slots a week. Mon and Wed are the 4-in-a-row days. Tue, Thu, Fri are 3. That question is answered. Do not reopen it.</div>
+    </div>
+
+    <div class="ns-card">
+      <div class="ns-card-hdr">Weekly student <span class="ns-hint">needs a slot empty in BOTH weeks</span></div>
+      <div class="ns-slot"><span class="ns-tag ns-open">open</span><b>Thu 6:30</b><span class="ns-why">makes Thursday a clean 3 in a row</span></div>
+      <div class="ns-slot"><span class="ns-tag ns-open">open</span><b>Fri 8:30</b><span class="ns-why">makes Friday a clean 3 in a row</span></div>
+      <div class="ns-slot"><span class="ns-tag ns-open">open</span><b>Wed 8:30</b><span class="ns-why">Wednesday goes to 4, it is the long day</span></div>
+      <div class="ns-slot"><span class="ns-tag ns-open">open</span><b>Mon 5:30</b><span class="ns-why">last, gap at 4:30 in B week until Jean Gabriel gets a partner</span></div>
+      <div class="ns-foot">Offer the top two. If neither works, the third. If none work, waitlist. Never invent a new hour.</div>
+    </div>
+
+    <div class="ns-card">
+      <div class="ns-card-hdr">Biweekly student <span class="ns-hint">goes into a half-empty slot, costs zero new hours</span></div>
+      <div class="ns-slot"><span class="ns-tag ns-b">B week</span><b>Mon 4:30</b><span class="ns-why">pairs with Jean Gabriel (A)</span></div>
+      <div class="ns-slot"><span class="ns-tag ns-b">B week</span><b>Tue 6:30</b><span class="ns-why">pairs with Yaxu (A)</span></div>
+      <div class="ns-slot"><span class="ns-tag ns-b">B week</span><b>Wed 7:30</b><span class="ns-why">pairs with Charlotte (A)</span></div>
+      <div class="ns-slot"><span class="ns-tag ns-a">A week</span><b>Sun 10:30</b><span class="ns-why">pairs with Flora (B)</span></div>
+      <div class="ns-slot"><span class="ns-tag ns-a">A week</span><b>Tue 8:30</b><span class="ns-why">pairs with Jiayi (B)</span></div>
+      <div class="ns-slot"><span class="ns-tag ns-a">A week</span><b>Wed 5:30</b><span class="ns-why">pairs with Jordan (B)</span></div>
+      <div class="ns-foot">These six halves are reserved for biweekly only. A weekly student can never have one. Do not give a biweekly student a fully open slot while a half is still empty.</div>
+    </div>
+
+    <div class="ns-card">
+      <div class="ns-card-hdr">The script</div>
+      <div class="ns-script"><span class="ns-script-lbl">Weekly</span>Hey ___! Great, glad to have you on board. For weekly lessons I have Thursday at 6:30pm, Friday at 8:30pm, or Wednesday at 8:30pm open right now. Which one works best for you?</div>
+      <div class="ns-script"><span class="ns-script-lbl">Biweekly</span>Hey ___! For biweekly lessons I have Tuesday at 6:30pm, Wednesday at 7:30pm, or Sunday at 10:30am open right now. Which one works best for you?</div>
+      <div class="ns-script"><span class="ns-script-lbl">Nothing fits</span>No problem. Those are the only spots I have open at the moment. I can put you first in line for the next one that opens up, if you would like.</div>
+    </div>
+
+    <div class="ns-card ns-dont">
+      <div class="ns-card-hdr">Never</div>
+      <div class="ns-li">Ask "when are you free?" You offer, they pick.</div>
+      <div class="ns-li">Offer a time outside the grid. Not even once, not even for someone you really want.</div>
+      <div class="ns-li">Move an existing student to make room. That is the "too much" from before.</div>
+      <div class="ns-li">Push a weekly student to biweekly to fill a half. A weekly student is worth two biweekly students.</div>
+      <div class="ns-li">Fill a departure by opening a new hour. The slot that just emptied goes to the next person in line.</div>
+    </div>
+
+    <div class="ns-card">
+      <div class="ns-card-hdr">How it tightens by itself</div>
+      <div class="ns-li">Every new student lands in the right spot, so the grid only ever gets tighter.</div>
+      <div class="ns-li">When someone leaves, their slot goes to the waitlist, never a new hour.</div>
+      <div class="ns-li">When a student asks to move on their own, offer them the tightest option.</div>
+      <div class="ns-foot">Six months of this beats any reshuffle you could do by hand, with zero awkward texts. The only manual move worth making: one student holding an ugly gap open, and a better slot already sitting empty for them.</div>
+    </div>
+
+    <div class="ns-update">This page is a snapshot. When a slot fills, cross it off here. When the grid changes, update the grid.</div>
+  </div>
+
   <!-- THIS YEAR -->
   <div class="tab-panel" id="tab-thisyear">
     <div id="thisyearBody"><div class="empty-state">Loading...</div></div>
@@ -605,7 +680,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">367</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">368</span></span>
     <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
 
@@ -632,30 +707,30 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/lessons.js?v=367"></script>
-<script src="tabs/payments.js?v=367"></script>
-<script src="tabs/week.js?v=367"></script>
-<script src="tabs/general.js?v=367"></script>
-<script src="tabs/financial.js?v=367"></script>
-<script src="tabs/inquiries.js?v=367"></script>
-<script src="tabs/comms.js?v=367"></script>
-<script src="tabs/notes.js?v=367"></script>
-<script src="tabs/todo.js?v=367"></script>
-<script src="tabs/availability.js?v=367"></script>
-<script src="tabs/biweekly.js?v=367"></script>
-<script src="tabs/travel.js?v=367"></script>
-<script src="tabs/tripsummary.js?v=367"></script>
-<script src="tabs/triphistory.js?v=367"></script>
-<script src="tabs/skips.js?v=367"></script>
-<script src="tabs/student.js?v=367"></script>
-<script src="tabs/ctrl.js?v=367"></script>
-<script src="tabs/mailcenter.js?v=367"></script>
-<script src="tabs/dropbox.js?v=367"></script>
-<script src="tabs/trial.js?v=367"></script>
-<script src="tabs/ending.js?v=367"></script>
-<script src="tabs/thisyear.js?v=367"></script>
-<script src="tabs/sheets.js?v=367"></script>
-<script src="tabs/studentline.js?v=367"></script>
+<script src="tabs/lessons.js?v=368"></script>
+<script src="tabs/payments.js?v=368"></script>
+<script src="tabs/week.js?v=368"></script>
+<script src="tabs/general.js?v=368"></script>
+<script src="tabs/financial.js?v=368"></script>
+<script src="tabs/inquiries.js?v=368"></script>
+<script src="tabs/comms.js?v=368"></script>
+<script src="tabs/notes.js?v=368"></script>
+<script src="tabs/todo.js?v=368"></script>
+<script src="tabs/availability.js?v=368"></script>
+<script src="tabs/biweekly.js?v=368"></script>
+<script src="tabs/travel.js?v=368"></script>
+<script src="tabs/tripsummary.js?v=368"></script>
+<script src="tabs/triphistory.js?v=368"></script>
+<script src="tabs/skips.js?v=368"></script>
+<script src="tabs/student.js?v=368"></script>
+<script src="tabs/ctrl.js?v=368"></script>
+<script src="tabs/mailcenter.js?v=368"></script>
+<script src="tabs/dropbox.js?v=368"></script>
+<script src="tabs/trial.js?v=368"></script>
+<script src="tabs/ending.js?v=368"></script>
+<script src="tabs/thisyear.js?v=368"></script>
+<script src="tabs/sheets.js?v=368"></script>
+<script src="tabs/studentline.js?v=368"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -681,7 +756,7 @@
     // tab button is removed. The #tab-lessons panel div still lives in the DOM
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
-    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","ratedecision","reviews","thisyear","sheets","skips","studentline"];
+    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","ratedecision","reviews","newsched","thisyear","sheets","skips","studentline"];
     tabs.forEach(function(t) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       var btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
