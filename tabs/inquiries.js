@@ -157,12 +157,27 @@ function _inqStepBtn() {
 // Every category on its own labeled line, aligned like the sheet. Empty → "-".
 // SHARED: the Trial tab's Accepted cards call this too, so an inquiry looks
 // identical before and after you say Yes. Change the fields here, both follow.
+// 8126796102 → (812) 679-6102. Leaves anything that is not a 10-digit US
+// number exactly as it was typed rather than mangling it.
+function _inqPhonePretty(raw) {
+  var d = (raw || "").toString().replace(/\D/g, "");
+  if (d.length === 11 && d.charAt(0) === "1") d = d.slice(1);
+  if (d.length !== 10) return (raw || "").toString();
+  return "(" + d.slice(0, 3) + ") " + d.slice(3, 6) + "-" + d.slice(6);
+}
+
 function inqCardFieldsHtml(inq) {
   var fields = [
     ["Date",         inq.date],
     ["Gender",       inq.gender],
     ["Age",          inq.age ? _inqAgeShort(inq.age) : ""],
     ["City",         inq.city],
+    // Contact sits with the identity fields, before the lesson details start.
+    // Shown on the card because reading a number off the card beats opening a
+    // composer to find it. Formatted, not raw, and plain text on purpose: a
+    // tel: link is one mis-tap away from calling someone mid-lesson.
+    ["Phone",        inq.phone ? _inqPhonePretty(inq.phone) : ""],
+    ["Email",        inq.email],
     ["Level",        inq.level],
     ["Interests",    inq.interests],
     ["Availability", inq.availability],
