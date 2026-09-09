@@ -90,7 +90,10 @@ function _inqStepIdeal(delta) {
 function renderBusinessStrip(load, biweekly) {
   var strip = document.getElementById("inqBizStrip");
   if (!strip) return;
-  if (!load || !load.success) { strip.innerHTML = ""; return; }
+  // Was: blank the strip and say nothing. With no fallback rate behind the
+  // income figure, a failure here is a student the chart cannot price, and
+  // vanishing quietly is the one response that helps nobody.
+  if (!load || !load.success) { strip.innerHTML = _apiRateWarning(load); return; }
 
   var ideal = _inqIdeal();
   var norm  = (typeof load.normalized === "number") ? load.normalized : 0;

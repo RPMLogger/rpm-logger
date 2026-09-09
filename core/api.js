@@ -67,6 +67,11 @@ function fetchStudentLoad(url) {
   fetch(url + "?action=getStudentLoad")
     .then(function(r) { return r.json(); })
     .then(function(data) {
+      // A failure here now means a student could not be priced, which used to
+      // be papered over with a house rate. Silently leaving dashes would hide
+      // the very thing removing that fallback was meant to reveal.
+      var warn = document.getElementById("loadWarning");
+      if (warn) warn.innerHTML = (data && data.success) ? "" : _apiRateWarning(data);
       if (data.success) {
         document.getElementById("loadTotal").textContent     = data.totalStudents;
         document.getElementById("loadNorm").textContent      = data.normalized;
@@ -157,3 +162,15 @@ function uploadFilesToDropbox(folderName, fileList, opts) {
   window.addEventListener("dragover", function (e) { e.preventDefault(); }, false);
   window.addEventListener("drop", function (e) { e.preventDefault(); }, false);
 })();
+
+
+// Shown wherever a rate could not be resolved. The backend message names the
+// student, so it is repeated as-is rather than summarised into "an error".
+function _apiRateWarning(data) {
+  var msg = (data && (data.message || data.error)) || "Could not reach the portal.";
+  return '<div style="border:1px solid var(--accent);border-radius:10px;padding:11px;margin-bottom:10px">' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:1px;' +
+        'text-transform:uppercase;color:var(--accent);margin-bottom:5px">Rates need a look</div>' +
+      '<div style="font-size:12px;line-height:1.5">' + msg + '</div>' +
+    '</div>';
+}
