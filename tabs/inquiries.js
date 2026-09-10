@@ -4,7 +4,8 @@
 //                student/weekly/biweekly counts + biweekly unmatched spots.
 //   Cards      — rich (who + motivation/skill/enthusiasm from message+interests).
 //   Decision   — Yes / Maybe / No.
-//                Yes   → retires the inquiry, you go book them in the Trial tab.
+//                Yes   → retires the inquiry, they appear on the Initiate tab,
+//                        where you reach out and, when agreed, book the trial.
 //                Maybe → editable template popup → sends + logs to the warm list.
 //                No    → editable template popup → sends + logs to the cold list.
 // Backend: decideInquiry (RPM_Intake.js) + getStudentLoad / getBiweeklyBalance.
@@ -158,7 +159,7 @@ function _inqStepBtn() {
 
 // ── The inquiry cards ────────────────────────────────────────────────────────
 // Every category on its own labeled line, aligned like the sheet. Empty → "-".
-// SHARED: the Trial tab's Accepted cards call this too, so an inquiry looks
+// SHARED: the Initiate and Trial cards call this too, so an inquiry looks
 // identical before and after you say Yes. Change the fields here, both follow.
 // 8126796102 → (812) 679-6102. Leaves anything that is not a 10-digit US
 // number exactly as it was typed rather than mangling it.
@@ -316,7 +317,7 @@ function inqDecide(decision, domId) {
   _inqOpenTemplate(decision, inq);
 }
 
-// The two response templates (Yes uses the Trial tab's offer template instead).
+// The two response templates (Yes uses the Initiate tab's offer template instead).
 function _inqTemplate(decision, name) {
   var first = (name || "").split(" ")[0] || "there";
   if (decision === "maybe") {
@@ -413,7 +414,7 @@ function _inqSendDecision(decision, inq, tpl) {
       _inqRemoveCard("c" + inq.col);
       var note, color;
       if (decision === "yes") {
-        note = "✓ " + (inq.name || "Accepted") + " — now book them in the Trial tab";
+        note = "✓ " + (inq.name || "Accepted") + " — reach out to them on the Initiate tab";
         color = "var(--green)";
       } else if (decision === "noreply") {
         note = "· Cleared silently — address kept on the list";
