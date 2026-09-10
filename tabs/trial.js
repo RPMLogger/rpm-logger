@@ -53,8 +53,12 @@ function _trAcceptedCard(a) {
       '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || "") + '"></div>' +
       '<div class="inq-acts">' +
-        '<button class="db-mini-btn" onclick="_trReopen(\'' + em + '\', this)" ' +
+        '<button class="db-mini-btn" onclick="_trReopen(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
           'title="Send back to Inquiries as undecided">\u2190 Inquiries</button>' +
+        // For the ones he emailed who never came back. Sending them "back to
+        // Inquiries" only parks them there undecided; this removes them.
+        '<button class="db-mini-btn" onclick="_trDelete(\'' + em + '\',' + (a.col || 0) + ',\'' + _trEsc(a.name || '') + '\', this)" ' +
+          'title="Delete this inquiry for good" style="border-color:var(--accent);color:var(--accent)">Delete</button>' +
         '<button class="db-mini-btn" onclick="_trOpenEmail(\'' + em + '\')" style="border-color:var(--green);color:var(--green)">Email</button>' +
         '<button class="db-mini-btn" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')">Book \u2192</button>' +
       '</div>' +
@@ -64,11 +68,11 @@ function _trAcceptedCard(a) {
 // Send an accepted student back to the Inquiries tab. Clears the Decision cell;
 // nothing is deleted, so they reappear there as an open card with every field
 // intact. For the ones you said Yes to and then never booked.
-function _trReopen(email, btn) {
+function _trReopen(email, col, btn) {
   var url = getScriptUrl();
   if (!url || !email) return;
   if (btn) { btn.disabled = true; btn.textContent = "Sending back\u2026"; }
-  fetch(url + '?action=reopenInquiry&email=' + encodeURIComponent(email))
+  fetch(url + '?action=reopenInquiry&email=' + encodeURIComponent(email) + '&col=' + encodeURIComponent(col || ''))
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d.success) {
@@ -867,4 +871,33 @@ function _trToggleThread(id) {
   var open = box.style.display !== 'none';
   box.style.display = open ? 'none' : '';
   if (btn) btn.textContent = open ? 'Show' : 'Hide';
+}
+
+
+// Delete an Initiate card for good. Separate from "\u2190 Inquiries", which only
+// clears the decision and parks them back in the undecided list: this is for
+// the ones he wrote to who never replied and are not coming back.
+//
+// Confirmed, because it removes the whole inquiry column and there is no undo.
+function _trDelete(email, col, name, btn) {
+  var url = getScriptUrl();
+  if (!url || !email) return;
+  if (!confirm('Delete ' + (name || email) + ' for good?\n\nThe inquiry is removed from the archive. This cannot be undone.')) return;
+  if (btn) { btn.disabled = true; btn.textContent = 'Deleting\u2026'; }
+  fetch(url + '?action=deleteInquiryRow&email=' + encodeURIComponent(email) +
+        '&col=' + encodeURIComponent(col || ''))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Delete'; }
+        _trStatus('\u26a0 ' + (d.message || 'Could not delete.'), 'var(--accent)');
+        return;
+      }
+      _trLoadAccepted();
+      _trStatus('Deleted.', 'var(--muted)');
+    })
+    .catch(function () {
+      if (btn) { btn.disabled = false; btn.textContent = 'Delete'; }
+      _trStatus('\u274c Could not reach the portal.', 'var(--accent)');
+    });
 }

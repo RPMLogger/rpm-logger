@@ -226,7 +226,10 @@ function renderInquiries(inquiries) {
 
   active.forEach(function (inq) {
     var status = inq.status || "unread";
-    var id = emailToId(inq.email);
+    // The COLUMN is the card's identity. Two inquiries can share an email now,
+    // and an email-derived id made both cards the same element: getElementById
+    // returned the first, so a decision on the second one moved the first.
+    var id = "c" + inq.col;
     var card = document.createElement("div");
     card.className = "inq-dcard " + (status === "unread" ? "unread" : "read");
     card.id = "inq-" + id;
@@ -257,7 +260,7 @@ function renderInquiries(inquiries) {
         btn("no",    "no",      "No") +
         btn("",      "noreply", "No reply", "Silent clear — no email, keeps their address on the list") +
         btn("",      "scam",    "Scam",     "Scammer — delete + trash email") +
-        "<button class='inq-x' onclick='deleteInquiry(\"" + inqEsc(inq.email) + "\")' title='Delete'>✕</button>" +
+        "<button class='inq-x' onclick='deleteInquiry(\"" + id + "\")' title='Delete'>✕</button>" +
       "</div>";
 
     card._inq = inq;
@@ -265,7 +268,7 @@ function renderInquiries(inquiries) {
     if (status === "unread") {
       card.addEventListener("click", function (ev) {
         if (ev.target.closest(".inq-db") || ev.target.closest(".inq-x")) return;
-        markInquiryRead(inq.email);
+        markInquiryRead(id);
       });
     }
     list.appendChild(card);
@@ -288,12 +291,13 @@ function inqScam(domId) {
   if (!confirm("Mark as scam?\n\nIt stays in the Inquiries archive marked \"Scam\" and leaves the list.")) return;
   var url = getScriptUrl();
   if (!url) return;
-  var qs = "action=markInquiryScam&email=" + encodeURIComponent(inq.email || "");
+  var qs = "action=markInquiryScam&email=" + encodeURIComponent(inq.email || "") +
+    "&col=" + encodeURIComponent(inq.col || "");
   fetch(url + "?" + qs)
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d || !d.success) { _inqToast("⚠ " + ((d && d.message) || "Scam failed"), "var(--accent)"); return; }
-      _inqRemoveCard(inq.email);
+      _inqRemoveCard("c" + inq.col);
       _inqToast("🚫 Marked Scam", "var(--muted)");
     })
     .catch(function () { _inqToast("❌ Could not reach the portal.", "var(--accent)"); });
@@ -388,6 +392,7 @@ function _inqSendDecision(decision, inq, tpl) {
   if (!url) return;
   var qs = "action=decideInquiry&decision=" + decision +
     "&email=" + encodeURIComponent(inq.email || "") +
+    "&col=" + encodeURIComponent(inq.col || "") +
     "&name=" + encodeURIComponent(inq.name || "") +
     "&age=" + encodeURIComponent(inq.age || "") +
     "&city=" + encodeURIComponent(inq.city || "");
@@ -405,7 +410,7 @@ function _inqSendDecision(decision, inq, tpl) {
         return;
       }
       _inqCloseModal();
-      _inqRemoveCard(inq.email);
+      _inqRemoveCard("c" + inq.col);
       var note, color;
       if (decision === "yes") {
         note = "✓ " + (inq.name || "Accepted") + " — now book them in the Trial tab";
@@ -425,8 +430,8 @@ function _inqSendDecision(decision, inq, tpl) {
     });
 }
 
-function _inqRemoveCard(email) {
-  var card = document.getElementById("inq-" + emailToId(email));
+function _inqRemoveCard(domId) {
+  var card = document.getElementById("inq-" + domId);
   var wasUnread = card && card.classList.contains("unread");
   if (card) card.remove();
   if (wasUnread) {
@@ -476,8 +481,8 @@ function syncInquiriesNow() {
 }
 
 // Read/unread is a frontend-only visual cue now (no Status cell to persist to).
-function markInquiryRead(email) {
-  var card = document.getElementById("inq-" + emailToId(email));
+function markInquiryRead(domId) {
+  var card = document.getElementById("inq-" + domId);
   if (card && card.classList.contains("unread")) {
     card.classList.remove("unread");
     card.classList.add("read");
@@ -486,7 +491,12 @@ function markInquiryRead(email) {
   }
 }
 
-function deleteInquiry(email) {
-  _inqRemoveCard(email);
-  inqAction("deleteInquiryRow", email);
+function deleteInquiry(domId) {
+  var card = document.getElementById("inq-" + domId);
+  if (!card || !card._inq) return;
+  var inq = card._inq;
+  _inqRemoveCard(domId);
+  // Email travels too, but only so the backend can check the column still holds
+  // the person this card was showing. It refuses rather than delete a stranger.
+  inqAction("deleteInquiryRow", inq.email, "&col=" + encodeURIComponent(inq.col));
 }
