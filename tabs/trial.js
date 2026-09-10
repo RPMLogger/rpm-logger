@@ -687,10 +687,16 @@ function _trLoadStageThreads() {
         if (!box) return;
         var t = d.threads[a.email];
         var hasThread = !!(t && t.messages && t.messages.length && t.threadId);
+        var msgs = (t && t.messages) || [];
         box.innerHTML =
           '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:9px">' +
+            // A bounce is never hidden. It is the one thing on this card that
+            // means something is broken right now.
             _trBounceRow(t) +
-            (t && t.messages ? t.messages.map(_trMsgRow).join('') : '') +
+            _trThreadSummary(id, msgs) +
+            '<div id="fcmsg-' + id + '" style="display:none">' +
+              msgs.map(_trMsgRow).join('') +
+            '</div>' +
             (hasThread
               // Reply lands inside the existing Gmail thread.
               ? '<div id="fcrp-' + id + '">' +
@@ -822,4 +828,43 @@ function _trPayCard(p) {
         note +
       '</div>' +
     '</div>';
+}
+
+
+// ── Collapsed thread ─────────────────────────────────────────────────────────
+// On the Trial tab they are already booked, so the exchange is background, not
+// the job. It collapses to one line and opens when he wants to read it back,
+// which in practice is just before the lesson.
+//
+// The one fact worth keeping visible is WHO WROTE LAST. That is the difference
+// between waiting on them and them waiting on you, and it is the thing that let
+// someone sit unnoticed for seven weeks before any of this existed.
+//
+// Initiate is deliberately left expanded: that tab IS the conversation.
+function _trThreadSummary(id, msgs) {
+  if (!msgs.length) {
+    return '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">' +
+        'No email exchange yet.' +
+      '</div>';
+  }
+  var last = msgs[msgs.length - 1];
+  var who  = last.fromMe ? 'last from you' : 'last from them';
+  var when = [last.date, last.time].filter(function (x) { return x; }).join(' ');
+  return '<div id="fcsum-' + id + '" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">' +
+      '<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:' +
+        (last.fromMe ? 'var(--muted)' : 'var(--green)') + '">' +
+        msgs.length + (msgs.length === 1 ? ' message' : ' messages') +
+        ' \u00b7 ' + who + (when ? ' \u00b7 ' + inqEsc(when) : '') +
+      '</span>' +
+      '<button class="db-mini-btn" id="fctog-' + id + '" onclick="_trToggleThread(\'' + id + '\')">Show</button>' +
+    '</div>';
+}
+
+function _trToggleThread(id) {
+  var box = document.getElementById('fcmsg-' + id);
+  var btn = document.getElementById('fctog-' + id);
+  if (!box) return;
+  var open = box.style.display !== 'none';
+  box.style.display = open ? 'none' : '';
+  if (btn) btn.textContent = open ? 'Show' : 'Hide';
 }
