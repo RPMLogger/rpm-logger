@@ -311,12 +311,19 @@ function _trLoadThreads() {
 function _trOpenReply(id, threadId) {
   var box = document.getElementById('fcrp-' + id);
   if (!box) return;
-  // Subject and body share one font and one colour. They used to differ, which
-  // made the composer look like two different boxes stuck together. Grey rather
-  // than white, matching how the thread renders a message elsewhere on the card.
+  // ⚠️ NO SINGLE QUOTES IN HERE. This string is dropped into a single-quoted
+  // style attribute, so a quoted font name ended the attribute early and every
+  // declaration after font-family was thrown away as junk attributes. That is
+  // why the subject rendered in Arial and the body in monospace: neither was
+  // styled at all, both were browser defaults. CSS accepts an unquoted family
+  // name, so there is no reason to quote it.
+  //
+  // Arial on purpose, for both. It is proportional, which suits prose better
+  // than a monospace grid, and it is close to what Gmail will actually render,
+  // so the composer looks like the email it produces.
   var inp = "box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);" +
             "border-radius:8px;padding:9px 12px;color:rgba(255,255,255,.62);" +
-            "font-family:'DM Mono',monospace;font-size:12px;line-height:1.55";
+            "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6";
   box.innerHTML =
     '<textarea id="fcrpb-' + id + '" rows="5" placeholder="Reply in this thread…" style="' + inp + ';line-height:1.55;resize:vertical"></textarea>' +
     '<div id="fcrps-' + id + '"></div>' +
@@ -449,8 +456,11 @@ function _trOpenEmail(email) {
   var phoneDigits = (a.phone || "").toString().replace(/\D/g, "");
   var phonePretty = _trPhonePretty(a.phone);
 
+  // Same style as the composer. See the note there: no single quotes in this
+  // string, and Arial because these boxes hold prose, not code.
   var inp = "box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);" +
-            "border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px";
+            "border-radius:8px;padding:9px 12px;color:rgba(255,255,255,.62);" +
+            "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6";
 
   var overlay = document.createElement("div");
   overlay.id = "trFcModal";
