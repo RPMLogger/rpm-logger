@@ -23,6 +23,25 @@ function initTrialTab() {
     '</div>' +
     '';
   _trLoadAccepted();
+  _trLoadRate();
+}
+
+// The trial price for the draft, read from the Website Rates Archive when the
+// tab loads. Fetched here rather than when the composer opens so there is no
+// wait at the moment he wants to write.
+//
+// Left null if it cannot be read. The draft then points at the site instead of
+// naming a number, because a stale price in an email is a promise you have to
+// honour when they turn up.
+var _trTrialRate = null;
+
+function _trLoadRate() {
+  var url = getScriptUrl();
+  if (!url) return;
+  fetch(url + '?action=getWebsiteRate&type=Trial')
+    .then(function (r) { return r.json(); })
+    .then(function (d) { _trTrialRate = (d && d.success && d.rate) ? d.rate : null; })
+    .catch(function () { _trTrialRate = null; });
 }
 
 // ── Accepted (Yes from Inquiries, not yet booked) ────────────────────────────
@@ -378,11 +397,49 @@ function _trCopyPhone(btn, digits) {
   } else { done(); }
 }
 
+
+// ── The first-contact draft ──────────────────────────────────────────────────
+// Lifted from the three he actually sent (Cathy Sep 1, Gene Sep 1, Daniyal
+// Sep 2). Those were about 70% identical: the same thanks line, the same
+// beginner line, the same overbooked paragraph word for word, the same price
+// and details lines. He was retyping all of it, which is why the wording drifted
+// between them ("reach your goal" / "achieve your goal").
+//
+// So the letter arrives written and he edits it like any email: add, cut,
+// reorder. It is a starting point, not a form.
+//
+// Deliberately NO placeholder text anywhere. No [write here], no {TIMES}. A
+// placeholder is a thing that gets sent by accident, which is exactly how a
+// student once received an email containing the literal text {FORM LINK}. The
+// slots are blank lines instead, and the cursor lands on the personal one.
+function _trDraftHead(first) {
+  return "Hi " + first + "!\n\n" +
+         "Thanks for your inquiry. I can definitely help you reach your goal.\n";
+}
+
+function _trDraftTail() {
+  var price = _trTrialRate
+    ? "The trial lesson is $" + _trTrialRate + ", and the ongoing rates are on the site at redpickmusic.com/lessons."
+    : "The trial lesson price and the ongoing rates are on the site at redpickmusic.com/lessons.";
+  return "\nBeing a beginner is totally okay.\n\n" +
+         "I have been overbooked since the beginning of this year, but finally some spots are about to open, " +
+         "so your request came at a really good time. Spots fill up very quickly, so if you can make it, " +
+         "let's have a trial lesson to meet and play.\n\n" +
+         "Do you own a guitar?\n\n" +
+         "Can you make any of these times for a trial lesson?\n\n" +
+         "\n\n" +
+         price + "\n\n" +
+         "Once we set a time, you'll automatically receive an email with all the details: " +
+         "the address, how to get in, parking and transit, rates, and payment options.\n\n" +
+         "Looking forward to meeting you!";
+}
+
 function _trOpenEmail(email) {
   var a = _trFindAccepted(email);
   if (!a) return;
   var first = (a.name || "").split(" ")[0];
-  var body  = "Hi " + first + "!\n\n";
+  var head  = _trDraftHead(first);
+  var body  = head + _trDraftTail();
   var sms   = _trSmsText(first);
   var phoneDigits = (a.phone || "").toString().replace(/\D/g, "");
   var phonePretty = _trPhonePretty(a.phone);
@@ -426,7 +483,13 @@ function _trOpenEmail(email) {
   overlay._email = email;
 
   var ta = document.getElementById("trFcBody");
-  if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+  if (ta) {
+    ta.focus();
+    // The blank line after the thanks line: the one part only he can write.
+    var at = head.length;
+    ta.setSelectionRange(at, at);
+    ta.scrollTop = 0;
+  }
 }
 
 function _trCloseEmail() {
@@ -484,8 +547,12 @@ function _trSendEmail() {
   if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
   if (st) st.innerHTML = "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--accent2);margin-top:8px'>Sending…</div>";
 
+  // col so the "Email Sent" stamp lands on THIS inquiry, not the first column
+  // that happens to share the address.
+  var card = _trFindAccepted(email);
   fetch(url + "?action=sendFirstContact" +
         "&email="   + encodeURIComponent(email) +
+        "&col="     + encodeURIComponent((card && card.col) || "") +
         "&subject=" + encodeURIComponent(subject) +
         "&body="    + encodeURIComponent(body))
     .then(function (r) { return r.json(); })
@@ -666,8 +733,118 @@ function _trStageCard(a) {
           : '') +
       '</div>' +
       '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
+      _trRecordHtml(a) +
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || '') + '"></div>' +
     '</div>';
+}
+
+// ── The lesson record ────────────────────────────────────────────────────────
+// The five things the inquiry cannot know, asked in the first three minutes.
+// Everything else on this card came across from the inquiry already, and
+// re-asking it is what would blow the time budget.
+//
+// Collapsed until tapped, because for a trial that has not happened yet it is
+// just clutter. Open it as the lesson starts.
+//
+// Saves per field on blur, not behind a Save button: this gets filled on a
+// phone while a student is tuning up, and a half-typed record that was never
+// submitted is worse than no record.
+var _TR_FIELDS = [
+  { key: 'schoolJob',    label: 'School / Job' },
+  { key: 'guitar',       label: 'Guitar' },
+  { key: 'interests',    label: 'Interests' },
+  { key: 'dropboxEmail', label: 'Dropbox email' },
+  { key: 'notes',        label: 'Notes' }
+];
+
+function _trRecordHtml(a) {
+  var id = emailToId(a.email || '');
+  return '<div style="margin-top:10px">' +
+      '<button class="db-mini-btn" id="trrecbtn-' + id + '" ' +
+        'onclick="_trToggleRecord(\'' + id + '\',\'' + _trEsc(a.email || '') + '\')">Lesson record</button>' +
+      '<div id="trrec-' + id + '" style="display:none;margin-top:9px"></div>' +
+    '</div>';
+}
+
+function _trToggleRecord(id, email) {
+  var box = document.getElementById('trrec-' + id);
+  var btn = document.getElementById('trrecbtn-' + id);
+  if (!box) return;
+  if (box.style.display !== 'none') {
+    box.style.display = 'none';
+    if (btn) btn.textContent = 'Lesson record';
+    return;
+  }
+  box.style.display = '';
+  if (btn) btn.textContent = 'Hide record';
+  if (box.getAttribute('data-loaded') === '1') return;
+
+  box.innerHTML = '<div class="empty-state">Loading\u2026</div>';
+  var url = getScriptUrl();
+  if (!url) { box.innerHTML = '<div class="empty-state">Set your Apps Script URL first.</div>'; return; }
+
+  fetch(url + '?action=getTrialRecord&email=' + encodeURIComponent(email))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) {
+        box.innerHTML = '<div class="empty-state">\u26a0 ' + inqEsc(d.message || d.error || 'Could not load') + '</div>';
+        return;
+      }
+      var rec = d.record || {};
+      // A trial with no row yet is not an error: the row is written when the
+      // Trial tab loads, so this only happens on a very fresh booking.
+      box.innerHTML = _TR_FIELDS.map(function (f) {
+        var val = rec[f.key] || '';
+        // The Dropbox address starts as the one they wrote from. They often
+        // have a different Dropbox account, which is exactly the question.
+        if (f.key === 'dropboxEmail' && !val) val = email;
+        return _trFieldHtml(id, email, f, val);
+      }).join('') +
+      '<div id="trrecmsg-' + id + '" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin-top:6px;min-height:12px"></div>';
+      box.setAttribute('data-loaded', '1');
+    })
+    .catch(function () { box.innerHTML = '<div class="empty-state">\u274c Could not load.</div>'; });
+}
+
+function _trFieldHtml(id, email, f, val) {
+  var multi = (f.key === 'notes' || f.key === 'interests');
+  var common = 'id="trf-' + id + '-' + f.key + '" ' +
+    'onblur="_trSaveField(\'' + id + '\',\'' + _trEsc(email) + '\',\'' + f.key + '\',this)" ' +
+    'style="box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);' +
+    'border-radius:8px;padding:9px 11px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:13px"';
+  return '<div style="margin-bottom:7px">' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:1px;' +
+        'text-transform:uppercase;color:var(--muted);margin-bottom:3px">' + f.label + '</div>' +
+      (multi
+        ? '<textarea rows="2" ' + common + '>' + inqEsc(val) + '</textarea>'
+        : '<input type="text" value="' + inqEsc(val).replace(/"/g, '&quot;') + '" ' + common + '>') +
+    '</div>';
+}
+
+// One field, one write. saveTrialRecord_ only touches the keys it is sent, so
+// nothing else on the row can be clobbered by a save from here.
+function _trSaveField(id, email, key, el) {
+  var url = getScriptUrl();
+  var msg = document.getElementById('trrecmsg-' + id);
+  if (!url || !email) return;
+  var val = (el && el.value != null) ? el.value : '';
+  if (el && el.getAttribute('data-last') === val) return;   // nothing changed
+  if (msg) { msg.textContent = 'Saving\u2026'; msg.style.color = 'var(--muted)'; }
+
+  fetch(url + '?action=saveTrialRecord&email=' + encodeURIComponent(email) +
+        '&' + key + '=' + encodeURIComponent(val))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) {
+        if (msg) { msg.textContent = '\u26a0 ' + (d.message || d.error || 'Not saved'); msg.style.color = 'var(--accent)'; }
+        return;
+      }
+      if (el) el.setAttribute('data-last', val);
+      if (msg) { msg.textContent = 'Saved \u2713'; msg.style.color = 'var(--green)'; }
+    })
+    .catch(function () {
+      if (msg) { msg.textContent = '\u274c Not saved'; msg.style.color = 'var(--accent)'; }
+    });
 }
 
 // After a reply lands, redraw whichever stage is on screen.
