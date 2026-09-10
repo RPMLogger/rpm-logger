@@ -311,8 +311,12 @@ function _trLoadThreads() {
 function _trOpenReply(id, threadId) {
   var box = document.getElementById('fcrp-' + id);
   if (!box) return;
+  // Subject and body share one font and one colour. They used to differ, which
+  // made the composer look like two different boxes stuck together. Grey rather
+  // than white, matching how the thread renders a message elsewhere on the card.
   var inp = "box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);" +
-            "border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px";
+            "border-radius:8px;padding:9px 12px;color:rgba(255,255,255,.62);" +
+            "font-family:'DM Mono',monospace;font-size:12px;line-height:1.55";
   box.innerHTML =
     '<textarea id="fcrpb-' + id + '" rows="5" placeholder="Reply in this thread…" style="' + inp + ';line-height:1.55;resize:vertical"></textarea>' +
     '<div id="fcrps-' + id + '"></div>' +
@@ -391,7 +395,8 @@ function _trPhonePretty(raw) {
 }
 
 function _trCopyPhone(btn, digits) {
-  var done = function () { btn.textContent = "Copied \u2713"; setTimeout(function () { btn.textContent = "Copy number"; }, 1600); };
+  var was  = btn.textContent;
+  var done = function () { btn.textContent = "Copied \u2713"; setTimeout(function () { btn.textContent = was; }, 1600); };
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(digits).then(done, done);
   } else { done(); }
@@ -454,7 +459,7 @@ function _trOpenEmail(email) {
   overlay.innerHTML =
     "<div style='background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:600px;width:100%;padding:18px;box-sizing:border-box;max-height:92vh;overflow:auto'>" +
       "<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:12px'>" +
-        "<div style='font-family:\"Syne\",sans-serif;font-size:16px;font-weight:700;color:var(--green)'>First contact &middot; " + inqEsc(a.name || "") + "</div>" +
+        "<div class='section-label' style='margin-bottom:0'>Compose &middot; " + inqEsc(a.name || "") + "</div>" +
         "<button onclick='_trCloseEmail()' style='background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer'>✕</button>" +
       "</div>" +
       "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--muted);margin-bottom:8px'>To: " + inqEsc(email) + "</div>" +
@@ -462,8 +467,9 @@ function _trOpenEmail(email) {
       "<textarea id='trFcBody' rows='16' style='" + inp + ";line-height:1.55;resize:vertical'>" + inqEsc(body) + "</textarea>" +
       "<div id='trFcStatus'></div>" +
       "<div style='display:flex;gap:8px;margin-top:12px'>" +
-        "<button id='trFcPrevBtn' onclick='_trPreviewEmail()' style='flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px;font-family:\"DM Mono\",monospace;font-size:12px;cursor:pointer'>Preview</button>" +
-        "<button id='trFcSendBtn' onclick='_trSendEmail()' style='flex:2;background:var(--green);color:#fff;border:none;border-radius:10px;padding:12px;font-family:\"Syne\",sans-serif;font-weight:700;font-size:14px;cursor:pointer'>Send email</button>" +
+        "<button class='db-mini-btn' id='trFcPrevBtn' onclick='_trPreviewEmail()'>Preview</button>" +
+        "<button class='db-mini-btn' id='trFcSendBtn' onclick='_trSendEmail()' " +
+          "style='border-color:var(--green);color:var(--green)'>Send</button>" +
       "</div>" +
       "<div id='trFcPreview'></div>" +
       "<hr class='divider' style='margin:18px 0 12px'>" +
@@ -471,10 +477,12 @@ function _trOpenEmail(email) {
       "<textarea id='trFcSms' rows='3' readonly style='" + inp + ";line-height:1.55;resize:vertical'>" + inqEsc(sms) + "</textarea>" +
       "<button onclick='_trCopySms(this)' style='width:100%;margin-top:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:11px;font-family:\"DM Mono\",monospace;font-size:12px;cursor:pointer'>Copy for iMessage</button>" +
       (phoneDigits
-        ? "<div style='display:flex;align-items:center;gap:10px;margin-top:10px'>" +
-            "<span style='font-family:\"DM Mono\",monospace;font-size:14px;color:var(--text);letter-spacing:.5px'>" + inqEsc(phonePretty) + "</span>" +
-            "<button onclick='_trCopyPhone(this,\"" + phoneDigits + "\")' style='margin-left:auto;background:var(--bg);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:7px 12px;font-family:\"DM Mono\",monospace;font-size:11px;cursor:pointer'>Copy number</button>" +
-            "<a href='sms:" + phoneDigits + "' style='background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 12px;font-family:\"DM Mono\",monospace;font-size:11px;text-decoration:none'>Open Messages</a>" +
+        ? "<div style='display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap'>" +
+            // The number and the copy action are one thing, not a label with a
+            // button beside it. Tap what you can read.
+            "<button class='db-mini-btn' onclick='_trCopyPhone(this,\"" + phoneDigits + "\")'>" +
+              "Copy Phone #: " + inqEsc(phonePretty) + "</button>" +
+            "<a class='db-mini-btn' href='sms:" + phoneDigits + "' style='text-decoration:none'>Open Messages</a>" +
           "</div>"
         : "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--accent);margin-top:10px'>No phone number on file for this inquiry.</div>") +
     "</div>";
@@ -558,7 +566,7 @@ function _trSendEmail() {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d.success) {
-        if (btn) { btn.disabled = false; btn.textContent = "Send email"; }
+        if (btn) { btn.disabled = false; btn.textContent = "Send"; }
         if (st) st.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>⚠ " + (d.message || "Could not send") + "</div>";
         return;
       }
@@ -567,7 +575,7 @@ function _trSendEmail() {
       _trLoadAccepted();
     })
     .catch(function () {
-      if (btn) { btn.disabled = false; btn.textContent = "Send email"; }
+      if (btn) { btn.disabled = false; btn.textContent = "Send"; }
       if (st) st.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>❌ Could not reach the portal.</div>";
     });
 }
