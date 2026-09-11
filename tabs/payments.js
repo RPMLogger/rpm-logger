@@ -70,12 +70,19 @@ function openCashLogPanel(name, tab, pillEl) {
   document.getElementById("cashLogPanel").classList.add("active");
   document.getElementById("cashLogName").textContent = name;
   document.getElementById("cashDate").value = todayFormatted();
-  document.getElementById("cashAmount").value = "$380";
+  document.getElementById("cashAmount").value = "380";
   document.getElementById("cashNotes").value = "";
   var btn = document.getElementById("btnCashLog");
   btn.textContent = "Log Payment →";
   btn.disabled = false;
   btn.className = "btn-log";
+}
+
+// The $ lives in a fixed prefix next to the field, so the input holds digits
+// only. Strip any stray $ the user pastes in and re-attach it on submit.
+function formatCashAmount(raw) {
+  var num = (raw || "").toString().replace(/[^0-9.]/g, "").trim();
+  return num ? "$" + num : "$380";
 }
 
 function closeCashLogPanel(silent) {
@@ -94,7 +101,7 @@ function submitCashLog() {
   var name   = activeCashStudent.name;
   var tab    = activeCashStudent.tab;
   var raw    = document.getElementById("cashDate").value.trim();
-  var amount = document.getElementById("cashAmount").value.trim() || "$380";
+  var amount = formatCashAmount(document.getElementById("cashAmount").value);
   var notes  = document.getElementById("cashNotes").value.trim();
 
   if (!raw) {

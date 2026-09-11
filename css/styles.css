@@ -505,6 +505,15 @@ body::before {
 .cash-input:focus { outline: none; border-color: var(--accent2); }
 .cash-input::placeholder { color: var(--muted); }
 
+/* Amount field — the $ is a fixed prefix, not part of the editable value */
+.cash-amount-wrap { position: relative; }
+.cash-amount-prefix {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-family: "DM Mono", monospace; font-size: 12px;
+  pointer-events: none;
+}
+.cash-input-amount { padding-left: 24px; }
+
 /* ─── PAYMENT HISTORY ─────────────────────────────────────────────────────── */
 .btn-pay-history {
   display: block; width: 100%; padding: 12px;
