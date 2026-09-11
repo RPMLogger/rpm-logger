@@ -514,6 +514,24 @@ body::before {
 }
 .cash-input-amount { padding-left: 24px; }
 
+/* Date field — arrows only, no typing. The date goes straight into the
+   sheets, so a typo breaks the format the audits match on. */
+.cash-date-spin {
+  display: flex; justify-content: center; align-items: center; gap: 28px;
+  padding: 6px 12px;
+}
+.cash-date-grp { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.cash-date-arrow {
+  background: transparent; border: none; color: var(--muted);
+  font-size: 11px; line-height: 1; padding: 4px 14px; cursor: pointer;
+  border-radius: 4px; -webkit-tap-highlight-color: transparent;
+}
+.cash-date-arrow:active { color: var(--accent); background: rgba(232,70,58,0.18); }
+.cash-date-val {
+  font-family: "DM Mono", monospace; font-size: 13px; font-weight: 600;
+  color: var(--text); min-width: 34px; text-align: center;
+}
+
 /* ─── PAYMENT HISTORY ─────────────────────────────────────────────────────── */
 .btn-pay-history {
   display: block; width: 100%; padding: 12px;

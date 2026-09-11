@@ -742,10 +742,7 @@ function _openCashFromAudit(studentName, lessonDate) {
   openManualEntryModal();
   var tab = (studentName || "").split(" ")[0].toUpperCase();
   openCashLogPanel(studentName, tab, null);
-  if (lessonDate) {
-    var input = document.getElementById("cashDate");
-    if (input) input.value = lessonDate; // normalizePayDate adds current year on submit
-  }
+  if (lessonDate) setCashDate(lessonDate); // spinner infers the year on submit
 }
 
 function _sendReminder(student, btn, infoEl) {

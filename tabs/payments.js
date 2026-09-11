@@ -69,13 +69,84 @@ function openCashLogPanel(name, tab, pillEl) {
   activeCashStudent = { name: name, tab: tab };
   document.getElementById("cashLogPanel").classList.add("active");
   document.getElementById("cashLogName").textContent = name;
-  document.getElementById("cashDate").value = todayFormatted();
+  setCashDate(todayFormatted());
   document.getElementById("cashAmount").value = "380";
   document.getElementById("cashNotes").value = "";
   var btn = document.getElementById("btnCashLog");
   btn.textContent = "Log Payment →";
   btn.disabled = false;
   btn.className = "btn-log";
+}
+
+// ─── CASH DATE SPINNER (Mon / Day, arrows only) ──────────────────────────────
+// The cash date is written straight into Students Import and RPM Payments, so
+// a typo breaks the "Aug /24" format the audits match on. Same Mon/Day feel as
+// the Fix modal picker, with tappable arrows instead of ArrowUp/Down since this
+// panel is mostly used on the phone. Year is inferred on submit.
+var CASH_MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+var cashDate = { mon: null, day: null };
+
+// 2024 is a leap year, so Feb 29 stays reachable while stepping. getCashDate()
+// clamps against the real inferred year before it hands the date over.
+function cashMonthLen(mon, year) { return new Date(year || 2024, mon + 1, 0).getDate(); }
+
+// Pick the year that lands mon/day nearest today (handles Dec viewed in Jan).
+function cashInferYear(mon, day) {
+  var now = new Date(), y = now.getFullYear();
+  if ((new Date(y, mon, day) - now) > 60 * 24 * 60 * 60 * 1000) y--;
+  return y;
+}
+
+// Accepts "Aug /24", "Aug 24", "Aug 24, 2026". Falls back to today.
+function setCashDate(disp) {
+  var m = (disp || "").trim().match(/([A-Za-z]{3})[^\d]*(\d{1,2})/);
+  var mon = m ? CASH_MONTHS.indexOf(m[1].charAt(0).toUpperCase() + m[1].slice(1, 3).toLowerCase()) : -1;
+  if (m && mon >= 0) {
+    cashDate.mon = mon;
+    cashDate.day = Math.min(parseInt(m[2], 10), cashMonthLen(mon));
+  } else {
+    var t = new Date();
+    cashDate.mon = t.getMonth();
+    cashDate.day = t.getDate();
+  }
+  renderCashDate();
+}
+
+function stepCashDate(which, dir) {
+  if (which === "mon") {
+    cashDate.mon = (cashDate.mon + dir + 12) % 12;
+    cashDate.day = Math.min(cashDate.day, cashMonthLen(cashDate.mon));
+  } else {
+    var max = cashMonthLen(cashDate.mon);
+    cashDate.day += dir;
+    if (cashDate.day < 1)   cashDate.day = max;
+    if (cashDate.day > max) cashDate.day = 1;
+  }
+  renderCashDate();
+}
+
+function renderCashDate() {
+  var box = document.getElementById("cashDateSpin");
+  if (!box) return;
+  box.innerHTML =
+    '<div class="cash-date-grp">' +
+      '<button type="button" class="cash-date-arrow" onclick="stepCashDate(\'mon\',1)">&#9650;</button>' +
+      '<div class="cash-date-val">' + CASH_MONTHS[cashDate.mon] + '</div>' +
+      '<button type="button" class="cash-date-arrow" onclick="stepCashDate(\'mon\',-1)">&#9660;</button>' +
+    '</div>' +
+    '<div class="cash-date-grp">' +
+      '<button type="button" class="cash-date-arrow" onclick="stepCashDate(\'day\',1)">&#9650;</button>' +
+      '<div class="cash-date-val">' + cashDate.day + '</div>' +
+      '<button type="button" class="cash-date-arrow" onclick="stepCashDate(\'day\',-1)">&#9660;</button>' +
+    '</div>';
+}
+
+// → "Aug 24, 2026", already normalized so it needs no normalizePayDate pass.
+function getCashDate() {
+  if (cashDate.mon == null || cashDate.day == null) return "";
+  var y = cashInferYear(cashDate.mon, cashDate.day);
+  var d = Math.min(cashDate.day, cashMonthLen(cashDate.mon, y));
+  return CASH_MONTHS[cashDate.mon] + " " + d + ", " + y;
 }
 
 // The $ lives in a fixed prefix next to the field, so the input holds digits
@@ -100,17 +171,11 @@ function submitCashLog() {
 
   var name   = activeCashStudent.name;
   var tab    = activeCashStudent.tab;
-  var raw    = document.getElementById("cashDate").value.trim();
+  var date   = getCashDate();
   var amount = formatCashAmount(document.getElementById("cashAmount").value);
   var notes  = document.getElementById("cashNotes").value.trim();
 
-  if (!raw) {
-    document.getElementById("cashDate").placeholder = "Required — e.g. May 20";
-    document.getElementById("cashDate").focus();
-    return;
-  }
-
-  var date = normalizePayDate(raw);
+  if (!date) return; // spinner always holds a date, so this can't normally fire
 
   var btn = document.getElementById("btnCashLog");
   btn.textContent = "Logging..."; btn.disabled = true;
