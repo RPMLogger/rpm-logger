@@ -78,13 +78,15 @@ function openCashLogPanel(name, tab, pillEl) {
   btn.className = "btn-log";
 }
 
-// ─── CASH DATE SPINNER (Mon / Day, arrows only) ──────────────────────────────
+// ─── CASH DATE SPINNER (Mon / Day) ───────────────────────────────────────────
 // The cash date is written straight into Students Import and RPM Payments, so
-// a typo breaks the "Aug /24" format the audits match on. Same Mon/Day feel as
-// the Fix modal picker, with tappable arrows instead of ArrowUp/Down since this
-// panel is mostly used on the phone. Year is inferred on submit.
+// a typo breaks the "Aug /24" format the audits match on. No free typing: the
+// month and day are stepped instead. Keyboard is the main path (↑↓ steps the
+// focused segment, ←→ moves between month and day); the arrows are there for
+// the mouse. Year is inferred on submit.
 var CASH_MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-var cashDate = { mon: null, day: null };
+var cashDate    = { mon: null, day: null };
+var cashDateEls = null; // { mon: <div>, day: <div> } — built once, then reused
 
 // 2024 is a leap year, so Feb 29 stays reachable while stepping. getCashDate()
 // clamps against the real inferred year before it hands the date over.
@@ -109,10 +111,13 @@ function setCashDate(disp) {
     cashDate.mon = t.getMonth();
     cashDate.day = t.getDate();
   }
+  buildCashDate();
   renderCashDate();
+  if (cashDateEls) cashDateEls.mon.focus(); // land on the month, ready to arrow
 }
 
 function stepCashDate(which, dir) {
+  if (cashDate.mon == null) return;
   if (which === "mon") {
     cashDate.mon = (cashDate.mon + dir + 12) % 12;
     cashDate.day = Math.min(cashDate.day, cashMonthLen(cashDate.mon));
@@ -125,20 +130,55 @@ function stepCashDate(which, dir) {
   renderCashDate();
 }
 
-function renderCashDate() {
+// Built once so that stepping never blows away focus mid-keystroke;
+// renderCashDate() only rewrites the two numbers.
+function buildCashDate() {
   var box = document.getElementById("cashDateSpin");
   if (!box) return;
-  box.innerHTML =
-    '<div class="cash-date-grp">' +
-      '<button type="button" class="cash-date-arrow" onclick="stepCashDate(\'mon\',1)">&#9650;</button>' +
-      '<div class="cash-date-val">' + CASH_MONTHS[cashDate.mon] + '</div>' +
-      '<button type="button" class="cash-date-arrow" onclick="stepCashDate(\'mon\',-1)">&#9660;</button>' +
-    '</div>' +
-    '<div class="cash-date-grp">' +
-      '<button type="button" class="cash-date-arrow" onclick="stepCashDate(\'day\',1)">&#9650;</button>' +
-      '<div class="cash-date-val">' + cashDate.day + '</div>' +
-      '<button type="button" class="cash-date-arrow" onclick="stepCashDate(\'day\',-1)">&#9660;</button>' +
-    '</div>';
+  // Rebuild if the cached nodes were detached (modal torn down and re-rendered).
+  if (cashDateEls && box.contains(cashDateEls.mon)) return;
+  box.innerHTML = "";
+  cashDateEls = {};
+
+  ["mon", "day"].forEach(function(which) {
+    var grp = document.createElement("div");
+    grp.className = "cash-date-grp";
+
+    var val = document.createElement("div");
+    val.className = "cash-date-val";
+    val.tabIndex = 0;
+    val.onclick  = function() { val.focus(); };
+    val.onkeydown = function(e) {
+      if (e.key === "ArrowUp")         { e.preventDefault(); stepCashDate(which, 1); }
+      else if (e.key === "ArrowDown")  { e.preventDefault(); stepCashDate(which, -1); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); cashDateEls.day.focus(); }
+      else if (e.key === "ArrowLeft")  { e.preventDefault(); cashDateEls.mon.focus(); }
+    };
+
+    grp.appendChild(cashDateArrow(which, 1, val));
+    grp.appendChild(val);
+    grp.appendChild(cashDateArrow(which, -1, val));
+    box.appendChild(grp);
+    cashDateEls[which] = val;
+  });
+}
+
+// Clicking an arrow also focuses its segment, so the keyboard picks up
+// from wherever the mouse left off.
+function cashDateArrow(which, dir, val) {
+  var b = document.createElement("button");
+  b.type = "button";
+  b.tabIndex = -1;
+  b.className = "cash-date-arrow";
+  b.innerHTML = dir > 0 ? "&#9650;" : "&#9660;";
+  b.onclick = function() { stepCashDate(which, dir); val.focus(); };
+  return b;
+}
+
+function renderCashDate() {
+  if (!cashDateEls) return;
+  cashDateEls.mon.textContent = CASH_MONTHS[cashDate.mon];
+  cashDateEls.day.textContent = String(cashDate.day);
 }
 
 // → "Aug 24, 2026", already normalized so it needs no normalizePayDate pass.
