@@ -781,7 +781,9 @@ function _trRecordHtml(a) {
       '<button class="db-mini-btn" id="trrecbtn-' + id + '" ' +
         'onclick="_trToggleRecord(\'' + id + '\',\'' + _trEsc(a.email || '') + '\')">Lesson record</button> ' +
       '<button class="db-mini-btn" id="trnobtn-' + id + '" style="border-color:var(--muted);color:var(--muted)" ' +
-        'onclick="_trNotContinuing(\'' + id + '\',\'' + _trEsc(a.email || '') + '\',\'' + _trEsc(a.name || '') + '\')">Not continuing</button>' +
+        'onclick="_trNotContinuing(\'' + id + '\',\'' + _trEsc(a.email || '') + '\',\'' + _trEsc(a.name || '') + '\')">Not continuing</button> ' +
+      '<button class="db-mini-btn" style="border-color:var(--green);color:var(--green)" ' +
+        'onclick="_msOpen(\'' + _trEsc(a.email || '') + '\')">Make student</button>' +
       '<div id="trrec-' + id + '" style="display:none;margin-top:9px"></div>' +
     '</div>';
 }
@@ -886,14 +888,19 @@ function _trNotContinuing(id, email, name) {
         if (btn) { btn.disabled = false; btn.textContent = '\u26a0 Not saved, retry'; }
         return;
       }
-      _trStageCache = _trStageCache.filter(function (a) { return (a.email || '') !== email; });
-      var card = document.getElementById('trcard-' + id);
-      if (card) card.remove();
-      _trPayRender();
-      var body = document.getElementById('trialStageBody');
-      if (body && !_trStageCache.length) body.innerHTML = '<div class="empty-state">No booked trials.</div>' + _trStageBookHtml();
+      _trDropStageCard(email);
     })
     .catch(function () { if (btn) { btn.disabled = false; btn.textContent = '\u26a0 Not saved, retry'; } });
+}
+
+// Take one person off the Trial tab (outcome settled): cache, card, payments.
+function _trDropStageCard(email) {
+  _trStageCache = _trStageCache.filter(function (a) { return (a.email || '') !== email; });
+  var card = document.getElementById('trcard-' + emailToId(email || ''));
+  if (card) card.remove();
+  _trPayRender();
+  var body = document.getElementById('trialStageBody');
+  if (body && !_trStageCache.length) body.innerHTML = '<div class="empty-state">No booked trials.</div>' + _trStageBookHtml();
 }
 
 // After a reply lands, redraw whichever stage is on screen.
@@ -1125,5 +1132,260 @@ function _trDelete(email, col, name, btn) {
     .catch(function () {
       if (btn) { btn.disabled = false; btn.textContent = 'Delete'; }
       _trStatus('\u274c Could not reach the portal.', 'var(--accent)');
+    });
+}
+
+
+// ─── MAKE STUDENT ────────────────────────────────────────────────────────────
+// A window over the Trial tab with what the system cannot know by itself:
+// weekly or biweekly, the first lesson, and the rate (prefilled from the
+// Website Rates Archive, editable). Phone and availability come from the
+// inquiry, editable. Preview is read-only; only "Make student" writes.
+// Backend: getMakeStudentPreview / makeStudent (RPM_MakeStudent.gs).
+// Styling is deliberately plain for now (reuses the settings modal classes).
+var _ms = null;
+var _msRates = null;   // { weekly: 110, biweekly: 120 }
+
+var _MS_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var _MS_DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function _msOpen(email) {
+  var a = _trStageCache.filter(function (x) { return (x.email || '') === email; })[0];
+  if (!a) return;
+  var d = _msDefaultStart(a);
+  _ms = { card: a, cadence: 'weekly', date: d.date, mins: d.mins, rateEdited: false, busy: false, done: false };
+
+  var ov = document.getElementById('msOverlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.className = 'settings-overlay';
+    ov.id = 'msOverlay';
+    ov.innerHTML = '<div class="settings-modal" id="msModal" style="max-width:520px"></div>';
+    ov.addEventListener('click', function (e) { if (e.target === ov) _msClose(); });
+    document.body.appendChild(ov);
+  }
+  ov.classList.add('open');
+  _msRenderForm();
+  _msLoadRates();
+}
+
+function _msClose() {
+  if (_ms && _ms.busy) return;     // never close mid-write
+  var ov = document.getElementById('msOverlay');
+  if (ov) ov.classList.remove('open');
+  _ms = null;
+}
+
+// Same weekday and time as the trial, one week later, moved forward a week at a
+// time until it is in the future.
+function _msDefaultStart(a) {
+  var today = new Date(); today.setHours(0, 0, 0, 0);
+  var date;
+  var m = String(a.trialDate || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) {
+    date = new Date(+m[1], +m[2] - 1, +m[3] + 7);
+    while (date <= today) date.setDate(date.getDate() + 7);
+  } else {
+    date = new Date(today); date.setDate(date.getDate() + 7);
+  }
+  var t = String(a.trialTime || '').match(/^(\d{1,2}):(\d{2})$/);
+  return { date: date, mins: t ? (+t[1] * 60 + +t[2]) : 17 * 60 };
+}
+
+function _msLbl(t) { return '<label class="settings-label" style="margin-top:6px">' + t + '</label>'; }
+function _msAttr(v) { return inqEsc(v == null ? '' : String(v)).replace(/"/g, '&quot;'); }
+function _msArrow(fn, n, txt) {
+  return '<button class="db-mini-btn" style="min-width:30px" onclick="' + fn + '(' + n + ')">' + txt + '</button>';
+}
+
+function _msRenderForm() {
+  var a = _ms.card;
+  var box = document.getElementById('msModal');
+  var rate = (_msRates && _msRates[_ms.cadence]) || '';
+  box.innerHTML =
+    '<div class="settings-title">Make student<button class="settings-close" onclick="_msClose()">\u2715</button></div>' +
+
+    _msLbl('Name') +
+    '<input class="settings-input" id="msName" value="' + _msAttr(a.name) + '" oninput="_msDirty()">' +
+    _msLbl('Email') +
+    '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);margin-bottom:10px">' + inqEsc(a.email || '') + '</div>' +
+
+    _msLbl('Schedule') +
+    '<div style="display:flex;gap:18px;margin-bottom:10px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' +
+      '<label><input type="radio" name="msCad" value="weekly" checked onchange="_msSetCadence(this.value)"> Weekly</label>' +
+      '<label><input type="radio" name="msCad" value="biweekly" onchange="_msSetCadence(this.value)"> Biweekly</label>' +
+    '</div>' +
+
+    _msLbl('First lesson') +
+    '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' +
+      _msArrow('_msStepDate', -1, '\u25c0') + '<span id="msDateLbl" style="min-width:120px;text-align:center"></span>' + _msArrow('_msStepDate', 1, '\u25b6') +
+      '<span style="width:14px"></span>' +
+      _msArrow('_msStepTime', -15, '\u25c0') + '<span id="msTimeLbl" style="min-width:70px;text-align:center"></span>' + _msArrow('_msStepTime', 15, '\u25b6') +
+    '</div>' +
+
+    _msLbl('Rate ($ per lesson)') +
+    '<input class="settings-input" id="msRate" inputmode="decimal" value="' + _msAttr(rate) + '" oninput="_ms.rateEdited=true;_msDirty()">' +
+    '<div id="msRateHint" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin:-6px 0 10px"></div>' +
+
+    _msLbl('Phone') +
+    '<input class="settings-input" id="msPhone" value="' + _msAttr(a.phone) + '" oninput="_msDirty()">' +
+    _msLbl('Availability') +
+    '<textarea class="settings-input" id="msAvail" rows="2" oninput="_msDirty()">' + inqEsc(a.availability || '') + '</textarea>' +
+
+    '<label style="display:block;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);margin:4px 0 14px">' +
+      '<input type="checkbox" id="msText" checked onchange="_msDirty()"> Send welcome text</label>' +
+
+    '<div id="msPreview"></div>' +
+    '<div id="msButtons" style="display:flex;gap:8px;margin-top:12px">' +
+      '<button class="btn-settings-load" id="msPrevBtn" onclick="_msPreview()">Preview</button>' +
+      '<button class="btn-settings-load" id="msGoBtn" style="display:none;border-color:var(--green);color:var(--green)" onclick="_msMake()">Make student</button>' +
+    '</div>';
+  _msShowWhen();
+  _msRateHint();
+}
+
+function _msPad(n) { return (n < 10 ? '0' : '') + n; }
+
+function _msShowWhen() {
+  var d = _ms.date, h = Math.floor(_ms.mins / 60), mi = _ms.mins % 60;
+  var dl = document.getElementById('msDateLbl'), tl = document.getElementById('msTimeLbl');
+  if (dl) dl.textContent = _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  if (tl) tl.textContent = ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM');
+}
+
+function _msStepDate(n) {
+  if (!_ms || _ms.busy || _ms.done) return;
+  _ms.date.setDate(_ms.date.getDate() + n);
+  _msShowWhen(); _msDirty();
+}
+
+function _msStepTime(n) {
+  if (!_ms || _ms.busy || _ms.done) return;
+  _ms.mins = Math.min(23 * 60 + 45, Math.max(0, _ms.mins + n));
+  _msShowWhen(); _msDirty();
+}
+
+function _msSetCadence(v) {
+  if (!_ms) return;
+  _ms.cadence = v;
+  if (!_ms.rateEdited && _msRates && _msRates[v]) document.getElementById('msRate').value = _msRates[v];
+  _msRateHint(); _msDirty();
+}
+
+function _msRateHint() {
+  var el = document.getElementById('msRateHint');
+  if (!el) return;
+  el.textContent = _msRates
+    ? 'Website: weekly $' + (_msRates.weekly || '?') + ' \u00b7 biweekly $' + (_msRates.biweekly || '?')
+    : 'Loading website rates\u2026';
+}
+
+function _msLoadRates() {
+  var url = getScriptUrl();
+  if (!url) return;
+  fetch(url + '?action=getWebsiteRates')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d || !d.success) return;
+      _msRates = {};
+      (d.rates || []).forEach(function (r) {
+        var t = String(r.type || '').toLowerCase();
+        if (t === 'weekly' || t === 'biweekly') _msRates[t] = r.rate;
+      });
+      if (!_ms) return;
+      var el = document.getElementById('msRate');
+      if (el && !_ms.rateEdited && _msRates[_ms.cadence]) el.value = _msRates[_ms.cadence];
+      _msRateHint();
+    })
+    .catch(function () {});
+}
+
+// Any change after a preview invalidates it: the confirm button only ever
+// sends exactly what was just previewed.
+function _msDirty() {
+  if (!_ms || _ms.done) return;
+  var go = document.getElementById('msGoBtn'), pv = document.getElementById('msPreview');
+  if (go) go.style.display = 'none';
+  if (pv) pv.innerHTML = '';
+}
+
+function _msQuery() {
+  var d = _ms.date;
+  var q = {
+    name: document.getElementById('msName').value,
+    email: _ms.card.email || '',
+    cadence: _ms.cadence,
+    date: d.getFullYear() + '-' + _msPad(d.getMonth() + 1) + '-' + _msPad(d.getDate()),
+    time: _msPad(Math.floor(_ms.mins / 60)) + ':' + _msPad(_ms.mins % 60),
+    rate: document.getElementById('msRate').value,
+    phone: document.getElementById('msPhone').value,
+    availability: document.getElementById('msAvail').value,
+    sendText: document.getElementById('msText').checked ? '1' : '0'
+  };
+  return Object.keys(q).map(function (k) { return k + '=' + encodeURIComponent(q[k]); }).join('&');
+}
+
+function _msLine(t, color) {
+  return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;line-height:1.5;margin-bottom:3px;color:' +
+    (color || 'var(--text)') + '">' + inqEsc(t) + '</div>';
+}
+
+function _msPreview() {
+  var url = getScriptUrl();
+  var pv = document.getElementById('msPreview'), go = document.getElementById('msGoBtn');
+  if (!url || !_ms) return;
+  go.style.display = 'none';
+  pv.innerHTML = _msLine('Checking\u2026', 'var(--muted)');
+  fetch(url + '?action=getMakeStudentPreview&' + _msQuery())
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!_ms) return;
+      if (!d.success) { pv.innerHTML = _msLine('\u26a0 ' + (d.message || 'Could not check'), 'var(--accent)'); return; }
+      var blocked = d.blockers && d.blockers.length;
+      pv.innerHTML =
+        '<div style="border-top:1px solid var(--border);padding-top:10px">' +
+          (blocked ? d.blockers.map(function (b) { return _msLine('\u26d4 ' + b, 'var(--accent)'); }).join('') : '') +
+          _msLine('Id: ' + d.id, 'var(--muted)') +
+          (d.willCreate || []).map(function (l) { return _msLine((l.indexOf('\u26a0') === 0 ? '' : '\u2022 ') + l, l.indexOf('\u26a0') === 0 ? 'var(--accent)' : null); }).join('') +
+          (document.getElementById('msText').checked
+            ? '<div style="margin-top:8px;padding:9px 11px;border:1px solid var(--border);border-radius:8px;white-space:pre-wrap;' +
+                'font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)">' + inqEsc(d.smsText || '') + '</div>'
+            : '') +
+        '</div>';
+      if (!blocked) go.style.display = '';
+    })
+    .catch(function () { if (_ms) pv.innerHTML = _msLine('\u274c Could not check (network).', 'var(--accent)'); });
+}
+
+function _msMake() {
+  var url = getScriptUrl();
+  if (!url || !_ms || _ms.busy) return;
+  var pv = document.getElementById('msPreview'), go = document.getElementById('msGoBtn'), prev = document.getElementById('msPrevBtn');
+  var email = _ms.card.email || '';
+  _ms.busy = true;
+  go.disabled = true; prev.disabled = true;
+  go.textContent = 'Making student\u2026';
+
+  fetch(url + '?action=makeStudent&confirm=1&' + _msQuery())
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      _ms.busy = false;
+      var steps = (d.steps || []).map(function (st) { return _msLine((st.indexOf('\u26a0') === 0 ? '' : '\u2713 ') + st, st.indexOf('\u26a0') === 0 ? 'var(--accent)' : 'var(--green)'); }).join('');
+      if (!d.success) {
+        pv.innerHTML = '<div style="border-top:1px solid var(--border);padding-top:10px">' + _msLine('\u26a0 ' + (d.message || 'Not made'), 'var(--accent)') + steps + '</div>';
+        go.disabled = false; prev.disabled = false; go.textContent = 'Make student';
+        return;
+      }
+      _ms.done = true;
+      pv.innerHTML = '<div style="border-top:1px solid var(--border);padding-top:10px">' +
+        _msLine(d.name + ' is a student (id ' + d.id + ').', 'var(--green)') + steps + '</div>';
+      document.getElementById('msButtons').innerHTML =
+        '<button class="btn-settings-load" onclick="_msClose()">Close</button>';
+      _trDropStageCard(email);
+    })
+    .catch(function () {
+      _ms.busy = false;
+      pv.innerHTML = _msLine('\u274c No answer from the server. Check the Counter before trying again: it may have gone through.', 'var(--accent)');
+      go.disabled = false; prev.disabled = false; go.textContent = 'Make student';
     });
 }
