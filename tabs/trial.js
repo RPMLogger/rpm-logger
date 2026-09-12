@@ -637,6 +637,7 @@ function _trManualFormHtml(p) {
         '<span style="flex:1">' + inp(p + 'Last', 'Last') + '</span>' +
       '</div>' +
       inp(p + 'Email', 'student email (goes in calendar Guests)', 'email') +
+      inp(p + 'Phone', 'phone (for reminder texts)', 'tel') +
       '<div id="' + p + 'OfferedSlots"></div>' +
       '<div style="display:flex;gap:8px">' +
         '<span style="flex:2">' + inp(p + 'Date', '', 'date') + '</span>' +
@@ -653,6 +654,7 @@ function _trBook(p) {
   var url = getScriptUrl();
   var first = _trVal(p + 'First'), middle = _trVal(p + 'Middle'), last = _trVal(p + 'Last');
   var email = _trVal(p + 'Email'), date = _trVal(p + 'Date'), time = _trVal(p + 'Time');
+  var phone = _trVal(p + 'Phone');
   // All four are required. Without an email the calendar event has no guest,
   // so Secretary sends no confirmation and they arrive knowing nothing.
   if (!first)                    { _trStatus('Enter at least a first name.', 'var(--accent)', p); return; }
@@ -665,6 +667,7 @@ function _trBook(p) {
   var qs = 'action=bookTrialManual' +
     '&first=' + encodeURIComponent(first) + '&middle=' + encodeURIComponent(middle) +
     '&last=' + encodeURIComponent(last) + '&email=' + encodeURIComponent(email) +
+    '&phone=' + encodeURIComponent(phone) +
     '&date=' + encodeURIComponent(date) + '&time=' + encodeURIComponent(time);
   fetch(url + '?' + qs)
     .then(function (r) { return r.json(); })
@@ -675,7 +678,7 @@ function _trBook(p) {
       _trStatus('✓ Booked ' + d.name + ' — ' + d.dateLabel +
                 (d.cardMade ? ' · card created, they are in the Trial tab now'
                             : ' · they are in the Trial tab now'), 'var(--green)', p);
-      ['First','Middle','Last','Email','Date','Time'].forEach(function (f) { var el = document.getElementById(p + f); if (el) el.value = ''; });
+      ['First','Middle','Last','Email','Phone','Date','Time'].forEach(function (f) { var el = document.getElementById(p + f); if (el) el.value = ''; });
       var sb = document.getElementById(p + 'OfferedSlots'); if (sb) sb.innerHTML = '';
       if (p === 'tr') _trLoadAccepted(); else initTrialStageTab();
     })
@@ -1228,9 +1231,9 @@ function _msRenderForm() {
     '<div id="msRateHint" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin:-6px 0 10px"></div>' +
 
     _msLbl('Phone') +
-    '<input class="settings-input" id="msPhone" value="' + _msAttr(a.phone) + '" oninput="_msDirty()">' +
-    _msLbl('Availability') +
-    '<textarea class="settings-input" id="msAvail" rows="2" oninput="_msDirty()">' + inqEsc(a.availability || '') + '</textarea>' +
+    (a.phone
+      ? '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);margin-bottom:10px">' + inqEsc(a.phone) + '</div>'
+      : '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--accent);margin-bottom:10px">No phone on file: no Phone Numbers row, no welcome text</div>') +
 
     '<label style="display:block;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);margin:4px 0 14px">' +
       '<input type="checkbox" id="msText" checked onchange="_msDirty()"> Send welcome text</label>' +
@@ -1318,8 +1321,9 @@ function _msQuery() {
     date: d.getFullYear() + '-' + _msPad(d.getMonth() + 1) + '-' + _msPad(d.getDate()),
     time: _msPad(Math.floor(_ms.mins / 60)) + ':' + _msPad(_ms.mins % 60),
     rate: document.getElementById('msRate').value,
-    phone: document.getElementById('msPhone').value,
-    availability: document.getElementById('msAvail').value,
+    // Phone and availability come straight from the card (the inquiry).
+    phone: _ms.card.phone || '',
+    availability: _ms.card.availability || '',
     sendText: document.getElementById('msText').checked ? '1' : '0'
   };
   return Object.keys(q).map(function (k) { return k + '=' + encodeURIComponent(q[k]); }).join('&');
