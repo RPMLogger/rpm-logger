@@ -148,8 +148,8 @@ function _enRenderPreview(d) {
       'font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> Already left a review</div>';
   }
 
-  // ── Snapshot card (what gets saved to Eski) ──
-  html += '<div class="section-label" style="margin-bottom:8px">Snapshot → Eski</div>';
+  // ── Snapshot card (what gets saved to the Lifetime & Review summary) ──
+  html += '<div class="section-label" style="margin-bottom:8px">Snapshot → Lifetime &amp; Review</div>';
   html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:6px 16px;margin-bottom:18px">';
   var sk = s.skips || {};
   // Only render fields that actually have a value — empty ones (no Phone, no
@@ -160,6 +160,7 @@ function _enRenderPreview(d) {
     ['City', s.city], ['Level', s.level],
     ['Started', s.startDate], ['Last lesson', s.lastLesson],
     ['Lifetime', s.lifetime], ['Total lessons', s.totalLessons],
+    ['Final rate', s.finalRate ? '$' + s.finalRate : ''], ['Payments', s.paidChecks],
     ['Frequency', s.frequency],
     ['Skips (S/T/V)', (sk.student || sk.teacher || sk.vacation)
       ? (sk.student || 0) + ' / ' + (sk.teacher || 0) + ' / ' + (sk.vacation || 0) : '']
