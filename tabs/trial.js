@@ -739,7 +739,7 @@ function initTrialStageTab() {
 
 function _trStageCard(a) {
   var when = a.trialDateLabel || '';
-  return '<div class="inq-dcard accepted">' +
+  return '<div class="inq-dcard accepted" id="trcard-' + emailToId(a.email || '') + '">' +
       '<div class="inq-drow"><span class="inq-chan">' + inqEsc(a.channel || 'Gmail') + '</span></div>' +
       '<div class="inq-name-line">' +
         '<span class="inq-name">' + inqEsc(a.name || '—') + '</span>' +
@@ -779,7 +779,9 @@ function _trRecordHtml(a) {
   var id = emailToId(a.email || '');
   return '<div style="margin-top:10px">' +
       '<button class="db-mini-btn" id="trrecbtn-' + id + '" ' +
-        'onclick="_trToggleRecord(\'' + id + '\',\'' + _trEsc(a.email || '') + '\')">Lesson record</button>' +
+        'onclick="_trToggleRecord(\'' + id + '\',\'' + _trEsc(a.email || '') + '\')">Lesson record</button> ' +
+      '<button class="db-mini-btn" id="trnobtn-' + id + '" style="border-color:var(--muted);color:var(--muted)" ' +
+        'onclick="_trNotContinuing(\'' + id + '\',\'' + _trEsc(a.email || '') + '\',\'' + _trEsc(a.name || '') + '\')">Not continuing</button>' +
       '<div id="trrec-' + id + '" style="display:none;margin-top:9px"></div>' +
     '</div>';
 }
@@ -863,6 +865,35 @@ function _trSaveField(id, email, key, el) {
     .catch(function () {
       if (msg) { msg.textContent = '\u274c Not saved'; msg.style.color = 'var(--accent)'; }
     });
+}
+
+// ── Trial outcome: Unsuccessful by hand ──────────────────────────────────────
+// Writes Outcome = Unsuccessful on their Trial Lessons row and takes the card
+// off the tab. The row stays on the sheet as the record. Successful is never
+// set here: that comes from Make Student (or them being on the Counter), and
+// the backend also marks Unsuccessful on its own 15 days after the trial.
+function _trNotContinuing(id, email, name) {
+  var url = getScriptUrl();
+  if (!url || !email) return;
+  if (!confirm('Mark ' + (name || email) + ' as not continuing?\n\nOutcome becomes Unsuccessful and the card leaves the Trial tab.')) return;
+  var btn = document.getElementById('trnobtn-' + id);
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving\u2026'; }
+
+  fetch(url + '?action=saveTrialRecord&email=' + encodeURIComponent(email) + '&outcome=Unsuccessful')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success || (d.wrote || []).indexOf('outcome') === -1) {
+        if (btn) { btn.disabled = false; btn.textContent = '\u26a0 Not saved, retry'; }
+        return;
+      }
+      _trStageCache = _trStageCache.filter(function (a) { return (a.email || '') !== email; });
+      var card = document.getElementById('trcard-' + id);
+      if (card) card.remove();
+      _trPayRender();
+      var body = document.getElementById('trialStageBody');
+      if (body && !_trStageCache.length) body.innerHTML = '<div class="empty-state">No booked trials.</div>' + _trStageBookHtml();
+    })
+    .catch(function () { if (btn) { btn.disabled = false; btn.textContent = '\u26a0 Not saved, retry'; } });
 }
 
 // After a reply lands, redraw whichever stage is on screen.
