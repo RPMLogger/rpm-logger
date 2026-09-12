@@ -152,20 +152,17 @@ function _enRenderPreview(d) {
   html += '<div class="section-label" style="margin-bottom:8px">Snapshot → Lifetime &amp; Review</div>';
   html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:6px 16px;margin-bottom:18px">';
   var sk = s.skips || {};
-  // Only render fields that actually have a value — empty ones (no Phone, no
-  // demographics for old students) drop out instead of showing a "—".
+  // Exactly the Lifetime & Review chart's columns, in its order, so what you
+  // see here is what lands in the chart. Blank values show as a dash.
+  var rateNum = String(s.finalRate == null ? '' : s.finalRate).replace(/[^0-9.]/g, '');
   [
-    ['Email', s.email], ['Phone', s.phone],
-    ['Gender / Age', [s.gender, s.age].filter(Boolean).join(' · ')],
-    ['City', s.city], ['Level', s.level],
-    ['Started', s.startDate], ['Last lesson', s.lastLesson],
-    ['Lifetime', s.lifetime], ['Total lessons', s.totalLessons],
-    ['Final rate', s.finalRate ? '$' + s.finalRate : ''], ['Payments', s.paidChecks],
-    ['Frequency', s.frequency],
-    ['Skips (S/T/V)', (sk.student || sk.teacher || sk.vacation)
-      ? (sk.student || 0) + ' / ' + (sk.teacher || 0) + ' / ' + (sk.vacation || 0) : '']
-  ].filter(function (row) {
-    return !(row[1] === '' || row[1] == null);
+    ['Start Date', s.startDate], ['End Date', s.endDate], ['Lifetime', s.lifetime],
+    ['# of Lessons', s.totalLessons], ['Final Rate', rateNum ? '$' + rateNum : ''],
+    ['# of Payments', s.paidChecks],
+    ['Skips (S)', sk.student || 0], ['Skips (T)', sk.teacher || 0], ['Skips (V)', sk.vacation || 0],
+    ['Left a review', s.leftReview ? 'Yes' : 'No'], ['Asked When?', s.askedWhen]
+  ].map(function (row) {
+    return [row[0], (row[1] === '' || row[1] == null) ? '\u2014' : row[1]];
   }).forEach(function (row) {
     html += '<div style="display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--border)">' +
       '<span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">' + row[0] + '</span>' +
