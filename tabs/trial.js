@@ -212,6 +212,7 @@ function _trPickSlot(date, time) {
   function set(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; }
   set('trDate', date);
   set('trTime', time);
+  _trDtShow('tr');
   _trStatus('Set to ' + date + ' at ' + time + '. Check it, then Book trial.', 'var(--accent2)');
 }
 
@@ -615,6 +616,7 @@ function _trBookAccepted(name, email) {
   function set(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; }
   set('trFirst', first); set('trMiddle', middle); set('trLast', last); set('trEmail', email);
   set('trDate', ''); set('trTime', '');
+  _trDtShow('tr');
   _trRenderOfferedSlots(email);
   var f = document.getElementById('trFirst');
   if (f) { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.focus(); }
@@ -639,10 +641,7 @@ function _trManualFormHtml(p) {
       inp(p + 'Email', 'student email (goes in calendar Guests)', 'email') +
       inp(p + 'Phone', 'phone (for reminder texts)', 'tel') +
       '<div id="' + p + 'OfferedSlots"></div>' +
-      '<div style="display:flex;gap:8px">' +
-        '<span style="flex:2">' + inp(p + 'Date', '', 'date') + '</span>' +
-        '<span style="flex:1">' + inp(p + 'Time', '', 'time') + '</span>' +
-      '</div>' +
+      _trDtHtml(p) +
     '</div>' +
     '<button id="' + p + 'BookBtn" onclick="_trBook(\'' + p + '\')" ' +
       'style="width:100%;box-sizing:border-box;background:var(--accent);color:#fff;border:none;border-radius:10px;' +
@@ -679,6 +678,7 @@ function _trBook(p) {
                 (d.cardMade ? ' · card created, they are in the Trial tab now'
                             : ' · they are in the Trial tab now'), 'var(--green)', p);
       ['First','Middle','Last','Email','Phone','Date','Time'].forEach(function (f) { var el = document.getElementById(p + f); if (el) el.value = ''; });
+      _trDtShow(p);
       var sb = document.getElementById(p + 'OfferedSlots'); if (sb) sb.innerHTML = '';
       if (p === 'tr') _trLoadAccepted(); else initTrialStageTab();
     })
@@ -688,6 +688,93 @@ function _trBook(p) {
 function _trRestoreBook(p) {
   var btn = document.getElementById((p || 'tr') + 'BookBtn');
   if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer'; btn.textContent = '＋ Book trial'; }
+}
+
+// ── Trial date/time stepper ─────────────────────────────────────────────────
+// ◀ Sun, Sep 13 ▶   ▲ 10:30 PM ▼   (day steps ±1, time steps ±15 min)
+// The real values live in hidden inputs p+'Date' (yyyy-MM-dd) and p+'Time'
+// (HH:mm), so _trBook, _trPickSlot and the reset keep reading/writing them as
+// before. A blank value shows as tomorrow at 5:00 PM.
+var _TR_DT_MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var _TR_DT_DAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function _trDtPad(n) { return (n < 10 ? '0' : '') + n; }
+function _trDtYmd(d) { return d.getFullYear() + '-' + _trDtPad(d.getMonth() + 1) + '-' + _trDtPad(d.getDate()); }
+
+function _trDtDefault() {
+  var d = new Date(); d.setDate(d.getDate() + 1);
+  return { date: _trDtYmd(d), time: '17:00' };
+}
+
+function _trDtHtml(p) {
+  var def = _trDtDefault();
+  var btn = function (fn, n, txt) {
+    return '<button type="button" onclick="' + fn + '(\'' + p + '\',' + n + ')" ' +
+      'style="background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);' +
+      'min-width:38px;padding:9px 0;font-size:13px;cursor:pointer">' + txt + '</button>';
+  };
+  var lbl = 'style="font-family:\'DM Mono\',monospace;font-size:15px;color:var(--text);text-align:center"';
+  return '<input type="hidden" id="' + p + 'Date" value="' + def.date + '">' +
+    '<input type="hidden" id="' + p + 'Time" value="' + def.time + '">' +
+    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+      btn('_trDtStepDate', -1, '\u25c0') +
+      '<span id="' + p + 'DateLbl" ' + lbl.replace('text-align:center', 'text-align:center;min-width:130px') + '>' + _trDtDateLabel(def.date) + '</span>' +
+      btn('_trDtStepDate', 1, '\u25b6') +
+      '<span style="width:18px"></span>' +
+      btn('_trDtStepTime', 15, '\u25b2') +
+      '<span id="' + p + 'TimeLbl" ' + lbl.replace('text-align:center', 'text-align:center;min-width:90px') + '>' + _trDtTimeLabel(def.time) + '</span>' +
+      btn('_trDtStepTime', -15, '\u25bc') +
+    '</div>';
+}
+
+function _trDtParseDate(v) {
+  var m = String(v || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+}
+function _trDtMins(v) {
+  var m = String(v || '').match(/^(\d{1,2}):(\d{2})$/);
+  return m ? (+m[1] * 60 + +m[2]) : null;
+}
+function _trDtDateLabel(v) {
+  var d = _trDtParseDate(v);
+  return d ? _TR_DT_DAY[d.getDay()] + ', ' + _TR_DT_MON[d.getMonth()] + ' ' + d.getDate() : '\u2014';
+}
+function _trDtTimeLabel(v) {
+  var t = _trDtMins(v);
+  if (t === null) return '\u2014';
+  var h = Math.floor(t / 60), mi = t % 60;
+  return ((h % 12) || 12) + ':' + _trDtPad(mi) + (h < 12 ? ' AM' : ' PM');
+}
+
+// Fill blanks with the default and redraw both labels.
+function _trDtShow(p) {
+  var di = document.getElementById(p + 'Date'), ti = document.getElementById(p + 'Time');
+  if (!di || !ti) return;
+  var def = _trDtDefault();
+  if (!_trDtParseDate(di.value)) di.value = def.date;
+  if (_trDtMins(ti.value) === null) ti.value = def.time;
+  var dl = document.getElementById(p + 'DateLbl'), tl = document.getElementById(p + 'TimeLbl');
+  if (dl) dl.textContent = _trDtDateLabel(di.value);
+  if (tl) tl.textContent = _trDtTimeLabel(ti.value);
+}
+
+function _trDtStepDate(p, n) {
+  _trDtShow(p);
+  var di = document.getElementById(p + 'Date');
+  var d = _trDtParseDate(di.value);
+  d.setDate(d.getDate() + n);
+  di.value = _trDtYmd(d);
+  _trDtShow(p);
+}
+
+// Snaps to the 15-minute grid, stays within the same day.
+function _trDtStepTime(p, n) {
+  _trDtShow(p);
+  var ti = document.getElementById(p + 'Time');
+  var t = _trDtMins(ti.value);
+  t = Math.round(t / 15) * 15 + n;
+  t = Math.max(0, Math.min(23 * 60 + 45, t));
+  ti.value = _trDtPad(Math.floor(t / 60)) + ':' + _trDtPad(t % 60);
+  _trDtShow(p);
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
