@@ -883,6 +883,10 @@ function _trLessonStatus(a) {
       step(s.dropboxMade, 'Dropbox') +
       step(s.termsSent, 'Terms sent' + (s.sentDate ? ' ' + inqEsc(s.sentDate) : '')) +
       step(s.termsBack, 'Terms back' + (s.returnDate ? ' ' + inqEsc(s.returnDate) : '')) +
+      ((s.pencilledSpot || s.frequency)
+        ? '<span style="color:var(--blue)">Spot: ' +
+            inqEsc([s.pencilledSpot, s.frequency].filter(function (x) { return x; }).join(' · ')) + '</span>'
+        : '<span style="color:var(--muted)">· No spot pencilled</span>') +
     '</div>';
 }
 
@@ -951,6 +955,98 @@ function _tlMsg(id) {
   return '<div id="' + id + '" style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:6px;min-height:14px"></div>';
 }
 
+// ── Pencilled spot + frequency ──
+// Picked at the end of the trial, saved as text ("Tue 5:30 PM", "Weekly") on
+// the Trial Storage row. Make Student opens prefilled from it.
+function _tlParseSpot(str) {
+  var m = String(str || '').match(/^(Sun|Mon|Tue|Wed|Thu|Fri|Sat)\w*\s+(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!m) return null;
+  var day = _MS_DAYS.map(function (d) { return d.toLowerCase(); }).indexOf(m[1].toLowerCase());
+  var h = +m[2] % 12 + (m[4].toUpperCase() === 'PM' ? 12 : 0);
+  return { day: day, mins: h * 60 + +m[3] };
+}
+
+function _tlSpotStr(day, mins) {
+  var h = Math.floor(mins / 60), mi = mins % 60;
+  return _MS_DAYS[day] + ' ' + ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM');
+}
+
+function _tlSpotState() {
+  if (_tl.spot) return _tl.spot;
+  var rec = _tl.rec || {}, s = _tl.card.lesson || {};
+  var p = _tlParseSpot(rec.pencilledSpot || s.pencilledSpot);
+  var t = String(_tl.card.trialTime || '').match(/^(\d{1,2}):(\d{2})$/);
+  _tl.spot = {
+    day: p ? p.day : -1,
+    mins: p ? p.mins : (t ? +t[1] * 60 + +t[2] : 17 * 60),
+    freq: rec.frequency || s.frequency || ''
+  };
+  return _tl.spot;
+}
+
+function _tlSpotHtml() {
+  var sp = _tlSpotState();
+  function pill(on, label, onclick) {
+    return '<button class="db-mini-btn" style="min-width:42px;' +
+      (on ? 'border-color:var(--blue);color:var(--blue);background:rgba(74,158,255,0.12)' : '') +
+      '" onclick="' + onclick + '">' + label + '</button>';
+  }
+  var h = Math.floor(sp.mins / 60), mi = sp.mins % 60;
+  return '<label class="settings-label" style="margin-top:4px">Pencilled spot</label>' +
+    '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">' +
+      [1, 2, 3, 4, 5, 6, 0].map(function (d) { return pill(sp.day === d, _MS_DAYS[d], '_tlSpotDay(' + d + ')'); }).join('') +
+    '</div>' +
+    '<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' +
+      _msArrow('_tlSpotTime', -15, '◀') +
+      '<span style="min-width:74px;text-align:center">' + ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM') + '</span>' +
+      _msArrow('_tlSpotTime', 15, '▶') +
+      '<span style="width:10px"></span>' +
+      '<button class="db-mini-btn" style="border-color:var(--muted);color:var(--muted)" onclick="_tlSpotClear()">Clear</button>' +
+    '</div>' +
+    '<label class="settings-label">Frequency</label>' +
+    '<div style="display:flex;gap:5px;margin-bottom:4px">' +
+      pill(sp.freq === 'Weekly', 'Weekly', '_tlSpotFreq(\'Weekly\')') +
+      pill(sp.freq === 'Biweekly', 'Biweekly', '_tlSpotFreq(\'Biweekly\')') +
+    '</div>' +
+    _tlMsg('tlSpotMsg');
+}
+
+function _tlSpotDay(d)  { if (!_tl) return; _tlSpotState().day = d; _tlSpotSave(); }
+function _tlSpotTime(n) {
+  if (!_tl) return;
+  var sp = _tlSpotState();
+  sp.mins = Math.min(23 * 60 + 45, Math.max(0, sp.mins + n));
+  _tlSpotSave();
+}
+function _tlSpotFreq(f) { if (!_tl) return; _tlSpotState().freq = f; _tlSpotSave(); }
+function _tlSpotClear() { if (!_tl) return; var sp = _tlSpotState(); sp.day = -1; sp.freq = ''; _tlSpotSave(); }
+
+// Every tap saves both cells. A spot with no day picked yet saves blank, so
+// stepping the time alone never writes a half spot.
+function _tlSpotSave() {
+  var sp = _tlSpotState();
+  var spot = sp.day >= 0 ? _tlSpotStr(sp.day, sp.mins) : '';
+  var box = document.getElementById('tlSpot');
+  if (box) box.innerHTML = _tlSpotHtml();
+  _tlMark({ pencilledSpot: spot, frequency: sp.freq });
+  var url = getScriptUrl();
+  if (!url) return;
+  _tlSetMsg('tlSpotMsg', 'Saving…');
+  clearTimeout(_tl.spotTimer);
+  var email = _tl.card.email || '';
+  _tl.spotTimer = setTimeout(function () {
+    fetch(url + '?action=saveTrialRecord&email=' + encodeURIComponent(email) +
+          '&pencilledSpot=' + encodeURIComponent(spot) + '&frequency=' + encodeURIComponent(sp.freq))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d.success) { _tlSetMsg('tlSpotMsg', '⚠ ' + (d.message || 'Not saved'), 'var(--accent)'); return; }
+        if (d.skipped && d.skipped.length) { _tlSetMsg('tlSpotMsg', '⚠ No column on the sheet: ' + d.skipped.join(', '), 'var(--accent)'); return; }
+        _tlSetMsg('tlSpotMsg', 'Saved ✓', 'var(--green)');
+      })
+      .catch(function () { _tlSetMsg('tlSpotMsg', '❌ Not saved', 'var(--accent)'); });
+  }, 600);   // arrow taps come in bursts; save once they stop
+}
+
 function _tlRender() {
   var a = _tl.card, rec = _tl.rec || {};
   var id = emailToId(a.email || '');
@@ -981,6 +1077,7 @@ function _tlRender() {
       }).join('') +
     '</div>' +
     '<div id="trrecmsg-' + id + '" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);min-height:12px"></div>' +
+    '<div id="tlSpot">' + _tlSpotHtml() + '</div>' +
 
     // 2. Dropbox
     _tlSection('2 \u00b7 DROPBOX') +
@@ -1536,7 +1633,8 @@ function _msOpen(email) {
   var a = _trStageCache.filter(function (x) { return (x.email || '') === email; })[0];
   if (!a) return;
   var d = _msDefaultStart(a);
-  _ms = { card: a, cadence: 'weekly', date: d.date, mins: d.mins, rateEdited: false, busy: false, done: false };
+  var f = String((a.lesson && a.lesson.frequency) || '').toLowerCase();
+  _ms = { card: a, cadence: f === 'biweekly' ? 'biweekly' : 'weekly', date: d.date, mins: d.mins, rateEdited: false, busy: false, done: false };
 
   var ov = document.getElementById('msOverlay');
   if (!ov) {
@@ -1559,11 +1657,18 @@ function _msClose() {
   _ms = null;
 }
 
-// Same weekday and time as the trial, one week later, moved forward a week at a
-// time until it is in the future.
+// The pencilled spot if one was picked: the next date on that weekday, at that
+// time. Otherwise the same weekday and time as the trial, one week later,
+// moved forward a week at a time until it is in the future.
 function _msDefaultStart(a) {
   var today = new Date(); today.setHours(0, 0, 0, 0);
   var date;
+  var sp = _tlParseSpot(a.lesson && a.lesson.pencilledSpot);
+  if (sp) {
+    date = new Date(today); date.setDate(date.getDate() + 1);
+    while (date.getDay() !== sp.day) date.setDate(date.getDate() + 1);
+    return { date: date, mins: sp.mins };
+  }
   var m = String(a.trialDate || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (m) {
     date = new Date(+m[1], +m[2] - 1, +m[3] + 7);
@@ -1604,8 +1709,8 @@ function _msRenderForm() {
 
     _msLbl('Schedule') +
     '<div style="display:flex;gap:18px;margin-bottom:10px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' +
-      '<label><input type="radio" name="msCad" value="weekly" checked onchange="_msSetCadence(this.value)"> Weekly</label>' +
-      '<label><input type="radio" name="msCad" value="biweekly" onchange="_msSetCadence(this.value)"> Biweekly</label>' +
+      '<label><input type="radio" name="msCad" value="weekly"' + (_ms.cadence === 'weekly' ? ' checked' : '') + ' onchange="_msSetCadence(this.value)"> Weekly</label>' +
+      '<label><input type="radio" name="msCad" value="biweekly"' + (_ms.cadence === 'biweekly' ? ' checked' : '') + ' onchange="_msSetCadence(this.value)"> Biweekly</label>' +
     '</div>' +
 
     _msLbl('First lesson') +
