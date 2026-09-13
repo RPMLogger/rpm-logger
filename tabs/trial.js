@@ -735,6 +735,7 @@ function initTrialStageTab() {
       _trPayRender();
       if (!_trStageCache.length) { body.innerHTML = '<div class="empty-state">No booked trials.</div>' + _trStageBookHtml(); return; }
       body.innerHTML = _trStageCache.map(_trStageCard).join('') + _trStageBookHtml();
+      _trPaintPaid();
       _trLoadStageThreads();
     })
     .catch(function () { body.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
@@ -753,6 +754,7 @@ function _trStageCard(a) {
             '</span>'
           : '') +
       '</div>' +
+      '<div id="trpaid-' + emailToId(a.email || '') + '"></div>' +
       '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
       _trRecordHtml(a) +
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || '') + '"></div>' +
@@ -884,10 +886,10 @@ function _trNotContinuing(id, email, name) {
   var btn = document.getElementById('trnobtn-' + id);
   if (btn) { btn.disabled = true; btn.textContent = 'Saving\u2026'; }
 
-  fetch(url + '?action=saveTrialRecord&email=' + encodeURIComponent(email) + '&outcome=Unsuccessful')
+  fetch(url + '?action=closeTrial&email=' + encodeURIComponent(email) + '&outcome=Unsuccessful')
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (!d.success || (d.wrote || []).indexOf('outcome') === -1) {
+      if (!d.success) {
         if (btn) { btn.disabled = false; btn.textContent = '\u26a0 Not saved, retry'; }
         return;
       }
@@ -1023,8 +1025,29 @@ function _trPayRender() {
   // payments, and redrawing here once turned "could not load" into the much
   // worse "No trial payments waiting", which reads as "nobody has paid".
   if (!_trPayOk) return;
-  if (!_trPayCache.length) { body.innerHTML = '<div class="empty-state">No trial payments waiting.</div>'; return; }
+  if (!_trPayCache.length) { body.innerHTML = '<div class="empty-state">No trial payments waiting.</div>'; _trPaintPaid(); return; }
   body.innerHTML = _trPayCache.map(_trPayCard).join('');
+  _trPaintPaid();
+}
+
+// The trial payment (flagged by the backend) for one person, if it is still in
+// the incoming list.
+function _trTrialPayFor(email) {
+  var e = (email || '').toLowerCase();
+  return (_trPayCache || []).filter(function (p) { return p.trial && (p.trial.email || '').toLowerCase() === e; })[0] || null;
+}
+
+// "✓ Trial paid" under the name on each booked card.
+function _trPaintPaid() {
+  (_trStageCache || []).forEach(function (a) {
+    var box = document.getElementById('trpaid-' + emailToId(a.email || ''));
+    if (!box) return;
+    var p = _trTrialPayFor(a.email);
+    box.innerHTML = p
+      ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--green);margin:2px 0 6px">\u2713 Trial paid \u00b7 ' +
+          inqEsc(p.method || '') + ' ' + inqEsc(p.amount || '') + ' \u00b7 ' + inqEsc(p.date || '') + '</div>'
+      : '';
+  });
 }
 
 // Which booked trial does this payment look like? Full name first, then first
@@ -1053,7 +1076,9 @@ function _trPayCard(p) {
   // claiming "not one of your booked trials" then would be a lie that corrects
   // itself a second later. Say nothing instead.
   var hit  = _trStageLoaded ? _trPayMatch(p.name) : null;
-  var note = !_trStageLoaded ? ''
+  var note = p.trial
+    ? '<div class="incoming-nomatch" style="color:var(--green)">\u2192 ' + inqEsc(p.trial.name) + ' \u00b7 trial paid \u2713</div>'
+    : !_trStageLoaded ? ''
     : hit
       ? '<div class="incoming-nomatch" style="color:var(--green)">→ ' + inqEsc(hit.name) + '</div>'
       : '<div class="incoming-nomatch">⚠ Not one of your booked trials</div>';
@@ -1212,6 +1237,15 @@ function _msRenderForm() {
     '<input class="settings-input" id="msName" value="' + _msAttr(a.name) + '" oninput="_msDirty()">' +
     _msLbl('Email') +
     '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);margin-bottom:10px">' + inqEsc(a.email || '') + '</div>' +
+
+    _msLbl('Trial payment') +
+    (function () {
+      var tp = _trTrialPayFor(a.email);
+      return tp
+        ? '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--green);margin-bottom:10px">Paid \u2713 \u00b7 ' +
+            inqEsc(tp.method || '') + ' ' + inqEsc(tp.amount || '') + ' \u00b7 ' + inqEsc(tp.date || '') + '</div>'
+        : '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted);margin-bottom:10px">No trial payment found</div>';
+    })() +
 
     _msLbl('Schedule') +
     '<div style="display:flex;gap:18px;margin-bottom:10px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' +

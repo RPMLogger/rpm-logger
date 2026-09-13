@@ -399,6 +399,9 @@ function loadIncomingPayments() {
       if (tabBtn) tabBtn.innerHTML = "Payments <span style='background:var(--accent);color:#fff;font-size:8px;border-radius:8px;padding:1px 5px;vertical-align:middle;margin-left:2px'>!</span>";
 
       data.payments.forEach(function(p) {
+        // A trial payment is recorded from the Trial tab (Make Student / Not
+        // continuing), never confirmed here: that would tick a lesson's Paid box.
+        var isTrial = !!p.trial;
         var card = document.createElement("div");
         card.className = "incoming-card";
         card.innerHTML =
@@ -409,14 +412,16 @@ function loadIncomingPayments() {
               "<span class='incoming-amount'>" + p.amount + "</span>" +
               "<span class='incoming-date'>" + shortDate(p.date) + "</span>" +
             "</div>" +
-            (p.matched ? "" : "<div class='incoming-nomatch'>⚠ Name not matched in student sheets</div>") +
+            (isTrial
+              ? "<div class='incoming-nomatch' style='color:var(--accent2)'>Trial payment · " + p.trial.name + " (recorded from the Trial tab)</div>"
+              : (p.matched ? "" : "<div class='incoming-nomatch'>⚠ Name not matched in student sheets</div>")) +
           "</div>" +
           "<div style='display:flex;flex-direction:column;gap:6px;flex-shrink:0'>" +
-            "<button class='incoming-confirm'>Confirm →</button>" +
+            "<button class='incoming-confirm'" + (isTrial ? " disabled title='Trial payment: recorded from the Trial tab' style='opacity:.35;cursor:not-allowed'" : "") + ">Confirm →</button>" +
             "<button class='incoming-dismiss'>✕ Dismiss</button>" +
           "</div>";
 
-        card.querySelector(".incoming-confirm").addEventListener("click", function() {
+        if (!isTrial) card.querySelector(".incoming-confirm").addEventListener("click", function() {
           openIncomingNotePanel(p, card);
         });
         card.querySelector(".incoming-dismiss").addEventListener("click", function() {
