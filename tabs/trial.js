@@ -761,76 +761,275 @@ function _trStageCard(a) {
     '</div>';
 }
 
-// ── The lesson record ────────────────────────────────────────────────────────
-// The five things the inquiry cannot know, asked in the first three minutes.
-// Everything else on this card came across from the inquiry already, and
-// re-asking it is what would blow the time budget.
-//
-// Collapsed until tapped, because for a trial that has not happened yet it is
-// just clutter. Open it as the lesson starts.
-//
-// Saves per field on blur, not behind a Save button: this gets filled on a
-// phone while a student is tuning up, and a half-typed record that was never
-// submitted is worse than no record.
+// ── The lesson page ──────────────────────────────────────────────────────────
+// Opened from the card when the student walks in. Three parts, top to bottom
+// in the order they happen:
+//   About them  the Trial Storage row, prefilled from the inquiry; the lesson
+//               questions (what do you do, guitar) get typed here. Saves per
+//               field on blur: a half-typed record never submitted is worse
+//               than no record.
+//   Dropbox     their Dropbox email, then create + share the folder.
+//   Terms       at the end: preview + send the one standard email. Terms Back
+//               ticks itself when the acknowledgment form comes in.
+// Backend: getTrialRecord / saveTrialRecord (RPM_TrialSheet.gs),
+// trialDropbox / previewTrialTerms / sendTrialTerms (RPM_TrialLesson.gs).
 var _TR_FIELDS = [
-  { key: 'schoolJob',    label: 'School / Job' },
-  { key: 'guitar',       label: 'Guitar' },
-  { key: 'interests',    label: 'Interests' },
-  { key: 'dropboxEmail', label: 'Dropbox email' },
-  { key: 'notes',        label: 'Notes' }
+  { key: 'phone',     label: 'Phone' },
+  { key: 'city',      label: 'City' },
+  { key: 'schoolJob', label: 'What do you do (school / job)' },
+  { key: 'guitar',    label: 'Guitar' },
+  { key: 'level',     label: 'Level' },
+  { key: 'goals',     label: 'Goals' },
+  { key: 'interests', label: 'Interests' },
+  { key: 'notes',     label: 'Notes' }
 ];
+
+// One line on the card: where the lesson steps stand.
+function _trLessonStatus(a) {
+  var s = a.lesson;
+  if (!s) return '';
+  function step(ok, txt) {
+    return '<span style="color:' + (ok ? 'var(--green)' : 'var(--muted)') + '">' + (ok ? '✓ ' : '· ') + txt + '</span>';
+  }
+  return '<div id="trls-' + emailToId(a.email || '') + '" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;' +
+      'font-family:\'DM Mono\',monospace;font-size:10px">' +
+      step(s.dropboxMade, 'Dropbox') +
+      step(s.termsSent, 'Terms sent' + (s.sentDate ? ' ' + inqEsc(s.sentDate) : '')) +
+      step(s.termsBack, 'Terms back' + (s.returnDate ? ' ' + inqEsc(s.returnDate) : '')) +
+    '</div>';
+}
 
 function _trRecordHtml(a) {
   var id = emailToId(a.email || '');
-  return '<div style="margin-top:10px">' +
-      '<button class="db-mini-btn" id="trrecbtn-' + id + '" ' +
-        'onclick="_trToggleRecord(\'' + id + '\',\'' + _trEsc(a.email || '') + '\')">Lesson record</button> ' +
+  return _trLessonStatus(a) +
+    '<div style="margin-top:10px">' +
+      '<button class="db-mini-btn" style="border-color:var(--blue);color:var(--blue)" ' +
+        'onclick="_tlOpen(\'' + _trEsc(a.email || '') + '\')">Lesson</button> ' +
       '<button class="db-mini-btn" id="trnobtn-' + id + '" style="border-color:var(--muted);color:var(--muted)" ' +
         'onclick="_trNotContinuing(\'' + id + '\',\'' + _trEsc(a.email || '') + '\',\'' + _trEsc(a.name || '') + '\')">Not continuing</button> ' +
       '<button class="db-mini-btn" style="border-color:var(--green);color:var(--green)" ' +
         'onclick="_msOpen(\'' + _trEsc(a.email || '') + '\')">Make student</button>' +
-      '<div id="trrec-' + id + '" style="display:none;margin-top:9px"></div>' +
     '</div>';
 }
 
-function _trToggleRecord(id, email) {
-  var box = document.getElementById('trrec-' + id);
-  var btn = document.getElementById('trrecbtn-' + id);
-  if (!box) return;
-  if (box.style.display !== 'none') {
-    box.style.display = 'none';
-    if (btn) btn.textContent = 'Lesson record';
-    return;
+var _tl = null;   // { card, rec, busy }
+
+function _tlOpen(email) {
+  var a = _trStageCache.filter(function (x) { return (x.email || '') === email; })[0];
+  if (!a) return;
+  _tl = { card: a, rec: null, busy: false };
+
+  var ov = document.getElementById('tlOverlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.className = 'settings-overlay';
+    ov.id = 'tlOverlay';
+    ov.innerHTML = '<div class="settings-modal" id="tlModal" style="max-width:640px;max-height:90vh;overflow-y:auto"></div>';
+    ov.addEventListener('click', function (e) { if (e.target === ov) _tlClose(); });
+    document.body.appendChild(ov);
   }
-  box.style.display = '';
-  if (btn) btn.textContent = 'Hide record';
-  if (box.getAttribute('data-loaded') === '1') return;
+  ov.classList.add('open');
+  document.getElementById('tlModal').innerHTML =
+    '<div class="settings-title">' + inqEsc(a.name || '') + '<button class="settings-close" onclick="_tlClose()">\u2715</button></div>' +
+    '<div class="empty-state">Loading\u2026</div>';
 
-  box.innerHTML = '<div class="empty-state">Loading\u2026</div>';
   var url = getScriptUrl();
-  if (!url) { box.innerHTML = '<div class="empty-state">Set your Apps Script URL first.</div>'; return; }
-
+  if (!url) { _tlRender(); return; }
   fetch(url + '?action=getTrialRecord&email=' + encodeURIComponent(email))
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (!d.success) {
-        box.innerHTML = '<div class="empty-state">\u26a0 ' + inqEsc(d.message || d.error || 'Could not load') + '</div>';
-        return;
-      }
-      var rec = d.record || {};
+      if (!_tl) return;
       // A trial with no row yet is not an error: the row is written when the
       // Trial tab loads, so this only happens on a very fresh booking.
-      box.innerHTML = _TR_FIELDS.map(function (f) {
-        var val = rec[f.key] || '';
-        // The Dropbox address starts as the one they wrote from. They often
-        // have a different Dropbox account, which is exactly the question.
-        if (f.key === 'dropboxEmail' && !val) val = email;
-        return _trFieldHtml(id, email, f, val);
-      }).join('') +
-      '<div id="trrecmsg-' + id + '" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin-top:6px;min-height:12px"></div>';
-      box.setAttribute('data-loaded', '1');
+      _tl.rec = (d && d.success && d.record) || {};
+      if (d && !d.success) _tl.loadError = d.message || d.error || 'Could not load';
+      _tlRender();
     })
-    .catch(function () { box.innerHTML = '<div class="empty-state">\u274c Could not load.</div>'; });
+    .catch(function () { if (_tl) { _tl.rec = {}; _tl.loadError = 'Could not load the record'; _tlRender(); } });
+}
+
+function _tlClose() {
+  if (_tl && _tl.busy) return;     // never close mid-send
+  var ov = document.getElementById('tlOverlay');
+  if (ov) ov.classList.remove('open');
+  _tl = null;
+}
+
+function _tlSection(title) {
+  return '<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1.5px;color:var(--blue);' +
+    'border-top:1px solid var(--border);padding-top:12px;margin:14px 0 8px">' + title + '</div>';
+}
+
+function _tlMsg(id) {
+  return '<div id="' + id + '" style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:6px;min-height:14px"></div>';
+}
+
+function _tlRender() {
+  var a = _tl.card, rec = _tl.rec || {};
+  var id = emailToId(a.email || '');
+  var email = a.email || '';
+  var s = a.lesson || {};
+  var dropboxMade = s.dropboxMade || String(rec.dropboxMade || '').toUpperCase() === 'TRUE';
+  var termsSent   = s.termsSent   || String(rec.termsSent || '').toUpperCase() === 'TRUE';
+  var termsBack   = s.termsBack   || String(rec.termsBack || '').toUpperCase() === 'TRUE';
+  var dbxEmail    = rec.dropboxEmail || s.dropboxEmail || email;
+
+  document.getElementById('tlModal').innerHTML =
+    '<div class="settings-title">' + inqEsc(a.name || '') +
+      '<button class="settings-close" onclick="_tlClose()">\u2715</button></div>' +
+    '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)">' +
+      inqEsc(email) + (a.trialDateLabel ? ' \u00b7 trial ' + inqEsc(a.trialDateLabel) : '') + '</div>' +
+    (_tl.loadError ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-top:6px">\u26a0 ' + inqEsc(_tl.loadError) + '</div>' : '') +
+
+    // 1. About them
+    _tlSection('1 \u00b7 ABOUT THEM') +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 12px">' +
+      _TR_FIELDS.map(function (f) {
+        var val = rec[f.key] || '';
+        if (!val && f.key === 'phone') val = a.phone || '';
+        if (!val && f.key === 'city') val = a.city || '';
+        if (!val && f.key === 'level') val = a.level || '';
+        var wide = (f.key === 'goals' || f.key === 'interests' || f.key === 'notes');
+        return '<div style="' + (wide ? 'grid-column:1 / -1' : '') + '">' + _trFieldHtml(id, email, f, val) + '</div>';
+      }).join('') +
+    '</div>' +
+    '<div id="trrecmsg-' + id + '" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);min-height:12px"></div>' +
+
+    // 2. Dropbox
+    _tlSection('2 \u00b7 DROPBOX') +
+    '<label class="settings-label">Dropbox email</label>' +
+    '<div style="display:flex;gap:8px;align-items:center">' +
+      '<input class="settings-input" id="tlDbxEmail" style="margin:0;flex:1;min-width:0" value="' + _msAttr(dbxEmail) + '"' + (dropboxMade ? ' disabled' : '') + '>' +
+      '<button class="btn-settings-load" id="tlDbxBtn" style="margin:0;width:auto;flex:none;padding-left:16px;padding-right:16px;white-space:nowrap' +
+        (dropboxMade ? '' : ';border-color:var(--green);color:var(--green)') + '"' +
+        (dropboxMade ? ' disabled' : '') + ' onclick="_tlDropbox()">' +
+        (dropboxMade ? 'Folder made \u2713' : 'Create & share') + '</button>' +
+    '</div>' +
+    '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin-top:5px">' +
+      'Folder: ' + inqEsc(a.name || '') + ' \u00b7 invite only, the instructions go in the terms email</div>' +
+    _tlMsg('tlDbxMsg') +
+
+    // 3. Terms
+    _tlSection('3 \u00b7 TERMS (END OF LESSON)') +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">' +
+      '<button class="btn-settings-load" id="tlPrevBtn" style="margin:0;width:auto;flex:none;padding-left:16px;padding-right:16px" onclick="_tlPreview()">Preview email</button>' +
+      '<button class="btn-settings-load" id="tlSendBtn" style="margin:0;width:auto;flex:none;padding-left:16px;padding-right:16px;border-color:var(--green);color:var(--green)" onclick="_tlSend()">' +
+        (termsSent ? 'Send again' : 'Send terms') + '</button>' +
+      '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:' + (termsSent ? 'var(--green)' : 'var(--muted)') + '">' +
+        (termsSent ? '\u2713 Sent ' + inqEsc(rec.sentDate || s.sentDate || '') : 'Not sent yet') + '</span>' +
+    '</div>' +
+    '<div style="font-family:\'DM Mono\',monospace;font-size:11px;margin-top:8px;color:' + (termsBack ? 'var(--green)' : 'var(--muted)') + '">' +
+      (termsBack
+        ? '\u2713 Form back ' + inqEsc(rec.returnDate || s.returnDate || '')
+        : 'Form not back yet (ticks itself when it comes in)') + '</div>' +
+    _tlMsg('tlTermsMsg') +
+    '<div id="tlPreview"></div>';
+}
+
+function _tlSetMsg(elId, txt, color) {
+  var el = document.getElementById(elId);
+  if (el) { el.textContent = txt; el.style.color = color || 'var(--muted)'; }
+}
+
+// Keep the card's status line in step with what just happened in the window.
+function _tlMark(patch) {
+  var a = _tl && _tl.card;
+  if (!a) return;
+  a.lesson = a.lesson || {};
+  Object.keys(patch).forEach(function (k) { a.lesson[k] = patch[k]; });
+  var old = document.getElementById('trls-' + emailToId(a.email || ''));
+  if (old) old.outerHTML = _trLessonStatus(a);
+}
+
+function _tlDropbox() {
+  var url = getScriptUrl();
+  if (!url || !_tl || _tl.busy) return;
+  var a = _tl.card;
+  var dbx = document.getElementById('tlDbxEmail').value.trim();
+  var btn = document.getElementById('tlDbxBtn');
+  if (dbx.indexOf('@') === -1) { _tlSetMsg('tlDbxMsg', '\u26a0 That does not look like an email.', 'var(--accent)'); return; }
+  _tl.busy = true; btn.disabled = true; btn.textContent = 'Creating\u2026';
+  _tlSetMsg('tlDbxMsg', 'Creating the folder and sharing it with ' + dbx + '\u2026');
+  fetch(url + '?action=trialDropbox&email=' + encodeURIComponent(a.email || '') +
+        '&name=' + encodeURIComponent(a.name || '') + '&dropboxEmail=' + encodeURIComponent(dbx))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!_tl) return;
+      _tl.busy = false;
+      if (!d.success) {
+        btn.disabled = false; btn.textContent = 'Create & share';
+        _tlSetMsg('tlDbxMsg', '\u26a0 ' + (d.message || 'Not created'), 'var(--accent)');
+        return;
+      }
+      btn.textContent = 'Folder made \u2713'; btn.style.borderColor = ''; btn.style.color = '';
+      document.getElementById('tlDbxEmail').disabled = true;
+      _tl.rec = _tl.rec || {}; _tl.rec.dropboxEmail = dbx; _tl.rec.dropboxMade = 'TRUE';
+      _tlMark({ dropboxMade: true, dropboxEmail: dbx });
+      _tlSetMsg('tlDbxMsg', 'Shared "' + d.name + '" with ' + dbx + '. Dropbox sent them the invite.' +
+        (d.stamped ? '' : ' (Could not tick Dropbox Made on the sheet.)'), 'var(--green)');
+    })
+    .catch(function () {
+      if (!_tl) return;
+      _tl.busy = false; btn.disabled = false; btn.textContent = 'Create & share';
+      _tlSetMsg('tlDbxMsg', '\u274c No answer. Check the Dropbox tab before trying again: it may have gone through.', 'var(--accent)');
+    });
+}
+
+function _tlPreview() {
+  var url = getScriptUrl();
+  if (!url || !_tl) return;
+  var box = document.getElementById('tlPreview');
+  box.innerHTML = '<div class="empty-state">Loading preview\u2026</div>';
+  fetch(url + '?action=previewTrialTerms&name=' + encodeURIComponent(_tl.card.name || ''))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!_tl) return;
+      if (!d.success) { box.innerHTML = '<div class="empty-state">\u26a0 ' + inqEsc(d.message || 'No preview') + '</div>'; return; }
+      box.innerHTML = _tlPreviewHtml(d.subject, d.html, _tl.card.email);
+    })
+    .catch(function () { box.innerHTML = '<div class="empty-state">\u274c Could not load the preview.</div>'; });
+}
+
+// The email on a white card, the way a mail client shows it. The logo is a
+// cid: reference that only exists in the real email, so it becomes a box.
+function _tlPreviewHtml(subject, html, to) {
+  var body = String(html || '').replace(/<img [^>]*cid:logo[^>]*>/,
+    '<div style="width:80px;height:80px;border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999">logo</div>');
+  return '<div style="margin-top:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden">' +
+      '<div style="padding:9px 12px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border)">' +
+        'To: ' + inqEsc(to || '') + '<br>Subject: <span style="color:var(--text)">' + inqEsc(subject || '') + '</span></div>' +
+      '<div style="background:#fff;color:#222;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' + body + '</div>' +
+    '</div>';
+}
+
+function _tlSend() {
+  var url = getScriptUrl();
+  if (!url || !_tl || _tl.busy) return;
+  var a = _tl.card;
+  var btn = document.getElementById('tlSendBtn');
+  _tl.busy = true; btn.disabled = true; btn.textContent = 'Sending\u2026';
+  _tlSetMsg('tlTermsMsg', 'Sending to ' + (a.email || '') + '\u2026');
+  fetch(url + '?action=sendTrialTerms&email=' + encodeURIComponent(a.email || '') + '&name=' + encodeURIComponent(a.name || ''))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!_tl) return;
+      _tl.busy = false; btn.disabled = false;
+      if (!d.success) {
+        btn.textContent = 'Send terms';
+        _tlSetMsg('tlTermsMsg', '\u26a0 ' + (d.message || 'Not sent'), 'var(--accent)');
+        return;
+      }
+      btn.textContent = 'Send again';
+      _tl.rec = _tl.rec || {}; _tl.rec.termsSent = 'TRUE'; _tl.rec.sentDate = d.sentDate;
+      _tlMark({ termsSent: true, sentDate: d.sentDate });
+      _tlSetMsg('tlTermsMsg', 'Sent to ' + (a.email || '') + ' \u00b7 ' + d.sentDate +
+        (d.stamped ? '' : ' (Could not tick Terms Sent on the sheet.)'), 'var(--green)');
+    })
+    .catch(function () {
+      if (!_tl) return;
+      _tl.busy = false; btn.disabled = false; btn.textContent = 'Send terms';
+      _tlSetMsg('tlTermsMsg', '\u274c No answer. Check Sent mail before sending again.', 'var(--accent)');
+    });
 }
 
 function _trFieldHtml(id, email, f, val) {
