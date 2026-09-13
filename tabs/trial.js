@@ -941,7 +941,11 @@ function _tlUploadHtml(folder) {
       'ondrop="_tlDrop(event)" ' +
       'style="margin-top:10px;padding:34px 12px;border:1.5px dashed rgba(91,157,255,0.4);border-radius:8px;text-align:center;' +
       'font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);cursor:pointer">' + inqEsc(idle) + '</div>' +
-    '<button class="btn-settings-load" style="margin-top:8px" onclick="document.getElementById(\'tlFolderIn\').click()">\ud83d\udcc2 Browse folder</button>' +
+    '<div style="display:flex;gap:8px;margin-top:8px">' +
+      '<button class="btn-settings-load" style="margin:0;flex:1" onclick="openDropboxLocalFolder(document.getElementById(\'tlDrop\').dataset.folder)" ' +
+        'title="Opens their synced Dropbox folder in Finder. Drag as many folders in as you like; Dropbox uploads them.">\ud83d\udcc1 Open in Finder</button>' +
+      '<button class="btn-settings-load" style="margin:0;flex:1" onclick="document.getElementById(\'tlFolderIn\').click()">\ud83d\udcc2 Browse folder</button>' +
+    '</div>' +
     '<input type="file" id="tlFileIn" multiple style="display:none" onchange="_tlPicked(this, false)">' +
     '<input type="file" id="tlFolderIn" multiple webkitdirectory style="display:none" onchange="_tlPicked(this, true)">';
 }
