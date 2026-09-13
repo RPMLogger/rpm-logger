@@ -908,6 +908,7 @@ function _tlRender() {
     '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin-top:5px">' +
       'Folder: ' + inqEsc(a.name || '') + ' \u00b7 invite only, the instructions go in the terms email</div>' +
     _tlMsg('tlDbxMsg') +
+    '<div id="tlUpload">' + (dropboxMade ? _tlUploadHtml(a.name) : '') + '</div>' +
 
     // 3. Terms
     _tlSection('3 \u00b7 TERMS (END OF LESSON)') +
@@ -924,6 +925,68 @@ function _tlRender() {
         : 'Form not back yet (ticks itself when it comes in)') + '</div>' +
     _tlMsg('tlTermsMsg') +
     '<div id="tlPreview"></div>';
+}
+
+// ── Upload into the trial's Dropbox folder ───────────────────────────────────
+// Same as the Home drop zone: files or whole folders (subfolders kept, hidden
+// files skipped), via uploadFilesToDropbox / collectDroppedFiles (core/api.js).
+// Shown once the folder exists. No "new homework" email: that only goes to
+// students on the Counter, which a trial person is not.
+function _tlUploadHtml(folder) {
+  var idle = '\u2b06 Drag homework files or folders here, or click to pick files';
+  return '<div id="tlDrop" data-folder="' + _msAttr(folder) + '" data-idle="' + _msAttr(idle) + '" ' +
+      'onclick="document.getElementById(\'tlFileIn\').click()" ' +
+      'ondragover="event.preventDefault();this.style.borderColor=\'#5b9dff\';this.style.background=\'rgba(91,157,255,0.08)\'" ' +
+      'ondragleave="this.style.borderColor=\'rgba(91,157,255,0.4)\';this.style.background=\'transparent\'" ' +
+      'ondrop="_tlDrop(event)" ' +
+      'style="margin-top:10px;padding:34px 12px;border:1.5px dashed rgba(91,157,255,0.4);border-radius:8px;text-align:center;' +
+      'font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);cursor:pointer">' + inqEsc(idle) + '</div>' +
+    '<button class="btn-settings-load" style="margin-top:8px" onclick="document.getElementById(\'tlFolderIn\').click()">\ud83d\udcc2 Browse folder</button>' +
+    '<input type="file" id="tlFileIn" multiple style="display:none" onchange="_tlPicked(this, false)">' +
+    '<input type="file" id="tlFolderIn" multiple webkitdirectory style="display:none" onchange="_tlPicked(this, true)">';
+}
+
+function _tlDrop(ev) {
+  ev.preventDefault();
+  var zone = document.getElementById('tlDrop');
+  if (!zone || !ev.dataTransfer) return;
+  zone.style.borderColor = 'rgba(91,157,255,0.4)'; zone.style.background = 'transparent';
+  zone.textContent = 'Reading\u2026';
+  collectDroppedFiles(ev.dataTransfer, function (files) {
+    if (files.length) _tlUpload(files); else zone.textContent = zone.dataset.idle;
+  });
+}
+
+function _tlPicked(input, isFolder) {
+  var files = Array.prototype.slice.call(input.files || []);
+  if (isFolder) files = files.filter(function (f) {
+    return !f.webkitRelativePath.split('/').some(function (seg) { return seg.charAt(0) === '.'; });
+  });
+  input.value = '';
+  if (files.length) _tlUpload(files);
+}
+
+function _tlUpload(files) {
+  var zone = document.getElementById('tlDrop');
+  if (!zone) return;
+  var folder = zone.dataset.folder;
+  uploadFilesToDropbox(folder, files, {
+    onProgress: function (name, i, total) {
+      var z = document.getElementById('tlDrop');
+      if (z) z.textContent = 'Uploading ' + (i + 1) + '/' + total + ': ' + name + ' \u2026';
+    },
+    onDone: function (ok, fail, total) {
+      var z = document.getElementById('tlDrop');
+      if (!z) return;
+      z.textContent = (fail ? '\u26a0 ' : '\u2713 ') + ok + '/' + total + ' uploaded to ' + folder +
+        (fail ? ', ' + fail + ' failed' : '') + ' \u00b7 click to add more';
+      z.style.color = fail ? 'var(--accent)' : 'var(--green)';
+      setTimeout(function () {
+        var z2 = document.getElementById('tlDrop');
+        if (z2) { z2.textContent = z2.dataset.idle; z2.style.color = 'var(--muted)'; }
+      }, 8000);
+    }
+  });
 }
 
 function _tlSetMsg(elId, txt, color) {
@@ -965,6 +1028,8 @@ function _tlDropbox() {
       document.getElementById('tlDbxEmail').disabled = true;
       _tl.rec = _tl.rec || {}; _tl.rec.dropboxEmail = dbx; _tl.rec.dropboxMade = 'TRUE';
       _tlMark({ dropboxMade: true, dropboxEmail: dbx });
+      var up = document.getElementById('tlUpload');
+      if (up) up.innerHTML = _tlUploadHtml(a.name);
       _tlSetMsg('tlDbxMsg', 'Shared "' + d.name + '" with ' + dbx + '. Dropbox sent them the invite.' +
         (d.stamped ? '' : ' (Could not tick Dropbox Made on the sheet.)'), 'var(--green)');
     })
