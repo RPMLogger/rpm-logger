@@ -5,7 +5,8 @@
 // moveCalendarEvent_ in RPM_Calendar.gs). Google stays the source of truth, so
 // the sheets and Secretary keep reading it exactly as before.
 //
-// Past lessons can't be dragged (the counter/income recorder already read them).
+// Click a lesson (no drag) → Home's Reschedule / Skip popups from tabs/student.js.
+// Past lessons can't be dragged or clicked (the counter/income recorder already read them).
 // With no script URL (localhost preview) it shows sample lessons; drags there
 // don't save anywhere. The plain Google embed lives behind "Google view".
 
@@ -159,7 +160,7 @@ function _calRenderEvents() {
     el.style.height = Math.max(((e - s) / 60 * CAL_HOUR_PX) - 2, 16) + 'px';
     el.style.borderLeftColor = color;
     el.style.background = _calFade(color, 0.22);
-    el.title = ev.title + ' · ' + _calFmt(ev.startMin) + (ev.past ? ' · past, locked' : ' · drag to move');
+    el.title = ev.title + ' · ' + _calFmt(ev.startMin) + (ev.past ? ' · past, locked' : ' · click: skip / reschedule · drag: move');
     el.innerHTML = "<div class='n'>" + _calEsc(ev.title) + "</div><div class='t'>" + _calFmt(ev.startMin) + "</div>";
     el._ev = ev;
     if (!ev.past) el.addEventListener('pointerdown', _calDragStart);
@@ -228,7 +229,8 @@ function _calDragEnd() {
   d.el.removeEventListener('pointerup', _calDragEnd);
   d.el.removeEventListener('pointercancel', _calDragEnd);
   d.el.classList.remove('dragging');
-  if (!d.moved || (d.dayIdx === d.ev.dayIdx && d.startMin === d.ev.startMin)) { _calRenderEvents(); return; }
+  if (!d.moved) { _calRenderEvents(); _calOpenActions(d.ev); return; }
+  if (d.dayIdx === d.ev.dayIdx && d.startMin === d.ev.startMin) { _calRenderEvents(); return; }
 
   var mon      = _calMonday(_calWeekOffset);
   var target   = _calAddDays(mon, d.dayIdx); target.setHours(0, d.startMin, 0, 0);
@@ -276,6 +278,23 @@ function _calConfirm(ev, dayIdx, startMin, overlaps) {
 }
 
 // ── Controls ────────────────────────────────────────────────────────────────
+
+// Click (no drag) on a lesson → Home's Reschedule / Skip chooser and popups
+// (tabs/student.js): same backend, same Skip Logs. Results refresh this grid.
+function _calOpenActions(ev) {
+  if (_calSample) { _calSetStatus('Sample only · Skip / Reschedule need real data'); return; }
+  var p = ev.date.split('-');
+  var lesson = { date: ev.date, dateLabel: _calDayLabel(new Date(+p[0], +p[1] - 1, +p[2])), time: _calFmt(ev.startMin) };
+  _stOpenLessonActions(ev.title, lesson, {
+    fromCalendar: true,
+    onDone: function(data) {
+      _calLoad(data.newTime
+        ? 'Moved ' + ev.title + ' → ' + data.newLabel + ' · ' + data.newTime
+        : 'Skipped ' + ev.title + ' · ' + lesson.dateLabel);
+    },
+    onFail: function(msg) { _calSetStatus('Not done: ' + msg); }
+  });
+}
 
 function _calShift(dir) {
   _calWeekOffset = dir === 0 ? 0 : _calWeekOffset + dir;

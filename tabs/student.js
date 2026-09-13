@@ -734,7 +734,10 @@ function _stBuildWeekStrip(monday, byDate, today, studentName) {
 
 // ─── SKIP MODAL (reused from former Skips tab pattern) ──────────────────────
 
-function _stOpenSkipModal(studentName, lesson) {
+// opts (optional, used by the Calendar tab): onDone(data) / onFail(msg) replace
+// the Home-strip refresh + feed log.
+function _stOpenSkipModal(studentName, lesson, opts) {
+  opts = opts || {};
   var existing = document.getElementById('stSkipModal');
   if (existing) existing.remove();
 
@@ -796,10 +799,12 @@ function _stOpenSkipModal(studentName, lesson) {
     }, function(data) {
       if (data && data.success) {
         overlay.remove();
+        if (opts.onDone) { opts.onDone(data); return; }
         _stOpenCalendar();   // refresh the strip; the skipped lesson drops off
       } else {
         var b = document.getElementById('stSkipConfirm');
         if (b) { b.disabled = false; b.textContent = 'Confirm Skip'; }
+        if (opts.onFail) { opts.onFail(data && data.message ? data.message : 'Skip failed'); return; }
         addLog('studentFeed', '❌ ' + (data && data.message ? data.message : 'Skip failed'), 'error');
       }
     });
@@ -811,7 +816,7 @@ function _stOpenSkipModal(studentName, lesson) {
 // Tapping a red lesson day opens this chooser first. Skip → the existing skip
 // modal (unchanged). Reschedule → drag-to-move mode within the 8-week grid.
 
-function _stOpenLessonActions(studentName, lesson) {
+function _stOpenLessonActions(studentName, lesson, opts) {
   var existing = document.getElementById('stActionModal');
   if (existing) existing.remove();
 
@@ -835,8 +840,13 @@ function _stOpenLessonActions(studentName, lesson) {
   document.body.appendChild(overlay);
 
   document.getElementById('stActCancel').onclick     = function() { overlay.remove(); };
-  document.getElementById('stActSkip').onclick       = function() { overlay.remove(); _stOpenSkipModal(studentName, lesson); };
-  document.getElementById('stActReschedule').onclick = function() { overlay.remove(); _stBeginReschedule(studentName, lesson); };
+  document.getElementById('stActSkip').onclick       = function() { overlay.remove(); _stOpenSkipModal(studentName, lesson, opts); };
+  document.getElementById('stActReschedule').onclick = function() {
+    overlay.remove();
+    // Calendar tab has no 8-week strip to drag in, so go straight to the day/time picker.
+    if (opts && opts.fromCalendar) _stOpenTimeConfirm(studentName, lesson, lesson.date, { dayChange: true, onDone: opts.onDone, onFail: opts.onFail });
+    else _stBeginReschedule(studentName, lesson);
+  };
 }
 
 
@@ -934,14 +944,21 @@ function _stEnableRescheduleDrag(section) {
 
 // After a drop, confirm the new day and let the user adjust the time
 // (prefilled from the original lesson). Confirm → backend move → refresh.
-function _stOpenTimeConfirm(studentName, lesson, newYmd) {
+// opts (optional, used by the Calendar tab): dayChange adds ‹ › day arrows;
+// onDone(data) / onFail(msg) replace the Home-strip refresh + feed log.
+function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
+  opts = opts || {};
   var t = _stParseTime(lesson.time); // { h12, min, ap }
   var state = { h12: t.h12, min: t.min, ap: t.ap };
 
-  var parts = newYmd.split('-');
-  var nd = new Date(parseInt(parts[0],10), parseInt(parts[1],10) - 1, parseInt(parts[2],10));
-  var dayLabel = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][nd.getDay()] + ' ' +
-                 ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][nd.getMonth()] + ' ' + nd.getDate();
+  function dayLabelOf(ymd) {
+    var parts = ymd.split('-');
+    var nd = new Date(parseInt(parts[0],10), parseInt(parts[1],10) - 1, parseInt(parts[2],10));
+    return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][nd.getDay()] + ' ' +
+           ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][nd.getMonth()] + ' ' + nd.getDate();
+  }
+  var dayLabel = dayLabelOf(newYmd);
+  var dayBtn = "style='padding:1px 8px;margin:0 4px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:inherit'";
 
   var overlay = document.createElement('div');
   overlay.id = 'stTimeModal';
@@ -960,7 +977,11 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd) {
   box.innerHTML =
     "<div style='font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Reschedule</div>" +
     "<div style='font-weight:700;font-size:14px;margin-bottom:2px'>" + studentName + "</div>" +
-    "<div style='font-size:12px;color:var(--muted);margin-bottom:14px'>Move to <b style='color:#5b9dff'>" + dayLabel + "</b></div>" +
+    "<div style='font-size:12px;color:var(--muted);margin-bottom:14px'>Move to " +
+      (opts.dayChange ? "<button data-day='-1' " + dayBtn + ">‹</button>" : "") +
+      "<b id='stTimeDay' style='color:#5b9dff'>" + dayLabel + "</b>" +
+      (opts.dayChange ? "<button data-day='1' " + dayBtn + ">›</button>" : "") +
+    "</div>" +
     "<div style='display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px'>" +
       spinSeg('h', state.h12) +
       "<div style='font-size:20px;font-weight:700;color:var(--muted)'>:</div>" +
@@ -989,6 +1010,17 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd) {
     };
   });
 
+  box.querySelectorAll('[data-day]').forEach(function(btn) {
+    btn.onclick = function() {
+      var p = newYmd.split('-');
+      var d = new Date(+p[0], +p[1] - 1, +p[2] + parseInt(btn.dataset.day, 10));
+      var today = new Date(); today.setHours(0, 0, 0, 0);
+      if (d < today) return; // can't move into the past
+      newYmd = d.getFullYear() + '-' + _stPad2(d.getMonth() + 1) + '-' + _stPad2(d.getDate());
+      document.getElementById('stTimeDay').textContent = dayLabelOf(newYmd);
+    };
+  });
+
   document.getElementById('stTimeCancel').onclick = function() { overlay.remove(); };
   document.getElementById('stTimeConfirm').onclick = function() {
     var btn = document.getElementById('stTimeConfirm');
@@ -1001,12 +1033,14 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd) {
     }, function(data) {
       if (data && data.success) {
         overlay.remove();
+        if (opts.onDone) { opts.onDone(data); return; }
         _stState.reschedule = null;
         addLog('studentFeed', '📅 ' + studentName + ' moved to ' + data.newLabel + ' · ' + data.newTime, 'success');
         _stOpenCalendar(); // refresh — lesson now sits on the new day
       } else {
         var b = document.getElementById('stTimeConfirm');
         if (b) { b.disabled = false; b.textContent = 'Confirm Move'; }
+        if (opts.onFail) { opts.onFail(data && data.message ? data.message : 'Reschedule failed'); return; }
         addLog('studentFeed', '❌ ' + (data && data.message ? data.message : 'Reschedule failed'), 'error');
       }
     });
