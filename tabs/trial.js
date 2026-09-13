@@ -54,7 +54,15 @@ function _trLoadAccepted() {
     .then(function (d) {
       if (!d.success) { box.innerHTML = '<div class="empty-state">⚠ ' + (d.message || 'Could not load') + '</div>'; return; }
       _trAcceptedCache = d.accepted || [];
-      if (!d.accepted || !d.accepted.length) { box.innerHTML = '<div class="empty-state">No accepted inquiries waiting.</div>'; return; }
+      if (!d.accepted || !d.accepted.length) {
+        box.innerHTML = '<div class="empty-state">No accepted inquiries waiting.</div>';
+        // Nobody left in Initiate, so nobody can be waiting on a reply. The
+        // thread fetch below is skipped on this path, and the badge kept the
+        // count from before the last person moved to Trial.
+        _trSetInitiateBadge({});
+        _trRenderStrip(null);
+        return;
+      }
       box.innerHTML = d.accepted.map(_trAcceptedCard).join('');
       _trLoadThreads();
     })
@@ -865,7 +873,6 @@ var _TR_FIELDS = [
   { key: 'city',      label: 'City' },
   { key: 'schoolJob', label: 'What do you do (school / job)' },
   { key: 'guitar',    label: 'Guitar' },
-  { key: 'level',     label: 'Level' },
   { key: 'goals',     label: 'Goals' },
   { key: 'interests', label: 'Interests' },
   { key: 'notes',     label: 'Notes' }
@@ -1071,7 +1078,6 @@ function _tlRender() {
         var val = rec[f.key] || '';
         if (!val && f.key === 'phone') val = a.phone || '';
         if (!val && f.key === 'city') val = a.city || '';
-        if (!val && f.key === 'level') val = a.level || '';
         var wide = (f.key === 'goals' || f.key === 'interests' || f.key === 'notes');
         return '<div style="' + (wide ? 'grid-column:1 / -1' : '') + '">' + _trFieldHtml(id, email, f, val) + '</div>';
       }).join('') +
