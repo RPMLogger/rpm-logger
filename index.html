@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=389">
+  <link rel="stylesheet" href="css/styles.css?v=390">
 </head>
 <body>
 <div class="container">
@@ -39,6 +39,7 @@
     <button class="tab-btn" data-tab="ctrl" onclick="switchTab('ctrl')">Audit</button>
     <button class="tab-btn" data-tab="availability" onclick="switchTab('availability')">Availability</button>
     <button class="tab-btn" data-tab="biweekly" onclick="switchTab('biweekly')">Biweekly</button>
+    <button class="tab-btn" data-tab="calendar" onclick="switchTab('calendar')">Calendar</button>
     <button class="tab-btn" data-tab="dropbox" onclick="switchTab('dropbox')">Dropbox</button>
     <button class="tab-btn" data-tab="eoy" onclick="switchTab('eoy')">End of Year</button>
     <button class="tab-btn" data-tab="financial" onclick="switchTab('financial')">Financial<span class="inq-badge" id="finNavBadge" style="display:none">!</span></button>
@@ -136,6 +137,15 @@
         <button id="btnCashLog" class="btn-log" onclick="submitCashLog()">Log Payment →</button>
       </div>
     </div>
+  </div>
+
+  <!-- CALENDAR: Google Calendar embed (Weekly / Biweekly / Trial). src is set on first
+       open so the iframe doesn't load with every portal visit. Private calendars only
+       render if this browser is signed into the RPM Google account. -->
+  <div class="tab-panel" id="tab-calendar">
+    <div class="section-label">Calendar</div>
+    <iframe id="calEmbed" style="width:100%;height:78vh;border:0;border-radius:8px;background:#fff" frameborder="0" scrolling="no"
+      data-src="https://calendar.google.com/calendar/embed?mode=WEEK&amp;showTitle=0&amp;showPrint=0&amp;showCalendars=1&amp;showTz=0&amp;src=7ceafa381735abdf0be77fe6cfda72c75233bff1a12c8cd2ad1cf84f4e4abe9c%40group.calendar.google.com&amp;color=%23009688&amp;src=43055363a804782e97117d92de275c50014879d217d863c1fad03831561b2553%40group.calendar.google.com&amp;color=%23E91E63&amp;src=57146701b17d6308b77a23405fb55766203ac2a6ec1f2684a7eb56f9ffeecdc0%40group.calendar.google.com&amp;color=%23F4511E"></iframe>
   </div>
 
   <!-- WEEK -->
@@ -696,7 +706,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">389</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">390</span></span>
     <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
 
@@ -723,31 +733,31 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/lessons.js?v=389"></script>
-<script src="tabs/payments.js?v=389"></script>
-<script src="tabs/week.js?v=389"></script>
-<script src="tabs/general.js?v=389"></script>
-<script src="tabs/financial.js?v=389"></script>
-<script src="tabs/inquiries.js?v=389"></script>
-<script src="tabs/comms.js?v=389"></script>
-<script src="tabs/notes.js?v=389"></script>
-<script src="tabs/todo.js?v=389"></script>
-<script src="tabs/availability.js?v=389"></script>
-<script src="tabs/biweekly.js?v=389"></script>
-<script src="tabs/travel.js?v=389"></script>
-<script src="tabs/tripsummary.js?v=389"></script>
-<script src="tabs/triphistory.js?v=389"></script>
-<script src="tabs/skips.js?v=389"></script>
-<script src="tabs/student.js?v=389"></script>
-<script src="tabs/ctrl.js?v=389"></script>
-<script src="tabs/mailcenter.js?v=389"></script>
-<script src="tabs/dropbox.js?v=389"></script>
-<script src="tabs/trial.js?v=389"></script>
-<script src="tabs/rates.js?v=389"></script>
-<script src="tabs/ending.js?v=389"></script>
-<script src="tabs/thisyear.js?v=389"></script>
-<script src="tabs/sheets.js?v=389"></script>
-<script src="tabs/studentline.js?v=389"></script>
+<script src="tabs/lessons.js?v=390"></script>
+<script src="tabs/payments.js?v=390"></script>
+<script src="tabs/week.js?v=390"></script>
+<script src="tabs/general.js?v=390"></script>
+<script src="tabs/financial.js?v=390"></script>
+<script src="tabs/inquiries.js?v=390"></script>
+<script src="tabs/comms.js?v=390"></script>
+<script src="tabs/notes.js?v=390"></script>
+<script src="tabs/todo.js?v=390"></script>
+<script src="tabs/availability.js?v=390"></script>
+<script src="tabs/biweekly.js?v=390"></script>
+<script src="tabs/travel.js?v=390"></script>
+<script src="tabs/tripsummary.js?v=390"></script>
+<script src="tabs/triphistory.js?v=390"></script>
+<script src="tabs/skips.js?v=390"></script>
+<script src="tabs/student.js?v=390"></script>
+<script src="tabs/ctrl.js?v=390"></script>
+<script src="tabs/mailcenter.js?v=390"></script>
+<script src="tabs/dropbox.js?v=390"></script>
+<script src="tabs/trial.js?v=390"></script>
+<script src="tabs/rates.js?v=390"></script>
+<script src="tabs/ending.js?v=390"></script>
+<script src="tabs/thisyear.js?v=390"></script>
+<script src="tabs/sheets.js?v=390"></script>
+<script src="tabs/studentline.js?v=390"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -773,7 +783,7 @@
     // tab button is removed. The #tab-lessons panel div still lives in the DOM
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
-    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","rates","reviews","newsched","thisyear","sheets","skips","studentline"];
+    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","rates","reviews","newsched","thisyear","sheets","skips","studentline","calendar"];
     tabs.forEach(function(t) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       var btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
@@ -799,6 +809,7 @@
     if (tab === "thisyear") initThisYearTab();
     if (tab === "inquiries") { initInquiriesTab(); loadCommsInbox(); startCommsPolling(); } else { stopCommsPolling(); }
     if (tab === "studentline") initStudentLineTab();
+    if (tab === "calendar") { var ce = document.getElementById("calEmbed"); if (!ce.src) ce.src = ce.getAttribute("data-src"); }
   }
 
   var _now = new Date();
