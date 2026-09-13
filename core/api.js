@@ -124,6 +124,8 @@ function updateCommsSummary(type, count) {
 // a CORS preflight; the Apps Script doPost handles action=uploadDropboxFile.
 //   opts.onProgress(filename, index, total) — before each file
 //   opts.onDone(ok, fail, total)            — when all files are finished
+// A file may carry `_rpmPath` (or webkitRelativePath from a folder picker): its
+// path inside the student folder, e.g. "Lesson 5/tab.pdf". Subfolders are kept.
 function uploadFilesToDropbox(folderName, fileList, opts) {
   opts = opts || {};
   var url = getScriptUrl();
@@ -135,14 +137,15 @@ function uploadFilesToDropbox(folderName, fileList, opts) {
   function next(i) {
     if (i >= total) { if (opts.onDone) opts.onDone(ok, fail, total); return; }
     var file = files[i];
-    if (opts.onProgress) opts.onProgress(file.name, i, total);
+    var relPath = file._rpmPath || file.webkitRelativePath || file.name;
+    if (opts.onProgress) opts.onProgress(relPath, i, total);
     if (file.size > MAX) { fail++; next(i + 1); return; }
     var reader = new FileReader();
     reader.onload = function () {
       var b64 = String(reader.result).split(",")[1] || "";
       fetch(url, {
         method: "post",
-        body: JSON.stringify({ action: "uploadDropboxFile", folder: folderName, filename: file.name, dataB64: b64 })
+        body: JSON.stringify({ action: "uploadDropboxFile", folder: folderName, filename: relPath, dataB64: b64 })
       })
         .then(function (r) { return r.json(); })
         .then(function (d) { if (d.success) ok++; else fail++; next(i + 1); })
@@ -152,6 +155,47 @@ function uploadFilesToDropbox(folderName, fileList, opts) {
     reader.readAsDataURL(file);
   }
   next(0);
+}
+
+// Everything dropped on a zone, folders included, as a flat list of files. Each
+// file from inside a dropped folder gets `_rpmPath` = "Folder/sub/file.pdf".
+// Hidden files (.DS_Store and friends) are skipped. Calls done(files).
+function collectDroppedFiles(dataTransfer, done) {
+  var items = dataTransfer && dataTransfer.items;
+  var canWalk = items && items.length && typeof items[0].webkitGetAsEntry === "function";
+  if (!canWalk) {
+    done(Array.prototype.slice.call((dataTransfer && dataTransfer.files) || []).filter(function (f) { return f.name.charAt(0) !== "."; }));
+    return;
+  }
+  var entries = [];
+  for (var i = 0; i < items.length; i++) {
+    var en = items[i].webkitGetAsEntry && items[i].webkitGetAsEntry();
+    if (en) entries.push(en);
+  }
+  var out = [], pending = 0;
+  function finish() { if (pending === 0) done(out); }
+  function walk(entry, prefix) {
+    if (entry.name.charAt(0) === ".") return;
+    pending++;
+    if (entry.isFile) {
+      entry.file(function (f) {
+        if (prefix) { try { f._rpmPath = prefix + f.name; } catch (e) {} }
+        out.push(f); pending--; finish();
+      }, function () { pending--; finish(); });
+    } else if (entry.isDirectory) {
+      var reader = entry.createReader();
+      var readBatch = function () {
+        reader.readEntries(function (batch) {
+          if (!batch.length) { pending--; finish(); return; }
+          batch.forEach(function (child) { walk(child, prefix + entry.name + "/"); });
+          readBatch();                       // readEntries returns in chunks
+        }, function () { pending--; finish(); });
+      };
+      readBatch();
+    } else { pending--; }
+  }
+  entries.forEach(function (en) { walk(en, ""); });
+  finish();
 }
 
 // Stop the browser from opening/navigating to a file dropped outside a drop zone.

@@ -467,7 +467,7 @@ function _stRenderDetail() {
   var drop = document.createElement('div');
   drop.id = 'stDropZone';
   drop.dataset.folder = d.name;
-  drop.dataset.idle = '⬆ Drag homework here to upload to ' + d.name + "'s Dropbox";
+  drop.dataset.idle = '⬆ Drag homework files or folders here to upload to ' + d.name + "'s Dropbox";
   drop.textContent = drop.dataset.idle;
   drop.style.cssText = 'margin-bottom:14px;padding:60px 16px;border:1.5px dashed rgba(91,157,255,0.4);border-radius:8px;' +
     'text-align:center;font-size:12px;color:var(--muted);cursor:pointer;transition:border-color .15s,background .15s';
@@ -482,10 +482,35 @@ function _stRenderDetail() {
   drop.ondrop = function (ev) {
     ev.preventDefault();
     drop.style.borderColor = 'rgba(91,157,255,0.4)'; drop.style.background = 'transparent';
-    if (ev.dataTransfer && ev.dataTransfer.files.length) _stUploadToDropbox(d.name, ev.dataTransfer.files, drop);
+    if (!ev.dataTransfer) return;
+    drop.textContent = 'Reading\u2026';
+    collectDroppedFiles(ev.dataTransfer, function (files) {
+      if (files.length) _stUploadToDropbox(d.name, files, drop);
+      else drop.textContent = drop.dataset.idle;
+    });
   };
   section.appendChild(drop);
   section.appendChild(fileInput);
+
+  // Folder picker: the whole folder uploads with its structure kept.
+  var folderInput = document.createElement('input');
+  folderInput.type = 'file';
+  folderInput.multiple = true;
+  folderInput.setAttribute('webkitdirectory', '');
+  folderInput.style.display = 'none';
+  folderInput.onchange = function () {
+    var files = Array.prototype.slice.call(folderInput.files).filter(function (f) {
+      return !f.webkitRelativePath.split('/').some(function (seg) { return seg.charAt(0) === '.'; });
+    });
+    if (files.length) _stUploadToDropbox(d.name, files, drop);
+    folderInput.value = '';
+  };
+  var folderBtn = document.createElement('button');
+  folderBtn.textContent = '\ud83d\udcc2 Browse folder';
+  folderBtn.style.cssText = 'width:100%;margin:-6px 0 14px;padding:9px;font-size:12px;background:transparent;color:var(--text);border:1px solid rgba(91,157,255,0.4);border-radius:6px;cursor:pointer';
+  folderBtn.onclick = function () { folderInput.click(); };
+  section.appendChild(folderBtn);
+  section.appendChild(folderInput);
 
   // SCHEDULE section
   var schedLabel = document.createElement('div');
