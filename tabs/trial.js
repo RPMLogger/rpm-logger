@@ -1101,16 +1101,16 @@ function _tlDbxHtml(a, s) {
   var rec = _tl.rec || {};
   var made = !!s.dropboxMade;
   var dbxEmail = rec.dropboxEmail || s.dropboxEmail || a.email || '';
-  return '<label class="settings-label">Their Dropbox email</label>' +
-    '<div style="display:flex;gap:8px;align-items:center">' +
-      '<input class="settings-input" id="tlDbxEmail" style="margin:0;flex:1;min-width:0" value="' + _msAttr(dbxEmail) + '"' + (made ? ' disabled' : '') + '>' +
-      '<button class="btn-settings-load" id="tlDbxBtn" style="margin:0;width:auto;flex:none;padding-left:16px;padding-right:16px;white-space:nowrap' +
-        (made ? '' : ';border-color:var(--green);color:var(--green)') + '"' +
-        (made ? ' disabled' : '') + ' onclick="_tlDropbox()">' +
-        (made ? 'Folder made ✓' : 'Create & share') + '</button>' +
-    '</div>' +
-    '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin-top:5px">' +
-      'Folder: ' + inqEsc(a.name || '') + ' · Dropbox sends them the invite, the instructions go in the terms email</div>' +
+  // The folder name is shown, not editable: Send HW and Make Student both
+  // expect the folder to be exactly the student's full name.
+  return '<label class="settings-label">Dropbox email</label>' +
+    '<input class="settings-input" id="tlDbxEmail" style="margin:0 0 12px" value="' + _msAttr(dbxEmail) + '"' + (made ? ' disabled' : '') + '>' +
+    '<label class="settings-label">Folder</label>' +
+    '<input class="settings-input" style="margin:0 0 14px" value="' + _msAttr(a.name || '') + '" readonly>' +
+    '<button class="btn-settings-load" id="tlDbxBtn" style="margin:0;padding:12px' +
+      (made ? ';border-color:var(--green);color:var(--green)' : ';border-color:var(--blue);color:var(--blue)') + '"' +
+      (made ? ' disabled' : '') + ' onclick="_tlDropbox()">' +
+      (made ? 'Folder made ✓' : 'Create & share') + '</button>' +
     _tlMsg('tlDbxMsg');
 }
 
@@ -1118,14 +1118,15 @@ function _tlDbxHtml(a, s) {
 function _tlLogHtml(a, s) {
   var rec = _tl.rec || {};
   var v = rec.whatWeDid || s.whatWeDid || '';
-  return '<label class="settings-label">What we did</label>' +
-    '<textarea id="tlWhat" rows="7" onblur="_tlSaveWhat()" placeholder="Type, or press the mic and talk" ' +
+  // Enter logs it (and closes); Shift+Enter is a new line.
+  return '<textarea id="tlWhat" rows="7" onblur="_tlSaveWhat()" placeholder="Type, or press the mic and talk" ' +
+      'onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();_tlLogWhat();}" ' +
       'style="box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;' +
       'padding:10px 12px;color:rgba(255,255,255,.62);font-family:\'DM Mono\',monospace;font-size:13px;line-height:1.55;resize:vertical">' +
       inqEsc(v) + '</textarea>' +
     '<div style="display:flex;gap:8px;align-items:center;margin-top:8px">' +
       '<button class="btn-settings-load" id="tlMicBtn" style="margin:0;width:auto;padding-left:18px;padding-right:18px" onclick="_tlMic()">🎙 Mic</button>' +
-      '<button class="btn-settings-load" style="margin:0;width:auto;padding-left:18px;padding-right:18px;border-color:var(--green);color:var(--green)" onclick="_tlSaveWhat(true)">Save</button>' +
+      '<button class="btn-settings-load" id="tlLogBtn" style="margin:0;width:auto;padding-left:22px;padding-right:22px;border-color:var(--green);color:var(--green)" onclick="_tlLogWhat()">Log</button>' +
       '<span id="tlMicState" style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)"></span>' +
     '</div>' +
     _tlMsg('tlWhatMsg');
@@ -1173,7 +1174,8 @@ function _tlMic() {
     var st = document.getElementById('tlMicState');
     if (st) { st.textContent = 'review & edit'; st.style.color = 'var(--muted)'; }
     try { playBeep(440, 80, 0.15); } catch (e) {}
-    _tlSaveWhat();
+    if (_tl && _tl.logAfterMic) { _tl.logAfterMic = false; _tlLogWhat(); }
+    else _tlSaveWhat();
   };
   r.onerror = function (e) {
     if (e.error === 'no-speech') return;
@@ -1192,6 +1194,20 @@ function _tlSaveWhat(force) {
   if (!force && ta.getAttribute('data-last') === v) return;
   if (!force && v === String((_tl.rec || {}).whatWeDid || '').trim()) return;
   _tlSaveFields({ whatWeDid: v }, 'tlWhatMsg', function () { ta.setAttribute('data-last', v); });
+}
+
+// Log: save What We Did and close. If the mic is still on, stop it first and
+// log once the last words are in.
+function _tlLogWhat() {
+  var ta = document.getElementById('tlWhat');
+  if (!_tl || !ta) return;
+  if (_tlMicRec) { _tl.logAfterMic = true; try { _tlMicRec.stop(); } catch (e) {} return; }
+  var v = ta.value.trim();
+  if (!v) { _tlSetMsg('tlWhatMsg', 'Nothing to log yet.', 'var(--accent)'); return; }
+  var btn = document.getElementById('tlLogBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Logging…'; }
+  _tlSaveFields({ whatWeDid: v }, 'tlWhatMsg', function () { _tlClose(); });
+  setTimeout(function () { var b = document.getElementById('tlLogBtn'); if (b && _tl) { b.disabled = false; b.textContent = 'Log'; } }, 8000);
 }
 
 // ── + · Send HW ──
@@ -1442,19 +1458,22 @@ function _tlDropbox() {
   var btn = document.getElementById('tlDbxBtn');
   if (dbx.indexOf('@') === -1) { _tlSetMsg('tlDbxMsg', '\u26a0 That does not look like an email.', 'var(--accent)'); return; }
   _tl.busy = true; btn.disabled = true; btn.textContent = 'Creating\u2026';
-  _tlSetMsg('tlDbxMsg', 'Creating the folder and sharing it with ' + dbx + '\u2026');
+  btn.style.borderColor = 'var(--accent2)'; btn.style.color = 'var(--accent2)'; btn.style.animation = 'pulse 1.6s infinite';
+  _tlSetMsg('tlDbxMsg', 'Creating the folder and sharing it with ' + dbx + '. Wait here, this window stays open until it is done.', 'var(--accent2)');
   fetch(url + '?action=trialDropbox&email=' + encodeURIComponent(a.email || '') +
         '&name=' + encodeURIComponent(a.name || '') + '&dropboxEmail=' + encodeURIComponent(dbx))
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!_tl) return;
       _tl.busy = false;
+      btn.style.animation = '';
       if (!d.success) {
         btn.disabled = false; btn.textContent = 'Create & share';
+        btn.style.borderColor = 'var(--blue)'; btn.style.color = 'var(--blue)';
         _tlSetMsg('tlDbxMsg', '\u26a0 ' + (d.message || 'Not created'), 'var(--accent)');
         return;
       }
-      btn.textContent = 'Folder made \u2713'; btn.style.borderColor = ''; btn.style.color = '';
+      btn.textContent = 'Folder made \u2713'; btn.style.borderColor = 'var(--green)'; btn.style.color = 'var(--green)';
       document.getElementById('tlDbxEmail').disabled = true;
       _tl.rec = _tl.rec || {}; _tl.rec.dropboxEmail = dbx; _tl.rec.dropboxMade = 'TRUE';
       _tlMark({ dropboxMade: true, dropboxEmail: dbx });
@@ -1466,6 +1485,7 @@ function _tlDropbox() {
     .catch(function () {
       if (!_tl) return;
       _tl.busy = false; btn.disabled = false; btn.textContent = 'Create & share';
+      btn.style.animation = ''; btn.style.borderColor = 'var(--blue)'; btn.style.color = 'var(--blue)';
       _tlSetMsg('tlDbxMsg', '\u274c No answer. Check the Dropbox tab before trying again: it may have gone through.', 'var(--accent)');
     });
 }
