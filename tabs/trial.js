@@ -858,17 +858,19 @@ function _trStageCard(a) {
 }
 
 // ── The checklist ────────────────────────────────────────────────────────────
-// A row of step buttons at the top of each card, in the order they happen.
-// Each one opens its own small window and lights up when its step is done.
-// Make student stays grey until every required step is done (Send HW is
-// optional), so "can I make them a student yet?" is answered by a glance.
+// Two lists of step buttons at the top of each card. Each opens its own small
+// window; a done step just gets a check mark. Make student (red, bottom of the
+// card) only works once the six decision steps on the left are done.
+//   Left, the decision:
 //   Info        Save pressed in the Info window (boxes may stay empty)
 //   Dropbox     folder created + shared with their Dropbox email
-//   Log lesson  What We Did, typed or dictated
-//   Send HW     optional: drop files into their Dropbox folder
 //   Frequency   Weekly / Biweekly
-//   Pick a time the first lesson, date + time, in the future
+//   Pick a time the first regular lesson, date + time, in the future
+//   Payment     no window: ticks when the trial payment is found (or Paid on the row)
 //   Terms       sent, then DONE only when the acknowledgment form is back
+//   Right, the lesson itself (never required):
+//   Log lesson  What We Did, typed or dictated
+//   Send HW     drop files into their Dropbox folder
 // Everything is read from and saved to the Trial Lessons row.
 // Backend: getTrialRecord / saveTrialRecord (RPM_TrialSheet.gs),
 // trialDropbox / previewTrialTerms / sendTrialTerms (RPM_TrialLesson.gs).
@@ -880,14 +882,17 @@ var _TR_INFO = [
   { key: 'goals',        label: 'Goals / Styles', multi: true }   // one box; saves to the Goals column
 ];
 
+// Left: the path to a decision (all needed for Make student).
+// Right: the lesson itself, separate, never required.
 var _TR_STEPS = [
   { key: 'info',  label: 'Info' },
   { key: 'dbx',   label: 'Dropbox' },
-  { key: 'log',   label: 'Log lesson' },
-  { key: 'hw',    label: 'Send HW', optional: true },
   { key: 'freq',  label: 'Frequency' },
   { key: 'time',  label: 'Pick a time' },
-  { key: 'terms', label: 'Terms' }
+  { key: 'pay',   label: 'Payment', noWindow: true },   // trial payment; details are on the card's top line
+  { key: 'terms', label: 'Terms' },
+  { key: 'log',   label: 'Log lesson', lesson: true },
+  { key: 'hw',    label: 'Send HW',    lesson: true }
 ];
 
 function _trFilled(v) { return !!String(v == null ? '' : v).trim(); }
@@ -916,53 +921,52 @@ function _trStepState(a) {
     hw:    false,
     freq:  /^(weekly|biweekly)$/i.test(String(s.frequency || '').trim()),
     time:  (function () { var d = _trFirstLessonDate(s.firstLesson); return !!d && d > new Date(); })(),
+    pay:   s.paid === true || String(s.paid || '').toUpperCase() === 'TRUE' || !!_trTrialPayFor(a.email),
     terms: !!s.termsBack,
     termsSent: !!s.termsSent
   };
-  st.missing = _TR_STEPS.filter(function (x) { return !x.optional && !st[x.key]; }).map(function (x) { return x.label; });
+  st.missing = _TR_STEPS.filter(function (x) { return !x.lesson && !st[x.key]; }).map(function (x) { return x.label; });
   st.ready = !st.missing.length;
   return st;
 }
 
 var _TR_CAPS = 'color:rgba(255,255,255,0.62);text-transform:uppercase;letter-spacing:1px;font-size:10px;padding:5px 9px';
 
-// The step list, at the top of the card.
+// The step lists, at the top of the card: decision steps on the left, lesson
+// steps on the right. Every box looks the same; done just gets a check mark.
 function _trStepsHtml(a) {
   var id = emailToId(a.email || '');
   var em = _trEsc(a.email || '');
   var st = _trStepState(a);
-  var n = 0;
-  // One step per line, numbered. The border carries the state; the text stays
-  // gray, in caps.
-  var btns = _TR_STEPS.map(function (x) {
-    var done = st[x.key];
-    var wait = x.key === 'terms' && !done && st.termsSent;
-    var label = (x.optional ? '+ ' : (++n) + '. ') + x.label;
-    var style;
-    if (done)            style = 'border-color:var(--green)';
-    else if (wait)       style = 'border-color:var(--accent2)';
-    else if (x.optional) style = 'border-color:var(--blue);border-style:dashed';
-    else                 style = 'border-color:var(--blue)';
-    var title = wait ? 'Terms sent, waiting for the form to come back' : (x.optional ? 'Optional' : '');
-    return '<button class="db-mini-btn" style="min-width:150px;text-align:left;' + _TR_CAPS + ';' + style + '" title="' + title + '" ' +
-             'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')">' +
-             label + (done ? ' ✓' : '') + (wait ? ' (sent)' : '') +
-           '</button>';
-  }).join('');
-  return '<div id="trsteps-' + id + '" style="display:flex;flex-direction:column;align-items:flex-start;gap:5px;margin:10px 0 12px">' +
-    btns + '</div>';
+  function col(list) {
+    return '<div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px">' +
+      list.map(function (x, i) {
+        var done = st[x.key];
+        var wait = x.key === 'terms' && !done && st.termsSent;
+        return '<button class="db-mini-btn" style="min-width:150px;text-align:left;' + _TR_CAPS + ';border-color:var(--blue)' +
+                   (x.noWindow ? ';cursor:default' : '') + '" ' +
+                 (wait ? 'title="Terms sent, waiting for the form to come back" ' : '') +
+                 (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
+                 (i + 1) + '. ' + x.label + (done ? ' ✓' : '') + (wait ? ' (sent)' : '') +
+               '</button>';
+      }).join('') + '</div>';
+  }
+  return '<div id="trsteps-' + id + '" style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;margin:10px 0 12px">' +
+      col(_TR_STEPS.filter(function (x) { return !x.lesson; })) +
+      col(_TR_STEPS.filter(function (x) { return x.lesson; })) +
+    '</div>';
 }
 
 // Make student + Not continuing, at the bottom of the card. Make student is
-// dashed like Send HW: gray until every step is done, then green.
+// red; it only works once the five decision steps are done.
 function _trActionsHtml(a) {
   var id = emailToId(a.email || '');
   var em = _trEsc(a.email || '');
   var st = _trStepState(a);
+  var red = 'min-width:150px;' + _TR_CAPS + ';border-color:var(--accent);color:var(--accent)';
   var make = st.ready
-    ? '<button class="db-mini-btn" style="min-width:150px;' + _TR_CAPS + ';border-color:var(--green);border-style:dashed" ' +
-        'onclick="_msOpen(\'' + em + '\')">Make student</button>'
-    : '<button class="db-mini-btn" disabled style="min-width:150px;' + _TR_CAPS + ';color:var(--muted);border-color:var(--muted);border-style:dashed;cursor:not-allowed" ' +
+    ? '<button class="db-mini-btn" style="' + red + '" onclick="_msOpen(\'' + em + '\')">Make student</button>'
+    : '<button class="db-mini-btn" disabled style="' + red + ';opacity:.45;cursor:not-allowed" ' +
         'title="Still needed: ' + _msAttr(st.missing.join(', ')) + '">Make student</button>';
   return '<div id="tracts-' + id + '" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
@@ -1024,6 +1028,7 @@ function _tlSyncCard() {
   patch.termsSent   = String(rec.termsSent || '').toUpperCase() === 'TRUE';
   patch.termsBack   = String(rec.termsBack || '').toUpperCase() === 'TRUE';
   patch.infoDone    = String(rec.infoDone || '').toUpperCase() === 'TRUE';
+  patch.paid        = String(rec.paid || '').toUpperCase() === 'TRUE';
   _tlMark(patch);
 }
 
@@ -1788,6 +1793,7 @@ function _trPaintPaid() {
   (_trStageCache || []).forEach(function (a) {
     var box = document.getElementById('trpaid-' + emailToId(a.email || ''));
     if (!box) return;
+    _tlMarkEmail(a.email, {});   // Payment step reads the payments list
     var p = _trTrialPayFor(a.email);
     box.innerHTML = p
       ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--green);margin:2px 0 6px">\u2713 Trial paid \u00b7 ' +
