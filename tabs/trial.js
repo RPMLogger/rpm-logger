@@ -875,14 +875,13 @@ var _TR_INFO_REQ = [
   { key: 'first',        label: 'First' },
   { key: 'last',         label: 'Last' },
   { key: 'guitar',       label: 'Guitar' },
-  { key: 'goals',        label: 'Goals' },
-  { key: 'availability', label: 'Availability' }
+  { key: 'availability', label: 'Availability' },
+  { key: 'goals',        label: 'Goals / Styles' }   // one box; saves to the Goals column
 ];
 var _TR_INFO_MORE = [
   { key: 'phone',     label: 'Phone' },
   { key: 'city',      label: 'City' },
   { key: 'schoolJob', label: 'What do you do (school / job)' },
-  { key: 'interests', label: 'Interests' },
   { key: 'notes',     label: 'Notes' }
 ];
 
@@ -1053,8 +1052,6 @@ function _tlRender() {
                freq: _tlFreqHtml, time: _tlTimeHtml, terms: _tlTermsHtml }[_tl.step] || _tlInfoHtml;
   document.getElementById('tlModal').innerHTML =
     _tlTitle() +
-    '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-bottom:12px">' +
-      inqEsc(a.email || '') + (a.trialDateLabel ? ' · trial ' + inqEsc(a.trialDateLabel) : '') + '</div>' +
     (_tl.loadError ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-bottom:8px">⚠ ' + inqEsc(_tl.loadError) + '</div>' : '') +
     body(a, s) +
     '<div style="display:flex;justify-content:flex-end;margin-top:16px">' +
@@ -1077,7 +1074,7 @@ function _tlInfoHtml(a, s) {
   return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 12px">' +
       field(_TR_INFO_REQ[0]) + field(_TR_INFO_REQ[1]) +
       '<div><div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:3px">Email</div>' +
-        '<div style="font-family:\'DM Mono\',monospace;font-size:13px;color:var(--text);padding:9px 0 14px">' + inqEsc(email) + '</div></div>' +
+        '<div style="font-family:\'DM Mono\',monospace;font-size:13px;color:rgba(255,255,255,.62);padding:9px 0 14px">' + inqEsc(email) + '</div></div>' +
       field(_TR_INFO_REQ[2]) +
       field(_TR_INFO_REQ[3], true) + field(_TR_INFO_REQ[4], true) +
     '</div>' +
@@ -1085,7 +1082,7 @@ function _tlInfoHtml(a, s) {
     _tlSection('MORE (OPTIONAL)') +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 12px">' +
       field(_TR_INFO_MORE[0]) + field(_TR_INFO_MORE[1]) +
-      field(_TR_INFO_MORE[2], true) + field(_TR_INFO_MORE[3], true) + field(_TR_INFO_MORE[4], true) +
+      field(_TR_INFO_MORE[2], true) + field(_TR_INFO_MORE[3], true) +
     '</div>';
 }
 
@@ -1114,7 +1111,7 @@ function _tlLogHtml(a, s) {
   return '<label class="settings-label">What we did</label>' +
     '<textarea id="tlWhat" rows="7" onblur="_tlSaveWhat()" placeholder="Type, or press the mic and talk" ' +
       'style="box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;' +
-      'padding:10px 12px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:13px;line-height:1.55;resize:vertical">' +
+      'padding:10px 12px;color:rgba(255,255,255,.62);font-family:\'DM Mono\',monospace;font-size:13px;line-height:1.55;resize:vertical">' +
       inqEsc(v) + '</textarea>' +
     '<div style="display:flex;gap:8px;align-items:center;margin-top:8px">' +
       '<button class="btn-settings-load" id="tlMicBtn" style="margin:0;width:auto;padding-left:18px;padding-right:18px" onclick="_tlMic()">🎙 Mic</button>' +
@@ -1521,11 +1518,11 @@ function _tlSend() {
 }
 
 function _trFieldHtml(id, email, f, val) {
-  var multi = (f.key === 'notes' || f.key === 'interests');
+  var multi = (f.key === 'notes' || f.key === 'goals' || f.key === 'availability');
   var common = 'id="trf-' + id + '-' + f.key + '" ' +
     'onblur="_trSaveField(\'' + id + '\',\'' + _trEsc(email) + '\',\'' + f.key + '\',this)" ' +
     'style="box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);' +
-    'border-radius:8px;padding:9px 11px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:13px"';
+    'border-radius:8px;padding:9px 11px;color:rgba(255,255,255,.62);font-family:\'DM Mono\',monospace;font-size:13px;line-height:1.5;resize:vertical"';
   return '<div style="margin-bottom:7px">' +
       '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:1px;' +
         'text-transform:uppercase;color:var(--muted);margin-bottom:3px">' + f.label + '</div>' +
