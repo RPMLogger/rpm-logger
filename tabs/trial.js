@@ -861,7 +861,7 @@ function _trStageCard(a) {
 // Each one opens its own small window and lights up when its step is done.
 // Make student stays grey until every required step is done (Send HW is
 // optional), so "can I make them a student yet?" is answered by a glance.
-//   Info        First, Last, Email, Goals, Availability, Guitar all filled
+//   Info        Save pressed in the Info window (boxes may stay empty)
 //   Dropbox     folder created + shared with their Dropbox email
 //   Log lesson  What We Did, typed or dictated
 //   Send HW     optional: drop files into their Dropbox folder
@@ -871,18 +871,12 @@ function _trStageCard(a) {
 // Everything is read from and saved to the Trial Lessons row.
 // Backend: getTrialRecord / saveTrialRecord (RPM_TrialSheet.gs),
 // trialDropbox / previewTrialTerms / sendTrialTerms (RPM_TrialLesson.gs).
-var _TR_INFO_REQ = [
-  { key: 'first',        label: 'First' },
-  { key: 'last',         label: 'Last' },
+var _TR_INFO = [
+  { key: 'city',         label: 'City' },
+  { key: 'schoolJob',    label: 'School / Job' },
   { key: 'guitar',       label: 'Guitar' },
-  { key: 'availability', label: 'Availability' },
-  { key: 'goals',        label: 'Goals / Styles' }   // one box; saves to the Goals column
-];
-var _TR_INFO_MORE = [
-  { key: 'phone',     label: 'Phone' },
-  { key: 'city',      label: 'City' },
-  { key: 'schoolJob', label: 'What do you do (school / job)' },
-  { key: 'notes',     label: 'Notes' }
+  { key: 'availability', label: 'Availability', multi: true },
+  { key: 'goals',        label: 'Goals / Styles', multi: true }   // one box; saves to the Goals column
 ];
 
 var _TR_STEPS = [
@@ -915,7 +909,7 @@ function _trFirstLessonLabel(v) {
 function _trStepState(a) {
   var s = a.lesson || {};
   var st = {
-    info:  !!a.email && _TR_INFO_REQ.every(function (f) { return _trFilled(s[f.key]); }),
+    info:  s.infoDone === true || String(s.infoDone || '').toUpperCase() === 'TRUE',
     dbx:   !!s.dropboxMade,
     log:   _trFilled(s.whatWeDid),
     hw:    false,
@@ -934,35 +928,36 @@ function _trStepsHtml(a) {
   var em = _trEsc(a.email || '');
   var st = _trStepState(a);
   var n = 0;
+  // One step per line, numbered, blue until done, green when done.
   var btns = _TR_STEPS.map(function (x) {
     var done = st[x.key];
     var wait = x.key === 'terms' && !done && st.termsSent;
-    var num  = x.optional ? '+' : String(++n);
-    var style, mark;
-    if (done)      { style = 'border-color:var(--green);color:var(--green)'; mark = '✓'; }
-    else if (wait) { style = 'border-color:var(--accent2);color:var(--accent2)'; mark = '…'; }
-    else if (x.optional) { style = 'border-style:dashed'; mark = num; }
-    else           { style = 'color:var(--text)'; mark = num; }
+    var label = (x.optional ? '+ ' : (++n) + '. ') + x.label;
+    var style;
+    if (done)            style = 'border-color:var(--green);color:var(--green)';
+    else if (wait)       style = 'border-color:var(--accent2);color:var(--accent2)';
+    else if (x.optional) style = 'border-color:var(--blue);color:var(--blue);border-style:dashed;opacity:.8';
+    else                 style = 'border-color:var(--blue);color:var(--blue)';
     var title = wait ? 'Terms sent, waiting for the form to come back' : (x.optional ? 'Optional' : '');
-    return '<button class="db-mini-btn tr-step" style="' + style + '" title="' + title + '" ' +
+    return '<button class="db-mini-btn" style="min-width:170px;text-align:left;' + style + '" title="' + title + '" ' +
              'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')">' +
-             '<span style="opacity:.7;margin-right:5px">' + mark + '</span>' + x.label +
-             (wait ? ' (sent)' : '') +
+             label + (done ? ' ✓' : '') + (wait ? ' (sent)' : '') +
            '</button>';
   }).join('');
 
+  var gray = 'border-color:var(--muted);color:var(--muted)';
   var make = st.ready
-    ? '<button class="db-mini-btn tr-step" style="border-color:var(--green);color:var(--green);background:rgba(76,175,80,0.10);font-weight:600" ' +
-        'onclick="_msOpen(\'' + em + '\')">Make student →</button>'
-    : '<button class="db-mini-btn tr-step" disabled style="opacity:.4;cursor:not-allowed" ' +
+    ? '<button class="db-mini-btn" style="border-color:var(--green);color:var(--green)" ' +
+        'onclick="_msOpen(\'' + em + '\')">Make student</button>'
+    : '<button class="db-mini-btn" disabled style="' + gray + ';cursor:not-allowed" ' +
         'title="Still needed: ' + _msAttr(st.missing.join(', ')) + '">Make student</button>';
 
   return '<div id="trsteps-' + id + '" style="margin:10px 0 12px">' +
-      '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' + btns + '</div>' +
-      '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px">' +
+      '<div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px">' + btns + '</div>' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:12px">' +
         make +
         '<span style="flex:1"></span>' +
-        '<button class="db-mini-btn" id="trnobtn-' + id + '" style="border-color:var(--muted);color:var(--muted)" ' +
+        '<button class="db-mini-btn" id="trnobtn-' + id + '" style="' + gray + '" ' +
           'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">Not continuing</button>' +
       '</div>' +
       (st.ready ? '' :
@@ -1017,6 +1012,7 @@ function _tlSyncCard() {
   patch.dropboxMade = String(rec.dropboxMade || '').toUpperCase() === 'TRUE';
   patch.termsSent   = String(rec.termsSent || '').toUpperCase() === 'TRUE';
   patch.termsBack   = String(rec.termsBack || '').toUpperCase() === 'TRUE';
+  patch.infoDone    = String(rec.infoDone || '').toUpperCase() === 'TRUE';
   _tlMark(patch);
 }
 
@@ -1055,35 +1051,49 @@ function _tlRender() {
     (_tl.loadError ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-bottom:8px">⚠ ' + inqEsc(_tl.loadError) + '</div>' : '') +
     body(a, s) +
     '<div style="display:flex;justify-content:flex-end;margin-top:16px">' +
-      '<button class="btn-settings-load" style="margin:0;width:auto;padding-left:22px;padding-right:22px" onclick="_tlClose()">Done</button>' +
+      (_tl.step === 'info'
+        ? '<button class="btn-settings-load" id="tlInfoSave" style="margin:0;width:auto;padding-left:26px;padding-right:26px;border-color:var(--green);color:var(--green)" onclick="_tlSaveInfo()">Save</button>'
+        : '<button class="btn-settings-load" style="margin:0;width:auto;padding-left:22px;padding-right:22px" onclick="_tlClose()">Done</button>') +
     '</div>';
 }
 
 // ── 1 · Info ──
+// Same size and gray as the card's fields. Nothing saves until Save, and any
+// box can stay empty: Save is what marks Info done.
 function _tlInfoHtml(a, s) {
-  var id = emailToId(a.email || ''), email = a.email || '';
   var rec = _tl.rec || {};
   function val(k) {
     var v = rec[k] || s[k] || '';
-    if (!v && (k === 'phone' || k === 'city' || k === 'availability')) v = a[k] || '';
+    if (!v && (k === 'city' || k === 'availability')) v = a[k] || '';
+    if (!v && k === 'goals') v = a.interests || '';
     return v;
   }
-  function field(f, wide) {
-    return '<div style="' + (wide ? 'grid-column:1 / -1' : '') + '">' + _trFieldHtml(id, email, f, val(f.key)) + '</div>';
-  }
-  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 12px">' +
-      field(_TR_INFO_REQ[0]) + field(_TR_INFO_REQ[1]) +
-      '<div><div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:3px">Email</div>' +
-        '<div style="font-family:\'DM Mono\',monospace;font-size:13px;color:rgba(255,255,255,.62);padding:9px 0 14px">' + inqEsc(email) + '</div></div>' +
-      field(_TR_INFO_REQ[2]) +
-      field(_TR_INFO_REQ[3], true) + field(_TR_INFO_REQ[4], true) +
-    '</div>' +
-    '<div id="trrecmsg-' + id + '" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);min-height:12px"></div>' +
-    _tlSection('MORE (OPTIONAL)') +
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 12px">' +
-      field(_TR_INFO_MORE[0]) + field(_TR_INFO_MORE[1]) +
-      field(_TR_INFO_MORE[2], true) + field(_TR_INFO_MORE[3], true) +
-    '</div>';
+  var box = 'box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;' +
+            'padding:7px 9px;color:rgba(255,255,255,0.5);font-family:\'DM Mono\',monospace;font-size:10.5px;line-height:1.5;resize:vertical';
+  return _TR_INFO.map(function (f) {
+    var v = inqEsc(val(f.key));
+    return '<div style="margin-bottom:9px">' +
+        '<div style="font-family:\'DM Mono\',monospace;font-size:10.5px;color:rgba(255,255,255,0.82);margin-bottom:4px">' + f.label + '</div>' +
+        (f.multi
+          ? '<textarea id="tli-' + f.key + '" rows="3" style="' + box + '">' + v + '</textarea>'
+          : '<input id="tli-' + f.key + '" type="text" value="' + v.replace(/"/g, '&quot;') + '" style="' + box + '">') +
+      '</div>';
+  }).join('') +
+  _tlMsg('tlInfoMsg');
+}
+
+function _tlSaveInfo() {
+  if (!_tl || _tl.busy) return;
+  var fields = { infoDone: 'true' };
+  _TR_INFO.forEach(function (f) {
+    var el = document.getElementById('tli-' + f.key);
+    if (el) fields[f.key] = el.value.trim();
+  });
+  var btn = document.getElementById('tlInfoSave');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  _tlSaveFields(fields, 'tlInfoMsg', function () { _tlClose(); });
+  // A failed save leaves the window open with the message; let him retry.
+  setTimeout(function () { var b = document.getElementById('tlInfoSave'); if (b && _tl) { b.disabled = false; b.textContent = 'Save'; } }, 8000);
 }
 
 // ── 2 · Dropbox ──
