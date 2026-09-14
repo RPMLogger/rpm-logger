@@ -1073,7 +1073,7 @@ function _tlInfoHtml(a, s) {
   return _TR_INFO.map(function (f) {
     var v = inqEsc(val(f.key));
     return '<div style="margin-bottom:9px">' +
-        '<div style="font-family:\'DM Mono\',monospace;font-size:10.5px;color:rgba(255,255,255,0.82);margin-bottom:4px">' + f.label + '</div>' +
+        '<div style="font-family:\'DM Mono\',monospace;font-size:10.5px;color:rgba(255,255,255,0.82);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">' + f.label + '</div>' +
         (f.multi
           ? '<textarea id="tli-' + f.key + '" rows="3" style="' + box + '">' + v + '</textarea>'
           : '<input id="tli-' + f.key + '" type="text" value="' + v.replace(/"/g, '&quot;') + '" style="' + box + '">') +
