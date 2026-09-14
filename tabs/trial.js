@@ -901,7 +901,7 @@ function _trFirstLessonLabel(v) {
   var d = _trFirstLessonDate(v);
   if (!d) return '';
   var h = d.getHours(), mi = d.getMinutes();
-  return _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() +
+  return _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate() +
          ' at ' + ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM');
 }
 
@@ -1052,8 +1052,8 @@ function _tlRender() {
     body(a, s) +
     '<div style="display:flex;justify-content:flex-end;margin-top:16px">' +
       (_tl.step === 'info'
-        ? '<button class="btn-settings-load" id="tlInfoSave" style="margin:0;width:auto;padding-left:26px;padding-right:26px;border-color:var(--green);color:var(--green)" onclick="_tlSaveInfo()">Save</button>'
-        : '<button class="btn-settings-load" style="margin:0;width:auto;padding-left:22px;padding-right:22px" onclick="_tlClose()">Done</button>') +
+        ? '<button class="db-mini-btn" id="tlInfoSave" style="padding:7px 20px;border-color:var(--green);color:var(--green)" onclick="_tlSaveInfo()">Save</button>'
+        : '<button class="db-mini-btn" style="padding:7px 20px" onclick="_tlClose()">Done</button>') +
     '</div>';
 }
 
@@ -1223,13 +1223,13 @@ function _tlHwHtml(a, s) {
 // ── 4 · Frequency ──
 function _tlFreqHtml(a, s) {
   var f = String(s.frequency || '').toLowerCase();
-  function big(v, label) {
+  function pick(v) {
     var on = f === v.toLowerCase();
-    return '<button class="btn-settings-load" style="margin:0;flex:1;padding:18px 0;font-size:14px;' +
-      (on ? 'border-color:var(--green);color:var(--green);background:rgba(76,175,80,0.10)' : '') +
-      '" onclick="_tlSetFreq(\'' + v + '\')">' + (on ? '✓ ' : '') + label + '</button>';
+    return '<button class="db-mini-btn" style="padding:8px 22px;' +
+      (on ? 'border-color:var(--green);color:var(--green)' : 'border-color:var(--blue);color:var(--blue)') +
+      '" onclick="_tlSetFreq(\'' + v + '\')">' + (on ? '✓ ' : '') + v + '</button>';
   }
-  return '<div style="display:flex;gap:10px">' + big('Weekly', 'Weekly') + big('Biweekly', 'Biweekly') + '</div>' +
+  return '<div style="display:flex;gap:8px">' + pick('Weekly') + pick('Biweekly') + '</div>' +
     _tlMsg('tlFreqMsg');
 }
 
@@ -1241,17 +1241,18 @@ function _tlSetFreq(v) {
 }
 
 // ── 5 · Pick a time (first lesson) ──
-// Saves First Lesson ("2026-09-20 14:30") and also Pencilled Spot ("Sun 2:30 PM"),
-// which the Fixed Calendar reads to draw the pencilled slot.
+// Arrows only move the choice; nothing is saved until Set. Saves First Lesson
+// ("2026-09-20 14:30") and Pencilled Spot ("Sun 2:30 PM"), which the Fixed
+// Calendar reads to draw the pencilled slot. Time steps in half hours.
 function _tlTimeState() {
   if (_tl.when) return _tl.when;
   var s = _tl.card.lesson || {};
   var d = _trFirstLessonDate(s.firstLesson);
   if (d) {
-    _tl.when = { date: new Date(d.getFullYear(), d.getMonth(), d.getDate()), mins: d.getHours() * 60 + d.getMinutes(), saved: true };
+    _tl.when = { date: new Date(d.getFullYear(), d.getMonth(), d.getDate()), mins: d.getHours() * 60 + d.getMinutes() };
   } else {
     var def = _msDefaultStart(_tl.card);
-    _tl.when = { date: def.date, mins: def.mins, saved: false };
+    _tl.when = { date: def.date, mins: Math.round(def.mins / 30) * 30 };
   }
   return _tl.when;
 }
@@ -1264,47 +1265,50 @@ function _tlTimeValue() {
 
 function _tlTimeHtml(a, s) {
   var w = _tlTimeState();
-  var label = _trFirstLessonLabel(_tlTimeValue());
-  var past = _trFirstLessonDate(_tlTimeValue()) <= new Date();
+  var v = _tlTimeValue();
+  var saved = String(s.firstLesson || '') === v;
+  var past = _trFirstLessonDate(v) <= new Date();
   var arrow = function (fn, n, txt) {
-    return '<button class="btn-settings-load" style="margin:0;width:auto;padding:10px 14px" onclick="' + fn + '(' + n + ')">' + txt + '</button>';
+    return '<button class="db-mini-btn" style="padding:6px 10px" onclick="' + fn + '(' + n + ')">' + txt + '</button>';
   };
   var h = Math.floor(w.mins / 60), mi = w.mins % 60, d = w.date;
-  return '<label class="settings-label">First lesson</label>' +
-    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:\'DM Mono\',monospace;font-size:15px;color:var(--text)">' +
+  var txt = 'style="font-family:\'DM Mono\',monospace;font-size:12px;color:rgba(255,255,255,0.62);text-align:center;';
+  return '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
       arrow('_tlStepDay', -1, '◀') +
-      '<span style="min-width:170px;text-align:center">' + _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + '</span>' +
+      '<span ' + txt + 'min-width:92px">' + _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate() + '</span>' +
       arrow('_tlStepDay', 1, '▶') +
       '<span style="width:14px"></span>' +
-      arrow('_tlStepMins', -15, '◀') +
-      '<span style="min-width:84px;text-align:center">' + ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM') + '</span>' +
-      arrow('_tlStepMins', 15, '▶') +
+      arrow('_tlStepMins', -30, '◀') +
+      '<span ' + txt + 'min-width:70px">' + ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM') + '</span>' +
+      arrow('_tlStepMins', 30, '▶') +
     '</div>' +
     (past ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-top:8px">⚠ That is in the past.</div>' : '') +
-    (w.saved
-      ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--green);margin-top:10px">✓ Set: ' + inqEsc(label) + '</div>'
-      : '<button class="btn-settings-load" style="margin:12px 0 0;border-color:var(--green);color:var(--green)" onclick="_tlSaveTime()">Set ' + inqEsc(label) + '</button>') +
+    '<div style="margin-top:12px">' +
+      (saved
+        ? '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--green)">✓ Set: ' + inqEsc(_trFirstLessonLabel(v)) + '</span>'
+        : '<button class="db-mini-btn" style="padding:7px 20px;border-color:var(--blue);color:var(--blue)"' + (past ? ' disabled' : '') +
+            ' onclick="_tlSaveTime()">Set ' + inqEsc(_trFirstLessonLabel(v)) + '</button>') +
+    '</div>' +
     _tlMsg('tlTimeMsg');
 }
 
-function _tlStepDay(n)  { if (!_tl) return; var w = _tlTimeState(); w.date.setDate(w.date.getDate() + n); _tlSaveTime(); }
-function _tlStepMins(n) { if (!_tl) return; var w = _tlTimeState(); w.mins = Math.min(23 * 60 + 45, Math.max(0, w.mins + n)); _tlSaveTime(); }
+function _tlStepDay(n)  { if (!_tl) return; var w = _tlTimeState(); w.date.setDate(w.date.getDate() + n); _tlRender(); }
+function _tlStepMins(n) {
+  if (!_tl) return;
+  var w = _tlTimeState();
+  w.mins = Math.min(23 * 60 + 30, Math.max(0, Math.round(w.mins / 30) * 30 + n));
+  _tlRender();
+}
 
-// Arrow taps come in bursts: redraw now, save once they stop.
 function _tlSaveTime() {
   if (!_tl) return;
   var w = _tlTimeState();
   var v = _tlTimeValue();
-  var d = w.date;
-  var spot = _tlSpotStr(d.getDay(), w.mins);
-  w.saved = true;
+  if (_trFirstLessonDate(v) <= new Date()) return;
+  var spot = _tlSpotStr(w.date.getDay(), w.mins);
   _tlMark({ firstLesson: v, pencilledSpot: spot });
   _tlRender();
-  _tlSetMsg('tlTimeMsg', 'Saving…');
-  clearTimeout(_tl.timeTimer);
-  _tl.timeTimer = setTimeout(function () {
-    _tlSaveFields({ firstLesson: v, pencilledSpot: spot }, 'tlTimeMsg');
-  }, 600);
+  _tlSaveFields({ firstLesson: v, pencilledSpot: spot }, 'tlTimeMsg');
 }
 
 function _tlSpotStr(day, mins) {
