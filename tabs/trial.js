@@ -853,6 +853,7 @@ function _trStageCard(a) {
       _trStepsHtml(a) +
       '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || '') + '"></div>' +
+      _trActionsHtml(a) +
     '</div>';
 }
 
@@ -923,44 +924,51 @@ function _trStepState(a) {
   return st;
 }
 
-var _TR_CAPS = 'color:rgba(255,255,255,0.62);text-transform:uppercase;letter-spacing:1px';
+var _TR_CAPS = 'color:rgba(255,255,255,0.62);text-transform:uppercase;letter-spacing:1px;font-size:10px;padding:5px 9px';
 
+// The step list, at the top of the card.
 function _trStepsHtml(a) {
   var id = emailToId(a.email || '');
   var em = _trEsc(a.email || '');
   var st = _trStepState(a);
   var n = 0;
-  // One step per line, numbered, blue until done, green when done.
+  // One step per line, numbered. The border carries the state; the text stays
+  // gray, in caps.
   var btns = _TR_STEPS.map(function (x) {
     var done = st[x.key];
     var wait = x.key === 'terms' && !done && st.termsSent;
     var label = (x.optional ? '+ ' : (++n) + '. ') + x.label;
-    // The border carries the state; the text stays gray, in caps.
     var style;
     if (done)            style = 'border-color:var(--green)';
     else if (wait)       style = 'border-color:var(--accent2)';
     else if (x.optional) style = 'border-color:var(--blue);border-style:dashed';
     else                 style = 'border-color:var(--blue)';
     var title = wait ? 'Terms sent, waiting for the form to come back' : (x.optional ? 'Optional' : '');
-    return '<button class="db-mini-btn" style="min-width:170px;text-align:left;' + _TR_CAPS + ';' + style + '" title="' + title + '" ' +
+    return '<button class="db-mini-btn" style="min-width:150px;text-align:left;' + _TR_CAPS + ';' + style + '" title="' + title + '" ' +
              'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')">' +
              label + (done ? ' ✓' : '') + (wait ? ' (sent)' : '') +
            '</button>';
   }).join('');
+  return '<div id="trsteps-' + id + '" style="display:flex;flex-direction:column;align-items:flex-start;gap:5px;margin:10px 0 12px">' +
+    btns + '</div>';
+}
 
-  var gray = 'border-color:var(--muted);color:var(--muted);text-transform:uppercase;letter-spacing:1px';
+// Make student + Not continuing, at the bottom of the card. Make student is
+// dashed like Send HW: gray until every step is done, then green.
+function _trActionsHtml(a) {
+  var id = emailToId(a.email || '');
+  var em = _trEsc(a.email || '');
+  var st = _trStepState(a);
   var make = st.ready
-    ? '<button class="db-mini-btn" style="' + _TR_CAPS + ';border-color:var(--green)" ' +
+    ? '<button class="db-mini-btn" style="min-width:150px;' + _TR_CAPS + ';border-color:var(--green);border-style:dashed" ' +
         'onclick="_msOpen(\'' + em + '\')">Make student</button>'
-    : '<button class="db-mini-btn" disabled style="' + gray + ';cursor:not-allowed" ' +
+    : '<button class="db-mini-btn" disabled style="min-width:150px;' + _TR_CAPS + ';color:var(--muted);border-color:var(--muted);border-style:dashed;cursor:not-allowed" ' +
         'title="Still needed: ' + _msAttr(st.missing.join(', ')) + '">Make student</button>';
-
-  return '<div id="trsteps-' + id + '" style="margin:10px 0 12px">' +
-      '<div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px">' + btns + '</div>' +
-      '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:12px">' +
+  return '<div id="tracts-' + id + '" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
         make +
         '<span style="flex:1"></span>' +
-        '<button class="db-mini-btn" id="trnobtn-' + id + '" style="' + gray + '" ' +
+        '<button class="db-mini-btn" id="trnobtn-' + id + '" style="' + _TR_CAPS + ';color:var(--muted);border-color:var(--muted)" ' +
           'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">Not continuing</button>' +
       '</div>' +
       (st.ready ? '' :
@@ -1467,6 +1475,8 @@ function _tlMarkEmail(email, patch) {
   Object.keys(patch).forEach(function (k) { a.lesson[k] = patch[k]; });
   var old = document.getElementById('trsteps-' + emailToId(a.email || ''));
   if (old) old.outerHTML = _trStepsHtml(a);
+  var acts = document.getElementById('tracts-' + emailToId(a.email || ''));
+  if (acts) acts.outerHTML = _trActionsHtml(a);
 }
 
 function _tlDropbox() {
