@@ -923,6 +923,8 @@ function _trStepState(a) {
   return st;
 }
 
+var _TR_CAPS = 'color:rgba(255,255,255,0.62);text-transform:uppercase;letter-spacing:1px';
+
 function _trStepsHtml(a) {
   var id = emailToId(a.email || '');
   var em = _trEsc(a.email || '');
@@ -933,21 +935,22 @@ function _trStepsHtml(a) {
     var done = st[x.key];
     var wait = x.key === 'terms' && !done && st.termsSent;
     var label = (x.optional ? '+ ' : (++n) + '. ') + x.label;
+    // The border carries the state; the text stays gray, in caps.
     var style;
-    if (done)            style = 'border-color:var(--green);color:var(--green)';
-    else if (wait)       style = 'border-color:var(--accent2);color:var(--accent2)';
-    else if (x.optional) style = 'border-color:var(--blue);color:var(--blue);border-style:dashed;opacity:.8';
-    else                 style = 'border-color:var(--blue);color:var(--blue)';
+    if (done)            style = 'border-color:var(--green)';
+    else if (wait)       style = 'border-color:var(--accent2)';
+    else if (x.optional) style = 'border-color:var(--blue);border-style:dashed';
+    else                 style = 'border-color:var(--blue)';
     var title = wait ? 'Terms sent, waiting for the form to come back' : (x.optional ? 'Optional' : '');
-    return '<button class="db-mini-btn" style="min-width:170px;text-align:left;' + style + '" title="' + title + '" ' +
+    return '<button class="db-mini-btn" style="min-width:170px;text-align:left;' + _TR_CAPS + ';' + style + '" title="' + title + '" ' +
              'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')">' +
              label + (done ? ' ✓' : '') + (wait ? ' (sent)' : '') +
            '</button>';
   }).join('');
 
-  var gray = 'border-color:var(--muted);color:var(--muted)';
+  var gray = 'border-color:var(--muted);color:var(--muted);text-transform:uppercase;letter-spacing:1px';
   var make = st.ready
-    ? '<button class="db-mini-btn" style="border-color:var(--green);color:var(--green)" ' +
+    ? '<button class="db-mini-btn" style="' + _TR_CAPS + ';border-color:var(--green)" ' +
         'onclick="_msOpen(\'' + em + '\')">Make student</button>'
     : '<button class="db-mini-btn" disabled style="' + gray + ';cursor:not-allowed" ' +
         'title="Still needed: ' + _msAttr(st.missing.join(', ')) + '">Make student</button>';
@@ -1053,6 +1056,8 @@ function _tlRender() {
     '<div style="display:flex;justify-content:flex-end;margin-top:16px">' +
       (_tl.step === 'info'
         ? '<button class="db-mini-btn" id="tlInfoSave" style="padding:7px 20px;border-color:var(--green);color:var(--green)" onclick="_tlSaveInfo()">Save</button>'
+        : _tl.step === 'freq'
+        ? '<button class="db-mini-btn" id="tlFreqSave" style="padding:7px 20px;border-color:var(--green);color:var(--green)" onclick="_tlSaveFreq()">Save</button>'
         : '<button class="db-mini-btn" style="padding:7px 20px" onclick="_tlClose()">Done</button>') +
     '</div>';
 }
@@ -1216,17 +1221,18 @@ function _tlHwHtml(a, s) {
     return '<div class="empty-state" style="padding:22px 10px">Make their Dropbox folder first.<br><br>' +
       '<button class="db-mini-btn" onclick="_tl.step=\'dbx\';_tlRender()">Go to Dropbox →</button></div>';
   }
-  return '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)">Uploads straight into their folder: ' + inqEsc(a.name || '') + '</div>' +
-    '<div id="tlUpload">' + _tlUploadHtml(a.name) + '</div>';
+  return '<div id="tlUpload">' + _tlUploadHtml(a.name) + '</div>';
 }
 
 // ── 4 · Frequency ──
+// Tapping only picks; Save writes it and closes. Closing without Save keeps
+// whatever was saved before.
 function _tlFreqHtml(a, s) {
-  var f = String(s.frequency || '').toLowerCase();
+  var f = String(_tl.freqPick || s.frequency || '').toLowerCase();
   function pick(v) {
     var on = f === v.toLowerCase();
     return '<button class="db-mini-btn" style="padding:8px 22px;' +
-      (on ? 'border-color:var(--green);color:var(--green)' : 'border-color:var(--blue);color:var(--blue)') +
+      (on ? 'border-color:var(--green);color:var(--green)' : 'border-color:var(--muted);color:var(--muted)') +
       '" onclick="_tlSetFreq(\'' + v + '\')">' + (on ? '✓ ' : '') + v + '</button>';
   }
   return '<div style="display:flex;gap:8px">' + pick('Weekly') + pick('Biweekly') + '</div>' +
@@ -1235,9 +1241,17 @@ function _tlFreqHtml(a, s) {
 
 function _tlSetFreq(v) {
   if (!_tl) return;
-  _tlMark({ frequency: v });
+  _tl.freqPick = v;
   _tlRender();
-  _tlSaveFields({ frequency: v }, 'tlFreqMsg');
+}
+
+function _tlSaveFreq() {
+  if (!_tl) return;
+  var v = _tl.freqPick || (_tl.card.lesson || {}).frequency || '';
+  if (!/^(weekly|biweekly)$/i.test(v)) { _tlSetMsg('tlFreqMsg', 'Pick Weekly or Biweekly first.', 'var(--accent)'); return; }
+  var btn = document.getElementById('tlFreqSave');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving\u2026'; }
+  _tlSaveFields({ frequency: v }, 'tlFreqMsg', function () { _tlClose(); });
 }
 
 // ── 5 · Pick a time (first lesson) ──
@@ -1273,7 +1287,8 @@ function _tlTimeHtml(a, s) {
   };
   var h = Math.floor(w.mins / 60), mi = w.mins % 60, d = w.date;
   var txt = 'style="font-family:\'DM Mono\',monospace;font-size:12px;color:rgba(255,255,255,0.62);text-align:center;';
-  return '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
+  return '<label class="settings-label">First regular lesson</label>' +
+    '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
       arrow('_tlStepDay', -1, '◀') +
       '<span ' + txt + 'min-width:92px">' + _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate() + '</span>' +
       arrow('_tlStepDay', 1, '▶') +
