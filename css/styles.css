@@ -762,6 +762,16 @@ body::before {
   transition: all 0.2s;
 }
 .db-mini-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+.db-mini-btn:disabled:hover { border-color: var(--border); color: var(--muted); }
+
+/* Trial tab: checklist step buttons + Make student spinner */
+.tr-step { font-size: 12px; padding: 7px 11px; }
+.ms-spin {
+  width: 16px; height: 16px; flex: none;
+  border: 2px solid rgba(0,0,0,0.25); border-top-color: #0b0b0b; border-radius: 50%;
+  animation: msSpin 0.8s linear infinite;
+}
+@keyframes msSpin { to { transform: rotate(360deg); } }
 
 /* ─── HOLIDAYS ALERTS ─────────────────────────────────────────────── */
 .hol-note { color: var(--muted); font-size: 11px; line-height: 1.6; margin-bottom: 16px; }

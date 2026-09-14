@@ -850,89 +850,149 @@ function _trStageCard(a) {
           : '') +
       '</div>' +
       '<div id="trpaid-' + emailToId(a.email || '') + '"></div>' +
+      _trStepsHtml(a) +
       '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
-      _trRecordHtml(a) +
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || '') + '"></div>' +
     '</div>';
 }
 
-// ── The lesson page ──────────────────────────────────────────────────────────
-// Opened from the card when the student walks in. Three parts, top to bottom
-// in the order they happen:
-//   About them  the Trial Storage row, prefilled from the inquiry; the lesson
-//               questions (what do you do, guitar) get typed here. Saves per
-//               field on blur: a half-typed record never submitted is worse
-//               than no record.
-//   Dropbox     their Dropbox email, then create + share the folder.
-//   Terms       at the end: preview + send the one standard email. Terms Back
-//               ticks itself when the acknowledgment form comes in.
+// ── The checklist ────────────────────────────────────────────────────────────
+// A row of step buttons at the top of each card, in the order they happen.
+// Each one opens its own small window and lights up when its step is done.
+// Make student stays grey until every required step is done (Send HW is
+// optional), so "can I make them a student yet?" is answered by a glance.
+//   Info        First, Last, Email, Goals, Availability, Guitar all filled
+//   Dropbox     folder created + shared with their Dropbox email
+//   Log lesson  What We Did, typed or dictated
+//   Send HW     optional: drop files into their Dropbox folder
+//   Frequency   Weekly / Biweekly
+//   Pick a time the first lesson, date + time, in the future
+//   Terms       sent, then DONE only when the acknowledgment form is back
+// Everything is read from and saved to the Trial Lessons row.
 // Backend: getTrialRecord / saveTrialRecord (RPM_TrialSheet.gs),
 // trialDropbox / previewTrialTerms / sendTrialTerms (RPM_TrialLesson.gs).
-var _TR_FIELDS = [
+var _TR_INFO_REQ = [
+  { key: 'first',        label: 'First' },
+  { key: 'last',         label: 'Last' },
+  { key: 'guitar',       label: 'Guitar' },
+  { key: 'goals',        label: 'Goals' },
+  { key: 'availability', label: 'Availability' }
+];
+var _TR_INFO_MORE = [
   { key: 'phone',     label: 'Phone' },
   { key: 'city',      label: 'City' },
   { key: 'schoolJob', label: 'What do you do (school / job)' },
-  { key: 'guitar',    label: 'Guitar' },
-  { key: 'goals',     label: 'Goals' },
   { key: 'interests', label: 'Interests' },
   { key: 'notes',     label: 'Notes' }
 ];
 
-// One line on the card: where the lesson steps stand.
-function _trLessonStatus(a) {
-  var s = a.lesson;
-  if (!s) return '';
-  function step(ok, txt) {
-    return '<span style="color:' + (ok ? 'var(--green)' : 'var(--muted)') + '">' + (ok ? '✓ ' : '· ') + txt + '</span>';
-  }
-  return '<div id="trls-' + emailToId(a.email || '') + '" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;' +
-      'font-family:\'DM Mono\',monospace;font-size:10px">' +
-      step(s.dropboxMade, 'Dropbox') +
-      step(s.termsSent, 'Terms sent' + (s.sentDate ? ' ' + inqEsc(s.sentDate) : '')) +
-      step(s.termsBack, 'Terms back' + (s.returnDate ? ' ' + inqEsc(s.returnDate) : '')) +
-      ((s.pencilledSpot || s.frequency)
-        ? '<span style="color:var(--blue)">Spot: ' +
-            inqEsc([s.pencilledSpot, s.frequency].filter(function (x) { return x; }).join(' · ')) + '</span>'
-        : '<span style="color:var(--muted)">· No spot pencilled</span>') +
-    '</div>';
+var _TR_STEPS = [
+  { key: 'info',  label: 'Info' },
+  { key: 'dbx',   label: 'Dropbox' },
+  { key: 'log',   label: 'Log lesson' },
+  { key: 'hw',    label: 'Send HW', optional: true },
+  { key: 'freq',  label: 'Frequency' },
+  { key: 'time',  label: 'Pick a time' },
+  { key: 'terms', label: 'Terms' }
+];
+
+function _trFilled(v) { return !!String(v == null ? '' : v).trim(); }
+
+// "2026-09-20 14:30" → Date, or null.
+function _trFirstLessonDate(v) {
+  var m = String(v || '').match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{1,2}):(\d{2})$/);
+  return m ? new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) : null;
 }
 
-function _trRecordHtml(a) {
+function _trFirstLessonLabel(v) {
+  var d = _trFirstLessonDate(v);
+  if (!d) return '';
+  var h = d.getHours(), mi = d.getMinutes();
+  return _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() +
+         ' at ' + ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM');
+}
+
+// { info, dbx, log, freq, time, terms: true/false, termsSent, ready, missing[] }
+function _trStepState(a) {
+  var s = a.lesson || {};
+  var st = {
+    info:  !!a.email && _TR_INFO_REQ.every(function (f) { return _trFilled(s[f.key]); }),
+    dbx:   !!s.dropboxMade,
+    log:   _trFilled(s.whatWeDid),
+    hw:    false,
+    freq:  /^(weekly|biweekly)$/i.test(String(s.frequency || '').trim()),
+    time:  (function () { var d = _trFirstLessonDate(s.firstLesson); return !!d && d > new Date(); })(),
+    terms: !!s.termsBack,
+    termsSent: !!s.termsSent
+  };
+  st.missing = _TR_STEPS.filter(function (x) { return !x.optional && !st[x.key]; }).map(function (x) { return x.label; });
+  st.ready = !st.missing.length;
+  return st;
+}
+
+function _trStepsHtml(a) {
   var id = emailToId(a.email || '');
-  return _trLessonStatus(a) +
-    '<div style="margin-top:10px">' +
-      '<button class="db-mini-btn" style="border-color:var(--blue);color:var(--blue)" ' +
-        'onclick="_tlOpen(\'' + _trEsc(a.email || '') + '\')">Lesson</button> ' +
-      '<button class="db-mini-btn" id="trnobtn-' + id + '" style="border-color:var(--muted);color:var(--muted)" ' +
-        'onclick="_trNotContinuing(\'' + id + '\',\'' + _trEsc(a.email || '') + '\',\'' + _trEsc(a.name || '') + '\')">Not continuing</button> ' +
-      '<button class="db-mini-btn" style="border-color:var(--green);color:var(--green)" ' +
-        'onclick="_msOpen(\'' + _trEsc(a.email || '') + '\')">Make student</button>' +
+  var em = _trEsc(a.email || '');
+  var st = _trStepState(a);
+  var n = 0;
+  var btns = _TR_STEPS.map(function (x) {
+    var done = st[x.key];
+    var wait = x.key === 'terms' && !done && st.termsSent;
+    var num  = x.optional ? '+' : String(++n);
+    var style, mark;
+    if (done)      { style = 'border-color:var(--green);color:var(--green)'; mark = '✓'; }
+    else if (wait) { style = 'border-color:var(--accent2);color:var(--accent2)'; mark = '…'; }
+    else if (x.optional) { style = 'border-style:dashed'; mark = num; }
+    else           { style = 'color:var(--text)'; mark = num; }
+    var title = wait ? 'Terms sent, waiting for the form to come back' : (x.optional ? 'Optional' : '');
+    return '<button class="db-mini-btn tr-step" style="' + style + '" title="' + title + '" ' +
+             'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')">' +
+             '<span style="opacity:.7;margin-right:5px">' + mark + '</span>' + x.label +
+             (wait ? ' (sent)' : '') +
+           '</button>';
+  }).join('');
+
+  var make = st.ready
+    ? '<button class="db-mini-btn tr-step" style="border-color:var(--green);color:var(--green);background:rgba(76,175,80,0.10);font-weight:600" ' +
+        'onclick="_msOpen(\'' + em + '\')">Make student →</button>'
+    : '<button class="db-mini-btn tr-step" disabled style="opacity:.4;cursor:not-allowed" ' +
+        'title="Still needed: ' + _msAttr(st.missing.join(', ')) + '">Make student</button>';
+
+  return '<div id="trsteps-' + id + '" style="margin:10px 0 12px">' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' + btns + '</div>' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px">' +
+        make +
+        '<span style="flex:1"></span>' +
+        '<button class="db-mini-btn" id="trnobtn-' + id + '" style="border-color:var(--muted);color:var(--muted)" ' +
+          'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">Not continuing</button>' +
+      '</div>' +
+      (st.ready ? '' :
+        '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin-top:6px">Still needed: ' +
+          inqEsc(st.missing.join(' · ')) + '</div>') +
     '</div>';
 }
 
-var _tl = null;   // { card, rec, busy }
+var _tl = null;   // { card, step, rec, busy }
 
-function _tlOpen(email) {
+function _tlOpen(email, step) {
   var a = _trStageCache.filter(function (x) { return (x.email || '') === email; })[0];
   if (!a) return;
-  _tl = { card: a, rec: null, busy: false };
+  _tl = { card: a, step: step || 'info', rec: null, busy: false };
 
   var ov = document.getElementById('tlOverlay');
   if (!ov) {
     ov = document.createElement('div');
     ov.className = 'settings-overlay';
     ov.id = 'tlOverlay';
-    ov.innerHTML = '<div class="settings-modal" id="tlModal" style="max-width:640px;max-height:90vh;overflow-y:auto"></div>';
+    ov.innerHTML = '<div class="settings-modal" id="tlModal" style="max-width:600px;max-height:90vh;overflow-y:auto"></div>';
     ov.addEventListener('click', function (e) { if (e.target === ov) _tlClose(); });
     document.body.appendChild(ov);
   }
   ov.classList.add('open');
-  document.getElementById('tlModal').innerHTML =
-    '<div class="settings-title">' + inqEsc(a.name || '') + '<button class="settings-close" onclick="_tlClose()">\u2715</button></div>' +
-    '<div class="empty-state">Loading\u2026</div>';
+  document.getElementById('tlModal').innerHTML = _tlTitle() + '<div class="empty-state">Loading…</div>';
 
   var url = getScriptUrl();
-  if (!url) { _tlRender(); return; }
+  if (!url) { _tl.rec = {}; _tlRender(); return; }
   fetch(url + '?action=getTrialRecord&email=' + encodeURIComponent(email))
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -941,16 +1001,40 @@ function _tlOpen(email) {
       // Trial tab loads, so this only happens on a very fresh booking.
       _tl.rec = (d && d.success && d.record) || {};
       if (d && !d.success) _tl.loadError = d.message || d.error || 'Could not load';
+      _tlSyncCard();
       _tlRender();
     })
     .catch(function () { if (_tl) { _tl.rec = {}; _tl.loadError = 'Could not load the record'; _tlRender(); } });
 }
 
+// The sheet row is the truth: copy what it says onto the card so the
+// checklist matches it, even if the tab was loaded a while ago.
+function _tlSyncCard() {
+  var rec = _tl.rec || {}, patch = {};
+  if (!rec.row) return;
+  ['first', 'last', 'goals', 'availability', 'guitar', 'whatWeDid', 'firstLesson', 'frequency',
+   'pencilledSpot', 'phone', 'city', 'schoolJob', 'interests', 'dropboxEmail', 'sentDate', 'returnDate']
+    .forEach(function (k) { patch[k] = rec[k] || ''; });
+  patch.dropboxMade = String(rec.dropboxMade || '').toUpperCase() === 'TRUE';
+  patch.termsSent   = String(rec.termsSent || '').toUpperCase() === 'TRUE';
+  patch.termsBack   = String(rec.termsBack || '').toUpperCase() === 'TRUE';
+  _tlMark(patch);
+}
+
 function _tlClose() {
   if (_tl && _tl.busy) return;     // never close mid-send
+  if (_tlMicRec) { try { _tlMicRec.stop(); } catch (e) {} }
   var ov = document.getElementById('tlOverlay');
   if (ov) ov.classList.remove('open');
   _tl = null;
+}
+
+function _tlTitle() {
+  var a = _tl.card;
+  var step = _TR_STEPS.filter(function (x) { return x.key === _tl.step; })[0];
+  return '<div class="settings-title"><span>' + inqEsc(a.name || '') +
+      (step ? '<span style="color:var(--muted);font-weight:400"> · ' + step.label + '</span>' : '') +
+      '</span><button class="settings-close" onclick="_tlClose()">✕</button></div>';
 }
 
 function _tlSection(title) {
@@ -962,9 +1046,250 @@ function _tlMsg(id) {
   return '<div id="' + id + '" style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:6px;min-height:14px"></div>';
 }
 
-// ── Pencilled spot + frequency ──
-// Picked at the end of the trial, saved as text ("Tue 5:30 PM", "Weekly") on
-// the Trial Storage row. Make Student opens prefilled from it.
+function _tlRender() {
+  if (!_tl) return;
+  var a = _tl.card, s = a.lesson || {};
+  var body = { info: _tlInfoHtml, dbx: _tlDbxHtml, log: _tlLogHtml, hw: _tlHwHtml,
+               freq: _tlFreqHtml, time: _tlTimeHtml, terms: _tlTermsHtml }[_tl.step] || _tlInfoHtml;
+  document.getElementById('tlModal').innerHTML =
+    _tlTitle() +
+    '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-bottom:12px">' +
+      inqEsc(a.email || '') + (a.trialDateLabel ? ' · trial ' + inqEsc(a.trialDateLabel) : '') + '</div>' +
+    (_tl.loadError ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-bottom:8px">⚠ ' + inqEsc(_tl.loadError) + '</div>' : '') +
+    body(a, s) +
+    '<div style="display:flex;justify-content:flex-end;margin-top:16px">' +
+      '<button class="btn-settings-load" style="margin:0;width:auto;padding-left:22px;padding-right:22px" onclick="_tlClose()">Done</button>' +
+    '</div>';
+}
+
+// ── 1 · Info ──
+function _tlInfoHtml(a, s) {
+  var id = emailToId(a.email || ''), email = a.email || '';
+  var rec = _tl.rec || {};
+  function val(k) {
+    var v = rec[k] || s[k] || '';
+    if (!v && (k === 'phone' || k === 'city' || k === 'availability')) v = a[k] || '';
+    return v;
+  }
+  function field(f, wide) {
+    return '<div style="' + (wide ? 'grid-column:1 / -1' : '') + '">' + _trFieldHtml(id, email, f, val(f.key)) + '</div>';
+  }
+  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 12px">' +
+      field(_TR_INFO_REQ[0]) + field(_TR_INFO_REQ[1]) +
+      '<div><div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:3px">Email</div>' +
+        '<div style="font-family:\'DM Mono\',monospace;font-size:13px;color:var(--text);padding:9px 0 14px">' + inqEsc(email) + '</div></div>' +
+      field(_TR_INFO_REQ[2]) +
+      field(_TR_INFO_REQ[3], true) + field(_TR_INFO_REQ[4], true) +
+    '</div>' +
+    '<div id="trrecmsg-' + id + '" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);min-height:12px"></div>' +
+    _tlSection('MORE (OPTIONAL)') +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 12px">' +
+      field(_TR_INFO_MORE[0]) + field(_TR_INFO_MORE[1]) +
+      field(_TR_INFO_MORE[2], true) + field(_TR_INFO_MORE[3], true) + field(_TR_INFO_MORE[4], true) +
+    '</div>';
+}
+
+// ── 2 · Dropbox ──
+function _tlDbxHtml(a, s) {
+  var rec = _tl.rec || {};
+  var made = !!s.dropboxMade;
+  var dbxEmail = rec.dropboxEmail || s.dropboxEmail || a.email || '';
+  return '<label class="settings-label">Their Dropbox email</label>' +
+    '<div style="display:flex;gap:8px;align-items:center">' +
+      '<input class="settings-input" id="tlDbxEmail" style="margin:0;flex:1;min-width:0" value="' + _msAttr(dbxEmail) + '"' + (made ? ' disabled' : '') + '>' +
+      '<button class="btn-settings-load" id="tlDbxBtn" style="margin:0;width:auto;flex:none;padding-left:16px;padding-right:16px;white-space:nowrap' +
+        (made ? '' : ';border-color:var(--green);color:var(--green)') + '"' +
+        (made ? ' disabled' : '') + ' onclick="_tlDropbox()">' +
+        (made ? 'Folder made ✓' : 'Create & share') + '</button>' +
+    '</div>' +
+    '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin-top:5px">' +
+      'Folder: ' + inqEsc(a.name || '') + ' · Dropbox sends them the invite, the instructions go in the terms email</div>' +
+    _tlMsg('tlDbxMsg');
+}
+
+// ── 3 · Log lesson ──
+function _tlLogHtml(a, s) {
+  var rec = _tl.rec || {};
+  var v = rec.whatWeDid || s.whatWeDid || '';
+  return '<label class="settings-label">What we did</label>' +
+    '<textarea id="tlWhat" rows="7" onblur="_tlSaveWhat()" placeholder="Type, or press the mic and talk" ' +
+      'style="box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;' +
+      'padding:10px 12px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:13px;line-height:1.55;resize:vertical">' +
+      inqEsc(v) + '</textarea>' +
+    '<div style="display:flex;gap:8px;align-items:center;margin-top:8px">' +
+      '<button class="btn-settings-load" id="tlMicBtn" style="margin:0;width:auto;padding-left:18px;padding-right:18px" onclick="_tlMic()">🎙 Mic</button>' +
+      '<button class="btn-settings-load" style="margin:0;width:auto;padding-left:18px;padding-right:18px;border-color:var(--green);color:var(--green)" onclick="_tlSaveWhat(true)">Save</button>' +
+      '<span id="tlMicState" style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)"></span>' +
+    '</div>' +
+    _tlMsg('tlWhatMsg');
+}
+
+var _tlMicRec = null;
+
+function _tlMic() {
+  if (_tlMicRec) { try { _tlMicRec.stop(); } catch (e) {} return; }
+  var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Rec) { _tlSetMsg('tlWhatMsg', '⚠ Speech not supported here. Use Chrome.', 'var(--accent)'); return; }
+  var ta = document.getElementById('tlWhat');
+  if (!ta) return;
+  var base = ta.value.replace(/\s+$/, '');
+  var finals = '';
+  var r = new Rec();
+  r.lang = 'en-US'; r.continuous = true; r.interimResults = true;
+
+  function join(interim) {
+    return [base, (finals + ' ' + (interim || '')).replace(/\s+/g, ' ').trim()]
+      .filter(function (x) { return x; }).join(base && /[.!?]$/.test(base) ? ' ' : (base ? ' ' : ''));
+  }
+  r.onstart = function () {
+    var b = document.getElementById('tlMicBtn');
+    if (b) { b.textContent = '■ Stop'; b.style.borderColor = 'var(--accent)'; b.style.color = 'var(--accent)'; }
+    var st = document.getElementById('tlMicState');
+    if (st) { st.textContent = '🔴 recording…'; st.style.color = 'var(--accent)'; }
+    try { playBeep(880, 100); } catch (e) {}
+  };
+  r.onresult = function (ev) {
+    var interim = '';
+    for (var i = ev.resultIndex; i < ev.results.length; i++) {
+      if (ev.results[i].isFinal) finals += ' ' + ev.results[i][0].transcript;
+      else interim += ev.results[i][0].transcript;
+    }
+    var t = document.getElementById('tlWhat');
+    if (t) t.value = join(interim);
+  };
+  r.onend = function () {
+    _tlMicRec = null;
+    var t = document.getElementById('tlWhat');
+    if (t) t.value = join('');
+    var b = document.getElementById('tlMicBtn');
+    if (b) { b.textContent = '🎙 Mic'; b.style.borderColor = ''; b.style.color = ''; }
+    var st = document.getElementById('tlMicState');
+    if (st) { st.textContent = 'review & edit'; st.style.color = 'var(--muted)'; }
+    try { playBeep(440, 80, 0.15); } catch (e) {}
+    _tlSaveWhat();
+  };
+  r.onerror = function (e) {
+    if (e.error === 'no-speech') return;
+    _tlSetMsg('tlWhatMsg', '⚠ Mic: ' + e.error, 'var(--accent)');
+  };
+  _tlMicRec = r;
+  r.start();
+}
+
+function _tlSaveWhat(force) {
+  var url = getScriptUrl();
+  var ta = document.getElementById('tlWhat');
+  if (!url || !_tl || !ta) return;
+  if (_tlMicRec && !force) return;             // saved when the mic stops
+  var v = ta.value.trim();
+  if (!force && ta.getAttribute('data-last') === v) return;
+  if (!force && v === String((_tl.rec || {}).whatWeDid || '').trim()) return;
+  _tlSaveFields({ whatWeDid: v }, 'tlWhatMsg', function () { ta.setAttribute('data-last', v); });
+}
+
+// ── + · Send HW ──
+function _tlHwHtml(a, s) {
+  if (!s.dropboxMade) {
+    return '<div class="empty-state" style="padding:22px 10px">Make their Dropbox folder first.<br><br>' +
+      '<button class="db-mini-btn" onclick="_tl.step=\'dbx\';_tlRender()">Go to Dropbox →</button></div>';
+  }
+  return '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)">Uploads straight into their folder: ' + inqEsc(a.name || '') + '</div>' +
+    '<div id="tlUpload">' + _tlUploadHtml(a.name) + '</div>';
+}
+
+// ── 4 · Frequency ──
+function _tlFreqHtml(a, s) {
+  var f = String(s.frequency || '').toLowerCase();
+  function big(v, label) {
+    var on = f === v.toLowerCase();
+    return '<button class="btn-settings-load" style="margin:0;flex:1;padding:18px 0;font-size:14px;' +
+      (on ? 'border-color:var(--green);color:var(--green);background:rgba(76,175,80,0.10)' : '') +
+      '" onclick="_tlSetFreq(\'' + v + '\')">' + (on ? '✓ ' : '') + label + '</button>';
+  }
+  return '<div style="display:flex;gap:10px">' + big('Weekly', 'Weekly') + big('Biweekly', 'Biweekly') + '</div>' +
+    _tlMsg('tlFreqMsg');
+}
+
+function _tlSetFreq(v) {
+  if (!_tl) return;
+  _tlMark({ frequency: v });
+  _tlRender();
+  _tlSaveFields({ frequency: v }, 'tlFreqMsg');
+}
+
+// ── 5 · Pick a time (first lesson) ──
+// Saves First Lesson ("2026-09-20 14:30") and also Pencilled Spot ("Sun 2:30 PM"),
+// which the Fixed Calendar reads to draw the pencilled slot.
+function _tlTimeState() {
+  if (_tl.when) return _tl.when;
+  var s = _tl.card.lesson || {};
+  var d = _trFirstLessonDate(s.firstLesson);
+  if (d) {
+    _tl.when = { date: new Date(d.getFullYear(), d.getMonth(), d.getDate()), mins: d.getHours() * 60 + d.getMinutes(), saved: true };
+  } else {
+    var def = _msDefaultStart(_tl.card);
+    _tl.when = { date: def.date, mins: def.mins, saved: false };
+  }
+  return _tl.when;
+}
+
+function _tlTimeValue() {
+  var w = _tlTimeState(), d = w.date;
+  return d.getFullYear() + '-' + _msPad(d.getMonth() + 1) + '-' + _msPad(d.getDate()) + ' ' +
+         _msPad(Math.floor(w.mins / 60)) + ':' + _msPad(w.mins % 60);
+}
+
+function _tlTimeHtml(a, s) {
+  var w = _tlTimeState();
+  var label = _trFirstLessonLabel(_tlTimeValue());
+  var past = _trFirstLessonDate(_tlTimeValue()) <= new Date();
+  var arrow = function (fn, n, txt) {
+    return '<button class="btn-settings-load" style="margin:0;width:auto;padding:10px 14px" onclick="' + fn + '(' + n + ')">' + txt + '</button>';
+  };
+  var h = Math.floor(w.mins / 60), mi = w.mins % 60, d = w.date;
+  return '<label class="settings-label">First lesson</label>' +
+    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:\'DM Mono\',monospace;font-size:15px;color:var(--text)">' +
+      arrow('_tlStepDay', -1, '◀') +
+      '<span style="min-width:170px;text-align:center">' + _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + '</span>' +
+      arrow('_tlStepDay', 1, '▶') +
+      '<span style="width:14px"></span>' +
+      arrow('_tlStepMins', -15, '◀') +
+      '<span style="min-width:84px;text-align:center">' + ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM') + '</span>' +
+      arrow('_tlStepMins', 15, '▶') +
+    '</div>' +
+    (past ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-top:8px">⚠ That is in the past.</div>' : '') +
+    (w.saved
+      ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--green);margin-top:10px">✓ Set: ' + inqEsc(label) + '</div>'
+      : '<button class="btn-settings-load" style="margin:12px 0 0;border-color:var(--green);color:var(--green)" onclick="_tlSaveTime()">Set ' + inqEsc(label) + '</button>') +
+    _tlMsg('tlTimeMsg');
+}
+
+function _tlStepDay(n)  { if (!_tl) return; var w = _tlTimeState(); w.date.setDate(w.date.getDate() + n); _tlSaveTime(); }
+function _tlStepMins(n) { if (!_tl) return; var w = _tlTimeState(); w.mins = Math.min(23 * 60 + 45, Math.max(0, w.mins + n)); _tlSaveTime(); }
+
+// Arrow taps come in bursts: redraw now, save once they stop.
+function _tlSaveTime() {
+  if (!_tl) return;
+  var w = _tlTimeState();
+  var v = _tlTimeValue();
+  var d = w.date;
+  var spot = _tlSpotStr(d.getDay(), w.mins);
+  w.saved = true;
+  _tlMark({ firstLesson: v, pencilledSpot: spot });
+  _tlRender();
+  _tlSetMsg('tlTimeMsg', 'Saving…');
+  clearTimeout(_tl.timeTimer);
+  _tl.timeTimer = setTimeout(function () {
+    _tlSaveFields({ firstLesson: v, pencilledSpot: spot }, 'tlTimeMsg');
+  }, 600);
+}
+
+function _tlSpotStr(day, mins) {
+  var h = Math.floor(mins / 60), mi = mins % 60;
+  return _MS_DAYS[day] + ' ' + ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM');
+}
+
+// "Tue 5:30 PM" → { day, mins }, or null.
 function _tlParseSpot(str) {
   var m = String(str || '').match(/^(Sun|Mon|Tue|Wed|Thu|Fri|Sat)\w*\s+(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
   if (!m) return null;
@@ -973,149 +1298,47 @@ function _tlParseSpot(str) {
   return { day: day, mins: h * 60 + +m[3] };
 }
 
-function _tlSpotStr(day, mins) {
-  var h = Math.floor(mins / 60), mi = mins % 60;
-  return _MS_DAYS[day] + ' ' + ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM');
-}
-
-function _tlSpotState() {
-  if (_tl.spot) return _tl.spot;
-  var rec = _tl.rec || {}, s = _tl.card.lesson || {};
-  var p = _tlParseSpot(rec.pencilledSpot || s.pencilledSpot);
-  var t = String(_tl.card.trialTime || '').match(/^(\d{1,2}):(\d{2})$/);
-  _tl.spot = {
-    day: p ? p.day : -1,
-    mins: p ? p.mins : (t ? +t[1] * 60 + +t[2] : 17 * 60),
-    freq: rec.frequency || s.frequency || ''
-  };
-  return _tl.spot;
-}
-
-function _tlSpotHtml() {
-  var sp = _tlSpotState();
-  function pill(on, label, onclick) {
-    return '<button class="db-mini-btn" style="min-width:42px;' +
-      (on ? 'border-color:var(--blue);color:var(--blue);background:rgba(74,158,255,0.12)' : '') +
-      '" onclick="' + onclick + '">' + label + '</button>';
-  }
-  var h = Math.floor(sp.mins / 60), mi = sp.mins % 60;
-  return '<label class="settings-label" style="margin-top:4px">Pencilled spot</label>' +
-    '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">' +
-      [1, 2, 3, 4, 5, 6, 0].map(function (d) { return pill(sp.day === d, _MS_DAYS[d], '_tlSpotDay(' + d + ')'); }).join('') +
-    '</div>' +
-    '<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' +
-      _msArrow('_tlSpotTime', -15, '◀') +
-      '<span style="min-width:74px;text-align:center">' + ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM') + '</span>' +
-      _msArrow('_tlSpotTime', 15, '▶') +
-      '<span style="width:10px"></span>' +
-      '<button class="db-mini-btn" style="border-color:var(--muted);color:var(--muted)" onclick="_tlSpotClear()">Clear</button>' +
-    '</div>' +
-    '<label class="settings-label">Frequency</label>' +
-    '<div style="display:flex;gap:5px;margin-bottom:4px">' +
-      pill(sp.freq === 'Weekly', 'Weekly', '_tlSpotFreq(\'Weekly\')') +
-      pill(sp.freq === 'Biweekly', 'Biweekly', '_tlSpotFreq(\'Biweekly\')') +
-    '</div>' +
-    _tlMsg('tlSpotMsg');
-}
-
-function _tlSpotDay(d)  { if (!_tl) return; _tlSpotState().day = d; _tlSpotSave(); }
-function _tlSpotTime(n) {
-  if (!_tl) return;
-  var sp = _tlSpotState();
-  sp.mins = Math.min(23 * 60 + 45, Math.max(0, sp.mins + n));
-  _tlSpotSave();
-}
-function _tlSpotFreq(f) { if (!_tl) return; _tlSpotState().freq = f; _tlSpotSave(); }
-function _tlSpotClear() { if (!_tl) return; var sp = _tlSpotState(); sp.day = -1; sp.freq = ''; _tlSpotSave(); }
-
-// Every tap saves both cells. A spot with no day picked yet saves blank, so
-// stepping the time alone never writes a half spot.
-function _tlSpotSave() {
-  var sp = _tlSpotState();
-  var spot = sp.day >= 0 ? _tlSpotStr(sp.day, sp.mins) : '';
-  var box = document.getElementById('tlSpot');
-  if (box) box.innerHTML = _tlSpotHtml();
-  _tlMark({ pencilledSpot: spot, frequency: sp.freq });
-  var url = getScriptUrl();
-  if (!url) return;
-  _tlSetMsg('tlSpotMsg', 'Saving…');
-  clearTimeout(_tl.spotTimer);
-  var email = _tl.card.email || '';
-  _tl.spotTimer = setTimeout(function () {
-    fetch(url + '?action=saveTrialRecord&email=' + encodeURIComponent(email) +
-          '&pencilledSpot=' + encodeURIComponent(spot) + '&frequency=' + encodeURIComponent(sp.freq))
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        if (!d.success) { _tlSetMsg('tlSpotMsg', '⚠ ' + (d.message || 'Not saved'), 'var(--accent)'); return; }
-        if (d.skipped && d.skipped.length) { _tlSetMsg('tlSpotMsg', '⚠ No column on the sheet: ' + d.skipped.join(', '), 'var(--accent)'); return; }
-        _tlSetMsg('tlSpotMsg', 'Saved ✓', 'var(--green)');
-      })
-      .catch(function () { _tlSetMsg('tlSpotMsg', '❌ Not saved', 'var(--accent)'); });
-  }, 600);   // arrow taps come in bursts; save once they stop
-}
-
-function _tlRender() {
-  var a = _tl.card, rec = _tl.rec || {};
-  var id = emailToId(a.email || '');
-  var email = a.email || '';
-  var s = a.lesson || {};
-  var dropboxMade = s.dropboxMade || String(rec.dropboxMade || '').toUpperCase() === 'TRUE';
-  var termsSent   = s.termsSent   || String(rec.termsSent || '').toUpperCase() === 'TRUE';
-  var termsBack   = s.termsBack   || String(rec.termsBack || '').toUpperCase() === 'TRUE';
-  var dbxEmail    = rec.dropboxEmail || s.dropboxEmail || email;
-
-  document.getElementById('tlModal').innerHTML =
-    '<div class="settings-title">' + inqEsc(a.name || '') +
-      '<button class="settings-close" onclick="_tlClose()">\u2715</button></div>' +
-    '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)">' +
-      inqEsc(email) + (a.trialDateLabel ? ' \u00b7 trial ' + inqEsc(a.trialDateLabel) : '') + '</div>' +
-    (_tl.loadError ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-top:6px">\u26a0 ' + inqEsc(_tl.loadError) + '</div>' : '') +
-
-    // 1. About them
-    _tlSection('1 \u00b7 ABOUT THEM') +
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 12px">' +
-      _TR_FIELDS.map(function (f) {
-        var val = rec[f.key] || '';
-        if (!val && f.key === 'phone') val = a.phone || '';
-        if (!val && f.key === 'city') val = a.city || '';
-        var wide = (f.key === 'goals' || f.key === 'interests' || f.key === 'notes');
-        return '<div style="' + (wide ? 'grid-column:1 / -1' : '') + '">' + _trFieldHtml(id, email, f, val) + '</div>';
-      }).join('') +
-    '</div>' +
-    '<div id="trrecmsg-' + id + '" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);min-height:12px"></div>' +
-    '<div id="tlSpot">' + _tlSpotHtml() + '</div>' +
-
-    // 2. Dropbox
-    _tlSection('2 \u00b7 DROPBOX') +
-    '<label class="settings-label">Dropbox email</label>' +
-    '<div style="display:flex;gap:8px;align-items:center">' +
-      '<input class="settings-input" id="tlDbxEmail" style="margin:0;flex:1;min-width:0" value="' + _msAttr(dbxEmail) + '"' + (dropboxMade ? ' disabled' : '') + '>' +
-      '<button class="btn-settings-load" id="tlDbxBtn" style="margin:0;width:auto;flex:none;padding-left:16px;padding-right:16px;white-space:nowrap' +
-        (dropboxMade ? '' : ';border-color:var(--green);color:var(--green)') + '"' +
-        (dropboxMade ? ' disabled' : '') + ' onclick="_tlDropbox()">' +
-        (dropboxMade ? 'Folder made \u2713' : 'Create & share') + '</button>' +
-    '</div>' +
-    '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin-top:5px">' +
-      'Folder: ' + inqEsc(a.name || '') + ' \u00b7 invite only, the instructions go in the terms email</div>' +
-    _tlMsg('tlDbxMsg') +
-    '<div id="tlUpload">' + (dropboxMade ? _tlUploadHtml(a.name) : '') + '</div>' +
-
-    // 3. Terms
-    _tlSection('3 \u00b7 TERMS (END OF LESSON)') +
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">' +
+// ── 6 · Terms ──
+function _tlTermsHtml(a, s) {
+  var rec = _tl.rec || {};
+  var sent = !!s.termsSent, back = !!s.termsBack;
+  return '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">' +
+      '<button class="btn-settings-load" id="tlSendBtn" style="margin:0;width:auto;flex:none;padding-left:18px;padding-right:18px;border-color:var(--green);color:var(--green)" onclick="_tlSend()">' +
+        (sent ? 'Send again' : 'Send terms') + '</button>' +
       '<button class="btn-settings-load" id="tlPrevBtn" style="margin:0;width:auto;flex:none;padding-left:16px;padding-right:16px" onclick="_tlPreview()">Preview email</button>' +
-      '<button class="btn-settings-load" id="tlSendBtn" style="margin:0;width:auto;flex:none;padding-left:16px;padding-right:16px;border-color:var(--green);color:var(--green)" onclick="_tlSend()">' +
-        (termsSent ? 'Send again' : 'Send terms') + '</button>' +
-      '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:' + (termsSent ? 'var(--green)' : 'var(--muted)') + '">' +
-        (termsSent ? '\u2713 Sent ' + inqEsc(rec.sentDate || s.sentDate || '') : 'Not sent yet') + '</span>' +
     '</div>' +
-    '<div style="font-family:\'DM Mono\',monospace;font-size:11px;margin-top:8px;color:' + (termsBack ? 'var(--green)' : 'var(--muted)') + '">' +
-      (termsBack
-        ? '\u2713 Form back ' + inqEsc(rec.returnDate || s.returnDate || '')
-        : 'Form not back yet (ticks itself when it comes in)') + '</div>' +
+    '<div style="margin-top:14px;font-family:\'DM Mono\',monospace;font-size:12px;line-height:1.9">' +
+      '<div style="color:' + (sent ? 'var(--green)' : 'var(--muted)') + '">' +
+        (sent ? '✓ Sent ' + inqEsc(rec.sentDate || s.sentDate || '') : '· Not sent yet') + '</div>' +
+      '<div style="color:' + (back ? 'var(--green)' : (sent ? 'var(--accent2)' : 'var(--muted)')) + '">' +
+        (back ? '✓ Form back ' + inqEsc(rec.returnDate || s.returnDate || '')
+              : '· Form not back yet (ticks itself when the Trial tab loads)') + '</div>' +
+    '</div>' +
     _tlMsg('tlTermsMsg') +
     '<div id="tlPreview"></div>';
 }
+
+// One save call for any Trial Lessons fields. saveTrialRecord_ only writes the
+// keys it is sent, so nothing else on the row can be clobbered.
+function _tlSaveFields(fields, msgId, onOk) {
+  var url = getScriptUrl();
+  if (!url || !_tl) return;
+  var email = _tl.card.email || '';
+  _tlSetMsg(msgId, 'Saving…');
+  var qs = Object.keys(fields).map(function (k) { return '&' + k + '=' + encodeURIComponent(fields[k]); }).join('');
+  fetch(url + '?action=saveTrialRecord&email=' + encodeURIComponent(email) + qs)
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) { _tlSetMsg(msgId, '⚠ ' + (d.message || 'Not saved'), 'var(--accent)'); return; }
+      if (d.skipped && d.skipped.length) { _tlSetMsg(msgId, '⚠ No column on the sheet: ' + d.skipped.join(', '), 'var(--accent)'); return; }
+      if (_tl && _tl.rec) Object.keys(fields).forEach(function (k) { _tl.rec[k] = fields[k]; });
+      _tlMarkEmail(email, fields);
+      _tlSetMsg(msgId, 'Saved ✓', 'var(--green)');
+      if (onOk) onOk();
+    })
+    .catch(function () { _tlSetMsg(msgId, '❌ Not saved', 'var(--accent)'); });
+}
+
 
 // ── Upload into the trial's Dropbox folder ───────────────────────────────────
 // Same as the Home drop zone: files or whole folders (subfolders kept, hidden
@@ -1188,14 +1411,20 @@ function _tlSetMsg(elId, txt, color) {
   if (el) { el.textContent = txt; el.style.color = color || 'var(--muted)'; }
 }
 
-// Keep the card's status line in step with what just happened in the window.
+// Keep the card's checklist in step with what just happened in the window.
 function _tlMark(patch) {
   var a = _tl && _tl.card;
+  if (a) _tlMarkEmail(a.email, patch);
+}
+
+// Same, by email, so a save that lands after the window closed still counts.
+function _tlMarkEmail(email, patch) {
+  var a = (_trStageCache || []).filter(function (x) { return (x.email || '') === email; })[0];
   if (!a) return;
   a.lesson = a.lesson || {};
   Object.keys(patch).forEach(function (k) { a.lesson[k] = patch[k]; });
-  var old = document.getElementById('trls-' + emailToId(a.email || ''));
-  if (old) old.outerHTML = _trLessonStatus(a);
+  var old = document.getElementById('trsteps-' + emailToId(a.email || ''));
+  if (old) old.outerHTML = _trStepsHtml(a);
 }
 
 function _tlDropbox() {
@@ -1325,6 +1554,9 @@ function _trSaveField(id, email, key, el) {
         return;
       }
       if (el) el.setAttribute('data-last', val);
+      if (_tl && _tl.rec) _tl.rec[key] = val;
+      var patch = {}; patch[key] = val;
+      _tlMarkEmail(email, patch);
       if (msg) { msg.textContent = 'Saved \u2713'; msg.style.color = 'var(--green)'; }
     })
     .catch(function () {
@@ -1335,8 +1567,8 @@ function _trSaveField(id, email, key, el) {
 // ── Trial outcome: Unsuccessful by hand ──────────────────────────────────────
 // Writes Outcome = Unsuccessful on their Trial Lessons row and takes the card
 // off the tab. The row stays on the sheet as the record. Successful is never
-// set here: that comes from Make Student (or them being on the Counter), and
-// the backend also marks Unsuccessful on its own 15 days after the trial.
+// set here: that comes from Make Student (or them being on the Counter).
+// Manual only: there is no automatic Unsuccessful, no day limit.
 function _trNotContinuing(id, email, name) {
   var url = getScriptUrl();
   if (!url || !email) return;
@@ -1623,12 +1855,14 @@ function _trDelete(email, col, name, btn) {
 
 
 // ─── MAKE STUDENT ────────────────────────────────────────────────────────────
-// A window over the Trial tab with what the system cannot know by itself:
-// weekly or biweekly, the first lesson, and the rate (prefilled from the
-// Website Rates Archive, editable). Phone and availability come from the
-// inquiry, editable. Preview is read-only; only "Make student" writes.
-// Backend: getMakeStudentPreview / makeStudent (RPM_MakeStudent.gs).
-// Styling is deliberately plain for now (reuses the settings modal classes).
+// Opens only once every checklist step is done, so everything it needs was
+// already decided on the card: name, frequency, first lesson (Trial Lessons
+// row), phone and availability (same row, inquiry as fallback). All that is
+// left here is the rate and the welcome text, then one button.
+//
+// While it runs the window is locked and says so; when it ends it says Done
+// (or which step failed) in big letters, and stays open until closed.
+// Backend: makeStudent (RPM_MakeStudent.gs).
 var _ms = null;
 var _msRates = null;   // { weekly: 110, biweekly: 120 }
 
@@ -1638,9 +1872,16 @@ var _MS_DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 function _msOpen(email) {
   var a = _trStageCache.filter(function (x) { return (x.email || '') === email; })[0];
   if (!a) return;
-  var d = _msDefaultStart(a);
-  var f = String((a.lesson && a.lesson.frequency) || '').toLowerCase();
-  _ms = { card: a, cadence: f === 'biweekly' ? 'biweekly' : 'weekly', date: d.date, mins: d.mins, rateEdited: false, busy: false, done: false };
+  var st = _trStepState(a);
+  if (!st.ready) return;
+  var s = a.lesson || {};
+  _ms = {
+    card: a,
+    name: [s.first, s.last].filter(_trFilled).join(' ').trim() || a.name || '',
+    cadence: String(s.frequency || '').toLowerCase() === 'biweekly' ? 'biweekly' : 'weekly',
+    start: _trFirstLessonDate(s.firstLesson),
+    rateEdited: false, busy: false, done: false
+  };
 
   var ov = document.getElementById('msOverlay');
   if (!ov) {
@@ -1663,9 +1904,9 @@ function _msClose() {
   _ms = null;
 }
 
-// The pencilled spot if one was picked: the next date on that weekday, at that
-// time. Otherwise the same weekday and time as the trial, one week later,
-// moved forward a week at a time until it is in the future.
+// Default first lesson for Pick a time: the pencilled spot if one was picked
+// (next date on that weekday, at that time), otherwise the trial's weekday and
+// time one week later, moved forward a week at a time until it is in the future.
 function _msDefaultStart(a) {
   var today = new Date(); today.setHours(0, 0, 0, 0);
   var date;
@@ -1688,99 +1929,58 @@ function _msDefaultStart(a) {
 
 function _msLbl(t) { return '<label class="settings-label" style="margin-top:6px">' + t + '</label>'; }
 function _msAttr(v) { return inqEsc(v == null ? '' : String(v)).replace(/"/g, '&quot;'); }
-function _msArrow(fn, n, txt) {
-  return '<button class="db-mini-btn" style="min-width:30px" onclick="' + fn + '(' + n + ')">' + txt + '</button>';
+function _msPad(n) { return (n < 10 ? '0' : '') + n; }
+
+function _msWhenLabel() {
+  var d = _ms.start;
+  if (!d) return '';
+  var h = d.getHours(), mi = d.getMinutes();
+  return _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate() +
+         ' at ' + ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM');
 }
 
 function _msRenderForm() {
   var a = _ms.card;
-  var box = document.getElementById('msModal');
   var rate = (_msRates && _msRates[_ms.cadence]) || '';
-  box.innerHTML =
-    '<div class="settings-title">Make student<button class="settings-close" onclick="_msClose()">\u2715</button></div>' +
+  var tp = _trTrialPayFor(a.email);
+  var row = function (k, v, color) {
+    return '<div style="display:flex;gap:12px;padding:5px 0;font-family:\'DM Mono\',monospace;font-size:13px">' +
+      '<span style="width:110px;flex:none;color:var(--muted);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding-top:2px">' + k + '</span>' +
+      '<span style="color:' + (color || 'var(--text)') + '">' + v + '</span></div>';
+  };
+  document.getElementById('msModal').innerHTML =
+    '<div class="settings-title">Make student<button class="settings-close" id="msX" onclick="_msClose()">✕</button></div>' +
 
-    _msLbl('Name') +
-    '<input class="settings-input" id="msName" value="' + _msAttr(a.name) + '" oninput="_msDirty()">' +
-    _msLbl('Email') +
-    '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);margin-bottom:10px">' + inqEsc(a.email || '') + '</div>' +
-
-    _msLbl('Trial payment') +
-    (function () {
-      var tp = _trTrialPayFor(a.email);
-      return tp
-        ? '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--green);margin-bottom:10px">Paid \u2713 \u00b7 ' +
-            inqEsc(tp.method || '') + ' ' + inqEsc(tp.amount || '') + ' \u00b7 ' + inqEsc(tp.date || '') + '</div>'
-        : '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted);margin-bottom:10px">No trial payment found</div>';
-    })() +
-
-    _msLbl('Schedule') +
-    '<div style="display:flex;gap:18px;margin-bottom:10px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' +
-      '<label><input type="radio" name="msCad" value="weekly"' + (_ms.cadence === 'weekly' ? ' checked' : '') + ' onchange="_msSetCadence(this.value)"> Weekly</label>' +
-      '<label><input type="radio" name="msCad" value="biweekly"' + (_ms.cadence === 'biweekly' ? ' checked' : '') + ' onchange="_msSetCadence(this.value)"> Biweekly</label>' +
-    '</div>' +
-
-    _msLbl('First lesson') +
-    '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' +
-      _msArrow('_msStepDate', -1, '\u25c0') + '<span id="msDateLbl" style="min-width:120px;text-align:center"></span>' + _msArrow('_msStepDate', 1, '\u25b6') +
-      '<span style="width:14px"></span>' +
-      _msArrow('_msStepTime', -15, '\u25c0') + '<span id="msTimeLbl" style="min-width:70px;text-align:center"></span>' + _msArrow('_msStepTime', 15, '\u25b6') +
+    '<div style="font-family:\'Syne\',sans-serif;font-size:22px;font-weight:700;color:var(--text);margin:2px 0 10px">' + inqEsc(_ms.name) + '</div>' +
+    '<div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:8px 0;margin-bottom:14px">' +
+      row('Schedule', _ms.cadence === 'biweekly' ? 'Biweekly' : 'Weekly') +
+      row('First lesson', inqEsc(_msWhenLabel())) +
+      row('Trial', tp
+        ? 'Paid ✓ · ' + inqEsc(tp.method || '') + ' ' + inqEsc(tp.amount || '') + ' · ' + inqEsc(tp.date || '')
+        : 'No trial payment found', tp ? 'var(--green)' : 'var(--muted)') +
     '</div>' +
 
     _msLbl('Rate ($ per lesson)') +
-    '<input class="settings-input" id="msRate" inputmode="decimal" value="' + _msAttr(rate) + '" oninput="_ms.rateEdited=true;_msDirty()">' +
+    '<input class="settings-input" id="msRate" inputmode="decimal" value="' + _msAttr(rate) + '" oninput="_ms.rateEdited=true">' +
     '<div id="msRateHint" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin:-6px 0 10px"></div>' +
 
-    _msLbl('Phone') +
-    (a.phone
-      ? '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);margin-bottom:10px">' + inqEsc(a.phone) + '</div>'
-      : '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--accent);margin-bottom:10px">No phone on file: no Phone Numbers row, no welcome text</div>') +
+    '<label style="display:block;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);margin:4px 0 16px">' +
+      '<input type="checkbox" id="msText" checked> Send welcome text</label>' +
 
-    '<label style="display:block;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);margin:4px 0 14px">' +
-      '<input type="checkbox" id="msText" checked onchange="_msDirty()"> Send welcome text</label>' +
-
-    '<div id="msPreview"></div>' +
-    '<div id="msButtons" style="display:flex;gap:8px;margin-top:12px">' +
-      '<button class="btn-settings-load" id="msPrevBtn" onclick="_msPreview()">Preview</button>' +
-      '<button class="btn-settings-load" id="msGoBtn" style="display:none;border-color:var(--green);color:var(--green)" onclick="_msMake()">Make student</button>' +
-    '</div>';
-  _msShowWhen();
+    '<button id="msGoBtn" onclick="_msMake()" ' +
+      'style="width:100%;box-sizing:border-box;background:var(--green);color:#0b0b0b;border:none;border-radius:10px;padding:15px;' +
+      'font-family:\'Syne\',sans-serif;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px">' +
+      'Make student</button>' +
+    '<div id="msResult"></div>';
   _msRateHint();
-}
-
-function _msPad(n) { return (n < 10 ? '0' : '') + n; }
-
-function _msShowWhen() {
-  var d = _ms.date, h = Math.floor(_ms.mins / 60), mi = _ms.mins % 60;
-  var dl = document.getElementById('msDateLbl'), tl = document.getElementById('msTimeLbl');
-  if (dl) dl.textContent = _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
-  if (tl) tl.textContent = ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM');
-}
-
-function _msStepDate(n) {
-  if (!_ms || _ms.busy || _ms.done) return;
-  _ms.date.setDate(_ms.date.getDate() + n);
-  _msShowWhen(); _msDirty();
-}
-
-function _msStepTime(n) {
-  if (!_ms || _ms.busy || _ms.done) return;
-  _ms.mins = Math.min(23 * 60 + 45, Math.max(0, _ms.mins + n));
-  _msShowWhen(); _msDirty();
-}
-
-function _msSetCadence(v) {
-  if (!_ms) return;
-  _ms.cadence = v;
-  if (!_ms.rateEdited && _msRates && _msRates[v]) document.getElementById('msRate').value = _msRates[v];
-  _msRateHint(); _msDirty();
 }
 
 function _msRateHint() {
   var el = document.getElementById('msRateHint');
   if (!el) return;
   el.textContent = _msRates
-    ? 'Website: weekly $' + (_msRates.weekly || '?') + ' \u00b7 biweekly $' + (_msRates.biweekly || '?')
-    : 'Loading website rates\u2026';
+    ? 'Website: weekly $' + (_msRates.weekly || '?') + ' · biweekly $' + (_msRates.biweekly || '?')
+    : 'Loading website rates…';
 }
 
 function _msLoadRates() {
@@ -1803,27 +2003,18 @@ function _msLoadRates() {
     .catch(function () {});
 }
 
-// Any change after a preview invalidates it: the confirm button only ever
-// sends exactly what was just previewed.
-function _msDirty() {
-  if (!_ms || _ms.done) return;
-  var go = document.getElementById('msGoBtn'), pv = document.getElementById('msPreview');
-  if (go) go.style.display = 'none';
-  if (pv) pv.innerHTML = '';
-}
-
 function _msQuery() {
-  var d = _ms.date;
+  var a = _ms.card, s = a.lesson || {}, d = _ms.start;
   var q = {
-    name: document.getElementById('msName').value,
-    email: _ms.card.email || '',
+    name: _ms.name,
+    email: a.email || '',
     cadence: _ms.cadence,
     date: d.getFullYear() + '-' + _msPad(d.getMonth() + 1) + '-' + _msPad(d.getDate()),
-    time: _msPad(Math.floor(_ms.mins / 60)) + ':' + _msPad(_ms.mins % 60),
+    time: _msPad(d.getHours()) + ':' + _msPad(d.getMinutes()),
     rate: document.getElementById('msRate').value,
-    // Phone and availability come straight from the card (the inquiry).
-    phone: _ms.card.phone || '',
-    availability: _ms.card.availability || '',
+    // The Trial Lessons row first (edited at the lesson), the inquiry second.
+    phone: s.phone || a.phone || '',
+    availability: s.availability || a.availability || '',
     sendText: document.getElementById('msText').checked ? '1' : '0'
   };
   return Object.keys(q).map(function (k) { return k + '=' + encodeURIComponent(q[k]); }).join('&');
@@ -1834,62 +2025,76 @@ function _msLine(t, color) {
     (color || 'var(--text)') + '">' + inqEsc(t) + '</div>';
 }
 
-function _msPreview() {
-  var url = getScriptUrl();
-  var pv = document.getElementById('msPreview'), go = document.getElementById('msGoBtn');
-  if (!url || !_ms) return;
-  go.style.display = 'none';
-  pv.innerHTML = _msLine('Checking\u2026', 'var(--muted)');
-  fetch(url + '?action=getMakeStudentPreview&' + _msQuery())
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (!_ms) return;
-      if (!d.success) { pv.innerHTML = _msLine('\u26a0 ' + (d.message || 'Could not check'), 'var(--accent)'); return; }
-      var blocked = d.blockers && d.blockers.length;
-      pv.innerHTML =
-        '<div style="border-top:1px solid var(--border);padding-top:10px">' +
-          (blocked ? d.blockers.map(function (b) { return _msLine('\u26d4 ' + b, 'var(--accent)'); }).join('') : '') +
-          _msLine('Id: ' + d.id, 'var(--muted)') +
-          (d.willCreate || []).map(function (l) { return _msLine((l.indexOf('\u26a0') === 0 ? '' : '\u2022 ') + l, l.indexOf('\u26a0') === 0 ? 'var(--accent)' : null); }).join('') +
-          (document.getElementById('msText').checked
-            ? '<div style="margin-top:8px;padding:9px 11px;border:1px solid var(--border);border-radius:8px;white-space:pre-wrap;' +
-                'font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)">' + inqEsc(d.smsText || '') + '</div>'
-            : '') +
-        '</div>';
-      if (!blocked) go.style.display = '';
-    })
-    .catch(function () { if (_ms) pv.innerHTML = _msLine('\u274c Could not check (network).', 'var(--accent)'); });
+function _msSteps(steps) {
+  return (steps || []).map(function (st) {
+    var bad = st.indexOf('⚠') === 0;
+    return _msLine((bad ? '' : '✓ ') + st, bad ? 'var(--accent)' : 'var(--muted)');
+  }).join('');
+}
+
+// Locks every control in the window while the write runs.
+function _msLock(on) {
+  ['msRate', 'msText', 'msGoBtn'].forEach(function (id) { var el = document.getElementById(id); if (el) el.disabled = on; });
+  var x = document.getElementById('msX');
+  if (x) x.style.visibility = on ? 'hidden' : '';
 }
 
 function _msMake() {
   var url = getScriptUrl();
   if (!url || !_ms || _ms.busy) return;
-  var pv = document.getElementById('msPreview'), go = document.getElementById('msGoBtn'), prev = document.getElementById('msPrevBtn');
-  var email = _ms.card.email || '';
-  _ms.busy = true;
-  go.disabled = true; prev.disabled = true;
-  go.textContent = 'Making student\u2026';
+  var rate = parseFloat(String(document.getElementById('msRate').value || '').replace(/[^0-9.]/g, ''));
+  var res = document.getElementById('msResult');
+  if (!isFinite(rate) || rate <= 0) { res.innerHTML = '<div style="margin-top:10px">' + _msLine('⚠ Enter the rate first.', 'var(--accent)') + '</div>'; return; }
 
-  fetch(url + '?action=makeStudent&confirm=1&' + _msQuery())
+  var email = _ms.card.email || '';
+  var qs = _msQuery();
+  _ms.busy = true;
+  _msLock(true);
+  var go = document.getElementById('msGoBtn');
+  go.style.cursor = 'wait'; go.style.opacity = '0.85';
+  go.innerHTML = '<span class="ms-spin"></span>Making student…';
+  res.innerHTML =
+    '<div style="margin-top:12px;padding:12px 14px;border:1px solid var(--accent2);border-radius:10px;text-align:center;' +
+      'font-family:\'DM Mono\',monospace;font-size:12px;color:var(--accent2);animation:pulse 1.6s infinite">' +
+      'Working. This takes about half a minute.<br>Don’t close this window.</div>';
+
+  fetch(url + '?action=makeStudent&confirm=1&' + qs)
     .then(function (r) { return r.json(); })
     .then(function (d) {
+      if (!_ms) return;
       _ms.busy = false;
-      var steps = (d.steps || []).map(function (st) { return _msLine((st.indexOf('\u26a0') === 0 ? '' : '\u2713 ') + st, st.indexOf('\u26a0') === 0 ? 'var(--accent)' : 'var(--green)'); }).join('');
       if (!d.success) {
-        pv.innerHTML = '<div style="border-top:1px solid var(--border);padding-top:10px">' + _msLine('\u26a0 ' + (d.message || 'Not made'), 'var(--accent)') + steps + '</div>';
-        go.disabled = false; prev.disabled = false; go.textContent = 'Make student';
+        _msLock(false);
+        go.style.cursor = 'pointer'; go.style.opacity = '';
+        go.textContent = 'Try again';
+        res.innerHTML = _msBanner(false, 'Not done', d.message || 'Something went wrong.') + _msSteps(d.steps);
         return;
       }
       _ms.done = true;
-      pv.innerHTML = '<div style="border-top:1px solid var(--border);padding-top:10px">' +
-        _msLine(d.name + ' is a student (id ' + d.id + ').', 'var(--green)') + steps + '</div>';
-      document.getElementById('msButtons').innerHTML =
-        '<button class="btn-settings-load" onclick="_msClose()">Close</button>';
+      var warns = (d.steps || []).filter(function (st) { return st.indexOf('⚠') === 0; }).length;
+      document.getElementById('msModal').innerHTML =
+        '<div class="settings-title">Make student<button class="settings-close" onclick="_msClose()">✕</button></div>' +
+        _msBanner(true, 'Done', d.name + ' is a student' + (d.id ? ' (id ' + d.id + ')' : '') + '.' +
+                  (warns ? ' ' + warns + ' step' + (warns === 1 ? '' : 's') + ' need a look, see below.' : '')) +
+        '<div style="margin-top:12px">' + _msSteps(d.steps) + '</div>' +
+        '<button class="btn-settings-load" style="margin-top:14px" onclick="_msClose()">Close</button>';
       _trDropStageCard(email);
     })
     .catch(function () {
+      if (!_ms) return;
       _ms.busy = false;
-      pv.innerHTML = _msLine('\u274c No answer from the server. Check the Counter before trying again: it may have gone through.', 'var(--accent)');
-      go.disabled = false; prev.disabled = false; go.textContent = 'Make student';
+      _msLock(false);
+      go.style.cursor = 'pointer'; go.style.opacity = '';
+      go.textContent = 'Make student';
+      res.innerHTML = _msBanner(false, 'No answer', 'The server did not reply. Check the Counter before trying again: it may have gone through.');
     });
+}
+
+function _msBanner(ok, big, small) {
+  var c = ok ? 'var(--green)' : 'var(--accent)';
+  return '<div style="margin-top:12px;padding:18px 14px;border:1.5px solid ' + c + ';border-radius:12px;text-align:center;' +
+      'background:' + (ok ? 'rgba(76,175,80,0.10)' : 'rgba(232,70,58,0.08)') + '">' +
+      '<div style="font-family:\'Syne\',sans-serif;font-size:28px;font-weight:800;color:' + c + '">' + (ok ? '✓ ' : '⚠ ') + inqEsc(big) + '</div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);margin-top:6px">' + inqEsc(small) + '</div>' +
+    '</div>';
 }
