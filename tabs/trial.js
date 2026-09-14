@@ -1238,10 +1238,15 @@ function _tlHwHtml(a, s) {
 }
 
 // ── 4 · Frequency ──
-// Tapping only picks; Save writes it and closes. Closing without Save keeps
+// Tapping only picks; tapping the picked one again un-picks it. Save writes
+// it (blank included, to reset) and closes. Closing without Save keeps
 // whatever was saved before.
+function _tlFreqCur() {
+  return String(_tl.freqPick !== undefined ? _tl.freqPick : ((_tl.card.lesson || {}).frequency || ''));
+}
+
 function _tlFreqHtml(a, s) {
-  var f = String(_tl.freqPick || s.frequency || '').toLowerCase();
+  var f = _tlFreqCur().toLowerCase();
   function pick(v) {
     var on = f === v.toLowerCase();
     return '<button class="db-mini-btn" style="padding:8px 22px;' +
@@ -1254,14 +1259,13 @@ function _tlFreqHtml(a, s) {
 
 function _tlSetFreq(v) {
   if (!_tl) return;
-  _tl.freqPick = v;
+  _tl.freqPick = _tlFreqCur().toLowerCase() === v.toLowerCase() ? '' : v;
   _tlRender();
 }
 
 function _tlSaveFreq() {
   if (!_tl) return;
-  var v = _tl.freqPick || (_tl.card.lesson || {}).frequency || '';
-  if (!/^(weekly|biweekly)$/i.test(v)) { _tlSetMsg('tlFreqMsg', 'Pick Weekly or Biweekly first.', 'var(--accent)'); return; }
+  var v = _tlFreqCur();
   var btn = document.getElementById('tlFreqSave');
   if (btn) { btn.disabled = true; btn.textContent = 'Saving\u2026'; }
   _tlSaveFields({ frequency: v }, 'tlFreqMsg', function () { _tlClose(); });
