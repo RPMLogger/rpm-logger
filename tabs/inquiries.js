@@ -114,7 +114,7 @@ function renderBusinessStrip(load, biweekly) {
 
   function chip(label, value, color) {
     return '<div style="flex:1;min-width:78px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center">' +
-      '<div style="font-family:\'Syne\',sans-serif;font-size:18px;font-weight:600;color:' + (color || 'var(--text)') + '">' + value + '</div>' +
+      '<div style="font-family:\'Syne\',sans-serif;font-size:20px;font-weight:400;color:' + (color || 'var(--text)') + '">' + value + '</div>' +
       '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-top:2px">' + label + '</div>' +
     '</div>';
   }
@@ -131,11 +131,11 @@ function renderBusinessStrip(load, biweekly) {
         '<div style="display:flex;align-items:center;gap:10px">' +
           '<span style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)">Ideal load</span>' +
           '<button onclick="_inqStepIdeal(-0.5)" style="' + _inqStepBtn() + '">−</button>' +
-          '<span style="font-family:\'Syne\',sans-serif;font-size:21px;font-weight:600;color:' + loadColor + '">' + _inqFmt(norm) + '<span style="color:var(--muted);font-size:15px"> / ' + _inqFmt(ideal) + '</span></span>' +
+          '<span style="font-family:\'Syne\',sans-serif;font-size:23px;font-weight:400;color:' + loadColor + '">' + _inqFmt(norm) + '<span style="color:var(--muted);font-size:15px"> / ' + _inqFmt(ideal) + '</span></span>' +
           '<button onclick="_inqStepIdeal(0.5)" style="' + _inqStepBtn() + '">＋</button>' +
         '</div>' +
         '<div style="text-align:right">' +
-          '<div style="font-family:\'Syne\',sans-serif;font-size:20px;font-weight:600;color:var(--text)">$' + incNow.toLocaleString() + '</div>' +
+          '<div style="font-family:\'Syne\',sans-serif;font-size:22px;font-weight:400;color:var(--text)">$' + incNow.toLocaleString() + '</div>' +
           '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted)">' + gapLine + '</div>' +
         '</div>' +
       '</div>' +

@@ -33,7 +33,7 @@ function _rtCurrentHtml(rates) {
   var rows = rates.map(function (r) {
     return '<tr>' +
         '<td style="' + _rtTd() + 'font-family:\'Syne\',sans-serif">' + inqEsc(r.type) + '</td>' +
-        '<td style="' + _rtTd() + 'font-family:\'Syne\',sans-serif;font-size:19px;font-weight:600">' +
+        '<td style="' + _rtTd() + 'font-family:\'Syne\',sans-serif;font-size:21px;font-weight:400">' +
           (r.rate == null ? '—' : '$' + r.rate) + '</td>' +
         '<td style="' + _rtTd() + 'color:var(--muted)">' + (inqEsc(r.monthly) || '—') + '</td>' +
         '<td style="' + _rtTd() + 'color:var(--muted);font-size:11px">' + (inqEsc(r.from) || '—') + '</td>' +

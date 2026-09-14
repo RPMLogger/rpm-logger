@@ -19,7 +19,7 @@ function initThisYearTab() {
 
 function _tyChip(label, value, color) {
   return '<div style="flex:1;min-width:92px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 12px;text-align:center">' +
-    '<div style="font-family:\'Syne\',sans-serif;font-size:24px;font-weight:600;color:' + (color || 'var(--text)') + '">' + value + '</div>' +
+    '<div style="font-family:\'Syne\',sans-serif;font-size:26px;font-weight:400;color:' + (color || 'var(--text)') + '">' + value + '</div>' +
     '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-top:3px">' + label + '</div>' +
   '</div>';
 }
