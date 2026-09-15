@@ -103,11 +103,15 @@ function fetchCommsSummary(url) {
       if (data.success) {
         updateCommsSummary("sms", data.sms);
         updateCommsSummary("voicemail", data.voicemail);
-        if (data.unresponded > 0) {
-          document.getElementById("commsOpen").style.display = "";
-          document.getElementById("commsOpenCount").textContent = data.unresponded;
+        // The counts bar was removed from Inquiries (moving to Comms), so
+        // every element here may be missing.
+        var open = document.getElementById("commsOpen"), openCount = document.getElementById("commsOpenCount");
+        if (data.unresponded > 0 && open && openCount) {
+          open.style.display = "";
+          openCount.textContent = data.unresponded;
         }
-        document.getElementById("commsSummary").style.display = "";
+        var bar = document.getElementById("commsSummary");
+        if (bar) bar.style.display = "";
       }
     }).catch(function() {});
 }

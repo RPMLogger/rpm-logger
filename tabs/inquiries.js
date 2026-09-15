@@ -1,14 +1,14 @@
 // ─── TABS / INQUIRIES.JS ─────────────────────────────────────────────────────
 // Inquiries tab = Trial 0. The decision + response layer.
 //   Top strip  — "Business Situation": ideal-load stepper + est. income + live
-//                student/weekly/biweekly counts + biweekly unmatched spots.
+//                student/weekly/biweekly counts (compact).
 //   Cards      — rich (who + motivation/skill/enthusiasm from message+interests).
 //   Decision   — Yes / Maybe / No.
 //                Yes   → retires the inquiry, they appear on the Initiate tab,
 //                        where you reach out and, when agreed, book the trial.
 //                Maybe → editable template popup → sends + logs to the warm list.
 //                No    → editable template popup → sends + logs to the cold list.
-// Backend: decideInquiry (RPM_Intake.js) + getStudentLoad / getBiweeklyBalance.
+// Backend: decideInquiry (RPM_Intake.js) + getStudentLoad.
 // Lazy: everything loads only when this tab is opened (initInquiriesTab).
 
 var _inqIdealKey = 'rpmIdealLoad';
@@ -68,14 +68,10 @@ function loadBusinessStrip() {
   var url = getScriptUrl();
   if (!url) { strip.innerHTML = ""; return; }
   if (!strip.innerHTML) strip.innerHTML = '<div class="inq-empty">Loading load…</div>';
-  var load = null, biweekly = null;
-  Promise.all([
-    fetch(url + "?action=getStudentLoad").then(function (r) { return r.json(); }).catch(function () { return null; }),
-    fetch(url + "?action=getBiweeklyBalance").then(function (r) { return r.json(); }).catch(function () { return null; })
-  ]).then(function (res) {
-    load = res[0]; biweekly = res[1];
-    renderBusinessStrip(load, biweekly);
-  });
+  fetch(url + "?action=getStudentLoad")
+    .then(function (r) { return r.json(); })
+    .catch(function () { return null; })
+    .then(function (load) { renderBusinessStrip(load); });
 }
 
 function _inqIdeal() {
@@ -88,7 +84,9 @@ function _inqStepIdeal(delta) {
   loadBusinessStrip(); // re-render with the new target (cheap, uses fresh fetch)
 }
 
-function renderBusinessStrip(load, biweekly) {
+// Compact on purpose: one headline row, one row of counts, all in the
+// portal's mono font.
+function renderBusinessStrip(load) {
   var strip = document.getElementById("inqBizStrip");
   if (!strip) return;
   // Was: blank the strip and say nothing. With no fallback rate behind the
@@ -103,19 +101,11 @@ function renderBusinessStrip(load, biweekly) {
   var incIdeal = Math.round(ideal * perNorm);
   var gap = incIdeal - incNow;
 
-  // Biweekly unmatched = biweekly students whose slot has no partner (empty on
-  // the alternate week → a pairable opening).
-  var unmatched = "—";
-  if (biweekly && biweekly.success) {
-    var paired = 0;
-    (biweekly.pairs || []).forEach(function (p) { paired += (p.students || []).length; });
-    unmatched = Math.max(0, (load.biweeklyCount || 0) - paired);
-  }
-
-  function chip(label, value, color) {
-    return '<div style="flex:1;min-width:78px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center">' +
-      '<div style="font-family:\'Syne\',sans-serif;font-size:20px;font-weight:400;color:' + (color || 'var(--text)') + '">' + value + '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-top:2px">' + label + '</div>' +
+  var mono = "font-family:'DM Mono',monospace;";
+  function chip(label, value) {
+    return '<div style="flex:1;min-width:70px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;text-align:center">' +
+      '<div style="' + mono + 'font-size:13px;color:var(--text)">' + value + '</div>' +
+      '<div style="' + mono + 'font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-top:1px">' + label + '</div>' +
     '</div>';
   }
 
@@ -125,36 +115,30 @@ function renderBusinessStrip(load, biweekly) {
     : '<span style="color:var(--green)">at target</span>';
 
   strip.innerHTML =
-    '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px">' +
-      // Load + income headline
-      '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px">' +
-        '<div style="display:flex;align-items:center;gap:10px">' +
-          '<span style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)">Ideal load</span>' +
+    '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:12px">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+          '<span style="' + mono + 'font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)">Ideal load</span>' +
           '<button onclick="_inqStepIdeal(-0.5)" style="' + _inqStepBtn() + '">−</button>' +
-          '<span style="font-family:\'Syne\',sans-serif;font-size:23px;font-weight:400;color:' + loadColor + '">' + _inqFmt(norm) + '<span style="color:var(--muted);font-size:15px"> / ' + _inqFmt(ideal) + '</span></span>' +
-          '<button onclick="_inqStepIdeal(0.5)" style="' + _inqStepBtn() + '">＋</button>' +
+          '<span style="' + mono + 'font-size:14px;color:' + loadColor + '">' + _inqFmt(norm) + '<span style="color:var(--muted);font-size:11px"> / ' + _inqFmt(ideal) + '</span></span>' +
+          '<button onclick="_inqStepIdeal(0.5)" style="' + _inqStepBtn() + '">+</button>' +
         '</div>' +
-        '<div style="text-align:right">' +
-          '<div style="font-family:\'Syne\',sans-serif;font-size:22px;font-weight:400;color:var(--text)">$' + incNow.toLocaleString() + '</div>' +
-          '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted)">' + gapLine + '</div>' +
+        '<div style="text-align:right;' + mono + '">' +
+          '<span style="font-size:14px;color:var(--text)">$' + incNow.toLocaleString() + '</span>' +
+          '<span style="font-size:10px;color:var(--muted);margin-left:8px">' + gapLine + '</span>' +
         '</div>' +
       '</div>' +
-      // Count chips
-      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
         chip('Students', load.totalStudents || 0) +
         chip('Weekly', load.weeklyCount || 0) +
         chip('Biweekly', load.biweeklyCount || 0) +
-        chip('BW unmatched', unmatched, unmatched && unmatched !== '—' && unmatched > 0 ? 'var(--accent2)' : 'var(--text)') +
       '</div>' +
-      // Coming soon
-      '<div style="margin-top:10px;font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);text-align:center">' +
-        'Available / Filled / Open slots · <span style="opacity:.7">coming soon</span></div>' +
     '</div>';
 }
 
 function _inqFmt(n) { return (Math.round(n * 2) / 2).toString().replace(/\.0$/, ""); }
 function _inqStepBtn() {
-  return "width:26px;height:26px;border-radius:7px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:15px;line-height:1;cursor:pointer;font-family:'Syne',sans-serif";
+  return "width:22px;height:22px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;line-height:1;cursor:pointer;font-family:'DM Mono',monospace";
 }
 
 // ── The inquiry cards ────────────────────────────────────────────────────────
