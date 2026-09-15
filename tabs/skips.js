@@ -1,17 +1,15 @@
 // ─── TABS / SKIPS.JS ────────────────────────────────────────────────────────
-// Who's skipping, this year. Read-only view over Skip Logs (the source of
-// truth) — skips are LOGGED from the Home tab: tap a red lesson day → Skip →
-// Student/Teacher. The one write here is "+ Log skip": a Skip Logs row only
-// (no calendar, no email), for lessons already deleted from the calendar.
+// Who's skipping, this year. View over Skip Logs (the source of truth) —
+// skips are normally LOGGED from the Home tab: tap a red lesson day → Skip →
+// Student/Teacher. Writes here touch Skip Logs only (no calendar, no email):
+// "+ Log skip" adds a row, × on an expanded skip deletes that row.
 //
 // Each student row shows three counts: Student (they cancelled), Teacher (you
 // cancelled), Vacation (travel blocks; per-student only, not in the top totals).
-// Sorted by Student count. Tap a row to expand the individual
-// skips with date + note. Students with no skips this year are tucked behind a
-// "show all" toggle so the list stays about the people who actually skip.
+// Every student is listed, sorted by Student count. Tap a row to expand the
+// individual skips with date + note.
 
 var _skData = null;      // last payload, so expand/collapse needs no refetch
-var _skShowZero = false; // include zero-skip students in the list
 var _skFormOpen = false; // "+ Log skip" form visible
 
 function initSkipsTab() {
@@ -43,8 +41,6 @@ function _skRender() {
   var all     = _skData.students || [];
   var totals  = _skData.totals || { student: 0, teacher: 0, vacation: 0 };
   var year    = _skData.year || '';
-  var withAny = all.filter(function(s) { return s.total > 0; });
-  var zeroCt  = all.length - withAny.length;
 
   // ── Header: title + gray summary; actions on the next line, left; then the
   //    form (if open), a divider, and the student list ──
@@ -84,32 +80,12 @@ function _skRender() {
     return;
   }
 
-  var list = _skShowZero ? all : withAny;
-
-  if (!list.length) {
-    var none = document.createElement('div');
-    none.className = 'empty-state';
-    none.textContent = 'No skips logged in ' + year;
-    section.appendChild(none);
-  }
-
-  // Most Student skips first; ties alphabetical.
-  list.slice().sort(function(a, b) {
+  // Every student, most Student skips first; ties alphabetical.
+  all.slice().sort(function(a, b) {
     return (b.totalStudent - a.totalStudent) || a.name.localeCompare(b.name);
   }).forEach(function(s) {
     section.appendChild(_skStudentCard(s));
   });
-
-  // ── Toggle for the zero-skip students ──
-  if (zeroCt > 0) {
-    var toggle = document.createElement('button');
-    toggle.textContent = _skShowZero
-      ? '− Hide ' + _skPlural(zeroCt, 'student') + ' with no skips'
-      : '+ Show ' + _skPlural(zeroCt, 'student') + ' with no skips';
-    toggle.style.cssText = 'margin-top:6px;padding:7px 14px;font-size:11px;background:transparent;color:var(--muted);border:1px dashed var(--border);border-radius:4px;cursor:pointer;width:100%;letter-spacing:0.5px';
-    toggle.onclick = function() { _skShowZero = !_skShowZero; _skRender(); };
-    section.appendChild(toggle);
-  }
 }
 
 // Manual skip form: student · date · Student/Teacher · note → logSkipManual.
