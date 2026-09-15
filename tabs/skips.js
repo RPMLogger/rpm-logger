@@ -290,7 +290,7 @@ function _skStudentCard(s) {
 // line up down the list instead of jumping around.
 function _skChip(n, color, title) {
   var on = Number(n) > 0;
-  return "<span title='" + _skEsc(title) + "' style='min-width:22px;text-align:center;font-size:11px;font-weight:700;padding:2px 6px;border-radius:4px;" +
+  return "<span title='" + _skEsc(title) + "' style='min-width:18px;text-align:center;font-size:9px;font-weight:600;padding:2px 5px;border-radius:3px;" +
          (on ? "color:" + color + ";background:" + _skFade(color) + ";border:1px solid " + _skFade(color, 0.45)
              : "color:var(--border);background:transparent;border:1px solid transparent") +
          "'>" + (n || 0) + "</span>";
