@@ -46,32 +46,36 @@ function _skRender() {
   var withAny = all.filter(function(s) { return s.total > 0; });
   var zeroCt  = all.length - withAny.length;
 
-  // ── Header: big title + small gray summary, actions on their own at right ──
+  // ── Header: title + gray summary; actions on the next line, left; then the
+  //    form (if open), a divider, and the student list ──
   var bar = document.createElement('div');
-  bar.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:16px;flex-wrap:wrap';
+  bar.style.cssText = 'margin-bottom:12px';
   bar.innerHTML =
-    "<div style='min-width:0'>" +
-      "<div class='section-label' style='margin-bottom:0'>Skips</div>" +
-      "<div style='font-size:11px;color:var(--muted);letter-spacing:0.5px;margin-top:6px;opacity:0.8'>" +
-        "Since Jun 2026 · " + (totals.student || 0) + " student · " + (totals.teacher || 0) + " teacher" +
-      "</div>" +
+    "<div class='section-label' style='margin-bottom:0'>Skips</div>" +
+    "<div style='font-size:11px;color:var(--muted);letter-spacing:0.5px;margin-top:6px;opacity:0.8'>" +
+      "Since Jun 2026 · " + (totals.student || 0) + " student · " + (totals.teacher || 0) + " teacher" +
     "</div>";
   var refreshBtn = document.createElement('button');
   refreshBtn.textContent = '⟳ Refresh';
   refreshBtn.style.cssText = 'padding:6px 14px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.5px;flex:0 0 auto';
   refreshBtn.onclick = initSkipsTab;
   var btns = document.createElement('span');
-  btns.style.cssText = 'display:flex;gap:6px;flex:0 0 auto';
+  btns.style.cssText = 'display:flex;gap:6px;margin-bottom:12px';
   var logBtn = document.createElement('button');
   logBtn.textContent = _skFormOpen ? '− Log skip' : '+ Log skip';
   logBtn.style.cssText = 'padding:6px 14px;font-size:12px;background:transparent;color:#ff7a3c;border:1px solid rgba(255,122,60,0.45);border-radius:4px;cursor:pointer;letter-spacing:0.5px';
   logBtn.onclick = function() { _skFormOpen = !_skFormOpen; _skRender(); };
   btns.appendChild(logBtn);
   btns.appendChild(refreshBtn);
-  bar.appendChild(btns);
   section.appendChild(bar);
+  section.appendChild(btns);
 
   if (_skFormOpen) section.appendChild(_skLogForm(_skData.students || []));
+
+  var hr = document.createElement('hr');
+  hr.className = 'divider';
+  hr.style.margin = '4px 0 16px';
+  section.appendChild(hr);
 
   if (!all.length) {
     var empty = document.createElement('div');
@@ -117,7 +121,7 @@ function _skLogForm(students) {
   var field = 'padding:6px 8px;font-size:12px;background:transparent;color:inherit;border:1px solid var(--border);border-radius:4px';
 
   var sel = document.createElement('select');
-  sel.style.cssText = field + ';flex:1 1 160px;min-width:0';
+  sel.style.cssText = field + ';flex:1 1 160px;min-width:0;color:rgba(255,255,255,0.62)';
   sel.innerHTML = "<option value=''>Pick student…</option>" + students.map(function(s) {
     return "<option value='" + _skEsc(s.name) + "'>" + _skEsc(s.name) + "</option>";
   }).join('');
