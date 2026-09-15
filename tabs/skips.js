@@ -103,7 +103,7 @@ function _skLogForm(students) {
   sel.style.cssText = 'position:relative;flex:1 1 160px;min-width:0';
   var selBtn = document.createElement('button');
   selBtn.type = 'button';
-  selBtn.style.cssText = field + ";width:100%;cursor:pointer;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.62);" +
+  selBtn.style.cssText = field + ";width:100%;cursor:pointer;" +
                          'display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left';
   var selList = document.createElement('div');
   selList.hidden = true;
@@ -111,14 +111,18 @@ function _skLogForm(students) {
                           'background:#161616;border:1px solid var(--border);border-radius:6px;padding:4px 0;box-shadow:0 8px 24px rgba(0,0,0,0.5);' +
                           'scrollbar-width:thin;scrollbar-color:#333 transparent';
   function paintSel() {
+    // Gray placeholder like the unselected Teacher/Vacation buttons; picked name a bit brighter.
+    selBtn.style.color = sel.value ? 'rgba(255,255,255,0.62)' : 'var(--muted)';
     selBtn.innerHTML = "<span style='overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" + _skEsc(sel.value || 'Pick student…') + "</span>" +
                        "<span style='color:var(--muted);font-size:9px;flex:0 0 auto'>▾</span>";
     selList.innerHTML = '';
     students.forEach(function(s) {
       var on = s.name === sel.value;
-      var o = document.createElement('div');
+      // Buttons (not divs) so they get the same default font as Teacher/Vacation.
+      var o = document.createElement('button');
+      o.type = 'button';
       o.textContent = s.name;
-      o.style.cssText = "padding:7px 12px;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;color:" +
+      o.style.cssText = "display:block;width:100%;text-align:left;background:transparent;border:none;padding:7px 12px;font-size:12px;cursor:pointer;color:" +
                         (on ? '#ff7a3c' : 'rgba(255,255,255,0.62)');
       o.onmouseenter = function() { o.style.background = 'rgba(255,255,255,0.05)'; };
       o.onmouseleave = function() { o.style.background = 'transparent'; };
@@ -187,9 +191,10 @@ function _skLogForm(students) {
 
   var msg = document.createElement('div');
   msg.style.cssText = 'flex:1 1 100%;font-size:11px;color:var(--muted)';
+  msg.hidden = true; // only shown for an error, so no empty gap under the form
 
   save.onclick = function() {
-    if (!sel.value) { msg.style.color = '#ff5a5a'; msg.textContent = 'Pick a student.'; return; }
+    if (!sel.value) { msg.hidden = false; msg.style.color = '#ff5a5a'; msg.textContent = 'Pick a student.'; return; }
     save.disabled = true; save.textContent = 'Saving…';
     var q = '?action=logSkipManual&name=' + encodeURIComponent(sel.value) + '&date=' + encodeURIComponent(dayValue()) +
             '&who=' + encodeURIComponent(who) + '&note=' + encodeURIComponent(note.value.trim());
@@ -198,7 +203,7 @@ function _skLogForm(students) {
       .then(function(d) {
         if (!d.success) {
           save.disabled = false; save.textContent = 'Save';
-          msg.style.color = '#ff5a5a'; msg.textContent = d.message || 'Failed';
+          msg.hidden = false; msg.style.color = '#ff5a5a'; msg.textContent = d.message || 'Failed';
           return;
         }
         _skFormOpen = false;
@@ -206,7 +211,7 @@ function _skLogForm(students) {
       })
       .catch(function() {
         save.disabled = false; save.textContent = 'Save';
-        msg.style.color = '#ff5a5a'; msg.textContent = 'Connection failed';
+        msg.hidden = false; msg.style.color = '#ff5a5a'; msg.textContent = 'Connection failed';
       });
   };
 
