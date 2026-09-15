@@ -81,9 +81,10 @@ function _skRender() {
     return;
   }
 
-  // Every student, most Student skips first; ties alphabetical.
+  // Every student: most Student skips first, ties by total skips (S+T+V),
+  // then alphabetical only as a last resort.
   all.slice().sort(function(a, b) {
-    return (b.totalStudent - a.totalStudent) || a.name.localeCompare(b.name);
+    return (b.totalStudent - a.totalStudent) || (b.total - a.total) || a.name.localeCompare(b.name);
   }).forEach(function(s) {
     section.appendChild(_skStudentCard(s));
   });
