@@ -943,7 +943,8 @@ function _trStepsHtml(a) {
       list.map(function (x, i) {
         var done = st[x.key];
         var wait = x.key === 'terms' && !done && st.termsSent;
-        return '<button class="db-mini-btn" style="min-width:150px;text-align:left;' + _TR_CAPS + ';border-color:' + (x.lesson ? 'var(--accent2)' : 'var(--green)') +
+        var c = x.lesson ? '#4a9eff' : '#ff7a3c';
+        return '<button class="db-mini-btn" style="min-width:150px;text-align:left;' + _TR_CAPS + ';color:' + c + ';background:' + _skFade(c) + ';border-color:' + _skFade(c, 0.45) +
                    (x.noWindow ? ';cursor:default' : '') + '" ' +
                  (wait ? 'title="Terms sent, waiting for the form to come back" ' : '') +
                  (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
