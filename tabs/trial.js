@@ -944,7 +944,7 @@ function _trStepsHtml(a) {
         var done = st[x.key];
         var wait = x.key === 'terms' && !done && st.termsSent;
         var c = x.lesson ? '#4a9eff' : '#ff7a3c';
-        return '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:' + c + ';background:' + _skFade(c) + ';border-color:' + _skFade(c, 0.45) +
+        return '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:' + c + ';background:' + _skFade(c) + ';border-color:rgba(255,255,255,0.2)' +
                    (x.noWindow ? ';cursor:default' : '') + '" ' +
                  (wait ? 'title="Terms sent, waiting for the form to come back" ' : '') +
                  (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
@@ -964,7 +964,8 @@ function _trActionsHtml(a) {
   var id = emailToId(a.email || '');
   var em = _trEsc(a.email || '');
   var st = _trStepState(a);
-  var red = 'min-width:150px;' + _TR_CAPS + ';border-color:#ff5a4d;color:#ff5a4d';
+  var small = _TR_CAPS + ';font-size:9px;padding:3px 8px;border-color:rgba(255,255,255,0.2)';
+  var red = 'min-width:120px;' + small + ';color:#ff5a4d;background:' + _skFade('#ff5a4d');
   var make = st.ready
     ? '<button class="db-mini-btn" style="' + red + '" onclick="_msOpen(\'' + em + '\')">Confirm as student</button>'
     : '<button class="db-mini-btn" disabled style="' + red + ';opacity:.6;cursor:not-allowed" ' +
@@ -973,7 +974,7 @@ function _trActionsHtml(a) {
       '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
         make +
         '<span style="flex:1"></span>' +
-        '<button class="db-mini-btn" id="trnobtn-' + id + '" style="' + _TR_CAPS + ';color:var(--muted);border-color:var(--muted)" ' +
+        '<button class="db-mini-btn" id="trnobtn-' + id + '" style="' + small + ';color:var(--muted);background:rgba(255,255,255,0.05)" ' +
           'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">Dismiss</button>' +
       '</div>' +
     '</div>';
