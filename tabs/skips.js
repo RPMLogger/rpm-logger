@@ -49,12 +49,16 @@ function _skRender() {
   // ── Header: title + gray summary; actions on the next line, left; then the
   //    form (if open), a divider, and the student list ──
   var bar = document.createElement('div');
-  bar.style.cssText = 'margin-bottom:12px';
   bar.innerHTML =
-    "<div class='section-label' style='margin-bottom:0'>Skips</div>" +
-    "<div style='font-size:11px;color:var(--muted);letter-spacing:0.5px;margin-top:6px;opacity:0.8'>" +
+    "<div class='section-label' style='font-size:11px;margin-bottom:10px'>Skips</div>" +
+    "<div style='border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:10px 12px;" +
+                "font-size:11px;color:var(--muted);letter-spacing:0.5px'>" +
       "Since Jun 2026 · " + (totals.student || 0) + " student · " + (totals.teacher || 0) + " teacher" +
     "</div>";
+  var topHr = document.createElement('hr');
+  topHr.className = 'divider';
+  topHr.style.margin = '14px 0';
+  bar.appendChild(topHr);
   var refreshBtn = document.createElement('button');
   refreshBtn.textContent = '⟳ Refresh';
   refreshBtn.style.cssText = 'padding:6px 14px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.5px;flex:0 0 auto';
@@ -273,7 +277,24 @@ function _skStudentCard(s) {
         (k.day ? "<span style='font-size:10px;color:var(--muted);margin-left:6px'>" + _skEsc(k.day) + "</span>" : "") +
         (k.note ? "<div style='font-size:10px;color:var(--muted);margin-top:2px;word-break:break-word'>" + _skEsc(k.note) + "</div>" : "") +
       "</div>" +
-      _skWhoBadge(k.who);
+      "<span style='display:flex;align-items:center;gap:8px;flex:0 0 auto'>" +
+        _skWhoBadge(k.who) +
+        "<button class='sk-del' title='Delete this skip' style='background:transparent;border:none;color:var(--muted);font-size:14px;line-height:1;cursor:pointer;padding:2px 4px'>×</button>" +
+      "</span>";
+    row.querySelector('.sk-del').onclick = function(e) {
+      e.stopPropagation();
+      if (!confirm('Delete ' + k.who + ' skip for ' + s.name + ' on ' + k.date + '?')) return;
+      var btn = e.currentTarget;
+      btn.disabled = true; btn.textContent = '…';
+      fetch(getScriptUrl() + '?action=deleteSkipLog&row=' + encodeURIComponent(k.row) +
+            '&name=' + encodeURIComponent(s.name) + '&date=' + encodeURIComponent(k.date))
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (!d.success) { alert(d.message || 'Delete failed'); btn.disabled = false; btn.textContent = '×'; return; }
+          initSkipsTab();
+        })
+        .catch(function() { alert('Connection failed'); btn.disabled = false; btn.textContent = '×'; });
+    };
     body.appendChild(row);
   });
   card.appendChild(body);
