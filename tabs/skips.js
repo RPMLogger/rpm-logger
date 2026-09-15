@@ -48,7 +48,7 @@ function _skRender() {
   bar.innerHTML =
     "<div class='section-label' style='font-size:11px;margin-bottom:10px'>Skips</div>" +
     "<div style='border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:10px 12px;margin-bottom:14px;" +
-                "font-size:11px;color:var(--muted);letter-spacing:0.5px'>" +
+                "text-transform:uppercase;font-size:11px;color:var(--muted);letter-spacing:1px'>" +
       "Since Jun 2026 · " + (totals.student || 0) + " student · " + (totals.teacher || 0) + " teacher" +
     "</div>";
   var refreshBtn = document.createElement('button');
@@ -225,7 +225,7 @@ function _skStudentCard(s) {
                       (hasSkips ? ';cursor:pointer' : '');
   hdr.innerHTML =
     "<span style='font-weight:600;font-size:13px;color:rgba(255,255,255,0.62);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
-      (hasSkips ? "<span class='sk-caret' style='color:var(--muted);font-size:10px;margin-right:6px;display:inline-block'>▸</span>" : "") +
+      "<span class='sk-caret' style='color:var(--muted);font-size:10px;margin-right:6px;display:inline-block'>▸</span>" +
       _skEsc(s.name) +
     "</span>" +
     "<span style='display:flex;align-items:center;gap:5px;flex:0 0 auto'>" +
