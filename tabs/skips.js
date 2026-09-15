@@ -1,7 +1,8 @@
 // ─── TABS / SKIPS.JS ────────────────────────────────────────────────────────
 // Who's skipping, this year. Read-only view over Skip Logs (the source of
 // truth) — skips are LOGGED from the Home tab: tap a red lesson day → Skip →
-// Student/Teacher. Nothing here writes.
+// Student/Teacher. The one write here is "+ Log skip": a Skip Logs row only
+// (no calendar, no email), for lessons already deleted from the calendar.
 //
 // Each student row shows three counts: Student (they cancelled), Teacher (you
 // cancelled), Vacation (travel blocks). Tap a row to expand the individual
@@ -10,6 +11,7 @@
 
 var _skData = null;      // last payload, so expand/collapse needs no refetch
 var _skShowZero = false; // include zero-skip students in the list
+var _skFormOpen = false; // "+ Log skip" form visible
 
 function initSkipsTab() {
   var section = document.getElementById('skipsBody');
@@ -54,8 +56,18 @@ function _skRender() {
   refreshBtn.textContent = '⟳ Refresh';
   refreshBtn.style.cssText = 'padding:6px 14px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.5px;flex:0 0 auto';
   refreshBtn.onclick = initSkipsTab;
-  bar.appendChild(refreshBtn);
+  var btns = document.createElement('span');
+  btns.style.cssText = 'display:flex;gap:6px;flex:0 0 auto';
+  var logBtn = document.createElement('button');
+  logBtn.textContent = _skFormOpen ? '− Log skip' : '+ Log skip';
+  logBtn.style.cssText = 'padding:6px 14px;font-size:12px;background:transparent;color:#ff7a3c;border:1px solid rgba(255,122,60,0.45);border-radius:4px;cursor:pointer;letter-spacing:0.5px';
+  logBtn.onclick = function() { _skFormOpen = !_skFormOpen; _skRender(); };
+  btns.appendChild(logBtn);
+  btns.appendChild(refreshBtn);
+  bar.appendChild(btns);
   section.appendChild(bar);
+
+  if (_skFormOpen) section.appendChild(_skLogForm(_skData.students || []));
 
   // ── Three totals across the top ──
   var strip = document.createElement('div');
@@ -100,6 +112,83 @@ function _skRender() {
     toggle.onclick = function() { _skShowZero = !_skShowZero; _skRender(); };
     section.appendChild(toggle);
   }
+}
+
+// Manual skip form: student · date · Student/Teacher · note → logSkipManual.
+function _skLogForm(students) {
+  var box = document.createElement('div');
+  box.style.cssText = 'border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:12px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center';
+
+  var field = 'padding:6px 8px;font-size:12px;background:transparent;color:inherit;border:1px solid var(--border);border-radius:4px';
+
+  var sel = document.createElement('select');
+  sel.style.cssText = field + ';flex:1 1 160px;min-width:0';
+  sel.innerHTML = "<option value=''>Pick student…</option>" + students.map(function(s) {
+    return "<option value='" + _skEsc(s.name) + "'>" + _skEsc(s.name) + "</option>";
+  }).join('');
+
+  var dt = document.createElement('input');
+  dt.type = 'date';
+  dt.style.cssText = field + ';flex:0 0 auto;color-scheme:dark';
+
+  var who = 'Student';
+  var whoWrap = document.createElement('span');
+  whoWrap.style.cssText = 'display:flex;gap:4px;flex:0 0 auto';
+  ['Student', 'Teacher'].forEach(function(w) {
+    var b = document.createElement('button');
+    b.textContent = w;
+    b.dataset.who = w;
+    whoWrap.appendChild(b);
+  });
+  function paintWho() {
+    Array.prototype.forEach.call(whoWrap.children, function(b) {
+      var c = b.dataset.who === 'Student' ? '#ff7a3c' : '#ffb400';
+      var on = b.dataset.who === who;
+      b.style.cssText = 'padding:6px 12px;font-size:12px;border-radius:4px;cursor:pointer;border:1px solid ' +
+        (on ? _skFade(c, 0.6) + ';color:' + c + ';background:' + _skFade(c) : 'var(--border);color:var(--muted);background:transparent');
+    });
+  }
+  whoWrap.onclick = function(e) { if (e.target.dataset.who) { who = e.target.dataset.who; paintWho(); } };
+  paintWho();
+
+  var note = document.createElement('input');
+  note.type = 'text';
+  note.placeholder = 'Note (optional)';
+  note.style.cssText = field + ';flex:1 1 160px;min-width:0';
+
+  var save = document.createElement('button');
+  save.textContent = 'Save';
+  save.style.cssText = 'padding:6px 16px;font-size:12px;font-weight:600;background:#ff7a3c;color:#000;border:none;border-radius:4px;cursor:pointer;flex:0 0 auto';
+
+  var msg = document.createElement('div');
+  msg.style.cssText = 'flex:1 1 100%;font-size:11px;color:var(--muted)';
+  msg.textContent = 'Logs to Skip Logs only. Calendar and emails are not touched.';
+
+  save.onclick = function() {
+    if (!sel.value || !dt.value) { msg.style.color = '#ff5a5a'; msg.textContent = 'Pick a student and a date.'; return; }
+    save.disabled = true; save.textContent = 'Saving…';
+    var q = '?action=logSkipManual&name=' + encodeURIComponent(sel.value) + '&date=' + encodeURIComponent(dt.value) +
+            '&who=' + encodeURIComponent(who) + '&note=' + encodeURIComponent(note.value.trim());
+    fetch(getScriptUrl() + q)
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.success) {
+          save.disabled = false; save.textContent = 'Save';
+          msg.style.color = '#ff5a5a'; msg.textContent = d.message || 'Failed';
+          return;
+        }
+        _skFormOpen = false;
+        initSkipsTab();
+      })
+      .catch(function() {
+        save.disabled = false; save.textContent = 'Save';
+        msg.style.color = '#ff5a5a'; msg.textContent = 'Connection failed';
+      });
+  };
+
+  box.appendChild(sel); box.appendChild(dt); box.appendChild(whoWrap);
+  box.appendChild(note); box.appendChild(save); box.appendChild(msg);
+  return box;
 }
 
 function _skTotalCard(label, n, color) {
