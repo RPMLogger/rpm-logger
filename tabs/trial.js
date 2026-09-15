@@ -1729,7 +1729,7 @@ function _trLoadStageThreads() {
 // its fields cannot collide with Initiate's, since both panels live in the DOM.
 function _trStageBookHtml() {
   return '<div id="tsBookToggle" style="margin-top:18px">' +
-      '<button class="db-mini-btn" style="width:100%;padding:11px" onclick="_tsShowBook()">Book a trial manually</button>' +
+      '<button class="db-mini-btn" style="width:100%;padding:11px;text-transform:uppercase;letter-spacing:1px" onclick="_tsShowBook()">Book a trial manually</button>' +
     '</div>' +
     '<div id="tsBookArea" style="display:none">' +
       '<hr class="divider" style="margin:22px 0 16px">' +
