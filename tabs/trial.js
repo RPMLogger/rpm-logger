@@ -943,7 +943,7 @@ function _trStepsHtml(a) {
       list.map(function (x, i) {
         var done = st[x.key];
         var wait = x.key === 'terms' && !done && st.termsSent;
-        return '<button class="db-mini-btn" style="min-width:150px;text-align:left;' + _TR_CAPS + ';border-color:' + (x.lesson ? 'var(--accent2)' : 'var(--blue)') +
+        return '<button class="db-mini-btn" style="min-width:150px;text-align:left;' + _TR_CAPS + ';border-color:' + (x.lesson ? 'var(--accent2)' : '#a78bfa') +
                    (x.noWindow ? ';cursor:default' : '') + '" ' +
                  (wait ? 'title="Terms sent, waiting for the form to come back" ' : '') +
                  (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
@@ -963,17 +963,17 @@ function _trActionsHtml(a) {
   var id = emailToId(a.email || '');
   var em = _trEsc(a.email || '');
   var st = _trStepState(a);
-  var red = 'min-width:150px;' + _TR_CAPS + ';border-color:var(--accent);color:var(--accent)';
+  var red = 'min-width:150px;' + _TR_CAPS + ';border-color:#ff5a4d;color:#ff5a4d';
   var make = st.ready
-    ? '<button class="db-mini-btn" style="' + red + '" onclick="_msOpen(\'' + em + '\')">Make student</button>'
-    : '<button class="db-mini-btn" disabled style="' + red + ';opacity:.45;cursor:not-allowed" ' +
-        'title="Still needed: ' + _msAttr(st.missing.join(', ')) + '">Make student</button>';
+    ? '<button class="db-mini-btn" style="' + red + '" onclick="_msOpen(\'' + em + '\')">Confirm as student</button>'
+    : '<button class="db-mini-btn" disabled style="' + red + ';opacity:.6;cursor:not-allowed" ' +
+        'title="Still needed: ' + _msAttr(st.missing.join(', ')) + '">Confirm as student</button>';
   return '<div id="tracts-' + id + '" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
         make +
         '<span style="flex:1"></span>' +
         '<button class="db-mini-btn" id="trnobtn-' + id + '" style="' + _TR_CAPS + ';color:var(--muted);border-color:var(--muted)" ' +
-          'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">Not continuing</button>' +
+          'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">Dismiss</button>' +
       '</div>' +
     '</div>';
 }
@@ -1649,7 +1649,7 @@ function _trSaveField(id, email, key, el) {
 function _trNotContinuing(id, email, name) {
   var url = getScriptUrl();
   if (!url || !email) return;
-  if (!confirm('Mark ' + (name || email) + ' as not continuing?\n\nOutcome becomes Unsuccessful and the card leaves the Trial tab.')) return;
+  if (!confirm('Dismiss ' + (name || email) + '?\n\nOutcome becomes Unsuccessful and the card leaves the Trial tab.')) return;
   var btn = document.getElementById('trnobtn-' + id);
   if (btn) { btn.disabled = true; btn.textContent = 'Saving\u2026'; }
 
@@ -2021,7 +2021,7 @@ function _msRenderForm() {
       '<span style="color:' + (color || 'var(--text)') + '">' + v + '</span></div>';
   };
   document.getElementById('msModal').innerHTML =
-    '<div class="settings-title">Make student<button class="settings-close" id="msX" onclick="_msClose()">✕</button></div>' +
+    '<div class="settings-title">Confirm as student<button class="settings-close" id="msX" onclick="_msClose()">✕</button></div>' +
 
     '<div style="font-family:\'Syne\',sans-serif;font-size:22px;font-weight:700;color:var(--text);margin:2px 0 10px">' + inqEsc(_ms.name) + '</div>' +
     '<div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:8px 0;margin-bottom:14px">' +
@@ -2042,7 +2042,7 @@ function _msRenderForm() {
     '<button id="msGoBtn" onclick="_msMake()" ' +
       'style="width:100%;box-sizing:border-box;background:var(--green);color:#0b0b0b;border:none;border-radius:10px;padding:15px;' +
       'font-family:\'Syne\',sans-serif;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px">' +
-      'Make student</button>' +
+      'Confirm as student</button>' +
     '<div id="msResult"></div>';
   _msRateHint();
 }
@@ -2124,7 +2124,7 @@ function _msMake() {
   _msLock(true);
   var go = document.getElementById('msGoBtn');
   go.style.cursor = 'wait'; go.style.opacity = '0.85';
-  go.innerHTML = '<span class="ms-spin"></span>Making student…';
+  go.innerHTML = '<span class="ms-spin"></span>Confirming…';
   res.innerHTML =
     '<div style="margin-top:12px;padding:12px 14px;border:1px solid var(--accent2);border-radius:10px;text-align:center;' +
       'font-family:\'DM Mono\',monospace;font-size:12px;color:var(--accent2);animation:pulse 1.6s infinite">' +
@@ -2145,7 +2145,7 @@ function _msMake() {
       _ms.done = true;
       var warns = (d.steps || []).filter(function (st) { return st.indexOf('⚠') === 0; }).length;
       document.getElementById('msModal').innerHTML =
-        '<div class="settings-title">Make student<button class="settings-close" onclick="_msClose()">✕</button></div>' +
+        '<div class="settings-title">Confirm as student<button class="settings-close" onclick="_msClose()">✕</button></div>' +
         _msBanner(true, 'Done', d.name + ' is a student' + (d.id ? ' (id ' + d.id + ')' : '') + '.' +
                   (warns ? ' ' + warns + ' step' + (warns === 1 ? '' : 's') + ' need a look, see below.' : '')) +
         '<div style="margin-top:12px">' + _msSteps(d.steps) + '</div>' +
@@ -2157,7 +2157,7 @@ function _msMake() {
       _ms.busy = false;
       _msLock(false);
       go.style.cursor = 'pointer'; go.style.opacity = '';
-      go.textContent = 'Make student';
+      go.textContent = 'Confirm as student';
       res.innerHTML = _msBanner(false, 'No answer', 'The server did not reply. Check the Counter before trying again: it may have gone through.');
     });
 }
