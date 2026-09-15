@@ -51,8 +51,8 @@ function _skRender() {
   bar.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:16px;flex-wrap:wrap';
   bar.innerHTML =
     "<div style='min-width:0'>" +
-      "<div style='font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)'>Skips</div>" +
-      "<div style='font-size:9px;color:var(--muted);letter-spacing:0.5px;margin-top:5px;opacity:0.8'>" +
+      "<div class='section-label' style='margin-bottom:0'>Skips</div>" +
+      "<div style='font-size:11px;color:var(--muted);letter-spacing:0.5px;margin-top:6px;opacity:0.8'>" +
         "Since Jun 2026 · " + (totals.student || 0) + " student · " + (totals.teacher || 0) + " teacher" +
       "</div>" +
     "</div>";
