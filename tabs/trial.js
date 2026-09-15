@@ -944,7 +944,7 @@ function _trStepsHtml(a) {
         var done = st[x.key];
         var wait = x.key === 'terms' && !done && st.termsSent;
         var c = x.lesson ? '#4a9eff' : '#ff7a3c';
-        return '<button class="db-mini-btn" style="min-width:150px;text-align:left;' + _TR_CAPS + ';color:' + c + ';background:' + _skFade(c) + ';border-color:' + _skFade(c, 0.45) +
+        return '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:' + c + ';background:' + _skFade(c) + ';border-color:' + _skFade(c, 0.45) +
                    (x.noWindow ? ';cursor:default' : '') + '" ' +
                  (wait ? 'title="Terms sent, waiting for the form to come back" ' : '') +
                  (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
