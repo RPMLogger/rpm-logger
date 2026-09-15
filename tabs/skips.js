@@ -51,14 +51,10 @@ function _skRender() {
   var bar = document.createElement('div');
   bar.innerHTML =
     "<div class='section-label' style='font-size:11px;margin-bottom:10px'>Skips</div>" +
-    "<div style='border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:10px 12px;" +
+    "<div style='border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:10px 12px;margin-bottom:14px;" +
                 "font-size:11px;color:var(--muted);letter-spacing:0.5px'>" +
       "Since Jun 2026 · " + (totals.student || 0) + " student · " + (totals.teacher || 0) + " teacher" +
     "</div>";
-  var topHr = document.createElement('hr');
-  topHr.className = 'divider';
-  topHr.style.margin = '14px 0';
-  bar.appendChild(topHr);
   var refreshBtn = document.createElement('button');
   refreshBtn.textContent = '⟳ Refresh';
   refreshBtn.style.cssText = 'padding:6px 14px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.5px;flex:0 0 auto';
@@ -76,10 +72,9 @@ function _skRender() {
 
   if (_skFormOpen) section.appendChild(_skLogForm(_skData.students || []));
 
-  var hr = document.createElement('hr');
-  hr.className = 'divider';
-  hr.style.margin = '4px 0 16px';
-  section.appendChild(hr);
+  var gap = document.createElement('div');
+  gap.style.height = '6px';
+  section.appendChild(gap);
 
   if (!all.length) {
     var empty = document.createElement('div');
@@ -283,7 +278,6 @@ function _skStudentCard(s) {
       "</span>";
     row.querySelector('.sk-del').onclick = function(e) {
       e.stopPropagation();
-      if (!confirm('Delete ' + k.who + ' skip for ' + s.name + ' on ' + k.date + '?')) return;
       var btn = e.currentTarget;
       btn.disabled = true; btn.textContent = '…';
       fetch(getScriptUrl() + '?action=deleteSkipLog&row=' + encodeURIComponent(k.row) +
