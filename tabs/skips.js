@@ -46,13 +46,16 @@ function _skRender() {
   var withAny = all.filter(function(s) { return s.total > 0; });
   var zeroCt  = all.length - withAny.length;
 
-  // ── Top bar: year total + refresh ──
+  // ── Header: big title + small gray summary, actions on their own at right ──
   var bar = document.createElement('div');
-  bar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px';
+  bar.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:16px;flex-wrap:wrap';
   bar.innerHTML =
-    "<span style='font-size:11px;color:var(--muted);letter-spacing:0.5px'>" +
-      _skEsc(year) + " · " + _skPlural(totals.student + totals.teacher, 'skip') +
-    "</span>";
+    "<div style='min-width:0'>" +
+      "<div style='font-family:\"Bebas Neue\",sans-serif;font-size:34px;letter-spacing:1.5px;line-height:1;color:rgba(255,255,255,0.82)'>Skips</div>" +
+      "<div style='font-size:10px;color:var(--muted);letter-spacing:0.5px;margin-top:4px'>" +
+        "Since Jun 2026 · " + (totals.student || 0) + " student · " + (totals.teacher || 0) + " teacher" +
+      "</div>" +
+    "</div>";
   var refreshBtn = document.createElement('button');
   refreshBtn.textContent = '⟳ Refresh';
   refreshBtn.style.cssText = 'padding:6px 14px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.5px;flex:0 0 auto';
@@ -69,14 +72,6 @@ function _skRender() {
   section.appendChild(bar);
 
   if (_skFormOpen) section.appendChild(_skLogForm(_skData.students || []));
-
-  // ── Three totals across the top ──
-  var strip = document.createElement('div');
-  strip.style.cssText = 'display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap';
-  strip.innerHTML =
-    _skTotalCard('Student', totals.student,  '#ff7a3c') +
-    _skTotalCard('Teacher', totals.teacher,  '#ffb400');
-  section.appendChild(strip);
 
   if (!all.length) {
     var empty = document.createElement('div');
@@ -208,13 +203,6 @@ function _skLogForm(students) {
   return box;
 }
 
-function _skTotalCard(label, n, color) {
-  return "<div style='flex:1 1 90px;border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:9px 12px'>" +
-           "<div style='font-size:19px;font-weight:700;color:" + color + "'>" + (n || 0) + "</div>" +
-           "<div style='font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-top:1px'>" + label + "</div>" +
-         "</div>";
-}
-
 function _skStudentCard(s) {
   var card = document.createElement('div');
   card.style.cssText = 'border:1px solid var(--border);border-radius:6px;background:var(--panel);margin-bottom:8px;overflow:hidden';
@@ -225,7 +213,7 @@ function _skStudentCard(s) {
   hdr.style.cssText = 'padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px' +
                       (hasSkips ? ';cursor:pointer' : '');
   hdr.innerHTML =
-    "<span style='font-weight:600;font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+    "<span style='font-weight:600;font-size:13px;color:rgba(255,255,255,0.82);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
       (hasSkips ? "<span class='sk-caret' style='color:var(--muted);font-size:10px;margin-right:6px;display:inline-block'>▸</span>" : "") +
       _skEsc(s.name) +
     "</span>" +
@@ -245,7 +233,7 @@ function _skStudentCard(s) {
     row.style.cssText = 'padding:8px 12px;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:baseline;gap:10px';
     row.innerHTML =
       "<div style='min-width:0'>" +
-        "<span style='font-size:12px;font-weight:600'>" + _skEsc(k.date) + "</span>" +
+        "<span style='font-size:12px;font-weight:600;color:rgba(255,255,255,0.82)'>" + _skEsc(k.date) + "</span>" +
         (k.day ? "<span style='font-size:10px;color:var(--muted);margin-left:6px'>" + _skEsc(k.day) + "</span>" : "") +
         (k.note ? "<div style='font-size:10px;color:var(--muted);margin-top:2px;word-break:break-word'>" + _skEsc(k.note) + "</div>" : "") +
       "</div>" +
