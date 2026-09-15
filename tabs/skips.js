@@ -225,7 +225,7 @@ function _skStudentCard(s) {
   hdr.style.cssText = 'padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px' +
                       (hasSkips ? ';cursor:pointer' : '');
   hdr.innerHTML =
-    "<span style='font-weight:600;font-size:13px;color:rgba(255,255,255,0.62);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+    "<span style='font-weight:600;font-size:11px;color:rgba(255,255,255,0.62);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
       "<span class='sk-caret' style='color:var(--muted);font-size:10px;margin-right:6px;display:inline-block'>▸</span>" +
       _skEsc(s.name) +
     "</span>" +
