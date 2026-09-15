@@ -47,8 +47,9 @@ function _skRender() {
   var bar = document.createElement('div');
   bar.innerHTML =
     "<div class='section-label' style='font-size:11px;margin-bottom:10px'>Skips</div>" +
-    "<div style='border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:10px 12px;margin-bottom:14px;" +
-                "text-transform:uppercase;font-size:11px;color:var(--muted);letter-spacing:1px'>" +
+    // Same highlight as the Week tab's "Student #" row (.load-row.highlight).
+    "<div style='border:1px solid var(--border);border-radius:6px;background:rgba(240,165,0,0.06);padding:10px 12px;margin-bottom:14px;" +
+                "text-transform:uppercase;font-size:11px;color:var(--accent2);letter-spacing:1px'>" +
       "Since Jun 2026 · Total: " + (totals.student || 0) + " student · " + (totals.teacher || 0) + " teacher" +
     "</div>";
   var refreshBtn = document.createElement('button');
