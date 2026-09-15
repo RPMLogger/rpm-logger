@@ -51,8 +51,8 @@ function _skRender() {
   bar.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:16px;flex-wrap:wrap';
   bar.innerHTML =
     "<div style='min-width:0'>" +
-      "<div style='font-family:\"Bebas Neue\",sans-serif;font-size:34px;letter-spacing:1.5px;line-height:1;color:rgba(255,255,255,0.82)'>Skips</div>" +
-      "<div style='font-size:10px;color:var(--muted);letter-spacing:0.5px;margin-top:4px'>" +
+      "<div style='font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)'>Skips</div>" +
+      "<div style='font-size:9px;color:var(--muted);letter-spacing:0.5px;margin-top:5px;opacity:0.8'>" +
         "Since Jun 2026 · " + (totals.student || 0) + " student · " + (totals.teacher || 0) + " teacher" +
       "</div>" +
     "</div>";
@@ -213,7 +213,7 @@ function _skStudentCard(s) {
   hdr.style.cssText = 'padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px' +
                       (hasSkips ? ';cursor:pointer' : '');
   hdr.innerHTML =
-    "<span style='font-weight:600;font-size:13px;color:rgba(255,255,255,0.82);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
+    "<span style='font-weight:600;font-size:13px;color:rgba(255,255,255,0.62);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
       (hasSkips ? "<span class='sk-caret' style='color:var(--muted);font-size:10px;margin-right:6px;display:inline-block'>▸</span>" : "") +
       _skEsc(s.name) +
     "</span>" +
@@ -233,7 +233,7 @@ function _skStudentCard(s) {
     row.style.cssText = 'padding:8px 12px;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:baseline;gap:10px';
     row.innerHTML =
       "<div style='min-width:0'>" +
-        "<span style='font-size:12px;font-weight:600;color:rgba(255,255,255,0.82)'>" + _skEsc(k.date) + "</span>" +
+        "<span style='font-size:12px;font-weight:600;color:rgba(255,255,255,0.62)'>" + _skEsc(k.date) + "</span>" +
         (k.day ? "<span style='font-size:10px;color:var(--muted);margin-left:6px'>" + _skEsc(k.day) + "</span>" : "") +
         (k.note ? "<div style='font-size:10px;color:var(--muted);margin-top:2px;word-break:break-word'>" + _skEsc(k.note) + "</div>" : "") +
       "</div>" +
