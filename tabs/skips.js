@@ -5,7 +5,8 @@
 // (no calendar, no email), for lessons already deleted from the calendar.
 //
 // Each student row shows three counts: Student (they cancelled), Teacher (you
-// cancelled), Vacation (travel blocks). Tap a row to expand the individual
+// cancelled), Vacation (travel blocks; per-student only, not in the top totals).
+// Sorted by Student count. Tap a row to expand the individual
 // skips with date + note. Students with no skips this year are tucked behind a
 // "show all" toggle so the list stays about the people who actually skip.
 
@@ -50,7 +51,7 @@ function _skRender() {
   bar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px';
   bar.innerHTML =
     "<span style='font-size:11px;color:var(--muted);letter-spacing:0.5px'>" +
-      _skEsc(year) + " · " + _skPlural(totals.student + totals.teacher + totals.vacation, 'skip') +
+      _skEsc(year) + " · " + _skPlural(totals.student + totals.teacher, 'skip') +
     "</span>";
   var refreshBtn = document.createElement('button');
   refreshBtn.textContent = '⟳ Refresh';
@@ -74,8 +75,7 @@ function _skRender() {
   strip.style.cssText = 'display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap';
   strip.innerHTML =
     _skTotalCard('Student', totals.student,  '#ff7a3c') +
-    _skTotalCard('Teacher', totals.teacher,  '#ffb400') +
-    _skTotalCard('Vacation', totals.vacation, '#4aa3ff');
+    _skTotalCard('Teacher', totals.teacher,  '#ffb400');
   section.appendChild(strip);
 
   if (!all.length) {
@@ -95,9 +95,9 @@ function _skRender() {
     section.appendChild(none);
   }
 
-  // Most skips first; ties alphabetical.
+  // Most Student skips first; ties alphabetical.
   list.slice().sort(function(a, b) {
-    return (b.total - a.total) || a.name.localeCompare(b.name);
+    return (b.totalStudent - a.totalStudent) || a.name.localeCompare(b.name);
   }).forEach(function(s) {
     section.appendChild(_skStudentCard(s));
   });
@@ -127,9 +127,26 @@ function _skLogForm(students) {
     return "<option value='" + _skEsc(s.name) + "'>" + _skEsc(s.name) + "</option>";
   }).join('');
 
-  var dt = document.createElement('input');
-  dt.type = 'date';
-  dt.style.cssText = field + ';flex:0 0 auto;color-scheme:dark';
+  // ◀ Tue, Sep 15 ▶ day stepper (same look as the Trial tab), starts today.
+  var day = new Date(); day.setHours(12, 0, 0, 0);
+  var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var dt = document.createElement('span');
+  dt.style.cssText = 'display:flex;align-items:center;gap:6px;flex:0 0 auto';
+  var prev = document.createElement('button'), next = document.createElement('button');
+  var dLabel = document.createElement('span');
+  prev.className = next.className = 'db-mini-btn';
+  prev.style.cssText = next.style.cssText = 'padding:6px 10px';
+  prev.textContent = '◀'; next.textContent = '▶';
+  dLabel.style.cssText = "font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.62);text-align:center;min-width:92px";
+  function paintDay() { dLabel.textContent = DAYS[day.getDay()] + ', ' + MONTHS[day.getMonth()] + ' ' + day.getDate(); }
+  prev.onclick = function() { day.setDate(day.getDate() - 1); paintDay(); };
+  next.onclick = function() { day.setDate(day.getDate() + 1); paintDay(); };
+  paintDay();
+  dt.appendChild(prev); dt.appendChild(dLabel); dt.appendChild(next);
+  function dayValue() {
+    return day.getFullYear() + '-' + ('0' + (day.getMonth() + 1)).slice(-2) + '-' + ('0' + day.getDate()).slice(-2);
+  }
 
   var who = 'Student';
   var whoWrap = document.createElement('span');
@@ -165,9 +182,9 @@ function _skLogForm(students) {
   msg.textContent = 'Logs to Skip Logs only. Calendar and emails are not touched.';
 
   save.onclick = function() {
-    if (!sel.value || !dt.value) { msg.style.color = '#ff5a5a'; msg.textContent = 'Pick a student and a date.'; return; }
+    if (!sel.value) { msg.style.color = '#ff5a5a'; msg.textContent = 'Pick a student.'; return; }
     save.disabled = true; save.textContent = 'Saving…';
-    var q = '?action=logSkipManual&name=' + encodeURIComponent(sel.value) + '&date=' + encodeURIComponent(dt.value) +
+    var q = '?action=logSkipManual&name=' + encodeURIComponent(sel.value) + '&date=' + encodeURIComponent(dayValue()) +
             '&who=' + encodeURIComponent(who) + '&note=' + encodeURIComponent(note.value.trim());
     fetch(getScriptUrl() + q)
       .then(function(r) { return r.json(); })
