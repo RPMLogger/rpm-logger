@@ -120,11 +120,44 @@ function _skLogForm(students) {
 
   var field = 'padding:6px 8px;font-size:12px;background:transparent;color:inherit;border:1px solid var(--border);border-radius:4px';
 
-  var sel = document.createElement('select');
-  sel.style.cssText = field + ';flex:1 1 160px;min-width:0;color:rgba(255,255,255,0.62)';
-  sel.innerHTML = "<option value=''>Pick student…</option>" + students.map(function(s) {
-    return "<option value='" + _skEsc(s.name) + "'>" + _skEsc(s.name) + "</option>";
-  }).join('');
+  // Custom dropdown (not a native <select>, so it matches the portal instead of
+  // the OS menu). sel.value holds the picked name, same as a select would.
+  var sel = document.createElement('div');
+  sel.value = '';
+  sel.style.cssText = 'position:relative;flex:1 1 160px;min-width:0';
+  var selBtn = document.createElement('button');
+  selBtn.type = 'button';
+  selBtn.style.cssText = field + ";width:100%;cursor:pointer;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.62);" +
+                         'display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left';
+  var selList = document.createElement('div');
+  selList.hidden = true;
+  selList.style.cssText = 'position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:20;max-height:260px;overflow-y:auto;' +
+                          'background:#161616;border:1px solid var(--border);border-radius:6px;padding:4px 0;box-shadow:0 8px 24px rgba(0,0,0,0.5);' +
+                          'scrollbar-width:thin;scrollbar-color:#333 transparent';
+  function paintSel() {
+    selBtn.innerHTML = "<span style='overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" + _skEsc(sel.value || 'Pick student…') + "</span>" +
+                       "<span style='color:var(--muted);font-size:9px;flex:0 0 auto'>▾</span>";
+    selList.innerHTML = '';
+    students.forEach(function(s) {
+      var on = s.name === sel.value;
+      var o = document.createElement('div');
+      o.textContent = s.name;
+      o.style.cssText = "padding:7px 12px;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;color:" +
+                        (on ? '#ff7a3c' : 'rgba(255,255,255,0.62)');
+      o.onmouseenter = function() { o.style.background = 'rgba(255,255,255,0.05)'; };
+      o.onmouseleave = function() { o.style.background = 'transparent'; };
+      o.onclick = function() { sel.value = s.name; selList.hidden = true; paintSel(); };
+      selList.appendChild(o);
+    });
+  }
+  selBtn.onclick = function(e) { e.stopPropagation(); selList.hidden = !selList.hidden; };
+  document.addEventListener('click', function closeSel(e) {
+    if (!document.body.contains(sel)) { document.removeEventListener('click', closeSel); return; }
+    if (!sel.contains(e.target)) selList.hidden = true;
+  });
+  paintSel();
+  sel.appendChild(selBtn);
+  sel.appendChild(selList);
 
   // ◀ Tue, Sep 15 ▶ day stepper (same look as the Trial tab), starts today.
   var day = new Date(); day.setHours(12, 0, 0, 0);
