@@ -839,7 +839,6 @@ function initTrialStageTab() {
 function _trStageCard(a) {
   var when = a.trialDateLabel || '';
   return '<div class="inq-dcard accepted" id="trcard-' + emailToId(a.email || '') + '">' +
-      '<div class="inq-drow"><span class="inq-chan">' + inqEsc(a.channel || 'Gmail') + '</span></div>' +
       '<div class="inq-name-line">' +
         '<span class="inq-name">' + inqEsc(a.name || '—') + '</span>' +
         (when
@@ -851,6 +850,7 @@ function _trStageCard(a) {
       '</div>' +
       '<div id="trpaid-' + emailToId(a.email || '') + '"></div>' +
       _trStepsHtml(a) +
+      '<hr class="divider" style="margin:0 0 10px">' +
       '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || '') + '"></div>' +
       _trActionsHtml(a) +
@@ -975,9 +975,6 @@ function _trActionsHtml(a) {
         '<button class="db-mini-btn" id="trnobtn-' + id + '" style="' + _TR_CAPS + ';color:var(--muted);border-color:var(--muted)" ' +
           'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">Not continuing</button>' +
       '</div>' +
-      (st.ready ? '' :
-        '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin-top:6px">Still needed: ' +
-          inqEsc(st.missing.join(' · ')) + '</div>') +
     '</div>';
 }
 
@@ -1693,12 +1690,15 @@ function _trLoadStageThreads() {
             _trThreadSummary(id, msgs) +
             '<div id="fcmsg-' + id + '" style="display:none">' +
               msgs.map(_trMsgRow).join('') +
+              // Reply sits inside the opened thread: nobody replies unread.
+              (hasThread
+                ? '<div id="fcrp-' + id + '">' +
+                    '<button class="db-mini-btn" onclick="_trOpenReply(\'' + id + '\',\'' + t.threadId + '\')">Reply</button>' +
+                  '</div>'
+                : '') +
             '</div>' +
             (hasThread
-              // Reply lands inside the existing Gmail thread.
-              ? '<div id="fcrp-' + id + '">' +
-                  '<button class="db-mini-btn" onclick="_trOpenReply(\'' + id + '\',\'' + t.threadId + '\')">Reply</button>' +
-                '</div>'
+              ? ''
               // No thread to reply into (booked without an email exchange), so
               // fall back to the composer, which starts one.
               : '<button class="db-mini-btn" onclick="_trOpenEmail(\'' + _trEsc(a.email || '') + '\')" style="border-color:var(--green);color:var(--green)">Email</button>') +
@@ -1713,8 +1713,8 @@ function _trLoadStageThreads() {
 // other case: a trial that never came through the form. Own id prefix ("ts") so
 // its fields cannot collide with Initiate's, since both panels live in the DOM.
 function _trStageBookHtml() {
-  return '<div id="tsBookToggle" style="margin-top:18px;text-align:center">' +
-      '<button class="db-mini-btn" onclick="_tsShowBook()">Book a trial manually</button>' +
+  return '<div id="tsBookToggle" style="margin-top:18px">' +
+      '<button class="db-mini-btn" style="width:100%;padding:11px" onclick="_tsShowBook()">Book a trial manually</button>' +
     '</div>' +
     '<div id="tsBookArea" style="display:none">' +
       '<hr class="divider" style="margin:22px 0 16px">' +
@@ -1870,14 +1870,12 @@ function _trThreadSummary(id, msgs) {
   }
   var last = msgs[msgs.length - 1];
   var who  = last.fromMe ? 'last from you' : 'last from them';
-  var when = [last.date, last.time].filter(function (x) { return x; }).join(' ');
-  return '<div id="fcsum-' + id + '" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">' +
+  return '<div id="fcsum-' + id + '" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">' +
+      '<button class="db-mini-btn" id="fctog-' + id + '" onclick="_trToggleThread(\'' + id + '\')">Show</button>' +
       '<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:' +
         (last.fromMe ? 'var(--muted)' : 'var(--green)') + '">' +
-        msgs.length + (msgs.length === 1 ? ' message' : ' messages') +
-        ' \u00b7 ' + who + (when ? ' \u00b7 ' + inqEsc(when) : '') +
+        msgs.length + (msgs.length === 1 ? ' message' : ' messages') + ' \u00b7 ' + who +
       '</span>' +
-      '<button class="db-mini-btn" id="fctog-' + id + '" onclick="_trToggleThread(\'' + id + '\')">Show</button>' +
     '</div>';
 }
 
