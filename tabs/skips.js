@@ -54,13 +54,13 @@ function _skRender() {
     "</div>";
   var refreshBtn = document.createElement('button');
   refreshBtn.textContent = '⟳ Refresh';
-  refreshBtn.style.cssText = 'padding:6px 14px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.5px;flex:0 0 auto';
+  refreshBtn.style.cssText = 'padding:6px 14px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.5px;flex:0 0 auto';
   refreshBtn.onclick = initSkipsTab;
   var btns = document.createElement('span');
   btns.style.cssText = 'display:flex;gap:6px;margin-bottom:12px';
   var logBtn = document.createElement('button');
   logBtn.textContent = _skFormOpen ? '− Log skip' : '+ Log skip';
-  logBtn.style.cssText = 'padding:6px 14px;font-size:12px;background:transparent;color:#ff7a3c;border:1px solid rgba(255,122,60,0.45);border-radius:4px;cursor:pointer;letter-spacing:0.5px';
+  logBtn.style.cssText = 'padding:6px 14px;font-size:11px;background:transparent;color:#ff7a3c;border:1px solid rgba(255,122,60,0.45);border-radius:4px;cursor:pointer;letter-spacing:0.5px';
   logBtn.onclick = function() { _skFormOpen = !_skFormOpen; _skRender(); };
   btns.appendChild(logBtn);
   btns.appendChild(refreshBtn);
@@ -245,7 +245,7 @@ function _skStudentCard(s) {
     row.style.cssText = 'padding:8px 12px;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:baseline;gap:10px';
     row.innerHTML =
       "<div style='min-width:0'>" +
-        "<span style='font-size:12px;font-weight:600;color:rgba(255,255,255,0.62)'>" + _skEsc(k.date) + "</span>" +
+        "<span style='font-size:11px;font-weight:600;color:rgba(255,255,255,0.62)'>" + _skEsc(k.date) + "</span>" +
         (k.day ? "<span style='font-size:10px;color:var(--muted);margin-left:6px'>" + _skEsc(k.day) + "</span>" : "") +
         (k.note ? "<div style='font-size:10px;color:var(--muted);margin-top:2px;word-break:break-word'>" + _skEsc(k.note) + "</div>" : "") +
       "</div>" +
