@@ -845,7 +845,7 @@ function _trStageCard(a) {
         (when
           ? '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:' +
               (a.trialPast ? 'var(--muted)' : 'var(--green)') + '">' +
-              (a.trialPast ? 'trial was ' : 'trial ') + inqEsc(when) +
+              'Trial - ' + inqEsc(when) +
             '</span>'
           : '') +
       '</div>' +
@@ -951,7 +951,7 @@ function _trStepsHtml(a) {
                '</button>';
       }).join('') + '</div>';
   }
-  return '<div id="trsteps-' + id + '" style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;margin:10px 0 12px">' +
+  return '<div id="trsteps-' + id + '" style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;margin:10px 0 12px">' +
       col(_TR_STEPS.filter(function (x) { return !x.lesson; })) +
       col(_TR_STEPS.filter(function (x) { return x.lesson; })) +
     '</div>';
