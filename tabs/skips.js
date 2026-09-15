@@ -49,7 +49,7 @@ function _skRender() {
     "<div class='section-label' style='font-size:11px;margin-bottom:10px'>Skips</div>" +
     "<div style='border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:10px 12px;margin-bottom:14px;" +
                 "text-transform:uppercase;font-size:11px;color:var(--muted);letter-spacing:1px'>" +
-      "Since Jun 2026 · " + (totals.student || 0) + " student · " + (totals.teacher || 0) + " teacher" +
+      "Since Jun 2026 · Total: " + (totals.student || 0) + " student · " + (totals.teacher || 0) + " teacher" +
     "</div>";
   var refreshBtn = document.createElement('button');
   refreshBtn.textContent = '⟳ Refresh';
