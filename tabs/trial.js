@@ -965,11 +965,9 @@ function _trActionsHtml(a) {
   var em = _trEsc(a.email || '');
   var st = _trStepState(a);
   var small = _TR_CAPS + ';font-size:9px;padding:3px 8px;border-color:rgba(255,255,255,0.2)';
-  var red = 'min-width:120px;' + small + ';color:#ff5a4d;background:' + _skFade('#ff5a4d');
-  var make = st.ready
-    ? '<button class="db-mini-btn" style="' + red + '" onclick="_msOpen(\'' + em + '\')">Confirm as student</button>'
-    : '<button class="db-mini-btn" disabled style="' + red + ';opacity:.6;cursor:not-allowed" ' +
-        'title="Still needed: ' + _msAttr(st.missing.join(', ')) + '">Confirm as student</button>';
+  var yellow = 'min-width:120px;' + small + ';color:#f0a500;background:' + _skFade('#f0a500');
+  // Always clickable: _msOpen shows what's still missing if the steps aren't done.
+  var make = '<button class="db-mini-btn" style="' + yellow + '" onclick="_msOpen(\'' + em + '\')">Confirm as student</button>';
   return '<div id="tracts-' + id + '" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
         make +
@@ -1947,7 +1945,19 @@ function _msOpen(email) {
   var a = _trStageCache.filter(function (x) { return (x.email || '') === email; })[0];
   if (!a) return;
   var st = _trStepState(a);
-  if (!st.ready) return;
+  if (!st.ready) {
+    _msOverlay();
+    document.getElementById('msModal').innerHTML =
+      '<div class="settings-title"><span>' + inqEsc(a.name || '') +
+        '<span style="color:var(--muted);font-weight:400"> · Not ready yet</span></span>' +
+        '<button class="settings-close" onclick="_msClose()">✕</button></div>' +
+      '<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Still missing:</div>' +
+      st.missing.map(function (m) {
+        return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#ff7a3c;padding:4px 0">• ' + inqEsc(m) + '</div>';
+      }).join('') +
+      '<div style="text-align:right;margin-top:16px"><button class="db-mini-btn" style="padding:7px 20px" onclick="_msClose()">OK</button></div>';
+    return;
+  }
   var s = a.lesson || {};
   _ms = {
     card: a,
@@ -1957,6 +1967,12 @@ function _msOpen(email) {
     rateEdited: false, busy: false, done: false
   };
 
+  _msOverlay();
+  _msRenderForm();
+  _msLoadRates();
+}
+
+function _msOverlay() {
   var ov = document.getElementById('msOverlay');
   if (!ov) {
     ov = document.createElement('div');
@@ -1967,8 +1983,6 @@ function _msOpen(email) {
     document.body.appendChild(ov);
   }
   ov.classList.add('open');
-  _msRenderForm();
-  _msLoadRates();
 }
 
 function _msClose() {
