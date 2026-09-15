@@ -839,15 +839,15 @@ function initTrialStageTab() {
 function _trStageCard(a) {
   var when = a.trialDateLabel || '';
   return '<div class="inq-dcard accepted" id="trcard-' + emailToId(a.email || '') + '">' +
-      '<div class="inq-name-line">' +
-        '<span class="inq-name">' + inqEsc(a.name || '—') + '</span>' +
-        (when
-          ? '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:' +
-              (a.trialPast ? 'var(--muted)' : 'var(--green)') + '">' +
-              'Trial - ' + inqEsc(when) +
-            '</span>'
-          : '') +
-      '</div>' +
+      '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || '—') + '</span></div>' +
+      // "TRIAL - Sun, Sep 13 - 11:15 AM" on its own line, then a divider.
+      (when
+        ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;margin-top:4px;color:' +
+            (a.trialPast ? 'var(--muted)' : 'var(--green)') + '">' +
+            'TRIAL - ' + inqEsc(when.replace(/^(\w{3})\s+/, '$1, ').replace(/\s+·\s+/, ' - ')) +
+          '</div>'
+        : '') +
+      '<hr class="divider" style="margin:10px 0 0">' +
       '<div id="trpaid-' + emailToId(a.email || '') + '"></div>' +
       _trStepsHtml(a) +
       '<hr class="divider" style="margin:0 0 10px">' +
@@ -943,7 +943,7 @@ function _trStepsHtml(a) {
       list.map(function (x, i) {
         var done = st[x.key];
         var wait = x.key === 'terms' && !done && st.termsSent;
-        return '<button class="db-mini-btn" style="min-width:150px;text-align:left;' + _TR_CAPS + ';border-color:' + (x.lesson ? 'var(--accent2)' : '#a78bfa') +
+        return '<button class="db-mini-btn" style="min-width:150px;text-align:left;' + _TR_CAPS + ';border-color:' + (x.lesson ? 'var(--accent2)' : 'var(--green)') +
                    (x.noWindow ? ';cursor:default' : '') + '" ' +
                  (wait ? 'title="Terms sent, waiting for the form to come back" ' : '') +
                  (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
