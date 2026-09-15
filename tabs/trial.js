@@ -866,7 +866,7 @@ function _trStageCard(a) {
 //   Dropbox     folder created + shared with their Dropbox email
 //   Frequency   Weekly / Biweekly
 //   Pick a time the first regular lesson, date + time, in the future
-//   Payment     no window: ticks when the trial payment is found (or Paid on the row)
+//   Payment     ticks when the trial payment is found (or Paid on the row); window shows it
 //   Terms       sent, then DONE only when the acknowledgment form is back
 //   Right, the lesson itself (never required):
 //   Log lesson  What We Did, typed or dictated
@@ -889,7 +889,7 @@ var _TR_STEPS = [
   { key: 'dbx',   label: 'Dropbox' },
   { key: 'freq',  label: 'Frequency' },
   { key: 'time',  label: 'Pick a time' },
-  { key: 'pay',   label: 'Payment', noWindow: true },   // trial payment; details are on the card's top line
+  { key: 'pay',   label: 'Payment' },                   // trial payment; the window shows what was found
   { key: 'terms', label: 'Terms' },
   { key: 'log',   label: 'Log lesson', lesson: true },
   { key: 'hw',    label: 'Send HW',    lesson: true }
@@ -943,7 +943,7 @@ function _trStepsHtml(a) {
       list.map(function (x, i) {
         var done = st[x.key];
         var wait = x.key === 'terms' && !done && st.termsSent;
-        return '<button class="db-mini-btn" style="min-width:150px;text-align:left;' + _TR_CAPS + ';border-color:var(--blue)' +
+        return '<button class="db-mini-btn" style="min-width:150px;text-align:left;' + _TR_CAPS + ';border-color:' + (x.lesson ? 'var(--accent2)' : 'var(--blue)') +
                    (x.noWindow ? ';cursor:default' : '') + '" ' +
                  (wait ? 'title="Terms sent, waiting for the form to come back" ' : '') +
                  (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
@@ -1058,7 +1058,7 @@ function _tlRender() {
   if (!_tl) return;
   var a = _tl.card, s = a.lesson || {};
   var body = { info: _tlInfoHtml, dbx: _tlDbxHtml, log: _tlLogHtml, hw: _tlHwHtml,
-               freq: _tlFreqHtml, time: _tlTimeHtml, terms: _tlTermsHtml }[_tl.step] || _tlInfoHtml;
+               freq: _tlFreqHtml, time: _tlTimeHtml, pay: _tlPayHtml, terms: _tlTermsHtml }[_tl.step] || _tlInfoHtml;
   document.getElementById('tlModal').innerHTML =
     _tlTitle() +
     (_tl.loadError ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-bottom:8px">⚠ ' + inqEsc(_tl.loadError) + '</div>' : '') +
@@ -1352,6 +1352,21 @@ function _tlParseSpot(str) {
   var day = _MS_DAYS.map(function (d) { return d.toLowerCase(); }).indexOf(m[1].toLowerCase());
   var h = +m[2] % 12 + (m[4].toUpperCase() === 'PM' ? 12 : 0);
   return { day: day, mins: h * 60 + +m[3] };
+}
+
+// ── 5 · Payment ──
+// Read only: the trial payment matched from Zelle / Venmo, or Paid on the row.
+function _tlPayHtml(a, s) {
+  var p = _trTrialPayFor(a.email);
+  var line = function (txt, color) {
+    return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:' + color + '">' + txt + '</div>';
+  };
+  if (p) {
+    var date = String(p.date || '').replace(/,?\s*\d{4}$/, '');
+    return line('✓ ' + inqEsc(p.method || '') + ' ' + inqEsc(p.amount || '') + ' · ' + inqEsc(date), 'var(--green)');
+  }
+  if (s.paid === true || String(s.paid || '').toUpperCase() === 'TRUE') return line('✓ Paid (ticked on the Trial row)', 'var(--green)');
+  return line('No trial payment found yet.', 'var(--muted)');
 }
 
 // ── 6 · Terms ──
@@ -1792,18 +1807,11 @@ function _trTrialPayFor(email) {
   return (_trPayCache || []).filter(function (p) { return p.trial && (p.trial.email || '').toLowerCase() === e; })[0] || null;
 }
 
-// "✓ Trial paid" under the name on each booked card.
+// Payments arrived: redraw each card's checklist (Payment step).
 function _trPaintPaid() {
-  (_trStageCache || []).forEach(function (a) {
-    var box = document.getElementById('trpaid-' + emailToId(a.email || ''));
-    if (!box) return;
-    _tlMarkEmail(a.email, {});   // Payment step reads the payments list
-    var p = _trTrialPayFor(a.email);
-    box.innerHTML = p
-      ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--green);margin:2px 0 6px">\u2713 Trial paid \u00b7 ' +
-          inqEsc(p.method || '') + ' ' + inqEsc(p.amount || '') + ' \u00b7 ' + inqEsc(p.date || '') + '</div>'
-      : '';
-  });
+  // The payment itself now lives in the Payment step's window; this only
+  // refreshes the checklist once the payments list has arrived.
+  (_trStageCache || []).forEach(function (a) { _tlMarkEmail(a.email, {}); });
 }
 
 // Which booked trial does this payment look like? Full name first, then first
