@@ -150,7 +150,7 @@ function _skLogForm(students) {
   var who = 'Student';
   var whoWrap = document.createElement('span');
   whoWrap.style.cssText = 'display:flex;gap:4px;flex:0 0 auto';
-  ['Student', 'Teacher'].forEach(function(w) {
+  ['Student', 'Teacher', 'Vacation'].forEach(function(w) {
     var b = document.createElement('button');
     b.textContent = w;
     b.dataset.who = w;
@@ -158,7 +158,7 @@ function _skLogForm(students) {
   });
   function paintWho() {
     Array.prototype.forEach.call(whoWrap.children, function(b) {
-      var c = b.dataset.who === 'Student' ? '#ff7a3c' : '#ffb400';
+      var c = { Student: '#ff7a3c', Teacher: '#ffb400', Vacation: '#4aa3ff' }[b.dataset.who];
       var on = b.dataset.who === who;
       b.style.cssText = 'padding:6px 12px;font-size:12px;border-radius:4px;cursor:pointer;border:1px solid ' +
         (on ? _skFade(c, 0.6) + ';color:' + c + ';background:' + _skFade(c) : 'var(--border);color:var(--muted);background:transparent');
@@ -178,7 +178,6 @@ function _skLogForm(students) {
 
   var msg = document.createElement('div');
   msg.style.cssText = 'flex:1 1 100%;font-size:11px;color:var(--muted)';
-  msg.textContent = 'Logs to Skip Logs only. Calendar and emails are not touched.';
 
   save.onclick = function() {
     if (!sel.value) { msg.style.color = '#ff5a5a'; msg.textContent = 'Pick a student.'; return; }
