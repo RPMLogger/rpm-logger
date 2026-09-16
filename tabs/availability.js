@@ -120,14 +120,14 @@ function _buildAvailField(label, type, student) {
 
   var ta = document.createElement("textarea");
   ta.rows = 3;
-  ta.style.cssText = "flex:1;padding:6px 8px;background:var(--bg);color:#b5b5b5;border:1px solid var(--border);border-radius:4px;font-size:12px;font-family:inherit;resize:vertical";
+  ta.style.cssText = "flex:1;padding:6px 8px;background:var(--bg);color:var(--muted);border:1px solid var(--border);border-radius:4px;font-size:12px;font-family:inherit;resize:vertical";
   ta.value = student[type] || "";
   row.appendChild(ta);
 
   var micBtn = document.createElement("button");
   micBtn.innerHTML = MIC_ICON;
   micBtn.title = "Dictate";
-  micBtn.style.cssText = "padding:6px 10px;font-size:14px;background:transparent;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text);flex-shrink:0";
+  micBtn.style.cssText = "padding:6px 10px;font-size:14px;background:transparent;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--muted);flex-shrink:0";
   var recState = { recording: false, recognizer: null };
   micBtn.onclick = function() { _availToggleMic(ta, micBtn, recState); };
   row.appendChild(micBtn);
