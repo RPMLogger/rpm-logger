@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=452">
+  <link rel="stylesheet" href="css/styles.css?v=453">
 </head>
 <body>
 <div class="container">
@@ -34,7 +34,8 @@
 
   <!-- TABS — built tabs in a flat grid, alphabetical by label. Unbuilt tabs live
        in the "Coming Soon" dropdown (last cell); move a button out when its tab is built.
-       Trip tabs live in the "Vacation" dropdown. A .nav-drop can hold any group of tabs.
+       Trip tabs live in "Vacation"; pre-student tabs (Inquiries, Initiate, Trial) in "Intake".
+       A .nav-drop can hold any group of tabs.
        switchTab selects by data-tab, so button order is free to change. -->
   <div class="tabs">
     <button class="tab-btn" data-tab="ctrl" onclick="switchTab('ctrl')">Audit</button>
@@ -44,11 +45,17 @@
     <button class="tab-btn" data-tab="dropbox" onclick="switchTab('dropbox')">Dropbox</button>
     <button class="tab-btn" data-tab="financial" onclick="switchTab('financial')">Financial<span class="inq-badge" id="finNavBadge" style="display:none">!</span></button>
     <button class="tab-btn" data-tab="fixedcal" onclick="switchTab('fixedcal')">Fixed Calendar</button>
-    <button class="tab-btn" data-tab="general" onclick="switchTab('general')">General</button>
     <button class="tab-btn" data-tab="holidays" onclick="switchTab('holidays')">Holidays Alerts</button>
     <button class="tab-btn active" data-tab="student" onclick="switchTab('student')">Home</button>
-    <button class="tab-btn" data-tab="initiate" onclick="switchTab('initiate')">Initiate<span class="inq-badge" id="initNavBadge" style="display:none"></span></button>
-    <button class="tab-btn" data-tab="inquiries" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
+    <div class="nav-drop">
+      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Intake ▾</button>
+      <div class="nav-menu">
+        <button class="tab-btn nav-item" data-tab="inquiries" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
+        <button class="tab-btn nav-item" data-tab="initiate" onclick="switchTab('initiate')">Initiate<span class="inq-badge" id="initNavBadge" style="display:none"></span></button>
+        <button class="tab-btn nav-item" data-tab="trial" onclick="switchTab('trial')">Trial</button>
+      </div>
+    </div>
+    <button class="tab-btn" data-tab="general" onclick="switchTab('general')">Load</button>
     <button class="tab-btn" data-tab="mailcenter" onclick="switchTab('mailcenter')">Mail Center<span class="inq-badge" id="gbNavBadge" style="display:none"></span></button>
     <button class="tab-btn" data-tab="newsched" onclick="switchTab('newsched')">New Students</button>
     <button class="tab-btn" data-tab="notes" onclick="switchTab('notes')">Notes</button>
@@ -60,7 +67,6 @@
     <button class="tab-btn" data-tab="ending" onclick="switchTab('ending')">Terminate</button>
     <button class="tab-btn" data-tab="thisyear" onclick="switchTab('thisyear')">This Year</button>
     <button class="tab-btn" data-tab="todo" onclick="switchTab('todo')">To-Do</button>
-    <button class="tab-btn" data-tab="trial" onclick="switchTab('trial')">Trial</button>
     <div class="nav-drop">
       <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Vacation ▾</button>
       <div class="nav-menu">
@@ -178,7 +184,7 @@
     <div class="week-tab-grid" id="weekTabGrid"><div class="empty-state">Loading...</div></div>
   </div>
 
-  <!-- GENERAL -->
+  <!-- LOAD (tab id is still "general") -->
   <div class="tab-panel" id="tab-general">
     <div class="section-label">Student Load</div>
     <div class="load-table" id="loadTable">
@@ -190,20 +196,10 @@
       <div class="load-row income"><div class="load-label">Total Income</div><div class="load-value" id="loadIncome">—</div></div>
       <div class="load-row income"><div class="load-label">Gregorian Income</div><div class="load-value" id="loadGregorian">—</div></div>
     </div>
-    <div class="section-label" style="margin-top:20px">Student List</div>
-    <div class="load-table" id="studentListTable" style="display:none">
-      <div class="load-row" style="background:var(--surface2)">
-        <div class="load-label" style="flex:1">Name</div>
-        <div class="load-label" style="width:60px;text-align:center">Ave.</div>
-        <div class="load-label" style="width:60px;text-align:right">Rate</div>
-      </div>
-      <div id="studentListRows"></div>
-      <div class="load-row" style="background:var(--surface2)">
-        <div class="load-label" style="flex:1;color:var(--text)">TOTAL</div>
-        <div class="load-value" id="listNormTotal" style="width:60px;text-align:center;font-size:13px;color:var(--accent2)">—</div>
-        <div style="width:60px"></div>
-      </div>
-    </div>
+    <!-- Student List table removed 2026-09-16. Empty placeholder only because an older
+         cached core/api.js still sets this element's style in loadData(); safe to delete
+         once that cache has turned over. -->
+    <div id="studentListTable" style="display:none"></div>
     <div class="log-feed" id="generalFeed"></div>
 
     <div class="section-label" style="margin-top:20px">Estimate</div>
@@ -718,7 +714,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">452</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">453</span></span>
     <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
 
@@ -745,34 +741,34 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=452"></script>
-<script src="tabs/lessons.js?v=452"></script>
-<script src="tabs/payments.js?v=452"></script>
-<script src="tabs/week.js?v=452"></script>
-<script src="tabs/general.js?v=452"></script>
-<script src="tabs/financial.js?v=452"></script>
-<script src="tabs/inquiries.js?v=452"></script>
-<script src="tabs/comms.js?v=452"></script>
-<script src="tabs/notes.js?v=452"></script>
-<script src="tabs/todo.js?v=452"></script>
-<script src="tabs/availability.js?v=452"></script>
-<script src="tabs/biweekly.js?v=452"></script>
-<script src="tabs/travel.js?v=452"></script>
-<script src="tabs/tripsummary.js?v=452"></script>
-<script src="tabs/triphistory.js?v=452"></script>
-<script src="tabs/skips.js?v=452"></script>
-<script src="tabs/student.js?v=452"></script>
-<script src="tabs/ctrl.js?v=452"></script>
-<script src="tabs/mailcenter.js?v=452"></script>
-<script src="tabs/dropbox.js?v=452"></script>
-<script src="tabs/trial.js?v=452"></script>
-<script src="tabs/rates.js?v=452"></script>
-<script src="tabs/ending.js?v=452"></script>
-<script src="tabs/thisyear.js?v=452"></script>
-<script src="tabs/sheets.js?v=452"></script>
-<script src="tabs/studentline.js?v=452"></script>
-<script src="tabs/calendar.js?v=452"></script>
-<script src="tabs/fixedcal.js?v=452"></script>
+<script src="tabs/icons.js?v=453"></script>
+<script src="tabs/lessons.js?v=453"></script>
+<script src="tabs/payments.js?v=453"></script>
+<script src="tabs/week.js?v=453"></script>
+<script src="tabs/general.js?v=453"></script>
+<script src="tabs/financial.js?v=453"></script>
+<script src="tabs/inquiries.js?v=453"></script>
+<script src="tabs/comms.js?v=453"></script>
+<script src="tabs/notes.js?v=453"></script>
+<script src="tabs/todo.js?v=453"></script>
+<script src="tabs/availability.js?v=453"></script>
+<script src="tabs/biweekly.js?v=453"></script>
+<script src="tabs/travel.js?v=453"></script>
+<script src="tabs/tripsummary.js?v=453"></script>
+<script src="tabs/triphistory.js?v=453"></script>
+<script src="tabs/skips.js?v=453"></script>
+<script src="tabs/student.js?v=453"></script>
+<script src="tabs/ctrl.js?v=453"></script>
+<script src="tabs/mailcenter.js?v=453"></script>
+<script src="tabs/dropbox.js?v=453"></script>
+<script src="tabs/trial.js?v=453"></script>
+<script src="tabs/rates.js?v=453"></script>
+<script src="tabs/ending.js?v=453"></script>
+<script src="tabs/thisyear.js?v=453"></script>
+<script src="tabs/sheets.js?v=453"></script>
+<script src="tabs/studentline.js?v=453"></script>
+<script src="tabs/calendar.js?v=453"></script>
+<script src="tabs/fixedcal.js?v=453"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -803,6 +799,20 @@
       if (!m.contains(e.target)) m.classList.remove("open");
     });
   });
+  // A dropdown's toggle gets a red dot while any tab inside shows a badge. Badges
+  // are shown/hidden by each tab's own code, so watch the menus for changes.
+  function refreshNavDots() {
+    document.querySelectorAll(".nav-drop").forEach(function(d) {
+      var on = Array.prototype.some.call(d.querySelectorAll(".nav-menu .inq-badge"), function(b) {
+        return b.style.display !== "none" && b.textContent.trim() !== "";
+      });
+      d.querySelector(".nav-toggle").classList.toggle("has-new", on);
+    });
+  }
+  document.querySelectorAll(".nav-menu").forEach(function(m) {
+    new MutationObserver(refreshNavDots).observe(m, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["style"] });
+  });
+  refreshNavDots();
 
   function switchTab(tab) {
     if (isRecording) stopRecording();

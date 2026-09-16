@@ -115,6 +115,11 @@ body::before {
   box-shadow: 0 8px 24px rgba(0,0,0,.45);
 }
 .nav-menu.open { display: flex; }
+.nav-toggle.has-new::after {
+  content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 5px;
+  border-radius: 50%; background: var(--accent); vertical-align: middle;
+}
+.nav-toggle.active.has-new::after { background: var(--text); }
 .nav-menu .nav-item { text-align: left; padding: 9px 10px; }
 .nav-menu .nav-item:hover { color: var(--text); background: var(--surface2); }
 .tab-panel { display: none; }
@@ -360,6 +365,7 @@ body::before {
 .comms-open-count { font-weight: 500; }
 
 /* ─── INQUIRIES ───────────────────────────────────────────────────────────── */
+.inq-new { margin-left: 8px; padding: 1px 6px; border-radius: 8px; background: var(--accent); color: #fff; font-size: 9px; letter-spacing: .5px; text-transform: uppercase; }
 .inq-badge { display: inline-block; background: var(--accent); color: white; font-size: 9px; border-radius: 10px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
 .inq-card  { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; position: relative; }
 .inq-card.unread { border-left: 3px solid var(--accent); }

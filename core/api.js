@@ -8,7 +8,6 @@ function loadData() {
   ["loadTotal","loadNorm","loadWeekly","loadBiweekly","loadIncome","loadGregorian"].forEach(function(id){
     document.getElementById(id).textContent = "—";
   });
-  document.getElementById("studentListTable").style.display = "none";
   fetchWeekStudents(url);
   fetchAllStudents(url);
   fetchStudentLoad(url);
@@ -79,7 +78,6 @@ function fetchStudentLoad(url) {
         document.getElementById("loadBiweekly").textContent  = data.biweeklyCount;
         document.getElementById("loadIncome").textContent    = "$" + data.totalIncome.toLocaleString();
         document.getElementById("loadGregorian").textContent = "$" + data.gregorian.toLocaleString();
-        renderStudentList(data);
       }
     }).catch(function() {});
 }

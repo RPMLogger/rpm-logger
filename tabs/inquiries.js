@@ -13,6 +13,19 @@
 
 var _inqIdealKey = 'rpmIdealLoad';
 
+// ── "Seen" tracking for the tab badge ────────────────────────────────────────
+// Stored per browser. Dates from the sheet are day-only, so an inquiry is
+// identified by email + name + date rather than by time of arrival.
+var _inqSeenStore = 'rpmInqSeen';
+var _inqNewThisVisit = {};
+function _inqSeenKey(i) { return [(i.email || "").toLowerCase(), i.name || "", i.date || ""].join("|"); }
+function _inqSeenLoad() {
+  try { var v = localStorage.getItem(_inqSeenStore); return v ? JSON.parse(v) : null; } catch (e) { return null; }
+}
+function _inqSeenSave(obj) {
+  try { localStorage.setItem(_inqSeenStore, JSON.stringify(obj)); } catch (e) {}
+}
+
 function inqEsc(s) {
   return (s == null ? "" : String(s))
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
@@ -202,10 +215,24 @@ function renderInquiries(inquiries) {
 
   active.sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
 
-  var unreadCount = active.filter(function (i) { return (i.status || "unread") === "unread"; }).length;
+  // Badge = inquiries you have not SEEN yet (arrived since you last had this tab
+  // open), not "unread". Opening the tab marks everything shown as seen; the ones
+  // that were new keep a "New" tag for that visit.
+  var seen = _inqSeenLoad();
+  var firstRun = !seen;
+  seen = seen || {};
+  var newKeys = {};
+  active.forEach(function (i) { if (!firstRun && !seen[_inqSeenKey(i)]) newKeys[_inqSeenKey(i)] = true; });
+  var tabOpen = document.getElementById("tab-inquiries").classList.contains("active");
+  if (firstRun || tabOpen) {
+    active.forEach(function (i) { seen[_inqSeenKey(i)] = true; });
+    _inqSeenSave(seen);
+    if (tabOpen) Object.keys(newKeys).forEach(function (k) { _inqNewThisVisit[k] = true; });
+  }
+  var newCount = (firstRun || tabOpen) ? 0 : Object.keys(newKeys).length;
   var badge = document.getElementById("inqBadge");
   if (badge) {
-    if (unreadCount > 0) { badge.textContent = unreadCount; badge.style.display = "inline-block"; }
+    if (newCount > 0) { badge.textContent = newCount; badge.style.display = "inline-block"; }
     else { badge.style.display = "none"; }
   }
 
@@ -234,6 +261,7 @@ function renderInquiries(inquiries) {
     card.innerHTML =
       "<div class='inq-drow'>" +
         "<span class='inq-chan'>" + inqEsc(chan) + "</span>" +
+        (_inqNewThisVisit[_inqSeenKey(inq)] ? "<span class='inq-new'>New</span>" : "") +
       "</div>" +
       "<div class='inq-name-line'>" +
         "<span class='inq-name'>" + inqEsc(inq.name || "—") + "</span>" +
@@ -417,12 +445,7 @@ function _inqSendDecision(decision, inq, tpl) {
 
 function _inqRemoveCard(domId) {
   var card = document.getElementById("inq-" + domId);
-  var wasUnread = card && card.classList.contains("unread");
   if (card) card.remove();
-  if (wasUnread) {
-    var badge = document.getElementById("inqBadge");
-    if (badge) { var n = parseInt(badge.textContent) - 1; if (n > 0) badge.textContent = n; else badge.style.display = "none"; }
-  }
   // Refresh the strip so counts/income reflect any change (Yes → future student).
   loadBusinessStrip();
 }
@@ -471,8 +494,6 @@ function markInquiryRead(domId) {
   if (card && card.classList.contains("unread")) {
     card.classList.remove("unread");
     card.classList.add("read");
-    var badge = document.getElementById("inqBadge");
-    if (badge) { var n = parseInt(badge.textContent) - 1; if (n > 0) badge.textContent = n; else badge.style.display = "none"; }
   }
 }
 
