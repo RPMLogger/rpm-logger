@@ -253,7 +253,7 @@ function openIncomingNotePanel(payment, cardEl) {
   panel.innerHTML =
     "<div class='inp-row'>" +
       "<textarea class='inp-textarea' placeholder='Note (optional)...' rows='2'></textarea>" +
-      "<button class='inp-mic' title='Dictate note'>🎤</button>" +
+      "<button class='inp-mic' title='Dictate note'>" + MIC_ICON + "</button>" +
     "</div>" +
     "<div class='inp-actions'>" +
       "<button class='inp-log btn-log'>Log →</button>" +
@@ -268,7 +268,7 @@ function openIncomingNotePanel(payment, cardEl) {
   micBtn.addEventListener("click", function() {
     if (incomingRecording) {
       stopIncomingMic();
-      micBtn.textContent = "🎤";
+      micBtn.innerHTML = MIC_ICON;
       micBtn.classList.remove("recording");
     } else {
       startIncomingMic(textarea, micBtn);
@@ -304,7 +304,7 @@ function startIncomingMic(textarea, micBtn) {
 
   incomingRecognition.onstart = function() {
     incomingRecording = true;
-    micBtn.textContent = "⏹";
+    micBtn.innerHTML = MIC_STOP_ICON;
     micBtn.classList.add("recording");
   };
 
@@ -320,14 +320,14 @@ function startIncomingMic(textarea, micBtn) {
   incomingRecognition.onend = function() {
     if (incomingRecognition._suppressed) return;
     incomingRecording = false;
-    micBtn.textContent = "🎤";
+    micBtn.innerHTML = MIC_ICON;
     micBtn.classList.remove("recording");
   };
 
   incomingRecognition.onerror = function(e) {
     if (e.error === "no-speech") return;
     incomingRecording = false;
-    micBtn.textContent = "🎤";
+    micBtn.innerHTML = MIC_ICON;
     micBtn.classList.remove("recording");
   };
 

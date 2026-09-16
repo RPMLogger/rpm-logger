@@ -1139,7 +1139,7 @@ function _tlLogHtml(a, s) {
       'padding:10px 12px;color:rgba(255,255,255,.62);font-family:\'DM Mono\',monospace;font-size:13px;line-height:1.55;resize:vertical">' +
       inqEsc(v) + '</textarea>' +
     '<div style="display:flex;gap:8px;align-items:center;margin-top:8px">' +
-      '<button class="btn-settings-load" id="tlMicBtn" style="margin:0;width:auto;padding-left:18px;padding-right:18px" onclick="_tlMic()">🎙 Mic</button>' +
+      '<button class="btn-settings-load" id="tlMicBtn" style="margin:0;width:auto;padding-left:18px;padding-right:18px" onclick="_tlMic()">' + MIC_ICON + ' Mic</button>' +
       '<button class="btn-settings-load" id="tlLogBtn" style="margin:0;width:auto;padding-left:22px;padding-right:22px;border-color:var(--green);color:var(--green)" onclick="_tlLogWhat()">Log</button>' +
       '<span id="tlMicState" style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)"></span>' +
     '</div>' +
@@ -1184,7 +1184,7 @@ function _tlMic() {
     var t = document.getElementById('tlWhat');
     if (t) t.value = join('');
     var b = document.getElementById('tlMicBtn');
-    if (b) { b.textContent = '🎙 Mic'; b.style.borderColor = ''; b.style.color = ''; }
+    if (b) { b.innerHTML = MIC_ICON + ' Mic'; b.style.borderColor = ''; b.style.color = ''; }
     var st = document.getElementById('tlMicState');
     if (st) { st.textContent = 'review & edit'; st.style.color = 'var(--muted)'; }
     try { playBeep(440, 80, 0.15); } catch (e) {}

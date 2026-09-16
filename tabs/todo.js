@@ -26,7 +26,7 @@ function initTodoTab() {
         _todoRowHtml(1, "Row 2 — tap to continue here") +
         _todoRowHtml(2, "Row 3 — tap to continue here") +
         '<div style="display:flex;gap:8px;margin-top:8px">' +
-          '<button id="todoMic" title="Toggle mic (captures selection if any text is highlighted)" style="padding:6px 12px;font-size:14px;background:transparent;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text)">🎤</button>' +
+          '<button id="todoMic" title="Toggle mic (captures selection if any text is highlighted)" style="padding:6px 12px;font-size:14px;background:transparent;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text)">' + MIC_ICON + '</button>' +
           '<button id="todoLog" style="flex:1;padding:8px;font-size:13px;background:rgba(180,40,40,0.25);color:#ff6b6b;border:1px solid rgba(180,40,40,0.5);border-radius:4px;cursor:pointer;letter-spacing:0.5px">LOG IT →</button>' +
         '</div>' +
       '</div>' +
@@ -154,7 +154,7 @@ function _todoStartRec() {
     _todoIsRec = true;
     document.getElementById("todoStatus").innerHTML = '<span style="color:#ff5050">● RECORDING...</span>';
     var mic = document.getElementById("todoMic");
-    mic.textContent = "⏹";
+    mic.innerHTML = MIC_STOP_ICON;
     mic.style.background = "rgba(255,80,80,0.2)";
     mic.style.borderColor = "rgba(255,80,80,0.5)";
     mic.style.color = "#ff5050";
@@ -202,7 +202,7 @@ function _todoStartRec() {
 function _todoResetMicStyle() {
   var mic = document.getElementById("todoMic");
   if (!mic) return;
-  mic.textContent = "🎤";
+  mic.innerHTML = MIC_ICON;
   mic.style.background = "transparent";
   mic.style.borderColor = "var(--border)";
   mic.style.color = "var(--text)";

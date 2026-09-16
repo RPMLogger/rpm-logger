@@ -318,7 +318,7 @@ body::before {
 /* Availability tab rows (Week-tab look) */
 .avail-card { border-bottom: 1px solid var(--border); }
 .avail-card:last-child { border-bottom: none; }
-.avail-row  { cursor: pointer; border-bottom: none; }
+.avail-row  { cursor: pointer; border-bottom: none; user-select: none; }
 .avail-row:hover { background: var(--surface2); }
 .avail-name { font-family: "DM Mono", monospace; font-size: 12px; color: var(--muted); }
 .avail-row:hover .avail-name { color: var(--text); }
@@ -879,3 +879,6 @@ body::before {
 .ns-dont .ns-card-hdr { color: var(--accent); }
 .ns-dont .ns-li::before { content: "✕  "; color: var(--accent); }
 .ns-update { font-size: 10px; color: var(--muted); text-align: center; padding: 6px 0 14px; line-height: 1.6; }
+
+/* Shared mic icon (MIC_ICON in core/utils.js) */
+.mic-icon { display: inline-block; vertical-align: middle; }

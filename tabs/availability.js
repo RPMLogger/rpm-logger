@@ -1,6 +1,6 @@
 // ─── TABS / AVAILABILITY.JS ─────────────────────────────────────────────────
 // Student Availability tab. List students; click one to expand; edit
-// Availability + Notes via text or mic; each field has its own Log button.
+// Availability via text or mic, saved with the Log button.
 
 var _availStudents = [];
 var _availOpen = null; // currently expanded student row
@@ -76,9 +76,7 @@ function _toggleAvailRow(row, card) {
   panel.style.cssText = "padding:10px 12px;border-top:1px solid var(--border);background:rgba(0,0,0,0.2)";
 
   var availField = _buildAvailField("Availability", "availability", s);
-  var notesField = _buildAvailField("Notes", "notes", s);
   panel.appendChild(availField.wrap);
-  panel.appendChild(notesField.wrap);
 
   var logRow = document.createElement("div");
   logRow.style.cssText = "display:flex;justify-content:flex-end;margin-top:10px";
@@ -86,8 +84,7 @@ function _toggleAvailRow(row, card) {
   logBtn.textContent = "Log";
   logBtn.style.cssText = "padding:6px 18px;font-size:12px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:4px;cursor:pointer";
   logBtn.onclick = function() {
-    _availLogBoth(s.row, availField.ta.value, notesField.ta.value, logBtn,
-      [availField.recState, notesField.recState]);
+    _availLog(s.row, availField.ta.value, logBtn, availField.recState);
   };
   logRow.appendChild(logBtn);
   panel.appendChild(logRow);
@@ -115,7 +112,7 @@ function _buildAvailField(label, type, student) {
   row.appendChild(ta);
 
   var micBtn = document.createElement("button");
-  micBtn.textContent = "🎤";
+  micBtn.innerHTML = MIC_ICON;
   micBtn.title = "Dictate";
   micBtn.style.cssText = "padding:6px 10px;font-size:14px;background:transparent;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text);flex-shrink:0";
   var recState = { recording: false, recognizer: null };
@@ -130,7 +127,7 @@ function _availToggleMic(textarea, btn, state) {
   if (state.recording) {
     if (state.recognizer) { state.recognizer._suppressed = true; state.recognizer.stop(); }
     state.recording = false;
-    btn.textContent = "🎤"; btn.style.background = "transparent";
+    btn.innerHTML = MIC_ICON; btn.style.background = "transparent";
     return;
   }
   if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
@@ -144,7 +141,7 @@ function _availToggleMic(textarea, btn, state) {
   rec._suppressed = false;
   rec.onstart = function() {
     state.recording = true;
-    btn.textContent = "⏹"; btn.style.background = "rgba(255,80,80,0.2)";
+    btn.innerHTML = MIC_STOP_ICON; btn.style.background = "rgba(255,80,80,0.2)";
   };
   rec.onresult = function(ev) {
     var interim = "";
@@ -157,24 +154,23 @@ function _availToggleMic(textarea, btn, state) {
   rec.onend = function() {
     if (rec._suppressed) return;
     state.recording = false;
-    btn.textContent = "🎤"; btn.style.background = "transparent";
+    btn.innerHTML = MIC_ICON; btn.style.background = "transparent";
   };
   rec.onerror = function(e) {
     if (e.error === "no-speech") return;
     state.recording = false;
-    btn.textContent = "🎤"; btn.style.background = "transparent";
+    btn.innerHTML = MIC_ICON; btn.style.background = "transparent";
   };
   state.recognizer = rec;
   rec.start();
 }
 
-function _availLogBoth(row, availability, notes, btn, recStates) {
-  // Stop any active mic recordings on this card
-  (recStates || []).forEach(function(s) {
-    if (s && s.recognizer && s.recording) {
-      s.recognizer._suppressed = true; s.recognizer.stop(); s.recording = false;
-    }
-  });
+// Saves Availability only. The sheet's Notes column (D) is no longer edited from
+// the portal; whatever is already there is left alone.
+function _availLog(row, availability, btn, recState) {
+  if (recState && recState.recognizer && recState.recording) {
+    recState.recognizer._suppressed = true; recState.recognizer.stop(); recState.recording = false;
+  }
   var url = getScriptUrl(); if (!url) return;
   var orig = btn.textContent;
   btn.textContent = "..."; btn.disabled = true;
@@ -185,27 +181,18 @@ function _availLogBoth(row, availability, notes, btn, recStates) {
       addLog("availFeed", "❌ availability save failed: " + (a && a.message ? a.message : "?"), "error");
       return;
     }
-    callScript(url, "setAvailabilityField", { row: row, type: "notes", value: notes }, function(b) {
-      if (!b || !b.success) {
-        btn.textContent = orig; btn.disabled = false;
-        addLog("availFeed", "❌ notes save failed: " + (b && b.message ? b.message : "?"), "error");
-        return;
+    btn.textContent = "✓ Logged";
+    btn.style.background = "rgba(0,200,100,0.3)";
+    addLog("availFeed", "✓ Saved for row " + row + " (" + (a.dateTaken || "now") + ")", "success");
+    _availStudents.forEach(function(s) {
+      if (s.row === row) {
+        s.availability = availability;
+        s.dateTaken = a.dateTaken || s.dateTaken;
       }
-      btn.textContent = "✓ Logged";
-      btn.style.background = "rgba(0,200,100,0.3)";
-      addLog("availFeed", "✓ Saved for row " + row + " (" + (b.dateTaken || "now") + ")", "success");
-      // Update local cache
-      _availStudents.forEach(function(s) {
-        if (s.row === row) {
-          s.availability = availability;
-          s.notes = notes;
-          s.dateTaken = b.dateTaken || s.dateTaken;
-        }
-      });
-      setTimeout(function() {
-        _availOpen = null;
-        _renderAvailabilityList();
-      }, 700);
     });
+    setTimeout(function() {
+      _availOpen = null;
+      _renderAvailabilityList();
+    }, 700);
   });
 }
