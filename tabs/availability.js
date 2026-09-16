@@ -120,7 +120,7 @@ function _buildAvailField(label, type, student) {
 
   var ta = document.createElement("textarea");
   ta.rows = 3;
-  ta.style.cssText = "flex:1;padding:6px 8px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:12px;font-family:inherit;resize:vertical";
+  ta.style.cssText = "flex:1;padding:6px 8px;background:var(--bg);color:#b5b5b5;border:1px solid var(--border);border-radius:4px;font-size:12px;font-family:inherit;resize:vertical";
   ta.value = student[type] || "";
   row.appendChild(ta);
 
