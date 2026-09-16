@@ -425,7 +425,7 @@ function loadIncomingPayments() {
           openIncomingNotePanel(p, card);
         });
         card.querySelector(".incoming-dismiss").addEventListener("click", function() {
-          dismissIncoming(card, p.id);
+          dismissIncoming(card, p);
         });
 
         container.appendChild(card);
@@ -436,14 +436,25 @@ function loadIncomingPayments() {
 }
 
 
-function dismissIncoming(cardEl, threadId) {
+// Takes the whole payment, not just the thread id, so the Dismissed tab records a
+// readable row (date, name, method, amount) instead of an opaque Gmail id. Also
+// leaves a line in the feed, so a mis-tapped dismiss is visible instead of silent.
+function dismissIncoming(cardEl, payment) {
   var url = getScriptUrl();
 
   if (cardEl) cardEl.remove();
   checkEmptyIncoming();
 
-  if (url && threadId) {
-    callScript(url, "logDismissed", { threadId: threadId }, function() {});
+  if (url && payment && payment.id) {
+    callScript(url, "logDismissed", {
+      threadId: payment.id,
+      date:     payment.date   || "",
+      name:     payment.name   || "",
+      method:   payment.method || "",
+      amount:   payment.amount || ""
+    }, function() {});
+    addLog("paymentFeed", "\u2715 Dismissed \u00b7 " + shortDate(payment.date) + " \u00b7 " +
+      payment.name + " \u00b7 " + payment.amount + " (recorded in Dismissed tab)", "info");
   }
 }
 
