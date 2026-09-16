@@ -315,6 +315,13 @@ body::before {
 .load-row.highlight .load-label { color: var(--accent2); }
 .load-row.highlight .load-value { color: var(--accent2); font-size: 13px; }
 .load-row.income .load-value    { color: var(--green); }
+/* Availability tab rows (Week-tab look) */
+.avail-card { border-bottom: 1px solid var(--border); }
+.avail-card:last-child { border-bottom: none; }
+.avail-row  { cursor: pointer; border-bottom: none; }
+.avail-row:hover { background: var(--surface2); }
+.avail-name { font-family: "DM Mono", monospace; font-size: 12px; color: var(--muted); }
+.avail-row:hover .avail-name { color: var(--text); }
 .summary-box {
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;

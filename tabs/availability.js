@@ -27,22 +27,29 @@ function initAvailabilityTab() {
     });
 }
 
+// Same look as the Week tab: one .load-table panel, a highlighted header row, then
+// one thin row per student. Clicking a row opens its edit panel underneath.
 function _renderAvailabilityList() {
   var section = document.getElementById("availabilityList");
   section.innerHTML = "";
+  section.classList.remove("load-table");
   if (!_availStudents.length) {
     section.innerHTML = '<div class="empty-state">No students found</div>';
     return;
   }
+  section.classList.add("load-table");
+  section.innerHTML =
+    '<div class="load-row highlight"><div class="load-label">STUDENT AVAILABILITY</div>' +
+    '<div class="load-label">UPDATED ON</div></div>';
   _availStudents.forEach(function(s) {
     var card = document.createElement("div");
-    card.style.cssText = "border:1px solid var(--border);border-radius:6px;margin-bottom:6px;background:var(--panel);overflow:hidden";
+    card.className = "avail-card";
 
     var header = document.createElement("div");
-    header.style.cssText = "padding:10px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center";
+    header.className = "load-row avail-row";
     header.innerHTML =
-      "<span style=\"font-weight:600;font-size:13px\">" + s.name + "</span>" +
-      "<span style=\"font-size:10px;color:var(--muted)\">" + (s.dateTaken ? "Updated " + s.dateTaken : "Never updated") + "</span>";
+      '<div class="avail-name">' + s.name + '</div>' +
+      '<div class="load-label">' + (s.dateTaken || "Never") + '</div>';
     header.onclick = function() { _toggleAvailRow(s.row, card); };
     card.appendChild(header);
 
