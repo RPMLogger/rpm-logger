@@ -73,10 +73,23 @@ function _toggleAvailRow(row, card) {
 
   var panel = document.createElement("div");
   panel.id = "availPanel-" + row;
-  panel.style.cssText = "padding:10px 12px;border-top:1px solid var(--border);background:rgba(0,0,0,0.2)";
+  panel.style.cssText = "position:relative;padding:10px 12px;border-top:1px solid var(--border);background:rgba(0,0,0,0.2)";
 
   var availField = _buildAvailField("Availability", "availability", s);
   panel.appendChild(availField.wrap);
+
+  // ✕ closes the panel without saving (stops the mic if it is on).
+  var closeBtn = document.createElement("button");
+  closeBtn.className = "avail-close";
+  closeBtn.title = "Close without saving";
+  closeBtn.textContent = "✕";
+  closeBtn.onclick = function() {
+    var rs = availField.recState;
+    if (rs.recognizer && rs.recording) { rs.recognizer._suppressed = true; rs.recognizer.stop(); rs.recording = false; }
+    panel.remove();
+    _availOpen = null;
+  };
+  panel.appendChild(closeBtn);
 
   var logRow = document.createElement("div");
   logRow.style.cssText = "display:flex;justify-content:flex-end;margin-top:10px";

@@ -319,9 +319,14 @@ body::before {
 .avail-card { border-bottom: 1px solid var(--border); }
 .avail-card:last-child { border-bottom: none; }
 .avail-row  { cursor: pointer; border-bottom: none; user-select: none; }
-.avail-row:hover { background: var(--surface2); }
+.avail-row:hover { background: rgba(255,255,255,0.025); }
+.avail-card .avail-close {
+  position: absolute; top: 6px; right: 12px; background: none; border: none;
+  color: var(--muted); font-size: 14px; line-height: 1; padding: 2px 4px; cursor: pointer;
+}
+.avail-card .avail-close:hover { color: var(--text); }
 .avail-name { font-family: "DM Mono", monospace; font-size: 12px; color: var(--muted); }
-.avail-row:hover .avail-name { color: var(--text); }
+.avail-row:hover .avail-name { color: #b5b5b5; }
 .summary-box {
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
