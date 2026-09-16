@@ -617,12 +617,12 @@ function _trShowBookArea(scroll) {
 // Prefill the manual booking form from an accepted card + scroll to it.
 function _trBookAccepted(name, email) {
   _trShowBookArea(false);
+  // No Middle box any more: anything between goes in First, e.g. Mary Jane Smith.
   var parts = (name || '').split(' ');
-  var first = parts.shift() || '';
-  var last = parts.pop() || '';
-  var middle = parts.join(' ');
+  var last = parts.length > 1 ? parts.pop() : '';
+  var first = parts.join(' ');
   function set(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; }
-  set('trFirst', first); set('trMiddle', middle); set('trLast', last); set('trEmail', email);
+  set('trFirst', first); set('trLast', last); set('trEmail', email);
   set('trDate', ''); set('trTime', '');
   _trDtShow('tr');
   _trRenderOfferedSlots(email);
@@ -636,24 +636,23 @@ function _trManualFormHtml(p) {
   p = p || 'tr';
   function inp(id, ph, type) {
     return '<input id="' + id + '" type="' + (type || 'text') + '" placeholder="' + ph + '" ' +
-      'style="box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:8px;' +
-      'padding:11px 14px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:14px">';
+      'style="box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,0.1);border-radius:6px;' +
+      'padding:6px 10px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:11px">';
   }
   return '<div class="section-label" style="margin-bottom:10px">Book a trial</div>' +
     '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">' +
       '<div style="display:flex;gap:8px">' +
         '<span style="flex:1">' + inp(p + 'First', 'First') + '</span>' +
-        '<span style="flex:1">' + inp(p + 'Middle', 'Middle (optional)') + '</span>' +
         '<span style="flex:1">' + inp(p + 'Last', 'Last') + '</span>' +
       '</div>' +
-      inp(p + 'Email', 'student email (goes in calendar Guests)', 'email') +
-      inp(p + 'Phone', 'phone (for reminder texts)', 'tel') +
+      inp(p + 'Email', 'Email', 'email') +
+      inp(p + 'Phone', 'Phone', 'tel') +
       '<div id="' + p + 'OfferedSlots"></div>' +
       _trDtHtml(p) +
     '</div>' +
-    '<button id="' + p + 'BookBtn" onclick="_trBook(\'' + p + '\')" ' +
-      'style="width:100%;box-sizing:border-box;background:var(--accent);color:#fff;border:none;border-radius:10px;' +
-      'padding:13px;font-family:\'Syne\',sans-serif;font-size:15px;font-weight:700;cursor:pointer">＋ Book trial</button>';
+    '<button class="db-mini-btn" id="' + p + 'BookBtn" onclick="_trBook(\'' + p + '\')" ' +
+      'style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:5px 10px;color:#ff5a4d;' +
+      'background:' + _skFade('#ff5a4d') + ';border-color:rgba(255,255,255,0.1)">＋ Book trial</button>';
 }
 
 function _trBook(p) {
@@ -717,19 +716,19 @@ function _trDtHtml(p) {
   var def = _trDtDefault();
   var btn = function (fn, n, txt) {
     return '<button type="button" onclick="' + fn + '(\'' + p + '\',' + n + ')" ' +
-      'style="background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);' +
-      'min-width:38px;padding:9px 0;font-size:13px;cursor:pointer">' + txt + '</button>';
+      'style="background:var(--bg);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:var(--text);' +
+      'min-width:28px;padding:5px 0;font-size:10px;cursor:pointer">' + txt + '</button>';
   };
-  var lbl = 'style="font-family:\'DM Mono\',monospace;font-size:15px;color:var(--text);text-align:center"';
+  var lbl = 'style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;color:rgba(255,255,255,0.82);text-align:center"';
   return '<input type="hidden" id="' + p + 'Date" value="' + def.date + '">' +
     '<input type="hidden" id="' + p + 'Time" value="' + def.time + '">' +
     '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
       btn('_trDtStepDate', -1, '\u25c0') +
-      '<span id="' + p + 'DateLbl" ' + lbl.replace('text-align:center', 'text-align:center;min-width:130px') + '>' + _trDtDateLabel(def.date) + '</span>' +
+      '<span id="' + p + 'DateLbl" ' + lbl.replace('text-align:center', 'text-align:center;min-width:110px') + '>' + _trDtDateLabel(def.date) + '</span>' +
       btn('_trDtStepDate', 1, '\u25b6') +
       '<span style="width:18px"></span>' +
       btn('_trDtStepTime', 15, '\u25b2') +
-      '<span id="' + p + 'TimeLbl" ' + lbl.replace('text-align:center', 'text-align:center;min-width:90px') + '>' + _trDtTimeLabel(def.time) + '</span>' +
+      '<span id="' + p + 'TimeLbl" ' + lbl.replace('text-align:center', 'text-align:center;min-width:76px') + '>' + _trDtTimeLabel(def.time) + '</span>' +
       btn('_trDtStepTime', -15, '\u25bc') +
     '</div>';
 }
@@ -944,7 +943,7 @@ function _trStepsHtml(a) {
         var done = st[x.key];
         var wait = x.key === 'terms' && !done && st.termsSent;
         var c = x.lesson ? '#4a9eff' : '#ff7a3c';
-        return '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:' + c + ';background:' + _skFade(c) + ';border-color:rgba(255,255,255,0.2)' +
+        return '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:7px;padding:3px 8px;color:' + c + ';background:' + _skFade(c) + ';border-color:rgba(255,255,255,0.1)' +
                    (x.noWindow ? ';cursor:default' : '') + '" ' +
                  (wait ? 'title="Terms sent, waiting for the form to come back" ' : '') +
                  (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
@@ -964,16 +963,16 @@ function _trActionsHtml(a) {
   var id = emailToId(a.email || '');
   var em = _trEsc(a.email || '');
   var st = _trStepState(a);
-  var small = _TR_CAPS + ';font-size:9px;padding:3px 8px;border-color:rgba(255,255,255,0.2)';
+  var small = _TR_CAPS + ';font-size:9px;padding:3px 8px;border-color:rgba(255,255,255,0.1)';
   var yellow = 'min-width:120px;' + small + ';color:#f0a500;background:' + _skFade('#f0a500');
   // Always clickable: _msOpen shows what's still missing if the steps aren't done.
-  var make = '<button class="db-mini-btn" style="' + yellow + '" onclick="_msOpen(\'' + em + '\')">Confirm as student</button>';
+  var make = '<button class="db-mini-btn" style="' + yellow + '" onclick="_msOpen(\'' + em + '\')">＋ Confirm as student</button>';
   return '<div id="tracts-' + id + '" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
         make +
         '<span style="flex:1"></span>' +
         '<button class="db-mini-btn" id="trnobtn-' + id + '" style="' + small + ';color:var(--muted);background:rgba(255,255,255,0.05)" ' +
-          'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">Dismiss</button>' +
+          'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">7. Dismiss</button>' +
       '</div>' +
     '</div>';
 }
@@ -1373,19 +1372,19 @@ function _tlPayHtml(a, s) {
 function _tlTermsHtml(a, s) {
   var rec = _tl.rec || {};
   var sent = !!s.termsSent, back = !!s.termsBack;
-  return '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">' +
-      '<button class="btn-settings-load" id="tlSendBtn" style="margin:0;width:auto;flex:none;padding-left:18px;padding-right:18px;border-color:var(--green);color:var(--green)" onclick="_tlSend()">' +
-        (sent ? 'Send again' : 'Send terms') + '</button>' +
-      '<button class="btn-settings-load" id="tlPrevBtn" style="margin:0;width:auto;flex:none;padding-left:16px;padding-right:16px" onclick="_tlPreview()">Preview email</button>' +
-    '</div>' +
+  // The form is only ever sent once: after that the Send button stays off.
+  return '<button class="btn-settings-load" id="tlSendBtn" style="margin:0;width:auto;padding-left:18px;padding-right:18px;' +
+        (sent ? 'opacity:.5;cursor:default" disabled' : 'border-color:var(--green);color:var(--green)" onclick="_tlSend()"') + '>' +
+        (sent ? 'Sent' : 'Send') + '</button>' +
     '<div style="margin-top:14px;font-family:\'DM Mono\',monospace;font-size:12px;line-height:1.9">' +
       '<div style="color:' + (sent ? 'var(--green)' : 'var(--muted)') + '">' +
-        (sent ? '✓ Sent ' + inqEsc(rec.sentDate || s.sentDate || '') : '· Not sent yet') + '</div>' +
+        (sent ? '✓ Sent date: ' + inqEsc(rec.sentDate || s.sentDate || '') : '· Sent date: not sent yet') + '</div>' +
       '<div style="color:' + (back ? 'var(--green)' : (sent ? 'var(--accent2)' : 'var(--muted)')) + '">' +
-        (back ? '✓ Form back ' + inqEsc(rec.returnDate || s.returnDate || '')
-              : '· Form not back yet (ticks itself when the Trial tab loads)') + '</div>' +
+        (back ? '✓ Back date: ' + inqEsc(rec.returnDate || s.returnDate || '')
+              : '· Back date: not back yet (ticks itself when the Trial tab loads)') + '</div>' +
     '</div>' +
     _tlMsg('tlTermsMsg') +
+    '<button class="btn-settings-load" id="tlPrevBtn" style="margin:14px 0 0;width:auto;padding-left:16px;padding-right:16px" onclick="_tlPreview()">Preview email</button>' +
     '<div id="tlPreview"></div>';
 }
 
@@ -1580,11 +1579,12 @@ function _tlSend() {
       if (!_tl) return;
       _tl.busy = false; btn.disabled = false;
       if (!d.success) {
-        btn.textContent = 'Send terms';
+        btn.textContent = 'Send';
         _tlSetMsg('tlTermsMsg', '\u26a0 ' + (d.message || 'Not sent'), 'var(--accent)');
         return;
       }
-      btn.textContent = 'Send again';
+      btn.textContent = 'Sent'; btn.disabled = true; btn.onclick = null;
+      btn.style.opacity = '.5'; btn.style.cursor = 'default'; btn.style.borderColor = ''; btn.style.color = '';
       _tl.rec = _tl.rec || {}; _tl.rec.termsSent = 'TRUE'; _tl.rec.sentDate = d.sentDate;
       _tlMark({ termsSent: true, sentDate: d.sentDate });
       _tlSetMsg('tlTermsMsg', 'Sent to ' + (a.email || '') + ' \u00b7 ' + d.sentDate +
@@ -1592,7 +1592,7 @@ function _tlSend() {
     })
     .catch(function () {
       if (!_tl) return;
-      _tl.busy = false; btn.disabled = false; btn.textContent = 'Send terms';
+      _tl.busy = false; btn.disabled = false; btn.textContent = 'Send';
       _tlSetMsg('tlTermsMsg', '\u274c No answer. Check Sent mail before sending again.', 'var(--accent)');
     });
 }
@@ -1841,7 +1841,7 @@ function _trPayCard(p) {
   // itself a second later. Say nothing instead.
   var hit  = _trStageLoaded ? _trPayMatch(p.name) : null;
   var note = p.trial
-    ? '<div class="incoming-nomatch" style="color:var(--green)">\u2192 ' + inqEsc(p.trial.name) + ' \u00b7 trial paid \u2713</div>'
+    ? ''
     : !_trStageLoaded ? ''
     : hit
       ? '<div class="incoming-nomatch" style="color:var(--green)">→ ' + inqEsc(hit.name) + '</div>'
@@ -1852,7 +1852,7 @@ function _trPayCard(p) {
         '<div class="incoming-meta">' +
           '<span class="incoming-method ' + inqEsc((p.method || '').toLowerCase()) + '">' + inqEsc(p.method || '') + '</span>' +
           '<span class="incoming-amount">' + inqEsc(p.amount || '') + '</span>' +
-          '<span class="incoming-date">' + inqEsc(p.date || '') + '</span>' +
+          '<span class="incoming-date">' + inqEsc(String(p.date || '').replace(/,?\s*\d{4}$/, '')) + '</span>' +
         '</div>' +
         note +
       '</div>' +
@@ -1952,9 +1952,14 @@ function _msOpen(email) {
         '<span style="color:var(--muted);font-weight:400"> · Not ready yet</span></span>' +
         '<button class="settings-close" onclick="_msClose()">✕</button></div>' +
       '<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Still missing:</div>' +
-      st.missing.map(function (m) {
-        return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#ff7a3c;padding:4px 0">• ' + inqEsc(m) + '</div>';
-      }).join('') +
+      '<div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px">' +
+      _TR_STEPS.map(function (x, i) {
+        if (x.lesson || st[x.key]) return '';
+        // Opens that step's window straight from here.
+        return '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:#ff7a3c;background:' +
+                 _skFade('#ff7a3c') + ';border-color:rgba(255,255,255,0.1)" ' +
+                 'onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'' + x.key + '\')">' + (i + 1) + '. ' + x.label + '</button>';
+      }).join('') + '</div>' +
       '<div style="text-align:right;margin-top:16px"><button class="db-mini-btn" style="padding:7px 20px" onclick="_msClose()">OK</button></div>';
     return;
   }
