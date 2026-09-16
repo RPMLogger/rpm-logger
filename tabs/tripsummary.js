@@ -31,19 +31,11 @@ function _tsRender(active, past) {
   var section = document.getElementById('tripsummaryBody');
   section.innerHTML = '';
 
-  var bar = document.createElement('div');
-  bar.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:10px';
-  var refreshBtn = document.createElement('button');
-  refreshBtn.textContent = '⟳ Refresh';
-  refreshBtn.style.cssText = 'padding:6px 14px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.5px';
-  refreshBtn.onclick = initTripSummaryTab;
-  bar.appendChild(refreshBtn);
-  section.appendChild(bar);
-
+  // No Refresh button: the tab re-fetches every time it is opened.
   if (!active.length) {
     var empty = document.createElement('div');
     empty.className = 'empty-state';
-    empty.textContent = 'No active trips — plan one in Travel Plan. (Past trips live in Trip History.)';
+    empty.textContent = 'No active trips';
     section.appendChild(empty);
   } else {
     active.forEach(function(trip) { section.appendChild(_tsActiveCard(trip)); });
