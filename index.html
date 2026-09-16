@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=445">
+  <link rel="stylesheet" href="css/styles.css?v=446">
 </head>
 <body>
 <div class="container">
@@ -32,7 +32,8 @@
     </div>
   </div>
 
-  <!-- TABS — flat grid, all visible, alphabetical by label.
+  <!-- TABS — built tabs in a flat grid, alphabetical by label. Unbuilt tabs live
+       in the "Coming Soon" dropdown (last cell); move a button out when its tab is built.
        switchTab selects by data-tab, so button order is free to change. -->
   <div class="tabs">
     <button class="tab-btn" data-tab="tripsummary" onclick="switchTab('tripsummary')">Active Trips</button>
@@ -41,35 +42,42 @@
     <button class="tab-btn" data-tab="biweekly" onclick="switchTab('biweekly')">Biweekly</button>
     <button class="tab-btn" data-tab="calendar" onclick="switchTab('calendar')">Calendar</button>
     <button class="tab-btn" data-tab="dropbox" onclick="switchTab('dropbox')">Dropbox</button>
-    <button class="tab-btn" data-tab="eoy" onclick="switchTab('eoy')">End of Year</button>
     <button class="tab-btn" data-tab="financial" onclick="switchTab('financial')">Financial<span class="inq-badge" id="finNavBadge" style="display:none">!</span></button>
     <button class="tab-btn" data-tab="fixedcal" onclick="switchTab('fixedcal')">Fixed Calendar</button>
     <button class="tab-btn" data-tab="general" onclick="switchTab('general')">General</button>
-    <button class="tab-btn" data-tab="gbusiness" onclick="switchTab('gbusiness')">Google Business</button>
     <button class="tab-btn" data-tab="holidays" onclick="switchTab('holidays')">Holidays Alerts</button>
     <button class="tab-btn active" data-tab="student" onclick="switchTab('student')">Home</button>
-    <button class="tab-btn" data-tab="inquiries" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
     <button class="tab-btn" data-tab="initiate" onclick="switchTab('initiate')">Initiate<span class="inq-badge" id="initNavBadge" style="display:none"></span></button>
+    <button class="tab-btn" data-tab="inquiries" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
     <button class="tab-btn" data-tab="mailcenter" onclick="switchTab('mailcenter')">Mail Center<span class="inq-badge" id="gbNavBadge" style="display:none"></span></button>
+    <button class="tab-btn" data-tab="newsched" onclick="switchTab('newsched')">New Students</button>
     <button class="tab-btn" data-tab="notes" onclick="switchTab('notes')">Notes</button>
     <button class="tab-btn" data-tab="payments" onclick="switchTab('payments')">Payments</button>
     <button class="tab-btn" data-tab="rates" onclick="switchTab('rates')">Rates</button>
-    <button class="tab-btn" data-tab="recs" onclick="switchTab('recs')">Recommendations</button>
-    <button class="tab-btn" data-tab="reviews" onclick="switchTab('reviews')">Reviews</button>
-    <button class="tab-btn" data-tab="newsched" onclick="switchTab('newsched')">New Students</button>
     <button class="tab-btn" data-tab="sheets" onclick="switchTab('sheets')">Sheets</button>
     <button class="tab-btn" data-tab="skips" onclick="switchTab('skips')">Skips</button>
     <button class="tab-btn" data-tab="studentline" onclick="switchTab('studentline')">Student Line<span class="inq-badge" id="slNavBadge" style="display:none"></span></button>
-    <button class="tab-btn" data-tab="tax" onclick="switchTab('tax')">Tax</button>
     <button class="tab-btn" data-tab="ending" onclick="switchTab('ending')">Terminate</button>
     <button class="tab-btn" data-tab="thisyear" onclick="switchTab('thisyear')">This Year</button>
     <button class="tab-btn" data-tab="todo" onclick="switchTab('todo')">To-Do</button>
     <button class="tab-btn" data-tab="travel" onclick="switchTab('travel')">Travel Plan</button>
     <button class="tab-btn" data-tab="trial" onclick="switchTab('trial')">Trial</button>
     <button class="tab-btn" data-tab="triphistory" onclick="switchTab('triphistory')">Trip History</button>
-    <button class="tab-btn" data-tab="video" onclick="switchTab('video')">Video Lesson</button>
     <button class="tab-btn" data-tab="week" onclick="switchTab('week')">Week</button>
-    <button class="tab-btn" data-tab="zoom" onclick="switchTab('zoom')">Zoom</button>
+    <div class="soon-wrap">
+      <button class="tab-btn soon-toggle" id="soonToggle" onclick="toggleSoonMenu(event)">Coming Soon ▾</button>
+      <div class="soon-menu" id="soonMenu">
+        <button class="tab-btn soon-item" data-tab="concert" onclick="switchTab('concert')">Concert</button>
+        <button class="tab-btn soon-item" data-tab="eoy" onclick="switchTab('eoy')">End of Year</button>
+        <button class="tab-btn soon-item" data-tab="gbusiness" onclick="switchTab('gbusiness')">Google Business</button>
+        <button class="tab-btn soon-item" data-tab="lifetime" onclick="switchTab('lifetime')">Lifetime</button>
+        <button class="tab-btn soon-item" data-tab="recs" onclick="switchTab('recs')">Recommendations</button>
+        <button class="tab-btn soon-item" data-tab="reviews" onclick="switchTab('reviews')">Reviews</button>
+        <button class="tab-btn soon-item" data-tab="tax" onclick="switchTab('tax')">Tax</button>
+        <button class="tab-btn soon-item" data-tab="video" onclick="switchTab('video')">Video Lesson</button>
+        <button class="tab-btn soon-item" data-tab="zoom" onclick="switchTab('zoom')">Zoom</button>
+      </div>
+    </div>
   </div>
 
   <!-- STUDENT -->
@@ -540,6 +548,18 @@
     <div class="empty-state">Coming soon</div>
   </div>
 
+  <!-- LIFETIME -->
+  <div class="tab-panel" id="tab-lifetime">
+    <div class="section-label">Lifetime</div>
+    <div class="empty-state">Coming soon</div>
+  </div>
+
+  <!-- CONCERT -->
+  <div class="tab-panel" id="tab-concert">
+    <div class="section-label">Concert</div>
+    <div class="empty-state">Coming soon</div>
+  </div>
+
   <!-- SCHEDULE FOR NEW STUDENTS — static reference. Read this when placing a student feels like too much. -->
   <div class="tab-panel" id="tab-newsched">
     <div class="section-label">Schedule for New Students</div>
@@ -693,7 +713,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">445</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">446</span></span>
     <button class="gear-btn" onclick="openSettings()" title="Settings">⚙</button>
   </div>
 
@@ -720,33 +740,33 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/lessons.js?v=445"></script>
-<script src="tabs/payments.js?v=445"></script>
-<script src="tabs/week.js?v=445"></script>
-<script src="tabs/general.js?v=445"></script>
-<script src="tabs/financial.js?v=445"></script>
-<script src="tabs/inquiries.js?v=445"></script>
-<script src="tabs/comms.js?v=445"></script>
-<script src="tabs/notes.js?v=445"></script>
-<script src="tabs/todo.js?v=445"></script>
-<script src="tabs/availability.js?v=445"></script>
-<script src="tabs/biweekly.js?v=445"></script>
-<script src="tabs/travel.js?v=445"></script>
-<script src="tabs/tripsummary.js?v=445"></script>
-<script src="tabs/triphistory.js?v=445"></script>
-<script src="tabs/skips.js?v=445"></script>
-<script src="tabs/student.js?v=445"></script>
-<script src="tabs/ctrl.js?v=445"></script>
-<script src="tabs/mailcenter.js?v=445"></script>
-<script src="tabs/dropbox.js?v=445"></script>
-<script src="tabs/trial.js?v=445"></script>
-<script src="tabs/rates.js?v=445"></script>
-<script src="tabs/ending.js?v=445"></script>
-<script src="tabs/thisyear.js?v=445"></script>
-<script src="tabs/sheets.js?v=445"></script>
-<script src="tabs/studentline.js?v=445"></script>
-<script src="tabs/calendar.js?v=445"></script>
-<script src="tabs/fixedcal.js?v=445"></script>
+<script src="tabs/lessons.js?v=446"></script>
+<script src="tabs/payments.js?v=446"></script>
+<script src="tabs/week.js?v=446"></script>
+<script src="tabs/general.js?v=446"></script>
+<script src="tabs/financial.js?v=446"></script>
+<script src="tabs/inquiries.js?v=446"></script>
+<script src="tabs/comms.js?v=446"></script>
+<script src="tabs/notes.js?v=446"></script>
+<script src="tabs/todo.js?v=446"></script>
+<script src="tabs/availability.js?v=446"></script>
+<script src="tabs/biweekly.js?v=446"></script>
+<script src="tabs/travel.js?v=446"></script>
+<script src="tabs/tripsummary.js?v=446"></script>
+<script src="tabs/triphistory.js?v=446"></script>
+<script src="tabs/skips.js?v=446"></script>
+<script src="tabs/student.js?v=446"></script>
+<script src="tabs/ctrl.js?v=446"></script>
+<script src="tabs/mailcenter.js?v=446"></script>
+<script src="tabs/dropbox.js?v=446"></script>
+<script src="tabs/trial.js?v=446"></script>
+<script src="tabs/rates.js?v=446"></script>
+<script src="tabs/ending.js?v=446"></script>
+<script src="tabs/thisyear.js?v=446"></script>
+<script src="tabs/sheets.js?v=446"></script>
+<script src="tabs/studentline.js?v=446"></script>
+<script src="tabs/calendar.js?v=446"></script>
+<script src="tabs/fixedcal.js?v=446"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -765,6 +785,15 @@
     if (e.target === document.getElementById("manualEntryModal")) closeManualEntryModal();
   }
 
+  function toggleSoonMenu(e) {
+    e.stopPropagation();
+    document.getElementById("soonMenu").classList.toggle("open");
+  }
+  document.addEventListener("click", function(e) {
+    var m = document.getElementById("soonMenu");
+    if (m && !m.contains(e.target)) m.classList.remove("open");
+  });
+
   function switchTab(tab) {
     if (isRecording) stopRecording();
     if (tab === "financial") { initFinancialTab(); }
@@ -772,12 +801,15 @@
     // tab button is removed. The #tab-lessons panel div still lives in the DOM
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
-    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","rates","reviews","newsched","thisyear","sheets","skips","studentline","calendar","fixedcal"];
+    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","rates","reviews","lifetime","concert","newsched","thisyear","sheets","skips","studentline","calendar","fixedcal"];
     tabs.forEach(function(t) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       var btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
       if (btn) btn.classList.toggle("active", t === tab);
     });
+    // Coming Soon dropdown: close it, and light up its toggle when one of its tabs is open.
+    document.getElementById("soonMenu").classList.remove("open");
+    document.getElementById("soonToggle").classList.toggle("active", !!document.querySelector('#soonMenu .tab-btn[data-tab="' + tab + '"]'));
     if (tab === "student") initStudentTab();
     if (tab === "payments") loadIncomingPayments();
     if (tab === "ctrl") initAuditTab();
