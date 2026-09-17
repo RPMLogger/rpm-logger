@@ -859,7 +859,7 @@ function _trStageCard(a) {
 // ── The checklist ────────────────────────────────────────────────────────────
 // Two lists of step buttons at the top of each card. Each opens its own small
 // window; a done step just gets a check mark. Make student (red, bottom of the
-// card) only works once the six decision steps on the left AND Lesson log are done.
+// card) only works once the six decision steps on the left AND Log lesson are done.
 //   Left, the decision:
 //   Info        Save pressed in the Info window (boxes may stay empty)
 //   Dropbox     folder created + shared with their Dropbox email
@@ -868,7 +868,7 @@ function _trStageCard(a) {
 //   Payment     ticks when the trial payment is found (or Paid on the row); window shows it
 //   Terms       sent, then DONE only when the acknowledgment form is back
 //   Right, the lesson itself:
-//   Lesson log  typed or dictated (REQUIRED for Make student)
+//   Log lesson  typed or dictated (REQUIRED for Make student)
 //   Send HW     drop files into their Dropbox folder (never required)
 // Everything is read from and saved to the Trial Lessons row.
 // Backend: getTrialRecord / saveTrialRecord (RPM_TrialSheet.gs),
@@ -882,7 +882,7 @@ var _TR_INFO = [
 ];
 
 // Left: the path to a decision (all needed for Make student).
-// Right: the lesson itself. Lesson log is required; Send HW never is.
+// Right: the lesson itself. Log lesson is required; Send HW never is.
 var _TR_STEPS = [
   { key: 'info',  label: 'Info' },
   { key: 'dbx',   label: 'Dropbox' },
@@ -890,7 +890,7 @@ var _TR_STEPS = [
   { key: 'time',  label: 'Pick a time' },
   { key: 'pay',   label: 'Payment' },                   // trial payment; the window shows what was found
   { key: 'terms', label: 'Terms' },
-  { key: 'log',   label: 'Lesson log', lesson: true, required: true },
+  { key: 'log',   label: 'Log lesson', lesson: true, required: true },
   { key: 'hw',    label: 'Send HW',    lesson: true }
 ];
 
@@ -1128,7 +1128,7 @@ function _tlDbxHtml(a, s) {
     _tlMsg('tlDbxMsg');
 }
 
-// ── Lesson log ──
+// ── Log lesson ──
 function _tlLogHtml(a, s) {
   var rec = _tl.rec || {};
   var v = rec.whatWeDid || s.whatWeDid || '';
@@ -1210,7 +1210,7 @@ function _tlSaveWhat(force) {
   _tlSaveFields({ whatWeDid: v }, 'tlWhatMsg', function () { ta.setAttribute('data-last', v); });
 }
 
-// Log: save the Lesson log and close. If the mic is still on, stop it first and
+// Log: save the Log lesson and close. If the mic is still on, stop it first and
 // log once the last words are in.
 function _tlLogWhat() {
   var ta = document.getElementById('tlWhat');
