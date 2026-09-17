@@ -859,7 +859,7 @@ function _trStageCard(a) {
 // ── The checklist ────────────────────────────────────────────────────────────
 // Two lists of step buttons at the top of each card. Each opens its own small
 // window; a done step just gets a check mark. Make student (red, bottom of the
-// card) only works once the six decision steps on the left are done.
+// card) only works once the six decision steps on the left AND Lesson log are done.
 //   Left, the decision:
 //   Info        Save pressed in the Info window (boxes may stay empty)
 //   Dropbox     folder created + shared with their Dropbox email
@@ -867,9 +867,9 @@ function _trStageCard(a) {
 //   Pick a time the first regular lesson, date + time, in the future
 //   Payment     ticks when the trial payment is found (or Paid on the row); window shows it
 //   Terms       sent, then DONE only when the acknowledgment form is back
-//   Right, the lesson itself (never required):
-//   Log lesson  What We Did, typed or dictated
-//   Send HW     drop files into their Dropbox folder
+//   Right, the lesson itself:
+//   Lesson log  typed or dictated (REQUIRED for Make student)
+//   Send HW     drop files into their Dropbox folder (never required)
 // Everything is read from and saved to the Trial Lessons row.
 // Backend: getTrialRecord / saveTrialRecord (RPM_TrialSheet.gs),
 // trialDropbox / previewTrialTerms / sendTrialTerms (RPM_TrialLesson.gs).
@@ -882,7 +882,7 @@ var _TR_INFO = [
 ];
 
 // Left: the path to a decision (all needed for Make student).
-// Right: the lesson itself, separate, never required.
+// Right: the lesson itself. Lesson log is required; Send HW never is.
 var _TR_STEPS = [
   { key: 'info',  label: 'Info' },
   { key: 'dbx',   label: 'Dropbox' },
@@ -890,7 +890,7 @@ var _TR_STEPS = [
   { key: 'time',  label: 'Pick a time' },
   { key: 'pay',   label: 'Payment' },                   // trial payment; the window shows what was found
   { key: 'terms', label: 'Terms' },
-  { key: 'log',   label: 'Log lesson', lesson: true },
+  { key: 'log',   label: 'Lesson log', lesson: true, required: true },
   { key: 'hw',    label: 'Send HW',    lesson: true }
 ];
 
@@ -924,7 +924,7 @@ function _trStepState(a) {
     terms: !!s.termsBack,
     termsSent: !!s.termsSent
   };
-  st.missing = _TR_STEPS.filter(function (x) { return !x.lesson && !st[x.key]; }).map(function (x) { return x.label; });
+  st.missing = _TR_STEPS.filter(function (x) { return (!x.lesson || x.required) && !st[x.key]; }).map(function (x) { return x.label; });
   st.ready = !st.missing.length;
   return st;
 }
@@ -1128,7 +1128,7 @@ function _tlDbxHtml(a, s) {
     _tlMsg('tlDbxMsg');
 }
 
-// ── 3 · Log lesson ──
+// ── Lesson log ──
 function _tlLogHtml(a, s) {
   var rec = _tl.rec || {};
   var v = rec.whatWeDid || s.whatWeDid || '';
@@ -1210,7 +1210,7 @@ function _tlSaveWhat(force) {
   _tlSaveFields({ whatWeDid: v }, 'tlWhatMsg', function () { ta.setAttribute('data-last', v); });
 }
 
-// Log: save What We Did and close. If the mic is still on, stop it first and
+// Log: save the Lesson log and close. If the mic is still on, stop it first and
 // log once the last words are in.
 function _tlLogWhat() {
   var ta = document.getElementById('tlWhat');
@@ -1954,11 +1954,12 @@ function _msOpen(email) {
       '<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Still missing:</div>' +
       '<div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px">' +
       _TR_STEPS.map(function (x, i) {
-        if (x.lesson || st[x.key]) return '';
+        if ((x.lesson && !x.required) || st[x.key]) return '';
+        var mc = x.lesson ? '#4a9eff' : '#ff7a3c';
         // Opens that step's window straight from here.
-        return '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:#ff7a3c;background:' +
-                 _skFade('#ff7a3c') + ';border-color:rgba(255,255,255,0.1)" ' +
-                 'onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'' + x.key + '\')">' + (i + 1) + '. ' + x.label + '</button>';
+        return '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:' + mc + ';background:' +
+                 _skFade(mc) + ';border-color:rgba(255,255,255,0.1)" ' +
+                 'onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'' + x.key + '\')">' + (x.lesson ? '' : (i + 1) + '. ') + x.label + '</button>';
       }).join('') + '</div>' +
       '<div style="text-align:right;margin-top:16px"><button class="db-mini-btn" style="padding:7px 20px" onclick="_msClose()">OK</button></div>';
     return;
