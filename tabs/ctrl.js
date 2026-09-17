@@ -68,12 +68,22 @@ function _runAudit3(url) {
     });
 }
 
+// The "nothing to do here" line. A bare bright-green sentence shouted louder
+// than the cards under it, so it sits in a faint tinted pill instead.
+function _auditOkBanner(text) {
+  return '<div style="text-align:center;padding:16px 0">' +
+      '<span style="display:inline-block;padding:7px 16px;border:1px solid rgba(46,204,113,0.22);' +
+          'background:rgba(46,204,113,0.06);border-radius:8px;color:rgba(46,204,113,0.7);' +
+          'font-size:10.5px;letter-spacing:0.5px">' + text + '</span>' +
+    '</div>';
+}
+
 function renderUnpaidCards(audit) {
   var section = document.getElementById("auditUnpaidSection");
   section.innerHTML = "";
 
   if (!audit.length) {
-    section.innerHTML = '<div style="color:var(--green);font-size:11px;text-align:center;padding:20px">All current blocks are paid ✓</div>';
+    section.innerHTML = _auditOkBanner("All current blocks are paid ✓");
     return;
   }
 
@@ -100,11 +110,11 @@ function renderUnpaidCards(audit) {
       s.prevBlocks.forEach(function(pb, idx) {
         var row = document.createElement("div");
         row.style.cssText = "font-size:10.5px;color:var(--muted);margin:2px 0";
-        var statusColor = pb.paid ? "var(--green)" : "#ffa500";
-        var statusMark = pb.paid ? "✓ paid" : "✗ unpaid";
+        var statusColor = pb.paid ? "rgba(255,255,255,0.5)" : "#ffa500";
+        var statusMark = pb.paid ? "PAID" : "UNPAID";
         var dateStr = pb.paymentDate ? " · " + pb.paymentDate : "";
         var noteStr = pb.paymentNote ? " · " + pb.paymentNote : "";
-        row.innerHTML = "Block −" + (idx + 1) + ": <b style=\"color:" + statusColor + "\">" + statusMark + "</b>" + dateStr + noteStr;
+        row.innerHTML = "Block −" + (idx + 1) + ": <b style=\"color:" + statusColor + ";letter-spacing:1px\">" + statusMark + "</b>" + dateStr + noteStr;
         card.appendChild(row);
       });
     }
@@ -852,7 +862,7 @@ function _auditCheckAllClear() {
   var section = document.getElementById("auditLessonSection");
   if (!section) return;
   if (!section.querySelector('[data-audit-student]')) {
-    section.innerHTML = '<div style="color:var(--green);font-size:11px;text-align:center;padding:20px">Counter and Students Import are in sync ✓</div>';
+    section.innerHTML = _auditOkBanner("Counter and Students Import are in sync ✓");
   }
 }
 
@@ -934,7 +944,7 @@ function renderMergedAuditCards(dateAudit, syncAudit) {
   });
 
   if (!order.length) {
-    section.innerHTML = '<div style="color:var(--green);font-size:11px;text-align:center;padding:20px">Counter and Students Import are in sync ✓</div>';
+    section.innerHTML = _auditOkBanner("Counter and Students Import are in sync ✓");
     return;
   }
 
