@@ -309,7 +309,14 @@ function _stRenderDetail() {
         // Let long subjects wrap onto multiple lines instead of being clipped;
         // wrapped lines hang-indent under the subject, clear of the "N." number.
         row.style.cssText = 'padding:3px 0 3px 18px;text-indent:-18px;font-size:12px;line-height:1.4;word-break:break-word';
-        if (p.empty) {
+        if (p.trial) {
+          // Lesson 1: the trial's What We Did, no date.
+          row.innerHTML =
+            "<span style='color:var(--muted)'>Trial: </span>" +
+            (p.subject
+              ? "<span style='color:#8f8f8f'>" + p.subject + "</span>"
+              : "<span style='color:var(--muted);font-style:italic'>nothing logged</span>");
+        } else if (p.empty) {
           row.innerHTML =
             "<span style='color:var(--border)'>" + p.n + ". </span>" +
             "<span style='color:var(--border)'>—</span>";
