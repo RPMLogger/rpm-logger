@@ -182,8 +182,8 @@ function renderUnpaidCards(audit) {
       reminderRow.appendChild(reminderInfo);
 
       var sendBtn = document.createElement("button");
-      sendBtn.textContent = "Send Reminder →";
-      sendBtn.style.cssText = "padding:4px 10px;font-size:11px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:4px;cursor:pointer";
+      sendBtn.textContent = "Send Reminder";
+      sendBtn.style.cssText = "min-width:124px;text-align:center;padding:5px 10px;font-size:11px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:4px;cursor:pointer";
       sendBtn.onclick = function(ev) { ev.stopPropagation(); _sendReminder(s, sendBtn, reminderInfo); };
       reminderRow.appendChild(sendBtn);
 
@@ -194,8 +194,8 @@ function renderUnpaidCards(audit) {
     var cashRow = document.createElement("div");
     cashRow.style.cssText = "margin-top:8px;display:flex;justify-content:flex-end";
     var cashBtn = document.createElement("button");
-    cashBtn.textContent = "💵 Log Cash";
-    cashBtn.style.cssText = "padding:4px 10px;font-size:11px;background:rgba(180,180,180,0.10);color:var(--text);border:1px solid var(--border);border-radius:4px;cursor:pointer";
+    cashBtn.textContent = "Log Cash";
+    cashBtn.style.cssText = "min-width:124px;text-align:center;padding:5px 10px;font-size:11px;background:rgba(180,180,180,0.10);color:rgba(255,255,255,0.82);border:1px solid var(--border);border-radius:4px;cursor:pointer";
     cashBtn.onclick = function(ev) {
       ev.stopPropagation();
       _openCashFromAudit(s.name, s.lessonDate);
@@ -879,7 +879,8 @@ function openGoogleCalendar() {
   window.open("https://calendar.google.com/calendar/r", "_blank", "noopener");
 }
 
-// ↻ Refresh button — re-run all three audits against the live sheets.
+// Re-runs all three audits against the live sheets. The Refresh button that
+// used to call this is gone; Run Audit at the bottom of the tab does the same.
 function refreshAudit(btn) {
   if (btn) {
     var orig = btn.textContent;
