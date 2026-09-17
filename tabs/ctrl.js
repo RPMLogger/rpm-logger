@@ -82,13 +82,13 @@ function renderUnpaidCards(audit) {
     card.style.cssText = "padding:12px;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;background:var(--panel)";
 
     var name = document.createElement("div");
-    name.style.cssText = "font-weight:600;margin-bottom:6px;font-size:13px";
+    name.style.cssText = "font-family:'Syne',sans-serif;font-weight:400;font-size:16px;color:var(--text);margin-bottom:6px";
     name.textContent = s.name;
     card.appendChild(name);
 
     var current = document.createElement("div");
-    current.style.cssText = "font-size:11px;color:var(--muted);margin:4px 0 10px";
-    current.innerHTML = "On lesson <b style=\"color:#ffa500\">" + (s.lessonNum != null ? s.lessonNum : "?") + "</b> (<b style=\"color:var(--text)\">" + (s.lessonDate || "?") + "</b>) — <span style=\"color:#ffa500\">unpaid</span>";
+    current.style.cssText = "font-size:10.5px;color:var(--muted);margin:4px 0 10px";
+    current.innerHTML = "On lesson <b style=\"color:#ffa500\">" + (s.lessonNum != null ? s.lessonNum : "?") + "</b> (<b style=\"color:rgba(255,255,255,0.82)\">" + (s.lessonDate || "?") + "</b>) — <span style=\"color:#ffa500\">unpaid</span>";
     card.appendChild(current);
 
     if (s.prevBlocks && s.prevBlocks.length) {
@@ -99,7 +99,7 @@ function renderUnpaidCards(audit) {
 
       s.prevBlocks.forEach(function(pb, idx) {
         var row = document.createElement("div");
-        row.style.cssText = "font-size:11px;color:var(--muted);margin:2px 0";
+        row.style.cssText = "font-size:10.5px;color:var(--muted);margin:2px 0";
         var statusColor = pb.paid ? "var(--green)" : "#ffa500";
         var statusMark = pb.paid ? "✓ paid" : "✗ unpaid";
         var dateStr = pb.paymentDate ? " · " + pb.paymentDate : "";
@@ -117,13 +117,13 @@ function renderUnpaidCards(audit) {
     if (s.lastPayments && s.lastPayments.length) {
       s.lastPayments.forEach(function(p) {
         var row = document.createElement("div");
-        row.style.cssText = "font-size:11px;color:var(--muted);margin:2px 0";
-        row.innerHTML = "<b style=\"color:var(--text)\">" + (p.amount || "?") + "</b> on <b style=\"color:var(--text)\">" + (p.date || "?") + "</b> via " + (p.method || "?") + (p.notes ? " · " + p.notes : "");
+        row.style.cssText = "font-size:10.5px;color:var(--muted);margin:2px 0";
+        row.innerHTML = "<b style=\"color:rgba(255,255,255,0.82)\">" + (p.amount || "?") + "</b> on <b style=\"color:rgba(255,255,255,0.82)\">" + (p.date || "?") + "</b> via " + (p.method || "?") + (p.notes ? " · " + p.notes : "");
         card.appendChild(row);
       });
     } else {
       var none = document.createElement("div");
-      none.style.cssText = "font-size:11px;color:var(--muted);font-style:italic";
+      none.style.cssText = "font-size:10.5px;color:var(--muted);font-style:italic";
       none.textContent = "No payments on file";
       card.appendChild(none);
     }
@@ -141,9 +141,9 @@ function renderUnpaidCards(audit) {
 
       s.pendingPayments.forEach(function(p) {
         var row = document.createElement("div");
-        row.style.cssText = "display:flex;align-items:center;gap:8px;margin:4px 0;font-size:11px;flex-wrap:wrap";
+        row.style.cssText = "display:flex;align-items:center;gap:8px;margin:4px 0;font-size:10.5px;flex-wrap:wrap";
         row.innerHTML =
-          "<span style=\"color:var(--text)\"><b>" + (p.amount || "?") + "</b> " + (p.method || "?") + "</span>" +
+          "<span style=\"color:rgba(255,255,255,0.82)\"><b>" + (p.amount || "?") + "</b> " + (p.method || "?") + "</span>" +
           "<span style=\"color:var(--muted)\">" + (p.date || "?") + "</span>";
 
         var confirmBtn = document.createElement("button");
@@ -165,7 +165,7 @@ function renderUnpaidCards(audit) {
       reminderRow.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px";
 
       var reminderInfo = document.createElement("div");
-      reminderInfo.style.cssText = "font-size:11px;color:var(--muted)";
+      reminderInfo.style.cssText = "font-size:10.5px;color:var(--muted)";
       reminderInfo.textContent = s.lastReminderAt
         ? "Last reminder sent: " + s.lastReminderAt
         : "No reminder sent yet";
@@ -957,7 +957,7 @@ function renderMergedAuditCards(dateAudit, syncAudit) {
     var nameRow = document.createElement("div");
     nameRow.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px";
     var nameEl = document.createElement("div");
-    nameEl.style.cssText = "font-weight:600;font-size:13px";
+    nameEl.style.cssText = "font-family:'Syne',sans-serif;font-weight:400;font-size:16px;color:var(--text)";
     nameEl.textContent = st.name;
     nameRow.appendChild(nameEl);
     var fixBtn = document.createElement("button");
@@ -972,13 +972,13 @@ function renderMergedAuditCards(dateAudit, syncAudit) {
     if (st.sync) {
       var s = st.sync;
       var counterLine = document.createElement("div");
-      counterLine.style.cssText = "font-size:11px;color:var(--muted);margin:4px 0";
-      counterLine.innerHTML = "Counter: lesson <b style=\"color:var(--text)\">" + s.counterLesson + "</b> on <b style=\"color:var(--text)\">" + (s.counterDate || "?") + "</b>";
+      counterLine.style.cssText = "font-size:10.5px;color:var(--muted);margin:4px 0";
+      counterLine.innerHTML = "Counter: lesson <b style=\"color:rgba(255,255,255,0.82)\">" + s.counterLesson + "</b> on <b style=\"color:rgba(255,255,255,0.82)\">" + (s.counterDate || "?") + "</b>";
       card.appendChild(counterLine);
 
       var importLine = document.createElement("div");
-      importLine.style.cssText = "font-size:11px;color:var(--muted);margin:4px 0";
-      importLine.innerHTML = "Students Import: lesson <b style=\"color:var(--text)\">" + (s.importLesson != null ? s.importLesson : "?") + "</b> on <b style=\"color:var(--text)\">" + (s.importDate || "?") + "</b>";
+      importLine.style.cssText = "font-size:10.5px;color:var(--muted);margin:4px 0";
+      importLine.innerHTML = "Students Import: lesson <b style=\"color:rgba(255,255,255,0.82)\">" + (s.importLesson != null ? s.importLesson : "?") + "</b> on <b style=\"color:rgba(255,255,255,0.82)\">" + (s.importDate || "?") + "</b>";
       card.appendChild(importLine);
 
       var diff = document.createElement("div");
