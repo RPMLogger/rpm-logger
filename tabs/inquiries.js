@@ -380,7 +380,9 @@ function _inqOpenTemplate(decision, inq) {
       (hasEmail
         ? "<div class='rpm-dlg-meta'>To: " + inqEsc(inq.email) + "</div>"
         : "<div class='rpm-dlg-meta warn'>No email on file. This only records the decision.</div>") +
+      "<div class='rpm-dlg-label'>Subject</div>" +
       "<input id='inqTplSubject' class='rpm-dlg-input' value='" + inqEsc(tpl.subject) + "'>" +
+      "<div class='rpm-dlg-label'>Body</div>" +
       "<textarea id='inqTplBody' class='rpm-dlg-textarea' rows='9'>" + inqEsc(tpl.body) + "</textarea>" +
       "<div id='inqModalStatus'></div>" +
       "<div class='rpm-dlg-acts'>" +
