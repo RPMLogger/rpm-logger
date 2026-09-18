@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>popup check</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head><body>
+<script>
+function inqEsc(s){return (s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
+function _inqCloseModal(){}
+var tpl = { subject: "RED PICK MUSIC, your guitar lesson inquiry",
+  body: "Hey Jason,\n\nThanks for your inquiry. I'm fully booked right now and don't see anything opening up for a while, but I'll keep your info on file and reach out when something does. You can also check back in a couple months.\n\nBilgehan / RED PICK MUSIC" };
+var accent = "var(--warn)";
+document.body.innerHTML =
+  "<div class='rpm-dlg-overlay' style='display:flex'>" +
+    "<div class='rpm-dlg rpm-dlg-wide' style='--dlg-accent:" + accent + "'>" +
+      "<div class='rpm-dlg-head'>" +
+        "<div class='rpm-dlg-title' style='color:" + accent + "'>Maybe</div>" +
+        "<button class='rpm-dlg-x'>&#10005;</button></div>" +
+      "<div class='rpm-dlg-meta'>To: jasonpdiller@gmail.com</div>" +
+      "<input class='rpm-dlg-input' value='" + inqEsc(tpl.subject) + "'>" +
+      "<textarea class='rpm-dlg-textarea' rows='9'>" + inqEsc(tpl.body) + "</textarea>" +
+      "<div class='rpm-dlg-acts'>" +
+        "<button class='rpm-dlg-btn'>Cancel</button>" +
+        "<button class='rpm-dlg-btn act'>Send</button>" +
+      "</div></div></div>";
+</script></body></html>

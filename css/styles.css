@@ -978,6 +978,24 @@ body::before {
   font-family: "DM Mono", monospace; font-size: 12px;
 }
 .rpm-dlg-input:focus { outline: none; border-color: var(--warn); }
+.rpm-dlg-textarea {
+  width: 100%; box-sizing: border-box; margin-top: 8px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+  padding: 10px 12px; color: var(--text);
+  font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.7;
+  resize: vertical; min-height: 150px;
+}
+.rpm-dlg-textarea:focus { outline: none; border-color: var(--warn); }
+/* Quiet line above a field: "To: someone@example.com" */
+.rpm-dlg-meta {
+  font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted);
+  margin-top: 10px; letter-spacing: 0.3px;
+}
+.rpm-dlg-meta.warn { color: var(--warn); }
+/* The dialog's own accent, set per use: Maybe amber, No red. */
+.rpm-dlg-btn.act { color: var(--dlg-accent, var(--green)); border-color: color-mix(in srgb, var(--dlg-accent, var(--green)) 55%, transparent); }
+.rpm-dlg-btn.act:hover { background: color-mix(in srgb, var(--dlg-accent, var(--green)) 16%, transparent); }
+
 .rpm-dlg-acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
 .rpm-dlg-btn {
   font-family: "DM Mono", monospace; font-size: 11px; cursor: pointer;

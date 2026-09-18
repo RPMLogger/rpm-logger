@@ -345,53 +345,61 @@ function _inqTemplate(decision, name) {
   var first = (name || "").split(" ")[0] || "there";
   if (decision === "maybe") {
     return {
-      subject: "RED PICK MUSIC — your guitar lesson inquiry",
+      subject: "Your Guitar Lesson Inquiry",
       body: "Hey " + first + ",\n\n" +
-        "Thanks for your inquiry. I'm fully booked right now and don't see anything opening up for a while, but I'll keep your info on file and reach out when something does. You can also check back in a couple months.\n\n" +
-        "Bilgehan / RED PICK MUSIC"
+        "Thanks for your inquiry. I'm fully booked right now and don't see anything opening up for a while, but I'll keep your info on file and reach out when something does. You can also check back in a couple months."
     };
   }
   return {
-    subject: "RED PICK MUSIC — your guitar lesson inquiry",
+    subject: "Your Guitar Lesson Inquiry",
     body: "Hey " + first + ",\n\n" +
       "Thanks for reaching out. Unfortunately I don't have availability that fits right now, and I'm not sure when I will. I'd recommend checking other local music teachers in the meantime.\n\n" +
-      "Best of luck with your guitar journey!\n\n" +
-      "Bilgehan / RED PICK MUSIC"
+      "Best of luck with your guitar journey!"
   };
 }
 
 function _inqOpenTemplate(decision, inq) {
   var tpl = _inqTemplate(decision, inq.name);
-  var label = decision === "maybe" ? "Maybe — keep on file" : "No — not a fit";
-  var accent = decision === "maybe" ? "#d98e04" : "var(--accent)";
+  var label  = decision === "maybe" ? "Maybe" : "No";   // the button you pressed
+  var accent = decision === "maybe" ? "var(--warn)" : "var(--accent)";
   var hasEmail = inq.email && inq.email.indexOf("@") !== -1;
 
+  // Same box as core/dialog.js: one standard, so every popup in the portal
+  // changes together. This one carries a form, so it takes the wide variant.
   var overlay = document.createElement("div");
   overlay.id = "inqModal";
-  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px";
+  overlay.className = "rpm-dlg-overlay";
   overlay.innerHTML =
-    "<div style='background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:520px;width:100%;padding:18px;box-sizing:border-box'>" +
-      "<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:12px'>" +
-        "<div style='font-family:\"Syne\",sans-serif;font-size:16px;font-weight:700;color:" + accent + "'>" + label + "</div>" +
-        "<button onclick='_inqCloseModal()' style='background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer'>✕</button>" +
+    "<div class='rpm-dlg rpm-dlg-wide' role='dialog' aria-modal='true' style='--dlg-accent:" + accent + "'>" +
+      "<div class='rpm-dlg-head'>" +
+        "<div class='rpm-dlg-title' style='color:" + accent + "'>" + label + "</div>" +
+        "<button class='rpm-dlg-x' onclick='_inqCloseModal()' aria-label='Close'>✕</button>" +
       "</div>" +
       (hasEmail
-        ? "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--muted);margin-bottom:8px'>To: " + inqEsc(inq.email) + "</div>"
-        : "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--accent);margin-bottom:8px'>No email on file — this will only log to the list.</div>") +
-      "<input id='inqTplSubject' value='" + inqEsc(tpl.subject) + "' style='box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:\"DM Mono\",monospace;font-size:12px;margin-bottom:8px'>" +
-      "<textarea id='inqTplBody' rows='9' style='box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:\"DM Mono\",monospace;font-size:12px;line-height:1.5;resize:vertical'>" + inqEsc(tpl.body) + "</textarea>" +
+        ? "<div class='rpm-dlg-meta'>To: " + inqEsc(inq.email) + "</div>"
+        : "<div class='rpm-dlg-meta warn'>No email on file. This only records the decision.</div>") +
+      "<input id='inqTplSubject' class='rpm-dlg-input' value='" + inqEsc(tpl.subject) + "'>" +
+      "<textarea id='inqTplBody' class='rpm-dlg-textarea' rows='9'>" + inqEsc(tpl.body) + "</textarea>" +
       "<div id='inqModalStatus'></div>" +
-      "<div style='display:flex;gap:8px;margin-top:12px'>" +
-        "<button id='inqSendBtn' onclick='_inqSubmitTemplate(\"" + decision + "\"," + (hasEmail ? "true" : "false") + ")' style='flex:1;background:" + accent + ";color:#fff;border:none;border-radius:10px;padding:12px;font-family:\"Syne\",sans-serif;font-weight:700;font-size:14px;cursor:pointer'>" +
-          (hasEmail ? "Send" : "Record decision") + "</button>" +
+      "<div class='rpm-dlg-acts'>" +
+        "<button class='rpm-dlg-btn' onclick='_inqCloseModal()'>Cancel</button>" +
+        "<button id='inqSendBtn' class='rpm-dlg-btn act' onclick='_inqSubmitTemplate(\"" + decision + "\"," +
+          (hasEmail ? "true" : "false") + ")'>" + (hasEmail ? "Send" : "Record decision") + "</button>" +
       "</div>" +
     "</div>";
   overlay._inq = inq;
   overlay.addEventListener("click", function (ev) { if (ev.target === overlay) _inqCloseModal(); });
+  document.addEventListener("keydown", _inqModalKey, true);
   document.body.appendChild(overlay);
 }
 
+// Escape closes it, the same reflex the rest of the portal's dialogs give you.
+function _inqModalKey(e) {
+  if (e.key === "Escape") { e.preventDefault(); _inqCloseModal(); }
+}
+
 function _inqCloseModal() {
+  document.removeEventListener("keydown", _inqModalKey, true);
   var m = document.getElementById("inqModal");
   if (m) m.remove();
 }
