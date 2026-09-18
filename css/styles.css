@@ -397,6 +397,34 @@ body::before {
 .inq-archive:hover { color: var(--accent2); }
 .financial-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 12px; line-height: 3; border: 1px dashed var(--border); border-radius: 8px; }
 
+/* ─── Inquiries: replies to a Maybe or a No ─────────────────────────────── */
+/* Amber, because it wants attention but nothing is wrong. Absent entirely
+   when there is nothing to report: an empty warning strip is noise. */
+.inq-replies {
+  border: 1px solid rgba(240,165,0,0.35);
+  background: rgba(240,165,0,0.06);
+  border-radius: var(--radius-card);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+.inq-replies-head {
+  font-family: "DM Mono", monospace; font-size: 10px;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--warn); margin-bottom: 10px;
+}
+.inq-reply { padding: 8px 0; border-top: 1px solid rgba(240,165,0,0.18); }
+.inq-reply:first-of-type { border-top: none; padding-top: 0; }
+.inq-reply-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.inq-reply-name { font-family: "Syne", sans-serif; font-size: 16px; color: var(--text); }
+.inq-reply-when { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); white-space: nowrap; }
+.inq-reply-text {
+  font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.6;
+  color: rgba(255,255,255,0.5); margin: 5px 0 9px;
+}
+.inq-reply-acts { display: flex; gap: 6px; justify-content: flex-end; }
+/* The Read link is a button in every way but the tag. */
+.inq-reply-acts .inq-db { text-decoration: none; display: inline-block; }
+
 /* ─── Inquiries: decision cards (clean) ─────────────────────────────────── */
 .inq-dcard { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
 .inq-dcard.unread { border-left-color: var(--accent); }

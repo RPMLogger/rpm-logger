@@ -35,6 +35,7 @@ function inqEsc(s) {
 // ── Entry point (called from switchTab) ──────────────────────────────────────
 function initInquiriesTab() {
   loadBusinessStrip();
+  loadInquiryReplies();
   setInqView("email");   // always land on Email — never a mixed view
   var url = getScriptUrl();
   if (!url) return;
@@ -73,6 +74,88 @@ function setInqView(view) {
     renderCommsInbox();
   }
 }
+
+// ── Replies to a Maybe or a No ────────────────────────────────
+// Deciding Maybe or No sends an email, so the person can write back. The card
+// has already left the tab by then, so without this the reply sits in Gmail
+// unseen. Only these two decisions can appear: No reply and Scam send nothing.
+function loadInquiryReplies() {
+  var strip = document.getElementById("inqRepliesStrip");
+  if (!strip) return;
+  var url = getScriptUrl();
+  if (!url) { strip.innerHTML = ""; return; }
+  fetch(url + "?action=getInquiryReplies")
+    .then(function (r) { return r.json(); })
+    .then(function (d) { renderInquiryReplies(d && d.success ? d.replies : []); })
+    .catch(function () { strip.innerHTML = ""; });   // silent: this is a bonus, not the tab
+}
+
+function renderInquiryReplies(replies) {
+  var strip = document.getElementById("inqRepliesStrip");
+  if (!strip) return;
+  if (!replies || !replies.length) { strip.innerHTML = ""; return; }   // nothing to say
+
+  strip.innerHTML =
+    "<div class='inq-replies'>" +
+      "<div class='inq-replies-head'>⚠ " + replies.length + " repl" + (replies.length === 1 ? "y" : "ies") +
+        " to a Maybe or a No</div>" +
+      replies.map(_inqReplyRow).join("") +
+    "</div>";
+}
+
+function _inqReplyRow(r) {
+  var gmail = "https://mail.google.com/mail/u/0/#all/" + encodeURIComponent(r.threadId);
+  return "<div class='inq-reply'>" +
+      "<div class='inq-reply-top'>" +
+        "<span class='inq-reply-name'>" + inqEsc(r.name) + "</span>" +
+        "<span class='inq-reply-when'>" + inqEsc(_inqAgo(r.date)) + "</span>" +
+      "</div>" +
+      "<div class='inq-reply-text'>" + inqEsc(r.snippet) + "</div>" +
+      "<div class='inq-reply-acts'>" +
+        "<a class='inq-db' href='" + gmail + "' target='_blank' " +
+          "data-tip='opens the thread in gmail' data-tip-wrap>Read</a>" +
+        "<button class='inq-db yes' onclick='_inqReopen(\"" + inqEsc(r.email) + "\", this)' " +
+          "data-tip='clears the decision - the card comes back to this tab undecided' data-tip-wrap data-tip-left>" +
+          "Reopen</button>" +
+      "</div>" +
+    "</div>";
+}
+
+// "3 days ago" from an ISO date.
+function _inqAgo(iso) {
+  var d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  var mins = Math.round((Date.now() - d.getTime()) / 60000);
+  if (mins < 60)   return mins <= 1 ? "just now" : mins + " minutes ago";
+  var hrs = Math.round(mins / 60);
+  if (hrs < 24)    return hrs === 1 ? "an hour ago" : hrs + " hours ago";
+  var days = Math.round(hrs / 24);
+  return days === 1 ? "yesterday" : days + " days ago";
+}
+
+// Put them back on the tab as an undecided card, so the decision can be made
+// again now that they have said something new.
+function _inqReopen(email, btn) {
+  var url = getScriptUrl();
+  if (!url) return;
+  if (btn) { btn.disabled = true; btn.textContent = "Reopening…"; }
+  fetch(url + "?action=reopenInquiry&email=" + encodeURIComponent(email))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d || !d.success) {
+        if (btn) { btn.disabled = false; btn.textContent = "Reopen"; }
+        _inqToast("⚠ " + ((d && d.message) || "Could not reopen"), "var(--accent)");
+        return;
+      }
+      _inqToast("↩ Back on the list", "var(--green)");
+      initInquiriesTab();
+    })
+    .catch(function () {
+      if (btn) { btn.disabled = false; btn.textContent = "Reopen"; }
+      _inqToast("❌ Could not reach the portal.", "var(--accent)");
+    });
+}
+
 
 // ── Top strip: Business Situation ────────────────────────────────────────────
 function loadBusinessStrip() {
