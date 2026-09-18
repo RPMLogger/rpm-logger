@@ -269,10 +269,10 @@ function renderInquiries(inquiries) {
       "<div class='inq-fields'>" + fieldsHtml + "</div>" +
       "<div class='inq-acts'>" +
         btn("yes",   "yes",     "Yes") +
-        btn("maybe", "maybe",   "Maybe") +
-        btn("no",    "no",      "No") +
+        btn("maybe opens-window", "maybe", "Maybe", "Opens the editable email template") +
+        btn("no opens-window",    "no",    "No",    "Opens the editable email template") +
         btn("",      "noreply", "No reply", "Silent clear — no email, keeps their address on the list") +
-        btn("",      "scam",    "Scam",     "Scammer — delete + trash email") +
+        btn("opens-window", "scam", "Scam", "Scammer — asks to confirm, then deletes and trashes the email") +
         "<button class='inq-x' onclick='deleteInquiry(\"" + id + "\")' title='Delete'>✕</button>" +
       "</div>";
 

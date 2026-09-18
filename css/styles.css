@@ -12,6 +12,17 @@
   --muted:   #555;
   --border:  #2a2a2a;
   --forgot:  #c0392b;
+
+  /* Card fill. 26 cards in the tab files already ask for --panel; it was
+     never defined, so they rendered with no background at all. */
+  --panel:   #1a1a1a;
+
+  /* Style pass, Sep 2026. One place to change the look of every card,
+     pill and status colour. Decisions came from the Inquiries card. */
+  --radius-card: 10px;
+  --radius-pill: 6px;
+  --pad-card:    14px 16px;
+  --warn:        #d9a441;   /* attention: replaces #ffb400 / #ffa500 */
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -408,6 +419,11 @@ body::before {
 .inq-db.maybe:hover { background: color-mix(in srgb, #d9a441 16%, transparent); }
 .inq-db.no    { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
 .inq-db.no:hover    { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+/* ─── OPENS A WINDOW ──────────────────────────────────────────────────────── */
+/* ▸ means a dialog opens right here. A link that LEAVES the portal uses › .
+   A button with neither marker acts immediately. */
+.opens-window::after { content: " \25B8"; font-size: 0.85em; opacity: 0.7; }
+
 .inq-x     { background: none; border: none; color: var(--muted); font-size: 14px; cursor: pointer; padding: 4px 6px; line-height: 1; }
 .inq-x:hover { color: var(--accent); }
 
