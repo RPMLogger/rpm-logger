@@ -918,8 +918,8 @@ body::before {
 [data-tip]::before {
   content: attr(data-tip);
   position: absolute; bottom: calc(100% + 7px); left: 50%; transform: translateX(-50%);
-  background: #000; color: #b0aaa2;
-  border: 1px solid #1c1c1c; border-radius: 5px;
+  background: #000; color: rgba(255,255,255,0.55);
+  border: 1px solid #1c1c1c; border-radius: 8px;
   padding: 5px 8px;
   font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 0.3px;
   line-height: 1.5; white-space: nowrap; text-align: left;
@@ -985,14 +985,16 @@ body::before {
 .rpm-dlg-input {
   width: 100%; box-sizing: border-box; margin-top: 12px;
   background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
-  padding: 9px 12px; color: var(--text);
+  /* Same as the Trial Info window: a value you typed reads as data, not as a
+     heading. var(--text) made every field shout next to the card behind it. */
+  padding: 9px 12px; color: rgba(255,255,255,0.5);
   font-family: "DM Mono", monospace; font-size: 12px;
 }
 .rpm-dlg-input:focus { outline: none; border-color: var(--warn); }
 .rpm-dlg-textarea {
   width: 100%; box-sizing: border-box; margin-top: 8px;
   background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
-  padding: 10px 12px; color: var(--text);
+  padding: 10px 12px; color: rgba(255,255,255,0.5);
   font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.7;
   resize: vertical; min-height: 150px;
 }
