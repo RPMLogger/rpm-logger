@@ -360,7 +360,9 @@ function _inqTemplate(decision, name) {
 
 function _inqOpenTemplate(decision, inq) {
   var tpl = _inqTemplate(decision, inq.name);
-  var label  = decision === "maybe" ? "Maybe" : "No";   // the button you pressed
+  // The title is who you are writing to. Which decision you are in is carried
+  // by the Send button's colour, so the title does not have to repeat it.
+  var label  = inq.name || "This inquiry";
   var accent = decision === "maybe" ? "var(--warn)" : "var(--accent)";
   var hasEmail = inq.email && inq.email.indexOf("@") !== -1;
 
@@ -372,7 +374,7 @@ function _inqOpenTemplate(decision, inq) {
   overlay.innerHTML =
     "<div class='rpm-dlg rpm-dlg-wide' role='dialog' aria-modal='true' style='--dlg-accent:" + accent + "'>" +
       "<div class='rpm-dlg-head'>" +
-        "<div class='rpm-dlg-title' style='color:" + accent + "'>" + label + "</div>" +
+        "<div class='rpm-dlg-title'>" + inqEsc(label) + "</div>" +
         "<button class='rpm-dlg-x' onclick='_inqCloseModal()' aria-label='Close'>✕</button>" +
       "</div>" +
       (hasEmail
@@ -391,6 +393,12 @@ function _inqOpenTemplate(decision, inq) {
   overlay.addEventListener("click", function (ev) { if (ev.target === overlay) _inqCloseModal(); });
   document.addEventListener("keydown", _inqModalKey, true);
   document.body.appendChild(overlay);
+
+  // Editing the message is usually why this is open, so start there. The
+  // cursor goes to the end rather than selecting, so a keystroke cannot wipe
+  // the template.
+  var ta = document.getElementById("inqTplBody");
+  if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
 }
 
 // Escape closes it, the same reflex the rest of the portal's dialogs give you.

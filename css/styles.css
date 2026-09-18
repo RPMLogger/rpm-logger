@@ -958,7 +958,9 @@ body::before {
 .rpm-dlg-wide { max-width: 520px; }
 .rpm-dlg-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .rpm-dlg-title {
-  font-family: "Syne", sans-serif; font-size: 16px; font-weight: 700;
+  /* Same weight as .inq-name, so a name reads identically on the card and in
+     the dialog it opens. Bold at the same colour reads brighter. */
+  font-family: "Syne", sans-serif; font-size: 16px; font-weight: 400;
   color: var(--text); line-height: 1.3;
 }
 .rpm-dlg-title.danger { color: var(--accent); }
@@ -971,6 +973,15 @@ body::before {
   font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.7;
   color: var(--muted); margin-top: 8px; white-space: pre-line;
 }
+/* Label above a field, the shape the Trial Info window uses. */
+.rpm-dlg-label {
+  font-family: "DM Mono", monospace; font-size: 10.5px;
+  color: rgba(255,255,255,0.82);
+  text-transform: uppercase; letter-spacing: 1px;
+  margin: 12px 0 4px;
+}
+.rpm-dlg-label + .rpm-dlg-input, .rpm-dlg-label + .rpm-dlg-textarea { margin-top: 0; }
+
 .rpm-dlg-input {
   width: 100%; box-sizing: border-box; margin-top: 12px;
   background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
