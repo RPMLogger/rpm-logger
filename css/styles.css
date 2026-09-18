@@ -397,6 +397,26 @@ body::before {
 .inq-archive:hover { color: var(--accent2); }
 .financial-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 12px; line-height: 3; border: 1px dashed var(--border); border-radius: 8px; }
 
+/* ─── Inquiries: load counts ───────────────────────────────────────────────── */
+/* Four numbers: how many students, how they split, and the normalized total
+   the other two add up to (weekly + biweekly / 2). */
+.inq-load { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.inq-count {
+  flex: 1; min-width: 70px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 9px 8px; text-align: center;
+}
+.inq-count-n { font-family: "DM Mono", monospace; font-size: 15px; color: var(--text); }
+.inq-count-l {
+  font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--muted); margin-top: 2px;
+}
+/* The total the others resolve to. */
+.inq-count.lead { border-color: rgba(240,165,0,0.3); background: rgba(240,165,0,0.05); }
+.inq-count.lead .inq-count-n { color: var(--warn); }
+.inq-count.lead .inq-count-l { color: var(--warn); opacity: 0.75; }
+
 /* ─── Inquiries: replies to a Maybe or a No ─────────────────────────────── */
 /* Amber, because it wants attention but nothing is wrong. Absent entirely
    when there is nothing to report: an empty warning strip is noise. */

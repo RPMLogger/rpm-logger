@@ -11,7 +11,6 @@
 // Backend: decideInquiry (RPM_Intake.js) + getStudentLoad.
 // Lazy: everything loads only when this tab is opened (initInquiriesTab).
 
-var _inqIdealKey = 'rpmIdealLoad';
 
 // ── "Seen" tracking for the tab badge ────────────────────────────────────────
 // Stored per browser. Dates from the sheet are day-only, so an inquiry is
@@ -170,72 +169,39 @@ function loadBusinessStrip() {
     .then(function (load) { renderBusinessStrip(load); });
 }
 
-function _inqIdeal() {
-  var v = parseFloat(localStorage.getItem(_inqIdealKey));
-  return (isFinite(v) && v > 0) ? v : 15;
-}
-function _inqStepIdeal(delta) {
-  var v = Math.max(0.5, Math.round((_inqIdeal() + delta) * 2) / 2);
-  localStorage.setItem(_inqIdealKey, String(v));
-  loadBusinessStrip(); // re-render with the new target (cheap, uses fresh fetch)
-}
 
 // Compact on purpose: one headline row, one row of counts, all in the
 // portal's mono font.
 function renderBusinessStrip(load) {
   var strip = document.getElementById("inqBizStrip");
   if (!strip) return;
-  // Was: blank the strip and say nothing. With no fallback rate behind the
-  // income figure, a failure here is a student the chart cannot price, and
-  // vanishing quietly is the one response that helps nobody.
+  // A failure here is a student the chart cannot price, so say so rather than
+  // vanishing quietly.
   if (!load || !load.success) { strip.innerHTML = _apiRateWarning(load); return; }
 
-  var ideal = _inqIdeal();
-  var norm  = (typeof load.normalized === "number") ? load.normalized : 0;
-  var incNow = load.totalIncome || 0;
-  var perNorm = norm > 0 ? incNow / norm : 380;          // approx $ per normalized student/block
-  var incIdeal = Math.round(ideal * perNorm);
-  var gap = incIdeal - incNow;
-
-  var mono = "font-family:'DM Mono',monospace;";
-  function chip(label, value) {
-    return '<div style="flex:1;min-width:70px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;text-align:center">' +
-      '<div style="' + mono + 'font-size:13px;color:var(--text)">' + value + '</div>' +
-      '<div style="' + mono + 'font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-top:1px">' + label + '</div>' +
-    '</div>';
-  }
-
-  var loadColor = norm >= ideal ? 'var(--green)' : 'var(--text)';
-  var gapLine = gap > 0
-    ? '<span style="color:var(--green)">+$' + gap.toLocaleString() + '</span> to reach ' + _inqFmt(ideal)
-    : '<span style="color:var(--green)">at target</span>';
+  // Four counts, nothing else. The ideal-load stepper and the income/target
+  // line were removed Sep 2026: the target is a fixed 15 and never needed
+  // adjusting, and the income figure belongs on the Load tab.
+  var norm = (typeof load.normalized === "number") ? load.normalized : 0;
 
   strip.innerHTML =
-    '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:12px">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">' +
-        '<div style="display:flex;align-items:center;gap:8px">' +
-          '<span style="' + mono + 'font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)">Ideal load</span>' +
-          '<button onclick="_inqStepIdeal(-0.5)" style="' + _inqStepBtn() + '">−</button>' +
-          '<span style="' + mono + 'font-size:14px;color:' + loadColor + '">' + _inqFmt(norm) + '<span style="color:var(--muted);font-size:11px"> / ' + _inqFmt(ideal) + '</span></span>' +
-          '<button onclick="_inqStepIdeal(0.5)" style="' + _inqStepBtn() + '">+</button>' +
-        '</div>' +
-        '<div style="text-align:right;' + mono + '">' +
-          '<span style="font-size:14px;color:var(--text)">$' + incNow.toLocaleString() + '</span>' +
-          '<span style="font-size:10px;color:var(--muted);margin-left:8px">' + gapLine + '</span>' +
-        '</div>' +
-      '</div>' +
-      '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
-        chip('Students', load.totalStudents || 0) +
-        chip('Weekly', load.weeklyCount || 0) +
-        chip('Biweekly', load.biweeklyCount || 0) +
-      '</div>' +
+    '<div class="inq-load">' +
+      _inqCount("Students", load.totalStudents || 0) +
+      _inqCount("Weekly",   load.weeklyCount   || 0) +
+      _inqCount("Biweekly", load.biweeklyCount || 0) +
+      _inqCount("Normalized", _inqFmt(norm), true) +
+    '</div>';
+}
+
+// One count tile. `lead` marks the number the others add up to.
+function _inqCount(label, value, lead) {
+  return '<div class="inq-count' + (lead ? ' lead' : '') + '">' +
+      '<div class="inq-count-n">' + value + '</div>' +
+      '<div class="inq-count-l">' + label + '</div>' +
     '</div>';
 }
 
 function _inqFmt(n) { return (Math.round(n * 2) / 2).toString().replace(/\.0$/, ""); }
-function _inqStepBtn() {
-  return "width:22px;height:22px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;line-height:1;cursor:pointer;font-family:'DM Mono',monospace";
-}
 
 // ── The inquiry cards ────────────────────────────────────────────────────────
 // Every category on its own labeled line, aligned like the sheet. Empty → "-".
