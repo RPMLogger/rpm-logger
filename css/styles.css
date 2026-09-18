@@ -918,10 +918,10 @@ body::before {
 [data-tip]::before {
   content: attr(data-tip);
   position: absolute; bottom: calc(100% + 7px); left: 50%; transform: translateX(-50%);
-  background: #000; color: var(--text);
-  border: 1px solid #1c1c1c; border-radius: 6px;
-  padding: 6px 9px;
-  font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.3px;
+  background: #000; color: #b0aaa2;
+  border: 1px solid #1c1c1c; border-radius: 5px;
+  padding: 5px 8px;
+  font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 0.3px;
   line-height: 1.5; white-space: nowrap; text-align: left;
   opacity: 0; pointer-events: none; z-index: 9990;
   transition: opacity .12s ease .35s;
@@ -934,7 +934,7 @@ body::before {
 [data-tip-left]::before { left: auto; right: 0; transform: none; }
 
 /* Long helper text wraps instead of running off the card. */
-[data-tip-wrap]::before { white-space: normal; width: 210px; }
+[data-tip-wrap]::before { white-space: normal; width: 190px; }
 
 @media (prefers-reduced-motion: reduce) { [data-tip]::before { transition: none; } }
 

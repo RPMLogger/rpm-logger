@@ -270,8 +270,8 @@ function renderInquiries(inquiries) {
       "<div class='inq-fields'>" + fieldsHtml + "</div>" +
       "<div class='inq-acts'>" +
         btn("yes",   "yes",     "Yes",      "accepts - no email sent - moves to initiate - stays in inquiries sheet") +
-        btn("maybe opens-window", "maybe", "Maybe", "email template - try in future - saves in email list - stays in inquiries sheet") +
-        btn("no opens-window",    "no",    "No",    "email template - i'm full, try different - no email list - stays in inquiries sheet", true) +
+        btn("maybe opens-window", "maybe", "Maybe", "\"try again in future\" email template opens - saves in email list - stays in inquiries sheet") +
+        btn("no opens-window",    "no",    "No",    "\"no room, try different teachers\" email template opens - no email list - stays in inquiries sheet", true) +
         btn("",      "noreply", "No reply", "no email sent - kept on email list for later - stays in inquiries sheet", true) +
         btn("opens-window", "scam", "Scam", "marks as scam - deletes the email - deletes the inquiry", true) +
       "</div>";
