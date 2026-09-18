@@ -838,7 +838,13 @@ function initTrialStageTab() {
 function _trStageCard(a) {
   var when = a.trialDateLabel || '';
   return '<div class="inq-dcard accepted" style="border-left-color:var(--accent)" id="trcard-' + emailToId(a.email || '') + '">' +
-      '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || '—') + '</span></div>' +
+      '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || '—') + '</span>' +
+        // Only once the acknowledgment form is actually back. Sent is not accepted.
+        (_trStepState(a).termsBack
+          ? '<span style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;' +
+              'color:rgba(46,204,113,0.7)">TERMS ACCEPTED</span>'
+          : '') +
+      '</div>' +
       // "TRIAL - Sun, Sep 13 - 11:15 AM" on its own line, then a divider.
       (when
         ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;margin-top:4px;color:' +
@@ -890,7 +896,7 @@ var _TR_STEPS = [
   { key: 'freq',  label: 'Frequency' },
   { key: 'time',  label: 'Pick a time' },
   { key: 'pay',   label: 'Payment' },                   // trial payment; the window shows what was found
-  { key: 'terms', label: 'Terms' },
+  { key: 'terms', label: 'Terms Sent' },
   { key: 'log',   label: 'Log lesson', lesson: true, required: true },
   { key: 'hw',    label: 'Send HW',    lesson: true }
 ];
@@ -928,7 +934,13 @@ function _trStepState(a) {
     termsBack: !!s.termsBack,
     termsSent: !!s.termsSent
   };
-  st.missing = _TR_STEPS.filter(function (x) { return (!x.lesson || x.required) && !st[x.key]; }).map(function (x) { return x.label; });
+  st.missing = _TR_STEPS.filter(function (x) { return (!x.lesson || x.required) && !st[x.key]; })
+    .map(function (x) {
+      // "Terms Sent" is the button's label, not the reason this is blocking.
+      // Once they are sent, what is still missing is the form coming back.
+      if (x.key === 'terms') return st.termsSent ? 'Terms form not back' : 'Terms not sent';
+      return x.label;
+    });
   st.ready = !st.missing.length;
   return st;
 }
