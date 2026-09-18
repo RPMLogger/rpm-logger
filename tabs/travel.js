@@ -472,11 +472,16 @@ function _travelRenderReview() {
     var who = _travelState.testMode
       ? 'Texts go to YOUR phone (test).'
       : 'Each student will be TEXTED their trip message now.';
-    var msg = 'Delete ' + data.totalLessons + ' lessons across ' + data.totalStudents + ' students?\n\n' +
-      who + '\n\nSecretary also emails on its next hourly run.';
-    if (!confirm(msg)) return;
-    go.disabled = true; go.textContent = 'Working…';
-    _travelExecute();
+    rpmConfirm({
+      title: 'Delete ' + data.totalLessons + ' lessons across ' + data.totalStudents + ' students?',
+      message: who + '\n\nSecretary also emails on its next hourly run.',
+      confirmLabel: 'Delete and text',
+      danger: true
+    }).then(function (ok) {
+      if (!ok) return;
+      go.disabled = true; go.textContent = 'Working…';
+      _travelExecute();
+    });
   };
   actions.appendChild(go);
   section.appendChild(actions);

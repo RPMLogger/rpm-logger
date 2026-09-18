@@ -81,8 +81,8 @@ function _tsActiveCard(trip) {
     ? 'font-size:11px;padding:5px 13px;font-weight:700;letter-spacing:.3px;background:#ffb400;color:#1a1200;border:1px solid #ffb400;border-radius:5px;cursor:pointer;box-shadow:0 0 10px rgba(255,180,0,0.35);transition:transform .1s,box-shadow .1s'
     : 'font-size:11px;padding:5px 13px;font-weight:600;letter-spacing:.3px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:5px;cursor:not-allowed;opacity:.55';
   var archAttrs  = _archReady
-    ? " title='Archive this trip → Trip History'"
-    : " disabled title='All students must confirm before this trip can be archived'";
+    ? " data-tip='Archive this trip → Trip History'"
+    : " disabled data-tip='All students must confirm before this trip can be archived'";
   hdr.innerHTML =
     "<div style='display:flex;justify-content:space-between;align-items:center;gap:8px'>" +
       "<span style='font-weight:700;font-size:13px'>" + trip.tripStart + ' → ' + trip.tripEnd + testBadge + reviewBadge + "</span>" +
@@ -100,9 +100,13 @@ function _tsActiveCard(trip) {
     _arch.onmouseleave = function() { _arch.style.transform = ''; _arch.style.boxShadow = '0 0 10px rgba(255,180,0,0.35)'; };
   }
   if (_arch && _archReady) _arch.onclick = function() {
-    var msg = 'Archive this trip?\n\n' + trip.tripStart + ' → ' + trip.tripEnd +
-      '\n\nIt leaves Active Trips and moves to Trip History. (' + trip.confirmed + '/' + trip.students.length + ' confirmed)';
-    if (!confirm(msg)) return;
+    rpmConfirm({
+      title: 'Archive this trip?',
+      message: trip.tripStart + ' → ' + trip.tripEnd + '\n\nIt leaves Active Trips and moves to Trip History. (' +
+        trip.confirmed + '/' + trip.students.length + ' confirmed)',
+      confirmLabel: 'Archive'
+    }).then(function (ok) {
+    if (!ok) return;
     var url = getScriptUrl(); if (!url) return;
     _arch.disabled = true; _arch.textContent = '…';
     callScript(url, 'archiveTrip', { tripStart: trip.tripStart, tripEnd: trip.tripEnd }, function(data) {
@@ -114,6 +118,7 @@ function _tsActiveCard(trip) {
         _arch.disabled = false; _arch.textContent = 'Archive';
       }
     });
+    });
   };
 
   // Editable location (shows in Trip History).
@@ -123,12 +128,19 @@ function _tsActiveCard(trip) {
     ? "📍 " + _tsEsc(trip.location) + " <span style='opacity:0.55'>· edit</span>"
     : "📍 <span style='opacity:0.7'>Set location…</span>";
   locBar.onclick = function() {
-    var v = prompt('Trip location (e.g. Turkey):', trip.location || '');
-    if (v === null) return;
-    var url = getScriptUrl(); if (!url) return;
-    callScript(url, 'setTripLocation', { tripStart: trip.tripStart, tripEnd: trip.tripEnd, location: v.trim() }, function(data) {
-      if (data && data.success) initTripSummaryTab();
-      else addLog('tripsummaryFeed', '❌ ' + (data && data.message ? data.message : 'Location update failed'), 'error');
+    rpmPrompt({
+      title: 'Trip location',
+      message: 'Shows in Trip History.',
+      value: trip.location || '',
+      placeholder: 'e.g. Turkey',
+      confirmLabel: 'Save'
+    }).then(function (v) {
+      if (v === null) return;
+      var url = getScriptUrl(); if (!url) return;
+      callScript(url, 'setTripLocation', { tripStart: trip.tripStart, tripEnd: trip.tripEnd, location: v.trim() }, function(data) {
+        if (data && data.success) initTripSummaryTab();
+        else addLog('tripsummaryFeed', '❌ ' + (data && data.message ? data.message : 'Location update failed'), 'error');
+      });
     });
   };
   card.appendChild(locBar);
@@ -336,7 +348,15 @@ function _tsPastRow(trip) {
 // ─── CLEAR TEST DATA ────────────────────────────────────────────────────────
 
 function _tsClearTestData() {
-  if (!confirm('Delete all TEST trip rows, [TEST] Skip Logs, and their threads?\n\nReal data is untouched. This cannot be undone.')) return;
+  rpmConfirm({
+    title: 'Delete all TEST data?',
+    message: 'Removes TEST trip rows, [TEST] Skip Logs and their threads. Real data is untouched. This cannot be undone.',
+    confirmLabel: 'Delete test data',
+    danger: true
+  }).then(function (ok) { if (ok) _tsClearTestDataGo(); });
+}
+
+function _tsClearTestDataGo() {
   var url = getScriptUrl(); if (!url) return;
   callScript(url, 'clearTravelTestData', {}, function(data) {
     if (data && data.success) {

@@ -19,14 +19,14 @@ function initTodoTab() {
           '<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">New To-Dos</div>' +
           '<div style="display:flex;align-items:center;gap:10px">' +
             '<div id="todoStatus" style="font-size:11px;color:var(--muted)">tap row to record</div>' +
-            '<button id="todoClose" title="Close" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1;padding:0 2px">✕</button>' +
+            '<button id="todoClose" data-tip="Close" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1;padding:0 2px">✕</button>' +
           '</div>' +
         '</div>' +
         _todoRowHtml(0, "Tap to start recording...") +
         _todoRowHtml(1, "Row 2 — tap to continue here") +
         _todoRowHtml(2, "Row 3 — tap to continue here") +
         '<div style="display:flex;gap:8px;margin-top:8px">' +
-          '<button id="todoMic" title="Toggle mic (captures selection if any text is highlighted)" style="padding:6px 12px;font-size:14px;background:transparent;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text)">' + MIC_ICON + '</button>' +
+          '<button id="todoMic" data-tip="Toggle mic (captures selection if any text is highlighted)" style="padding:6px 12px;font-size:14px;background:transparent;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text)">' + MIC_ICON + '</button>' +
           '<button id="todoLog" style="flex:1;padding:8px;font-size:13px;background:rgba(180,40,40,0.25);color:#ff6b6b;border:1px solid rgba(180,40,40,0.5);border-radius:4px;cursor:pointer;letter-spacing:0.5px">LOG IT →</button>' +
         '</div>' +
       '</div>' +
@@ -311,8 +311,8 @@ function _renderTodos() {
     clearBtn.textContent = "Clear all";
     clearBtn.style.cssText = "padding:3px 10px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:3px;cursor:pointer";
     clearBtn.onclick = function() {
-      if (!confirm("Delete all completed tasks?")) return;
-      _todoClearCompleted(clearBtn);
+      rpmConfirm({ title: "Delete all completed tasks?", confirmLabel: "Delete all", danger: true })
+        .then(function (ok) { if (ok) _todoClearCompleted(clearBtn); });
     };
     header.appendChild(clearBtn);
     doneWrap.appendChild(header);
@@ -351,8 +351,8 @@ function _todoListRow(t, num) {
   del.title = "Delete";
   del.style.cssText = "padding:0 8px;font-size:14px;background:transparent;color:var(--muted);border:none;cursor:pointer;flex-shrink:0";
   del.onclick = function() {
-    if (!confirm("Delete this task?")) return;
-    _todoDelete(t.row);
+    rpmConfirm({ title: "Delete this task?", confirmLabel: "Delete", danger: true })
+      .then(function (ok) { if (ok) _todoDelete(t.row); });
   };
   row.appendChild(del);
 

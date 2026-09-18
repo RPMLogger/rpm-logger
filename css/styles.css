@@ -9,7 +9,7 @@
   --green:   #2ecc71;
   --blue:    #4a9eff;
   --text:    #f0ede8;
-  --muted:   #555;
+  --muted:   #7a7a7a;   /* style pass: was #555, which read as disabled */
   --border:  #2a2a2a;
   --forgot:  #c0392b;
 
@@ -411,7 +411,7 @@ body::before {
 .inq-flabel { color: rgba(255,255,255,0.82); white-space: nowrap; }
 .inq-fval   { color: rgba(255,255,255,0.5); }
 .inq-acts  { display: flex; align-items: center; gap: 6px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
-.inq-db    { font-family: "DM Mono", monospace; font-size: 11px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: background .12s, color .12s; }
+.inq-db    { font-family: "DM Mono", monospace; font-size: 11px; padding: 5px 12px; border-radius: 7px; border: 1px solid color-mix(in srgb, var(--muted) 55%, transparent); background: transparent; color: var(--muted); cursor: pointer; transition: background .12s, color .12s; }
 .inq-db:hover { background: var(--surface2); }
 .inq-db.yes   { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); }
 .inq-db.yes:hover   { background: color-mix(in srgb, var(--green) 16%, transparent); }
@@ -906,6 +906,91 @@ body::before {
 .ns-dont .ns-card-hdr { color: var(--accent); }
 .ns-dont .ns-li::before { content: "✕  "; color: var(--accent); }
 .ns-update { font-size: 10px; color: var(--muted); text-align: center; padding: 6px 0 14px; line-height: 1.6; }
+
+/* ─── TOOLTIP ─────────────────────────────────────────────────────────────── */
+/* data-tip instead of title: the native title tooltip is drawn by the browser
+   (grey, light, ~1s delay, dies on re-render and cannot be styled). This one
+   is the portal's own. Add data-tip to any element to give it a tooltip.
+   It uses ::before, because ::after already carries the .opens-window arrow —
+   an element only has one of each, and both have to survive on the same
+   button (Maybe, No and Scam all open a window AND explain themselves). */
+[data-tip] { position: relative; }
+[data-tip]::before {
+  content: attr(data-tip);
+  position: absolute; bottom: calc(100% + 7px); left: 50%; transform: translateX(-50%);
+  background: #0b0b0b; color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 6px 9px;
+  font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.3px;
+  line-height: 1.5; white-space: nowrap; text-align: left;
+  opacity: 0; pointer-events: none; z-index: 9990;
+  transition: opacity .12s ease .35s;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.55);
+}
+[data-tip]:hover::before,
+[data-tip]:focus-visible::before { opacity: 1; }
+
+/* A button at the right edge would push its tooltip off the card. */
+[data-tip-left]::before { left: auto; right: 0; transform: none; }
+
+/* Long helper text wraps instead of running off the card. */
+[data-tip-wrap]::before { white-space: normal; width: 210px; }
+
+@media (prefers-reduced-motion: reduce) { [data-tip]::before { transition: none; } }
+
+/* ─── PORTAL DIALOG (core/dialog.js) ──────────────────────────────────────── */
+/* Replaces the native confirm/alert/prompt box. Every dialog in the portal
+   is drawn by these rules, so the look changes in one place. */
+.rpm-dlg-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.rpm-dlg {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--pad-card);
+  width: 100%; max-width: 420px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.5);
+}
+.rpm-dlg-wide { max-width: 520px; }
+.rpm-dlg-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.rpm-dlg-title {
+  font-family: "Syne", sans-serif; font-size: 16px; font-weight: 700;
+  color: var(--text); line-height: 1.3;
+}
+.rpm-dlg-title.danger { color: var(--accent); }
+.rpm-dlg-x {
+  background: none; border: none; color: var(--muted);
+  font-size: 14px; line-height: 1; cursor: pointer; padding: 2px 4px; flex-shrink: 0;
+}
+.rpm-dlg-x:hover { color: var(--text); }
+.rpm-dlg-msg {
+  font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.7;
+  color: var(--muted); margin-top: 8px; white-space: pre-line;
+}
+.rpm-dlg-input {
+  width: 100%; box-sizing: border-box; margin-top: 12px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+  padding: 9px 12px; color: var(--text);
+  font-family: "DM Mono", monospace; font-size: 12px;
+}
+.rpm-dlg-input:focus { outline: none; border-color: var(--warn); }
+.rpm-dlg-acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+.rpm-dlg-btn {
+  font-family: "DM Mono", monospace; font-size: 11px; cursor: pointer;
+  background: transparent; border: 1px solid color-mix(in srgb, var(--muted) 55%, transparent); color: var(--muted);
+  border-radius: 7px; padding: 6px 14px;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.rpm-dlg-btn:hover { background: var(--surface2); color: var(--text); }
+.rpm-dlg-btn.go     { color: var(--green);  border-color: rgba(46,204,113,0.55); }
+.rpm-dlg-btn.go:hover     { background: rgba(46,204,113,0.16); }
+.rpm-dlg-btn.danger { color: var(--accent); border-color: rgba(232,70,58,0.55); }
+.rpm-dlg-btn.danger:hover { background: rgba(232,70,58,0.16); }
+.rpm-dlg-btn:focus-visible { outline: 2px solid var(--warn); outline-offset: 2px; }
 
 /* Shared mic icon (MIC_ICON in core/utils.js) */
 .mic-icon { display: inline-block; vertical-align: middle; }

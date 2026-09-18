@@ -81,11 +81,11 @@ function _trAcceptedCard(a) {
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || "") + '"></div>' +
       '<div class="inq-acts">' +
         '<button class="db-mini-btn" onclick="_trReopen(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
-          'title="Send back to Inquiries as undecided">\u2190 Inquiries</button>' +
+          'data-tip="Send back to Inquiries as undecided">\u2190 Inquiries</button>' +
         // For the ones he emailed who never came back. Sending them "back to
         // Inquiries" only parks them there undecided; this removes them.
         '<button class="db-mini-btn" onclick="_trDelete(\'' + em + '\',' + (a.col || 0) + ',\'' + _trEsc(a.name || '') + '\', this)" ' +
-          'title="Delete this inquiry for good" style="border-color:var(--accent);color:var(--accent)">Delete</button>' +
+          'data-tip="Delete this inquiry for good" style="border-color:var(--accent);color:var(--accent)">Delete</button>' +
         '<button class="db-mini-btn" onclick="_trOpenEmail(\'' + em + '\')" style="border-color:var(--green);color:var(--green)">Email</button>' +
         '<button class="db-mini-btn" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')">Book \u2192</button>' +
       '</div>' +
@@ -1440,7 +1440,7 @@ function _tlUploadHtml(folder) {
       'font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);cursor:pointer">' + inqEsc(idle) + '</div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
       '<button class="btn-settings-load" style="margin:0;flex:1" onclick="openDropboxLocalFolder(document.getElementById(\'tlDrop\').dataset.folder)" ' +
-        'title="Opens their synced Dropbox folder in Finder. Drag as many folders in as you like; Dropbox uploads them.">\ud83d\udcc1 Open in Finder</button>' +
+        'data-tip="Opens their synced Dropbox folder in Finder. Drag as many folders in as you like; Dropbox uploads them.">\ud83d\udcc1 Open in Finder</button>' +
       '<button class="btn-settings-load" style="margin:0;flex:1" onclick="document.getElementById(\'tlFolderIn\').click()">\ud83d\udcc2 Browse folder</button>' +
     '</div>' +
     '<input type="file" id="tlFileIn" multiple style="display:none" onchange="_tlPicked(this, false)">' +
@@ -1663,7 +1663,15 @@ function _trSaveField(id, email, key, el) {
 function _trNotContinuing(id, email, name) {
   var url = getScriptUrl();
   if (!url || !email) return;
-  if (!confirm('Dismiss ' + (name || email) + '?\n\nOutcome becomes Unsuccessful and the card leaves the Trial tab.')) return;
+  rpmConfirm({
+    title: 'Dismiss ' + (name || email) + '?',
+    message: 'Outcome becomes Unsuccessful and the card leaves the Trial tab.',
+    confirmLabel: 'Dismiss',
+    danger: true
+  }).then(function (ok) { if (ok) _trNotContinuingGo(id, email, url); });
+}
+
+function _trNotContinuingGo(id, email, url) {
   var btn = document.getElementById('trnobtn-' + id);
   if (btn) { btn.disabled = true; btn.textContent = 'Saving\u2026'; }
 
@@ -1919,7 +1927,15 @@ function _trToggleThread(id) {
 function _trDelete(email, col, name, btn) {
   var url = getScriptUrl();
   if (!url || !email) return;
-  if (!confirm('Delete ' + (name || email) + ' for good?\n\nThe inquiry is removed from the archive. This cannot be undone.')) return;
+  rpmConfirm({
+    title: 'Delete ' + (name || email) + ' for good?',
+    message: 'The inquiry is removed from the archive. This cannot be undone.',
+    confirmLabel: 'Delete',
+    danger: true
+  }).then(function (ok) { if (ok) _trDeleteGo(email, col, btn, url); });
+}
+
+function _trDeleteGo(email, col, btn, url) {
   if (btn) { btn.disabled = true; btn.textContent = 'Deleting\u2026'; }
   fetch(url + '?action=deleteInquiryRow&email=' + encodeURIComponent(email) +
         '&col=' + encodeURIComponent(col || ''))

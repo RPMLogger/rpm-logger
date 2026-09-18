@@ -252,8 +252,9 @@ function renderInquiries(inquiries) {
 
     var fieldsHtml = inqCardFieldsHtml(inq);
 
-    function btn(cls, dec, label, title) {
-      return "<button class='inq-db " + cls + "' " + (title ? "title='" + title + "' " : "") +
+    function btn(cls, dec, label, tip, tipLeft) {
+      return "<button class='inq-db " + cls + "' " +
+        (tip ? "data-tip='" + tip + "' data-tip-wrap " + (tipLeft ? "data-tip-left " : "") : "") +
         "onclick='" + (dec === "scam" ? "inqScam" : "inqDecide") +
         "(" + (dec === "scam" ? "" : "\"" + dec + "\",") + "\"" + id + "\")'>" + label + "</button>";
     }
@@ -268,12 +269,11 @@ function renderInquiries(inquiries) {
       "</div>" +
       "<div class='inq-fields'>" + fieldsHtml + "</div>" +
       "<div class='inq-acts'>" +
-        btn("yes",   "yes",     "Yes") +
-        btn("maybe opens-window", "maybe", "Maybe", "Opens the editable email template") +
-        btn("no opens-window",    "no",    "No",    "Opens the editable email template") +
-        btn("",      "noreply", "No reply", "Silent clear — no email, keeps their address on the list") +
-        btn("opens-window", "scam", "Scam", "Scammer — asks to confirm, then deletes and trashes the email") +
-        "<button class='inq-x' onclick='deleteInquiry(\"" + id + "\")' title='Delete'>✕</button>" +
+        btn("yes",   "yes",     "Yes",      "Accepts. No email sent. Moves to Initiate (Stays in Inquiries Sheet)") +
+        btn("maybe opens-window", "maybe", "Maybe", "Email template (try in future). Saves in email list (Stays in Inquiries Sheet)") +
+        btn("no opens-window",    "no",    "No",    "Email template (I'm full, try different). No email list update (Stays in Inquiries Sheet)", true) +
+        btn("",      "noreply", "No reply", "No email sent. Stays on the email list for later (Stays in Inquiries Sheet)", true) +
+        btn("opens-window", "scam", "Scam", "Marks as scam. Deletes the email and the inquiry", true) +
       "</div>";
 
     card._inq = inq;
@@ -301,7 +301,15 @@ function inqScam(domId) {
   var card = document.getElementById("inq-" + domId);
   if (!card || !card._inq) return;
   var inq = card._inq;
-  if (!confirm("Mark as scam?\n\nIt stays in the Inquiries archive marked \"Scam\" and leaves the list.")) return;
+  rpmConfirm({
+    title: "Mark as scam?",
+    message: "It stays in the Inquiries archive marked \"Scam\" and leaves the list.",
+    confirmLabel: "Mark as scam",
+    danger: true
+  }).then(function (ok) { if (ok) _inqScamGo(inq); });
+}
+
+function _inqScamGo(inq) {
   var url = getScriptUrl();
   if (!url) return;
   var qs = "action=markInquiryScam&email=" + encodeURIComponent(inq.email || "") +
@@ -311,7 +319,10 @@ function inqScam(domId) {
     .then(function (d) {
       if (!d || !d.success) { _inqToast("⚠ " + ((d && d.message) || "Scam failed"), "var(--accent)"); return; }
       _inqRemoveCard("c" + inq.col);
-      _inqToast("🚫 Marked Scam", "var(--muted)");
+      _inqToast(d.purged
+        ? "🚫 Deleted — email trashed, inquiry removed"
+        : "🚫 Marked Scam — the email was not found, inquiry kept",
+        "var(--muted)");
     })
     .catch(function () { _inqToast("❌ Could not reach the portal.", "var(--accent)"); });
 }
@@ -371,10 +382,8 @@ function _inqOpenTemplate(decision, inq) {
       "<textarea id='inqTplBody' rows='9' style='box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:\"DM Mono\",monospace;font-size:12px;line-height:1.5;resize:vertical'>" + inqEsc(tpl.body) + "</textarea>" +
       "<div id='inqModalStatus'></div>" +
       "<div style='display:flex;gap:8px;margin-top:12px'>" +
-        (hasEmail
-          ? "<button id='inqSendBtn' onclick='_inqSubmitTemplate(\"" + decision + "\",true)' style='flex:2;background:" + accent + ";color:#fff;border:none;border-radius:10px;padding:12px;font-family:\"Syne\",sans-serif;font-weight:700;font-size:14px;cursor:pointer'>Send & file</button>"
-          : "") +
-        "<button onclick='_inqSubmitTemplate(\"" + decision + "\",false)' style='flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px;font-family:\"DM Mono\",monospace;font-size:12px;cursor:pointer'>Just file</button>" +
+        "<button id='inqSendBtn' onclick='_inqSubmitTemplate(\"" + decision + "\"," + (hasEmail ? "true" : "false") + ")' style='flex:1;background:" + accent + ";color:#fff;border:none;border-radius:10px;padding:12px;font-family:\"Syne\",sans-serif;font-weight:700;font-size:14px;cursor:pointer'>" +
+          (hasEmail ? "Send" : "Record decision") + "</button>" +
       "</div>" +
     "</div>";
   overlay._inq = inq;
@@ -497,12 +506,7 @@ function markInquiryRead(domId) {
   }
 }
 
-function deleteInquiry(domId) {
-  var card = document.getElementById("inq-" + domId);
-  if (!card || !card._inq) return;
-  var inq = card._inq;
-  _inqRemoveCard(domId);
-  // Email travels too, but only so the backend can check the column still holds
-  // the person this card was showing. It refuses rather than delete a stranger.
-  inqAction("deleteInquiryRow", inq.email, "&col=" + encodeURIComponent(inq.col));
-}
+// deleteInquiry was the card's ✕: one unconfirmed click permanently deleted an
+// inquiry column. Removed Sep 2026 — every decision already takes the card off
+// the list, Scam deletes deliberately (with a confirm), and the Trial tab keeps
+// a confirmed delete for archive cleanup.

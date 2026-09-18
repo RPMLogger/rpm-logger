@@ -206,7 +206,7 @@ function renderDropbox(d) {
 // One student folder card — click opens the folder in the local Dropbox app.
 // Empty folders show a green "EMPTY" badge; full ones show file count + age.
 function _dbCard(f) {
-  var open = 'onclick="openDropboxLocalFolder(\'' + _dbEsc(f.name) + '\')" title="Open in Dropbox app" ';
+  var open = 'onclick="openDropboxLocalFolder(\'' + _dbEsc(f.name) + '\')" data-tip="Open in Dropbox app" ';
   var col = f.empty ? 'var(--green)' : _dbAgeColor(f.ageDays);
   var chrome = 'style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' + col + ';' +
     'border-radius:10px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px"';
@@ -241,7 +241,7 @@ function _dbCard(f) {
 // trigger the card's open-in-Dropbox click. Present on every student card.
 function _dbRecoverBtn(name) {
   return '<button onclick="event.stopPropagation();_dbRecoverFolder(\'' + _dbEsc(name) + '\',this)" ' +
-    'title="Put back this student’s recently-deleted files (last 30 days)" ' +
+    'data-tip="Put back this student’s recently-deleted files (last 30 days)" ' +
     'style="margin-top:7px;font-family:\'DM Mono\',monospace;font-size:10px;background:transparent;color:var(--muted);' +
     'border:1px solid var(--border);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap">↺ Recover</button>';
 }
@@ -249,7 +249,7 @@ function _dbRecoverBtn(name) {
 // A teacher (non-student) folder card — same card shape, neutral blue spine,
 // file count + size, no age/cleanup signal. Click opens it locally.
 function _dbTeacherCard(c) {
-  return '<div onclick="openDropboxLocalFolder(\'' + _dbEsc(c.name) + '\')" title="Open in Dropbox app" ' +
+  return '<div onclick="openDropboxLocalFolder(\'' + _dbEsc(c.name) + '\')" data-tip="Open in Dropbox app" ' +
     'style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--blue);' +
     'border-radius:10px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px">' +
     '<div style="min-width:0">' +
@@ -356,7 +356,14 @@ function _dbCorrectFolder(folderName, counterName) {
 function _dbRecoverFolder(name, btn) {
   var url = getScriptUrl();
   if (!url) return;
-  if (!confirm('Put ' + name + '’s recently-deleted files back?\n\nRestores anything deleted in the last 30 days, resets their 14-day copy window, and emails them.')) return;
+  rpmConfirm({
+    title: 'Put ' + name + '’s deleted files back?',
+    message: 'Restores anything deleted in the last 30 days, resets their 14-day copy window, and emails them.',
+    confirmLabel: 'Recover'
+  }).then(function (ok) { if (ok) _dbRecoverGo(name, btn, url); });
+}
+
+function _dbRecoverGo(name, btn, url) {
   if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Recovering…'; }
   _dbStatus('Recovering ' + name + '’s deleted files…', 'var(--accent2)');
   fetch(url + '?action=restoreDropboxFolder&name=' + encodeURIComponent(name))

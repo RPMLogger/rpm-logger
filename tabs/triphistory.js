@@ -75,16 +75,22 @@ function _thRender(years) {
         "</div>" +
         "<span style='display:flex;align-items:center;gap:10px;flex:0 0 auto'>" +
           "<span style='font-size:13px;color:#ff6b6b;font-weight:600'>$" + (t.revenue || 0).toLocaleString() + "</span>" +
-          "<button class='th-restore-btn' title='Move back to Active Trips' style='font-size:10px;padding:3px 8px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>↩ Restore</button>" +
+          "<button class='th-restore-btn' data-tip='Move back to Active Trips' style='font-size:10px;padding:3px 8px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>↩ Restore</button>" +
         "</span>";
       var rb = row.querySelector('.th-restore-btn');
       if (rb) rb.onclick = function() {
-        if (!confirm('Restore this trip back to Active Trips?\n\n' + t.tripStart + ' → ' + t.tripEnd)) return;
-        var url = getScriptUrl(); if (!url) return;
-        rb.disabled = true; rb.textContent = '…';
-        callScript(url, 'unarchiveTrip', { tripStart: t.tripStart, tripEnd: t.tripEnd }, function(data) {
-          if (data && data.success) initTripHistoryTab();
-          else { rb.disabled = false; rb.textContent = '↩ Restore'; }
+        rpmConfirm({
+          title: 'Restore this trip to Active Trips?',
+          message: t.tripStart + ' → ' + t.tripEnd,
+          confirmLabel: 'Restore'
+        }).then(function (ok) {
+          if (!ok) return;
+          var url = getScriptUrl(); if (!url) return;
+          rb.disabled = true; rb.textContent = '…';
+          callScript(url, 'unarchiveTrip', { tripStart: t.tripStart, tripEnd: t.tripEnd }, function(data) {
+            if (data && data.success) initTripHistoryTab();
+            else { rb.disabled = false; rb.textContent = '↩ Restore'; }
+          });
         });
       };
       card.appendChild(row);

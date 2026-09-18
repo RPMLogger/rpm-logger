@@ -257,7 +257,7 @@ function _skStudentCard(s) {
       "</div>" +
       "<span style='display:flex;align-items:center;gap:8px;flex:0 0 auto'>" +
         _skWhoBadge(k.who) +
-        "<button class='sk-del' title='Delete this skip' style='background:transparent;border:none;color:var(--muted);font-size:14px;line-height:1;cursor:pointer;padding:2px 4px'>×</button>" +
+        "<button class='sk-del' data-tip='Delete this skip' style='background:transparent;border:none;color:var(--muted);font-size:14px;line-height:1;cursor:pointer;padding:2px 4px'>×</button>" +
       "</span>";
     row.querySelector('.sk-del').onclick = function(e) {
       e.stopPropagation();
@@ -267,10 +267,16 @@ function _skStudentCard(s) {
             '&name=' + encodeURIComponent(s.name) + '&date=' + encodeURIComponent(k.date))
         .then(function(r) { return r.json(); })
         .then(function(d) {
-          if (!d.success) { alert(d.message || 'Delete failed'); btn.disabled = false; btn.textContent = '×'; return; }
+          if (!d.success) {
+            rpmAlert({ title: 'Delete failed', message: d.message || 'The portal did not delete that skip.' });
+            btn.disabled = false; btn.textContent = '×'; return;
+          }
           initSkipsTab();
         })
-        .catch(function() { alert('Connection failed'); btn.disabled = false; btn.textContent = '×'; });
+        .catch(function() {
+          rpmAlert({ title: 'Connection failed', message: 'Could not reach the portal. Check your connection and try again.' });
+          btn.disabled = false; btn.textContent = '×';
+        });
     };
     body.appendChild(row);
   });
@@ -290,7 +296,7 @@ function _skStudentCard(s) {
 // line up down the list instead of jumping around.
 function _skChip(n, color, title) {
   var on = Number(n) > 0;
-  return "<span title='" + _skEsc(title) + "' style='min-width:18px;text-align:center;font-size:9px;font-weight:600;padding:2px 5px;border-radius:3px;" +
+  return "<span data-tip='" + _skEsc(title) + "' style='min-width:18px;text-align:center;font-size:9px;font-weight:600;padding:2px 5px;border-radius:3px;" +
          (on ? "color:" + color + ";background:" + _skFade(color) + ";border:1px solid " + _skFade(color, 0.45)
              : "color:var(--border);background:transparent;border:1px solid transparent") +
          "'>" + (n || 0) + "</span>";

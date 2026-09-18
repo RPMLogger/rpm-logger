@@ -182,7 +182,7 @@ function _fcBlock(s, color, offGrid, clash) {
             (s.odd && s.odd.length ? '\nOff slot: ' + s.odd.join(', ') : '') +
             (offGrid ? '\nOutside the teaching grid' : '') +
             (clash ? '\nMore than one student in this slot' : '');
-  return "<div class='fc-blk" + (clash ? ' clash' : '') + (s.pencil ? ' pen' : '') + "' title='" + _fcEsc(tip) + "' " +
+  return "<div class='fc-blk" + (clash ? ' clash' : '') + (s.pencil ? ' pen' : '') + "' data-tip='" + _fcEsc(tip) + "' " +
            "style='border-left-color:" + color + ";background:" + color + "26'>" +
            (s.pencil ? '✎ ' : '') + _fcEsc(s.name) +
            (s.pencil ? "<span class='pl'>pencilled</span>" : '') +
