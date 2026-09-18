@@ -866,7 +866,8 @@ function _trStageCard(a) {
 //   Frequency   Weekly / Biweekly
 //   Pick a time the first regular lesson, date + time, in the future
 //   Payment     ticks when the trial payment is found (or Paid on the row); window shows it
-//   Terms       sent, then DONE only when the acknowledgment form is back
+//   Terms       the button ticks once they are sent, but Make student still
+//               waits for the acknowledgment form to come back
 //   Right, the lesson itself:
 //   Log lesson  typed or dictated (REQUIRED for Make student)
 //   Send HW     drop files into their Dropbox folder (never required)
@@ -910,7 +911,9 @@ function _trFirstLessonLabel(v) {
          ' at ' + ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM');
 }
 
-// { info, dbx, log, freq, time, terms: true/false, termsSent, ready, missing[] }
+// { info, dbx, log, freq, time, terms: true/false, termsBack, termsSent, ready, missing[] }
+// terms is the GATE: form back, nothing less. termsSent only brightens the
+// step button, so a sent-but-not-returned form still blocks Make student.
 function _trStepState(a) {
   var s = a.lesson || {};
   var st = {
@@ -922,6 +925,7 @@ function _trStepState(a) {
     time:  (function () { var d = _trFirstLessonDate(s.firstLesson); return !!d && d > new Date(); })(),
     pay:   s.paid === true || String(s.paid || '').toUpperCase() === 'TRUE' || !!_trTrialPayFor(a.email),
     terms: !!s.termsBack,
+    termsBack: !!s.termsBack,
     termsSent: !!s.termsSent
   };
   st.missing = _TR_STEPS.filter(function (x) { return (!x.lesson || x.required) && !st[x.key]; }).map(function (x) { return x.label; });
@@ -940,14 +944,12 @@ function _trStepsHtml(a) {
   function col(list) {
     return '<div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px">' +
       list.map(function (x, i) {
-        var done = st[x.key];
-        var wait = x.key === 'terms' && !done && st.termsSent;
+        var done = x.key === 'terms' ? (st.termsBack || st.termsSent) : st[x.key];
         var c = x.lesson ? '#4a9eff' : '#ff7a3c';
-        return '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:7px;padding:3px 8px;color:' + c + ';background:' + _skFade(c) + ';border-color:rgba(255,255,255,0.1)' +
+        return '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:8px;padding:3px 8px;color:' + c + ';background:' + _skFade(c) + ';border-color:rgba(255,255,255,0.1)' +
                    (x.noWindow ? ';cursor:default' : '') + '" ' +
-                 (wait ? 'title="Terms sent, waiting for the form to come back" ' : '') +
                  (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
-                 (i + 1) + '. ' + x.label + (done ? ' ✓' : '') + (wait ? ' (sent)' : '') +
+                 (i + 1) + '. ' + x.label + (done ? ' ✓' : '') +
                '</button>';
       }).join('') + '</div>';
   }
@@ -2034,37 +2036,55 @@ function _msWhenLabel() {
 }
 
 function _msRenderForm() {
-  var a = _ms.card;
+  var a  = _ms.card;
+  var st = _trStepState(a);
   var rate = (_msRates && _msRates[_ms.cadence]) || '';
   var tp = _trTrialPayFor(a.email);
-  var row = function (k, v, color) {
-    return '<div style="display:flex;gap:12px;padding:5px 0;font-family:\'DM Mono\',monospace;font-size:13px">' +
-      '<span style="width:110px;flex:none;color:var(--muted);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding-top:2px">' + k + '</span>' +
-      '<span style="color:' + (color || 'var(--text)') + '">' + v + '</span></div>';
-  };
+
+  // One line per checklist step. Most are a tick and nothing else: by the time
+  // this window opens they are all done, so the detail behind them is noise.
+  // Frequency and the first lesson date carry their value as well as the tick,
+  // because those are the two things worth reading again before confirming.
+  var TICK = 'rgba(46,204,113,0.75)';
+  function row(k, v, done, color) {
+    return '<div style="display:flex;gap:12px;padding:4px 0;font-family:\'DM Mono\',monospace;font-size:12px">' +
+        '<span style="width:104px;flex:none;color:var(--muted);font-size:10px;letter-spacing:1px;' +
+            'text-transform:uppercase;padding-top:3px">' + k + '</span>' +
+        '<span style="color:' + TICK + ';flex:none;width:12px">' + (done ? '✓' : '') + '</span>' +
+        '<span style="color:' + (color || 'rgba(255,255,255,0.82)') + '">' + v + '</span>' +
+      '</div>';
+  }
+
   document.getElementById('msModal').innerHTML =
     '<div class="settings-title">Confirm as student<button class="settings-close" id="msX" onclick="_msClose()">✕</button></div>' +
 
-    '<div style="font-family:\'Syne\',sans-serif;font-size:22px;font-weight:700;color:var(--text);margin:2px 0 10px">' + inqEsc(_ms.name) + '</div>' +
-    '<div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:8px 0;margin-bottom:14px">' +
-      row('Schedule', _ms.cadence === 'biweekly' ? 'Biweekly' : 'Weekly') +
-      row('First lesson', inqEsc(_msWhenLabel())) +
-      row('Trial', tp
-        ? 'Paid ✓ · ' + inqEsc(tp.method || '') + ' ' + inqEsc(tp.amount || '') + ' · ' + inqEsc(tp.date || '')
-        : 'No trial payment found', tp ? 'var(--green)' : 'var(--muted)') +
+    '<div style="font-family:\'Syne\',sans-serif;font-size:20px;font-weight:400;color:var(--text);margin:2px 0 12px">' + inqEsc(_ms.name) + '</div>' +
+    '<div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 0;margin-bottom:16px">' +
+      row('Info',    '',                                                       st.info) +
+      row('Dropbox', '',                                                       st.dbx) +
+      row('Frequency', _ms.cadence === 'biweekly' ? 'Biweekly' : 'Weekly',     st.freq) +
+      row('First lesson', inqEsc(_msWhenLabel()),                              st.time) +
+      row('Payment', tp ? '' : 'No trial payment found',                       st.pay,
+          tp ? null : 'var(--muted)') +
+      row('Terms',   st.termsBack ? 'Back' : (st.termsSent ? 'Sent' : 'Not sent yet'),
+          st.termsBack || st.termsSent,
+          st.termsBack ? null : 'var(--muted)') +
     '</div>' +
 
     _msLbl('Rate ($ per lesson)') +
     '<input class="settings-input" id="msRate" inputmode="decimal" value="' + _msAttr(rate) + '" oninput="_ms.rateEdited=true">' +
     '<div id="msRateHint" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin:-6px 0 10px"></div>' +
 
-    '<label style="display:block;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);margin:4px 0 16px">' +
+    '<label style="display:block;font-family:\'DM Mono\',monospace;font-size:12px;color:rgba(255,255,255,0.82);margin:4px 0 16px">' +
       '<input type="checkbox" id="msText" checked> Send welcome text</label>' +
 
-    '<button id="msGoBtn" onclick="_msMake()" ' +
-      'style="width:100%;box-sizing:border-box;background:var(--green);color:#0b0b0b;border:none;border-radius:10px;padding:15px;' +
-      'font-family:\'Syne\',sans-serif;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px">' +
-      'Confirm as student</button>' +
+    '<div style="display:flex;justify-content:flex-end">' +
+      '<button id="msGoBtn" onclick="_msMake()" ' +
+        'style="background:var(--green);color:#0b0b0b;border:none;border-radius:8px;padding:8px 18px;' +
+        'font-family:\'DM Mono\',monospace;font-size:12px;font-weight:500;letter-spacing:0.5px;cursor:pointer;' +
+        'display:inline-flex;align-items:center;justify-content:center;gap:8px">' +
+        'Confirm as student</button>' +
+    '</div>' +
     '<div id="msResult"></div>';
   _msRateHint();
 }
