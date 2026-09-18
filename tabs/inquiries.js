@@ -254,7 +254,7 @@ function renderInquiries(inquiries) {
 
     function btn(cls, dec, label, tip, tipLeft) {
       return "<button class='inq-db " + cls + "' " +
-        (tip ? "data-tip='" + tip + "' data-tip-wrap " + (tipLeft ? "data-tip-left " : "") : "") +
+        (tip ? "data-tip='" + inqEsc(tip) + "' data-tip-wrap " + (tipLeft ? "data-tip-left " : "") : "") +
         "onclick='" + (dec === "scam" ? "inqScam" : "inqDecide") +
         "(" + (dec === "scam" ? "" : "\"" + dec + "\",") + "\"" + id + "\")'>" + label + "</button>";
     }
@@ -269,11 +269,11 @@ function renderInquiries(inquiries) {
       "</div>" +
       "<div class='inq-fields'>" + fieldsHtml + "</div>" +
       "<div class='inq-acts'>" +
-        btn("yes",   "yes",     "Yes",      "Accepts. No email sent. Moves to Initiate (Stays in Inquiries Sheet)") +
-        btn("maybe opens-window", "maybe", "Maybe", "Email template (try in future). Saves in email list (Stays in Inquiries Sheet)") +
-        btn("no opens-window",    "no",    "No",    "Email template (I'm full, try different). No email list update (Stays in Inquiries Sheet)", true) +
-        btn("",      "noreply", "No reply", "No email sent. Stays on the email list for later (Stays in Inquiries Sheet)", true) +
-        btn("opens-window", "scam", "Scam", "Marks as scam. Deletes the email and the inquiry", true) +
+        btn("yes",   "yes",     "Yes",      "accepts - no email sent - moves to initiate - stays in inquiries sheet") +
+        btn("maybe opens-window", "maybe", "Maybe", "email template - try in future - saves in email list - stays in inquiries sheet") +
+        btn("no opens-window",    "no",    "No",    "email template - i'm full, try different - no email list - stays in inquiries sheet", true) +
+        btn("",      "noreply", "No reply", "no email sent - kept on email list for later - stays in inquiries sheet", true) +
+        btn("opens-window", "scam", "Scam", "marks as scam - deletes the email - deletes the inquiry", true) +
       "</div>";
 
     card._inq = inq;
