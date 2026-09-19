@@ -13,7 +13,7 @@
 
 var _chData   = null;
 var _chFilter = '';
-var _chOrder  = 'old';   // 'old' = as logged · 'new' = most recent first
+var _chOrder  = 'new';   // 'new' = most recent first · 'old' = as logged
 var _chPick   = null;    // { si, li } currently opened cell
 
 function initChartTab() {
@@ -126,8 +126,8 @@ function _chRender(status) {
       var on = (_chPick && _chPick.si === si && _chPick.li === li) ? ' on' : '';
       h += '<td class="ch-cell' + (L.paid ? ' paid' : '') + on + '" ' +
            'onclick="_chPickCell(' + si + ',' + li + ')" ' +
-           'title="' + _chEsc(s.name + ' · ' + L.date) + '">' +
-           '<span class="d">' + _chEsc(L.date) + '</span>' +
+           'title="' + _chEsc(s.name + ' · ' + L.date + (L.yr ? " '" + L.yr : '')) + '">' +
+           '<span class="d">' + _chEsc(L.date) + (L.yr ? '<i>&#8217;' + _chEsc(L.yr) + '</i>' : '') + '</span>' +
            (L.note ? '<span class="dot"></span>' : '') +
            '</td>';
     }
@@ -142,9 +142,13 @@ function _chRender(status) {
 
   body.innerHTML = h;
 
-  // Land on the most recent lessons, the end you actually read.
+  // Newest first is the default: students have wildly different lesson counts,
+  // so aligning by lesson 1 leaves the right-hand end of the grid empty for
+  // everyone but the longest-running student. Newest first lines every
+  // student's latest lesson up in the first column. As logged mirrors the tab
+  // instead, and starts where the tab does, at lesson 1.
   var wrap = document.getElementById('chWrap');
-  if (wrap && _chOrder === 'old') wrap.scrollLeft = wrap.scrollWidth;
+  if (wrap) wrap.scrollLeft = 0;
 
   if (_chFilter) _chSetFilter(_chFilter);
 }
@@ -159,6 +163,7 @@ function _chDetailHtml(all) {
   var h = '';
   h += '<div class="ch-dh">' + _chEsc(s.name) +
        '<span>lesson ' + _chEsc(L.num || String(_chPick.li + 1)) + ' &middot; ' + _chEsc(L.date) +
+       (L.yr ? ' &#8217;' + _chEsc(L.yr) : '') +
        ' &middot; row ' + L.row + '</span></div>';
   h += '<div class="ch-dl"><span class="k">Subject</span>' +
        (L.subj ? _chEsc(L.subj) : '<em>blank</em>') + '</div>';
@@ -200,7 +205,8 @@ function _chSample() {
     for (var i = 0; i < n; i++) {
       lessons.push({
         row:   12 + i,
-        date:  (d.getMonth() + 1) + '/' + d.getDate() + '/' + String(d.getFullYear()).slice(2),
+        date:  ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()] + ' ' + d.getDate(),
+        yr:    String(d.getFullYear()).slice(2),
         subj:  ['Scales', 'Blues in A', 'Chord voicings', 'Song work'][i % 4],
         paid:  Math.floor(i / 4) % 3 !== 2,
         pdate: '',
@@ -250,12 +256,13 @@ function _chInjectStyle() {
     ".ch-name .in{display:flex;align-items:center;justify-content:space-between;gap:10px;height:30px}" +
     ".ch-name .n{color:var(--text);font-size:12px}" +
     ".ch-name .c{color:var(--muted);font-size:10px}" +
-    ".ch-table td.ch-cell{position:relative;height:30px;min-width:66px;padding:0 6px;color:var(--muted);background:var(--surface2);border-left:2px solid var(--border);cursor:pointer;white-space:nowrap;text-align:center}" +
+    ".ch-table td.ch-cell{position:relative;height:30px;min-width:78px;padding:0 6px;color:var(--muted);background:var(--surface2);border-left:2px solid var(--border);cursor:pointer;white-space:nowrap;text-align:center}" +
     ".ch-table td.ch-cell.paid{background:rgba(46,204,113,.10);border-left-color:var(--green);color:var(--text)}" +
     ".ch-table td.ch-cell.empty{background:transparent;border-left-color:transparent;cursor:default}" +
     ".ch-cell:not(.empty):hover{outline:1px solid #555}" +
     ".ch-cell.on{outline:2px solid var(--accent);outline-offset:-2px;color:var(--text)}" +
     ".ch-cell .d{font-size:10px}" +
+    ".ch-cell .d i{font-style:normal;opacity:.55;margin-left:2px}" +
     ".ch-cell .dot{position:absolute;top:4px;right:4px;width:4px;height:4px;border-radius:50%;background:var(--accent2)}" +
     ".ch-detail{margin-top:12px;border:1px solid var(--border);border-radius:var(--radius-card);background:var(--panel);padding:var(--pad-card);font-size:12px;line-height:1.7;min-height:52px}" +
     ".ch-hint{color:var(--muted);font-size:11px}" +
