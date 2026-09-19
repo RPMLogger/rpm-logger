@@ -472,15 +472,11 @@ body::before {
 .inq-dcard.ia-d-no      { border-left-color: var(--forgot); }
 .inq-dcard.ia-d-noreply { border-left-color: var(--muted); }
 .inq-dcard.ia-d-scam    { border-left-color: var(--muted); }
-.ia-total { display: flex; gap: 22px; flex-wrap: wrap; margin-bottom: 24px; }
-.ia-stat { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); }
-.ia-stat b { font-weight: 500; color: var(--text); margin-left: 4px; }
 .ia-year {
   display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
   margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
 }
 .ia-year-n { font-family: "Bebas Neue", sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--text); }
-.ia-year-c { display: flex; gap: 22px; flex-wrap: wrap; }
 /* The decision, where the Inquiries card keeps its buttons. */
 .ia-chip {
   font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px;

@@ -73,12 +73,18 @@ function _iaChip(decision) {
 
 // Total / Accepted / Open, the three numbers worth having. Accepted is a Yes:
 // every student on the books came through one.
+//
+// Rendered with the same count tiles as the Load strip (_inqCount, from
+// inquiries.js) rather than a private layout, so a number means the same thing
+// and looks the same wherever it appears in the portal.
 function _iaStats(rows) {
   var yes  = rows.filter(function (i) { return (i.decision || "").toLowerCase() === "yes"; }).length;
   var open = rows.filter(function (i) { return !i.decision; }).length;
-  return "<span class='ia-stat'>Total: <b>" + rows.length + "</b></span>" +
-         "<span class='ia-stat'>Accepted: <b>" + yes + "</b></span>" +
-         "<span class='ia-stat'>Open: <b>" + open + "</b></span>";
+  return "<div class='rpm-counts'>" +
+      _inqCount("Total",    rows.length) +
+      _inqCount("Accepted", yes) +
+      _inqCount("Open",     open) +
+    "</div>";
 }
 
 function _iaRender(inquiries) {
@@ -107,9 +113,7 @@ function _iaRender(inquiries) {
 
   // A grand total only when there is more than one year to add up. With a
   // single year it would just repeat the year header word for word.
-  var html = (years.length > 1)
-    ? "<div class='ia-total'>" + _iaStats(all) + "</div>"
-    : "";
+  var html = (years.length > 1) ? _iaStats(all) : "";
 
   years.forEach(function (y) {
     var rows = byYear[y];
@@ -117,8 +121,8 @@ function _iaRender(inquiries) {
     html +=
       "<div class='ia-year'>" +
         "<span class='ia-year-n'>" + (y || "No date") + "</span>" +
-        "<span class='ia-year-c'>" + _iaStats(rows) + "</span>" +
-      "</div>";
+      "</div>" +
+      _iaStats(rows);
 
     rows.forEach(function (inq) {
       html +=
