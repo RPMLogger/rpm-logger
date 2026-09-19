@@ -399,6 +399,8 @@ body::before {
 .inq-respond:hover { background: var(--green); color: #000; }
 .inq-archive { display: inline-block; margin-top: 14px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); text-decoration: none; }
 .inq-archive:hover { color: var(--accent2); }
+/* At the top of the Inquiries list, pointing at the Archive tab (not the sheet). */
+.inq-archive.top { display: block; margin: 0 0 18px; }
 .financial-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 12px; line-height: 3; border: 1px dashed var(--border); border-radius: 8px; }
 
 /* ─── COUNT TILES ─────────────────────────────────────────────────────────── */
@@ -476,7 +478,7 @@ body::before {
   display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
   margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
 }
-.ia-year-n { font-family: "Bebas Neue", sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--text); }
+.ia-year-n { font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 2px; color: var(--muted); }
 /* The decision, where the Inquiries card keeps its buttons. */
 .ia-chip {
   font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px;
