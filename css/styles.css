@@ -459,6 +459,28 @@ body::before {
 .inq-dcard.unread { border-left-color: var(--accent); }
 .inq-dcard.read   { opacity: 0.62; }
 .inq-dcard.accepted { border-left-color: var(--green); }   /* Trial tab: same card, accepted edge */
+
+/* ─── INQUIRY ARCHIVE ─────────────────────────────────────────────────────── */
+/* The same card, read-only: no accent edge, because nothing here is waiting
+   on you, and no dimming either, because an old inquiry is not less real. */
+.inq-dcard.archived { border-left-color: var(--border); }
+.ia-total { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); margin-bottom: 24px; }
+.ia-year {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.ia-year-n { font-family: "Bebas Neue", sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--text); }
+.ia-year-c { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); }
+/* The decision, where the Inquiries card keeps its buttons. */
+.ia-chip {
+  font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px;
+  text-transform: uppercase; padding: 3px 8px; border-radius: var(--radius-pill);
+  border: 1px solid var(--border); color: var(--muted);
+}
+.ia-chip.ia-yes     { color: var(--green); border-color: rgba(46,204,113,0.35); }
+.ia-chip.ia-maybe   { color: var(--warn);  border-color: rgba(217,164,65,0.35); }
+.ia-chip.ia-no      { color: var(--accent); border-color: rgba(232,70,58,0.35); }
+.ia-chip.ia-open    { color: var(--text);  border-color: var(--border); }
 .inq-drow  { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .inq-chan  { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
 .inq-when  { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); white-space: nowrap; }

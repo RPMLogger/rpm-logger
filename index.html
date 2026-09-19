@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=480">
+  <link rel="stylesheet" href="css/styles.css?v=481">
 </head>
 <body>
 <div class="container">
@@ -60,6 +60,7 @@
         <button class="tab-btn nav-item" data-tab="inquiries" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
         <button class="tab-btn nav-item" data-tab="initiate" onclick="switchTab('initiate')">Initiate<span class="inq-badge" id="initNavBadge" style="display:none"></span></button>
         <button class="tab-btn nav-item" data-tab="trial" onclick="switchTab('trial')">Trial</button>
+        <button class="tab-btn nav-item" data-tab="inqarchive" onclick="switchTab('inqarchive')">Archive</button>
       </div>
     </div>
     <button class="tab-btn" data-tab="general" onclick="switchTab('general')">Load</button>
@@ -287,6 +288,13 @@
       <div id="inquiriesList"><div class="inq-empty">Loading...</div></div>
       <a class="inq-archive" href="https://docs.google.com/spreadsheets/d/1JE0KugItYkWF19Pp8zqw6xCyLxjS-ryZMplC6XijOSM/edit" target="_blank" rel="noopener">Open inquiry archive ↗</a>
     </div>
+  </div>
+
+  <!-- INQUIRY ARCHIVE -->
+  <!-- Every inquiry ever, decided or not, read-only. Lazy: fills on first open. -->
+  <div class="tab-panel" id="tab-inqarchive">
+    <div class="section-label">Inquiry Archive</div>
+    <div id="inqArchiveList"><div class="inq-empty">Loading...</div></div>
   </div>
 
   <!-- NOTES -->
@@ -719,7 +727,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">480</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">481</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Settings">⚙</button>
   </div>
 
@@ -747,34 +755,35 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=480"></script>
-<script src="tabs/lessons.js?v=480"></script>
-<script src="tabs/payments.js?v=480"></script>
-<script src="tabs/week.js?v=480"></script>
-<script src="tabs/general.js?v=480"></script>
-<script src="tabs/financial.js?v=480"></script>
-<script src="tabs/inquiries.js?v=480"></script>
-<script src="tabs/comms.js?v=480"></script>
-<script src="tabs/notes.js?v=480"></script>
-<script src="tabs/todo.js?v=480"></script>
-<script src="tabs/availability.js?v=480"></script>
-<script src="tabs/biweekly.js?v=480"></script>
-<script src="tabs/travel.js?v=480"></script>
-<script src="tabs/tripsummary.js?v=480"></script>
-<script src="tabs/triphistory.js?v=480"></script>
-<script src="tabs/skips.js?v=480"></script>
-<script src="tabs/student.js?v=480"></script>
-<script src="tabs/ctrl.js?v=480"></script>
-<script src="tabs/mailcenter.js?v=480"></script>
-<script src="tabs/dropbox.js?v=480"></script>
-<script src="tabs/trial.js?v=480"></script>
-<script src="tabs/rates.js?v=480"></script>
-<script src="tabs/ending.js?v=480"></script>
-<script src="tabs/thisyear.js?v=480"></script>
-<script src="tabs/sheets.js?v=480"></script>
-<script src="tabs/studentline.js?v=480"></script>
-<script src="tabs/calendar.js?v=480"></script>
-<script src="tabs/fixedcal.js?v=480"></script>
+<script src="tabs/icons.js?v=481"></script>
+<script src="tabs/lessons.js?v=481"></script>
+<script src="tabs/payments.js?v=481"></script>
+<script src="tabs/week.js?v=481"></script>
+<script src="tabs/general.js?v=481"></script>
+<script src="tabs/financial.js?v=481"></script>
+<script src="tabs/inquiries.js?v=481"></script>
+<script src="tabs/inqarchive.js?v=481"></script>
+<script src="tabs/comms.js?v=481"></script>
+<script src="tabs/notes.js?v=481"></script>
+<script src="tabs/todo.js?v=481"></script>
+<script src="tabs/availability.js?v=481"></script>
+<script src="tabs/biweekly.js?v=481"></script>
+<script src="tabs/travel.js?v=481"></script>
+<script src="tabs/tripsummary.js?v=481"></script>
+<script src="tabs/triphistory.js?v=481"></script>
+<script src="tabs/skips.js?v=481"></script>
+<script src="tabs/student.js?v=481"></script>
+<script src="tabs/ctrl.js?v=481"></script>
+<script src="tabs/mailcenter.js?v=481"></script>
+<script src="tabs/dropbox.js?v=481"></script>
+<script src="tabs/trial.js?v=481"></script>
+<script src="tabs/rates.js?v=481"></script>
+<script src="tabs/ending.js?v=481"></script>
+<script src="tabs/thisyear.js?v=481"></script>
+<script src="tabs/sheets.js?v=481"></script>
+<script src="tabs/studentline.js?v=481"></script>
+<script src="tabs/calendar.js?v=481"></script>
+<script src="tabs/fixedcal.js?v=481"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -827,7 +836,7 @@
     // tab button is removed. The #tab-lessons panel div still lives in the DOM
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
-    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","rates","reviews","lifetime","concert","newsched","thisyear","sheets","skips","studentline","calendar","fixedcal"];
+    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","rates","reviews","lifetime","concert","newsched","thisyear","sheets","skips","studentline","calendar","fixedcal","inqarchive"];
     tabs.forEach(function(t) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       var btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
@@ -861,6 +870,7 @@
     if (tab === "studentline") initStudentLineTab();
     if (tab === "calendar") initCalendarTab();
     if (tab === "fixedcal") initFixedCalTab();
+    if (tab === "inqarchive") initInqArchiveTab();
   }
 
   var _now = new Date();
