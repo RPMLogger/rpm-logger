@@ -399,8 +399,15 @@ body::before {
 .inq-respond:hover { background: var(--green); color: #000; }
 .inq-archive { display: inline-block; margin-top: 14px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); text-decoration: none; }
 .inq-archive:hover { color: var(--accent2); }
-/* At the top of the Inquiries list, pointing at the Archive tab (not the sheet). */
-.inq-archive.top { display: block; margin: 0 0 18px; }
+/* At the top of the Inquiries list, pointing at the Archive tab (not the sheet).
+   Section labels next to it are grey, uppercase and wide-tracked, so this drops
+   all three: sentence case, tight, amber. It reads as somewhere to go. */
+.inq-archive.top {
+  display: block; margin: 0 0 18px;
+  font-size: 11px; letter-spacing: 0.3px; text-transform: none;
+  color: var(--accent2);
+}
+.inq-archive.top:hover { color: var(--accent2); text-decoration: underline; }
 .financial-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 12px; line-height: 3; border: 1px dashed var(--border); border-radius: 8px; }
 
 /* ─── COUNT TILES ─────────────────────────────────────────────────────────── */
