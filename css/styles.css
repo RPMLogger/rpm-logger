@@ -417,7 +417,11 @@ body::before {
   display: block; margin: 0 0 18px;
   font-size: 11px; letter-spacing: 0.3px; text-transform: none;
   color: color-mix(in srgb, var(--accent2) 60%, var(--muted));
+  transition: color .12s;
 }
+/* Hover lifts it past plain amber, so the dim resting state reads as "quiet",
+   not as "disabled". */
+.inq-archive.top:hover { color: color-mix(in srgb, var(--accent2) 75%, #fff); }
 .financial-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 12px; line-height: 3; border: 1px dashed var(--border); border-radius: 8px; }
 
 /* ─── COUNT TILES ─────────────────────────────────────────────────────────── */

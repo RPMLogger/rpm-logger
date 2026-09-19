@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=491">
+  <link rel="stylesheet" href="css/styles.css?v=492">
 </head>
 <body>
 <div class="container">
@@ -39,6 +39,14 @@
        A .nav-drop can hold any group of tabs.
        switchTab selects by data-tab, so button order is free to change. -->
   <div class="tabs">
+    <div class="nav-drop">
+      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Intake ▾</button>
+      <div class="nav-menu">
+        <button class="tab-btn nav-item" data-tab="inquiries" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
+        <button class="tab-btn nav-item" data-tab="initiate" onclick="switchTab('initiate')">Initiate<span class="inq-badge" id="initNavBadge" style="display:none"></span></button>
+        <button class="tab-btn nav-item" data-tab="trial" onclick="switchTab('trial')">Trial</button>
+      </div>
+    </div>
     <button class="tab-btn" data-tab="ctrl" onclick="switchTab('ctrl')">Audit</button>
     <button class="tab-btn" data-tab="biweekly" onclick="switchTab('biweekly')">Biweekly</button>
     <button class="tab-btn" data-tab="calendar" onclick="switchTab('calendar')">Calendar</button>
@@ -54,14 +62,6 @@
     <button class="tab-btn" data-tab="fixedcal" onclick="switchTab('fixedcal')">Fixed Calendar</button>
     <button class="tab-btn" data-tab="holidays" onclick="switchTab('holidays')">Holidays Alerts</button>
     <button class="tab-btn active" data-tab="student" onclick="switchTab('student')">Home</button>
-    <div class="nav-drop">
-      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Intake ▾</button>
-      <div class="nav-menu">
-        <button class="tab-btn nav-item" data-tab="inquiries" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
-        <button class="tab-btn nav-item" data-tab="initiate" onclick="switchTab('initiate')">Initiate<span class="inq-badge" id="initNavBadge" style="display:none"></span></button>
-        <button class="tab-btn nav-item" data-tab="trial" onclick="switchTab('trial')">Trial</button>
-      </div>
-    </div>
     <button class="tab-btn" data-tab="general" onclick="switchTab('general')">Load</button>
     <button class="tab-btn" data-tab="mailcenter" onclick="switchTab('mailcenter')">Mail Center<span class="inq-badge" id="gbNavBadge" style="display:none"></span></button>
     <button class="tab-btn" data-tab="newsched" onclick="switchTab('newsched')">New Students</button>
@@ -727,7 +727,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">491</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">492</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Settings">⚙</button>
   </div>
 
@@ -755,35 +755,35 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=491"></script>
-<script src="tabs/lessons.js?v=491"></script>
-<script src="tabs/payments.js?v=491"></script>
-<script src="tabs/week.js?v=491"></script>
-<script src="tabs/general.js?v=491"></script>
-<script src="tabs/financial.js?v=491"></script>
-<script src="tabs/inquiries.js?v=491"></script>
-<script src="tabs/inqarchive.js?v=491"></script>
-<script src="tabs/comms.js?v=491"></script>
-<script src="tabs/notes.js?v=491"></script>
-<script src="tabs/todo.js?v=491"></script>
-<script src="tabs/availability.js?v=491"></script>
-<script src="tabs/biweekly.js?v=491"></script>
-<script src="tabs/travel.js?v=491"></script>
-<script src="tabs/tripsummary.js?v=491"></script>
-<script src="tabs/triphistory.js?v=491"></script>
-<script src="tabs/skips.js?v=491"></script>
-<script src="tabs/student.js?v=491"></script>
-<script src="tabs/ctrl.js?v=491"></script>
-<script src="tabs/mailcenter.js?v=491"></script>
-<script src="tabs/dropbox.js?v=491"></script>
-<script src="tabs/trial.js?v=491"></script>
-<script src="tabs/rates.js?v=491"></script>
-<script src="tabs/ending.js?v=491"></script>
-<script src="tabs/thisyear.js?v=491"></script>
-<script src="tabs/sheets.js?v=491"></script>
-<script src="tabs/studentline.js?v=491"></script>
-<script src="tabs/calendar.js?v=491"></script>
-<script src="tabs/fixedcal.js?v=491"></script>
+<script src="tabs/icons.js?v=492"></script>
+<script src="tabs/lessons.js?v=492"></script>
+<script src="tabs/payments.js?v=492"></script>
+<script src="tabs/week.js?v=492"></script>
+<script src="tabs/general.js?v=492"></script>
+<script src="tabs/financial.js?v=492"></script>
+<script src="tabs/inquiries.js?v=492"></script>
+<script src="tabs/inqarchive.js?v=492"></script>
+<script src="tabs/comms.js?v=492"></script>
+<script src="tabs/notes.js?v=492"></script>
+<script src="tabs/todo.js?v=492"></script>
+<script src="tabs/availability.js?v=492"></script>
+<script src="tabs/biweekly.js?v=492"></script>
+<script src="tabs/travel.js?v=492"></script>
+<script src="tabs/tripsummary.js?v=492"></script>
+<script src="tabs/triphistory.js?v=492"></script>
+<script src="tabs/skips.js?v=492"></script>
+<script src="tabs/student.js?v=492"></script>
+<script src="tabs/ctrl.js?v=492"></script>
+<script src="tabs/mailcenter.js?v=492"></script>
+<script src="tabs/dropbox.js?v=492"></script>
+<script src="tabs/trial.js?v=492"></script>
+<script src="tabs/rates.js?v=492"></script>
+<script src="tabs/ending.js?v=492"></script>
+<script src="tabs/thisyear.js?v=492"></script>
+<script src="tabs/sheets.js?v=492"></script>
+<script src="tabs/studentline.js?v=492"></script>
+<script src="tabs/calendar.js?v=492"></script>
+<script src="tabs/fixedcal.js?v=492"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
