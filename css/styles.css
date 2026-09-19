@@ -405,9 +405,8 @@ body::before {
 .inq-archive.top {
   display: block; margin: 0 0 18px;
   font-size: 11px; letter-spacing: 0.3px; text-transform: none;
-  color: var(--accent2);
+  color: color-mix(in srgb, var(--accent2) 60%, var(--muted));
 }
-.inq-archive.top:hover { color: var(--accent2); text-decoration: underline; }
 .financial-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 12px; line-height: 3; border: 1px dashed var(--border); border-radius: 8px; }
 
 /* ─── COUNT TILES ─────────────────────────────────────────────────────────── */
