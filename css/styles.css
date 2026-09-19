@@ -160,7 +160,7 @@ body::before {
    from a finished block to the next label. A label belongs to what follows
    it, so it sits nearer to that than to what came before, but the page is
    meant to breathe: the 32 is a real rest between sections, not a hairline. */
-.section-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+.section-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
 .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 .empty-state { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 11px; line-height: 2; }
 
@@ -455,7 +455,7 @@ body::before {
 .inq-reply-acts .inq-db { text-decoration: none; display: inline-block; }
 
 /* ─── Inquiries: decision cards (clean) ─────────────────────────────────── */
-.inq-dcard { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+.inq-dcard { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: 10px; padding: 20px 22px; margin-bottom: 10px; }
 .inq-dcard.unread { border-left-color: var(--accent); }
 .inq-dcard.read   { opacity: 0.62; }
 .inq-dcard.accepted { border-left-color: var(--green); }   /* Trial tab: same card, accepted edge */
