@@ -897,6 +897,7 @@ var _TR_STEPS = [
   { key: 'time',  label: 'Pick a time' },
   { key: 'pay',   label: 'Payment' },                   // trial payment; the window shows what was found
   { key: 'terms', label: 'Terms Sent' },
+  { key: 'back',  label: 'Terms Back' },                // goes green on its own once the form comes back
   { key: 'log',   label: 'Log lesson', lesson: true, required: true },
   { key: 'hw',    label: 'Send HW',    lesson: true }
 ];
@@ -930,15 +931,16 @@ function _trStepState(a) {
     freq:  /^(weekly|biweekly)$/i.test(String(s.frequency || '').trim()),
     time:  (function () { var d = _trFirstLessonDate(s.firstLesson); return !!d && d > new Date(); })(),
     pay:   s.paid === true || String(s.paid || '').toUpperCase() === 'TRUE' || !!_trTrialPayFor(a.email),
-    terms: !!s.termsBack,
+    terms: !!s.termsSent,
+    back:  !!s.termsBack,
     termsBack: !!s.termsBack,
     termsSent: !!s.termsSent
   };
   st.missing = _TR_STEPS.filter(function (x) { return (!x.lesson || x.required) && !st[x.key]; })
     .map(function (x) {
-      // "Terms Sent" is the button's label, not the reason this is blocking.
-      // Once they are sent, what is still missing is the form coming back.
-      if (x.key === 'terms') return st.termsSent ? 'Terms form not back' : 'Terms not sent';
+      // The button labels are steps, not reasons. Say what is actually missing.
+      if (x.key === 'terms') return 'Terms not sent';
+      if (x.key === 'back')  return 'Terms form not back';
       return x.label;
     });
   st.ready = !st.missing.length;
@@ -957,7 +959,9 @@ function _trStepsHtml(a) {
     return '<div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px">' +
       list.map(function (x, i) {
         var done = x.key === 'terms' ? (st.termsBack || st.termsSent) : st[x.key];
-        var c = x.lesson ? '#4a9eff' : '#ff7a3c';
+        // Terms Back is the one step that waits on someone else, so it turns
+        // green by itself the moment the signed form lands.
+        var c = x.key === 'back' && done ? '#2ecc71' : (x.lesson ? '#4a9eff' : '#ff7a3c');
         return '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:8px;padding:3px 8px;color:' + c + ';background:' + _skFade(c) + ';border-color:rgba(255,255,255,0.1)' +
                    (x.noWindow ? ';cursor:default' : '') + '" ' +
                  (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
@@ -986,7 +990,7 @@ function _trActionsHtml(a) {
         make +
         '<span style="flex:1"></span>' +
         '<button class="db-mini-btn" id="trnobtn-' + id + '" style="' + small + ';color:var(--muted);background:rgba(255,255,255,0.05)" ' +
-          'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">7. Dismiss</button>' +
+          'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">8. Dismiss</button>' +
       '</div>' +
     '</div>';
 }
@@ -1071,7 +1075,7 @@ function _tlRender() {
   if (!_tl) return;
   var a = _tl.card, s = a.lesson || {};
   var body = { info: _tlInfoHtml, dbx: _tlDbxHtml, log: _tlLogHtml, hw: _tlHwHtml,
-               freq: _tlFreqHtml, time: _tlTimeHtml, pay: _tlPayHtml, terms: _tlTermsHtml }[_tl.step] || _tlInfoHtml;
+               freq: _tlFreqHtml, time: _tlTimeHtml, pay: _tlPayHtml, terms: _tlTermsHtml, back: _tlTermsHtml }[_tl.step] || _tlInfoHtml;
   document.getElementById('tlModal').innerHTML =
     _tlTitle() +
     (_tl.loadError ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-bottom:8px">⚠ ' + inqEsc(_tl.loadError) + '</div>' : '') +
