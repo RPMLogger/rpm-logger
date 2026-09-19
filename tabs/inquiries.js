@@ -185,19 +185,22 @@ function renderBusinessStrip(load) {
   var norm = (typeof load.normalized === "number") ? load.normalized : 0;
 
   strip.innerHTML =
-    '<div class="inq-load">' +
+    '<div class="rpm-counts">' +
       _inqCount("Students", load.totalStudents || 0) +
-      _inqCount("Weekly",   load.weeklyCount   || 0) +
-      _inqCount("Biweekly", load.biweeklyCount || 0) +
+      // Weekly and Biweekly are the breakdown of Students, so they read
+      // grey: the eye should land on the headcount and the normalized load.
+      _inqCount("Weekly",   load.weeklyCount   || 0, false, true) +
+      _inqCount("Biweekly", load.biweeklyCount || 0, false, true) +
       _inqCount("Normalized", _inqFmt(norm), true) +
     '</div>';
 }
 
-// One count tile. `lead` marks the number the others add up to.
-function _inqCount(label, value, lead) {
-  return '<div class="inq-count' + (lead ? ' lead' : '') + '">' +
-      '<div class="inq-count-n">' + value + '</div>' +
-      '<div class="inq-count-l">' + label + '</div>' +
+// One count tile. `lead` marks the number the others add up to; `sub` marks a
+// number that only breaks another one down, and dims it accordingly.
+function _inqCount(label, value, lead, sub) {
+  return '<div class="rpm-count' + (lead ? ' lead' : '') + (sub ? ' sub' : '') + '">' +
+      '<div class="rpm-count-n">' + value + '</div>' +
+      '<div class="rpm-count-l">' + label + '</div>' +
     '</div>';
 }
 
@@ -244,10 +247,6 @@ function renderInquiries(inquiries) {
   var list = document.getElementById("inquiriesList");
   list.innerHTML = "";
 
-  var syncBar = document.createElement("div");
-  syncBar.className = "inq-syncbar";
-  syncBar.innerHTML = "<button id='inqSyncBtn' class='inq-btn inq-sync' onclick='syncInquiriesNow()'>↻ Sync</button>";
-  list.appendChild(syncBar);
 
   // Undecided only (responded/decided ones leave the active list).
   var active = (inquiries || []).filter(function (i) { return (i.status || "unread") !== "responded"; });
@@ -546,23 +545,9 @@ function inqAction(action, email, extra) {
   return fetch(q).then(function (r) { return r.json(); }).catch(function () { return { success: false }; });
 }
 
-function syncInquiriesNow() {
-  var btn = document.getElementById("inqSyncBtn");
-  if (btn) { btn.disabled = true; btn.textContent = "↻ Syncing..."; }
-  var url = getScriptUrl();
-  if (!url) return;
-  fetch(url + "?action=getInquiries")
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      if (data && data.inquiries) renderInquiries(data.inquiries);
-      var b = document.getElementById("inqSyncBtn");
-      if (b) { b.disabled = false; b.textContent = "↻ Sync"; }
-    })
-    .catch(function () {
-      var b = document.getElementById("inqSyncBtn");
-      if (b) { b.disabled = false; b.textContent = "↻ Sync"; }
-    });
-}
+// syncInquiriesNow was a "Sync" button that re-ran getInquiries. Removed Sep
+// 2026: getInquiries already calls syncInquiries on the backend, so landing on
+// the tab pulls from Gmail. The button asked for what had just happened.
 
 // Read/unread is a frontend-only visual cue now (no Status cell to persist to).
 function markInquiryRead(domId) {

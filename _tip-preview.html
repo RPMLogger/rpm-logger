@@ -1,25 +1,31 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><title>popup check</title>
+<html lang="en"><head><meta charset="UTF-8"><title>inquiries layout</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
-</head><body>
-<script>
-function inqEsc(s){return (s==null?"":String(s)).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
-function _inqCloseModal(){}
-var tpl = { subject: "RED PICK MUSIC, your guitar lesson inquiry",
-  body: "Hey Jason,\n\nThanks for your inquiry. I'm fully booked right now and don't see anything opening up for a while, but I'll keep your info on file and reach out when something does. You can also check back in a couple months.\n\nBilgehan / RED PICK MUSIC" };
-var accent = "var(--warn)";
-document.body.innerHTML =
-  "<div class='rpm-dlg-overlay' style='display:flex'>" +
-    "<div class='rpm-dlg rpm-dlg-wide' style='--dlg-accent:" + accent + "'>" +
-      "<div class='rpm-dlg-head'>" +
-        "<div class='rpm-dlg-title' style='color:" + accent + "'>Maybe</div>" +
-        "<button class='rpm-dlg-x'>&#10005;</button></div>" +
-      "<div class='rpm-dlg-meta'>To: jasonpdiller@gmail.com</div>" +
-      "<input class='rpm-dlg-input' value='" + inqEsc(tpl.subject) + "'>" +
-      "<textarea class='rpm-dlg-textarea' rows='9'>" + inqEsc(tpl.body) + "</textarea>" +
-      "<div class='rpm-dlg-acts'>" +
-        "<button class='rpm-dlg-btn'>Cancel</button>" +
-        "<button class='rpm-dlg-btn act'>Send</button>" +
-      "</div></div></div>";
-</script></body></html>
+<style>body{padding:30px 20px}.wrap{max-width:600px;margin:0 auto}</style>
+</head><body><div class="wrap">
+  <div class="section-label">Load</div>
+  <div class="rpm-counts">
+    <div class="rpm-count"><div class="rpm-count-n">23</div><div class="rpm-count-l">Students</div></div>
+    <div class="rpm-count sub"><div class="rpm-count-n">11</div><div class="rpm-count-l">Weekly</div></div>
+    <div class="rpm-count sub"><div class="rpm-count-n">12</div><div class="rpm-count-l">Biweekly</div></div>
+    <div class="rpm-count lead"><div class="rpm-count-n">17</div><div class="rpm-count-l">Normalized</div></div>
+  </div>
+  <div class="section-label">Trial Lesson Inquiries</div>
+  <div class="inq-dcard unread">
+    <div class="inq-drow"><span class="inq-chan">Gmail</span><span class="inq-when">2 days ago</span></div>
+    <div class="inq-name-line"><span class="inq-name">Jason Diller</span></div>
+    <div class="inq-fields">
+      <span class="inq-flabel">Date</span><span class="inq-fval">Sep 17, 2026</span>
+      <span class="inq-flabel">City</span><span class="inq-fval">Jersey City</span>
+      <span class="inq-flabel">Level</span><span class="inq-fval">Experienced Beginner</span>
+    </div>
+    <div class="inq-acts">
+      <button class="inq-db yes">Yes</button>
+      <button class="inq-db maybe opens-window">Maybe</button>
+      <button class="inq-db no opens-window">No</button>
+      <button class="inq-db">No reply</button>
+      <button class="inq-db opens-window">Scam</button>
+    </div>
+  </div>
+</div></body></html>

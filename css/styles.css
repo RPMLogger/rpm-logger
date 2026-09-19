@@ -397,25 +397,30 @@ body::before {
 .inq-archive:hover { color: var(--accent2); }
 .financial-empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 12px; line-height: 3; border: 1px dashed var(--border); border-radius: 8px; }
 
-/* ─── Inquiries: load counts ───────────────────────────────────────────────── */
-/* Four numbers: how many students, how they split, and the normalized total
-   the other two add up to (weekly + biweekly / 2). */
-.inq-load { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-.inq-count {
+/* ─── COUNT TILES ─────────────────────────────────────────────────────────── */
+/* A row of numbers with a word under each. Use for a handful of figures that
+   belong together, where the numbers are the point. Add .lead to the one the
+   others resolve to. For label-left/value-right lists use .load-table instead;
+   for real rows and columns use a <table>. */
+.rpm-counts { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.rpm-count {
   flex: 1; min-width: 70px;
   background: var(--panel); border: 1px solid var(--border);
   border-radius: var(--radius-pill);
   padding: 9px 8px; text-align: center;
 }
-.inq-count-n { font-family: "DM Mono", monospace; font-size: 15px; color: var(--text); }
-.inq-count-l {
+.rpm-count-n { font-family: "DM Mono", monospace; font-size: 15px; color: var(--text); }
+.rpm-count-l {
   font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px;
   text-transform: uppercase; color: var(--muted); margin-top: 2px;
 }
+/* A breakdown of one of the other tiles, not a figure in its own right.
+   Same tile, dimmer number, so the row has an obvious reading order. */
+.rpm-count.sub .rpm-count-n { color: var(--muted); }
 /* The total the others resolve to. */
-.inq-count.lead { border-color: rgba(240,165,0,0.3); background: rgba(240,165,0,0.05); }
-.inq-count.lead .inq-count-n { color: var(--warn); }
-.inq-count.lead .inq-count-l { color: var(--warn); opacity: 0.75; }
+.rpm-count.lead { border-color: rgba(240,165,0,0.3); background: rgba(240,165,0,0.05); }
+.rpm-count.lead .rpm-count-n { color: var(--warn); }
+.rpm-count.lead .rpm-count-l { color: var(--warn); opacity: 0.75; }
 
 /* ─── Inquiries: replies to a Maybe or a No ─────────────────────────────── */
 /* Amber, because it wants attention but nothing is wrong. Absent entirely
@@ -825,23 +830,7 @@ body::before {
 .audit-log-btn:hover { background: rgba(46,204,113,0.1); }
 .audit-log-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.inq-syncbar {
-  display: flex;
-  justify-content: flex-end;
-  padding: 8px 0 12px;
-}
-.inq-sync {
-  background: var(--muted);
-  color: var(--text);
-  border: 1px solid var(--muted);
-  padding: 6px 12px;
-  font-family: 'DM Mono', monospace;
-  font-size: 12px;
-  cursor: pointer;
-  border-radius: 4px;
-}
-.inq-sync:hover { border-color: var(--accent2); }
-.inq-sync:disabled { opacity: 0.6; cursor: wait; }
+/* .inq-syncbar / .inq-sync removed Sep 2026 with the Sync button. */
 
 /* ─── DROPBOX TAB — small action buttons ─────────────────────────────────── */
 .db-mini-btn {
