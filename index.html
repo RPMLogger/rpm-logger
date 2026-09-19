@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=483">
+  <link rel="stylesheet" href="css/styles.css?v=484">
 </head>
 <body>
 <div class="container">
@@ -46,6 +46,7 @@
       <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Data ▾</button>
       <div class="nav-menu">
         <button class="tab-btn nav-item" data-tab="availability" onclick="switchTab('availability')">Availability</button>
+        <button class="tab-btn nav-item" data-tab="chart" onclick="switchTab('chart')">Chart</button>
         <button class="tab-btn nav-item" data-tab="skips" onclick="switchTab('skips')">Skips</button>
       </div>
     </div>
@@ -663,6 +664,11 @@
     <div id="thisyearBody"><div class="empty-state">Loading...</div></div>
   </div>
 
+  <!-- CHART -->
+  <div class="tab-panel" id="tab-chart">
+    <div id="chartBody"><div class="empty-state">Loading...</div></div>
+  </div>
+
   <!-- SHEETS -->
   <div class="tab-panel" id="tab-sheets">
 
@@ -727,7 +733,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">483</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">484</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Settings">⚙</button>
   </div>
 
@@ -755,35 +761,36 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=483"></script>
-<script src="tabs/lessons.js?v=483"></script>
-<script src="tabs/payments.js?v=483"></script>
-<script src="tabs/week.js?v=483"></script>
-<script src="tabs/general.js?v=483"></script>
-<script src="tabs/financial.js?v=483"></script>
-<script src="tabs/inquiries.js?v=483"></script>
-<script src="tabs/inqarchive.js?v=483"></script>
-<script src="tabs/comms.js?v=483"></script>
-<script src="tabs/notes.js?v=483"></script>
-<script src="tabs/todo.js?v=483"></script>
-<script src="tabs/availability.js?v=483"></script>
-<script src="tabs/biweekly.js?v=483"></script>
-<script src="tabs/travel.js?v=483"></script>
-<script src="tabs/tripsummary.js?v=483"></script>
-<script src="tabs/triphistory.js?v=483"></script>
-<script src="tabs/skips.js?v=483"></script>
-<script src="tabs/student.js?v=483"></script>
-<script src="tabs/ctrl.js?v=483"></script>
-<script src="tabs/mailcenter.js?v=483"></script>
-<script src="tabs/dropbox.js?v=483"></script>
-<script src="tabs/trial.js?v=483"></script>
-<script src="tabs/rates.js?v=483"></script>
-<script src="tabs/ending.js?v=483"></script>
-<script src="tabs/thisyear.js?v=483"></script>
-<script src="tabs/sheets.js?v=483"></script>
-<script src="tabs/studentline.js?v=483"></script>
-<script src="tabs/calendar.js?v=483"></script>
-<script src="tabs/fixedcal.js?v=483"></script>
+<script src="tabs/icons.js?v=484"></script>
+<script src="tabs/lessons.js?v=484"></script>
+<script src="tabs/payments.js?v=484"></script>
+<script src="tabs/week.js?v=484"></script>
+<script src="tabs/general.js?v=484"></script>
+<script src="tabs/financial.js?v=484"></script>
+<script src="tabs/inquiries.js?v=484"></script>
+<script src="tabs/inqarchive.js?v=484"></script>
+<script src="tabs/comms.js?v=484"></script>
+<script src="tabs/notes.js?v=484"></script>
+<script src="tabs/todo.js?v=484"></script>
+<script src="tabs/availability.js?v=484"></script>
+<script src="tabs/biweekly.js?v=484"></script>
+<script src="tabs/travel.js?v=484"></script>
+<script src="tabs/tripsummary.js?v=484"></script>
+<script src="tabs/triphistory.js?v=484"></script>
+<script src="tabs/skips.js?v=484"></script>
+<script src="tabs/student.js?v=484"></script>
+<script src="tabs/ctrl.js?v=484"></script>
+<script src="tabs/mailcenter.js?v=484"></script>
+<script src="tabs/dropbox.js?v=484"></script>
+<script src="tabs/trial.js?v=484"></script>
+<script src="tabs/rates.js?v=484"></script>
+<script src="tabs/ending.js?v=484"></script>
+<script src="tabs/thisyear.js?v=484"></script>
+<script src="tabs/chart.js?v=484"></script>
+<script src="tabs/sheets.js?v=484"></script>
+<script src="tabs/studentline.js?v=484"></script>
+<script src="tabs/calendar.js?v=484"></script>
+<script src="tabs/fixedcal.js?v=484"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -836,7 +843,7 @@
     // tab button is removed. The #tab-lessons panel div still lives in the DOM
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
-    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","rates","reviews","lifetime","concert","newsched","thisyear","sheets","skips","studentline","calendar","fixedcal","inqarchive"];
+    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","rates","reviews","lifetime","concert","newsched","thisyear","sheets","chart","skips","studentline","calendar","fixedcal","inqarchive"];
     tabs.forEach(function(t) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       var btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
@@ -871,6 +878,7 @@
     if (tab === "calendar") initCalendarTab();
     if (tab === "fixedcal") initFixedCalTab();
     if (tab === "inqarchive") initInqArchiveTab();
+    if (tab === "chart") initChartTab();
   }
 
   var _now = new Date();
