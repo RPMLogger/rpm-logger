@@ -58,12 +58,27 @@ function _iaYear(inq) {
   return m ? parseInt(m[1], 10) : 0;
 }
 
-// Blank Decision means nobody has answered this one yet. On the Inquiries tab
-// that is the only kind of card there is; here it is worth calling out.
+// Decision → a class stem. Blank means nobody has answered this one yet, which
+// on the Inquiries tab is the only kind of card there is, and here is the thing
+// most worth spotting. Drives both the chip and the card's left edge.
+function _iaCls(decision) {
+  var d = (decision || "").toString().trim();
+  return d ? d.toLowerCase().replace(/[^a-z]/g, "") : "open";
+}
+
 function _iaChip(decision) {
   var d = (decision || "").toString().trim();
-  var cls = d ? d.toLowerCase().replace(/[^a-z]/g, "") : "open";
-  return "<span class='ia-chip ia-" + cls + "'>" + inqEsc(d || "Open") + "</span>";
+  return "<span class='ia-chip ia-" + _iaCls(decision) + "'>" + inqEsc(d || "Open") + "</span>";
+}
+
+// Total / Accepted / Open, the three numbers worth having. Accepted is a Yes:
+// every student on the books came through one.
+function _iaStats(rows) {
+  var yes  = rows.filter(function (i) { return (i.decision || "").toLowerCase() === "yes"; }).length;
+  var open = rows.filter(function (i) { return !i.decision; }).length;
+  return "<span class='ia-stat'>Total: <b>" + rows.length + "</b></span>" +
+         "<span class='ia-stat'>Accepted: <b>" + yes + "</b></span>" +
+         "<span class='ia-stat'>Open: <b>" + open + "</b></span>";
 }
 
 function _iaRender(inquiries) {
@@ -90,24 +105,24 @@ function _iaRender(inquiries) {
   });
   years.sort(function (a, b) { return b - a; });
 
-  var html = "<div class='ia-total'>" + all.length + " inquiries on record</div>";
+  // A grand total only when there is more than one year to add up. With a
+  // single year it would just repeat the year header word for word.
+  var html = (years.length > 1)
+    ? "<div class='ia-total'>" + _iaStats(all) + "</div>"
+    : "";
 
   years.forEach(function (y) {
     var rows = byYear[y];
-    var open = rows.filter(function (i) { return !i.decision; }).length;
-    var yes  = rows.filter(function (i) { return (i.decision || "").toLowerCase() === "yes"; }).length;
 
     html +=
       "<div class='ia-year'>" +
         "<span class='ia-year-n'>" + (y || "No date") + "</span>" +
-        "<span class='ia-year-c'>" + rows.length + " inquiries · " + yes + " yes" +
-          (open ? " · " + open + " still open" : "") +
-        "</span>" +
+        "<span class='ia-year-c'>" + _iaStats(rows) + "</span>" +
       "</div>";
 
     rows.forEach(function (inq) {
       html +=
-        "<div class='inq-dcard archived'>" +
+        "<div class='inq-dcard archived ia-d-" + _iaCls(inq.decision) + "'>" +
           "<div class='inq-drow'>" +
             "<span class='inq-chan'>" + inqEsc(inq.channel || "Gmail") + "</span>" +
             _iaChip(inq.decision) +
