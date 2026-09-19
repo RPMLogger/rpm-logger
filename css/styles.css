@@ -413,7 +413,7 @@ body::before {
   border-radius: var(--radius-pill);
   padding: 9px 8px; text-align: center;
 }
-.rpm-count-n { font-family: "DM Mono", monospace; font-size: 15px; color: var(--text); }
+.rpm-count-n { font-family: "DM Mono", monospace; font-size: 13px; color: var(--text); }
 .rpm-count-l {
   font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px;
   text-transform: uppercase; color: var(--muted); margin-top: 2px;
