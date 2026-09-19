@@ -105,7 +105,7 @@ body::before {
 /* ─── TABS ────────────────────────────────────────────────────────────────── */
 .tabs {
   display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px;
-  margin-top: 24px; margin-bottom: 20px;
+  margin-top: 24px; margin-bottom: 24px;
   background: var(--surface); border-radius: 6px; padding: 3px;
 }
 .tab-btn {
@@ -156,7 +156,11 @@ body::before {
 .sheet-arrow { color: var(--muted, #777); font-size: 18px; }
 
 /* ─── SHARED ──────────────────────────────────────────────────────────────── */
-.section-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+/* Two gaps, used everywhere: 12px from a label to the thing it names, 24px
+   from a finished block to the next label. A label belongs to what follows
+   it, so it sits nearer to that than to what came before, but the page is
+   meant to breathe: the 24 is the rest between sections, not a hairline. */
+.section-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
 .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 .empty-state { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 11px; line-height: 2; }
 
@@ -402,7 +406,7 @@ body::before {
    belong together, where the numbers are the point. Add .lead to the one the
    others resolve to. For label-left/value-right lists use .load-table instead;
    for real rows and columns use a <table>. */
-.rpm-counts { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.rpm-counts { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; }
 .rpm-count {
   flex: 1; min-width: 70px;
   background: var(--panel); border: 1px solid var(--border);
