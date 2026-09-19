@@ -30,7 +30,7 @@ function initStudentTab() {
 function _stLoadRoster() {
   var section = document.getElementById('studentBody');
   if (!section) return;
-  section.innerHTML = '<div class="empty-state">Loading...</div>';
+  section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   var url = getScriptUrl();
   if (!url) { section.innerHTML = '<div class="empty-state">No script URL set</div>'; return; }
 
@@ -196,7 +196,7 @@ var _ST_SECTION_TITLE =
 
 function _stOpenStudent(name) {
   var section = document.getElementById('studentBody');
-  section.innerHTML = '<div class="empty-state">Loading ' + name + '...</div>';
+  section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   var url = getScriptUrl(); if (!url) return;
   fetch(url + '?action=getStudentDetail&name=' + encodeURIComponent(name))
     .then(function(r) { return r.json(); })
@@ -538,7 +538,7 @@ function _stRenderDetail() {
 
 function _stOpenAudit() {
   var section = document.getElementById('studentBody');
-  section.innerHTML = '<div class="empty-state">Loading audit...</div>';
+  section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   var url = getScriptUrl(); if (!url) return;
   fetch(url + '?action=getStudentAudit&name=' + encodeURIComponent(_stState.current.name))
     .then(function(r) { return r.json(); })
@@ -649,7 +649,7 @@ function _stRenderAudit(data) {
 function _stOpenCalendar() {
   _stState.reschedule = null; // never resume a stale drag on a fresh load
   var section = document.getElementById('studentBody');
-  section.innerHTML = '<div class="empty-state">Loading calendar...</div>';
+  section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   var url = getScriptUrl(); if (!url) return;
   fetch(url + '?action=getStudentLessons&name=' + encodeURIComponent(_stState.current.name))
     .then(function(r) { return r.json(); })

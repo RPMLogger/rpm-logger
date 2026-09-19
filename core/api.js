@@ -2,9 +2,9 @@
 function loadData() {
   var url = getScriptUrl();
   if (!url) return;
-  document.getElementById("todayGrid").innerHTML     = "<div class='empty-state'>Loading...</div>";
-  document.getElementById("weekTabGrid").innerHTML   = "<div class='empty-state'>Loading...</div>";
-  document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty'>Loading...</div>";
+  document.getElementById("todayGrid").innerHTML     = "<div class='empty-state rpm-loading'>Loading</div>";
+  document.getElementById("weekTabGrid").innerHTML   = "<div class='empty-state rpm-loading'>Loading</div>";
+  document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty rpm-loading'>Loading</div>";
   ["loadTotal","loadNorm","loadWeekly","loadBiweekly","loadIncome","loadGregorian"].forEach(function(id){
     document.getElementById(id).textContent = "—";
   });

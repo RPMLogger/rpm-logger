@@ -163,6 +163,17 @@ body::before {
 .section-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
 .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 .empty-state { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 11px; line-height: 2; }
+/* Every loading state in the portal: the dot ring, then the word. Nothing
+   else says "loading" anywhere, so the shape alone is enough to recognise. */
+.rpm-loading { display: flex; align-items: center; justify-content: center; gap: 9px; line-height: 1; }
+.rpm-loading::before {
+  content: ""; width: 16px; height: 16px; flex: none;
+  background: url("../img/loading.png") center / contain no-repeat;
+  /* Eight dots, so eight steps: it ticks round like a real spinner instead
+     of sliding, and the built-in fade reads as the tail. */
+  animation: rpm-spin 1s steps(8) infinite;
+}
+@keyframes rpm-spin { to { transform: rotate(360deg); } }
 
 /* ─── WEEK PILLS ──────────────────────────────────────────────────────────── */
 .week-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }

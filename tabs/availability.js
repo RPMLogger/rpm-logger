@@ -8,7 +8,7 @@ var _availOpen = null; // currently expanded student row
 function initAvailabilityTab() {
   var section = document.getElementById("availabilityList");
   if (!section) return;
-  section.innerHTML = '<div class="empty-state">Loading...</div>';
+  section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   var url = getScriptUrl();
   if (!url) { section.innerHTML = '<div class="empty-state">No script URL set</div>'; return; }
 

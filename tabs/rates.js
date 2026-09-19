@@ -13,7 +13,7 @@ function initRatesTab() {
   var body = document.getElementById('ratesBody');
   if (!body) return;
   if (!url) { body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>'; return; }
-  body.innerHTML = '<div class="empty-state">Loading…</div>';
+  body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
 
   fetch(url + '?action=getWebsiteRates')
     .then(function (r) { return r.json(); })

@@ -162,7 +162,7 @@ function loadBusinessStrip() {
   if (!strip) return;
   var url = getScriptUrl();
   if (!url) { strip.innerHTML = ""; return; }
-  if (!strip.innerHTML) strip.innerHTML = '<div class="inq-empty">Loading load…</div>';
+  if (!strip.innerHTML) strip.innerHTML = '<div class="inq-empty rpm-loading">Loading</div>';
   fetch(url + "?action=getStudentLoad")
     .then(function (r) { return r.json(); })
     .catch(function () { return null; })

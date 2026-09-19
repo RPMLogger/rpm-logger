@@ -59,7 +59,7 @@ function initEndingTab() {
 function _enLoadRoster() {
   var url = getScriptUrl();
   var body = document.getElementById('endingBody');
-  body.innerHTML = '<div class="empty-state">Loading students…</div>';
+  body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   fetch(url + '?action=getStudentRoster')
     .then(function (r) { return r.json(); })
     .then(function (data) {

@@ -16,7 +16,7 @@ function initTrialTab() {
   body.innerHTML =
     '<div id="trStrip"></div>' +
     '<div class="section-label" style="margin-bottom:10px">Reach out</div>' +
-    '<div id="trAccepted"><div class="empty-state">Loading\u2026</div></div>' +
+    '<div id="trAccepted"><div class="empty-state rpm-loading">Loading</div></div>' +
     '<div id="trBookArea" style="display:none">' +
       '<hr class="divider" style="margin:22px 0 16px">' +
       _trManualFormHtml() + '<div id="trStatus"></div>' +
@@ -811,7 +811,7 @@ function initTrialStageTab() {
   var body = document.getElementById('trialStageBody');
   if (!body) return;
   if (!url) { body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>'; return; }
-  body.innerHTML = '<div class="empty-state">Loading…</div>';
+  body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
 
   // Payments go first and run in parallel. Reading the booked list means
   // reading the inquiry archive and the calendar, which is slow, and the
@@ -1012,7 +1012,7 @@ function _tlOpen(email, step) {
     document.body.appendChild(ov);
   }
   ov.classList.add('open');
-  document.getElementById('tlModal').innerHTML = _tlTitle() + '<div class="empty-state">Loading…</div>';
+  document.getElementById('tlModal').innerHTML = _tlTitle() + '<div class="empty-state rpm-loading">Loading</div>';
 
   var url = getScriptUrl();
   if (!url) { _tl.rec = {}; _tlRender(); return; }
@@ -1561,7 +1561,7 @@ function _tlPreview() {
   var url = getScriptUrl();
   if (!url || !_tl) return;
   var box = document.getElementById('tlPreview');
-  box.innerHTML = '<div class="empty-state">Loading preview\u2026</div>';
+  box.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   fetch(url + '?action=previewTrialTerms&name=' + encodeURIComponent(_tl.card.name || ''))
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -1790,7 +1790,7 @@ function _trLoadPayments() {
   var rlab = document.getElementById('trialPayRate');
   if (!body) return;
   if (!url) { body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>'; return; }
-  body.innerHTML = '<div class="empty-state">Loading…</div>';
+  body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
 
   fetch(url + '?action=getTrialPayments')
     .then(function (r) { return r.json(); })

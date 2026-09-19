@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=490">
+  <link rel="stylesheet" href="css/styles.css?v=491">
 </head>
 <body>
 <div class="container">
@@ -100,14 +100,14 @@
 
   <!-- STUDENT -->
   <div class="tab-panel active" id="tab-student">
-    <div id="studentBody"><div class="empty-state">Loading...</div></div>
+    <div id="studentBody"><div class="empty-state rpm-loading">Loading</div></div>
     <div class="log-feed" id="studentFeed"></div>
   </div>
 
   <!-- LESSONS -->
   <div class="tab-panel" id="tab-lessons">
     <div class="section-label" id="todayLabel">Today</div>
-    <div class="today-grid" id="todayGrid"><div class="empty-state">Loading...</div></div>
+    <div class="today-grid" id="todayGrid"><div class="empty-state rpm-loading">Loading</div></div>
     <div class="log-panel" id="logPanel">
       <div class="log-panel-header">
         <div class="log-panel-name" id="logPanelName">—</div>
@@ -136,7 +136,7 @@
     <div class="section-label" style="margin-top:20px;margin-bottom:10px">
       Incoming <span style="color:var(--blue)">Venmo &amp; Zelle</span>
     </div>
-    <div id="incomingPayments"><div style="color:var(--muted);font-size:11px">Loading...</div></div>
+    <div id="incomingPayments"><div class="rpm-loading" style="color:var(--muted);font-size:11px">Loading</div></div>
     <div class="log-feed" id="paymentFeed"></div>
     <hr class="divider" style="margin-top:24px">
     <button id="btnPayHistory" class="btn-pay-history" onclick="togglePaymentHistory()">▾ View Payment History</button>
@@ -187,7 +187,7 @@
   <!-- WEEK -->
   <div class="tab-panel" id="tab-week">
     <div class="week-tab-header" id="weekTabHeader"></div>
-    <div class="week-tab-grid" id="weekTabGrid"><div class="empty-state">Loading...</div></div>
+    <div class="week-tab-grid" id="weekTabGrid"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
   <!-- LOAD (tab id is still "general") -->
@@ -285,7 +285,7 @@
       <div class="section-label">Load</div>
       <div id="inqBizStrip"></div>
       <div class="section-label">Trial Lesson Inquiries</div>
-      <div id="inquiriesList"><div class="inq-empty">Loading...</div></div>
+      <div id="inquiriesList"><div class="inq-empty rpm-loading">Loading</div></div>
     </div>
   </div>
 
@@ -294,7 +294,7 @@
   <div class="tab-panel" id="tab-inqarchive">
     <a class="inq-archive top" href="#" onclick="switchTab('inquiries');return false;">← Back to Inquiries</a>
     <div class="section-label">Inquiry Archive</div>
-    <div id="inqArchiveList"><div class="inq-empty">Loading...</div></div>
+    <div id="inqArchiveList"><div class="inq-empty rpm-loading">Loading</div></div>
   </div>
 
   <!-- NOTES -->
@@ -311,14 +311,14 @@
 
   <!-- AVAILABILITY -->
   <div class="tab-panel" id="tab-availability">
-    <div id="availabilityList"><div class="empty-state">Loading...</div></div>
+    <div id="availabilityList"><div class="empty-state rpm-loading">Loading</div></div>
     <div class="log-feed" id="availFeed"></div>
   </div>
 
   <!-- BIWEEKLY -->
   <div class="tab-panel" id="tab-biweekly">
     <div class="section-label">Biweekly Balancer · next 90 days</div>
-    <div id="biweeklyBody"><div class="empty-state">Loading...</div></div>
+    <div id="biweeklyBody"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
   <!-- AUDIT -->
@@ -329,11 +329,11 @@
       <button onclick="openGoogleCalendar()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:4px 10px;font-size:11px;cursor:pointer;letter-spacing:0.5px" data-tip="Open Google Calendar in a new tab">📅 Calendar</button>
     </div>
     <div class="section-label">Lesson Sync Audit</div>
-    <div id="auditLessonSection"><div class="empty-state">Loading...</div></div>
+    <div id="auditLessonSection"><div class="empty-state rpm-loading">Loading</div></div>
 
     <hr class="divider">
     <div class="section-label">Unpaid Students</div>
-    <div id="auditUnpaidSection"><div class="empty-state">Loading...</div></div>
+    <div id="auditUnpaidSection"><div class="empty-state rpm-loading">Loading</div></div>
 
     <div class="log-feed" id="auditFeed"></div>
 
@@ -344,27 +344,27 @@
   <!-- TRAVEL PLAN -->
   <div class="tab-panel" id="tab-travel">
     <div class="section-label">Travel Plan</div>
-    <div id="travelBody"><div class="empty-state">Loading...</div></div>
+    <div id="travelBody"><div class="empty-state rpm-loading">Loading</div></div>
     <div class="log-feed" id="travelFeed"></div>
   </div>
 
   <!-- ACTIVE TRIPS -->
   <div class="tab-panel" id="tab-tripsummary">
     <div class="section-label">Active Trips</div>
-    <div id="tripsummaryBody"><div class="empty-state">Loading...</div></div>
+    <div id="tripsummaryBody"><div class="empty-state rpm-loading">Loading</div></div>
     <div class="log-feed" id="tripsummaryFeed"></div>
   </div>
 
   <!-- TRIP HISTORY -->
   <div class="tab-panel" id="tab-triphistory">
     <div class="section-label">Trip History</div>
-    <div id="triphistoryBody"><div class="empty-state">Loading...</div></div>
+    <div id="triphistoryBody"><div class="empty-state rpm-loading">Loading</div></div>
     <div class="log-feed" id="triphistoryFeed"></div>
   </div>
 
   <!-- SKIPS -->
   <div class="tab-panel" id="tab-skips">
-    <div id="skipsBody"><div class="empty-state">Loading...</div></div>
+    <div id="skipsBody"><div class="empty-state rpm-loading">Loading</div></div>
     <div class="log-feed" id="skipsFeed"></div>
   </div>
 
@@ -377,25 +377,25 @@
   <!-- STUDENT LINE -->
   <div class="tab-panel" id="tab-studentline">
     <div class="section-label">Student Line · texts from your students</div>
-    <div id="studentLineBody"><div class="empty-state">Loading…</div></div>
+    <div id="studentLineBody"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
   <!-- DROPBOX -->
   <div class="tab-panel" id="tab-dropbox">
     <div class="section-label">Dropbox · Student Folders</div>
-    <div id="dropboxBody"><div class="empty-state">Loading...</div></div>
+    <div id="dropboxBody"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
   <!-- INITIATE — reach out, converse, and book -->
   <div class="tab-panel" id="tab-initiate">
     <div class="section-label">Initiate · Reach Out and Book</div>
-    <div id="trialBody"><div class="empty-state">Loading...</div></div>
+    <div id="trialBody"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
   <!-- TRIAL — booked, through the lesson, until they become a student -->
   <div class="tab-panel" id="tab-trial">
     <div class="section-label">Trial · Payments <span id="trialPayRate" style="color:var(--blue)"></span></div>
-    <div id="trialPayBody"><div class="empty-state">Loading...</div></div>
+    <div id="trialPayBody"><div class="empty-state rpm-loading">Loading</div></div>
     <hr class="divider" style="margin:22px 0 16px">
     <div class="section-label">Trial · Booked</div>
     <div id="trialStageBody"><div class="empty-state">Nothing here yet.</div></div>
@@ -404,7 +404,7 @@
   <!-- FINISHED -->
   <div class="tab-panel" id="tab-ending">
     <div class="section-label">Terminate · Archive a Student</div>
-    <div id="endingBody"><div class="empty-state">Loading...</div></div>
+    <div id="endingBody"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
   <!-- HOLIDAYS ALERTS -->
@@ -553,7 +553,7 @@
   <!-- RATES — what the website charges, read from the Website Rates Archive -->
   <div class="tab-panel" id="tab-rates">
     <div class="section-label">Rates · Website</div>
-    <div id="ratesBody"><div class="empty-state">Loading...</div></div>
+    <div id="ratesBody"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
   <!-- REVIEWS -->
@@ -660,7 +660,7 @@
 
   <!-- THIS YEAR -->
   <div class="tab-panel" id="tab-thisyear">
-    <div id="thisyearBody"><div class="empty-state">Loading...</div></div>
+    <div id="thisyearBody"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
   <!-- SHEETS -->
@@ -727,7 +727,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">490</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">491</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Settings">⚙</button>
   </div>
 
@@ -743,7 +743,7 @@
       </div>
       <button onclick="closeAuditFixModal()" style="background:transparent;border:none;color:var(--muted);font-size:18px;cursor:pointer">×</button>
     </div>
-    <div id="auditFixBody"><div class="empty-state">Loading...</div></div>
+    <div id="auditFixBody"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 </div>
 
@@ -755,35 +755,35 @@
 <script src="core/api.js"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=490"></script>
-<script src="tabs/lessons.js?v=490"></script>
-<script src="tabs/payments.js?v=490"></script>
-<script src="tabs/week.js?v=490"></script>
-<script src="tabs/general.js?v=490"></script>
-<script src="tabs/financial.js?v=490"></script>
-<script src="tabs/inquiries.js?v=490"></script>
-<script src="tabs/inqarchive.js?v=490"></script>
-<script src="tabs/comms.js?v=490"></script>
-<script src="tabs/notes.js?v=490"></script>
-<script src="tabs/todo.js?v=490"></script>
-<script src="tabs/availability.js?v=490"></script>
-<script src="tabs/biweekly.js?v=490"></script>
-<script src="tabs/travel.js?v=490"></script>
-<script src="tabs/tripsummary.js?v=490"></script>
-<script src="tabs/triphistory.js?v=490"></script>
-<script src="tabs/skips.js?v=490"></script>
-<script src="tabs/student.js?v=490"></script>
-<script src="tabs/ctrl.js?v=490"></script>
-<script src="tabs/mailcenter.js?v=490"></script>
-<script src="tabs/dropbox.js?v=490"></script>
-<script src="tabs/trial.js?v=490"></script>
-<script src="tabs/rates.js?v=490"></script>
-<script src="tabs/ending.js?v=490"></script>
-<script src="tabs/thisyear.js?v=490"></script>
-<script src="tabs/sheets.js?v=490"></script>
-<script src="tabs/studentline.js?v=490"></script>
-<script src="tabs/calendar.js?v=490"></script>
-<script src="tabs/fixedcal.js?v=490"></script>
+<script src="tabs/icons.js?v=491"></script>
+<script src="tabs/lessons.js?v=491"></script>
+<script src="tabs/payments.js?v=491"></script>
+<script src="tabs/week.js?v=491"></script>
+<script src="tabs/general.js?v=491"></script>
+<script src="tabs/financial.js?v=491"></script>
+<script src="tabs/inquiries.js?v=491"></script>
+<script src="tabs/inqarchive.js?v=491"></script>
+<script src="tabs/comms.js?v=491"></script>
+<script src="tabs/notes.js?v=491"></script>
+<script src="tabs/todo.js?v=491"></script>
+<script src="tabs/availability.js?v=491"></script>
+<script src="tabs/biweekly.js?v=491"></script>
+<script src="tabs/travel.js?v=491"></script>
+<script src="tabs/tripsummary.js?v=491"></script>
+<script src="tabs/triphistory.js?v=491"></script>
+<script src="tabs/skips.js?v=491"></script>
+<script src="tabs/student.js?v=491"></script>
+<script src="tabs/ctrl.js?v=491"></script>
+<script src="tabs/mailcenter.js?v=491"></script>
+<script src="tabs/dropbox.js?v=491"></script>
+<script src="tabs/trial.js?v=491"></script>
+<script src="tabs/rates.js?v=491"></script>
+<script src="tabs/ending.js?v=491"></script>
+<script src="tabs/thisyear.js?v=491"></script>
+<script src="tabs/sheets.js?v=491"></script>
+<script src="tabs/studentline.js?v=491"></script>
+<script src="tabs/calendar.js?v=491"></script>
+<script src="tabs/fixedcal.js?v=491"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>

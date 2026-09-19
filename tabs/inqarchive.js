@@ -28,7 +28,7 @@ function initInqArchiveTab() {
 
   var url = getScriptUrl();
   if (!url) return;
-  host.innerHTML = "<div class='inq-empty'>Loading the archive…</div>";
+  host.innerHTML = "<div class='inq-empty rpm-loading'>Loading</div>";
   fetch(url + "?action=getInquiries")
     .then(function (r) { return r.json(); })
     .then(function (d) {

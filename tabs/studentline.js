@@ -13,7 +13,7 @@ function loadStudentLine() {
   var url = getScriptUrl();
   if (!url) return;
   var body = document.getElementById("studentLineBody");
-  if (body && !studentLineItems.length) body.innerHTML = "<div class='empty-state'>Loading…</div>";
+  if (body && !studentLineItems.length) body.innerHTML = "<div class='empty-state rpm-loading'>Loading</div>";
   fetch(url + "?action=getStudentLine")
     .then(function (r) { return r.json(); })
     .then(function (d) {

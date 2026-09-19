@@ -214,7 +214,7 @@ function openAuditFixModal(studentName) {
   _fixCurrentName = studentName;
   document.getElementById("auditFixOverlay").style.display = "flex";
   document.getElementById("auditFixTitle").textContent = "Fix: " + studentName;
-  document.getElementById("auditFixBody").innerHTML = '<div class="empty-state" style="padding:24px">Loading...</div>';
+  document.getElementById("auditFixBody").innerHTML = '<div class="empty-state rpm-loading" style="padding:24px">Loading</div>';
   _loadFixData(studentName);
 }
 
