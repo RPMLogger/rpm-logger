@@ -827,8 +827,8 @@ function initTrialStageTab() {
       // The payments list is already on screen by now, drawn without matches.
       // Now that we know who is booked, redraw just those notes.
       _trPayRender();
-      if (!_trStageCache.length) { body.innerHTML = '<div class="empty-state">No booked trials.</div>' + _trStageBookHtml(); return; }
-      body.innerHTML = _trStageCache.map(_trStageCard).join('') + _trStageBookHtml();
+      if (!_trStageCache.length) { body.innerHTML = _trStageBookHtml() + '<div class="empty-state">No booked trials.</div>'; return; }
+      body.innerHTML = _trStageBookHtml() + _trStageCache.map(_trStageCard).join('');
       _trPaintPaid();
       _trLoadStageThreads();
     })
@@ -849,7 +849,7 @@ function _trStageCard(a) {
       (when
         ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;margin-top:4px;color:' +
             (a.trialPast ? 'var(--muted)' : 'var(--green)') + '">' +
-            'TRIAL - ' + inqEsc(when.replace(/^(\w{3})\s+/, '$1, ').replace(/\s+·\s+/, ' - ')) +
+            'TRIAL On - ' + inqEsc(when.replace(/^(\w{3})\s+/, '$1, ').replace(/\s+·\s+/, ', ')) +
           '</div>'
         : '') +
       '<hr class="divider" style="margin:18px 0 0">' +
@@ -1716,7 +1716,7 @@ function _trDropStageCard(email) {
   if (card) card.remove();
   _trPayRender();
   var body = document.getElementById('trialStageBody');
-  if (body && !_trStageCache.length) body.innerHTML = '<div class="empty-state">No booked trials.</div>' + _trStageBookHtml();
+  if (body && !_trStageCache.length) body.innerHTML = _trStageBookHtml() + '<div class="empty-state">No booked trials.</div>';
 }
 
 // After a reply lands, redraw whichever stage is on screen.
@@ -1772,7 +1772,7 @@ function _trLoadStageThreads() {
 // other case: a trial that never came through the form. Own id prefix ("ts") so
 // its fields cannot collide with Initiate's, since both panels live in the DOM.
 function _trStageBookHtml() {
-  return '<div id="tsBookToggle" style="margin-top:18px">' +
+  return '<div id="tsBookToggle" style="margin-bottom:18px">' +
       '<button class="db-mini-btn" style="width:100%;padding:11px;text-transform:uppercase;letter-spacing:1px" onclick="_tsShowBook()">Book a trial manually</button>' +
     '</div>' +
     '<div id="tsBookArea" style="display:none">' +
