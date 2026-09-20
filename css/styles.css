@@ -963,6 +963,19 @@ body::before {
 .db-mini-btn:hover { border-color: var(--accent2); color: var(--accent2); }
 .db-mini-btn:disabled:hover { border-color: var(--muted); color: var(--muted); }
 
+/* Colour variants. Written as classes, not inline styles: an inline
+   border-color beats .db-mini-btn:hover, which left every coloured button
+   dead under the cursor. Base hover shifts the colour, so a button that
+   already has one gets a faint tint of itself instead. */
+.db-mini-btn.go     { border-color: var(--green);  color: var(--green);  }
+.db-mini-btn.danger { border-color: var(--accent); color: var(--accent); }
+.db-mini-btn.go:hover:not(:disabled) {
+  border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.10);
+}
+.db-mini-btn.danger:hover:not(:disabled) {
+  border-color: var(--accent); color: var(--accent); background: rgba(232,70,58,0.10);
+}
+
 /* Trial tab: Make student spinner */
 .ms-spin {
   width: 16px; height: 16px; flex: none;
