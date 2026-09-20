@@ -955,23 +955,22 @@ function _trStepsHtml(a) {
   var id = emailToId(a.email || '');
   var em = _trEsc(a.email || '');
   var st = _trStepState(a);
-  function col(list) {
-    return '<div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px">' +
+  function col(head, list) {
+    return '<div class="tr-col"><div class="tr-col-h">' + head + '</div>' +
       list.map(function (x, i) {
         var done = x.key === 'terms' ? (st.termsBack || st.termsSent) : st[x.key];
-        // Terms Back is the one step that waits on someone else, so it turns
-        // green by itself the moment the signed form lands.
-        var c = x.key === 'back' && done ? '#2ecc71' : (x.lesson ? '#4a9eff' : '#ff7a3c');
-        return '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:8px;padding:3px 8px;color:' + c + ';background:' + _skFade(c) + ';border-color:rgba(255,255,255,0.1)' +
-                   (x.noWindow ? ';cursor:default' : '') + '" ' +
-                 (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
-                 (i + 1) + '. ' + x.label + (done ? ' ✓' : '') +
-               '</button>';
+        return '<div class="tr-step' + (done ? ' is-done' : '') + '">' +
+                 '<span class="tr-step-n">' + (i + 1) + '</span>' +
+                 '<button class="tr-step-b' + (done ? ' done' : '') + (x.noWindow ? ' flat' : '') + '" ' +
+                   (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
+                   x.label +
+                 '</button>' +
+               '</div>';
       }).join('') + '</div>';
   }
-  return '<div id="trsteps-' + id + '" style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;margin:10px 0 12px">' +
-      col(_TR_STEPS.filter(function (x) { return !x.lesson; })) +
-      col(_TR_STEPS.filter(function (x) { return x.lesson; })) +
+  return '<div class="tr-steps" id="trsteps-' + id + '">' +
+      col('Decision', _TR_STEPS.filter(function (x) { return !x.lesson; })) +
+      col('Lesson',   _TR_STEPS.filter(function (x) { return  x.lesson; })) +
     '</div>';
 }
 
@@ -990,7 +989,7 @@ function _trActionsHtml(a) {
         make +
         '<span style="flex:1"></span>' +
         '<button class="db-mini-btn" id="trnobtn-' + id + '" style="' + small + ';color:var(--muted);background:rgba(255,255,255,0.05)" ' +
-          'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">8. Dismiss</button>' +
+          'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">Dismiss</button>' +
       '</div>' +
     '</div>';
 }
@@ -1787,7 +1786,6 @@ var _trPayOk    = false;   // did the payments call actually succeed?
 function _trLoadPayments() {
   var url  = getScriptUrl();
   var body = document.getElementById('trialPayBody');
-  var rlab = document.getElementById('trialPayRate');
   if (!body) return;
   if (!url) { body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>'; return; }
   body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
@@ -1798,13 +1796,11 @@ function _trLoadPayments() {
       _trPayCache = [];
       _trPayOk    = false;
       if (!d.success) {
-        if (rlab) rlab.textContent = '';
         // d.error catches a missing router line, which otherwise reads as a
         // vague "could not load" and sends you looking in the wrong place.
         body.innerHTML = '<div class="empty-state">⚠ ' + inqEsc(d.message || d.error || 'Could not load') + '</div>';
         return;
       }
-      if (rlab) rlab.textContent = '$' + d.rate;
       _trPayCache = d.payments || [];
       _trPayOk    = true;
       _trPayRender();
