@@ -849,7 +849,7 @@ function _trStageCard(a) {
       (when
         ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;margin-top:4px;color:' +
             (a.trialPast ? 'var(--muted)' : 'var(--green)') + '">' +
-            'TRIAL On - ' + inqEsc(when.replace(/^(\w{3})\s+/, '$1, ').replace(/\s+·\s+/, ', ')) +
+            'TRIAL ON - ' + inqEsc(when.replace(/^(\w{3})\s+/, '$1, ').replace(/\s+·\s+/, ', ')) +
           '</div>'
         : '') +
       '<hr class="divider" style="margin:18px 0 0">' +

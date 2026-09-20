@@ -514,7 +514,7 @@ body::before {
 .tr-col    { display: flex; flex-direction: column; gap: 5px; }
 .tr-step   { display: flex; align-items: center; gap: 9px; }
 /* The gutter is just the count. It never changes with state; the buttons do. */
-.tr-step-n { font-family: "DM Mono", monospace; font-size: 9px; color: rgba(255,255,255,0.16); width: 13px; text-align: right; flex: none; }
+.tr-step-n { font-family: "DM Mono", monospace; font-size: 9px; color: rgba(255,255,255,0.4); width: 13px; text-align: right; flex: none; }
 /* Pending is the loud state: an unfinished step is the only thing on this card
    you can act on. It carries a lit border. Done keeps its check mark but drops
    back to a quiet tint, so the card reads as "what is left", not "what I did".
