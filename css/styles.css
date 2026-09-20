@@ -483,6 +483,19 @@ body::before {
 .inq-dcard.read   { opacity: 0.62; }
 .inq-dcard.accepted { border-left-color: var(--green); }   /* Trial tab: same card, accepted edge */
 
+/* An opener that never finishes: it unfolds the manual booking form and can be
+   used again tomorrow. Amber, because it is neither a step nor an outcome. */
+.tr-open-btn {
+  width: 100%; padding: 11px; cursor: pointer;
+  font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent2) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent2) 28%, transparent);
+  color: color-mix(in srgb, var(--accent2) 70%, var(--muted));
+  transition: color .12s, border-color .12s, background .12s;
+}
+.tr-open-btn:hover { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 55%, transparent); background: color-mix(in srgb, var(--accent2) 12%, transparent); }
+
 /* ─── TRIAL CARD · STEP BUTTONS ─────────────────────────────────────────────
    The portal's fifth kind of button: not an action and not a choice. Each one
    is a door into a form AND a light saying whether that step is done. So the
@@ -553,14 +566,17 @@ body::before {
 .inq-flabel { color: rgba(255,255,255,0.82); white-space: nowrap; }
 .inq-fval   { color: rgba(255,255,255,0.5); }
 .inq-acts  { display: flex; align-items: center; gap: 6px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
-.inq-db    { font-family: "DM Mono", monospace; font-size: 11px; padding: 5px 12px; border-radius: 7px; border: 1px solid color-mix(in srgb, var(--muted) 55%, transparent); background: transparent; color: var(--muted); cursor: pointer; transition: background .12s, color .12s; }
-.inq-db:hover { background: var(--surface2); }
+/* Decision buttons: uppercase, and each rests on a faint wash of its own
+   colour, the same shade the opener button uses. Colour tells them apart at
+   rest; hover brings the one under the cursor up to full strength. */
+.inq-db    { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 5px 12px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); color: var(--muted); cursor: pointer; transition: background .12s, color .12s, border-color .12s; }
+.inq-db:hover { background: var(--surface2); color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); }
 /* Decision buttons rest dim, with a neutral border: a row of them at the foot
    of a card should not outshout the card. The colour is there to tell them
    apart, not to shout; hover brings the one under the cursor to full strength. */
-.inq-db.yes   { color: color-mix(in srgb, var(--green) 62%, var(--muted));  border-color: rgba(255,255,255,0.10); }
-.inq-db.maybe { color: color-mix(in srgb, #d9a441 62%, var(--muted));       border-color: rgba(255,255,255,0.10); }
-.inq-db.no    { color: color-mix(in srgb, var(--accent) 62%, var(--muted)); border-color: rgba(255,255,255,0.10); }
+.inq-db.yes   { color: color-mix(in srgb, var(--green) 62%, var(--muted));  border-color: color-mix(in srgb, var(--green) 28%, transparent);  background: color-mix(in srgb, var(--green) 6%, transparent); }
+.inq-db.maybe { color: color-mix(in srgb, #d9a441 62%, var(--muted));       border-color: color-mix(in srgb, #d9a441 28%, transparent);       background: color-mix(in srgb, #d9a441 6%, transparent); }
+.inq-db.no    { color: color-mix(in srgb, var(--accent) 62%, var(--muted)); border-color: color-mix(in srgb, var(--accent) 28%, transparent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
 .inq-db.yes:hover   { color: var(--green);  border-color: color-mix(in srgb, var(--green) 55%, transparent);  background: color-mix(in srgb, var(--green) 16%, transparent); }
 .inq-db.maybe:hover { color: #d9a441;       border-color: color-mix(in srgb, #d9a441 55%, transparent);       background: color-mix(in srgb, #d9a441 16%, transparent); }
 .inq-db.no:hover    { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
