@@ -86,8 +86,10 @@ function _trAcceptedCard(a) {
         // Inquiries" only parks them there undecided; this removes them.
         '<button class="db-mini-btn" onclick="_trDelete(\'' + em + '\',' + (a.col || 0) + ',\'' + _trEsc(a.name || '') + '\', this)" ' +
           'data-tip="Delete this inquiry for good" style="border-color:var(--accent);color:var(--accent)">Delete</button>' +
-        '<button class="db-mini-btn" onclick="_trOpenEmail(\'' + em + '\')" style="border-color:var(--green);color:var(--green)">Email</button>' +
-        '<button class="db-mini-btn" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')">Book \u2192</button>' +
+        '<button class="db-mini-btn" onclick="_trOpenEmail(\'' + em + '\')" style="border-color:var(--green);color:var(--green)" ' +
+          'data-tip="Opens the composer with a first-contact draft - nothing sends until you press Send" data-tip-wrap>Email</button>' +
+        '<button class="db-mini-btn" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
+          'data-tip="Fills the booking form below with their name and email - you pick the date and time" data-tip-wrap data-tip-left>Book \u2192</button>' +
       '</div>' +
     '</div>';
 }
