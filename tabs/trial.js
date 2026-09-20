@@ -484,7 +484,7 @@ function _trOpenEmail(email) {
         "<button onclick='_trCloseEmail()' style='background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer'>✕</button>" +
       "</div>" +
       "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--muted);margin-bottom:8px'>To: " + inqEsc(email) + "</div>" +
-      "<input id='trFcSubject' value='About your trial lesson request' style='" + inp + ";margin-bottom:8px'>" +
+      "<input id='trFcSubject' value='About Your Trial Lesson Request' style='" + inp + ";margin-bottom:8px'>" +
       "<textarea id='trFcBody' rows='16' style='" + inp + ";line-height:1.55;resize:vertical'>" + inqEsc(body) + "</textarea>" +
       "<div id='trFcStatus'></div>" +
       "<div style='display:flex;gap:8px;margin-top:12px'>" +

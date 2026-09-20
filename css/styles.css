@@ -948,6 +948,28 @@ body::before {
 
 /* .inq-syncbar / .inq-sync removed Sep 2026 with the Sync button. */
 
+/* ─── FOCUS RING ──────────────────────────────────────────────────────────
+   Chrome's blue focus ring was the one colour in the portal nobody picked.
+   Amber, like every other focused input here.
+
+   An outline, not a border-colour: most of these inputs are built in JS with
+   an inline `border:1px solid ...` shorthand, and no stylesheet rule can beat
+   an inline style. Nothing sets `outline` inline, so this always lands. At
+   offset -1px it sits exactly on top of the 1px border, so it reads as the
+   border lighting up rather than a second ring around it.
+
+   Inputs that already answer :focus themselves keep their own answer: a class
+   or id selector outranks this one, so .cash-input, #fin-gigs-input and the
+   dialog fields go on doing what they did. The three below set a border colour
+   but never killed the blue ring, so they need their colour named here too. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible { outline: 1px solid var(--accent2); outline-offset: -1px; }
+
+.settings-input:focus-visible,
+.transcript-box:focus-visible   { outline-color: var(--accent); }
+.pay-amount-input:focus-visible { outline-color: var(--green);  }
+
 /* ─── DROPBOX TAB — small action buttons ─────────────────────────────────── */
 .db-mini-btn {
   background: transparent;
