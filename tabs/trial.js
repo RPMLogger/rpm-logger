@@ -1772,7 +1772,8 @@ function _trLoadStageThreads() {
 // other case: a trial that never came through the form. Own id prefix ("ts") so
 // its fields cannot collide with Initiate's, since both panels live in the DOM.
 function _trStageBookHtml() {
-  return '<div id="tsBookToggle" style="margin-top:18px">' +
+  return '<hr class="divider" style="margin:32px 0 20px">' +
+    '<div id="tsBookToggle">' +
       '<button class="tr-open-btn" onclick="_tsShowBook()">Book a trial manually</button>' +
     '</div>' +
     '<div id="tsBookArea" style="display:none">' +
