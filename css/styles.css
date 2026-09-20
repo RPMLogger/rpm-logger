@@ -948,6 +948,22 @@ body::before {
 
 /* .inq-syncbar / .inq-sync removed Sep 2026 with the Sync button. */
 
+/* ─── SCROLLBARS ──────────────────────────────────────────────────────────
+   Chrome on macOS paints a white track, which outshouts every dark box it
+   appears in and squares off the rounded corner it sits over. Thin bar, grey
+   thumb, no track — the treatment the Skips list already used, now everywhere.
+
+   Both syntaxes on purpose: Chrome 121+ and Firefox read the standard two,
+   older Safari and Chrome only read the ::-webkit- ones. Where both are
+   understood the standard ones win, which is the intent. */
+:root { scrollbar-width: thin; scrollbar-color: #333 transparent; }
+
+::-webkit-scrollbar        { width: 9px; height: 9px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #333; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #444; }
+::-webkit-scrollbar-corner { background: transparent; }
+
 /* ─── FOCUS RING ──────────────────────────────────────────────────────────
    Chrome's blue focus ring was the one colour in the portal nobody picked.
    Amber, like every other focused input here.
