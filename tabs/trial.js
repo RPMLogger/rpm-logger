@@ -1918,12 +1918,12 @@ function _trThreadSummary(id, msgs) {
       '</div>';
   }
   var last = msgs[msgs.length - 1];
-  var who  = last.fromMe ? 'last from you' : 'last from them';
+  var who  = last.fromMe ? 'Last From You' : 'Last From Them';
   return '<div id="fcsum-' + id + '" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">' +
-      '<button class="db-mini-btn" id="fctog-' + id + '" onclick="_trToggleThread(\'' + id + '\')">Show</button>' +
+      '<button class="tr-open-btn small" id="fctog-' + id + '" onclick="_trToggleThread(\'' + id + '\')">Show \u25be</button>' +
       '<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:' +
         (last.fromMe ? 'var(--muted)' : 'var(--green)') + '">' +
-        msgs.length + (msgs.length === 1 ? ' message' : ' messages') + ' \u00b7 ' + who +
+        msgs.length + (msgs.length === 1 ? ' Message, ' : ' Messages, ') + who +
       '</span>' +
     '</div>';
 }
@@ -1934,7 +1934,7 @@ function _trToggleThread(id) {
   if (!box) return;
   var open = box.style.display !== 'none';
   box.style.display = open ? 'none' : '';
-  if (btn) btn.textContent = open ? 'Show' : 'Hide';
+  if (btn) btn.textContent = open ? 'Show \u25be' : 'Hide \u25b4';
 }
 
 
