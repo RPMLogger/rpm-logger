@@ -488,13 +488,15 @@ body::before {
    is a door into a form AND a light saying whether that step is done. So the
    number sits outside in a gutter (the list is the list, the button is the
    step), and the button's colour carries one thing only: done or not. */
-.tr-steps  { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; margin: 10px 0 12px; }
+.tr-steps  { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; margin: 20px 0; }
 .tr-col    { display: flex; flex-direction: column; gap: 5px; }
-.tr-col-h  { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.28); margin-bottom: 2px; }
 .tr-step   { display: flex; align-items: center; gap: 9px; }
-.tr-step-n { font-family: "DM Mono", monospace; font-size: 9px; color: rgba(255,255,255,0.28); width: 9px; text-align: right; flex: none; }
+/* The gutter is just the count. It never changes with state; the buttons do. */
+.tr-step-n { font-family: "DM Mono", monospace; font-size: 9px; color: rgba(255,255,255,0.16); width: 13px; text-align: right; flex: none; }
 /* Pending is the loud state: an unfinished step is the only thing on this card
-   you can act on. Done fades back until it is barely there. */
+   you can act on. It carries a lit border. Done keeps its check mark but drops
+   back to a quiet tint, so the card reads as "what is left", not "what I did".
+   Decision steps stay neutral while pending, lesson steps blue (.lesson below). */
 .tr-step-b {
   min-width: 132px; text-align: left; cursor: pointer;
   font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
@@ -504,11 +506,15 @@ body::before {
   color: rgba(255,255,255,0.82);
   transition: color .12s, border-color .12s, background .12s;
 }
-.tr-step-b:hover { border-color: var(--accent2); color: var(--accent2); }
-/* Done: quiet, just enough green to say it happened. */
+.tr-step-b:hover      { border-color: var(--accent2); color: var(--accent2); }
 .tr-step-b.done       { color: color-mix(in srgb, var(--green) 42%, #3c3c3c); border-color: rgba(255,255,255,0.055); background: transparent; }
 .tr-step-b.done:hover { color: color-mix(in srgb, var(--green) 75%, #3c3c3c); border-color: color-mix(in srgb, var(--green) 32%, transparent); background: transparent; }
-.tr-step.is-done .tr-step-n { color: rgba(255,255,255,0.16); }
+/* The lesson column stays blue: it is the lesson itself, not the paperwork
+   around it. Same rule inside the colour, pending loud and done faded. */
+.tr-step-b.lesson            { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 40%, transparent); background: color-mix(in srgb, var(--blue) 7%, transparent); }
+.tr-step-b.lesson:hover      { color: var(--blue); border-color: var(--blue); background: color-mix(in srgb, var(--blue) 14%, transparent); }
+.tr-step-b.lesson.done       { color: color-mix(in srgb, var(--blue) 40%, #3c3c3c); border-color: rgba(255,255,255,0.055); background: transparent; }
+.tr-step-b.lesson.done:hover { color: color-mix(in srgb, var(--blue) 72%, #3c3c3c); border-color: color-mix(in srgb, var(--blue) 30%, transparent); background: transparent; }
 .tr-step-b.flat       { cursor: default; }
 
 /* ─── INQUIRY ARCHIVE ─────────────────────────────────────────────────────── */
@@ -549,12 +555,15 @@ body::before {
 .inq-acts  { display: flex; align-items: center; gap: 6px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
 .inq-db    { font-family: "DM Mono", monospace; font-size: 11px; padding: 5px 12px; border-radius: 7px; border: 1px solid color-mix(in srgb, var(--muted) 55%, transparent); background: transparent; color: var(--muted); cursor: pointer; transition: background .12s, color .12s; }
 .inq-db:hover { background: var(--surface2); }
-.inq-db.yes   { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); }
-.inq-db.yes:hover   { background: color-mix(in srgb, var(--green) 16%, transparent); }
-.inq-db.maybe { color: #d9a441; border-color: color-mix(in srgb, #d9a441 55%, transparent); }
-.inq-db.maybe:hover { background: color-mix(in srgb, #d9a441 16%, transparent); }
-.inq-db.no    { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
-.inq-db.no:hover    { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+/* Decision buttons rest dim, with a neutral border: a row of them at the foot
+   of a card should not outshout the card. The colour is there to tell them
+   apart, not to shout; hover brings the one under the cursor to full strength. */
+.inq-db.yes   { color: color-mix(in srgb, var(--green) 62%, var(--muted));  border-color: rgba(255,255,255,0.10); }
+.inq-db.maybe { color: color-mix(in srgb, #d9a441 62%, var(--muted));       border-color: rgba(255,255,255,0.10); }
+.inq-db.no    { color: color-mix(in srgb, var(--accent) 62%, var(--muted)); border-color: rgba(255,255,255,0.10); }
+.inq-db.yes:hover   { color: var(--green);  border-color: color-mix(in srgb, var(--green) 55%, transparent);  background: color-mix(in srgb, var(--green) 16%, transparent); }
+.inq-db.maybe:hover { color: #d9a441;       border-color: color-mix(in srgb, #d9a441 55%, transparent);       background: color-mix(in srgb, #d9a441 16%, transparent); }
+.inq-db.no:hover    { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
 /* ─── OPENS A WINDOW ──────────────────────────────────────────────────────── */
 /* ▸ means a dialog opens right here. A link that LEAVES the portal uses › .
    A button with neither marker acts immediately. */

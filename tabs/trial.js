@@ -852,10 +852,10 @@ function _trStageCard(a) {
             'TRIAL - ' + inqEsc(when.replace(/^(\w{3})\s+/, '$1, ').replace(/\s+·\s+/, ' - ')) +
           '</div>'
         : '') +
-      '<hr class="divider" style="margin:10px 0 0">' +
+      '<hr class="divider" style="margin:18px 0 0">' +
       '<div id="trpaid-' + emailToId(a.email || '') + '"></div>' +
       _trStepsHtml(a) +
-      '<hr class="divider" style="margin:0 0 10px">' +
+      '<hr class="divider" style="margin:0 0 20px">' +
       '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || '') + '"></div>' +
       _trActionsHtml(a) +
@@ -899,7 +899,7 @@ var _TR_STEPS = [
   { key: 'terms', label: 'Terms Sent' },
   { key: 'back',  label: 'Terms Back' },                // goes green on its own once the form comes back
   { key: 'log',   label: 'Log lesson', lesson: true, required: true },
-  { key: 'hw',    label: 'Send HW',    lesson: true }
+  { key: 'hw',    label: 'Send HW',    lesson: true, required: true }
 ];
 
 function _trFilled(v) { return !!String(v == null ? '' : v).trim(); }
@@ -927,7 +927,7 @@ function _trStepState(a) {
     info:  s.infoDone === true || String(s.infoDone || '').toUpperCase() === 'TRUE',
     dbx:   !!s.dropboxMade,
     log:   _trFilled(s.whatWeDid),
-    hw:    false,
+    hw:    s.hwSent === true || String(s.hwSent || '').toUpperCase() === 'TRUE',
     freq:  /^(weekly|biweekly)$/i.test(String(s.frequency || '').trim()),
     time:  (function () { var d = _trFirstLessonDate(s.firstLesson); return !!d && d > new Date(); })(),
     pay:   s.paid === true || String(s.paid || '').toUpperCase() === 'TRUE' || !!_trTrialPayFor(a.email),
@@ -955,22 +955,22 @@ function _trStepsHtml(a) {
   var id = emailToId(a.email || '');
   var em = _trEsc(a.email || '');
   var st = _trStepState(a);
-  function col(head, list) {
-    return '<div class="tr-col"><div class="tr-col-h">' + head + '</div>' +
+  function col(list) {
+    return '<div class="tr-col">' +
       list.map(function (x, i) {
         var done = x.key === 'terms' ? (st.termsBack || st.termsSent) : st[x.key];
         return '<div class="tr-step' + (done ? ' is-done' : '') + '">' +
-                 '<span class="tr-step-n">' + (i + 1) + '</span>' +
-                 '<button class="tr-step-b' + (done ? ' done' : '') + (x.noWindow ? ' flat' : '') + '" ' +
+                 '<span class="tr-step-n">' + (i + 1) + '.</span>' +
+                 '<button class="tr-step-b' + (x.lesson ? ' lesson' : '') + (done ? ' done' : '') + (x.noWindow ? ' flat' : '') + '" ' +
                    (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
-                   x.label +
+                   x.label + (done ? ' \u2713' : '') +
                  '</button>' +
                '</div>';
       }).join('') + '</div>';
   }
   return '<div class="tr-steps" id="trsteps-' + id + '">' +
-      col('Decision', _TR_STEPS.filter(function (x) { return !x.lesson; })) +
-      col('Lesson',   _TR_STEPS.filter(function (x) { return  x.lesson; })) +
+      col(_TR_STEPS.filter(function (x) { return !x.lesson; })) +
+      col(_TR_STEPS.filter(function (x) { return  x.lesson; })) +
     '</div>';
 }
 
@@ -979,16 +979,14 @@ function _trStepsHtml(a) {
 function _trActionsHtml(a) {
   var id = emailToId(a.email || '');
   var em = _trEsc(a.email || '');
-  var st = _trStepState(a);
-  var small = _TR_CAPS + ';font-size:9px;padding:3px 8px;border-color:rgba(255,255,255,0.1)';
-  var yellow = 'min-width:120px;' + small + ';color:#f0a500;background:' + _skFade('#f0a500');
-  // Always clickable: _msOpen shows what's still missing if the steps aren't done.
-  var make = '<button class="db-mini-btn" style="' + yellow + '" onclick="_msOpen(\'' + em + '\')">＋ Confirm as student</button>';
-  return '<div id="tracts-' + id + '" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">' +
-      '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
-        make +
-        '<span style="flex:1"></span>' +
-        '<button class="db-mini-btn" id="trnobtn-' + id + '" style="' + small + ';color:var(--muted);background:rgba(255,255,255,0.05)" ' +
+  // The same pair as the inquiry card's Yes / No, one stage later: two
+  // mutually exclusive outcomes, either of which ends the card. So they use
+  // the same buttons, .inq-db yes / no, rather than a look of their own.
+  // Confirm is always clickable: _msOpen says what is still missing.
+  return '<div id="tracts-' + id + '" style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">' +
+      '<div class="inq-acts">' +
+        '<button class="inq-db yes" onclick="_msOpen(\'' + em + '\')">Confirm Student</button>' +
+        '<button class="inq-db no" id="trnobtn-' + id + '" ' +
           'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">Dismiss</button>' +
       '</div>' +
     '</div>';
@@ -1247,7 +1245,27 @@ function _tlHwHtml(a, s) {
     return '<div class="empty-state" style="padding:22px 10px">Make their Dropbox folder first.<br><br>' +
       '<button class="db-mini-btn" onclick="_tl.step=\'dbx\';_tlRender()">Go to Dropbox →</button></div>';
   }
-  return '<div id="tlUpload">' + _tlUploadHtml(a.name) + '</div>';
+  var done = s.hwSent === true || String(s.hwSent || '').toUpperCase() === 'TRUE';
+  // Some trials genuinely have nothing to send. The step still has to be
+  // answered, so say so on the record rather than leaving it hanging.
+  return '<div id="tlUpload">' + _tlUploadHtml(a.name) + '</div>' +
+    '<div style="display:flex;align-items:center;gap:10px;margin-top:10px">' +
+      '<button class="db-mini-btn" id="tlHwNoneBtn" onclick="_tlHwNone()"' +
+        (done ? ' style="border-color:var(--green);color:var(--green)"' : '') + '>' +
+        (done ? 'Sent \u2713 \u00b7 undo' : 'No material to send') +
+      '</button>' +
+      _tlMsg('tlHwMsg') +
+    '</div>';
+}
+
+// Marks the step done (or undoes it) without an upload.
+function _tlHwNone() {
+  if (!_tl) return;
+  var s = _tl.card.lesson || {};
+  var done = s.hwSent === true || String(s.hwSent || '').toUpperCase() === 'TRUE';
+  _tlSaveFields({ hwSent: done ? 'false' : 'true' }, 'tlHwMsg', function () {
+    if (_tl) _tlRender();
+  });
 }
 
 // ── 4 · Frequency ──
@@ -1485,6 +1503,7 @@ function _tlUpload(files) {
       z.textContent = (fail ? '\u26a0 ' : '\u2713 ') + ok + '/' + total + ' uploaded to ' + folder +
         (fail ? ', ' + fail + ' failed' : '') + ' \u00b7 click to add more';
       z.style.color = fail ? 'var(--accent)' : 'var(--green)';
+      if (ok) _tlSaveFields({ hwSent: 'true' }, 'tlHwMsg');
       setTimeout(function () {
         var z2 = document.getElementById('tlDrop');
         if (z2) { z2.textContent = z2.dataset.idle; z2.style.color = 'var(--muted)'; }
