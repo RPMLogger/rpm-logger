@@ -963,7 +963,10 @@ body::before {
 :root { scrollbar-width: thin; scrollbar-color: #333 transparent; }
 
 ::-webkit-scrollbar        { width: 9px; height: 9px; }
-::-webkit-scrollbar-track  { background: transparent; }
+/* The track is inset top and bottom, which shortens the whole bar: the thumb
+   is always a proportion of the track, and its length is not settable on its
+   own. Keeps the bar off the rounded corners of the box it sits in. */
+::-webkit-scrollbar-track  { background: transparent; margin: 14px 0; }
 ::-webkit-scrollbar-thumb  { background: #333; border-radius: 6px; }
 ::-webkit-scrollbar-thumb:hover { background: #444; }
 ::-webkit-scrollbar-corner { background: transparent; }

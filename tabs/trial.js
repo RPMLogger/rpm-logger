@@ -461,10 +461,16 @@ function _trOpenEmail(email) {
   overlay.innerHTML =
     "<div style='background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:600px;width:100%;padding:18px;box-sizing:border-box;max-height:92vh;overflow:auto'>" +
       "<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:12px'>" +
-        "<div class='section-label' style='margin-bottom:0'>Compose &middot; " + inqEsc(a.name || "") + "</div>" +
+        "<div class='section-label' style='margin-bottom:0'>Compose to:</div>" +
         "<button onclick='_trCloseEmail()' style='background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer'>✕</button>" +
       "</div>" +
-      "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--muted);margin-bottom:8px'>To: " + inqEsc(email) + "</div>" +
+      // The heading says COMPOSE TO:, so the two lines under it are just the
+      // person: the name in the same section-label type as the heading, the way
+      // it read when the two sat on one line, and the address on its own line
+      // in its own case, because a letter-spaced uppercase email is unreadable.
+      "<div class='section-label' style='margin-bottom:2px'>" + inqEsc(a.name || "") + "</div>" +
+      "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:14px'>" +
+        inqEsc(email) + "</div>" +
       "<input id='trFcSubject' value='About Your Trial Lesson Request' style='" + inp + ";margin-bottom:8px'>" +
       "<textarea id='trFcBody' rows='16' style='" + inp + ";line-height:1.55;resize:vertical'>" + inqEsc(body) + "</textarea>" +
       "<div id='trFcStatus'></div>" +
