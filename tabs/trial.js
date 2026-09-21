@@ -14,7 +14,6 @@ function initTrialTab() {
   // Booking is the exit door of this tab, not its furniture: the form and the
   // calendar list stay hidden until he actually decides to book someone.
   body.innerHTML =
-    '<div id="trStrip"></div>' +
     '<div class="section-label" style="margin-bottom:10px">Reach out</div>' +
     '<div id="trAccepted"><div class="empty-state rpm-loading">Loading</div></div>' +
     '<div id="trBookArea" style="display:none">' +
@@ -60,7 +59,6 @@ function _trLoadAccepted() {
         // thread fetch below is skipped on this path, and the badge kept the
         // count from before the last person moved to Trial.
         _trSetInitiateBadge({});
-        _trRenderStrip(null);
         return;
       }
       box.innerHTML = d.accepted.map(_trAcceptedCard).join('');
@@ -76,7 +74,8 @@ function _trAcceptedCard(a) {
   var em = _trEsc(a.email || "");
   return '<div class="inq-dcard accepted">' +
       '<div class="inq-drow"><span class="inq-chan">' + inqEsc(a.channel || "Gmail") + '</span></div>' +
-      '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || "\u2014") + '</span></div>' +
+      '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || "\u2014") + '</span>' +
+        '<span class="fc-newmsg" id="fcnm-' + emailToId(a.email || "") + '"></span></div>' +
       '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || "") + '"></div>' +
       '<div class="inq-acts">' +
@@ -140,9 +139,6 @@ function _trSmsText(first) {
 
 // Show the email exchange on each card. Gmail is the record, nothing is stored
 // here. Incoming messages get a green edge so a reply is obvious at a glance.
-// Top strip. ACTIVE = an email exchange exists. WAITING = nobody has written
-// to them yet, so they are waiting on him. This is the glance that stops
-// someone sitting unnoticed.
 // ── Offered times → one-click booking ────────────────────────────────────────
 // Parse the times out of HIS OWN sent messages, never out of their reply.
 // "Monday generally works, we can try Sep 7" is prose and any parser for it
@@ -226,35 +222,19 @@ function _trPickSlot(date, time) {
   _trStatus('Set to ' + date + ' at ' + time + '. Check it, then Book trial.', 'var(--accent2)');
 }
 
-function _trRenderStrip(threads) {
-  var el = document.getElementById('trStrip');
+// The new-message flag, on the card itself. This replaced the ACTIVE/WAITING
+// strip that used to sit above the cards: a list of first names at the top of
+// the tab said nothing the cards could not say, and it said it in a second
+// place that had to be read separately. What actually matters is the one thing
+// you cannot see from a closed card — they wrote back and you have not answered.
+// Shown only when the LAST message in the thread is theirs, so it clears itself
+// the moment you reply.
+function _trPaintNewMsg(email, t) {
+  var el = document.getElementById('fcnm-' + emailToId(email || ''));
   if (!el) return;
-  var active = [], waiting = [], bounced = [];
-  _trAcceptedCache.forEach(function (a) {
-    var t = threads && threads[a.email];
-    var first = (a.name || '').split(' ')[0];
-    if (t && t.bouncedOn) { bounced.push(first); return; }
-    if (t && t.count > 0) active.push(first); else waiting.push(first);
-  });
-  if (!active.length && !waiting.length && !bounced.length) { el.innerHTML = ''; return; }
-
-  function group(label, names, color) {
-    if (!names.length) return '';
-    return '<span style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;color:' + color + '">' +
-             label + ':</span> ' +
-           '<span style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' +
-             names.map(inqEsc).join(', ') +
-           '</span>';
-  }
-  var parts = [group('ACTIVE', active, 'var(--green)'),
-               group('WAITING', waiting, 'var(--accent2)'),
-               group('BOUNCED', bounced, 'var(--accent)')]
-                .filter(function (x) { return x; });
-  el.innerHTML =
-    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;' +
-        'padding:11px 14px;margin-bottom:14px;display:flex;gap:22px;flex-wrap:wrap">' +
-      parts.join('') +
-    '</div>';
+  el.innerHTML = (t && t.theirTurn)
+    ? '<span class="fc-new">\u25cf New message</span>'
+    : '';
 }
 
 // The Initiate nav badge: how many people are waiting on a reply FROM HIM.
@@ -294,14 +274,14 @@ function _trLoadThreads() {
   fetch(url + '?action=getFirstContactThreads')
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (!d.success || !d.threads) { _trRenderStrip(null); return; }
+      if (!d.success || !d.threads) return;
       _trThreadCache = d.threads;
       _trSetInitiateBadge(d.threads);
-      _trRenderStrip(d.threads);
       Object.keys(d.threads).forEach(function (email) {
         var box = document.getElementById('fcth-' + emailToId(email));
         if (!box) return;
         var t = d.threads[email];
+        _trPaintNewMsg(email, t);
         if (!t.messages || !t.messages.length) { box.innerHTML = ''; return; }
         var id = emailToId(email);
         box.innerHTML =
@@ -373,6 +353,7 @@ function _trSendReply(id, threadId) {
         return;
       }
       _trRefreshThreads();   // redraw so the reply appears in the thread
+      _trLoadThreads();      // and repaint Initiate, so the New message flag clears
     })
     .catch(function () {
       if (btn) { btn.disabled = false; btn.textContent = 'Send reply'; }

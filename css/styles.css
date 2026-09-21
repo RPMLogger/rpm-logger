@@ -570,6 +570,10 @@ body::before {
 .inq-chan  { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
 .inq-when  { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); white-space: nowrap; }
 .inq-name-line { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin: 7px 0 5px; }
+/* Initiate: they wrote back and you have not answered. Sits on the name line
+   so it is read with the name, not hunted for. */
+.fc-new { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+          color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
 .inq-name  { font-family: "Syne", sans-serif; font-size: 16px; font-weight: 400; color: var(--text); }
 .inq-fields { display: grid; grid-template-columns: auto 1fr; gap: 3px 16px; margin-top: 8px; font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.5; }
 .inq-flabel { color: rgba(255,255,255,0.82); white-space: nowrap; }
