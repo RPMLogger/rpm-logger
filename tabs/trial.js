@@ -482,7 +482,10 @@ function _trOpenEmail(email) {
       // Same header as the lesson card modal: NAME in Bebas and accent, the
       // section after it in grey. One header shape for every panel that is
       // about one person, instead of this one inventing its own.
-      "<div class='settings-title' style='margin-bottom:8px'>" +
+      // A step down from the 20px .settings-title the lesson card uses: this
+      // modal carries two of these headings, and at full size they shouted
+      // over the panel between them. Inline, so the shared class is untouched.
+      "<div class='settings-title' style='margin-bottom:8px;font-size:18px'>" +
         "<span>" + inqEsc(a.name || "") +
           "<span style='color:var(--muted)'> \u00b7 Compose</span></span>" +
         "<button class='settings-close' onclick='_trCloseEmail()'>✕</button>" +
@@ -515,7 +518,7 @@ function _trOpenEmail(email) {
       // No name on this one. The panel's own header said who this is, and the
       // number under it says which line - repeating "Jason Diller" here only
       // competes with the title at the top.
-      "<div class='settings-title' style='margin-bottom:8px;color:var(--muted)'>" +
+      "<div class='settings-title' style='margin-bottom:8px;font-size:18px;color:var(--muted)'>" +
         "<span>Text</span></div>" +
       "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:20px'>" +
         (phonePretty ? inqEsc(phonePretty) : "No phone number on file") + "</div>" +
