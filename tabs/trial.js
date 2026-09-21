@@ -549,14 +549,20 @@ function _trPreviewEmail() {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d.success) { box.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:12px'>⚠ " + (d.message || "Could not render") + "</div>"; return; }
-      var html = d.html.replace(/<img[^>]*cid:logo[^>]*>/i,
-        "<div style=\"width:80px;height:80px;border:1px dashed #bbb;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font:10px/1.2 monospace;color:#888\">LOGO</div>");
+      // The logo is a cid: attachment that only resolves inside the real
+      // email, and it is the same on every one, so the preview drops it
+      // rather than drawing a placeholder box where it would sit.
+      var html = d.html.replace(/<img[^>]*cid:logo[^>]*>/i, "");
       box.innerHTML =
         "<div style='margin-top:14px'>" +
           "<div class='section-label' style='margin-bottom:6px'>Preview</div>" +
           // Same face and metrics as the box you typed it in, so the preview
-          // is the same text on a white card rather than a different setting.
-          "<div style='background:#fff;color:#111;border:1px solid var(--border);border-radius:10px;padding:22px;" +
+          // is the same text on paper rather than a different setting.
+          //
+          // Paper, but dimmed: a white card in a portal this dark is a jolt
+          // every time it opens. #d9d5ce still reads as light-on-dark - which
+          // is what the recipient will see - without the glare.
+          "<div style='background:#d9d5ce;color:#1b1b1b;border:1px solid var(--border);border-radius:10px;padding:22px;" +
               "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6'>" + html + "</div>" +
         "</div>";
     })
@@ -1597,12 +1603,11 @@ function _tlPreview() {
 // The email on a white card, the way a mail client shows it. The logo is a
 // cid: reference that only exists in the real email, so it becomes a box.
 function _tlPreviewHtml(subject, html, to) {
-  var body = String(html || '').replace(/<img [^>]*cid:logo[^>]*>/,
-    '<div style="width:80px;height:80px;border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999">logo</div>');
+  var body = String(html || '').replace(/<img [^>]*cid:logo[^>]*>/, '');
   return '<div style="margin-top:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden">' +
       '<div style="padding:9px 12px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border)">' +
         'To: ' + inqEsc(to || '') + '<br>Subject: <span style="color:var(--text)">' + inqEsc(subject || '') + '</span></div>' +
-      '<div style="background:#fff;color:#222;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6">' + body + '</div>' +
+      '<div style="background:#d9d5ce;color:#1b1b1b;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6">' + body + '</div>' +
     '</div>';
 }
 
