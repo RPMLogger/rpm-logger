@@ -560,6 +560,23 @@ body::before {
   transition: color .12s, border-color .12s, background .12s;
 }
 .tr-step-b:hover      { border-color: var(--accent2); color: var(--accent2); }
+
+/* ─── THE TICK ────────────────────────────────────────────────────────────
+   The user's om-11.svg - a disc with a check cut out - as a mask, the same
+   way .settings-close paints om-10. currentColor again, so a tick is always
+   exactly the colour of the thing it belongs to: green on a done step, the
+   softer green on the confirm summary.
+
+   .tick is the standalone one; a done step button grows its own through
+   ::after, so the label does not have to carry a ✓ character. */
+.tick, .tr-step-b.done::after {
+  content: ""; display: inline-block; width: 11px; height: 11px; flex: none;
+  background: currentColor; vertical-align: -1px;
+  -webkit-mask: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907 907"%3E%3Cpath fill-rule="evenodd" d="M 453.390625 -0.0742188 C 203.351562 -0.0742188 -0.0742188 203.351562 -0.0742188 453.390625 C -0.0742188 703.429688 203.351562 906.855469 453.390625 906.855469 C 703.429688 906.855469 906.855469 703.429688 906.855469 453.390625 C 906.855469 203.351562 703.429688 -0.0742188 453.390625 -0.0742188 Z M 666.835938 394.757812 L 440.105469 621.492188 C 431.261719 630.332031 419.652344 634.777344 408.042969 634.777344 C 396.4375 634.777344 384.828125 630.332031 375.984375 621.492188 L 285.292969 530.796875 C 267.5625 513.066406 267.5625 484.410156 285.292969 466.679688 C 303.023438 448.949219 331.679688 448.949219 349.410156 466.679688 L 408.042969 525.3125 L 602.71875 330.636719 C 620.449219 312.910156 649.105469 312.910156 666.835938 330.636719 C 684.566406 348.367188 684.566406 377.027344 666.835938 394.757812 Z M 666.835938 394.757812 "/%3E%3C/svg%3E') center / contain no-repeat;
+          mask: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907 907"%3E%3Cpath fill-rule="evenodd" d="M 453.390625 -0.0742188 C 203.351562 -0.0742188 -0.0742188 203.351562 -0.0742188 453.390625 C -0.0742188 703.429688 203.351562 906.855469 453.390625 906.855469 C 703.429688 906.855469 906.855469 703.429688 906.855469 453.390625 C 906.855469 203.351562 703.429688 -0.0742188 453.390625 -0.0742188 Z M 666.835938 394.757812 L 440.105469 621.492188 C 431.261719 630.332031 419.652344 634.777344 408.042969 634.777344 C 396.4375 634.777344 384.828125 630.332031 375.984375 621.492188 L 285.292969 530.796875 C 267.5625 513.066406 267.5625 484.410156 285.292969 466.679688 C 303.023438 448.949219 331.679688 448.949219 349.410156 466.679688 L 408.042969 525.3125 L 602.71875 330.636719 C 620.449219 312.910156 649.105469 312.910156 666.835938 330.636719 C 684.566406 348.367188 684.566406 377.027344 666.835938 394.757812 Z M 666.835938 394.757812 "/%3E%3C/svg%3E') center / contain no-repeat;
+}
+.tr-step-b.done::after { margin-left: 6px; vertical-align: -2px; }
+
 .tr-step-b.done       { color: color-mix(in srgb, var(--green) 42%, #3c3c3c); border-color: rgba(255,255,255,0.055); background: transparent; }
 .tr-step-b.done:hover { color: color-mix(in srgb, var(--green) 75%, #3c3c3c); border-color: color-mix(in srgb, var(--green) 32%, transparent); background: transparent; }
 /* The lesson column stays blue: it is the lesson itself, not the paperwork

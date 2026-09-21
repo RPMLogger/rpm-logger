@@ -590,9 +590,13 @@ function _trPreviewEmail() {
     .then(function (d) {
       if (!d.success) { box.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:12px'>⚠ " + (d.message || "Could not render") + "</div>"; return; }
       // The logo is a cid: attachment that only resolves inside the real
-      // email, and it is the same on every one, so the preview drops it
-      // rather than drawing a placeholder box where it would sit.
-      var html = d.html.replace(/<img[^>]*cid:logo[^>]*>/i, "");
+      // email, so the preview draws a marker where it will sit. Dropping it
+      // entirely was tried and left you wondering every time whether the logo
+      // was still going out. Toned for the beige card, not the old white one.
+      var html = d.html.replace(/<img[^>]*cid:logo[^>]*>/i,
+        "<div style=\"width:64px;height:64px;border:1px dashed #9a978f;border-radius:8px;" +
+        "display:inline-flex;align-items:center;justify-content:center;" +
+        "font:9px/1.2 monospace;letter-spacing:1px;color:#6f6c65\">LOGO</div>");
       box.innerHTML =
         "<div style='margin-top:14px'>" +
           "<div class='section-label' style='margin-bottom:6px'>Preview</div>" +
@@ -1015,7 +1019,7 @@ function _trStepsHtml(a) {
                  '<span class="tr-step-n">' + (i + 1) + '.</span>' +
                  '<button class="tr-step-b' + (x.lesson ? ' lesson' : '') + (done ? ' done' : '') + (x.noWindow ? ' flat' : '') + '" ' +
                    (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
-                   x.label + (done ? ' \u2713' : '') +
+                   x.label +
                  '</button>' +
                '</div>';
       }).join('') + '</div>';
@@ -1643,7 +1647,11 @@ function _tlPreview() {
 // The email on a white card, the way a mail client shows it. The logo is a
 // cid: reference that only exists in the real email, so it becomes a box.
 function _tlPreviewHtml(subject, html, to) {
-  var body = String(html || '').replace(/<img [^>]*cid:logo[^>]*>/, '');
+  // Same marker as the composer preview: you can see the logo is going.
+  var body = String(html || '').replace(/<img [^>]*cid:logo[^>]*>/,
+    '<div style="width:64px;height:64px;border:1px dashed #9a978f;border-radius:8px;' +
+    'display:inline-flex;align-items:center;justify-content:center;' +
+    'font:9px/1.2 monospace;letter-spacing:1px;color:#6f6c65">LOGO</div>');
   return '<div style="margin-top:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden">' +
       '<div style="padding:9px 12px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border)">' +
         'To: ' + inqEsc(to || '') + '<br>Subject: <span style="color:var(--text)">' + inqEsc(subject || '') + '</span></div>' +
@@ -2147,7 +2155,8 @@ function _msRenderForm() {
     return '<div style="display:flex;gap:12px;padding:4px 0;font-family:\'DM Mono\',monospace;font-size:12px">' +
         '<span style="width:104px;flex:none;color:var(--muted);font-size:10px;letter-spacing:1px;' +
             'text-transform:uppercase;padding-top:3px">' + k + '</span>' +
-        '<span style="color:' + TICK + ';flex:none;width:12px">' + (done ? '✓' : '') + '</span>' +
+        '<span style="color:' + TICK + ';flex:none;width:12px">' +
+          (done ? '<span class="tick"></span>' : '') + '</span>' +
         '<span style="color:' + (color || 'rgba(255,255,255,0.82)') + '">' + v + '</span>' +
       '</div>';
   }
