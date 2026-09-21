@@ -478,23 +478,23 @@ function _trOpenEmail(email) {
   overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;" +
                           "align-items:center;justify-content:center;padding:18px;overflow:auto";
   overlay.innerHTML =
-    "<div style='background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:600px;width:100%;padding:18px;box-sizing:border-box;max-height:92vh;overflow:auto'>" +
+    "<div style='background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:600px;width:100%;padding:28px;box-sizing:border-box;max-height:92vh;overflow:auto'>" +
       // Same header as the lesson card modal: NAME in Bebas and accent, the
       // section after it in grey. One header shape for every panel that is
       // about one person, instead of this one inventing its own.
-      "<div class='settings-title' style='margin-bottom:4px'>" +
+      "<div class='settings-title' style='margin-bottom:8px'>" +
         "<span>" + inqEsc(a.name || "") +
           "<span style='color:var(--muted)'> \u00b7 Compose</span></span>" +
         "<button class='settings-close' onclick='_trCloseEmail()'>✕</button>" +
       "</div>" +
-      "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:10px'>" +
+      "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:20px'>" +
         inqEsc(email) + "</div>" +
       // Marks the email half of the panel, the way the phone marks the text
       // half further down. Grey, so the red title still leads.
-      "<input id='trFcSubject' value='About Your Trial Lesson Request' style='" + inp + ";margin-bottom:8px'>" +
+      "<input id='trFcSubject' value='About Your Trial Lesson Request' style='" + inp + ";margin-bottom:14px'>" +
       "<textarea id='trFcBody' rows='16' style='" + inp + "'>" + inqEsc(body) + "</textarea>" +
       "<div id='trFcStatus'></div>" +
-      "<div style='display:flex;gap:8px;margin-top:12px'>" +
+      "<div style='display:flex;gap:8px;margin-top:20px'>" +
         "<button class='db-mini-btn' id='trFcPrevBtn' onclick='_trPreviewEmail()'>Preview</button>" +
         // Not green: green in this portal means done, and a button that has
         // not been pressed yet should not wear the colour of the thing it is
@@ -507,7 +507,7 @@ function _trOpenEmail(email) {
           "<span>Send</span></button>" +
       "</div>" +
       "<div id='trFcPreview'></div>" +
-      "<hr class='divider' style='margin:18px 0 12px'>" +
+      "<hr class='divider' style='margin:34px 0 24px'>" +
       // The text half is built exactly like the email half above it: the same
       // title, the number where the address sits, the phone icon where the
       // envelope sits. Two halves of one job, so they read as a pair rather
@@ -515,9 +515,9 @@ function _trOpenEmail(email) {
       // No name on this one. The panel's own header said who this is, and the
       // number under it says which line - repeating "Jason Diller" here only
       // competes with the title at the top.
-      "<div class='settings-title' style='margin-bottom:4px;color:var(--muted)'>" +
+      "<div class='settings-title' style='margin-bottom:8px;color:var(--muted)'>" +
         "<span>Text</span></div>" +
-      "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:10px'>" +
+      "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:20px'>" +
         (phonePretty ? inqEsc(phonePretty) : "No phone number on file") + "</div>" +
       // Smaller again than the email boxes above it, and in mono rather than
       // the composer's Arial. This one is not really read, it is copied, so it
@@ -534,7 +534,7 @@ function _trOpenEmail(email) {
       // row, one type, equal share of the width. The number stays on its
       // button because the number is what you tap.
       (phoneDigits
-        ? "<div style='display:flex;gap:8px;margin-top:10px'>" +
+        ? "<div style='display:flex;gap:8px;margin-top:18px'>" +
             "<button class='db-mini-btn' style='flex:1;padding:9px;display:inline-flex;align-items:center;justify-content:center;gap:7px' onclick='_trCopySms(this)'>" +
               COPY_ICON + "<span>Copy Text</span></button>" +
             "<button class='db-mini-btn' style='flex:1;padding:9px;display:inline-flex;align-items:center;justify-content:center;gap:7px' " +
@@ -543,7 +543,7 @@ function _trOpenEmail(email) {
             "<a class='db-mini-btn' style='flex:1;padding:9px;display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none' " +
               "href='sms:" + phoneDigits + "'>" + OPEN_OUT_ICON + "<span>Open Messages</span></a>" +
           "</div>"
-        : "<div style='display:flex;gap:8px;margin-top:10px'>" +
+        : "<div style='display:flex;gap:8px;margin-top:18px'>" +
             "<button class='db-mini-btn' style='flex:1;padding:9px;display:inline-flex;align-items:center;justify-content:center;gap:7px' onclick='_trCopySms(this)'>" +
               COPY_ICON + "<span>Copy Text</span></button>" +
           "</div>") +
