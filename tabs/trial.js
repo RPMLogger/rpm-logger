@@ -703,8 +703,12 @@ function _trBookAccepted(name, email) {
     // Bottom right, where every other window in the portal puts the button
     // that ends it. Just "Book": the title says a trial, the line above says
     // when, so the verb is the only word left to add.
+    // Green, the same .go as Save, because the footer slot is shared between
+    // buttons that commit and buttons that only close. Plain down there reads
+    // as Done - the harmless way out every other window trains you to click -
+    // and this one creates a calendar event and mails the student.
     '<div style="display:flex;justify-content:flex-end;margin-top:24px">' +
-      '<button class="db-mini-btn" id="tbBookBtn" style="padding:7px 20px" ' +
+      '<button class="db-mini-btn go" id="tbBookBtn" style="padding:7px 20px" ' +
         'onclick="_trBook(\'tb\')">Book</button>' +
     '</div>';
 
