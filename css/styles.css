@@ -1133,17 +1133,27 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
    segments); these classes put it on the buttons too, so the mouse and the
    keyboard finally say the same thing. Left/Right never edits a number.
    Used by: Trial book form, Trial Pick a time, Skips day picker. */
-.dt-row { display: flex; align-items: flex-start; gap: 18px; flex-wrap: wrap; }
-.dt-seg { display: flex; flex-direction: column; align-items: stretch; gap: 3px; }
-.dt-arrow { padding: 2px 0; font-size: 9px; line-height: 1.2; text-align: center; }
+/* One flat row, the shape this picker has always had. Stacking the arrows
+   above and below each value made two tall columns that stretched to the
+   label width and swallowed the row; small buttons either side of the value
+   keep it to one line. Vertical glyphs, horizontal layout - the glyph carries
+   the rule, the layout stays out of the way. */
+.dt-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.dt-seg { display: flex; align-items: center; gap: 6px; }
+.dt-arrow { min-width: 28px; padding: 5px 0; font-size: 10px; line-height: 1; text-align: center; }
+/* The arrow is a mouse target; clicking it should not leave a ring sitting on
+   the row. Keyboard focus still shows, through :focus-visible. */
+.dt-arrow:focus { outline: none; }
+.dt-arrow:focus-visible { outline: none; border-color: var(--accent2); color: var(--accent2); }
 /* The value carries focus, so it is a button - but it must not look like one
    more thing to click through; only the focus ring says it is live. */
 .dt-val {
   background: transparent; border: 1px solid transparent; border-radius: 5px;
   font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px;
-  color: rgba(255,255,255,0.82); text-align: center; padding: 4px 6px; cursor: default;
+  color: rgba(255,255,255,0.82); text-align: center; padding: 5px 6px; cursor: default;
 }
-.dt-val:focus { outline: none; border-color: var(--accent2); color: var(--accent2); }
+.dt-val:focus { outline: none; }
+.dt-val:focus-visible { outline: none; border-color: var(--accent2); color: var(--accent2); }
 
 /* Trial tab: Make student spinner */
 .ms-spin {

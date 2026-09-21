@@ -646,6 +646,7 @@ function _trShowBookArea(scroll) {
   if (tog) tog.style.display = 'none';
   var sb = document.getElementById('trOfferedSlots');
   if (sb && scroll) sb.innerHTML = '';   // opened manually: no card, no offers
+  if (scroll) _trEditWho('tr');          // ...and nobody is filled in yet
   if (scroll) {
     var f = document.getElementById('trFirst');
     if (f) f.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -664,9 +665,36 @@ function _trBookAccepted(name, email) {
   set('trDate', ''); set('trTime', '');
   _trDtShow('tr');
   _trRenderOfferedSlots(email);
-  var f = document.getElementById('trFirst');
+  _trShowWho('tr', (first + ' ' + last).trim(), email);
+  // Focus lands on the date, because the date is the only thing left to say.
+  var f = document.getElementById('trDateLbl');
   if (f) { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.focus(); }
-  _trStatus('Filled in ' + name + ' — pick a date + time, then Book trial.', 'var(--accent2)');
+  _trStatus('Booking ' + name + ' — pick a date + time, then Book trial.', 'var(--accent2)');
+}
+
+// Collapse the four identity boxes into "Name · email   Edit".
+function _trShowWho(p, name, email) {
+  var who = document.getElementById(p + 'Who'), ident = document.getElementById(p + 'Ident');
+  if (!who || !ident) return;
+  ident.style.display = 'none';
+  who.style.display = '';
+  who.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;' +
+      'font-family:\'DM Mono\',monospace;font-size:11px;color:rgba(255,255,255,0.82)">' +
+      '<span>' + _trEsc(name) + '</span>' +
+      '<span style="color:var(--muted)">' + _trEsc(email) + '</span>' +
+      '<button class="db-mini-btn" style="padding:3px 9px;font-size:10px" ' +
+        'onclick="_trEditWho(\'' + p + '\')">Edit</button>' +
+    '</div>';
+}
+
+// Something in the inquiry was wrong: put the boxes back.
+function _trEditWho(p) {
+  var who = document.getElementById(p + 'Who'), ident = document.getElementById(p + 'Ident');
+  if (who)   { who.style.display = 'none'; who.innerHTML = ''; }
+  if (ident) { ident.style.display = 'flex'; }
+  var f = document.getElementById(p + 'First');
+  if (f) f.focus();
 }
 
 // ── Door 1: manual booking form ──────────────────────────────────────────────
@@ -679,12 +707,19 @@ function _trManualFormHtml(p) {
   }
   return '<div class="section-label" style="margin-bottom:10px">Book a trial</div>' +
     '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">' +
-      '<div style="display:flex;gap:8px">' +
-        '<span style="flex:1">' + inp(p + 'First', 'First') + '</span>' +
-        '<span style="flex:1">' + inp(p + 'Last', 'Last') + '</span>' +
+      // Booked from a card, the name and email are already known - the card is
+      // where they came from. Four boxes asking for them again is four chances
+      // to typo something that was right. They collapse to one line, with Edit
+      // for the rare case the inquiry had the address wrong.
+      '<div id="' + p + 'Who" style="display:none"></div>' +
+      '<div id="' + p + 'Ident" style="display:flex;flex-direction:column;gap:8px">' +
+        '<div style="display:flex;gap:8px">' +
+          '<span style="flex:1">' + inp(p + 'First', 'First') + '</span>' +
+          '<span style="flex:1">' + inp(p + 'Last', 'Last') + '</span>' +
+        '</div>' +
+        inp(p + 'Email', 'Email', 'email') +
+        inp(p + 'Phone', 'Phone', 'tel') +
       '</div>' +
-      inp(p + 'Email', 'Email', 'email') +
-      inp(p + 'Phone', 'Phone', 'tel') +
       '<div id="' + p + 'OfferedSlots"></div>' +
       _trDtHtml(p) +
     '</div>' +
@@ -773,6 +808,8 @@ function _trDtHtml(p) {
         btn(fn, -step, '\u25bc') +
       '</div>';
   };
+  // ▲ value ▼ on one line - see .dt-row. The column version read as two tall
+  // blocks stacked over the Book trial button and lost the row it belonged to.
   return '<input type="hidden" id="' + p + 'Date" value="' + def.date + '">' +
     '<input type="hidden" id="' + p + 'Time" value="' + def.time + '">' +
     '<div class="dt-row" id="' + p + 'DtRow">' +
@@ -890,8 +927,11 @@ function initTrialStageTab() {
       // The payments list is already on screen by now, drawn without matches.
       // Now that we know who is booked, redraw just those notes.
       _trPayRender();
-      if (!_trStageCache.length) { body.innerHTML = '<div class="empty-state">No booked trials.</div>' + _trStageBookHtml(); return; }
-      body.innerHTML = _trStageCache.map(_trStageCard).join('') + _trStageBookHtml();
+      // The opener goes first, not last. Booking by hand is something you
+      // arrive at the tab already meaning to do; it should not be behind a
+      // scroll past every trial in progress.
+      if (!_trStageCache.length) { body.innerHTML = _trStageBookHtml() + '<div class="empty-state">No booked trials.</div>'; return; }
+      body.innerHTML = _trStageBookHtml() + _trStageCache.map(_trStageCard).join('');
       _trPaintPaid();
       _trLoadStageThreads();
     })
@@ -1813,7 +1853,7 @@ function _trDropStageCard(email) {
   if (card) card.remove();
   _trPayRender();
   var body = document.getElementById('trialStageBody');
-  if (body && !_trStageCache.length) body.innerHTML = '<div class="empty-state">No booked trials.</div>' + _trStageBookHtml();
+  if (body && !_trStageCache.length) body.innerHTML = _trStageBookHtml() + '<div class="empty-state">No booked trials.</div>';
 }
 
 // After a reply lands, redraw whichever stage is on screen.
@@ -1869,14 +1909,16 @@ function _trLoadStageThreads() {
 // other case: a trial that never came through the form. Own id prefix ("ts") so
 // its fields cannot collide with Initiate's, since both panels live in the DOM.
 function _trStageBookHtml() {
-  return '<hr class="divider" style="margin:32px 0 20px">' +
-    '<div id="tsBookToggle">' +
+  // At the top of the tab now, so the rule below separates it from the cards
+  // rather than the other way round.
+  return '<div id="tsBookToggle">' +
       '<button class="tr-open-btn" onclick="_tsShowBook()">Book a trial manually</button>' +
     '</div>' +
     '<div id="tsBookArea" style="display:none">' +
-      '<hr class="divider" style="margin:22px 0 16px">' +
+      '<hr class="divider" style="margin:20px 0 16px">' +
       _trManualFormHtml('ts') + '<div id="tsStatus"></div>' +
-    '</div>';
+    '</div>' +
+    '<hr class="divider" style="margin:22px 0 20px">';
 }
 
 function _tsShowBook() {
