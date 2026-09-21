@@ -677,7 +677,10 @@ function _trBookAccepted(name, email) {
     ov = document.createElement('div');
     ov.className = 'settings-overlay';
     ov.id = 'tbOverlay';
-    ov.innerHTML = '<div class="settings-modal" id="tbModal" style="max-width:600px"></div>';
+    // 380, not 600: it was sized when it held First, Last, Email and Phone.
+    // What is left is a date, a time and a button, and a 600px window around
+    // them is just a long gap between the picker and the corner.
+    ov.innerHTML = '<div class="settings-modal" id="tbModal" style="max-width:380px"></div>';
     ov.addEventListener('click', function (e) { if (e.target === ov) _trBookWinClose(); });
     document.body.appendChild(ov);
   }
@@ -697,8 +700,7 @@ function _trBookAccepted(name, email) {
     // does not have to say the date a third time - the title already has the
     // name, this line has the when, and Book trial is just the verb. It needs
     // room to read as a sentence rather than a caption stuck to the row.
-    '<label class="settings-label" style="margin-bottom:26px">On</label>' +
-    '<div style="margin-bottom:6px">' + _trDtHtml('tb') + '</div>' +
+    '<div style="margin:22px 0 6px">' + _trDtHtml('tb') + '</div>' +
     '<div id="tbStatus" style="margin-top:12px"></div>' +
     // Bottom right, where every other window in the portal puts the button
     // that ends it. Just "Book": the title says a trial, the line above says
