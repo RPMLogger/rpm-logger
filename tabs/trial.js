@@ -699,13 +699,14 @@ function _trBookAccepted(name, email) {
     // room to read as a sentence rather than a caption stuck to the row.
     '<label class="settings-label" style="margin-bottom:14px">Trial lesson will be on</label>' +
     _trDtHtml('tb') +
-    // Book trial is the only way out that does anything, so it is the only
-    // button. Done sat beside it offering to leave without booking, which the
-    // ✕ in the corner already offers, more quietly. Plain, not blue: there is
-    // nothing to choose between here, so nothing needs a colour to win.
-    '<div style="margin-top:18px"><button class="db-mini-btn" id="tbBookBtn" ' +
-      'style="padding:7px 20px" onclick="_trBook(\'tb\')">Book trial</button></div>' +
-    '<div id="tbStatus" style="margin-top:6px"></div>';
+    '<div id="tbStatus" style="margin-top:10px"></div>' +
+    // Bottom right, where every other window in the portal puts the button
+    // that ends it. Just "Book": the title says a trial, the line above says
+    // when, so the verb is the only word left to add.
+    '<div style="display:flex;justify-content:flex-end;margin-top:16px">' +
+      '<button class="db-mini-btn" id="tbBookBtn" style="padding:7px 20px" ' +
+        'onclick="_trBook(\'tb\')">Book</button>' +
+    '</div>';
 
   _trRenderOfferedSlots(email, 'tb');
   var f = document.getElementById('tbDateLbl');
@@ -719,12 +720,12 @@ function _trBookWinClose() {
   _trBookWin = null;
 }
 
-// The button reads Book trial and stays that way; the date it will use is the
-// one in the sentence above it, which is the only place that has to be right.
+// The button reads Book and stays that way; the date it will use is the one in
+// the sentence above it, which is the only place that has to be right.
 function _trBookWinPaint() {
   var btn = document.getElementById('tbBookBtn');
   if (!btn || btn.disabled) return;
-  btn.textContent = 'Book trial';
+  btn.textContent = 'Book';
 }
 
 // ── Door 1: manual booking form ──────────────────────────────────────────────
