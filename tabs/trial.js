@@ -485,8 +485,11 @@ function _trOpenEmail(email) {
       "</div>" +
       "<div id='trFcPreview'></div>" +
       "<hr class='divider' style='margin:18px 0 12px'>" +
-      "<div class='section-label' style='margin-bottom:6px'>Then text them</div>" +
-      "<textarea id='trFcSms' rows='3' readonly style='" + inp + "'>" + inqEsc(sms) + "</textarea>" +
+      "<div class='section-label' style='margin-bottom:6px;display:flex;align-items:center;gap:9px'>" +
+        SMS_ICON + "<span>Then text them</span></div>" +
+      // A step smaller than the email boxes above it. It is a text message, not
+      // the email, and the size says so without needing a second label.
+      "<textarea id='trFcSms' rows='3' readonly style='" + inp + ";font-size:11px'>" + inqEsc(sms) + "</textarea>" +
       // A clipboard convenience, so it is a standard button: it used to be
       // 12px in --text at radius 10, which made it the brightest thing in the
       // panel, louder than Send. Full width is kept; the type is not.
