@@ -693,11 +693,13 @@ function _trBookAccepted(name, email) {
     '<input type="hidden" id="tbEmail" value="' + _trEsc(email || '') + '">' +
     '<input type="hidden" id="tbPhone" value="">' +
     '<div id="tbOfferedSlots" style="margin-bottom:10px"></div>' +
-    '<label class="settings-label">Trial lesson</label>' +
+    // The label is a sentence the picker finishes, so the button underneath
+    // does not have to say the date a third time - the title already has the
+    // name, this line has the when, and Book trial is just the verb.
+    '<label class="settings-label">Trial lesson will be on</label>' +
     _trDtHtml('tb') +
     '<div style="margin-top:14px"><button class="db-mini-btn blue" id="tbBookBtn" ' +
-      'style="padding:7px 20px" onclick="_trBook(\'tb\')">Book ' +
-      _trDtWhen(def.date, def.time) + '</button></div>' +
+      'style="padding:7px 20px" onclick="_trBook(\'tb\')">Book trial</button></div>' +
     '<div id="tbStatus" style="margin-top:6px"></div>' +
     '<div style="display:flex;justify-content:flex-end;margin-top:16px">' +
       '<button class="db-mini-btn" style="padding:7px 20px" onclick="_trBookWinClose()">Done</button>' +
@@ -715,18 +717,12 @@ function _trBookWinClose() {
   _trBookWin = null;
 }
 
-// "Tue, Sep 22 at 5:00 PM" - the button says what it is about to do, so the
-// window needs no sentence underneath telling you to pick a date and time.
-function _trDtWhen(date, time) {
-  return inqEsc(_trDtDateLabel(date) + ' at ' + _trDtTimeLabel(time));
-}
-
-// Every step of the picker rewrites the button, so it never offers to book a
-// time that is no longer on screen.
+// The button reads Book trial and stays that way; the date it will use is the
+// one in the sentence above it, which is the only place that has to be right.
 function _trBookWinPaint() {
   var btn = document.getElementById('tbBookBtn');
   if (!btn || btn.disabled) return;
-  btn.innerHTML = 'Book ' + _trDtWhen(_trVal('tbDate'), _trVal('tbTime'));
+  btn.textContent = 'Book trial';
 }
 
 // ── Door 1: manual booking form ──────────────────────────────────────────────
@@ -839,23 +835,19 @@ function _trDtDefault() {
 
 function _trDtHtml(p) {
   var def = _trDtDefault();
-  // ▲ above the value, ▼ below it: the direction of the arrow is the direction
-  // the value moves. Same .db-mini-btn as the Pick a time window and the Skips
-  // day picker, so the three read as one control in three places.
-  var btn = function (fn, n, txt) {
-    return '<button type="button" class="db-mini-btn dt-arrow" onclick="' + fn + '(\'' + p + '\',' + n + ')">' + txt + '</button>';
+  // The arrows stack to the left of the value and stay small: they say the
+  // value moves, the value itself is what you click. See .dt-row.
+  var btn = function (fn, n, dir) {
+    return '<button type="button" class="dt-arrow" tabindex="-1" ' +
+      'onclick="' + fn + '(\'' + p + '\',' + n + ')">' + dtArrow(dir) + '</button>';
   };
-  // A column: ▲ / value / ▼. The value is a button so ↑↓ and ←→ reach it.
   var seg = function (id, order, fn, step, w, txt) {
     return '<div class="dt-seg">' +
-        btn(fn, step, '\u25b2') +
+        '<span class="dt-stack">' + btn(fn, step, 1) + btn(fn, -step, -1) + '</span>' +
         '<button type="button" class="dt-val" id="' + id + '" data-dt-nav="' + order + '" ' +
           'style="min-width:' + w + 'px" onkeydown="_trDtKey(event,\'' + p + '\',\'' + fn + '\',' + step + ')">' + txt + '</button>' +
-        btn(fn, -step, '\u25bc') +
       '</div>';
   };
-  // ▲ value ▼ on one line - see .dt-row. The column version read as two tall
-  // blocks stacked over the Book trial button and lost the row it belonged to.
   return '<input type="hidden" id="' + p + 'Date" value="' + def.date + '">' +
     '<input type="hidden" id="' + p + 'Time" value="' + def.time + '">' +
     '<div class="dt-row" id="' + p + 'DtRow">' +
@@ -1484,18 +1476,15 @@ function _tlTimeHtml(a, s) {
   var v = _tlTimeValue();
   var saved = String(s.firstLesson || '') === v;
   var past = _trFirstLessonDate(v) <= new Date();
-  // Same arrow rule as the booking form: ▲▼ changes the value, ←→ moves
-  // between date and time. This used to be all ◀▶, which made Left mean
-  // "half an hour earlier" here and "go to the date" everywhere else.
-  var arrow = function (fn, n, txt) {
-    return '<button class="db-mini-btn dt-arrow" onclick="' + fn + '(' + n + ')">' + txt + '</button>';
+  // The same control as the booking window: quiet arrows, loud value.
+  var arrow = function (fn, n, dir) {
+    return '<button class="dt-arrow" tabindex="-1" onclick="' + fn + '(' + n + ')">' + dtArrow(dir) + '</button>';
   };
   var seg = function (order, fn, step, w, label) {
     return '<div class="dt-seg">' +
-        arrow(fn, step, '▲') +
+        '<span class="dt-stack">' + arrow(fn, step, 1) + arrow(fn, -step, -1) + '</span>' +
         '<button class="dt-val" data-dt-nav="' + order + '" style="min-width:' + w + 'px" ' +
           'onkeydown="_tlTimeKey(event,\'' + fn + '\',' + step + ')">' + label + '</button>' +
-        arrow(fn, -step, '▼') +
       '</div>';
   };
   var h = Math.floor(w.mins / 60), mi = w.mins % 60, d = w.date;

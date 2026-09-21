@@ -1127,33 +1127,46 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 .db-mini-btn.strong:hover { border-color: var(--accent2); color: var(--accent2); }
 
 /* ─── DATE / TIME PICKERS ───────────────────────────────────────────────────
-   One arrow rule across the portal: a VERTICAL arrow changes the value it sits
-   on, a HORIZONTAL arrow moves between fields. The Payments and Travel date
-   fields already kept it on the keyboard (Up/Down steps, Left/Right walks the
-   segments); these classes put it on the buttons too, so the mouse and the
-   keyboard finally say the same thing. Left/Right never edits a number.
-   Used by: Trial book form, Trial Pick a time, Skips day picker. */
-/* One flat row, the shape this picker has always had. Stacking the arrows
-   above and below each value made two tall columns that stretched to the
-   label width and swallowed the row; small buttons either side of the value
-   keep it to one line. Vertical glyphs, horizontal layout - the glyph carries
-   the rule, the layout stays out of the way. */
-.dt-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-.dt-seg { display: flex; align-items: center; gap: 6px; }
-.dt-arrow { min-width: 28px; padding: 5px 0; font-size: 10px; line-height: 1; text-align: center; }
-/* The arrow is a mouse target; clicking it should not leave a ring sitting on
-   the row. Keyboard focus still shows, through :focus-visible. */
+   The value is the control. You hover it, click it, and use Up/Down; the
+   arrows beside it are a reminder that it moves, not the main way to move it.
+   They stay clickable, because a mouse-only hand still needs a way through -
+   they are just demoted out of the way of the thing they describe.
+   The keyboard half of the rule is unchanged and portal-wide: VERTICAL keys
+   change the value, HORIZONTAL keys walk between fields. Left never edits a
+   number. Payments and Travel have always worked this way.
+   Used by: Trial book window, Trial manual form, Pick a time, Skips. */
+.dt-row { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.dt-seg { display: flex; align-items: center; gap: 9px; }
+.dt-stack { display: flex; flex-direction: column; gap: 2px; }
+
+/* Hint-sized and quiet at rest. Hovering either the arrow or the value it
+   belongs to brings the pair up together, so they read as one control. */
+.dt-arrow {
+  background: none; border: none; padding: 0; line-height: 0; cursor: pointer;
+  color: var(--muted); opacity: 0.55;
+  transition: opacity .12s, color .12s;
+}
+.dt-arrow:hover, .dt-seg:hover .dt-arrow { opacity: 1; }
+.dt-arrow:hover { color: var(--accent2); }
 .dt-arrow:focus { outline: none; }
-.dt-arrow:focus-visible { outline: none; border-color: var(--accent2); color: var(--accent2); }
-/* The value carries focus, so it is a button - but it must not look like one
-   more thing to click through; only the focus ring says it is live. */
+.dt-arrow:focus-visible { outline: none; color: var(--accent2); opacity: 1; }
+.dt-ico { width: 11px; height: 9px; display: block; fill: currentColor; }
+
+/* The loud half: full white, and it lifts under the pointer so there is no
+   doubt it is the thing to click. Focus swaps the lift for the accent edge. */
 .dt-val {
   background: transparent; border: 1px solid transparent; border-radius: 5px;
   font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px;
-  color: rgba(255,255,255,0.82); text-align: center; padding: 5px 6px; cursor: default;
+  color: rgba(255,255,255,0.82); text-align: center; padding: 5px 8px; cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.dt-val:hover {
+  background: color-mix(in srgb, #fff 6%, transparent);
+  border-color: color-mix(in srgb, var(--muted) 60%, transparent);
+  color: #fff;
 }
 .dt-val:focus { outline: none; }
-.dt-val:focus-visible { outline: none; border-color: var(--accent2); color: var(--accent2); }
+.dt-val:focus-visible { outline: none; border-color: var(--accent2); color: var(--accent2); background: transparent; }
 
 /* Trial tab: Make student spinner */
 .ms-spin {
