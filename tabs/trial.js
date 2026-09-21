@@ -697,13 +697,13 @@ function _trBookAccepted(name, email) {
     // does not have to say the date a third time - the title already has the
     // name, this line has the when, and Book trial is just the verb. It needs
     // room to read as a sentence rather than a caption stuck to the row.
-    '<label class="settings-label" style="margin-bottom:14px">Trial lesson will be on</label>' +
-    _trDtHtml('tb') +
-    '<div id="tbStatus" style="margin-top:10px"></div>' +
+    '<label class="settings-label" style="margin-bottom:18px">Trial lesson will be on</label>' +
+    '<div style="margin-bottom:6px">' + _trDtHtml('tb') + '</div>' +
+    '<div id="tbStatus" style="margin-top:12px"></div>' +
     // Bottom right, where every other window in the portal puts the button
     // that ends it. Just "Book": the title says a trial, the line above says
     // when, so the verb is the only word left to add.
-    '<div style="display:flex;justify-content:flex-end;margin-top:16px">' +
+    '<div style="display:flex;justify-content:flex-end;margin-top:24px">' +
       '<button class="db-mini-btn" id="tbBookBtn" style="padding:7px 20px" ' +
         'onclick="_trBook(\'tb\')">Book</button>' +
     '</div>';

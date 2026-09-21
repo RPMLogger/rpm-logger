@@ -93,18 +93,18 @@ function callScript(url, action, params, cb) {
 }
 
 // ─── DATE / TIME PICKER ARROWS ───────────────────────────────────────────────
-// A broad triangle with rounded tips, not the ▲▼ glyph and not an arrow with a
-// shaft. Demoted to hint size the glyph collapses into an unreadable speck,
-// and a shaft is thin detail that says nothing the head does not already say;
-// a wide triangle still reads at 11px and says "this value spins" on sight.
+// A thin chevron, not a filled triangle and not the ▲▼ glyph. The glyph
+// collapses into an unreadable speck at hint size; a solid triangle reads, but
+// it is a block of ink sitting next to a value it is supposed to defer to. A
+// chevron is the same gesture drawn as a line - it points without shouting.
 // It fills with currentColor, so it follows whatever state the field it
 // belongs to is in - muted at rest, lit on hover.
 // The arrows are a reminder that the value moves. The VALUE is the control:
 // hover it, click it, then Up/Down. Horizontal keys move between fields.
 function dtArrow(dir) {
-  return '<svg class="dt-ico" viewBox="0 0 24 14" aria-hidden="true">' +
+  return '<svg class="dt-ico" viewBox="0 0 695 384" aria-hidden="true">' +
     '<path d="' + (dir > 0
-      ? 'M10.6 1.1 1.2 11.3c-.7.8-.2 2 .9 2h19.8c1.1 0 1.6-1.2.9-2L13.4 1.1a1.9 1.9 0 0 0-2.8 0z'
-      : 'M13.4 12.9 22.8 2.7c.7-.8.2-2-.9-2H2.1c-1.1 0-1.6 1.2-.9 2l9.4 10.2c.8.8 2 .8 2.8 0z') +
+      ? 'M 9.3 374.2 C 3.5 368.5 0 360.6 0 351.9 C 0 343.1 3.5 335.2 9.3 329.5 L 325.3 13.4 C 331 7.6 338.9 4.1 347.6 4.1 C 356.4 4.1 364.3 7.6 370 13.4 L 686 329.5 C 691.7 335.2 695.2 343.1 695.2 351.9 C 695.2 369.3 681.1 383.5 663.6 383.5 C 654.9 383.5 646.9 380 641.2 374.2 L 347.6 80.4 L 54 374.2 C 48.3 380 40.4 383.5 31.7 383.5 C 22.9 383.5 15 380 9.3 374.2 Z'
+      : 'M 9.3 54.2 L 325.3 370.3 C 331 376 338.9 379.6 347.6 379.6 C 356.4 379.6 364.3 376 370 370.3 L 686 54.2 C 691.7 48.5 695.2 40.5 695.2 31.8 C 695.2 14.3 681.1 0.2 663.6 0.2 C 654.9 0.2 646.9 3.7 641.2 9.4 L 347.6 303.2 L 54 9.4 C 48.3 3.7 40.4 0.2 31.7 0.2 C 14.2 0.2 0 14.3 0 31.8 C 0 40.5 3.6 48.5 9.3 54.2 Z') +
     '"/></svg>';
 }
