@@ -1135,15 +1135,24 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
    change the value, HORIZONTAL keys walk between fields. Left never edits a
    number. Payments and Travel have always worked this way.
    Used by: Trial book window, Trial manual form, Pick a time, Skips. */
-.dt-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.dt-seg { display: flex; align-items: center; gap: 8px; }
+/* The whole control is one box: date, time and the four chevrons that drive
+   them are a single answer to a single question, and giving each value its own
+   border made them look like two unrelated fields that happened to be side by
+   side. The box holds them, a hairline divides them. */
+.dt-row {
+  display: inline-flex; align-items: center; flex-wrap: wrap;
+  border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent);
+  border-radius: 8px; background: var(--surface2); padding: 4px 4px;
+}
+.dt-seg { display: flex; align-items: center; gap: 8px; padding: 2px 10px; }
+.dt-seg + .dt-seg { border-left: 1px solid var(--border); }
 .dt-stack { display: flex; flex-direction: column; gap: 5px; }
 
 /* Hint-sized and quiet at rest. Hovering either the arrow or the value it
    belongs to brings the pair up together, so they read as one control. */
 .dt-arrow {
   background: none; border: none; padding: 0; line-height: 0; cursor: pointer;
-  color: var(--muted); opacity: 0.55;
+  color: var(--muted); opacity: 0.7;
   transition: opacity .12s, color .12s;
 }
 .dt-arrow:hover, .dt-seg:hover .dt-arrow { opacity: 1; }
@@ -1152,26 +1161,20 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 .dt-arrow:focus-visible { outline: none; color: rgba(255,255,255,0.82); opacity: 1; }
 .dt-ico { width: 11px; height: 6px; display: block; fill: currentColor; }
 
-/* The loud half: full white, in a box. The border is there at rest, not only
-   on hover - a value that looks like plain text until the pointer reaches it
-   gives nothing away, and the arrows beside it are too quiet to carry the hint
-   alone. It reads as a button, so it gets treated as one. */
+/* The lit half. No border of its own - the box around the whole control is the
+   edge now, and a second one here would be a box inside a box. Hover and focus
+   fill instead, which reads as "this one" without adding another outline. */
 .dt-val {
-  background: transparent; border: 1px solid var(--border); border-radius: 5px;
+  background: transparent; border: none; border-radius: 5px;
   font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px;
-  color: rgba(255,255,255,0.58); text-align: center; padding: 7px 12px; cursor: pointer;
-  transition: background .12s, border-color .12s, color .12s;
+  color: rgba(255,255,255,0.88); text-align: center; padding: 6px 8px; cursor: pointer;
+  transition: background .12s, color .12s;
 }
-.dt-val:hover {
-  background: color-mix(in srgb, #fff 6%, transparent);
-  border-color: color-mix(in srgb, var(--muted) 60%, transparent);
-  color: rgba(255,255,255,0.92);
-}
+.dt-val:hover { background: color-mix(in srgb, #fff 7%, transparent); color: #fff; }
 .dt-val:focus { outline: none; }
 .dt-val:focus-visible {
   outline: none; color: #fff;
-  border-color: color-mix(in srgb, var(--muted) 75%, transparent);
-  background: color-mix(in srgb, #fff 6%, transparent);
+  background: color-mix(in srgb, #fff 12%, transparent);
 }
 
 /* Trial tab: Make student spinner */

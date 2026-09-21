@@ -147,8 +147,10 @@ function _skLogForm(students) {
   var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   var dt = document.createElement('span');
-  dt.className = 'dt-seg';
+  dt.className = 'dt-row';
   dt.style.cssText = 'flex:0 0 auto';
+  var seg = document.createElement('span');
+  seg.className = 'dt-seg';
   var stack = document.createElement('span');
   stack.className = 'dt-stack';
   var up = document.createElement('button'), down = document.createElement('button');
@@ -168,7 +170,8 @@ function _skLogForm(students) {
   };
   paintDay();
   stack.appendChild(up); stack.appendChild(down);
-  dt.appendChild(stack); dt.appendChild(dLabel);
+  seg.appendChild(stack); seg.appendChild(dLabel);
+  dt.appendChild(seg);
   function dayValue() {
     return day.getFullYear() + '-' + ('0' + (day.getMonth() + 1)).slice(-2) + '-' + ('0' + day.getDate()).slice(-2);
   }
