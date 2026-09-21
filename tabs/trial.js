@@ -490,16 +490,24 @@ function _trOpenEmail(email) {
       // A clipboard convenience, so it is a standard button: it used to be
       // 12px in --text at radius 10, which made it the brightest thing in the
       // panel, louder than Send. Full width is kept; the type is not.
-      "<button class='db-mini-btn' onclick='_trCopySms(this)' style='width:100%;margin-top:8px;padding:9px'>Copy for iMessage</button>" +
+      // Three buttons, one job: get this text into iMessage. They were a full
+      // width bar with two smaller ones parked underneath, which made the copy
+      // button look like the step and the other two like an afterthought. One
+      // row, one type, equal share of the width. The number stays on its
+      // button because the number is what you tap.
       (phoneDigits
-        ? "<div style='display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap'>" +
-            // The number and the copy action are one thing, not a label with a
-            // button beside it. Tap what you can read.
-            "<button class='db-mini-btn' onclick='_trCopyPhone(this,\"" + phoneDigits + "\")'>" +
-              "Copy Phone #: " + inqEsc(phonePretty) + "</button>" +
-            "<a class='db-mini-btn' href='sms:" + phoneDigits + "' style='text-decoration:none'>Open Messages</a>" +
+        ? "<div style='display:flex;gap:8px;margin-top:10px'>" +
+            "<button class='db-mini-btn' style='flex:1;padding:9px' onclick='_trCopySms(this)'>Copy text</button>" +
+            "<button class='db-mini-btn' style='flex:1;padding:9px' onclick='_trCopyPhone(this,\"" + phoneDigits + "\")'>" +
+              "Copy " + inqEsc(phonePretty) + "</button>" +
+            "<a class='db-mini-btn' style='flex:1;padding:9px;text-align:center;text-decoration:none' " +
+              "href='sms:" + phoneDigits + "'>Open Messages</a>" +
           "</div>"
-        : "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--accent);margin-top:10px'>No phone number on file for this inquiry.</div>") +
+        : "<div style='display:flex;gap:8px;margin-top:10px'>" +
+            "<button class='db-mini-btn' style='flex:1;padding:9px' onclick='_trCopySms(this)'>Copy text</button>" +
+            "<div style='flex:2;font-family:\"DM Mono\",monospace;font-size:11px;color:var(--accent);" +
+              "display:flex;align-items:center;padding-left:4px'>No phone number on file.</div>" +
+          "</div>") +
     "</div>";
   overlay.addEventListener("click", function (ev) { if (ev.target === overlay) _trCloseEmail(); });
   document.body.appendChild(overlay);
@@ -523,7 +531,7 @@ function _trCloseEmail() {
 function _trCopySms(btn) {
   var ta = document.getElementById("trFcSms");
   if (!ta) return;
-  var done = function () { btn.textContent = "Copied ✓"; setTimeout(function () { btn.textContent = "Copy for iMessage"; }, 1600); };
+  var done = function () { btn.textContent = "Copied ✓"; setTimeout(function () { btn.textContent = "Copy text"; }, 1600); };
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(ta.value).then(done, function () { ta.select(); document.execCommand("copy"); done(); });
   } else { ta.select(); document.execCommand("copy"); done(); }
