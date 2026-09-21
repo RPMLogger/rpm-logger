@@ -637,7 +637,9 @@ body::before {
    colour instead of amber boxes over a grey button.
    Scoped on purpose - see the FOCUS RING block near the bottom of this file. */
 #trFcModal input:focus-visible,
-#trFcModal textarea:focus-visible { outline-color: var(--muted); }
+#trFcModal textarea:focus-visible,
+#tlModal   input:focus-visible,
+#tlModal   textarea:focus-visible { outline-color: var(--muted); }
 
 .fc-new { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
           color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }

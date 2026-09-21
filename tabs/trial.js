@@ -137,6 +137,18 @@ var _trAcceptedCache = [];
 // attribute, and a quoted font name ends the attribute early: every
 // declaration after it is thrown away as junk attributes, leaving the box
 // unstyled at browser defaults.
+// The Trial tab's fields - the info step, the lesson log, and the fields on a
+// stage card - were three separate settings: 10.5 at .5 with one padding, 13 at
+// .62 with two others. One definition now, matching the composer's box exactly
+// (same padding, radius and .5 opacity) but in mono, because these hold data
+// rather than paragraphs.
+//
+// NO SINGLE QUOTES: same reason as FC_FIELD below.
+var TR_FIELD = "box-sizing:border-box;width:100%;background:var(--bg);" +
+               "border:1px solid var(--border);border-radius:8px;padding:9px 12px;" +
+               "font-family:DM Mono,monospace;font-size:12px;line-height:1.5;" +
+               "color:rgba(255,255,255,.5);resize:vertical";
+
 var FC_FIELD = "box-sizing:border-box;width:100%;background:var(--bg);" +
                "border:1px solid var(--border);border-radius:8px;padding:9px 12px;" +
                "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;" +
@@ -1153,12 +1165,12 @@ function _tlInfoHtml(a, s) {
     if (!v && k === 'goals') v = a.interests || '';
     return v;
   }
-  var box = 'box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;' +
-            'padding:7px 9px;color:rgba(255,255,255,0.5);font-family:\'DM Mono\',monospace;font-size:10.5px;line-height:1.5;resize:vertical';
+  var box = TR_FIELD;
   return _TR_INFO.map(function (f) {
     var v = inqEsc(val(f.key));
     return '<div style="margin-bottom:9px">' +
-        '<div style="font-family:\'DM Mono\',monospace;font-size:10.5px;color:rgba(255,255,255,0.82);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">' + f.label + '</div>' +
+        '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:1px;' +
+          'text-transform:uppercase;color:var(--muted);margin-bottom:4px">' + f.label + '</div>' +
         (f.multi
           ? '<textarea id="tli-' + f.key + '" rows="3" style="' + box + '">' + v + '</textarea>'
           : '<input id="tli-' + f.key + '" type="text" value="' + v.replace(/"/g, '&quot;') + '" style="' + box + '">') +
@@ -1205,9 +1217,7 @@ function _tlLogHtml(a, s) {
   // Enter logs it (and closes); Shift+Enter is a new line.
   return '<textarea id="tlWhat" rows="7" onblur="_tlSaveWhat()" placeholder="Type, or press the mic and talk" ' +
       'onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();_tlLogWhat();}" ' +
-      'style="box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;' +
-      'padding:10px 12px;color:rgba(255,255,255,.62);font-family:\'DM Mono\',monospace;font-size:13px;line-height:1.55;resize:vertical">' +
-      inqEsc(v) + '</textarea>' +
+      'style="' + TR_FIELD + '">' + inqEsc(v) + '</textarea>' +
     '<div style="display:flex;gap:8px;align-items:center;margin-top:8px">' +
       '<button class="btn-settings-load" id="tlMicBtn" style="margin:0;width:auto;padding-left:18px;padding-right:18px" onclick="_tlMic()">' + MIC_ICON + ' Mic</button>' +
       '<button class="btn-settings-load go" id="tlLogBtn" style="margin:0;width:auto;padding-left:22px;padding-right:22px" onclick="_tlLogWhat()">Log</button>' +
@@ -1694,8 +1704,7 @@ function _trFieldHtml(id, email, f, val) {
   var multi = (f.key === 'notes' || f.key === 'goals' || f.key === 'availability');
   var common = 'id="trf-' + id + '-' + f.key + '" ' +
     'onblur="_trSaveField(\'' + id + '\',\'' + _trEsc(email) + '\',\'' + f.key + '\',this)" ' +
-    'style="box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);' +
-    'border-radius:8px;padding:9px 11px;color:rgba(255,255,255,.62);font-family:\'DM Mono\',monospace;font-size:13px;line-height:1.5;resize:vertical"';
+    'style="' + TR_FIELD + '"';
   return '<div style="margin-bottom:7px">' +
       '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:1px;' +
         'text-transform:uppercase;color:var(--muted);margin-bottom:3px">' + f.label + '</div>' +
