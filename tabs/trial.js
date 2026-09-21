@@ -485,8 +485,11 @@ function _trOpenEmail(email) {
       "</div>" +
       "<div id='trFcPreview'></div>" +
       "<hr class='divider' style='margin:18px 0 12px'>" +
-      "<div class='section-label' style='margin-bottom:6px;display:flex;align-items:center;gap:9px'>" +
-        SMS_ICON + "<span>Then text them</span></div>" +
+      // Icon over the label, not beside it: at label height the bubble and its
+      // three dots close up, and this is the only place the icon appears, so
+      // it can have the room.
+      "<div style='color:var(--muted);margin-bottom:6px'>" + SMS_ICON_LG + "</div>" +
+      "<div class='section-label' style='margin-bottom:6px'>Then text them</div>" +
       // A step smaller than the email boxes above it. It is a text message, not
       // the email, and the size says so without needing a second label.
       "<textarea id='trFcSms' rows='3' readonly style='" + inp + ";font-size:11px'>" + inqEsc(sms) + "</textarea>" +
