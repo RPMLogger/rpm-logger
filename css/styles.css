@@ -544,47 +544,53 @@ body::before {
 .tr-steps  { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; margin: 20px 0; }
 .tr-col    { display: flex; flex-direction: column; gap: 5px; }
 .tr-step   { display: flex; align-items: center; gap: 9px; }
-/* The gutter is just the count. It never changes with state; the buttons do. */
-.tr-step-n { font-family: "DM Mono", monospace; font-size: 9px; color: rgba(255,255,255,0.4); width: 13px; text-align: right; flex: none; }
+/* The gutter follows its step: bright while there is something to do, faded
+   once the step is done, so a finished row goes quiet all the way across. */
+.tr-step-n { font-family: "DM Mono", monospace; font-size: 9px; color: rgba(255,255,255,0.55); width: 13px; text-align: right; flex: none; }
+.tr-step.is-done .tr-step-n { color: rgba(255,255,255,0.18); }
 /* Pending is the loud state: an unfinished step is the only thing on this card
-   you can act on. It carries a lit border. Done keeps its check mark but drops
-   back to a quiet tint, so the card reads as "what is left", not "what I did".
-   Decision steps stay neutral while pending, lesson steps blue (.lesson below). */
+   you can act on, so it is full white on a lit border. Done drops to a flat
+   grey - number, label and tick together - and the card reads as "what is
+   left", not "what I did". Done used to keep a green tint, which pulled the
+   eye to the finished rows, which is backwards.
+   Lesson steps stay blue while pending (.lesson below) and grey once done. */
 .tr-step-b {
   min-width: 132px; text-align: left; cursor: pointer;
   font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
   padding: 5px 10px; border-radius: 6px;
   background: color-mix(in srgb, #fff 4%, transparent);
-  border: 1px solid color-mix(in srgb, var(--muted) 50%, transparent);
-  color: rgba(255,255,255,0.82);
+  border: 1px solid color-mix(in srgb, var(--muted) 70%, transparent);
+  color: var(--text);
   transition: color .12s, border-color .12s, background .12s;
 }
 .tr-step-b:hover      { border-color: var(--accent2); color: var(--accent2); }
 
 /* ─── THE TICK ────────────────────────────────────────────────────────────
-   The user's om-11.svg - a disc with a check cut out - as a mask, the same
-   way .settings-close paints om-10. currentColor again, so a tick is always
-   exactly the colour of the thing it belongs to: green on a done step, the
-   softer green on the confirm summary.
+   The user's om-12.svg - a box with a check struck through it - as a mask,
+   the same way .settings-close paints om-10. It is drawn in two colours in the
+   file; a mask keeps one, and currentColor makes that the colour of whatever
+   the tick belongs to.
 
-   .tick is the standalone one; a done step button grows its own through
-   ::after, so the label does not have to carry a ✓ character. */
-.tick, .tr-step-b.done::after {
-  content: ""; display: inline-block; width: 11px; height: 11px; flex: none;
+   The step button grows its own through ::after, so the label does not have to
+   carry a ✓ character. Nothing else uses it: the confirm window had a tick
+   column and lost it, because the step list behind that window already says
+   what is done. */
+.tr-step-b.done::after {
+  content: ""; display: inline-block; width: 13px; height: 11px; flex: none;
   background: currentColor; vertical-align: -1px;
-  -webkit-mask: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907 907"%3E%3Cpath fill-rule="evenodd" d="M 453.390625 -0.0742188 C 203.351562 -0.0742188 -0.0742188 203.351562 -0.0742188 453.390625 C -0.0742188 703.429688 203.351562 906.855469 453.390625 906.855469 C 703.429688 906.855469 906.855469 703.429688 906.855469 453.390625 C 906.855469 203.351562 703.429688 -0.0742188 453.390625 -0.0742188 Z M 666.835938 394.757812 L 440.105469 621.492188 C 431.261719 630.332031 419.652344 634.777344 408.042969 634.777344 C 396.4375 634.777344 384.828125 630.332031 375.984375 621.492188 L 285.292969 530.796875 C 267.5625 513.066406 267.5625 484.410156 285.292969 466.679688 C 303.023438 448.949219 331.679688 448.949219 349.410156 466.679688 L 408.042969 525.3125 L 602.71875 330.636719 C 620.449219 312.910156 649.105469 312.910156 666.835938 330.636719 C 684.566406 348.367188 684.566406 377.027344 666.835938 394.757812 Z M 666.835938 394.757812 "/%3E%3C/svg%3E') center / contain no-repeat;
-          mask: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907 907"%3E%3Cpath fill-rule="evenodd" d="M 453.390625 -0.0742188 C 203.351562 -0.0742188 -0.0742188 203.351562 -0.0742188 453.390625 C -0.0742188 703.429688 203.351562 906.855469 453.390625 906.855469 C 703.429688 906.855469 906.855469 703.429688 906.855469 453.390625 C 906.855469 203.351562 703.429688 -0.0742188 453.390625 -0.0742188 Z M 666.835938 394.757812 L 440.105469 621.492188 C 431.261719 630.332031 419.652344 634.777344 408.042969 634.777344 C 396.4375 634.777344 384.828125 630.332031 375.984375 621.492188 L 285.292969 530.796875 C 267.5625 513.066406 267.5625 484.410156 285.292969 466.679688 C 303.023438 448.949219 331.679688 448.949219 349.410156 466.679688 L 408.042969 525.3125 L 602.71875 330.636719 C 620.449219 312.910156 649.105469 312.910156 666.835938 330.636719 C 684.566406 348.367188 684.566406 377.027344 666.835938 394.757812 Z M 666.835938 394.757812 "/%3E%3C/svg%3E') center / contain no-repeat;
+  -webkit-mask: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907 790"%3E%3Cpath d="M 59.664062 788.589844 C 27.722656 788.589844 1.863281 762.746094 1.863281 730.855469 L 1.863281 170.082031 C 1.863281 138.191406 27.722656 112.320312 59.664062 112.320312 L 533.144531 112.320312 C 555.046875 112.320312 566.011719 138.773438 550.558594 154.242188 L 549.976562 154.824219 C 545.382812 159.441406 539.117188 162.042969 532.613281 162.042969 L 80.769531 162.042969 C 64.652344 162.042969 51.589844 175.070312 51.589844 191.175781 L 51.589844 709.738281 C 51.589844 725.839844 64.652344 738.894531 80.769531 738.894531 L 599.675781 738.894531 C 615.789062 738.894531 628.828125 725.839844 628.828125 709.738281 L 628.828125 445.933594 C 628.828125 440.546875 630.605469 435.292969 633.84375 431.019531 C 634.03125 430.808594 634.1875 430.597656 634.347656 430.359375 C 648.605469 411.574219 678.578125 421.707031 678.578125 445.269531 L 678.578125 730.855469 C 678.578125 762.746094 652.695312 788.589844 620.78125 788.589844 L 59.664062 788.589844 "/%3E%3Cpath d="M 396.359375 613.71875 C 387.199219 613.71875 378.652344 610.058594 372.332031 603.398438 L 179.292969 400.21875 C 158.746094 378.59375 137.132812 336.195312 148.550781 316.246094 L 148.734375 315.925781 C 157.761719 299.078125 170.214844 290.535156 185.691406 290.535156 C 201.59375 290.535156 220.074219 299.476562 239.109375 316.457031 C 278.71875 351.71875 313.898438 390.402344 337.183594 415.976562 C 366.707031 448.453125 371.855469 453.863281 380.882812 453.863281 L 381.175781 453.863281 C 388.371094 453.707031 388.371094 453.707031 412.554688 423.433594 C 478.398438 341.050781 678.738281 90.328125 873.957031 1.949219 C 876.636719 0.730469 879.503906 0.117188 882.480469 0.117188 C 888.824219 0.117188 894.957031 2.90625 899.285156 7.785156 L 899.683594 8.238281 C 903.902344 12.988281 905.867188 19.035156 905.257812 25.324219 C 904.648438 31.585938 901.539062 37.128906 896.523438 40.925781 C 887.761719 47.558594 878.683594 54.5625 869.523438 61.699219 L 869.230469 61.9375 C 689.359375 211.207031 498.019531 487.136719 424.105469 598.835938 C 417.917969 608.171875 407.566406 613.71875 396.359375 613.71875 "/%3E%3C/svg%3E') center / contain no-repeat;
+          mask: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907 790"%3E%3Cpath d="M 59.664062 788.589844 C 27.722656 788.589844 1.863281 762.746094 1.863281 730.855469 L 1.863281 170.082031 C 1.863281 138.191406 27.722656 112.320312 59.664062 112.320312 L 533.144531 112.320312 C 555.046875 112.320312 566.011719 138.773438 550.558594 154.242188 L 549.976562 154.824219 C 545.382812 159.441406 539.117188 162.042969 532.613281 162.042969 L 80.769531 162.042969 C 64.652344 162.042969 51.589844 175.070312 51.589844 191.175781 L 51.589844 709.738281 C 51.589844 725.839844 64.652344 738.894531 80.769531 738.894531 L 599.675781 738.894531 C 615.789062 738.894531 628.828125 725.839844 628.828125 709.738281 L 628.828125 445.933594 C 628.828125 440.546875 630.605469 435.292969 633.84375 431.019531 C 634.03125 430.808594 634.1875 430.597656 634.347656 430.359375 C 648.605469 411.574219 678.578125 421.707031 678.578125 445.269531 L 678.578125 730.855469 C 678.578125 762.746094 652.695312 788.589844 620.78125 788.589844 L 59.664062 788.589844 "/%3E%3Cpath d="M 396.359375 613.71875 C 387.199219 613.71875 378.652344 610.058594 372.332031 603.398438 L 179.292969 400.21875 C 158.746094 378.59375 137.132812 336.195312 148.550781 316.246094 L 148.734375 315.925781 C 157.761719 299.078125 170.214844 290.535156 185.691406 290.535156 C 201.59375 290.535156 220.074219 299.476562 239.109375 316.457031 C 278.71875 351.71875 313.898438 390.402344 337.183594 415.976562 C 366.707031 448.453125 371.855469 453.863281 380.882812 453.863281 L 381.175781 453.863281 C 388.371094 453.707031 388.371094 453.707031 412.554688 423.433594 C 478.398438 341.050781 678.738281 90.328125 873.957031 1.949219 C 876.636719 0.730469 879.503906 0.117188 882.480469 0.117188 C 888.824219 0.117188 894.957031 2.90625 899.285156 7.785156 L 899.683594 8.238281 C 903.902344 12.988281 905.867188 19.035156 905.257812 25.324219 C 904.648438 31.585938 901.539062 37.128906 896.523438 40.925781 C 887.761719 47.558594 878.683594 54.5625 869.523438 61.699219 L 869.230469 61.9375 C 689.359375 211.207031 498.019531 487.136719 424.105469 598.835938 C 417.917969 608.171875 407.566406 613.71875 396.359375 613.71875 "/%3E%3C/svg%3E') center / contain no-repeat;
 }
 .tr-step-b.done::after { margin-left: 6px; vertical-align: -2px; }
 
-.tr-step-b.done       { color: color-mix(in srgb, var(--green) 42%, #3c3c3c); border-color: rgba(255,255,255,0.055); background: transparent; }
-.tr-step-b.done:hover { color: color-mix(in srgb, var(--green) 75%, #3c3c3c); border-color: color-mix(in srgb, var(--green) 32%, transparent); background: transparent; }
+.tr-step-b.done       { color: #4b4b4b; border-color: rgba(255,255,255,0.05); background: transparent; }
+.tr-step-b.done:hover { color: #6d6d6d; border-color: rgba(255,255,255,0.12); background: transparent; }
 /* The lesson column stays blue: it is the lesson itself, not the paperwork
    around it. Same rule inside the colour, pending loud and done faded. */
 .tr-step-b.lesson            { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 40%, transparent); background: color-mix(in srgb, var(--blue) 7%, transparent); }
 .tr-step-b.lesson:hover      { color: var(--blue); border-color: var(--blue); background: color-mix(in srgb, var(--blue) 14%, transparent); }
-.tr-step-b.lesson.done       { color: color-mix(in srgb, var(--blue) 40%, #3c3c3c); border-color: rgba(255,255,255,0.055); background: transparent; }
-.tr-step-b.lesson.done:hover { color: color-mix(in srgb, var(--blue) 72%, #3c3c3c); border-color: color-mix(in srgb, var(--blue) 30%, transparent); background: transparent; }
+.tr-step-b.lesson.done       { color: #4b4b4b; border-color: rgba(255,255,255,0.05); background: transparent; }
+.tr-step-b.lesson.done:hover { color: #6d6d6d; border-color: rgba(255,255,255,0.12); background: transparent; }
 .tr-step-b.flat       { cursor: default; }
 
 /* ─── INQUIRY ARCHIVE ─────────────────────────────────────────────────────── */

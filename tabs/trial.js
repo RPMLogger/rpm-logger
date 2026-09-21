@@ -2155,17 +2155,15 @@ function _msRenderForm() {
   var rate = (_msRates && _msRates[_ms.cadence]) || '';
   var tp = _trTrialPayFor(a.email);
 
-  // One line per checklist step. Most are a tick and nothing else: by the time
-  // this window opens they are all done, so the detail behind them is noise.
-  // Frequency and the first lesson date carry their value as well as the tick,
-  // because those are the two things worth reading again before confirming.
-  var TICK = 'rgba(46,204,113,0.75)';
-  function row(k, v, done, color) {
+  // Only the lines that carry a value. The tick column is gone and so are the
+  // rows that were nothing but a tick - Info and Dropbox: the step list on the
+  // card behind this window already says what is done, and repeating it here
+  // in green made the finished work the loudest thing on a confirm screen.
+  function row(k, v, color) {
+    if (!v) return '';
     return '<div style="display:flex;gap:12px;padding:4px 0;font-family:\'DM Mono\',monospace;font-size:12px">' +
         '<span style="width:104px;flex:none;color:var(--muted);font-size:10px;letter-spacing:1px;' +
             'text-transform:uppercase;padding-top:3px">' + k + '</span>' +
-        '<span style="color:' + TICK + ';flex:none;width:12px">' +
-          (done ? '<span class="tick"></span>' : '') + '</span>' +
         '<span style="color:' + (color || 'rgba(255,255,255,0.82)') + '">' + v + '</span>' +
       '</div>';
   }
@@ -2175,14 +2173,11 @@ function _msRenderForm() {
 
     '<div style="font-family:\'Syne\',sans-serif;font-size:20px;font-weight:400;color:var(--text);margin:2px 0 12px">' + inqEsc(_ms.name) + '</div>' +
     '<div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 0;margin-bottom:16px">' +
-      row('Info',    '',                                                       st.info) +
-      row('Dropbox', '',                                                       st.dbx) +
-      row('Frequency', _ms.cadence === 'biweekly' ? 'Biweekly' : 'Weekly',     st.freq) +
-      row('First lesson', inqEsc(_msWhenLabel()),                              st.time) +
-      row('Payment', tp ? '' : 'No trial payment found',                       st.pay,
-          tp ? null : 'var(--muted)') +
+      row('Frequency', _ms.cadence === 'biweekly' ? 'Biweekly' : 'Weekly') +
+      row('First lesson', inqEsc(_msWhenLabel())) +
+      // Only worth a line when something is missing.
+      row('Payment', tp ? '' : 'No trial payment found', 'var(--muted)') +
       row('Terms',   st.termsBack ? 'Back' : (st.termsSent ? 'Sent' : 'Not sent yet'),
-          st.termsBack || st.termsSent,
           st.termsBack ? null : 'var(--muted)') +
     '</div>' +
 
