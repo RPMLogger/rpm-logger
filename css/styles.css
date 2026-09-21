@@ -103,6 +103,18 @@ body::before {
 }
 .btn-settings-load:hover { border-color: var(--accent2); color: var(--accent2); }
 
+/* Colour variants, for the same reason .db-mini-btn has them: an inline
+   border-colour outranks the :hover rule above and leaves the button dead
+   under the cursor. */
+.btn-settings-load.go   { border-color: var(--green); color: var(--green); }
+.btn-settings-load.blue { border-color: var(--blue);  color: var(--blue);  }
+.btn-settings-load.go:hover:not(:disabled) {
+  border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.10);
+}
+.btn-settings-load.blue:hover:not(:disabled) {
+  border-color: var(--blue); color: var(--blue); background: rgba(74,158,255,0.10);
+}
+
 /* ─── TABS ────────────────────────────────────────────────────────────────── */
 .tabs {
   display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px;
@@ -1017,12 +1029,23 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
    already has one gets a faint tint of itself instead. */
 .db-mini-btn.go     { border-color: var(--green);  color: var(--green);  }
 .db-mini-btn.danger { border-color: var(--accent); color: var(--accent); }
+.db-mini-btn.blue   { border-color: var(--blue);   color: var(--blue);   }
 .db-mini-btn.go:hover:not(:disabled) {
   border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.10);
 }
 .db-mini-btn.danger:hover:not(:disabled) {
   border-color: var(--accent); color: var(--accent); background: rgba(232,70,58,0.10);
 }
+.db-mini-btn.blue:hover:not(:disabled) {
+  border-color: var(--blue); color: var(--blue); background: rgba(74,158,255,0.10);
+}
+
+/* The unpicked half of a two-way choice (Weekly / Biweekly). Its border is
+   --muted rather than --border, so it reads as a live option rather than a
+   disabled one; the hover is restated because this rule would otherwise
+   outrank the base one. */
+.db-mini-btn.pick-off       { border-color: var(--muted); }
+.db-mini-btn.pick-off:hover { border-color: var(--accent2); color: var(--accent2); }
 
 /* Trial tab: Make student spinner */
 .ms-spin {

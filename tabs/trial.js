@@ -1071,9 +1071,9 @@ function _tlRender() {
     body(a, s) +
     '<div style="display:flex;justify-content:flex-end;margin-top:16px">' +
       (_tl.step === 'info'
-        ? '<button class="db-mini-btn" id="tlInfoSave" style="padding:7px 20px;border-color:var(--green);color:var(--green)" onclick="_tlSaveInfo()">Save</button>'
+        ? '<button class="db-mini-btn go" id="tlInfoSave" style="padding:7px 20px" onclick="_tlSaveInfo()">Save</button>'
         : _tl.step === 'freq'
-        ? '<button class="db-mini-btn" id="tlFreqSave" style="padding:7px 20px;border-color:var(--green);color:var(--green)" onclick="_tlSaveFreq()">Save</button>'
+        ? '<button class="db-mini-btn go" id="tlFreqSave" style="padding:7px 20px" onclick="_tlSaveFreq()">Save</button>'
         : '<button class="db-mini-btn" style="padding:7px 20px" onclick="_tlClose()">Done</button>') +
     '</div>';
 }
@@ -1128,8 +1128,7 @@ function _tlDbxHtml(a, s) {
     '<input class="settings-input" id="tlDbxEmail" style="margin:0 0 12px" value="' + _msAttr(dbxEmail) + '"' + (made ? ' disabled' : '') + '>' +
     '<label class="settings-label">Folder</label>' +
     '<input class="settings-input" style="margin:0 0 14px" value="' + _msAttr(a.name || '') + '" readonly>' +
-    '<button class="btn-settings-load" id="tlDbxBtn" style="margin:0;padding:12px' +
-      (made ? ';border-color:var(--green);color:var(--green)' : ';border-color:var(--blue);color:var(--blue)') + '"' +
+    '<button class="btn-settings-load ' + (made ? 'go' : 'blue') + '" id="tlDbxBtn" style="margin:0;padding:12px"' +
       (made ? ' disabled' : '') + ' onclick="_tlDropbox()">' +
       (made ? 'Folder made ✓' : 'Create & share') + '</button>' +
     _tlMsg('tlDbxMsg');
@@ -1147,7 +1146,7 @@ function _tlLogHtml(a, s) {
       inqEsc(v) + '</textarea>' +
     '<div style="display:flex;gap:8px;align-items:center;margin-top:8px">' +
       '<button class="btn-settings-load" id="tlMicBtn" style="margin:0;width:auto;padding-left:18px;padding-right:18px" onclick="_tlMic()">' + MIC_ICON + ' Mic</button>' +
-      '<button class="btn-settings-load" id="tlLogBtn" style="margin:0;width:auto;padding-left:22px;padding-right:22px;border-color:var(--green);color:var(--green)" onclick="_tlLogWhat()">Log</button>' +
+      '<button class="btn-settings-load go" id="tlLogBtn" style="margin:0;width:auto;padding-left:22px;padding-right:22px" onclick="_tlLogWhat()">Log</button>' +
       '<span id="tlMicState" style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)"></span>' +
     '</div>' +
     _tlMsg('tlWhatMsg');
@@ -1242,8 +1241,7 @@ function _tlHwHtml(a, s) {
   // answered, so say so on the record rather than leaving it hanging.
   return '<div id="tlUpload">' + _tlUploadHtml(a.name) + '</div>' +
     '<div style="display:flex;align-items:center;gap:10px;margin-top:10px">' +
-      '<button class="db-mini-btn" id="tlHwNoneBtn" onclick="_tlHwNone()"' +
-        (done ? ' style="border-color:var(--green);color:var(--green)"' : '') + '>' +
+      '<button class="db-mini-btn' + (done ? ' go' : '') + '" id="tlHwNoneBtn" onclick="_tlHwNone()">' +
         (done ? 'Sent \u2713 \u00b7 undo' : 'No material to send') +
       '</button>' +
       _tlMsg('tlHwMsg') +
@@ -1272,9 +1270,8 @@ function _tlFreqHtml(a, s) {
   var f = _tlFreqCur().toLowerCase();
   function pick(v) {
     var on = f === v.toLowerCase();
-    return '<button class="db-mini-btn" style="padding:8px 22px;' +
-      (on ? 'border-color:var(--green);color:var(--green)' : 'border-color:var(--muted);color:var(--muted)') +
-      '" onclick="_tlSetFreq(\'' + v + '\')">' + (on ? '✓ ' : '') + v + '</button>';
+    return '<button class="db-mini-btn ' + (on ? 'go' : 'pick-off') + '" style="padding:8px 22px"' +
+      ' onclick="_tlSetFreq(\'' + v + '\')">' + (on ? '✓ ' : '') + v + '</button>';
   }
   return '<div style="display:flex;gap:8px">' + pick('Weekly') + pick('Biweekly') + '</div>' +
     _tlMsg('tlFreqMsg');
@@ -1341,7 +1338,7 @@ function _tlTimeHtml(a, s) {
     '<div style="margin-top:12px">' +
       (saved
         ? '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--green)">✓ Set: ' + inqEsc(_trFirstLessonLabel(v)) + '</span>'
-        : '<button class="db-mini-btn" style="padding:7px 20px;border-color:var(--blue);color:var(--blue)"' + (past ? ' disabled' : '') +
+        : '<button class="db-mini-btn blue" style="padding:7px 20px"' + (past ? ' disabled' : '') +
             ' onclick="_tlSaveTime()">Set ' + inqEsc(_trFirstLessonLabel(v)) + '</button>') +
     '</div>' +
     _tlMsg('tlTimeMsg');
@@ -1400,8 +1397,9 @@ function _tlTermsHtml(a, s) {
   var rec = _tl.rec || {};
   var sent = !!s.termsSent, back = !!s.termsBack;
   // The form is only ever sent once: after that the Send button stays off.
-  return '<button class="btn-settings-load" id="tlSendBtn" style="margin:0;width:auto;padding-left:18px;padding-right:18px;' +
-        (sent ? 'opacity:.5;cursor:default" disabled' : 'border-color:var(--green);color:var(--green)" onclick="_tlSend()"') + '>' +
+  return '<button class="btn-settings-load' + (sent ? '' : ' go') + '" id="tlSendBtn" ' +
+        'style="margin:0;width:auto;padding-left:18px;padding-right:18px;' +
+        (sent ? 'opacity:.5;cursor:default" disabled' : '" onclick="_tlSend()"') + '>' +
         (sent ? 'Sent' : 'Send') + '</button>' +
     '<div style="margin-top:14px;font-family:\'DM Mono\',monospace;font-size:12px;line-height:1.9">' +
       '<div style="color:' + (sent ? 'var(--green)' : 'var(--muted)') + '">' +
