@@ -471,8 +471,11 @@ function _trOpenEmail(email) {
           "<span style='color:var(--muted)'> \u00b7 Compose</span></span>" +
         "<button class='settings-close' onclick='_trCloseEmail()'>✕</button>" +
       "</div>" +
-      "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:14px'>" +
+      "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:10px'>" +
         inqEsc(email) + "</div>" +
+      // Marks the email half of the panel, the way the phone marks the text
+      // half further down. Grey, so the red title still leads.
+      "<div style='color:var(--muted);margin-bottom:10px'>" + MAIL_ICON_LG + "</div>" +
       "<input id='trFcSubject' value='About Your Trial Lesson Request' style='" + inp + ";margin-bottom:8px'>" +
       "<textarea id='trFcBody' rows='16' style='" + inp + "'>" + inqEsc(body) + "</textarea>" +
       "<div id='trFcStatus'></div>" +
@@ -504,14 +507,14 @@ function _trOpenEmail(email) {
       // button because the number is what you tap.
       (phoneDigits
         ? "<div style='display:flex;gap:8px;margin-top:10px'>" +
-            "<button class='db-mini-btn' style='flex:1;padding:9px' onclick='_trCopySms(this)'>Copy text</button>" +
+            "<button class='db-mini-btn' style='flex:1;padding:9px' onclick='_trCopySms(this)'>Copy Text</button>" +
             "<button class='db-mini-btn' style='flex:1;padding:9px' onclick='_trCopyPhone(this,\"" + phoneDigits + "\")'>" +
-              "Copy " + inqEsc(phonePretty) + "</button>" +
+              "Copy Phone #</button>" +
             "<a class='db-mini-btn' style='flex:1;padding:9px;text-align:center;text-decoration:none' " +
               "href='sms:" + phoneDigits + "'>Open Messages</a>" +
           "</div>"
         : "<div style='display:flex;gap:8px;margin-top:10px'>" +
-            "<button class='db-mini-btn' style='flex:1;padding:9px' onclick='_trCopySms(this)'>Copy text</button>" +
+            "<button class='db-mini-btn' style='flex:1;padding:9px' onclick='_trCopySms(this)'>Copy Text</button>" +
             "<div style='flex:2;font-family:\"DM Mono\",monospace;font-size:11px;color:var(--accent);" +
               "display:flex;align-items:center;padding-left:4px'>No phone number on file.</div>" +
           "</div>") +
@@ -538,7 +541,7 @@ function _trCloseEmail() {
 function _trCopySms(btn) {
   var ta = document.getElementById("trFcSms");
   if (!ta) return;
-  var done = function () { btn.textContent = "Copied ✓"; setTimeout(function () { btn.textContent = "Copy text"; }, 1600); };
+  var done = function () { btn.textContent = "Copied ✓"; setTimeout(function () { btn.textContent = "Copy Text"; }, 1600); };
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(ta.value).then(done, function () { ta.select(); document.execCommand("copy"); done(); });
   } else { ta.select(); document.execCommand("copy"); done(); }
