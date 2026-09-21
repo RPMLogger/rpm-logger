@@ -304,14 +304,18 @@ function _fixDateSpinner(initialDisp, onChange) {
     if (state.day > maxNew) state.day = maxNew;
     refresh();
   }
-  function handler(which) {
+  // Up/Down steps the segment, Left/Right walks between month and day - the
+  // same split the Payments and Travel date fields use. Left/Right used to do
+  // nothing here, which was the only half of the rule this picker was missing.
+  function handler(which, other) {
     return function(e) {
-      if (e.key === "ArrowUp")   { e.preventDefault(); step(which, +1); }
-      if (e.key === "ArrowDown") { e.preventDefault(); step(which, -1); }
+      if (e.key === "ArrowUp")   { e.preventDefault(); step(which, +1); return; }
+      if (e.key === "ArrowDown") { e.preventDefault(); step(which, -1); return; }
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") { e.preventDefault(); other.focus(); }
     };
   }
-  monSeg.onkeydown = handler("mon");
-  daySeg.onkeydown = handler("day");
+  monSeg.onkeydown = handler("mon", daySeg);
+  daySeg.onkeydown = handler("day", monSeg);
 
   box.appendChild(monSeg); box.appendChild(daySeg);
   refresh();

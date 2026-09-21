@@ -435,9 +435,12 @@ function _stRenderDetail() {
 
     down.onclick = function() { _stShiftLogDate(-1); };
     up.onclick   = function() { _stShiftLogDate(1); };
+    // Up/Down only. Left/Right is reserved portal-wide for moving between
+    // fields (see .dt-row in styles.css) and there is no second field here, so
+    // the horizontal keys deliberately do nothing rather than nudge the date.
     stepper.addEventListener('keydown', function(e) {
-      if (e.key === 'ArrowUp' || e.key === 'ArrowRight')      { e.preventDefault(); _stShiftLogDate(1); }
-      else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { e.preventDefault(); _stShiftLogDate(-1); }
+      if (e.key === 'ArrowUp')        { e.preventDefault(); _stShiftLogDate(1); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); _stShiftLogDate(-1); }
     });
 
     stepper.appendChild(down);
@@ -1010,9 +1013,9 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
     "<div style='font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Reschedule</div>" +
     "<div style='font-weight:700;font-size:14px;margin-bottom:2px'>" + studentName + "</div>" +
     "<div style='font-size:12px;color:var(--muted);margin-bottom:14px'>Move to " +
-      (opts.dayChange ? "<button data-day='-1' " + dayBtn + ">‹</button>" : "") +
+      (opts.dayChange ? "<button data-day='-1' " + dayBtn + " title='Earlier day'>\u25bc</button>" : "") +
       "<b id='stTimeDay' style='color:#5b9dff'>" + dayLabel + "</b>" +
-      (opts.dayChange ? "<button data-day='1' " + dayBtn + ">›</button>" : "") +
+      (opts.dayChange ? "<button data-day='1' " + dayBtn + " title='Later day'>\u25b2</button>" : "") +
     "</div>" +
     "<div style='display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px'>" +
       spinSeg('h', state.h12) +

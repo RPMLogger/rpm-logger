@@ -140,23 +140,31 @@ function _skLogForm(students) {
   sel.appendChild(selBtn);
   sel.appendChild(selList);
 
-  // ◀ Tue, Sep 15 ▶ day stepper (same look as the Trial tab), starts today.
+  // ▲ Tue, Sep 15 ▼ day stepper (same control as the Trial tab), starts today.
+  // Vertical arrows because they change the day; there is no second field here,
+  // so nothing needs ◀▶ - see .dt-row in styles.css for the rule.
   var day = new Date(); day.setHours(12, 0, 0, 0);
   var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   var dt = document.createElement('span');
-  dt.style.cssText = 'display:flex;align-items:center;gap:6px;flex:0 0 auto';
-  var prev = document.createElement('button'), next = document.createElement('button');
-  var dLabel = document.createElement('span');
-  prev.className = next.className = 'db-mini-btn';
-  prev.style.cssText = next.style.cssText = 'padding:6px 10px';
-  prev.textContent = '◀'; next.textContent = '▶';
-  dLabel.style.cssText = "font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.62);text-align:center;min-width:92px";
+  dt.className = 'dt-seg';
+  dt.style.cssText = 'flex:0 0 auto';
+  var up = document.createElement('button'), down = document.createElement('button');
+  var dLabel = document.createElement('button');
+  up.className = down.className = 'db-mini-btn dt-arrow';
+  up.textContent = '▲'; down.textContent = '▼';
+  dLabel.className = 'dt-val';
+  dLabel.style.cssText = 'min-width:92px';
   function paintDay() { dLabel.textContent = DAYS[day.getDay()] + ', ' + MONTHS[day.getMonth()] + ' ' + day.getDate(); }
-  prev.onclick = function() { day.setDate(day.getDate() - 1); paintDay(); };
-  next.onclick = function() { day.setDate(day.getDate() + 1); paintDay(); };
+  function shiftDay(n) { day.setDate(day.getDate() + n); paintDay(); }
+  up.onclick   = function() { shiftDay(1); };
+  down.onclick = function() { shiftDay(-1); };
+  dLabel.onkeydown = function(e) {
+    if (e.key === 'ArrowUp')   { e.preventDefault(); shiftDay(1); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); shiftDay(-1); }
+  };
   paintDay();
-  dt.appendChild(prev); dt.appendChild(dLabel); dt.appendChild(next);
+  dt.appendChild(up); dt.appendChild(dLabel); dt.appendChild(down);
   function dayValue() {
     return day.getFullYear() + '-' + ('0' + (day.getMonth() + 1)).slice(-2) + '-' + ('0' + day.getDate()).slice(-2);
   }

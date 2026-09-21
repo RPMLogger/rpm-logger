@@ -736,7 +736,13 @@ function _trRestoreBook(p) {
 }
 
 // ── Trial date/time stepper ─────────────────────────────────────────────────
-// ◀ Sun, Sep 13 ▶   ▲ 10:30 PM ▼   (day steps ±1, time steps ±15 min)
+// ▲ Sun, Sep 13 ▼   ▲ 10:30 PM ▼   (day steps ±1, time steps ±15 min)
+// The portal's one arrow rule, the one the Payments and Travel date fields
+// already keep on the keyboard: VERTICAL arrows change the value under them,
+// HORIZONTAL arrows move between fields. So both halves step with ▲▼, and
+// Left/Right hops date <-> time rather than nudging a number. This picker used
+// to break it twice - ◀▶ on the date, ▲▼ on the time, in the same row.
+// The labels are buttons so they can hold focus and take ↑↓ / ←→ themselves.
 // The real values live in hidden inputs p+'Date' (yyyy-MM-dd) and p+'Time'
 // (HH:mm), so _trBook, _trPickSlot and the reset keep reading/writing them as
 // before. A blank value shows as tomorrow at 5:00 PM.
@@ -752,23 +758,42 @@ function _trDtDefault() {
 
 function _trDtHtml(p) {
   var def = _trDtDefault();
+  // ▲ above the value, ▼ below it: the direction of the arrow is the direction
+  // the value moves. Same .db-mini-btn as the Pick a time window and the Skips
+  // day picker, so the three read as one control in three places.
   var btn = function (fn, n, txt) {
-    return '<button type="button" onclick="' + fn + '(\'' + p + '\',' + n + ')" ' +
-      'style="background:var(--bg);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:var(--text);' +
-      'min-width:28px;padding:5px 0;font-size:10px;cursor:pointer">' + txt + '</button>';
+    return '<button type="button" class="db-mini-btn dt-arrow" onclick="' + fn + '(\'' + p + '\',' + n + ')">' + txt + '</button>';
   };
-  var lbl = 'style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;color:rgba(255,255,255,0.82);text-align:center"';
+  // A column: ▲ / value / ▼. The value is a button so ↑↓ and ←→ reach it.
+  var seg = function (id, order, fn, step, w, txt) {
+    return '<div class="dt-seg">' +
+        btn(fn, step, '\u25b2') +
+        '<button type="button" class="dt-val" id="' + id + '" data-dt-nav="' + order + '" ' +
+          'style="min-width:' + w + 'px" onkeydown="_trDtKey(event,\'' + p + '\',\'' + fn + '\',' + step + ')">' + txt + '</button>' +
+        btn(fn, -step, '\u25bc') +
+      '</div>';
+  };
   return '<input type="hidden" id="' + p + 'Date" value="' + def.date + '">' +
     '<input type="hidden" id="' + p + 'Time" value="' + def.time + '">' +
-    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
-      btn('_trDtStepDate', -1, '\u25c0') +
-      '<span id="' + p + 'DateLbl" ' + lbl.replace('text-align:center', 'text-align:center;min-width:110px') + '>' + _trDtDateLabel(def.date) + '</span>' +
-      btn('_trDtStepDate', 1, '\u25b6') +
-      '<span style="width:18px"></span>' +
-      btn('_trDtStepTime', 15, '\u25b2') +
-      '<span id="' + p + 'TimeLbl" ' + lbl.replace('text-align:center', 'text-align:center;min-width:76px') + '>' + _trDtTimeLabel(def.time) + '</span>' +
-      btn('_trDtStepTime', -15, '\u25bc') +
+    '<div class="dt-row" id="' + p + 'DtRow">' +
+      seg(p + 'DateLbl', 0, '_trDtStepDate', 1,  110, _trDtDateLabel(def.date)) +
+      seg(p + 'TimeLbl', 1, '_trDtStepTime', 15, 76,  _trDtTimeLabel(def.time)) +
     '</div>';
+}
+
+// ↑↓ steps the focused field, ←→ moves to the next one. The horizontal keys
+// never change a value - that is the whole point of the split.
+function _trDtKey(e, p, fn, step) {
+  var f = fn === '_trDtStepDate' ? _trDtStepDate : _trDtStepTime;
+  if (e.key === 'ArrowUp')   { e.preventDefault(); f(p, step);  return; }
+  if (e.key === 'ArrowDown') { e.preventDefault(); f(p, -step); return; }
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  e.preventDefault();
+  var row = document.getElementById(p + 'DtRow');
+  if (!row) return;
+  var here = parseInt(e.target.getAttribute('data-dt-nav'), 10);
+  var next = row.querySelector('[data-dt-nav="' + (here + (e.key === 'ArrowRight' ? 1 : -1)) + '"]');
+  if (next) next.focus();
 }
 
 function _trDtParseDate(v) {
@@ -1372,20 +1397,25 @@ function _tlTimeHtml(a, s) {
   var v = _tlTimeValue();
   var saved = String(s.firstLesson || '') === v;
   var past = _trFirstLessonDate(v) <= new Date();
+  // Same arrow rule as the booking form: ▲▼ changes the value, ←→ moves
+  // between date and time. This used to be all ◀▶, which made Left mean
+  // "half an hour earlier" here and "go to the date" everywhere else.
   var arrow = function (fn, n, txt) {
-    return '<button class="db-mini-btn" style="padding:6px 10px" onclick="' + fn + '(' + n + ')">' + txt + '</button>';
+    return '<button class="db-mini-btn dt-arrow" onclick="' + fn + '(' + n + ')">' + txt + '</button>';
+  };
+  var seg = function (order, fn, step, w, label) {
+    return '<div class="dt-seg">' +
+        arrow(fn, step, '▲') +
+        '<button class="dt-val" data-dt-nav="' + order + '" style="min-width:' + w + 'px" ' +
+          'onkeydown="_tlTimeKey(event,\'' + fn + '\',' + step + ')">' + label + '</button>' +
+        arrow(fn, -step, '▼') +
+      '</div>';
   };
   var h = Math.floor(w.mins / 60), mi = w.mins % 60, d = w.date;
-  var txt = 'style="font-family:\'DM Mono\',monospace;font-size:12px;color:rgba(255,255,255,0.62);text-align:center;';
   return '<label class="settings-label">First regular lesson</label>' +
-    '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
-      arrow('_tlStepDay', -1, '◀') +
-      '<span ' + txt + 'min-width:92px">' + _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate() + '</span>' +
-      arrow('_tlStepDay', 1, '▶') +
-      '<span style="width:14px"></span>' +
-      arrow('_tlStepMins', -30, '◀') +
-      '<span ' + txt + 'min-width:70px">' + ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM') + '</span>' +
-      arrow('_tlStepMins', 30, '▶') +
+    '<div class="dt-row" id="tlDtRow">' +
+      seg(0, '_tlStepDay',  1,  92, _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate()) +
+      seg(1, '_tlStepMins', 30, 70, ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM')) +
     '</div>' +
     (past ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-top:8px">⚠ That is in the past.</div>' : '') +
     '<div style="margin-top:12px">' +
@@ -1395,6 +1425,28 @@ function _tlTimeHtml(a, s) {
             ' onclick="_tlSaveTime()">Set ' + inqEsc(_trFirstLessonLabel(v)) + '</button>') +
     '</div>' +
     _tlMsg('tlTimeMsg');
+}
+
+// ↑↓ steps, ←→ hops date <-> time. Stepping redraws the window, so focus has
+// to be put back on the field that was being used or the next key goes nowhere.
+function _tlTimeKey(e, fn, step) {
+  var f = fn === '_tlStepDay' ? _tlStepDay : _tlStepMins;
+  var order = e.target.getAttribute('data-dt-nav');
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+    e.preventDefault();
+    f(e.key === 'ArrowUp' ? step : -step);
+    _tlFocusSeg(order);
+    return;
+  }
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  e.preventDefault();
+  _tlFocusSeg(String(+order + (e.key === 'ArrowRight' ? 1 : -1)));
+}
+
+function _tlFocusSeg(order) {
+  var row = document.getElementById('tlDtRow');
+  var el = row && row.querySelector('[data-dt-nav="' + order + '"]');
+  if (el) el.focus();
 }
 
 function _tlStepDay(n)  { if (!_tl) return; var w = _tlTimeState(); w.date.setDate(w.date.getDate() + n); _tlRender(); }

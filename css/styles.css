@@ -1126,6 +1126,25 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 .db-mini-btn.strong       { border-color: var(--muted); color: var(--text); }
 .db-mini-btn.strong:hover { border-color: var(--accent2); color: var(--accent2); }
 
+/* ─── DATE / TIME PICKERS ───────────────────────────────────────────────────
+   One arrow rule across the portal: a VERTICAL arrow changes the value it sits
+   on, a HORIZONTAL arrow moves between fields. The Payments and Travel date
+   fields already kept it on the keyboard (Up/Down steps, Left/Right walks the
+   segments); these classes put it on the buttons too, so the mouse and the
+   keyboard finally say the same thing. Left/Right never edits a number.
+   Used by: Trial book form, Trial Pick a time, Skips day picker. */
+.dt-row { display: flex; align-items: flex-start; gap: 18px; flex-wrap: wrap; }
+.dt-seg { display: flex; flex-direction: column; align-items: stretch; gap: 3px; }
+.dt-arrow { padding: 2px 0; font-size: 9px; line-height: 1.2; text-align: center; }
+/* The value carries focus, so it is a button - but it must not look like one
+   more thing to click through; only the focus ring says it is live. */
+.dt-val {
+  background: transparent; border: 1px solid transparent; border-radius: 5px;
+  font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px;
+  color: rgba(255,255,255,0.82); text-align: center; padding: 4px 6px; cursor: default;
+}
+.dt-val:focus { outline: none; border-color: var(--accent2); color: var(--accent2); }
+
 /* Trial tab: Make student spinner */
 .ms-spin {
   width: 16px; height: 16px; flex: none;
