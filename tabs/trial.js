@@ -320,7 +320,7 @@ function _trOpenReply(id, threadId) {
     '<div id="fcrps-' + id + '"></div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
       '<button class="db-mini-btn" onclick="_trCancelReply(\'' + id + '\',\'' + threadId + '\')">Cancel</button>' +
-      '<button class="db-mini-btn" id="fcrpbtn-' + id + '" onclick="_trSendReply(\'' + id + '\',\'' + threadId + '\')" style="border-color:var(--green);color:var(--green)">Send reply</button>' +
+      '<button class="db-mini-btn go" id="fcrpbtn-' + id + '" onclick="_trSendReply(\'' + id + '\',\'' + threadId + '\')">Send reply</button>' +
     '</div>';
   var ta = document.getElementById('fcrpb-' + id);
   if (ta) ta.focus();
@@ -475,14 +475,18 @@ function _trOpenEmail(email) {
       "<div id='trFcStatus'></div>" +
       "<div style='display:flex;gap:8px;margin-top:12px'>" +
         "<button class='db-mini-btn' id='trFcPrevBtn' onclick='_trPreviewEmail()'>Preview</button>" +
-        "<button class='db-mini-btn' id='trFcSendBtn' onclick='_trSendEmail()' " +
-          "style='border-color:var(--green);color:var(--green)'>Send</button>" +
+        // .go, not an inline green: an inline border-colour outranks
+        // .db-mini-btn:hover, which left Send dead under the cursor.
+        "<button class='db-mini-btn go' id='trFcSendBtn' onclick='_trSendEmail()'>Send</button>" +
       "</div>" +
       "<div id='trFcPreview'></div>" +
       "<hr class='divider' style='margin:18px 0 12px'>" +
       "<div class='section-label' style='margin-bottom:6px'>Then text them</div>" +
       "<textarea id='trFcSms' rows='3' readonly style='" + inp + ";line-height:1.55;resize:vertical'>" + inqEsc(sms) + "</textarea>" +
-      "<button onclick='_trCopySms(this)' style='width:100%;margin-top:8px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:11px;font-family:\"DM Mono\",monospace;font-size:12px;cursor:pointer'>Copy for iMessage</button>" +
+      // A clipboard convenience, so it is a standard button: it used to be
+      // 12px in --text at radius 10, which made it the brightest thing in the
+      // panel, louder than Send. Full width is kept; the type is not.
+      "<button class='db-mini-btn' onclick='_trCopySms(this)' style='width:100%;margin-top:8px;padding:9px'>Copy for iMessage</button>" +
       (phoneDigits
         ? "<div style='display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap'>" +
             // The number and the copy action are one thing, not a label with a
