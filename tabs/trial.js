@@ -125,9 +125,13 @@ function _trReopen(email, col, btn) {
 var _trAcceptedCache = [];
 
 // Every writable box in both composers - subject, body, the iMessage text -
-// is set in the card-field type: mono 10.5 at .5 opacity, which is what an
-// inquiry's own fields use. The mail you write from a card is set in the same
-// voice as the card, and nothing in the panel outshines anything else.
+// shares one setting: Arial 12 at .5 opacity.
+//
+// The card-field brightness, because a composer should not glare next to the
+// card it opened from, but Arial rather than the card's mono: these are the
+// boxes you actually write paragraphs in, and a proportional face is easier
+// to read and to write in than a monospace grid. It is also close to what
+// Gmail renders, so the composer resembles the mail it produces.
 //
 // NO SINGLE QUOTES in this string. It is dropped into a single-quoted style
 // attribute, and a quoted font name ends the attribute early: every
@@ -135,7 +139,7 @@ var _trAcceptedCache = [];
 // unstyled at browser defaults.
 var FC_FIELD = "box-sizing:border-box;width:100%;background:var(--bg);" +
                "border:1px solid var(--border);border-radius:8px;padding:9px 12px;" +
-               "font-family:DM Mono,monospace;font-size:10.5px;line-height:1.5;" +
+               "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;" +
                "color:rgba(255,255,255,.5);resize:vertical";
 
 function _trFindAccepted(email) {
@@ -322,7 +326,7 @@ function _trOpenReply(id, threadId) {
     '<div id="fcrps-' + id + '"></div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
       '<button class="db-mini-btn" onclick="_trCancelReply(\'' + id + '\',\'' + threadId + '\')">Cancel</button>' +
-      '<button class="db-mini-btn go" id="fcrpbtn-' + id + '" onclick="_trSendReply(\'' + id + '\',\'' + threadId + '\')">Send reply</button>' +
+      '<button class="db-mini-btn strong" id="fcrpbtn-' + id + '" onclick="_trSendReply(\'' + id + '\',\'' + threadId + '\')">Send reply</button>' +
     '</div>';
   var ta = document.getElementById('fcrpb-' + id);
   if (ta) ta.focus();
@@ -473,9 +477,11 @@ function _trOpenEmail(email) {
       "<div id='trFcStatus'></div>" +
       "<div style='display:flex;gap:8px;margin-top:12px'>" +
         "<button class='db-mini-btn' id='trFcPrevBtn' onclick='_trPreviewEmail()'>Preview</button>" +
-        // .go, not an inline green: an inline border-colour outranks
-        // .db-mini-btn:hover, which left Send dead under the cursor.
-        "<button class='db-mini-btn go' id='trFcSendBtn' onclick='_trSendEmail()'>Send</button>" +
+        // Not green: green in this portal means done, and a button that has
+        // not been pressed yet should not wear the colour of the thing it is
+        // about to do. .strong is grey, a step brighter than the buttons
+        // around it, which is all a primary action needs here.
+        "<button class='db-mini-btn strong' id='trFcSendBtn' onclick='_trSendEmail()'>Send</button>" +
       "</div>" +
       "<div id='trFcPreview'></div>" +
       "<hr class='divider' style='margin:18px 0 12px'>" +
@@ -540,8 +546,10 @@ function _trPreviewEmail() {
       box.innerHTML =
         "<div style='margin-top:14px'>" +
           "<div class='section-label' style='margin-bottom:6px'>Preview</div>" +
+          // Same face and metrics as the box you typed it in, so the preview
+          // is the same text on a white card rather than a different setting.
           "<div style='background:#fff;color:#111;border:1px solid var(--border);border-radius:10px;padding:22px;" +
-              "font-family:Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5'>" + html + "</div>" +
+              "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6'>" + html + "</div>" +
         "</div>";
     })
     .catch(function () { box.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:12px'>❌ Could not reach the portal.</div>"; });
@@ -1586,7 +1594,7 @@ function _tlPreviewHtml(subject, html, to) {
   return '<div style="margin-top:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden">' +
       '<div style="padding:9px 12px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border)">' +
         'To: ' + inqEsc(to || '') + '<br>Subject: <span style="color:var(--text)">' + inqEsc(subject || '') + '</span></div>' +
-      '<div style="background:#fff;color:#222;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' + body + '</div>' +
+      '<div style="background:#fff;color:#222;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6">' + body + '</div>' +
     '</div>';
 }
 

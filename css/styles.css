@@ -1047,6 +1047,12 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 .db-mini-btn.pick-off       { border-color: var(--muted); }
 .db-mini-btn.pick-off:hover { border-color: var(--accent2); color: var(--accent2); }
 
+/* The primary action of a panel, when colour would lie about state: green
+   reads as done, so an unpressed Send cannot wear it. Grey, one step brighter
+   than the buttons beside it. Hover restated, as above. */
+.db-mini-btn.strong       { border-color: var(--muted); color: var(--text); }
+.db-mini-btn.strong:hover { border-color: var(--accent2); color: var(--accent2); }
+
 /* Trial tab: Make student spinner */
 .ms-spin {
   width: 16px; height: 16px; flex: none;
