@@ -326,7 +326,8 @@ function _trOpenReply(id, threadId) {
     '<div id="fcrps-' + id + '"></div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
       '<button class="db-mini-btn" onclick="_trCancelReply(\'' + id + '\',\'' + threadId + '\')">Cancel</button>' +
-      '<button class="db-mini-btn strong" id="fcrpbtn-' + id + '" onclick="_trSendReply(\'' + id + '\',\'' + threadId + '\')">Send reply</button>' +
+      '<button class="db-mini-btn strong" id="fcrpbtn-' + id + '" onclick="_trSendReply(\'' + id + '\',\'' + threadId + '\')" ' +
+       'style="display:inline-flex;align-items:center;gap:7px">' + SEND_ICON + '<span>Send reply</span></button>' +
     '</div>';
   var ta = document.getElementById('fcrpb-' + id);
   if (ta) ta.focus();
@@ -481,15 +482,15 @@ function _trOpenEmail(email) {
         // not been pressed yet should not wear the colour of the thing it is
         // about to do. .strong is grey, a step brighter than the buttons
         // around it, which is all a primary action needs here.
-        "<button class='db-mini-btn strong' id='trFcSendBtn' onclick='_trSendEmail()'>Send</button>" +
+        "<button class='db-mini-btn strong' id='trFcSendBtn' onclick='_trSendEmail()' " +
+          "style='display:inline-flex;align-items:center;gap:7px'>" + SEND_ICON + "<span>Send</span></button>" +
       "</div>" +
       "<div id='trFcPreview'></div>" +
       "<hr class='divider' style='margin:18px 0 12px'>" +
-      // Icon over the label, not beside it: at label height the bubble and its
-      // three dots close up, and this is the only place the icon appears, so
-      // it can have the room.
-      "<div style='color:var(--muted);margin-bottom:6px'>" + SMS_ICON_LG + "</div>" +
-      "<div class='section-label' style='margin-bottom:6px'>Then text them</div>" +
+      // Beside the label, at 24: big enough that the bubble and its three dots
+      // stay open, small enough that the label still leads.
+      "<div class='section-label' style='margin-bottom:6px;display:flex;align-items:center;gap:9px'>" +
+        SMS_ICON_LG + "<span>Then text them</span></div>" +
       // A step smaller than the email boxes above it. It is a text message, not
       // the email, and the size says so without needing a second label.
       "<textarea id='trFcSms' rows='3' readonly style='" + inp + ";font-size:11px'>" + inqEsc(sms) + "</textarea>" +
