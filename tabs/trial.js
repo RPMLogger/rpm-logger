@@ -491,7 +491,7 @@ function _trOpenEmail(email) {
         inqEsc(email) + "</div>" +
       // Marks the email half of the panel, the way the phone marks the text
       // half further down. Grey, so the red title still leads.
-      "<div style='color:var(--muted);margin-bottom:10px'>" + MAIL_ICON_LG + "</div>" +
+      "<div style='color:var(--muted);margin-bottom:10px'>" + ENVELOPE_ICON + "</div>" +
       "<input id='trFcSubject' value='About Your Trial Lesson Request' style='" + inp + ";margin-bottom:8px'>" +
       "<textarea id='trFcBody' rows='16' style='" + inp + "'>" + inqEsc(body) + "</textarea>" +
       "<div id='trFcStatus'></div>" +
@@ -515,7 +515,7 @@ function _trOpenEmail(email) {
           "<span style='color:var(--muted)'> \u00b7 Text</span></span></div>" +
       "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:10px'>" +
         (phonePretty ? inqEsc(phonePretty) : "No phone number on file") + "</div>" +
-      "<div style='color:var(--muted);margin-bottom:10px'>" + SMS_ICON_LG + "</div>" +
+      "<div style='color:var(--muted);margin-bottom:10px'>" + PHONE_SMS_ICON + "</div>" +
       // A step smaller than the email boxes above it. It is a text message, not
       // the email, and the size says so without needing a second label.
       "<textarea id='trFcSms' rows='3' readonly style='" + inp + ";font-size:11px'>" + inqEsc(sms) + "</textarea>" +
