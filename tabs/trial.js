@@ -460,15 +460,14 @@ function _trOpenEmail(email) {
                           "align-items:center;justify-content:center;padding:18px;overflow:auto";
   overlay.innerHTML =
     "<div style='background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:600px;width:100%;padding:18px;box-sizing:border-box;max-height:92vh;overflow:auto'>" +
-      "<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:12px'>" +
-        "<div class='section-label' style='margin-bottom:0'>Compose to:</div>" +
-        "<button onclick='_trCloseEmail()' style='background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer'>✕</button>" +
+      // Same header as the lesson card modal: NAME in Bebas and accent, the
+      // section after it in grey. One header shape for every panel that is
+      // about one person, instead of this one inventing its own.
+      "<div class='settings-title' style='margin-bottom:4px'>" +
+        "<span>" + inqEsc(a.name || "") +
+          "<span style='color:var(--muted)'> \u00b7 Compose</span></span>" +
+        "<button class='settings-close' onclick='_trCloseEmail()'>✕</button>" +
       "</div>" +
-      // The heading says COMPOSE TO:, so the two lines under it are just the
-      // person: the name in the same section-label type as the heading, the way
-      // it read when the two sat on one line, and the address on its own line
-      // in its own case, because a letter-spaced uppercase email is unreadable.
-      "<div class='section-label' style='margin-bottom:2px'>" + inqEsc(a.name || "") + "</div>" +
       "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:14px'>" +
         inqEsc(email) + "</div>" +
       "<input id='trFcSubject' value='About Your Trial Lesson Request' style='" + inp + ";margin-bottom:8px'>" +
