@@ -85,7 +85,25 @@ body::before {
   color: var(--accent); letter-spacing: 2px; margin-bottom: 16px;
   display: flex; align-items: center; justify-content: space-between;
 }
-.settings-close { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; line-height: 1; }
+/* Every modal's close button, portal wide. The user's om-10.svg - a disc with
+   the X cut out - painted through a CSS mask rather than dropped into each
+   button's markup: the two in index.html cannot reference a JS icon, and this
+   way no caller has to be touched at all.
+
+   The mask is filled with currentColor, so the button keeps its grey, its
+   hover and anything else the colour is used for. font-size 0 hides the ✕
+   character still sitting inside every one of those buttons - leave it there,
+   it is what shows if a browser ever refuses the mask. */
+.settings-close {
+  background: none; border: none; cursor: pointer; padding: 0;
+  color: var(--muted); font-size: 0; line-height: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.settings-close::before {
+  content: ""; display: block; width: 12px; height: 12px; background: currentColor;
+  -webkit-mask: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907 907"%3E%3Cpath fill-rule="evenodd" d="M 453.5 0 C 704.445312 0 907 203.679688 907 453.5 C 907 704.445312 704.445312 907 453.5 907 C 203.679688 907 0 704.445312 0 453.5 C 0 203.679688 203.679688 0 453.5 0 Z M 453.5 563.78125 L 326.339844 690.941406 C 255.445312 762.960938 145.164062 652.679688 217.183594 580.660156 L 344.34375 453.5 L 217.183594 326.339844 C 145.164062 255.445312 255.445312 145.164062 326.339844 217.183594 L 453.5 344.34375 L 580.660156 217.183594 C 652.679688 145.164062 762.960938 255.445312 690.941406 326.339844 L 563.78125 453.5 L 690.941406 580.660156 C 762.960938 652.679688 652.679688 762.960938 580.660156 690.941406 Z M 453.5 563.78125 "/%3E%3C/svg%3E') center / contain no-repeat;
+          mask: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907 907"%3E%3Cpath fill-rule="evenodd" d="M 453.5 0 C 704.445312 0 907 203.679688 907 453.5 C 907 704.445312 704.445312 907 453.5 907 C 203.679688 907 0 704.445312 0 453.5 C 0 203.679688 203.679688 0 453.5 0 Z M 453.5 563.78125 L 326.339844 690.941406 C 255.445312 762.960938 145.164062 652.679688 217.183594 580.660156 L 344.34375 453.5 L 217.183594 326.339844 C 145.164062 255.445312 255.445312 145.164062 326.339844 217.183594 L 453.5 344.34375 L 580.660156 217.183594 C 652.679688 145.164062 762.960938 255.445312 690.941406 326.339844 L 563.78125 453.5 L 690.941406 580.660156 C 762.960938 652.679688 652.679688 762.960938 580.660156 690.941406 Z M 453.5 563.78125 "/%3E%3C/svg%3E') center / contain no-repeat;
+}
 .settings-close:hover { color: var(--text); }
 .settings-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
 .settings-input {

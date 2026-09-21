@@ -326,8 +326,8 @@ function _trOpenReply(id, threadId) {
     '<div id="fcrps-' + id + '"></div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
       '<button class="db-mini-btn" onclick="_trCancelReply(\'' + id + '\',\'' + threadId + '\')">Cancel</button>' +
-      '<button class="db-mini-btn strong" id="fcrpbtn-' + id + '" onclick="_trSendReply(\'' + id + '\',\'' + threadId + '\')">' +
-       '<span>Send reply</span></button>' +
+      '<button class="db-mini-btn strong" id="fcrpbtn-' + id + '" onclick="_trSendReply(\'' + id + '\',\'' + threadId + '\')" ' +
+       'style="display:inline-flex;align-items:center;gap:7px">' + SEND_ICON + '<span>Send reply</span></button>' +
     '</div>';
   var ta = document.getElementById('fcrpb-' + id);
   if (ta) ta.focus();
@@ -501,10 +501,10 @@ function _trOpenEmail(email) {
         // about to do. .strong is grey, a step brighter than the buttons
         // around it, which is all a primary action needs here.
         //
-        // The span stays although there is no icon beside it any more:
-        // _trSetLabel writes the span, and the Sending/Sent states go through it.
-        "<button class='db-mini-btn strong' id='trFcSendBtn' onclick='_trSendEmail()'>" +
-          "<span>Send</span></button>" +
+        // The span holds the words: _trSetLabel writes it for the Sending and
+        // Sent states, so the plane beside it survives them.
+        "<button class='db-mini-btn strong' id='trFcSendBtn' onclick='_trSendEmail()' " +
+          "style='display:inline-flex;align-items:center;gap:7px'>" + SEND_ICON + "<span>Send</span></button>" +
       "</div>" +
       "<div id='trFcPreview'></div>" +
       "<hr class='divider' style='margin:34px 0 24px'>" +
