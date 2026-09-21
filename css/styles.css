@@ -1137,7 +1137,7 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
    Used by: Trial book window, Trial manual form, Pick a time, Skips. */
 .dt-row { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
 .dt-seg { display: flex; align-items: center; gap: 9px; }
-.dt-stack { display: flex; flex-direction: column; gap: 2px; }
+.dt-stack { display: flex; flex-direction: column; gap: 3px; }
 
 /* Hint-sized and quiet at rest. Hovering either the arrow or the value it
    belongs to brings the pair up together, so they read as one control. */
@@ -1150,7 +1150,7 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 .dt-arrow:hover { color: var(--accent2); }
 .dt-arrow:focus { outline: none; }
 .dt-arrow:focus-visible { outline: none; color: var(--accent2); opacity: 1; }
-.dt-ico { width: 11px; height: 9px; display: block; fill: currentColor; }
+.dt-ico { width: 11px; height: 7px; display: block; fill: currentColor; }
 
 /* The loud half: full white, and it lifts under the pointer so there is no
    doubt it is the thing to click. Focus swaps the lift for the accent edge. */

@@ -93,13 +93,18 @@ function callScript(url, action, params, cb) {
 }
 
 // ─── DATE / TIME PICKER ARROWS ───────────────────────────────────────────────
-// A solid arrow with a flat tail, not the ▲▼ glyph. Demoted to hint size the
-// glyph collapses into an unreadable speck; this shape still reads as an arrow
-// at 11px. It fills with currentColor, so it follows whatever state the field
-// it belongs to is in - muted at rest, lit on hover.
+// A broad triangle with rounded tips, not the ▲▼ glyph and not an arrow with a
+// shaft. Demoted to hint size the glyph collapses into an unreadable speck,
+// and a shaft is thin detail that says nothing the head does not already say;
+// a wide triangle still reads at 11px and says "this value spins" on sight.
+// It fills with currentColor, so it follows whatever state the field it
+// belongs to is in - muted at rest, lit on hover.
 // The arrows are a reminder that the value moves. The VALUE is the control:
 // hover it, click it, then Up/Down. Horizontal keys move between fields.
 function dtArrow(dir) {
-  return '<svg class="dt-ico" viewBox="0 0 22 18" aria-hidden="true">' +
-    '<path d="' + (dir > 0 ? 'M11 0 22 11h-6.5v7h-9v-7H0z' : 'M11 18 0 7h6.5V0h9v7H22z') + '"/></svg>';
+  return '<svg class="dt-ico" viewBox="0 0 24 14" aria-hidden="true">' +
+    '<path d="' + (dir > 0
+      ? 'M10.6 1.1 1.2 11.3c-.7.8-.2 2 .9 2h19.8c1.1 0 1.6-1.2.9-2L13.4 1.1a1.9 1.9 0 0 0-2.8 0z'
+      : 'M13.4 12.9 22.8 2.7c.7-.8.2-2-.9-2H2.1c-1.1 0-1.6 1.2-.9 2l9.4 10.2c.8.8 2 .8 2.8 0z') +
+    '"/></svg>';
 }
