@@ -697,7 +697,7 @@ function _trBookAccepted(name, email) {
     // does not have to say the date a third time - the title already has the
     // name, this line has the when, and Book trial is just the verb. It needs
     // room to read as a sentence rather than a caption stuck to the row.
-    '<label class="settings-label" style="margin-bottom:18px">Trial lesson will be on</label>' +
+    '<label class="settings-label" style="margin-bottom:26px">Date:</label>' +
     '<div style="margin-bottom:6px">' + _trDtHtml('tb') + '</div>' +
     '<div id="tbStatus" style="margin-top:12px"></div>' +
     // Bottom right, where every other window in the portal puts the button
@@ -858,8 +858,8 @@ function _trDtHtml(p) {
   return '<input type="hidden" id="' + p + 'Date" value="' + def.date + '">' +
     '<input type="hidden" id="' + p + 'Time" value="' + def.time + '">' +
     '<div class="dt-row" id="' + p + 'DtRow">' +
-      seg(p + 'DateLbl', 0, '_trDtStepDate', 1,  110, _trDtDateLabel(def.date)) +
-      seg(p + 'TimeLbl', 1, '_trDtStepTime', 15, 76,  _trDtTimeLabel(def.time)) +
+      seg(p + 'DateLbl', 0, '_trDtStepDate', 1,  100, _trDtDateLabel(def.date)) +
+      seg(p + 'TimeLbl', 1, '_trDtStepTime', 15, 66,  _trDtTimeLabel(def.time)) +
     '</div>';
 }
 
@@ -1498,7 +1498,7 @@ function _tlTimeHtml(a, s) {
   return '<label class="settings-label">First regular lesson</label>' +
     '<div class="dt-row" id="tlDtRow">' +
       seg(0, '_tlStepDay',  1,  92, _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate()) +
-      seg(1, '_tlStepMins', 30, 70, ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM')) +
+      seg(1, '_tlStepMins', 30, 66, ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM')) +
     '</div>' +
     (past ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-top:8px">⚠ That is in the past.</div>' : '') +
     '<div style="margin-top:12px">' +

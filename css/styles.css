@@ -1135,8 +1135,8 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
    change the value, HORIZONTAL keys walk between fields. Left never edits a
    number. Payments and Travel have always worked this way.
    Used by: Trial book window, Trial manual form, Pick a time, Skips. */
-.dt-row { display: flex; align-items: center; gap: 30px; flex-wrap: wrap; }
-.dt-seg { display: flex; align-items: center; gap: 12px; }
+.dt-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.dt-seg { display: flex; align-items: center; gap: 8px; }
 .dt-stack { display: flex; flex-direction: column; gap: 5px; }
 
 /* Hint-sized and quiet at rest. Hovering either the arrow or the value it
