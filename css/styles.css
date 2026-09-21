@@ -596,6 +596,14 @@ body::before {
    every email has. Do not "fix" the email to match this. */
 .fc-preview a { color: #6e7d8c; }
 
+/* The composer's own focus ring. The rest of the portal keeps the dimmed
+   amber (--focus); in here the focused field lights up in the same grey as
+   the Send button's border, so the panel you are writing in is all one
+   colour instead of amber boxes over a grey button.
+   Scoped on purpose - see the FOCUS RING block near the bottom of this file. */
+#trFcModal input:focus-visible,
+#trFcModal textarea:focus-visible { outline-color: var(--muted); }
+
 .fc-new { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
           color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
 .inq-name  { font-family: "Syne", sans-serif; font-size: 16px; font-weight: 400; color: var(--text); }
@@ -1011,6 +1019,7 @@ body::before {
    or id selector outranks this one, so .cash-input, #fin-gigs-input and the
    dialog fields go on doing what they did. The three below set a border colour
    but never killed the blue ring, so they need their colour named here too. */
+/* The composer scopes this to grey; see #trFcModal near the top of the file. */
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
