@@ -695,15 +695,17 @@ function _trBookAccepted(name, email) {
     '<div id="tbOfferedSlots" style="margin-bottom:10px"></div>' +
     // The label is a sentence the picker finishes, so the button underneath
     // does not have to say the date a third time - the title already has the
-    // name, this line has the when, and Book trial is just the verb.
-    '<label class="settings-label">Trial lesson will be on</label>' +
+    // name, this line has the when, and Book trial is just the verb. It needs
+    // room to read as a sentence rather than a caption stuck to the row.
+    '<label class="settings-label" style="margin-bottom:14px">Trial lesson will be on</label>' +
     _trDtHtml('tb') +
-    '<div style="margin-top:14px"><button class="db-mini-btn blue" id="tbBookBtn" ' +
+    // Book trial is the only way out that does anything, so it is the only
+    // button. Done sat beside it offering to leave without booking, which the
+    // ✕ in the corner already offers, more quietly. Plain, not blue: there is
+    // nothing to choose between here, so nothing needs a colour to win.
+    '<div style="margin-top:18px"><button class="db-mini-btn" id="tbBookBtn" ' +
       'style="padding:7px 20px" onclick="_trBook(\'tb\')">Book trial</button></div>' +
-    '<div id="tbStatus" style="margin-top:6px"></div>' +
-    '<div style="display:flex;justify-content:flex-end;margin-top:16px">' +
-      '<button class="db-mini-btn" style="padding:7px 20px" onclick="_trBookWinClose()">Done</button>' +
-    '</div>';
+    '<div id="tbStatus" style="margin-top:6px"></div>';
 
   _trRenderOfferedSlots(email, 'tb');
   var f = document.getElementById('tbDateLbl');

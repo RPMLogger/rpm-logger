@@ -1147,9 +1147,9 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
   transition: opacity .12s, color .12s;
 }
 .dt-arrow:hover, .dt-seg:hover .dt-arrow { opacity: 1; }
-.dt-arrow:hover { color: var(--accent2); }
+.dt-arrow:hover { color: rgba(255,255,255,0.82); }
 .dt-arrow:focus { outline: none; }
-.dt-arrow:focus-visible { outline: none; color: var(--accent2); opacity: 1; }
+.dt-arrow:focus-visible { outline: none; color: rgba(255,255,255,0.82); opacity: 1; }
 .dt-ico { width: 11px; height: 7px; display: block; fill: currentColor; }
 
 /* The loud half: full white, and it lifts under the pointer so there is no
@@ -1166,7 +1166,11 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
   color: #fff;
 }
 .dt-val:focus { outline: none; }
-.dt-val:focus-visible { outline: none; border-color: var(--accent2); color: var(--accent2); background: transparent; }
+.dt-val:focus-visible {
+  outline: none; color: #fff;
+  border-color: color-mix(in srgb, var(--muted) 75%, transparent);
+  background: color-mix(in srgb, #fff 6%, transparent);
+}
 
 /* Trial tab: Make student spinner */
 .ms-spin {
