@@ -23,6 +23,7 @@
   --radius-pill: 6px;
   --pad-card:    14px 16px;
   --warn:        #d9a441;   /* attention: replaces #ffb400 / #ffa500 */
+  --focus:       #7a5a18;   /* focus ring: amber, dimmed right down */
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -973,7 +974,9 @@ body::before {
 
 /* ─── FOCUS RING ──────────────────────────────────────────────────────────
    Chrome's blue focus ring was the one colour in the portal nobody picked.
-   Amber, like every other focused input here.
+   Amber, like every other focused input here - but a dimmed amber, not the
+   full #f0a500. At full strength the ring shouted louder than the panel it
+   sat in, and a focused field is a quiet fact, not an alert.
 
    An outline, not a border-colour: most of these inputs are built in JS with
    an inline `border:1px solid ...` shorthand, and no stylesheet rule can beat
@@ -987,7 +990,7 @@ body::before {
    but never killed the blue ring, so they need their colour named here too. */
 input:focus-visible,
 textarea:focus-visible,
-select:focus-visible { outline: 1px solid var(--accent2); outline-offset: -1px; }
+select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 
 .settings-input:focus-visible,
 .transcript-box:focus-visible   { outline-color: var(--accent); }
