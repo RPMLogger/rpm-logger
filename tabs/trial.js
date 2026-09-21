@@ -518,9 +518,10 @@ function _trOpenEmail(email) {
       "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:10px'>" +
         (phonePretty ? inqEsc(phonePretty) : "No phone number on file") + "</div>" +
       "<div style='color:var(--muted);margin-bottom:10px'>" + CHAT_ICON + "</div>" +
-      // A step smaller than the email boxes above it. It is a text message, not
-      // the email, and the size says so without needing a second label.
-      "<textarea id='trFcSms' rows='3' readonly style='" + inp + ";font-size:11px'>" + inqEsc(sms) + "</textarea>" +
+      // Smaller again than the email boxes above it. This one is not really
+      // read - it is copied - so it only has to be legible enough to confirm
+      // it is the right text before the button takes it.
+      "<textarea id='trFcSms' rows='3' readonly style='" + inp + ";font-size:10px'>" + inqEsc(sms) + "</textarea>" +
       // A clipboard convenience, so it is a standard button: it used to be
       // 12px in --text at radius 10, which made it the brightest thing in the
       // panel, louder than Send. Full width is kept; the type is not.
