@@ -326,8 +326,8 @@ function _trOpenReply(id, threadId) {
     '<div id="fcrps-' + id + '"></div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
       '<button class="db-mini-btn" onclick="_trCancelReply(\'' + id + '\',\'' + threadId + '\')">Cancel</button>' +
-      '<button class="db-mini-btn strong" id="fcrpbtn-' + id + '" onclick="_trSendReply(\'' + id + '\',\'' + threadId + '\')" ' +
-       'style="display:inline-flex;align-items:center;gap:7px">' + SEND_ICON + '<span>Send reply</span></button>' +
+      '<button class="db-mini-btn strong" id="fcrpbtn-' + id + '" onclick="_trSendReply(\'' + id + '\',\'' + threadId + '\')">' +
+       '<span>Send reply</span></button>' +
     '</div>';
   var ta = document.getElementById('fcrpb-' + id);
   if (ta) ta.focus();
@@ -491,7 +491,6 @@ function _trOpenEmail(email) {
         inqEsc(email) + "</div>" +
       // Marks the email half of the panel, the way the phone marks the text
       // half further down. Grey, so the red title still leads.
-      "<div style='color:var(--muted);margin-bottom:10px'>" + COMPOSE_ICON + "</div>" +
       "<input id='trFcSubject' value='About Your Trial Lesson Request' style='" + inp + ";margin-bottom:8px'>" +
       "<textarea id='trFcBody' rows='16' style='" + inp + "'>" + inqEsc(body) + "</textarea>" +
       "<div id='trFcStatus'></div>" +
@@ -501,8 +500,11 @@ function _trOpenEmail(email) {
         // not been pressed yet should not wear the colour of the thing it is
         // about to do. .strong is grey, a step brighter than the buttons
         // around it, which is all a primary action needs here.
-        "<button class='db-mini-btn strong' id='trFcSendBtn' onclick='_trSendEmail()' " +
-          "style='display:inline-flex;align-items:center;gap:7px'>" + SEND_ICON + "<span>Send</span></button>" +
+        //
+        // The span stays although there is no icon beside it any more:
+        // _trSetLabel writes the span, and the Sending/Sent states go through it.
+        "<button class='db-mini-btn strong' id='trFcSendBtn' onclick='_trSendEmail()'>" +
+          "<span>Send</span></button>" +
       "</div>" +
       "<div id='trFcPreview'></div>" +
       "<hr class='divider' style='margin:18px 0 12px'>" +
@@ -517,7 +519,6 @@ function _trOpenEmail(email) {
         "<span>Text</span></div>" +
       "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:10px'>" +
         (phonePretty ? inqEsc(phonePretty) : "No phone number on file") + "</div>" +
-      "<div style='color:var(--muted);margin-bottom:10px'>" + CHAT_ICON + "</div>" +
       // Smaller again than the email boxes above it. This one is not really
       // read - it is copied - so it only has to be legible enough to confirm
       // it is the right text before the button takes it.
