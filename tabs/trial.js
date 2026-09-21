@@ -487,7 +487,7 @@ function _trOpenEmail(email) {
           "<span style='color:var(--muted)'> \u00b7 Compose</span></span>" +
         "<button class='settings-close' onclick='_trCloseEmail()'>✕</button>" +
       "</div>" +
-      "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:20px'>" +
+      "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--muted);margin-bottom:20px'>" +
         inqEsc(email) + "</div>" +
       // Marks the email half of the panel, the way the phone marks the text
       // half further down. Grey, so the red title still leads.
@@ -517,7 +517,7 @@ function _trOpenEmail(email) {
       // competes with the title at the top.
       "<div class='settings-title' style='margin-bottom:8px;color:var(--muted)'>" +
         "<span>Text</span></div>" +
-      "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:20px'>" +
+      "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--muted);margin-bottom:20px'>" +
         (phonePretty ? inqEsc(phonePretty) : "No phone number on file") + "</div>" +
       // Smaller again than the email boxes above it, and in mono rather than
       // the composer's Arial. This one is not really read, it is copied, so it
