@@ -993,22 +993,32 @@ function _trStepsHtml(a) {
   var id = emailToId(a.email || '');
   var em = _trEsc(a.email || '');
   var st = _trStepState(a);
-  function col(list) {
+
+  // One numbered list, split across two columns rather than two lists that
+  // each start at 1. The lesson steps used to number themselves 1 and 2 beside
+  // a left column that ran 1 to 7, which read as two separate checklists when
+  // it is one: nine steps, five then four.
+  var all = _TR_STEPS.filter(function (x) { return !x.lesson; })
+              .concat(_TR_STEPS.filter(function (x) { return x.lesson; }));
+  var SPLIT = 5;
+
+  function step(x, n) {
+    var done = x.key === 'terms' ? (st.termsBack || st.termsSent) : st[x.key];
+    return '<div class="tr-step' + (done ? ' is-done' : '') + '">' +
+             '<span class="tr-step-n">' + n + '.</span>' +
+             '<button class="tr-step-b' + (x.lesson ? ' lesson' : '') + (done ? ' done' : '') + (x.noWindow ? ' flat' : '') + '" ' +
+               (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
+               '<span>' + x.label + '</span>' +
+             '</button>' +
+           '</div>';
+  }
+  function col(from, to) {
     return '<div class="tr-col">' +
-      list.map(function (x, i) {
-        var done = x.key === 'terms' ? (st.termsBack || st.termsSent) : st[x.key];
-        return '<div class="tr-step' + (done ? ' is-done' : '') + '">' +
-                 '<span class="tr-step-n">' + (i + 1) + '.</span>' +
-                 '<button class="tr-step-b' + (x.lesson ? ' lesson' : '') + (done ? ' done' : '') + (x.noWindow ? ' flat' : '') + '" ' +
-                   (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
-                   x.label +
-                 '</button>' +
-               '</div>';
-      }).join('') + '</div>';
+      all.slice(from, to).map(function (x, i) { return step(x, from + i + 1); }).join('') +
+    '</div>';
   }
   return '<div class="tr-steps" id="trsteps-' + id + '">' +
-      col(_TR_STEPS.filter(function (x) { return !x.lesson; })) +
-      col(_TR_STEPS.filter(function (x) { return  x.lesson; })) +
+      col(0, SPLIT) + col(SPLIT, all.length) +
     '</div>';
 }
 
