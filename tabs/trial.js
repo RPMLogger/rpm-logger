@@ -124,11 +124,19 @@ function _trReopen(email, col, btn) {
 // iMessage by hand, because that conversation stays on the personal number.
 var _trAcceptedCache = [];
 
-// What an email body is set in, in both composers: the card-field type.
-// Mono 10.5 at .5 opacity is what an inquiry's own fields use, so the mail
-// you write from a card is set in the same voice as the card.
-var FC_BODY_TYPE = "font-family:'DM Mono',monospace;font-size:10.5px;" +
-                   "line-height:1.5;color:rgba(255,255,255,.5);resize:vertical";
+// Every writable box in both composers - subject, body, the iMessage text -
+// is set in the card-field type: mono 10.5 at .5 opacity, which is what an
+// inquiry's own fields use. The mail you write from a card is set in the same
+// voice as the card, and nothing in the panel outshines anything else.
+//
+// NO SINGLE QUOTES in this string. It is dropped into a single-quoted style
+// attribute, and a quoted font name ends the attribute early: every
+// declaration after it is thrown away as junk attributes, leaving the box
+// unstyled at browser defaults.
+var FC_FIELD = "box-sizing:border-box;width:100%;background:var(--bg);" +
+               "border:1px solid var(--border);border-radius:8px;padding:9px 12px;" +
+               "font-family:DM Mono,monospace;font-size:10.5px;line-height:1.5;" +
+               "color:rgba(255,255,255,.5);resize:vertical";
 
 function _trFindAccepted(email) {
   var all = _trAcceptedCache.concat(_trStageCache || []);
@@ -308,21 +316,9 @@ function _trLoadThreads() {
 function _trOpenReply(id, threadId) {
   var box = document.getElementById('fcrp-' + id);
   if (!box) return;
-  // ⚠️ NO SINGLE QUOTES IN HERE. This string is dropped into a single-quoted
-  // style attribute, so a quoted font name ended the attribute early and every
-  // declaration after font-family was thrown away as junk attributes. That is
-  // why the subject rendered in Arial and the body in monospace: neither was
-  // styled at all, both were browser defaults. CSS accepts an unquoted family
-  // name, so there is no reason to quote it.
-  //
-  // Arial on purpose, for both. It is proportional, which suits prose better
-  // than a monospace grid, and it is close to what Gmail will actually render,
-  // so the composer looks like the email it produces.
-  var inp = "box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);" +
-            "border-radius:8px;padding:9px 12px;color:rgba(255,255,255,.62);" +
-            "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6";
+  var inp = FC_FIELD;
   box.innerHTML =
-    '<textarea id="fcrpb-' + id + '" rows="5" placeholder="Reply in this thread…" style="' + inp + ';' + FC_BODY_TYPE + '"></textarea>' +
+    '<textarea id="fcrpb-' + id + '" rows="5" placeholder="Reply in this thread…" style="' + inp + '"></textarea>' +
     '<div id="fcrps-' + id + '"></div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
       '<button class="db-mini-btn" onclick="_trCancelReply(\'' + id + '\',\'' + threadId + '\')">Cancel</button>' +
@@ -454,11 +450,7 @@ function _trOpenEmail(email) {
   var phoneDigits = (a.phone || "").toString().replace(/\D/g, "");
   var phonePretty = _trPhonePretty(a.phone);
 
-  // Same style as the composer. See the note there: no single quotes in this
-  // string, and Arial because these boxes hold prose, not code.
-  var inp = "box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--border);" +
-            "border-radius:8px;padding:9px 12px;color:rgba(255,255,255,.62);" +
-            "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6";
+  var inp = FC_FIELD;
 
   var overlay = document.createElement("div");
   overlay.id = "trFcModal";
@@ -477,10 +469,7 @@ function _trOpenEmail(email) {
       "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:14px'>" +
         inqEsc(email) + "</div>" +
       "<input id='trFcSubject' value='About Your Trial Lesson Request' style='" + inp + ";margin-bottom:8px'>" +
-      // The body carries the card-field treatment: mono 10.5 at .5, the same
-      // type the inquiry's own fields are set in, so the email reads as part
-      // of the card it is being written from.
-      "<textarea id='trFcBody' rows='16' style='" + inp + ";" + FC_BODY_TYPE + "'>" + inqEsc(body) + "</textarea>" +
+      "<textarea id='trFcBody' rows='16' style='" + inp + "'>" + inqEsc(body) + "</textarea>" +
       "<div id='trFcStatus'></div>" +
       "<div style='display:flex;gap:8px;margin-top:12px'>" +
         "<button class='db-mini-btn' id='trFcPrevBtn' onclick='_trPreviewEmail()'>Preview</button>" +
@@ -491,7 +480,7 @@ function _trOpenEmail(email) {
       "<div id='trFcPreview'></div>" +
       "<hr class='divider' style='margin:18px 0 12px'>" +
       "<div class='section-label' style='margin-bottom:6px'>Then text them</div>" +
-      "<textarea id='trFcSms' rows='3' readonly style='" + inp + ";line-height:1.55;resize:vertical'>" + inqEsc(sms) + "</textarea>" +
+      "<textarea id='trFcSms' rows='3' readonly style='" + inp + "'>" + inqEsc(sms) + "</textarea>" +
       // A clipboard convenience, so it is a standard button: it used to be
       // 12px in --text at radius 10, which made it the brightest thing in the
       // panel, louder than Send. Full width is kept; the type is not.
