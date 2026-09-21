@@ -490,10 +490,16 @@ function _trOpenEmail(email) {
       "</div>" +
       "<div id='trFcPreview'></div>" +
       "<hr class='divider' style='margin:18px 0 12px'>" +
-      // Beside the label, at 24: big enough that the bubble and its three dots
-      // stay open, small enough that the label still leads.
-      "<div class='section-label' style='margin-bottom:6px;display:flex;align-items:center;gap:9px'>" +
-        SMS_ICON_LG + "<span>Then text them</span></div>" +
+      // The text half is built exactly like the email half above it: the same
+      // title, the number where the address sits, the phone icon where the
+      // envelope sits. Two halves of one job, so they read as a pair rather
+      // than an email panel with a note stapled underneath.
+      "<div class='settings-title' style='margin-bottom:4px'>" +
+        "<span>" + inqEsc(a.name || "") +
+          "<span style='color:var(--muted)'> \u00b7 Text</span></span></div>" +
+      "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:10px'>" +
+        (phonePretty ? inqEsc(phonePretty) : "No phone number on file") + "</div>" +
+      "<div style='color:var(--muted);margin-bottom:10px'>" + SMS_ICON_LG + "</div>" +
       // A step smaller than the email boxes above it. It is a text message, not
       // the email, and the size says so without needing a second label.
       "<textarea id='trFcSms' rows='3' readonly style='" + inp + ";font-size:11px'>" + inqEsc(sms) + "</textarea>" +
@@ -515,8 +521,6 @@ function _trOpenEmail(email) {
           "</div>"
         : "<div style='display:flex;gap:8px;margin-top:10px'>" +
             "<button class='db-mini-btn' style='flex:1;padding:9px' onclick='_trCopySms(this)'>Copy Text</button>" +
-            "<div style='flex:2;font-family:\"DM Mono\",monospace;font-size:11px;color:var(--accent);" +
-              "display:flex;align-items:center;padding-left:4px'>No phone number on file.</div>" +
           "</div>") +
     "</div>";
   overlay.addEventListener("click", function (ev) { if (ev.target === overlay) _trCloseEmail(); });
