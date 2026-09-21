@@ -124,6 +124,12 @@ function _trReopen(email, col, btn) {
 // iMessage by hand, because that conversation stays on the personal number.
 var _trAcceptedCache = [];
 
+// What an email body is set in, in both composers: the card-field type.
+// Mono 10.5 at .5 opacity is what an inquiry's own fields use, so the mail
+// you write from a card is set in the same voice as the card.
+var FC_BODY_TYPE = "font-family:'DM Mono',monospace;font-size:10.5px;" +
+                   "line-height:1.5;color:rgba(255,255,255,.5);resize:vertical";
+
 function _trFindAccepted(email) {
   var all = _trAcceptedCache.concat(_trStageCache || []);
   for (var i = 0; i < all.length; i++) {
@@ -316,7 +322,7 @@ function _trOpenReply(id, threadId) {
             "border-radius:8px;padding:9px 12px;color:rgba(255,255,255,.62);" +
             "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6";
   box.innerHTML =
-    '<textarea id="fcrpb-' + id + '" rows="5" placeholder="Reply in this thread…" style="' + inp + ';line-height:1.55;resize:vertical"></textarea>' +
+    '<textarea id="fcrpb-' + id + '" rows="5" placeholder="Reply in this thread…" style="' + inp + ';' + FC_BODY_TYPE + '"></textarea>' +
     '<div id="fcrps-' + id + '"></div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
       '<button class="db-mini-btn" onclick="_trCancelReply(\'' + id + '\',\'' + threadId + '\')">Cancel</button>' +
@@ -471,7 +477,10 @@ function _trOpenEmail(email) {
       "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:14px'>" +
         inqEsc(email) + "</div>" +
       "<input id='trFcSubject' value='About Your Trial Lesson Request' style='" + inp + ";margin-bottom:8px'>" +
-      "<textarea id='trFcBody' rows='16' style='" + inp + ";line-height:1.55;resize:vertical'>" + inqEsc(body) + "</textarea>" +
+      // The body carries the card-field treatment: mono 10.5 at .5, the same
+      // type the inquiry's own fields are set in, so the email reads as part
+      // of the card it is being written from.
+      "<textarea id='trFcBody' rows='16' style='" + inp + ";" + FC_BODY_TYPE + "'>" + inqEsc(body) + "</textarea>" +
       "<div id='trFcStatus'></div>" +
       "<div style='display:flex;gap:8px;margin-top:12px'>" +
         "<button class='db-mini-btn' id='trFcPrevBtn' onclick='_trPreviewEmail()'>Preview</button>" +
