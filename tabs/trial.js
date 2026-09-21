@@ -124,36 +124,9 @@ function _trReopen(email, col, btn) {
 // iMessage by hand, because that conversation stays on the personal number.
 var _trAcceptedCache = [];
 
-// Every writable box in both composers - subject, body, the iMessage text -
-// shares one setting: Arial 12 at .5 opacity.
-//
-// The card-field brightness, because a composer should not glare next to the
-// card it opened from, but Arial rather than the card's mono: these are the
-// boxes you actually write paragraphs in, and a proportional face is easier
-// to read and to write in than a monospace grid. It is also close to what
-// Gmail renders, so the composer resembles the mail it produces.
-//
-// NO SINGLE QUOTES in this string. It is dropped into a single-quoted style
-// attribute, and a quoted font name ends the attribute early: every
-// declaration after it is thrown away as junk attributes, leaving the box
-// unstyled at browser defaults.
-// The Trial tab's fields - the info step, the lesson log, and the fields on a
-// stage card - were three separate settings: 10.5 at .5 with one padding, 13 at
-// .62 with two others. One definition now, matching the composer's box exactly
-// (same padding, radius and .5 opacity) but in mono, because these hold data
-// rather than paragraphs.
-//
-// NO SINGLE QUOTES: same reason as FC_FIELD below.
-var TR_FIELD = "box-sizing:border-box;width:100%;background:var(--bg);" +
-               "border:1px solid var(--border);border-radius:8px;padding:9px 12px;" +
-               "font-family:DM Mono,monospace;font-size:12px;line-height:1.5;" +
-               "color:rgba(255,255,255,.5);resize:vertical";
-
-var FC_FIELD = "box-sizing:border-box;width:100%;background:var(--bg);" +
-               "border:1px solid var(--border);border-radius:8px;padding:9px 12px;" +
-               "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;" +
-               "color:rgba(255,255,255,.5);resize:vertical";
-
+// Both composers and the Trial tab's fields carry class="rpm-field" now - the
+// one type the whole portal types into, defined in styles.css. They used to be
+// three inline settings built as strings here.
 function _trFindAccepted(email) {
   var all = _trAcceptedCache.concat(_trStageCache || []);
   for (var i = 0; i < all.length; i++) {
@@ -332,9 +305,8 @@ function _trLoadThreads() {
 function _trOpenReply(id, threadId) {
   var box = document.getElementById('fcrp-' + id);
   if (!box) return;
-  var inp = FC_FIELD;
   box.innerHTML =
-    '<textarea id="fcrpb-' + id + '" rows="5" placeholder="Reply in this thread…" style="' + inp + '"></textarea>' +
+    '<textarea id="fcrpb-' + id + '" rows="5" placeholder="Reply in this thread…" class="rpm-field"></textarea>' +
     '<div id="fcrps-' + id + '"></div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
       '<button class="db-mini-btn" onclick="_trCancelReply(\'' + id + '\',\'' + threadId + '\')">Cancel</button>' +
@@ -483,7 +455,6 @@ function _trOpenEmail(email) {
   var phoneDigits = (a.phone || "").toString().replace(/\D/g, "");
   var phonePretty = _trPhonePretty(a.phone);
 
-  var inp = FC_FIELD;
 
   var overlay = document.createElement("div");
   overlay.id = "trFcModal";
@@ -503,8 +474,8 @@ function _trOpenEmail(email) {
         inqEsc(email) + "</div>" +
       // Marks the email half of the panel, the way the phone marks the text
       // half further down. Grey, so the red title still leads.
-      "<input id='trFcSubject' value='About Your Trial Lesson Request' style='" + inp + ";margin-bottom:14px'>" +
-      "<textarea id='trFcBody' rows='16' style='" + inp + "'>" + inqEsc(body) + "</textarea>" +
+      "<input id='trFcSubject' value='About Your Trial Lesson Request' class='rpm-field' style='margin-bottom:14px'>" +
+      "<textarea id='trFcBody' rows='16' class='rpm-field'>" + inqEsc(body) + "</textarea>" +
       "<div id='trFcStatus'></div>" +
       "<div style='display:flex;gap:8px;margin-top:20px'>" +
         "<button class='db-mini-btn' id='trFcPrevBtn' onclick='_trPreviewEmail()'>Preview</button>" +
@@ -535,8 +506,7 @@ function _trOpenEmail(email) {
       // the composer's Arial. This one is not really read, it is copied, so it
       // only has to be legible enough to confirm it is the right message - and
       // the different face says at a glance that it is not part of the email.
-      "<textarea id='trFcSms' rows='3' readonly style='" + inp + ";" +
-        "font-family:DM Mono,monospace;font-size:10px'>" + inqEsc(sms) + "</textarea>" +
+      "<textarea id='trFcSms' rows='3' readonly class='rpm-field' style='font-size:10px'>" + inqEsc(sms) + "</textarea>" +
       // A clipboard convenience, so it is a standard button: it used to be
       // 12px in --text at radius 10, which made it the brightest thing in the
       // panel, louder than Send. Full width is kept; the type is not.
@@ -1165,15 +1135,14 @@ function _tlInfoHtml(a, s) {
     if (!v && k === 'goals') v = a.interests || '';
     return v;
   }
-  var box = TR_FIELD;
   return _TR_INFO.map(function (f) {
     var v = inqEsc(val(f.key));
     return '<div style="margin-bottom:9px">' +
         '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:1px;' +
           'text-transform:uppercase;color:var(--muted);margin-bottom:4px">' + f.label + '</div>' +
         (f.multi
-          ? '<textarea id="tli-' + f.key + '" rows="3" style="' + box + '">' + v + '</textarea>'
-          : '<input id="tli-' + f.key + '" type="text" value="' + v.replace(/"/g, '&quot;') + '" style="' + box + '">') +
+          ? '<textarea id="tli-' + f.key + '" rows="3" class="rpm-field">' + v + '</textarea>'
+          : '<input id="tli-' + f.key + '" type="text" value="' + v.replace(/"/g, '&quot;') + '" class="rpm-field">') +
       '</div>';
   }).join('') +
   _tlMsg('tlInfoMsg');
@@ -1217,7 +1186,7 @@ function _tlLogHtml(a, s) {
   // Enter logs it (and closes); Shift+Enter is a new line.
   return '<textarea id="tlWhat" rows="7" onblur="_tlSaveWhat()" placeholder="Type, or press the mic and talk" ' +
       'onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();_tlLogWhat();}" ' +
-      'style="' + TR_FIELD + '">' + inqEsc(v) + '</textarea>' +
+      'class="rpm-field">' + inqEsc(v) + '</textarea>' +
     '<div style="display:flex;gap:8px;align-items:center;margin-top:8px">' +
       '<button class="btn-settings-load" id="tlMicBtn" style="margin:0;width:auto;padding-left:18px;padding-right:18px" onclick="_tlMic()">' + MIC_ICON + ' Mic</button>' +
       '<button class="btn-settings-load go" id="tlLogBtn" style="margin:0;width:auto;padding-left:22px;padding-right:22px" onclick="_tlLogWhat()">Log</button>' +
@@ -1704,7 +1673,7 @@ function _trFieldHtml(id, email, f, val) {
   var multi = (f.key === 'notes' || f.key === 'goals' || f.key === 'availability');
   var common = 'id="trf-' + id + '-' + f.key + '" ' +
     'onblur="_trSaveField(\'' + id + '\',\'' + _trEsc(email) + '\',\'' + f.key + '\',this)" ' +
-    'style="' + TR_FIELD + '"';
+    'class="rpm-field"';
   return '<div style="margin-bottom:7px">' +
       '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:1px;' +
         'text-transform:uppercase;color:var(--muted);margin-bottom:3px">' + f.label + '</div>' +

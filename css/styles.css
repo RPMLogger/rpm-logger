@@ -1046,6 +1046,7 @@ body::before {
 ::-webkit-scrollbar-thumb:hover { background: #444; }
 ::-webkit-scrollbar-corner { background: transparent; }
 
+
 /* ─── FOCUS RING ──────────────────────────────────────────────────────────
    Chrome's blue focus ring was the one colour in the portal nobody picked.
    Amber, like every other focused input here - but a dimmed amber, not the
@@ -1333,3 +1334,40 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 
 /* Shared mic icon (MIC_ICON in core/utils.js) */
 .mic-icon { display: inline-block; vertical-align: middle; }
+
+/* ─── THE FIELD ───────────────────────────────────────────────────────────
+   One type for everything you type into, portal wide.
+
+   There were seven field classes here at five sizes and four brightnesses,
+   plus inline ones in nine tab files, so every window had to be corrected by
+   hand and they still drifted. The type is set once, here, on all of them at
+   once: Arial 12 at .5, which is what the email composer settled on and the
+   only box in the portal where prose is actually written.
+
+   Arial rather than mono on purpose. These hold sentences - goals, notes,
+   availability, an email - and a proportional face reads better than a grid.
+
+   This sets TYPE ONLY. Each class keeps its own width, padding and radius,
+   because those belong to the panel it sits in. Rules must stay after the
+   class definitions above to win on equal specificity. */
+.rpm-field,
+.settings-input,
+.rpm-dlg-input,
+.cash-input,
+.audit-input,
+.inp-textarea,
+.transcript-box {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px; line-height: 1.6;
+  color: rgba(255,255,255,.5);
+}
+/* Money keeps its size: it is a number you check at a glance, not prose. */
+.pay-amount-input { font-family: Arial, Helvetica, sans-serif; }
+
+/* The shared box, for fields built in JS that had their own inline copy. */
+.rpm-field {
+  box-sizing: border-box; width: 100%;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 9px 12px; resize: vertical;
+}
+.rpm-field::placeholder { color: var(--muted); font-style: italic; }
