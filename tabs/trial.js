@@ -191,8 +191,9 @@ function _trParseOfferedTimes(text, year) {
 
 // Paint the offered times INTO the booking step. They belong next to the date
 // and time fields they fill, not under the conversation.
-function _trRenderOfferedSlots(email) {
-  var box = document.getElementById('trOfferedSlots');
+function _trRenderOfferedSlots(email, p) {
+  p = p || 'tr';
+  var box = document.getElementById(p + 'OfferedSlots');
   if (!box) return;
   var a = _trFindAccepted(email);
   var t = _trThreadCache && _trThreadCache[email];
@@ -208,7 +209,7 @@ function _trRenderOfferedSlots(email) {
       '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);margin-bottom:6px">TIMES YOU OFFERED</div>' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
         slots.map(function (s) {
-          return '<button class="db-mini-btn" onclick="_trPickSlot(\'' + s.date + '\',\'' + s.time + '\')">' +
+          return '<button class="db-mini-btn" onclick="_trPickSlot(\'' + s.date + '\',\'' + s.time + '\',\'' + p + '\')">' +
                    inqEsc(s.label) +
                  '</button>';
         }).join('') +
@@ -217,12 +218,14 @@ function _trRenderOfferedSlots(email) {
 }
 
 // Chip click just fills date and time; name and email are already in place.
-function _trPickSlot(date, time) {
+function _trPickSlot(date, time, p) {
+  p = p || 'tr';
   function set(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; }
-  set('trDate', date);
-  set('trTime', time);
-  _trDtShow('tr');
-  _trStatus('Set to ' + date + ' at ' + time + '. Check it, then Book trial.', 'var(--accent2)');
+  set(p + 'Date', date);
+  set(p + 'Time', time);
+  _trDtShow(p);
+  if (p === 'tb') _trBookWinPaint();
+  else _trStatus('Set to ' + date + ' at ' + time + '. Check it, then Book trial.', 'var(--accent2)');
 }
 
 // The new-message flag, on the card itself. This replaced the ACTIVE/WAITING
@@ -646,55 +649,84 @@ function _trShowBookArea(scroll) {
   if (tog) tog.style.display = 'none';
   var sb = document.getElementById('trOfferedSlots');
   if (sb && scroll) sb.innerHTML = '';   // opened manually: no card, no offers
-  if (scroll) _trEditWho('tr');          // ...and nobody is filled in yet
   if (scroll) {
     var f = document.getElementById('trFirst');
     if (f) f.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 }
 
-// Prefill the manual booking form from an accepted card + scroll to it.
+// ── Booking an accepted inquiry: its own window ─────────────────────────────
+// Booking someone who already inquired used to unfold the manual form further
+// down the tab, prefill four boxes with what the card already said, and leave
+// you to scroll and read a status line telling you what to do next. The card
+// already knows who they are; the only open question is when. So it opens the
+// same kind of window as Pick a time: the name in the title, one picker, one
+// button that says exactly what it will do.
+// The fields _trBook needs ride along as hidden inputs under the "tb" prefix,
+// so the booking call itself is unchanged.
+var _trBookWin = null;   // { name, email, busy }
+
 function _trBookAccepted(name, email) {
-  _trShowBookArea(false);
-  // No Middle box any more: anything between goes in First, e.g. Mary Jane Smith.
   var parts = (name || '').split(' ');
-  var last = parts.length > 1 ? parts.pop() : '';
+  var last  = parts.length > 1 ? parts.pop() : '';
   var first = parts.join(' ');
-  function set(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; }
-  set('trFirst', first); set('trLast', last); set('trEmail', email);
-  set('trDate', ''); set('trTime', '');
-  _trDtShow('tr');
-  _trRenderOfferedSlots(email);
-  _trShowWho('tr', (first + ' ' + last).trim(), email);
-  // Focus lands on the date, because the date is the only thing left to say.
-  var f = document.getElementById('trDateLbl');
-  if (f) { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.focus(); }
-  _trStatus('Booking ' + name + ' — pick a date + time, then Book trial.', 'var(--accent2)');
-}
+  _trBookWin = { name: name || '', email: email || '', first: first, last: last, busy: false };
 
-// Collapse the four identity boxes into "Name · email   Edit".
-function _trShowWho(p, name, email) {
-  var who = document.getElementById(p + 'Who'), ident = document.getElementById(p + 'Ident');
-  if (!who || !ident) return;
-  ident.style.display = 'none';
-  who.style.display = '';
-  who.innerHTML =
-    '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;' +
-      'font-family:\'DM Mono\',monospace;font-size:11px;color:rgba(255,255,255,0.82)">' +
-      '<span>' + _trEsc(name) + '</span>' +
-      '<span style="color:var(--muted)">' + _trEsc(email) + '</span>' +
-      '<button class="db-mini-btn" style="padding:3px 9px;font-size:10px" ' +
-        'onclick="_trEditWho(\'' + p + '\')">Edit</button>' +
+  var ov = document.getElementById('tbOverlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.className = 'settings-overlay';
+    ov.id = 'tbOverlay';
+    ov.innerHTML = '<div class="settings-modal" id="tbModal" style="max-width:600px"></div>';
+    ov.addEventListener('click', function (e) { if (e.target === ov) _trBookWinClose(); });
+    document.body.appendChild(ov);
+  }
+  ov.classList.add('open');
+
+  var def = _trDtDefault();
+  document.getElementById('tbModal').innerHTML =
+    '<div class="settings-title"><span>' + inqEsc(name || '') +
+      '<span style="color:var(--muted);font-weight:400"> · Book a trial</span></span>' +
+      '<button class="settings-close" onclick="_trBookWinClose()">✕</button></div>' +
+    '<input type="hidden" id="tbFirst" value="' + _trEsc(first) + '">' +
+    '<input type="hidden" id="tbLast" value="' + _trEsc(last) + '">' +
+    '<input type="hidden" id="tbEmail" value="' + _trEsc(email || '') + '">' +
+    '<input type="hidden" id="tbPhone" value="">' +
+    '<div id="tbOfferedSlots" style="margin-bottom:10px"></div>' +
+    '<label class="settings-label">Trial lesson</label>' +
+    _trDtHtml('tb') +
+    '<div style="margin-top:14px"><button class="db-mini-btn blue" id="tbBookBtn" ' +
+      'style="padding:7px 20px" onclick="_trBook(\'tb\')">Book ' +
+      _trDtWhen(def.date, def.time) + '</button></div>' +
+    '<div id="tbStatus" style="margin-top:6px"></div>' +
+    '<div style="display:flex;justify-content:flex-end;margin-top:16px">' +
+      '<button class="db-mini-btn" style="padding:7px 20px" onclick="_trBookWinClose()">Done</button>' +
     '</div>';
+
+  _trRenderOfferedSlots(email, 'tb');
+  var f = document.getElementById('tbDateLbl');
+  if (f) f.focus();
 }
 
-// Something in the inquiry was wrong: put the boxes back.
-function _trEditWho(p) {
-  var who = document.getElementById(p + 'Who'), ident = document.getElementById(p + 'Ident');
-  if (who)   { who.style.display = 'none'; who.innerHTML = ''; }
-  if (ident) { ident.style.display = 'flex'; }
-  var f = document.getElementById(p + 'First');
-  if (f) f.focus();
+function _trBookWinClose() {
+  if (_trBookWin && _trBookWin.busy) return;   // never close mid-send
+  var ov = document.getElementById('tbOverlay');
+  if (ov) ov.classList.remove('open');
+  _trBookWin = null;
+}
+
+// "Tue, Sep 22 at 5:00 PM" - the button says what it is about to do, so the
+// window needs no sentence underneath telling you to pick a date and time.
+function _trDtWhen(date, time) {
+  return inqEsc(_trDtDateLabel(date) + ' at ' + _trDtTimeLabel(time));
+}
+
+// Every step of the picker rewrites the button, so it never offers to book a
+// time that is no longer on screen.
+function _trBookWinPaint() {
+  var btn = document.getElementById('tbBookBtn');
+  if (!btn || btn.disabled) return;
+  btn.innerHTML = 'Book ' + _trDtWhen(_trVal('tbDate'), _trVal('tbTime'));
 }
 
 // ── Door 1: manual booking form ──────────────────────────────────────────────
@@ -742,6 +774,7 @@ function _trBook(p) {
   if (!date || !time)            { _trStatus('Pick a date and time.', 'var(--accent)', p); return; }
   var btn = document.getElementById(p + 'BookBtn');
   if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Booking…'; }
+  if (p === 'tb' && _trBookWin) _trBookWin.busy = true;   // Done and ✕ are dead until it lands
   _trStatus('Creating the calendar event…', 'var(--accent2)', p);
   var qs = 'action=bookTrialManual' +
     '&first=' + encodeURIComponent(first) + '&middle=' + encodeURIComponent(middle) +
@@ -757,6 +790,14 @@ function _trBook(p) {
       _trStatus('✓ Booked ' + d.name + ' — ' + d.dateLabel +
                 (d.cardMade ? ' · card created, they are in the Trial tab now'
                             : ' · they are in the Trial tab now'), 'var(--green)', p);
+      if (p === 'tb') {
+        // The window's whole job is done; say so on the tab behind it, where
+        // the card that started this is about to disappear.
+        if (_trBookWin) _trBookWin.busy = false;
+        _trBookWinClose();
+        _trLoadAccepted();
+        return;
+      }
       ['First','Middle','Last','Email','Phone','Date','Time'].forEach(function (f) { var el = document.getElementById(p + f); if (el) el.value = ''; });
       _trDtShow(p);
       var sb = document.getElementById(p + 'OfferedSlots'); if (sb) sb.innerHTML = '';
@@ -766,8 +807,13 @@ function _trBook(p) {
 }
 
 function _trRestoreBook(p) {
-  var btn = document.getElementById((p || 'tr') + 'BookBtn');
-  if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer'; btn.textContent = '＋ Book trial'; }
+  p = p || 'tr';
+  if (p === 'tb' && _trBookWin) _trBookWin.busy = false;
+  var btn = document.getElementById(p + 'BookBtn');
+  if (!btn) return;
+  btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer';
+  if (p === 'tb') _trBookWinPaint();
+  else btn.textContent = '＋ Book trial';
 }
 
 // ── Trial date/time stepper ─────────────────────────────────────────────────
@@ -862,6 +908,7 @@ function _trDtShow(p) {
   var dl = document.getElementById(p + 'DateLbl'), tl = document.getElementById(p + 'TimeLbl');
   if (dl) dl.textContent = _trDtDateLabel(di.value);
   if (tl) tl.textContent = _trDtTimeLabel(ti.value);
+  if (p === 'tb') _trBookWinPaint();
 }
 
 function _trDtStepDate(p, n) {
