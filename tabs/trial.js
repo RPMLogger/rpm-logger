@@ -349,13 +349,13 @@ function _trSendReply(id, threadId) {
     if (st) st.innerHTML = '<div style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px;margin-top:6px">Write something first.</div>';
     return;
   }
-  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+  if (btn) { btn.disabled = true; _trSetLabel(btn, 'Sending…'); }
   fetch(url + '?action=replyFirstContact&threadId=' + encodeURIComponent(threadId) +
         '&body=' + encodeURIComponent(body))
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d.success) {
-        if (btn) { btn.disabled = false; btn.textContent = 'Send reply'; }
+        if (btn) { btn.disabled = false; _trSetLabel(btn, 'Send reply'); }
         if (st) st.innerHTML = '<div style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px;margin-top:6px">⚠ ' + (d.message || 'Could not send') + '</div>';
         return;
       }
@@ -363,7 +363,7 @@ function _trSendReply(id, threadId) {
       _trLoadThreads();      // and repaint Initiate, so the New message flag clears
     })
     .catch(function () {
-      if (btn) { btn.disabled = false; btn.textContent = 'Send reply'; }
+      if (btn) { btn.disabled = false; _trSetLabel(btn, 'Send reply'); }
       if (st) st.innerHTML = '<div style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px;margin-top:6px">❌ Could not reach the portal.</div>';
     });
 }
@@ -400,9 +400,25 @@ function _trPhonePretty(raw) {
   return "(" + d.slice(0, 3) + ") " + d.slice(3, 6) + "-" + d.slice(6);
 }
 
+// Set a button's words without eating its icon: the iconed buttons are an
+// <svg> plus a <span>, and textContent on the button itself would replace both
+// with a bare string. Safe on plain buttons too - they have no span, so it
+// falls back to the button.
+function _trSetLabel(btn, msg) {
+  if (!btn) return;
+  (btn.querySelector("span") || btn).textContent = msg;
+}
+
+// The same, put back after a moment: the Copied confirmation.
+function _trFlashLabel(btn, msg) {
+  var el = btn.querySelector("span") || btn;
+  var was = el.textContent;
+  el.textContent = msg;
+  setTimeout(function () { el.textContent = was; }, 1600);
+}
+
 function _trCopyPhone(btn, digits) {
-  var was  = btn.textContent;
-  var done = function () { btn.textContent = "Copied \u2713"; setTimeout(function () { btn.textContent = was; }, 1600); };
+  var done = function () { _trFlashLabel(btn, "Copied \u2713"); };
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(digits).then(done, done);
   } else { done(); }
@@ -513,14 +529,17 @@ function _trOpenEmail(email) {
       // button because the number is what you tap.
       (phoneDigits
         ? "<div style='display:flex;gap:8px;margin-top:10px'>" +
-            "<button class='db-mini-btn' style='flex:1;padding:9px' onclick='_trCopySms(this)'>Copy Text</button>" +
-            "<button class='db-mini-btn' style='flex:1;padding:9px' onclick='_trCopyPhone(this,\"" + phoneDigits + "\")'>" +
-              "Copy Phone #</button>" +
-            "<a class='db-mini-btn' style='flex:1;padding:9px;text-align:center;text-decoration:none' " +
-              "href='sms:" + phoneDigits + "'>Open Messages</a>" +
+            "<button class='db-mini-btn' style='flex:1;padding:9px;display:inline-flex;align-items:center;justify-content:center;gap:7px' onclick='_trCopySms(this)'>" +
+              COPY_ICON + "<span>Copy Text</span></button>" +
+            "<button class='db-mini-btn' style='flex:1;padding:9px;display:inline-flex;align-items:center;justify-content:center;gap:7px' " +
+              "onclick='_trCopyPhone(this,\"" + phoneDigits + "\")'>" +
+              COPY_ICON + "<span>Copy Phone #</span></button>" +
+            "<a class='db-mini-btn' style='flex:1;padding:9px;display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none' " +
+              "href='sms:" + phoneDigits + "'>" + OPEN_OUT_ICON + "<span>Open Messages</span></a>" +
           "</div>"
         : "<div style='display:flex;gap:8px;margin-top:10px'>" +
-            "<button class='db-mini-btn' style='flex:1;padding:9px' onclick='_trCopySms(this)'>Copy Text</button>" +
+            "<button class='db-mini-btn' style='flex:1;padding:9px;display:inline-flex;align-items:center;justify-content:center;gap:7px' onclick='_trCopySms(this)'>" +
+              COPY_ICON + "<span>Copy Text</span></button>" +
           "</div>") +
     "</div>";
   overlay.addEventListener("click", function (ev) { if (ev.target === overlay) _trCloseEmail(); });
@@ -545,7 +564,8 @@ function _trCloseEmail() {
 function _trCopySms(btn) {
   var ta = document.getElementById("trFcSms");
   if (!ta) return;
-  var done = function () { btn.textContent = "Copied ✓"; setTimeout(function () { btn.textContent = "Copy Text"; }, 1600); };
+  // The label only. textContent here would take the icon with it.
+  var done = function () { _trFlashLabel(btn, "Copied ✓"); };
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(ta.value).then(done, function () { ta.select(); document.execCommand("copy"); done(); });
   } else { ta.select(); document.execCommand("copy"); done(); }
@@ -597,7 +617,7 @@ function _trSendEmail() {
     if (st) st.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>Write something first.</div>";
     return;
   }
-  if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
+  if (btn) { btn.disabled = true; _trSetLabel(btn, "Sending…"); }
   if (st) st.innerHTML = "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--accent2);margin-top:8px'>Sending…</div>";
 
   // col so the "Email Sent" stamp lands on THIS inquiry, not the first column
@@ -611,16 +631,16 @@ function _trSendEmail() {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d.success) {
-        if (btn) { btn.disabled = false; btn.textContent = "Send"; }
+        if (btn) { btn.disabled = false; _trSetLabel(btn, "Send"); }
         if (st) st.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>⚠ " + (d.message || "Could not send") + "</div>";
         return;
       }
       if (st) st.innerHTML = "<div style='color:var(--green);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>✓ Sent. Now copy the text below into iMessage.</div>";
-      if (btn) btn.textContent = "Sent ✓";
+      if (btn) _trSetLabel(btn, "Sent ✓");
       _trLoadAccepted();
     })
     .catch(function () {
-      if (btn) { btn.disabled = false; btn.textContent = "Send"; }
+      if (btn) { btn.disabled = false; _trSetLabel(btn, "Send"); }
       if (st) st.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>❌ Could not reach the portal.</div>";
     });
 }
