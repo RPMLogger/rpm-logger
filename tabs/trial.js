@@ -491,7 +491,7 @@ function _trOpenEmail(email) {
         inqEsc(email) + "</div>" +
       // Marks the email half of the panel, the way the phone marks the text
       // half further down. Grey, so the red title still leads.
-      "<div style='color:var(--muted);margin-bottom:10px'>" + ENVELOPE_ICON + "</div>" +
+      "<div style='color:var(--muted);margin-bottom:10px'>" + COMPOSE_ICON + "</div>" +
       "<input id='trFcSubject' value='About Your Trial Lesson Request' style='" + inp + ";margin-bottom:8px'>" +
       "<textarea id='trFcBody' rows='16' style='" + inp + "'>" + inqEsc(body) + "</textarea>" +
       "<div id='trFcStatus'></div>" +
@@ -510,12 +510,14 @@ function _trOpenEmail(email) {
       // title, the number where the address sits, the phone icon where the
       // envelope sits. Two halves of one job, so they read as a pair rather
       // than an email panel with a note stapled underneath.
-      "<div class='settings-title' style='margin-bottom:4px'>" +
-        "<span>" + inqEsc(a.name || "") +
-          "<span style='color:var(--muted)'> \u00b7 Text</span></span></div>" +
+      // No name on this one. The panel's own header said who this is, and the
+      // number under it says which line - repeating "Jason Diller" here only
+      // competes with the title at the top.
+      "<div class='settings-title' style='margin-bottom:4px;color:var(--muted)'>" +
+        "<span>Text</span></div>" +
       "<div style='font-family:\"DM Mono\",monospace;font-size:9px;color:var(--muted);margin-bottom:10px'>" +
         (phonePretty ? inqEsc(phonePretty) : "No phone number on file") + "</div>" +
-      "<div style='color:var(--muted);margin-bottom:10px'>" + PHONE_SMS_ICON + "</div>" +
+      "<div style='color:var(--muted);margin-bottom:10px'>" + CHAT_ICON + "</div>" +
       // A step smaller than the email boxes above it. It is a text message, not
       // the email, and the size says so without needing a second label.
       "<textarea id='trFcSms' rows='3' readonly style='" + inp + ";font-size:11px'>" + inqEsc(sms) + "</textarea>" +
