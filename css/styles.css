@@ -1152,12 +1152,14 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 .dt-arrow:focus-visible { outline: none; color: rgba(255,255,255,0.82); opacity: 1; }
 .dt-ico { width: 11px; height: 7px; display: block; fill: currentColor; }
 
-/* The loud half: full white, and it lifts under the pointer so there is no
-   doubt it is the thing to click. Focus swaps the lift for the accent edge. */
+/* The loud half: full white, in a box. The border is there at rest, not only
+   on hover - a value that looks like plain text until the pointer reaches it
+   gives nothing away, and the arrows beside it are too quiet to carry the hint
+   alone. It reads as a button, so it gets treated as one. */
 .dt-val {
-  background: transparent; border: 1px solid transparent; border-radius: 5px;
+  background: transparent; border: 1px solid var(--border); border-radius: 5px;
   font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px;
-  color: rgba(255,255,255,0.82); text-align: center; padding: 5px 8px; cursor: pointer;
+  color: rgba(255,255,255,0.82); text-align: center; padding: 5px 10px; cursor: pointer;
   transition: background .12s, border-color .12s, color .12s;
 }
 .dt-val:hover {
