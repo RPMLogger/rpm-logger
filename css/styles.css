@@ -585,6 +585,17 @@ body::before {
 .inq-name-line { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin: 7px 0 5px; }
 /* Initiate: they wrote back and you have not answered. Sits on the name line
    so it is read with the name, not hunted for. */
+/* ─── EMAIL PREVIEW CARDS ─────────────────────────────────────────────────
+   The dimmed-paper card that shows what an email will look like. Links in it
+   are muted, because a stock blue link glows on this beige and is the loudest
+   thing in a box you are reading for wording.
+
+   ⚠️ THIS IS THE PORTAL ONLY. The email itself carries no link colour on
+   purpose: a forced colour looks like someone styled it, and Gmail and
+   Outlook override anchors anyway, so the student gets the ordinary blue
+   every email has. Do not "fix" the email to match this. */
+.fc-preview a { color: #6e7d8c; }
+
 .fc-new { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
           color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
 .inq-name  { font-family: "Syne", sans-serif; font-size: 16px; font-weight: 400; color: var(--text); }

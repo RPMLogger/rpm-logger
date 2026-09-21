@@ -562,7 +562,7 @@ function _trPreviewEmail() {
           // Paper, but dimmed: a white card in a portal this dark is a jolt
           // every time it opens. #d9d5ce still reads as light-on-dark - which
           // is what the recipient will see - without the glare.
-          "<div style='background:#d9d5ce;color:#1b1b1b;border:1px solid var(--border);border-radius:10px;padding:22px;" +
+          "<div class='fc-preview' style='background:#d9d5ce;color:#1b1b1b;border:1px solid var(--border);border-radius:10px;padding:22px;" +
               "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6'>" + html + "</div>" +
         "</div>";
     })
@@ -1607,7 +1607,7 @@ function _tlPreviewHtml(subject, html, to) {
   return '<div style="margin-top:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden">' +
       '<div style="padding:9px 12px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border)">' +
         'To: ' + inqEsc(to || '') + '<br>Subject: <span style="color:var(--text)">' + inqEsc(subject || '') + '</span></div>' +
-      '<div style="background:#d9d5ce;color:#1b1b1b;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6">' + body + '</div>' +
+      '<div class="fc-preview" style="background:#d9d5ce;color:#1b1b1b;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6">' + body + '</div>' +
     '</div>';
 }
 
