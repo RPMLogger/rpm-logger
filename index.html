@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=560">
+  <link rel="stylesheet" href="css/styles.css?v=561">
 </head>
 <body>
 <div class="container">
@@ -50,6 +50,7 @@
     <button class="tab-btn" data-tab="ctrl" onclick="switchTab('ctrl')">Audit</button>
     <button class="tab-btn" data-tab="biweekly" onclick="switchTab('biweekly')">Biweekly</button>
     <button class="tab-btn" data-tab="calendar" onclick="switchTab('calendar')">Calendar</button>
+    <button class="tab-btn" data-tab="comms" onclick="switchTab('comms')">Comms<span class="inq-badge" id="commsNavBadge" style="display:none"></span></button>
     <div class="nav-drop">
       <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Data ▾</button>
       <div class="nav-menu">
@@ -273,11 +274,7 @@
 
   <!-- INQUIRIES -->
   <div class="tab-panel" id="tab-inquiries">
-    <!-- Email / voicemail / text counts moved out; they will live on the Comms tab. -->
-    <!-- TEXT / VOICEMAIL view -->
-    <div id="commsInbox" style="display:none"></div>
-
-    <!-- EMAIL view (default) -->
+    <!-- Texts + voicemails live on their own Comms tab now. -->
     <div id="inqEmailView">
       <a class="inq-archive top" href="#" onclick="switchTab('inqarchive');return false;">Open Inquiry Archive →</a>
       <!-- Only appears when someone answered a Maybe or a No. -->
@@ -372,6 +369,24 @@
   <div class="tab-panel" id="tab-mailcenter">
     <div class="section-label">Mail Center</div>
     <div id="mailcenterContent"><div class="empty-state">Coming soon</div></div>
+  </div>
+
+  <!-- COMMS — the Twilio line: texts + voicemails from anyone who is not a
+       known student (those are routed to Student Line at intake). -->
+  <div class="tab-panel" id="tab-comms">
+    <div class="section-label">Comms &middot; texts &amp; voicemails on your Twilio line</div>
+    <div class="comms-summary">
+      <span class="comms-stat"><span class="comms-icon">&#128172;</span><span class="comms-count" id="commsSmsCount">0</span><span class="comms-label">texts</span></span>
+      <span class="comms-stat"><span class="comms-icon">&#128222;</span><span class="comms-count" id="commsVoicemailCount">0</span><span class="comms-label">voicemails</span></span>
+      <span class="comms-open" id="commsOpen" style="display:none"><span class="comms-open-count" id="commsOpenCount">0</span> unanswered</span>
+    </div>
+    <div class="comms-filter">
+      <button class="comms-filter-btn active" data-filter="all" onclick="setCommsFilter('all')">All</button>
+      <button class="comms-filter-btn" data-filter="sms" onclick="setCommsFilter('sms')">Text</button>
+      <button class="comms-filter-btn" data-filter="voicemail" onclick="setCommsFilter('voicemail')">Voicemail</button>
+      <button class="comms-filter-btn" data-filter="unresponded" onclick="setCommsFilter('unresponded')">Unanswered</button>
+    </div>
+    <div id="commsInbox"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
   <!-- STUDENT LINE -->
@@ -727,7 +742,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">560</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">561</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Settings">⚙</button>
   </div>
 
@@ -748,42 +763,42 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=560"></script>
-<script src="core/storage.js?v=560"></script>
-<script src="core/utils.js?v=560"></script>
-<script src="core/dialog.js?v=560"></script>
-<script src="core/api.js?v=560"></script>
+<script src="core/state.js?v=561"></script>
+<script src="core/storage.js?v=561"></script>
+<script src="core/utils.js?v=561"></script>
+<script src="core/dialog.js?v=561"></script>
+<script src="core/api.js?v=561"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=560"></script>
-<script src="tabs/lessons.js?v=560"></script>
-<script src="tabs/payments.js?v=560"></script>
-<script src="tabs/week.js?v=560"></script>
-<script src="tabs/general.js?v=560"></script>
-<script src="tabs/financial.js?v=560"></script>
-<script src="tabs/inquiries.js?v=560"></script>
-<script src="tabs/inqarchive.js?v=560"></script>
-<script src="tabs/comms.js?v=560"></script>
-<script src="tabs/notes.js?v=560"></script>
-<script src="tabs/todo.js?v=560"></script>
-<script src="tabs/availability.js?v=560"></script>
-<script src="tabs/biweekly.js?v=560"></script>
-<script src="tabs/travel.js?v=560"></script>
-<script src="tabs/tripsummary.js?v=560"></script>
-<script src="tabs/triphistory.js?v=560"></script>
-<script src="tabs/skips.js?v=560"></script>
-<script src="tabs/student.js?v=560"></script>
-<script src="tabs/ctrl.js?v=560"></script>
-<script src="tabs/mailcenter.js?v=560"></script>
-<script src="tabs/dropbox.js?v=560"></script>
-<script src="tabs/trial.js?v=560"></script>
-<script src="tabs/rates.js?v=560"></script>
-<script src="tabs/ending.js?v=560"></script>
-<script src="tabs/thisyear.js?v=560"></script>
-<script src="tabs/sheets.js?v=560"></script>
-<script src="tabs/studentline.js?v=560"></script>
-<script src="tabs/calendar.js?v=560"></script>
-<script src="tabs/fixedcal.js?v=560"></script>
+<script src="tabs/icons.js?v=561"></script>
+<script src="tabs/lessons.js?v=561"></script>
+<script src="tabs/payments.js?v=561"></script>
+<script src="tabs/week.js?v=561"></script>
+<script src="tabs/general.js?v=561"></script>
+<script src="tabs/financial.js?v=561"></script>
+<script src="tabs/inquiries.js?v=561"></script>
+<script src="tabs/inqarchive.js?v=561"></script>
+<script src="tabs/comms.js?v=561"></script>
+<script src="tabs/notes.js?v=561"></script>
+<script src="tabs/todo.js?v=561"></script>
+<script src="tabs/availability.js?v=561"></script>
+<script src="tabs/biweekly.js?v=561"></script>
+<script src="tabs/travel.js?v=561"></script>
+<script src="tabs/tripsummary.js?v=561"></script>
+<script src="tabs/triphistory.js?v=561"></script>
+<script src="tabs/skips.js?v=561"></script>
+<script src="tabs/student.js?v=561"></script>
+<script src="tabs/ctrl.js?v=561"></script>
+<script src="tabs/mailcenter.js?v=561"></script>
+<script src="tabs/dropbox.js?v=561"></script>
+<script src="tabs/trial.js?v=561"></script>
+<script src="tabs/rates.js?v=561"></script>
+<script src="tabs/ending.js?v=561"></script>
+<script src="tabs/thisyear.js?v=561"></script>
+<script src="tabs/sheets.js?v=561"></script>
+<script src="tabs/studentline.js?v=561"></script>
+<script src="tabs/calendar.js?v=561"></script>
+<script src="tabs/fixedcal.js?v=561"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -836,7 +851,7 @@
     // tab button is removed. The #tab-lessons panel div still lives in the DOM
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
-    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","rates","reviews","lifetime","concert","newsched","thisyear","sheets","skips","studentline","calendar","fixedcal","inqarchive"];
+    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","rates","reviews","lifetime","concert","newsched","thisyear","sheets","skips","studentline","calendar","fixedcal","inqarchive","comms"];
     tabs.forEach(function(t) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       var btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
@@ -866,7 +881,8 @@
     if (tab === "rates") initRatesTab();
     if (tab === "ending") initEndingTab();
     if (tab === "thisyear") initThisYearTab();
-    if (tab === "inquiries") { initInquiriesTab(); loadCommsInbox(); startCommsPolling(); } else { stopCommsPolling(); }
+    if (tab === "inquiries") initInquiriesTab();
+    if (tab === "comms") { initCommsTab(); startCommsPolling(); } else { stopCommsPolling(); }
     if (tab === "studentline") initStudentLineTab();
     if (tab === "calendar") initCalendarTab();
     if (tab === "fixedcal") initFixedCalTab();

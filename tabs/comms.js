@@ -1,11 +1,20 @@
 // ─── TABS / COMMS.JS ─────────────────────────────────────────────────────────
-// Comms inbox: Twilio inbound texts + voicemails, integrated into Inquiries tab.
+// Comms tab: everything that arrives on the Twilio line and is NOT a known
+// student — inbound texts + voicemails (known students route to Student Line
+// at intake). Its own tab since 2026-09-22; it used to be a hidden view inside
+// Inquiries, which left it invisible once the counts bar was removed there.
 
 var commsMessages = [];
 var commsFilter = "all";
 var commsDetail = null;
 var commsPollTimer = null;
 var COMMS_POLL_INTERVAL = 30000;
+
+// ── Entry point (called from switchTab) ─────────────────────────────────────
+function initCommsTab() {
+  setCommsFilter(commsFilter);   // paint the filter row to match the live filter
+  loadCommsInbox();
+}
 
 function loadCommsInbox() {
   var url = getScriptUrl();
@@ -15,7 +24,12 @@ function loadCommsInbox() {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data.success) {
-        commsMessages = data.messages || [];
+        // The live Inbox sheet carries a stray uppercase header row at row 2
+        // (TIMESTAMP / SOURCE / …) that the backend hands back as a message.
+        // Anything without a real date is not a message — drop it.
+        commsMessages = (data.messages || []).filter(function (m) {
+          return m.timestamp && !isNaN(new Date(m.timestamp).getTime());
+        });
         renderCommsInbox();
       }
     })
@@ -33,6 +47,8 @@ function stopCommsPolling() {
 
 function renderCommsInbox() {
   var inbox = document.getElementById("commsInbox");
+  if (!inbox) return;
+  updateCommsBadge();
   var filtered = commsMessages.filter(function(m) {
     if (commsFilter === "sms") return m.source === "sms";
     if (commsFilter === "voicemail") return m.source === "voicemail";
@@ -72,6 +88,30 @@ function renderCommsInbox() {
 
     inbox.appendChild(card);
   });
+}
+
+// Unanswered count → nav badge + the "unanswered" chip on the summary strip.
+// Driven by the loaded messages, so it stays right after a Responded toggle.
+function updateCommsBadge() {
+  var open = commsMessages.filter(function (m) { return !m.responded; }).length;
+  var badge = document.getElementById("commsNavBadge");
+  if (badge) {
+    badge.textContent = open;
+    badge.style.display = open > 0 ? "" : "none";
+  }
+  var chip = document.getElementById("commsOpen"), n = document.getElementById("commsOpenCount");
+  if (chip && n) {
+    n.textContent = open;
+    chip.style.display = open > 0 ? "" : "none";
+  }
+  var sms = 0, vm = 0;
+  commsMessages.forEach(function (m) {
+    if (m.source === "voicemail") vm++; else sms++;
+  });
+  var smsEl = document.getElementById("commsSmsCount");
+  var vmEl  = document.getElementById("commsVoicemailCount");
+  if (smsEl) smsEl.textContent = sms;
+  if (vmEl)  vmEl.textContent  = vm;
 }
 
 function setCommsFilter(filter) {

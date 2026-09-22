@@ -44,17 +44,14 @@ function initInquiriesTab() {
     .catch(function () {});
 }
 
-// The Inquiries tab shows exactly ONE category at a time, chosen from the
-// summary-strip counts. 'email' → inquiry cards + Business Situation; 'sms' /
-// 'voicemail' → the comms inbox filtered to that type. No "all", no "open".
+// Inquiries is email-only now: texts and voicemails moved to the Comms tab.
+// The function stays because the counts strip may come back as a jump-off.
 function setInqView(view) {
   window._inqView = view;
   var isEmail = (view === "email");
 
   var emailView = document.getElementById("inqEmailView");
-  var inbox     = document.getElementById("commsInbox");
   if (emailView) emailView.style.display = isEmail ? "" : "none";
-  if (inbox)     inbox.style.display     = isEmail ? "none" : "";
 
   // Highlight the active count; dim the others.
   var ids = { email: "commsEmail", voicemail: "commsVoicemail", sms: "commsSms" };
@@ -67,11 +64,6 @@ function setInqView(view) {
     el.style.paddingBottom = "3px";
   });
 
-  // Text / Voicemail → drive the shared comms inbox filter (from comms.js).
-  if (!isEmail && typeof renderCommsInbox === "function") {
-    commsFilter = view; // 'sms' or 'voicemail'
-    renderCommsInbox();
-  }
 }
 
 // ── Replies to a Maybe or a No ────────────────────────────────

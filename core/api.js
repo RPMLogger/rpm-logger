@@ -101,12 +101,17 @@ function fetchCommsSummary(url) {
       if (data.success) {
         updateCommsSummary("sms", data.sms);
         updateCommsSummary("voicemail", data.voicemail);
-        // The counts bar was removed from Inquiries (moving to Comms), so
-        // every element here may be missing.
+        // Runs at startup, before the Comms tab has ever been opened — so the
+        // nav badge and the strip are right without going there first.
         var open = document.getElementById("commsOpen"), openCount = document.getElementById("commsOpenCount");
         if (data.unresponded > 0 && open && openCount) {
           open.style.display = "";
           openCount.textContent = data.unresponded;
+        }
+        var badge = document.getElementById("commsNavBadge");
+        if (badge) {
+          badge.textContent = data.unresponded;
+          badge.style.display = data.unresponded > 0 ? "" : "none";
         }
         var bar = document.getElementById("commsSummary");
         if (bar) bar.style.display = "";

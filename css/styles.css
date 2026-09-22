@@ -868,7 +868,7 @@ body::before {
 .wtab-day-name     { color: var(--accent2); font-weight: 500; }
 .wtab-day-names    { color: var(--muted); }
 
-/* ─── COMMS INBOX (inside Inquiries tab) ─────────────────────────────────── */
+/* ─── COMMS INBOX (Comms tab) ────────────────────────────────────────────── */
 .comms-filter {
   display: flex; gap: 2px; margin-bottom: 12px;
   background: var(--surface); border-radius: 6px; padding: 3px;
