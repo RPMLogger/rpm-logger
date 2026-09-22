@@ -1023,6 +1023,19 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
       spinSeg('m', _stPad2(state.min)) +
       spinSeg('ap', state.ap) +
     "</div>" +
+
+    // Same Who / Reason pair as the skip modal — every move is logged to
+    // "Reschedule Logs" so the split (who disrupts whom) stays countable.
+    "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px'>Who asked?</div>" +
+    "<div style='display:flex;gap:6px;margin-bottom:12px' id='stRsWhoRow'>" +
+      "<button data-who='Student' class='stRsWhoBtn' style='flex:1;padding:8px;font-size:12px;background:rgba(91,157,255,0.18);color:#5b9dff;border:1px solid rgba(91,157,255,0.6);border-radius:4px;cursor:pointer;font-weight:600'>Student</button>" +
+      "<button data-who='Teacher' class='stRsWhoBtn' style='flex:1;padding:8px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>Teacher</button>" +
+    "</div>" +
+
+    "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Reason (optional)</div>" +
+    "<input id='stRsNote' type='text' placeholder='reason or context' " +
+      "style='width:100%;padding:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:12px;margin-bottom:14px'>" +
+
     "<div style='display:flex;gap:8px'>" +
       "<button id='stTimeCancel' style='flex:0 0 auto;padding:10px 16px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>Cancel</button>" +
       "<button id='stTimeConfirm' style='flex:1;padding:10px;font-size:12px;background:rgba(91,157,255,0.22);color:#5b9dff;border:1px solid #5b9dff;border-radius:4px;cursor:pointer;font-weight:600;letter-spacing:0.5px'>Confirm Move</button>" +
@@ -1056,6 +1069,23 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
     };
   });
 
+  var rsWho    = 'Student';
+  var rsWhoBtns = overlay.querySelectorAll('.stRsWhoBtn');
+  rsWhoBtns.forEach(function(btn) {
+    btn.onclick = function() {
+      rsWho = btn.dataset.who;
+      rsWhoBtns.forEach(function(b) {
+        if (b.dataset.who === rsWho) {
+          var rgb = rsWho === 'Student' ? '91,157,255' : '255,165,0';
+          var hex = rsWho === 'Student' ? '#5b9dff'    : '#ffa500';
+          b.style.cssText = 'flex:1;padding:8px;font-size:12px;background:rgba(' + rgb + ',0.18);color:' + hex + ';border:1px solid rgba(' + rgb + ',0.6);border-radius:4px;cursor:pointer;font-weight:600';
+        } else {
+          b.style.cssText = 'flex:1;padding:8px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer';
+        }
+      });
+    };
+  });
+
   document.getElementById('stTimeCancel').onclick = function() { overlay.remove(); };
   document.getElementById('stTimeConfirm').onclick = function() {
     var btn = document.getElementById('stTimeConfirm');
@@ -1063,14 +1093,16 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
     var h24 = (state.h12 % 12) + (state.ap === 'PM' ? 12 : 0);
     var hhmm = _stPad2(h24) + ':' + _stPad2(state.min);
     var url = getScriptUrl(); if (!url) { overlay.remove(); return; }
+    var rsNoteEl = document.getElementById('stRsNote');
     callScript(url, 'rescheduleLesson', {
-      name: studentName, date: lesson.date, newDate: newYmd, time: hhmm
+      name: studentName, date: lesson.date, newDate: newYmd, time: hhmm,
+      who: rsWho, note: rsNoteEl ? rsNoteEl.value.trim() : ''
     }, function(data) {
       if (data && data.success) {
         overlay.remove();
         if (opts.onDone) { opts.onDone(data); return; }
         _stState.reschedule = null;
-        addLog('studentFeed', '📅 ' + studentName + ' moved to ' + data.newLabel + ' · ' + data.newTime, 'success');
+        addLog('studentFeed', '📅 ' + studentName + ' moved to ' + data.newLabel + ' · ' + data.newTime + ' (' + (data.who || rsWho) + ' asked)', 'success');
         _stOpenCalendar(); // refresh — lesson now sits on the new day
       } else {
         var b = document.getElementById('stTimeConfirm');
