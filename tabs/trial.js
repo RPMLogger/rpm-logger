@@ -860,8 +860,8 @@ function _trDtHtml(p) {
   return '<input type="hidden" id="' + p + 'Date" value="' + def.date + '">' +
     '<input type="hidden" id="' + p + 'Time" value="' + def.time + '">' +
     '<div class="dt-row" id="' + p + 'DtRow">' +
-      seg(p + 'DateLbl', 0, '_trDtStepDate', 1,  100, _trDtDateLabel(def.date)) +
-      seg(p + 'TimeLbl', 1, '_trDtStepTime', 15, 66,  _trDtTimeLabel(def.time)) +
+      seg(p + 'DateLbl', 0, '_trDtStepDate', 1,  90, _trDtDateLabel(def.date)) +
+      seg(p + 'TimeLbl', 1, '_trDtStepTime', 15, 58, _trDtTimeLabel(def.time)) +
     '</div>';
 }
 
@@ -1499,8 +1499,8 @@ function _tlTimeHtml(a, s) {
   var h = Math.floor(w.mins / 60), mi = w.mins % 60, d = w.date;
   return '<label class="settings-label">First regular lesson</label>' +
     '<div class="dt-row" id="tlDtRow">' +
-      seg(0, '_tlStepDay',  1,  92, _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate()) +
-      seg(1, '_tlStepMins', 30, 66, ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM')) +
+      seg(0, '_tlStepDay',  1,  84, _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate()) +
+      seg(1, '_tlStepMins', 30, 58, ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM')) +
     '</div>' +
     (past ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-top:8px">⚠ That is in the past.</div>' : '') +
     '<div style="margin-top:12px">' +

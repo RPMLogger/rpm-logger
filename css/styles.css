@@ -1142,9 +1142,9 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 .dt-row {
   display: inline-flex; align-items: center; flex-wrap: wrap;
   border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent);
-  border-radius: 8px; background: var(--surface2); padding: 4px 4px;
+  border-radius: 7px; background: var(--surface2); padding: 3px;
 }
-.dt-seg { display: flex; align-items: center; gap: 9px; padding: 2px 9px; }
+.dt-seg { display: flex; align-items: center; gap: 8px; padding: 1px 8px; }
 .dt-seg + .dt-seg { border-left: 1px solid var(--border); }
 .dt-stack { display: flex; flex-direction: column; gap: 3px; }
 
@@ -1155,7 +1155,7 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 .dt-arrow {
   background: transparent;
   border: 1px solid var(--border); border-radius: 4px;
-  padding: 3px 6px; line-height: 0; cursor: pointer;
+  padding: 2px 5px; line-height: 0; cursor: pointer;
   color: var(--muted); opacity: 0.85;
   transition: opacity .12s, color .12s, border-color .12s, background .12s;
 }
@@ -1166,15 +1166,15 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 }
 .dt-arrow:focus { outline: none; }
 .dt-arrow:focus-visible { outline: none; color: rgba(255,255,255,0.92); opacity: 1; }
-.dt-ico { width: 11px; height: 6px; display: block; fill: currentColor; }
+.dt-ico { width: 9px; height: 5px; display: block; fill: currentColor; }
 
 /* The lit half. No border of its own - the box around the whole control is the
    edge now, and a second one here would be a box inside a box. Hover and focus
    fill instead, which reads as "this one" without adding another outline. */
 .dt-val {
   background: transparent; border: none; border-radius: 5px;
-  font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px;
-  color: rgba(255,255,255,0.88); text-align: center; padding: 6px 8px; cursor: pointer;
+  font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.8px;
+  color: rgba(255,255,255,0.88); text-align: center; padding: 5px 6px; cursor: pointer;
   transition: background .12s, color .12s;
 }
 .dt-val:hover { color: #fff; }
