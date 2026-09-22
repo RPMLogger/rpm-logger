@@ -374,7 +374,7 @@ function _trMsgRow(m) {
       '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted)">' +
         inqEsc(who) + ' · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) +
       '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.5;color:rgba(255,255,255,.62);margin-top:2px;white-space:pre-wrap">' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.5;color:rgba(255,255,255,.62);margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere">' +
         inqEsc(m.text) +
       '</div>' +
     '</div>';
@@ -1924,7 +1924,7 @@ function _trLoadStageThreads() {
         var hasThread = !!(t && t.messages && t.messages.length && t.threadId);
         var msgs = (t && t.messages) || [];
         box.innerHTML =
-          '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:9px">' +
+          '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:16px">' +
             // A bounce is never hidden. It is the one thing on this card that
             // means something is broken right now.
             _trBounceRow(t) +
@@ -1937,6 +1937,9 @@ function _trLoadStageThreads() {
                     '<button class="db-mini-btn" onclick="_trOpenReply(\'' + id + '\',\'' + t.threadId + '\')">Reply</button>' +
                   '</div>'
                 : '') +
+              // A long thread pushes the top toggle off screen, so the thread
+              // closes from its own bottom too.
+              '<button class="tr-open-btn small" style="margin-top:10px" onclick="_trToggleThread(\'' + id + '\',true)">Hide \u25b4</button>' +
             '</div>' +
             (hasThread
               ? ''
@@ -2113,13 +2116,19 @@ function _trThreadSummary(id, msgs) {
     '</div>';
 }
 
-function _trToggleThread(id) {
+function _trToggleThread(id, fromBottom) {
   var box = document.getElementById('fcmsg-' + id);
   var btn = document.getElementById('fctog-' + id);
   if (!box) return;
   var open = box.style.display !== 'none';
   box.style.display = open ? 'none' : '';
   if (btn) btn.textContent = open ? 'Show \u25be' : 'Hide \u25b4';
+  // Closed from the bottom: the page would otherwise be left somewhere below
+  // the card, so bring the summary line back into view.
+  if (open && fromBottom) {
+    var sum = document.getElementById('fcsum-' + id);
+    if (sum) sum.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
 }
 
 

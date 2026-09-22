@@ -608,6 +608,13 @@ body::before {
 .tr-step-b.lesson:hover      { color: var(--blue); border-color: var(--blue); background: color-mix(in srgb, var(--blue) 14%, transparent); }
 .tr-step-b.lesson.done       { color: var(--text); border-color: color-mix(in srgb, var(--muted) 70%, transparent); background: color-mix(in srgb, #fff 4%, transparent); }
 .tr-step-b.lesson.done:hover { color: var(--accent2); border-color: var(--accent2); background: color-mix(in srgb, #fff 4%, transparent); }
+/* 2026-09-22: reversed. Done steps now step back so the one or two still
+   waiting are what the eye lands on; only pending steps keep the full face.
+   Hover brings a done step back up, since it is still a door into its form. */
+.tr-step-b.done,
+.tr-step-b.lesson.done       { color: rgba(255,255,255,0.42); border-color: color-mix(in srgb, var(--muted) 35%, transparent); background: transparent; }
+.tr-step-b.done:hover,
+.tr-step-b.lesson.done:hover { color: var(--accent2); border-color: var(--accent2); background: color-mix(in srgb, #fff 4%, transparent); }
 .tr-step-b.flat       { cursor: default; }
 
 /* ─── INQUIRY ARCHIVE ─────────────────────────────────────────────────────── */
