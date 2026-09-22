@@ -1142,9 +1142,9 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 .dt-row {
   display: inline-flex; align-items: center; flex-wrap: wrap;
   border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent);
-  border-radius: 7px; background: var(--surface2); padding: 3px;
+  border-radius: 7px; background: var(--surface2); padding: 2px;
 }
-.dt-seg { display: flex; align-items: center; gap: 8px; padding: 1px 8px; }
+.dt-seg { display: flex; align-items: center; gap: 6px; padding: 1px 4px; }
 .dt-seg + .dt-seg { border-left: 1px solid var(--border); }
 .dt-stack { display: flex; flex-direction: column; gap: 3px; }
 
@@ -1174,7 +1174,7 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 .dt-val {
   background: transparent; border: none; border-radius: 5px;
   font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.8px;
-  color: rgba(255,255,255,0.88); text-align: center; padding: 5px 6px; cursor: pointer;
+  color: rgba(255,255,255,0.88); text-align: center; padding: 5px 3px; cursor: pointer;
   transition: background .12s, color .12s;
 }
 .dt-val:hover { color: #fff; }

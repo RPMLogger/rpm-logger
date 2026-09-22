@@ -159,7 +159,7 @@ function _skLogForm(students) {
   up.tabIndex = down.tabIndex = -1;
   up.innerHTML = dtArrow(1); down.innerHTML = dtArrow(-1);
   dLabel.className = 'dt-val';
-  dLabel.style.cssText = 'min-width:84px';
+  dLabel.style.cssText = 'min-width:78px';
   function paintDay() { dLabel.textContent = DAYS[day.getDay()] + ', ' + MONTHS[day.getMonth()] + ' ' + day.getDate(); }
   function shiftDay(n) { day.setDate(day.getDate() + n); paintDay(); }
   up.onclick   = function() { shiftDay(1); };
