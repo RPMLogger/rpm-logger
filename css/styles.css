@@ -671,6 +671,14 @@ body::before {
 #tlModal   input:focus-visible,
 #tlModal   textarea:focus-visible { outline-color: var(--muted); }
 
+/* The same grey for the buttons inside an email thread on a Trial card (Show,
+   Hide, Reply), which otherwise fell back to the browser's blue ring. */
+[id^="fcth-"] button:focus-visible { outline: 1px solid var(--muted); outline-offset: -1px; }
+
+/* A rule between messages in a thread: long emails ran into each other and
+   the only break was the small header line. */
+.tr-msg + .tr-msg { border-top: 1px solid var(--border); padding-top: 10px; }
+
 .fc-new { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
           color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
 .inq-name  { font-family: "Syne", sans-serif; font-size: 16px; font-weight: 400; color: var(--text); }

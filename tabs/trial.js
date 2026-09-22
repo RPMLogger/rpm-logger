@@ -369,15 +369,17 @@ function _trBounceRow(t) {
 function _trMsgRow(m) {
   var mine = !!m.fromMe;
   var who  = mine ? 'You' : 'Them';
-  var edge = mine ? 'var(--border)' : 'var(--green)';
-  return '<div style="border-left:2px solid ' + edge + ';padding:0 0 0 9px;margin-bottom:8px">' +
+  // Them green, you amber: each side of the exchange has its own colour, so
+  // who said what reads down the edge without reading the headers.
+  var edge = mine ? 'var(--warn)' : 'var(--green)';
+  return '<div class="tr-msg"><div style="border-left:2px solid ' + edge + ';padding:0 0 0 9px;margin-bottom:10px">' +
       '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted)">' +
         inqEsc(who) + ' · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) +
       '</div>' +
       '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.5;color:rgba(255,255,255,.62);margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere">' +
         inqEsc(m.text) +
       '</div>' +
-    '</div>';
+    '</div></div>';
 }
 
 function _trPhonePretty(raw) {
