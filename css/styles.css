@@ -1146,6 +1146,12 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 }
 .dt-seg { display: flex; align-items: center; gap: 6px; padding: 1px 4px; }
 .dt-seg + .dt-seg { border-left: 1px solid var(--border); }
+/* .wide spans the content column instead of sizing to its text, so the box
+   lines up with the edges around it rather than floating at whatever width
+   the longest date happens to need. The two halves then split it evenly, which
+   also keeps the divider in the middle instead of wherever the text ended. */
+.dt-row.wide { display: flex; width: 100%; box-sizing: border-box; }
+.dt-row.wide .dt-seg { flex: 1; justify-content: center; }
 .dt-stack { display: flex; flex-direction: column; gap: 3px; }
 
 /* Back in their own square boxes. Naked chevrons floating beside the value
