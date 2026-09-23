@@ -80,15 +80,15 @@ function _trAcceptedCard(a) {
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || "") + '"></div>' +
       '<div class="inq-acts">' +
         '<button class="db-mini-btn" onclick="_trReopen(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
-          'data-tip="Moves the card back to Inquiries as undecided" data-tip-wrap>\u2190 Inquiries</button>' +
+          'data-tip="Send back to Inquiries as undecided">\u2190 Inquiries</button>' +
         // For the ones he emailed who never came back. Sending them "back to
         // Inquiries" only parks them there undecided; this removes them.
         '<button class="db-mini-btn danger" onclick="_trDelete(\'' + em + '\',' + (a.col || 0) + ',\'' + _trEsc(a.name || '') + '\', this)" ' +
-          'data-tip="Deletes this inquiry for good - asks first" data-tip-wrap>Delete</button>' +
+          'data-tip="Delete this inquiry for good">Delete</button>' +
         '<button class="db-mini-btn go opens-window" onclick="_trOpenEmail(\'' + em + '\')" ' +
-          'data-tip="Opens a window - nothing sends until you press Send there" data-tip-wrap>Email</button>' +
+          'data-tip="Opens the composer with a first-contact draft - nothing sends until you press Send" data-tip-wrap>Email</button>' +
         '<button class="db-mini-btn" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
-          'data-tip="Opens a window - you pick the date and time there" data-tip-wrap data-tip-left>Book \u2192</button>' +
+          'data-tip="Opens a booking window with their name and email - you pick the date and time" data-tip-wrap data-tip-left>Book \u2192</button>' +
       '</div>' +
     '</div>';
 }
@@ -314,7 +314,6 @@ function _trOpenReply(id, threadId) {
     '<div style="display:flex;gap:8px;margin-top:8px">' +
       '<button class="db-mini-btn" onclick="_trCancelReply(\'' + id + '\',\'' + threadId + '\')">Cancel</button>' +
       '<button class="db-mini-btn strong" id="fcrpbtn-' + id + '" onclick="_trSendReply(\'' + id + '\',\'' + threadId + '\')" ' +
-       'data-tip="Sends this reply in the same thread now" data-tip-wrap ' +
        'style="display:inline-flex;align-items:center;gap:7px">' + SEND_ICON + '<span>Send reply</span></button>' +
     '</div>';
   var ta = document.getElementById('fcrpb-' + id);
@@ -495,7 +494,6 @@ function _trOpenEmail(email) {
         // The span holds the words: _trSetLabel writes it for the Sending and
         // Sent states, so the plane beside it survives them.
         "<button class='db-mini-btn strong' id='trFcSendBtn' onclick='_trSendEmail()' " +
-          "data-tip='Sends this email now' " +
           "style='display:inline-flex;align-items:center;gap:7px'>" + SEND_ICON + "<span>Send</span></button>" +
       "</div>" +
       "<div id='trFcPreview'></div>" +
