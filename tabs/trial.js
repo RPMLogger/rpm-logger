@@ -784,6 +784,7 @@ function _trBook(p) {
   var btn = document.getElementById(p + 'BookBtn');
   if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Booking…'; }
   if (p === 'tb' && _trBookWin) _trBookWin.busy = true;   // Done and ✕ are dead until it lands
+  if (p === 'ts') _tsBusy = true;
   _trStatus('Creating the calendar event…', 'var(--accent2)', p);
   var qs = 'action=bookTrialManual' +
     '&first=' + encodeURIComponent(first) + '&middle=' + encodeURIComponent(middle) +
@@ -807,6 +808,13 @@ function _trBook(p) {
         _trLoadAccepted();
         return;
       }
+      if (p === 'ts') {
+        // The new card lands on the tab behind the window.
+        _tsBusy = false;
+        _tsClose();
+        initTrialStageTab();
+        return;
+      }
       ['First','Middle','Last','Email','Phone','Date','Time'].forEach(function (f) { var el = document.getElementById(p + f); if (el) el.value = ''; });
       _trDtShow(p);
       var sb = document.getElementById(p + 'OfferedSlots'); if (sb) sb.innerHTML = '';
@@ -818,10 +826,12 @@ function _trBook(p) {
 function _trRestoreBook(p) {
   p = p || 'tr';
   if (p === 'tb' && _trBookWin) _trBookWin.busy = false;
+  if (p === 'ts') _tsBusy = false;
   var btn = document.getElementById(p + 'BookBtn');
   if (!btn) return;
   btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer';
   if (p === 'tb') _trBookWinPaint();
+  else if (p === 'ts') btn.textContent = 'Book';
   else btn.textContent = '＋ Book trial';
 }
 
@@ -982,8 +992,8 @@ function initTrialStageTab() {
       // The opener goes first, not last. Booking by hand is something you
       // arrive at the tab already meaning to do; it should not be behind a
       // scroll past every trial in progress.
-      if (!_trStageCache.length) { body.innerHTML = _trStageBookHtml() + '<div class="empty-state">No booked trials.</div>'; return; }
-      body.innerHTML = _trStageBookHtml() + _trStageCache.map(_trStageCard).join('');
+      if (!_trStageCache.length) { body.innerHTML = '<div class="empty-state">No booked trials.</div>' + _trStageBookHtml(); return; }
+      body.innerHTML = _trStageCache.map(_trStageCard).join('') + _trStageBookHtml();
       _trPaintPaid();
       _trLoadStageThreads();
     })
@@ -1902,7 +1912,7 @@ function _trDropStageCard(email) {
   if (card) card.remove();
   _trPayRender();
   var body = document.getElementById('trialStageBody');
-  if (body && !_trStageCache.length) body.innerHTML = _trStageBookHtml() + '<div class="empty-state">No booked trials.</div>';
+  if (body && !_trStageCache.length) body.innerHTML = '<div class="empty-state">No booked trials.</div>' + _trStageBookHtml();
 }
 
 // After a reply lands, redraw whichever stage is on screen.
@@ -1960,29 +1970,56 @@ function _trLoadStageThreads() {
 // who inquired, and booking one of them is driven from their card. This is the
 // other case: a trial that never came through the form. Own id prefix ("ts") so
 // its fields cannot collide with Initiate's, since both panels live in the DOM.
+// Bottom of the tab: it is the rare path, so it sits under the cards instead of
+// between the section label and them. It opens a window like every other form
+// on this tab, rather than unfolding the form in the page.
 function _trStageBookHtml() {
-  // At the top of the tab now, so the rule below separates it from the cards
-  // rather than the other way round.
-  return '<div id="tsBookToggle">' +
-      '<button class="tr-open-btn" onclick="_tsShowBook()">Book a trial manually</button>' +
-    '</div>' +
-    '<div id="tsBookArea" style="display:none">' +
-      '<hr class="divider" style="margin:20px 0 16px">' +
-      _trManualFormHtml('ts') + '<div id="tsStatus"></div>' +
-    '</div>' +
-    '<hr class="divider" style="margin:22px 0 16px">' +
-    // The section label sits after the rule, so it heads the cards and not
-    // the booking button.
-    '<div class="section-label">Trial · Booked</div>';
+  return '<hr class="divider" style="margin:22px 0 20px">' +
+    '<button class="tr-open-btn opens-window" onclick="_tsShowBook()">Book a trial manually</button>';
 }
 
+var _tsBusy = false;
+
 function _tsShowBook() {
-  var area = document.getElementById('tsBookArea');
-  var tog  = document.getElementById('tsBookToggle');
-  if (area) area.style.display = '';
-  if (tog)  tog.style.display = 'none';
+  var ov = document.getElementById('tsOverlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.className = 'settings-overlay';
+    ov.id = 'tsOverlay';
+    ov.innerHTML = '<div class="settings-modal" id="tsModal" style="max-width:460px"></div>';
+    ov.addEventListener('click', function (e) { if (e.target === ov) _tsClose(); });
+    document.body.appendChild(ov);
+  }
+  _tsBusy = false;
+  function inp(id, ph, type) {
+    return '<input class="rpm-field" id="' + id + '" type="' + (type || 'text') + '" placeholder="' + ph + '">';
+  }
+  document.getElementById('tsModal').innerHTML =
+    '<div class="settings-title"><span>Book a trial' +
+      '<span style="color:var(--muted);font-weight:400"> · Manually</span></span>' +
+      '<button class="settings-close" onclick="_tsClose()">✕</button></div>' +
+    '<div style="display:flex;flex-direction:column;gap:8px">' +
+      '<div style="display:flex;gap:8px">' + inp('tsFirst', 'First') + inp('tsLast', 'Last') + '</div>' +
+      inp('tsEmail', 'Email', 'email') +
+      inp('tsPhone', 'Phone', 'tel') +
+    '</div>' +
+    '<div style="margin:22px 0 6px">' + _trDtHtml('ts') + '</div>' +
+    '<div id="tsStatus" style="margin-top:12px"></div>' +
+    // Same footer as the Book window on an inquiry card: green, bottom right,
+    // because it creates a calendar event and mails the student.
+    '<div style="display:flex;justify-content:flex-end;margin-top:24px">' +
+      '<button class="db-mini-btn go" id="tsBookBtn" style="padding:7px 20px" ' +
+        'onclick="_trBook(\'ts\')">Book</button>' +
+    '</div>';
+  ov.classList.add('open');
   var f = document.getElementById('tsFirst');
-  if (f) { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.focus(); }
+  if (f) f.focus();
+}
+
+function _tsClose() {
+  if (_tsBusy) return;   // never close mid-send
+  var ov = document.getElementById('tsOverlay');
+  if (ov) ov.classList.remove('open');
 }
 
 
