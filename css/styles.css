@@ -482,8 +482,7 @@ body::before {
    real reply comes in. */
 .inq-toplinks { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin: 0 0 18px; }
 .inq-toplinks .inq-archive.top { margin: 0; }
-.inq-toplinks .inq-resp-btn,
-.inq-toplinks .sheet-link { margin-left: auto; }
+.inq-toplinks > :last-child:not(:first-child) { margin-left: auto; }
 /* Quick-open link to a source sheet. Same look as the Home tab's
    Student Import / RPM-Counter buttons (student.js _stMakeLinksBar). */
 .sheet-link {
@@ -496,9 +495,19 @@ body::before {
   background: transparent; border: 1px solid var(--border); color: var(--muted);
   transition: color .12s, border-color .12s, background .12s;
 }
-.inq-resp-btn:hover { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); }
+/* Hover lights it up clearly; pressing dips it, so a click visibly lands
+   even before whatever it opens has finished loading. */
+.inq-resp-btn:hover  { color: var(--text); border-color: var(--muted); background: var(--surface2); }
+.inq-resp-btn:active { background: color-mix(in srgb, #fff 10%, var(--surface2)); transform: translateY(1px); }
 .inq-resp-btn.lit { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 55%, transparent); background: color-mix(in srgb, var(--warn) 6%, transparent); }
-.inq-resp-btn.lit:hover { background: color-mix(in srgb, var(--warn) 14%, transparent); }
+.inq-resp-btn.lit:hover { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); }
+/* Blue = a way somewhere else in the portal (the archive), not a state. */
+/* The archive door: the same dimmed amber the link had, with its folder icon. */
+.inq-resp-btn.amber       { display: inline-flex; align-items: center; gap: 7px;
+                            color: color-mix(in srgb, var(--accent2) 60%, var(--muted));
+                            border-color: color-mix(in srgb, var(--accent2) 28%, transparent);
+                            background: color-mix(in srgb, var(--accent2) 4%, transparent); }
+.inq-resp-btn.amber:hover { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 55%, transparent); background: color-mix(in srgb, var(--accent2) 10%, transparent); }
 .inq-resp-none { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); margin: 0 0 18px; }
 /* Amber, because it wants attention but nothing is wrong. Absent entirely
    when there is nothing to report: an empty warning strip is noise. */
