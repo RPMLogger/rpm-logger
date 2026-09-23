@@ -293,7 +293,7 @@ function _trLoadThreads() {
         box.innerHTML =
           '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:9px">' +
             _trBounceRow(t) +
-            t.messages.map(_trMsgRow).join('') +
+            t.messages.map(function (m) { return _trMsgRow(m, ((_trFindAccepted(email) || {}).name || '').split(' ')[0]); }).join('') +
             (t.threadId
               ? '<div id="fcrp-' + id + '">' +
                   '<button class="db-mini-btn" onclick="_trOpenReply(\'' + id + '\',\'' + t.threadId + '\')">Reply</button>' +
@@ -366,15 +366,17 @@ function _trBounceRow(t) {
     '</div>';
 }
 
-function _trMsgRow(m) {
+// them: their first name, so the header reads as the title of each message.
+function _trMsgRow(m, them) {
   var mine = !!m.fromMe;
-  var who  = mine ? 'You' : 'Them';
+  var who  = mine ? 'You' : (them || 'Them');
   // Them green, you amber: each side of the exchange has its own colour, so
   // who said what reads down the edge without reading the headers.
   var edge = mine ? 'var(--warn)' : 'var(--green)';
   return '<div class="tr-msg"><div style="border-left:2px solid ' + edge + ';padding:0 0 0 9px;margin-bottom:10px">' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted)">' +
-        inqEsc(who) + ' · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);margin-bottom:3px">' +
+        inqEsc(who) +
+        '<span style="font-size:10px;color:var(--muted)"> · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) + '</span>' +
       '</div>' +
       '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.5;color:rgba(255,255,255,.62);margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere">' +
         inqEsc(m.text) +
@@ -1932,7 +1934,7 @@ function _trLoadStageThreads() {
             _trBounceRow(t) +
             _trThreadSummary(id, msgs) +
             '<div id="fcmsg-' + id + '" style="display:none">' +
-              msgs.map(_trMsgRow).join('') +
+              msgs.map(function (m) { return _trMsgRow(m, (a.name || '').split(' ')[0]); }).join('') +
               // Reply sits inside the opened thread: nobody replies unread.
               (hasThread
                 ? '<div id="fcrp-' + id + '">' +
