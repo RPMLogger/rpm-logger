@@ -88,7 +88,7 @@ function _trAcceptedCard(a) {
         '<button class="db-mini-btn go opens-window" onclick="_trOpenEmail(\'' + em + '\')" ' +
           'data-tip="Opens the composer with a first-contact draft - nothing sends until you press Send" data-tip-wrap>Email</button>' +
         '<button class="db-mini-btn" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
-          'data-tip="Fills the booking form below with their name and email - you pick the date and time" data-tip-wrap data-tip-left>Book \u2192</button>' +
+          'data-tip="Opens a booking window with their name and email - you pick the date and time" data-tip-wrap data-tip-left>Book \u2192</button>' +
       '</div>' +
     '</div>';
 }
@@ -715,7 +715,7 @@ function _trBookAccepted(name, email) {
     // and this one creates a calendar event and mails the student.
     '<div style="display:flex;justify-content:flex-end;margin-top:24px">' +
       '<button class="db-mini-btn go" id="tbBookBtn" style="padding:7px 20px" ' +
-        'onclick="_trBook(\'tb\')">Book</button>' +
+        'onclick="_trBook(\'tb\')" data-tip="Creates the calendar event and emails them the confirmation" data-tip-wrap data-tip-left>Book</button>' +
     '</div>';
 
   _trRenderOfferedSlots(email, 'tb');
@@ -1160,9 +1160,11 @@ function _trActionsHtml(a) {
   // Confirm is always clickable: _msOpen says what is still missing.
   return '<div id="tracts-' + id + '" style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">' +
       '<div class="inq-acts">' +
-        '<button class="inq-db yes" onclick="_msOpen(\'' + em + '\')">Confirm Student</button>' +
+        '<button class="inq-db yes" onclick="_msOpen(\'' + em + '\')" ' +
+          'data-tip="Opens a window - nothing changes until you confirm there" data-tip-wrap data-tip-left>Confirm Student</button>' +
         '<button class="inq-db no" id="trnobtn-' + id + '" ' +
-          'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')">Dismiss</button>' +
+          'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')" ' +
+          'data-tip="Marks the trial Unsuccessful and removes the card - asks first" data-tip-wrap data-tip-left>Dismiss</button>' +
       '</div>' +
     '</div>';
 }
@@ -2009,7 +2011,7 @@ function _tsShowBook() {
     // because it creates a calendar event and mails the student.
     '<div style="display:flex;justify-content:flex-end;margin-top:24px">' +
       '<button class="db-mini-btn go" id="tsBookBtn" style="padding:7px 20px" ' +
-        'onclick="_trBook(\'ts\')">Book</button>' +
+        'onclick="_trBook(\'ts\')" data-tip="Creates the calendar event and emails them the confirmation" data-tip-wrap data-tip-left>Book</button>' +
     '</div>';
   ov.classList.add('open');
   var f = document.getElementById('tsFirst');
