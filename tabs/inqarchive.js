@@ -12,9 +12,9 @@
 // buttons. A decision belongs to the tab where you are actually deciding one;
 // a page you open to look things up should not have a No button on it.
 //
-// One request, then it renders from memory. Nothing here writes, so there is
-// nothing to keep in sync: the Reload button at the bottom is the whole
-// refresh story.
+// Every visit re-reads the sheet, so there is no Reload button: the last copy
+// shows at once (no spinner on a return visit) and is swapped for the fresh
+// one when it arrives.
 
 var _iaCache = null;
 
@@ -24,29 +24,23 @@ var _iaCache = null;
 function initInqArchiveTab() {
   var host = document.getElementById("inqArchiveList");
   if (!host) return;
-  if (_iaCache) { _iaRender(_iaCache); return; }
-
   var url = getScriptUrl();
+  if (_iaCache) _iaRender(_iaCache);
+  else host.innerHTML = "<div class='inq-empty rpm-loading'>Loading</div>";
   if (!url) return;
-  host.innerHTML = "<div class='inq-empty rpm-loading'>Loading</div>";
   fetch(url + "?action=getInquiries")
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d || !d.success) {
-        host.innerHTML = "<div class='inq-empty'>Could not load the archive</div>";
+        if (!_iaCache) host.innerHTML = "<div class='inq-empty'>Could not load the archive</div>";
         return;
       }
       _iaCache = d.inquiries || [];
       _iaRender(_iaCache);
     })
     .catch(function () {
-      host.innerHTML = "<div class='inq-empty'>Could not load the archive</div>";
+      if (!_iaCache) host.innerHTML = "<div class='inq-empty'>Could not load the archive</div>";
     });
-}
-
-function reloadInqArchive() {
-  _iaCache = null;
-  initInqArchiveTab();
 }
 
 // "Sep 17, 2026" → 2026. Anything unparseable lands in its own group at the
@@ -138,9 +132,6 @@ function _iaRender(inquiries) {
         "</div>";
     });
   });
-
-  html += "<hr class='divider' style='margin-top:22px'>" +
-          "<button class='refresh-btn' onclick='reloadInqArchive()'>⟳ Reload archive</button>";
 
   host.innerHTML = html;
 }

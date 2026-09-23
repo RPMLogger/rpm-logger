@@ -506,6 +506,11 @@ body::before {
                         border-color: color-mix(in srgb, var(--accent2) 28%, transparent);
                         background: color-mix(in srgb, var(--accent2) 4%, transparent); }
 .link-btn.amber:hover { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 55%, transparent); background: color-mix(in srgb, var(--accent2) 10%, transparent); }
+/* Green for a Google Sheet (spreadsheet green), same dimmed strength as amber. */
+.link-btn.green       { color: color-mix(in srgb, var(--green) 60%, var(--muted));
+                        border-color: color-mix(in srgb, var(--green) 28%, transparent);
+                        background: color-mix(in srgb, var(--green) 4%, transparent); }
+.link-btn.green:hover { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 10%, transparent); }
 /* Spreadsheet page, the user's om-16 artwork: a raster, so it is a mask
    painted in currentColor rather than an inline <svg>. */
 .sheet-icon {
