@@ -482,7 +482,14 @@ body::before {
    real reply comes in. */
 .inq-toplinks { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin: 0 0 18px; }
 .inq-toplinks .inq-archive.top { margin: 0; }
-.inq-toplinks .inq-resp-btn { margin-left: auto; }
+.inq-toplinks .inq-resp-btn,
+.inq-toplinks .sheet-link { margin-left: auto; }
+/* Quick-open link to a source sheet. Same look as the Home tab's
+   Student Import / RPM-Counter buttons (student.js _stMakeLinksBar). */
+.sheet-link {
+  padding: 4px 10px; font-size: 10px; letter-spacing: 0.5px; text-decoration: none; white-space: nowrap;
+  background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;
+}
 .inq-resp-btn {
   font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.3px;
   padding: 4px 10px; border-radius: 6px; cursor: pointer;
