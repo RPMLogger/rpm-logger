@@ -1284,6 +1284,36 @@ a:focus-visible,
   background: color-mix(in srgb, #fff 12%, transparent);
 }
 
+/* Trial tab: Pick a time. Its own control, not .dt-row: no arrows, the lit
+   field is whichever the mouse last touched, and the keys drive that one. */
+.pt-grid {
+  display: grid; grid-template-columns: auto auto; justify-content: start;
+  align-items: center; gap: 14px 20px;
+}
+.pt-lbl {
+  font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--muted);
+}
+.pt-freq { font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 0.8px; color: var(--text); padding-left: 3px; }
+.pt-freq.none { color: var(--warn); }
+.pt-row {
+  display: inline-flex; align-items: center; justify-self: start; gap: 2px;
+  border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent);
+  border-radius: 7px; background: var(--surface2); padding: 3px;
+}
+.pt-val {
+  background: transparent; border: none; border-radius: 5px;
+  font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 0.8px;
+  color: rgba(255,255,255,0.55); text-align: center; padding: 7px 8px; cursor: pointer;
+  transition: background .12s, color .12s;
+}
+.pt-val.on { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
+.pt-val:focus { outline: none; }
+.pt-sum {
+  font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 0.3px;
+  color: var(--text); margin-top: 22px;
+}
+
 /* Trial tab: Make student spinner */
 .ms-spin {
   width: 16px; height: 16px; flex: none;

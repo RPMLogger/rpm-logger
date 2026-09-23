@@ -1526,7 +1526,7 @@ function _tlSaveFreq() {
 }
 
 // ── 5 · Pick a time (first lesson) ──
-// Arrows only move the choice; nothing is saved until Set. Saves First Lesson
+// Nothing is saved until Set. Saves First Lesson
 // ("2026-09-20 14:30") and Pencilled Spot ("Sun 2:30 PM"), which the Fixed
 // Calendar reads to draw the pencilled slot. Time steps in half hours.
 function _tlTimeState() {
@@ -1548,61 +1548,98 @@ function _tlTimeValue() {
          _msPad(Math.floor(w.mins / 60)) + ':' + _msPad(w.mins % 60);
 }
 
+// Three fields, no arrows: the regular spot (weekday, time) and the date of
+// the first lesson. Hover or click makes a field the lit one and it stays lit;
+// ↑↓ change it, ←→ move between fields, Enter sets. Keys are read by the one
+// document listener below, so nothing has to hold browser focus.
+var _TL_PT = ['_tlStepSpotDay', '_tlStepMins', '_tlStepWeek'];
+var _TL_PT_STEP = [1, 30, 1];
+
 function _tlTimeHtml(a, s) {
   var w = _tlTimeState();
   var v = _tlTimeValue();
-  var saved = String(s.firstLesson || '') === v;
+  var spot = _tlSpotStr(w.date.getDay(), w.mins);
+  var saved = String(s.firstLesson || '') === v && String(s.pencilledSpot || '') === spot;
   var past = _trFirstLessonDate(v) <= new Date();
-  // The same control as the booking window: quiet arrows, loud value.
-  var arrow = function (fn, n, dir) {
-    return '<button class="dt-arrow" tabindex="-1" onclick="' + fn + '(' + n + ')">' + dtArrow(dir) + '</button>';
-  };
-  var seg = function (order, fn, step, w, label) {
-    return '<div class="dt-seg">' +
-        '<span class="dt-stack">' + arrow(fn, step, 1) + arrow(fn, -step, -1) + '</span>' +
-        '<button class="dt-val" data-dt-nav="' + order + '" style="min-width:' + w + 'px" ' +
-          'onkeydown="_tlTimeKey(event,\'' + fn + '\',' + step + ')">' + label + '</button>' +
-      '</div>';
-  };
+  var on = _tl.ptOn || 0;
+  var freq = String(s.frequency || '').trim();
+  var tail = /^biweekly$/i.test(freq) ? ', alternating weeks' : /^weekly$/i.test(freq) ? ', every week' : '';
   var h = Math.floor(w.mins / 60), mi = w.mins % 60, d = w.date;
-  return '<label class="settings-label">First regular lesson</label>' +
-    '<div class="dt-row" id="tlDtRow">' +
-      seg(0, '_tlStepDay',  1,  78, _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate()) +
-      seg(1, '_tlStepMins', 30, 52, ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM')) +
+  var val = function (i, w, label) {
+    return '<button class="pt-val' + (on === i ? ' on' : '') + '" tabindex="-1" data-pt="' + i + '" style="min-width:' + w + 'px" ' +
+      'onmousemove="_tlPtHover(event,' + i + ')" onclick="_tlPtOn(' + i + ')">' + label + '</button>';
+  };
+  var lbl = function (t) { return '<span class="pt-lbl">' + t + '</span>'; };
+  return '<div class="pt-grid">' +
+      lbl('Frequency') +
+      '<span class="pt-freq' + (freq ? '' : ' none') + '">' + (freq ? inqEsc(freq) : 'Not set') + '</span>' +
+      lbl('Regular spot') +
+      '<div class="pt-row">' +
+        val(0, 44, _MS_DAYS[d.getDay()]) +
+        val(1, 68, ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM')) +
+      '</div>' +
+      lbl('First lesson on') +
+      '<div class="pt-row">' + val(2, 110, _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate()) + '</div>' +
     '</div>' +
+    '<div class="pt-sum">Starting ' + inqEsc(_trFirstLessonLabel(v)) + tail + '</div>' +
     (past ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-top:8px">⚠ That is in the past.</div>' : '') +
-    '<div style="margin-top:12px">' +
+    '<div style="margin-top:14px">' +
       (saved
-        ? '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--green)">✓ Set: ' + inqEsc(_trFirstLessonLabel(v)) + '</span>'
-        : '<button class="db-mini-btn blue" style="padding:7px 20px"' + (past ? ' disabled' : '') +
-            ' onclick="_tlSaveTime()">Set ' + inqEsc(_trFirstLessonLabel(v)) + '</button>') +
+        ? '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--green)">✓ Set</span>'
+        : '<button class="db-mini-btn blue" id="tlTimeSet" style="padding:7px 20px"' + (past ? ' disabled' : '') +
+            ' onclick="_tlSaveTime()">Set</button>') +
     '</div>' +
     _tlMsg('tlTimeMsg');
 }
 
-// ↑↓ steps, ←→ hops date <-> time. Stepping redraws the window, so focus has
-// to be put back on the field that was being used or the next key goes nowhere.
-function _tlTimeKey(e, fn, step) {
-  var f = fn === '_tlStepDay' ? _tlStepDay : _tlStepMins;
-  var order = e.target.getAttribute('data-dt-nav');
+// Light one field without redrawing (hover fires constantly).
+function _tlPtOn(i) {
+  if (!_tl) return;
+  _tl.ptOn = i;
+  var els = document.querySelectorAll('#tlModal .pt-val');
+  for (var k = 0; k < els.length; k++) els[k].classList.toggle('on', +els[k].getAttribute('data-pt') === i);
+}
+
+// Every step redraws the window, and the browser then reports the new field
+// under a still mouse as hovered. Only a mouse that actually moved counts.
+var _tlPtXY = '';
+function _tlPtHover(e, i) {
+  var xy = e.screenX + ',' + e.screenY;
+  if (xy === _tlPtXY) return;
+  _tlPtXY = xy;
+  if (_tl && _tl.ptOn !== i) _tlPtOn(i);
+}
+
+document.addEventListener('keydown', function (e) {
+  if (!_tl || _tl.step !== 'time' || !_tl.rec || _tl.busy) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  var on = _tl.ptOn || 0;
   if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
     e.preventDefault();
-    f(e.key === 'ArrowUp' ? step : -step);
-    _tlFocusSeg(order);
-    return;
+    window[_TL_PT[on]](e.key === 'ArrowUp' ? _TL_PT_STEP[on] : -_TL_PT_STEP[on]);
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+    e.preventDefault();
+    _tlPtOn(Math.max(0, Math.min(2, on + (e.key === 'ArrowRight' ? 1 : -1))));
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    _tlSaveTime();
   }
-  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-  e.preventDefault();
-  _tlFocusSeg(String(+order + (e.key === 'ArrowRight' ? 1 : -1)));
+});
+
+function _tlAt(date, mins) { var t = new Date(date); t.setHours(0, mins, 0, 0); return t; }
+
+// Weekday of the spot: stays in the same Sun-Sat week as the first lesson, so
+// the date follows the day; a week later if that lands in the past.
+function _tlStepSpotDay(n) {
+  if (!_tl) return;
+  var w = _tlTimeState(), d = w.date;
+  var day = (d.getDay() + n + 7) % 7;
+  var nd = new Date(d.getFullYear(), d.getMonth(), d.getDate() - d.getDay() + day);
+  if (_tlAt(nd, w.mins) <= new Date()) nd.setDate(nd.getDate() + 7);
+  w.date = nd;
+  _tlRender();
 }
 
-function _tlFocusSeg(order) {
-  var row = document.getElementById('tlDtRow');
-  var el = row && row.querySelector('[data-dt-nav="' + order + '"]');
-  if (el) el.focus();
-}
-
-function _tlStepDay(n)  { if (!_tl) return; var w = _tlTimeState(); w.date.setDate(w.date.getDate() + n); _tlRender(); }
 function _tlStepMins(n) {
   if (!_tl) return;
   var w = _tlTimeState();
@@ -1610,15 +1647,27 @@ function _tlStepMins(n) {
   _tlRender();
 }
 
+// First lesson date: a week at a time, never back into the past.
+function _tlStepWeek(n) {
+  if (!_tl) return;
+  var w = _tlTimeState();
+  var nd = new Date(w.date); nd.setDate(nd.getDate() + 7 * n);
+  if (n < 0 && _tlAt(nd, w.mins) <= new Date()) return;
+  w.date = nd;
+  _tlRender();
+}
+
+// Set (or Enter): save, then close like the Frequency window.
 function _tlSaveTime() {
   if (!_tl) return;
   var w = _tlTimeState();
   var v = _tlTimeValue();
   if (_trFirstLessonDate(v) <= new Date()) return;
   var spot = _tlSpotStr(w.date.getDay(), w.mins);
+  var btn = document.getElementById('tlTimeSet');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
   _tlMark({ firstLesson: v, pencilledSpot: spot });
-  _tlRender();
-  _tlSaveFields({ firstLesson: v, pencilledSpot: spot }, 'tlTimeMsg');
+  _tlSaveFields({ firstLesson: v, pencilledSpot: spot }, 'tlTimeMsg', function () { _tlClose(); });
 }
 
 function _tlSpotStr(day, mins) {
