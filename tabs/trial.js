@@ -592,15 +592,23 @@ function _trRenderPreview(body, boxId) {
         "display:inline-flex;align-items:center;justify-content:center;" +
         "font:9px/1.2 monospace;letter-spacing:1px;color:#6f6c65\">LOGO</div>");
       box.innerHTML =
-        "<div style='margin-top:14px'>" +
+        // 20 above and below the buttons, so they sit centred between the
+        // box you typed in and the paper it becomes.
+        "<div style='margin-top:20px'>" +
           // Same face and metrics as the box you typed it in, so the preview
           // is the same text on paper rather than a different setting.
           //
           // Paper, but dimmed: a white card in a portal this dark is a jolt
           // every time it opens. #d9d5ce still reads as light-on-dark - which
           // is what the recipient will see - without the glare.
-          "<div class='fc-preview' style='background:#d9d5ce;color:#1b1b1b;border:1px solid var(--border);border-radius:10px;padding:22px;" +
-              "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6'>" + html + "</div>" +
+          "<div class='fc-preview' style='position:relative;background:#d9d5ce;color:#1b1b1b;border:1px solid var(--border);border-radius:10px;padding:22px;" +
+              "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6'>" + html +
+            // The portal's own close icon, painted dark for the paper.
+            // No data-tip: the tooltip draws in ::before, which is where
+            // .settings-close paints its icon.
+            "<button class='settings-close fc-preview-x' aria-label='Close preview' " +
+              "onclick='document.getElementById(\"" + boxId + "\").innerHTML=\"\"'>✕</button>" +
+          "</div>" +
           // Closes from the bottom, where you are once you have read it - the
           // same quiet Hide as an opened email thread.
           "<button class='tr-open-btn small' style='margin-top:10px' " +

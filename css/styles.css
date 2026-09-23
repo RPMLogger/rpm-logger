@@ -658,6 +658,8 @@ body::before {
    Outlook override anchors anyway, so the student gets the ordinary blue
    every email has. Do not "fix" the email to match this. */
 .fc-preview a { color: #6e7d8c; }
+.fc-preview .fc-preview-x { position: absolute; top: 14px; right: 14px; color: #8a867e; }
+.fc-preview .fc-preview-x:hover { color: #1b1b1b; }
 
 /* The composer's own focus ring. The rest of the portal keeps the dimmed
    amber (--focus); in here the focused field lights up in the same grey as
@@ -1499,7 +1501,9 @@ a:focus-visible,
 
 /* The shared box, for fields built in JS that had their own inline copy. */
 .rpm-field {
-  box-sizing: border-box; width: 100%;
+  /* Block, not the textarea's default inline-block: that sat on the text
+     baseline and added a stray 5px under every box. */
+  display: block; box-sizing: border-box; width: 100%;
   background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
   padding: 9px 12px; resize: vertical;
 }
