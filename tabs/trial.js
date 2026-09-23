@@ -569,9 +569,14 @@ function _trCopySms(btn) {
 // Render exactly what will be sent (logo shown as a placeholder — the real one
 // is a cid: attachment that only resolves inside the email itself).
 function _trPreviewEmail() {
+  _trRenderPreview((document.getElementById("trFcBody") || {}).value || "", "trFcPreview");
+}
+
+// Shared by every composer that sends the house email (Initiate here, and the
+// Inquiries Maybe / No popup): renders body in the real shell into boxId.
+function _trRenderPreview(body, boxId) {
   var url = getScriptUrl();
-  var body = (document.getElementById("trFcBody") || {}).value || "";
-  var box = document.getElementById("trFcPreview");
+  var box = document.getElementById(boxId);
   if (!url || !box) return;
   box.innerHTML = "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--muted);margin-top:12px'>Rendering…</div>";
   fetch(url + "?action=previewFirstContact&body=" + encodeURIComponent(body))

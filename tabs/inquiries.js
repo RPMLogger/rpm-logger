@@ -402,36 +402,39 @@ function _inqTemplate(decision, name) {
 
 function _inqOpenTemplate(decision, inq) {
   var tpl = _inqTemplate(decision, inq.name);
-  // The title is who you are writing to. Which decision you are in is carried
-  // by the Send button's colour, so the title does not have to repeat it.
-  var label  = inq.name || "This inquiry";
-  var accent = decision === "maybe" ? "var(--warn)" : "var(--accent)";
   var hasEmail = inq.email && inq.email.indexOf("@") !== -1;
+  var which = decision === "maybe" ? "Maybe" : "No";
 
-  // Same box as core/dialog.js: one standard, so every popup in the portal
-  // changes together. This one carries a form, so it takes the wide variant.
+  // The same composer as Initiate's (trial.js _trOpenEmail): NAME · Maybe in
+  // the house title, the address under it, the standard field type, Preview
+  // and Send with the plane. Writing an email looks the same wherever it is.
   var overlay = document.createElement("div");
   overlay.id = "inqModal";
-  overlay.className = "rpm-dlg-overlay";
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;" +
+                          "align-items:center;justify-content:center;padding:18px;overflow:auto";
   overlay.innerHTML =
-    "<div class='rpm-dlg rpm-dlg-wide' role='dialog' aria-modal='true' style='--dlg-accent:" + accent + "'>" +
-      "<div class='rpm-dlg-head'>" +
-        "<div class='rpm-dlg-title'>" + inqEsc(label) + "</div>" +
-        "<button class='rpm-dlg-x' onclick='_inqCloseModal()' aria-label='Close'>✕</button>" +
+    "<div role='dialog' aria-modal='true' style='background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:600px;width:100%;padding:28px;box-sizing:border-box;max-height:92vh;overflow:auto'>" +
+      "<div class='settings-title' style='margin-bottom:8px'>" +
+        "<span>" + inqEsc(inq.name || "This inquiry") +
+          "<span style='color:var(--muted)'> \u00b7 " + which + "</span></span>" +
+        "<button class='settings-close' onclick='_inqCloseModal()'>✕</button>" +
       "</div>" +
+      "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:" + (hasEmail ? "var(--muted)" : "var(--warn)") + ";margin-bottom:20px'>" +
+        (hasEmail ? inqEsc(inq.email) : "No email on file. This only records the decision.") + "</div>" +
       (hasEmail
-        ? "<div class='rpm-dlg-meta'>To: " + inqEsc(inq.email) + "</div>"
-        : "<div class='rpm-dlg-meta warn'>No email on file. This only records the decision.</div>") +
-      "<div class='rpm-dlg-label'>Subject</div>" +
-      "<input id='inqTplSubject' class='rpm-dlg-input' value='" + inqEsc(tpl.subject) + "'>" +
-      "<div class='rpm-dlg-label'>Body</div>" +
-      "<textarea id='inqTplBody' class='rpm-dlg-textarea' rows='9'>" + inqEsc(tpl.body) + "</textarea>" +
+        ? "<input id='inqTplSubject' class='rpm-field' style='margin-bottom:14px' value='" + inqEsc(tpl.subject) + "'>" +
+          "<textarea id='inqTplBody' rows='12' class='rpm-field'>" + inqEsc(tpl.body) + "</textarea>"
+        : "") +
       "<div id='inqModalStatus'></div>" +
-      "<div class='rpm-dlg-acts'>" +
-        "<button class='rpm-dlg-btn' onclick='_inqCloseModal()'>Cancel</button>" +
-        "<button id='inqSendBtn' class='rpm-dlg-btn act' onclick='_inqSubmitTemplate(\"" + decision + "\"," +
-          (hasEmail ? "true" : "false") + ")'>" + (hasEmail ? "Send" : "Record decision") + "</button>" +
+      "<div style='display:flex;gap:8px;margin-top:20px'>" +
+        (hasEmail
+          ? "<button class='db-mini-btn' onclick='_inqPreviewEmail()'>Preview</button>" +
+            "<button class='db-mini-btn strong' id='inqSendBtn' onclick='_inqSubmitTemplate(\"" + decision + "\",true)' " +
+              "style='display:inline-flex;align-items:center;gap:7px'>" + SEND_ICON + "<span>Send</span></button>"
+          : "<button class='db-mini-btn strong' id='inqSendBtn' onclick='_inqSubmitTemplate(\"" + decision + "\",false)'>" +
+              "<span>Record decision</span></button>") +
       "</div>" +
+      "<div id='inqTplPreview'></div>" +
     "</div>";
   overlay._inq = inq;
   overlay.addEventListener("click", function (ev) { if (ev.target === overlay) _inqCloseModal(); });
@@ -442,7 +445,12 @@ function _inqOpenTemplate(decision, inq) {
   // cursor goes to the end rather than selecting, so a keystroke cannot wipe
   // the template.
   var ta = document.getElementById("inqTplBody");
-  if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+  if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); ta.scrollTop = 0; }
+}
+
+// The email as it will arrive: same house shell, rendered by the backend.
+function _inqPreviewEmail() {
+  _trRenderPreview((document.getElementById("inqTplBody") || {}).value || "", "inqTplPreview");
 }
 
 // Escape closes it, the same reflex the rest of the portal's dialogs give you.
@@ -464,7 +472,7 @@ function _inqSubmitTemplate(decision, send) {
   var body = (document.getElementById("inqTplBody") || {}).value || "";
   var st = document.getElementById("inqModalStatus");
   var btn = document.getElementById("inqSendBtn");
-  if (btn) { btn.disabled = true; btn.style.opacity = "0.5"; btn.textContent = "Sending…"; }
+  if (btn) { btn.disabled = true; btn.style.opacity = "0.5"; (btn.querySelector("span") || btn).textContent = send ? "Sending…" : "Saving…"; }
   if (st) st.innerHTML = "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--accent2);margin-top:8px'>" + (send ? "Sending email + filing…" : "Filing…") + "</div>";
   _inqSendDecision(decision, inq, { send: send, subject: subject, body: body });
 }
@@ -504,7 +512,8 @@ function _inqSendDecision(decision, inq, tpl) {
       if (!d || !d.success) {
         var st = document.getElementById("inqModalStatus");
         if (st) st.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>⚠ " + ((d && d.message) || "Failed") + "</div>";
-        else _inqToast("⚠ " + ((d && d.message) || "Failed"), "var(--accent)");
+        _inqSendBtnReset();
+        if (!st) _inqToast("⚠ " + ((d && d.message) || "Failed"), "var(--accent)");
         _inqBusy(document.getElementById("inq-c" + inq.col), decision, null);
         return;
       }
@@ -525,9 +534,19 @@ function _inqSendDecision(decision, inq, tpl) {
     .catch(function () {
       var st = document.getElementById("inqModalStatus");
       if (st) st.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>❌ Could not reach the portal.</div>";
-      else _inqToast("❌ Could not reach the portal.", "var(--accent)");
+      _inqSendBtnReset();
+      if (!st) _inqToast("❌ Could not reach the portal.", "var(--accent)");
       _inqBusy(document.getElementById("inq-c" + inq.col), decision, null);
     });
+}
+
+// After a failed send the popup stays open; put Send back so it can be retried.
+function _inqSendBtnReset() {
+  var b = document.getElementById("inqSendBtn");
+  if (!b) return;
+  b.disabled = false; b.style.opacity = "";
+  var sp = b.querySelector("span");
+  if (sp) sp.textContent = sp.textContent === "Saving…" ? "Record decision" : "Send";
 }
 
 function _inqRemoveCard(domId) {
