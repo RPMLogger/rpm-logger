@@ -88,7 +88,7 @@ function renderInquiryReplies(replies) {
   var btn   = document.getElementById("inqRespBtn");
   var n     = document.getElementById("inqRespN");
   var count = (replies || []).length;
-  if (n)   n.textContent = " \u00b7 " + count;
+  if (n)   n.textContent = count ? " \u00b7 " + count : "";   // just "Replies" when there are none
   if (btn) btn.classList.toggle("lit", count > 0);
   if (!strip) return;
   strip.innerHTML = count
