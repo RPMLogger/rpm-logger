@@ -33,10 +33,6 @@ function inqEsc(s) {
 
 // ── Entry point (called from switchTab) ──────────────────────────────────────
 function initInquiriesTab() {
-  // The archive button's folder icon lives in icons.js, so it is added here
-  // rather than pasted into index.html.
-  var ab = document.getElementById("inqArchiveBtn");
-  if (ab && !ab.querySelector("svg") && typeof ARCHIVE_ICON !== "undefined") ab.insertAdjacentHTML("afterbegin", ARCHIVE_ICON);
   loadBusinessStrip();
   loadInquiryReplies();
   setInqView("email");   // always land on Email — never a mixed view

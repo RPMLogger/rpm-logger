@@ -500,6 +500,11 @@ body::before {
    even before whatever it opens has finished loading. */
 .link-btn:hover  { color: var(--text); border-color: var(--muted); background: var(--surface2); }
 .link-btn:active { background: color-mix(in srgb, #fff 10%, var(--surface2)); transform: translateY(1px); }
+/* After a click the button stays lit for a moment (core/dialog.js), so it is
+   clear the press landed while a sheet opens in a new tab or a tab loads. */
+.link-btn.pressed { color: var(--text); border-color: var(--muted); background: var(--surface2); }
+.link-btn.amber.pressed { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 55%, transparent); background: color-mix(in srgb, var(--accent2) 10%, transparent); }
+.link-btn.green.pressed { color: var(--green);   border-color: color-mix(in srgb, var(--green) 55%, transparent);   background: color-mix(in srgb, var(--green) 10%, transparent); }
 .link-btn.lit       { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 55%, transparent); background: color-mix(in srgb, var(--warn) 6%, transparent); }
 .link-btn.lit:hover { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); }
 .link-btn.amber       { color: color-mix(in srgb, var(--accent2) 60%, var(--muted));
@@ -511,6 +516,9 @@ body::before {
                         border-color: color-mix(in srgb, var(--green) 28%, transparent);
                         background: color-mix(in srgb, var(--green) 4%, transparent); }
 .link-btn.green:hover { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 10%, transparent); }
+/* Icon slots inside link buttons (filled by icons.js from data-icon). */
+.link-btn [data-icon] { display: inline-flex; }
+.arrow-icon.fwd { transform: scaleX(-1); }
 /* Spreadsheet page, the user's om-16 artwork: a raster, so it is a mask
    painted in currentColor rather than an inline <svg>. */
 .sheet-icon {
@@ -1390,7 +1398,10 @@ a:focus-visible,
   /* Syne, not DM Mono: helper text about a field should not look like the
      data in the field. */
   font-family: "Syne", sans-serif; font-size: 10px; letter-spacing: 0.2px;
-  line-height: 1.5; white-space: nowrap; text-align: left;
+  line-height: 1.5; text-align: left;
+  /* One format for every tip: its own width up to 190px, then it wraps.
+     Short tips stay one line, long ones become the same narrow box. */
+  white-space: normal; width: max-content; max-width: 190px;
   opacity: 0; pointer-events: none; z-index: 9990;
   transition: opacity .12s ease .35s;
   box-shadow: 0 6px 18px rgba(0,0,0,0.55);
@@ -1401,8 +1412,8 @@ a:focus-visible,
 /* A button at the right edge would push its tooltip off the card. */
 [data-tip-left]::before { left: auto; right: 0; transform: none; }
 
-/* Long helper text wraps instead of running off the card. */
-[data-tip-wrap]::before { white-space: normal; width: 190px; }
+/* data-tip-wrap is now the default for every tip (see above); the attribute
+   is kept on old markup but does nothing extra. */
 
 @media (prefers-reduced-motion: reduce) { [data-tip]::before { transition: none; } }
 

@@ -156,3 +156,16 @@ function rpmPrompt(opts) {
   opts.kind = "prompt";
   return _rpmDialog(opts);
 }
+
+
+// ─── LINK BUTTONS: the press stays lit ──────────────────────────────────────
+// A link button either opens a sheet in a new browser tab (nothing in the
+// portal changes) or switches tab and loads. Either way the click gave no sign
+// it landed. Hold the lit look for 2.5s so it visibly did.
+document.addEventListener("click", function (e) {
+  var b = e.target.closest && e.target.closest(".link-btn");
+  if (!b) return;
+  b.classList.add("pressed");
+  clearTimeout(b._pressT);
+  b._pressT = setTimeout(function () { b.classList.remove("pressed"); }, 2500);
+});
