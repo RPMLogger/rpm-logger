@@ -669,7 +669,8 @@ body::before {
 #trFcModal input:focus-visible,
 #trFcModal textarea:focus-visible,
 #tlModal   input:focus-visible,
-#tlModal   textarea:focus-visible { outline-color: var(--muted); }
+#tlModal   textarea:focus-visible,
+#tsModal   input:focus-visible { outline-color: var(--muted); }
 
 /* The same grey for the buttons inside an email thread on a Trial card (Show,
    Hide, Reply), which otherwise fell back to the browser's blue ring. */
