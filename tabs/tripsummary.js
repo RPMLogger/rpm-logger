@@ -81,8 +81,8 @@ function _tsActiveCard(trip) {
     ? 'font-size:11px;padding:5px 13px;font-weight:700;letter-spacing:.3px;background:#ffb400;color:#1a1200;border:1px solid #ffb400;border-radius:5px;cursor:pointer;box-shadow:0 0 10px rgba(255,180,0,0.35);transition:transform .1s,box-shadow .1s'
     : 'font-size:11px;padding:5px 13px;font-weight:600;letter-spacing:.3px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:5px;cursor:not-allowed;opacity:.55';
   var archAttrs  = _archReady
-    ? " data-tip='Archive this trip → Trip History'"
-    : " disabled data-tip='All students must confirm before this trip can be archived'";
+    ? " data-tip='Moves this trip to Trip History'"
+    : " disabled data-tip='Locked until every student confirms'";
   hdr.innerHTML =
     "<div style='display:flex;justify-content:space-between;align-items:center;gap:8px'>" +
       "<span style='font-weight:700;font-size:13px'>" + trip.tripStart + ' → ' + trip.tripEnd + testBadge + reviewBadge + "</span>" +

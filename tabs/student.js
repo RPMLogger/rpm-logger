@@ -244,7 +244,7 @@ function _stRenderDetail() {
       "<div style='font-family:\"Syne\",sans-serif;font-weight:400;font-size:20px;letter-spacing:0.3px'>" + d.name + "</div>" +
       subLine +
     "</div>" +
-    "<button id='stBack' data-tip='Close' style='padding:5px 10px;font-size:15px;line-height:1;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>✕</button>";
+    "<button id='stBack' data-tip='Closes the student' style='padding:5px 10px;font-size:15px;line-height:1;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>✕</button>";
   section.appendChild(hdr);
   document.getElementById('stBack').onclick = function() { _stState.view = 'search'; _stRenderSearch(); };
 

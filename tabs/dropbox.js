@@ -206,7 +206,7 @@ function renderDropbox(d) {
 // One student folder card — click opens the folder in the local Dropbox app.
 // Empty folders show a green "EMPTY" badge; full ones show file count + age.
 function _dbCard(f) {
-  var open = 'onclick="openDropboxLocalFolder(\'' + _dbEsc(f.name) + '\')" data-tip="Open in Dropbox app" ';
+  var open = 'onclick="openDropboxLocalFolder(\'' + _dbEsc(f.name) + '\')" data-tip="Opens in the Dropbox app" ';
   var col = f.empty ? 'var(--green)' : _dbAgeColor(f.ageDays);
   var chrome = 'style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' + col + ';' +
     'border-radius:10px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px"';
@@ -241,7 +241,7 @@ function _dbCard(f) {
 // trigger the card's open-in-Dropbox click. Present on every student card.
 function _dbRecoverBtn(name) {
   return '<button onclick="event.stopPropagation();_dbRecoverFolder(\'' + _dbEsc(name) + '\',this)" ' +
-    'data-tip="Put back this student’s recently-deleted files (last 30 days)" ' +
+    'data-tip="Restores this student’s deleted files from the last 30 days" ' +
     'style="margin-top:7px;font-family:\'DM Mono\',monospace;font-size:10px;background:transparent;color:var(--muted);' +
     'border:1px solid var(--border);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap">↺ Recover</button>';
 }
@@ -249,7 +249,7 @@ function _dbRecoverBtn(name) {
 // A teacher (non-student) folder card — same card shape, neutral blue spine,
 // file count + size, no age/cleanup signal. Click opens it locally.
 function _dbTeacherCard(c) {
-  return '<div onclick="openDropboxLocalFolder(\'' + _dbEsc(c.name) + '\')" data-tip="Open in Dropbox app" ' +
+  return '<div onclick="openDropboxLocalFolder(\'' + _dbEsc(c.name) + '\')" data-tip="Opens in the Dropbox app" ' +
     'style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--blue);' +
     'border-radius:10px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px">' +
     '<div style="min-width:0">' +

@@ -80,15 +80,15 @@ function _trAcceptedCard(a) {
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || "") + '"></div>' +
       '<div class="inq-acts">' +
         '<button class="db-mini-btn" onclick="_trReopen(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
-          'data-tip="Send back to Inquiries as undecided" data-tip-wrap>\u2190 Inquiries</button>' +
+          'data-tip="Card goes back to Inquiries undecided, Nothing is sent" data-tip-wrap>\u2190 Inquiries</button>' +
         // For the ones he emailed who never came back. Sending them "back to
         // Inquiries" only parks them there undecided; this removes them.
         '<button class="db-mini-btn danger" onclick="_trDelete(\'' + em + '\',' + (a.col || 0) + ',\'' + _trEsc(a.name || '') + '\', this)" ' +
-          'data-tip="Delete this inquiry for good" data-tip-wrap>Delete</button>' +
+          'data-tip="Asks first, Deletes the inquiry for good" data-tip-wrap>Delete</button>' +
         '<button class="db-mini-btn go opens-window" onclick="_trOpenEmail(\'' + em + '\')" ' +
-          'data-tip="Opens the composer with a first-contact draft - nothing sends until you press Send" data-tip-wrap>Email</button>' +
+          'data-tip="Opens the email composer with a first-contact draft, Nothing sends until you press Send" data-tip-wrap>Email</button>' +
         '<button class="db-mini-btn" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
-          'data-tip="Opens a booking window with their name and email - you pick the date and time" data-tip-wrap data-tip-left>Book \u2192</button>' +
+          'data-tip="Opens the booking window with their name and email, You pick the date and time" data-tip-wrap data-tip-left>Book \u2192</button>' +
       '</div>' +
     '</div>';
 }
@@ -731,7 +731,7 @@ function _trBookAccepted(name, email) {
     // and this one creates a calendar event and mails the student.
     '<div style="display:flex;justify-content:flex-end;margin-top:24px">' +
       '<button class="db-mini-btn go" id="tbBookBtn" style="padding:7px 20px" ' +
-        'onclick="_trBook(\'tb\')" data-tip="Creates the calendar event and emails them the confirmation" data-tip-wrap data-tip-left>Book</button>' +
+        'onclick="_trBook(\'tb\')" data-tip="Creates the calendar event, Emails them the confirmation" data-tip-wrap data-tip-left>Book</button>' +
     '</div>';
 
   _trRenderOfferedSlots(email, 'tb');
@@ -1179,10 +1179,10 @@ function _trActionsHtml(a) {
   return '<div id="tracts-' + id + '" style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">' +
       '<div class="inq-acts">' +
         '<button class="inq-db yes" onclick="_msOpen(\'' + em + '\')" ' +
-          'data-tip="Opens a window - nothing changes until you confirm there" data-tip-wrap data-tip-left>Confirm Student</button>' +
+          'data-tip="Opens a window, Nothing changes until you confirm there" data-tip-wrap data-tip-left>Confirm Student</button>' +
         '<button class="inq-db no" id="trnobtn-' + id + '" ' +
           'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')" ' +
-          'data-tip="Marks the trial Unsuccessful and removes the card - asks first" data-tip-wrap data-tip-left>Dismiss</button>' +
+          'data-tip="Asks first, Marks the trial Unsuccessful, Card disappears from Trial" data-tip-wrap data-tip-left>Dismiss</button>' +
       '</div>' +
     '</div>';
 }
@@ -1353,7 +1353,7 @@ function _tlLogHtml(a, s) {
     '</div>' +
     '<div class="ll-acts">' +
       // Icon only, at the size of the Copy / Send buttons in the composer.
-      '<button class="db-mini-btn ll-mic" id="tlMicBtn" data-tip="Dictate" onclick="_tlMic()">' + MIC_ICON + '</button>' +
+      '<button class="db-mini-btn ll-mic" id="tlMicBtn" data-tip="Starts or stops dictation" onclick="_tlMic()">' + MIC_ICON + '</button>' +
       '<button class="db-mini-btn go ll-log" id="tlLogBtn" onclick="_tlLogWhat()" disabled>Log</button>' +
       '<span class="ll-state" id="tlWhatMsg"></span>' +
     '</div>';
@@ -1709,7 +1709,7 @@ function _tlUploadHtml(folder) {
       'font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);cursor:pointer">' + inqEsc(idle) + '</div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
       '<button class="btn-settings-load" style="margin:0;flex:1" onclick="openDropboxLocalFolder(document.getElementById(\'tlDrop\').dataset.folder)" ' +
-        'data-tip="Opens their synced Dropbox folder in Finder. Drag as many folders in as you like; Dropbox uploads them.">\ud83d\udcc1 Open in Finder</button>' +
+        'data-tip="Opens their synced Dropbox folder in Finder, Drag folders in and Dropbox uploads them">\ud83d\udcc1 Open in Finder</button>' +
       '<button class="btn-settings-load" style="margin:0;flex:1" onclick="document.getElementById(\'tlFolderIn\').click()">\ud83d\udcc2 Browse folder</button>' +
     '</div>' +
     '<input type="file" id="tlFileIn" multiple style="display:none" onchange="_tlPicked(this, false)">' +
@@ -2063,7 +2063,7 @@ function _tsShowBook() {
     // because it creates a calendar event and mails the student.
     '<div style="display:flex;justify-content:flex-end;margin-top:24px">' +
       '<button class="db-mini-btn go" id="tsBookBtn" style="padding:7px 20px" ' +
-        'onclick="_trBook(\'ts\')" data-tip="Creates the calendar event and emails them the confirmation" data-tip-wrap data-tip-left>Book</button>' +
+        'onclick="_trBook(\'ts\')" data-tip="Creates the calendar event, Emails them the confirmation" data-tip-wrap data-tip-left>Book</button>' +
     '</div>';
   ov.classList.add('open');
   var f = document.getElementById('tsFirst');

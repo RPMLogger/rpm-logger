@@ -111,9 +111,9 @@ function _inqReplyRow(r) {
       "<div class='inq-reply-text'>" + inqEsc(r.snippet) + "</div>" +
       "<div class='inq-reply-acts'>" +
         "<a class='inq-db' href='" + gmail + "' target='_blank' " +
-          "data-tip='opens the thread in gmail' data-tip-wrap>Read</a>" +
+          "data-tip='Opens the thread in Gmail' data-tip-wrap>Read</a>" +
         "<button class='inq-db yes' onclick='_inqReopen(\"" + inqEsc(r.email) + "\", this)' " +
-          "data-tip='clears the decision - the card comes back to this tab undecided' data-tip-wrap data-tip-left>" +
+          "data-tip='Card comes back to Inquiries undecided, Nothing is sent' data-tip-wrap data-tip-left>" +
           "Reopen</button>" +
       "</div>" +
     "</div>";
