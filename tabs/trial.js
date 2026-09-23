@@ -602,6 +602,10 @@ function _trRenderPreview(body, boxId) {
           // is what the recipient will see - without the glare.
           "<div class='fc-preview' style='background:#d9d5ce;color:#1b1b1b;border:1px solid var(--border);border-radius:10px;padding:22px;" +
               "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6'>" + html + "</div>" +
+          // Closes from the bottom, where you are once you have read it - the
+          // same quiet Hide as an opened email thread.
+          "<button class='tr-open-btn small' style='margin-top:10px' " +
+            "onclick='document.getElementById(\"" + boxId + "\").innerHTML=\"\"'>Hide \u25b4</button>" +
         "</div>";
     })
     .catch(function () { box.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:12px'>❌ Could not reach the portal.</div>"; });
