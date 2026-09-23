@@ -1970,7 +1970,10 @@ function _trStageBookHtml() {
       '<hr class="divider" style="margin:20px 0 16px">' +
       _trManualFormHtml('ts') + '<div id="tsStatus"></div>' +
     '</div>' +
-    '<hr class="divider" style="margin:22px 0 20px">';
+    '<hr class="divider" style="margin:22px 0 16px">' +
+    // The section label sits after the rule, so it heads the cards and not
+    // the booking button.
+    '<div class="section-label">Trial · Booked</div>';
 }
 
 function _tsShowBook() {
