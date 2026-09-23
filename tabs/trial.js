@@ -373,8 +373,8 @@ function _trMsgRow(m, them) {
   // Them green, you amber: each side of the exchange has its own colour, so
   // who said what reads down the edge without reading the headers.
   var edge = mine ? 'var(--warn)' : 'var(--green)';
-  return '<div class="tr-msg"><div style="border-left:2px solid ' + edge + ';padding:0 0 0 9px;margin-bottom:10px">' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:' + edge + ';margin:4px 0 8px">' +
+  return '<div class="tr-msg"><div style="border-left:2px solid ' + edge + ';padding:0 0 0 9px;margin-bottom:20px">' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:' + edge + ';margin:6px 0 16px">' +
         inqEsc(who) +
         '<span style="font-size:10px;color:var(--muted)"> · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) + '</span>' +
       '</div>' +
@@ -1012,7 +1012,7 @@ function _trStageCard(a) {
       '</div>' +
       // "TRIAL - Sun, Sep 13 - 11:15 AM" on its own line, then a divider.
       (when
-        ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;margin-top:4px;color:' +
+        ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:0.3px;margin-top:4px;color:' +
             (a.trialPast ? 'var(--muted)' : 'var(--green)') + '">' +
             'TRIAL ON - ' + inqEsc(when.replace(/^(\w{3})\s+/, '$1, ').replace(/\s+·\s+/, ', ')) +
           '</div>'
@@ -1131,10 +1131,12 @@ function _trStepsHtml(a) {
 
   function step(x, n) {
     var done = x.key === 'terms' ? (st.termsBack || st.termsSent) : st[x.key];
+    // A logged lesson is logged: step 8 keeps its tick but no longer opens.
+    var flat = x.noWindow || (x.key === 'log' && done);
     return '<div class="tr-step' + (done ? ' is-done' : '') + '">' +
              '<span class="tr-step-n">' + n + '.</span>' +
-             '<button class="tr-step-b' + (x.lesson ? ' lesson' : '') + (done ? ' done' : '') + (x.noWindow ? ' flat' : '') + '" ' +
-               (x.noWindow ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
+             '<button class="tr-step-b' + (x.lesson ? ' lesson' : '') + (done ? ' done' : '') + (flat ? ' flat' : '') + '" ' +
+               (flat ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
                '<span>' + x.label + '</span>' +
              '</button>' +
            '</div>';
@@ -1319,65 +1321,95 @@ function _tlDbxHtml(a, s) {
 }
 
 // ── Log lesson ──
+// The same window as Home's Log Lesson (#logPanel, lessons.js): three rows,
+// mic button, Log. Rows join as "Row 1 - Row 2 - Row 3" in Title Case. Only
+// Log saves, and a logged lesson is final: step 8 stops opening this window
+// (see _trStepsHtml), so it always starts empty.
+var _TL_ROWS = ['Type, or press the mic and talk', 'Row 2 — tap to continue here', 'Row 3 — tap to continue here'];
+
 function _tlLogHtml(a, s) {
-  var rec = _tl.rec || {};
-  var v = rec.whatWeDid || s.whatWeDid || '';
-  // Enter logs it (and closes); Shift+Enter is a new line.
-  return '<textarea id="tlWhat" rows="7" onblur="_tlSaveWhat()" placeholder="Type, or press the mic and talk" ' +
-      'onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();_tlLogWhat();}" ' +
-      'class="rpm-field">' + inqEsc(v) + '</textarea>' +
-    '<div style="display:flex;gap:8px;align-items:center;margin-top:8px">' +
-      '<button class="btn-settings-load" id="tlMicBtn" style="margin:0;width:auto;padding-left:18px;padding-right:18px" onclick="_tlMic()">' + MIC_ICON + ' Mic</button>' +
-      '<button class="btn-settings-load go" id="tlLogBtn" style="margin:0;width:auto;padding-left:22px;padding-right:22px" onclick="_tlLogWhat()">Log</button>' +
-      '<span id="tlMicState" style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)"></span>' +
+  _tl.row = 0;
+  return '<div class="ll-rows">' +
+      _TL_ROWS.map(function (ph, i) {
+        return '<textarea class="rpm-field ll-row' + (i ? '' : ' active') + '" id="tlRow-' + i + '" rows="2" ' +
+          'placeholder="' + ph + '" onfocus="_tlRow(' + i + ')" oninput="_tlLogReady()"></textarea>';
+      }).join('') +
     '</div>' +
-    _tlMsg('tlWhatMsg');
+    '<div class="ll-acts">' +
+      // Icon only, at the size of the Copy / Send buttons in the composer.
+      '<button class="db-mini-btn ll-mic" id="tlMicBtn" data-tip="Dictate" onclick="_tlMic()">' + MIC_ICON + '</button>' +
+      '<button class="db-mini-btn go ll-log" id="tlLogBtn" onclick="_tlLogWhat()" disabled>Log</button>' +
+      '<span class="ll-state" id="tlWhatMsg"></span>' +
+    '</div>';
+}
+
+// The red edge marks the row the mic writes into.
+function _tlRow(i) {
+  if (!_tl) return;
+  _tl.row = i;
+  document.querySelectorAll('#tlModal .ll-row').forEach(function (el, j) { el.classList.toggle('active', j === i); });
+}
+
+// Log wakes up once any row has words in it, as on Home.
+function _tlLogReady() {
+  var b = document.getElementById('tlLogBtn');
+  if (!b || !_tl || _tl.logged || _tl.logging) return;
+  b.disabled = !_TL_ROWS.some(function (x, i) { var t = document.getElementById('tlRow-' + i); return t && t.value.trim(); });
 }
 
 var _tlMicRec = null;
 
 function _tlMic() {
   if (_tlMicRec) { try { _tlMicRec.stop(); } catch (e) {} return; }
+  if (!_tl || _tl.logged) return;
   var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!Rec) { _tlSetMsg('tlWhatMsg', '⚠ Speech not supported here. Use Chrome.', 'var(--accent)'); return; }
-  var ta = document.getElementById('tlWhat');
-  if (!ta) return;
-  var base = ta.value.replace(/\s+$/, '');
-  var finals = '';
   var r = new Rec();
   r.lang = 'en-US'; r.continuous = true; r.interimResults = true;
 
+  // Words go into whichever row is active; tapping another row mid-recording
+  // carries on there, appending to what that row already holds.
+  var cur = -1, base = '', finals = '';
+  function target() {
+    var i = (_tl && _tl.row) || 0;
+    if (i !== cur) {
+      cur = i; finals = '';
+      var t0 = document.getElementById('tlRow-' + i);
+      base = t0 ? t0.value.replace(/\s+$/, '') : '';
+    }
+    return document.getElementById('tlRow-' + i);
+  }
   function join(interim) {
-    return [base, (finals + ' ' + (interim || '')).replace(/\s+/g, ' ').trim()]
-      .filter(function (x) { return x; }).join(base && /[.!?]$/.test(base) ? ' ' : (base ? ' ' : ''));
+    var said = (finals + ' ' + (interim || '')).replace(/\s+/g, ' ').trim();
+    return [base, said].filter(function (x) { return x; }).join(' ');
+  }
+  function micLook(on) {
+    var b = document.getElementById('tlMicBtn');
+    if (b) { b.innerHTML = on ? MIC_STOP_ICON : MIC_ICON; b.classList.toggle('rec', on); }
   }
   r.onstart = function () {
-    var b = document.getElementById('tlMicBtn');
-    if (b) { b.textContent = '■ Stop'; b.style.borderColor = 'var(--accent)'; b.style.color = 'var(--accent)'; }
-    var st = document.getElementById('tlMicState');
-    if (st) { st.textContent = '🔴 recording…'; st.style.color = 'var(--accent)'; }
+    micLook(true);
+    _tlSetMsg('tlWhatMsg', 'Recording', 'var(--accent)');
     try { playBeep(880, 100); } catch (e) {}
   };
   r.onresult = function (ev) {
+    var t = target();
     var interim = '';
     for (var i = ev.resultIndex; i < ev.results.length; i++) {
       if (ev.results[i].isFinal) finals += ' ' + ev.results[i][0].transcript;
       else interim += ev.results[i][0].transcript;
     }
-    var t = document.getElementById('tlWhat');
     if (t) t.value = join(interim);
+    _tlLogReady();
   };
   r.onend = function () {
     _tlMicRec = null;
-    var t = document.getElementById('tlWhat');
+    var t = cur >= 0 ? document.getElementById('tlRow-' + cur) : null;
     if (t) t.value = join('');
-    var b = document.getElementById('tlMicBtn');
-    if (b) { b.innerHTML = MIC_ICON + ' Mic'; b.style.borderColor = ''; b.style.color = ''; }
-    var st = document.getElementById('tlMicState');
-    if (st) { st.textContent = 'review & edit'; st.style.color = 'var(--muted)'; }
+    micLook(false);
+    _tlSetMsg('tlWhatMsg', '');
     try { playBeep(440, 80, 0.15); } catch (e) {}
     if (_tl && _tl.logAfterMic) { _tl.logAfterMic = false; _tlLogWhat(); }
-    else _tlSaveWhat();
   };
   r.onerror = function (e) {
     if (e.error === 'no-speech') return;
@@ -1387,29 +1419,33 @@ function _tlMic() {
   r.start();
 }
 
-function _tlSaveWhat(force) {
-  var url = getScriptUrl();
-  var ta = document.getElementById('tlWhat');
-  if (!url || !_tl || !ta) return;
-  if (_tlMicRec && !force) return;             // saved when the mic stops
-  var v = ta.value.trim();
-  if (!force && ta.getAttribute('data-last') === v) return;
-  if (!force && v === String((_tl.rec || {}).whatWeDid || '').trim()) return;
-  _tlSaveFields({ whatWeDid: v }, 'tlWhatMsg', function () { ta.setAttribute('data-last', v); });
-}
-
-// Log: save the Log lesson and close. If the mic is still on, stop it first and
-// log once the last words are in.
+// Log: join the rows and save. If the mic is still on, stop it first and log
+// once the last words are in. The window stays open and says so; Done closes.
 function _tlLogWhat() {
-  var ta = document.getElementById('tlWhat');
-  if (!_tl || !ta) return;
+  if (!_tl || _tl.logged || _tl.logging) return;
   if (_tlMicRec) { _tl.logAfterMic = true; try { _tlMicRec.stop(); } catch (e) {} return; }
-  var v = ta.value.trim();
+  var v = _TL_ROWS.map(function (x, i) { var t = document.getElementById('tlRow-' + i); return t ? t.value.trim() : ''; })
+    .filter(function (x) { return x; }).map(toTitleCase).join(' - ');
   if (!v) { _tlSetMsg('tlWhatMsg', 'Nothing to log yet.', 'var(--accent)'); return; }
   var btn = document.getElementById('tlLogBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Logging…'; }
-  _tlSaveFields({ whatWeDid: v }, 'tlWhatMsg', function () { _tlClose(); });
-  setTimeout(function () { var b = document.getElementById('tlLogBtn'); if (b && _tl) { b.disabled = false; b.textContent = 'Log'; } }, 8000);
+  _tl.logging = true;
+  _tlSaveFields({ whatWeDid: v }, 'tlWhatMsg', function () {
+    if (!_tl) return;
+    _tl.logged = true;
+    _TL_ROWS.forEach(function (x, i) { var t = document.getElementById('tlRow-' + i); if (t) t.readOnly = true; });
+    var mic = document.getElementById('tlMicBtn');
+    if (mic) mic.disabled = true;
+    var b = document.getElementById('tlLogBtn');
+    if (b) b.textContent = 'Logged';
+    _tlSetMsg('tlWhatMsg', 'Lesson logged ✓', 'var(--green)');
+  });
+  setTimeout(function () {
+    if (!_tl || _tl.logged) return;
+    _tl.logging = false;
+    var b = document.getElementById('tlLogBtn');
+    if (b) { b.disabled = false; b.textContent = 'Log'; }
+  }, 8000);
 }
 
 // ── + · Send HW ──

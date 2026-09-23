@@ -912,7 +912,7 @@ function _floatLogPanel() {
   back.onclick = function(e) { if (e.target === back) closeLogPanel(); };
   document.body.appendChild(back);
   back.appendChild(panel);
-  panel.style.cssText = "width:min(560px,94vw);max-height:88vh;overflow:auto;margin:0;z-index:9999";
+  panel.style.cssText = "width:min(600px,94vw);max-height:88vh;overflow:auto;margin:0;z-index:9999";
 }
 
 function _unfloatLogPanel() {

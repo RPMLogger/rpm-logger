@@ -62,17 +62,24 @@ function toggleLog(student, idx) {
     openLogFresh(student, idx);
     return;
   }
+  toggleLogMic();
+}
+
+// The mic button. Recording is never automatic: opening the window only opens it.
+function toggleLogMic() {
+  if (!activeStudent || activeStudent.logged) return;
   if (isRecording) {
     stopRecordingClean();
-    setRecordingUI(false, idx);
-    document.getElementById("logPanelStatus").textContent = "review & edit";
-    document.getElementById("logPanelStatus").classList.add("idle");
+    setRecordingUI(false, activeStudent.idx);
     updateLogButton();
   } else {
-    resetRows();
-    document.getElementById("btnLog").disabled = true;
-    startRecording(idx);
+    startRecording(activeStudent.idx);
   }
+}
+
+function _logState(text, color) {
+  var el = document.getElementById("logPanelStatus");
+  if (el) { el.textContent = text || ""; el.style.color = color || "var(--muted)"; }
 }
 
 function openLogFresh(student, idx) {
@@ -81,8 +88,10 @@ function openLogFresh(student, idx) {
   document.getElementById("logPanelName").textContent = student.name;
   resetRows();
   document.getElementById("btnLog").disabled = true;
-  document.getElementById("btnLog").className = "btn-log";
-  document.getElementById("btnLog").textContent = "Log It →";
+  document.getElementById("btnLog").textContent = "Log";
+  var mic = document.getElementById("logMicBtn");
+  if (mic) { mic.innerHTML = MIC_ICON; mic.classList.remove("rec"); mic.disabled = false; }
+  _logState("");
 
   var ex = document.getElementById("trialPaidToggle");
   if (ex) ex.remove();
@@ -97,19 +106,20 @@ function openLogFresh(student, idx) {
     };
     document.getElementById("logActions").insertBefore(tog, document.getElementById("btnLog"));
   }
-
-  startRecording(idx);
 }
 
 function setRecordingUI(recording, idx) {
   document.querySelectorAll(".today-btn").forEach(function(b) { b.classList.remove("recording"); });
+  var mic = document.getElementById("logMicBtn");
+  if (mic) { mic.innerHTML = recording ? MIC_STOP_ICON : MIC_ICON; mic.classList.toggle("rec", !!recording); }
   if (recording) {
     if (idx !== undefined) {
       var tb = document.getElementById("tbtn-" + idx);
       if (tb) tb.classList.add("recording");
     }
-    document.getElementById("logPanelStatus").textContent = "🔴 recording...";
-    document.getElementById("logPanelStatus").classList.remove("idle");
+    _logState("Recording", "var(--accent)");
+  } else if (!(activeStudent && activeStudent.logged)) {
+    _logState("");
   }
 }
 
@@ -150,8 +160,6 @@ function startRecording(idx) {
       isRecording = false;
       setRecordingUI(false, idx);
       playBeep(440, 80, 0.15);
-      document.getElementById("logPanelStatus").textContent = "review & edit";
-      document.getElementById("logPanelStatus").classList.add("idle");
       updateLogButton();
     }
   };
@@ -170,8 +178,10 @@ function stopRecordingClean() {
     recognition._suppressed = true;
     recognition.stop();
   }
+  // Beep only when something was actually recording: closing a window you
+  // typed into should be silent.
+  if (isRecording) playBeep(440, 80, 0.15);
   isRecording = false;
-  playBeep(440, 80, 0.15);
 }
 
 function stopRecording() {
@@ -195,7 +205,8 @@ function submitLog() {
 
   var student = activeStudent.student;
   var btn = document.getElementById("btnLog");
-  btn.textContent = "Logging..."; btn.disabled = true;
+  btn.textContent = "Logging…"; btn.disabled = true;
+  _logState("");
 
   var trialPaid = false;
   var pe = document.getElementById("trialPaidCheck");
@@ -213,8 +224,14 @@ function submitLog() {
         if (t.name === student.name && t.eventDate === student.eventDate) t.alreadyLogged = true;
       });
       addLog("lessonFeed", "✓ " + student.name + " — " + subject, "success");
-      document.getElementById("logPanel").classList.remove("active");
-      activeStudent = null;
+      // The window stays open and says so; Done (or ✕) closes it. Logged is
+      // final here, so the rows and buttons lock.
+      if (activeStudent) activeStudent.logged = true;
+      btn.textContent = "Logged";
+      var mic = document.getElementById("logMicBtn");
+      if (mic) mic.disabled = true;
+      for (var r2 = 0; r2 < 3; r2++) document.getElementById("rowInput-" + r2).readOnly = true;
+      _logState("Lesson logged ✓", "var(--green)");
       renderTodayGrid();
       // If this log came from the Home/student page, re-fetch that student's
       // detail so the Past section reflects the lesson just logged. Same hook
@@ -227,9 +244,9 @@ function submitLog() {
       // If this log came from the Audit tab's fix-1 flow, restore the modal to
       // its home and optimistically drop just the resolved chip — no full
       // re-audit. The ↻ Refresh button re-verifies against the sheets on demand.
+      // The panel stays floated until Done: closeLogPanel puts it back.
       if (window._auditFixActive) {
         window._auditFixActive = false;
-        if (typeof _unfloatLogPanel === "function") _unfloatLogPanel();
         var res = window._auditResolve;
         window._auditResolve = null;
         if (res && typeof _auditRemoveResolved === "function") {
@@ -239,7 +256,7 @@ function submitLog() {
         }
       }
     } else {
-      btn.textContent = "Log It →"; btn.disabled = false;
+      btn.textContent = "Log"; btn.disabled = false;
       addLog("lessonFeed", "❌ " + (data.message || "Error logging"), "error");
     }
   });
@@ -251,7 +268,7 @@ function setActiveRow(idx) {
   var oldInp = document.getElementById("rowInput-" + activeRow);
   if (oldInp) rowFinals[activeRow] = oldInp.value.trim();
   activeRow = idx;
-  document.querySelectorAll(".transcript-row").forEach(function(el, i) {
+  document.querySelectorAll("#logRows .ll-row").forEach(function(el, i) {
     el.classList.toggle("active", i === idx);
   });
 }
@@ -268,6 +285,7 @@ function updateLogButton() {
   for (var r = 0; r < 3; r++) {
     if (document.getElementById("rowInput-" + r).value.trim()) { any = true; break; }
   }
+  if (activeStudent && activeStudent.logged) return;
   document.getElementById("btnLog").disabled = !any;
 }
 
@@ -275,10 +293,10 @@ function resetRows() {
   rowFinals = ["", "", ""];
   for (var r = 0; r < 3; r++) {
     var el = document.getElementById("rowInput-" + r);
-    if (el) el.value = "";
+    if (el) { el.value = ""; el.readOnly = false; }
   }
   activeRow = 0;
-  document.querySelectorAll(".transcript-row").forEach(function(el, i) {
+  document.querySelectorAll("#logRows .ll-row").forEach(function(el, i) {
     el.classList.toggle("active", i === 0);
   });
 }

@@ -250,12 +250,8 @@ body::before {
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
 /* ─── LOG PANEL ───────────────────────────────────────────────────────────── */
-.log-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; margin-bottom: 14px; display: none; }
+.log-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 14px; display: none; }
 .log-panel.active { display: block; }
-.log-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.log-panel-name { font-family: "Syne", sans-serif; font-size: 11px; font-weight: 400; letter-spacing: 0.5px; color: var(--muted); }
-.log-panel-status { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
-.log-panel-status.idle { color: var(--muted); }
 .transcript-box {
   width: 100%; min-height: 54px; background: var(--surface2);
   border: 1px solid var(--border); border-radius: 4px; padding: 11px;
@@ -264,7 +260,6 @@ body::before {
 }
 .transcript-box:focus { border-color: var(--accent); }
 .transcript-box::placeholder { color: var(--muted); font-style: italic; font-size: 11px; }
-.log-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .trial-paid {
   display: flex; align-items: center; gap: 8px; padding: 8px 12px;
   background: var(--surface2); border: 1px solid var(--border); border-radius: 4px;
@@ -612,10 +607,13 @@ body::before {
    waiting are what the eye lands on; only pending steps keep the full face.
    Hover brings a done step back up, since it is still a door into its form. */
 .tr-step-b.done,
-.tr-step-b.lesson.done       { color: rgba(255,255,255,0.28); border-color: color-mix(in srgb, var(--muted) 22%, transparent); background: transparent; }
+.tr-step-b.lesson.done       { color: rgba(255,255,255,0.24); border-color: color-mix(in srgb, var(--muted) 22%, transparent); background: transparent; }
 .tr-step-b.done:hover,
 .tr-step-b.lesson.done:hover { color: var(--accent2); border-color: var(--accent2); background: color-mix(in srgb, #fff 4%, transparent); }
 .tr-step-b.flat       { cursor: default; }
+/* A logged lesson is done, not reopened: step 8 keeps its tick and stops
+   being a door, so hover leaves it where it rests. */
+.tr-step-b.flat.done:hover { color: rgba(255,255,255,0.24); border-color: color-mix(in srgb, var(--muted) 22%, transparent); background: transparent; }
 
 /* ─── INQUIRY ARCHIVE ─────────────────────────────────────────────────────── */
 /* The same card, read-only: no accent edge, because nothing here is waiting
@@ -678,7 +676,7 @@ body::before {
 
 /* A rule between messages in a thread: long emails ran into each other and
    the only break was the small header line. */
-.tr-msg + .tr-msg { border-top: 1px solid var(--border); padding-top: 10px; }
+.tr-msg + .tr-msg { border-top: 1px solid var(--border); padding-top: 20px; }
 
 /* Trial tab: every green and yellow at the "Terms accepted" strength (70%).
    Full-strength green and amber read louder than anything on the card needs
@@ -693,7 +691,7 @@ body::before {
           color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
 .inq-name  { font-family: "Syne", sans-serif; font-size: 16px; font-weight: 400; color: var(--text); }
 .inq-fields { display: grid; grid-template-columns: auto 1fr; gap: 3px 16px; margin-top: 8px; font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.5; }
-.inq-flabel { color: rgba(255,255,255,0.82); white-space: nowrap; }
+.inq-flabel { color: rgba(255,255,255,0.24); white-space: nowrap; }
 .inq-fval   { color: rgba(255,255,255,0.5); }
 .inq-acts  { display: flex; align-items: center; gap: 6px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
 /* Decision buttons: uppercase, full colour, each on a faint wash of that same
@@ -714,8 +712,8 @@ body::before {
    borrows from: by the time a card reaches here the decision is already made,
    so the buttons close the card rather than ask for attention. Hover brings
    them back to full strength. */
-[id^="tracts-"] .inq-db.yes { color: color-mix(in srgb, var(--green) 72%, transparent);  border-color: color-mix(in srgb, var(--green) 34%, transparent);  background: color-mix(in srgb, var(--green) 4%, transparent); }
-[id^="tracts-"] .inq-db.no  { color: color-mix(in srgb, var(--accent) 72%, transparent); border-color: color-mix(in srgb, var(--accent) 34%, transparent); background: color-mix(in srgb, var(--accent) 4%, transparent); }
+[id^="tracts-"] .inq-db.yes { color: color-mix(in srgb, var(--green) 84%, transparent);  border-color: color-mix(in srgb, var(--green) 42%, transparent);  background: color-mix(in srgb, var(--green) 6%, transparent); }
+[id^="tracts-"] .inq-db.no  { color: color-mix(in srgb, var(--accent) 84%, transparent); border-color: color-mix(in srgb, var(--accent) 42%, transparent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
 [id^="tracts-"] .inq-db.yes:hover { color: var(--green);  border-color: color-mix(in srgb, var(--green) 55%, transparent);  background: color-mix(in srgb, var(--green) 14%, transparent); }
 [id^="tracts-"] .inq-db.no:hover  { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
 /* ─── OPENS A WINDOW ──────────────────────────────────────────────────────── */
@@ -1014,16 +1012,6 @@ body::before {
 #weekTabGrid .pay-history-row   { display: block; }
 #weekTabGrid { display: block; }
 
-/* ─── Multi-row transcript ───────────────────────────────────────────── */
-.log-rows { display: block; margin-bottom: 10px; }
-.log-rows .transcript-row {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 6px;
-  border-left: 3px solid transparent;
-  transition: border-color 0.15s;
-}.log-rows .transcript-row.active { border-left-color: var(--accent); }
 
 /* ── Estimator ────────────────────────────────────────────────────────── */
 .est-btn        { width:26px; height:26px; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text); font-size:16px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
@@ -1449,6 +1437,25 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 
 /* Shared mic icon (MIC_ICON in core/utils.js) */
 .mic-icon { display: inline-block; vertical-align: middle; }
+/* ─── LOG LESSON WINDOW ───────────────────────────────────────────────────
+   One look wherever a lesson gets logged: Home / Audit (#logPanel, lessons.js)
+   and the Trial card's step 8 (trial.js _tlLogHtml). Three rows that join into
+   one "Row 1 - Row 2 - Row 3" line; the red edge marks where the mic writes.
+   Mic is a button, never automatic. After Log the window stays and says
+   "Lesson logged"; Done closes it. */
+.ll-rows { display: flex; flex-direction: column; gap: 6px; }
+.ll-rows .ll-row { resize: none; border-left: 2px solid var(--border); transition: border-color .15s; }
+.ll-rows .ll-row.active { border-left-color: var(--accent); }
+.ll-acts { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+/* Icon only, same box as the Copy / Send buttons (9px pad, 13px glyph). */
+.db-mini-btn.ll-mic { padding: 9px 12px; align-self: stretch; display: inline-flex; align-items: center; justify-content: center; }
+.db-mini-btn.ll-mic svg { width: 13px; height: 13px; }
+.db-mini-btn.ll-mic.rec { color: var(--accent); border-color: var(--accent); }
+.db-mini-btn.ll-log { padding: 9px 16px; }
+.db-mini-btn.ll-log:disabled { opacity: 0.4; cursor: default; }
+.ll-state { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
+.ll-foot { display: flex; justify-content: flex-end; margin-top: 16px; }
+.db-mini-btn.ll-done { padding: 7px 20px; }
 
 /* ─── THE FIELD ───────────────────────────────────────────────────────────
    One type for everything you type into, portal wide.
