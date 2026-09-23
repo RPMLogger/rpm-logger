@@ -373,9 +373,11 @@ function inqDecide(decision, domId) {
   var card = document.getElementById("inq-" + domId);
   if (!card || !card._inq) return;
   var inq = card._inq;
-  if (decision === "yes") return _inqSendDecision("yes", inq, null);
+  // Yes and No reply go straight to the backend, which takes a few seconds.
+  // Say so on the card at once instead of sitting still until it answers.
+  if (decision === "yes")     { _inqBusy(card, decision, "Moving…");   return _inqSendDecision("yes", inq, null); }
   // No reply → silent clear, no popup, no email (still keeps the address).
-  if (decision === "noreply") return _inqSendDecision("noreply", inq, { send: false, subject: "", body: "" });
+  if (decision === "noreply") { _inqBusy(card, decision, "Clearing…"); return _inqSendDecision("noreply", inq, { send: false, subject: "", body: "" }); }
   // Maybe / No → open the editable template popup.
   _inqOpenTemplate(decision, inq);
 }
@@ -467,6 +469,21 @@ function _inqSubmitTemplate(decision, send) {
   _inqSendDecision(decision, inq, { send: send, subject: subject, body: body });
 }
 
+// The card while its decision is on the way: dimmed, buttons locked, the
+// pressed one saying what is happening. label null puts it back (on failure).
+function _inqBusy(card, decision, label) {
+  if (!card) return;
+  var on = label != null;
+  card.classList.toggle("inq-busy", on);
+  card.querySelectorAll(".inq-acts button").forEach(function (b) {
+    b.disabled = on;
+    if (b.getAttribute("onclick").indexOf('"' + decision + '"') !== -1) {
+      if (on) { b._was = b.textContent; b.textContent = label; }
+      else if (b._was) b.textContent = b._was;
+    }
+  });
+}
+
 function _inqSendDecision(decision, inq, tpl) {
   var url = getScriptUrl();
   if (!url) return;
@@ -487,6 +504,8 @@ function _inqSendDecision(decision, inq, tpl) {
       if (!d || !d.success) {
         var st = document.getElementById("inqModalStatus");
         if (st) st.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>⚠ " + ((d && d.message) || "Failed") + "</div>";
+        else _inqToast("⚠ " + ((d && d.message) || "Failed"), "var(--accent)");
+        _inqBusy(document.getElementById("inq-c" + inq.col), decision, null);
         return;
       }
       _inqCloseModal();
@@ -507,6 +526,8 @@ function _inqSendDecision(decision, inq, tpl) {
     .catch(function () {
       var st = document.getElementById("inqModalStatus");
       if (st) st.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>❌ Could not reach the portal.</div>";
+      else _inqToast("❌ Could not reach the portal.", "var(--accent)");
+      _inqBusy(document.getElementById("inq-c" + inq.col), decision, null);
     });
 }
 
