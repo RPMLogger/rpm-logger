@@ -80,11 +80,11 @@ function _trAcceptedCard(a) {
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || "") + '"></div>' +
       '<div class="inq-acts">' +
         '<button class="db-mini-btn" onclick="_trReopen(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
-          'data-tip="Send back to Inquiries as undecided">\u2190 Inquiries</button>' +
+          'data-tip="Send back to Inquiries as undecided" data-tip-wrap>\u2190 Inquiries</button>' +
         // For the ones he emailed who never came back. Sending them "back to
         // Inquiries" only parks them there undecided; this removes them.
         '<button class="db-mini-btn danger" onclick="_trDelete(\'' + em + '\',' + (a.col || 0) + ',\'' + _trEsc(a.name || '') + '\', this)" ' +
-          'data-tip="Delete this inquiry for good">Delete</button>' +
+          'data-tip="Delete this inquiry for good" data-tip-wrap>Delete</button>' +
         '<button class="db-mini-btn go opens-window" onclick="_trOpenEmail(\'' + em + '\')" ' +
           'data-tip="Opens the composer with a first-contact draft - nothing sends until you press Send" data-tip-wrap>Email</button>' +
         '<button class="db-mini-btn" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
