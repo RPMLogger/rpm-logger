@@ -74,24 +74,31 @@ function loadInquiryReplies() {
   var strip = document.getElementById("inqRepliesStrip");
   if (!strip) return;
   var url = getScriptUrl();
-  if (!url) { strip.innerHTML = ""; return; }
+  if (!url) return;
   fetch(url + "?action=getInquiryReplies")
     .then(function (r) { return r.json(); })
     .then(function (d) { renderInquiryReplies(d && d.success ? d.replies : []); })
-    .catch(function () { strip.innerHTML = ""; });   // silent: this is a bonus, not the tab
+    .catch(function () {});   // silent: the button just stays dim
 }
 
+// The Responses button carries the count and the colour; the list under it
+// opens on click. The button names the section, so the list has no heading.
 function renderInquiryReplies(replies) {
   var strip = document.getElementById("inqRepliesStrip");
+  var btn   = document.getElementById("inqRespBtn");
+  var n     = document.getElementById("inqRespN");
+  var count = (replies || []).length;
+  if (n)   n.textContent = " \u00b7 " + count;
+  if (btn) btn.classList.toggle("lit", count > 0);
   if (!strip) return;
-  if (!replies || !replies.length) { strip.innerHTML = ""; return; }   // nothing to say
+  strip.innerHTML = count
+    ? "<div class='inq-replies'>" + replies.map(_inqReplyRow).join("") + "</div>"
+    : "<div class='inq-resp-none'>No responses in the last 15 days.</div>";
+}
 
-  strip.innerHTML =
-    "<div class='inq-replies'>" +
-      "<div class='inq-replies-head'>⚠ " + replies.length + " repl" + (replies.length === 1 ? "y" : "ies") +
-        " to a Maybe or a No</div>" +
-      replies.map(_inqReplyRow).join("") +
-    "</div>";
+function _inqToggleReplies() {
+  var strip = document.getElementById("inqRepliesStrip");
+  if (strip) strip.style.display = strip.style.display === "none" ? "" : "none";
 }
 
 function _inqReplyRow(r) {
@@ -309,11 +316,13 @@ function renderInquiries(inquiries) {
       "</div>" +
       "<div class='inq-fields'>" + fieldsHtml + "</div>" +
       "<div class='inq-acts'>" +
-        btn("yes",   "yes",     "Yes",      "accepts - no email sent - moves to initiate - stays in inquiries sheet") +
-        btn("maybe opens-window", "maybe", "Maybe", "\"try again in future\" email template opens - saves in email list - stays in inquiries sheet") +
-        btn("no opens-window",    "no",    "No",    "\"no room, try different teachers\" email template opens - no email list - stays in inquiries sheet", true) +
-        btn("",      "noreply", "No reply", "no email sent - kept on email list for later - stays in inquiries sheet", true) +
-        btn("opens-window", "scam", "Scam", "marks as scam - deletes the email - deletes the inquiry", true) +
+        // What it does, then where it leaves the person: Email List, and
+        // whether the inquiry stays in the Inquiries sheet (the archive).
+        btn("yes",   "yes",     "Yes",      "Card moves from Inquiries to Initiate, Not saved in Email list, Stays in Inquiry Archive") +
+        btn("maybe opens-window", "maybe", "Maybe", "Opens \"try later\" email template, Card disappears from Inquiries on send, Saved in Email list, Stays in Inquiry Archive") +
+        btn("no opens-window",    "no",    "No",    "Opens \"no room\" email template, Card disappears from Inquiries on send, Not saved in Email list, Stays in Inquiry Archive", true) +
+        btn("",      "noreply", "No reply", "Card disappears from Inquiries, Saved in Email list, Stays in Inquiry Archive", true) +
+        btn("opens-window", "scam", "Scam", "Asks first, Trashes the email, Card disappears from Inquiries, Deleted from Inquiry Archive", true) +
       "</div>";
 
     card._inq = inq;

@@ -476,6 +476,22 @@ body::before {
 .rpm-count.lead .rpm-count-l { color: var(--warn); opacity: 0.75; }
 
 /* ─── Inquiries: replies to a Maybe or a No ─────────────────────────────── */
+/* The row at the top of Inquiries: the archive link, then the Responses
+   button. The button is always there as a reminder; it rests dim grey and
+   turns amber when someone has written back. Design to be revisited once a
+   real reply comes in. */
+.inq-toplinks { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin: 0 0 18px; }
+.inq-toplinks .inq-archive.top { margin: 0; }
+.inq-resp-btn {
+  font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.3px;
+  padding: 4px 10px; border-radius: 6px; cursor: pointer;
+  background: transparent; border: 1px solid var(--border); color: var(--muted);
+  transition: color .12s, border-color .12s, background .12s;
+}
+.inq-resp-btn:hover { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); }
+.inq-resp-btn.lit { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 55%, transparent); background: color-mix(in srgb, var(--warn) 6%, transparent); }
+.inq-resp-btn.lit:hover { background: color-mix(in srgb, var(--warn) 14%, transparent); }
+.inq-resp-none { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); margin: 0 0 18px; }
 /* Amber, because it wants attention but nothing is wrong. Absent entirely
    when there is nothing to report: an empty warning strip is noise. */
 .inq-replies {
