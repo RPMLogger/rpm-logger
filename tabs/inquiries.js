@@ -300,7 +300,7 @@ function renderInquiries(inquiries) {
     var fieldsHtml = inqCardFieldsHtml(inq);
 
     function btn(cls, dec, label, tip, tipLeft) {
-      return "<button class='inq-db " + cls + "' " +
+      return "<button class='inq-db " + cls + "' data-dec='" + dec + "' " +
         (tip ? "data-tip='" + inqEsc(tip) + "' data-tip-wrap " + (tipLeft ? "data-tip-left " : "") : "") +
         "onclick='" + (dec === "scam" ? "inqScam" : "inqDecide") +
         "(" + (dec === "scam" ? "" : "\"" + dec + "\",") + "\"" + id + "\")'>" + label + "</button>";
@@ -352,10 +352,14 @@ function inqScam(domId) {
   var inq = card._inq;
   rpmConfirm({
     title: "Mark as scam?",
-    message: "It stays in the Inquiries archive marked \"Scam\" and leaves the list.",
+    message: "Trashes the email, Deletes the inquiry from the Inquiry Archive, Can't be undone.",
     confirmLabel: "Mark as scam",
     danger: true
-  }).then(function (ok) { if (ok) _inqScamGo(inq); });
+  }).then(function (ok) {
+    if (!ok) return;
+    _inqBusy(card, "scam", "Deleting…");
+    _inqScamGo(inq);
+  });
 }
 
 function _inqScamGo(inq) {
@@ -366,14 +370,21 @@ function _inqScamGo(inq) {
   fetch(url + "?" + qs)
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (!d || !d.success) { _inqToast("⚠ " + ((d && d.message) || "Scam failed"), "var(--accent)"); return; }
+      if (!d || !d.success) {
+        _inqBusy(document.getElementById("inq-c" + inq.col), "scam", null);
+        _inqToast("⚠ " + ((d && d.message) || "Scam failed"), "var(--accent)");
+        return;
+      }
       _inqRemoveCard("c" + inq.col);
       _inqToast(d.purged
         ? "🚫 Deleted — email trashed, inquiry removed"
         : "🚫 Marked Scam — the email was not found, inquiry kept",
         "var(--muted)");
     })
-    .catch(function () { _inqToast("❌ Could not reach the portal.", "var(--accent)"); });
+    .catch(function () {
+      _inqBusy(document.getElementById("inq-c" + inq.col), "scam", null);
+      _inqToast("❌ Could not reach the portal.", "var(--accent)");
+    });
 }
 
 
@@ -494,7 +505,7 @@ function _inqBusy(card, decision, label) {
   card.classList.toggle("inq-busy", on);
   card.querySelectorAll(".inq-acts button").forEach(function (b) {
     b.disabled = on;
-    if (b.getAttribute("onclick").indexOf('"' + decision + '"') !== -1) {
+    if (b.getAttribute("data-dec") === decision) {
       if (on) { b._was = b.textContent; b.textContent = label; }
       else if (b._was) b.textContent = b._was;
     }

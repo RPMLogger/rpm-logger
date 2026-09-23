@@ -1463,7 +1463,9 @@ a:focus-visible,
 .rpm-dlg-btn.go:hover     { background: rgba(46,204,113,0.16); }
 .rpm-dlg-btn.danger { color: var(--accent); border-color: rgba(232,70,58,0.55); }
 .rpm-dlg-btn.danger:hover { background: rgba(232,70,58,0.16); }
-.rpm-dlg-btn:focus-visible { outline: 2px solid var(--warn); outline-offset: 2px; }
+/* Same thin grey ring as every other button. The dialog still focuses Cancel
+   on open, so Enter is the safe answer. */
+.rpm-dlg-btn:focus-visible { outline: 1px solid var(--muted); outline-offset: -1px; }
 
 /* Shared mic icon (MIC_ICON in core/utils.js) */
 .mic-icon { display: inline-block; vertical-align: middle; }
