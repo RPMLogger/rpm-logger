@@ -593,7 +593,6 @@ function _trRenderPreview(body, boxId) {
         "font:9px/1.2 monospace;letter-spacing:1px;color:#6f6c65\">LOGO</div>");
       box.innerHTML =
         "<div style='margin-top:14px'>" +
-          "<div class='section-label' style='margin-bottom:6px'>Preview</div>" +
           // Same face and metrics as the box you typed it in, so the preview
           // is the same text on paper rather than a different setting.
           //

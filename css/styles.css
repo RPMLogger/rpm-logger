@@ -673,10 +673,6 @@ body::before {
 #inqModal  textarea:focus-visible,
 #logPanel  textarea:focus-visible { outline-color: var(--muted); }
 
-/* The same grey for the buttons inside an email thread on a Trial card (Show,
-   Hide, Reply), which otherwise fell back to the browser's blue ring. */
-[id^="fcth-"] button:focus-visible { outline: 1px solid var(--muted); outline-offset: -1px; }
-
 /* A rule between messages in a thread: long emails ran into each other and
    the only break was the small header line. */
 .tr-msg + .tr-msg { border-top: 1px solid var(--border); padding-top: 20px; }
@@ -1113,6 +1109,14 @@ body::before {
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
+
+/* Buttons and links, portal wide: Chrome's thick blue ring (white halo and
+   all) becomes a thin grey line on the button's own border. Still there for
+   the keyboard, just not a colour nobody picked. Classes that set their own
+   ring (.rpm-dlg-btn, .dt-arrow) outrank this and keep theirs. */
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible { outline: 1px solid var(--muted); outline-offset: -1px; }
 
 .settings-input:focus-visible,
 .transcript-box:focus-visible   { outline-color: var(--accent); }
