@@ -374,7 +374,7 @@ function _trMsgRow(m, them) {
   // who said what reads down the edge without reading the headers.
   var edge = mine ? 'var(--warn)' : 'var(--green)';
   return '<div class="tr-msg"><div style="border-left:2px solid ' + edge + ';padding:0 0 0 9px;margin-bottom:10px">' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);margin-bottom:3px">' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:' + edge + ';margin:4px 0 8px">' +
         inqEsc(who) +
         '<span style="font-size:10px;color:var(--muted)"> · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) + '</span>' +
       '</div>' +
