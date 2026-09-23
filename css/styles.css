@@ -483,31 +483,36 @@ body::before {
 .inq-toplinks { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin: 0 0 18px; }
 .inq-toplinks .inq-archive.top { margin: 0; }
 .inq-toplinks > :last-child:not(:first-child) { margin-left: auto; }
-/* Quick-open link to a source sheet. Same look as the Home tab's
-   Student Import / RPM-Counter buttons (student.js _stMakeLinksBar). */
-.sheet-link {
-  padding: 4px 10px; font-size: 10px; letter-spacing: 0.5px; text-decoration: none; white-space: nowrap;
-  background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;
-}
-.inq-resp-btn {
-  font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.3px;
+/* ─── LINK BUTTONS ──────────────────────────────────────────────────────
+   A kind of their own: a door to another place (a tab, a sheet), no state of
+   their own except Replies lighting up. Grey at rest; .amber for a place
+   inside the portal (Inquiry Archive, Back to Inquiries); .lit when there is
+   something waiting. Icons sit before the words at 13px.
+   (Was .inq-resp-btn. Not .sheet-link: that name belongs to the Sheets tab.) */
+.link-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.3px; text-decoration: none;
   padding: 4px 10px; border-radius: 6px; cursor: pointer;
   background: transparent; border: 1px solid var(--border); color: var(--muted);
   transition: color .12s, border-color .12s, background .12s;
 }
 /* Hover lights it up clearly; pressing dips it, so a click visibly lands
    even before whatever it opens has finished loading. */
-.inq-resp-btn:hover  { color: var(--text); border-color: var(--muted); background: var(--surface2); }
-.inq-resp-btn:active { background: color-mix(in srgb, #fff 10%, var(--surface2)); transform: translateY(1px); }
-.inq-resp-btn.lit { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 55%, transparent); background: color-mix(in srgb, var(--warn) 6%, transparent); }
-.inq-resp-btn.lit:hover { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); }
-/* Blue = a way somewhere else in the portal (the archive), not a state. */
-/* The archive door: the same dimmed amber the link had, with its folder icon. */
-.inq-resp-btn.amber       { display: inline-flex; align-items: center; gap: 7px;
-                            color: color-mix(in srgb, var(--accent2) 60%, var(--muted));
-                            border-color: color-mix(in srgb, var(--accent2) 28%, transparent);
-                            background: color-mix(in srgb, var(--accent2) 4%, transparent); }
-.inq-resp-btn.amber:hover { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 55%, transparent); background: color-mix(in srgb, var(--accent2) 10%, transparent); }
+.link-btn:hover  { color: var(--text); border-color: var(--muted); background: var(--surface2); }
+.link-btn:active { background: color-mix(in srgb, #fff 10%, var(--surface2)); transform: translateY(1px); }
+.link-btn.lit       { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 55%, transparent); background: color-mix(in srgb, var(--warn) 6%, transparent); }
+.link-btn.lit:hover { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); }
+.link-btn.amber       { color: color-mix(in srgb, var(--accent2) 60%, var(--muted));
+                        border-color: color-mix(in srgb, var(--accent2) 28%, transparent);
+                        background: color-mix(in srgb, var(--accent2) 4%, transparent); }
+.link-btn.amber:hover { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 55%, transparent); background: color-mix(in srgb, var(--accent2) 10%, transparent); }
+/* Spreadsheet page, the user's om-16 artwork: a raster, so it is a mask
+   painted in currentColor rather than an inline <svg>. */
+.sheet-icon {
+  display: inline-block; width: 11px; height: 13px; flex: none; background: currentColor;
+  -webkit-mask: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAwCAQAAAA4eaudAAADEklEQVR42rWXz2sTURDHP+/ta9LEpLSlLRVKpSJ4ES96EU89eBER9KgHL0W9ePfkHyKKhx4EoSeh+OMk+A+IJ0UQxR9oW601TZMm742HbjbvxWR3G+sMLJl98747852ZtxslAAoY5yFjWDRZorDMYFjkIxE2WBMEiQS5KssSSUF0phZEy3UReSWz8d5Eu7GU+ITF4jLV4lAIJ3nOFJaoG1wXzlGI085Odu/a4ARPGPcJ0l7Wjv2Joc0pVqniOjgajcFgGKUc/xqkUV/AMzymlAAmNJZk2ic1RY0gN0SkJRJfn0lBlGjBcJzTKKCFo5jK2CarPW3RifAcK1zCoZENyS9LghgxgtwUF0cnIrIrIiuiRGsmaWNpZ2oDy5EkphoKm6imwWUe4AyCyVnJiBYAFsVTPjEXrME1yiZXp4UdJ2jWWOQ2Cyhvv+OiYRhxKN6x9Nf9F8PB7UWokOCeZmRYOPrPkMHlZG+vhzPnTueeUJXa5rHTKmchrpCkJlfneYYPSmAKFXOhU5ukTi01NM1LA6zHhmE3s+8y2NOAwqC4wh0UI6gUzVGKTs1GKXvVUylT8XfNA7gO1ba/y/4O6H7PLjOBo4WKiVBB00Y9D/7WXTV96Z6hRYM5mlg2GKPKZ4+5Bd57vrNss9VZ7T9kbX5RY5Hz3GKHNi02vdWfgVXqrWw/sYBmg2JcqsHTKoO460qBeXb4wGuOUKFKBeMlO5cAKoRp3mXBWerU+EaEw+BwbHpwE0myCqHkt48ZMJ9b1IM7/nj9DqxaNnfhF4HrYWsI7hbYTqwqFQpesvNBU03zNpu7dS+JJk3WPLgKax6cycNdnR3Px3gW7ARW42C5c3m4O+pxV6FKMeBOeclO8SYLrs1Xj7sxtvniwRX5EhynObhreidzk2JwTu/2WJnc6dRjs9fKjK7FPI3ErcgoI96mycC3zI80OAG+8r3nhe3H+z6wHNKdDZNyQA22bdqb7ADlP8Kpf8RSPpyKP1WHF4vVXrPOppGcQypMqOQP6CSPKPZ87Vki7rLMfY5xgcPcS6FEOMSLP3frqPaeijBDAAAAAElFTkSuQmCC) center / contain no-repeat;
+          mask: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAwCAQAAAA4eaudAAADEklEQVR42rWXz2sTURDHP+/ta9LEpLSlLRVKpSJ4ES96EU89eBER9KgHL0W9ePfkHyKKhx4EoSeh+OMk+A+IJ0UQxR9oW601TZMm742HbjbvxWR3G+sMLJl98747852ZtxslAAoY5yFjWDRZorDMYFjkIxE2WBMEiQS5KssSSUF0phZEy3UReSWz8d5Eu7GU+ITF4jLV4lAIJ3nOFJaoG1wXzlGI085Odu/a4ARPGPcJ0l7Wjv2Joc0pVqniOjgajcFgGKUc/xqkUV/AMzymlAAmNJZk2ic1RY0gN0SkJRJfn0lBlGjBcJzTKKCFo5jK2CarPW3RifAcK1zCoZENyS9LghgxgtwUF0cnIrIrIiuiRGsmaWNpZ2oDy5EkphoKm6imwWUe4AyCyVnJiBYAFsVTPjEXrME1yiZXp4UdJ2jWWOQ2Cyhvv+OiYRhxKN6x9Nf9F8PB7UWokOCeZmRYOPrPkMHlZG+vhzPnTueeUJXa5rHTKmchrpCkJlfneYYPSmAKFXOhU5ukTi01NM1LA6zHhmE3s+8y2NOAwqC4wh0UI6gUzVGKTs1GKXvVUylT8XfNA7gO1ba/y/4O6H7PLjOBo4WKiVBB00Y9D/7WXTV96Z6hRYM5mlg2GKPKZ4+5Bd57vrNss9VZ7T9kbX5RY5Hz3GKHNi02vdWfgVXqrWw/sYBmg2JcqsHTKoO460qBeXb4wGuOUKFKBeMlO5cAKoRp3mXBWerU+EaEw+BwbHpwE0myCqHkt48ZMJ9b1IM7/nj9DqxaNnfhF4HrYWsI7hbYTqwqFQpesvNBU03zNpu7dS+JJk3WPLgKax6cycNdnR3Px3gW7ARW42C5c3m4O+pxV6FKMeBOeclO8SYLrs1Xj7sxtvniwRX5EhynObhreidzk2JwTu/2WJnc6dRjs9fKjK7FPI3ErcgoI96mycC3zI80OAG+8r3nhe3H+z6wHNKdDZNyQA22bdqb7ADlP8Kpf8RSPpyKP1WHF4vVXrPOppGcQypMqOQP6CSPKPZ87Vki7rLMfY5xgcPcS6FEOMSLP3frqPaeijBDAAAAAElFTkSuQmCC) center / contain no-repeat;
+}
 .inq-resp-none { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); margin: 0 0 18px; }
 /* Amber, because it wants attention but nothing is wrong. Absent entirely
    when there is nothing to report: an empty warning strip is noise. */
