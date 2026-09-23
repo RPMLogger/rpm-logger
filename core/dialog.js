@@ -40,12 +40,12 @@ function _rpmDialog(opts) {
     var title = document.createElement("div");
     title.className = "rpm-dlg-title";
     title.textContent = opts.title || "Are you sure?";
-    if (opts.danger) title.classList.add("danger");
+    // No red title: the action button already carries the danger colour.
     head.appendChild(title);
 
     var x = document.createElement("button");
     x.type = "button";
-    x.className = "rpm-dlg-x";
+    x.className = "settings-close rpm-dlg-x";   // the portal's own close icon
     x.setAttribute("aria-label", "Close");
     x.textContent = "✕";
     head.appendChild(x);
