@@ -679,6 +679,15 @@ body::before {
    the only break was the small header line. */
 .tr-msg + .tr-msg { border-top: 1px solid var(--border); padding-top: 10px; }
 
+/* Trial tab: every green and yellow at the "Terms accepted" strength (70%).
+   Full-strength green and amber read louder than anything on the card needs
+   to be. Scoped to the tab panel, so its modals (appended to body) keep theirs. */
+#tab-trial {
+  --green:   rgba(46,204,113,0.7);
+  --warn:    rgba(217,164,65,0.7);
+  --accent2: rgba(240,165,0,0.7);
+}
+
 .fc-new { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
           color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
 .inq-name  { font-family: "Syne", sans-serif; font-size: 16px; font-weight: 400; color: var(--text); }
