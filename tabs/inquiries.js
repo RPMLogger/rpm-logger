@@ -510,11 +510,10 @@ function _inqSendDecision(decision, inq, tpl) {
       }
       _inqCloseModal();
       _inqRemoveCard("c" + inq.col);
+      // Yes needs no message: the busy card leaving is the confirmation.
+      if (decision === "yes") return;
       var note, color;
-      if (decision === "yes") {
-        note = "✓ " + (inq.name || "Accepted") + " — reach out to them on the Initiate tab";
-        color = "var(--green)";
-      } else if (decision === "noreply") {
+      if (decision === "noreply") {
         note = "· Cleared silently — address kept on the list";
         color = "var(--muted)";
       } else {
