@@ -2028,7 +2028,7 @@ function _trLoadStageThreads() {
 // between the section label and them. It opens a window like every other form
 // on this tab, rather than unfolding the form in the page.
 function _trStageBookHtml() {
-  return '<hr class="divider" style="margin:22px 0 20px">' +
+  return '<hr class="divider" style="margin:36px 0 32px">' +
     '<button class="tr-open-btn opens-window" onclick="_tsShowBook()">Book a trial manually</button>';
 }
 
