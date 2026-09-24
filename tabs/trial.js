@@ -1008,7 +1008,7 @@ function initTrialStageTab() {
       // The opener goes first, not last. Booking by hand is something you
       // arrive at the tab already meaning to do; it should not be behind a
       // scroll past every trial in progress.
-      if (!_trStageCache.length) { body.innerHTML = '<div class="empty-state">No booked trials.</div>' + _trStageBookHtml(); return; }
+      if (!_trStageCache.length) { body.innerHTML = '<div class="empty-state">None</div>' + _trStageBookHtml(); return; }
       body.innerHTML = _trStageCache.map(_trStageCard).join('') + _trStageBookHtml();
       _trPaintPaid();
       _trLoadStageThreads();
@@ -2056,7 +2056,7 @@ function _trDropStageCard(email) {
   if (card) card.remove();
   _trPayRender();
   var body = document.getElementById('trialStageBody');
-  if (body && !_trStageCache.length) body.innerHTML = '<div class="empty-state">No booked trials.</div>' + _trStageBookHtml();
+  if (body && !_trStageCache.length) body.innerHTML = '<div class="empty-state">None</div>' + _trStageBookHtml();
 }
 
 // After a reply lands, redraw whichever stage is on screen.
@@ -2212,7 +2212,7 @@ function _trPayRender() {
   // payments, and redrawing here once turned "could not load" into the much
   // worse "No trial payments waiting", which reads as "nobody has paid".
   if (!_trPayOk) return;
-  if (!_trPayCache.length) { body.innerHTML = '<div class="empty-state">No trial payments waiting.</div>'; _trPaintPaid(); return; }
+  if (!_trPayCache.length) { body.innerHTML = '<div class="empty-state">None</div>'; _trPaintPaid(); return; }
   body.innerHTML = _trPayCache.map(_trPayCard).join('');
   _trPaintPaid();
 }
