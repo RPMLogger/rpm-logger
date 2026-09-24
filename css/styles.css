@@ -703,7 +703,7 @@ body::before {
 .inq-dcard.ia-d-scam    { border-left-color: var(--muted); }
 .ia-year {
   display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
-  margin: 32px 0 16px;   /* no underline: the page rule above already divides (2026-09-24) */
+  margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
 }
 .ia-year-n { font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 2px; color: var(--muted); }
 /* The decision, where the Inquiries card keeps its buttons. */
