@@ -241,7 +241,7 @@ function _dbCard(f) {
 // trigger the card's open-in-Dropbox click. Present on every student card.
 function _dbRecoverBtn(name) {
   return '<button onclick="event.stopPropagation();_dbRecoverFolder(\'' + _dbEsc(name) + '\',this)" ' +
-    'data-tip="Asks first.\nRestores this student’s deleted files from the last 30 days." ' +
+    'data-tip="Asks first.\nRestores this student’s deleted files from the last 30 days.\nResets their 14-day copy window.\nEmails them." ' +
     'style="margin-top:7px;font-family:\'DM Mono\',monospace;font-size:10px;background:transparent;color:var(--muted);' +
     'border:1px solid var(--border);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap">↺ Recover</button>';
 }
@@ -357,8 +357,7 @@ function _dbRecoverFolder(name, btn) {
   var url = getScriptUrl();
   if (!url) return;
   rpmConfirm({
-    title: 'Put ' + name + '’s deleted files back?',
-    message: 'Restores anything deleted in the last 30 days, resets their 14-day copy window, and emails them.',
+    title: 'Recover files?',
     confirmLabel: 'Recover'
   }).then(function (ok) { if (ok) _dbRecoverGo(name, btn, url); });
 }

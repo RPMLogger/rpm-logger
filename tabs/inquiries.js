@@ -376,7 +376,6 @@ function inqScam(domId) {
   var inq = card._inq;
   rpmConfirm({
     title: "Mark as scam?",
-    message: "Trashes the email, Deletes the inquiry from the Inquiry Archive, Can't be undone.",
     confirmLabel: "Mark as scam",
     danger: true
   }).then(function (ok) {

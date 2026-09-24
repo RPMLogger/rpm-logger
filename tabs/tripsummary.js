@@ -102,8 +102,6 @@ function _tsActiveCard(trip) {
   if (_arch && _archReady) _arch.onclick = function() {
     rpmConfirm({
       title: 'Archive this trip?',
-      message: trip.tripStart + ' → ' + trip.tripEnd + '\n\nIt leaves Active Trips and moves to Trip History. (' +
-        trip.confirmed + '/' + trip.students.length + ' confirmed)',
       confirmLabel: 'Archive'
     }).then(function (ok) {
     if (!ok) return;

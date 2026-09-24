@@ -1558,6 +1558,19 @@ a:focus-visible,
 .rpm-dlg-btn.act:hover { background: color-mix(in srgb, var(--dlg-accent, var(--green)) 16%, transparent); }
 
 .rpm-dlg-acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+
+/* Confirm boxes (2026-09-24): the button's tooltip already says what happens,
+   so the box is just the question. Smaller, a muted title, and buttons that
+   rest on a faint wash of their colour and deepen on hover, the same face as
+   the Inquiries decision buttons (.inq-db). */
+.rpm-dlg-confirm { max-width: 340px; padding: 18px; }
+.rpm-dlg-confirm .rpm-dlg-title { font-size: 18px; color: var(--muted); }
+.rpm-dlg-confirm .rpm-dlg-btn { background: color-mix(in srgb, #fff 4%, transparent); border-color: rgba(255,255,255,0.10); }
+.rpm-dlg-confirm .rpm-dlg-btn:hover { background: var(--surface2); color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); }
+.rpm-dlg-confirm .rpm-dlg-btn.go { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 6%, transparent); }
+.rpm-dlg-confirm .rpm-dlg-btn.go:hover { background: color-mix(in srgb, var(--green) 16%, transparent); }
+.rpm-dlg-confirm .rpm-dlg-btn.danger { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.rpm-dlg-confirm .rpm-dlg-btn.danger:hover { background: color-mix(in srgb, var(--accent) 16%, transparent); }
 .rpm-dlg-btn {
   font-family: "DM Mono", monospace; font-size: 11px; cursor: pointer;
   background: transparent; border: 1px solid color-mix(in srgb, var(--muted) 55%, transparent); color: var(--muted);

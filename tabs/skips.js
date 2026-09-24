@@ -280,7 +280,6 @@ function _skStudentCard(s) {
       // Every delete in the portal asks first; this one used to go at once.
       rpmConfirm({
         title: 'Delete this skip?',
-        message: s.name + ', ' + k.date + '. Removes it from Skip Logs.',
         confirmLabel: 'Delete',
         danger: true
       }).then(function (ok) { if (ok) go(); });

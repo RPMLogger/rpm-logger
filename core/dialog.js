@@ -30,7 +30,8 @@ function _rpmDialog(opts) {
     overlay.className = "rpm-dlg-overlay";
 
     var box = document.createElement("div");
-    box.className = "rpm-dlg" + (kind === "prompt" ? " rpm-dlg-wide" : "");
+    box.className = "rpm-dlg" + (kind === "prompt" ? " rpm-dlg-wide" : "") +
+      (kind === "confirm" ? " rpm-dlg-confirm" : "");
     box.setAttribute("role", "dialog");
     box.setAttribute("aria-modal", "true");
 

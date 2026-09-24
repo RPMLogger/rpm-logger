@@ -2319,43 +2319,6 @@ function _trToggleThread(id, fromBottom) {
 }
 
 
-// Delete an Initiate card for good. Separate from "\u2190 Inquiries", which only
-// clears the decision and parks them back in the undecided list: this is for
-// the ones he wrote to who never replied and are not coming back.
-//
-// Confirmed, because it removes the whole inquiry column and there is no undo.
-function _trDelete(email, col, name, btn) {
-  var url = getScriptUrl();
-  if (!url || !email) return;
-  rpmConfirm({
-    title: 'Delete ' + (name || email) + ' for good?',
-    message: 'The inquiry is removed from the archive. This cannot be undone.',
-    confirmLabel: 'Delete',
-    danger: true
-  }).then(function (ok) { if (ok) _trDeleteGo(email, col, btn, url); });
-}
-
-function _trDeleteGo(email, col, btn, url) {
-  if (btn) { btn.disabled = true; btn.textContent = 'Deleting\u2026'; }
-  fetch(url + '?action=deleteInquiryRow&email=' + encodeURIComponent(email) +
-        '&col=' + encodeURIComponent(col || ''))
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (!d.success) {
-        if (btn) { btn.disabled = false; btn.textContent = 'Delete'; }
-        _trStatus('\u26a0 ' + (d.message || 'Could not delete.'), 'var(--accent)');
-        return;
-      }
-      _trLoadAccepted();
-      _trStatus('Deleted.', 'var(--muted)');
-    })
-    .catch(function () {
-      if (btn) { btn.disabled = false; btn.textContent = 'Delete'; }
-      _trStatus('\u274c Could not reach the portal.', 'var(--accent)');
-    });
-}
-
-
 // ─── MAKE STUDENT ────────────────────────────────────────────────────────────
 // Opens only once every checklist step is done, so everything it needs was
 // already decided on the card: name, frequency, first lesson (Trial Lessons
