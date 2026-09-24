@@ -156,7 +156,7 @@ function _biweeklyColumn(group, isThis) {
   if (!group.students.length) {
     var empty = document.createElement("div");
     empty.style.cssText = "padding:14px 12px;font-size:12px;color:var(--muted)";
-    empty.textContent = "No biweekly students";
+    empty.textContent = "None";
     col.appendChild(empty);
     return col;
   }

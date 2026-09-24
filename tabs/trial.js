@@ -54,7 +54,7 @@ function _trLoadAccepted() {
       if (!d.success) { box.innerHTML = '<div class="empty-state">⚠ ' + (d.message || 'Could not load') + '</div>'; return; }
       _trAcceptedCache = d.accepted || [];
       if (!d.accepted || !d.accepted.length) {
-        box.innerHTML = '<div class="empty-state">No accepted inquiries waiting.</div>';
+        box.innerHTML = '<div class="empty-state">None</div>';
         // Nobody left in Initiate, so nobody can be waiting on a reply. The
         // thread fetch below is skipped on this path, and the badge kept the
         // count from before the last person moved to Trial.

@@ -40,7 +40,7 @@ function _thRender(years) {
   if (!years.length) {
     var empty = document.createElement('div');
     empty.className = 'empty-state';
-    empty.textContent = 'No trips on record yet';
+    empty.textContent = 'None';
     section.appendChild(empty);
     return;
   }

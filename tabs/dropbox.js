@@ -274,7 +274,7 @@ function _dbStudentsHtml() {
     '</div>';
   var cards = sorted.length
     ? sorted.map(function (f) { return _dbCard(f); }).join('')
-    : '<div class="empty-state">No student folders found.</div>';
+    : '<div class="empty-state">None</div>';
   return header + cards;
 }
 

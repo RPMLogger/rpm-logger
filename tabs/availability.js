@@ -34,7 +34,7 @@ function _renderAvailabilityList() {
   section.innerHTML = "";
   section.classList.remove("load-table");
   if (!_availStudents.length) {
-    section.innerHTML = '<div class="empty-state">No students found</div>';
+    section.innerHTML = '<div class="empty-state">None</div>';
     return;
   }
   section.classList.add("load-table");

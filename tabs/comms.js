@@ -57,9 +57,7 @@ function renderCommsInbox() {
   });
 
   if (!filtered.length) {
-    var label = commsFilter === "all" ? "No messages yet" :
-                commsFilter === "unresponded" ? "All caught up" :
-                "No " + commsFilter + " messages";
+    var label = "None";   // the filter above already says which list this is
     inbox.innerHTML = '<div class="empty-state">' + label + '</div>';
     return;
   }

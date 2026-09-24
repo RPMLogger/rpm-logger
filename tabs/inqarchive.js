@@ -133,7 +133,7 @@ function _iaRender(inquiries) {
   if (!host) return;
 
   var all = (inquiries || []).slice();
-  if (!all.length) { host.innerHTML = "<div class='inq-empty'>Nothing in the archive yet</div>"; return; }
+  if (!all.length) { host.innerHTML = "<div class='inq-empty'>None</div>"; return; }
 
   all.sort(function (a, b) {
     var da = new Date(a.date), db = new Date(b.date);

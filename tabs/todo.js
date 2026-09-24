@@ -296,7 +296,7 @@ function _renderTodos() {
   var act = document.getElementById("todoActive");
   act.innerHTML = "";
   if (!active.length) {
-    act.innerHTML = '<div class="empty-state" style="padding:12px">No active tasks</div>';
+    act.innerHTML = '<div class="empty-state" style="padding:12px">None</div>';
   } else {
     active.forEach(function(t, i) { act.appendChild(_todoListRow(t, i + 1)); });
   }

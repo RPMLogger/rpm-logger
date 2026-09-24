@@ -93,7 +93,7 @@ function renderInquiryReplies(replies) {
   if (!strip) return;
   strip.innerHTML = count
     ? "<div class='inq-replies'>" + replies.map(_inqReplyRow).join("") + "</div>"
-    : "<div class='inq-resp-none'>No responses in the last 15 days.</div>";
+    : "<div class='inq-resp-none'>None</div>";
 }
 
 function _inqToggleReplies() {
@@ -253,7 +253,7 @@ function renderInquiries(inquiries) {
   if (!active.length) {
     var empty = document.createElement("div");
     empty.className = "inq-empty";
-    empty.textContent = "No inquiries";
+    empty.textContent = "None";
     list.appendChild(empty);
     var b0 = document.getElementById("inqBadge");
     if (b0) b0.style.display = "none";

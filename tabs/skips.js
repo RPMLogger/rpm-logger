@@ -76,7 +76,7 @@ function _skRender() {
   if (!all.length) {
     var empty = document.createElement('div');
     empty.className = 'empty-state';
-    empty.textContent = 'No students on the Skips sheet';
+    empty.textContent = 'None';
     section.appendChild(empty);
     return;
   }

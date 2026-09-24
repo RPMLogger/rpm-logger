@@ -5,7 +5,7 @@ function renderWeekTab() {
   grid.innerHTML   = "";
   header.innerHTML = "";
   if (!weekStudents.length) {
-    grid.innerHTML = "<div class='empty-state'>No students this week</div>";
+    grid.innerHTML = "<div class='empty-state'>None</div>";
     return;
   }
   var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];

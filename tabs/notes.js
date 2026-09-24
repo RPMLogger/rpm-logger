@@ -275,7 +275,7 @@ function _renderNotes() {
   var section = document.getElementById("notesList");
   section.innerHTML = "";
   if (!_notesCache.length) {
-    section.innerHTML = '<div class="empty-state" style="padding:12px">No notes yet</div>';
+    section.innerHTML = '<div class="empty-state" style="padding:12px">None</div>';
     return;
   }
   // Newest first

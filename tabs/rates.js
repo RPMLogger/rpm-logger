@@ -29,7 +29,7 @@ function initRatesTab() {
 
 // The stationary table: the price list as it stands today.
 function _rtCurrentHtml(rates) {
-  if (!rates.length) return '<div class="empty-state">Nothing in the archive yet.</div>';
+  if (!rates.length) return '<div class="empty-state">None</div>';
   var rows = rates.map(function (r) {
     return '<tr>' +
         '<td style="' + _rtTd() + 'font-family:\'Syne\',sans-serif">' + inqEsc(r.type) + '</td>' +

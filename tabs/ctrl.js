@@ -134,7 +134,7 @@ function renderUnpaidCards(audit) {
     } else {
       var none = document.createElement("div");
       none.style.cssText = "font-size:10.5px;color:var(--muted);font-style:italic";
-      none.textContent = "No payments on file";
+      none.textContent = "None";
       card.appendChild(none);
     }
 
@@ -533,7 +533,7 @@ function _renderFixData(d) {
   if (!d.importLessons.length) {
     var none = document.createElement("div");
     none.style.cssText = "font-style:italic;color:var(--muted);margin-bottom:14px";
-    none.textContent = "No lessons logged";
+    none.textContent = "None";
     body.appendChild(none);
   } else {
     // importLessons returned chronologically (oldest first): previous block then current.
@@ -574,7 +574,7 @@ function _renderFixData(d) {
   if (!d.calendar || !d.calendar.length) {
     var calNone = document.createElement("div");
     calNone.style.cssText = "font-size:11px;color:var(--muted);font-family:monospace";
-    calNone.textContent = "No past events found";
+    calNone.textContent = "None";
     body.appendChild(calNone);
   } else {
     // Vertical list — one date per line, unnumbered (a calendar date isn't

@@ -35,7 +35,7 @@ function _tsRender(active, past) {
   if (!active.length) {
     var empty = document.createElement('div');
     empty.className = 'empty-state';
-    empty.textContent = 'No active trips';
+    empty.textContent = 'None';
     section.appendChild(empty);
   } else {
     active.forEach(function(trip) { section.appendChild(_tsActiveCard(trip)); });

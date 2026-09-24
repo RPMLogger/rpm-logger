@@ -349,7 +349,7 @@ function _stRenderDetail() {
         pastBox.appendChild(row);
       });
     } else {
-      pastBox.innerHTML = "<div style='font-size:12px;color:var(--muted);padding:4px 0'>No lessons logged yet</div>";
+      pastBox.innerHTML = "<div style='font-size:12px;color:var(--muted);padding:4px 0'>None</div>";
     }
     section.appendChild(pastBox);
   }
@@ -686,7 +686,7 @@ function _stRenderCalendar() {
   if (!data.lessons || !data.lessons.length) {
     var empty = document.createElement('div');
     empty.className = 'empty-state';
-    empty.textContent = 'No upcoming lessons in the next 8 weeks';
+    empty.textContent = 'None';
     section.appendChild(empty);
     return;
   }

@@ -17,7 +17,7 @@ function renderTodayGrid() {
   var grid = document.getElementById("todayGrid");
   grid.innerHTML = "";
   if (!todayStudents.length) {
-    grid.innerHTML = "<div class='empty-state'>No students today</div>";
+    grid.innerHTML = "<div class='empty-state'>None</div>";
     return;
   }
   var anyShown = false;

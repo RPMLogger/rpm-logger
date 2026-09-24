@@ -391,7 +391,7 @@ function loadIncomingPayments() {
       var tabBtn = document.querySelector(".tab-btn[onclick*=\"payments\"]");
 
       if (!data.success || !data.payments || !data.payments.length) {
-        container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>No new payments</div>";
+        container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>None</div>";
         if (tabBtn) tabBtn.innerHTML = "Payments";
         return;
       }
@@ -461,7 +461,7 @@ function dismissIncoming(cardEl, payment) {
 function checkEmptyIncoming() {
   var container = document.getElementById("incomingPayments");
   if (!container.querySelector(".incoming-card")) {
-    container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>No new payments</div>";
+    container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>None</div>";
     var tabBtn = document.querySelector(".tab-btn[onclick*=\"payments\"]");
     if (tabBtn) tabBtn.innerHTML = "Payments";
   }
@@ -493,7 +493,7 @@ function loadPaymentHistory() {
       payHistoryLoaded = true;
       list.innerHTML = "";
       if (!data.success || !data.rows || !data.rows.length) {
-        list.innerHTML = "<div style='color:var(--muted);font-size:11px'>No payment history found</div>";
+        list.innerHTML = "<div style='color:var(--muted);font-size:11px'>None</div>";
         return;
       }
 

@@ -30,7 +30,7 @@ function renderStudentLine() {
   var open = studentLineItems.filter(function (m) { return (m.status || "open") === "open"; });
 
   if (!open.length) {
-    body.innerHTML = "<div class='empty-state'>All caught up — no open student texts</div>";
+    body.innerHTML = "<div class='empty-state'>None</div>";
     return;
   }
 
