@@ -1456,7 +1456,9 @@ a:focus-visible,
   line-height: 1.5; text-align: left;
   /* One format for every tip: its own width up to 190px, then it wraps.
      Short tips stay one line, long ones become the same narrow box. */
-  white-space: normal; width: max-content; max-width: 190px;
+  /* One sentence per line: tips are written "Instant.\nCard moves…" and the
+     line breaks are kept (2026-09-24). */
+  white-space: pre-line; width: max-content; max-width: 220px;
   opacity: 0; pointer-events: none; z-index: 9990;
   transition: opacity .12s ease .35s;
   box-shadow: 0 6px 18px rgba(0,0,0,0.55);
@@ -1584,7 +1586,6 @@ a:focus-visible,
 .ll-state { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
 .ll-foot { display: flex; justify-content: flex-end; margin-top: 16px; }
 .db-mini-btn.ll-done { padding: 7px 20px; }
-.db-mini-btn.ll-noshow { padding: 9px 14px; margin-left: auto; }
 
 /* ─── THE FIELD ───────────────────────────────────────────────────────────
    One type for everything you type into, portal wide.

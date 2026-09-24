@@ -176,13 +176,13 @@ function _fcCellHtml(c, inGrid) {
 function _fcBlock(s, color, offGrid, clash) {
   if (s.pencil) color = FC_COLORS.pencil;
   // Same format as every portal tooltip: capitalised clauses, comma-separated.
-  var tip = s.name + ', ' + (s.type === 'weekly' ? 'Weekly' : 'Biweekly Week ' + s.week) +
+  var tip = s.name + '.\n' + (s.type === 'weekly' ? 'Weekly' : 'Biweekly Week ' + s.week) + '.' +
             (s.pencil
-              ? ', Pencilled in for the trial phase' + (s.trialDate ? ', Trial ' + s.trialDate : '')
-              : ', ' + s.count + ' lessons in range, Next ' + s.next) +
-            (s.odd && s.odd.length ? ', Off slot ' + s.odd.join(' / ') : '') +
-            (offGrid ? ', Outside the teaching grid' : '') +
-            (clash ? ', More than one student in this slot' : '');
+              ? '\nPencilled in for the Trial phase.' + (s.trialDate ? '\nTrial ' + s.trialDate + '.' : '')
+              : '\n' + s.count + ' lessons in range.\nNext ' + s.next + '.') +
+            (s.odd && s.odd.length ? '\nOff slot ' + s.odd.join(' / ') + '.' : '') +
+            (offGrid ? '\nOutside the teaching grid.' : '') +
+            (clash ? '\nMore than one student in this slot.' : '');
   return "<div class='fc-blk" + (clash ? ' clash' : '') + (s.pencil ? ' pen' : '') + "' data-tip='" + _fcEsc(tip) + "' " +
            "style='border-left-color:" + color + ";background:" + color + "26'>" +
            (s.pencil ? '✎ ' : '') + _fcEsc(s.name) +

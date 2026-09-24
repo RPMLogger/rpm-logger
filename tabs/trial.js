@@ -80,15 +80,15 @@ function _trAcceptedCard(a) {
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || "") + '"></div>' +
       '<div class="inq-acts">' +
         '<button class="db-mini-btn" onclick="_trReopen(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
-          'data-tip="Card goes back to Inquiries undecided, Nothing is sent" data-tip-wrap>\u2190 Inquiries</button>' +
-        // For the ones he emailed who never came back. Sending them "back to
-        // Inquiries" only parks them there undecided; this removes them.
-        '<button class="db-mini-btn danger" onclick="_trDelete(\'' + em + '\',' + (a.col || 0) + ',\'' + _trEsc(a.name || '') + '\', this)" ' +
-          'data-tip="Asks first, Deletes the inquiry for good" data-tip-wrap>Delete</button>' +
+          'data-tip="Instant.\nCard goes back to Inquiries undecided.\nNothing is sent.\n(Not in Email list.)" data-tip-wrap>\u2190 Inquiries</button>' +
+        // No Delete here (removed 2026-09-24): deleting a real person shrinks
+        // the inquiry counts and loses their history. Someone who went quiet
+        // goes ← Inquiries, then No reply. Test inquiries: delete the column
+        // in the sheet by hand.
         '<button class="db-mini-btn go opens-window" onclick="_trOpenEmail(\'' + em + '\')" ' +
-          'data-tip="Opens the email composer with a first-contact draft, Nothing sends until you press Send" data-tip-wrap>Email</button>' +
+          'data-tip="Opens a window.\nFirst-contact email draft.\nNothing sends until you press Send.\n(Not in Email list.)" data-tip-wrap>Email</button>' +
         '<button class="db-mini-btn" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
-          'data-tip="Opens the booking window with their name and email, You pick the date and time" data-tip-wrap data-tip-left>Book \u2192</button>' +
+          'data-tip="Opens a window.\nBooking with their name and email.\nYou pick the date and time.\nCard moves to Trial once booked.\n(Not in Email list.)" data-tip-wrap data-tip-left>Book \u2192</button>' +
       '</div>' +
     '</div>';
 }
@@ -731,7 +731,7 @@ function _trBookAccepted(name, email) {
     // and this one creates a calendar event and mails the student.
     '<div style="display:flex;justify-content:flex-end;margin-top:24px">' +
       '<button class="db-mini-btn go" id="tbBookBtn" style="padding:7px 20px" ' +
-        'onclick="_trBook(\'tb\')" data-tip="Creates the calendar event, Emails them the confirmation" data-tip-wrap data-tip-left>Book</button>' +
+        'onclick="_trBook(\'tb\')" data-tip="Instant.\nCreates the calendar event.\nEmails them the confirmation." data-tip-wrap data-tip-left>Book</button>' +
     '</div>';
 
   _trRenderOfferedSlots(email, 'tb');
@@ -1179,10 +1179,10 @@ function _trActionsHtml(a) {
   return '<div id="tracts-' + id + '" style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">' +
       '<div class="inq-acts">' +
         '<button class="inq-db yes" onclick="_msOpen(\'' + em + '\')" ' +
-          'data-tip="Opens a window, Nothing changes until you confirm there" data-tip-wrap data-tip-left>Confirm Student</button>' +
+          'data-tip="Opens a window.\nChecks the steps and makes them a student.\nCard disappears from Trial.\nStays in Inquiry Archive.\n(Not in Email list.)" data-tip-wrap data-tip-left>Confirm Student</button>' +
         '<button class="inq-db no" id="trnobtn-' + id + '" ' +
           'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')" ' +
-          'data-tip="Asks first, Marks the trial Unsuccessful, Card disappears from Trial" data-tip-wrap data-tip-left>Dismiss</button>' +
+          'data-tip="Opens a window.\nPick Not Continued or No Show.\nCard disappears from Trial.\nStays in Inquiry Archive.\n(Not in Email list.)" data-tip-wrap data-tip-left>Dismiss</button>' +
       '</div>' +
     '</div>';
 }
@@ -1353,14 +1353,9 @@ function _tlLogHtml(a, s) {
     '</div>' +
     '<div class="ll-acts">' +
       // Icon only, at the size of the Copy / Send buttons in the composer.
-      '<button class="db-mini-btn ll-mic" id="tlMicBtn" data-tip="Starts or stops dictation" onclick="_tlMic()">' + MIC_ICON + '</button>' +
+      '<button class="db-mini-btn ll-mic" id="tlMicBtn" data-tip="Starts or stops dictation." onclick="_tlMic()">' + MIC_ICON + '</button>' +
       '<button class="db-mini-btn go ll-log" id="tlLogBtn" onclick="_tlLogWhat()" disabled>Log</button>' +
       '<span class="ll-state" id="tlWhatMsg"></span>' +
-      // They never came: closes the trial like Dismiss, but as its own
-      // outcome (No Show), so it is never counted with the ones who took the
-      // lesson and did not continue. Far right, away from Log.
-      '<button class="db-mini-btn danger ll-noshow" id="tlNoShowBtn" onclick="_tlNoShow()" ' +
-        'data-tip="Asks first, Marks the trial No Show, Card disappears from Trial" data-tip-left>No show</button>' +
     '</div>';
 }
 
@@ -1467,42 +1462,6 @@ function _tlLogWhat() {
     var b = document.getElementById('tlLogBtn');
     if (b) { b.disabled = false; b.textContent = 'Log'; }
   }, 8000);
-}
-
-// No show: the Dismiss mechanism with its own outcome.
-function _tlNoShow() {
-  if (!_tl || _tl.busy || _tl.logged) return;
-  var a = _tl.card, email = a.email || '';
-  var url = getScriptUrl();
-  if (!url || !email) return;
-  rpmConfirm({
-    title: 'Mark ' + (a.name || email) + ' as no show?',
-    message: 'Outcome becomes No Show and the card leaves the Trial tab. It is not counted as dismissed.',
-    confirmLabel: 'No show',
-    danger: true
-  }).then(function (ok) {
-    if (!ok || !_tl) return;
-    var b = document.getElementById('tlNoShowBtn');
-    if (b) { b.disabled = true; b.textContent = 'Saving\u2026'; }
-    _tl.busy = true;
-    fetch(url + '?action=closeTrial&email=' + encodeURIComponent(email) + '&outcome=' + encodeURIComponent('No Show'))
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        if (_tl) _tl.busy = false;
-        if (!d || !d.success) {
-          if (b) { b.disabled = false; b.textContent = 'No show'; }
-          _tlSetMsg('tlWhatMsg', '\u26a0 ' + ((d && d.message) || 'Not saved'), 'var(--accent)');
-          return;
-        }
-        _tlClose();
-        _trDropStageCard(email);
-      })
-      .catch(function () {
-        if (_tl) _tl.busy = false;
-        if (b) { b.disabled = false; b.textContent = 'No show'; }
-        _tlSetMsg('tlWhatMsg', '\u274c Could not reach the portal.', 'var(--accent)');
-      });
-  });
 }
 
 // ── + · Send HW ──
@@ -1799,7 +1758,7 @@ function _tlUploadHtml(folder) {
       'font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);cursor:pointer">' + inqEsc(idle) + '</div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
       '<button class="btn-settings-load" style="margin:0;flex:1" onclick="openDropboxLocalFolder(document.getElementById(\'tlDrop\').dataset.folder)" ' +
-        'data-tip="Opens their synced Dropbox folder in Finder, Drag folders in and Dropbox uploads them">\ud83d\udcc1 Open in Finder</button>' +
+        'data-tip="Opens elsewhere. (Their Dropbox folder in Finder.)\nDrag folders in and Dropbox uploads them.">\ud83d\udcc1 Open in Finder</button>' +
       '<button class="btn-settings-load" style="margin:0;flex:1" onclick="document.getElementById(\'tlFolderIn\').click()">\ud83d\udcc2 Browse folder</button>' +
     '</div>' +
     '<input type="file" id="tlFileIn" multiple style="display:none" onchange="_tlPicked(this, false)">' +
@@ -2022,31 +1981,71 @@ function _trSaveField(id, email, key, el) {
 // off the tab. The row stays on the sheet as the record. Successful is never
 // set here: that comes from Make Student (or them being on the Counter).
 // Manual only: there is no automatic Unsuccessful, no day limit.
+// Dismiss opens a window with the two ways a Trial can end without a student:
+// Not Continued (took the lesson, outcome Unsuccessful) or No Show (never
+// came, outcome No Show). Picking one closes the Trial; closing the window
+// changes nothing. No Show used to live in the Log lesson window.
 function _trNotContinuing(id, email, name) {
   var url = getScriptUrl();
   if (!url || !email) return;
-  rpmConfirm({
-    title: 'Dismiss ' + (name || email) + '?',
-    message: 'Outcome becomes Unsuccessful and the card leaves the Trial tab.',
-    confirmLabel: 'Dismiss',
-    danger: true
-  }).then(function (ok) { if (ok) _trNotContinuingGo(id, email, url); });
+  _trDismissClose();
+  var ov = document.createElement('div');
+  ov.className = 'rpm-dlg-overlay';
+  ov.id = 'trDismissWin';
+  ov.innerHTML =
+    '<div class="rpm-dlg" role="dialog" aria-modal="true">' +
+      '<div class="settings-title" style="margin-bottom:10px">' +
+        '<span>' + inqEsc(name || email) + '<span style="color:var(--muted)"> \u00b7 Dismiss</span></span>' +
+        '<button class="settings-close" onclick="_trDismissClose()">\u2715</button>' +
+      '</div>' +
+      '<div class="rpm-dlg-msg">How did the Trial end?</div>' +
+      '<div class="rpm-dlg-acts" style="justify-content:flex-start">' +
+        '<button class="inq-db no" id="trDzNC" onclick="_trNotContinuingGo(\'' + id + '\',\'' + _trEsc(email) + '\',\'Unsuccessful\')">Not Continued</button>' +
+        '<button class="inq-db maybe" id="trDzNS" onclick="_trNotContinuingGo(\'' + id + '\',\'' + _trEsc(email) + '\',\'No Show\')">No Show</button>' +
+      '</div>' +
+      '<div id="trDzMsg" class="rpm-dlg-msg" style="min-height:16px"></div>' +
+    '</div>';
+  ov.addEventListener('click', function (e) { if (e.target === ov) _trDismissClose(); });
+  document.body.appendChild(ov);
 }
 
-function _trNotContinuingGo(id, email, url) {
-  var btn = document.getElementById('trnobtn-' + id);
-  if (btn) { btn.disabled = true; btn.textContent = 'Saving\u2026'; }
+function _trDismissClose() {
+  var w = document.getElementById('trDismissWin');
+  if (w && !w._busy) w.remove();
+}
 
-  fetch(url + '?action=closeTrial&email=' + encodeURIComponent(email) + '&outcome=Unsuccessful')
+function _trNotContinuingGo(id, email, outcome) {
+  var url = getScriptUrl();
+  var win = document.getElementById('trDismissWin');
+  if (!url || !win || win._busy) return;
+  win._busy = true;
+  var nc = document.getElementById('trDzNC'), ns = document.getElementById('trDzNS');
+  var pressed = outcome === 'No Show' ? ns : nc;
+  [nc, ns].forEach(function (b) { if (b) b.disabled = true; });
+  if (pressed) pressed.textContent = 'Saving\u2026';
+  fetch(url + '?action=closeTrial&email=' + encodeURIComponent(email) + '&outcome=' + encodeURIComponent(outcome))
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (!d.success) {
-        if (btn) { btn.disabled = false; btn.textContent = '\u26a0 Not saved, retry'; }
+      win._busy = false;
+      if (!d || !d.success) {
+        [nc, ns].forEach(function (b) { if (b) b.disabled = false; });
+        if (nc) nc.textContent = 'Not Continued';
+        if (ns) ns.textContent = 'No Show';
+        var m = document.getElementById('trDzMsg');
+        if (m) { m.textContent = '\u26a0 ' + ((d && d.message) || 'Not saved'); m.style.color = 'var(--accent)'; }
         return;
       }
+      _trDismissClose();
       _trDropStageCard(email);
     })
-    .catch(function () { if (btn) { btn.disabled = false; btn.textContent = '\u26a0 Not saved, retry'; } });
+    .catch(function () {
+      win._busy = false;
+      [nc, ns].forEach(function (b) { if (b) b.disabled = false; });
+      if (nc) nc.textContent = 'Not Continued';
+      if (ns) ns.textContent = 'No Show';
+      var m = document.getElementById('trDzMsg');
+      if (m) { m.textContent = '\u274c Could not reach the portal.'; m.style.color = 'var(--accent)'; }
+    });
 }
 
 // Take one person off the Trial tab (outcome settled): cache, card, payments.
@@ -2153,7 +2152,7 @@ function _tsShowBook() {
     // because it creates a calendar event and mails the student.
     '<div style="display:flex;justify-content:flex-end;margin-top:24px">' +
       '<button class="db-mini-btn go" id="tsBookBtn" style="padding:7px 20px" ' +
-        'onclick="_trBook(\'ts\')" data-tip="Creates the calendar event, Emails them the confirmation" data-tip-wrap data-tip-left>Book</button>' +
+        'onclick="_trBook(\'ts\')" data-tip="Instant.\nCreates the calendar event.\nEmails them the confirmation." data-tip-wrap data-tip-left>Book</button>' +
     '</div>';
   ov.classList.add('open');
   var f = document.getElementById('tsFirst');

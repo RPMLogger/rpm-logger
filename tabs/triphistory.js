@@ -75,7 +75,7 @@ function _thRender(years) {
         "</div>" +
         "<span style='display:flex;align-items:center;gap:10px;flex:0 0 auto'>" +
           "<span style='font-size:13px;color:#ff6b6b;font-weight:600'>$" + (t.revenue || 0).toLocaleString() + "</span>" +
-          "<button class='th-restore-btn' data-tip='Moves back to Active Trips' style='font-size:10px;padding:3px 8px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>↩ Restore</button>" +
+          "<button class='th-restore-btn' data-tip='Asks first.\nMoves back to Active Trips.' style='font-size:10px;padding:3px 8px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>↩ Restore</button>" +
         "</span>";
       var rb = row.querySelector('.th-restore-btn');
       if (rb) rb.onclick = function() {

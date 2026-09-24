@@ -253,7 +253,7 @@ function openIncomingNotePanel(payment, cardEl) {
   panel.innerHTML =
     "<div class='inp-row'>" +
       "<textarea class='inp-textarea' placeholder='Note (optional)...' rows='2'></textarea>" +
-      "<button class='inp-mic' data-tip='Starts or stops dictation'>" + MIC_ICON + "</button>" +
+      "<button class='inp-mic' data-tip='Starts or stops dictation.'>" + MIC_ICON + "</button>" +
     "</div>" +
     "<div class='inp-actions'>" +
       "<button class='inp-log btn-log'>Log →</button>" +
@@ -417,7 +417,7 @@ function loadIncomingPayments() {
               : (p.matched ? "" : "<div class='incoming-nomatch'>⚠ Name not matched in student sheets</div>")) +
           "</div>" +
           "<div style='display:flex;flex-direction:column;gap:6px;flex-shrink:0'>" +
-            "<button class='incoming-confirm'" + (isTrial ? " disabled data-tip='Trial payment, Recorded from the Trial tab' style='opacity:.35;cursor:not-allowed'" : "") + ">Confirm →</button>" +
+            "<button class='incoming-confirm'" + (isTrial ? " disabled data-tip='Trial payment.\nRecorded from the Trial tab.' style='opacity:.35;cursor:not-allowed'" : "") + ">Confirm →</button>" +
             "<button class='incoming-dismiss'>✕ Dismiss</button>" +
           "</div>";
 

@@ -111,12 +111,36 @@ function _inqReplyRow(r) {
       "<div class='inq-reply-text'>" + inqEsc(r.snippet) + "</div>" +
       "<div class='inq-reply-acts'>" +
         "<a class='inq-db' href='" + gmail + "' target='_blank' " +
-          "data-tip='Opens the thread in Gmail' data-tip-wrap>Read</a>" +
+          "data-tip='Opens elsewhere.\nGoes to the thread in Gmail.' data-tip-wrap>Read</a>" +
+        "<button class='inq-db' onclick='_inqDismissReply(\"" + inqEsc(r.threadId) + "\", this)' " +
+          "data-tip='Instant.\nRemoves this reply from the list.\nNothing is sent.\nComes back if they write again.' data-tip-wrap>Dismiss</button>" +
         "<button class='inq-db yes' onclick='_inqReopen(\"" + inqEsc(r.email) + "\", this)' " +
-          "data-tip='Card comes back to Inquiries undecided, Nothing is sent' data-tip-wrap data-tip-left>" +
+          "data-tip='Instant.\nCard comes back to Inquiries undecided.\nNothing is sent.' data-tip-wrap data-tip-left>" +
           "Reopen</button>" +
       "</div>" +
     "</div>";
+}
+
+// Take a reply off the list without answering it. It comes back on its own
+// if they write again (the backend remembers the last message's time).
+function _inqDismissReply(threadId, btn) {
+  var url = getScriptUrl();
+  if (!url) return;
+  if (btn) { btn.disabled = true; btn.textContent = "Dismissing\u2026"; }
+  fetch(url + "?action=dismissInquiryReply&threadId=" + encodeURIComponent(threadId))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d || !d.success) {
+        if (btn) { btn.disabled = false; btn.textContent = "Dismiss"; }
+        _inqToast("\u26a0 " + ((d && d.message) || "Could not dismiss"), "var(--accent)");
+        return;
+      }
+      loadInquiryReplies();
+    })
+    .catch(function () {
+      if (btn) { btn.disabled = false; btn.textContent = "Dismiss"; }
+      _inqToast("\u274c Could not reach the portal.", "var(--accent)");
+    });
 }
 
 // "3 days ago" from an ISO date.
@@ -318,11 +342,11 @@ function renderInquiries(inquiries) {
       "<div class='inq-acts'>" +
         // What it does, then where it leaves the person: Email List, and
         // whether the inquiry stays in the Inquiries sheet (the archive).
-        btn("yes",   "yes",     "Yes",      "Card moves from Inquiries to Initiate, Not saved in Email list, Stays in Inquiry Archive") +
-        btn("maybe opens-window", "maybe", "Maybe", "Opens \"try later\" email template, Card disappears from Inquiries on send, Saved in Email list, Stays in Inquiry Archive") +
-        btn("no opens-window",    "no",    "No",    "Opens \"no room\" email template, Card disappears from Inquiries on send, Not saved in Email list, Stays in Inquiry Archive", true) +
-        btn("",      "noreply", "No reply", "Card disappears right away, Saved in Email list, Stays in Inquiry Archive", true) +
-        btn("opens-window", "scam", "Scam", "Asks first, Trashes the email, Card disappears right away, Deleted from Inquiry Archive", true) +
+        btn("yes",   "yes",     "Yes",      "Instant.\nCard moves from Inquiries to Initiate.\nNot saved in a future use Email list.\nStays in Inquiry Archive.") +
+        btn("maybe opens-window", "maybe", "Maybe", "Opens a window.\n\"Try later\" email template.\nCard disappears on send.\nSaved in Email list.\nStays in Inquiry Archive.") +
+        btn("no opens-window",    "no",    "No",    "Opens a window.\n\"No room\" email template.\nCard disappears on send.\nNot saved in Email list.\nStays in Inquiry Archive.", true) +
+        btn("",      "noreply", "No reply", "Instant.\nCard disappears right away.\nSaved in Email list.\nStays in Inquiry Archive.", true) +
+        btn("opens-window", "scam", "Scam", "Asks first.\nTrashes the email.\nCard disappears right away.\nDeleted from Inquiry Archive.\nBlocks future messages from them.", true) +
       "</div>";
 
     card._inq = inq;
@@ -365,8 +389,11 @@ function inqScam(domId) {
 function _inqScamGo(inq) {
   var url = getScriptUrl();
   if (!url) return;
+  // Name and phone go along so the Blocked tab can catch them next time.
   var qs = "action=markInquiryScam&email=" + encodeURIComponent(inq.email || "") +
-    "&col=" + encodeURIComponent(inq.col || "");
+    "&col=" + encodeURIComponent(inq.col || "") +
+    "&name=" + encodeURIComponent(inq.name || "") +
+    "&phone=" + encodeURIComponent(inq.phone || "");
   fetch(url + "?" + qs)
     .then(function (r) { return r.json(); })
     .then(function (d) {

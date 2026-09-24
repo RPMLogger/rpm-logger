@@ -251,9 +251,9 @@ function _skStudentCard(s) {
       _skEsc(s.name) +
     "</span>" +
     "<span style='display:flex;align-items:center;gap:5px;flex:0 0 auto'>" +
-      _skChip(s.totalStudent,  '#ff7a3c', 'Student, They cancelled') +
-      _skChip(s.totalTeacher,  '#ffb400', 'Teacher, You cancelled') +
-      _skChip(s.totalVacation, '#4aa3ff', 'Vacation, Travel block') +
+      _skChip(s.totalStudent,  '#ff7a3c', 'Skips they cancelled.') +
+      _skChip(s.totalTeacher,  '#ffb400', 'Skips you cancelled.') +
+      _skChip(s.totalVacation, '#4aa3ff', 'Skips from your travel.') +
     "</span>";
   card.appendChild(hdr);
 
@@ -272,11 +272,19 @@ function _skStudentCard(s) {
       "</div>" +
       "<span style='display:flex;align-items:center;gap:8px;flex:0 0 auto'>" +
         _skWhoBadge(k.who) +
-        "<button class='sk-del' data-tip='Deletes this skip right away' style='background:transparent;border:none;color:var(--muted);font-size:14px;line-height:1;cursor:pointer;padding:2px 4px'>×</button>" +
+        "<button class='sk-del' data-tip='Asks first.\nDeletes this skip.' style='background:transparent;border:none;color:var(--muted);font-size:14px;line-height:1;cursor:pointer;padding:2px 4px'>×</button>" +
       "</span>";
     row.querySelector('.sk-del').onclick = function(e) {
       e.stopPropagation();
       var btn = e.currentTarget;
+      // Every delete in the portal asks first; this one used to go at once.
+      rpmConfirm({
+        title: 'Delete this skip?',
+        message: s.name + ', ' + k.date + '. Removes it from Skip Logs.',
+        confirmLabel: 'Delete',
+        danger: true
+      }).then(function (ok) { if (ok) go(); });
+      function go() {
       btn.disabled = true; btn.textContent = '…';
       fetch(getScriptUrl() + '?action=deleteSkipLog&row=' + encodeURIComponent(k.row) +
             '&name=' + encodeURIComponent(s.name) + '&date=' + encodeURIComponent(k.date))
@@ -292,6 +300,7 @@ function _skStudentCard(s) {
           rpmAlert({ title: 'Connection failed', message: 'Could not reach the portal. Check your connection and try again.' });
           btn.disabled = false; btn.textContent = '×';
         });
+      }
     };
     body.appendChild(row);
   });

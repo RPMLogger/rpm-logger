@@ -166,7 +166,7 @@ function _biweeklyColumn(group, isThis) {
     row.style.cssText = "padding:8px 12px;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:center;gap:8px";
     row.innerHTML =
       "<span style='font-weight:600;font-size:13px'>" + s.name +
-        (s.split ? " <span data-tip='Also has lessons in the other week' style='color:#ffb400;font-size:10px'>⚠</span>" : "") +
+        (s.split ? " <span data-tip='Also has lessons in the other week.' style='color:#ffb400;font-size:10px'>⚠</span>" : "") +
       "</span>" +
       "<span style='font-size:11px;color:var(--muted);text-align:right;flex-shrink:0;letter-spacing:0.3px'>" +
         (s.day || "").toUpperCase() + " · " + s.time + "</span>";
