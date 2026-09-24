@@ -1444,9 +1444,12 @@ a:focus-visible,
 [data-tip]::before {
   content: attr(data-tip);
   position: absolute; bottom: calc(100% + 7px); left: 50%; transform: translateX(-50%);
-  background: #121212; color: rgba(255,255,255,0.55);
-  border: 1px solid #1c1c1c; border-radius: 8px;
-  padding: 6px 9px;
+  /* Lifted one step above the cards (2026-09-24): a lighter dark grey, a
+     visible border and the portal's soft white, so it floats over a card
+     instead of sinking into it. Still dark mode, never white on black. */
+  background: #262626; color: rgba(255,255,255,0.86);
+  border: 1px solid #3a3a3a; border-radius: 8px;
+  padding: 7px 11px;
   /* Syne, not DM Mono: helper text about a field should not look like the
      data in the field. */
   font-family: "Syne", sans-serif; font-size: 10px; letter-spacing: 0.2px;
@@ -1461,8 +1464,15 @@ a:focus-visible,
   white-space: pre-line; width: max-content; max-width: 220px;
   opacity: 0; pointer-events: none; z-index: 9990;
   transition: opacity .12s ease .35s;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.55);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.7);
 }
+/* The tag in colour, as a left edge (CSS can't colour just a tip's first
+   line): Instant green, Asks first red, Opens a window amber, Opens
+   elsewhere blue, all at the Trial tab's 70%. No tag, no edge. */
+[data-tip^="Instant."]::before         { border-left: 3px solid rgba(46,204,113,0.7); }
+[data-tip^="Asks first."]::before      { border-left: 3px solid rgba(232,70,58,0.7); }
+[data-tip^="Opens a window."]::before  { border-left: 3px solid rgba(217,164,65,0.7); }
+[data-tip^="Opens elsewhere."]::before { border-left: 3px solid rgba(74,158,255,0.7); }
 [data-tip]:hover::before,
 [data-tip]:focus-visible::before { opacity: 1; }
 
