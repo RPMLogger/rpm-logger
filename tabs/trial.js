@@ -82,17 +82,17 @@ function _trAcceptedCard(a) {
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || "") + '"></div>' +
       '<div class="inq-acts">' +
         // Send-back sits bottom left, away from Email/Book, so it is never the
-        // button your hand is already on. Styled like a confirm box: this one
-        // dim like Cancel, Email/Book one step brighter (.strong), amber hover.
-        '<button class="db-mini-btn tr-back-btn" onclick="_trReopen(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
+        // button your hand is already on. Link-button face (.link-btn, like
+        // Inquiry Archive): grey, Email green.
+        '<button class="link-btn tr-back-btn" onclick="_trReopen(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
           'data-tip="Instant.\nCard goes back to Inquiries undecided.\nNothing is sent.\n(Not in Email list.)" data-tip-wrap>' + _TR_BACK_LABEL + '</button>' +
         // No Delete here (removed 2026-09-24): deleting a real person shrinks
         // the inquiry counts and loses their history. Someone who went quiet
         // goes ← Inquiries, then No reply. Test inquiries: delete the column
         // in the sheet by hand.
-        '<button class="db-mini-btn strong opens-window" onclick="_trOpenEmail(\'' + em + '\')" ' +
+        '<button class="link-btn green opens-window" onclick="_trOpenEmail(\'' + em + '\')" ' +
           'data-tip="Opens a window.\nFirst-contact email draft.\nNothing sends until you press Send.\n(Not in Email list.)" data-tip-wrap>Email</button>' +
-        '<button class="db-mini-btn strong" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
+        '<button class="link-btn" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
           'data-tip="Opens a window.\nBooking with their name and email.\nYou pick the date and time.\nCard moves to Trial once booked.\n(Not in Email list.)" data-tip-wrap data-tip-left>Book \u2192</button>' +
       '</div>' +
     '</div>';
