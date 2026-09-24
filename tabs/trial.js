@@ -1018,7 +1018,7 @@ function initTrialStageTab() {
 
 function _trStageCard(a) {
   var when = a.trialDateLabel || '';
-  return '<div class="inq-dcard accepted" style="border-left-color:var(--accent)" id="trcard-' + emailToId(a.email || '') + '">' +
+  return '<div class="inq-dcard accepted" id="trcard-' + emailToId(a.email || '') + '">' +
       '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || '—') + '</span>' +
         // Only once the acknowledgment form is actually back. Sent is not accepted.
         (_trStepState(a).termsBack

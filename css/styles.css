@@ -578,10 +578,10 @@ body::before {
 .inq-reply-acts .inq-db { text-decoration: none; display: inline-block; }
 
 /* ─── Inquiries: decision cards (clean) ─────────────────────────────────── */
-.inq-dcard { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: 10px; padding: 20px 22px; margin-bottom: 10px; }
-.inq-dcard.unread { border-left-color: var(--accent); }
+.inq-dcard { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; padding: 20px 22px; margin-bottom: 10px; }
+/* Red edge on every student card, whatever tab or status (Inquiries, Initiate,
+   Trial, Archive). Status colours on the edge were tried and dropped. */
 .inq-dcard.read   { opacity: 0.62; }
-.inq-dcard.accepted { border-left-color: var(--green); }   /* Trial tab: same card, accepted edge */
 
 /* An opener that never finishes: it unfolds the manual booking form and can be
    used again tomorrow. Grey, not amber - booking a trial by hand is the rare
@@ -690,17 +690,8 @@ body::before {
 .tr-step-b.flat.done:hover { color: rgba(255,255,255,0.24); border-color: color-mix(in srgb, var(--muted) 22%, transparent); background: transparent; }
 
 /* ─── INQUIRY ARCHIVE ─────────────────────────────────────────────────────── */
-/* The same card, read-only: no accent edge, because nothing here is waiting
-   on you, and no dimming either, because an old inquiry is not less real. */
-/* The left edge carries the decision, so the shape of a year reads at a
-   glance while scrolling: red still waiting, green became a student. */
-.inq-dcard.archived { border-left-color: var(--border); }
-.inq-dcard.ia-d-open    { border-left-color: var(--accent); }
-.inq-dcard.ia-d-yes     { border-left-color: var(--green); }
-.inq-dcard.ia-d-maybe   { border-left-color: var(--warn); }
-.inq-dcard.ia-d-no      { border-left-color: var(--forgot); }
-.inq-dcard.ia-d-noreply { border-left-color: var(--muted); }
-.inq-dcard.ia-d-scam    { border-left-color: var(--muted); }
+/* The same card, read-only, same red edge; no dimming, because an old
+   inquiry is not less real. */
 .ia-year {
   display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
   margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);

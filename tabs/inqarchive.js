@@ -167,7 +167,7 @@ function _iaRender(inquiries) {
 
     rows.forEach(function (inq) {
       html +=
-        "<div class='inq-dcard archived ia-d-" + _iaCls(inq.decision) + "'>" +
+        "<div class='inq-dcard archived'>" +
           "<div class='inq-drow'>" +
             "<span class='inq-chan'>" + inqEsc(inq.channel || "Gmail") + "</span>" +
             _iaChip(inq.decision) +
