@@ -716,8 +716,7 @@ function _trBookAccepted(name, email) {
   var def = _trDtDefault();
   document.getElementById('tbModal').innerHTML =
     '<div class="settings-title"><span>' + inqEsc(name || '') +
-      '<span style="color:var(--muted);font-weight:400"> · Book a trial</span></span>' +
-      '<button class="settings-close" onclick="_trBookWinClose()">✕</button></div>' +
+      '<span style="color:var(--muted);font-weight:400"> · Book a trial</span></span></div>' +
     '<input type="hidden" id="tbFirst" value="' + _trEsc(first) + '">' +
     '<input type="hidden" id="tbLast" value="' + _trEsc(last) + '">' +
     '<input type="hidden" id="tbEmail" value="' + _trEsc(email || '') + '">' +
@@ -727,7 +726,8 @@ function _trBookAccepted(name, email) {
     // does not have to say the date a third time - the title already has the
     // name, this line has the when, and Book trial is just the verb. It needs
     // room to read as a sentence rather than a caption stuck to the row.
-    '<div style="margin:22px 0 6px">' + _trDtHtml('tb') + '</div>' +
+    // Centered: the picker is the one thing this window asks for.
+    '<div style="margin:22px 0 6px;text-align:center">' + _trDtHtml('tb') + '</div>' +
     '<div id="tbStatus" style="margin-top:12px"></div>' +
     // Bottom right, where every other window in the portal puts the button
     // that ends it. Just "Book": the title says a trial, the line above says
@@ -736,11 +736,14 @@ function _trBookAccepted(name, email) {
     // buttons that commit and buttons that only close. Plain down there reads
     // as Done - the harmless way out every other window trains you to click -
     // and this one creates a calendar event and mails the student.
-    '<div style="display:flex;justify-content:flex-end;margin-top:24px">' +
+    // Cancel instead of a ✕ in the corner (2026-09-24): the way out sits
+    // beside the way through, plain grey next to the brighter Book.
+    '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:24px">' +
+      '<button class="link-btn" onclick="_trBookWinClose()">Cancel</button>' +
       // Trying (2026-09-24): the card's Book face (bright grey + calendar)
       // instead of green, and keyboard-only: Enter on the date/time lands
       // here, Enter again books.
-      '<button class="link-btn bright" id="tbBookBtn" style="padding:7px 20px" ' +
+      '<button class="link-btn bright" id="tbBookBtn" ' +
         'onclick="_trBook(\'tb\')" data-tip="Instant.\nCreates the calendar event.\nEmails them the confirmation." data-tip-wrap data-tip-left>' + _TR_TB_BOOK_LABEL + '</button>' +
     '</div>';
 
@@ -892,10 +895,23 @@ function _trDtHtml(p) {
     return '<button type="button" class="dt-arrow" tabindex="-1" ' +
       'onclick="' + fn + '(\'' + p + '\',' + n + ')">' + dtArrow(dir) + '</button>';
   };
+  // The card's Book a trial window (tb): ▲ above each pill, ▼ below, big
+  // enough to tap. Clicking one also lights the pill, so the keys carry on
+  // from there.
+  var tri = function (fn, n, id, down) {
+    return '<button type="button" class="tb-tri' + (down ? ' down' : '') + '" tabindex="-1" ' +
+      'onclick="' + fn + '(\'' + p + '\',' + n + ');document.getElementById(\'' + id + '\').focus()">' + TRI_ICON + '</button>';
+  };
   var seg = function (id, order, fn, step, w, txt) {
+    if (p === 'tb') {
+      return '<div class="tb-col">' + tri(fn, step, id) +
+        '<div class="dt-seg">' +
+          '<button type="button" class="dt-val" id="' + id + '" data-dt-nav="' + order + '" ' +
+            'style="min-width:' + w + 'px" onkeydown="_trDtKey(event,\'' + p + '\',\'' + fn + '\',' + step + ')">' + txt + '</button>' +
+        '</div>' + tri(fn, -step, id, true) + '</div>';
+    }
     return '<div class="dt-seg">' +
-        // The card's booking window (tb) is trying keys only: no arrows.
-        (p === 'tb' ? '' : '<span class="dt-stack">' + btn(fn, step, 1) + btn(fn, -step, -1) + '</span>') +
+        '<span class="dt-stack">' + btn(fn, step, 1) + btn(fn, -step, -1) + '</span>' +
         '<button type="button" class="dt-val" id="' + id + '" data-dt-nav="' + order + '" ' +
           'style="min-width:' + w + 'px" onkeydown="_trDtKey(event,\'' + p + '\',\'' + fn + '\',' + step + ')">' + txt + '</button>' +
       '</div>';

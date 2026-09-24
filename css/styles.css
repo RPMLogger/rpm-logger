@@ -1315,10 +1315,20 @@ a:focus-visible,
 #tbBookBtn:focus { outline: none; color: #fff; border-color: rgba(255,255,255,0.6); background: var(--surface2); }
 #tbDtRow .dt-val:focus { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
 /* ...and date and time as two separate pills, a size up from the stepper. */
-#tbDtRow { border: none; background: transparent; padding: 0; gap: 8px; }
-#tbDtRow .dt-seg { padding: 2px; border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); border-radius: 8px; background: var(--surface2); }
-#tbDtRow .dt-seg + .dt-seg { border-left: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); }
-#tbDtRow .dt-val { font-size: 12px; padding: 7px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 1px; }
+#tbDtRow { border: none; background: transparent; padding: 0; gap: 6px; }
+/* Amber border only (2026-09-24): amber = your move. No fill, white words.
+   The border never changes; the lit pill shows by its soft white fill. */
+#tbDtRow .dt-seg { padding: 2px; border: 1px solid color-mix(in srgb, #d9a441 55%, transparent); border-radius: 7px; background: transparent; }
+#tbDtRow .dt-seg + .dt-seg { border-left: 1px solid color-mix(in srgb, #d9a441 55%, transparent); }
+#tbDtRow .dt-val { font-size: 10px; padding: 5px 8px; border-radius: 5px; text-transform: uppercase; letter-spacing: 1px; }
+/* ▲ / ▼ above and below each pill: grey, brighter under the cursor. */
+#tbDtRow { align-items: flex-start; }
+#tbDtRow .tb-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.tb-tri { background: transparent; border: none; padding: 3px 14px; line-height: 0; cursor: pointer; color: var(--muted); transition: color .12s; }
+.tb-tri:hover { color: #fff; }
+.tb-tri:focus { outline: none; }
+.tb-tri.down .tri-icon { transform: scaleY(-1); }
+.tb-tri .tri-icon { width: 9px; height: 7px; }
 
 /* Trial tab: Pick a time. Its own control, not .dt-row: no arrows, the lit
    field is whichever the mouse last touched, and the keys drive that one. */
