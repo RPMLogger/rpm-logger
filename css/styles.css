@@ -1450,6 +1450,9 @@ a:focus-visible,
   /* Syne, not DM Mono: helper text about a field should not look like the
      data in the field. */
   font-family: "Syne", sans-serif; font-size: 10px; letter-spacing: 0.2px;
+  /* Its own case: a caps button (.inq-db, .link-btn) must not turn its tip
+     into shouting. */
+  text-transform: none; font-weight: 400;
   line-height: 1.5; text-align: left;
   /* One format for every tip: its own width up to 190px, then it wraps.
      Short tips stay one line, long ones become the same narrow box. */

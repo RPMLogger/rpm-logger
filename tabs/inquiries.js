@@ -321,8 +321,8 @@ function renderInquiries(inquiries) {
         btn("yes",   "yes",     "Yes",      "Card moves from Inquiries to Initiate, Not saved in Email list, Stays in Inquiry Archive") +
         btn("maybe opens-window", "maybe", "Maybe", "Opens \"try later\" email template, Card disappears from Inquiries on send, Saved in Email list, Stays in Inquiry Archive") +
         btn("no opens-window",    "no",    "No",    "Opens \"no room\" email template, Card disappears from Inquiries on send, Not saved in Email list, Stays in Inquiry Archive", true) +
-        btn("",      "noreply", "No reply", "Card disappears from Inquiries, Saved in Email list, Stays in Inquiry Archive", true) +
-        btn("opens-window", "scam", "Scam", "Asks first, Trashes the email, Card disappears from Inquiries, Deleted from Inquiry Archive", true) +
+        btn("",      "noreply", "No reply", "Card disappears right away, Saved in Email list, Stays in Inquiry Archive", true) +
+        btn("opens-window", "scam", "Scam", "Asks first, Trashes the email, Card disappears right away, Deleted from Inquiry Archive", true) +
       "</div>";
 
     card._inq = inq;
