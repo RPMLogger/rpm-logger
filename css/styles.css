@@ -582,6 +582,8 @@ body::before {
 /* Red edge on every student card, whatever tab or status (Inquiries, Initiate,
    Trial, Archive). Status colours on the edge were tried and dropped. */
 .inq-dcard.read   { opacity: 0.62; }
+/* Initiate: the send-back button in the card's top-right corner. */
+.tr-back-btn { display: inline-flex; align-items: center; gap: 6px; }
 
 /* An opener that never finishes: it unfolds the manual booking form and can be
    used again tomorrow. Grey, not amber - booking a trial by hand is the rare

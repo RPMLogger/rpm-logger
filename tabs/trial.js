@@ -67,20 +67,25 @@ function _trLoadAccepted() {
     .catch(function () { box.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
 }
 
+var _TR_BACK_LABEL = REDO_ICON + '<span>Inquiries</span>';
+
 function _trAcceptedCard(a) {
   // Identical markup to an Inquiries card (same classes, same field renderer),
   // so a student's card doesn't change shape when they cross from Inquiries to
   // Trial. Only the action row differs: Book / send back instead of Yes/No.
   var em = _trEsc(a.email || "");
   return '<div class="inq-dcard accepted">' +
-      '<div class="inq-drow"><span class="inq-chan">' + inqEsc(a.channel || "Gmail") + '</span></div>' +
+      // Send-back sits top right, away from Email/Book, so it is never the
+      // button your hand is already on. Recover icon = "put it back".
+      '<div class="inq-drow"><span class="inq-chan">' + inqEsc(a.channel || "Gmail") + '</span>' +
+        '<button class="db-mini-btn tr-back-btn" onclick="_trReopen(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
+          'data-tip="Instant.\nCard goes back to Inquiries undecided.\nNothing is sent.\n(Not in Email list.)" data-tip-wrap data-tip-left>' + _TR_BACK_LABEL + '</button>' +
+      '</div>' +
       '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || "\u2014") + '</span>' +
         '<span class="fc-newmsg" id="fcnm-' + emailToId(a.email || "") + '"></span></div>' +
       '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || "") + '"></div>' +
       '<div class="inq-acts">' +
-        '<button class="db-mini-btn" onclick="_trReopen(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
-          'data-tip="Instant.\nCard goes back to Inquiries undecided.\nNothing is sent.\n(Not in Email list.)" data-tip-wrap>\u2190 Inquiries</button>' +
         // No Delete here (removed 2026-09-24): deleting a real person shrinks
         // the inquiry counts and loses their history. Someone who went quiet
         // goes ← Inquiries, then No reply. Test inquiries: delete the column
@@ -104,7 +109,7 @@ function _trReopen(email, col, btn) {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d.success) {
-        if (btn) { btn.disabled = false; btn.textContent = "\u2190 Inquiries"; }
+        if (btn) { btn.disabled = false; btn.innerHTML = _TR_BACK_LABEL; }
         _trStatus('\u26a0 ' + (d.message || 'Could not send back.'), 'var(--accent)');
         return;
       }
@@ -112,7 +117,7 @@ function _trReopen(email, col, btn) {
       _trStatus('Sent back to Inquiries \u2014 waiting there as an open card.', 'var(--accent2)');
     })
     .catch(function () {
-      if (btn) { btn.disabled = false; btn.textContent = "\u2190 Inquiries"; }
+      if (btn) { btn.disabled = false; btn.innerHTML = _TR_BACK_LABEL; }
       _trStatus('\u274c Could not reach the portal.', 'var(--accent)');
     });
 }
