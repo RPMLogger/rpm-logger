@@ -771,7 +771,9 @@ body::before {
 .inq-acts  { display: flex; align-items: center; gap: 6px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
 /* A decision on its way to the backend (Yes / No reply): the card steps back
    and the pressed button says what is happening, so the click visibly landed. */
-.inq-dcard.inq-busy { opacity: 0.55; transition: opacity .15s; }
+/* Working (Yes / No reply / Scam): fade well below a read card (0.62) so
+   the wait is obvious. */
+.inq-dcard.inq-busy { opacity: 0.3; transition: opacity .15s; }
 .inq-dcard.inq-busy .inq-db { cursor: default; }
 /* Decision buttons: uppercase, full colour, each on a faint wash of that same
    colour. Hover deepens the wash. */
