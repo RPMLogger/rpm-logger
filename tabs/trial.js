@@ -67,7 +67,7 @@ function _trLoadAccepted() {
     .catch(function () { box.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
 }
 
-var _TR_BACK_LABEL = REDO_ICON + '<span>Inquiries</span>';
+var _TR_BACK_LABEL = '\u2190 Inquiries';
 
 function _trAcceptedCard(a) {
   // Identical markup to an Inquiries card (same classes, same field renderer),
@@ -75,17 +75,16 @@ function _trAcceptedCard(a) {
   // Trial. Only the action row differs: Book / send back instead of Yes/No.
   var em = _trEsc(a.email || "");
   return '<div class="inq-dcard accepted">' +
-      // Send-back sits top right, away from Email/Book, so it is never the
-      // button your hand is already on. Recover icon = "put it back".
-      '<div class="inq-drow"><span class="inq-chan">' + inqEsc(a.channel || "Gmail") + '</span>' +
-        '<button class="db-mini-btn tr-back-btn" onclick="_trReopen(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
-          'data-tip="Instant.\nCard goes back to Inquiries undecided.\nNothing is sent.\n(Not in Email list.)" data-tip-wrap data-tip-left>' + _TR_BACK_LABEL + '</button>' +
-      '</div>' +
+      '<div class="inq-drow"><span class="inq-chan">' + inqEsc(a.channel || "Gmail") + '</span></div>' +
       '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || "\u2014") + '</span>' +
         '<span class="fc-newmsg" id="fcnm-' + emailToId(a.email || "") + '"></span></div>' +
       '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || "") + '"></div>' +
       '<div class="inq-acts">' +
+        // Send-back sits bottom left, away from Email/Book, so it is never the
+        // button your hand is already on.
+        '<button class="db-mini-btn tr-back-btn" onclick="_trReopen(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
+          'data-tip="Instant.\nCard goes back to Inquiries undecided.\nNothing is sent.\n(Not in Email list.)" data-tip-wrap>' + _TR_BACK_LABEL + '</button>' +
         // No Delete here (removed 2026-09-24): deleting a real person shrinks
         // the inquiry counts and loses their history. Someone who went quiet
         // goes ← Inquiries, then No reply. Test inquiries: delete the column
