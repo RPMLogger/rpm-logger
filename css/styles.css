@@ -534,10 +534,11 @@ body::before {
                   { color: #d9a441; border-color: color-mix(in srgb, #d9a441 55%, transparent); background: color-mix(in srgb, #d9a441 6%, transparent); }
 .link-btn.amber:hover, .link-btn.amber.pressed, .link-btn.lit:hover
                   { color: #d9a441; border-color: #d9a441; background: color-mix(in srgb, #d9a441 16%, transparent); }
-/* Green for a Google Sheet (spreadsheet green). */
-.link-btn.green   { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 6%, transparent); }
+/* Green for a Google Sheet (spreadsheet green). It rests already a little
+   lit (12% wash, 70% border) and goes further on hover (24%, solid border). */
+.link-btn.green   { color: var(--green); border-color: color-mix(in srgb, var(--green) 70%, transparent); background: color-mix(in srgb, var(--green) 12%, transparent); }
 .link-btn.green:hover, .link-btn.green.pressed
-                  { color: var(--green); border-color: var(--green); background: color-mix(in srgb, var(--green) 16%, transparent); }
+                  { color: var(--green); border-color: var(--green); background: color-mix(in srgb, var(--green) 24%, transparent); }
 /* Icon slots inside link buttons (filled by icons.js from data-icon). */
 .link-btn [data-icon] { display: inline-flex; }
 .arrow-icon.fwd { transform: scaleX(-1); }
