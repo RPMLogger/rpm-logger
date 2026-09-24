@@ -285,7 +285,7 @@ function _renderNotes() {
 
 function _notesListRow(n, num) {
   var row = document.createElement("div");
-  row.style.cssText = "display:flex;align-items:flex-start;gap:8px;padding:6px 4px;border-bottom:1px dashed rgba(255,255,255,0.05)";
+  row.style.cssText = "display:flex;align-items:flex-start;gap:8px;padding:6px 4px;border-bottom:1px solid var(--border)";
 
   var numEl = document.createElement("div");
   numEl.style.cssText = "font-size:11px;color:var(--muted);min-width:22px;flex-shrink:0;text-align:right";
@@ -303,9 +303,9 @@ function _notesListRow(n, num) {
   row.appendChild(meta);
 
   var del = document.createElement("button");
-  del.textContent = "×";
+  del.innerHTML = TRASH_ICON;
   del.title = "Delete";
-  del.style.cssText = "padding:0 8px;font-size:14px;background:transparent;color:var(--muted);border:none;cursor:pointer;flex-shrink:0";
+  del.className = "note-del";
   del.onclick = function() {
     rpmConfirm({ title: "Delete this note?", confirmLabel: "Delete", icon: TRASH_ICON, danger: true })
       .then(function (ok) { if (ok) _notesDelete(n.row); });

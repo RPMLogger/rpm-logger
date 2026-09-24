@@ -42,15 +42,19 @@ function _rpmDialog(opts) {
     var title = document.createElement("div");
     title.className = "rpm-dlg-title";
     title.textContent = opts.title || "Are you sure?";
-    // No red title: the action button already carries the danger colour.
+    // Title colour comes from CSS: red on a confirm (.rpm-dlg-confirm).
     head.appendChild(title);
 
-    var x = document.createElement("button");
-    x.type = "button";
-    x.className = "settings-close rpm-dlg-x";   // the portal's own close icon
-    x.setAttribute("aria-label", "Close");
-    x.textContent = "✕";
-    head.appendChild(x);
+    // A confirm has no ✕: Cancel, Escape and a click outside already close it.
+    var x = null;
+    if (kind !== "confirm") {
+      x = document.createElement("button");
+      x.type = "button";
+      x.className = "settings-close rpm-dlg-x";   // the portal's own close icon
+      x.setAttribute("aria-label", "Close");
+      x.textContent = "✕";
+      head.appendChild(x);
+    }
     box.appendChild(head);
 
     // ── message ──
@@ -130,7 +134,7 @@ function _rpmDialog(opts) {
       close(kind === "alert" ? undefined : true);
     }
 
-    x.addEventListener("click", function () { close(cancelValue()); });
+    if (x) x.addEventListener("click", function () { close(cancelValue()); });
     if (cancelBtn) cancelBtn.addEventListener("click", function () { close(cancelValue()); });
     okBtn.addEventListener("click", confirmNow);
     overlay.addEventListener("mousedown", function (e) {

@@ -1564,7 +1564,7 @@ a:focus-visible,
    the buttons in the composer's Preview / Send pair (.db-mini-btn,
    .db-mini-btn.strong): Cancel dim, the action one step brighter, both amber
    on hover. The action may carry an icon (rpmConfirm's icon option). */
-.rpm-dlg-confirm { max-width: 340px; padding: 18px; }
+.rpm-dlg-confirm { max-width: 340px; padding: 18px; border-color: rgba(255,255,255,0.16); }
 .rpm-dlg-confirm .rpm-dlg-title { font-size: 18px; color: var(--accent); }
 .rpm-dlg-confirm .rpm-dlg-btn,
 .rpm-dlg-confirm .rpm-dlg-btn.go,
@@ -1579,6 +1579,9 @@ a:focus-visible,
 .rpm-dlg-confirm .rpm-dlg-btn.danger:hover { background: transparent; border-color: var(--accent2); color: var(--accent2); }
 .rpm-dlg-btn.has-icon { display: inline-flex; align-items: center; gap: 7px; }
 .rpm-dlg-btn.has-icon svg { flex: 0 0 auto; }
+/* Notes: trash icon at the end of each row, amber under the cursor. */
+.note-del { display: inline-flex; align-items: center; padding: 2px 8px; background: transparent; border: none; color: var(--muted); cursor: pointer; flex-shrink: 0; transition: color .12s; }
+.note-del:hover { color: var(--accent2); }
 .rpm-dlg-btn {
   font-family: "DM Mono", monospace; font-size: 11px; cursor: pointer;
   background: transparent; border: 1px solid color-mix(in srgb, var(--muted) 55%, transparent); color: var(--muted);
