@@ -1562,8 +1562,8 @@ a:focus-visible,
 /* Confirm boxes (2026-09-24): the button's tooltip already says what happens,
    so the box is just the question. Smaller, the title in the house red, and
    the buttons in the composer's Preview / Send pair (.db-mini-btn,
-   .db-mini-btn.strong): Cancel dim, the action one step brighter, both amber
-   on hover. The action may carry an icon (rpmConfirm's icon option). */
+   .db-mini-btn.strong): Cancel dim, the action one step brighter; hover
+   brightens each (2026-09-24, was amber). The action may carry an icon (rpmConfirm's icon option). */
 .rpm-dlg-confirm { max-width: 340px; padding: 18px; border-color: rgba(255,255,255,0.16); }
 .rpm-dlg-confirm .rpm-dlg-title { font-size: 18px; color: var(--accent); }
 .rpm-dlg-confirm .rpm-dlg-btn,
@@ -1574,9 +1574,10 @@ a:focus-visible,
 }
 .rpm-dlg-confirm .rpm-dlg-btn.go,
 .rpm-dlg-confirm .rpm-dlg-btn.danger { border-color: var(--muted); color: var(--text); }
-.rpm-dlg-confirm .rpm-dlg-btn:hover,
+/* Hover brightens the button's own grey instead of turning it amber. */
+.rpm-dlg-confirm .rpm-dlg-btn:hover { background: transparent; border-color: var(--muted); color: rgba(255,255,255,0.75); }
 .rpm-dlg-confirm .rpm-dlg-btn.go:hover,
-.rpm-dlg-confirm .rpm-dlg-btn.danger:hover { background: transparent; border-color: var(--accent2); color: var(--accent2); }
+.rpm-dlg-confirm .rpm-dlg-btn.danger:hover { background: transparent; border-color: rgba(255,255,255,0.85); color: #fff; }
 .rpm-dlg-btn.has-icon { display: inline-flex; align-items: center; gap: 7px; }
 .rpm-dlg-btn.has-icon svg { flex: 0 0 auto; }
 /* Notes: trash icon at the end of each row, amber under the cursor. */
