@@ -152,17 +152,17 @@ function _iaRender(inquiries) {
   });
   years.sort(function (a, b) { return b - a; });
 
-  var html = "";
+  // The page head: its label, the all-time count as one wide tile, a rule.
+  var html = "<div class='section-label'>Inquiry Archive</div>" +
+    "<div class='rpm-counts'>" + _inqCount("Inquiries", all.length) + "</div>" +
+    "<hr class='divider inq-sec-rule'>";
 
   years.forEach(function (y) {
     var rows = byYear[y];
 
     html +=
-      // Each year: its own label, a small Total box, a rule, then its cards.
-      "<div class='ia-yhead'>" +
-        "<div class='section-label'>Inquiry Archive \u00b7 " + (y || "No date") + "</div>" +
-        "<div class='ia-total'><span class='ia-total-l'>Total</span><span class='ia-total-n'>" + rows.length + "</span></div>" +
-        "<hr class='divider ia-yrule'>" +
+      "<div class='ia-year'>" +
+        "<span class='ia-year-n'>" + (y || "No date") + "</span>" +
       "</div>";
 
     rows.forEach(function (inq) {
