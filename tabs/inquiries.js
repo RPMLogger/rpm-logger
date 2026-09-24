@@ -376,7 +376,8 @@ function inqScam(domId) {
   var inq = card._inq;
   rpmConfirm({
     title: "Mark as scam?",
-    confirmLabel: "Mark as scam",
+    confirmLabel: "Mark",
+    icon: TRASH_ICON,
     danger: true
   }).then(function (ok) {
     if (!ok) return;

@@ -5,7 +5,8 @@
 // "rpmlogger.github.io says", and completely unstyleable. It was the only
 // light-themed thing in the portal. These three replace it.
 //
-//   rpmConfirm({ title, message, confirmLabel, cancelLabel, danger })  -> Promise<bool>
+//   rpmConfirm({ title, message, confirmLabel, cancelLabel, danger, icon })  -> Promise<bool>
+//     icon: optional SVG string (tabs/icons.js) shown before the confirm label
 //   rpmAlert({ title, message, confirmLabel })                         -> Promise<void>
 //   rpmPrompt({ title, message, value, placeholder, confirmLabel })    -> Promise<string|null>
 //
@@ -87,7 +88,16 @@ function _rpmDialog(opts) {
     var okBtn = document.createElement("button");
     okBtn.type = "button";
     okBtn.className = "rpm-dlg-btn " + (opts.danger ? "danger" : "go");
-    okBtn.textContent = opts.confirmLabel || (kind === "alert" ? "OK" : "Yes");
+    var okLabel = opts.confirmLabel || (kind === "alert" ? "OK" : "Yes");
+    if (opts.icon) {
+      okBtn.classList.add("has-icon");
+      okBtn.innerHTML = opts.icon;
+      var okSpan = document.createElement("span");
+      okSpan.textContent = okLabel;
+      okBtn.appendChild(okSpan);
+    } else {
+      okBtn.textContent = okLabel;
+    }
     acts.appendChild(okBtn);
     box.appendChild(acts);
 

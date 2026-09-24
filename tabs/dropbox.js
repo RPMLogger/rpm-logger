@@ -358,7 +358,8 @@ function _dbRecoverFolder(name, btn) {
   if (!url) return;
   rpmConfirm({
     title: 'Recover files?',
-    confirmLabel: 'Recover'
+    confirmLabel: 'Recover',
+    icon: REDO_ICON
   }).then(function (ok) { if (ok) _dbRecoverGo(name, btn, url); });
 }
 

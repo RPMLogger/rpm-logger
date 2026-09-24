@@ -281,6 +281,7 @@ function _skStudentCard(s) {
       rpmConfirm({
         title: 'Delete this skip?',
         confirmLabel: 'Delete',
+        icon: TRASH_ICON,
         danger: true
       }).then(function (ok) { if (ok) go(); });
       function go() {

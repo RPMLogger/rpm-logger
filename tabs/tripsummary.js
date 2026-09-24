@@ -102,7 +102,8 @@ function _tsActiveCard(trip) {
   if (_arch && _archReady) _arch.onclick = function() {
     rpmConfirm({
       title: 'Archive this trip?',
-      confirmLabel: 'Archive'
+      confirmLabel: 'Archive',
+      icon: TRAY_IN_ICON
     }).then(function (ok) {
     if (!ok) return;
     var url = getScriptUrl(); if (!url) return;
