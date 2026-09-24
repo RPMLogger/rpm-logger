@@ -1311,8 +1311,13 @@ a:focus-visible,
 /* The card's booking window (tb), keys only: with no arrows, the field
    that has focus is lit even after a mouse click, so you can see which one
    ↑↓ will move. Book lights up when Enter lands on it. */
-#tbDtRow .dt-val:focus { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
 #tbBookBtn:focus { outline: none; color: #fff; border-color: rgba(255,255,255,0.6); background: var(--surface2); }
+#tbDtRow .dt-val:focus { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
+/* ...and date and time as two separate pills, a size up from the stepper. */
+#tbDtRow { border: none; background: transparent; padding: 0; gap: 8px; }
+#tbDtRow .dt-seg { padding: 2px; border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); border-radius: 8px; background: var(--surface2); }
+#tbDtRow .dt-seg + .dt-seg { border-left: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); }
+#tbDtRow .dt-val { font-size: 12px; padding: 7px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 1px; }
 
 /* Trial tab: Pick a time. Its own control, not .dt-row: no arrows, the lit
    field is whichever the mouse last touched, and the keys drive that one. */
