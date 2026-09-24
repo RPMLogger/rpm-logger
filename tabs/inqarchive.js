@@ -29,11 +29,6 @@ function initInqArchiveTab() {
   if (_iaCache) _iaRender(_iaCache);
   else host.innerHTML = "<div class='inq-empty rpm-loading'>Loading</div>";
   if (!url) return;
-  // The trial half of the tiles comes from the Trial Lessons sheet.
-  fetch(url + "?action=getTrialStats")
-    .then(function (r) { return r.json(); })
-    .then(function (d) { if (d && d.success) { _iaTrial = d.stats; if (_iaCache) _iaRender(_iaCache); } })
-    .catch(function () {});
   fetch(url + "?action=getInquiries")
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -71,27 +66,66 @@ function _iaChip(decision) {
   return "<span class='ia-chip ia-" + _iaCls(decision) + "'>" + inqEsc(d || "Open") + "</span>";
 }
 
-// Two blocks, all time, each under its own label (the page's own "Inquiry
-// Archive" label sits above the first):
-//   Inquiries                    every inquiry that came in
-//   Trial Lesson Archive         Trials booked = No shows + Students +
-//                                Didn't continue + In progress
+// ─── TRIAL ANALYSIS (Data tab) ──────────────────────────────────────────────
+// Its own tab under Data (was a button on the Archive until 2026-09-24): the
+// whole funnel, all time. Inquiries from the Inquiries sheet; the trial lines from
+// the Trial Lessons sheet (getTrialStats).
+//   Trials booked = From website + Manual booking
+//                 = No shows + Students + Didn't continue + In progress
 // No Show is its own outcome, never counted with Didn't continue (Dismiss).
-// Same count tiles as the Load strip (_inqCount, inquiries.js).
-function _iaStats(rows) {
-  var t = _iaTrial;
-  function v(k) { return t ? t[k] : "—"; }
-  return "<div class='rpm-counts'>" + _inqCount("Inquiries", rows.length) + "</div>" +
-    "<hr class='divider inq-sec-rule'>" +
-    "<div class='section-label'>Trial Lesson Archive</div>" +
-    "<div class='rpm-counts'>" +
-      _inqCount("Trials booked",   v("booked")) +
-      _inqCount("No shows",        v("noShow"), false, true) +
-      _inqCount("Students",        v("students"), true) +
-      _inqCount("Didn't continue", v("didntContinue"), false, true) +
-      _inqCount("In progress",     v("inProgress"), false, true) +
+// A zero or a number not loaded yet reads "—".
+function _iaAnalysisHtml() {
+  var t = _iaTrial || {};
+  var inq = (_iaCache || []).length;
+  function num(x) { return x ? x : "—"; }
+  function pct(a, b) { return (a && b) ? Math.round(a / b * 100) + "%" : ""; }
+  // label · share (of the line it splits) · number
+  function row(label, n, share, cls) {
+    return "<div class='iat-row" + (cls ? " " + cls : "") + "'>" +
+      "<span class='iat-l'>" + label + "</span>" +
+      "<span class='iat-p'>" + share + "</span>" +
+      "<span class='iat-n'>" + num(n) + "</span></div>";
+  }
+
+  // Box 1: who wrote in, and who got a trial (and how it was booked).
+  // Box 2, Trial Outcome: every booked trial by how it ended, counts only.
+  return "<div class='section-label'>Analysis</div>" +
+    "<div class='iat'>" +
+      row("Inquiries",        inq,        "",                       "top") +
+      row("Trials Booked",    t.booked,   pct(t.booked, inq),       "top") +
+      row("From Website",     t.website,  pct(t.website, t.booked), "sub") +
+      row("Manual Booking",   t.manual,   pct(t.manual, t.booked),  "sub") +
     "</div>" +
-    "<hr class='divider inq-sec-rule'>";
+    // Every booked trial, best ending first: these four add up to Trials Booked.
+    "<div class='section-label'>Trial Outcome</div>" +
+    "<div class='iat'>" +
+      row("Turned Students", t.students,      "") +
+      row("Not Continued",   t.didntContinue, "") +
+      row("In Progress",     t.inProgress,    "") +
+      row("No Shows",        t.noShow,        "") +
+    "</div>";
+}
+
+function _iaPaintAnalysis() {
+  var box = document.getElementById("trialAnalysisBody");
+  if (box) box.innerHTML = _iaAnalysisHtml();
+}
+
+// Data → Trial Analysis. Two reads, painted as each lands: the inquiry count
+// (the archive's own list, reused when it is already in memory) and the trial
+// numbers from the Trial Lessons sheet.
+function initTrialAnalysisTab() {
+  var url = getScriptUrl();
+  if (!url) return;
+  if (_iaCache || _iaTrial) _iaPaintAnalysis();
+  fetch(url + "?action=getTrialStats")
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (d && d.success) { _iaTrial = d.stats; _iaPaintAnalysis(); } })
+    .catch(function () {});
+  fetch(url + "?action=getInquiries")
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (d && d.success) { _iaCache = d.inquiries || []; _iaPaintAnalysis(); } })
+    .catch(function () {});
 }
 
 function _iaRender(inquiries) {
@@ -118,15 +152,17 @@ function _iaRender(inquiries) {
   });
   years.sort(function (a, b) { return b - a; });
 
-  // One tracking row for all time, above the years.
-  var html = _iaStats(all);
+  var html = "";
 
   years.forEach(function (y) {
     var rows = byYear[y];
 
     html +=
-      "<div class='ia-year'>" +
-        "<span class='ia-year-n'>" + (y || "No date") + "</span>" +
+      // Each year: its own label, a small Total box, a rule, then its cards.
+      "<div class='ia-yhead'>" +
+        "<div class='section-label'>Inquiry Archive \u00b7 " + (y || "No date") + "</div>" +
+        "<div class='ia-total'><span class='ia-total-l'>Total</span><span class='ia-total-n'>" + rows.length + "</span></div>" +
+        "<hr class='divider ia-yrule'>" +
       "</div>";
 
     rows.forEach(function (inq) {

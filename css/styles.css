@@ -486,7 +486,35 @@ body::before {
                 margin: 0 0 32px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
 /* Same rule between Load and the inquiry list. */
 .divider.inq-sec-rule { margin: 0 0 32px; }
-.divider.inq-sec-rule + .ia-year { margin-top: 0; }   /* the rule already gave the 32 */
+/* ─── INQUIRY ARCHIVE → ANALYSIS ──────────────────────────────────────────
+   A plain table, portal style: label left, number right, and a quiet share
+   column between them (each line as a share of the line it splits: trials of
+   inquiries, sources and outcomes of trials). Two boxes: the funnel, then
+   Trial Outcome. Hairline rows, sub-rows indented, no colour. */
+.iat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 22px; margin-bottom: 32px; }
+.iat-row  { display: grid; grid-template-columns: 1fr 60px 48px; align-items: baseline;
+            padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-family: "DM Mono", monospace; }
+.iat-row:last-child { border-bottom: none; }
+.iat-l { font-size: 11px; color: rgba(255,255,255,0.62); }
+.iat-p { font-size: 10px; color: var(--muted); text-align: right; }
+.iat-n { font-size: 13px; color: var(--text); text-align: right; }
+.iat-row.top .iat-l { color: var(--text); }
+.iat-row.sub .iat-l { padding-left: 16px; color: var(--muted); }
+.iat-row.sub .iat-n { color: rgba(255,255,255,0.62); }
+/* Archive: each year heads itself. "INQUIRY ARCHIVE · 2026", a small Total
+   box under it, a rule, then the cards; open rhythm (16 / 32 / 32), 48
+   between years. */
+.ia-yhead { margin-top: 48px; }
+#inqArchiveList > .ia-yhead:first-child { margin-top: 0; }
+/* Blue at the Trial tab's 70%; label and number the same size. */
+.ia-total { display: inline-flex; align-items: baseline; gap: 12px;
+            background: color-mix(in srgb, var(--blue) 5%, transparent);
+            border: 1px solid color-mix(in srgb, var(--blue) 32%, transparent); border-radius: 8px;
+            padding: 9px 16px; font-family: "DM Mono", monospace;
+            font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+            color: color-mix(in srgb, var(--blue) 70%, transparent); }
+.divider.ia-yrule { margin: 32px 0; }
 .inq-toplinks .inq-archive.top { margin: 0; }
 .inq-toplinks > :last-child:not(:first-child) { margin-left: auto; }
 /* ─── LINK BUTTONS ──────────────────────────────────────────────────────
