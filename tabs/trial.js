@@ -14,8 +14,9 @@ function initTrialTab() {
   // Booking is the exit door of this tab, not its furniture: the form and the
   // calendar list stay hidden until he actually decides to book someone.
   body.innerHTML =
-    '<div class="section-label" style="margin-bottom:10px">Reach out</div>' +
-    '<div id="trAccepted"><div class="empty-state rpm-loading">Loading</div></div>' +
+    // 12px on top of the label's own 16, so the first card doesn't hug the title.
+    // Padding, not margin: a margin would collapse into the label's.
+    '<div id="trAccepted" style="padding-top:12px"><div class="empty-state rpm-loading">Loading</div></div>' +
     '<div id="trBookArea" style="display:none">' +
       '<hr class="divider" style="margin:22px 0 16px">' +
       _trManualFormHtml() + '<div id="trStatus"></div>' +
@@ -67,7 +68,7 @@ function _trLoadAccepted() {
     .catch(function () { box.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
 }
 
-var _TR_BACK_LABEL = '\u2190 Inquiries';
+var _TR_BACK_LABEL = 'Undo move';
 
 function _trAcceptedCard(a) {
   // Identical markup to an Inquiries card (same classes, same field renderer),
@@ -83,17 +84,18 @@ function _trAcceptedCard(a) {
       '<div class="inq-acts">' +
         // Send-back sits bottom left, away from Email/Book, so it is never the
         // button your hand is already on. Link-button face (.link-btn, like
-        // Inquiry Archive): grey, Email green.
+        // Inquiry Archive): Email amber (your move), Book in the
+        // composer Send button's brighter grey (.bright).
         '<button class="link-btn tr-back-btn" onclick="_trReopen(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
           'data-tip="Instant.\nCard goes back to Inquiries undecided.\nNothing is sent.\n(Not in Email list.)" data-tip-wrap>' + _TR_BACK_LABEL + '</button>' +
         // No Delete here (removed 2026-09-24): deleting a real person shrinks
         // the inquiry counts and loses their history. Someone who went quiet
-        // goes ← Inquiries, then No reply. Test inquiries: delete the column
+        // goes Undo move, then No reply. Test inquiries: delete the column
         // in the sheet by hand.
-        '<button class="link-btn green opens-window" onclick="_trOpenEmail(\'' + em + '\')" ' +
-          'data-tip="Opens a window.\nFirst-contact email draft.\nNothing sends until you press Send.\n(Not in Email list.)" data-tip-wrap>Email</button>' +
-        '<button class="link-btn" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
-          'data-tip="Opens a window.\nBooking with their name and email.\nYou pick the date and time.\nCard moves to Trial once booked.\n(Not in Email list.)" data-tip-wrap data-tip-left>Book \u2192</button>' +
+        '<button class="link-btn amber opens-window" onclick="_trOpenEmail(\'' + em + '\')" ' +
+          'data-tip="Opens a window.\nFirst-contact email draft.\nNothing sends until you press Send.\n(Not in Email list.)" data-tip-wrap>' + ENVELOPE_ICON + '<span>Email</span></button>' +
+        '<button class="link-btn bright opens-window" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
+          'data-tip="Opens a window.\nBooking with their name and email.\nYou pick the date and time.\nCard moves to Trial once booked.\n(Not in Email list.)" data-tip-wrap data-tip-left>' + CALENDAR_ICON + '<span>Book</span></button>' +
       '</div>' +
     '</div>';
 }
@@ -735,14 +737,19 @@ function _trBookAccepted(name, email) {
     // as Done - the harmless way out every other window trains you to click -
     // and this one creates a calendar event and mails the student.
     '<div style="display:flex;justify-content:flex-end;margin-top:24px">' +
-      '<button class="db-mini-btn go" id="tbBookBtn" style="padding:7px 20px" ' +
-        'onclick="_trBook(\'tb\')" data-tip="Instant.\nCreates the calendar event.\nEmails them the confirmation." data-tip-wrap data-tip-left>Book</button>' +
+      // Trying (2026-09-24): the card's Book face (bright grey + calendar)
+      // instead of green, and keyboard-only: Enter on the date/time lands
+      // here, Enter again books.
+      '<button class="link-btn bright" id="tbBookBtn" style="padding:7px 20px" ' +
+        'onclick="_trBook(\'tb\')" data-tip="Instant.\nCreates the calendar event.\nEmails them the confirmation." data-tip-wrap data-tip-left>' + _TR_TB_BOOK_LABEL + '</button>' +
     '</div>';
 
   _trRenderOfferedSlots(email, 'tb');
   var f = document.getElementById('tbDateLbl');
   if (f) f.focus();
 }
+
+var _TR_TB_BOOK_LABEL = CALENDAR_ICON + '<span>Book</span>';
 
 function _trBookWinClose() {
   if (_trBookWin && _trBookWin.busy) return;   // never close mid-send
@@ -756,7 +763,7 @@ function _trBookWinClose() {
 function _trBookWinPaint() {
   var btn = document.getElementById('tbBookBtn');
   if (!btn || btn.disabled) return;
-  btn.textContent = 'Book';
+  btn.innerHTML = _TR_TB_BOOK_LABEL;
 }
 
 // ── Door 1: manual booking form ──────────────────────────────────────────────
@@ -887,7 +894,8 @@ function _trDtHtml(p) {
   };
   var seg = function (id, order, fn, step, w, txt) {
     return '<div class="dt-seg">' +
-        '<span class="dt-stack">' + btn(fn, step, 1) + btn(fn, -step, -1) + '</span>' +
+        // The card's booking window (tb) is trying keys only: no arrows.
+        (p === 'tb' ? '' : '<span class="dt-stack">' + btn(fn, step, 1) + btn(fn, -step, -1) + '</span>') +
         '<button type="button" class="dt-val" id="' + id + '" data-dt-nav="' + order + '" ' +
           'style="min-width:' + w + 'px" onkeydown="_trDtKey(event,\'' + p + '\',\'' + fn + '\',' + step + ')">' + txt + '</button>' +
       '</div>';
@@ -906,6 +914,13 @@ function _trDtKey(e, p, fn, step) {
   var f = fn === '_trDtStepDate' ? _trDtStepDate : _trDtStepTime;
   if (e.key === 'ArrowUp')   { e.preventDefault(); f(p, step);  return; }
   if (e.key === 'ArrowDown') { e.preventDefault(); f(p, -step); return; }
+  // tb only: Enter moves to Book (lit), a second Enter presses it.
+  if (e.key === 'Enter' && p === 'tb') {
+    e.preventDefault();
+    var bk = document.getElementById('tbBookBtn');
+    if (bk && !bk.disabled) bk.focus();
+    return;
+  }
   if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
   e.preventDefault();
   var row = document.getElementById(p + 'DtRow');
@@ -1183,9 +1198,9 @@ function _trActionsHtml(a) {
   // Confirm is always clickable: _msOpen says what is still missing.
   return '<div id="tracts-' + id + '" style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">' +
       '<div class="inq-acts">' +
-        '<button class="inq-db yes" onclick="_msOpen(\'' + em + '\')" ' +
+        '<button class="inq-db yes opens-window" onclick="_msOpen(\'' + em + '\')" ' +
           'data-tip="Opens a window.\nChecks the steps and makes them a student.\nCard disappears from Trial.\nStays in Inquiry Archive.\n(Not in Email list.)" data-tip-wrap data-tip-left>Confirm Student</button>' +
-        '<button class="inq-db no" id="trnobtn-' + id + '" ' +
+        '<button class="inq-db no opens-window" id="trnobtn-' + id + '" ' +
           'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')" ' +
           'data-tip="Opens a window.\nPick Not Continued or No Show.\nCard disappears from Trial.\nStays in Inquiry Archive.\n(Not in Email list.)" data-tip-wrap data-tip-left>Dismiss</button>' +
       '</div>' +

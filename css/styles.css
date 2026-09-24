@@ -534,6 +534,11 @@ body::before {
                   { color: #d9a441; border-color: color-mix(in srgb, #d9a441 55%, transparent); background: color-mix(in srgb, #d9a441 6%, transparent); }
 .link-btn.amber:hover, .link-btn.amber.pressed, .link-btn.lit:hover
                   { color: #d9a441; border-color: #d9a441; background: color-mix(in srgb, #d9a441 16%, transparent); }
+/* Bright = the composer Send button's grey (--muted border, --text words),
+   one step above plain grey. Book on the Initiate card. */
+.link-btn.bright  { color: var(--text); border-color: var(--muted); background: transparent; }
+.link-btn.bright:hover, .link-btn.bright.pressed
+                  { color: #fff; border-color: rgba(255,255,255,0.6); background: var(--surface2); }
 /* Green for a Google Sheet (spreadsheet green). It rests already a little
    lit (12% wash, 70% border) and goes further on hover (24%, solid border). */
 .link-btn.green   { color: var(--green); border-color: color-mix(in srgb, var(--green) 70%, transparent); background: color-mix(in srgb, var(--green) 12%, transparent); }
@@ -584,6 +589,8 @@ body::before {
 .inq-dcard.read   { opacity: 0.62; }
 /* Initiate: the send-back button pushed to the card's bottom-left corner. */
 .tr-back-btn { margin-right: auto; }
+/* Initiate: a little more air between the fields and the button row. */
+.inq-dcard.accepted .inq-acts { margin-top: 20px; }
 
 /* An opener that never finishes: it unfolds the manual booking form and can be
    used again tomorrow. Grey, not amber - booking a trial by hand is the rare
@@ -1300,6 +1307,12 @@ a:focus-visible,
   outline: none; color: #fff;
   background: color-mix(in srgb, #fff 12%, transparent);
 }
+
+/* The card's booking window (tb), keys only: with no arrows, the field
+   that has focus is lit even after a mouse click, so you can see which one
+   ↑↓ will move. Book lights up when Enter lands on it. */
+#tbDtRow .dt-val:focus { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
+#tbBookBtn:focus { outline: none; color: #fff; border-color: rgba(255,255,255,0.6); background: var(--surface2); }
 
 /* Trial tab: Pick a time. Its own control, not .dt-row: no arrows, the lit
    field is whichever the mouse last touched, and the keys drive that one. */
