@@ -307,7 +307,7 @@ function _notesListRow(n, num) {
   del.title = "Delete";
   del.style.cssText = "padding:0 8px;font-size:14px;background:transparent;color:var(--muted);border:none;cursor:pointer;flex-shrink:0";
   del.onclick = function() {
-    rpmConfirm({ title: "Delete this note?", confirmLabel: "Delete", danger: true })
+    rpmConfirm({ title: "Delete this note?", confirmLabel: "Delete", icon: TRASH_ICON, danger: true })
       .then(function (ok) { if (ok) _notesDelete(n.row); });
   };
   row.appendChild(del);
