@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=598">
+  <link rel="stylesheet" href="css/styles.css?v=599">
 </head>
 <body>
 <div class="container">
@@ -117,9 +117,9 @@
         <button class="settings-close" onclick="closeLogPanel()">✕</button>
       </div>
       <div class="ll-rows" id="logRows">
-        <textarea class="rpm-field ll-row active" id="rowInput-0" rows="2" placeholder="Type, or press the mic and talk" onfocus="setActiveRow(0)" oninput="onRowInput()"></textarea>
-        <textarea class="rpm-field ll-row"        id="rowInput-1" rows="2" placeholder="Row 2 — tap to continue here"    onfocus="setActiveRow(1)" oninput="onRowInput()"></textarea>
-        <textarea class="rpm-field ll-row"        id="rowInput-2" rows="2" placeholder="Row 3 — tap to continue here"    onfocus="setActiveRow(2)" oninput="onRowInput()"></textarea>
+        <textarea class="rpm-field ll-row active" id="rowInput-0" rows="2" onfocus="setActiveRow(0)" oninput="onRowInput()"></textarea>
+        <textarea class="rpm-field ll-row"        id="rowInput-1" rows="2" onfocus="setActiveRow(1)" oninput="onRowInput()"></textarea>
+        <textarea class="rpm-field ll-row"        id="rowInput-2" rows="2" onfocus="setActiveRow(2)" oninput="onRowInput()"></textarea>
       </div>
       <div class="ll-acts" id="logActions">
         <button class="db-mini-btn ll-mic" id="logMicBtn" data-tip="Starts or stops dictation" onclick="toggleLogMic()"></button>
@@ -283,11 +283,12 @@
         <!-- Always there, so the process is never forgotten: dim grey with no
              replies, amber when someone answered a Maybe or a No. -->
         <button class="link-btn" id="inqRespBtn" onclick="_inqToggleReplies()"
-          data-tip="Replies to your Maybe or No emails from the last 15 days, Dim: no replies, Amber: someone replied, Read opens Gmail, Reopen puts their card back in Inquiries undecided" data-tip-wrap data-tip-left>Replies<span id="inqRespN"></span></button>
+          data-tip="Replies to your Maybe or No emails from the last 15 days, Dim: no replies, Amber: someone replied, Read opens Gmail, Reopen puts their card back in Inquiries undecided" data-tip-wrap data-tip-left><span data-icon="reply"></span><span>Replies<span id="inqRespN"></span></span></button>
       </div>
       <div id="inqRepliesStrip" style="display:none"></div>
       <div class="section-label">Load</div>
       <div id="inqBizStrip"></div>
+      <hr class="divider inq-sec-rule">
       <div class="section-label">Trial Lesson Inquiries</div>
       <div id="inquiriesList"><div class="inq-empty rpm-loading">Loading</div></div>
     </div>
@@ -298,7 +299,7 @@
   <div class="tab-panel" id="tab-inqarchive">
     <!-- Link buttons, as on Inquiries: back to the tab left, the source sheet right. -->
     <div class="inq-toplinks">
-      <button class="link-btn amber" onclick="switchTab('inquiries')"><span>Inquiries Tab</span></button>
+      <button class="link-btn amber" onclick="switchTab('inquiries')" data-tip="Returns to the Inquiries tab"><span>Inquiries Tab</span></button>
       <a class="link-btn green" href="https://docs.google.com/spreadsheets/d/1JE0KugItYkWF19Pp8zqw6xCyLxjS-ryZMplC6XijOSM/edit"
          target="_blank" rel="noopener" data-tip="Opens the Inquiries sheet in a new tab" data-tip-left><span class="sheet-icon"></span><span>Inquiries Sheet</span></a>
     </div>
@@ -754,7 +755,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">598</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">599</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens Settings">⚙</button>
   </div>
 
@@ -775,42 +776,42 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=598"></script>
-<script src="core/storage.js?v=598"></script>
-<script src="core/utils.js?v=598"></script>
-<script src="core/dialog.js?v=598"></script>
-<script src="core/api.js?v=598"></script>
+<script src="core/state.js?v=599"></script>
+<script src="core/storage.js?v=599"></script>
+<script src="core/utils.js?v=599"></script>
+<script src="core/dialog.js?v=599"></script>
+<script src="core/api.js?v=599"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=598"></script>
-<script src="tabs/lessons.js?v=598"></script>
-<script src="tabs/payments.js?v=598"></script>
-<script src="tabs/week.js?v=598"></script>
-<script src="tabs/general.js?v=598"></script>
-<script src="tabs/financial.js?v=598"></script>
-<script src="tabs/inquiries.js?v=598"></script>
-<script src="tabs/inqarchive.js?v=598"></script>
-<script src="tabs/comms.js?v=598"></script>
-<script src="tabs/notes.js?v=598"></script>
-<script src="tabs/todo.js?v=598"></script>
-<script src="tabs/availability.js?v=598"></script>
-<script src="tabs/biweekly.js?v=598"></script>
-<script src="tabs/travel.js?v=598"></script>
-<script src="tabs/tripsummary.js?v=598"></script>
-<script src="tabs/triphistory.js?v=598"></script>
-<script src="tabs/skips.js?v=598"></script>
-<script src="tabs/student.js?v=598"></script>
-<script src="tabs/ctrl.js?v=598"></script>
-<script src="tabs/mailcenter.js?v=598"></script>
-<script src="tabs/dropbox.js?v=598"></script>
-<script src="tabs/trial.js?v=598"></script>
-<script src="tabs/rates.js?v=598"></script>
-<script src="tabs/ending.js?v=598"></script>
-<script src="tabs/thisyear.js?v=598"></script>
-<script src="tabs/sheets.js?v=598"></script>
-<script src="tabs/studentline.js?v=598"></script>
-<script src="tabs/calendar.js?v=598"></script>
-<script src="tabs/fixedcal.js?v=598"></script>
+<script src="tabs/icons.js?v=599"></script>
+<script src="tabs/lessons.js?v=599"></script>
+<script src="tabs/payments.js?v=599"></script>
+<script src="tabs/week.js?v=599"></script>
+<script src="tabs/general.js?v=599"></script>
+<script src="tabs/financial.js?v=599"></script>
+<script src="tabs/inquiries.js?v=599"></script>
+<script src="tabs/inqarchive.js?v=599"></script>
+<script src="tabs/comms.js?v=599"></script>
+<script src="tabs/notes.js?v=599"></script>
+<script src="tabs/todo.js?v=599"></script>
+<script src="tabs/availability.js?v=599"></script>
+<script src="tabs/biweekly.js?v=599"></script>
+<script src="tabs/travel.js?v=599"></script>
+<script src="tabs/tripsummary.js?v=599"></script>
+<script src="tabs/triphistory.js?v=599"></script>
+<script src="tabs/skips.js?v=599"></script>
+<script src="tabs/student.js?v=599"></script>
+<script src="tabs/ctrl.js?v=599"></script>
+<script src="tabs/mailcenter.js?v=599"></script>
+<script src="tabs/dropbox.js?v=599"></script>
+<script src="tabs/trial.js?v=599"></script>
+<script src="tabs/rates.js?v=599"></script>
+<script src="tabs/ending.js?v=599"></script>
+<script src="tabs/thisyear.js?v=599"></script>
+<script src="tabs/sheets.js?v=599"></script>
+<script src="tabs/studentline.js?v=599"></script>
+<script src="tabs/calendar.js?v=599"></script>
+<script src="tabs/fixedcal.js?v=599"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>

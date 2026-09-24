@@ -17,6 +17,7 @@
 // one when it arrives.
 
 var _iaCache = null;
+var _iaTrial = null;   // getTrialStats: booked / noShow / students / didntContinue / inProgress
 
 // Same source as the Inquiries tab. getInquiries returns EVERY column in the
 // sheet with its Decision; the Inquiries tab is the thing doing the filtering,
@@ -28,6 +29,11 @@ function initInqArchiveTab() {
   if (_iaCache) _iaRender(_iaCache);
   else host.innerHTML = "<div class='inq-empty rpm-loading'>Loading</div>";
   if (!url) return;
+  // The trial half of the tiles comes from the Trial Lessons sheet.
+  fetch(url + "?action=getTrialStats")
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (d && d.success) { _iaTrial = d.stats; if (_iaCache) _iaRender(_iaCache); } })
+    .catch(function () {});
   fetch(url + "?action=getInquiries")
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -65,20 +71,27 @@ function _iaChip(decision) {
   return "<span class='ia-chip ia-" + _iaCls(decision) + "'>" + inqEsc(d || "Open") + "</span>";
 }
 
-// Total / Accepted / Open, the three numbers worth having. Accepted is a Yes:
-// every student on the books came through one.
-//
-// Rendered with the same count tiles as the Load strip (_inqCount, from
-// inquiries.js) rather than a private layout, so a number means the same thing
-// and looks the same wherever it appears in the portal.
+// Two blocks, all time, each under its own label (the page's own "Inquiry
+// Archive" label sits above the first):
+//   Inquiries                    every inquiry that came in
+//   Trial Lesson Archive         Trials booked = No shows + Students +
+//                                Didn't continue + In progress
+// No Show is its own outcome, never counted with Didn't continue (Dismiss).
+// Same count tiles as the Load strip (_inqCount, inquiries.js).
 function _iaStats(rows) {
-  var yes  = rows.filter(function (i) { return (i.decision || "").toLowerCase() === "yes"; }).length;
-  var open = rows.filter(function (i) { return !i.decision; }).length;
-  return "<div class='rpm-counts'>" +
-      _inqCount("Total",    rows.length) +
-      _inqCount("Accepted", yes) +
-      _inqCount("Open",     open) +
-    "</div>";
+  var t = _iaTrial;
+  function v(k) { return t ? t[k] : "—"; }
+  return "<div class='rpm-counts'>" + _inqCount("Inquiries", rows.length) + "</div>" +
+    "<hr class='divider inq-sec-rule'>" +
+    "<div class='section-label'>Trial Lesson Archive</div>" +
+    "<div class='rpm-counts'>" +
+      _inqCount("Trials booked",   v("booked")) +
+      _inqCount("No shows",        v("noShow"), false, true) +
+      _inqCount("Students",        v("students"), true) +
+      _inqCount("Didn't continue", v("didntContinue"), false, true) +
+      _inqCount("In progress",     v("inProgress"), false, true) +
+    "</div>" +
+    "<hr class='divider inq-sec-rule'>";
 }
 
 function _iaRender(inquiries) {
@@ -105,9 +118,8 @@ function _iaRender(inquiries) {
   });
   years.sort(function (a, b) { return b - a; });
 
-  // A grand total only when there is more than one year to add up. With a
-  // single year it would just repeat the year header word for word.
-  var html = (years.length > 1) ? _iaStats(all) : "";
+  // One tracking row for all time, above the years.
+  var html = _iaStats(all);
 
   years.forEach(function (y) {
     var rows = byYear[y];
@@ -115,8 +127,7 @@ function _iaRender(inquiries) {
     html +=
       "<div class='ia-year'>" +
         "<span class='ia-year-n'>" + (y || "No date") + "</span>" +
-      "</div>" +
-      _iaStats(rows);
+      "</div>";
 
     rows.forEach(function (inq) {
       html +=

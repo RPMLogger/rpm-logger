@@ -1341,14 +1341,14 @@ function _tlDbxHtml(a, s) {
 // mic button, Log. Rows join as "Row 1 - Row 2 - Row 3" in Title Case. Only
 // Log saves, and a logged lesson is final: step 8 stops opening this window
 // (see _trStepsHtml), so it always starts empty.
-var _TL_ROWS = ['Type, or press the mic and talk', 'Row 2 — tap to continue here', 'Row 3 — tap to continue here'];
+var _TL_ROWS = ['', '', ''];   // three rows, no placeholder text
 
 function _tlLogHtml(a, s) {
   _tl.row = 0;
   return '<div class="ll-rows">' +
       _TL_ROWS.map(function (ph, i) {
         return '<textarea class="rpm-field ll-row' + (i ? '' : ' active') + '" id="tlRow-' + i + '" rows="2" ' +
-          'placeholder="' + ph + '" onfocus="_tlRow(' + i + ')" oninput="_tlLogReady()"></textarea>';
+          'onfocus="_tlRow(' + i + ')" oninput="_tlLogReady()"></textarea>';
       }).join('') +
     '</div>' +
     '<div class="ll-acts">' +
@@ -1356,10 +1356,15 @@ function _tlLogHtml(a, s) {
       '<button class="db-mini-btn ll-mic" id="tlMicBtn" data-tip="Starts or stops dictation" onclick="_tlMic()">' + MIC_ICON + '</button>' +
       '<button class="db-mini-btn go ll-log" id="tlLogBtn" onclick="_tlLogWhat()" disabled>Log</button>' +
       '<span class="ll-state" id="tlWhatMsg"></span>' +
+      // They never came: closes the trial like Dismiss, but as its own
+      // outcome (No Show), so it is never counted with the ones who took the
+      // lesson and did not continue. Far right, away from Log.
+      '<button class="db-mini-btn danger ll-noshow" id="tlNoShowBtn" onclick="_tlNoShow()" ' +
+        'data-tip="Asks first, Marks the trial No Show, Card disappears from Trial" data-tip-left>No show</button>' +
     '</div>';
 }
 
-// The red edge marks the row the mic writes into.
+// The grey ring (.active) marks the row the mic writes into.
 function _tlRow(i) {
   if (!_tl) return;
   _tl.row = i;
@@ -1462,6 +1467,42 @@ function _tlLogWhat() {
     var b = document.getElementById('tlLogBtn');
     if (b) { b.disabled = false; b.textContent = 'Log'; }
   }, 8000);
+}
+
+// No show: the Dismiss mechanism with its own outcome.
+function _tlNoShow() {
+  if (!_tl || _tl.busy || _tl.logged) return;
+  var a = _tl.card, email = a.email || '';
+  var url = getScriptUrl();
+  if (!url || !email) return;
+  rpmConfirm({
+    title: 'Mark ' + (a.name || email) + ' as no show?',
+    message: 'Outcome becomes No Show and the card leaves the Trial tab. It is not counted as dismissed.',
+    confirmLabel: 'No show',
+    danger: true
+  }).then(function (ok) {
+    if (!ok || !_tl) return;
+    var b = document.getElementById('tlNoShowBtn');
+    if (b) { b.disabled = true; b.textContent = 'Saving\u2026'; }
+    _tl.busy = true;
+    fetch(url + '?action=closeTrial&email=' + encodeURIComponent(email) + '&outcome=' + encodeURIComponent('No Show'))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (_tl) _tl.busy = false;
+        if (!d || !d.success) {
+          if (b) { b.disabled = false; b.textContent = 'No show'; }
+          _tlSetMsg('tlWhatMsg', '\u26a0 ' + ((d && d.message) || 'Not saved'), 'var(--accent)');
+          return;
+        }
+        _tlClose();
+        _trDropStageCard(email);
+      })
+      .catch(function () {
+        if (_tl) _tl.busy = false;
+        if (b) { b.disabled = false; b.textContent = 'No show'; }
+        _tlSetMsg('tlWhatMsg', '\u274c Could not reach the portal.', 'var(--accent)');
+      });
+  });
 }
 
 // ── + · Send HW ──
