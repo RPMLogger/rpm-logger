@@ -95,16 +95,30 @@ body::before {
    character still sitting inside every one of those buttons - leave it there,
    it is what shows if a browser ever refuses the mask. */
 .settings-close {
-  background: none; border: none; cursor: pointer; padding: 0;
+  background: none; border: none; cursor: pointer;
+  /* Easier to hit (2026-09-25): a 30px round target around a 14px disc. The
+     negative margin gives the padding back, so the icon sits where it did. */
+  padding: 8px; margin: -8px; border-radius: 50%;
   color: var(--muted); font-size: 0; line-height: 0;
   display: inline-flex; align-items: center; justify-content: center;
+  transition: color .12s, background .12s;
 }
 .settings-close::before {
-  content: ""; display: block; width: 12px; height: 12px; background: currentColor;
+  content: ""; display: block; width: 14px; height: 14px; background: currentColor;
   -webkit-mask: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907 907"%3E%3Cpath fill-rule="evenodd" d="M 453.5 0 C 704.445312 0 907 203.679688 907 453.5 C 907 704.445312 704.445312 907 453.5 907 C 203.679688 907 0 704.445312 0 453.5 C 0 203.679688 203.679688 0 453.5 0 Z M 453.5 563.78125 L 326.339844 690.941406 C 255.445312 762.960938 145.164062 652.679688 217.183594 580.660156 L 344.34375 453.5 L 217.183594 326.339844 C 145.164062 255.445312 255.445312 145.164062 326.339844 217.183594 L 453.5 344.34375 L 580.660156 217.183594 C 652.679688 145.164062 762.960938 255.445312 690.941406 326.339844 L 563.78125 453.5 L 690.941406 580.660156 C 762.960938 652.679688 652.679688 762.960938 580.660156 690.941406 Z M 453.5 563.78125 "/%3E%3C/svg%3E') center / contain no-repeat;
           mask: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907 907"%3E%3Cpath fill-rule="evenodd" d="M 453.5 0 C 704.445312 0 907 203.679688 907 453.5 C 907 704.445312 704.445312 907 453.5 907 C 203.679688 907 0 704.445312 0 453.5 C 0 203.679688 203.679688 0 453.5 0 Z M 453.5 563.78125 L 326.339844 690.941406 C 255.445312 762.960938 145.164062 652.679688 217.183594 580.660156 L 344.34375 453.5 L 217.183594 326.339844 C 145.164062 255.445312 255.445312 145.164062 326.339844 217.183594 L 453.5 344.34375 L 580.660156 217.183594 C 652.679688 145.164062 762.960938 255.445312 690.941406 326.339844 L 563.78125 453.5 L 690.941406 580.660156 C 762.960938 652.679688 652.679688 762.960938 580.660156 690.941406 Z M 453.5 563.78125 "/%3E%3C/svg%3E') center / contain no-repeat;
 }
-.settings-close:hover { color: var(--text); }
+.settings-close:hover { color: var(--text); background: var(--surface2); }
+/* The one title above an input box (2026-09-25): small grey caps, the same
+   voice as Pick a time's summary line. Trial windows use it now; the other
+   label styles move to it in the end-of-design-pass cleanup. */
+.field-label {
+  display: block; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 5px;
+}
+/* A value shown under a field-label that cannot be edited: plain text in the
+   field's own face, no box. */
+.field-text { font-family: Arial, sans-serif; font-size: 12px; color: rgba(255,255,255,0.5); padding: 2px 1px 0; }
 .settings-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
 .settings-input {
   width: 100%; background: var(--surface2); border: 1px solid var(--border);
@@ -1310,57 +1324,71 @@ a:focus-visible,
 /* The card's booking window (tb), keys only: with no arrows, the field
    that has focus is lit even after a mouse click, so you can see which one
    ↑↓ will move. Book lights up when Enter lands on it. */
+/* Trial step windows: a two-way choice (Weekly / Biweekly) in the date and
+   time pickers' grey box (2026-09-25, was amber pills), caps like the
+   buttons. The picked one lit soft white, the other dim. */
+.tl-seg {
+  display: inline-flex; gap: 2px; padding: 3px;
+  border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent);
+  border-radius: 7px; background: var(--surface2);
+}
+.tl-seg-opt {
+  background: transparent; border: none; border-radius: 5px; cursor: pointer;
+  font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+  color: rgba(255,255,255,0.55); padding: 7px 10px; transition: background .12s, color .12s;
+}
+.tl-seg-opt:hover { color: #fff; }
+.tl-seg-opt:focus { outline: none; }
+.tl-seg-opt.on { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
+
 /* While it books: what's inside fades to the waiting-card level; the window
    itself stays solid, or the card behind would show through. */
 #tbModal.tb-busy { pointer-events: none; }
 #tbModal.tb-busy > * { opacity: 0.5; transition: opacity .15s; }
 #tbBookBtn:focus { outline: none; color: #fff; border-color: rgba(255,255,255,0.6); background: var(--surface2); }
 #tbDtRow .dt-val:focus { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
-/* ...and date and time as two separate pills, a size up from the stepper. */
-#tbDtRow { border: none; background: transparent; padding: 0; gap: 6px; }
-/* Amber border only (2026-09-24): amber = your move. No fill, white words.
-   The border never changes; the lit pill shows by its soft white fill. */
-#tbDtRow .dt-seg { padding: 2px; border: 1px solid color-mix(in srgb, #d9a441 55%, transparent); border-radius: 7px; background: transparent; }
-#tbDtRow .dt-seg + .dt-seg { border-left: 1px solid color-mix(in srgb, #d9a441 55%, transparent); }
-#tbDtRow .dt-val { font-size: 10px; padding: 5px 8px; border-radius: 5px; text-transform: uppercase; letter-spacing: 1px; }
-/* ▲ / ▼ above and below each pill: grey, brighter under the cursor. */
-#tbDtRow { align-items: flex-start; }
-#tbDtRow .tb-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+/* Pick a time's look (2026-09-25, was two amber pills), and Pick a time
+   itself (#tlDtRow) now uses this same picker: date and time in one
+   grey box, normal case, dim until lit, the lit one soft white. The ▲ / ▼
+   stay above and below each value, outside the box. A 3-row grid: arrows,
+   the box (drawn by ::before across both columns), arrows. */
+#tbDtRow, #tlDtRow {
+  display: inline-grid; grid-template-columns: auto auto; grid-template-rows: auto auto auto;
+  column-gap: 2px; row-gap: 2px; justify-items: stretch; align-items: stretch;   /* .dt-row centers, which squashed the box to a line */
+  border: none; background: transparent; padding: 0;
+}
+#tbDtRow::before, #tlDtRow::before {
+  content: ""; grid-row: 2; grid-column: 1 / 3;
+  border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent);
+  border-radius: 7px; background: var(--surface2);
+}
+#tbDtRow .tb-col, #tlDtRow .tb-col { display: contents; }
+#tbDtRow .tb-col:first-child > *, #tlDtRow .tb-col:first-child > * { grid-column: 1; }
+#tbDtRow .tb-col:last-child > *, #tlDtRow .tb-col:last-child > * { grid-column: 2; }
+#tbDtRow .tb-tri, #tlDtRow .tb-tri { grid-row: 1; justify-self: center; }
+#tbDtRow .tb-tri.down, #tlDtRow .tb-tri.down { grid-row: 3; }
+#tbDtRow .dt-seg, #tlDtRow .dt-seg { grid-row: 2; position: relative; border: none; background: transparent; padding: 3px 0 3px 3px; }
+#tbDtRow .dt-seg + .dt-seg, #tlDtRow .dt-seg + .dt-seg, #tbDtRow .tb-col:last-child .dt-seg, #tlDtRow .tb-col:last-child .dt-seg { border: none; padding: 3px 3px 3px 0; }
+#tbDtRow .dt-val, #tlDtRow .dt-val {
+  width: 100%; font-size: 11px; letter-spacing: 1px; text-transform: uppercase;   /* caps like Frequency */
+  color: rgba(255,255,255,0.55); padding: 7px 10px; border-radius: 5px;
+}
+#tbDtRow .dt-val:hover, #tlDtRow .dt-val:hover { color: #fff; }
+/* Pick a time lights the field the mouse last touched (.on), not focus. */
+#tlDtRow .dt-val.on { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
 .tb-tri { background: transparent; border: none; padding: 3px 14px; line-height: 0; cursor: pointer; color: var(--muted); transition: color .12s; }
 .tb-tri:hover { color: #fff; }
 .tb-tri:focus { outline: none; }
 .tb-tri.down .tri-icon { transform: scaleY(-1); }
 .tb-tri .tri-icon { width: 9px; height: 7px; }
 
-/* Trial tab: Pick a time. Its own control, not .dt-row: no arrows, the lit
-   field is whichever the mouse last touched, and the keys drive that one. */
-.pt-grid {
-  display: grid; grid-template-columns: auto auto; justify-content: start;
-  align-items: center; gap: 14px 20px;
-}
-.pt-lbl {
-  font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px;
-  text-transform: uppercase; color: var(--muted);
-}
-.pt-freq { font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 0.8px; color: var(--text); padding-left: 3px; }
-.pt-freq.none { color: var(--warn); }
-.pt-row {
-  display: inline-flex; align-items: center; justify-self: start; gap: 2px;
-  border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent);
-  border-radius: 7px; background: var(--surface2); padding: 3px;
-}
-.pt-val {
-  background: transparent; border: none; border-radius: 5px;
-  font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 0.8px;
-  color: rgba(255,255,255,0.55); text-align: center; padding: 7px 8px; cursor: pointer;
-  transition: background .12s, color .12s;
-}
-.pt-val.on { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
-.pt-val:focus { outline: none; }
+/* Trial tab: Pick a time's summary line. The window talking, not a value you
+   typed: small grey caps like the field labels; the frequency in amber. */
 .pt-sum {
-  font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 0.3px;
-  color: var(--text); margin-top: 22px;
+  font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--muted); margin-top: 14px;
 }
+.pt-sum .pt-freq { color: var(--warn); }
 
 /* Trial tab: Make student spinner */
 .ms-spin {
@@ -1649,6 +1677,14 @@ a:focus-visible,
 .db-mini-btn.ll-log { padding: 9px 16px; }
 .db-mini-btn.ll-log:disabled { opacity: 0.4; cursor: default; }
 .ll-state { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
+/* Trial step windows (2026-09-25): buttons that cannot be pressed yet dim;
+   a finished green one (Sent ✓, Folder made ✓) stays full colour. The mic is
+   icon only, red while it records. */
+#tlModal .link-btn:disabled:not(.green) { opacity: 0.4; cursor: default; }
+#tlModal .link-btn.green:disabled { cursor: default; }
+#tlModal .link-btn.tl-mic { padding: 4px 9px; }
+#tlModal .link-btn.tl-mic svg { width: 12px; height: 12px; }
+#tlModal .link-btn.tl-mic.rec { color: var(--accent); border-color: var(--accent); }
 .ll-foot { display: flex; justify-content: flex-end; margin-top: 16px; }
 .db-mini-btn.ll-done { padding: 7px 20px; }
 

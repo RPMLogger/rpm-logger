@@ -720,10 +720,8 @@ function _trBookAccepted(name, email) {
     ov = document.createElement('div');
     ov.className = 'settings-overlay';
     ov.id = 'tbOverlay';
-    // 380, not 600: it was sized when it held First, Last, Email and Phone.
-    // What is left is a date, a time and a button, and a 600px window around
-    // them is just a long gap between the picker and the corner.
-    ov.innerHTML = '<div class="settings-modal" id="tbModal" style="max-width:380px"></div>';
+    // 460, the width every Trial step window shares (2026-09-25, was 380).
+    ov.innerHTML = '<div class="settings-modal" id="tbModal" style="max-width:460px"></div>';
     ov.addEventListener('click', function (e) { if (e.target === ov) _trBookWinClose(); });
     document.body.appendChild(ov);
   }
@@ -732,7 +730,8 @@ function _trBookAccepted(name, email) {
   var def = _trDtDefault();
   document.getElementById('tbModal').innerHTML =
     '<div class="settings-title"><span>' + inqEsc(name || '') +
-      '<span style="color:var(--muted);font-weight:400"> · Book a trial</span></span></div>' +
+      '<span style="color:var(--muted);font-weight:400"> · Book a trial</span></span>' +
+      '<button class="settings-close" onclick="_trBookWinClose()">✕</button></div>' +
     '<input type="hidden" id="tbFirst" value="' + _trEsc(first) + '">' +
     '<input type="hidden" id="tbLast" value="' + _trEsc(last) + '">' +
     '<input type="hidden" id="tbEmail" value="' + _trEsc(email || '') + '">' +
@@ -742,8 +741,8 @@ function _trBookAccepted(name, email) {
     // does not have to say the date a third time - the title already has the
     // name, this line has the when, and Book trial is just the verb. It needs
     // room to read as a sentence rather than a caption stuck to the row.
-    // Centered: the picker is the one thing this window asks for.
-    '<div style="margin:22px 0 6px;text-align:center">' + _trDtHtml('tb') + '</div>' +
+    // Left, like Pick a time (2026-09-25, was centered).
+    '<div style="margin:22px 0 6px">' + _trDtHtml('tb') + '</div>' +
     '<div id="tbStatus" style="margin-top:12px"></div>' +
     // Bottom right, where every other window in the portal puts the button
     // that ends it. Just "Book": the title says a trial, the line above says
@@ -752,10 +751,9 @@ function _trBookAccepted(name, email) {
     // buttons that commit and buttons that only close. Plain down there reads
     // as Done - the harmless way out every other window trains you to click -
     // and this one creates a calendar event and mails the student.
-    // Cancel instead of a ✕ in the corner (2026-09-24): the way out sits
-    // beside the way through, plain grey next to the brighter Book.
+    // The ✕ in the corner is the way out (2026-09-25, was a Cancel here):
+    // the footer holds only the action.
     '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:24px">' +
-      '<button class="link-btn" onclick="_trBookWinClose()">Cancel</button>' +
       // Trying (2026-09-24): the card's Book face (bright grey + calendar)
       // instead of green, and keyboard-only: Enter on the date/time lands
       // here, Enter again books.
@@ -1260,7 +1258,8 @@ function _tlOpen(email, step) {
     ov = document.createElement('div');
     ov.className = 'settings-overlay';
     ov.id = 'tlOverlay';
-    ov.innerHTML = '<div class="settings-modal" id="tlModal" style="max-width:600px;max-height:90vh;overflow-y:auto"></div>';
+    // 460, the one width every Trial window and Book a trial share (2026-09-25).
+    ov.innerHTML = '<div class="settings-modal" id="tlModal" style="max-width:460px;max-height:90vh;overflow-y:auto"></div>';
     ov.addEventListener('click', function (e) { if (e.target === ov) _tlClose(); });
     document.body.appendChild(ov);
   }
@@ -1324,6 +1323,13 @@ function _tlMsg(id) {
   return '<div id="' + id + '" style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:6px;min-height:14px"></div>';
 }
 
+// The row a step's buttons sit in: bottom right, where Save and Book sit.
+// One face for all of them (.link-btn): the action bright grey, anything
+// beside it dim, green only once it has worked (2026-09-25).
+function _tlActs(html) {
+  return '<div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:16px">' + html + '</div>';
+}
+
 function _tlRender() {
   if (!_tl) return;
   var a = _tl.card, s = a.lesson || {};
@@ -1333,13 +1339,16 @@ function _tlRender() {
     _tlTitle() +
     (_tl.loadError ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-bottom:8px">⚠ ' + inqEsc(_tl.loadError) + '</div>' : '') +
     body(a, s) +
-    '<div style="display:flex;justify-content:flex-end;margin-top:16px">' +
-      (_tl.step === 'info'
-        ? '<button class="db-mini-btn go" id="tlInfoSave" style="padding:7px 20px" onclick="_tlSaveInfo()">Save</button>'
-        : _tl.step === 'freq'
-        ? '<button class="db-mini-btn go" id="tlFreqSave" style="padding:7px 20px" onclick="_tlSaveFreq()">Save</button>'
-        : '<button class="db-mini-btn" style="padding:7px 20px" onclick="_tlClose()">Done</button>') +
-    '</div>';
+    // The ✕ is the only way out (2026-09-25); the footer holds just the
+    // action, bottom right, bright grey (green is for done, and an unpressed
+    // Save isn't). Steps with nothing to save have no footer at all.
+    (_tl.step === 'info' || _tl.step === 'freq'
+      ? '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">' +
+          (_tl.step === 'info'
+            ? '<button class="link-btn bright" id="tlInfoSave" onclick="_tlSaveInfo()">Save</button>'
+            : '<button class="link-btn bright" id="tlFreqSave" onclick="_tlSaveFreq()">Save</button>') +
+        '</div>'
+      : '');
 }
 
 // ── 1 · Info ──
@@ -1356,8 +1365,7 @@ function _tlInfoHtml(a, s) {
   return _TR_INFO.map(function (f) {
     var v = inqEsc(val(f.key));
     return '<div style="margin-bottom:9px">' +
-        '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:1px;' +
-          'text-transform:uppercase;color:var(--muted);margin-bottom:4px">' + f.label + '</div>' +
+        '<div class="field-label">' + f.label + '</div>' +
         (f.multi
           ? '<textarea id="tli-' + f.key + '" rows="3" class="rpm-field">' + v + '</textarea>'
           : '<input id="tli-' + f.key + '" type="text" value="' + v.replace(/"/g, '&quot;') + '" class="rpm-field">') +
@@ -1387,14 +1395,16 @@ function _tlDbxHtml(a, s) {
   var dbxEmail = rec.dropboxEmail || s.dropboxEmail || a.email || '';
   // The folder name is shown, not editable: Send HW and Make Student both
   // expect the folder to be exactly the student's full name.
-  return '<label class="settings-label">Dropbox email</label>' +
-    '<input class="settings-input" id="tlDbxEmail" style="margin:0 0 12px" value="' + _msAttr(dbxEmail) + '"' + (made ? ' disabled' : '') + '>' +
-    '<label class="settings-label">Folder</label>' +
-    '<input class="settings-input" style="margin:0 0 14px" value="' + _msAttr(a.name || '') + '" readonly>' +
-    '<button class="btn-settings-load ' + (made ? 'go' : 'blue') + '" id="tlDbxBtn" style="margin:0;padding:12px"' +
+  // The folder is plain text, not a box: it cannot be edited, and a box says
+  // it can (2026-09-25).
+  return '<label class="field-label" for="tlDbxEmail">Dropbox email</label>' +
+    '<input class="rpm-field" id="tlDbxEmail" style="margin:0 0 12px" value="' + _msAttr(dbxEmail) + '"' + (made ? ' disabled' : '') + '>' +
+    '<div class="field-label">Folder</div>' +
+    '<div class="field-text">' + inqEsc(a.name || '') + '</div>' +
+    _tlMsg('tlDbxMsg') +
+    _tlActs('<button class="link-btn ' + (made ? 'green' : 'bright') + '" id="tlDbxBtn"' +
       (made ? ' disabled' : '') + ' onclick="_tlDropbox()">' +
-      (made ? 'Folder made ✓' : 'Create & share') + '</button>' +
-    _tlMsg('tlDbxMsg');
+      (made ? 'Folder made ✓' : 'Create & share') + '</button>');
 }
 
 // ── Log lesson ──
@@ -1412,11 +1422,11 @@ function _tlLogHtml(a, s) {
           'onfocus="_tlRow(' + i + ')" oninput="_tlLogReady()"></textarea>';
       }).join('') +
     '</div>' +
-    '<div class="ll-acts">' +
-      // Icon only, at the size of the Copy / Send buttons in the composer.
-      '<button class="db-mini-btn ll-mic" id="tlMicBtn" data-tip="Starts or stops dictation." onclick="_tlMic()">' + MIC_ICON + '</button>' +
-      '<button class="db-mini-btn go ll-log" id="tlLogBtn" onclick="_tlLogWhat()" disabled>Log</button>' +
-      '<span class="ll-state" id="tlWhatMsg"></span>' +
+    '<div class="ll-acts" style="margin-top:16px">' +
+      '<span class="ll-state" id="tlWhatMsg" style="flex:1"></span>' +
+      // Icon only, dim beside the bright Log.
+      '<button class="link-btn tl-mic" id="tlMicBtn" data-tip="Starts or stops dictation." onclick="_tlMic()">' + MIC_ICON + '</button>' +
+      '<button class="link-btn bright" id="tlLogBtn" onclick="_tlLogWhat()" disabled>Log</button>' +
     '</div>';
 }
 
@@ -1514,7 +1524,7 @@ function _tlLogWhat() {
     var mic = document.getElementById('tlMicBtn');
     if (mic) mic.disabled = true;
     var b = document.getElementById('tlLogBtn');
-    if (b) b.textContent = 'Logged';
+    if (b) { b.textContent = 'Logged ✓'; b.className = 'link-btn green'; }
     _tlSetMsg('tlWhatMsg', 'Lesson logged ✓', 'var(--green)');
   });
   setTimeout(function () {
@@ -1529,18 +1539,16 @@ function _tlLogWhat() {
 function _tlHwHtml(a, s) {
   if (!s.dropboxMade) {
     return '<div class="empty-state" style="padding:22px 10px">Make their Dropbox folder first.<br><br>' +
-      '<button class="db-mini-btn" onclick="_tl.step=\'dbx\';_tlRender()">Go to Dropbox →</button></div>';
+      '<button class="link-btn" onclick="_tl.step=\'dbx\';_tlRender()">Go to Dropbox →</button></div>';
   }
   var done = s.hwSent === true || String(s.hwSent || '').toUpperCase() === 'TRUE';
   // Some trials genuinely have nothing to send. The step still has to be
   // answered, so say so on the record rather than leaving it hanging.
   return '<div id="tlUpload">' + _tlUploadHtml(a.name) + '</div>' +
-    '<div style="display:flex;align-items:center;gap:10px;margin-top:10px">' +
-      '<button class="db-mini-btn' + (done ? ' go' : '') + '" id="tlHwNoneBtn" onclick="_tlHwNone()">' +
+    _tlMsg('tlHwMsg') +
+    _tlActs('<button class="link-btn' + (done ? ' green' : '') + '" id="tlHwNoneBtn" onclick="_tlHwNone()">' +
         (done ? 'Sent \u2713 \u00b7 undo' : 'No material to send') +
-      '</button>' +
-      _tlMsg('tlHwMsg') +
-    '</div>';
+      '</button>');
 }
 
 // Marks the step done (or undoes it) without an upload.
@@ -1565,10 +1573,12 @@ function _tlFreqHtml(a, s) {
   var f = _tlFreqCur().toLowerCase();
   function pick(v) {
     var on = f === v.toLowerCase();
-    return '<button class="db-mini-btn ' + (on ? 'go' : 'pick-off') + '" style="padding:8px 22px"' +
-      ' onclick="_tlSetFreq(\'' + v + '\')">' + (on ? '✓ ' : '') + v + '</button>';
+    // The date / time pickers' grey box (2026-09-25), in caps: the picked
+    // one lit soft white, the other dim. ←→ pick, Enter saves.
+    return '<button type="button" class="tl-seg-opt' + (on ? ' on' : '') + '" tabindex="-1"' +
+      ' onclick="_tlSetFreq(\'' + v + '\')">' + v + '</button>';
   }
-  return '<div style="display:flex;gap:8px">' + pick('Weekly') + pick('Biweekly') + '</div>' +
+  return '<div class="tl-seg">' + pick('Weekly') + pick('Biweekly') + '</div>' +
     _tlMsg('tlFreqMsg');
 }
 
@@ -1577,6 +1587,19 @@ function _tlSetFreq(v) {
   _tl.freqPick = _tlFreqCur().toLowerCase() === v.toLowerCase() ? '' : v;
   _tlRender();
 }
+
+document.addEventListener('keydown', function (e) {
+  if (!_tl || _tl.step !== 'freq' || _tl.busy) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+    e.preventDefault();
+    _tl.freqPick = e.key === 'ArrowLeft' ? 'Weekly' : 'Biweekly';
+    _tlRender();
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    _tlSaveFreq();
+  }
+});
 
 function _tlSaveFreq() {
   if (!_tl) return;
@@ -1609,12 +1632,14 @@ function _tlTimeValue() {
          _msPad(Math.floor(w.mins / 60)) + ':' + _msPad(w.mins % 60);
 }
 
-// Three fields, no arrows: the regular spot (weekday, time) and the date of
-// the first lesson. Hover or click makes a field the lit one and it stays lit;
-// ↑↓ change it, ←→ move between fields, Enter sets. Keys are read by the one
+// Book a trial's picker (2026-09-25): the first lesson's date and time in one
+// grey box, ▲ / ▼ above and below each. The regular spot is not asked for
+// separately: it is the first lesson's weekday and time, so the line under it
+// says so. Hover or click makes a field the lit one and it stays lit; ↑↓
+// change it, ←→ move between the two, Enter sets. Keys are read by the one
 // document listener below, so nothing has to hold browser focus.
-var _TL_PT = ['_tlStepSpotDay', '_tlStepMins', '_tlStepWeek'];
-var _TL_PT_STEP = [1, 30, 1];
+var _TL_PT = ['_tlStepDay', '_tlStepMins'];
+var _TL_PT_STEP = [1, 30];
 
 function _tlTimeHtml(a, s) {
   var w = _tlTimeState();
@@ -1624,40 +1649,34 @@ function _tlTimeHtml(a, s) {
   var past = _trFirstLessonDate(v) <= new Date();
   var on = _tl.ptOn || 0;
   var freq = String(s.frequency || '').trim();
-  var tail = /^biweekly$/i.test(freq) ? ', alternating weeks' : /^weekly$/i.test(freq) ? ', every week' : '';
   var h = Math.floor(w.mins / 60), mi = w.mins % 60, d = w.date;
-  var val = function (i, w, label) {
-    return '<button class="pt-val' + (on === i ? ' on' : '') + '" tabindex="-1" data-pt="' + i + '" style="min-width:' + w + 'px" ' +
-      'onmousemove="_tlPtHover(event,' + i + ')" onclick="_tlPtOn(' + i + ')">' + label + '</button>';
+  var dateTxt = _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate();
+  var timeTxt = ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM');
+  var tri = function (i, n, down) {
+    return '<button type="button" class="tb-tri' + (down ? ' down' : '') + '" tabindex="-1" ' +
+      'onclick="_tlPtOn(' + i + ');' + _TL_PT[i] + '(' + n + ')">' + TRI_ICON + '</button>';
   };
-  var lbl = function (t) { return '<span class="pt-lbl">' + t + '</span>'; };
-  return '<div class="pt-grid">' +
-      lbl('Frequency') +
-      '<span class="pt-freq' + (freq ? '' : ' none') + '">' + (freq ? inqEsc(freq) : 'Not set') + '</span>' +
-      lbl('Regular spot') +
-      '<div class="pt-row">' +
-        val(0, 44, _MS_DAYS[d.getDay()]) +
-        val(1, 68, ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM')) +
-      '</div>' +
-      lbl('First lesson on') +
-      '<div class="pt-row">' + val(2, 110, _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate()) + '</div>' +
-    '</div>' +
-    '<div class="pt-sum">Starting ' + inqEsc(_trFirstLessonLabel(v)) + tail + '</div>' +
+  var col = function (i, w, label) {
+    return '<div class="tb-col">' + tri(i, _TL_PT_STEP[i]) +
+      '<div class="dt-seg"><button type="button" class="dt-val' + (on === i ? ' on' : '') + '" tabindex="-1" data-pt="' + i + '" ' +
+        'style="min-width:' + w + 'px" onmousemove="_tlPtHover(event,' + i + ')" onclick="_tlPtOn(' + i + ')">' + label + '</button></div>' +
+      tri(i, -_TL_PT_STEP[i], true) + '</div>';
+  };
+  return '<div class="dt-row" id="tlDtRow" style="margin-top:6px">' + col(0, 90, dateTxt) + col(1, 68, timeTxt) + '</div>' +
+    '<div class="pt-sum">Starting ' + inqEsc(dateTxt) + ' · ' + timeTxt + ' · ' +
+      '<span class="pt-freq">' + (freq ? inqEsc(freq) : 'Frequency not set') + '</span></div>' +
     (past ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-top:8px">⚠ That is in the past.</div>' : '') +
-    '<div style="margin-top:14px">' +
-      (saved
-        ? '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--green)">✓ Set</span>'
-        : '<button class="db-mini-btn blue" id="tlTimeSet" style="padding:7px 20px"' + (past ? ' disabled' : '') +
-            ' onclick="_tlSaveTime()">Set</button>') +
-    '</div>' +
-    _tlMsg('tlTimeMsg');
+    _tlMsg('tlTimeMsg') +
+    _tlActs(saved
+        ? '<button class="link-btn green" disabled>Set ✓</button>'
+        : '<button class="link-btn bright" id="tlTimeSet"' + (past ? ' disabled' : '') +
+            ' onclick="_tlSaveTime()">Set</button>');
 }
 
-// Light one field without redrawing (hover fires constantly).
 function _tlPtOn(i) {
   if (!_tl) return;
   _tl.ptOn = i;
-  var els = document.querySelectorAll('#tlModal .pt-val');
+  var els = document.querySelectorAll('#tlModal [data-pt]');
   for (var k = 0; k < els.length; k++) els[k].classList.toggle('on', +els[k].getAttribute('data-pt') === i);
 }
 
@@ -1680,7 +1699,7 @@ document.addEventListener('keydown', function (e) {
     window[_TL_PT[on]](e.key === 'ArrowUp' ? _TL_PT_STEP[on] : -_TL_PT_STEP[on]);
   } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
     e.preventDefault();
-    _tlPtOn(Math.max(0, Math.min(2, on + (e.key === 'ArrowRight' ? 1 : -1))));
+    _tlPtOn(Math.max(0, Math.min(_TL_PT.length - 1, on + (e.key === 'ArrowRight' ? 1 : -1))));
   } else if (e.key === 'Enter') {
     e.preventDefault();
     _tlSaveTime();
@@ -1689,14 +1708,12 @@ document.addEventListener('keydown', function (e) {
 
 function _tlAt(date, mins) { var t = new Date(date); t.setHours(0, mins, 0, 0); return t; }
 
-// Weekday of the spot: stays in the same Sun-Sat week as the first lesson, so
-// the date follows the day; a week later if that lands in the past.
-function _tlStepSpotDay(n) {
+// First lesson date: a day at a time, never back into the past.
+function _tlStepDay(n) {
   if (!_tl) return;
-  var w = _tlTimeState(), d = w.date;
-  var day = (d.getDay() + n + 7) % 7;
-  var nd = new Date(d.getFullYear(), d.getMonth(), d.getDate() - d.getDay() + day);
-  if (_tlAt(nd, w.mins) <= new Date()) nd.setDate(nd.getDate() + 7);
+  var w = _tlTimeState();
+  var nd = new Date(w.date); nd.setDate(nd.getDate() + n);
+  if (n < 0 && _tlAt(nd, w.mins) <= new Date()) return;
   w.date = nd;
   _tlRender();
 }
@@ -1705,16 +1722,6 @@ function _tlStepMins(n) {
   if (!_tl) return;
   var w = _tlTimeState();
   w.mins = Math.min(23 * 60 + 30, Math.max(0, Math.round(w.mins / 30) * 30 + n));
-  _tlRender();
-}
-
-// First lesson date: a week at a time, never back into the past.
-function _tlStepWeek(n) {
-  if (!_tl) return;
-  var w = _tlTimeState();
-  var nd = new Date(w.date); nd.setDate(nd.getDate() + 7 * n);
-  if (n < 0 && _tlAt(nd, w.mins) <= new Date()) return;
-  w.date = nd;
   _tlRender();
 }
 
@@ -1765,11 +1772,7 @@ function _tlTermsHtml(a, s) {
   var rec = _tl.rec || {};
   var sent = !!s.termsSent, back = !!s.termsBack;
   // The form is only ever sent once: after that the Send button stays off.
-  return '<button class="btn-settings-load' + (sent ? '' : ' go') + '" id="tlSendBtn" ' +
-        'style="margin:0;width:auto;padding-left:18px;padding-right:18px;' +
-        (sent ? 'opacity:.5;cursor:default" disabled' : '" onclick="_tlSend()"') + '>' +
-        (sent ? 'Sent' : 'Send') + '</button>' +
-    '<div style="margin-top:14px;font-family:\'DM Mono\',monospace;font-size:12px;line-height:1.9">' +
+  return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;line-height:1.9">' +
       '<div style="color:' + (sent ? 'var(--green)' : 'var(--muted)') + '">' +
         (sent ? '✓ Sent date: ' + inqEsc(rec.sentDate || s.sentDate || '') : '· Sent date: not sent yet') + '</div>' +
       '<div style="color:' + (back ? 'var(--green)' : (sent ? 'var(--accent2)' : 'var(--muted)')) + '">' +
@@ -1777,7 +1780,12 @@ function _tlTermsHtml(a, s) {
               : '· Back date: not back yet (ticks itself when the Trial tab loads)') + '</div>' +
     '</div>' +
     _tlMsg('tlTermsMsg') +
-    '<button class="btn-settings-load" id="tlPrevBtn" style="margin:14px 0 0;width:auto;padding-left:16px;padding-right:16px" onclick="_tlPreview()">Preview email</button>' +
+    // The composer's pair (Inquiries, Initiate): Preview dim, Send bright
+    // with the plane. Once sent it turns green and stays off.
+    _tlActs('<button class="link-btn" id="tlPrevBtn" onclick="_tlPreview()">Preview</button>' +
+      '<button class="link-btn ' + (sent ? 'green' : 'bright') + '" id="tlSendBtn"' +
+        (sent ? ' disabled' : ' onclick="_tlSend()"') + '>' +
+        (sent ? '<span>Sent ✓</span>' : SEND_ICON + '<span>Send</span>') + '</button>') +
     '<div id="tlPreview"></div>';
 }
 
@@ -1818,9 +1826,9 @@ function _tlUploadHtml(folder) {
       'style="margin-top:10px;padding:34px 12px;border:1.5px dashed rgba(91,157,255,0.4);border-radius:8px;text-align:center;' +
       'font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);cursor:pointer">' + inqEsc(idle) + '</div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
-      '<button class="btn-settings-load" style="margin:0;flex:1" onclick="openDropboxLocalFolder(document.getElementById(\'tlDrop\').dataset.folder)" ' +
+      '<button class="link-btn" style="flex:1;justify-content:center;padding:7px 10px" onclick="openDropboxLocalFolder(document.getElementById(\'tlDrop\').dataset.folder)" ' +
         'data-tip="Opens elsewhere. (Their Dropbox folder in Finder.)\nDrag folders in and Dropbox uploads them.">\ud83d\udcc1 Open in Finder</button>' +
-      '<button class="btn-settings-load" style="margin:0;flex:1" onclick="document.getElementById(\'tlFolderIn\').click()">\ud83d\udcc2 Browse folder</button>' +
+      '<button class="link-btn" style="flex:1;justify-content:center;padding:7px 10px" onclick="document.getElementById(\'tlFolderIn\').click()">\ud83d\udcc2 Browse folder</button>' +
     '</div>' +
     '<input type="file" id="tlFileIn" multiple style="display:none" onchange="_tlPicked(this, false)">' +
     '<input type="file" id="tlFolderIn" multiple webkitdirectory style="display:none" onchange="_tlPicked(this, true)">';
@@ -1912,11 +1920,11 @@ function _tlDropbox() {
       btn.style.animation = '';
       if (!d.success) {
         btn.disabled = false; btn.textContent = 'Create & share';
-        btn.style.borderColor = 'var(--blue)'; btn.style.color = 'var(--blue)';
+        btn.style.borderColor = ''; btn.style.color = '';
         _tlSetMsg('tlDbxMsg', '\u26a0 ' + (d.message || 'Not created'), 'var(--accent)');
         return;
       }
-      btn.textContent = 'Folder made \u2713'; btn.style.borderColor = 'var(--green)'; btn.style.color = 'var(--green)';
+      btn.textContent = 'Folder made \u2713'; btn.style.borderColor = ''; btn.style.color = ''; btn.className = 'link-btn green';
       document.getElementById('tlDbxEmail').disabled = true;
       _tl.rec = _tl.rec || {}; _tl.rec.dropboxEmail = dbx; _tl.rec.dropboxMade = 'TRUE';
       _tlMark({ dropboxMade: true, dropboxEmail: dbx });
@@ -1928,7 +1936,7 @@ function _tlDropbox() {
     .catch(function () {
       if (!_tl) return;
       _tl.busy = false; btn.disabled = false; btn.textContent = 'Create & share';
-      btn.style.animation = ''; btn.style.borderColor = 'var(--blue)'; btn.style.color = 'var(--blue)';
+      btn.style.animation = ''; btn.style.borderColor = ''; btn.style.color = '';
       _tlSetMsg('tlDbxMsg', '\u274c No answer. Check the Dropbox tab before trying again: it may have gone through.', 'var(--accent)');
     });
 }
@@ -1968,7 +1976,8 @@ function _tlSend() {
   if (!url || !_tl || _tl.busy) return;
   var a = _tl.card;
   var btn = document.getElementById('tlSendBtn');
-  _tl.busy = true; btn.disabled = true; btn.textContent = 'Sending\u2026';
+  var lbl = btn.querySelector('span');
+  _tl.busy = true; btn.disabled = true; lbl.textContent = 'Sending\u2026';
   _tlSetMsg('tlTermsMsg', 'Sending to ' + (a.email || '') + '\u2026');
   fetch(url + '?action=sendTrialTerms&email=' + encodeURIComponent(a.email || '') + '&name=' + encodeURIComponent(a.name || ''))
     .then(function (r) { return r.json(); })
@@ -1976,12 +1985,12 @@ function _tlSend() {
       if (!_tl) return;
       _tl.busy = false; btn.disabled = false;
       if (!d.success) {
-        btn.textContent = 'Send';
+        lbl.textContent = 'Send';
         _tlSetMsg('tlTermsMsg', '\u26a0 ' + (d.message || 'Not sent'), 'var(--accent)');
         return;
       }
-      btn.textContent = 'Sent'; btn.disabled = true; btn.onclick = null;
-      btn.style.opacity = '.5'; btn.style.cursor = 'default'; btn.style.borderColor = ''; btn.style.color = '';
+      btn.innerHTML = '<span>Sent \u2713</span>'; btn.disabled = true; btn.onclick = null;
+      btn.className = 'link-btn green';
       _tl.rec = _tl.rec || {}; _tl.rec.termsSent = 'TRUE'; _tl.rec.sentDate = d.sentDate;
       _tlMark({ termsSent: true, sentDate: d.sentDate });
       _tlSetMsg('tlTermsMsg', 'Sent to ' + (a.email || '') + ' \u00b7 ' + d.sentDate +
@@ -1989,7 +1998,7 @@ function _tlSend() {
     })
     .catch(function () {
       if (!_tl) return;
-      _tl.busy = false; btn.disabled = false; btn.textContent = 'Send';
+      _tl.busy = false; btn.disabled = false; lbl.textContent = 'Send';
       _tlSetMsg('tlTermsMsg', '\u274c No answer. Check Sent mail before sending again.', 'var(--accent)');
     });
 }
