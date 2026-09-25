@@ -1492,14 +1492,16 @@ a:focus-visible,
 /* The tag in colour, as a left edge (CSS can't colour just a tip's first
    line): Instant green, Asks first red, Opens a window amber, Opens
    elsewhere blue, all at the Trial tab's 70%. No tag, no edge. */
+/* No tag: a grey edge, so every tip is the same card shape (2026-09-25). */
+[data-tip]::before                     { border-left: 3px solid rgba(122,122,122,0.7); }
 [data-tip^="Instant."]::before         { border-left: 3px solid rgba(46,204,113,0.7); }
 [data-tip^="Asks first."]::before      { border-left: 3px solid rgba(232,70,58,0.7); }
 [data-tip^="Opens a window."]::before  { border-left: 3px solid rgba(217,164,65,0.7); }
 [data-tip^="Opens elsewhere."]::before { border-left: 3px solid rgba(74,158,255,0.7); }
-/* Arriving: waits 2.5s (was 0.35s), so sweeping the mouse across buttons
+/* Arriving: waits 2.2s (was 0.35s), so sweeping the mouse across buttons
    doesn't pop tips; resting on one does (2026-09-24). */
 [data-tip]:hover::before,
-[data-tip]:focus-visible::before { opacity: 1; transition-delay: 2.5s; }
+[data-tip]:focus-visible::before { opacity: 1; transition-delay: 2.2s; }
 
 /* A button at the right edge would push its tooltip off the card. */
 [data-tip-left]::before { left: auto; right: 0; transform: none; }
