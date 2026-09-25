@@ -106,11 +106,16 @@ function _trAcceptedCard(a) {
 function _trReopen(email, col, btn) {
   var url = getScriptUrl();
   if (!url || !email) return;
+  // The card dims while it works, the same .inq-busy fade as an Inquiries
+  // card after Yes / No.
+  var card = btn && btn.closest('.inq-dcard');
+  if (card) card.classList.add('inq-busy');
   if (btn) { btn.disabled = true; btn.textContent = "Sending back\u2026"; }
   fetch(url + '?action=reopenInquiry&email=' + encodeURIComponent(email) + '&col=' + encodeURIComponent(col || ''))
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d.success) {
+        if (card) card.classList.remove('inq-busy');
         if (btn) { btn.disabled = false; btn.innerHTML = _TR_BACK_LABEL; }
         _trStatus('\u26a0 ' + (d.message || 'Could not send back.'), 'var(--accent)');
         return;
@@ -119,6 +124,7 @@ function _trReopen(email, col, btn) {
       _trStatus('Sent back to Inquiries \u2014 waiting there as an open card.', 'var(--accent2)');
     })
     .catch(function () {
+      if (card) card.classList.remove('inq-busy');
       if (btn) { btn.disabled = false; btn.innerHTML = _TR_BACK_LABEL; }
       _trStatus('\u274c Could not reach the portal.', 'var(--accent)');
     });

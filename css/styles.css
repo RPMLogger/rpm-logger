@@ -773,7 +773,7 @@ body::before {
    and the pressed button says what is happening, so the click visibly landed. */
 /* Working (Yes / No reply / Scam): fade well below a read card (0.62) so
    the wait is obvious. */
-.inq-dcard.inq-busy { opacity: 0.3; transition: opacity .15s; }
+.inq-dcard.inq-busy { opacity: 0.4; transition: opacity .15s; }   /* 0.3 → 0.4, 2026-09-24: one step less dim */
 .inq-dcard.inq-busy .inq-db { cursor: default; }
 /* Decision buttons: uppercase, full colour, each on a faint wash of that same
    colour. Hover deepens the wash. */
@@ -1487,7 +1487,8 @@ a:focus-visible,
      line breaks are kept (2026-09-24). */
   white-space: pre-line; width: max-content; max-width: 220px;
   opacity: 0; pointer-events: none; z-index: 9990;
-  transition: opacity .12s ease .35s;
+  /* Leaving: fades right away. */
+  transition: opacity .12s ease 0s;
   box-shadow: 0 10px 28px rgba(0,0,0,0.7);
 }
 /* The tag in colour, as a left edge (CSS can't colour just a tip's first
@@ -1497,8 +1498,10 @@ a:focus-visible,
 [data-tip^="Asks first."]::before      { border-left: 3px solid rgba(232,70,58,0.7); }
 [data-tip^="Opens a window."]::before  { border-left: 3px solid rgba(217,164,65,0.7); }
 [data-tip^="Opens elsewhere."]::before { border-left: 3px solid rgba(74,158,255,0.7); }
+/* Arriving: waits 2.5s (was 0.35s), so sweeping the mouse across buttons
+   doesn't pop tips; resting on one does (2026-09-24). */
 [data-tip]:hover::before,
-[data-tip]:focus-visible::before { opacity: 1; }
+[data-tip]:focus-visible::before { opacity: 1; transition-delay: 2.5s; }
 
 /* A button at the right edge would push its tooltip off the card. */
 [data-tip-left]::before { left: auto; right: 0; transform: none; }
