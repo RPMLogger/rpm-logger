@@ -773,7 +773,7 @@ body::before {
    and the pressed button says what is happening, so the click visibly landed. */
 /* Working (Yes / No reply / Scam): fade well below a read card (0.62) so
    the wait is obvious. */
-.inq-dcard.inq-busy { opacity: 0.4; transition: opacity .15s; }   /* 0.3 → 0.4, 2026-09-24: one step less dim */
+.inq-dcard.inq-busy { opacity: 0.5; transition: opacity .15s; }   /* 0.3 → 0.4 → 0.5, 2026-09-24: less dim */
 .inq-dcard.inq-busy .inq-db { cursor: default; }
 /* Decision buttons: uppercase, full colour, each on a faint wash of that same
    colour. Hover deepens the wash. */
@@ -1686,3 +1686,16 @@ a:focus-visible,
   padding: 9px 12px; resize: vertical;
 }
 .rpm-field::placeholder { color: var(--muted); font-style: italic; }
+
+/* ─── Moving dots on a waiting button (core/utils.js wraps the "…") ──────────
+   The real "…" stays in the text but is hidden; the user's three round dots
+   (om-33) sit over it and light up one after another, like "typing". Fixed
+   width, so the label never jumps. */
+.rpm-dots { position: relative; display: inline-block; width: 1.8em; white-space: nowrap; }
+.rpm-dots-t { opacity: 0; }
+.rpm-dots-svg { position: absolute; left: 3px; bottom: 0.28em; overflow: visible; }
+.rpm-dot { opacity: 0.25; animation: rpmDot 1.2s ease-in-out infinite; }
+.rpm-dot:nth-child(2) { animation-delay: .2s; }
+.rpm-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes rpmDot { 0%, 60%, 100% { opacity: 0.25; } 30% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .rpm-dot { animation: none; opacity: 0.7; } }

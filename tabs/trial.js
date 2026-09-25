@@ -68,7 +68,7 @@ function _trLoadAccepted() {
     .catch(function () { box.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
 }
 
-var _TR_BACK_LABEL = 'Undo move';
+var _TR_BACK_LABEL = 'Move to Inquiries';
 
 function _trAcceptedCard(a) {
   // Identical markup to an Inquiries card (same classes, same field renderer),
@@ -86,11 +86,11 @@ function _trAcceptedCard(a) {
         // button your hand is already on. Link-button face (.link-btn, like
         // Inquiry Archive): Email amber (your move), Book in the
         // composer Send button's brighter grey (.bright).
-        '<button class="link-btn tr-back-btn" onclick="_trReopen(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
-          'data-tip="Instant.\nCard goes back to Inquiries undecided.\nNothing is sent.\n(Not in Email list.)" data-tip-wrap>' + _TR_BACK_LABEL + '</button>' +
+        '<button class="link-btn tr-back-btn opens-window" onclick="_trReopenAsk(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
+          'data-tip="Asks first.\nCard goes back to Inquiries undecided.\nNothing is sent.\n(Not in Email list.)" data-tip-wrap>' + _TR_BACK_LABEL + '</button>' +
         // No Delete here (removed 2026-09-24): deleting a real person shrinks
         // the inquiry counts and loses their history. Someone who went quiet
-        // goes Undo move, then No reply. Test inquiries: delete the column
+        // goes Move to Inquiries, then No reply. Test inquiries: delete the column
         // in the sheet by hand.
         '<button class="link-btn amber opens-window" onclick="_trOpenEmail(\'' + em + '\')" ' +
           'data-tip="Opens a window.\nFirst-contact email draft.\nNothing sends until you press Send.\n(Not in Email list.)" data-tip-wrap>' + ENVELOPE_ICON + '<span>Email</span></button>' +
@@ -98,6 +98,16 @@ function _trAcceptedCard(a) {
           'data-tip="Opens a window.\nBooking with their name and email.\nYou pick the date and time.\nCard moves to Trial once booked.\n(Not in Email list.)" data-tip-wrap data-tip-left>' + CALENDAR_ICON + '<span>Book</span></button>' +
       '</div>' +
     '</div>';
+}
+
+// Move to Inquiries asks first (2026-09-24; was "Undo move", then "← Inquiries"): a confirm box, the circular-arrow icon
+// on its action, then the real send-back.
+function _trReopenAsk(email, col, btn) {
+  rpmConfirm({
+    title: "Move to Inquiries?",
+    confirmLabel: "Move",
+    icon: REDO_ICON
+  }).then(function (ok) { if (ok) _trReopen(email, col, btn); });
 }
 
 // Send an accepted student back to the Inquiries tab. Clears the Decision cell;
@@ -110,7 +120,7 @@ function _trReopen(email, col, btn) {
   // card after Yes / No.
   var card = btn && btn.closest('.inq-dcard');
   if (card) card.classList.add('inq-busy');
-  if (btn) { btn.disabled = true; btn.textContent = "Sending back\u2026"; }
+  if (btn) { btn.disabled = true; btn.textContent = "Moving\u2026"; }
   fetch(url + '?action=reopenInquiry&email=' + encodeURIComponent(email) + '&col=' + encodeURIComponent(col || ''))
     .then(function (r) { return r.json(); })
     .then(function (d) {
