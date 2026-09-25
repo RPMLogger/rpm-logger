@@ -1310,6 +1310,10 @@ a:focus-visible,
 /* The card's booking window (tb), keys only: with no arrows, the field
    that has focus is lit even after a mouse click, so you can see which one
    ↑↓ will move. Book lights up when Enter lands on it. */
+/* While it books: what's inside fades to the waiting-card level; the window
+   itself stays solid, or the card behind would show through. */
+#tbModal.tb-busy { pointer-events: none; }
+#tbModal.tb-busy > * { opacity: 0.5; transition: opacity .15s; }
 #tbBookBtn:focus { outline: none; color: #fff; border-color: rgba(255,255,255,0.6); background: var(--surface2); }
 #tbDtRow .dt-val:focus { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
 /* ...and date and time as two separate pills, a size up from the stepper. */

@@ -829,10 +829,18 @@ function _trBook(p) {
   if (email.indexOf('@') === -1) { _trStatus('That email looks off.', 'var(--accent)', p); return; }
   if (!date || !time)            { _trStatus('Pick a date and time.', 'var(--accent)', p); return; }
   var btn = document.getElementById(p + 'BookBtn');
-  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Booking…'; }
+  if (p === 'tb') {
+    // The card's window: the whole window fades like a waiting card, and the
+    // button says what Google is doing (the dots come from core/utils.js).
+    var md = document.getElementById('tbModal');
+    if (md) md.classList.add('tb-busy');
+    if (btn) { btn.disabled = true; btn.style.cursor = 'wait'; btn.textContent = 'Creating event…'; }
+  } else if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Booking…'; }
   if (p === 'tb' && _trBookWin) _trBookWin.busy = true;   // Done and ✕ are dead until it lands
   if (p === 'ts') _tsBusy = true;
-  _trStatus('Creating the calendar event…', 'var(--accent2)', p);
+  // The card's window says nothing while it books: Book's own tip already
+  // says it creates the calendar event, and the button shows Booking + dots.
+  if (p !== 'tb') _trStatus('Creating the calendar event…', 'var(--accent2)', p);
   var qs = 'action=bookTrialManual' +
     '&first=' + encodeURIComponent(first) + '&middle=' + encodeURIComponent(middle) +
     '&last=' + encodeURIComponent(last) + '&email=' + encodeURIComponent(email) +
@@ -873,6 +881,7 @@ function _trBook(p) {
 function _trRestoreBook(p) {
   p = p || 'tr';
   if (p === 'tb' && _trBookWin) _trBookWin.busy = false;
+  if (p === 'tb') { var md = document.getElementById('tbModal'); if (md) md.classList.remove('tb-busy'); }
   if (p === 'ts') _tsBusy = false;
   var btn = document.getElementById(p + 'BookBtn');
   if (!btn) return;
