@@ -6,7 +6,7 @@
   --surface2: #222;
   --accent:  #e8463a;
   --accent2: #f0a500;
-  --green:   #2ecc71;
+  --green:   rgba(46,204,113,0.7);   /* 70% portal-wide, 2026-09-25 (was #2ecc71; Trial tab's strength) */
   --blue:    #4a9eff;
   --text:    #f0ede8;
   --muted:   #7a7a7a;   /* style pass: was #555, which read as disabled */
@@ -757,7 +757,6 @@ body::before {
    Full-strength green and amber read louder than anything on the card needs
    to be. Scoped to the tab panel, so its modals (appended to body) keep theirs. */
 #tab-trial {
-  --green:   rgba(46,204,113,0.7);
   --warn:    rgba(217,164,65,0.7);
   --accent2: rgba(240,165,0,0.7);
 }
@@ -794,7 +793,6 @@ body::before {
    borrows from: by the time a card reaches here the decision is already made,
    so the buttons close the card rather than ask for attention. Hover brings
    them back to full strength. */
-[id^="tracts-"] .inq-db.yes { color: color-mix(in srgb, var(--green) 84%, transparent);  border-color: color-mix(in srgb, var(--green) 42%, transparent);  background: color-mix(in srgb, var(--green) 6%, transparent); }
 [id^="tracts-"] .inq-db.no  { color: color-mix(in srgb, var(--accent) 84%, transparent); border-color: color-mix(in srgb, var(--accent) 42%, transparent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
 [id^="tracts-"] .inq-db.yes:hover { color: var(--green);  border-color: color-mix(in srgb, var(--green) 55%, transparent);  background: color-mix(in srgb, var(--green) 14%, transparent); }
 [id^="tracts-"] .inq-db.no:hover  { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
