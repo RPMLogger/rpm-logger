@@ -2056,7 +2056,7 @@ function _tlPreviewHtml(subject, html, to) {
   // white card, above the body, set apart by a rule (2026-09-26).
   return '<div style="margin-top:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden">' +
       '<div class="fc-preview" style="background:#d9d5ce;color:#1b1b1b;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6">' +
-        '<div style="font-weight:bold;padding-bottom:10px;margin-bottom:14px;border-bottom:1px solid #b9b5ad">' + inqEsc(subject || '') + '</div>' +
+        '<div style="padding-bottom:10px;margin-bottom:14px;border-bottom:1px solid #b9b5ad">SBJ: ' + inqEsc(subject || '') + '</div>' +
         body + '</div>' +
     '</div>';
 }
