@@ -646,16 +646,6 @@ body::before {
    number sits outside in a gutter (the list is the list, the button is the
    step), and the button's colour carries one thing only: done or not. */
 .tr-steps  { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; margin: 20px 0; }
-/* The Status bar under the checklist (2026-09-26): full width, the step
-   buttons' face, coloured by where the documents stand. */
-.tr-status { display: block; width: 100%; margin: -6px 0 20px; text-align: left; cursor: pointer;
-  font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
-  padding: 7px 10px; border-radius: 6px; background: transparent; border: 1px solid; }
-.tr-status-k { opacity: .6; }
-.tr-status.none { color: rgba(255,255,255,.55); border-color: color-mix(in srgb, var(--muted) 45%, transparent); }
-.tr-status.wait { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 45%, transparent); }
-.tr-status.ok   { color: var(--green);   border-color: color-mix(in srgb, var(--green) 45%, transparent); }
-.tr-status:hover { filter: brightness(1.25); }
 .tr-col    { display: flex; flex-direction: column; gap: 5px; }
 .tr-step   { display: flex; align-items: center; gap: 9px; }
 /* The gutter reads the same whether or not the step is done: the list is one

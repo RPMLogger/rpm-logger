@@ -1114,7 +1114,6 @@ function _trStageCard(a) {
       '<hr class="divider" style="margin:18px 0 0">' +
       '<div id="trpaid-' + emailToId(a.email || '') + '"></div>' +
       _trStepsHtml(a) +
-      _trStatusHtml(a) +
       '<hr class="divider" style="margin:0 0 20px">' +
       '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || '') + '"></div>' +
@@ -1210,13 +1209,13 @@ function _trStepState(a) {
 
 // Status: where the documents stand. Not a step - nothing to do here, it
 // changes on its own (Send Documents → Waiting, form back → Accepted) - so it
-// is one full-width bar under the checklist, opening the dates.
+// sits in the bottom row, left of Confirm Student, the same size, opening the
+// dates. Grey / amber / green like the Inquiries decision buttons.
 function _trStatusHtml(a) {
   var st = _trStepState(a);
-  var v = st.termsBack ? ['Accepted', 'ok'] : (st.termsSent ? ['Waiting', 'wait'] : ['Not sent', 'none']);
-  return '<button class="tr-status ' + v[1] + '" id="trstatus-' + emailToId(a.email || '') + '" ' +
-      'onclick="_tlOpen(\'' + _trEsc(a.email || '') + '\',\'status\')">' +
-      '<span class="tr-status-k">Status:</span> ' + v[0] + '</button>';
+  var v = st.termsBack ? ['Accepted', ' yes'] : (st.termsSent ? ['Waiting', ' maybe'] : ['Not sent', '']);
+  return '<button class="inq-db opens-window' + v[1] + '" style="margin-right:auto" ' +
+      'onclick="_tlOpen(\'' + _trEsc(a.email || '') + '\',\'status\')">Status: ' + v[0] + '</button>';
 }
 
 var _TR_CAPS = 'color:rgba(255,255,255,0.62);text-transform:uppercase;letter-spacing:1px;font-size:10px;padding:5px 9px';
@@ -1269,6 +1268,7 @@ function _trActionsHtml(a) {
   // Confirm is always clickable: _msOpen says what is still missing.
   return '<div id="tracts-' + id + '" style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">' +
       '<div class="inq-acts">' +
+        _trStatusHtml(a) +
         '<button class="inq-db yes opens-window" onclick="_msOpen(\'' + em + '\')" ' +
           'data-tip="Opens a window.\nChecks the steps and makes them a student.\nCard disappears from Trial.\nStays in Inquiry Archive.\n(Not in Email list.)" data-tip-wrap data-tip-left>Confirm Student</button>' +
         '<button class="inq-db no opens-window" id="trnobtn-' + id + '" ' +
@@ -1984,8 +1984,6 @@ function _tlMarkEmail(email, patch) {
   Object.keys(patch).forEach(function (k) { a.lesson[k] = patch[k]; });
   var old = document.getElementById('trsteps-' + emailToId(a.email || ''));
   if (old) old.outerHTML = _trStepsHtml(a);
-  var stat = document.getElementById('trstatus-' + emailToId(a.email || ''));
-  if (stat) stat.outerHTML = _trStatusHtml(a);
   var acts = document.getElementById('tracts-' + emailToId(a.email || ''));
   if (acts) acts.outerHTML = _trActionsHtml(a);
 }
