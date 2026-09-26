@@ -399,7 +399,23 @@ function _trBounceRow(t) {
 }
 
 // them: their first name, so the header reads as the title of each message.
+// The website's form email (Bandzoogle) opens the thread under their address,
+// so it read as their first message: tracking links plus the form fields the
+// card already shows. It collapses to one line.
+function _trIsFormEmail(m) {
+  var t = (m && m.text) || '';
+  return !m.fromMe && (/New form submission for/i.test(t) || /bandzoogle\.com\/ls\/click/i.test(t));
+}
+
 function _trMsgRow(m, them) {
+  if (_trIsFormEmail(m)) {
+    return '<div class="tr-msg"><div style="border-left:2px solid var(--border);padding:0 0 0 9px;margin-bottom:20px">' +
+        '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted);margin:6px 0">' +
+          'Form submitted' +
+          '<span style="font-size:10px"> · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) + '</span>' +
+        '</div>' +
+      '</div></div>';
+  }
   var mine = !!m.fromMe;
   var who  = mine ? 'You' : (them || 'Them');
   // Them green, you amber: each side of the exchange has its own colour, so
@@ -1392,9 +1408,9 @@ function _tlSaveInfo() {
   });
   var btn = document.getElementById('tlInfoSave');
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  // A failed save leaves the window open with the message; _tlSaveFields
+  // puts Save back so he can retry.
   _tlSaveFields(fields, 'tlInfoMsg', function () { _tlClose(); });
-  // A failed save leaves the window open with the message; let him retry.
-  setTimeout(function () { var b = document.getElementById('tlInfoSave'); if (b && _tl) { b.disabled = false; b.textContent = 'Save'; } }, 8000);
 }
 
 // ── 2 · Dropbox ──
@@ -1800,23 +1816,39 @@ function _tlTermsHtml(a, s) {
 
 // One save call for any Trial Lessons fields. saveTrialRecord_ only writes the
 // keys it is sent, so nothing else on the row can be clobbered.
+// Saving… → the window closes (saved) or a red line (not saved, press Save
+// again). If Google has not answered in 20s, say so instead of waiting forever.
+var _TL_SAVE_LIMIT = 20000;
+
 function _tlSaveFields(fields, msgId, onOk) {
   var url = getScriptUrl();
   if (!url || !_tl) return;
   var email = _tl.card.email || '';
   _tlSetMsg(msgId, 'Saving…');
+  function fail(txt) { _tlSetMsg(msgId, txt, 'var(--accent)'); _tlResetSaveBtns(); }
+  var timer = setTimeout(function () { fail('❌ No answer from Google. Press Save again.'); }, _TL_SAVE_LIMIT);
   var qs = Object.keys(fields).map(function (k) { return '&' + k + '=' + encodeURIComponent(fields[k]); }).join('');
   fetch(url + '?action=saveTrialRecord&email=' + encodeURIComponent(email) + qs)
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (!d.success) { _tlSetMsg(msgId, '⚠ ' + (d.message || 'Not saved'), 'var(--accent)'); return; }
-      if (d.skipped && d.skipped.length) { _tlSetMsg(msgId, '⚠ No column on the sheet: ' + d.skipped.join(', '), 'var(--accent)'); return; }
+      clearTimeout(timer);
+      if (!d.success) { fail('⚠ ' + (d.message || 'Not saved')); return; }
+      if (d.skipped && d.skipped.length) { fail('⚠ No column on the sheet: ' + d.skipped.join(', ')); return; }
       if (_tl && _tl.rec) Object.keys(fields).forEach(function (k) { _tl.rec[k] = fields[k]; });
       _tlMarkEmail(email, fields);
       _tlSetMsg(msgId, 'Saved ✓', 'var(--green)');
       if (onOk) onOk();
     })
-    .catch(function () { _tlSetMsg(msgId, '❌ Not saved', 'var(--accent)'); });
+    .catch(function () { clearTimeout(timer); fail('❌ Not saved. Press Save again.'); });
+}
+
+// After a failed save, put the Save / Set buttons back so it can be retried.
+function _tlResetSaveBtns() {
+  if (!_tl) return;
+  [['tlInfoSave', 'Save'], ['tlFreqSave', 'Save'], ['tlTimeSet', 'Set']].forEach(function (x) {
+    var b = document.getElementById(x[0]);
+    if (b) { b.disabled = false; b.textContent = x[1]; }
+  });
 }
 
 
