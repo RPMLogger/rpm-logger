@@ -1422,12 +1422,16 @@ function _tlDbxHtml(a, s) {
   var dbxEmail = rec.dropboxEmail || s.dropboxEmail || a.email || '';
   // The folder name is shown, not editable: Send HW and Make Student both
   // expect the folder to be exactly the student's full name.
-  // The folder is plain text, not a box: it cannot be edited, and a box says
-  // it can (2026-09-25).
-  return '<label class="field-label" for="tlDbxEmail">Dropbox email</label>' +
-    '<input class="rpm-field" id="tlDbxEmail" style="margin:0 0 12px" value="' + _msAttr(dbxEmail) + '"' + (made ? ' disabled' : '') + '>' +
-    '<div class="field-label">Folder</div>' +
-    '<div class="field-text">' + inqEsc(a.name || '') + '</div>' +
+  return '<div style="margin:4px 0 18px">' + FOLDER_ICON.replace('class="folder-icon"', 'class="win-icon"').replace('width="15" height="12"', 'width="40" height="32"') + '</div>' +
+    // Same rhythm as Info: label on its box, 16px to the next label.
+    '<div style="margin-bottom:16px">' +
+      '<div class="field-label">Folder name</div>' +
+      // A box like the email's so the two values line up, but read-only:
+      // Send HW and Make Student find the folder by the student's full name.
+      '<input class="rpm-field" id="tlDbxFolder" readonly tabindex="-1" style="cursor:default" value="' + _msAttr(a.name || '') + '">' +
+    '</div>' +
+    '<label class="field-label" for="tlDbxEmail">Account email</label>' +
+    '<input class="rpm-field" id="tlDbxEmail" value="' + _msAttr(dbxEmail) + '"' + (made ? ' disabled' : '') + '>' +
     _tlMsg('tlDbxMsg') +
     _tlActs('<button class="link-btn ' + (made ? 'green' : 'bright') + '" id="tlDbxBtn"' +
       (made ? ' disabled' : '') + ' onclick="_tlDropbox()">' +
