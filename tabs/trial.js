@@ -1192,7 +1192,8 @@ function _trStepState(a) {
     terms: !!s.termsSent,
     back:  !!s.termsBack,
     termsBack: !!s.termsBack,
-    termsSent: !!s.termsSent
+    termsSent: !!s.termsSent,
+    setupSent: !!s.setupSent
   };
   st.missing = _TR_STEPS.filter(function (x) { return (!x.lesson || x.required) && !st[x.key]; })
     .map(function (x) {
@@ -1203,6 +1204,7 @@ function _trStepState(a) {
   // Terms back is not a step (it happens on its own), but Make student still
   // waits for it. The card's Status bar shows it.
   if (!st.termsBack) st.missing.push('Terms not back yet');
+  else if (!st.setupSent) st.missing.push('Setup email not sent');
   st.ready = !st.missing.length;
   return st;
 }
@@ -1320,11 +1322,12 @@ function _tlSyncCard() {
   var rec = _tl.rec || {}, patch = {};
   if (!rec.row) return;
   ['first', 'last', 'goals', 'availability', 'guitar', 'whatWeDid', 'firstLesson', 'frequency',
-   'pencilledSpot', 'phone', 'city', 'schoolJob', 'interests', 'dropboxEmail', 'sentDate', 'returnDate']
+   'pencilledSpot', 'phone', 'city', 'schoolJob', 'interests', 'dropboxEmail', 'sentDate', 'returnDate', 'setupDate']
     .forEach(function (k) { patch[k] = rec[k] || ''; });
   patch.dropboxMade = String(rec.dropboxMade || '').toUpperCase() === 'TRUE';
   patch.termsSent   = String(rec.termsSent || '').toUpperCase() === 'TRUE';
   patch.termsBack   = String(rec.termsBack || '').toUpperCase() === 'TRUE';
+  patch.setupSent   = String(rec.setupSent || '').toUpperCase() === 'TRUE';
   patch.infoDone    = String(rec.infoDone || '').toUpperCase() === 'TRUE';
   patch.paid        = String(rec.paid || '').toUpperCase() === 'TRUE';
   _tlMark(patch);
@@ -1819,32 +1822,41 @@ function _tlPayHtml(a, s) {
 
 // ── 6 · Terms ──
 function _tlTermsHtml(a, s) {
-  var sent = !!s.termsSent;
-  // What the email carries, each opening the real document. Same links as
-  // TL_LINK_* in RPM_TrialLesson.gs - change them in both places.
-  var docs = [
-    ['Dropbox',              'https://drive.google.com/file/d/1OnCnnQi9AuEqz9oZs0Dru3iF98SKxFjJ/view?usp=sharing'],
-    ['Texting',              'https://drive.google.com/file/d/1iZRyYgyU5hLDMDOiUugqNgcVVQkr89gn/view?usp=sharing'],
-    ['Terms & Conditions',   'https://drive.google.com/file/d/1u-gC8TH6lFhCdR4VMuHXviZG8MbTWU6g/view?usp=sharing'],
-    ['Acknowledgment Form',  'https://docs.google.com/forms/d/e/1FAIpQLSeBKLJUKPqf6ExNsfvD5pdt9UqR1nNt6Flu_VJv6LMsCFCfug/viewform']
-  ];
-  // The form is only ever sent once: after that the Send button stays off.
+  // Two emails (2026-09-26): with everything in one, the terms got skimmed.
+  // Email 1 is the terms alone; email 2, the setup documents, unlocks once the
+  // form is back. Each list opens the real documents. Same links as TL_LINK_*
+  // in RPM_TrialLesson.gs - change them in both places.
+  var L = {
+    dropbox: 'https://drive.google.com/file/d/1OnCnnQi9AuEqz9oZs0Dru3iF98SKxFjJ/view?usp=sharing',
+    phone:   'https://drive.google.com/file/d/1iZRyYgyU5hLDMDOiUugqNgcVVQkr89gn/view?usp=sharing',
+    terms:   'https://drive.google.com/file/d/1u-gC8TH6lFhCdR4VMuHXviZG8MbTWU6g/view?usp=sharing',
+    form:    'https://docs.google.com/forms/d/e/1FAIpQLSeBKLJUKPqf6ExNsfvD5pdt9UqR1nNt6Flu_VJv6LMsCFCfug/viewform'
+  };
+  function docs(list) {
+    return '<div class="tl-docs">' + list.map(function (x) {
+      return '<a class="tl-doc" href="' + x[1] + '" target="_blank" rel="noopener">' +
+        '<span>' + inqEsc(x[0]) + '</span>' + OPEN_OUT_ICON + '</a>';
+    }).join('') + '</div>';
+  }
+  // Each email is sent once: after that its Send stays off, green.
+  function sendBtn(w, sent, locked) {
+    return '<button class="link-btn ' + (sent ? 'green' : 'bright') + '" id="tlSendBtn-' + w + '"' +
+      (sent || locked ? ' disabled' : ' onclick="_tlSend(\'' + w + '\')"') + '>' +
+      (sent ? '<span>Sent ✓</span>' : SEND_ICON + '<span>Send</span>') + '</button>';
+  }
+  var back = !!s.termsBack;
   return '<div style="margin:4px 0 18px">' + DOCS_ICON + '</div>' +
-    '<div class="field-label">Documents</div>' +
-    '<div class="tl-docs">' +
-      docs.map(function (x) {
-        return '<a class="tl-doc" href="' + x[1] + '" target="_blank" rel="noopener">' +
-          '<span>' + inqEsc(x[0]) + '</span>' + OPEN_OUT_ICON + '</a>';
-      }).join('') +
-    '</div>' +
-    _tlMsg('tlTermsMsg') +
-    // The composer's pair (Inquiries, Initiate): Preview dim, Send bright
-    // with the plane. Once sent it turns green and stays off.
-    _tlActs('<button class="link-btn" id="tlPrevBtn" onclick="_tlPreview()">Preview</button>' +
-      '<button class="link-btn ' + (sent ? 'green' : 'bright') + '" id="tlSendBtn"' +
-        (sent ? ' disabled' : ' onclick="_tlSend()"') + '>' +
-        (sent ? '<span>Sent ✓</span>' : SEND_ICON + '<span>Send</span>') + '</button>') +
-    '<div id="tlPreview"></div>';
+    '<div class="field-label">Email 1 · Terms</div>' +
+    docs([['Terms & Conditions', L.terms], ['Acknowledgment Form', L.form]]) +
+    _tlMsg('tlMsg-terms') +
+    _tlActs('<button class="link-btn" onclick="_tlPreview(\'terms\')">Preview</button>' + sendBtn('terms', !!s.termsSent)) +
+    '<div id="tlPreview-terms"></div>' +
+    '<div class="field-label" style="margin-top:24px">Email 2 · Setup</div>' +
+    docs([['Dropbox', L.dropbox], ['Texting', L.phone]]) +
+    _tlMsg('tlMsg-setup') +
+    _tlActs((back || s.setupSent ? '' : '<span class="ll-state" style="flex:1">Send unlocks when the terms are back.</span>') +
+      '<button class="link-btn" onclick="_tlPreview(\'setup\')">Preview</button>' + sendBtn('setup', !!s.setupSent, !back)) +
+    '<div id="tlPreview-setup"></div>';
 }
 
 // ── Status ──
@@ -1857,8 +1869,9 @@ function _tlStatusHtml(a, s) {
     return '<div style="margin-bottom:16px"><div class="field-label">' + label + '</div>' +
       '<input class="rpm-field" readonly tabindex="-1" style="cursor:default" value="' + _msAttr(v) + '"></div>';
   }
+  var setup = s.setupSent ? (rec.setupDate || s.setupDate || 'Sent') : (s.termsBack ? 'Not sent yet' : 'After the terms are back');
   return '<div style="margin:4px 0 18px">' + DOCS_ICON + '</div>' +
-    box('Documents sent on', sent) + box('Terms back on', back);
+    box('Terms sent on', sent) + box('Terms back on', back) + box('Setup sent on', setup);
 }
 
 // One save call for any Trial Lessons fields. saveTrialRecord_ only writes the
@@ -2029,12 +2042,13 @@ function _tlDropbox() {
     });
 }
 
-function _tlPreview() {
+// which: 'terms' (email 1) or 'setup' (email 2)
+function _tlPreview(which) {
   var url = getScriptUrl();
   if (!url || !_tl) return;
-  var box = document.getElementById('tlPreview');
+  var box = document.getElementById('tlPreview-' + which);
   box.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
-  fetch(url + '?action=previewTrialTerms&name=' + encodeURIComponent(_tl.card.name || ''))
+  fetch(url + '?action=previewTrialTerms&which=' + which + '&name=' + encodeURIComponent(_tl.card.name || ''))
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!_tl) return;
@@ -2061,35 +2075,37 @@ function _tlPreviewHtml(subject, html, to) {
     '</div>';
 }
 
-function _tlSend() {
+function _tlSend(which) {
   var url = getScriptUrl();
   if (!url || !_tl || _tl.busy) return;
-  var a = _tl.card;
-  var btn = document.getElementById('tlSendBtn');
+  var a = _tl.card, msg = 'tlMsg-' + which, setup = which === 'setup';
+  var btn = document.getElementById('tlSendBtn-' + which);
   var lbl = btn.querySelector('span');
-  _tl.busy = true; btn.disabled = true; lbl.textContent = 'Sending\u2026';
-  _tlSetMsg('tlTermsMsg', 'Sending to ' + (a.email || '') + '\u2026');
-  fetch(url + '?action=sendTrialTerms&email=' + encodeURIComponent(a.email || '') + '&name=' + encodeURIComponent(a.name || ''))
+  _tl.busy = true; btn.disabled = true; lbl.textContent = 'Sending…';
+  _tlSetMsg(msg, 'Sending to ' + (a.email || '') + '…');
+  fetch(url + '?action=sendTrialTerms&which=' + which + '&email=' + encodeURIComponent(a.email || '') + '&name=' + encodeURIComponent(a.name || ''))
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!_tl) return;
       _tl.busy = false; btn.disabled = false;
       if (!d.success) {
         lbl.textContent = 'Send';
-        _tlSetMsg('tlTermsMsg', '\u26a0 ' + (d.message || 'Not sent'), 'var(--accent)');
+        _tlSetMsg(msg, '⚠ ' + (d.message || 'Not sent'), 'var(--accent)');
         return;
       }
-      btn.innerHTML = '<span>Sent \u2713</span>'; btn.disabled = true; btn.onclick = null;
+      btn.innerHTML = '<span>Sent ✓</span>'; btn.disabled = true; btn.onclick = null;
       btn.className = 'link-btn green';
-      _tl.rec = _tl.rec || {}; _tl.rec.termsSent = 'TRUE'; _tl.rec.sentDate = d.sentDate;
-      _tlMark({ termsSent: true, sentDate: d.sentDate });
-      _tlSetMsg('tlTermsMsg', 'Sent to ' + (a.email || '') + ' \u00b7 ' + d.sentDate +
-        (d.stamped ? '' : ' (Could not tick Terms Sent on the sheet.)'), 'var(--green)');
+      _tl.rec = _tl.rec || {};
+      var patch = setup ? { setupSent: true, setupDate: d.sentDate } : { termsSent: true, sentDate: d.sentDate };
+      Object.keys(patch).forEach(function (k) { _tl.rec[k] = patch[k] === true ? 'TRUE' : patch[k]; });
+      _tlMark(patch);
+      _tlSetMsg(msg, 'Sent to ' + (a.email || '') + ' · ' + d.sentDate +
+        (d.stamped ? '' : ' (Could not tick it on the sheet.)'), 'var(--green)');
     })
     .catch(function () {
       if (!_tl) return;
       _tl.busy = false; btn.disabled = false; lbl.textContent = 'Send';
-      _tlSetMsg('tlTermsMsg', '\u274c No answer. Check Sent mail before sending again.', 'var(--accent)');
+      _tlSetMsg(msg, '❌ No answer. Check Sent mail before sending again.', 'var(--accent)');
     });
 }
 
@@ -2520,6 +2536,11 @@ function _msOpen(email) {
         '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:#f0a500;background:' +
           _skFade('#f0a500') + ';border-color:rgba(255,255,255,0.1)" ' +
           'onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'status\')">Terms not back yet</button>') +
+      // Email 2 goes out once the terms are back; opens Send Documents.
+      (!st.termsBack || st.setupSent ? '' :
+        '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:#ff7a3c;background:' +
+          _skFade('#ff7a3c') + ';border-color:rgba(255,255,255,0.1)" ' +
+          'onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'terms\')">Setup email not sent</button>') +
       '</div>' +
       '<div style="text-align:right;margin-top:16px"><button class="db-mini-btn" style="padding:7px 20px" onclick="_msClose()">OK</button></div>';
     return;
