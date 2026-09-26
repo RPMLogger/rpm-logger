@@ -1859,7 +1859,7 @@ function _tlTermsHtml(a, s) {
 // Preview works anytime, so what goes out later can be read now.
 function _tlSetupHtml(a, s) {
   var locked = !s.termsBack && !s.setupSent;
-  return _tlEmailHtml('setup', [['Dropbox', _TL_LINKS.dropbox], ['Texting', _TL_LINKS.phone]], !!s.setupSent,
+  return _tlEmailHtml('setup', [['Texting', _TL_LINKS.phone], ['Dropbox', _TL_LINKS.dropbox]], !!s.setupSent,
     locked ? 'Send unlocks when the terms are back.' : '');
 }
 
