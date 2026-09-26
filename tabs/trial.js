@@ -313,16 +313,25 @@ function _trLoadThreads() {
         _trPaintNewMsg(email, t);
         if (!t.messages || !t.messages.length) { box.innerHTML = ''; return; }
         var id = emailToId(email);
+        // Collapsed like Trial's. A repaint (e.g. after sending a reply) keeps
+        // a thread open if it was open.
+        var prev = document.getElementById('fcmsg-' + id);
+        var wasOpen = !!(prev && prev.style.display !== 'none');
         box.innerHTML =
-          '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:9px">' +
+          '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:16px">' +
             _trBounceRow(t) +
-            t.messages.map(function (m) { return _trMsgRow(m, ((_trFindAccepted(email) || {}).name || '').split(' ')[0]); }).join('') +
-            (t.threadId
-              ? '<div id="fcrp-' + id + '">' +
-                  '<button class="db-mini-btn" onclick="_trOpenReply(\'' + id + '\',\'' + t.threadId + '\')">Reply</button>' +
-                '</div>'
-              : '') +
+            _trThreadSummary(id, t.messages) +
+            '<div id="fcmsg-' + id + '" style="display:none">' +
+              t.messages.map(function (m) { return _trMsgRow(m, ((_trFindAccepted(email) || {}).name || '').split(' ')[0]); }).join('') +
+              (t.threadId
+                ? '<div id="fcrp-' + id + '">' +
+                    '<button class="db-mini-btn" onclick="_trOpenReply(\'' + id + '\',\'' + t.threadId + '\')">Reply</button>' +
+                  '</div>'
+                : '') +
+              '<button class="tr-open-btn small" style="margin-top:10px" onclick="_trToggleThread(\'' + id + '\',true)">Hide \u25b4</button>' +
+            '</div>' +
           '</div>';
+        if (wasOpen) _trToggleThread(id);
       });
     })
     .catch(function () { /* leave the cards alone if Gmail is unreachable */ });
@@ -2355,7 +2364,8 @@ function _trPayCard(p) {
 // between waiting on them and them waiting on you, and it is the thing that let
 // someone sit unnoticed for seven weeks before any of this existed.
 //
-// Initiate is deliberately left expanded: that tab IS the conversation.
+// Initiate collapses the same way: long threads (quoted form notifications,
+// tracking links) buried the cards.
 function _trThreadSummary(id, msgs) {
   if (!msgs.length) {
     return '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">' +
