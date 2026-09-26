@@ -2529,7 +2529,7 @@ function _msDefaultStart(a) {
   return { date: date, mins: t ? (+t[1] * 60 + +t[2]) : 17 * 60 };
 }
 
-function _msLbl(t) { return '<label class="settings-label" style="margin-top:6px">' + t + '</label>'; }
+function _msLbl(t) { return '<label class="field-label" style="margin-top:6px">' + t + '</label>'; }
 function _msAttr(v) { return inqEsc(v == null ? '' : String(v)).replace(/"/g, '&quot;'); }
 function _msPad(n) { return (n < 10 ? '0' : '') + n; }
 
@@ -2554,8 +2554,7 @@ function _msRenderForm() {
   function row(k, v, color) {
     if (!v) return '';
     return '<div style="display:flex;gap:12px;padding:4px 0;font-family:\'DM Mono\',monospace;font-size:12px">' +
-        '<span style="width:104px;flex:none;color:var(--muted);font-size:10px;letter-spacing:1px;' +
-            'text-transform:uppercase;padding-top:3px">' + k + '</span>' +
+        '<span class="field-label" style="width:104px;flex:none;margin:0;padding-top:1px">' + k + '</span>' +
         '<span style="color:' + (color || 'rgba(255,255,255,0.82)') + '">' + v + '</span>' +
       '</div>';
   }

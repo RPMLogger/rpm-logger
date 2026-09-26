@@ -112,11 +112,11 @@ body::before {
 /* The one title above an input box (2026-09-25): small grey caps, the same
    voice as Pick a time's summary line. Trial windows use it now; the other
    label styles move to it in the end-of-design-pass cleanup. */
-/* 2026-09-26: the window title's grey half (". INFO") in small: Bebas, muted,
-   the title's letter-spacing. */
+/* 2026-09-26: the window title's face (". INFO") in small: Bebas, the title's
+   letter-spacing, at .72 - between Save (text) and what is typed in the box (.5). */
 .field-label {
   display: block; font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px;
-  color: var(--muted); margin-bottom: 4px; line-height: 1.2;
+  color: rgba(255,255,255,.72); margin-bottom: 4px; line-height: 1.2;
 }
 .win-icon { flex: none; color: var(--muted); }
 /* A value shown under a field-label that cannot be edited: plain text in the
