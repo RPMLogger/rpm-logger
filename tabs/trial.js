@@ -1155,7 +1155,8 @@ var _TR_STEPS = [
   { key: 'freq',  label: 'Frequency' },
   { key: 'time',  label: 'Pick a time' },
   { key: 'pay',   label: 'Payment' },                   // trial payment; the window shows what was found
-  { key: 'terms', label: 'Send Documents' },
+  { key: 'terms', label: 'Send Terms' },               // email 1: Terms & Conditions + form
+  { key: 'setup', label: 'Send Documents' },            // email 2: Dropbox + Texting, once the terms are back
   { key: 'log',   label: 'Log lesson', lesson: true, required: true },
   { key: 'hw',    label: 'Send HW',    lesson: true, required: true }
 ];
@@ -1193,18 +1194,19 @@ function _trStepState(a) {
     back:  !!s.termsBack,
     termsBack: !!s.termsBack,
     termsSent: !!s.termsSent,
+    setup: !!s.setupSent,
     setupSent: !!s.setupSent
   };
   st.missing = _TR_STEPS.filter(function (x) { return (!x.lesson || x.required) && !st[x.key]; })
     .map(function (x) {
       // The button labels are steps, not reasons. Say what is actually missing.
       if (x.key === 'terms') return 'Terms not sent';
+      if (x.key === 'setup') return 'Documents not sent';
       return x.label;
     });
   // Terms back is not a step (it happens on its own), but Make student still
   // waits for it. The card's Status bar shows it.
   if (!st.termsBack) st.missing.push('Terms not back yet');
-  else if (!st.setupSent) st.missing.push('Setup email not sent');
   st.ready = !st.missing.length;
   return st;
 }
@@ -1370,7 +1372,7 @@ function _tlRender() {
   if (!_tl) return;
   var a = _tl.card, s = a.lesson || {};
   var body = { info: _tlInfoHtml, dbx: _tlDbxHtml, log: _tlLogHtml, hw: _tlHwHtml,
-               freq: _tlFreqHtml, time: _tlTimeHtml, pay: _tlPayHtml, terms: _tlTermsHtml, status: _tlStatusHtml }[_tl.step] || _tlInfoHtml;
+               freq: _tlFreqHtml, time: _tlTimeHtml, pay: _tlPayHtml, terms: _tlTermsHtml, setup: _tlSetupHtml, status: _tlStatusHtml }[_tl.step] || _tlInfoHtml;
   document.getElementById('tlModal').innerHTML =
     _tlTitle() +
     (_tl.loadError ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-bottom:8px">⚠ ' + inqEsc(_tl.loadError) + '</div>' : '') +
@@ -1821,42 +1823,44 @@ function _tlPayHtml(a, s) {
 }
 
 // ── 6 · Terms ──
-function _tlTermsHtml(a, s) {
-  // Two emails (2026-09-26): with everything in one, the terms got skimmed.
-  // Email 1 is the terms alone; email 2, the setup documents, unlocks once the
-  // form is back. Each list opens the real documents. Same links as TL_LINK_*
-  // in RPM_TrialLesson.gs - change them in both places.
-  var L = {
-    dropbox: 'https://drive.google.com/file/d/1OnCnnQi9AuEqz9oZs0Dru3iF98SKxFjJ/view?usp=sharing',
-    phone:   'https://drive.google.com/file/d/1iZRyYgyU5hLDMDOiUugqNgcVVQkr89gn/view?usp=sharing',
-    terms:   'https://drive.google.com/file/d/1u-gC8TH6lFhCdR4VMuHXviZG8MbTWU6g/view?usp=sharing',
-    form:    'https://docs.google.com/forms/d/e/1FAIpQLSeBKLJUKPqf6ExNsfvD5pdt9UqR1nNt6Flu_VJv6LMsCFCfug/viewform'
-  };
-  function docs(list) {
-    return '<div class="tl-docs">' + list.map(function (x) {
+// Two emails, two steps (2026-09-26): with everything in one email the terms
+// got skimmed. Send Terms is the terms alone; Send Documents (Dropbox +
+// Texting) unlocks once the form is back. Each list opens the real documents.
+// Same links as TL_LINK_* in RPM_TrialLesson.gs - change them in both places.
+var _TL_LINKS = {
+  dropbox: 'https://drive.google.com/file/d/1OnCnnQi9AuEqz9oZs0Dru3iF98SKxFjJ/view?usp=sharing',
+  phone:   'https://drive.google.com/file/d/1iZRyYgyU5hLDMDOiUugqNgcVVQkr89gn/view?usp=sharing',
+  terms:   'https://drive.google.com/file/d/1u-gC8TH6lFhCdR4VMuHXviZG8MbTWU6g/view?usp=sharing',
+  form:    'https://docs.google.com/forms/d/e/1FAIpQLSeBKLJUKPqf6ExNsfvD5pdt9UqR1nNt6Flu_VJv6LMsCFCfug/viewform'
+};
+
+// One email's window body: icon, its documents, Preview + Send, the preview.
+// Each email is sent once: after that its Send stays off, green.
+function _tlEmailHtml(which, list, sent, lockNote) {
+  return '<div style="margin:4px 0 18px">' + DOCS_ICON + '</div>' +
+    '<div class="field-label">Documents</div>' +
+    '<div class="tl-docs">' + list.map(function (x) {
       return '<a class="tl-doc" href="' + x[1] + '" target="_blank" rel="noopener">' +
         '<span>' + inqEsc(x[0]) + '</span>' + OPEN_OUT_ICON + '</a>';
-    }).join('') + '</div>';
-  }
-  // Each email is sent once: after that its Send stays off, green.
-  function sendBtn(w, sent, locked) {
-    return '<button class="link-btn ' + (sent ? 'green' : 'bright') + '" id="tlSendBtn-' + w + '"' +
-      (sent || locked ? ' disabled' : ' onclick="_tlSend(\'' + w + '\')"') + '>' +
-      (sent ? '<span>Sent ✓</span>' : SEND_ICON + '<span>Send</span>') + '</button>';
-  }
-  var back = !!s.termsBack;
-  return '<div style="margin:4px 0 18px">' + DOCS_ICON + '</div>' +
-    '<div class="field-label">Email 1 · Terms</div>' +
-    docs([['Terms & Conditions', L.terms], ['Acknowledgment Form', L.form]]) +
-    _tlMsg('tlMsg-terms') +
-    _tlActs('<button class="link-btn" onclick="_tlPreview(\'terms\')">Preview</button>' + sendBtn('terms', !!s.termsSent)) +
-    '<div id="tlPreview-terms"></div>' +
-    '<div class="field-label" style="margin-top:24px">Email 2 · Setup</div>' +
-    docs([['Dropbox', L.dropbox], ['Texting', L.phone]]) +
-    _tlMsg('tlMsg-setup') +
-    _tlActs((back || s.setupSent ? '' : '<span class="ll-state" style="flex:1">Send unlocks when the terms are back.</span>') +
-      '<button class="link-btn" onclick="_tlPreview(\'setup\')">Preview</button>' + sendBtn('setup', !!s.setupSent, !back)) +
-    '<div id="tlPreview-setup"></div>';
+    }).join('') + '</div>' +
+    _tlMsg('tlMsg-' + which) +
+    _tlActs((lockNote ? '<span class="ll-state" style="flex:1">' + lockNote + '</span>' : '') +
+      '<button class="link-btn" onclick="_tlPreview(\'' + which + '\')">Preview</button>' +
+      '<button class="link-btn ' + (sent ? 'green' : 'bright') + '" id="tlSendBtn-' + which + '"' +
+        (sent || lockNote ? ' disabled' : ' onclick="_tlSend(\'' + which + '\')"') + '>' +
+        (sent ? '<span>Sent ✓</span>' : SEND_ICON + '<span>Send</span>') + '</button>') +
+    '<div id="tlPreview-' + which + '"></div>';
+}
+
+function _tlTermsHtml(a, s) {
+  return _tlEmailHtml('terms', [['Terms & Conditions', _TL_LINKS.terms], ['Acknowledgment Form', _TL_LINKS.form]], !!s.termsSent);
+}
+
+// Preview works anytime, so what goes out later can be read now.
+function _tlSetupHtml(a, s) {
+  var locked = !s.termsBack && !s.setupSent;
+  return _tlEmailHtml('setup', [['Dropbox', _TL_LINKS.dropbox], ['Texting', _TL_LINKS.phone]], !!s.setupSent,
+    locked ? 'Send unlocks when the terms are back.' : '');
 }
 
 // ── Status ──
@@ -2536,11 +2540,6 @@ function _msOpen(email) {
         '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:#f0a500;background:' +
           _skFade('#f0a500') + ';border-color:rgba(255,255,255,0.1)" ' +
           'onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'status\')">Terms not back yet</button>') +
-      // Email 2 goes out once the terms are back; opens Send Documents.
-      (!st.termsBack || st.setupSent ? '' :
-        '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:#ff7a3c;background:' +
-          _skFade('#ff7a3c') + ';border-color:rgba(255,255,255,0.1)" ' +
-          'onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'terms\')">Setup email not sent</button>') +
       '</div>' +
       '<div style="text-align:right;margin-top:16px"><button class="db-mini-btn" style="padding:7px 20px" onclick="_msClose()">OK</button></div>';
     return;
