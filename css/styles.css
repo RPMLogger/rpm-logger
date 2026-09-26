@@ -1691,7 +1691,11 @@ a:focus-visible,
 /* Trial step windows (2026-09-25): buttons that cannot be pressed yet dim;
    a finished green one (Sent ✓, Folder made ✓) stays full colour. The mic is
    icon only, red while it records. */
-#tlModal .link-btn:disabled:not(.green) { opacity: 0.4; cursor: default; }
+/* Box text in the Trial windows a step smaller than the portal's 12px
+   (2026-09-26): entry boxes, read-only boxes and the document rows alike. */
+#tlModal .rpm-field, #tlModal .tl-doc, #msModal .settings-input { font-size: 11px; }
+/* Dimmed by colour, not opacity, so a locked button's tooltip stays readable. */
+#tlModal .link-btn:disabled:not(.green) { color: rgba(255,255,255,.18); border-color: rgba(122,122,122,.22); background: transparent; cursor: default; }
 #tlModal .link-btn.green:disabled { cursor: default; }
 #tlModal .link-btn.tl-mic { padding: 4px 2px; border-color: transparent; background: transparent; color: var(--muted); }
 #tlModal .link-btn.tl-mic:hover { color: var(--text); }

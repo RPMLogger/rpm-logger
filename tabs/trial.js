@@ -1837,16 +1837,17 @@ var _TL_LINKS = {
 // One email's window body: icon, its documents, Preview + Send, the preview.
 // Each email is sent once: after that its Send stays off, green.
 function _tlEmailHtml(which, list, sent, lockNote) {
-  return '<div style="margin:4px 0 18px">' + DOCS_ICON + '</div>' +
+  return '<div style="margin:4px 0 18px">' + PAGE_ICON + '</div>' +
     '<div class="field-label">Documents</div>' +
     '<div class="tl-docs">' + list.map(function (x) {
       return '<a class="tl-doc" href="' + x[1] + '" target="_blank" rel="noopener">' +
         '<span>' + inqEsc(x[0]) + '</span>' + OPEN_OUT_ICON + '</a>';
     }).join('') + '</div>' +
     _tlMsg('tlMsg-' + which) +
-    _tlActs((lockNote ? '<span class="ll-state" style="flex:1">' + lockNote + '</span>' : '') +
-      '<button class="link-btn" onclick="_tlPreview(\'' + which + '\')">Preview</button>' +
+    // A locked Send says why in its tooltip, not in a line beside it.
+    _tlActs('<button class="link-btn" onclick="_tlPreview(\'' + which + '\')">Preview</button>' +
       '<button class="link-btn ' + (sent ? 'green' : 'bright') + '" id="tlSendBtn-' + which + '"' +
+        (lockNote && !sent ? ' data-tip="' + lockNote + '" data-tip-wrap data-tip-left' : '') +
         (sent || lockNote ? ' disabled' : ' onclick="_tlSend(\'' + which + '\')"') + '>' +
         (sent ? '<span>Sent ✓</span>' : SEND_ICON + '<span>Send</span>') + '</button>') +
     '<div id="tlPreview-' + which + '"></div>';
@@ -1860,7 +1861,7 @@ function _tlTermsHtml(a, s) {
 function _tlSetupHtml(a, s) {
   var locked = !s.termsBack && !s.setupSent;
   return _tlEmailHtml('setup', [['Texting', _TL_LINKS.phone], ['Dropbox', _TL_LINKS.dropbox]], !!s.setupSent,
-    locked ? 'Send unlocks when the terms are back.' : '');
+    locked ? 'Locked until the terms are back.' : '');
 }
 
 // ── Status ──
