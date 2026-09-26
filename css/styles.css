@@ -1363,28 +1363,28 @@ a:focus-visible,
    grey box, normal case, dim until lit, the lit one soft white. The ▲ / ▼
    stay above and below each value, outside the box. A 3-row grid: arrows,
    the box (drawn by ::before across both columns), arrows. */
-#tbDtRow, #tlDtRow {
+#tbDtRow, #tlDtRow, #tsDtRow {
   display: inline-grid; grid-template-columns: auto auto; grid-template-rows: auto auto auto;
   column-gap: 2px; row-gap: 2px; justify-items: stretch; align-items: stretch;   /* .dt-row centers, which squashed the box to a line */
   border: none; background: transparent; padding: 0;
 }
-#tbDtRow::before, #tlDtRow::before {
+#tbDtRow::before, #tlDtRow::before, #tsDtRow::before {
   content: ""; grid-row: 2; grid-column: 1 / 3;
   border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent);
   border-radius: 7px; background: var(--surface2);
 }
-#tbDtRow .tb-col, #tlDtRow .tb-col { display: contents; }
-#tbDtRow .tb-col:first-child > *, #tlDtRow .tb-col:first-child > * { grid-column: 1; }
-#tbDtRow .tb-col:last-child > *, #tlDtRow .tb-col:last-child > * { grid-column: 2; }
-#tbDtRow .tb-tri, #tlDtRow .tb-tri { grid-row: 1; justify-self: center; }
-#tbDtRow .tb-tri.down, #tlDtRow .tb-tri.down { grid-row: 3; }
-#tbDtRow .dt-seg, #tlDtRow .dt-seg { grid-row: 2; position: relative; border: none; background: transparent; padding: 3px 0 3px 3px; }
-#tbDtRow .dt-seg + .dt-seg, #tlDtRow .dt-seg + .dt-seg, #tbDtRow .tb-col:last-child .dt-seg, #tlDtRow .tb-col:last-child .dt-seg { border: none; padding: 3px 3px 3px 0; }
-#tbDtRow .dt-val, #tlDtRow .dt-val {
+#tbDtRow .tb-col, #tlDtRow .tb-col, #tsDtRow .tb-col { display: contents; }
+#tbDtRow .tb-col:first-child > *, #tlDtRow .tb-col:first-child > *, #tsDtRow .tb-col:first-child > * { grid-column: 1; }
+#tbDtRow .tb-col:last-child > *, #tlDtRow .tb-col:last-child > *, #tsDtRow .tb-col:last-child > * { grid-column: 2; }
+#tbDtRow .tb-tri, #tlDtRow .tb-tri, #tsDtRow .tb-tri { grid-row: 1; justify-self: center; }
+#tbDtRow .tb-tri.down, #tlDtRow .tb-tri.down, #tsDtRow .tb-tri.down { grid-row: 3; }
+#tbDtRow .dt-seg, #tlDtRow .dt-seg, #tsDtRow .dt-seg { grid-row: 2; position: relative; border: none; background: transparent; padding: 3px 0 3px 3px; }
+#tbDtRow .dt-seg + .dt-seg, #tlDtRow .dt-seg + .dt-seg, #tbDtRow .tb-col:last-child .dt-seg, #tlDtRow .tb-col:last-child .dt-seg, #tsDtRow .dt-seg + .dt-seg, #tsDtRow .tb-col:last-child .dt-seg { border: none; padding: 3px 3px 3px 0; }
+#tbDtRow .dt-val, #tlDtRow .dt-val, #tsDtRow .dt-val {
   width: 100%; font-size: 11px; letter-spacing: 1px; text-transform: uppercase;   /* caps like Frequency */
   color: rgba(255,255,255,0.55); padding: 7px 10px; border-radius: 5px;
 }
-#tbDtRow .dt-val:hover, #tlDtRow .dt-val:hover { color: #fff; }
+#tbDtRow .dt-val:hover, #tlDtRow .dt-val:hover, #tsDtRow .dt-val:hover { color: #fff; }
 /* Pick a time lights the field the mouse last touched (.on), not focus. */
 #tlDtRow .dt-val.on { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
 .tb-tri { background: transparent; border: none; padding: 3px 14px; line-height: 0; cursor: pointer; color: var(--muted); transition: color .12s; }
@@ -1693,7 +1693,7 @@ a:focus-visible,
    icon only, red while it records. */
 /* Box text in the Trial windows a step smaller than the portal's 12px
    (2026-09-26): entry boxes, read-only boxes and the document rows alike. */
-#tlModal .rpm-field, #tlModal .tl-doc, #msModal .settings-input { font-size: 11px; }
+#tlModal .rpm-field, #tlModal .tl-doc, #msModal .settings-input, #tsModal .rpm-field { font-size: 11px; }
 /* Dimmed by colour, not opacity, so a locked button's tooltip stays readable. */
 #tlModal .link-btn:disabled:not(.green) { color: rgba(255,255,255,.18); border-color: rgba(122,122,122,.22); background: transparent; cursor: default; }
 #tlModal .link-btn.green:disabled { cursor: default; }

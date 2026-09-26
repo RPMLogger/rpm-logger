@@ -951,7 +951,7 @@ function _trDtHtml(p) {
       'onclick="' + fn + '(\'' + p + '\',' + n + ');document.getElementById(\'' + id + '\').focus()">' + TRI_ICON + '</button>';
   };
   var seg = function (id, order, fn, step, w, txt) {
-    if (p === 'tb') {
+    if (p === 'tb' || p === 'ts') {   // Book a trial manually too (2026-09-26)
       return '<div class="tb-col">' + tri(fn, step, id) +
         '<div class="dt-seg">' +
           '<button type="button" class="dt-val" id="' + id + '" data-dt-nav="' + order + '" ' +
@@ -2315,19 +2315,21 @@ function _tsShowBook() {
     document.body.appendChild(ov);
   }
   _tsBusy = false;
-  function inp(id, ph, type) {
-    return '<input class="rpm-field" id="' + id + '" type="' + (type || 'text') + '" placeholder="' + ph + '">';
+  // Title above each box, as in every other Trial window (2026-09-26).
+  function inp(id, label, type) {
+    return '<div style="flex:1;margin-bottom:16px"><label class="field-label" for="' + id + '">' + label + '</label>' +
+      '<input class="rpm-field" id="' + id + '" type="' + (type || 'text') + '"></div>';
   }
   document.getElementById('tsModal').innerHTML =
     '<div class="settings-title"><span>Book a trial' +
       '<span style="color:var(--muted);font-weight:400"> · Manually</span></span>' +
       '<button class="settings-close" onclick="_tsClose()">✕</button></div>' +
-    '<div style="display:flex;flex-direction:column;gap:8px">' +
-      '<div style="display:flex;gap:8px">' + inp('tsFirst', 'First') + inp('tsLast', 'Last') + '</div>' +
-      inp('tsEmail', 'Email', 'email') +
-      inp('tsPhone', 'Phone', 'tel') +
-    '</div>' +
-    '<div style="margin:22px 0 6px">' + _trDtHtml('ts') + '</div>' +
+    _tlCalIcon() +
+    '<div style="display:flex;gap:12px">' + inp('tsFirst', 'First') + inp('tsLast', 'Last') + '</div>' +
+    inp('tsEmail', 'Email', 'email') +
+    inp('tsPhone', 'Phone', 'tel') +
+    '<div class="field-label">Trial</div>' +
+    '<div style="margin:0 0 6px">' + _trDtHtml('ts') + '</div>' +
     '<div id="tsStatus" style="margin-top:12px"></div>' +
     // Same footer as the Book window on an inquiry card: green, bottom right,
     // because it creates a calendar event and mails the student.
