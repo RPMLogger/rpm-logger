@@ -1838,7 +1838,7 @@ var _TL_LINKS = {
 // Each email is sent once: after that its Send stays off, green.
 function _tlEmailHtml(which, list, sent, lockNote) {
   return '<div style="margin:4px 0 18px">' + PAGE_ICON + '</div>' +
-    '<div class="field-label">Documents</div>' +
+    '<div class="field-label">Attachments</div>' +
     '<div class="tl-docs">' + list.map(function (x) {
       return '<a class="tl-doc" href="' + x[1] + '" target="_blank" rel="noopener">' +
         '<span>' + inqEsc(x[0]) + '</span>' + OPEN_OUT_ICON + '</a>';
