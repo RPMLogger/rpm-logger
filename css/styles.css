@@ -120,7 +120,7 @@ body::before {
 }
 /* Send Documents: what the email carries, one line each, each opening the
    document in a new tab. */
-.tl-docs { display: flex; flex-direction: column; gap: 2px; }
+.tl-docs { display: flex; flex-direction: column; gap: 4px; width: 240px; max-width: 100%; }  /* shorter, all one width */
 .tl-doc { display: flex; align-items: center; justify-content: space-between; gap: 8px;
   font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: rgba(255,255,255,.5);
   text-decoration: none; padding: 7px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }

@@ -1455,7 +1455,8 @@ var _TL_ROWS = ['', '', ''];   // three rows, no placeholder text
 
 function _tlLogHtml(a, s) {
   _tl.row = 0;
-  return '<div class="ll-rows">' +
+  return '<div style="margin:4px 0 18px">' + LOG_ICON + '</div>' +
+    '<div class="ll-rows">' +
       _TL_ROWS.map(function (ph, i) {
         return '<input type="text" class="rpm-field ll-row' + (i ? '' : ' active') + '" id="tlRow-' + i + '" ' +
           'onfocus="_tlRow(' + i + ')" oninput="_tlLogReady()">';
@@ -2051,10 +2052,12 @@ function _tlPreviewHtml(subject, html, to) {
     '<div style="width:64px;height:64px;border:1px dashed #9a978f;border-radius:8px;' +
     'display:inline-flex;align-items:center;justify-content:center;' +
     'font:9px/1.2 monospace;letter-spacing:1px;color:#6f6c65">LOGO</div>');
+  // No To line (the window already says who). The subject sits inside the
+  // white card, above the body, set apart by a rule (2026-09-26).
   return '<div style="margin-top:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden">' +
-      '<div style="padding:9px 12px;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border)">' +
-        'To: ' + inqEsc(to || '') + '<br>Subject: <span style="color:var(--text)">' + inqEsc(subject || '') + '</span></div>' +
-      '<div class="fc-preview" style="background:#d9d5ce;color:#1b1b1b;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6">' + body + '</div>' +
+      '<div class="fc-preview" style="background:#d9d5ce;color:#1b1b1b;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6">' +
+        '<div style="font-weight:bold;padding-bottom:10px;margin-bottom:14px;border-bottom:1px solid #b9b5ad">' + inqEsc(subject || '') + '</div>' +
+        body + '</div>' +
     '</div>';
 }
 
