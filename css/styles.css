@@ -112,11 +112,11 @@ body::before {
 /* The one title above an input box (2026-09-25): small grey caps, the same
    voice as Pick a time's summary line. Trial windows use it now; the other
    label styles move to it in the end-of-design-pass cleanup. */
-/* 2026-09-26: written as typed ("Goals / Styles"), not caps, and a step
-   brighter than the text in the box (.5) so the title leads. */
+/* 2026-09-26: the window title's grey half (". INFO") in small: Bebas, muted,
+   the title's letter-spacing. */
 .field-label {
-  display: block; font-family: "DM Mono", monospace; font-size: 11px;
-  color: rgba(255,255,255,.65); margin-bottom: 4px; line-height: 1.2;
+  display: block; font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px;
+  color: var(--muted); margin-bottom: 4px; line-height: 1.2;
 }
 .win-icon { flex: none; color: var(--muted); }
 /* A value shown under a field-label that cannot be edited: plain text in the
