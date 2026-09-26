@@ -116,7 +116,7 @@ body::before {
    letter-spacing, at .72 - between Save (text) and what is typed in the box (.5). */
 .field-label {
   display: block; font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px;
-  color: rgba(255,255,255,.72); margin-bottom: 4px; line-height: 1.2;
+  color: rgba(255,255,255,.72); margin-bottom: 7px; line-height: 1.2;
 }
 /* Send Documents: what the email carries, one line each, each opening the
    document in a new tab. */
