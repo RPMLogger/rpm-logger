@@ -1103,13 +1103,7 @@ function initTrialStageTab() {
 function _trStageCard(a) {
   var when = a.trialDateLabel || '';
   return '<div class="inq-dcard accepted" id="trcard-' + emailToId(a.email || '') + '">' +
-      '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || '—') + '</span>' +
-        // Only once the acknowledgment form is actually back. Sent is not accepted.
-        (_trStepState(a).termsBack
-          ? '<span style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;' +
-              'color:rgba(46,204,113,0.7)">TERMS ACCEPTED</span>'
-          : '') +
-      '</div>' +
+      '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || '—') + '</span></div>' +
       // "TRIAL - Sun, Sep 13 - 11:15 AM" on its own line, then a divider.
       (when
         ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:0.3px;margin-top:4px;color:' +
@@ -1120,6 +1114,7 @@ function _trStageCard(a) {
       '<hr class="divider" style="margin:18px 0 0">' +
       '<div id="trpaid-' + emailToId(a.email || '') + '"></div>' +
       _trStepsHtml(a) +
+      _trStatusHtml(a) +
       '<hr class="divider" style="margin:0 0 20px">' +
       '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || '') + '"></div>' +
@@ -1161,8 +1156,7 @@ var _TR_STEPS = [
   { key: 'freq',  label: 'Frequency' },
   { key: 'time',  label: 'Pick a time' },
   { key: 'pay',   label: 'Payment' },                   // trial payment; the window shows what was found
-  { key: 'terms', label: 'Terms Sent' },
-  { key: 'back',  label: 'Terms Back' },                // goes green on its own once the form comes back
+  { key: 'terms', label: 'Send Documents' },
   { key: 'log',   label: 'Log lesson', lesson: true, required: true },
   { key: 'hw',    label: 'Send HW',    lesson: true, required: true }
 ];
@@ -1205,11 +1199,24 @@ function _trStepState(a) {
     .map(function (x) {
       // The button labels are steps, not reasons. Say what is actually missing.
       if (x.key === 'terms') return 'Terms not sent';
-      if (x.key === 'back')  return 'Terms form not back';
       return x.label;
     });
+  // Terms back is not a step (it happens on its own), but Make student still
+  // waits for it. The card's Status bar shows it.
+  if (!st.termsBack) st.missing.push('Terms not back yet');
   st.ready = !st.missing.length;
   return st;
+}
+
+// Status: where the documents stand. Not a step - nothing to do here, it
+// changes on its own (Send Documents → Waiting, form back → Accepted) - so it
+// is one full-width bar under the checklist, opening the dates.
+function _trStatusHtml(a) {
+  var st = _trStepState(a);
+  var v = st.termsBack ? ['Accepted', 'ok'] : (st.termsSent ? ['Waiting', 'wait'] : ['Not sent', 'none']);
+  return '<button class="tr-status ' + v[1] + '" id="trstatus-' + emailToId(a.email || '') + '" ' +
+      'onclick="_tlOpen(\'' + _trEsc(a.email || '') + '\',\'status\')">' +
+      '<span class="tr-status-k">Status:</span> ' + v[0] + '</button>';
 }
 
 var _TR_CAPS = 'color:rgba(255,255,255,0.62);text-transform:uppercase;letter-spacing:1px;font-size:10px;padding:5px 9px';
@@ -1333,7 +1340,8 @@ function _tlClose() {
 
 function _tlTitle() {
   var a = _tl.card;
-  var step = _TR_STEPS.filter(function (x) { return x.key === _tl.step; })[0];
+  var step = _TR_STEPS.filter(function (x) { return x.key === _tl.step; })[0] ||
+             (_tl.step === 'status' ? { label: 'Status' } : null);
   return '<div class="settings-title"><span>' + inqEsc(a.name || '') +
       (step ? '<span style="color:var(--muted);font-weight:400"> · ' + step.label + '</span>' : '') +
       '</span><button class="settings-close" onclick="_tlClose()">✕</button></div>';
@@ -1359,7 +1367,7 @@ function _tlRender() {
   if (!_tl) return;
   var a = _tl.card, s = a.lesson || {};
   var body = { info: _tlInfoHtml, dbx: _tlDbxHtml, log: _tlLogHtml, hw: _tlHwHtml,
-               freq: _tlFreqHtml, time: _tlTimeHtml, pay: _tlPayHtml, terms: _tlTermsHtml, back: _tlTermsHtml }[_tl.step] || _tlInfoHtml;
+               freq: _tlFreqHtml, time: _tlTimeHtml, pay: _tlPayHtml, terms: _tlTermsHtml, status: _tlStatusHtml }[_tl.step] || _tlInfoHtml;
   document.getElementById('tlModal').innerHTML =
     _tlTitle() +
     (_tl.loadError ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-bottom:8px">⚠ ' + inqEsc(_tl.loadError) + '</div>' : '') +
@@ -1601,6 +1609,12 @@ function _tlFreqCur() {
   return String(_tl.freqPick !== undefined ? _tl.freqPick : ((_tl.card.lesson || {}).frequency || ''));
 }
 
+// The window icon row (under the title) for Frequency and Pick a time.
+function _tlCalIcon() {
+  return '<div style="margin:4px 0 18px">' +
+    CALENDAR_ICON.replace('class="calendar-icon"', 'class="win-icon"') + '</div>';
+}
+
 function _tlFreqHtml(a, s) {
   var f = _tlFreqCur().toLowerCase();
   function pick(v) {
@@ -1610,9 +1624,7 @@ function _tlFreqHtml(a, s) {
     return '<button type="button" class="tl-seg-opt' + (on ? ' on' : '') + '" tabindex="-1"' +
       ' onclick="_tlSetFreq(\'' + v + '\')">' + v + '</button>';
   }
-  return '<div style="margin:4px 0 18px">' +
-      CALENDAR_ICON.replace('class="calendar-icon"', 'class="win-icon"').replace('width="13" height="12"', 'width="36" height="34"') +
-    '</div>' +
+  return _tlCalIcon() +
     '<div class="tl-seg">' + pick('Weekly') + pick('Biweekly') + '</div>' +
     _tlMsg('tlFreqMsg');
 }
@@ -1697,7 +1709,8 @@ function _tlTimeHtml(a, s) {
         'style="min-width:' + w + 'px" onmousemove="_tlPtHover(event,' + i + ')" onclick="_tlPtOn(' + i + ')">' + label + '</button></div>' +
       tri(i, -_TL_PT_STEP[i], true) + '</div>';
   };
-  return '<div class="dt-row" id="tlDtRow" style="margin-top:6px">' + col(0, 90, dateTxt) + col(1, 68, timeTxt) + '</div>' +
+  return _tlCalIcon() +
+    '<div class="dt-row" id="tlDtRow" style="margin-top:6px">' + col(0, 90, dateTxt) + col(1, 68, timeTxt) + '</div>' +
     '<div class="pt-sum">Starting ' + inqEsc(dateTxt) + ' · ' + timeTxt + ' · ' +
       '<span class="pt-freq">' + (freq ? inqEsc(freq) : 'Frequency not set') + '</span></div>' +
     (past ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-top:8px">⚠ That is in the past.</div>' : '') +
@@ -1792,7 +1805,8 @@ function _tlParseSpot(str) {
 function _tlPayHtml(a, s) {
   var p = _trTrialPayFor(a.email);
   var line = function (txt, color) {
-    return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:' + color + '">' + txt + '</div>';
+    return '<div style="margin:4px 0 18px">' + PAY_ICON + '</div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:' + color + '">' + txt + '</div>';
   };
   if (p) {
     var date = String(p.date || '').replace(/,?\s*\d{4}$/, '');
@@ -1804,15 +1818,23 @@ function _tlPayHtml(a, s) {
 
 // ── 6 · Terms ──
 function _tlTermsHtml(a, s) {
-  var rec = _tl.rec || {};
-  var sent = !!s.termsSent, back = !!s.termsBack;
+  var sent = !!s.termsSent;
+  // What the email carries, each opening the real document. Same links as
+  // TL_LINK_* in RPM_TrialLesson.gs - change them in both places.
+  var docs = [
+    ['Dropbox',              'https://drive.google.com/file/d/1OnCnnQi9AuEqz9oZs0Dru3iF98SKxFjJ/view?usp=sharing'],
+    ['Texting',              'https://drive.google.com/file/d/1iZRyYgyU5hLDMDOiUugqNgcVVQkr89gn/view?usp=sharing'],
+    ['Terms & Conditions',   'https://drive.google.com/file/d/1u-gC8TH6lFhCdR4VMuHXviZG8MbTWU6g/view?usp=sharing'],
+    ['Acknowledgment Form',  'https://docs.google.com/forms/d/e/1FAIpQLSeBKLJUKPqf6ExNsfvD5pdt9UqR1nNt6Flu_VJv6LMsCFCfug/viewform']
+  ];
   // The form is only ever sent once: after that the Send button stays off.
-  return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;line-height:1.9">' +
-      '<div style="color:' + (sent ? 'var(--green)' : 'var(--muted)') + '">' +
-        (sent ? '✓ Sent date: ' + inqEsc(rec.sentDate || s.sentDate || '') : '· Sent date: not sent yet') + '</div>' +
-      '<div style="color:' + (back ? 'var(--green)' : (sent ? 'var(--accent2)' : 'var(--muted)')) + '">' +
-        (back ? '✓ Back date: ' + inqEsc(rec.returnDate || s.returnDate || '')
-              : '· Back date: not back yet (ticks itself when the Trial tab loads)') + '</div>' +
+  return '<div style="margin:4px 0 18px">' + DOCS_ICON + '</div>' +
+    '<div class="field-label">Documents</div>' +
+    '<div class="tl-docs">' +
+      docs.map(function (x) {
+        return '<a class="tl-doc" href="' + x[1] + '" target="_blank" rel="noopener">' +
+          '<span>' + inqEsc(x[0]) + '</span>' + OPEN_OUT_ICON + '</a>';
+      }).join('') +
     '</div>' +
     _tlMsg('tlTermsMsg') +
     // The composer's pair (Inquiries, Initiate): Preview dim, Send bright
@@ -1822,6 +1844,20 @@ function _tlTermsHtml(a, s) {
         (sent ? ' disabled' : ' onclick="_tlSend()"') + '>' +
         (sent ? '<span>Sent ✓</span>' : SEND_ICON + '<span>Send</span>') + '</button>') +
     '<div id="tlPreview"></div>';
+}
+
+// ── Status ──
+// Read-only: when the documents went out, and when the form came back.
+function _tlStatusHtml(a, s) {
+  var rec = _tl.rec || {};
+  var sent = s.termsSent ? (rec.sentDate || s.sentDate || 'Sent') : 'Not sent';
+  var back = s.termsBack ? (rec.returnDate || s.returnDate || 'Back') : (s.termsSent ? 'Waiting' : 'Not sent yet');
+  function box(label, v) {
+    return '<div style="margin-bottom:16px"><div class="field-label">' + label + '</div>' +
+      '<input class="rpm-field" readonly tabindex="-1" style="cursor:default" value="' + _msAttr(v) + '"></div>';
+  }
+  return '<div style="margin:4px 0 18px">' + DOCS_ICON + '</div>' +
+    box('Documents sent on', sent) + box('Terms back on', back);
 }
 
 // One save call for any Trial Lessons fields. saveTrialRecord_ only writes the
@@ -1948,6 +1984,8 @@ function _tlMarkEmail(email, patch) {
   Object.keys(patch).forEach(function (k) { a.lesson[k] = patch[k]; });
   var old = document.getElementById('trsteps-' + emailToId(a.email || ''));
   if (old) old.outerHTML = _trStepsHtml(a);
+  var stat = document.getElementById('trstatus-' + emailToId(a.email || ''));
+  if (stat) stat.outerHTML = _trStatusHtml(a);
   var acts = document.getElementById('tracts-' + emailToId(a.email || ''));
   if (acts) acts.outerHTML = _trActionsHtml(a);
 }
@@ -2475,7 +2513,13 @@ function _msOpen(email) {
         return '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:' + mc + ';background:' +
                  _skFade(mc) + ';border-color:rgba(255,255,255,0.1)" ' +
                  'onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'' + x.key + '\')">' + (x.lesson ? '' : (i + 1) + '. ') + x.label + '</button>';
-      }).join('') + '</div>' +
+      }).join('') +
+      // Not a step, but still required: opens the Status window.
+      (st.termsBack ? '' :
+        '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:#f0a500;background:' +
+          _skFade('#f0a500') + ';border-color:rgba(255,255,255,0.1)" ' +
+          'onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'status\')">Terms not back yet</button>') +
+      '</div>' +
       '<div style="text-align:right;margin-top:16px"><button class="db-mini-btn" style="padding:7px 20px" onclick="_msClose()">OK</button></div>';
     return;
   }
