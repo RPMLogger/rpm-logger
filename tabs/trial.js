@@ -526,7 +526,7 @@ function _trOpenEmail(email) {
         "<button class='settings-close' onclick='_trCloseEmail()'>✕</button>" +
       "</div>" +
       "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--muted);margin-bottom:20px'>" +
-        inqEsc(email) + "</div>" +
+        "To: " + inqEsc(email) + "</div>" +
       // Marks the email half of the panel, the way the phone marks the text
       // half further down. Grey, so the red title still leads.
       "<input id='trFcSubject' value='About Your Trial Lesson Request' class='rpm-field' style='margin-bottom:14px'>" +
@@ -1387,9 +1387,11 @@ function _tlInfoHtml(a, s) {
     if (!v && k === 'goals') v = a.interests || '';
     return v;
   }
-  return _TR_INFO.map(function (f) {
+  // The window's icon sits under the title, above the first field.
+  return '<div style="margin:4px 0 18px">' + INFO_ICON + '</div>' +
+  _TR_INFO.map(function (f) {
     var v = inqEsc(val(f.key));
-    return '<div style="margin-bottom:9px">' +
+    return '<div style="margin-bottom:16px">' +
         '<div class="field-label">' + f.label + '</div>' +
         (f.multi
           ? '<textarea id="tli-' + f.key + '" rows="3" class="rpm-field">' + v + '</textarea>'
@@ -1443,14 +1445,15 @@ function _tlLogHtml(a, s) {
   _tl.row = 0;
   return '<div class="ll-rows">' +
       _TL_ROWS.map(function (ph, i) {
-        return '<textarea class="rpm-field ll-row' + (i ? '' : ' active') + '" id="tlRow-' + i + '" rows="2" ' +
-          'onfocus="_tlRow(' + i + ')" oninput="_tlLogReady()"></textarea>';
+        return '<input type="text" class="rpm-field ll-row' + (i ? '' : ' active') + '" id="tlRow-' + i + '" ' +
+          'onfocus="_tlRow(' + i + ')" oninput="_tlLogReady()">';
       }).join('') +
     '</div>' +
     '<div class="ll-acts" style="margin-top:16px">' +
-      '<span class="ll-state" id="tlWhatMsg" style="flex:1"></span>' +
-      // Icon only, dim beside the bright Log.
+      // The mic is a tool, not an action: a bare icon on the left, apart
+      // from Log, which is the button on the right.
       '<button class="link-btn tl-mic" id="tlMicBtn" data-tip="Starts or stops dictation." onclick="_tlMic()">' + MIC_ICON + '</button>' +
+      '<span class="ll-state" id="tlWhatMsg" style="flex:1"></span>' +
       '<button class="link-btn bright" id="tlLogBtn" onclick="_tlLogWhat()" disabled>Log</button>' +
     '</div>';
 }
