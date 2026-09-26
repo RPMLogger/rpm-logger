@@ -118,7 +118,7 @@ body::before {
   display: block; font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px;
   color: rgba(255,255,255,.72); margin-bottom: 4px; line-height: 1.2;
 }
-.win-icon { flex: none; color: var(--muted); }
+.win-icon { flex: none; color: var(--muted); height: 26px; width: auto; }
 /* A value shown under a field-label that cannot be edited: plain text in the
    field's own face, no box. */
 .field-text { font-family: Arial, sans-serif; font-size: 12px; color: rgba(255,255,255,0.5); padding: 2px 1px 0; }

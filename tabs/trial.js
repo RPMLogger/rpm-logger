@@ -1610,7 +1610,10 @@ function _tlFreqHtml(a, s) {
     return '<button type="button" class="tl-seg-opt' + (on ? ' on' : '') + '" tabindex="-1"' +
       ' onclick="_tlSetFreq(\'' + v + '\')">' + v + '</button>';
   }
-  return '<div class="tl-seg">' + pick('Weekly') + pick('Biweekly') + '</div>' +
+  return '<div style="margin:4px 0 18px">' +
+      CALENDAR_ICON.replace('class="calendar-icon"', 'class="win-icon"').replace('width="13" height="12"', 'width="36" height="34"') +
+    '</div>' +
+    '<div class="tl-seg">' + pick('Weekly') + pick('Biweekly') + '</div>' +
     _tlMsg('tlFreqMsg');
 }
 
