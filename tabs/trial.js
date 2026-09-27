@@ -1588,8 +1588,9 @@ function _tlLogWhat() {
 // ── + · Send HW ──
 function _tlHwHtml(a, s) {
   if (!s.dropboxMade) {
-    return '<div class="empty-state" style="padding:22px 10px">Make their Dropbox folder first.<br><br>' +
-      '<button class="link-btn" onclick="_tl.step=\'dbx\';_tlRender()">Go to Dropbox →</button></div>';
+    // Same voice as FREQUENCY NOT SET / NOT PAID (2026-09-26).
+    return '<div class="pt-sum" style="margin-top:4px"><span class="pt-freq">No Dropbox folder</span></div>' +
+      _tlActs('<button class="link-btn" onclick="_tl.step=\'dbx\';_tlRender()">Go to Dropbox →</button>');
   }
   var done = s.hwSent === true || String(s.hwSent || '').toUpperCase() === 'TRUE';
   // Some trials genuinely have nothing to send. The step still has to be
@@ -1719,7 +1720,7 @@ function _tlTimeHtml(a, s) {
         'style="min-width:' + w + 'px" onmousemove="_tlPtHover(event,' + i + ')" onclick="_tlPtOn(' + i + ')">' + label + '</button></div>' +
       tri(i, -_TL_PT_STEP[i], true) + '</div>';
   };
-  return _tlCalIcon() +
+  return '<div style="margin:4px 0 18px">' + TIME_ICON + '</div>' +
     '<div class="dt-row" id="tlDtRow" style="margin-top:6px">' + col(0, 90, dateTxt) + col(1, 68, timeTxt) + '</div>' +
     '<div class="pt-sum">Starting ' + inqEsc(dateTxt) + ' · ' + timeTxt + ' · ' +
       '<span class="pt-freq">' + (freq ? inqEsc(freq) : 'Frequency not set') + '</span></div>' +
@@ -1814,16 +1815,18 @@ function _tlParseSpot(str) {
 // Read only: the trial payment matched from Zelle / Venmo, or Paid on the row.
 function _tlPayHtml(a, s) {
   var p = _trTrialPayFor(a.email);
-  var line = function (txt, color) {
+  // PAID or NOT PAID in Pick a time's summary voice (small spaced caps);
+  // not paid in amber, like FREQUENCY NOT SET (2026-09-26).
+  var line = function (html) {
     return '<div style="margin:4px 0 18px">' + PAY_ICON + '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:' + color + '">' + txt + '</div>';
+      '<div class="pt-sum" style="margin-top:0">' + html + '</div>';
   };
   if (p) {
     var date = String(p.date || '').replace(/,?\s*\d{4}$/, '');
-    return line('✓ ' + inqEsc(p.method || '') + ' ' + inqEsc(p.amount || '') + ' · ' + inqEsc(date), 'var(--green)');
+    return line('Paid · ' + inqEsc(p.method || '') + ' ' + inqEsc(p.amount || '') + ' · ' + inqEsc(date));
   }
-  if (s.paid === true || String(s.paid || '').toUpperCase() === 'TRUE') return line('✓ Paid (ticked on the Trial row)', 'var(--green)');
-  return line('No trial payment found yet.', 'var(--muted)');
+  if (s.paid === true || String(s.paid || '').toUpperCase() === 'TRUE') return line('Paid · ticked on the Trial row');
+  return line('<span class="pt-freq">Not paid</span>');
 }
 
 // ── 6 · Terms ──
