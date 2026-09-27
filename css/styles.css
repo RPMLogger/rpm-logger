@@ -559,6 +559,10 @@ body::before {
                   { color: #d9a441; border-color: color-mix(in srgb, #d9a441 55%, transparent); background: color-mix(in srgb, #d9a441 6%, transparent); }
 .link-btn.amber:hover, .link-btn.amber.pressed, .link-btn.lit:hover
                   { color: #d9a441; border-color: #d9a441; background: color-mix(in srgb, #d9a441 16%, transparent); }
+/* Blue = Text on the Initiate card: a contact method, same weight as Email. */
+.link-btn.blue    { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 55%, transparent); background: color-mix(in srgb, var(--blue) 6%, transparent); }
+.link-btn.blue:hover, .link-btn.blue.pressed
+                  { color: var(--blue); border-color: var(--blue); background: color-mix(in srgb, var(--blue) 16%, transparent); }
 /* Bright = the composer Send button's grey (--muted border, --text words),
    one step above plain grey. Book on the Initiate card. */
 .link-btn.bright  { color: var(--text); border-color: var(--muted); background: transparent; }

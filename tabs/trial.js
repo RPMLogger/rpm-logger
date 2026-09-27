@@ -94,9 +94,9 @@ function _trAcceptedCard(a) {
         // in the sheet by hand.
         '<button class="link-btn amber opens-window" onclick="_trOpenEmail(\'' + em + '\')" ' +
           'data-tip="Opens a window.\nFirst-contact email draft.\nNothing sends until you press Send.\n(Not in Email list.)" data-tip-wrap>' + ENVELOPE_ICON + '<span>Email</span></button>' +
-        // Text sits between Email and Book, the order you do them in. Dim: it
-        // sends nothing itself, the text goes out from Messages (2026-09-27).
-        '<button class="link-btn opens-window" onclick="_trOpenText(\'' + em + '\')" ' +
+        // Text sits between Email and Book, the order you do them in. Blue: a
+        // contact method, same weight as Email (2026-09-27).
+        '<button class="link-btn blue opens-window" onclick="_trOpenText(\'' + em + '\')" ' +
           'data-tip="Opens a window.\nSave their contact, then the text for Messages.\nNothing sends from here." data-tip-wrap>' + TEXT_ICON + '<span>Text</span></button>' +
         '<button class="link-btn bright opens-window" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
           'data-tip="Opens a window.\nBooking with their name and email.\nYou pick the date and time.\nCard moves to Trial once booked.\n(Not in Email list.)" data-tip-wrap data-tip-left>' + CALENDAR_ICON + '<span>Book</span></button>' +
