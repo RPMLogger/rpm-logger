@@ -1382,6 +1382,7 @@ function _tlRender() {
             : '<button class="link-btn bright" id="tlFreqSave" onclick="_tlSaveFreq()">Save</button>') +
         '</div>'
       : '');
+  if (_tl.step === 'log') llWire(_tlBox(), _tlRow, _tlLogReady);
 }
 
 // ── 1 · Info ──
@@ -1447,21 +1448,18 @@ function _tlDbxHtml(a, s) {
 }
 
 // ── Log lesson ──
-// The same window as Home's Log Lesson (#logPanel, lessons.js): three rows,
-// mic button, Log. Rows join as "Row 1 - Row 2 - Row 3" in Title Case. Only
+// The same window as Home's Log Lesson (#logPanel, lessons.js): one row to
+// start, Enter / ＋ row add more (llWire, core/utils.js), mic button, Log.
+// Rows join as "Row 1 - Row 2 - Row 3" in Title Case. Only
 // Log saves, and a logged lesson is final: step 8 stops opening this window
 // (see _trStepsHtml), so it always starts empty.
-var _TL_ROWS = ['', '', ''];   // three rows, no placeholder text
+function _tlBox() { return document.getElementById('tlRows'); }
 
 function _tlLogHtml(a, s) {
   _tl.row = 0;
   return '<div style="margin:4px 0 18px">' + LOG_ICON + '</div>' +
-    '<div class="ll-rows">' +
-      _TL_ROWS.map(function (ph, i) {
-        return '<input type="text" class="rpm-field ll-row' + (i ? '' : ' active') + '" id="tlRow-' + i + '" ' +
-          'onfocus="_tlRow(' + i + ')" oninput="_tlLogReady()">';
-      }).join('') +
-    '</div>' +
+    '<div class="ll-rows" id="tlRows"><input type="text" class="rpm-field ll-row active"></div>' +
+    llAddHtml() +
     '<div class="ll-acts" style="margin-top:16px">' +
       // The mic is a tool, not an action: a bare icon on the left, apart
       // from Log, which is the button on the right.
@@ -1475,14 +1473,14 @@ function _tlLogHtml(a, s) {
 function _tlRow(i) {
   if (!_tl) return;
   _tl.row = i;
-  document.querySelectorAll('#tlModal .ll-row').forEach(function (el, j) { el.classList.toggle('active', j === i); });
+  llRows(_tlBox()).forEach(function (el, j) { el.classList.toggle('active', j === i); });
 }
 
 // Log wakes up once any row has words in it, as on Home.
 function _tlLogReady() {
   var b = document.getElementById('tlLogBtn');
   if (!b || !_tl || _tl.logged || _tl.logging) return;
-  b.disabled = !_TL_ROWS.some(function (x, i) { var t = document.getElementById('tlRow-' + i); return t && t.value.trim(); });
+  b.disabled = !llValues(_tlBox()).some(function (x) { return x; });
 }
 
 var _tlMicRec = null;
@@ -1502,10 +1500,10 @@ function _tlMic() {
     var i = (_tl && _tl.row) || 0;
     if (i !== cur) {
       cur = i; finals = '';
-      var t0 = document.getElementById('tlRow-' + i);
+      var t0 = llRows(_tlBox())[i];
       base = t0 ? t0.value.replace(/\s+$/, '') : '';
     }
-    return document.getElementById('tlRow-' + i);
+    return llRows(_tlBox())[i];
   }
   function join(interim) {
     var said = (finals + ' ' + (interim || '')).replace(/\s+/g, ' ').trim();
@@ -1532,7 +1530,7 @@ function _tlMic() {
   };
   r.onend = function () {
     _tlMicRec = null;
-    var t = cur >= 0 ? document.getElementById('tlRow-' + cur) : null;
+    var t = cur >= 0 ? llRows(_tlBox())[cur] : null;
     if (t) t.value = join('');
     micLook(false);
     _tlSetMsg('tlWhatMsg', '');
@@ -1552,7 +1550,7 @@ function _tlMic() {
 function _tlLogWhat() {
   if (!_tl || _tl.logged || _tl.logging) return;
   if (_tlMicRec) { _tl.logAfterMic = true; try { _tlMicRec.stop(); } catch (e) {} return; }
-  var v = _TL_ROWS.map(function (x, i) { var t = document.getElementById('tlRow-' + i); return t ? t.value.trim() : ''; })
+  var v = llValues(_tlBox())
     .filter(function (x) { return x; }).map(toTitleCase).join(' - ');
   if (!v) { _tlSetMsg('tlWhatMsg', 'Nothing to log yet.', 'var(--accent)'); return; }
   var btn = document.getElementById('tlLogBtn');
@@ -1561,7 +1559,7 @@ function _tlLogWhat() {
   _tlSaveFields({ whatWeDid: v }, 'tlWhatMsg', function () {
     if (!_tl) return;
     _tl.logged = true;
-    _TL_ROWS.forEach(function (x, i) { var t = document.getElementById('tlRow-' + i); if (t) t.readOnly = true; });
+    llLock(_tlBox());
     var mic = document.getElementById('tlMicBtn');
     if (mic) mic.disabled = true;
     var b = document.getElementById('tlLogBtn');

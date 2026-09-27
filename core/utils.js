@@ -191,3 +191,66 @@ function rpmToast(kind, text, why) {
   document.body.appendChild(t);
   setTimeout(function () { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(function () { t.remove(); }, 400); }, 5000);
 }
+
+// ─── LOG LESSON ROWS (Home #logPanel and the Trial card's step 8) ───────────
+// One row to start. Enter adds a row under the one you are in; Backspace in an
+// empty row (not the first) removes it; the dim "＋ row" under the list adds
+// one at the end. The box is a .ll-rows div; llWire hooks it up once and calls
+// onFocus(index) / onChange() so each window keeps its own mic and Log state.
+function llRowHtml() { return '<input type="text" class="rpm-field ll-row">'; }
+function llAddHtml() { return '<button type="button" class="ll-add" onclick="llAddRow(this.previousElementSibling)">＋ row</button>'; }
+function llRows(box) { return box ? Array.prototype.slice.call(box.querySelectorAll('.ll-row')) : []; }
+function llValues(box) { return llRows(box).map(function (el) { return el.value.trim(); }); }
+
+function llWire(box, onFocus, onChange) {
+  if (!box || box._llWired) return;
+  box._llWired = true;
+  box._llFocus = onFocus; box._llChange = onChange;
+  box.addEventListener('focusin', function (ev) {
+    var i = llRows(box).indexOf(ev.target);
+    if (i >= 0 && box._llFocus) box._llFocus(i);
+  });
+  box.addEventListener('input', function () { if (box._llChange) box._llChange(); });
+  box.addEventListener('keydown', function (ev) {
+    var el = ev.target, rows = llRows(box), i = rows.indexOf(el);
+    if (i < 0 || el.readOnly || ev.isComposing) return;
+    if (ev.key === 'Enter') {
+      ev.preventDefault();
+      llAddRow(box, i);
+    } else if (ev.key === 'Backspace' && !el.value && i > 0) {
+      ev.preventDefault();
+      el.remove();
+      if (box._llChange) box._llChange();
+      var prev = rows[i - 1];
+      prev.focus();
+      prev.setSelectionRange(prev.value.length, prev.value.length);
+    }
+  });
+}
+
+// after: index to insert below; left out = at the end.
+function llAddRow(box, after) {
+  if (!box || box.classList.contains('locked')) return;
+  var rows = llRows(box);
+  if (after === undefined || after >= rows.length) after = rows.length - 1;
+  var tmp = document.createElement('div');
+  tmp.innerHTML = llRowHtml();
+  var el = tmp.firstChild;
+  if (rows[after]) rows[after].after(el); else box.appendChild(el);
+  if (box._llChange) box._llChange();
+  el.focus();
+}
+
+// Back to one empty row, unlocked.
+function llReset(box) {
+  if (!box) return;
+  box.classList.remove('locked');
+  box.innerHTML = llRowHtml();
+  llRows(box)[0].classList.add('active');
+}
+
+function llLock(box) {
+  if (!box) return;
+  box.classList.add('locked');
+  llRows(box).forEach(function (el) { el.readOnly = true; });
+}

@@ -1,6 +1,8 @@
 // ─── TABS / LESSONS.JS ───────────────────────────────────────────────────────
 var activeRow = 0;
-var rowFinals = ["", "", ""];
+var rowFinals = [""];
+
+function _logBox() { return document.getElementById("logRows"); }
 
 function closeLogPanel() {
   stopRecordingClean();
@@ -153,10 +155,10 @@ function startRecording(idx) {
       else interim += event.results[i][0].transcript;
     }
     if (newFinal) {
-      rowFinals[activeRow] = (rowFinals[activeRow] + " " + newFinal).replace(/\s+/g, " ").trim();
+      rowFinals[activeRow] = ((rowFinals[activeRow] || "") + " " + newFinal).replace(/\s+/g, " ").trim();
     }
-    var inp = document.getElementById("rowInput-" + activeRow);
-    inp.value = (rowFinals[activeRow] + " " + interim).replace(/\s+/g, " ").trim();
+    var inp = llRows(_logBox())[activeRow];
+    if (inp) inp.value = ((rowFinals[activeRow] || "") + " " + interim).replace(/\s+/g, " ").trim();
     updateLogButton();
   };
 
@@ -198,11 +200,7 @@ function stopRecording() {
 function submitLog() {
   var url = getScriptUrl(); if (!url) return;
 
-  var parts = [];
-  for (var r = 0; r < 3; r++) {
-    var v = document.getElementById("rowInput-" + r).value.trim();
-    if (v) parts.push(toTitleCase(v));
-  }
+  var parts = llValues(_logBox()).filter(function(v) { return v; }).map(toTitleCase);
   var subject = parts.join(" - ");
   if (!subject) { addLog("lessonFeed", "Nothing to log!", "error"); return; }
 
@@ -247,7 +245,7 @@ function submitLog() {
       btn.textContent = "Logged ✓"; btn.className = "link-btn green";
       var mic = document.getElementById("logMicBtn");
       if (mic) mic.disabled = true;
-      for (var r2 = 0; r2 < 3; r2++) document.getElementById("rowInput-" + r2).readOnly = true;
+      llLock(_logBox());
       renderTodayGrid();
       // If this log came from the Home/student page, re-fetch that student's
       // detail so the Past section reflects the lesson just logged. Same hook
@@ -278,42 +276,31 @@ function submitLog() {
 }
 
 // ─── MULTI-ROW HELPERS ───────────────────────────────────────────────────────
+// Rows come and go (Enter / ＋ row / Backspace), so everything goes by index
+// into llRows() and rowFinals is re-read from the boxes on every change.
 function setActiveRow(idx) {
-  if (idx === activeRow) return;
-  var oldInp = document.getElementById("rowInput-" + activeRow);
-  if (oldInp) rowFinals[activeRow] = oldInp.value.trim();
+  var rows = llRows(_logBox());
+  if (idx !== activeRow && rows[activeRow]) rowFinals[activeRow] = rows[activeRow].value.trim();
   activeRow = idx;
-  document.querySelectorAll("#logRows .ll-row").forEach(function(el, i) {
-    el.classList.toggle("active", i === idx);
-  });
+  rows.forEach(function(el, i) { el.classList.toggle("active", i === idx); });
 }
 
 function onRowInput() {
-  for (var r = 0; r < 3; r++) {
-    rowFinals[r] = document.getElementById("rowInput-" + r).value.trim();
-  }
+  rowFinals = llValues(_logBox());
   updateLogButton();
 }
 
 function updateLogButton() {
-  var any = false;
-  for (var r = 0; r < 3; r++) {
-    if (document.getElementById("rowInput-" + r).value.trim()) { any = true; break; }
-  }
   if (activeStudent && activeStudent.logged) return;
-  document.getElementById("btnLog").disabled = !any;
+  document.getElementById("btnLog").disabled = !llValues(_logBox()).some(function(v) { return v; });
 }
 
 function resetRows() {
-  rowFinals = ["", "", ""];
-  for (var r = 0; r < 3; r++) {
-    var el = document.getElementById("rowInput-" + r);
-    if (el) { el.value = ""; el.readOnly = false; }
-  }
+  var box = _logBox();
+  llWire(box, setActiveRow, onRowInput);
+  llReset(box);
+  rowFinals = [""];
   activeRow = 0;
-  document.querySelectorAll("#logRows .ll-row").forEach(function(el, i) {
-    el.classList.toggle("active", i === 0);
-  });
 }
 
 function toTitleCase(str) {

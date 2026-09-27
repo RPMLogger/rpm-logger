@@ -1730,6 +1730,14 @@ a:focus-visible,
 #tlModal .link-btn.tl-mic:hover, #logPanel .link-btn.tl-mic:hover { color: var(--text); }
 #tlModal .link-btn.tl-mic svg, #logPanel .link-btn.tl-mic svg { width: 18px; height: 18px; }
 #tlModal .link-btn.tl-mic.rec, #logPanel .link-btn.tl-mic.rec { color: var(--accent); }
+/* Locked after Log: the mic dims but stays a bare icon, no box. */
+#tlModal .link-btn.tl-mic:disabled, #logPanel .link-btn.tl-mic:disabled { border-color: transparent; }
+/* "＋ row" under the log rows: a reminder that Enter adds a row. Dim like the
+   other quiet links, brightens on hover; gone once the lesson is logged. */
+.ll-add { display: inline-block; margin-top: 8px; padding: 2px 0; background: none; border: none; cursor: pointer;
+  font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.3px; color: var(--muted); }
+.ll-add:hover { color: var(--text); }
+.ll-rows.locked + .ll-add { display: none; }
 
 /* ─── THE FIELD ───────────────────────────────────────────────────────────
    One type for everything you type into, portal wide.
