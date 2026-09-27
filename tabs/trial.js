@@ -1440,7 +1440,7 @@ function _tlDbxHtml(a, s) {
   var dbxEmail = rec.dropboxEmail || s.dropboxEmail || a.email || '';
   // The folder name is shown, not editable: Send HW and Make Student both
   // expect the folder to be exactly the student's full name.
-  return '<div style="margin:4px 0 18px">' + FOLDER_ICON.replace('class="folder-icon"', 'class="win-icon"').replace('width="15" height="12"', 'width="40" height="32"') + '</div>' +
+  return '<div style="margin:4px 0 18px">' + DBX_ICON + '</div>' +
     // Same rhythm as Info: label on its box, 16px to the next label.
     '<div style="margin-bottom:16px">' +
       '<div class="field-label">Folder name</div>' +
