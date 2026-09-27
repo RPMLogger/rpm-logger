@@ -1114,8 +1114,7 @@ function _trStageCard(a) {
       '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || '—') + '</span></div>' +
       // "TRIAL - Sun, Sep 13 - 11:15 AM" on its own line, then a divider.
       (when
-        ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:0.3px;margin-top:4px;color:' +
-            (a.trialPast ? 'var(--muted)' : 'var(--green)') + '">' +
+        ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:0.3px;margin-top:4px;color:var(--green)">' +
             'TRIAL ON - ' + inqEsc(when.replace(/^(\w{3})\s+/, '$1, ').replace(/\s+·\s+/, ', ')) +
           '</div>'
         : '') +
@@ -1279,7 +1278,9 @@ function _trActionsHtml(a) {
   // the same buttons, .inq-db yes / no, rather than a look of their own.
   // Confirm is always clickable: _msOpen says what is still missing.
   return '<div id="tracts-' + id + '" style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">' +
-      '<div class="inq-acts">' +
+      // margin-top:0 - the wrapper's padding is the gap; the accepted-card
+      // .inq-acts margin on top of it left a hole under the divider.
+      '<div class="inq-acts" style="margin-top:0">' +
         _trStatusHtml(a) +
         '<button class="inq-db yes opens-window" onclick="_msOpen(\'' + em + '\')" ' +
           'data-tip="Opens a window.\nChecks the steps and makes them a student.\nCard disappears from Trial.\nStays in Inquiry Archive.\n(Not in Email list.)" data-tip-wrap data-tip-left>Confirm Student</button>' +
