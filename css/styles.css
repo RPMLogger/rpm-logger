@@ -771,6 +771,7 @@ body::before {
    colour instead of amber boxes over a grey button.
    Scoped on purpose - see the FOCUS RING block near the bottom of this file. */
 #trFcModal input:focus-visible,
+#thModal   textarea:focus-visible,
 #trFcModal textarea:focus-visible,
 #tlModal   input:focus-visible,
 #tlModal   textarea:focus-visible,
@@ -1714,7 +1715,8 @@ a:focus-visible,
    icon only, red while it records. */
 /* Box text in the Trial windows a step smaller than the portal's 12px
    (2026-09-26): entry boxes, read-only boxes and the document rows alike. */
-#tlModal .rpm-field, #tlModal .tl-doc, #msModal .settings-input, #tsModal .rpm-field { font-size: 11px; }
+#tlModal .rpm-field, #tlModal .tl-doc, #msModal .settings-input, #tsModal .rpm-field,
+#trFcModal .rpm-field, #tbModal .rpm-field, #thModal .rpm-field { font-size: 11px; }
 /* Dimmed by colour, not opacity, so a locked button's tooltip stays readable. */
 #tlModal .link-btn:disabled:not(.green) { color: rgba(255,255,255,.18); border-color: rgba(122,122,122,.22); background: transparent; cursor: default; }
 #tlModal .link-btn.green:disabled { cursor: default; }

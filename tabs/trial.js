@@ -297,7 +297,7 @@ function refreshInitiateBadge() {
     .catch(function () {});
 }
 
-function _trLoadThreads() {
+function _trLoadThreads(onDone) {
   var url = getScriptUrl();
   if (!url) return;
   fetch(url + '?action=getFirstContactThreads')
@@ -313,79 +313,17 @@ function _trLoadThreads() {
         _trPaintNewMsg(email, t);
         if (!t.messages || !t.messages.length) { box.innerHTML = ''; return; }
         var id = emailToId(email);
-        // Collapsed like Trial's. A repaint (e.g. after sending a reply) keeps
-        // a thread open if it was open.
-        var prev = document.getElementById('fcmsg-' + id);
-        var wasOpen = !!(prev && prev.style.display !== 'none');
+        // The thread itself opens in its own window (_trThreadWin); the card
+        // keeps only the one-line summary.
         box.innerHTML =
           '<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:16px">' +
             _trBounceRow(t) +
             _trThreadSummary(id, t.messages) +
-            '<div id="fcmsg-' + id + '" style="display:none">' +
-              t.messages.map(function (m) { return _trMsgRow(m, ((_trFindAccepted(email) || {}).name || '').split(' ')[0]); }).join('') +
-              (t.threadId
-                ? '<div id="fcrp-' + id + '">' +
-                    '<button class="db-mini-btn" onclick="_trOpenReply(\'' + id + '\',\'' + t.threadId + '\')">Reply</button>' +
-                  '</div>'
-                : '') +
-              '<button class="tr-open-btn small" style="margin-top:10px" onclick="_trToggleThread(\'' + id + '\',true)">Hide \u25b4</button>' +
-            '</div>' +
           '</div>';
-        if (wasOpen) _trToggleThread(id);
       });
+      if (onDone) onDone();
     })
     .catch(function () { /* leave the cards alone if Gmail is unreachable */ });
-}
-
-function _trOpenReply(id, threadId) {
-  var box = document.getElementById('fcrp-' + id);
-  if (!box) return;
-  box.innerHTML =
-    '<textarea id="fcrpb-' + id + '" rows="5" placeholder="Reply in this thread…" class="rpm-field"></textarea>' +
-    '<div id="fcrps-' + id + '"></div>' +
-    '<div style="display:flex;gap:8px;margin-top:8px">' +
-      '<button class="db-mini-btn" onclick="_trCancelReply(\'' + id + '\',\'' + threadId + '\')">Cancel</button>' +
-      '<button class="db-mini-btn strong" id="fcrpbtn-' + id + '" onclick="_trSendReply(\'' + id + '\',\'' + threadId + '\')" ' +
-       'style="display:inline-flex;align-items:center;gap:7px">' + SEND_ICON + '<span>Send reply</span></button>' +
-    '</div>';
-  var ta = document.getElementById('fcrpb-' + id);
-  if (ta) ta.focus();
-}
-
-function _trCancelReply(id, threadId) {
-  var box = document.getElementById('fcrp-' + id);
-  if (box) box.innerHTML = '<button class="db-mini-btn" onclick="_trOpenReply(\'' + id + '\',\'' + threadId + '\')">Reply</button>';
-}
-
-function _trSendReply(id, threadId) {
-  var url = getScriptUrl();
-  var ta  = document.getElementById('fcrpb-' + id);
-  var st  = document.getElementById('fcrps-' + id);
-  var btn = document.getElementById('fcrpbtn-' + id);
-  if (!url || !ta) return;
-  var body = ta.value || '';
-  if (!body.trim()) {
-    rpmHalf(st, 'Write something first', '', 'left');
-    return;
-  }
-  if (st) st.innerHTML = '';
-  if (btn) { btn.disabled = true; _trSetLabel(btn, 'Sending…'); }
-  fetch(url + '?action=replyFirstContact&threadId=' + encodeURIComponent(threadId) +
-        '&body=' + encodeURIComponent(body))
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (!d.success) {
-        if (btn) { btn.disabled = false; _trSetLabel(btn, 'Send reply'); }
-        rpmFail(st, d.message || '', 'left');
-        return;
-      }
-      _trRefreshThreads();   // redraw so the reply appears in the thread
-      _trLoadThreads();      // and repaint Initiate, so the New message flag clears
-    })
-    .catch(function () {
-      if (btn) { btn.disabled = false; _trSetLabel(btn, 'Send reply'); }
-      rpmFail(st, 'No answer from Google. It may have gone out: check Sent mail before sending again.', 'left');
-    });
 }
 
 // A delivery failure is the one state that looks identical to "they just have
@@ -423,11 +361,12 @@ function _trMsgRow(m, them) {
   // who said what reads down the edge without reading the headers.
   var edge = mine ? 'var(--warn)' : 'var(--green)';
   return '<div class="tr-msg"><div style="border-left:2px solid ' + edge + ';padding:0 0 0 9px;margin-bottom:20px">' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:' + edge + ';margin:6px 0 16px">' +
+      // The name dimmed to the text's level (2026-09-27): the edge carries the colour.
+      '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:color-mix(in srgb, ' + edge + ' 65%, transparent);margin:6px 0 16px">' +
         inqEsc(who) +
         '<span style="font-size:10px;color:var(--muted)"> · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) + '</span>' +
       '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.5;color:rgba(255,255,255,.62);margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere">' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.5;color:rgba(255,255,255,.5);margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere">' +
         inqEsc(m.text) +
       '</div>' +
     '</div></div>';
@@ -516,75 +455,52 @@ function _trOpenEmail(email) {
   overlay.id = "trFcModal";
   overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;" +
                           "align-items:center;justify-content:center;padding:18px;overflow:auto";
+  // The Trial step-window standard (2026-09-27): 460 wide, the icon under the
+  // title, a title above every box, the action bright grey at the bottom right.
+  function lbl(t, id) { return "<label class='field-label'" + (id ? " for='" + id + "'" : "") + ">" + t + "</label>"; }
+  function ro(v) { return "<input class='rpm-field' readonly tabindex='-1' style='cursor:default' value=\"" + _msAttr(v) + "\">"; }
   overlay.innerHTML =
-    "<div style='background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:600px;width:100%;padding:28px;box-sizing:border-box;max-height:92vh;overflow:auto'>" +
+    "<div style='background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:460px;width:100%;padding:28px;box-sizing:border-box;max-height:92vh;overflow:auto'>" +
       // Same header as the lesson card modal: NAME in Bebas and accent, the
       // section after it in grey. One header shape for every panel that is
       // about one person, instead of this one inventing its own.
-      "<div class='settings-title' style='margin-bottom:8px'>" +
+      "<div class='settings-title'>" +
         "<span>" + inqEsc(a.name || "") +
-          "<span style='color:var(--muted)'> \u00b7 Compose</span></span>" +
+          "<span style='color:var(--muted);font-weight:400'> \u00b7 Compose</span></span>" +
         "<button class='settings-close' onclick='_trCloseEmail()'>✕</button>" +
       "</div>" +
-      "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--muted);margin-bottom:20px'>" +
-        "To: " + inqEsc(email) + "</div>" +
-      // Marks the email half of the panel, the way the phone marks the text
-      // half further down. Grey, so the red title still leads.
-      "<input id='trFcSubject' value='About Your Trial Lesson Request' class='rpm-field' style='margin-bottom:14px'>" +
+      "<div style='margin:4px 0 18px'>" + EMAIL_WIN_ICON + "</div>" +
+      "<div style='margin-bottom:16px'>" + lbl("To") + ro(email) + "</div>" +
+      "<div style='margin-bottom:16px'>" + lbl("Subject", "trFcSubject") +
+        "<input id='trFcSubject' value='About Your Trial Lesson Request' class='rpm-field'></div>" +
+      lbl("Message", "trFcBody") +
       "<textarea id='trFcBody' rows='16' class='rpm-field'>" + inqEsc(body) + "</textarea>" +
-      "<div id='trFcStatus'></div>" +
-      "<div style='display:flex;gap:8px;margin-top:20px'>" +
-        "<button class='db-mini-btn' id='trFcPrevBtn' onclick='_trPreviewEmail()'>Preview</button>" +
-        // Not green: green in this portal means done, and a button that has
-        // not been pressed yet should not wear the colour of the thing it is
-        // about to do. .strong is grey, a step brighter than the buttons
-        // around it, which is all a primary action needs here.
-        //
-        // The span holds the words: _trSetLabel writes it for the Sending and
-        // Sent states, so the plane beside it survives them.
-        "<button class='db-mini-btn strong' id='trFcSendBtn' onclick='_trSendEmail()' " +
-          "style='display:inline-flex;align-items:center;gap:7px'>" + SEND_ICON + "<span>Send</span></button>" +
-      "</div>" +
+      "<div id='trFcStatus' style='margin-top:12px'></div>" +
+      // Preview dim, Send bright: the action is the one that stands out.
+      // Not green: green in this portal means done. The span holds the words:
+      // _trSetLabel writes it for Sending and Sent, so the plane survives.
+      _tlActs(
+        "<button class='link-btn' id='trFcPrevBtn' onclick='_trPreviewEmail()'>Preview</button>" +
+        "<button class='link-btn bright' id='trFcSendBtn' onclick='_trSendEmail()'>" + SEND_ICON + "<span>Send</span></button>") +
       "<div id='trFcPreview'></div>" +
       "<hr class='divider' style='margin:34px 0 24px'>" +
-      // The text half is built exactly like the email half above it: the same
-      // title, the number where the address sits, the phone icon where the
-      // envelope sits. Two halves of one job, so they read as a pair rather
-      // than an email panel with a note stapled underneath.
-      // No name on this one. The panel's own header said who this is, and the
-      // number under it says which line - repeating "Jason Diller" here only
-      // competes with the title at the top.
-      "<div class='settings-title' style='margin-bottom:8px;color:var(--muted)'>" +
+      // The text half is built like the email half above it: its own title,
+      // the number where the address sits. Two halves of one job.
+      "<div class='settings-title' style='color:var(--muted)'>" +
         "<span>Text</span></div>" +
-      "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--muted);margin-bottom:20px'>" +
-        (phonePretty ? inqEsc(phonePretty) : "No phone number on file") + "</div>" +
-      // Smaller again than the email boxes above it, and in mono rather than
-      // the composer's Arial. This one is not really read, it is copied, so it
-      // only has to be legible enough to confirm it is the right message - and
-      // the different face says at a glance that it is not part of the email.
-      "<textarea id='trFcSms' rows='3' readonly class='rpm-field' style='font-size:10px'>" + inqEsc(sms) + "</textarea>" +
-      // A clipboard convenience, so it is a standard button: it used to be
-      // 12px in --text at radius 10, which made it the brightest thing in the
-      // panel, louder than Send. Full width is kept; the type is not.
-      // Three buttons, one job: get this text into iMessage. They were a full
-      // width bar with two smaller ones parked underneath, which made the copy
-      // button look like the step and the other two like an afterthought. One
-      // row, one type, equal share of the width. The number stays on its
-      // button because the number is what you tap.
-      (phoneDigits
-        ? "<div style='display:flex;gap:8px;margin-top:18px'>" +
-            "<button class='db-mini-btn' style='flex:1;padding:9px;display:inline-flex;align-items:center;justify-content:center;gap:7px' onclick='_trCopySms(this)'>" +
-              COPY_ICON + "<span>Copy Text</span></button>" +
-            "<button class='db-mini-btn' style='flex:1;padding:9px;display:inline-flex;align-items:center;justify-content:center;gap:7px' " +
-              "onclick='_trCopyPhone(this,\"" + phoneDigits + "\")'>" +
-              COPY_ICON + "<span>Copy Phone #</span></button>" +
-            "<a class='db-mini-btn' style='flex:1;padding:9px;display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none' " +
-              "href='sms:" + phoneDigits + "'>" + OPEN_OUT_ICON + "<span>Open Messages</span></a>" +
-          "</div>"
-        : "<div style='display:flex;gap:8px;margin-top:18px'>" +
-            "<button class='db-mini-btn' style='flex:1;padding:9px;display:inline-flex;align-items:center;justify-content:center;gap:7px' onclick='_trCopySms(this)'>" +
-              COPY_ICON + "<span>Copy Text</span></button>" +
-          "</div>") +
+      "<div style='margin:4px 0 18px'>" + TEXT_WIN_ICON + "</div>" +
+      "<div style='margin-bottom:16px'>" + lbl("Phone") +
+        ro(phonePretty || "No phone number on file") + "</div>" +
+      lbl("Message", "trFcSms") +
+      "<textarea id='trFcSms' rows='3' readonly class='rpm-field'>" + inqEsc(sms) + "</textarea>" +
+      // Three helpers, one job: get this text into iMessage. None of them
+      // sends anything, so all three stay dim.
+      _tlActs(
+        "<button class='link-btn' onclick='_trCopySms(this)'>" + COPY_ICON + "<span>Copy text</span></button>" +
+        (phoneDigits
+          ? "<button class='link-btn' onclick='_trCopyPhone(this,\"" + phoneDigits + "\")'>" + COPY_ICON + "<span>Copy phone #</span></button>" +
+            "<a class='link-btn' href='sms:" + phoneDigits + "'>" + OPEN_OUT_ICON + "<span>Open Messages</span></a>"
+          : "")) +
     "</div>";
   overlay.addEventListener("click", function (ev) { if (ev.target === overlay) _trCloseEmail(); });
   document.body.appendChild(overlay);
@@ -677,7 +593,7 @@ function _trSendEmail() {
   var st      = document.getElementById("trFcStatus");
   var btn     = document.getElementById("trFcSendBtn");
 
-  if (!body.trim()) { rpmHalf(st, "Write something first", "", "left"); return; }
+  if (!body.trim()) { rpmHalf(st, "Write something first"); return; }
   // The window dims; the button's dots say it is sending. No line.
   if (st) st.innerHTML = "";
   if (btn) { btn.disabled = true; _trSetLabel(btn, "Sending…"); }
@@ -697,7 +613,7 @@ function _trSendEmail() {
       rpmBusy(win, btn, false);
       if (!d.success) {
         if (btn) { btn.disabled = false; _trSetLabel(btn, "Send"); }
-        rpmFail(st, d.message || "", "left");
+        rpmFail(st, d.message || "");
         return;
       }
       // Success says nothing: the button reads Sent ✓.
@@ -707,7 +623,7 @@ function _trSendEmail() {
     .catch(function () {
       rpmBusy(win, btn, false);
       if (btn) { btn.disabled = false; _trSetLabel(btn, "Send"); }
-      rpmFail(st, "No answer from Google. It may have gone out: check Sent mail before sending again.", "left");
+      rpmFail(st, "No answer from Google. It may have gone out: check Sent mail before sending again.");
     });
 }
 
@@ -764,13 +680,16 @@ function _trBookAccepted(name, email) {
     '<input type="hidden" id="tbLast" value="' + _trEsc(last) + '">' +
     '<input type="hidden" id="tbEmail" value="' + _trEsc(email || '') + '">' +
     '<input type="hidden" id="tbPhone" value="">' +
+    _tlCalIcon() +
     '<div id="tbOfferedSlots" style="margin-bottom:10px"></div>' +
     // The label is a sentence the picker finishes, so the button underneath
     // does not have to say the date a third time - the title already has the
     // name, this line has the when, and Book trial is just the verb. It needs
     // room to read as a sentence rather than a caption stuck to the row.
     // Left, like Pick a time (2026-09-25, was centered).
-    '<div style="margin:22px 0 6px">' + _trDtHtml('tb') + '</div>' +
+    // Titled like Book a trial manually (2026-09-27).
+    '<div class="field-label">Trial</div>' +
+    '<div style="margin:0 0 6px">' + _trDtHtml('tb') + '</div>' +
     '<div id="tbStatus" style="margin-top:12px"></div>' +
     // Bottom right, where every other window in the portal puts the button
     // that ends it. Just "Book": the title says a trial, the line above says
@@ -2278,20 +2197,21 @@ function _trDropStageCard(email) {
 }
 
 // After a reply lands, redraw whichever stage is on screen.
-function _trRefreshThreads() {
+function _trRefreshThreads(onDone) {
   var trial = document.getElementById('tab-trial');
-  if (trial && trial.classList.contains('active')) { _trLoadStageThreads(); return; }
-  _trLoadThreads();
+  if (trial && trial.classList.contains('active')) { _trLoadStageThreads(onDone); return; }
+  _trLoadThreads(onDone);
 }
 
 // Same reader as Initiate; it returns both stages in one payload.
-function _trLoadStageThreads() {
+function _trLoadStageThreads(onDone) {
   var url = getScriptUrl();
   if (!url) return;
   fetch(url + '?action=getFirstContactThreads')
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d.success || !d.threads) return;
+      _trThreadCache = d.threads;   // the same payload Initiate reads; the thread window reads it
       _trStageCache.forEach(function (a) {
         var id  = emailToId(a.email || '');
         var box = document.getElementById('fcth-' + id);
@@ -2305,18 +2225,6 @@ function _trLoadStageThreads() {
             // means something is broken right now.
             _trBounceRow(t) +
             _trThreadSummary(id, msgs) +
-            '<div id="fcmsg-' + id + '" style="display:none">' +
-              msgs.map(function (m) { return _trMsgRow(m, (a.name || '').split(' ')[0]); }).join('') +
-              // Reply sits inside the opened thread: nobody replies unread.
-              (hasThread
-                ? '<div id="fcrp-' + id + '">' +
-                    '<button class="db-mini-btn" onclick="_trOpenReply(\'' + id + '\',\'' + t.threadId + '\')">Reply</button>' +
-                  '</div>'
-                : '') +
-              // A long thread pushes the top toggle off screen, so the thread
-              // closes from its own bottom too.
-              '<button class="tr-open-btn small" style="margin-top:10px" onclick="_trToggleThread(\'' + id + '\',true)">Hide \u25b4</button>' +
-            '</div>' +
             (hasThread
               ? ''
               // No thread to reply into (booked without an email exchange), so
@@ -2324,6 +2232,7 @@ function _trLoadStageThreads() {
               : '<button class="db-mini-btn go opens-window" onclick="_trOpenEmail(\'' + _trEsc(a.email || '') + '\')">Email</button>') +
           '</div>';
       });
+      if (onDone) onDone();
     })
     .catch(function () { /* leave the cards alone */ });
 }
@@ -2508,6 +2417,93 @@ function _trPayCard(p) {
 //
 // Initiate collapses the same way: long threads (quoted form notifications,
 // tracking links) buried the cards.
+// ── The thread window (2026-09-27) ──────────────────────────────────────────
+// An email thread used to unfold inside the card, where it ran into the card's
+// own fields. It opens in its own window now, like every other step: the
+// messages, then Reply at the bottom. Initiate and Trial cards both use it.
+function _trThreadEmail(id) {
+  var c = _trThreadCache || {};
+  var keys = Object.keys(c);
+  for (var i = 0; i < keys.length; i++) if (emailToId(keys[i]) === id) return keys[i];
+  return '';
+}
+
+var _trThreadWinEmail = '';
+
+function _trThreadWin(id) {
+  var email = _trThreadEmail(id);
+  var t = (_trThreadCache || {})[email];
+  if (!t) return;
+  _trThreadWinEmail = email;
+  var a = _trFindAccepted(email) ||
+          _trStageCache.filter(function (c) { return (c.email || '') === email; })[0] || {};
+  var first = (a.name || '').split(' ')[0];
+  var ov = document.getElementById('thOverlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.className = 'settings-overlay';
+    ov.id = 'thOverlay';
+    ov.innerHTML = '<div class="settings-modal" id="thModal" style="max-width:460px"></div>';
+    ov.addEventListener('click', function (e) { if (e.target === ov) _trThreadWinClose(); });
+    document.body.appendChild(ov);
+  }
+  document.getElementById('thModal').innerHTML =
+    '<div class="settings-title"><span>' + inqEsc(a.name || email) +
+      '<span style="color:var(--muted);font-weight:400"> · Thread</span></span>' +
+      '<button class="settings-close" onclick="_trThreadWinClose()">✕</button></div>' +
+    '<div style="margin:4px 0 18px">' + THREAD_WIN_ICON + '</div>' +
+    _trBounceRow(t) +
+    t.messages.map(function (m) { return _trMsgRow(m, first); }).join('') +
+    (t.threadId
+      ? '<label class="field-label" for="thBody" style="margin-top:6px">Reply</label>' +
+        '<textarea id="thBody" rows="5" class="rpm-field" style="font-size:11px"></textarea>' +
+        '<div id="thStatus" style="margin-top:12px"></div>' +
+        _tlActs('<button class="link-btn bright" id="thBtn" onclick="_trThreadWinSend(\'' + t.threadId + '\')">' +
+          REPLY_ICON + '<span>Reply</span></button>')
+      : '');
+  ov.classList.add('open');
+}
+
+function _trThreadWinClose() {
+  var ov = document.getElementById('thOverlay');
+  if (ov && !ov._busy) ov.classList.remove('open');
+}
+
+function _trThreadWinSend(threadId) {
+  var url = getScriptUrl();
+  var ta = document.getElementById('thBody'), st = document.getElementById('thStatus');
+  var btn = document.getElementById('thBtn'), win = document.getElementById('thModal');
+  var ov = document.getElementById('thOverlay');
+  if (!url || !ta) return;
+  var body = ta.value || '';
+  if (!body.trim()) { rpmHalf(st, 'Write something first'); return; }
+  st.innerHTML = '';
+  btn.disabled = true; _trSetLabel(btn, 'Sending…');
+  rpmBusy(win, btn, true); ov._busy = true;
+  fetch(url + '?action=replyFirstContact&threadId=' + encodeURIComponent(threadId) + '&body=' + encodeURIComponent(body))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      rpmBusy(win, btn, false); ov._busy = false;
+      if (!d.success) { btn.disabled = false; _trSetLabel(btn, 'Reply'); rpmFail(st, d.message || ''); return; }
+      // Success says nothing: the button reads Sent ✓, then the window redraws
+      // with the reply in the thread and the cards behind it catch up.
+      _trSetLabel(btn, 'Sent ✓');
+      var id = emailToId(_trThreadWinEmail || '');
+      _trRefreshThreads(function () {
+        var o = document.getElementById('thOverlay');
+        if (o && o.classList.contains('open')) _trThreadWin(id);
+      });
+      // From a Trial card, still repaint Initiate so its New message flag clears.
+      var trial = document.getElementById('tab-trial');
+      if (trial && trial.classList.contains('active')) _trLoadThreads();
+    })
+    .catch(function () {
+      rpmBusy(win, btn, false); ov._busy = false;
+      btn.disabled = false; _trSetLabel(btn, 'Reply');
+      rpmFail(st, 'No answer from Google. It may have gone out: check Sent mail before sending again.');
+    });
+}
+
 function _trThreadSummary(id, msgs) {
   if (!msgs.length) {
     return '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">' +
@@ -2517,27 +2513,13 @@ function _trThreadSummary(id, msgs) {
   var last = msgs[msgs.length - 1];
   var who  = last.fromMe ? 'Last From You' : 'Last From Them';
   return '<div id="fcsum-' + id + '" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">' +
-      '<button class="tr-open-btn small" id="fctog-' + id + '" onclick="_trToggleThread(\'' + id + '\')">Show \u25be</button>' +
+      '<button class="tr-open-btn small opens-window" id="fctog-' + id + '" onclick="_trThreadWin(\'' + id + '\')">Show</button>' +
       '<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:' +
-        (last.fromMe ? 'var(--muted)' : 'var(--green)') + '">' +
+        // The thread's own colours: you amber, them green (see _trMsgRow).
+        (last.fromMe ? 'var(--warn)' : 'var(--green)') + '">' +
         msgs.length + (msgs.length === 1 ? ' Message, ' : ' Messages, ') + who +
       '</span>' +
     '</div>';
-}
-
-function _trToggleThread(id, fromBottom) {
-  var box = document.getElementById('fcmsg-' + id);
-  var btn = document.getElementById('fctog-' + id);
-  if (!box) return;
-  var open = box.style.display !== 'none';
-  box.style.display = open ? 'none' : '';
-  if (btn) btn.textContent = open ? 'Show \u25be' : 'Hide \u25b4';
-  // Closed from the bottom: the page would otherwise be left somewhere below
-  // the card, so bring the summary line back into view.
-  if (open && fromBottom) {
-    var sum = document.getElementById('fcsum-' + id);
-    if (sum) sum.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }
 }
 
 
