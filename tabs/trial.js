@@ -1881,9 +1881,8 @@ function _tlStatusHtml(a, s) {
     return '<div style="margin-bottom:16px"><div class="field-label">' + label + '</div>' +
       '<input class="rpm-field" readonly tabindex="-1" style="cursor:default" value="' + _msAttr(v) + '"></div>';
   }
-  var setup = s.setupSent ? (rec.setupDate || s.setupDate || 'Sent') : (s.termsBack ? 'Not sent yet' : 'After the terms are back');
-  return '<div style="margin:4px 0 18px">' + DOCS_ICON + '</div>' +
-    box('Terms sent on', sent) + box('Terms back on', back) + box('Setup sent on', setup);
+  return '<div style="margin:4px 0 18px">' + STATUS_ICON + '</div>' +
+    box('Terms sent on', sent) + box('Terms back on', back);
 }
 
 // One save call for any Trial Lessons fields. saveTrialRecord_ only writes the
@@ -2562,28 +2561,28 @@ function _msOpen(email) {
   if (!a) return;
   var st = _trStepState(a);
   if (!st.ready) {
+    // Tidied 2026-09-26: the card's own step buttons (same numbers, same
+    // look), each opening its step; the title-above-box label; terms-not-back
+    // in the summary line's amber caps; no OK, the ✕ closes it like every
+    // step window.
+    var all = _TR_STEPS.filter(function (x) { return !x.lesson; })
+                .concat(_TR_STEPS.filter(function (x) { return x.lesson; }));
+    var rows = all.map(function (x, n) {
+      if ((x.lesson && !x.required) || st[x.key]) return '';
+      return '<div class="tr-step"><span class="tr-step-n">' + (n + 1) + '.</span>' +
+        '<button class="tr-step-b' + (x.lesson ? ' lesson' : '') + '" ' +
+          'onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'' + x.key + '\')"><span>' + x.label + '</span></button></div>';
+    }).join('');
     _msOverlay();
     document.getElementById('msModal').innerHTML =
       '<div class="settings-title"><span>' + inqEsc(a.name || '') +
         '<span style="color:var(--muted);font-weight:400"> · Not ready yet</span></span>' +
         '<button class="settings-close" onclick="_msClose()">✕</button></div>' +
-      '<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Still missing:</div>' +
-      '<div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px">' +
-      _TR_STEPS.map(function (x, i) {
-        if ((x.lesson && !x.required) || st[x.key]) return '';
-        var mc = x.lesson ? '#4a9eff' : '#ff7a3c';
-        // Opens that step's window straight from here.
-        return '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:' + mc + ';background:' +
-                 _skFade(mc) + ';border-color:rgba(255,255,255,0.1)" ' +
-                 'onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'' + x.key + '\')">' + (x.lesson ? '' : (i + 1) + '. ') + x.label + '</button>';
-      }).join('') +
-      // Not a step, but still required: opens the Status window.
+      (rows ? '<div class="pt-sum" style="margin:0 0 10px"><span class="pt-freq">Missing steps</span></div>' +
+              '<div class="tr-col" style="margin-bottom:16px">' + rows + '</div>' : '') +
       (st.termsBack ? '' :
-        '<button class="db-mini-btn" style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:3px 8px;color:#f0a500;background:' +
-          _skFade('#f0a500') + ';border-color:rgba(255,255,255,0.1)" ' +
-          'onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'status\')">Terms not back yet</button>') +
-      '</div>' +
-      '<div style="text-align:right;margin-top:16px"><button class="db-mini-btn" style="padding:7px 20px" onclick="_msClose()">OK</button></div>';
+        '<div class="pt-sum" style="margin-top:0;cursor:pointer" onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'status\')">' +
+          '<span class="pt-freq">Terms not back yet</span></div>');
     return;
   }
   var s = a.lesson || {};
@@ -2674,9 +2673,12 @@ function _msRenderForm() {
   }
 
   document.getElementById('msModal').innerHTML =
-    '<div class="settings-title">Confirm as student<button class="settings-close" id="msX" onclick="_msClose()">✕</button></div>' +
-
-    '<div style="font-family:\'Syne\',sans-serif;font-size:20px;font-weight:400;color:var(--text);margin:2px 0 12px">' + inqEsc(_ms.name) + '</div>' +
+    // Same title as every window (NAME · what it does), and the ready
+    // counterpart of MISSING STEPS in the summary caps, grey (2026-09-26).
+    '<div class="settings-title"><span>' + inqEsc(_ms.name) +
+      '<span style="color:var(--muted);font-weight:400"> · Confirm student</span></span>' +
+      '<button class="settings-close" id="msX" onclick="_msClose()">✕</button></div>' +
+    '<div class="pt-sum" style="margin:0 0 12px">All steps done</div>' +
     '<div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 0;margin-bottom:16px">' +
       row('Frequency', _ms.cadence === 'biweekly' ? 'Biweekly' : 'Weekly') +
       row('First lesson', inqEsc(_msWhenLabel())) +
@@ -2811,7 +2813,8 @@ function _msMake() {
       if (!warns) { _msClose(); return; }
       // Half-success: done, but some steps need a look. Say which.
       document.getElementById('msModal').innerHTML =
-        '<div class="settings-title">Confirm as student<button class="settings-close" onclick="_msClose()">✕</button></div>' +
+        '<div class="settings-title"><span>' + inqEsc(_ms.name) + '<span style="color:var(--muted);font-weight:400"> · Confirm student</span></span>' +
+          '<button class="settings-close" onclick="_msClose()">✕</button></div>' +
         '<div id="msHalf"></div>' +
         '<div style="margin-top:12px">' + _msSteps(d.steps) + '</div>';
       rpmHalf('msHalf', 'Done, ' + warns + ' step' + (warns === 1 ? '' : 's') + ' need a look',
