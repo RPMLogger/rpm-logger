@@ -1571,7 +1571,6 @@ function _tlLogWhat() {
     if (mic) mic.disabled = true;
     var b = document.getElementById('tlLogBtn');
     if (b) { b.textContent = 'Logged ✓'; b.className = 'link-btn green'; }
-    _tlSetMsg('tlWhatMsg', 'Lesson logged ✓', 'var(--green)');
   });
   setTimeout(function () {
     if (!_tl || _tl.logged) return;
@@ -1909,7 +1908,7 @@ function _tlSaveFields(fields, msgId, onOk) {
       if (_tl && _tl.rec) Object.keys(fields).forEach(function (k) { _tl.rec[k] = fields[k]; });
       _tlMarkEmail(email, fields);
       undim();
-      _tlSetMsg(msgId, 'Saved ✓', 'var(--green)');
+      // Success says nothing: the window closes, or its button's words change.
       if (onOk) onOk();
     })
     .catch(function () { clearTimeout(timer); fail('could not reach Google'); });
@@ -2039,37 +2038,43 @@ function _tlDropbox() {
   var a = _tl.card;
   var dbx = document.getElementById('tlDbxEmail').value.trim();
   var btn = document.getElementById('tlDbxBtn');
-  if (dbx.indexOf('@') === -1) { _tlSetMsg('tlDbxMsg', '\u26a0 That does not look like an email.', 'var(--accent)'); return; }
-  _tl.busy = true; btn.disabled = true; btn.textContent = 'Creating\u2026';
-  btn.style.borderColor = 'var(--accent2)'; btn.style.color = 'var(--accent2)'; btn.style.animation = 'pulse 1.6s infinite';
-  _tlSetMsg('tlDbxMsg', 'Creating the folder and sharing it with ' + dbx + '. Wait here, this window stays open until it is done.', 'var(--accent2)');
+  // Not a failed save, a typo to fix, so it says what is wrong (amber).
+  if (dbx.indexOf('@') === -1) { _tlHalf('tlDbxMsg', 'Not an email address'); return; }
+  // Same as every step window: the window dims, the button's dots say it is
+  // working, success says nothing (the button's words change), failure is
+  // "Unsuccessful" with the reason in its tooltip.
+  _tl.busy = true; btn.disabled = true; btn.textContent = 'Creating…';
+  _tlSetMsg('tlDbxMsg', '');
+  var md = document.getElementById('tlModal');
+  if (md) md.classList.add('tl-busy');
+  function undim() { var m = document.getElementById('tlModal'); if (m) m.classList.remove('tl-busy'); }
   fetch(url + '?action=trialDropbox&email=' + encodeURIComponent(a.email || '') +
         '&name=' + encodeURIComponent(a.name || '') + '&dropboxEmail=' + encodeURIComponent(dbx))
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!_tl) return;
+      undim();
       _tl.busy = false;
-      btn.style.animation = '';
       if (!d.success) {
         btn.disabled = false; btn.textContent = 'Create & share';
-        btn.style.borderColor = ''; btn.style.color = '';
-        _tlSetMsg('tlDbxMsg', '\u26a0 ' + (d.message || 'Not created'), 'var(--accent)');
+        _tlFail('tlDbxMsg', d.message || 'Not created');
         return;
       }
-      btn.textContent = 'Folder made \u2713'; btn.style.borderColor = ''; btn.style.color = ''; btn.className = 'link-btn green';
+      btn.textContent = 'Folder made ✓'; btn.className = 'link-btn green';
       document.getElementById('tlDbxEmail').disabled = true;
       _tl.rec = _tl.rec || {}; _tl.rec.dropboxEmail = dbx; _tl.rec.dropboxMade = 'TRUE';
       _tlMark({ dropboxMade: true, dropboxEmail: dbx });
       var up = document.getElementById('tlUpload');
       if (up) up.innerHTML = _tlUploadHtml(a.name);
-      _tlSetMsg('tlDbxMsg', 'Shared "' + d.name + '" with ' + dbx + '. Dropbox sent them the invite.' +
-        (d.stamped ? '' : ' (Could not tick Dropbox Made on the sheet.)'), 'var(--green)');
+      // Shared, but the sheet did not record it: do not create it again.
+      if (!d.stamped) _tlHalf('tlDbxMsg', 'Shared, not ticked on the sheet',
+        'The folder was made and shared, but the sheet did not record it. Do not create it again.');
     })
     .catch(function () {
       if (!_tl) return;
+      undim();
       _tl.busy = false; btn.disabled = false; btn.textContent = 'Create & share';
-      btn.style.animation = ''; btn.style.borderColor = ''; btn.style.color = '';
-      _tlSetMsg('tlDbxMsg', '\u274c No answer. Check the Dropbox tab before trying again: it may have gone through.', 'var(--accent)');
+      _tlFail('tlDbxMsg', 'No answer from Google. It may have gone through: check the Dropbox tab before trying again.');
     });
 }
 
