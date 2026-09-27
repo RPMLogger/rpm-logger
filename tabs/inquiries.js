@@ -132,14 +132,14 @@ function _inqDismissReply(threadId, btn) {
     .then(function (d) {
       if (!d || !d.success) {
         if (btn) { btn.disabled = false; btn.textContent = "Dismiss"; }
-        _inqToast("\u26a0 " + ((d && d.message) || "Could not dismiss"), "var(--accent)");
+        rpmToast("fail", "Unsuccessful", (d && d.message) || "");
         return;
       }
       loadInquiryReplies();
     })
     .catch(function () {
       if (btn) { btn.disabled = false; btn.textContent = "Dismiss"; }
-      _inqToast("\u274c Could not reach the portal.", "var(--accent)");
+      rpmToast("fail", "Unsuccessful", "could not reach Google");
     });
 }
 
@@ -166,15 +166,15 @@ function _inqReopen(email, btn) {
     .then(function (d) {
       if (!d || !d.success) {
         if (btn) { btn.disabled = false; btn.textContent = "Reopen"; }
-        _inqToast("⚠ " + ((d && d.message) || "Could not reopen"), "var(--accent)");
+        rpmToast("fail", "Unsuccessful", (d && d.message) || "");
         return;
       }
-      _inqToast("↩ Back on the list", "var(--green)");
+      // Success says nothing: the card comes back on the list.
       initInquiriesTab();
     })
     .catch(function () {
       if (btn) { btn.disabled = false; btn.textContent = "Reopen"; }
-      _inqToast("❌ Could not reach the portal.", "var(--accent)");
+      rpmToast("fail", "Unsuccessful", "could not reach Google");
     });
 }
 
@@ -399,18 +399,17 @@ function _inqScamGo(inq) {
     .then(function (d) {
       if (!d || !d.success) {
         _inqBusy(document.getElementById("inq-c" + inq.col), "scam", null);
-        _inqToast("⚠ " + ((d && d.message) || "Scam failed"), "var(--accent)");
+        rpmToast("fail", "Unsuccessful", (d && d.message) || "");
         return;
       }
       _inqRemoveCard("c" + inq.col);
-      _inqToast(d.purged
-        ? "🚫 Deleted — email trashed, inquiry removed"
-        : "🚫 Marked Scam — the email was not found, inquiry kept",
-        "var(--muted)");
+      // Success says nothing: the card is gone. Half-success: marked, but the
+      // email was not found, so the inquiry itself was kept.
+      if (!d.purged) rpmToast("half", "Marked scam, email not found", "The inquiry was kept.");
     })
     .catch(function () {
       _inqBusy(document.getElementById("inq-c" + inq.col), "scam", null);
-      _inqToast("❌ Could not reach the portal.", "var(--accent)");
+      rpmToast("fail", "Unsuccessful", "could not reach Google");
     });
 }
 
@@ -519,8 +518,10 @@ function _inqSubmitTemplate(decision, send) {
   var body = (document.getElementById("inqTplBody") || {}).value || "";
   var st = document.getElementById("inqModalStatus");
   var btn = document.getElementById("inqSendBtn");
-  if (btn) { btn.disabled = true; btn.style.opacity = "0.5"; (btn.querySelector("span") || btn).textContent = send ? "Sending…" : "Saving…"; }
-  if (st) st.innerHTML = "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--accent2);margin-top:8px'>" + (send ? "Sending email + filing…" : "Filing…") + "</div>";
+  // The window dims; the button's dots say it is working. No line.
+  if (btn) { btn.disabled = true; (btn.querySelector("span") || btn).textContent = send ? "Sending…" : "Saving…"; }
+  if (st) st.innerHTML = "";
+  rpmBusy(overlay.firstElementChild, btn, true);
   _inqSendDecision(decision, inq, { send: send, subject: subject, body: body });
 }
 
@@ -556,42 +557,31 @@ function _inqSendDecision(decision, inq, tpl) {
   fetch(url + "?" + qs)
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (!d || !d.success) {
-        var st = document.getElementById("inqModalStatus");
-        if (st) st.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>⚠ " + ((d && d.message) || "Failed") + "</div>";
-        _inqSendBtnReset();
-        if (!st) _inqToast("⚠ " + ((d && d.message) || "Failed"), "var(--accent)");
-        _inqBusy(document.getElementById("inq-c" + inq.col), decision, null);
-        return;
-      }
+      if (!d || !d.success) { _inqDecisionFail((d && d.message) || "", inq, decision); return; }
+      // Success says nothing: the window closes and the card leaves.
       _inqCloseModal();
       _inqRemoveCard("c" + inq.col);
-      // Yes needs no message: the busy card leaving is the confirmation.
-      if (decision === "yes") return;
-      var note, color;
-      if (decision === "noreply") {
-        note = "· Cleared silently — address kept on the list";
-        color = "var(--muted)";
-      } else {
-        note = "✓ Filed" + (d.sent ? " + emailed" : "") + " — " + (decision === "maybe" ? "warm list" : "cold list");
-        color = decision === "no" ? "var(--accent)" : "var(--green)";
-      }
-      _inqToast(note, color);
     })
-    .catch(function () {
-      var st = document.getElementById("inqModalStatus");
-      if (st) st.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>❌ Could not reach the portal.</div>";
-      _inqSendBtnReset();
-      if (!st) _inqToast("❌ Could not reach the portal.", "var(--accent)");
-      _inqBusy(document.getElementById("inq-c" + inq.col), decision, null);
-    });
+    .catch(function () { _inqDecisionFail("No answer from Google. It may have gone through: reload the tab before trying again.", inq, decision); });
+}
+
+// A decision that did not land. From the popup: "Unsuccessful" above Send and
+// Send comes back. From a card button (Yes, No reply): the same badge as a toast.
+function _inqDecisionFail(why, inq, decision) {
+  var st = document.getElementById("inqModalStatus");
+  var m = document.getElementById("inqModal");
+  if (m) rpmBusy(m.firstElementChild, document.getElementById("inqSendBtn"), false);
+  _inqSendBtnReset();
+  if (st) rpmFail(st, why, "left");
+  else rpmToast("fail", "Unsuccessful", why);
+  _inqBusy(document.getElementById("inq-c" + inq.col), decision, null);
 }
 
 // After a failed send the popup stays open; put Send back so it can be retried.
 function _inqSendBtnReset() {
   var b = document.getElementById("inqSendBtn");
   if (!b) return;
-  b.disabled = false; b.style.opacity = "";
+  b.disabled = false;
   var sp = b.querySelector("span");
   if (sp) sp.textContent = sp.textContent === "Saving…" ? "Record decision" : "Send";
 }
@@ -601,15 +591,6 @@ function _inqRemoveCard(domId) {
   if (card) card.remove();
   // Refresh the strip so counts/income reflect any change (Yes → future student).
   loadBusinessStrip();
-}
-
-function _inqToast(msg, color) {
-  var t = document.createElement("div");
-  t.style.cssText = "position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-left:3px solid " +
-    (color || "var(--green)") + ";border-radius:10px;padding:12px 18px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text);z-index:10000;box-shadow:0 6px 24px rgba(0,0,0,.35);max-width:88vw";
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(function () { t.style.transition = "opacity .4s"; t.style.opacity = "0"; setTimeout(function () { t.remove(); }, 400); }, 3200);
 }
 
 // ── plumbing kept from before ────────────────────────────────────────────────

@@ -151,3 +151,43 @@ var _RPM_DOTS_SVG =
     });
   }).observe(document.documentElement, { subtree: true, childList: true, characterData: true });
 })();
+
+// ─── Save / send feedback, one rule (2026-09-26) ────────────────────────────
+// Trial, Initiate and Inquiries. While Google works the window dims and the
+// pressed button keeps its moving dots. Success says nothing: the window
+// closes, the card moves, or the button's words change. Failure is one red
+// "Unsuccessful" badge with the reason in its tooltip. A half-success (it went
+// out, but the sheet did not record it) is an amber badge, never "try again".
+function _rpmAttr(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+// root: the window (or card); btn: the button that was pressed.
+function rpmBusy(root, btn, on) {
+  if (!root) return;
+  root.classList.toggle('rpm-busy', !!on);
+  if (!btn) return;
+  var row = btn;
+  while (row.parentElement && row.parentElement !== root) row = row.parentElement;
+  if (row.parentElement === root) row.classList.toggle('rpm-keep', !!on);
+  btn.classList.toggle('rpm-acting', !!on);
+}
+
+function _rpmBadge(el, cls, text, tip, align) {
+  if (typeof el === 'string') el = document.getElementById(el);
+  if (!el) return;
+  el.style.color = ''; el.style.textAlign = align || 'right';
+  el.innerHTML = '<span class="' + cls + '"' + (tip ? ' data-tip="' + _rpmAttr(tip) + '" data-tip-wrap' +
+    (align === 'left' ? '' : ' data-tip-left') : '') + '>' + _rpmAttr(text) + '</span>';
+}
+function rpmFail(el, why, align)       { _rpmBadge(el, 'tl-fail', 'Unsuccessful', why, align); }
+function rpmHalf(el, text, tip, align) { _rpmBadge(el, 'tl-half', text, tip, align); }
+
+// For actions with no window (a card button): the same badges as a toast.
+// A toast vanishes before anyone could hover it, so the reason is written out.
+function rpmToast(kind, text, why) {
+  var t = document.createElement('div');
+  t.className = 'rpm-toast';
+  t.innerHTML = '<span class="' + (kind === 'half' ? 'tl-half' : 'tl-fail') + '">' + _rpmAttr(text || 'Unsuccessful') + '</span>' +
+    (why ? '<span class="rpm-toast-why">' + _rpmAttr(why) + '</span>' : '');
+  document.body.appendChild(t);
+  setTimeout(function () { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(function () { t.remove(); }, 400); }, 5000);
+}

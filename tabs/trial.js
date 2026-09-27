@@ -127,16 +127,16 @@ function _trReopen(email, col, btn) {
       if (!d.success) {
         if (card) card.classList.remove('inq-busy');
         if (btn) { btn.disabled = false; btn.innerHTML = _TR_BACK_LABEL; }
-        _trStatus('\u26a0 ' + (d.message || 'Could not send back.'), 'var(--accent)');
+        rpmToast('fail', 'Unsuccessful', d.message || '');
         return;
       }
+      // Success says nothing: the card leaves Initiate.
       _trLoadAccepted();
-      _trStatus('Sent back to Inquiries \u2014 waiting there as an open card.', 'var(--accent2)');
     })
     .catch(function () {
       if (card) card.classList.remove('inq-busy');
       if (btn) { btn.disabled = false; btn.innerHTML = _TR_BACK_LABEL; }
-      _trStatus('\u274c Could not reach the portal.', 'var(--accent)');
+      rpmToast('fail', 'Unsuccessful', 'could not reach Google');
     });
 }
 
@@ -365,9 +365,10 @@ function _trSendReply(id, threadId) {
   if (!url || !ta) return;
   var body = ta.value || '';
   if (!body.trim()) {
-    if (st) st.innerHTML = '<div style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px;margin-top:6px">Write something first.</div>';
+    rpmHalf(st, 'Write something first', '', 'left');
     return;
   }
+  if (st) st.innerHTML = '';
   if (btn) { btn.disabled = true; _trSetLabel(btn, 'Sending…'); }
   fetch(url + '?action=replyFirstContact&threadId=' + encodeURIComponent(threadId) +
         '&body=' + encodeURIComponent(body))
@@ -375,7 +376,7 @@ function _trSendReply(id, threadId) {
     .then(function (d) {
       if (!d.success) {
         if (btn) { btn.disabled = false; _trSetLabel(btn, 'Send reply'); }
-        if (st) st.innerHTML = '<div style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px;margin-top:6px">⚠ ' + (d.message || 'Could not send') + '</div>';
+        rpmFail(st, d.message || '', 'left');
         return;
       }
       _trRefreshThreads();   // redraw so the reply appears in the thread
@@ -383,7 +384,7 @@ function _trSendReply(id, threadId) {
     })
     .catch(function () {
       if (btn) { btn.disabled = false; _trSetLabel(btn, 'Send reply'); }
-      if (st) st.innerHTML = '<div style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px;margin-top:6px">❌ Could not reach the portal.</div>';
+      rpmFail(st, 'No answer from Google. It may have gone out: check Sent mail before sending again.', 'left');
     });
 }
 
@@ -630,7 +631,7 @@ function _trRenderPreview(body, boxId) {
   fetch(url + "?action=previewFirstContact&body=" + encodeURIComponent(body))
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (!d.success) { box.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:12px'>⚠ " + (d.message || "Could not render") + "</div>"; return; }
+      if (!d.success) { rpmFail(box, d.message || "Could not render", "left"); return; }
       // The logo is a cid: attachment that only resolves inside the real
       // email, so the preview draws a marker where it will sit. Dropping it
       // entirely was tried and left you wondering every time whether the logo
@@ -663,7 +664,7 @@ function _trRenderPreview(body, boxId) {
             "onclick='document.getElementById(\"" + boxId + "\").innerHTML=\"\"'>Hide \u25b4</button>" +
         "</div>";
     })
-    .catch(function () { box.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:12px'>❌ Could not reach the portal.</div>"; });
+    .catch(function () { rpmFail(box, "could not reach Google", "left"); });
 }
 
 function _trSendEmail() {
@@ -676,12 +677,12 @@ function _trSendEmail() {
   var st      = document.getElementById("trFcStatus");
   var btn     = document.getElementById("trFcSendBtn");
 
-  if (!body.trim()) {
-    if (st) st.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>Write something first.</div>";
-    return;
-  }
+  if (!body.trim()) { rpmHalf(st, "Write something first", "", "left"); return; }
+  // The window dims; the button's dots say it is sending. No line.
+  if (st) st.innerHTML = "";
   if (btn) { btn.disabled = true; _trSetLabel(btn, "Sending…"); }
-  if (st) st.innerHTML = "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--accent2);margin-top:8px'>Sending…</div>";
+  var win = overlay.firstElementChild;
+  rpmBusy(win, btn, true);
 
   // col so the "Email Sent" stamp lands on THIS inquiry, not the first column
   // that happens to share the address.
@@ -693,18 +694,20 @@ function _trSendEmail() {
         "&body="    + encodeURIComponent(body))
     .then(function (r) { return r.json(); })
     .then(function (d) {
+      rpmBusy(win, btn, false);
       if (!d.success) {
         if (btn) { btn.disabled = false; _trSetLabel(btn, "Send"); }
-        if (st) st.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>⚠ " + (d.message || "Could not send") + "</div>";
+        rpmFail(st, d.message || "", "left");
         return;
       }
-      if (st) st.innerHTML = "<div style='color:var(--green);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>✓ Sent. Now copy the text below into iMessage.</div>";
+      // Success says nothing: the button reads Sent ✓.
       if (btn) _trSetLabel(btn, "Sent ✓");
       _trLoadAccepted();
     })
     .catch(function () {
+      rpmBusy(win, btn, false);
       if (btn) { btn.disabled = false; _trSetLabel(btn, "Send"); }
-      if (st) st.innerHTML = "<div style='color:var(--accent);font-family:\"DM Mono\",monospace;font-size:11px;margin-top:8px'>❌ Could not reach the portal.</div>";
+      rpmFail(st, "No answer from Google. It may have gone out: check Sent mail before sending again.", "left");
     });
 }
 
@@ -847,10 +850,13 @@ function _trBook(p) {
   var phone = _trVal(p + 'Phone');
   // All four are required. Without an email the calendar event has no guest,
   // so Secretary sends no confirmation and they arrive knowing nothing.
-  if (!first)                    { _trStatus('Enter at least a first name.', 'var(--accent)', p); return; }
-  if (!email)                    { _trStatus('Email is required, otherwise they never get the confirmation.', 'var(--accent)', p); return; }
-  if (email.indexOf('@') === -1) { _trStatus('That email looks off.', 'var(--accent)', p); return; }
-  if (!date || !time)            { _trStatus('Pick a date and time.', 'var(--accent)', p); return; }
+  // Typos to fix, not failed saves: amber, saying what is missing.
+  var stEl = p + 'Status';
+  if (!first)                    { rpmHalf(stEl, 'First name missing'); return; }
+  if (!email)                    { rpmHalf(stEl, 'Email missing', 'Without it they never get the confirmation.'); return; }
+  if (email.indexOf('@') === -1) { rpmHalf(stEl, 'Not an email address'); return; }
+  if (!date || !time)            { rpmHalf(stEl, 'Pick a date and time'); return; }
+  var stBox = document.getElementById(stEl); if (stBox) stBox.innerHTML = '';
   var btn = document.getElementById(p + 'BookBtn');
   if (p === 'tb') {
     // The card's window: the whole window fades like a waiting card, and the
@@ -858,12 +864,13 @@ function _trBook(p) {
     var md = document.getElementById('tbModal');
     if (md) md.classList.add('tb-busy');
     if (btn) { btn.disabled = true; btn.style.cursor = 'wait'; btn.textContent = 'Creating event…'; }
-  } else if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Booking…'; }
+  } else if (btn) {
+    btn.disabled = true; btn.style.cursor = 'wait'; btn.textContent = 'Booking…';
+    if (p === 'ts') rpmBusy(document.getElementById('tsModal'), btn, true);
+  }
   if (p === 'tb' && _trBookWin) _trBookWin.busy = true;   // Done and ✕ are dead until it lands
   if (p === 'ts') _tsBusy = true;
-  // The card's window says nothing while it books: Book's own tip already
-  // says it creates the calendar event, and the button shows Booking + dots.
-  if (p !== 'tb') _trStatus('Creating the calendar event…', 'var(--accent2)', p);
+  // Nothing is written while it books: the button shows Booking + dots.
   var qs = 'action=bookTrialManual' +
     '&first=' + encodeURIComponent(first) + '&middle=' + encodeURIComponent(middle) +
     '&last=' + encodeURIComponent(last) + '&email=' + encodeURIComponent(email) +
@@ -873,11 +880,8 @@ function _trBook(p) {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       _trRestoreBook(p);
-      if (!d.success) { _trStatus('⚠ ' + (d.message || 'Failed'), 'var(--accent)', p); return; }
-      // No tab is created any more: a booked trial is not a student yet.
-      _trStatus('✓ Booked ' + d.name + ' — ' + d.dateLabel +
-                (d.cardMade ? ' · card created, they are in the Trial tab now'
-                            : ' · they are in the Trial tab now'), 'var(--green)', p);
+      if (!d.success) { rpmFail(stEl, d.message || ''); return; }
+      // Success says nothing: the window closes and the card moves to Trial.
       if (p === 'tb') {
         // The window's whole job is done; say so on the tab behind it, where
         // the card that started this is about to disappear.
@@ -898,7 +902,7 @@ function _trBook(p) {
       var sb = document.getElementById(p + 'OfferedSlots'); if (sb) sb.innerHTML = '';
       if (p === 'tr') _trLoadAccepted(); else initTrialStageTab();
     })
-    .catch(function () { _trRestoreBook(p); _trStatus('❌ Could not reach the portal.', 'var(--accent)', p); });
+    .catch(function () { _trRestoreBook(p); rpmFail(stEl, 'No answer from Google. It may have gone through: check the calendar before booking again.'); });
 }
 
 function _trRestoreBook(p) {
@@ -908,6 +912,7 @@ function _trRestoreBook(p) {
   if (p === 'ts') _tsBusy = false;
   var btn = document.getElementById(p + 'BookBtn');
   if (!btn) return;
+  if (p === 'ts') rpmBusy(document.getElementById('tsModal'), btn, false);
   btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer';
   if (p === 'tb') _trBookWinPaint();
   else if (p === 'ts') btn.textContent = 'Book';
@@ -1917,21 +1922,11 @@ function _tlSaveFields(fields, msgId, onOk) {
 // After a failed save, put the Save / Set buttons back so it can be retried.
 // "Unsuccessful", right above the button, red badge. The reason is in its
 // tooltip, for when it keeps failing and someone needs to know why.
-function _tlFail(msgId, why) {
-  var el = document.getElementById(msgId);
-  if (!el) return;
-  el.style.color = ''; el.style.textAlign = 'right';
-  el.innerHTML = '<span class="tl-fail"' + (why ? ' data-tip="' + _msAttr(why) + '" data-tip-wrap data-tip-left' : '') + '>Unsuccessful</span>';
-}
+function _tlFail(msgId, why) { rpmFail(msgId, why); }
 
 // Half-success note, right above the button: amber, the same shape as
 // "Unsuccessful". The detail is in its tooltip.
-function _tlHalf(msgId, text, tip) {
-  var el = document.getElementById(msgId);
-  if (!el) return;
-  el.style.color = ''; el.style.textAlign = 'right';
-  el.innerHTML = '<span class="tl-half"' + (tip ? ' data-tip="' + _msAttr(tip) + '" data-tip-wrap data-tip-left' : '') + '>' + inqEsc(text) + '</span>';
-}
+function _tlHalf(msgId, text, tip) { rpmHalf(msgId, text, tip); }
 
 function _tlResetSaveBtns() {
   if (!_tl) return;
@@ -2088,10 +2083,10 @@ function _tlPreview(which) {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!_tl) return;
-      if (!d.success) { box.innerHTML = '<div class="empty-state">\u26a0 ' + inqEsc(d.message || 'No preview') + '</div>'; return; }
+      if (!d.success) { rpmFail(box, d.message || 'No preview'); return; }
       box.innerHTML = _tlPreviewHtml(d.subject, d.html, _tl.card.email);
     })
-    .catch(function () { box.innerHTML = '<div class="empty-state">\u274c Could not load the preview.</div>'; });
+    .catch(function () { rpmFail(box, 'could not reach Google'); });
 }
 
 // The email on a white card, the way a mail client shows it. The logo is a
@@ -2217,11 +2212,11 @@ function _trNotContinuing(id, email, name) {
         '<button class="settings-close" onclick="_trDismissClose()">\u2715</button>' +
       '</div>' +
       '<div class="rpm-dlg-msg">How did the Trial end?</div>' +
+      '<div id="trDzMsg" style="margin-top:8px"></div>' +
       '<div class="rpm-dlg-acts" style="justify-content:flex-start">' +
         '<button class="inq-db no" id="trDzNC" onclick="_trNotContinuingGo(\'' + id + '\',\'' + _trEsc(email) + '\',\'Unsuccessful\')">Not Continued</button>' +
         '<button class="inq-db maybe" id="trDzNS" onclick="_trNotContinuingGo(\'' + id + '\',\'' + _trEsc(email) + '\',\'No Show\')">No Show</button>' +
       '</div>' +
-      '<div id="trDzMsg" class="rpm-dlg-msg" style="min-height:16px"></div>' +
     '</div>';
   ov.addEventListener('click', function (e) { if (e.target === ov) _trDismissClose(); });
   document.body.appendChild(ov);
@@ -2241,16 +2236,20 @@ function _trNotContinuingGo(id, email, outcome) {
   var pressed = outcome === 'No Show' ? ns : nc;
   [nc, ns].forEach(function (b) { if (b) b.disabled = true; });
   if (pressed) pressed.textContent = 'Saving\u2026';
+  var dlg = win.querySelector('.rpm-dlg');
+  rpmBusy(dlg, pressed, true);
+  var m = document.getElementById('trDzMsg');
+  if (m) m.innerHTML = '';
   fetch(url + '?action=closeTrial&email=' + encodeURIComponent(email) + '&outcome=' + encodeURIComponent(outcome))
     .then(function (r) { return r.json(); })
     .then(function (d) {
       win._busy = false;
+      rpmBusy(dlg, pressed, false);
       if (!d || !d.success) {
         [nc, ns].forEach(function (b) { if (b) b.disabled = false; });
         if (nc) nc.textContent = 'Not Continued';
         if (ns) ns.textContent = 'No Show';
-        var m = document.getElementById('trDzMsg');
-        if (m) { m.textContent = '\u26a0 ' + ((d && d.message) || 'Not saved'); m.style.color = 'var(--accent)'; }
+        rpmFail(m, (d && d.message) || '', 'left');
         return;
       }
       _trDismissClose();
@@ -2258,11 +2257,11 @@ function _trNotContinuingGo(id, email, outcome) {
     })
     .catch(function () {
       win._busy = false;
+      rpmBusy(dlg, pressed, false);
       [nc, ns].forEach(function (b) { if (b) b.disabled = false; });
       if (nc) nc.textContent = 'Not Continued';
       if (ns) ns.textContent = 'No Show';
-      var m = document.getElementById('trDzMsg');
-      if (m) { m.textContent = '\u274c Could not reach the portal.'; m.style.color = 'var(--accent)'; }
+      rpmFail(m, 'could not reach Google', 'left');
     });
 }
 
@@ -2771,57 +2770,59 @@ function _msMake() {
   if (!url || !_ms || _ms.busy) return;
   var rate = parseFloat(String(document.getElementById('msRate').value || '').replace(/[^0-9.]/g, ''));
   var res = document.getElementById('msResult');
-  if (!isFinite(rate) || rate <= 0) { res.innerHTML = '<div style="margin-top:10px">' + _msLine('⚠ Enter the rate first.', 'var(--accent)') + '</div>'; return; }
+  if (!isFinite(rate) || rate <= 0) { rpmHalf(res, 'Enter the rate first'); return; }
 
   var email = _ms.card.email || '';
   var qs = _msQuery();
   _ms.busy = true;
   _msLock(true);
   var go = document.getElementById('msGoBtn');
-  go.style.cursor = 'wait'; go.style.opacity = '0.85';
-  go.innerHTML = '<span class="ms-spin"></span>Confirming…';
-  res.innerHTML =
-    '<div style="margin-top:12px;padding:12px 14px;border:1px solid var(--accent2);border-radius:10px;text-align:center;' +
-      'font-family:\'DM Mono\',monospace;font-size:12px;color:var(--accent2);animation:pulse 1.6s infinite">' +
-      'Working. This takes about half a minute.<br>Don’t close this window.</div>';
+  // Same as every window: it dims, the button's dots say it is working.
+  // It takes about half a minute; the ✕ is hidden until it lands.
+  go.style.cursor = 'wait';
+  go.textContent = 'Confirming…';
+  res.innerHTML = '';
+  var msWin = document.getElementById('msModal');
+  rpmBusy(msWin, go, true);
 
   fetch(url + '?action=makeStudent&confirm=1&' + qs)
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!_ms) return;
       _ms.busy = false;
+      rpmBusy(msWin, go, false);
       if (!d.success) {
+        // Seven jobs in one: the list of which went through stays, because
+        // "Unsuccessful" alone would not say what is half done.
         _msLock(false);
-        go.style.cursor = 'pointer'; go.style.opacity = '';
-        go.textContent = 'Try again';
-        res.innerHTML = _msBanner(false, 'Not done', d.message || 'Something went wrong.') + _msSteps(d.steps);
+        go.style.cursor = 'pointer';
+        go.textContent = 'Confirm as student';
+        res.innerHTML = '<div id="msFail" style="margin-top:12px"></div>' + _msSteps(d.steps);
+        rpmFail('msFail', d.message || '');
         return;
       }
       _ms.done = true;
+      _trDropStageCard(email);
       var warns = (d.steps || []).filter(function (st) { return st.indexOf('⚠') === 0; }).length;
+      // Success says nothing: the window closes and the card leaves the tab.
+      if (!warns) { _msClose(); return; }
+      // Half-success: done, but some steps need a look. Say which.
       document.getElementById('msModal').innerHTML =
         '<div class="settings-title">Confirm as student<button class="settings-close" onclick="_msClose()">✕</button></div>' +
-        _msBanner(true, 'Done', d.name + ' is a student' + (d.id ? ' (id ' + d.id + ')' : '') + '.' +
-                  (warns ? ' ' + warns + ' step' + (warns === 1 ? '' : 's') + ' need a look, see below.' : '')) +
-        '<div style="margin-top:12px">' + _msSteps(d.steps) + '</div>' +
-        '<button class="btn-settings-load" style="margin-top:14px" onclick="_msClose()">Close</button>';
-      _trDropStageCard(email);
+        '<div id="msHalf"></div>' +
+        '<div style="margin-top:12px">' + _msSteps(d.steps) + '</div>';
+      rpmHalf('msHalf', 'Done, ' + warns + ' step' + (warns === 1 ? '' : 's') + ' need a look',
+        d.name + ' is a student' + (d.id ? ' (id ' + d.id + ')' : '') + '. The steps marked ⚠ below did not finish.', 'left');
     })
     .catch(function () {
       if (!_ms) return;
       _ms.busy = false;
+      rpmBusy(msWin, go, false);
       _msLock(false);
-      go.style.cursor = 'pointer'; go.style.opacity = '';
+      go.style.cursor = 'pointer';
       go.textContent = 'Confirm as student';
-      res.innerHTML = _msBanner(false, 'No answer', 'The server did not reply. Check the Counter before trying again: it may have gone through.');
+      res.innerHTML = '<div id="msFail" style="margin-top:12px"></div>';
+      rpmFail('msFail', 'No answer from Google. It may have gone through: check the Counter before trying again.');
     });
 }
 
-function _msBanner(ok, big, small) {
-  var c = ok ? 'var(--green)' : 'var(--accent)';
-  return '<div style="margin-top:12px;padding:18px 14px;border:1.5px solid ' + c + ';border-radius:12px;text-align:center;' +
-      'background:' + (ok ? 'rgba(76,175,80,0.10)' : 'rgba(232,70,58,0.08)') + '">' +
-      '<div style="font-family:\'Syne\',sans-serif;font-size:28px;font-weight:800;color:' + c + '">' + (ok ? '✓ ' : '⚠ ') + inqEsc(big) + '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);margin-top:6px">' + inqEsc(small) + '</div>' +
-    '</div>';
-}
