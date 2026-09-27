@@ -94,6 +94,10 @@ function _trAcceptedCard(a) {
         // in the sheet by hand.
         '<button class="link-btn amber opens-window" onclick="_trOpenEmail(\'' + em + '\')" ' +
           'data-tip="Opens a window.\nFirst-contact email draft.\nNothing sends until you press Send.\n(Not in Email list.)" data-tip-wrap>' + ENVELOPE_ICON + '<span>Email</span></button>' +
+        // Text sits between Email and Book, the order you do them in. Dim: it
+        // sends nothing itself, the text goes out from Messages (2026-09-27).
+        '<button class="link-btn opens-window" onclick="_trOpenText(\'' + em + '\')" ' +
+          'data-tip="Opens a window.\nSave their contact, then the text for Messages.\nNothing sends from here." data-tip-wrap>' + TEXT_ICON + '<span>Text</span></button>' +
         '<button class="link-btn bright opens-window" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
           'data-tip="Opens a window.\nBooking with their name and email.\nYou pick the date and time.\nCard moves to Trial once booked.\n(Not in Email list.)" data-tip-wrap data-tip-left>' + CALENDAR_ICON + '<span>Book</span></button>' +
       '</div>' +
@@ -446,10 +450,6 @@ function _trOpenEmail(email) {
   var first = (a.name || "").split(" ")[0];
   var head  = _trDraftHead(first);
   var body  = head + _trDraftTail();
-  var sms   = _trSmsText(first);
-  var phoneDigits = (a.phone || "").toString().replace(/\D/g, "");
-  var phonePretty = _trPhonePretty(a.phone);
-
 
   var overlay = document.createElement("div");
   overlay.id = "trFcModal";
@@ -483,24 +483,7 @@ function _trOpenEmail(email) {
         "<button class='link-btn' id='trFcPrevBtn' onclick='_trPreviewEmail()'>Preview</button>" +
         "<button class='link-btn bright' id='trFcSendBtn' onclick='_trSendEmail()'>" + SEND_ICON + "<span>Send</span></button>") +
       "<div id='trFcPreview'></div>" +
-      "<hr class='divider' style='margin:34px 0 24px'>" +
-      // The text half is built like the email half above it: its own title,
-      // the number where the address sits. Two halves of one job.
-      "<div class='settings-title' style='color:var(--muted)'>" +
-        "<span>Text</span></div>" +
-      "<div style='margin:4px 0 18px'>" + TEXT_WIN_ICON + "</div>" +
-      "<div style='margin-bottom:16px'>" + lbl("Phone") +
-        ro(phonePretty || "No phone number on file") + "</div>" +
-      lbl("Message", "trFcSms") +
-      "<textarea id='trFcSms' rows='3' readonly class='rpm-field'>" + inqEsc(sms) + "</textarea>" +
-      // Three helpers, one job: get this text into iMessage. None of them
-      // sends anything, so all three stay dim.
-      _tlActs(
-        "<button class='link-btn' onclick='_trCopySms(this)'>" + COPY_ICON + "<span>Copy text</span></button>" +
-        (phoneDigits
-          ? "<button class='link-btn' onclick='_trCopyPhone(this,\"" + phoneDigits + "\")'>" + COPY_ICON + "<span>Copy phone #</span></button>" +
-            "<a class='link-btn' href='sms:" + phoneDigits + "'>" + OPEN_OUT_ICON + "<span>Open Messages</span></a>"
-          : "")) +
+      // The text half moved to its own window (Text on the card, 2026-09-27).
     "</div>";
   overlay.addEventListener("click", function (ev) { if (ev.target === overlay) _trCloseEmail(); });
   document.body.appendChild(overlay);
@@ -519,6 +502,107 @@ function _trOpenEmail(email) {
 function _trCloseEmail() {
   var m = document.getElementById("trFcModal");
   if (m) m.remove();
+}
+
+// ── The Text window ─────────────────────────────────────────────────────────
+// Was the bottom half of the Email window; its own window since 2026-09-27 so
+// it could take a first step: save them to Google Contacts (which syncs to the
+// Mac and the phone), so Messages shows a name instead of a number. Top down in
+// the order you do it: save the contact, then copy the text into Messages.
+function _trOpenText(email) {
+  var a = _trFindAccepted(email);
+  if (!a) return;
+  var first = (a.name || "").split(" ")[0];
+  var sms   = _trSmsText(first);
+  var phoneDigits = (a.phone || "").toString().replace(/\D/g, "");
+  var phonePretty = _trPhonePretty(a.phone);
+
+  var overlay = document.createElement("div");
+  overlay.id = "trTxModal";
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;" +
+                          "align-items:center;justify-content:center;padding:18px;overflow:auto";
+  function lbl(t, id) { return "<label class='field-label'" + (id ? " for='" + id + "'" : "") + ">" + t + "</label>"; }
+  function ro(v) { return "<input class='rpm-field' readonly tabindex='-1' style='cursor:default' value=\"" + _msAttr(v) + "\">"; }
+  overlay.innerHTML =
+    "<div style='background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:460px;width:100%;padding:28px;box-sizing:border-box;max-height:92vh;overflow:auto'>" +
+      "<div class='settings-title'>" +
+        "<span>" + inqEsc(a.name || "") +
+          "<span style='color:var(--muted);font-weight:400'> · Text</span></span>" +
+        "<button class='settings-close' onclick='_trCloseText()'>✕</button>" +
+      "</div>" +
+      "<div style='margin:4px 0 18px'>" + TEXT_WIN_ICON + "</div>" +
+      lbl("Phone") + ro(phonePretty || "No phone number on file") +
+      "<div id='trTxStatus' style='margin-top:12px'></div>" +
+      // Its own row under the number it saves. Bright: the one button in this
+      // window that does something (writes to Google Contacts).
+      (phoneDigits
+        ? _tlActs("<button class='link-btn bright' id='trTxContactBtn' onclick='_trCreateContact()'>" + CONTACT_ADD_ICON + "<span>Create contact</span></button>")
+        : "") +
+      "<div style='margin-top:24px'>" + lbl("Message", "trFcSms") + "</div>" +
+      "<textarea id='trFcSms' rows='3' readonly class='rpm-field'>" + inqEsc(sms) + "</textarea>" +
+      // Three helpers, one job: get this text into iMessage. None of them
+      // sends anything, so all three stay dim.
+      _tlActs(
+        "<button class='link-btn' onclick='_trCopySms(this)'>" + COPY_ICON + "<span>Copy text</span></button>" +
+        (phoneDigits
+          ? "<button class='link-btn' onclick='_trCopyPhone(this,\"" + phoneDigits + "\")'>" + COPY_ICON + "<span>Copy phone #</span></button>" +
+            "<a class='link-btn' href='sms:" + phoneDigits + "'>" + OPEN_OUT_ICON + "<span>Open Messages</span></a>"
+          : "")) +
+    "</div>";
+  overlay.addEventListener("click", function (ev) { if (ev.target === overlay) _trCloseText(); });
+  document.body.appendChild(overlay);
+  overlay._card = a;
+
+  // Already saved? Then the button says so before you click it. A quiet read:
+  // if it fails the button just stays as it is.
+  var url = getScriptUrl();
+  if (url && phoneDigits) {
+    fetch(url + "?action=checkContact&phone=" + encodeURIComponent(phoneDigits))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var btn = document.getElementById("trTxContactBtn");
+        if (btn && d && d.success && d.exists) { btn.disabled = true; _trSetLabel(btn, "In contacts ✓"); }
+      })
+      .catch(function () {});
+  }
+}
+
+function _trCloseText() {
+  var m = document.getElementById("trTxModal");
+  if (m) m.remove();
+}
+
+function _trCreateContact() {
+  var overlay = document.getElementById("trTxModal");
+  var url = getScriptUrl();
+  if (!overlay || !url) return;
+  var a   = overlay._card || {};
+  var btn = document.getElementById("trTxContactBtn");
+  var st  = document.getElementById("trTxStatus");
+  var win = overlay.firstElementChild;
+  if (st) st.innerHTML = "";
+  if (btn) { btn.disabled = true; _trSetLabel(btn, "Saving…"); }
+  rpmBusy(win, btn, true);
+  fetch(url + "?action=createContact" +
+        "&name="  + encodeURIComponent(a.name  || "") +
+        "&phone=" + encodeURIComponent((a.phone || "").toString().replace(/\D/g, "")) +
+        "&email=" + encodeURIComponent(a.email || ""))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      rpmBusy(win, btn, false);
+      if (!d.success) {
+        if (btn) { btn.disabled = false; _trSetLabel(btn, "Create contact"); }
+        rpmFail(st, d.message || "");
+        return;
+      }
+      // Success says nothing: the button's words change and it stays done.
+      if (btn) _trSetLabel(btn, d.existed ? "In contacts ✓" : "Contact saved ✓");
+    })
+    .catch(function () {
+      rpmBusy(win, btn, false);
+      if (btn) { btn.disabled = false; _trSetLabel(btn, "Create contact"); }
+      rpmFail(st, "No answer from Google. Check Contacts before trying again.");
+    });
 }
 
 function _trCopySms(btn) {

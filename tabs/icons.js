@@ -73,6 +73,19 @@ var OPEN_OUT_ICON =
   '<path d="M14 4h6v6M20 4l-8.5 8.5"/>' +
   '<path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>';
 
+// Speech bubble on the card's Text button, and person-plus on Create contact
+// (2026-09-27). Hand-written paths like the two above; swap for drawn ones later.
+var TEXT_ICON =
+  '<svg class="text-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" ' +
+  'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L3 20.5l1.5-5.2A8.5 8.5 0 1 1 21 11.5z"/></svg>';
+
+var CONTACT_ADD_ICON =
+  '<svg class="contact-add-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" ' +
+  'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<circle cx="9" cy="8" r="4"/><path d="M2 21v-1a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v1"/>' +
+  '<path d="M19 8v6M16 11h6"/></svg>';
+
 // Paper plane, inside the Send buttons. From the user's own SVG (om-2.svg,
 // 2026-09-21): the #000000 fill stripped so it takes the button's colour,
 // including the hover. Landscape artwork, so width drives the size.
