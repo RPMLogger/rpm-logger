@@ -97,7 +97,7 @@ function _trAcceptedCard(a) {
         // Text sits between Email and Book, the order you do them in. Blue: a
         // contact method, same weight as Email (2026-09-27).
         '<button class="link-btn blue opens-window" onclick="_trOpenText(\'' + em + '\')" ' +
-          'data-tip="Opens a window.\nSave their contact, then the text for Messages.\nNothing sends from here." data-tip-wrap>' + TEXT_ICON + '<span>Text</span></button>' +
+          'data-tip="Opens a window.\nDownload their contact card, then the text for Messages.\nNothing sends from here." data-tip-wrap>' + TEXT_ICON + '<span>Text</span></button>' +
         '<button class="link-btn bright opens-window" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
           'data-tip="Opens a window.\nBooking with their name and email.\nYou pick the date and time.\nCard moves to Trial once booked.\n(Not in Email list.)" data-tip-wrap data-tip-left>' + CALENDAR_ICON + '<span>Book</span></button>' +
       '</div>' +
@@ -506,9 +506,10 @@ function _trCloseEmail() {
 
 // ── The Text window ─────────────────────────────────────────────────────────
 // Was the bottom half of the Email window; its own window since 2026-09-27 so
-// it could take a first step: save them to Google Contacts (which syncs to the
-// Mac and the phone), so Messages shows a name instead of a number. Top down in
-// the order you do it: save the contact, then copy the text into Messages.
+// it could take a first step: download their contact card (.vcf), which opens
+// straight into Contacts on the Mac, so Messages shows a name instead of a
+// number. Replaced a Google Contacts save the same day: that waited on Google
+// syncing down to the Mac. Top down in the order you do it: card, then text.
 function _trOpenText(email) {
   var a = _trFindAccepted(email);
   if (!a) return;
@@ -532,11 +533,9 @@ function _trOpenText(email) {
       "</div>" +
       "<div style='margin:4px 0 18px'>" + TEXT_WIN_ICON + "</div>" +
       lbl("Phone") + ro(phonePretty || "No phone number on file") +
-      "<div id='trTxStatus' style='margin-top:12px'></div>" +
-      // Its own row under the number it saves. Bright: the one button in this
-      // window that does something (writes to Google Contacts).
+      // Its own row under the number it saves. Bright: the first thing to do here.
       (phoneDigits
-        ? _tlActs("<button class='link-btn bright' id='trTxContactBtn' onclick='_trCreateContact()'>" + CONTACT_ADD_ICON + "<span>Create contact</span></button>")
+        ? _tlActs("<button class='link-btn bright' onclick='_trDownloadCard(this)'>" + CONTACT_ADD_ICON + "<span>Download card</span></button>")
         : "") +
       "<div style='margin-top:24px'>" + lbl("Message", "trFcSms") + "</div>" +
       "<textarea id='trFcSms' rows='3' readonly class='rpm-field'>" + inqEsc(sms) + "</textarea>" +
@@ -552,19 +551,6 @@ function _trOpenText(email) {
   overlay.addEventListener("click", function (ev) { if (ev.target === overlay) _trCloseText(); });
   document.body.appendChild(overlay);
   overlay._card = a;
-
-  // Already saved? Then the button says so before you click it. A quiet read:
-  // if it fails the button just stays as it is.
-  var url = getScriptUrl();
-  if (url && phoneDigits) {
-    fetch(url + "?action=checkContact&phone=" + encodeURIComponent(phoneDigits))
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        var btn = document.getElementById("trTxContactBtn");
-        if (btn && d && d.success && d.exists) { btn.disabled = true; _trSetLabel(btn, "In contacts ✓"); }
-      })
-      .catch(function () {});
-  }
 }
 
 function _trCloseText() {
@@ -572,37 +558,37 @@ function _trCloseText() {
   if (m) m.remove();
 }
 
-function _trCreateContact() {
+// A vCard built in the browser, no backend. Opening the download shows
+// Contacts' Import prompt. Name the card's way: last word is the family name.
+function _trDownloadCard(btn) {
   var overlay = document.getElementById("trTxModal");
-  var url = getScriptUrl();
-  if (!overlay || !url) return;
-  var a   = overlay._card || {};
-  var btn = document.getElementById("trTxContactBtn");
-  var st  = document.getElementById("trTxStatus");
-  var win = overlay.firstElementChild;
-  if (st) st.innerHTML = "";
-  if (btn) { btn.disabled = true; _trSetLabel(btn, "Saving…"); }
-  rpmBusy(win, btn, true);
-  fetch(url + "?action=createContact" +
-        "&name="  + encodeURIComponent(a.name  || "") +
-        "&phone=" + encodeURIComponent((a.phone || "").toString().replace(/\D/g, "")) +
-        "&email=" + encodeURIComponent(a.email || ""))
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      rpmBusy(win, btn, false);
-      if (!d.success) {
-        if (btn) { btn.disabled = false; _trSetLabel(btn, "Create contact"); }
-        rpmFail(st, d.message || "");
-        return;
-      }
-      // Success says nothing: the button's words change and it stays done.
-      if (btn) _trSetLabel(btn, d.existed ? "In contacts ✓" : "Contact saved ✓");
-    })
-    .catch(function () {
-      rpmBusy(win, btn, false);
-      if (btn) { btn.disabled = false; _trSetLabel(btn, "Create contact"); }
-      rpmFail(st, "No answer from Google. Check Contacts before trying again.");
-    });
+  if (!overlay) return;
+  var a = overlay._card || {};
+  var name = (a.name || "").trim();
+  var d = (a.phone || "").toString().replace(/\D/g, "");
+  if (d.length > 10) d = d.slice(-10);
+  var parts = name.split(/\s+/);
+  var last  = parts.length > 1 ? parts.pop() : "";
+  var esc = function (v) { return (v || "").replace(/([\\;,])/g, "\\$1"); };
+  var lines = [
+    "BEGIN:VCARD", "VERSION:3.0",
+    "N:" + esc(last) + ";" + esc(parts.join(" ")) + ";;;",
+    "FN:" + esc(name),
+    // +1 form so caller ID matches however the number arrives.
+    "TEL;TYPE=CELL:+1" + d
+  ];
+  if (a.email) lines.push("EMAIL;TYPE=INTERNET:" + a.email);
+  lines.push("END:VCARD");
+  var blob = new Blob([lines.join("\r\n") + "\r\n"], { type: "text/vcard" });
+  var link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = (name || "Contact") + ".vcf";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(function () { URL.revokeObjectURL(link.href); }, 1000);
+  // Done only changes the words; a second click downloads it again.
+  _trSetLabel(btn, "Downloaded ✓");
 }
 
 function _trCopySms(btn) {
