@@ -610,6 +610,14 @@ body::before {
 .inq-reply-acts { display: flex; gap: 6px; justify-content: flex-end; }
 /* The Read link is a button in every way but the tag. */
 .inq-reply-acts .inq-db { text-decoration: none; display: inline-block; }
+/* ─── LINKS OUT OF THE PORTAL (2026-09-27) ─────────────────────────────────
+   Dim link button: the words, then the small out arrow. Every link that
+   leaves the portal (sheets, Calendar, Gmail, Dropbox, Finder) looks this way.
+   On a card that is itself the link (Dropbox), just the arrow after the name. */
+.out-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 32px; }
+.link-btn .open-out-icon { width: 11px; height: 11px; flex: none; }
+.out-ico { display: inline-flex; margin-left: 8px; color: var(--muted); vertical-align: 2px; }
+.out-ico .open-out-icon { width: 11px; height: 11px; }
 
 /* ─── Inquiries: decision cards (clean) ─────────────────────────────────── */
 .inq-dcard { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; padding: 20px 22px; margin-bottom: 10px; }

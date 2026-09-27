@@ -110,8 +110,8 @@ function _inqReplyRow(r) {
       "</div>" +
       "<div class='inq-reply-text'>" + inqEsc(r.snippet) + "</div>" +
       "<div class='inq-reply-acts'>" +
-        "<a class='inq-db' href='" + gmail + "' target='_blank' " +
-          "data-tip='Opens elsewhere.\nGoes to the thread in Gmail.' data-tip-wrap>Read</a>" +
+        "<a class='link-btn' href='" + gmail + "' target='_blank' " +
+          "data-tip='Opens elsewhere.\nGoes to the thread in Gmail.' data-tip-wrap><span>Read</span>" + OPEN_OUT_ICON + "</a>" +
         "<button class='inq-db' onclick='_inqDismissReply(\"" + inqEsc(r.threadId) + "\", this)' " +
           "data-tip='Instant.\nRemoves this reply from the list.\nNothing is sent.\nComes back if they write again.' data-tip-wrap>Dismiss</button>" +
         "<button class='inq-db yes' onclick='_inqReopen(\"" + inqEsc(r.email) + "\", this)' " +

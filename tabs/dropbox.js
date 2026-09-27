@@ -210,7 +210,8 @@ function _dbCard(f) {
   var col = f.empty ? 'var(--green)' : _dbAgeColor(f.ageDays);
   var chrome = 'style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' + col + ';' +
     'border-radius:10px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px"';
-  var name = '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + f.name + '</div>';
+  // The out arrow after the name: the whole card is a link out of the portal.
+  var name = '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + f.name + '<span class="out-ico">' + OPEN_OUT_ICON + '</span></div>';
   if (f.empty) {
     return '<div ' + open + chrome + '>' +
       '<div style="min-width:0">' + name +
@@ -253,7 +254,7 @@ function _dbTeacherCard(c) {
     'style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--blue);' +
     'border-radius:10px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px">' +
     '<div style="min-width:0">' +
-      '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + c.name + '</div>' +
+      '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + c.name + '<span class="out-ico">' + OPEN_OUT_ICON + '</span></div>' +
       '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:3px">' +
         c.files + ' file' + (c.files === 1 ? '' : 's') + ' · ' + _dbSize(c.bytes) +
       '</div>' +

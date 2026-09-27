@@ -545,7 +545,7 @@ function _trOpenText(email) {
         "<button class='link-btn' onclick='_trCopySms(this)'>" + COPY_ICON + "<span>Copy text</span></button>" +
         (phoneDigits
           ? "<button class='link-btn' onclick='_trCopyPhone(this,\"" + phoneDigits + "\")'>" + COPY_ICON + "<span>Copy phone #</span></button>" +
-            "<a class='link-btn' href='sms:" + phoneDigits + "'>" + OPEN_OUT_ICON + "<span>Open Messages</span></a>"
+            "<a class='link-btn' href='sms:" + phoneDigits + "'><span>Open Messages</span>" + OPEN_OUT_ICON + "</a>"
           : "")) +
     "</div>";
   overlay.addEventListener("click", function (ev) { if (ev.target === overlay) _trCloseText(); });
@@ -1948,7 +1948,7 @@ function _tlUploadHtml(folder) {
       'font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);cursor:pointer">' + inqEsc(idle) + '</div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
       '<button class="link-btn" style="flex:1;justify-content:center;padding:7px 10px" onclick="openDropboxLocalFolder(document.getElementById(\'tlDrop\').dataset.folder)" ' +
-        'data-tip="Opens elsewhere. (Their Dropbox folder in Finder.)\nDrag folders in and Dropbox uploads them.">\ud83d\udcc1 Open in Finder</button>' +
+        'data-tip="Opens elsewhere. (Their Dropbox folder in Finder.)\nDrag folders in and Dropbox uploads them."><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
       '<button class="link-btn" style="flex:1;justify-content:center;padding:7px 10px" onclick="document.getElementById(\'tlFolderIn\').click()">\ud83d\udcc2 Browse folder</button>' +
     '</div>' +
     '<input type="file" id="tlFileIn" multiple style="display:none" onchange="_tlPicked(this, false)">' +

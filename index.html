@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=673">
+  <link rel="stylesheet" href="css/styles.css?v=674">
 </head>
 <body>
 <div class="container">
@@ -303,8 +303,8 @@
     <!-- Link buttons, as on Inquiries: back to the tab left, the source sheet right. -->
     <div class="inq-toplinks">
       <button class="link-btn amber" onclick="switchTab('inquiries')" data-tip="Goes back to the Inquiries tab."><span>Inquiries Tab</span></button>
-      <a class="link-btn green" href="https://docs.google.com/spreadsheets/d/1JE0KugItYkWF19Pp8zqw6xCyLxjS-ryZMplC6XijOSM/edit"
-         target="_blank" rel="noopener" data-tip="Opens elsewhere.&#10;Opens the Google spreadsheet." data-tip-left><span class="sheet-icon"></span><span>Inquiries sheet</span></a>
+      <a class="link-btn" href="https://docs.google.com/spreadsheets/d/1JE0KugItYkWF19Pp8zqw6xCyLxjS-ryZMplC6XijOSM/edit"
+         target="_blank" rel="noopener" data-tip="Opens elsewhere.&#10;Opens the Google spreadsheet." data-tip-left><span>Inquiries sheet</span><span data-icon="out"></span></a>
     </div>
     <!-- Label, Inquiries tile and rule are drawn by inqarchive.js above the years. -->
     <div id="inqArchiveList"><div class="inq-empty rpm-loading">Loading</div></div>
@@ -342,10 +342,12 @@
 
   <!-- AUDIT -->
   <div class="tab-panel" id="tab-ctrl">
-    <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-      <button onclick="openCounterSheet()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:3px 9px;font-size:10px;cursor:pointer;letter-spacing:0.5px" data-tip="Opens elsewhere.&#10;Goes to the RPM Counter sheet in a new tab.">📊 Counter</button>
-      <button onclick="openImportSheet()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:3px 9px;font-size:10px;cursor:pointer;letter-spacing:0.5px" data-tip="Opens elsewhere.&#10;Goes to the Students Import sheet in a new tab.">📊 Students Import</button>
-      <button onclick="openGoogleCalendar()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:4px 10px;font-size:11px;cursor:pointer;letter-spacing:0.5px" data-tip="Opens elsewhere.&#10;Goes to Google Calendar in a new tab.">📅 Calendar</button>
+    <!-- Links out of the portal (2026-09-27): dim link button, words, then the
+         out arrow. Same look on every link that leaves the portal. -->
+    <div class="out-links">
+      <button class="link-btn" onclick="openCounterSheet()" data-tip="Opens elsewhere.&#10;Goes to the RPM Counter sheet in a new tab."><span>Counter</span><span data-icon="out"></span></button>
+      <button class="link-btn" onclick="openImportSheet()" data-tip="Opens elsewhere.&#10;Goes to the Students Import sheet in a new tab."><span>Students Import</span><span data-icon="out"></span></button>
+      <button class="link-btn" onclick="openGoogleCalendar()" data-tip="Opens elsewhere.&#10;Goes to Google Calendar in a new tab."><span>Calendar</span><span data-icon="out"></span></button>
     </div>
     <div class="section-label">Lesson Sync Audit</div>
     <div id="auditLessonSection"><div class="empty-state rpm-loading">Loading</div></div>
@@ -764,7 +766,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">673</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">674</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -785,42 +787,42 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=673"></script>
-<script src="core/storage.js?v=673"></script>
-<script src="core/utils.js?v=673"></script>
-<script src="core/dialog.js?v=673"></script>
-<script src="core/api.js?v=673"></script>
+<script src="core/state.js?v=674"></script>
+<script src="core/storage.js?v=674"></script>
+<script src="core/utils.js?v=674"></script>
+<script src="core/dialog.js?v=674"></script>
+<script src="core/api.js?v=674"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=673"></script>
-<script src="tabs/lessons.js?v=673"></script>
-<script src="tabs/payments.js?v=673"></script>
-<script src="tabs/week.js?v=673"></script>
-<script src="tabs/general.js?v=673"></script>
-<script src="tabs/financial.js?v=673"></script>
-<script src="tabs/inquiries.js?v=673"></script>
-<script src="tabs/inqarchive.js?v=673"></script>
-<script src="tabs/comms.js?v=673"></script>
-<script src="tabs/notes.js?v=673"></script>
-<script src="tabs/todo.js?v=673"></script>
-<script src="tabs/availability.js?v=673"></script>
-<script src="tabs/biweekly.js?v=673"></script>
-<script src="tabs/travel.js?v=673"></script>
-<script src="tabs/tripsummary.js?v=673"></script>
-<script src="tabs/triphistory.js?v=673"></script>
-<script src="tabs/skips.js?v=673"></script>
-<script src="tabs/student.js?v=673"></script>
-<script src="tabs/ctrl.js?v=673"></script>
-<script src="tabs/mailcenter.js?v=673"></script>
-<script src="tabs/dropbox.js?v=673"></script>
-<script src="tabs/trial.js?v=673"></script>
-<script src="tabs/rates.js?v=673"></script>
-<script src="tabs/ending.js?v=673"></script>
-<script src="tabs/thisyear.js?v=673"></script>
-<script src="tabs/sheets.js?v=673"></script>
-<script src="tabs/studentline.js?v=673"></script>
-<script src="tabs/calendar.js?v=673"></script>
-<script src="tabs/fixedcal.js?v=673"></script>
+<script src="tabs/icons.js?v=674"></script>
+<script src="tabs/lessons.js?v=674"></script>
+<script src="tabs/payments.js?v=674"></script>
+<script src="tabs/week.js?v=674"></script>
+<script src="tabs/general.js?v=674"></script>
+<script src="tabs/financial.js?v=674"></script>
+<script src="tabs/inquiries.js?v=674"></script>
+<script src="tabs/inqarchive.js?v=674"></script>
+<script src="tabs/comms.js?v=674"></script>
+<script src="tabs/notes.js?v=674"></script>
+<script src="tabs/todo.js?v=674"></script>
+<script src="tabs/availability.js?v=674"></script>
+<script src="tabs/biweekly.js?v=674"></script>
+<script src="tabs/travel.js?v=674"></script>
+<script src="tabs/tripsummary.js?v=674"></script>
+<script src="tabs/triphistory.js?v=674"></script>
+<script src="tabs/skips.js?v=674"></script>
+<script src="tabs/student.js?v=674"></script>
+<script src="tabs/ctrl.js?v=674"></script>
+<script src="tabs/mailcenter.js?v=674"></script>
+<script src="tabs/dropbox.js?v=674"></script>
+<script src="tabs/trial.js?v=674"></script>
+<script src="tabs/rates.js?v=674"></script>
+<script src="tabs/ending.js?v=674"></script>
+<script src="tabs/thisyear.js?v=674"></script>
+<script src="tabs/sheets.js?v=674"></script>
+<script src="tabs/studentline.js?v=674"></script>
+<script src="tabs/calendar.js?v=674"></script>
+<script src="tabs/fixedcal.js?v=674"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
