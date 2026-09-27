@@ -782,6 +782,7 @@ body::before {
 #tsModal   input:focus-visible,
 #inqModal  input:focus-visible,
 #inqModal  textarea:focus-visible,
+#logPanel  input:focus-visible,
 #logPanel  textarea:focus-visible { outline-color: var(--muted); }
 
 /* A rule between messages in a thread: long emails ran into each other and
@@ -1699,41 +1700,36 @@ a:focus-visible,
    One look wherever a lesson gets logged: Home / Audit (#logPanel, lessons.js)
    and the Trial card's step 8 (trial.js _tlLogHtml). Three rows that join into
    one "Row 1 - Row 2 - Row 3" line; the grey ring marks where the mic writes.
-   Mic is a button, never automatic. After Log the window stays and says
-   "Lesson logged"; Done closes it. */
+   Mic is a button, never automatic. After Log the window stays and the
+   button says "Logged ✓"; ✕ closes it. */
 .ll-rows { display: flex; flex-direction: column; gap: 6px; }
 .ll-rows .ll-row { resize: none; }
 /* The row the mic writes into wears the standard field highlight, the same
    grey ring a focused field gets, even while focus is on the mic button. */
 .ll-rows .ll-row.active { outline: 1px solid var(--focus); outline-offset: -1px; }
 .ll-acts { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
-/* Icon only, same box as the Copy / Send buttons (9px pad, 13px glyph). */
-.db-mini-btn.ll-mic { padding: 9px 12px; align-self: stretch; display: inline-flex; align-items: center; justify-content: center; }
-.db-mini-btn.ll-mic svg { width: 13px; height: 13px; }
-.db-mini-btn.ll-mic.rec { color: var(--accent); border-color: var(--accent); }
-.db-mini-btn.ll-log { padding: 9px 16px; }
-.db-mini-btn.ll-log:disabled { opacity: 0.4; cursor: default; }
 .ll-state { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
 /* Trial step windows (2026-09-25): buttons that cannot be pressed yet dim;
    a finished green one (Sent ✓, Folder made ✓) stays full colour. The mic is
    icon only, red while it records. */
 /* Box text in the Trial windows a step smaller than the portal's 12px
    (2026-09-26): entry boxes, read-only boxes and the document rows alike. */
-#tlModal .rpm-field, #tlModal .tl-doc, #msModal .settings-input, #tsModal .rpm-field,
+#tlModal .rpm-field, #logPanel .rpm-field, #tlModal .tl-doc, #msModal .settings-input, #tsModal .rpm-field,
 #trFcModal .rpm-field, #tbModal .rpm-field, #thModal .rpm-field { font-size: 11px; }
 /* Dimmed by colour, not opacity, so a locked button's tooltip stays readable. */
-#tlModal .link-btn:disabled:not(.green) { color: rgba(255,255,255,.18); border-color: rgba(122,122,122,.22); background: transparent; cursor: default; }
-#tlModal .link-btn.green:disabled { cursor: default; }
+#tlModal .link-btn:disabled:not(.green), #logPanel .link-btn:disabled:not(.green) { color: rgba(255,255,255,.18); border-color: rgba(122,122,122,.22); background: transparent; cursor: default; }
+#tlModal .link-btn.green:disabled, #logPanel .link-btn.green:disabled { cursor: default; }
+/* Logging… keeps its bright look while the window dims around it. */
+#logPanel .link-btn.rpm-acting:disabled { color: var(--text); border-color: var(--muted); }
 /* Done keeps the button's own colour (2026-09-26): green means go elsewhere in
    the portal, so a finished button only changes its words (Sent ✓, Logged ✓). */
-#tlModal .link-btn.green, #tlModal .link-btn.green:hover, #tlModal .link-btn.green.pressed {
+#tlModal .link-btn.green, #tlModal .link-btn.green:hover, #tlModal .link-btn.green.pressed,
+#logPanel .link-btn.green, #logPanel .link-btn.green:hover, #logPanel .link-btn.green.pressed {
   color: var(--text); border-color: var(--muted); background: transparent; }
-#tlModal .link-btn.tl-mic { padding: 4px 2px; border-color: transparent; background: transparent; color: var(--muted); }
-#tlModal .link-btn.tl-mic:hover { color: var(--text); }
-#tlModal .link-btn.tl-mic svg { width: 18px; height: 18px; }
-#tlModal .link-btn.tl-mic.rec { color: var(--accent); }
-.ll-foot { display: flex; justify-content: flex-end; margin-top: 16px; }
-.db-mini-btn.ll-done { padding: 7px 20px; }
+#tlModal .link-btn.tl-mic, #logPanel .link-btn.tl-mic { padding: 4px 2px; border-color: transparent; background: transparent; color: var(--muted); }
+#tlModal .link-btn.tl-mic:hover, #logPanel .link-btn.tl-mic:hover { color: var(--text); }
+#tlModal .link-btn.tl-mic svg, #logPanel .link-btn.tl-mic svg { width: 18px; height: 18px; }
+#tlModal .link-btn.tl-mic.rec, #logPanel .link-btn.tl-mic.rec { color: var(--accent); }
 
 /* ─── THE FIELD ───────────────────────────────────────────────────────────
    One type for everything you type into, portal wide.

@@ -84,11 +84,17 @@ function _logState(text, color) {
 
 function openLogFresh(student, idx) {
   activeStudent = { student: student, idx: idx };
-  document.getElementById("logPanel").classList.add("active");
+  var panel = document.getElementById("logPanel");
+  panel.classList.add("active");
+  // A window everywhere, like the Trial card's (was inline on the Today grid).
+  if (typeof _floatLogPanel === "function") _floatLogPanel();
+  var ic = document.getElementById("logPanelIcon");
+  if (ic && !ic.innerHTML) ic.innerHTML = LOG_ICON;
   document.getElementById("logPanelName").textContent = student.name;
   resetRows();
-  document.getElementById("btnLog").disabled = true;
-  document.getElementById("btnLog").textContent = "Log";
+  rpmBusy(panel, null, false);
+  var lb = document.getElementById("btnLog");
+  lb.disabled = true; lb.textContent = "Log"; lb.className = "link-btn bright";
   var mic = document.getElementById("logMicBtn");
   if (mic) { mic.innerHTML = MIC_ICON; mic.classList.remove("rec"); mic.disabled = false; }
   _logState("");
@@ -205,8 +211,11 @@ function submitLog() {
 
   var student = activeStudent.student;
   var btn = document.getElementById("btnLog");
+  var panel = document.getElementById("logPanel");
   btn.textContent = "Logging…"; btn.disabled = true;
   _logState("");
+  // Trial window feedback: the window dims, the button keeps its dots.
+  rpmBusy(panel, btn, true);
 
   var trialPaid = false;
   var pe = document.getElementById("trialPaidCheck");
@@ -215,7 +224,15 @@ function submitLog() {
   var params = { studentName: student.name, subject: subject, trialPaid: trialPaid ? "1" : "0" };
   if (student.eventDate) params.lessonDate = student.eventDate;
 
-  callScript(url, student.calType === "trial" ? "logTrial" : "logLesson", params, function(data) {
+  var q = url + "?action=" + (student.calType === "trial" ? "logTrial" : "logLesson");
+  for (var k in params) q += "&" + k + "=" + encodeURIComponent(params[k]);
+  function fail(why) {
+    rpmBusy(panel, btn, false);
+    btn.textContent = "Log"; btn.disabled = false;
+    rpmFail("logPanelStatus", why);
+  }
+  fetch(q).then(function(r) { return r.json(); }).then(function(data) {
+    rpmBusy(panel, btn, false);
     if (data.success) {
       // No client-side memory: the sheet is the source of truth. Flag this
       // student optimistically so the button drops off the Today grid now; the
@@ -224,14 +241,13 @@ function submitLog() {
         if (t.name === student.name && t.eventDate === student.eventDate) t.alreadyLogged = true;
       });
       addLog("lessonFeed", "✓ " + student.name + " — " + subject, "success");
-      // The window stays open and says so; Done (or ✕) closes it. Logged is
-      // final here, so the rows and buttons lock.
+      // The window stays open; only the button's words change (no success
+      // line). ✕ closes it. Logged is final here, so the rows and buttons lock.
       if (activeStudent) activeStudent.logged = true;
-      btn.textContent = "Logged";
+      btn.textContent = "Logged ✓"; btn.className = "link-btn green";
       var mic = document.getElementById("logMicBtn");
       if (mic) mic.disabled = true;
       for (var r2 = 0; r2 < 3; r2++) document.getElementById("rowInput-" + r2).readOnly = true;
-      _logState("Lesson logged ✓", "var(--green)");
       renderTodayGrid();
       // If this log came from the Home/student page, re-fetch that student's
       // detail so the Past section reflects the lesson just logged. Same hook
@@ -256,10 +272,9 @@ function submitLog() {
         }
       }
     } else {
-      btn.textContent = "Log"; btn.disabled = false;
-      addLog("lessonFeed", "❌ " + (data.message || "Error logging"), "error");
+      fail(data.message || "Error logging");
     }
-  });
+  }).catch(function() { fail("No answer from Google. Check the sheet before trying again."); });
 }
 
 // ─── MULTI-ROW HELPERS ───────────────────────────────────────────────────────

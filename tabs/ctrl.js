@@ -895,9 +895,10 @@ function refreshAudit(btn) {
   if (typeof initAuditTab === "function") initAuditTab();
 }
 
-// The log modal lives inside the Lessons tab (display:none when another tab is
-// active). To use it from the Audit tab, lift it into a floating overlay on
-// <body>, then restore it to its original spot when it closes.
+// The log modal lives inside the Home tab (display:none when another tab is
+// active). Every opener (Today grid, student page, Audit) lifts it into a
+// floating overlay on <body>, then restores it to its original spot when it
+// closes. Sized like the Trial windows (460 wide).
 function _floatLogPanel() {
   var panel = document.getElementById("logPanel");
   if (!panel || window._logPanelHome) return; // already floated
@@ -912,7 +913,7 @@ function _floatLogPanel() {
   back.onclick = function(e) { if (e.target === back) closeLogPanel(); };
   document.body.appendChild(back);
   back.appendChild(panel);
-  panel.style.cssText = "width:min(600px,94vw);max-height:88vh;overflow:auto;margin:0;z-index:9999";
+  panel.style.cssText = "width:min(460px,94vw);box-sizing:border-box;max-height:90vh;overflow:auto;margin:0;z-index:9999";
 }
 
 function _unfloatLogPanel() {
