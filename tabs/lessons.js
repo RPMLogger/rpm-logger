@@ -92,7 +92,11 @@ function openLogFresh(student, idx) {
   if (typeof _floatLogPanel === "function") _floatLogPanel();
   var ic = document.getElementById("logPanelIcon");
   if (ic && !ic.innerHTML) ic.innerHTML = LOG_ICON;
+  var add = document.getElementById("logAddRow");
+  if (add) add.innerHTML = llAddInner();
   document.getElementById("logPanelName").textContent = student.name;
+  var mic0 = document.getElementById("logMicBtn");
+  if (mic0 && !mic0.innerHTML) mic0.innerHTML = MIC_ICON;
   resetRows();
   rpmBusy(panel, null, false);
   var lb = document.getElementById("btnLog");

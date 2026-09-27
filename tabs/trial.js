@@ -1382,7 +1382,7 @@ function _tlRender() {
             : '<button class="link-btn bright" id="tlFreqSave" onclick="_tlSaveFreq()">Save</button>') +
         '</div>'
       : '');
-  if (_tl.step === 'log') llWire(_tlBox(), _tlRow, _tlLogReady);
+  if (_tl.step === 'log') { llWire(_tlBox(), _tlRow, _tlLogReady); llPlaceMic(_tlBox()); }
 }
 
 // ── 1 · Info ──
@@ -1458,12 +1458,14 @@ function _tlBox() { return document.getElementById('tlRows'); }
 function _tlLogHtml(a, s) {
   _tl.row = 0;
   return '<div style="margin:4px 0 18px">' + LOG_ICON + '</div>' +
-    '<div class="ll-rows" id="tlRows"><input type="text" class="rpm-field ll-row active"></div>' +
+    // The mic sits inside the right end of the row you are in (llPlaceMic),
+    // where most apps put it.
+    '<div class="ll-wrap">' +
+      '<div class="ll-rows" id="tlRows"><input type="text" class="rpm-field ll-row active"></div>' +
+      '<button class="link-btn tl-mic" id="tlMicBtn" data-tip="Starts or stops dictation." data-tip-left onclick="_tlMic()">' + MIC_ICON + '</button>' +
+    '</div>' +
     llAddHtml() +
     '<div class="ll-acts" style="margin-top:16px">' +
-      // The mic is a tool, not an action: a bare icon on the left, apart
-      // from Log, which is the button on the right.
-      '<button class="link-btn tl-mic" id="tlMicBtn" data-tip="Starts or stops dictation." onclick="_tlMic()">' + MIC_ICON + '</button>' +
       '<span class="ll-state" id="tlWhatMsg" style="flex:1"></span>' +
       '<button class="link-btn bright" id="tlLogBtn" onclick="_tlLogWhat()" disabled>Log</button>' +
     '</div>';

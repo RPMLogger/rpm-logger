@@ -194,11 +194,24 @@ function rpmToast(kind, text, why) {
 
 // ─── LOG LESSON ROWS (Home #logPanel and the Trial card's step 8) ───────────
 // One row to start. Enter adds a row under the one you are in; Backspace in an
-// empty row (not the first) removes it; the dim "＋ row" under the list adds
-// one at the end. The box is a .ll-rows div; llWire hooks it up once and calls
+// empty row (not the first) removes it; the dim add-row icon under the list
+// adds one at the end. The box is a .ll-rows div inside a .ll-wrap, which also
+// holds the mic: it sits inside the right end of the row you are in and moves
+// with you (llPlaceMic). llWire hooks the box up once and calls
 // onFocus(index) / onChange() so each window keeps its own mic and Log state.
 function llRowHtml() { return '<input type="text" class="rpm-field ll-row">'; }
-function llAddHtml() { return '<button type="button" class="ll-add" onclick="llAddRow(this.previousElementSibling)">＋ row</button>'; }
+function llAddInner() { return (typeof ROW_ADD_ICON === 'string' ? ROW_ADD_ICON : '＋'); }
+function llAddHtml() {
+  return '<button type="button" class="ll-add" data-tip="Adds a row.\nEnter does too." ' +
+    'onclick="llAddRow(this.parentNode.querySelector(\'.ll-rows\'))">' + llAddInner() + '</button>';
+}
+function llPlaceMic(box) {
+  if (!box || !box.parentNode) return;
+  var mic = box.parentNode.querySelector('.tl-mic');
+  var row = box.querySelector('.ll-row.active') || llRows(box)[0];
+  if (!mic || !row) return;
+  mic.style.top = (row.offsetTop + (row.offsetHeight - mic.offsetHeight) / 2) + 'px';
+}
 function llRows(box) { return box ? Array.prototype.slice.call(box.querySelectorAll('.ll-row')) : []; }
 function llValues(box) { return llRows(box).map(function (el) { return el.value.trim(); }); }
 
@@ -209,6 +222,7 @@ function llWire(box, onFocus, onChange) {
   box.addEventListener('focusin', function (ev) {
     var i = llRows(box).indexOf(ev.target);
     if (i >= 0 && box._llFocus) box._llFocus(i);
+    llPlaceMic(box);
   });
   box.addEventListener('input', function () { if (box._llChange) box._llChange(); });
   box.addEventListener('keydown', function (ev) {
@@ -221,6 +235,7 @@ function llWire(box, onFocus, onChange) {
       ev.preventDefault();
       el.remove();
       if (box._llChange) box._llChange();
+      llPlaceMic(box);
       var prev = rows[i - 1];
       prev.focus();
       prev.setSelectionRange(prev.value.length, prev.value.length);
@@ -247,6 +262,7 @@ function llReset(box) {
   box.classList.remove('locked');
   box.innerHTML = llRowHtml();
   llRows(box)[0].classList.add('active');
+  llPlaceMic(box);
 }
 
 function llLock(box) {
