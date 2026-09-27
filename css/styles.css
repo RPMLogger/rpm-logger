@@ -646,6 +646,11 @@ body::before {
    number sits outside in a gutter (the list is the list, the button is the
    step), and the button's colour carries one thing only: done or not. */
 .tr-steps  { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; margin: 20px 0; }
+/* A Trial window while Google saves: dimmed and untouchable, except the row
+   holding the Save button, which shows its moving dots (2026-09-26). */
+#tlModal.tl-busy { pointer-events: none; }
+#tlModal.tl-busy > *:not(:has(.link-btn.bright)) { opacity: .4; transition: opacity .15s; }
+#tlModal.tl-busy .link-btn.bright:disabled { color: var(--text); border-color: var(--muted); }   /* Saving… stays bright, not the locked look */
 .tr-col    { display: flex; flex-direction: column; gap: 5px; }
 .tr-step   { display: flex; align-items: center; gap: 9px; }
 /* The gutter reads the same whether or not the step is done: the list is one
@@ -1400,6 +1405,13 @@ a:focus-visible,
   text-transform: uppercase; color: var(--muted); margin-top: 14px;
 }
 .pt-sum .pt-freq { color: var(--warn); }
+/* A failed save in a Trial window: the window talking, same voice as the
+   summary line above, in red. The reason sits under it, small and plain. */
+/* Shaped like the Venmo / Zelle badges on Payments: tinted box, coloured text. */
+.tl-fail { display: inline-block; font-family: "DM Mono", monospace; font-size: 11px;   /* the Loading word's font */
+  padding: 3px 8px; border-radius: 3px; color: #ff5a4d; background: rgba(255,90,77,0.15); }
+.tl-half { display: inline-block; font-family: "DM Mono", monospace; font-size: 11px;
+  padding: 3px 8px; border-radius: 3px; color: var(--accent2); background: rgba(240,165,0,0.14); }   /* half-success: amber */
 
 /* Trial tab: Make student spinner */
 .ms-spin {
@@ -1697,6 +1709,10 @@ a:focus-visible,
 /* Dimmed by colour, not opacity, so a locked button's tooltip stays readable. */
 #tlModal .link-btn:disabled:not(.green) { color: rgba(255,255,255,.18); border-color: rgba(122,122,122,.22); background: transparent; cursor: default; }
 #tlModal .link-btn.green:disabled { cursor: default; }
+/* Done keeps the button's own colour (2026-09-26): green means go elsewhere in
+   the portal, so a finished button only changes its words (Sent ✓, Logged ✓). */
+#tlModal .link-btn.green, #tlModal .link-btn.green:hover, #tlModal .link-btn.green.pressed {
+  color: var(--text); border-color: var(--muted); background: transparent; }
 #tlModal .link-btn.tl-mic { padding: 4px 2px; border-color: transparent; background: transparent; color: var(--muted); }
 #tlModal .link-btn.tl-mic:hover { color: var(--text); }
 #tlModal .link-btn.tl-mic svg { width: 18px; height: 18px; }

@@ -1889,25 +1889,51 @@ function _tlSaveFields(fields, msgId, onOk) {
   var url = getScriptUrl();
   if (!url || !_tl) return;
   var email = _tl.card.email || '';
-  _tlSetMsg(msgId, 'Saving…');
-  function fail(txt) { _tlSetMsg(msgId, txt, 'var(--accent)'); _tlResetSaveBtns(); }
-  var timer = setTimeout(function () { fail('❌ No answer from Google. Press Save again.'); }, _TL_SAVE_LIMIT);
+  _tlSetMsg(msgId, '');
+  var m0 = document.getElementById(msgId); if (m0) m0.style.textAlign = '';
+  // The window dims while Google works; the Save button keeps its moving dots
+  // (2026-09-26). Success closes it, failure brings it back with "Unsuccessful".
+  var md = document.getElementById('tlModal');
+  if (md) md.classList.add('tl-busy');
+  function undim() { var m = document.getElementById('tlModal'); if (m) m.classList.remove('tl-busy'); }
+  // One badge for every failure, "Unsuccessful"; the reason is in its tooltip.
+  function fail(why) { undim(); _tlResetSaveBtns(); _tlFail(msgId, why); }
+  var timer = setTimeout(function () { fail('no answer from Google in 20 seconds'); }, _TL_SAVE_LIMIT);
   var qs = Object.keys(fields).map(function (k) { return '&' + k + '=' + encodeURIComponent(fields[k]); }).join('');
   fetch(url + '?action=saveTrialRecord&email=' + encodeURIComponent(email) + qs)
     .then(function (r) { return r.json(); })
     .then(function (d) {
       clearTimeout(timer);
-      if (!d.success) { fail('⚠ ' + (d.message || 'Not saved')); return; }
-      if (d.skipped && d.skipped.length) { fail('⚠ No column on the sheet: ' + d.skipped.join(', ')); return; }
+      if (!d.success) { fail(d.message || ''); return; }
+      if (d.skipped && d.skipped.length) { fail('no column on the sheet: ' + d.skipped.join(', ')); return; }
       if (_tl && _tl.rec) Object.keys(fields).forEach(function (k) { _tl.rec[k] = fields[k]; });
       _tlMarkEmail(email, fields);
+      undim();
       _tlSetMsg(msgId, 'Saved ✓', 'var(--green)');
       if (onOk) onOk();
     })
-    .catch(function () { clearTimeout(timer); fail('❌ Not saved. Press Save again.'); });
+    .catch(function () { clearTimeout(timer); fail('could not reach Google'); });
 }
 
 // After a failed save, put the Save / Set buttons back so it can be retried.
+// "Unsuccessful", right above the button, red badge. The reason is in its
+// tooltip, for when it keeps failing and someone needs to know why.
+function _tlFail(msgId, why) {
+  var el = document.getElementById(msgId);
+  if (!el) return;
+  el.style.color = ''; el.style.textAlign = 'right';
+  el.innerHTML = '<span class="tl-fail"' + (why ? ' data-tip="' + _msAttr(why) + '" data-tip-wrap data-tip-left' : '') + '>Unsuccessful</span>';
+}
+
+// Half-success note, right above the button: amber, the same shape as
+// "Unsuccessful". The detail is in its tooltip.
+function _tlHalf(msgId, text, tip) {
+  var el = document.getElementById(msgId);
+  if (!el) return;
+  el.style.color = ''; el.style.textAlign = 'right';
+  el.innerHTML = '<span class="tl-half"' + (tip ? ' data-tip="' + _msAttr(tip) + '" data-tip-wrap data-tip-left' : '') + '>' + inqEsc(text) + '</span>';
+}
+
 function _tlResetSaveBtns() {
   if (!_tl) return;
   [['tlInfoSave', 'Save'], ['tlFreqSave', 'Save'], ['tlTimeSet', 'Set']].forEach(function (x) {
@@ -2086,31 +2112,37 @@ function _tlSend(which) {
   var a = _tl.card, msg = 'tlMsg-' + which, setup = which === 'setup';
   var btn = document.getElementById('tlSendBtn-' + which);
   var lbl = btn.querySelector('span');
+  // No "Sending to …" line: the window dims and the button's moving dots say it.
   _tl.busy = true; btn.disabled = true; lbl.textContent = 'Sending…';
-  _tlSetMsg(msg, 'Sending to ' + (a.email || '') + '…');
+  _tlSetMsg(msg, '');
+  var md = document.getElementById('tlModal');
+  if (md) md.classList.add('tl-busy');
+  function undim() { var m = document.getElementById('tlModal'); if (m) m.classList.remove('tl-busy'); }
   fetch(url + '?action=sendTrialTerms&which=' + which + '&email=' + encodeURIComponent(a.email || '') + '&name=' + encodeURIComponent(a.name || ''))
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!_tl) return;
+      undim();
       _tl.busy = false; btn.disabled = false;
-      if (!d.success) {
-        lbl.textContent = 'Send';
-        _tlSetMsg(msg, '⚠ ' + (d.message || 'Not sent'), 'var(--accent)');
-        return;
-      }
+      if (!d.success) { lbl.textContent = 'Send'; _tlFail(msg, d.message || ''); return; }
       btn.innerHTML = '<span>Sent ✓</span>'; btn.disabled = true; btn.onclick = null;
       btn.className = 'link-btn green';
       _tl.rec = _tl.rec || {};
       var patch = setup ? { setupSent: true, setupDate: d.sentDate } : { termsSent: true, sentDate: d.sentDate };
       Object.keys(patch).forEach(function (k) { _tl.rec[k] = patch[k] === true ? 'TRUE' : patch[k]; });
       _tlMark(patch);
-      _tlSetMsg(msg, 'Sent to ' + (a.email || '') + ' · ' + d.sentDate +
-        (d.stamped ? '' : ' (Could not tick it on the sheet.)'), 'var(--green)');
+      // Success says nothing: Sent ✓ on the button is the answer. Only a
+      // half-success speaks - the email went, the sheet tick did not - and it
+      // must not say "try again", which would send it twice.
+      _tlSetMsg(msg, '');
+      if (!d.stamped) _tlHalf(msg, 'Sent, not ticked on the sheet', d.stampMessage || 'The email went out, but the sheet did not record it. Do not send again.');
     })
     .catch(function () {
       if (!_tl) return;
+      undim();
       _tl.busy = false; btn.disabled = false; lbl.textContent = 'Send';
-      _tlSetMsg(msg, '❌ No answer. Check Sent mail before sending again.', 'var(--accent)');
+      // No answer: it may still have gone out, so check before resending.
+      _tlFail(msg, 'No answer from Google. It may have gone out: check Sent mail before sending again.');
     });
 }
 
