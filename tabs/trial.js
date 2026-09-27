@@ -1382,7 +1382,10 @@ function _tlRender() {
             : '<button class="link-btn bright" id="tlFreqSave" onclick="_tlSaveFreq()">Save</button>') +
         '</div>'
       : '');
-  if (_tl.step === 'log') { llWire(_tlBox(), _tlRow, _tlLogReady); llPlaceMic(_tlBox()); }
+  if (_tl.step === 'log') { llWire(_tlBox(), _tlRow, _tlLogReady, function () {
+    var b = document.getElementById('tlLogBtn');
+    if (b && !b.disabled) _tlLogWhat();
+  }); llPlaceMic(_tlBox()); }
 }
 
 // ── 1 · Info ──
@@ -1467,7 +1470,7 @@ function _tlLogHtml(a, s) {
     llAddHtml() +
     '<div class="ll-acts" style="margin-top:16px">' +
       '<span class="ll-state" id="tlWhatMsg" style="flex:1"></span>' +
-      '<button class="link-btn bright" id="tlLogBtn" onclick="_tlLogWhat()" disabled>Log</button>' +
+      '<button class="link-btn bright" id="tlLogBtn" data-tip="' + LL_LOG_TIP + '" data-tip-left onclick="_tlLogWhat()" disabled>Log</button>' +
     '</div>';
 }
 

@@ -199,10 +199,12 @@ function rpmToast(kind, text, why) {
 // holds the mic: it sits inside the right end of the row you are in and moves
 // with you (llPlaceMic). llWire hooks the box up once and calls
 // onFocus(index) / onChange() so each window keeps its own mic and Log state.
+var LL_ADD_TIP = 'Instant.\nAdds a row. Enter does too.\nEach row becomes one part of the log.\nRows are joined with &quot; - &quot; when you log.';
+var LL_LOG_TIP = 'Saves the lesson log.\n⌘ Enter does too.';
 function llRowHtml() { return '<input type="text" class="rpm-field ll-row">'; }
 function llAddInner() { return (typeof ROW_ADD_ICON === 'string' ? ROW_ADD_ICON : '＋'); }
 function llAddHtml() {
-  return '<button type="button" class="ll-add" data-tip="Adds a row.\nEnter does too." ' +
+  return '<button type="button" class="ll-add" data-tip="' + LL_ADD_TIP + '" ' +
     'onclick="llAddRow(this.parentNode.querySelector(\'.ll-rows\'))">' + llAddInner() + '</button>';
 }
 function llPlaceMic(box) {
@@ -215,10 +217,11 @@ function llPlaceMic(box) {
 function llRows(box) { return box ? Array.prototype.slice.call(box.querySelectorAll('.ll-row')) : []; }
 function llValues(box) { return llRows(box).map(function (el) { return el.value.trim(); }); }
 
-function llWire(box, onFocus, onChange) {
+// onSubmit: ⌘ Enter (Ctrl Enter elsewhere) logs from any row.
+function llWire(box, onFocus, onChange, onSubmit) {
   if (!box || box._llWired) return;
   box._llWired = true;
-  box._llFocus = onFocus; box._llChange = onChange;
+  box._llFocus = onFocus; box._llChange = onChange; box._llSubmit = onSubmit;
   box.addEventListener('focusin', function (ev) {
     var i = llRows(box).indexOf(ev.target);
     if (i >= 0 && box._llFocus) box._llFocus(i);
@@ -228,7 +231,10 @@ function llWire(box, onFocus, onChange) {
   box.addEventListener('keydown', function (ev) {
     var el = ev.target, rows = llRows(box), i = rows.indexOf(el);
     if (i < 0 || el.readOnly || ev.isComposing) return;
-    if (ev.key === 'Enter') {
+    if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey)) {
+      ev.preventDefault();
+      if (box._llSubmit) box._llSubmit();
+    } else if (ev.key === 'Enter') {
       ev.preventDefault();
       llAddRow(box, i);
     } else if (ev.key === 'Backspace' && !el.value && i > 0) {

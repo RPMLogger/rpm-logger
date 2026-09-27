@@ -301,7 +301,10 @@ function updateLogButton() {
 
 function resetRows() {
   var box = _logBox();
-  llWire(box, setActiveRow, onRowInput);
+  llWire(box, setActiveRow, onRowInput, function() {
+    var b = document.getElementById("btnLog");
+    if (b && !b.disabled) submitLog();
+  });
   llReset(box);
   rowFinals = [""];
   activeRow = 0;
