@@ -626,8 +626,11 @@ body::before {
 /* Lesson Sync chips: one amber for everything that needs a look (was orange,
    amber and yellow for the same meaning). A date you can log has the ▸ and
    opens the Log lesson window; a format warning is a note to fix by hand. */
-/* Lesson Sync row labels in caps, like the card's other small headings. */
-.inq-flabel.au-caps, .inq-fval.au-caps { text-transform: uppercase; letter-spacing: 1px; }
+/* Lesson Sync rows (user, 2026-09-28): normal case; the labels (Import,
+   Counter) are the bright part, the lesson + date step back. The reverse of
+   the usual card field. */
+.inq-flabel.au-caps { color: rgba(255,255,255,0.5); }
+.inq-fval.au-caps   { color: rgba(255,255,255,0.24); }
 .au-chip { display: inline-block; margin: 0 4px 6px 0; padding: 3px 8px; border-radius: 3px;
   font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--accent2); background: rgba(240,165,0,0.14);
   transition: opacity .3s; }
