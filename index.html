@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=686">
+  <link rel="stylesheet" href="css/styles.css?v=687">
 </head>
 <body>
 <div class="container">
@@ -144,6 +144,12 @@
     </div>
     <div id="incomingPayments"><div class="rpm-loading" style="color:var(--muted);font-size:11px">Loading</div></div>
     <div class="log-feed" id="paymentFeed"></div>
+    <!-- Who owes, moved here from the Audit tab (2026-09-28) so every money
+         question lives in one tab. Cards drawn by ctrl.js renderUnpaidCards;
+         confirming happens only in Incoming above. -->
+    <hr class="divider" style="margin-top:24px">
+    <div class="section-label">Unpaid Students</div>
+    <div id="auditUnpaidSection"><div class="empty-state rpm-loading">Loading</div></div>
     <hr class="divider" style="margin-top:24px">
     <button id="btnPayHistory" class="btn-pay-history" onclick="togglePaymentHistory()">▾ View Payment History</button>
     <div id="payHistorySection">
@@ -351,10 +357,6 @@
     </div>
     <div class="section-label">Unlogged Lessons</div>
     <div id="auditLessonSection"><div class="empty-state rpm-loading">Loading</div></div>
-
-    <hr class="divider">
-    <div class="section-label">Unpaid Students</div>
-    <div id="auditUnpaidSection"><div class="empty-state rpm-loading">Loading</div></div>
 
     <div class="log-feed" id="auditFeed"></div>
 
@@ -766,7 +768,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">686</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">687</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -787,42 +789,42 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=686"></script>
-<script src="core/storage.js?v=686"></script>
-<script src="core/utils.js?v=686"></script>
-<script src="core/dialog.js?v=686"></script>
-<script src="core/api.js?v=686"></script>
+<script src="core/state.js?v=687"></script>
+<script src="core/storage.js?v=687"></script>
+<script src="core/utils.js?v=687"></script>
+<script src="core/dialog.js?v=687"></script>
+<script src="core/api.js?v=687"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=686"></script>
-<script src="tabs/lessons.js?v=686"></script>
-<script src="tabs/payments.js?v=686"></script>
-<script src="tabs/week.js?v=686"></script>
-<script src="tabs/general.js?v=686"></script>
-<script src="tabs/financial.js?v=686"></script>
-<script src="tabs/inquiries.js?v=686"></script>
-<script src="tabs/inqarchive.js?v=686"></script>
-<script src="tabs/comms.js?v=686"></script>
-<script src="tabs/notes.js?v=686"></script>
-<script src="tabs/todo.js?v=686"></script>
-<script src="tabs/availability.js?v=686"></script>
-<script src="tabs/biweekly.js?v=686"></script>
-<script src="tabs/travel.js?v=686"></script>
-<script src="tabs/tripsummary.js?v=686"></script>
-<script src="tabs/triphistory.js?v=686"></script>
-<script src="tabs/skips.js?v=686"></script>
-<script src="tabs/student.js?v=686"></script>
-<script src="tabs/ctrl.js?v=686"></script>
-<script src="tabs/mailcenter.js?v=686"></script>
-<script src="tabs/dropbox.js?v=686"></script>
-<script src="tabs/trial.js?v=686"></script>
-<script src="tabs/rates.js?v=686"></script>
-<script src="tabs/ending.js?v=686"></script>
-<script src="tabs/thisyear.js?v=686"></script>
-<script src="tabs/sheets.js?v=686"></script>
-<script src="tabs/studentline.js?v=686"></script>
-<script src="tabs/calendar.js?v=686"></script>
-<script src="tabs/fixedcal.js?v=686"></script>
+<script src="tabs/icons.js?v=687"></script>
+<script src="tabs/lessons.js?v=687"></script>
+<script src="tabs/payments.js?v=687"></script>
+<script src="tabs/week.js?v=687"></script>
+<script src="tabs/general.js?v=687"></script>
+<script src="tabs/financial.js?v=687"></script>
+<script src="tabs/inquiries.js?v=687"></script>
+<script src="tabs/inqarchive.js?v=687"></script>
+<script src="tabs/comms.js?v=687"></script>
+<script src="tabs/notes.js?v=687"></script>
+<script src="tabs/todo.js?v=687"></script>
+<script src="tabs/availability.js?v=687"></script>
+<script src="tabs/biweekly.js?v=687"></script>
+<script src="tabs/travel.js?v=687"></script>
+<script src="tabs/tripsummary.js?v=687"></script>
+<script src="tabs/triphistory.js?v=687"></script>
+<script src="tabs/skips.js?v=687"></script>
+<script src="tabs/student.js?v=687"></script>
+<script src="tabs/ctrl.js?v=687"></script>
+<script src="tabs/mailcenter.js?v=687"></script>
+<script src="tabs/dropbox.js?v=687"></script>
+<script src="tabs/trial.js?v=687"></script>
+<script src="tabs/rates.js?v=687"></script>
+<script src="tabs/ending.js?v=687"></script>
+<script src="tabs/thisyear.js?v=687"></script>
+<script src="tabs/sheets.js?v=687"></script>
+<script src="tabs/studentline.js?v=687"></script>
+<script src="tabs/calendar.js?v=687"></script>
+<script src="tabs/fixedcal.js?v=687"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -888,7 +890,7 @@
       d.querySelector(".nav-toggle").classList.toggle("active", !!menu.querySelector('.tab-btn[data-tab="' + tab + '"]'));
     });
     if (tab === "student") initStudentTab();
-    if (tab === "payments") loadIncomingPayments();
+    if (tab === "payments") { loadIncomingPayments(); var _pu = getScriptUrl(); if (_pu) _runAudit3(_pu); }
     if (tab === "ctrl") initAuditTab();
     if (tab === "travel") initTravelTab();
     if (tab === "tripsummary") initTripSummaryTab();

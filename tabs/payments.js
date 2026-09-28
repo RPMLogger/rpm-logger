@@ -401,6 +401,9 @@ function submitIncomingWithNote(note, logBtn) {
       checkEmptyIncoming();
       payHistoryLoaded = false;
       if (act.onDone) act.onDone();
+      // Unpaid Students sits under Incoming now: the confirm may have paid
+      // someone up, so check the list again.
+      else if (document.getElementById("auditUnpaidSection") && typeof _runAudit3 === "function") _runAudit3(url);
       return;
     }
 

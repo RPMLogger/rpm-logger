@@ -10,7 +10,7 @@ function initAuditTab() {
     return;
   }
   _runSyncAudits(url);
-  _runAudit3(url);
+  // Unpaid Students moved to the Payments tab (2026-09-28); it loads there.
 }
 
 // Audits 1 (lesson dates) + 2 (block sync) fetch in parallel and render as ONE
@@ -114,17 +114,18 @@ function _auUnpaidCard(s, i) {
   rows += '<span class="inq-flabel">Reminder</span><span class="inq-fval" id="auRem-' + i + '">' +
     _auEsc(s.lastReminderAt || "None sent yet") + '</span>';
 
+  // A Venmo / Zelle already waiting is confirmed in Incoming, at the top of
+  // this tab; the card only points at it, so there is one place to confirm.
   var pending = s.pendingPayments || [];
   var pendHtml = "";
   if (pending.length) {
     pendHtml = '<hr class="divider" style="margin:18px 0">' +
       '<div class="au-cap">Pending payment</div>' +
-      pending.map(function(p, j) {
-        return '<div class="au-pend" id="auPend-' + i + '-' + j + '">' +
+      pending.map(function(p) {
+        return '<div class="au-pend">' +
           '<span class="au-amt">' + _auEsc(p.amount) + '</span>' +
           '<span>' + _auEsc(p.method) + '</span><span>' + _auEsc(p.date) + '</span>' +
-          '<button class="inq-db yes opens-window" style="margin-left:auto" onclick="_auConfirm(' + i + ',' + j + ')" ' +
-            'data-tip="Opens a note box under this line.\nLogs the payment and ticks their Students Import box.\n(Not in Email list.)" data-tip-wrap data-tip-left>Confirm payment</button>' +
+          '<span style="margin-left:auto">Waiting in Incoming above</span>' +
         '</div>';
       }).join("");
   }
@@ -155,16 +156,6 @@ function _auCash(i) {
   _openCashFromAudit(s.name, s.lessonDate);
 }
 
-// Confirm opens the Payments tab's note box under the pending line. Once both
-// writes land the whole list is checked again: they may be paid up now.
-function _auConfirm(i, j) {
-  var s = (window._auUnpaid || [])[i]; if (!s) return;
-  var p = (s.pendingPayments || [])[j];
-  var row = document.getElementById("auPend-" + i + "-" + j);
-  if (!p || !row) return;
-  if (typeof openIncomingNotePanel !== "function") { rpmToast("fail", "Unsuccessful", "Confirm isn't loaded. Use the Payments tab."); return; }
-  openIncomingNotePanel(p, row, function() { var url = getScriptUrl(); if (url) _runAudit3(url); });
-}
 
 
 
