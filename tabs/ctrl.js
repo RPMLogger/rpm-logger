@@ -598,7 +598,7 @@ function _dxEdit(which, k) {
     del.onclick = function() {
       if (!armed) { armed = true; _trSetLabel(del, "Delete? Press again"); setTimeout(function() { if (armed) { armed = false; _trSetLabel(del, "Delete event"); } }, 3000); return; }
       armed = false;
-      _deleteCalEvent(ev.calId, ev.id, ev.date, null, del);
+      _deleteCalEvent(ev.calId, ev.id, ev.date, null, del, ev.ymd);
     };
   }
   ed.appendChild(box);
@@ -619,11 +619,13 @@ function _fxCall(action, params) {
 }
 
 // Delete one calendar event (2nd tap of the delete control confirmed it).
-function _deleteCalEvent(calId, eventId, dateText, lineEl, btn) {
+function _deleteCalEvent(calId, eventId, dateText, lineEl, btn, ymd) {
   var label = btn._fxState ? "Delete event" : "✕";
   if (btn._fxState) { btn._fxState.innerHTML = ""; _trSetLabel(btn, "Deleting…"); _fxBusy(btn, true); } else btn.textContent = "…";
   btn.disabled = true;
-  _fxCall("deleteCalendarEvent", { calId: calId, eventId: eventId }).then(function(r) {
+  // The day goes along: the backend deletes only that occurrence (a repeating
+  // lesson's id is the whole series).
+  _fxCall("deleteCalendarEvent", { calId: calId, eventId: eventId, date: ymd || "" }).then(function(r) {
     if (btn._fxState) _fxBusy(btn, false);
     if (r.ok) {
       if (lineEl) { lineEl.style.transition = "opacity 0.3s"; lineEl.style.opacity = "0"; setTimeout(function() { lineEl.remove(); }, 300); }
