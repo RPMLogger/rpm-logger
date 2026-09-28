@@ -510,7 +510,7 @@ function _dxGrid() {
     }
     if (has && sl.impUnknown) return '<td class="empty" data-tip="Older than what Import sent here.\nSee the sheet.">·</td>';
     if (has) return td("miss" + (k === firstMiss ? " go" : ""), _dxShort(sl.counter.value), "imp", k,
-      k === firstMiss ? "Logs this lesson into Students Import." : "Log the earlier date first.\nImport fills its rows in order.");
+      k === firstMiss ? "Opens the Log lesson window.\nLogs " + _dxShort(sl.counter.value) + " into Students Import." : "Log the earlier date first.\nImport fills its rows in order.");
     return '<td class="empty"></td>';
   });
   var t = document.createElement("div");
@@ -582,42 +582,17 @@ function _dxEdit(which, k) {
       var rm = _fxBtn("Remove line"); rm._fxState = st; line.appendChild(rm);
       rm.onclick = function() { _clearImportLesson(sl.imp.row, (sl.imp.date || "") + " " + (sl.imp.subject || ""), rm); };
     } else if (k === _dx.firstMiss) {
-      // Log lesson, in place: the Log lesson window's rows (Enter / add-row
-      // icon add one, mic inside the row you are in, rows joined " - "),
-      // with the date in the title. Import gets the Counter's date.
-      // Looks like the Log lesson window: its title (red, date in grey), then
-      // its icon, then the rows.
-      title.className = "dx-lltitle";
-      title.innerHTML = 'Log lesson<span> · ' + _auEsc(_dxShort(sl.counter.value)) + '</span>';
-      var lic = document.createElement("div"); lic.style.margin = "0 0 18px"; lic.innerHTML = LOG_ICON;
-      box.insertBefore(lic, line);
-      var dsp = _fixDateSpinner(sl.counter.value);
-      var ll = document.createElement("div");
-      ll.innerHTML =
-        '<div class="ll-wrap">' +
-          '<div class="ll-rows" id="dxRows"><input type="text" class="rpm-field ll-row active"></div>' +
-          '<button type="button" class="link-btn tl-mic" id="dxMicBtn" data-tip="Starts or stops dictation." data-tip-left>' + MIC_ICON + '</button>' +
-        '</div>' + llAddHtml() +
-        '<div class="ll-acts" style="margin-top:16px"><span class="fx-state" style="flex:1;text-align:right"></span></div>';
-      while (ll.firstChild) box.appendChild(ll.firstChild);
-      box.removeChild(line);
-      var rowsBox = box.querySelector("#dxRows"), acts = box.querySelector(".ll-acts");
-      st = acts.querySelector(".fx-state");
-      var lg = _fxBtn("Log"); lg._fxState = st; lg.disabled = true;
-      lg.setAttribute("data-tip", LL_LOG_TIP); lg.setAttribute("data-tip-left", "");
-      acts.appendChild(lg);
-      var ready = function() { lg.disabled = !llValues(rowsBox).some(function(x) { return x; }); };
-      var logIt = function() {
-        if (_dxMicRec) { _dxMicRec._then = logIt; try { _dxMicRec.stop(); } catch (e) {} return; }
-        var v = llValues(rowsBox).filter(function(x) { return x; }).map(toTitleCase).join(" - ");
-        _logImportSection([{ subjIn: { value: v }, sp: dsp }], lg, "Log");
-      };
-      llWire(rowsBox, function(i) {
-        llRows(rowsBox).forEach(function(el, j) { el.classList.toggle("active", j === i); });
-      }, ready, function() { if (!lg.disabled) logIt(); });
-      box.querySelector("#dxMicBtn").onclick = function() { _dxMic(rowsBox, this, st, ready); };
-      lg.onclick = logIt;
-      setTimeout(function() { llPlaceMic(rowsBox); llRows(rowsBox)[0].focus(); }, 0);
+      // The one Log lesson window, as everywhere else: Details closes and it
+      // opens on this date (like the card's red cell). The card's hidden
+      // marker carries the exact date text, so a log clears it there too.
+      var nm = _fixCurrentName;
+      var chip = document.querySelector('[data-audit-student="' + (window.CSS && CSS.escape ? CSS.escape(nm) : nm) + '"] .audit-missing-chip');
+      var disp = chip ? chip.getAttribute("data-audit-date") : _dxShort(sl.counter.value);
+      _dx.editing = null; ed.innerHTML = "";
+      document.getElementById("auditFixOverlay").style.display = "none";
+      _fixCurrentName = null;
+      openAuditLessonLog(nm, disp);
+      return;
     } else {
       title.textContent = "Students Import · not logged";
       line.innerHTML = '<span class="fx-hint">Log the earlier date first. Import fills its rows in order.</span>';
@@ -635,50 +610,6 @@ function _dxEdit(which, k) {
     };
   }
   ed.appendChild(box);
-}
-
-// Dictation for the in-place Log lesson (Details), the Log lesson window's
-// mic: words go into the row you are in (.active), appending to what it holds.
-var _dxMicRec = null;
-function _dxMic(box, btn, st, onChange) {
-  if (_dxMicRec) { try { _dxMicRec.stop(); } catch (e) {} return; }
-  var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!Rec) { rpmFail(st, "Speech not supported here. Use Chrome."); return; }
-  var r = new Rec();
-  r.lang = "en-US"; r.continuous = true; r.interimResults = true;
-  var cur = null, base = "", finals = "";
-  function target() {
-    var t = box.querySelector(".ll-row.active") || llRows(box)[0];
-    if (t !== cur) { cur = t; finals = ""; base = t ? t.value.replace(/\s+$/, "") : ""; }
-    return t;
-  }
-  function join(interim) {
-    var said = (finals + " " + (interim || "")).replace(/\s+/g, " ").trim();
-    return [base, said].filter(function(x) { return x; }).join(" ");
-  }
-  function look(on) { btn.innerHTML = on ? MIC_STOP_ICON : MIC_ICON; btn.classList.toggle("rec", on); }
-  r.onstart = function() { look(true); st.innerHTML = ""; try { playBeep(880, 100); } catch (e) {} };
-  r.onresult = function(ev) {
-    var t = target(), interim = "";
-    for (var i = ev.resultIndex; i < ev.results.length; i++) {
-      if (ev.results[i].isFinal) finals += " " + ev.results[i][0].transcript;
-      else interim += ev.results[i][0].transcript;
-    }
-    if (t) t.value = join(interim);
-    if (onChange) onChange();
-  };
-  r.onend = function() {
-    var then = r._then;
-    _dxMicRec = null;
-    if (cur) cur.value = join("");
-    look(false);
-    if (onChange) onChange();
-    try { playBeep(440, 80, 0.15); } catch (e) {}
-    if (then) then();
-  };
-  r.onerror = function(e) { if (e.error !== "no-speech") rpmFail(st, "Mic: " + e.error); };
-  _dxMicRec = r;
-  r.start();
 }
 
 // Fix window feedback, the Trial windows' rule: the window dims with the
