@@ -614,9 +614,6 @@ body::before {
    The Inquiries card (.inq-dcard). Under the name, one caps line says where
    they stand, the Trial card's "TRIAL ON" voice: amber = unpaid / due,
    red = overdue (lesson 4 done, next block not paid). */
-/* Green edge (user's pick, 2026-09-27) sets these apart from the red-edged
-   Initiate / Trial cards. */
-.inq-dcard.au-card { border-left-color: var(--green); }
 .au-sub { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.3px; text-transform: uppercase; margin-top: 4px; }
 .au-sub.due  { color: var(--warn); }
 .au-sub.over { color: #ff5a4d; }
@@ -626,6 +623,14 @@ body::before {
 .au-pend .au-amt { color: var(--text); }
 .au-acts { display: flex; align-items: center; gap: 8px; }
 .au-acts .au-state { flex: 1; text-align: right; }
+/* Lesson Sync chips: one amber for everything that needs a look (was orange,
+   amber and yellow for the same meaning). A date you can log has the ▸ and
+   opens the Log lesson window; a format warning is a note to fix by hand. */
+.au-chip { display: inline-block; margin: 0 4px 6px 0; padding: 3px 8px; border-radius: 3px;
+  font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--accent2); background: rgba(240,165,0,0.14);
+  transition: opacity .3s; }
+.au-chip.go { cursor: pointer; }
+.au-chip.go:hover { background: rgba(240,165,0,0.24); }
 
 /* ─── LINKS OUT OF THE PORTAL (2026-09-27) ─────────────────────────────────
    Dim link button: the words, then the small out arrow. Every link that

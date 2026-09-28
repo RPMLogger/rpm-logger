@@ -18,7 +18,7 @@ function initAuditTab() {
 // twice. Both backend audits stay untouched; only the presentation merges.
 function _runSyncAudits(url) {
   var section = document.getElementById("auditLessonSection");
-  section.innerHTML = '<div class="empty-state">Running audit...</div>';
+  section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   var results = { dates: null, sync: null };
   var failed = false;
 
@@ -29,7 +29,7 @@ function _runSyncAudits(url) {
   function fail(msg) {
     if (failed) return;
     failed = true;
-    section.innerHTML = '<div class="empty-state">Audit error: ' + msg + '</div>';
+    _auditSectionFail(section, msg);
   }
 
   fetch(url + "?action=auditLessonDates")
@@ -39,7 +39,7 @@ function _runSyncAudits(url) {
       results.dates = data.audit || [];
       done();
     })
-    .catch(function() { fail("connection failed"); });
+    .catch(function() { fail("No answer from Google."); });
 
   fetch(url + "?action=auditBlockSync")
     .then(function(r) { return r.json(); })
@@ -48,7 +48,7 @@ function _runSyncAudits(url) {
       results.sync = data.audit || [];
       done();
     })
-    .catch(function() { fail("connection failed"); });
+    .catch(function() { fail("No answer from Google."); });
 }
 
 function _runAudit3(url) {
@@ -167,15 +167,6 @@ function _auConfirm(i, j) {
 }
 
 
-// The "nothing to do here" line. A bare bright-green sentence shouted louder
-// than the cards under it, so it sits in a faint tinted pill instead.
-function _auditOkBanner(text) {
-  return '<div style="text-align:center;padding:16px 0">' +
-      '<span style="display:inline-block;padding:7px 16px;border:1px solid rgba(46,204,113,0.22);' +
-          'background:rgba(46,204,113,0.06);border-radius:8px;color:rgba(46,204,113,0.7);' +
-          'font-size:10.5px;letter-spacing:0.5px">' + text + '</span>' +
-    '</div>';
-}
 
 // ─── AUDIT 2 FIX MODAL ──────────────────────────────────────────────────────
 var _fixCurrentName = null;
@@ -809,9 +800,6 @@ function _auditRemoveResolved(name, disp) {
     for (var j = 0; j < chips.length; j++) {
       if (chips[j].getAttribute("data-audit-date") !== disp) continue;
       var chip = chips[j];
-      chip.style.background = "rgba(0,200,0,0.18)";
-      chip.style.color = "#3ddc84";
-      chip.style.borderColor = "rgba(0,200,0,0.5)";
       chip.onclick = null;
       chip.style.cursor = "default";
       setTimeout(function() {
@@ -844,7 +832,7 @@ function _auditCheckAllClear() {
   var section = document.getElementById("auditLessonSection");
   if (!section) return;
   if (!section.querySelector('[data-audit-student]')) {
-    section.innerHTML = _auditOkBanner("Counter and Students Import are in sync ✓");
+    section.innerHTML = '<div class="empty-state">None</div>';
   }
 }
 
@@ -905,12 +893,17 @@ function _unfloatLogPanel() {
   window._logPanelHome = null;
 }
 
-// One card per student, merging audit 1 (missing dates → tappable chips) with
-// audit 2 (block sync context + mismatch chips). A "Fix →" button opens the
-// existing Fix modal. Optimistic chip removal keeps working unchanged.
+// ─── LESSON SYNC: Inquiries-style cards (2026-09-27) ─────────────────────────
+// Audits 1 (Counter dates missing from Students Import) + 2 (block sync)
+// merged into one card per student, same card as Unpaid Students:
+//   name
+//   caps line   what is wrong, amber: "2 missing from Import · Sheets disagree"
+//   rows        Counter / Import: lesson in block · latest date (when audit 2 ran)
+//   chips       Missing from Import: a date ▸ opens the Log lesson window for it
+//               Format check: cells to fix by hand
+//   button      Fix ▸ (bright, right): Counter + Import + Calendar side by side
 function renderMergedAuditCards(dateAudit, syncAudit) {
   var section = document.getElementById("auditLessonSection");
-  section.innerHTML = "";
 
   // Merge by student name — date-audit students first, then sync-only ones.
   var byName = {}, order = [];
@@ -927,110 +920,55 @@ function renderMergedAuditCards(dateAudit, syncAudit) {
     }
   });
 
-  if (!order.length) {
-    section.innerHTML = _auditOkBanner("Counter and Students Import are in sync ✓");
-    return;
+  if (!order.length) { section.innerHTML = '<div class="empty-state">None</div>'; return; }
+  window._auSync = byName;
+  section.innerHTML = order.map(function(nm) { return _auSyncCard(byName[nm]); }).join("");
+}
+
+function _auSyncCard(st) {
+  var s = st.sync, nm = _auEsc(st.name), nmArg = _auEsc(JSON.stringify(st.name));
+  var bits = [];
+  if (st.missing.length) bits.push(st.missing.length + " missing from Import");
+  if (s && (!s.dateMatch || !s.posMatch)) bits.push("Sheets disagree");
+  if (s && s.countMatch === false) bits.push("Counter count off");
+  if (st.warnings.length) bits.push(st.warnings.length + " to check by hand");
+
+  var rows = "";
+  if (s) {
+    rows = '<hr class="divider" style="margin:18px 0">' +
+      '<div class="inq-fields">' +
+        '<span class="inq-flabel">Counter</span><span class="inq-fval">Lesson ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(_auDate(s.counterDate || "?")) + '</span>' +
+        '<span class="inq-flabel">Import</span><span class="inq-fval">Lesson ' + _auEsc(s.importLesson != null ? s.importLesson : "?") + ' · ' + _auEsc(_auDate(s.importDate || "?")) + '</span>' +
+        (s.countMatch === false
+          ? '<span class="inq-flabel">Counter E</span><span class="inq-fval">E = ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(s.blockDateCount) + ' dates in the block</span>'
+          : '') +
+      '</div>';
   }
 
-  function mismatchChip(text) {
-    var b = document.createElement("span");
-    b.className = "audit-bs-chip";
-    b.style.cssText = "display:inline-block;margin:2px 4px 2px 0;padding:3px 8px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:3px;font-size:11px";
-    b.textContent = text;
-    return b;
+  var chips = "";
+  if (st.missing.length) {
+    chips += '<div class="au-cap" style="margin-top:18px">Missing from Import</div><div>' +
+      st.missing.map(function(d) {
+        return '<span class="au-chip go audit-missing-chip" data-audit-date="' + _auEsc(d) + '" ' +
+          'onclick="openAuditLessonLog(' + nmArg + ',' + _auEsc(JSON.stringify(d)) + ')" ' +
+          'data-tip="Opens a window.\nLogs this lesson into Students Import.">' + _auEsc(d) + ' ▸</span>';
+      }).join("") + '</div>';
+  }
+  if (st.warnings.length) {
+    chips += '<div class="au-cap" style="margin-top:18px">Check by hand</div><div>' +
+      st.warnings.map(function(w) {
+        return '<span class="au-chip audit-warn-chip">' + _auEsc(w.sheet + " " + w.cell + ": “" + (w.value || "") + "”") + '</span>';
+      }).join("") + '</div>';
   }
 
-  order.forEach(function(nm) {
-    var st = byName[nm];
-    var card = document.createElement("div");
-    card.className = "audit-card";
-    card.setAttribute("data-audit-student", st.name);
-    card.style.cssText = "padding:12px;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;background:var(--panel)";
-
-    // Name row + Fix → button (opens the combined Counter/Import/Calendar modal)
-    var nameRow = document.createElement("div");
-    nameRow.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px";
-    var nameEl = document.createElement("div");
-    nameEl.style.cssText = "font-family:'Syne',sans-serif;font-weight:400;font-size:16px;color:var(--text)";
-    nameEl.textContent = st.name;
-    nameRow.appendChild(nameEl);
-    var fixBtn = document.createElement("button");
-    fixBtn.textContent = "Fix →";
-    fixBtn.title = "Open the Fix window: Counter + Students Import + Calendar side by side";
-    fixBtn.style.cssText = "padding:3px 12px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;letter-spacing:0.5px";
-    fixBtn.onclick = function() { openAuditFixModal(st.name); };
-    nameRow.appendChild(fixBtn);
-    card.appendChild(nameRow);
-
-    // Block sync context: latest lesson per sheet + mismatch chips
-    if (st.sync) {
-      var s = st.sync;
-      var counterLine = document.createElement("div");
-      counterLine.style.cssText = "font-size:10.5px;color:var(--muted);margin:4px 0";
-      counterLine.innerHTML = "Counter: lesson <b style=\"color:rgba(255,255,255,0.82)\">" + s.counterLesson + "</b> on <b style=\"color:rgba(255,255,255,0.82)\">" + (s.counterDate || "?") + "</b>";
-      card.appendChild(counterLine);
-
-      var importLine = document.createElement("div");
-      importLine.style.cssText = "font-size:10.5px;color:var(--muted);margin:4px 0";
-      importLine.innerHTML = "Students Import: lesson <b style=\"color:rgba(255,255,255,0.82)\">" + (s.importLesson != null ? s.importLesson : "?") + "</b> on <b style=\"color:rgba(255,255,255,0.82)\">" + (s.importDate || "?") + "</b>";
-      card.appendChild(importLine);
-
-      var diff = document.createElement("div");
-      diff.style.cssText = "margin-top:6px";
-      // The two lines above already show each sheet's exact date + lesson #, so
-      // separate "Date mismatch" / "Lesson # mismatch" chips just restate what's
-      // visible — one "Mismatch" chip is enough. The E-vs-dates chip stays: it
-      // surfaces counts (block dates, Counter's E) shown nowhere else.
-      // Both chips are tappable — they open the Fix window straight away.
-      function fixChip(text) {
-        var c = mismatchChip(text);
-        c.style.cursor = "pointer";
-        c.title = "Open the Fix window";
-        c.onclick = function() { openAuditFixModal(st.name); };
-        return c;
-      }
-      if (!s.dateMatch || !s.posMatch) diff.appendChild(fixChip("Mismatch"));
-      if (s.countMatch === false) diff.appendChild(fixChip("E vs dates mismatch (" + s.blockDateCount + " dates, E=" + s.counterLesson + ")"));
-      card.appendChild(diff);
-    }
-
-    // Missing dates: tappable chips + the two-cause diagnosis
-    if (st.missing.length) {
-      var hdr = document.createElement("div");
-      hdr.style.cssText = "font-size:10px;color:var(--muted);margin:" + (st.sync ? "10px" : "6px") + " 0 4px;text-transform:uppercase;letter-spacing:0.5px";
-      hdr.textContent = "In Counter, missing from Students Import";
-      card.appendChild(hdr);
-
-      var chipWrap = document.createElement("div");
-      st.missing.forEach(function(d) {
-        var b = document.createElement("span");
-        b.className = "audit-missing-chip";
-        b.setAttribute("data-audit-date", d);
-        b.style.cssText = "display:inline-block;margin:2px 4px 2px 0;padding:3px 8px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:3px;font-size:11px;font-weight:500;cursor:pointer;transition:opacity 0.3s,background 0.3s,color 0.3s";
-        b.textContent = d;
-        b.title = "Log " + d + " into Students Import";
-        b.onclick = function() { openAuditLessonLog(st.name, d); };
-        chipWrap.appendChild(b);
-      });
-      card.appendChild(chipWrap);
-    }
-
-    // Format warnings (unchanged)
-    if (st.warnings.length) {
-      var whdr = document.createElement("div");
-      whdr.style.cssText = "font-size:10px;color:var(--muted);margin:10px 0 4px;text-transform:uppercase;letter-spacing:0.5px";
-      whdr.textContent = "⚠ Format warnings — manual check needed";
-      card.appendChild(whdr);
-
-      st.warnings.forEach(function(w) {
-        var b = document.createElement("div");
-        b.className = "audit-warn-chip";
-        b.style.cssText = "display:inline-block;margin:2px 4px 2px 0;padding:3px 8px;background:rgba(255,220,0,0.12);color:#d4a800;border:1px solid rgba(255,220,0,0.4);border-radius:3px;font-size:11px";
-        b.textContent = w.sheet + " " + w.cell + ": \"" + (w.value || "") + "\"";
-        card.appendChild(b);
-      });
-    }
-
-    section.appendChild(card);
-  });
+  return '<div class="inq-dcard au-card" data-audit-student="' + nm + '">' +
+      '<div class="inq-name-line"><span class="inq-name">' + nm + '</span></div>' +
+      '<div class="au-sub due">' + _auEsc(bits.join(" · ")) + '</div>' +
+      rows + chips +
+      '<hr class="divider" style="margin:18px 0 16px">' +
+      '<div class="au-acts"><span class="au-state"></span>' +
+        '<button class="link-btn bright opens-window" onclick="openAuditFixModal(' + nmArg + ')" ' +
+          'data-tip="Opens a window.\nCounter, Students Import and Calendar side by side." data-tip-wrap data-tip-left>Fix</button>' +
+      '</div>' +
+    '</div>';
 }
