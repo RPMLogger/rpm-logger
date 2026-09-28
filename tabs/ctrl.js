@@ -946,7 +946,9 @@ function _auSyncCard(st) {
   var s = st.sync, nm = _auEsc(st.name), nmArg = _auEsc(JSON.stringify(st.name));
   var bits = [];
   if (st.missing.length) bits.push(st.missing.length + " missing from Import");
-  if (s && (!s.dateMatch || !s.posMatch)) bits.push("Sheets disagree");
+  // Missing lessons already explain why the sheets differ; "Sheets
+  // disagree" only when nothing is missing (a real mismatch for Fix).
+  if (!st.missing.length && s && (!s.dateMatch || !s.posMatch)) bits.push("Sheets disagree");
   if (s && s.countMatch === false) bits.push("Counter count off");
   if (st.warnings.length) bits.push(st.warnings.length + " to check by hand");
 
@@ -954,10 +956,11 @@ function _auSyncCard(st) {
   if (s) {
     rows = '<hr class="divider" style="margin:18px 0">' +
       '<div class="inq-fields">' +
-        '<span class="inq-flabel">Counter</span><span class="inq-fval">Lesson ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(_auDate(s.counterDate || "?")) + '</span>' +
-        '<span class="inq-flabel">Import</span><span class="inq-fval">Lesson ' + _auEsc(s.importLesson != null ? s.importLesson : "?") + ' · ' + _auEsc(_auDate(s.importDate || "?")) + '</span>' +
+        // Import first, Counter under it: the Counter is always the later date.
+        '<span class="inq-flabel au-caps">Import</span><span class="inq-fval au-caps">Lesson ' + _auEsc(s.importLesson != null ? s.importLesson : "?") + ' · ' + _auEsc(_auDate(s.importDate || "?")) + '</span>' +
+        '<span class="inq-flabel au-caps">Counter</span><span class="inq-fval au-caps">Lesson ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(_auDate(s.counterDate || "?")) + '</span>' +
         (s.countMatch === false
-          ? '<span class="inq-flabel">Counter E</span><span class="inq-fval">E = ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(s.blockDateCount) + ' dates in the block</span>'
+          ? '<span class="inq-flabel au-caps">Counter E</span><span class="inq-fval au-caps">E = ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(s.blockDateCount) + ' dates in the block</span>'
           : '') +
       '</div>';
   }
@@ -967,7 +970,9 @@ function _auSyncCard(st) {
     // Oldest first, and only the oldest can be logged: Import writes into its
     // next empty row whatever the date, so logging a later one first would
     // put the dates (and column M's lesson numbers) out of order.
-    chips += '<div class="au-cap" style="margin-top:18px">Missing from Import</div><div>' +
+    // Its own section under a rule, like Pending payment on the Unpaid cards.
+    chips += '<hr class="divider" style="margin:18px 0">' +
+      '<div class="au-cap" style="text-transform:none;letter-spacing:0.3px">Missing from Import</div><div>' +
       st.missing.map(function(d, k) {
         return '<span class="au-chip audit-missing-chip ' + (k ? 'wait' : 'go') + '" data-audit-date="' + _auEsc(d) + '" ' +
           'onclick="_auLogChip(this,' + nmArg + ',' + _auEsc(JSON.stringify(d)) + ')" ' +
@@ -976,7 +981,8 @@ function _auSyncCard(st) {
       }).join("") + '</div>';
   }
   if (st.warnings.length) {
-    chips += '<div class="au-cap" style="margin-top:18px">Check by hand</div><div>' +
+    chips += '<hr class="divider" style="margin:18px 0">' +
+      '<div class="au-cap">Check by hand</div><div>' +
       st.warnings.map(function(w) {
         return '<span class="au-chip audit-warn-chip">' + _auEsc(w.sheet + " " + w.cell + ": “" + (w.value || "") + "”") + '</span>';
       }).join("") + '</div>';
@@ -984,7 +990,8 @@ function _auSyncCard(st) {
 
   return '<div class="inq-dcard au-card" data-audit-student="' + nm + '">' +
       '<div class="inq-name-line"><span class="inq-name">' + nm + '</span></div>' +
-      '<div class="au-sub due">' + _auEsc(bits.join(" · ")) + '</div>' +
+      // Red, like OVERDUE on the Unpaid cards: something needs doing.
+      '<div class="au-sub over">' + _auEsc(bits.join(" · ")) + '</div>' +
       rows + chips +
       '<hr class="divider" style="margin:18px 0 16px">' +
       '<div class="au-acts"><span class="au-state"></span>' +
