@@ -421,7 +421,7 @@ function _renderFixData(d) {
   _dx = { d: d, slots: slots, extras: extras, counterSp: counterSp, cOff: cOff };
 
   body.innerHTML = "";
-  // The window icon under the title, as in the Trial windows: om-56, gear + wrench.
+  // The window icon under the title, as in the Trial windows: om-58, wrench in a circle.
   var ic = document.createElement("div"); ic.style.margin = "4px 0 18px";
   ic.innerHTML = FIX_ICON;
   body.appendChild(ic);
