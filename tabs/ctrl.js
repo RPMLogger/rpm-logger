@@ -949,16 +949,13 @@ function _auSyncCard(st) {
   // a mismatch that isn't just missing lessons: that one needs Fix.
   var bits = [];
   var n = st.missing.length;
-  if (n) bits.push("Log into Import · " + n + (n === 1 ? " lesson" : " lessons"));
+  if (n) bits.push("Import behind · " + n + (n === 1 ? " lesson" : " lessons") + " to log");
   else if (s && (!s.dateMatch || !s.posMatch)) bits.push("Sheets disagree");
   if (s && s.countMatch === false) bits.push("Counter count off");
   if (st.warnings.length) bits.push(st.warnings.length + " to check by hand");
 
-  // Just missing lessons: the card only has to say "log these". The Counter /
-  // Import rows are for the rarer cases where the difference IS the point
-  // (sheets disagree, count off); Fix shows the full picture either way.
   var rows = "";
-  if (s && !st.missing.length) {
+  if (s) {
     // A checklist, like the Trial steps: Counter ticked (it is the truth),
     // Import ticked only once it matches.
     var impOk = s.dateMatch && s.posMatch;
@@ -977,7 +974,7 @@ function _auSyncCard(st) {
     // Oldest first, and only the oldest can be logged: Import writes into its
     // next empty row whatever the date, so logging a later one first would
     // put the dates (and column M's lesson numbers) out of order.
-    chips += '<div style="margin-top:16px">' +
+    chips += '<div class="au-cap" style="margin-top:18px">Missing from Import</div><div>' +
       st.missing.map(function(d, k) {
         return '<span class="au-chip audit-missing-chip ' + (k ? 'wait' : 'go') + '" data-audit-date="' + _auEsc(d) + '" ' +
           'onclick="_auLogChip(this,' + nmArg + ',' + _auEsc(JSON.stringify(d)) + ')" ' +
