@@ -972,7 +972,7 @@ function _auSyncCard(st) {
     // put the dates (and column M's lesson numbers) out of order.
     // Its own section under a rule, like Pending payment on the Unpaid cards.
     chips += '<hr class="divider" style="margin:18px 0">' +
-      '<div class="au-cap" style="text-transform:none;letter-spacing:0.3px">Not logged yet</div><div>' +
+      '<div class="au-cap">Not logged yet</div><div>' +
       st.missing.map(function(d, k) {
         return '<span class="au-chip audit-missing-chip ' + (k ? 'wait' : 'go') + '" data-audit-date="' + _auEsc(d) + '" ' +
           'onclick="_auLogChip(this,' + nmArg + ',' + _auEsc(JSON.stringify(d)) + ')" ' +
