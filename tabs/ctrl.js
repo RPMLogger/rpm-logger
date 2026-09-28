@@ -927,22 +927,29 @@ function renderMergedAuditCards(dateAudit, syncAudit) {
 
 function _auSyncCard(st) {
   var s = st.sync, nm = _auEsc(st.name), nmArg = _auEsc(JSON.stringify(st.name));
+  // The Counter is the truth (Secretary writes it from the calendar), so the
+  // usual story is "Import hasn't caught up". "Sheets disagree" is kept for
+  // a mismatch that isn't just missing lessons: that one needs Fix.
   var bits = [];
-  if (st.missing.length) bits.push(st.missing.length + " missing from Import");
-  if (s && (!s.dateMatch || !s.posMatch)) bits.push("Sheets disagree");
+  var n = st.missing.length;
+  if (n) bits.push("Import behind · " + n + (n === 1 ? " lesson" : " lessons") + " to log");
+  else if (s && (!s.dateMatch || !s.posMatch)) bits.push("Sheets disagree");
   if (s && s.countMatch === false) bits.push("Counter count off");
   if (st.warnings.length) bits.push(st.warnings.length + " to check by hand");
 
   var rows = "";
   if (s) {
+    // A checklist, like the Trial steps: Counter ticked (it is the truth),
+    // Import ticked only once it matches.
+    var impOk = s.dateMatch && s.posMatch;
     rows = '<hr class="divider" style="margin:18px 0">' +
-      '<div class="inq-fields">' +
-        '<span class="inq-flabel">Counter</span><span class="inq-fval">Lesson ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(_auDate(s.counterDate || "?")) + '</span>' +
-        '<span class="inq-flabel">Import</span><span class="inq-fval">Lesson ' + _auEsc(s.importLesson != null ? s.importLesson : "?") + ' · ' + _auEsc(_auDate(s.importDate || "?")) + '</span>' +
-        (s.countMatch === false
-          ? '<span class="inq-flabel">Counter E</span><span class="inq-fval">E = ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(s.blockDateCount) + ' dates in the block</span>'
-          : '') +
-      '</div>';
+      '<div class="au-checks">' +
+        '<div class="au-row done"><span class="au-box"></span><span class="au-lbl">Counter</span><span>Lesson ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(_auDate(s.counterDate || "?")) + '</span></div>' +
+        '<div class="au-row' + (impOk ? ' done' : '') + '"><span class="au-box"></span><span class="au-lbl">Import</span><span>Lesson ' + _auEsc(s.importLesson != null ? s.importLesson : "?") + ' · ' + _auEsc(_auDate(s.importDate || "?")) + '</span></div>' +
+      '</div>' +
+      (s.countMatch === false
+        ? '<div class="inq-fields" style="margin-top:10px"><span class="inq-flabel">Counter E</span><span class="inq-fval">E = ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(s.blockDateCount) + ' dates in the block</span></div>'
+        : '');
   }
 
   var chips = "";
