@@ -1622,7 +1622,7 @@ a:focus-visible,
 /* Arriving: waits 2.2s (was 0.35s), so sweeping the mouse across buttons
    doesn't pop tips; resting on one does (2026-09-24). */
 [data-tip]:hover::before,
-[data-tip]:focus-visible::before { opacity: 1; transition-delay: 2.2s; }
+[data-tip]:focus-visible::before { opacity: 1; transition-delay: 1.7s; }   /* 2.2s -> 1.7s (2026-09-28) */
 
 /* A button at the right edge would push its tooltip off the card. */
 [data-tip-left]::before { left: auto; right: 0; transform: none; }

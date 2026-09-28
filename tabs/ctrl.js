@@ -959,7 +959,7 @@ function _auGridHtml(grid, missing, nmArg) {
     if (!miss[n]) return '<td>' + _auEsc(d) + '</td>';
     var go = n === first;
     return '<td class="miss au-gcell' + (go ? ' go' : '') + '" data-d="' + _auEsc(d) + '"' +
-      (go ? ' onclick="_auGridLog(this,' + nmArg + ')" data-tip="Opens a window.\nLogs ' + _auEsc(d) + ' into Students Import."'
+      (go ? ' onclick="_auGridLog(this,' + nmArg + ')" data-tip="Opens the Log lesson window.\nLogs ' + _auEsc(d) + ' into Students Import."'
           : ' data-tip="Log the earlier date first.\nImport fills its rows in order."') + '>' + _auEsc(d) + '</td>';
   });
   return '<table class="au-grid">' + head() + counter + imp + '</table>';
@@ -1022,7 +1022,7 @@ function _auChipsNext(card) {
     if (n === firstLeft) {
       td.classList.add("go");
       td.setAttribute("onclick", "_auGridLog(this," + JSON.stringify(card.getAttribute("data-audit-student")) + ")");
-      td.setAttribute("data-tip", "Opens a window.\nLogs " + td.getAttribute("data-d") + " into Students Import.");
+      td.setAttribute("data-tip", "Opens the Log lesson window.\nLogs " + td.getAttribute("data-d") + " into Students Import.");
     }
   });
   var b = card.querySelector(".au-logbtn");
@@ -1096,7 +1096,7 @@ function _auSyncCard(st) {
           : '') +
         '<span class="au-state"></span>' +
         '<button class="link-btn bright opens-window" onclick="openAuditFixModal(' + nmArg + ')" ' +
-          'data-tip="Opens a window.\nCounter, Students Import and Calendar side by side." data-tip-wrap data-tip-left>Fix</button>' +
+          'data-tip="Opens a window.\nShows Counter, Students Import and Calendar side by side." data-tip-wrap data-tip-left>Fix</button>' +
       '</div>' +
     '</div>';
 }
