@@ -964,6 +964,10 @@ function _auGridHtml(grid, missing, nmArg) {
   });
   return '<table class="au-grid">' + head() + counter + imp + '</table>';
 }
+function _auInGrid(grid, d) {
+  var n = _psNormD(d);
+  return (grid || []).some(function(g) { return _psNormD(g) === n; });
+}
 function _auGridLog(td, name) {
   if (!td.classList.contains("go")) return;
   var card = td.closest("[data-audit-student]");
@@ -1000,6 +1004,15 @@ function _auChipsNext(card) {
   }
   var next = card.querySelector(".au-next");
   if (next && left.length) next.innerHTML = _auMissingHtml(left, st.sync);
+  // The oldest is back inside the grid: its outlined cell takes over, so the
+  // off-grid note and Log lesson go. Still outside: the note names the new oldest.
+  var og = card.querySelector(".au-offgrid");
+  if (st.grid && left.length && _auInGrid(st.grid, left[0])) {
+    if (og) og.remove();
+    var lb = card.querySelector(".au-logbtn"); if (lb) lb.remove();
+  } else if (og && left.length) {
+    og.textContent = "Oldest first: " + _auDate(left[0]) + ", before these blocks";
+  }
   // Grid: logged slots turn plain, the next oldest gets the outline.
   var want = {}; left.forEach(function(d) { want[_psNormD(d)] = true; });
   var firstLeft = left.length ? _psNormD(left[0]) : "";
@@ -1020,6 +1033,7 @@ function _auSyncCard(st) {
   var s = st.sync, nm = _auEsc(st.name), nmArg = _auEsc(JSON.stringify(st.name));
   var bits = [];
   if (st.missing.length) bits.push(_auUnloggedTitle(st.missing));
+  var offGrid = !!(st.grid && st.missing.length && !_auInGrid(st.grid, st.missing[0]));
   // Missing lessons already explain why the sheets differ; "Sheets
   // disagree" only when nothing is missing (a real mismatch for Fix).
   if (!st.missing.length && s && (!s.dateMatch || !s.posMatch)) bits.push("Sheets disagree");
@@ -1071,13 +1085,17 @@ function _auSyncCard(st) {
       // Every missing lesson, amber, right over the button; Log lesson logs
       // the top (oldest) one.
       (st.missing.length && !st.grid ? '<div class="au-next" style="margin:0 0 12px">' + _auMissingHtml(st.missing, s) + '</div>' : '') +
+      // The grid's outlined cell logs the oldest. Only when the oldest missing
+      // date is older than the grid's two blocks (too many behind) does the
+      // card need a note and the Log lesson button to reach it.
+      (offGrid ? '<div class="au-sub due au-offgrid" style="margin:0 0 12px">Oldest first: ' + _auEsc(_auDate(st.missing[0])) + ', before these blocks</div>' : '') +
       '<div class="au-acts">' +
-        (st.missing.length
+        (st.missing.length && (!st.grid || offGrid)
           ? '<button class="link-btn bright opens-window au-logbtn" onclick="_auLogNext(this)" ' +
               'data-tip="Opens a window.\nLogs ' + _auEsc(_auDate(st.missing[0])) + ' into Students Import.' + (st.missing.length > 1 ? '\n(Oldest first.)' : '') + '" data-tip-wrap>Log lesson</button>'
           : '') +
         '<span class="au-state"></span>' +
-        '<button class="link-btn opens-window" onclick="openAuditFixModal(' + nmArg + ')" ' +
+        '<button class="link-btn bright opens-window" onclick="openAuditFixModal(' + nmArg + ')" ' +
           'data-tip="Opens a window.\nCounter, Students Import and Calendar side by side." data-tip-wrap data-tip-left>Fix</button>' +
       '</div>' +
     '</div>';
