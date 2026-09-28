@@ -899,7 +899,7 @@ function renderMergedAuditCards(dateAudit, syncAudit) {
   // Merge by student name — date-audit students first, then sync-only ones.
   var byName = {}, order = [];
   dateAudit.forEach(function(s) {
-    byName[s.name] = { name: s.name, missing: s.missing || [], warnings: s.warnings || [], sync: null };
+    byName[s.name] = { name: s.name, missing: s.missing || [], warnings: s.warnings || [], grid: s.grid || null, sync: null };
     order.push(s.name);
   });
   syncAudit.forEach(function(s) {
@@ -916,17 +916,65 @@ function renderMergedAuditCards(dateAudit, syncAudit) {
   section.innerHTML = order.map(function(nm) { return _auSyncCard(byName[nm]); }).join("");
 }
 
-// The top line, in the Unpaid cards' shape: UNLOGGED · LESSON 1 · SEP 25.
-// The lesson number is known when the missing date is the Counter's latest
-// (the usual case); with 2+ it says how many and from when.
-function _auUnloggedText(dates, s) {
-  if (!dates.length) return "";
-  if (dates.length === 1) {
-    var d = dates[0];
-    var num = (s && _psNormD(d) === _psNormD(s.counterDate)) ? "Lesson " + s.counterLesson + " · " : "";
-    return "Unlogged · " + num + _auDate(d);
+// Title: UNLOGGED (· 2 LESSONS). The lesson itself sits over the Log lesson
+// button (_auMissingLines), oldest on top: the one that button logs. Its lesson
+// number is known when it is the Counter's latest date (the usual case).
+function _auUnloggedTitle(dates) {
+  return "Import missing · " + dates.length + (dates.length === 1 ? " lesson" : " lessons");
+}
+// One amber line per missing lesson, oldest on top (the one Log lesson logs
+// first): "LESSON 1 · SEP 18". Lesson numbers come from the Counter when the
+// missing dates are its newest ones (the usual case: Import just hasn't caught
+// up); otherwise just the date.
+function _auMissingLines(dates, s) {
+  var n = dates.length;
+  var know = s && n && _psNormD(dates[n - 1]) === _psNormD(s.counterDate) && Number(s.counterLesson) >= 1;
+  return dates.map(function(d, k) {
+    if (!know) return _auDate(d);
+    var num = ((Number(s.counterLesson) - (n - 1 - k) - 1) % 4 + 4) % 4 + 1;
+    return "Lesson " + num + " · " + _auDate(d);
+  });
+}
+// The 1234 1234 grid (2026-09-28): the Counter's last two blocks over the
+// same slots in Import. A slot the Counter has but Import doesn't is amber;
+// the oldest one is outlined and logs on click (Import fills rows in order).
+function _auGridHtml(grid, missing, nmArg) {
+  var miss = {};
+  missing.forEach(function(d) { miss[_psNormD(d)] = true; });
+  var first = missing.length ? _psNormD(missing[0]) : "";
+  function head() {
+    var h = '<th></th>';
+    for (var k = 0; k < 8; k++) h += (k === 4 ? '<th class="gap"></th>' : '') + '<th>' + (k % 4 + 1) + '</th>';
+    return '<tr>' + h + '</tr>';
   }
-  return "Unlogged · " + dates.length + " lessons · from " + _auDate(dates[0]);
+  function row(label, cell) {
+    var h = '<td class="lbl">' + label + '</td>';
+    for (var k = 0; k < 8; k++) h += (k === 4 ? '<td class="gap"></td>' : '') + cell(grid[k] || "");
+    return '<tr>' + h + '</tr>';
+  }
+  var counter = row("Counter", function(d) { return d ? '<td>' + _auEsc(d) + '</td>' : '<td class="empty"></td>'; });
+  var imp = row("Import", function(d) {
+    if (!d) return '<td class="empty"></td>';
+    var n = _psNormD(d);
+    if (!miss[n]) return '<td>' + _auEsc(d) + '</td>';
+    var go = n === first;
+    return '<td class="miss au-gcell' + (go ? ' go' : '') + '" data-d="' + _auEsc(d) + '"' +
+      (go ? ' onclick="_auGridLog(this,' + nmArg + ')" data-tip="Opens a window.\nLogs ' + _auEsc(d) + ' into Students Import."'
+          : ' data-tip="Log the earlier date first.\nImport fills its rows in order."') + '>' + _auEsc(d) + '</td>';
+  });
+  return '<table class="au-grid">' + head() + counter + imp + '</table>';
+}
+function _auGridLog(td, name) {
+  if (!td.classList.contains("go")) return;
+  var card = td.closest("[data-audit-student]");
+  var chip = card && card.querySelector(".audit-missing-chip");
+  if (chip) openAuditLessonLog(name, chip.getAttribute("data-audit-date"));
+}
+
+function _auMissingHtml(dates, s) {
+  return _auMissingLines(dates, s).map(function(t) {
+    return '<div class="au-sub due" style="margin:0 0 4px">' + _auEsc(t) + '</div>';
+  }).join("");
 }
 function _psNormD(v) { return (v || "").toString().replace(/\s+/g, ""); }
 
@@ -947,7 +995,23 @@ function _auChipsNext(card) {
   var left = Array.prototype.map.call(card.querySelectorAll(".audit-missing-chip"), function(c) { return c.getAttribute("data-audit-date"); });
   var st = (window._auSync || {})[card.getAttribute("data-audit-student")] || {};
   var line = card.querySelector(".au-sub");
-  if (line && left.length) line.textContent = _auUnloggedText(left, st.sync);
+  if (line && left.length) {
+    line.textContent = _auUnloggedTitle(left);
+  }
+  var next = card.querySelector(".au-next");
+  if (next && left.length) next.innerHTML = _auMissingHtml(left, st.sync);
+  // Grid: logged slots turn plain, the next oldest gets the outline.
+  var want = {}; left.forEach(function(d) { want[_psNormD(d)] = true; });
+  var firstLeft = left.length ? _psNormD(left[0]) : "";
+  Array.prototype.forEach.call(card.querySelectorAll(".au-gcell"), function(td) {
+    var n = _psNormD(td.getAttribute("data-d"));
+    if (!want[n]) { td.className = ""; td.removeAttribute("data-tip"); td.onclick = null; td.removeAttribute("onclick"); return; }
+    if (n === firstLeft) {
+      td.classList.add("go");
+      td.setAttribute("onclick", "_auGridLog(this," + JSON.stringify(card.getAttribute("data-audit-student")) + ")");
+      td.setAttribute("data-tip", "Opens a window.\nLogs " + td.getAttribute("data-d") + " into Students Import.");
+    }
+  });
   var b = card.querySelector(".au-logbtn");
   if (b && left.length) b.setAttribute("data-tip", "Opens a window.\nLogs " + _auDate(left[0]) + " into Students Import." + (left.length > 1 ? "\n(Oldest first.)" : ""));
 }
@@ -955,20 +1019,25 @@ function _auChipsNext(card) {
 function _auSyncCard(st) {
   var s = st.sync, nm = _auEsc(st.name), nmArg = _auEsc(JSON.stringify(st.name));
   var bits = [];
-  if (st.missing.length) bits.push(_auUnloggedText(st.missing, s));
+  if (st.missing.length) bits.push(_auUnloggedTitle(st.missing));
   // Missing lessons already explain why the sheets differ; "Sheets
   // disagree" only when nothing is missing (a real mismatch for Fix).
   if (!st.missing.length && s && (!s.dateMatch || !s.posMatch)) bits.push("Sheets disagree");
   if (s && s.countMatch === false) bits.push("Counter count off");
   if (st.warnings.length) bits.push(st.warnings.length + " to check by hand");
 
+  var counterRow = s ? '<span class="inq-flabel au-caps">Counter</span><span class="inq-fval au-caps">Lesson ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(_auDate(s.counterDate || "?")) + '</span>' : '';
   var rows = "";
-  if (s) {
+  if (st.grid && st.missing.length) {
+    // The grid says it all: Counter's last two blocks over Import's.
+    rows = '<hr class="divider" style="margin:18px 0">' + _auGridHtml(st.grid, st.missing, nmArg);
+  } else if (s) {
     rows = '<hr class="divider" style="margin:18px 0">' +
+      '<div class="au-cap">Last logged</div>' +
       '<div class="inq-fields">' +
         // Import first, Counter under it: the Counter is always the later date.
         '<span class="inq-flabel au-caps">Import</span><span class="inq-fval au-caps">Lesson ' + _auEsc(s.importLesson != null ? s.importLesson : "?") + ' · ' + _auEsc(_auDate(s.importDate || "?")) + '</span>' +
-        '<span class="inq-flabel au-caps">Counter</span><span class="inq-fval au-caps">Lesson ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(_auDate(s.counterDate || "?")) + '</span>' +
+        counterRow +
         (s.countMatch === false
           ? '<span class="inq-flabel au-caps">Counter E</span><span class="inq-fval au-caps">E = ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(s.blockDateCount) + ' dates in the block</span>'
           : '') +
@@ -993,18 +1062,22 @@ function _auSyncCard(st) {
 
   return '<div class="inq-dcard au-card" data-audit-student="' + nm + '">' +
       '<div class="inq-name-line"><span class="inq-name">' + nm + '</span></div>' +
-      // Red, like OVERDUE on the Unpaid cards: something needs doing.
-      '<div class="au-sub over">' + _auEsc(bits.join(" · ")) + '</div>' +
+      // Lessons to log: amber, however many (the red grid cells show them).
+      // Anything else wrong (sheets disagree, count off): red.
+      '<div class="au-sub ' + (st.missing.length ? 'due' : 'over') + '">' + _auEsc(bits.join(" · ")) + '</div>' +
       rows + chips +
       // Same foot as the Unpaid cards: rule, dim action left, Fix right.
       '<hr class="divider" style="margin:18px 0 16px">' +
+      // Every missing lesson, amber, right over the button; Log lesson logs
+      // the top (oldest) one.
+      (st.missing.length && !st.grid ? '<div class="au-next" style="margin:0 0 12px">' + _auMissingHtml(st.missing, s) + '</div>' : '') +
       '<div class="au-acts">' +
         (st.missing.length
-          ? '<button class="link-btn opens-window au-logbtn" onclick="_auLogNext(this)" ' +
+          ? '<button class="link-btn bright opens-window au-logbtn" onclick="_auLogNext(this)" ' +
               'data-tip="Opens a window.\nLogs ' + _auEsc(_auDate(st.missing[0])) + ' into Students Import.' + (st.missing.length > 1 ? '\n(Oldest first.)' : '') + '" data-tip-wrap>Log lesson</button>'
           : '') +
         '<span class="au-state"></span>' +
-        '<button class="link-btn bright opens-window" onclick="openAuditFixModal(' + nmArg + ')" ' +
+        '<button class="link-btn opens-window" onclick="openAuditFixModal(' + nmArg + ')" ' +
           'data-tip="Opens a window.\nCounter, Students Import and Calendar side by side." data-tip-wrap data-tip-left>Fix</button>' +
       '</div>' +
     '</div>';

@@ -631,6 +631,20 @@ body::before {
    the usual card field. */
 .inq-flabel.au-caps { color: rgba(255,255,255,0.5); }
 .inq-fval.au-caps   { color: rgba(255,255,255,0.24); }
+/* Unlogged Lessons grid: the Counter's last two blocks (1234 1234) over the
+   same slots in Import. Red = taught, not logged; outlined = the oldest,
+   click to log it. */
+.au-grid { width: 100%; border-collapse: separate; border-spacing: 3px; table-layout: fixed;
+  font-family: "DM Mono", monospace; font-size: 10px; }
+.au-grid th { font-weight: 400; color: rgba(255,255,255,0.3); padding: 0 0 4px; text-align: center; }
+.au-grid td { height: 26px; text-align: center; border-radius: 4px; color: rgba(255,255,255,0.62);
+  background: color-mix(in srgb, #fff 4%, transparent); white-space: nowrap; overflow: hidden; }
+.au-grid td.lbl { width: 62px; background: none; text-align: left; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; }
+.au-grid .gap { width: 6px; background: none; }
+.au-grid td.empty { background: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
+.au-grid td.miss { background: rgba(255,90,77,0.15); color: #ff5a4d; }
+.au-grid td.miss.go { box-shadow: inset 0 0 0 1px rgba(255,90,77,0.6); cursor: pointer; }
+.au-grid td.miss.go:hover { background: rgba(255,90,77,0.26); }
 .au-chip { display: inline-block; margin: 0 4px 6px 0; padding: 3px 8px; border-radius: 3px;
   font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--accent2); background: rgba(240,165,0,0.14);
   transition: opacity .3s; }
