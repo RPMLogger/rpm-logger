@@ -685,7 +685,23 @@ body::before {
 .dx-line { display: flex; align-items: center; gap: 10px; }
 .dx-line .fx-state { flex: 1; text-align: right; }
 .dx-line .fx-s { flex: 1; }
-.dx-miss .fx-s { color: #ff5a4d; }
+/* Details: Log lesson in place, the Log lesson window's rows, mic and Log. */
+#auditFixContent .link-btn.tl-mic { padding: 4px 2px; border-color: transparent; background: transparent; color: var(--muted); }
+#auditFixContent .link-btn.tl-mic:hover { color: var(--text); }
+#auditFixContent .link-btn.tl-mic svg { width: 14px; height: 14px; }
+#auditFixContent .link-btn.tl-mic.rec { color: var(--accent); }
+#auditFixContent .dx-ed .link-btn:disabled { color: rgba(255,255,255,.18); border-color: rgba(122,122,122,.22); background: transparent; cursor: default; }
+/* Details window, spaced out a step (2026-09-28). */
+#auditFixContent .field-label { margin-bottom: 16px; }
+#auditFixContent .dx-ed { margin-top: 30px; padding: 20px 22px; }
+/* Log lesson: the Log lesson window's width, centred, and its darker look. */
+#auditFixContent .dx-ed:has(.ll-wrap) { max-width: 460px; box-sizing: border-box; margin-left: auto; margin-right: auto;
+  padding: 22px 24px; border-color: var(--border); background: color-mix(in srgb, #000 22%, var(--surface)); }
+#auditFixContent .dx-lltitle { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--accent); margin-bottom: 16px; }
+#auditFixContent .dx-lltitle span { color: var(--muted); }
+#auditFixContent .dx-ed .fx-sub { margin-bottom: 14px; }
+#auditFixContent .fx-row { padding: 10px 0; }
+.dx-miss .fx-s { color: var(--warn); }   /* amber: to log, like the cards' IMPORT MISSING */
 /* Mismatch (2026-09-28): red button when Calendar and Counter disagree; a
    Counter date with no calendar event wears an amber outline; calendar
    events the Counter doesn't have are listed under the grid. */
@@ -1798,7 +1814,7 @@ a:focus-visible,
 .rpm-dlg-btn:focus-visible { outline: 1px solid var(--muted); outline-offset: -1px; }
 
 /* Shared mic icon (MIC_ICON in core/utils.js) */
-.mic-icon { display: inline-block; vertical-align: middle; }
+.mic-icon { display: inline-block; vertical-align: middle; width: 14px; height: 14px; }   /* every mic, one small size (2026-09-28) */
 /* ─── LOG LESSON WINDOW ───────────────────────────────────────────────────
    One look wherever a lesson gets logged: Home / Audit (#logPanel, lessons.js)
    and the Trial card's step 8 (trial.js _tlLogHtml). Three rows that join into
@@ -1831,7 +1847,7 @@ a:focus-visible,
   color: var(--text); border-color: var(--muted); background: transparent; }
 #tlModal .link-btn.tl-mic, #logPanel .link-btn.tl-mic { padding: 4px 2px; border-color: transparent; background: transparent; color: var(--muted); }
 #tlModal .link-btn.tl-mic:hover, #logPanel .link-btn.tl-mic:hover { color: var(--text); }
-#tlModal .link-btn.tl-mic svg, #logPanel .link-btn.tl-mic svg { width: 18px; height: 18px; }
+#tlModal .link-btn.tl-mic svg, #logPanel .link-btn.tl-mic svg { width: 14px; height: 14px; }
 #tlModal .link-btn.tl-mic.rec, #logPanel .link-btn.tl-mic.rec { color: var(--accent); }
 /* Locked after Log: the mic dims but stays a bare icon, no box. */
 #tlModal .link-btn.tl-mic:disabled, #logPanel .link-btn.tl-mic:disabled { border-color: transparent; }

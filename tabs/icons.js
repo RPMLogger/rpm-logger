@@ -7,12 +7,12 @@
 // Mic shape from the user's design (om-34.svg, 2026-09-26): an outlined mic,
 // redrawn as strokes in currentColor so it stays sharp at any size.
 var MIC_ICON =
-  '<svg class="mic-icon" viewBox="-70 16 1200 1200" width="18" height="18" fill="none" stroke="currentColor" ' +
+  '<svg class="mic-icon" viewBox="-70 16 1200 1200" width="14" height="14" fill="none" stroke="currentColor" ' +
     'stroke-width="72" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
   '<rect x="323" y="78" width="415" height="801" rx="207.5"/>' +
   '<path d="M208 742 A322 261 0 0 0 852 742 M530 1003 V1153 M323 1153 H740"/></svg>';
 var MIC_STOP_ICON =
-  '<svg class="mic-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">' +
+  '<svg class="mic-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">' +
   '<rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>';
 
 // Info window icon from the user's design (om-45.svg, 2026-09-26; replaced
