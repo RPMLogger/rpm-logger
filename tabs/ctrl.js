@@ -1067,15 +1067,18 @@ function _auSyncCard(st) {
 
   var counterRow = s ? '<span class="inq-flabel au-caps">Counter</span><span class="inq-fval au-caps">Lesson ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(_auDate(s.counterDate || "?")) + '</span>' : '';
   var rows = "";
-  if (st.grid && (st.missing.length || calBad)) {
+  // Calendar-only days: a warning on the button row, left of Repair
+  // (icon: user's om-60).
+  var calOnlyNote = calBad && st.cal.calOnly.length
+    ? '<div class="au-calonly">' + (window._auWarnIcon || WARN_TRI_ICON) +
+        '<span>On the calendar, not in the Counter: ' + st.cal.calOnly.map(_auEsc).join(", ") + '</span></div>' : '';
+  var gridNoRule = !!(st.grid && (st.missing.length || calBad));
+  if (gridNoRule) {
     // The grid says it all: Counter's last two blocks over Import's.
-    rows = '<hr class="divider" style="margin:18px 0">' +
-      _auGridHtml(st.grid, st.missing, nmArg, mismatch, calBad ? st.cal.counterOnly : null) +
-      // The warning sits under its own rule, icon on the left (user's om-60).
-      (calBad && st.cal.calOnly.length
-        ? '<hr class="divider" style="margin:18px 0 14px">' +
-          '<div class="au-calonly">' + (window._auWarnIcon || WARN_TRI_ICON) +
-            '<span>On the calendar, not in the Counter: ' + st.cal.calOnly.map(_auEsc).join(", ") + '</span></div>' : '');
+    // No rules around the grid: 37px + the numbers' ~3px line-height and
+    // the table's 3px spacing = 40px above; 52px down to the button.
+    rows = '<div style="margin-top:37px">' +
+      _auGridHtml(st.grid, st.missing, nmArg, mismatch, calBad ? st.cal.counterOnly : null) + '</div>';
   } else if (s) {
     rows = '<hr class="divider" style="margin:18px 0">' +
       '<div class="au-cap">Last logged</div>' +
@@ -1112,7 +1115,8 @@ function _auSyncCard(st) {
       '<div class="au-sub ' + (st.missing.length && !mismatch ? 'due' : 'over') + '">' + _auEsc(bits.join(" · ")) + '</div>' +
       rows + chips +
       // Same foot as the Unpaid cards: rule, dim action left, Fix right.
-      '<hr class="divider" style="margin:18px 0 16px">' +
+      (gridNoRule && !st.warnings.length
+        ? '<div style="height:49px"></div>' : '<hr class="divider" style="margin:24px 0 27px">') +
       // Every missing lesson, amber, right over the button; Log lesson logs
       // the top (oldest) one.
       (st.missing.length && !st.grid ? '<div class="au-next" style="margin:0 0 12px">' + _auMissingHtml(st.missing, s) + '</div>' : '') +
@@ -1125,12 +1129,13 @@ function _auSyncCard(st) {
           ? '<button class="link-btn bright opens-window au-logbtn" onclick="_auLogNext(this)" ' +
               'data-tip="Opens a window.\nLogs ' + _auEsc(_auDate(st.missing[0])) + ' into Students Import.' + (st.missing.length > 1 ? '\n(Oldest first.)' : '') + '" data-tip-wrap>Log lesson</button>'
           : '') +
+        calOnlyNote +
         '<span class="au-state"></span>' +
         // Mismatch: dim when Calendar and Counter agree, red when they don't.
-        '<button class="link-btn opens-window' + (mismatch ? ' red' : '') + '" onclick="openAuditFixModal(' + nmArg + ',\'' + (mismatch ? 'Repair' : 'Details') + '\')" ' +
+        '<button class="link-btn opens-window' + (mismatch ? ' red' : ' au-details') + '" onclick="openAuditFixModal(' + nmArg + ',\'' + (mismatch ? 'Repair' : 'Details') + '\')" ' +
           'data-tip="' + (mismatch
             ? 'Opens a window.\nCalendar and Counter disagree: fix that first.\nLogging is locked until then.'
-            : 'Opens a window.\nShows Calendar, Counter and Import side by side.\nNothing mismatched right now.') + '" data-tip-wrap data-tip-left>' + (mismatch ? 'Repair' : 'Details') + '</button>' +
+            : 'Opens a window.\nShows Calendar, Counter and Import side by side.\nNothing mismatched right now.') + '" data-tip-wrap data-tip-left>' + (mismatch ? REPAIR_ICON + 'Repair' : DETAILS_ICON + 'Details') + '</button>' +
       '</div>' +
     '</div>';
 }
