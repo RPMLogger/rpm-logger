@@ -925,28 +925,46 @@ function renderMergedAuditCards(dateAudit, syncAudit) {
   section.innerHTML = order.map(function(nm) { return _auSyncCard(byName[nm]); }).join("");
 }
 
-// Only the first chip still on the card opens the log window.
-function _auLogChip(chip, name, d) {
-  if (!chip.classList.contains("go")) return;
-  openAuditLessonLog(name, d);
+// The top line, in the Unpaid cards' shape: UNLOGGED · LESSON 1 · SEP 25.
+// The lesson number is known when the missing date is the Counter's latest
+// (the usual case); with 2+ it says how many and from when.
+function _auUnloggedText(dates, s) {
+  if (!dates.length) return "";
+  if (dates.length === 1) {
+    var d = dates[0];
+    var num = (s && _psNormD(d) === _psNormD(s.counterDate)) ? "Lesson " + s.counterLesson + " · " : "";
+    return "Unlogged · " + num + _auDate(d);
+  }
+  return "Unlogged · " + dates.length + " lessons · from " + _auDate(dates[0]);
+}
+function _psNormD(v) { return (v || "").toString().replace(/\s+/g, ""); }
+
+// Log lesson: always the OLDEST unlogged date. Import writes into its next
+// empty row whatever the date, so logging a later one first would put the
+// dates (and column M's lesson numbers) out of order.
+function _auLogNext(btn) {
+  var card = btn.closest("[data-audit-student]");
+  var chip = card && card.querySelector(".audit-missing-chip");
+  if (!chip) return;
+  openAuditLessonLog(card.getAttribute("data-audit-student"), chip.getAttribute("data-audit-date"));
 }
 
-// After a date is logged and its chip leaves, the next one becomes the one
-// you can click.
+// After a date is logged (its hidden marker leaves): the line and the
+// button's tooltip move on to the next one.
 function _auChipsNext(card) {
-  var chips = card ? card.querySelectorAll(".audit-missing-chip") : [];
-  for (var c = 0; c < chips.length; c++) {
-    chips[c].classList.toggle("go", c === 0);
-    chips[c].classList.toggle("wait", c !== 0);
-    if (c === 0) chips[c].setAttribute("data-tip", "Opens a window.\nLogs this lesson into Students Import.");
-  }
+  if (!card) return;
+  var left = Array.prototype.map.call(card.querySelectorAll(".audit-missing-chip"), function(c) { return c.getAttribute("data-audit-date"); });
+  var st = (window._auSync || {})[card.getAttribute("data-audit-student")] || {};
+  var line = card.querySelector(".au-sub");
+  if (line && left.length) line.textContent = _auUnloggedText(left, st.sync);
+  var b = card.querySelector(".au-logbtn");
+  if (b && left.length) b.setAttribute("data-tip", "Opens a window.\nLogs " + _auDate(left[0]) + " into Students Import." + (left.length > 1 ? "\n(Oldest first.)" : ""));
 }
 
 function _auSyncCard(st) {
   var s = st.sync, nm = _auEsc(st.name), nmArg = _auEsc(JSON.stringify(st.name));
   var bits = [];
-  var nm1 = st.missing.length;
-  if (nm1) bits.push("Need to log - " + nm1 + (nm1 === 1 ? " lesson" : " lessons"));
+  if (st.missing.length) bits.push(_auUnloggedText(st.missing, s));
   // Missing lessons already explain why the sheets differ; "Sheets
   // disagree" only when nothing is missing (a real mismatch for Fix).
   if (!st.missing.length && s && (!s.dateMatch || !s.posMatch)) bits.push("Sheets disagree");
@@ -966,21 +984,13 @@ function _auSyncCard(st) {
       '</div>';
   }
 
+  // The unlogged dates ride along as hidden markers: Log lesson reads the
+  // oldest, and a successful log removes it (_auditRemoveResolved).
   var chips = "";
   if (st.missing.length) {
-    // Oldest first, and only the oldest can be logged: Import writes into its
-    // next empty row whatever the date, so logging a later one first would
-    // put the dates (and column M's lesson numbers) out of order.
-    // Its own section under a rule, like Pending payment on the Unpaid cards.
-    // The line under the name already says it; the chips need no heading.
-    chips += '<hr class="divider" style="margin:18px 0">' +
-      '<div>' +
-      st.missing.map(function(d, k) {
-        return '<span class="au-chip audit-missing-chip ' + (k ? 'wait' : 'go') + '" data-audit-date="' + _auEsc(d) + '" ' +
-          'onclick="_auLogChip(this,' + nmArg + ',' + _auEsc(JSON.stringify(d)) + ')" ' +
-          'data-tip="' + (k ? 'Log the earlier date first.\nImport fills its rows in order.' : 'Opens a window.\nLogs this lesson into Students Import.') + '">' +
-          LOG_SHEET_ICON + '<span>' + _auEsc(d) + '</span> ▸</span>';
-      }).join("") + '</div>';
+    chips += '<div hidden>' + st.missing.map(function(d) {
+      return '<span class="audit-missing-chip" data-audit-date="' + _auEsc(d) + '"></span>';
+    }).join("") + '</div>';
   }
   if (st.warnings.length) {
     chips += '<hr class="divider" style="margin:18px 0">' +
@@ -995,8 +1005,14 @@ function _auSyncCard(st) {
       // Red, like OVERDUE on the Unpaid cards: something needs doing.
       '<div class="au-sub over">' + _auEsc(bits.join(" · ")) + '</div>' +
       rows + chips +
+      // Same foot as the Unpaid cards: rule, dim action left, Fix right.
       '<hr class="divider" style="margin:18px 0 16px">' +
-      '<div class="au-acts"><span class="au-state"></span>' +
+      '<div class="au-acts">' +
+        (st.missing.length
+          ? '<button class="link-btn opens-window au-logbtn" onclick="_auLogNext(this)" ' +
+              'data-tip="Opens a window.\nLogs ' + _auEsc(_auDate(st.missing[0])) + ' into Students Import.' + (st.missing.length > 1 ? '\n(Oldest first.)' : '') + '" data-tip-wrap>Log lesson</button>'
+          : '') +
+        '<span class="au-state"></span>' +
         '<button class="link-btn bright opens-window" onclick="openAuditFixModal(' + nmArg + ')" ' +
           'data-tip="Opens a window.\nCounter, Students Import and Calendar side by side." data-tip-wrap data-tip-left>Fix</button>' +
       '</div>' +
