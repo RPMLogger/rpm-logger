@@ -2585,13 +2585,13 @@ function _trThreadSummary(id, msgs) {
       '</div>';
   }
   var last = msgs[msgs.length - 1];
-  var who  = last.fromMe ? 'Last From You' : 'Last From Them';
-  return '<div id="fcsum-' + id + '" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">' +
+  // Who wrote last is the only thing worth saying (is it your turn or
+  // theirs); the count said nothing. Grey, a step darker than Show, on its
+  // own line under it (2026-09-27).
+  return '<div id="fcsum-' + id + '" style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:8px">' +
       '<button class="tr-open-btn small opens-window" id="fctog-' + id + '" onclick="_trThreadWin(\'' + id + '\')">Show</button>' +
-      '<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:' +
-        // The thread's own colours: you amber, them green (see _trMsgRow).
-        (last.fromMe ? 'var(--warn)' : 'var(--green)') + '">' +
-        msgs.length + (msgs.length === 1 ? ' Message, ' : ' Messages, ') + who +
+      '<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:color-mix(in srgb, var(--muted) 72%, transparent)">' +
+        'Last: ' + (last.fromMe ? 'You' : 'Them') +
       '</span>' +
     '</div>';
 }

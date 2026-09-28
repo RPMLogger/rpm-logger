@@ -610,6 +610,23 @@ body::before {
 .inq-reply-acts { display: flex; gap: 6px; justify-content: flex-end; }
 /* The Read link is a button in every way but the tag. */
 .inq-reply-acts .inq-db { text-decoration: none; display: inline-block; }
+/* ─── AUDIT: UNPAID CARDS (2026-09-27) ─────────────────────────────────────
+   The Inquiries card (.inq-dcard). Under the name, one caps line says where
+   they stand, the Trial card's "TRIAL ON" voice: amber = unpaid / due,
+   red = overdue (lesson 4 done, next block not paid). */
+/* Green edge (user's pick, 2026-09-27) sets these apart from the red-edged
+   Initiate / Trial cards. */
+.inq-dcard.au-card { border-left-color: var(--green); }
+.au-sub { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.3px; text-transform: uppercase; margin-top: 4px; }
+.au-sub.due  { color: var(--warn); }
+.au-sub.over { color: #ff5a4d; }
+.au-cap { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.au-pend { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 6px;
+  font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.5); }
+.au-pend .au-amt { color: var(--text); }
+.au-acts { display: flex; align-items: center; gap: 8px; }
+.au-acts .au-state { flex: 1; text-align: right; }
+
 /* ─── LINKS OUT OF THE PORTAL (2026-09-27) ─────────────────────────────────
    Dim link button: the words, then the small out arrow. Every link that
    leaves the portal (sheets, Calendar, Gmail, Dropbox, Finder) looks this way.

@@ -241,12 +241,14 @@ var activeIncomingPayment = null;
 var incomingRecognition   = null;
 var incomingRecording     = false;
 
-function openIncomingNotePanel(payment, cardEl) {
+// onDone (optional): called after both writes land, e.g. the Audit tab
+// re-checking who is still unpaid.
+function openIncomingNotePanel(payment, cardEl, onDone) {
   // Close any other open note panel first
   document.querySelectorAll(".incoming-note-panel").forEach(function(p) { p.remove(); });
   stopIncomingMic();
 
-  activeIncomingPayment = { payment: payment, cardEl: cardEl };
+  activeIncomingPayment = { payment: payment, cardEl: cardEl, onDone: onDone || null };
 
   var panel = document.createElement("div");
   panel.className = "incoming-note-panel";
@@ -256,6 +258,7 @@ function openIncomingNotePanel(payment, cardEl) {
       "<button class='inp-mic' data-tip='Starts or stops dictation.'>" + MIC_ICON + "</button>" +
     "</div>" +
     "<div class='inp-actions'>" +
+      "<span class='inp-state' style='flex:1'></span>" +
       "<button class='inp-log btn-log'>Log →</button>" +
       "<button class='inp-cancel'>✕</button>" +
     "</div>";
@@ -342,40 +345,76 @@ function stopIncomingMic() {
   incomingRecording = false;
 }
 
+// Two writes: the RPM Payments log and the student's Students Import box.
+// Three outcomes (2026-09-27):
+//   both land   → the card goes, as before
+//   both fail   → red Unsuccessful badge, card stays
+//   one fails   → amber badge naming the one that failed, card stays; Log
+//                 again redoes ONLY that one, so the Payments log never gets
+//                 the same payment twice.
+// What already landed is remembered on the payment itself (payment._wrote).
 function submitIncomingWithNote(note, logBtn) {
   var url = getScriptUrl(); if (!url) return;
   if (!activeIncomingPayment) return;
 
-  var payment   = activeIncomingPayment.payment;
-  var cardEl    = activeIncomingPayment.cardEl;
-  var fullNote  = note ? payment.amount + " - " + note : payment.amount;
+  var act      = activeIncomingPayment;
+  var payment  = act.payment;
+  var cardEl   = act.cardEl;
+  var panel    = cardEl.nextSibling;
+  var stateEl  = panel && panel.querySelector ? panel.querySelector(".inp-state") : null;
+  var fullNote = note ? payment.amount + " - " + note : payment.amount;
+  var wrote    = payment._wrote || (payment._wrote = { log: false, box: !payment.matchedTab });
 
-  logBtn.textContent = "Logging..."; logBtn.disabled = true;
-
-  callScript(url, "logPayment", {
-    date: payment.date, studentName: payment.name,
-    method: payment.method, amount: payment.amount, notes: note
-  }, function() {});
-
-  if (payment.matchedTab) {
-    callScript(url, "logPaymentNote", {
-      studentName: payment.matchedTab,
-      paymentDate: payment.date,
-      note: fullNote
-    }, function() {});
+  function call(action, params) {
+    var q = url + "?action=" + action;
+    for (var k in params) q += "&" + k + "=" + encodeURIComponent(params[k]);
+    return fetch(q).then(function(r) { return r.json(); })
+      .then(function(d) { return { ok: !!(d && d.success), why: (d && d.message) || "" }; })
+      .catch(function() { return { ok: false, why: "No answer from Google." }; });
   }
 
-  var label = shortDate(payment.date) + " · " + payment.name + " · " + payment.amount + " · " + payment.method +
-    (payment.matched ? "" : " (RPM only — no sheet match)");
-  addLog("paymentFeed", "✓ " + label, "success");
+  if (stateEl) stateEl.innerHTML = "";
+  logBtn.textContent = "Logging…"; logBtn.disabled = true;
+  if (panel && panel.classList) rpmBusy(panel, logBtn, true);
 
-  // Remove note panel + card
-  var panel = cardEl.nextSibling;
-  if (panel && panel.classList && panel.classList.contains("incoming-note-panel")) panel.remove();
-  cardEl.remove();
-  activeIncomingPayment = null;
-  checkEmptyIncoming();
-  payHistoryLoaded = false;
+  var jobs = [];
+  jobs.push(wrote.log ? Promise.resolve({ ok: true }) : call("logPayment", {
+    date: payment.date, studentName: payment.name,
+    method: payment.method, amount: payment.amount, notes: note
+  }));
+  jobs.push(wrote.box ? Promise.resolve({ ok: true }) : call("logPaymentNote", {
+    studentName: payment.matchedTab, paymentDate: payment.date, note: fullNote
+  }));
+
+  Promise.all(jobs).then(function(res) {
+    if (panel && panel.classList) rpmBusy(panel, logBtn, false);
+    if (res[0].ok) wrote.log = true;
+    if (res[1].ok) wrote.box = true;
+
+    if (wrote.log && wrote.box) {
+      var label = shortDate(payment.date) + " · " + payment.name + " · " + payment.amount + " · " + payment.method +
+        (payment.matched ? "" : " (RPM only — no sheet match)");
+      addLog("paymentFeed", "✓ " + label, "success");
+      if (panel && panel.classList && panel.classList.contains("incoming-note-panel")) panel.remove();
+      cardEl.remove();
+      activeIncomingPayment = null;
+      checkEmptyIncoming();
+      payHistoryLoaded = false;
+      if (act.onDone) act.onDone();
+      return;
+    }
+
+    logBtn.textContent = "Log →"; logBtn.disabled = false;
+    if (!wrote.log && !wrote.box) {
+      rpmFail(stateEl, [res[0].why, res[1].why].filter(Boolean).join(" · "));
+    } else if (!wrote.box) {
+      rpmHalf(stateEl, "Sheet box not ticked", "The payment is in the RPM Payments log.\nTicking the Students Import box failed: " +
+        (res[1].why || "no reason given") + "\nLog again ticks only the box.");
+    } else {
+      rpmHalf(stateEl, "Not in Payments log", "The Students Import box is ticked.\nWriting the RPM Payments log failed: " +
+        (res[0].why || "no reason given") + "\nLog again writes only the log.");
+    }
+  });
 }
 
 // ─── INCOMING PAYMENTS (Venmo / Zelle) ───────────────────────────────────────

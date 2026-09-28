@@ -53,20 +53,119 @@ function _runSyncAudits(url) {
 
 function _runAudit3(url) {
   var section = document.getElementById("auditUnpaidSection");
-  section.innerHTML = '<div class="empty-state">Running audit...</div>';
+  section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   fetch(url + "?action=auditUnpaid")
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      if (!data.success) {
-        section.innerHTML = '<div class="empty-state">Audit error: ' + (data.message || "unknown") + '</div>';
-        return;
-      }
+      if (!data.success) { _auditSectionFail(section, data.message || "unknown"); return; }
       renderUnpaidCards(data.audit || []);
     })
-    .catch(function() {
-      section.innerHTML = '<div class="empty-state">Connection failed</div>';
-    });
+    .catch(function() { _auditSectionFail(section, "No answer from Google."); });
 }
+
+// A section that could not load: the Trial tab's red badge, reason in its tooltip.
+function _auditSectionFail(section, why) {
+  section.innerHTML = '<div class="empty-state" id="' + section.id + 'Fail"></div>';
+  rpmFail(section.id + "Fail", why, "center");
+}
+
+// ─── UNPAID STUDENTS: Inquiries-style cards (2026-09-27) ─────────────────────
+// Who shows up is the shared backend rule (RPM_PayState.js): the NEXT lesson
+// has to be paid for. One card per student:
+//   name
+//   caps line   UNPAID / OWES N BLOCKS · LESSON n · date        (amber)
+//               OVERDUE · LESSON 4 DONE date                    (red)
+//               DUE AT THIS LESSON · LESSON 4 TODAY             (amber)
+//   rows        Block −1, Block −2, Last paid, Reminder
+//   pending     each Venmo/Zelle waiting, with Confirm payment ▸
+//   buttons     Log cash ▸ (dim, left) · Send reminder (amber, right; only
+//               when nothing is pending — a waiting payment is the answer)
+function _auDate(d) { return (d || "").toString().replace(/\s*\/\s*/, " ").trim(); }
+function _auEsc(v) {
+  return String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function _auStatusLine(s) {
+  var owes = s.owes || 0, n = s.lessonNum, d = _auDate(s.lessonDate);
+  if (s.status === "Due at this lesson") return { cls: "due", text: "Due at this lesson · Lesson 4 today" };
+  if (s.status === "Overdue") {
+    return { cls: "over", text: "Overdue" + (owes >= 2 ? " · Owes " + owes + " blocks" : "") + " · Lesson 4 done " + d };
+  }
+  return { cls: "due", text: (owes >= 2 ? "Owes " + owes + " blocks" : "Unpaid") + " · Lesson " + n + " · " + d };
+}
+
+function renderUnpaidCards(audit) {
+  var section = document.getElementById("auditUnpaidSection");
+  if (!audit.length) { section.innerHTML = '<div class="empty-state">None</div>'; return; }
+  window._auUnpaid = audit;
+  section.innerHTML = audit.map(_auUnpaidCard).join("");
+}
+
+function _auUnpaidCard(s, i) {
+  var line = _auStatusLine(s);
+  var rows = "";
+  (s.prevBlocks || []).forEach(function(pb, idx) {
+    var v = (pb.paid ? "Paid" : "Unpaid") + (pb.paymentDate ? " · " + _auDate(pb.paymentDate) : "") + (pb.paymentNote ? " · " + pb.paymentNote : "");
+    rows += '<span class="inq-flabel">Block −' + (idx + 1) + '</span><span class="inq-fval">' + _auEsc(v) + '</span>';
+  });
+  var lp = (s.lastPayments || [])[0];
+  rows += '<span class="inq-flabel">Last paid</span><span class="inq-fval">' +
+    (lp ? _auEsc([lp.amount, lp.date, lp.method].filter(Boolean).join(" · ")) : "None") + '</span>';
+  rows += '<span class="inq-flabel">Reminder</span><span class="inq-fval" id="auRem-' + i + '">' +
+    _auEsc(s.lastReminderAt || "None sent yet") + '</span>';
+
+  var pending = s.pendingPayments || [];
+  var pendHtml = "";
+  if (pending.length) {
+    pendHtml = '<hr class="divider" style="margin:18px 0">' +
+      '<div class="au-cap">Pending payment</div>' +
+      pending.map(function(p, j) {
+        return '<div class="au-pend" id="auPend-' + i + '-' + j + '">' +
+          '<span class="au-amt">' + _auEsc(p.amount) + '</span>' +
+          '<span>' + _auEsc(p.method) + '</span><span>' + _auEsc(p.date) + '</span>' +
+          '<button class="inq-db yes opens-window" style="margin-left:auto" onclick="_auConfirm(' + i + ',' + j + ')" ' +
+            'data-tip="Opens a note box under this line.\nLogs the payment and ticks their Students Import box.\n(Not in Email list.)" data-tip-wrap data-tip-left>Confirm payment</button>' +
+        '</div>';
+      }).join("");
+  }
+
+  var right = pending.length ? "" :
+    '<button class="link-btn amber" id="auRemBtn-' + i + '" onclick="_auRemind(' + i + ')" ' +
+      'data-tip="Instant.\nEmails them a payment reminder.\nNo amounts in it." data-tip-wrap data-tip-left>' +
+      ENVELOPE_ICON + '<span>Send reminder</span></button>';
+
+  return '<div class="inq-dcard au-card" id="auCard-' + i + '">' +
+      '<div class="inq-name-line"><span class="inq-name">' + _auEsc(s.name) + '</span></div>' +
+      '<div class="au-sub ' + line.cls + '">' + _auEsc(line.text) + '</div>' +
+      '<hr class="divider" style="margin:18px 0">' +
+      '<div class="inq-fields">' + rows + '</div>' +
+      pendHtml +
+      '<hr class="divider" style="margin:18px 0 16px">' +
+      '<div class="au-acts">' +
+        '<button class="link-btn opens-window" onclick="_auCash(' + i + ')" ' +
+          'data-tip="Opens a window.\nLogs a cash payment for them." data-tip-wrap>Log cash</button>' +
+        '<span class="au-state" id="auState-' + i + '"></span>' +
+        right +
+      '</div>' +
+    '</div>';
+}
+
+function _auCash(i) {
+  var s = (window._auUnpaid || [])[i]; if (!s) return;
+  _openCashFromAudit(s.name, s.lessonDate);
+}
+
+// Confirm opens the Payments tab's note box under the pending line. Once both
+// writes land the whole list is checked again: they may be paid up now.
+function _auConfirm(i, j) {
+  var s = (window._auUnpaid || [])[i]; if (!s) return;
+  var p = (s.pendingPayments || [])[j];
+  var row = document.getElementById("auPend-" + i + "-" + j);
+  if (!p || !row) return;
+  if (typeof openIncomingNotePanel !== "function") { rpmToast("fail", "Unsuccessful", "Confirm isn't loaded. Use the Payments tab."); return; }
+  openIncomingNotePanel(p, row, function() { var url = getScriptUrl(); if (url) _runAudit3(url); });
+}
+
 
 // The "nothing to do here" line. A bare bright-green sentence shouted louder
 // than the cards under it, so it sits in a faint tinted pill instead.
@@ -76,135 +175,6 @@ function _auditOkBanner(text) {
           'background:rgba(46,204,113,0.06);border-radius:8px;color:rgba(46,204,113,0.7);' +
           'font-size:10.5px;letter-spacing:0.5px">' + text + '</span>' +
     '</div>';
-}
-
-function renderUnpaidCards(audit) {
-  var section = document.getElementById("auditUnpaidSection");
-  section.innerHTML = "";
-
-  if (!audit.length) {
-    section.innerHTML = _auditOkBanner("All current blocks are paid ✓");
-    return;
-  }
-
-  audit.forEach(function(s) {
-    var card = document.createElement("div");
-    card.style.cssText = "padding:12px;border:1px solid var(--border);border-radius:6px;margin-bottom:10px;background:var(--panel)";
-
-    var name = document.createElement("div");
-    name.style.cssText = "font-family:'Syne',sans-serif;font-weight:400;font-size:16px;color:var(--text);margin-bottom:6px";
-    name.textContent = s.name;
-    card.appendChild(name);
-
-    var current = document.createElement("div");
-    current.style.cssText = "font-size:10.5px;color:var(--muted);margin:4px 0 10px";
-    current.innerHTML = "On lesson <b style=\"color:#ffa500\">" + (s.lessonNum != null ? s.lessonNum : "?") + "</b> (<b style=\"color:rgba(255,255,255,0.82)\">" + (s.lessonDate || "?") + "</b>) — <span style=\"color:#ffa500\">unpaid</span>";
-    card.appendChild(current);
-
-    if (s.prevBlocks && s.prevBlocks.length) {
-      var pbHdr = document.createElement("div");
-      pbHdr.style.cssText = "font-size:10px;color:var(--muted);margin:6px 0 2px;text-transform:uppercase;letter-spacing:0.5px";
-      pbHdr.textContent = "Past 2 blocks";
-      card.appendChild(pbHdr);
-
-      s.prevBlocks.forEach(function(pb, idx) {
-        var row = document.createElement("div");
-        row.style.cssText = "font-size:10.5px;color:var(--muted);margin:2px 0";
-        var statusColor = pb.paid ? "rgba(255,255,255,0.5)" : "#ffa500";
-        var statusMark = pb.paid ? "PAID" : "UNPAID";
-        var dateStr = pb.paymentDate ? " · " + pb.paymentDate : "";
-        var noteStr = pb.paymentNote ? " · " + pb.paymentNote : "";
-        row.innerHTML = "Block −" + (idx + 1) + ": <b style=\"color:" + statusColor + ";letter-spacing:1px\">" + statusMark + "</b>" + dateStr + noteStr;
-        card.appendChild(row);
-      });
-    }
-
-    var lpHdr = document.createElement("div");
-    lpHdr.style.cssText = "font-size:10px;color:var(--muted);margin:10px 0 2px;text-transform:uppercase;letter-spacing:0.5px";
-    lpHdr.textContent = "Last 2 RPM Payments";
-    card.appendChild(lpHdr);
-
-    if (s.lastPayments && s.lastPayments.length) {
-      s.lastPayments.forEach(function(p) {
-        var row = document.createElement("div");
-        row.style.cssText = "font-size:10.5px;color:var(--muted);margin:2px 0";
-        row.innerHTML = "<b style=\"color:rgba(255,255,255,0.82)\">" + (p.amount || "?") + "</b> on <b style=\"color:rgba(255,255,255,0.82)\">" + (p.date || "?") + "</b> via " + (p.method || "?") + (p.notes ? " · " + p.notes : "");
-        card.appendChild(row);
-      });
-    } else {
-      var none = document.createElement("div");
-      none.style.cssText = "font-size:10.5px;color:var(--muted);font-style:italic";
-      none.textContent = "None";
-      card.appendChild(none);
-    }
-
-    // ─── ACTIONS ─────────────────────────────────────────────────────────
-    var actionsWrap = document.createElement("div");
-    actionsWrap.style.cssText = "margin-top:12px;padding-top:10px;border-top:1px dashed var(--border)";
-    card.appendChild(actionsWrap);
-
-    if (s.pendingPayments && s.pendingPayments.length) {
-      var ppHdr = document.createElement("div");
-      ppHdr.style.cssText = "font-size:10px;color:var(--muted);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.5px";
-      ppHdr.textContent = "Pending — confirm?";
-      actionsWrap.appendChild(ppHdr);
-
-      s.pendingPayments.forEach(function(p) {
-        var row = document.createElement("div");
-        row.style.cssText = "display:flex;align-items:center;gap:8px;margin:4px 0;font-size:10.5px;flex-wrap:wrap";
-        row.innerHTML =
-          "<span style=\"color:rgba(255,255,255,0.82)\"><b>" + (p.amount || "?") + "</b> " + (p.method || "?") + "</span>" +
-          "<span style=\"color:var(--muted)\">" + (p.date || "?") + "</span>";
-
-        var confirmBtn = document.createElement("button");
-        confirmBtn.textContent = "Confirm →";
-        confirmBtn.style.cssText = "padding:4px 10px;font-size:11px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:4px;cursor:pointer";
-        confirmBtn.onclick = function(ev) {
-          ev.stopPropagation();
-          if (typeof openIncomingNotePanel === "function") {
-            openIncomingNotePanel(p, row);
-          } else {
-            addLog("auditFeed", "Confirm flow not available — open Payments tab", "error");
-          }
-        };
-        row.appendChild(confirmBtn);
-        actionsWrap.appendChild(row);
-      });
-    } else {
-      var reminderRow = document.createElement("div");
-      reminderRow.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px";
-
-      var reminderInfo = document.createElement("div");
-      reminderInfo.style.cssText = "font-size:10.5px;color:var(--muted)";
-      reminderInfo.textContent = s.lastReminderAt
-        ? "Last reminder sent: " + s.lastReminderAt
-        : "No reminder sent yet";
-      reminderRow.appendChild(reminderInfo);
-
-      var sendBtn = document.createElement("button");
-      sendBtn.textContent = "Send Reminder";
-      sendBtn.style.cssText = "min-width:124px;text-align:center;padding:5px 10px;font-size:11px;background:rgba(255,165,0,0.15);color:#ffa500;border:1px solid rgba(255,165,0,0.4);border-radius:4px;cursor:pointer";
-      sendBtn.onclick = function(ev) { ev.stopPropagation(); _sendReminder(s, sendBtn, reminderInfo); };
-      reminderRow.appendChild(sendBtn);
-
-      actionsWrap.appendChild(reminderRow);
-    }
-
-    // ─── CASH button — always available ──────────────────────────────────
-    var cashRow = document.createElement("div");
-    cashRow.style.cssText = "margin-top:8px;display:flex;justify-content:flex-end";
-    var cashBtn = document.createElement("button");
-    cashBtn.textContent = "Log Cash";
-    cashBtn.style.cssText = "min-width:124px;text-align:center;padding:5px 10px;font-size:11px;background:rgba(180,180,180,0.10);color:rgba(255,255,255,0.82);border:1px solid var(--border);border-radius:4px;cursor:pointer";
-    cashBtn.onclick = function(ev) {
-      ev.stopPropagation();
-      _openCashFromAudit(s.name, s.lessonDate);
-    };
-    cashRow.appendChild(cashBtn);
-    actionsWrap.appendChild(cashRow);
-
-    section.appendChild(card);
-  });
 }
 
 // ─── AUDIT 2 FIX MODAL ──────────────────────────────────────────────────────
@@ -759,30 +729,38 @@ function _openCashFromAudit(studentName, lessonDate) {
   if (lessonDate) setCashDate(lessonDate); // spinner infers the year on submit
 }
 
-function _sendReminder(student, btn, infoEl) {
-  var url = getScriptUrl();
-  if (!url) return;
-  btn.textContent = "Sending..."; btn.disabled = true;
-  var completed = (student.completedDates || []).join(",");
-  callScript(url, "sendPaymentReminder", {
-    studentName: student.name,
-    lessonNum:   student.lessonNum,
-    lessonDate:  student.lessonDate,
-    completedDates: completed
-  }, function(data) {
-    if (data && data.success) {
-      btn.textContent = "✓ Sent";
-      btn.style.background = "rgba(0,200,100,0.15)";
-      btn.style.color = "var(--green)";
-      btn.style.borderColor = "rgba(0,200,100,0.4)";
-      var nowStr = (new Date()).toLocaleString();
-      if (infoEl) infoEl.textContent = "Last reminder sent: just now";
-      addLog("auditFeed", "✓ Reminder sent to " + student.name, "success");
-    } else {
-      btn.textContent = "Send Reminder →"; btn.disabled = false;
-      addLog("auditFeed", "❌ " + (data && data.message ? data.message : "Reminder failed"), "error");
-    }
-  });
+// Send reminder: the backend works out which email (mid-block, next block
+// due, or 2+ blocks owed) from the same rule the card used. Trial feedback:
+// the card dims with the moving dots, success only changes the words, a
+// failure is the red badge beside the button, reason in its tooltip.
+function _auRemind(i) {
+  var url = getScriptUrl(); if (!url) return;
+  var s = (window._auUnpaid || [])[i]; if (!s) return;
+  var card = document.getElementById("auCard-" + i);
+  var btn  = document.getElementById("auRemBtn-" + i);
+  var st   = document.getElementById("auState-" + i);
+  if (!btn || btn.disabled) return;
+  if (st) st.innerHTML = "";
+  btn.disabled = true; _trSetLabel(btn, "Sending…");
+  rpmBusy(card, btn, true);
+  fetch(url + "?action=sendPaymentReminder&studentName=" + encodeURIComponent(s.name))
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      rpmBusy(card, btn, false);
+      if (d && d.success) {
+        _trSetLabel(btn, "Sent ✓");
+        var rem = document.getElementById("auRem-" + i);
+        if (rem) rem.textContent = "Just now";
+      } else {
+        btn.disabled = false; _trSetLabel(btn, "Send reminder");
+        rpmFail(st, (d && d.message) || "Reminder failed");
+      }
+    })
+    .catch(function() {
+      rpmBusy(card, btn, false);
+      btn.disabled = false; _trSetLabel(btn, "Send reminder");
+      rpmFail(st, "No answer from Google. Check Sent mail before trying again.");
+    });
 }
 
 // Convert an audit display date like "Jun 19" into a local-noon date string

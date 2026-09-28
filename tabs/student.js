@@ -362,7 +362,7 @@ function _stRenderDetail() {
 
   var payRow = document.createElement('div');
   payRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--panel);margin-bottom:16px';
-  var payColors = { 'Paid': '#8f8f8f', 'Due': '#ffb400', 'Overdue': '#ff5050' };
+  var payColors = { 'Paid': '#8f8f8f', 'Due': '#ffb400', 'Due at this lesson': '#ffb400', 'Overdue': '#ff5050' };
   var payColor = payColors[d.paymentStatus] || 'var(--muted)';
   payRow.innerHTML =
     "<span style='font-size:12px;color:" + payColor + "'>" + (d.paymentStatus || '—') + "</span>" +
@@ -597,7 +597,7 @@ function _stRenderAudit(data) {
   // Payment
   var payBox = document.createElement('div');
   payBox.style.cssText = 'padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--panel);margin-bottom:10px';
-  var colors = { 'Paid': 'var(--green)', 'Due': '#ffb400', 'Overdue': '#ff5050' };
+  var colors = { 'Paid': 'var(--green)', 'Due': '#ffb400', 'Due at this lesson': '#ffb400', 'Overdue': '#ff5050' };
   var color = colors[data.paymentStatus] || 'var(--muted)';
   payBox.innerHTML =
     "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Payment</div>" +
