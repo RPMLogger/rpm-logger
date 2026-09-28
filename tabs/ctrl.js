@@ -169,8 +169,12 @@ function _auCash(i) {
 // ─── AUDIT 2 FIX MODAL ──────────────────────────────────────────────────────
 var _fixCurrentName = null;
 
-function openAuditFixModal(studentName) {
+// mode: "Repair" when the card's Calendar and Counter disagree, else "Details";
+// the window title follows the button that opened it.
+function openAuditFixModal(studentName, mode) {
   _fixCurrentName = studentName;
+  var fm = document.getElementById("auditFixMode");
+  if (fm) fm.textContent = mode === "Repair" ? "Repair" : "Details";
   document.getElementById("auditFixOverlay").style.display = "flex";
   document.getElementById("auditFixTitle").textContent = studentName;
   document.getElementById("auditFixBody").innerHTML = '<div class="empty-state rpm-loading" style="padding:24px">Loading</div>';
@@ -1067,8 +1071,11 @@ function _auSyncCard(st) {
     // The grid says it all: Counter's last two blocks over Import's.
     rows = '<hr class="divider" style="margin:18px 0">' +
       _auGridHtml(st.grid, st.missing, nmArg, mismatch, calBad ? st.cal.counterOnly : null) +
+      // The warning sits under its own rule, icon on the left (user's om-60).
       (calBad && st.cal.calOnly.length
-        ? '<div class="au-calonly">On the calendar, not in the Counter: ' + st.cal.calOnly.map(_auEsc).join(", ") + '</div>' : '');
+        ? '<hr class="divider" style="margin:18px 0 14px">' +
+          '<div class="au-calonly">' + (window._auWarnIcon || WARN_TRI_ICON) +
+            '<span>On the calendar, not in the Counter: ' + st.cal.calOnly.map(_auEsc).join(", ") + '</span></div>' : '');
   } else if (s) {
     rows = '<hr class="divider" style="margin:18px 0">' +
       '<div class="au-cap">Last logged</div>' +
@@ -1120,10 +1127,10 @@ function _auSyncCard(st) {
           : '') +
         '<span class="au-state"></span>' +
         // Mismatch: dim when Calendar and Counter agree, red when they don't.
-        '<button class="link-btn opens-window' + (mismatch ? ' red' : '') + '" onclick="openAuditFixModal(' + nmArg + ')" ' +
+        '<button class="link-btn opens-window' + (mismatch ? ' red' : '') + '" onclick="openAuditFixModal(' + nmArg + ',\'' + (mismatch ? 'Repair' : 'Details') + '\')" ' +
           'data-tip="' + (mismatch
             ? 'Opens a window.\nCalendar and Counter disagree: fix that first.\nLogging is locked until then.'
-            : 'Opens a window.\nShows Calendar, Counter and Import side by side.\nNothing mismatched right now.') + '" data-tip-wrap data-tip-left>Mismatch</button>' +
+            : 'Opens a window.\nShows Calendar, Counter and Import side by side.\nNothing mismatched right now.') + '" data-tip-wrap data-tip-left>' + (mismatch ? 'Repair' : 'Details') + '</button>' +
       '</div>' +
     '</div>';
 }
