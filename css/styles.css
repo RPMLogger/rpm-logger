@@ -637,6 +637,7 @@ body::before {
 .au-chip.go { cursor: pointer; }
 .au-chip.go:hover { background: rgba(240,165,0,0.24); }
 .au-chip.wait { opacity: 0.4; cursor: default; }
+.au-chip .log-sheet-icon { vertical-align: -2px; margin-right: 6px; }
 
 /* ─── LINKS OUT OF THE PORTAL (2026-09-27) ─────────────────────────────────
    Dim link button: the words, then the small out arrow. Every link that

@@ -945,7 +945,8 @@ function _auChipsNext(card) {
 function _auSyncCard(st) {
   var s = st.sync, nm = _auEsc(st.name), nmArg = _auEsc(JSON.stringify(st.name));
   var bits = [];
-  if (st.missing.length) bits.push(st.missing.length + " missing from Import");
+  var nm1 = st.missing.length;
+  if (nm1) bits.push("Need to log - " + nm1 + (nm1 === 1 ? " lesson" : " lessons"));
   // Missing lessons already explain why the sheets differ; "Sheets
   // disagree" only when nothing is missing (a real mismatch for Fix).
   if (!st.missing.length && s && (!s.dateMatch || !s.posMatch)) bits.push("Sheets disagree");
@@ -971,13 +972,14 @@ function _auSyncCard(st) {
     // next empty row whatever the date, so logging a later one first would
     // put the dates (and column M's lesson numbers) out of order.
     // Its own section under a rule, like Pending payment on the Unpaid cards.
+    // The line under the name already says it; the chips need no heading.
     chips += '<hr class="divider" style="margin:18px 0">' +
-      '<div class="au-cap">Not logged yet</div><div>' +
+      '<div>' +
       st.missing.map(function(d, k) {
         return '<span class="au-chip audit-missing-chip ' + (k ? 'wait' : 'go') + '" data-audit-date="' + _auEsc(d) + '" ' +
           'onclick="_auLogChip(this,' + nmArg + ',' + _auEsc(JSON.stringify(d)) + ')" ' +
           'data-tip="' + (k ? 'Log the earlier date first.\nImport fills its rows in order.' : 'Opens a window.\nLogs this lesson into Students Import.') + '">' +
-          _auEsc(d) + ' ▸</span>';
+          LOG_SHEET_ICON + '<span>' + _auEsc(d) + '</span> ▸</span>';
       }).join("") + '</div>';
   }
   if (st.warnings.length) {
