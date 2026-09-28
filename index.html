@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=690">
+  <link rel="stylesheet" href="css/styles.css?v=691">
 </head>
 <body>
 <div class="container">
@@ -767,63 +767,62 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">690</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">691</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
 </div>
 
 <!-- AUDIT 2 FIX MODAL -->
-<div id="auditFixOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:1000;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 12px" onclick="closeAuditFixModal(event)">
-  <div id="auditFixContent" style="background:#0e0e0e;border:1px solid var(--border);border-radius:8px;width:100%;max-width:900px;padding:18px;color:var(--text);font-size:12px" onclick="event.stopPropagation()">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:10px">
-      <div style="display:flex;align-items:center;gap:10px">
-        <button onclick="closeAuditFixModal()" style="background:transparent;border:1px solid var(--border);color:var(--muted);font-size:12px;cursor:pointer;border-radius:4px;padding:4px 10px">← Back</button>
-        <div id="auditFixTitle" style="font-weight:600;font-size:14px"></div>
-      </div>
-      <button onclick="closeAuditFixModal()" style="background:transparent;border:none;color:var(--muted);font-size:18px;cursor:pointer">×</button>
+<!-- Fix window, the Trial window look (2026-09-28): title "NAME · FIX", the
+     ✕ is the only way out, sections under small grey caps, bright actions. -->
+<div id="auditFixOverlay" class="settings-overlay" onclick="closeAuditFixModal(event)">
+  <div id="auditFixContent" class="settings-modal fx-modal" onclick="event.stopPropagation()">
+    <div class="settings-title">
+      <span><span id="auditFixTitle"></span><span style="color:var(--muted);font-weight:400"> · Mismatch</span></span>
+      <button class="settings-close" onclick="closeAuditFixModal()">✕</button>
     </div>
     <div id="auditFixBody"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=690"></script>
-<script src="core/storage.js?v=690"></script>
-<script src="core/utils.js?v=690"></script>
-<script src="core/dialog.js?v=690"></script>
-<script src="core/api.js?v=690"></script>
+<script src="core/state.js?v=691"></script>
+<script src="core/storage.js?v=691"></script>
+<script src="core/utils.js?v=691"></script>
+<script src="core/dialog.js?v=691"></script>
+<script src="core/api.js?v=691"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=690"></script>
-<script src="tabs/lessons.js?v=690"></script>
-<script src="tabs/payments.js?v=690"></script>
-<script src="tabs/week.js?v=690"></script>
-<script src="tabs/general.js?v=690"></script>
-<script src="tabs/financial.js?v=690"></script>
-<script src="tabs/inquiries.js?v=690"></script>
-<script src="tabs/inqarchive.js?v=690"></script>
-<script src="tabs/comms.js?v=690"></script>
-<script src="tabs/notes.js?v=690"></script>
-<script src="tabs/todo.js?v=690"></script>
-<script src="tabs/availability.js?v=690"></script>
-<script src="tabs/biweekly.js?v=690"></script>
-<script src="tabs/travel.js?v=690"></script>
-<script src="tabs/tripsummary.js?v=690"></script>
-<script src="tabs/triphistory.js?v=690"></script>
-<script src="tabs/skips.js?v=690"></script>
-<script src="tabs/student.js?v=690"></script>
-<script src="tabs/ctrl.js?v=690"></script>
-<script src="tabs/mailcenter.js?v=690"></script>
-<script src="tabs/dropbox.js?v=690"></script>
-<script src="tabs/trial.js?v=690"></script>
-<script src="tabs/rates.js?v=690"></script>
-<script src="tabs/ending.js?v=690"></script>
-<script src="tabs/thisyear.js?v=690"></script>
-<script src="tabs/sheets.js?v=690"></script>
-<script src="tabs/studentline.js?v=690"></script>
-<script src="tabs/calendar.js?v=690"></script>
-<script src="tabs/fixedcal.js?v=690"></script>
+<script src="tabs/icons.js?v=691"></script>
+<script src="tabs/lessons.js?v=691"></script>
+<script src="tabs/payments.js?v=691"></script>
+<script src="tabs/week.js?v=691"></script>
+<script src="tabs/general.js?v=691"></script>
+<script src="tabs/financial.js?v=691"></script>
+<script src="tabs/inquiries.js?v=691"></script>
+<script src="tabs/inqarchive.js?v=691"></script>
+<script src="tabs/comms.js?v=691"></script>
+<script src="tabs/notes.js?v=691"></script>
+<script src="tabs/todo.js?v=691"></script>
+<script src="tabs/availability.js?v=691"></script>
+<script src="tabs/biweekly.js?v=691"></script>
+<script src="tabs/travel.js?v=691"></script>
+<script src="tabs/tripsummary.js?v=691"></script>
+<script src="tabs/triphistory.js?v=691"></script>
+<script src="tabs/skips.js?v=691"></script>
+<script src="tabs/student.js?v=691"></script>
+<script src="tabs/ctrl.js?v=691"></script>
+<script src="tabs/mailcenter.js?v=691"></script>
+<script src="tabs/dropbox.js?v=691"></script>
+<script src="tabs/trial.js?v=691"></script>
+<script src="tabs/rates.js?v=691"></script>
+<script src="tabs/ending.js?v=691"></script>
+<script src="tabs/thisyear.js?v=691"></script>
+<script src="tabs/sheets.js?v=691"></script>
+<script src="tabs/studentline.js?v=691"></script>
+<script src="tabs/calendar.js?v=691"></script>
+<script src="tabs/fixedcal.js?v=691"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>

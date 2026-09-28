@@ -19,12 +19,12 @@ function initAuditTab() {
 function _runSyncAudits(url) {
   var section = document.getElementById("auditLessonSection");
   section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
-  var results = { dates: null, sync: null };
+  var results = { dates: null, sync: null, cal: null };
   var failed = false;
 
   function done() {
-    if (failed || results.dates === null || results.sync === null) return;
-    renderMergedAuditCards(results.dates, results.sync);
+    if (failed || results.dates === null || results.sync === null || results.cal === null) return;
+    renderMergedAuditCards(results.dates, results.sync, results.cal);
   }
   function fail(msg) {
     if (failed) return;
@@ -40,6 +40,13 @@ function _runSyncAudits(url) {
       done();
     })
     .catch(function() { fail("No answer from Google."); });
+
+  // Calendar vs Counter (the logging gate). If it can't load, cards still
+  // show, just ungated (results.cal = false).
+  fetch(url + "?action=auditCalendarSync")
+    .then(function(r) { return r.json(); })
+    .then(function(data) { results.cal = (data && data.success) ? (data.audit || []) : false; done(); })
+    .catch(function() { results.cal = false; done(); });
 
   fetch(url + "?action=auditBlockSync")
     .then(function(r) { return r.json(); })
@@ -165,7 +172,7 @@ var _fixCurrentName = null;
 function openAuditFixModal(studentName) {
   _fixCurrentName = studentName;
   document.getElementById("auditFixOverlay").style.display = "flex";
-  document.getElementById("auditFixTitle").textContent = "Fix: " + studentName;
+  document.getElementById("auditFixTitle").textContent = studentName;
   document.getElementById("auditFixBody").innerHTML = '<div class="empty-state rpm-loading" style="padding:24px">Loading</div>';
   _loadFixData(studentName);
 }
@@ -178,6 +185,36 @@ function closeAuditFixModal(ev) {
   if (typeof initAuditTab === "function") initAuditTab();
 }
 
+function _fixLoadFail(why) {
+  var b = document.getElementById("auditFixBody");
+  b.innerHTML = '<div class="empty-state" id="fxLoadFail"></div>';
+  rpmFail("fxLoadFail", why, "center");
+}
+
+// A section's heading: the Trial windows' small grey caps field label.
+function _fxHead(text, first) {
+  var h = document.createElement("div");
+  if (!first) { var hr = document.createElement("hr"); hr.className = "divider"; hr.style.margin = "20px 0"; h.appendChild(hr); }
+  var l = document.createElement("div"); l.className = "field-label"; l.textContent = text; h.appendChild(l);
+  return h;
+}
+// Bottom-right action row with a place for the Unsuccessful badge.
+function _fxActs(btn) {
+  var row = document.createElement("div"); row.className = "fx-acts";
+  var st = document.createElement("span"); st.className = "fx-state"; row.appendChild(st);
+  row.appendChild(btn);
+  btn._fxState = st;
+  return row;
+}
+function _fxBtn(label) {
+  var b = document.createElement("button"); b.className = "link-btn bright";
+  b.innerHTML = "<span>" + label + "</span>"; return b;
+}
+function _fxX(title) {
+  var b = document.createElement("button"); b.className = "fx-x"; b.textContent = "✕"; b.setAttribute("data-tip", title); b.setAttribute("data-tip-left", "");
+  return b;
+}
+
 function _loadFixData(studentName) {
   var url = getScriptUrl();
   if (!url) return;
@@ -185,13 +222,13 @@ function _loadFixData(studentName) {
     .then(function(r) { return r.json(); })
     .then(function(resp) {
       if (!resp.success) {
-        document.getElementById("auditFixBody").innerHTML = '<div class="empty-state">Error: ' + (resp.message || "unknown") + '</div>';
+        _fixLoadFail(resp.message || "unknown");
         return;
       }
       _renderFixData(resp.data);
     })
     .catch(function() {
-      document.getElementById("auditFixBody").innerHTML = '<div class="empty-state">Connection failed</div>';
+      _fixLoadFail("No answer from Google.");
     });
 }
 
@@ -217,9 +254,7 @@ function _fixInferYear(mon, day) {
 function _fixDateSeg() {
   var b = document.createElement("button");
   b.type = "button"; b.tabIndex = 0;
-  b.style.cssText = "background:transparent;border:none;color:inherit;font-family:inherit;font-size:11px;font-weight:600;padding:2px 5px;cursor:pointer;border-radius:3px;outline:none";
-  b.onfocus = function() { b.style.background = "rgba(232,70,58,0.18)"; b.style.color = "var(--accent)"; };
-  b.onblur  = function() { b.style.background = "transparent"; b.style.color = "inherit"; };
+  b.className = "fx-seg";
   b.onclick = function() { b.focus(); };
   return b;
 }
@@ -309,393 +344,346 @@ function _fixCycleSpinner(initial, min, max) {
   };
 }
 
+// ─── DETAILS WINDOW (was Fix), 2026-09-28 ────────────────────────────────────
+// The card's grid again, with more in it: CALENDAR over COUNTER over IMPORT
+// for the Counter's last two blocks, then every lesson in that span with its
+// subject. Click a cell to change it in that sheet (the editor opens under
+// the grid). Data: getStudentFixData (Counter cells with columns, Import rows
+// with row numbers + subjects, the last 8 past calendar events with ids).
+var _dx = null;   // { d, slots, cal, extras, counterSp[], editing }
+
+function _dxN(disp) {
+  var p = _fixParseMonDay(disp);
+  return p ? p.mon + "-" + p.day : "";
+}
+function _dxShort(disp) {
+  var p = _fixParseMonDay(disp);
+  return p ? _FIX_MONTHS[p.mon] + " " + p.day : (disp || "");
+}
+
 function _renderFixData(d) {
   var body = document.getElementById("auditFixBody");
-  body.innerHTML = "";
 
-  var counterControls = []; // { col, sp } across both Counter blocks
-  var importControls  = []; // { subjIn, sp } for empty Students Import rows
+  // 8 slots: previous block 1-4, current block 1-4. With only one Counter
+  // block, it sits in the second half and the first half stays empty.
+  var cDates = d.counter.dates || [];
+  var imp    = d.importLessons || [];
+  var slots  = [];
+  for (var k = 0; k < 8; k++) slots.push({ k: k, counter: null, imp: null });
+  var cOff = cDates.length > 4 ? 0 : 4;
+  cDates.forEach(function(c, i) { if (slots[cOff + i]) slots[cOff + i].counter = c; });
+  // Import is matched to the Counter by DATE, not by position: the backend's
+  // Import window moves on a block once Import's block is complete, so by
+  // position it could sit a whole block off (Antonio, 2026-09-28).
+  var impBy = {}, impFirst = null;
+  imp.forEach(function(l) {
+    if (!l || l.empty || !l.date) return;
+    impBy[_dxN(l.date)] = l;
+    var p = _fixParseMonDay(l.date);
+    if (p) { var dd = new Date(_fixInferYear(p.mon, p.day), p.mon, p.day); if (!impFirst || dd < impFirst) impFirst = dd; }
+  });
+  var used = {};
+  slots.forEach(function(sl) {
+    if (!sl.counter || sl.counter.empty) return;
+    var key = _dxN(sl.counter.value);
+    if (impBy[key]) { sl.imp = impBy[key]; used[key] = true; return; }
+    // Older than every Import row the backend sent: can't tell, so it isn't
+    // called missing (the card, which reads Import properly, is the judge).
+    var p = _fixParseMonDay(sl.counter.value);
+    if (p && impFirst && new Date(_fixInferYear(p.mon, p.day), p.mon, p.day) < impFirst) sl.impUnknown = true;
+  });
+  // Import lessons in the span that match no Counter date.
+  var impExtras = [];
+  imp.forEach(function(l) { if (l && !l.empty && l.date && !used[_dxN(l.date)]) impExtras.push(l); });
 
-  // Dates already logged in Students Import, as normalized "mon-day" keys. The
-  // current-block auto-fill uses this so it only SUGGESTS Counter dates that are
-  // genuinely missing from Import — never ones already logged. When Import is
-  // caught up with Counter, every current-block box stays blank ("you decide");
-  // if only 1 date is missing, only 1 box pre-fills, and so on.
-  var _importDateKeys = {};
-  (d.importLessons || []).forEach(function(l) {
-    if (l && !l.empty && l.date) {
-      var p = _fixParseMonDay(l.date);
-      if (p) _importDateKeys[p.mon + "-" + p.day] = true;
-    }
+  // Calendar events land on the slot whose Counter date they match. Any
+  // other event inside the grid's span is an extra (on the calendar, not
+  // counted); older ones are outside the picture and left out.
+  var byDate = {};
+  slots.forEach(function(s) { if (s.counter && !s.counter.empty) byDate[_dxN(s.counter.value)] = s; });
+  var firstDate = null;
+  slots.forEach(function(s) { if (!firstDate && s.counter && !s.counter.empty) firstDate = _fixParseMonDay(s.counter.value); });
+  var extras = [];
+  (d.calendar || []).forEach(function(ev) {
+    var key = _dxN(ev.date);
+    if (byDate[key] && !byDate[key].cal) { byDate[key].cal = ev; return; }
+    var p = _fixParseMonDay(ev.date);
+    if (!p || !firstDate) return;
+    var y = _fixInferYear(p.mon, p.day), fy = _fixInferYear(firstDate.mon, firstDate.day);
+    if (new Date(y, p.mon, p.day) >= new Date(fy, firstDate.mon, firstDate.day)) extras.push(ev);
   });
 
-  // Helper to render a Counter block (4 cells with inline date editing).
-  // Current-block cells get an onChange hook so Finished (E) auto-tracks the
-  // number of filled dates.
-  function counterBlock(label, cells, isCurrent, onCellChange) {
-    var wrap = document.createElement("div");
-    wrap.style.cssText = "margin-bottom:10px";
-    var lbl = document.createElement("div");
-    lbl.style.cssText = "font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px";
-    lbl.textContent = label;
-    wrap.appendChild(lbl);
-    var row = document.createElement("div");
-    row.style.cssText = "display:grid;grid-template-columns:repeat(4, 1fr);gap:6px";
-    cells.forEach(function(cell, i) {
-      var pill = document.createElement("div");
-      var isEmpty = cell.empty;
-      pill.style.cssText = "display:flex;align-items:center;gap:4px;padding:4px 6px;border:1px dashed " + (isEmpty ? "rgba(255,165,0,0.5)" : "var(--border)") + ";border-radius:4px;font-size:11px;background:" + (isEmpty ? "rgba(255,165,0,0.05)" : "transparent");
-      pill.innerHTML = "<span style=\"color:var(--muted);opacity:0.6;flex-shrink:0\">" + (i + 1) + ":</span>";
-      var sp = _fixDateSpinner(cell.value, isCurrent ? onCellChange : null);
-      sp.box.style.flex = "1";
-      pill.appendChild(sp.box);
-      counterControls.push({ col: cell.col, sp: sp, current: !!isCurrent });
-      var clrBtn = document.createElement("button");
-      clrBtn.textContent = "✕"; clrBtn.title = "Clear date"; clrBtn.style.cssText = "padding:1px 5px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:3px;cursor:pointer;flex-shrink:0";
-      clrBtn.onclick = function() { sp.clear(); };
-      pill.appendChild(clrBtn);
-      row.appendChild(pill);
-    });
-    wrap.appendChild(row);
-    return wrap;
+  // Counter spinners for every slot: the editor shows one at a time, Save
+  // sends them all (the old window's saveCounterRow, unchanged).
+  var counterSp = slots.map(function(s) {
+    return s.counter ? _fixDateSpinner(s.counter.value) : null;
+  });
+  _dx = { d: d, slots: slots, extras: extras, counterSp: counterSp, cOff: cOff };
+
+  body.innerHTML = "";
+  // The window icon under the title, as in the Trial windows: om-56, gear + wrench.
+  var ic = document.createElement("div"); ic.style.margin = "4px 0 18px";
+  ic.innerHTML = FIX_ICON;
+  body.appendChild(ic);
+  var gl = document.createElement("div"); gl.className = "field-label"; gl.textContent = "Last two blocks";
+  body.appendChild(gl);
+  body.appendChild(_dxGrid());
+  if (extras.length) {
+    var ex = document.createElement("div"); ex.className = "dx-extra";
+    ex.innerHTML = "On the calendar, not in the Counter: " + extras.map(function(e, i) {
+      return '<span class="dx-exchip" onclick="_dxEdit(\'extra\',' + i + ')">' + _auEsc(_dxShort(e.date)) + ' ▸</span>';
+    }).join(" ");
+    body.appendChild(ex);
   }
-
-  // Helper to render a Students Import block. counterCells (optional) is the
-  // matching Counter block's cells — empty Import rows auto-fill their date
-  // from the same block position when Counter has a date the Import is missing.
-  function importBlock(label, lessons, counterCells) {
-    var wrap = document.createElement("div");
-    wrap.style.cssText = "margin-bottom:10px";
-    var lbl = document.createElement("div");
-    lbl.style.cssText = "font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px";
-    lbl.textContent = label;
-    wrap.appendChild(lbl);
-    lessons.forEach(function(l, i) {
-      var row = document.createElement("div");
-      row.style.cssText = "display:flex;gap:8px;align-items:center;margin:3px 0;font-size:11px;padding:3px 0;border-bottom:1px dashed rgba(255,255,255,0.05)";
-      var num = (l.lessonNum != null ? l.lessonNum : (i + 1));
-      var prefix = "<span style=\"color:var(--muted);opacity:0.6;width:24px;display:inline-block\">" + num + "</span>";
-      if (l.empty) {
-        var pfx = document.createElement("span");
-        pfx.style.cssText = "color:var(--muted);opacity:0.6;width:24px;display:inline-block;flex-shrink:0";
-        pfx.textContent = num;
-        row.appendChild(pfx);
-        var subjIn = document.createElement("input");
-        subjIn.type = "text"; subjIn.placeholder = "Subject";
-        subjIn.style.cssText = "flex:1;padding:2px 6px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:11px";
-        // Pre-fill the date from the Counter cell at the same block position,
-        // when Counter has a date this Import row is missing. Green-tinted so
-        // it's clearly auto-filled; still fully editable via the spinner.
-        var autoDate = "";
-        if (counterCells && counterCells[i] && !counterCells[i].empty) {
-          var cd = counterCells[i].value || "";
-          var cp = _fixParseMonDay(cd);
-          // Only pre-fill when this Counter date is NOT already logged in Import.
-          if (cp && !_importDateKeys[cp.mon + "-" + cp.day]) autoDate = cd;
-        }
-        var sp = _fixDateSpinner(autoDate);
-        sp.box.style.cssText += ";border:1px solid " + (autoDate ? "rgba(0,200,100,0.5)" : "var(--border)") + ";border-radius:3px;padding:2px 6px;flex-shrink:0";
-        row.appendChild(subjIn); row.appendChild(sp.box);
-        importControls.push({ subjIn: subjIn, sp: sp });
-      } else {
-        var pfx2 = document.createElement("span");
-        pfx2.style.cssText = "color:var(--muted);opacity:0.6;width:24px;display:inline-block;flex-shrink:0";
-        pfx2.textContent = num;
-        var dateSpan = document.createElement("span");
-        dateSpan.style.cssText = "color:var(--muted);width:60px;flex-shrink:0";
-        dateSpan.textContent = l.date || "—";
-        var subjSpan = document.createElement("span");
-        subjSpan.style.cssText = "flex:1";
-        subjSpan.innerHTML = l.subject || "<em style=\"color:var(--muted)\">(no subject)</em>";
-        row.appendChild(pfx2); row.appendChild(dateSpan); row.appendChild(subjSpan);
-        // ✕ removes this logged line from Students Import (undo a mistaken/dup log).
-        if (l.row) {
-          var del = document.createElement("button");
-          del.textContent = "✕";
-          del.title = "Remove this logged line from Students Import";
-          del.style.cssText = "flex-shrink:0;padding:1px 7px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:3px;cursor:pointer";
-          (function(rowNum, label, btn) {
-            btn.onclick = function() { _clearImportLesson(rowNum, label, btn); };
-          })(l.row, (l.date || "") + " " + (l.subject || ""), del);
-          row.appendChild(del);
-        }
-      }
-      wrap.appendChild(row);
-    });
-    return wrap;
+  // Only Import lessons dated inside the grid's span count as extras.
+  var fp = firstDate ? new Date(_fixInferYear(firstDate.mon, firstDate.day), firstDate.mon, firstDate.day) : null;
+  impExtras = impExtras.filter(function(l) {
+    var p = _fixParseMonDay(l.date); if (!p || !fp) return false;
+    return new Date(_fixInferYear(p.mon, p.day), p.mon, p.day) >= fp;
+  });
+  if (impExtras.length) {
+    var ix = document.createElement("div"); ix.className = "dx-extra";
+    ix.textContent = "In Import, not in the Counter: " + impExtras.map(function(l) { return _dxShort(l.date); }).join(", ");
+    body.appendChild(ix);
   }
+  var ed = document.createElement("div"); ed.id = "dxEditor"; body.appendChild(ed);
 
-  // ─── COUNTER section title ───────────────────────────────────
-  var counterTitle = document.createElement("div");
-  counterTitle.style.cssText = "font-size:13px;color:#fff;font-weight:600;margin:0 0 10px;padding-bottom:4px;border-bottom:1px solid var(--border)";
-  counterTitle.textContent = "RPM Counter";
-  body.appendChild(counterTitle);
+  var hr = document.createElement("hr"); hr.className = "divider"; hr.style.margin = "20px 0"; body.appendChild(hr);
+  var ll = document.createElement("div"); ll.className = "field-label"; ll.textContent = "Lessons"; body.appendChild(ll);
+  body.appendChild(_dxLessons());
+}
 
-  // Finished (E) auto-tracks the count of filled current-block dates. Declared
-  // here (reassigned once finishedSp exists) so current-block cells can call it.
-  var recomputeFinished = function() {};
-  function onCurrentCellChange() { recomputeFinished(); }
-
-  // Counter dates come back oldest→newest: previous block first, current block last.
-  // Past block on top, current below (only show Past if there's a prior block).
-  var cDates = d.counter.dates || [];
-  var counterCurrentCells = cDates.slice(Math.max(0, cDates.length - 4));
-  if (cDates.length > 4) body.appendChild(counterBlock("Previous Block", cDates.slice(0, cDates.length - 4), false, null));
-  body.appendChild(counterBlock("Current Block", counterCurrentCells, true, onCurrentCellChange));
-
-  // Count filled current-block dates from the live spinners.
-  function countFilledCurrent() {
-    var n = 0;
-    counterControls.forEach(function(c) { if (c.current && c.sp.getValue()) n++; });
-    return n;
+function _dxGrid() {
+  var s = _dx.slots;
+  function head() {
+    var h = '<th></th>';
+    for (var k = 0; k < 8; k++) h += (k === 4 ? '<th class="gap"></th>' : '') + '<th>' + (k % 4 + 1) + '</th>';
+    return '<tr>' + h + '</tr>';
   }
-
-  // Finished (E): auto-set to the current-block date count; still cyclable (↑↓).
-  var eRow = document.createElement("div");
-  eRow.style.cssText = "display:flex;gap:10px;align-items:center;margin:10px 0 4px";
-  eRow.innerHTML = "<span style=\"color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:0.5px\">Finished (E):</span>";
-  var finishedSp = _fixCycleSpinner(countFilledCurrent(), 1, 4);
-  finishedSp.box.style.cssText += ";border:1px solid var(--border);border-radius:3px;padding:2px 12px;font-size:13px";
-  eRow.appendChild(finishedSp.box);
-  var eHint = document.createElement("span");
-  eHint.style.cssText = "font-size:9px;color:var(--muted);opacity:0.7";
-  eHint.textContent = "auto from dates";
-  eRow.appendChild(eHint);
-  body.appendChild(eRow);
-
-  // Now that finishedSp exists, live-sync it whenever a current date changes.
-  recomputeFinished = function() { finishedSp.setValue(countFilledCurrent()); };
-
-  // One Log button commits the whole Counter row (all cells + Finished).
-  var counterLog = document.createElement("button");
-  counterLog.textContent = "Log to Counter";
-  counterLog.style.cssText = "margin-top:8px;padding:6px 16px;font-size:12px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:4px;cursor:pointer;font-weight:600";
-  counterLog.onclick = function() {
-    var fields = counterControls.map(function(c) { return { col: c.col, value: c.sp.getValue() }; });
-    _saveCounterRow(d.counter.row, fields, finishedSp.getValue(), counterLog);
-  };
-  body.appendChild(counterLog);
-
-  // ─── STUDENTS IMPORT section title ───────────────────────────
-  var importTitle = document.createElement("div");
-  importTitle.style.cssText = "font-size:13px;color:#fff;font-weight:600;margin:20px 0 10px;padding-bottom:4px;border-bottom:1px solid var(--border)";
-  importTitle.textContent = "Students Import";
-  body.appendChild(importTitle);
-
-  if (!d.importLessons.length) {
-    var none = document.createElement("div");
-    none.style.cssText = "font-style:italic;color:var(--muted);margin-bottom:14px";
-    none.textContent = "None";
-    body.appendChild(none);
-  } else {
-    // importLessons returned chronologically (oldest first): previous block then current.
-    // Import comes back anchored to Counter: exactly 2 blocks that line up with
-    // Counter's Previous/Current. Label them the same way and auto-fill the
-    // block aligned with Counter's current block from the Counter dates.
-    var imp = d.importLessons;
-    var hasPrev = cDates.length > 4;
-    var block0 = imp.slice(0, 4);
-    var block1 = imp.slice(4, 8);
-    if (hasPrev) {
-      if (block0.length) body.appendChild(importBlock("Previous Block", block0, null));
-      if (block1.length) body.appendChild(importBlock("Current Block", block1, counterCurrentCells));
-    } else {
-      // No previous block in Counter → block0 is the current block.
-      if (block0.length) body.appendChild(importBlock("Current Block", block0, counterCurrentCells));
-      if (block1.length && !block1.every(function(l) { return l.empty; })) {
-        body.appendChild(importBlock("Next Block", block1, null));
-      }
+  function row(label, cell) {
+    var h = '<td class="lbl">' + label + '</td>';
+    for (var k = 0; k < 8; k++) h += (k === 4 ? '<td class="gap"></td>' : '') + cell(s[k], k);
+    return '<tr>' + h + '</tr>';
+  }
+  function td(cls, text, which, k, tip) {
+    return '<td class="' + cls + ' dx-c" onclick="_dxEdit(\'' + which + '\',' + k + ')"' +
+      (tip ? ' data-tip="' + tip + '"' : '') + '>' + _auEsc(text) + '</td>';
+  }
+  var cal = row("Calendar", function(sl, k) {
+    var has = sl.counter && !sl.counter.empty;
+    if (sl.cal) return td("", _dxShort(sl.cal.date), "cal", k);
+    if (has) return '<td class="warn" data-tip="Counted, but no calendar event on this day.">—</td>';
+    return '<td class="empty"></td>';
+  });
+  var cnt = row("Counter", function(sl, k) {
+    if (!sl.counter) return '<td class="empty"></td>';
+    if (sl.counter.empty) return td("empty", "", "counter", k, "Adds a date here.");
+    return td("", _dxShort(sl.counter.value), "counter", k);
+  });
+  var firstMiss = -1;
+  s.forEach(function(sl, k) {
+    var has = sl.counter && !sl.counter.empty;
+    var logged = sl.imp && !sl.imp.empty;
+    if (firstMiss < 0 && has && !logged && !sl.impUnknown) firstMiss = k;
+  });
+  _dx.firstMiss = firstMiss;
+  var imp = row("Import", function(sl, k) {
+    var has = sl.counter && !sl.counter.empty;
+    var logged = sl.imp && !sl.imp.empty;
+    if (logged) {
+      var off = has && _dxN(sl.imp.date) !== _dxN(sl.counter.value);
+      return td(off ? "miss" : "", _dxShort(sl.imp.date), "imp", k, off ? "Import has a different date than the Counter here." : "");
     }
+    if (has && sl.impUnknown) return '<td class="empty" data-tip="Older than what Import sent here.\nSee the sheet.">·</td>';
+    if (has) return td("miss" + (k === firstMiss ? " go" : ""), _dxShort(sl.counter.value), "imp", k,
+      k === firstMiss ? "Logs this lesson into Students Import." : "Log the earlier date first.\nImport fills its rows in order.");
+    return '<td class="empty"></td>';
+  });
+  var t = document.createElement("div");
+  t.innerHTML = '<table class="au-grid dx-grid">' + head() + cal + cnt + imp + '</table>';
+  return t.firstChild;
+}
+
+function _dxLessons() {
+  var wrap = document.createElement("div");
+  _dx.slots.forEach(function(sl, k) {
+    var has = sl.counter && !sl.counter.empty;
+    var logged = sl.imp && !sl.imp.empty;
+    if (!has && !logged) return;
+    if (!logged && sl.impUnknown) return;
+    var row = document.createElement("div");
+    row.className = "fx-row" + (logged ? "" : " dx-miss");
+    var date = logged ? sl.imp.date : sl.counter.value;
+    row.innerHTML = '<span class="fx-n">' + (k % 4 + 1) + '</span>' +
+      '<span class="fx-d">' + _auEsc(_dxShort(date)) + '</span>' +
+      '<span class="fx-s">' + (logged ? (sl.imp.subject ? _auEsc(sl.imp.subject) : '<em>(no subject)</em>') : 'Not logged') + '</span>';
+    wrap.appendChild(row);
+  });
+  return wrap;
+}
+
+// The editor under the grid, for the clicked cell. One at a time; clicking
+// the same cell again closes it.
+function _dxEdit(which, k) {
+  var ed = document.getElementById("dxEditor");
+  if (!ed || !_dx) return;
+  var key = which + k;
+  document.querySelectorAll(".dx-grid td.sel").forEach(function(t) { t.classList.remove("sel"); });
+  if (_dx.editing === key) { _dx.editing = null; ed.innerHTML = ""; return; }
+  _dx.editing = key;
+  var sl = _dx.slots[k];
+  var cells = document.querySelectorAll(".dx-grid td.dx-c");
+  Array.prototype.forEach.call(cells, function(t) { if ((t.getAttribute("onclick") || "").indexOf("'" + which + "'," + k + ")") >= 0) t.classList.add("sel"); });
+
+  ed.innerHTML = "";
+  var box = document.createElement("div"); box.className = "dx-ed";
+  var title = document.createElement("div"); title.className = "fx-sub";
+  var line = document.createElement("div"); line.className = "dx-line";
+  var st = document.createElement("span"); st.className = "fx-state";
+  box.appendChild(title); box.appendChild(line);
+
+  if (which === "counter") {
+    title.textContent = "Counter · " + (k < 4 ? "previous" : "current") + " block, lesson " + (k % 4 + 1);
+    var sp = _dx.counterSp[k];
+    sp.box.className = "fx-date"; line.appendChild(sp.box);
+    var clr = _fxX("Clears this date.\nNothing saves until Save."); clr.onclick = function() { sp.clear(); }; line.appendChild(clr);
+    line.appendChild(st);
+    var save = _fxBtn("Save"); save._fxState = st; line.appendChild(save);
+    save.onclick = function() {
+      var fields = [], cur = 0;
+      _dx.slots.forEach(function(s2, j) {
+        if (!s2.counter) return;
+        var v = _dx.counterSp[j].getValue();
+        fields.push({ col: s2.counter.col, value: v });
+        if (j >= 4 && v) cur++;
+      });
+      _saveCounterRow(_dx.d.counter.row, fields, String(cur || 1), save, "Save");
+    };
+  } else if (which === "imp") {
+    var logged = sl.imp && !sl.imp.empty;
+    if (logged) {
+      title.textContent = "Students Import · " + _dxShort(sl.imp.date);
+      var s1 = document.createElement("span"); s1.className = "fx-s"; s1.textContent = sl.imp.subject || "(no subject)"; line.appendChild(s1);
+      line.appendChild(st);
+      var rm = _fxBtn("Remove line"); rm._fxState = st; line.appendChild(rm);
+      rm.onclick = function() { _clearImportLesson(sl.imp.row, (sl.imp.date || "") + " " + (sl.imp.subject || ""), rm); };
+    } else if (k === _dx.firstMiss) {
+      title.textContent = "Students Import · not logged";
+      var subj = document.createElement("input"); subj.type = "text"; subj.placeholder = "Subject"; subj.className = "rpm-field fx-subj";
+      var dsp = _fixDateSpinner(sl.counter.value); dsp.box.className = "fx-date auto";
+      line.appendChild(subj); line.appendChild(dsp.box); line.appendChild(st);
+      var lg = _fxBtn("Log"); lg._fxState = st; line.appendChild(lg);
+      lg.onclick = function() { _logImportSection([{ subjIn: subj, sp: dsp }], lg, "Log"); };
+      setTimeout(function() { subj.focus(); }, 0);
+    } else {
+      title.textContent = "Students Import · not logged";
+      line.innerHTML = '<span class="fx-hint">Log the earlier date first. Import fills its rows in order.</span>';
+    }
+  } else if (which === "cal" || which === "extra") {
+    var ev = which === "cal" ? sl.cal : _dx.extras[k];
+    title.textContent = "Google Calendar · " + ev.date;
+    line.appendChild(st);
+    var del = _fxBtn("Delete event"); del._fxState = st; line.appendChild(del);
+    var armed = false;
+    del.onclick = function() {
+      if (!armed) { armed = true; _trSetLabel(del, "Delete? Press again"); setTimeout(function() { if (armed) { armed = false; _trSetLabel(del, "Delete event"); } }, 3000); return; }
+      armed = false;
+      _deleteCalEvent(ev.calId, ev.id, ev.date, null, del);
+    };
   }
+  ed.appendChild(box);
+}
 
-  // One Log button commits all filled-in Students Import rows.
-  if (importControls.length) {
-    var importLog = document.createElement("button");
-    importLog.textContent = "Log to Students Import";
-    importLog.style.cssText = "margin-top:6px;padding:6px 16px;font-size:12px;background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4);border-radius:4px;cursor:pointer;font-weight:600";
-    importLog.onclick = function() { _logImportSection(importControls, importLog); };
-    body.appendChild(importLog);
-  }
-
-  // ─── CALENDAR section ────────────────────────────────────────
-  var calTitle = document.createElement("div");
-  calTitle.style.cssText = "font-size:13px;color:#fff;font-weight:600;margin:20px 0 10px;padding-bottom:4px;border-bottom:1px solid var(--border)";
-  calTitle.textContent = "Google Calendar — last 8 past events";
-  body.appendChild(calTitle);
-
-  if (!d.calendar || !d.calendar.length) {
-    var calNone = document.createElement("div");
-    calNone.style.cssText = "font-size:11px;color:var(--muted);font-family:monospace";
-    calNone.textContent = "None";
-    body.appendChild(calNone);
-  } else {
-    // Vertical list — one date per line, unnumbered (a calendar date isn't
-    // tied to a lesson number). Each has a 2-tap delete that removes ONLY that
-    // event from Google Calendar (for clearing a forgotten event).
-    d.calendar.forEach(function(ev) {
-      var isObj = (ev && typeof ev === "object");
-      var dateText = isObj ? ev.date : ev;
-
-      var line = document.createElement("div");
-      line.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;color:var(--muted);font-family:monospace;padding:4px 0;border-bottom:1px dashed rgba(255,255,255,0.05)";
-
-      var dateEl = document.createElement("span");
-      dateEl.textContent = dateText;
-      line.appendChild(dateEl);
-
-      // Only offer delete when we have the event id + calendar id.
-      if (isObj && ev.id && ev.calId) {
-        var delBtn = document.createElement("button");
-        delBtn.textContent = "✕";
-        delBtn.title = "Delete this event from Google Calendar";
-        delBtn.style.cssText = "padding:1px 8px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:3px;cursor:pointer;flex-shrink:0";
-        var armed = false;
-        delBtn.onclick = function() {
-          if (!armed) {
-            armed = true;
-            delBtn.textContent = "Delete?";
-            delBtn.style.color = "#ff6b6b";
-            delBtn.style.borderColor = "rgba(255,107,107,0.5)";
-            setTimeout(function() {
-              if (!armed) return;
-              armed = false;
-              delBtn.textContent = "✕";
-              delBtn.style.color = "var(--muted)";
-              delBtn.style.borderColor = "var(--border)";
-            }, 3000);
-            return;
-          }
-          _deleteCalEvent(ev.calId, ev.id, dateText, line, delBtn);
-        };
-        line.appendChild(delBtn);
-      }
-
-      body.appendChild(line);
-    });
-  }
+// Fix window feedback, the Trial windows' rule: the window dims with the
+// moving dots on the pressed button; success says nothing (the window reloads
+// with the new state); failure is the red Unsuccessful badge by the button,
+// reason in its tooltip. A ✕ with no action row fails as a toast.
+function _fxBusy(btn, on) { rpmBusy(document.getElementById("auditFixContent"), btn, on); }
+function _fxCall(action, params) {
+  var url = getScriptUrl();
+  var q = url + "?action=" + action;
+  for (var k in params) q += "&" + k + "=" + encodeURIComponent(params[k]);
+  return fetch(q).then(function(r) { return r.json(); })
+    .then(function(d) { return { ok: !!(d && d.success), why: (d && d.message) || "" }; })
+    .catch(function() { return { ok: false, why: "No answer from Google." }; });
 }
 
 // Delete one calendar event (2nd tap of the delete control confirmed it).
 function _deleteCalEvent(calId, eventId, dateText, lineEl, btn) {
-  var url = getScriptUrl(); if (!url) return;
-  btn.textContent = "..."; btn.disabled = true;
-  callScript(url, "deleteCalendarEvent", { calId: calId, eventId: eventId }, function(data) {
-    if (data && data.success) {
-      addLog("auditFeed", "✓ Deleted calendar event " + dateText, "success");
-      lineEl.style.transition = "opacity 0.3s";
-      lineEl.style.opacity = "0";
-      setTimeout(function() { lineEl.remove(); }, 300);
+  var label = btn._fxState ? "Delete event" : "✕";
+  if (btn._fxState) { btn._fxState.innerHTML = ""; _trSetLabel(btn, "Deleting…"); _fxBusy(btn, true); } else btn.textContent = "…";
+  btn.disabled = true;
+  _fxCall("deleteCalendarEvent", { calId: calId, eventId: eventId }).then(function(r) {
+    if (btn._fxState) _fxBusy(btn, false);
+    if (r.ok) {
+      if (lineEl) { lineEl.style.transition = "opacity 0.3s"; lineEl.style.opacity = "0"; setTimeout(function() { lineEl.remove(); }, 300); }
+      else if (_fixCurrentName) _loadFixData(_fixCurrentName);
     } else {
-      btn.textContent = "✕"; btn.disabled = false;
-      btn.style.color = "var(--muted)"; btn.style.borderColor = "var(--border)";
-      addLog("auditFeed", "❌ " + (data && data.message ? data.message : "Delete failed"), "error");
+      btn.disabled = false;
+      if (btn._fxState) { _trSetLabel(btn, label); rpmFail(btn._fxState, r.why || "Delete failed"); }
+      else { btn.textContent = label; btn.classList.remove("armed"); rpmToast("fail", "Unsuccessful", r.why || "Delete failed"); }
     }
   });
 }
 
 // Commit the whole Counter row at once: every block cell + Finished (E).
-function _saveCounterRow(row, fields, finished, btn) {
-  var url = getScriptUrl(); if (!url) return;
-  var orig = btn.textContent;
-  btn.textContent = "Saving..."; btn.disabled = true;
-  callScript(url, "saveCounterRow", {
-    row: row,
-    finished: finished,
-    fields: JSON.stringify(fields)
-  }, function(data) {
-    if (data && data.success) {
-      btn.textContent = "✓ Saved";
-      setTimeout(function() { if (_fixCurrentName) _loadFixData(_fixCurrentName); }, 500);
-    } else {
-      btn.textContent = orig; btn.disabled = false;
-      addLog("auditFeed", "❌ " + (data && data.message ? data.message : "Save failed"), "error");
-    }
+function _saveCounterRow(row, fields, finished, btn, label) {
+  label = label || "Save Counter";
+  if (btn._fxState) btn._fxState.innerHTML = "";
+  btn.disabled = true; _trSetLabel(btn, "Saving…"); _fxBusy(btn, true);
+  _fxCall("saveCounterRow", { row: row, finished: finished, fields: JSON.stringify(fields) }).then(function(r) {
+    _fxBusy(btn, false);
+    if (r.ok) { _trSetLabel(btn, "Saved ✓"); setTimeout(function() { if (_fixCurrentName) _loadFixData(_fixCurrentName); }, 500); }
+    else { btn.disabled = false; _trSetLabel(btn, label); rpmFail(btn._fxState, r.why || "Save failed"); }
   });
 }
 
 // Remove a single already-logged Students Import line (the ✕ on a filled row).
-// Confirms first, then clears that row's subject + date and reloads the modal.
+// Confirms first, then clears that row's subject + date and reloads the window.
 function _clearImportLesson(row, label, btn) {
   if (!window.confirm("Remove this logged line?\n\n" + (label || "").trim())) return;
-  var url = getScriptUrl(); if (!url) return;
-  btn.textContent = "…"; btn.disabled = true;
-  callScript(url, "clearImportLesson", { name: _fixCurrentName, row: row }, function(data) {
-    if (data && data.success) {
-      addLog("auditFeed", "🗑 Removed Students Import line: " + (label || "").trim(), "success");
-      if (_fixCurrentName) _loadFixData(_fixCurrentName);
-    } else {
-      btn.textContent = "✕"; btn.disabled = false;
-      addLog("auditFeed", "❌ " + (data && data.message ? data.message : "Remove failed"), "error");
+  var was = btn._fxState ? "Remove line" : "✕";
+  if (btn._fxState) { _trSetLabel(btn, "Removing…"); _fxBusy(btn, true); } else btn.textContent = "…";
+  btn.disabled = true;
+  _fxCall("clearImportLesson", { name: _fixCurrentName, row: row }).then(function(r) {
+    if (r.ok) { if (_fixCurrentName) _loadFixData(_fixCurrentName); }
+    else {
+      btn.disabled = false;
+      if (btn._fxState) { _fxBusy(btn, false); _trSetLabel(btn, was); rpmFail(btn._fxState, r.why || "Remove failed"); }
+      else { btn.textContent = was; rpmToast("fail", "Unsuccessful", r.why || "Remove failed"); }
     }
   });
 }
 
-// Log every filled-in empty Students Import row (subject + date) in sequence
-// via the existing logLesson endpoint. One button, N rows.
-function _logImportSection(controls, btn) {
+// Log every filled-in empty Students Import row (subject + date) in order,
+// via logLesson. One button, N rows. Stops at the first failure so Import
+// never gets a later date before an earlier one.
+function _logImportSection(controls, btn, label) {
+  label = label || "Log to Import";
+  if (btn._fxState) btn._fxState.innerHTML = "";
   var pending = controls.filter(function(c) { return c.subjIn.value.trim() && c.sp.getValue(); });
-  if (!pending.length) {
-    btn.textContent = "Fill subject + date";
-    setTimeout(function() { btn.textContent = "Log to Students Import"; btn.disabled = false; }, 1500);
-    return;
-  }
-  var url = getScriptUrl(); if (!url) return;
-  btn.textContent = "Logging..."; btn.disabled = true;
-  var i = 0, ok = 0;
+  if (!pending.length) { rpmHalf(btn._fxState, "Fill a subject and date"); return; }
+  btn.disabled = true; _trSetLabel(btn, "Logging…"); _fxBusy(btn, true);
+  var i = 0;
   function next() {
     if (i >= pending.length) {
-      btn.textContent = "✓ Logged " + ok;
+      _fxBusy(btn, false); _trSetLabel(btn, "Logged ✓");
       setTimeout(function() { if (_fixCurrentName) _loadFixData(_fixCurrentName); }, 600);
       return;
     }
     var c = pending[i++];
-    callScript(url, "logLesson", {
+    _fxCall("logLesson", {
       studentName: _fixCurrentName,
       subject:     (typeof toTitleCase === "function") ? toTitleCase(c.subjIn.value) : c.subjIn.value,
       lessonDate:  c.sp.getValue(),
       trialPaid:   "0"
-    }, function(data) {
-      if (data && data.success) ok++;
-      next();
+    }).then(function(r) {
+      if (r.ok) { next(); return; }
+      _fxBusy(btn, false); btn.disabled = false; _trSetLabel(btn, label);
+      rpmFail(btn._fxState, (i - 1 ? (i - 1) + " logged, then: " : "") + (r.why || "Log failed"));
     });
   }
   next();
-}
-
-function _saveCounterField(row, col, value, btn) {
-  var url = getScriptUrl(); if (!url) return;
-  var orig = btn.textContent;
-  btn.textContent = "..."; btn.disabled = true;
-  callScript(url, "setCounterField", { row: row, col: col, value: value }, function(data) {
-    if (data && data.success) {
-      btn.textContent = "✓";
-      setTimeout(function() { if (_fixCurrentName) _loadFixData(_fixCurrentName); }, 400);
-    } else {
-      btn.textContent = orig; btn.disabled = false;
-      addLog("auditFeed", "❌ " + (data && data.message ? data.message : "Save failed"), "error");
-    }
-  });
-}
-
-function _logImportRow(subject, date, btn) {
-  if (!subject || !date) { btn.textContent = "Subj+Date"; return; }
-  var url = getScriptUrl(); if (!url) return;
-  btn.textContent = "..."; btn.disabled = true;
-  // Reuse existing logLesson endpoint: writes to next empty I row with subject + date
-  callScript(url, "logLesson", {
-    studentName: _fixCurrentName,
-    subject:     toTitleCase ? toTitleCase(subject) : subject,
-    lessonDate:  date,
-    trialPaid:   "0"
-  }, function(data) {
-    if (data && data.success) {
-      btn.textContent = "✓";
-      setTimeout(function() { if (_fixCurrentName) _loadFixData(_fixCurrentName); }, 400);
-    } else {
-      btn.textContent = "Log"; btn.disabled = false;
-      addLog("auditFeed", "❌ " + (data && data.message ? data.message : "Log failed"), "error");
-    }
-  });
 }
 
 // Open the Payments tab's Cash Payment modal with this student preselected
@@ -893,7 +881,7 @@ function _unfloatLogPanel() {
 //   chips       Missing from Import: a date ▸ opens the Log lesson window for it
 //               Format check: cells to fix by hand
 //   button      Fix ▸ (bright, right): Counter + Import + Calendar side by side
-function renderMergedAuditCards(dateAudit, syncAudit) {
+function renderMergedAuditCards(dateAudit, syncAudit, calAudit) {
   var section = document.getElementById("auditLessonSection");
 
   // Merge by student name — date-audit students first, then sync-only ones.
@@ -911,6 +899,15 @@ function renderMergedAuditCards(dateAudit, syncAudit) {
     }
   });
 
+  (calAudit || []).forEach(function(c) {
+    if (!byName[c.name]) {
+      byName[c.name] = { name: c.name, missing: [], warnings: [], grid: c.grid || null, sync: null };
+      order.push(c.name);
+    }
+    byName[c.name].cal = c;
+    if (!byName[c.name].grid) byName[c.name].grid = c.grid || null;
+  });
+
   if (!order.length) { section.innerHTML = '<div class="empty-state">None</div>'; return; }
   window._auSync = byName;
   section.innerHTML = order.map(function(nm) { return _auSyncCard(byName[nm]); }).join("");
@@ -919,8 +916,9 @@ function renderMergedAuditCards(dateAudit, syncAudit) {
 // Title: UNLOGGED (· 2 LESSONS). The lesson itself sits over the Log lesson
 // button (_auMissingLines), oldest on top: the one that button logs. Its lesson
 // number is known when it is the Counter's latest date (the usual case).
+// Just "IMPORT MISSING": the red grid cells show how many (2026-09-28).
 function _auUnloggedTitle(dates) {
-  return "Import missing · " + dates.length + (dates.length === 1 ? " lesson" : " lessons");
+  return "Import missing";
 }
 // One amber line per missing lesson, oldest on top (the one Log lesson logs
 // first): "LESSON 1 · SEP 18". Lesson numbers come from the Counter when the
@@ -938,7 +936,9 @@ function _auMissingLines(dates, s) {
 // The 1234 1234 grid (2026-09-28): the Counter's last two blocks over the
 // same slots in Import. A slot the Counter has but Import doesn't is amber;
 // the oldest one is outlined and logs on click (Import fills rows in order).
-function _auGridHtml(grid, missing, nmArg) {
+function _auGridHtml(grid, missing, nmArg, locked, noCal) {
+  var noEv = {};
+  (noCal || []).forEach(function(d) { noEv[_psNormD(d)] = true; });
   var miss = {};
   missing.forEach(function(d) { miss[_psNormD(d)] = true; });
   var first = missing.length ? _psNormD(missing[0]) : "";
@@ -952,15 +952,18 @@ function _auGridHtml(grid, missing, nmArg) {
     for (var k = 0; k < 8; k++) h += (k === 4 ? '<td class="gap"></td>' : '') + cell(grid[k] || "");
     return '<tr>' + h + '</tr>';
   }
-  var counter = row("Counter", function(d) { return d ? '<td>' + _auEsc(d) + '</td>' : '<td class="empty"></td>'; });
+  var counter = row("Counter", function(d) {
+    if (!d) return '<td class="empty"></td>';
+    return noEv[_psNormD(d)] ? '<td class="nocal" data-tip="Counted, but no calendar event on this day.">' + _auEsc(d) + '</td>' : '<td>' + _auEsc(d) + '</td>';
+  });
   var imp = row("Import", function(d) {
     if (!d) return '<td class="empty"></td>';
     var n = _psNormD(d);
     if (!miss[n]) return '<td>' + _auEsc(d) + '</td>';
-    var go = n === first;
+    var go = n === first && !locked;
     return '<td class="miss au-gcell' + (go ? ' go' : '') + '" data-d="' + _auEsc(d) + '"' +
       (go ? ' onclick="_auGridLog(this,' + nmArg + ')" data-tip="Opens the Log lesson window.\nLogs ' + _auEsc(d) + ' into Students Import."'
-          : ' data-tip="Log the earlier date first.\nImport fills its rows in order."') + '>' + _auEsc(d) + '</td>';
+          : ' data-tip="' + (locked ? 'Calendar and Counter disagree.\nFix that first with Mismatch.' : 'Log the earlier date first.\nImport fills its rows in order.') + '"') + '>' + _auEsc(d) + '</td>';
   });
   return '<table class="au-grid">' + head() + counter + imp + '</table>';
 }
@@ -1031,7 +1034,13 @@ function _auChipsNext(card) {
 
 function _auSyncCard(st) {
   var s = st.sync, nm = _auEsc(st.name), nmArg = _auEsc(JSON.stringify(st.name));
+  // Mismatch: the Calendar and the Counter disagree (so the Counter itself may
+  // be wrong), or the sheets disagree without a lesson simply missing. Then
+  // logging is locked and the Mismatch button turns red.
+  var calBad = !!(st.cal && (st.cal.counterOnly.length || st.cal.calOnly.length));
+  var mismatch = calBad || (!st.missing.length && s && (!s.dateMatch || !s.posMatch)) || (s && s.countMatch === false);
   var bits = [];
+  if (calBad) bits.push("Calendar mismatch");
   if (st.missing.length) bits.push(_auUnloggedTitle(st.missing));
   var offGrid = !!(st.grid && st.missing.length && !_auInGrid(st.grid, st.missing[0]));
   // Missing lessons already explain why the sheets differ; "Sheets
@@ -1042,9 +1051,12 @@ function _auSyncCard(st) {
 
   var counterRow = s ? '<span class="inq-flabel au-caps">Counter</span><span class="inq-fval au-caps">Lesson ' + _auEsc(s.counterLesson) + ' · ' + _auEsc(_auDate(s.counterDate || "?")) + '</span>' : '';
   var rows = "";
-  if (st.grid && st.missing.length) {
+  if (st.grid && (st.missing.length || calBad)) {
     // The grid says it all: Counter's last two blocks over Import's.
-    rows = '<hr class="divider" style="margin:18px 0">' + _auGridHtml(st.grid, st.missing, nmArg);
+    rows = '<hr class="divider" style="margin:18px 0">' +
+      _auGridHtml(st.grid, st.missing, nmArg, mismatch, calBad ? st.cal.counterOnly : null) +
+      (calBad && st.cal.calOnly.length
+        ? '<div class="au-calonly">On the calendar, not in the Counter: ' + st.cal.calOnly.map(_auEsc).join(", ") + '</div>' : '');
   } else if (s) {
     rows = '<hr class="divider" style="margin:18px 0">' +
       '<div class="au-cap">Last logged</div>' +
@@ -1078,7 +1090,7 @@ function _auSyncCard(st) {
       '<div class="inq-name-line"><span class="inq-name">' + nm + '</span></div>' +
       // Lessons to log: amber, however many (the red grid cells show them).
       // Anything else wrong (sheets disagree, count off): red.
-      '<div class="au-sub ' + (st.missing.length ? 'due' : 'over') + '">' + _auEsc(bits.join(" · ")) + '</div>' +
+      '<div class="au-sub ' + (st.missing.length && !mismatch ? 'due' : 'over') + '">' + _auEsc(bits.join(" · ")) + '</div>' +
       rows + chips +
       // Same foot as the Unpaid cards: rule, dim action left, Fix right.
       '<hr class="divider" style="margin:18px 0 16px">' +
@@ -1090,13 +1102,16 @@ function _auSyncCard(st) {
       // card need a note and the Log lesson button to reach it.
       (offGrid ? '<div class="au-sub due au-offgrid" style="margin:0 0 12px">Oldest first: ' + _auEsc(_auDate(st.missing[0])) + ', before these blocks</div>' : '') +
       '<div class="au-acts">' +
-        (st.missing.length && (!st.grid || offGrid)
+        (st.missing.length && !mismatch && (!st.grid || offGrid)
           ? '<button class="link-btn bright opens-window au-logbtn" onclick="_auLogNext(this)" ' +
               'data-tip="Opens a window.\nLogs ' + _auEsc(_auDate(st.missing[0])) + ' into Students Import.' + (st.missing.length > 1 ? '\n(Oldest first.)' : '') + '" data-tip-wrap>Log lesson</button>'
           : '') +
         '<span class="au-state"></span>' +
-        '<button class="link-btn bright opens-window" onclick="openAuditFixModal(' + nmArg + ')" ' +
-          'data-tip="Opens a window.\nShows Counter, Students Import and Calendar side by side." data-tip-wrap data-tip-left>Fix</button>' +
+        // Mismatch: dim when Calendar and Counter agree, red when they don't.
+        '<button class="link-btn opens-window' + (mismatch ? ' red' : '') + '" onclick="openAuditFixModal(' + nmArg + ')" ' +
+          'data-tip="' + (mismatch
+            ? 'Opens a window.\nCalendar and Counter disagree: fix that first.\nLogging is locked until then.'
+            : 'Opens a window.\nShows Calendar, Counter and Import side by side.\nNothing mismatched right now.') + '" data-tip-wrap data-tip-left>Mismatch</button>' +
       '</div>' +
     '</div>';
 }

@@ -645,6 +645,54 @@ body::before {
 .au-grid td.miss { background: rgba(255,90,77,0.15); color: #ff5a4d; }
 .au-grid td.miss.go { box-shadow: inset 0 0 0 1px rgba(255,90,77,0.6); cursor: pointer; }
 .au-grid td.miss.go:hover { background: rgba(255,90,77,0.26); }
+/* ─── FIX WINDOW (Audit), the Trial window look (2026-09-28) ─────────────── */
+.fx-modal { max-width: 720px; width: 94%; max-height: 90vh; overflow-y: auto; overflow-x: hidden; }
+.fx-block { margin-bottom: 12px; }
+.fx-sub  { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin: 0 0 6px; }
+.fx-cells { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.fx-cell { display: flex; align-items: center; gap: 4px; padding: 5px 6px 5px 8px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); font-family: "DM Mono", monospace; font-size: 11px; }
+.fx-cell.empty { border-style: dashed; background: transparent; }
+.fx-n { color: rgba(255,255,255,0.3); font-family: "DM Mono", monospace; font-size: 10px; min-width: 14px; flex: none; }
+.fx-seg { background: transparent; border: none; color: var(--text); font-family: inherit; font-size: 11px; padding: 2px 4px; cursor: pointer; border-radius: 3px; outline: none; }
+.fx-seg:focus { background: rgba(255,255,255,0.10); }
+.fx-x { flex: none; background: none; border: none; color: rgba(255,255,255,0.3); font-size: 11px; cursor: pointer; padding: 2px 4px; border-radius: 3px; }
+.fx-x:hover { color: var(--text); }
+.fx-x.armed { color: #ff5a4d; font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.fx-e { display: flex; align-items: center; gap: 10px; margin: 12px 0 0; }
+.fx-hint { font-family: "DM Mono", monospace; font-size: 10px; color: rgba(255,255,255,0.3); }
+.fx-date { display: inline-flex; align-items: center; gap: 2px; flex: none; padding: 2px 6px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); }
+.fx-date.auto { border-color: rgba(240,165,0,0.5); }
+.fx-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-family: "DM Mono", monospace; font-size: 11px; }
+.fx-d { color: rgba(255,255,255,0.5); width: 52px; flex: none; }
+.fx-s { flex: 1; color: rgba(255,255,255,0.62); }
+.fx-s em { color: rgba(255,255,255,0.3); }
+.fx-row .rpm-field.fx-subj { flex: 1; padding: 4px 8px; font-size: 11px; height: 26px; box-sizing: border-box; }
+.fx-acts { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+.fx-acts .fx-state { flex: 1; text-align: right; }
+/* Details window grid (was Fix): the card's grid plus a CALENDAR row; cells
+   open an editor under the grid. */
+.dx-grid { margin-top: 2px; }
+.dx-grid td.dx-c { cursor: pointer; }
+.dx-grid td.dx-c:hover { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25); }
+.dx-grid td.sel { box-shadow: inset 0 0 0 1px var(--text) !important; }
+.dx-grid td.warn { background: rgba(240,165,0,0.12); color: var(--accent2); }
+.dx-extra { margin-top: 10px; font-family: "DM Mono", monospace; font-size: 10.5px; color: #ff5a4d; }
+.dx-exchip { display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: 3px; background: rgba(255,90,77,0.15); cursor: pointer; }
+.dx-ed { margin-top: 14px; padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 3%, transparent); }
+.dx-line { display: flex; align-items: center; gap: 10px; }
+.dx-line .fx-state { flex: 1; text-align: right; }
+.dx-line .fx-s { flex: 1; }
+.dx-miss .fx-s { color: #ff5a4d; }
+/* Mismatch (2026-09-28): red button when Calendar and Counter disagree; a
+   Counter date with no calendar event wears an amber outline; calendar
+   events the Counter doesn't have are listed under the grid. */
+.link-btn.red { color: #ff5a4d; border-color: color-mix(in srgb, #ff5a4d 55%, transparent); background: color-mix(in srgb, #ff5a4d 7%, transparent); }
+.link-btn.red:hover { color: #ff5a4d; border-color: #ff5a4d; background: color-mix(in srgb, #ff5a4d 16%, transparent); }
+.au-grid td.nocal { box-shadow: inset 0 0 0 1px rgba(240,165,0,0.7); color: var(--accent2); }
+.au-calonly { margin-top: 10px; font-family: "DM Mono", monospace; font-size: 10.5px; color: #ff5a4d; }
 .au-chip { display: inline-block; margin: 0 4px 6px 0; padding: 3px 8px; border-radius: 3px;
   font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--accent2); background: rgba(240,165,0,0.14);
   transition: opacity .3s; }
