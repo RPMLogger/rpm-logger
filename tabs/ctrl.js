@@ -403,15 +403,22 @@ function _renderFixData(d) {
   slots.forEach(function(s) { if (s.counter && !s.counter.empty) byDate[_dxN(s.counter.value)] = s; });
   var firstDate = null;
   slots.forEach(function(s) { if (!firstDate && s.counter && !s.counter.empty) firstDate = _fixParseMonDay(s.counter.value); });
-  var extras = [];
+  // The Calendar row is the calendar's OWN events in date order, starting
+  // under the first Counter date (user, 2026-09-28): an extra event pushes
+  // the row one ahead of the Counter from that point on, so the shift shows
+  // exactly where it starts; a counted lesson with no event pulls it back.
+  var calSeq = [];
   (d.calendar || []).forEach(function(ev) {
-    var key = _dxN(ev.date);
-    if (byDate[key] && !byDate[key].cal) { byDate[key].cal = ev; return; }
     var p = _fixParseMonDay(ev.date);
     if (!p || !firstDate) return;
     var y = _fixInferYear(p.mon, p.day), fy = _fixInferYear(firstDate.mon, firstDate.day);
-    if (new Date(y, p.mon, p.day) >= new Date(fy, firstDate.mon, firstDate.day)) extras.push(ev);
+    if (new Date(y, p.mon, p.day) >= new Date(fy, firstDate.mon, firstDate.day)) calSeq.push(ev);
   });
+  var firstIdx = -1;
+  slots.forEach(function(sl, k) { if (firstIdx < 0 && sl.counter && !sl.counter.empty) firstIdx = k; });
+  calSeq.forEach(function(ev, i) { var k = firstIdx + i; if (firstIdx >= 0 && k < 8) slots[k].cal = ev; });
+  // Events that didn't fit in the 8 slots are listed under the grid.
+  var extras = firstIdx >= 0 ? calSeq.slice(8 - firstIdx) : [];
 
   // Counter spinners for every slot: the editor shows one at a time, Save
   // sends them all (the old window's saveCounterRow, unchanged).
@@ -430,7 +437,7 @@ function _renderFixData(d) {
   body.appendChild(_dxGrid());
   if (extras.length) {
     var ex = document.createElement("div"); ex.className = "dx-extra";
-    ex.innerHTML = "On the calendar, not in the Counter: " + extras.map(function(e, i) {
+    ex.innerHTML = "More on the calendar, past these slots: " + extras.map(function(e, i) {
       return '<span class="dx-exchip" onclick="_dxEdit(\'extra\',' + i + ')">' + _auEsc(_dxShort(e.date)) + ' ▸</span>';
     }).join(" ");
     body.appendChild(ex);
@@ -471,8 +478,11 @@ function _dxGrid() {
   }
   var cal = row("Calendar", function(sl, k) {
     var has = sl.counter && !sl.counter.empty;
-    if (sl.cal) return td("", _dxShort(sl.cal.date), "cal", k);
-    if (has) return '<td class="warn" data-tip="Counted, but no calendar event on this day.">—</td>';
+    if (sl.cal) {
+      var same = has && _dxN(sl.cal.date) === _dxN(sl.counter.value);
+      return td(same ? "" : "miss", _dxShort(sl.cal.date), "cal", k, same ? "" : "Doesn't match the Counter here.");
+    }
+    if (has) return '<td class="warn" data-tip="Counted, but no calendar event here.">—</td>';
     return '<td class="empty"></td>';
   });
   var cnt = row("Counter", function(sl, k) {
