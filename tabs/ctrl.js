@@ -110,14 +110,9 @@ function renderUnpaidCards(audit) {
 
 function _auUnpaidCard(s, i) {
   var line = _auStatusLine(s);
+  // Block −1 / −2 / Last paid moved into the Details window's payment grid
+  // (2026-09-28): where each payment landed among the lessons.
   var rows = "";
-  (s.prevBlocks || []).forEach(function(pb, idx) {
-    var v = (pb.paid ? "Paid" : "Unpaid") + (pb.paymentDate ? " · " + _auDate(pb.paymentDate) : "") + (pb.paymentNote ? " · " + pb.paymentNote : "");
-    rows += '<span class="inq-flabel">Block −' + (idx + 1) + '</span><span class="inq-fval">' + _auEsc(v) + '</span>';
-  });
-  var lp = (s.lastPayments || [])[0];
-  rows += '<span class="inq-flabel">Last paid</span><span class="inq-fval">' +
-    (lp ? _auEsc([lp.amount, lp.date, lp.method].filter(Boolean).join(" · ")) : "None") + '</span>';
   rows += '<span class="inq-flabel">Reminder</span><span class="inq-fval" id="auRem-' + i + '">' +
     _auEsc(s.lastReminderAt || "None sent yet") + '</span>';
 
@@ -152,6 +147,8 @@ function _auUnpaidCard(s, i) {
       '<div class="au-acts">' +
         '<button class="link-btn opens-window" onclick="_auCash(' + i + ')" ' +
           'data-tip="Opens a window.\nLogs a cash payment for them." data-tip-wrap>Log cash</button>' +
+        '<button class="link-btn opens-window au-details" onclick="_auPayDetails(' + i + ')" ' +
+          'data-tip="Opens a window.\nShows where each payment landed among the lessons." data-tip-wrap>' + DETAILS_ICON + 'Details</button>' +
         '<span class="au-state" id="auState-' + i + '"></span>' +
         right +
       '</div>' +
@@ -161,6 +158,80 @@ function _auUnpaidCard(s, i) {
 function _auCash(i) {
   var s = (window._auUnpaid || [])[i]; if (!s) return;
   _openCashFromAudit(s.name, s.lessonDate);
+}
+
+// ─── UNPAID DETAILS: the payment grid (2026-09-28) ──────────────────────────
+// The Counter's last two blocks laid out like Students Import (user,
+// 2026-09-29): at a glance, is each block paid.
+function _auPayDetails(i) {
+  var s = (window._auUnpaid || [])[i]; if (!s) return;
+  var ov = document.getElementById("auPayOverlay");
+  if (!ov) {
+    ov = document.createElement("div");
+    ov.id = "auPayOverlay"; ov.className = "settings-overlay";
+    ov.onclick = function(e) { if (e.target === ov) ov.style.display = "none"; };
+    ov.innerHTML = '<div class="settings-modal fx-modal" onclick="event.stopPropagation()">' +
+      '<div class="settings-title"><span><span id="auPayTitle"></span><span style="color:var(--muted);font-weight:400"> · Details</span></span>' +
+      '<button class="settings-close" onclick="document.getElementById(\'auPayOverlay\').style.display=\'none\'">✕</button></div>' +
+      '<div id="auPayBody"></div></div>';
+    document.body.appendChild(ov);
+  }
+  document.getElementById("auPayTitle").textContent = s.name;
+  var body = document.getElementById("auPayBody");
+  body.innerHTML = '<div class="empty-state rpm-loading" style="padding:24px">Loading</div>';
+  ov.style.display = "flex";
+  fetch(getScriptUrl() + "?action=getStudentFixData&name=" + encodeURIComponent(s.name))
+    .then(function(r) { return r.json(); })
+    .then(function(resp) {
+      if (!resp.success) { body.innerHTML = '<div class="empty-state" id="auPayFail"></div>'; rpmFail("auPayFail", resp.message || "unknown", "center"); return; }
+      body.innerHTML = _auPayGridHtml(resp.data, s);
+    })
+    .catch(function() { body.innerHTML = '<div class="empty-state" id="auPayFail"></div>'; rpmFail("auPayFail", "No answer from Google.", "center"); });
+}
+
+function _auPayDay(disp) {
+  var p = _fixParseMonDay(disp);
+  return p ? new Date(_fixInferYear(p.mon, p.day), p.mon, p.day) : null;
+}
+
+function _auPayGridHtml(d, s) {
+  var cDates = (d.counter && d.counter.dates) || [];
+  var imp = d.importLessons || [];
+  var cOff = cDates.length > 4 ? 0 : 4;
+  var slots = [];
+  for (var k = 0; k < 8; k++) slots.push(null);
+  cDates.forEach(function(c, j) { if (cOff + j < 8 && c && !c.empty) slots[cOff + j] = c.value; });
+  // Each Counter block's payment: the Import block holding any of its dates
+  // (importBlocks, 2026-09-29; the old importLessons window can sit a block
+  // ahead of the Counter). No match: no pill, never a guess by position.
+  var ib = d.importBlocks || imp.filter(function(l, j) { return j % 4 === 0; }).map(function(l, j) {
+    return { dates: imp.slice(j * 4, j * 4 + 4).filter(function(x) { return !x.empty; }).map(function(x) { return x.date; }),
+             paid: l.paid, paymentDate: l.paymentDate, paymentNote: l.paymentNote };
+  });
+  var blockOf = {};
+  ib.forEach(function(blk) { blk.dates.forEach(function(v) { blockOf[_dxN(v)] = blk; }); });
+  var blocks = [0, 1].map(function(b) {
+    var les = slots.slice(b * 4, b * 4 + 4), row = null;
+    les.forEach(function(v) { if (!row && v && blockOf[_dxN(v)]) row = blockOf[_dxN(v)]; });
+    var pay = row && row.paid ? { date: row.paymentDate, note: row.paymentNote } : null;
+    return { les: les, pay: pay };
+  });
+
+  // 1234 1234 like the Unlogged Lessons grid; under each block one merged
+  // cell in the same look as the dates: "Paid (Jun 19, $380)" when its
+  // Import box is ticked, else an empty outlined cell (user, 2026-09-29).
+  var head = '<th></th>', les = '<td class="lbl">Counter</td>', pay = '<td class="lbl">Payment</td>';
+  blocks.forEach(function(blk, b) {
+    if (b) { head += '<th class="gap"></th>'; les += '<td class="gap"></td>'; pay += '<td class="gap"></td>'; }
+    for (var k = 1; k <= 4; k++) head += '<th>' + k + '</th>';
+    blk.les.forEach(function(v) { les += v ? '<td>' + _auEsc(_dxShort(v)) + '</td>' : '<td class="empty"></td>'; });
+    // Two lines: the check (om-63) over "Sep 5 · $380.00" (the date look).
+    pay += blk.pay
+      ? '<td colspan="4" class="pg-pay"><div class="pg-lbl">' + PAID_CHECK_ICON + '</div><div>' +
+          _auEsc([_dxShort(blk.pay.date), blk.pay.note].filter(Boolean).join(' · ')) + '</div></td>'
+      : '<td colspan="4" class="pg-pay empty"></td>';
+  });
+  return '<table class="au-grid au-paygrid"><tr>' + head + '</tr><tr>' + les + '</tr><tr class="pg-space"><td colspan="10"></td></tr><tr>' + pay + '</tr></table>';
 }
 
 
