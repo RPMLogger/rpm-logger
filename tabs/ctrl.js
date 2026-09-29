@@ -530,18 +530,28 @@ function _dxGrid() {
 }
 
 function _dxLessons() {
-  var wrap = document.createElement("div");
+  var wrap = document.createElement("div"); wrap.className = "dx-lessons";
+  // Always two blocks, 1234 then 1234 after a gap, like the grid: a slot
+  // with no lesson yet is a blank numbered row (user, 2026-09-28).
   _dx.slots.forEach(function(sl, k) {
     var has = sl.counter && !sl.counter.empty;
     var logged = sl.imp && !sl.imp.empty;
-    if (!has && !logged) return;
-    if (!logged && sl.impUnknown) return;
     var row = document.createElement("div");
-    row.className = "fx-row" + (logged ? "" : " dx-miss");
-    var date = logged ? sl.imp.date : sl.counter.value;
-    row.innerHTML = '<span class="fx-n">' + (k % 4 + 1) + '</span>' +
-      '<span class="fx-d">' + _auEsc(_dxShort(date)) + '</span>' +
-      '<span class="fx-s">' + (logged ? (sl.imp.subject ? _auEsc(sl.imp.subject) : '<em>(no subject)</em>') : 'Not logged') + '</span>';
+    var n = '<span class="fx-n">' + (k % 4 + 1) + '</span>';
+    if (logged || (has && !sl.impUnknown)) {
+      row.className = "fx-row" + (logged ? "" : " dx-miss");
+      var date = logged ? sl.imp.date : sl.counter.value;
+      row.innerHTML = n + '<span class="fx-d">' + _auEsc(_dxShort(date)) + '</span>' +
+        '<span class="fx-s">' + (logged ? (sl.imp.subject ? _auEsc(sl.imp.subject) : '<em>(no subject)</em>') : 'Not logged') + '</span>';
+    } else if (has) {
+      // Older than what Import sent: the date, nothing to judge.
+      row.className = "fx-row dx-blank";
+      row.innerHTML = n + '<span class="fx-d">' + _auEsc(_dxShort(sl.counter.value)) + '</span><span class="fx-s"></span>';
+    } else {
+      row.className = "fx-row dx-blank";
+      row.innerHTML = n + '<span class="fx-d"></span><span class="fx-s"></span>';
+    }
+    if (k === 4) row.className += " dx-blockstart";
     wrap.appendChild(row);
   });
   return wrap;

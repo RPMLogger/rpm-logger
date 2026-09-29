@@ -690,6 +690,12 @@ body::before {
 #auditFixContent .dx-ed { margin-top: 30px; padding: 20px 22px; }
 #auditFixContent .dx-ed .fx-sub { margin-bottom: 14px; }
 #auditFixContent .fx-row { padding: 10px 0; }
+#auditFixContent .fx-row.dx-blockstart { margin-top: 40px; }   /* second block starts after a gap */
+#auditFixContent .dx-lessons { padding-bottom: 20px; }   /* room under the last row */
+/* Lesson rows without dividing lines (user, 2026-09-28). */
+#auditFixContent .dx-lessons .fx-row { border-bottom: none; }
+#auditFixContent .fx-row.dx-blank { min-height: 17px; }   /* empty slot keeps its row height */
+#auditFixContent .fx-row.dx-blank .fx-n { opacity: 0.6; }
 .dx-miss .fx-s { color: var(--warn); }   /* amber: to log, like the cards' IMPORT MISSING */
 /* Mismatch (2026-09-28): red button when Calendar and Counter disagree; a
    Counter date with no calendar event wears an amber outline; calendar
