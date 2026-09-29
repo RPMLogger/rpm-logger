@@ -691,7 +691,11 @@ body::before {
 #auditFixContent .dx-ed .fx-sub { margin-bottom: 14px; }
 #auditFixContent .fx-row { padding: 10px 0; }
 #auditFixContent .fx-row.dx-blockstart { margin-top: 40px; }   /* second block starts after a gap */
-#auditFixContent .link-btn .trash-icon { height: 11px; width: auto; }   /* Delete event: sized like REPAIR / DETAILS icons */
+#auditFixContent .link-btn .trash-icon { height: 11px; width: auto; }
+#auditFixContent .dx-ed { position: relative; }
+#auditFixContent .dx-close { position: absolute; top: 12px; right: 12px; margin: 0; }
+#auditFixContent .fx-trash { display: inline-flex; align-items: center; padding: 4px; }
+#auditFixContent .fx-trash .trash-icon { height: 12px; width: auto; }   /* Delete event: sized like REPAIR / DETAILS icons */
 #auditFixContent .dx-lessons { padding-bottom: 20px; }   /* room under the last row */
 /* Lesson rows without dividing lines (user, 2026-09-28). */
 #auditFixContent .dx-lessons .fx-row { border-bottom: none; }

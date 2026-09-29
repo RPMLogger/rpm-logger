@@ -576,12 +576,22 @@ function _dxEdit(which, k) {
   var line = document.createElement("div"); line.className = "dx-line";
   var st = document.createElement("span"); st.className = "fx-state";
   box.appendChild(title); box.appendChild(line);
+  // ✕ top right closes the box (clicking the same cell again still does too).
+  var cx = document.createElement("button"); cx.type = "button"; cx.className = "settings-close dx-close";
+  cx.setAttribute("aria-label", "Close");
+  cx.onclick = function() {
+    _dx.editing = null; ed.innerHTML = "";
+    document.querySelectorAll(".dx-grid td.sel").forEach(function(t) { t.classList.remove("sel"); });
+  };
+  box.appendChild(cx);
 
   if (which === "counter") {
     title.textContent = "Counter · " + (k < 4 ? "previous" : "current") + " block, lesson " + (k % 4 + 1);
     var sp = _dx.counterSp[k];
     sp.box.className = "fx-date"; line.appendChild(sp.box);
-    var clr = _fxX("Clears this date.\nNothing saves until Save."); clr.onclick = function() { sp.clear(); }; line.appendChild(clr);
+    // Clearing the date is a trash icon, so the only ✕ in the box closes it.
+    var clr = _fxX("Clears this date.\nNothing saves until Save."); clr.innerHTML = TRASH_ICON; clr.classList.add("fx-trash");
+    clr.onclick = function() { sp.clear(); }; line.appendChild(clr);
     line.appendChild(st);
     var save = _fxBtn("Save"); save._fxState = st; line.appendChild(save);
     save.onclick = function() {
