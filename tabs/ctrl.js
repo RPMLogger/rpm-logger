@@ -596,7 +596,7 @@ function _dxGrid() {
     return '<td class="empty"></td>';
   });
   var t = document.createElement("div");
-  t.innerHTML = '<table class="au-grid dx-grid">' + head() + cal + cnt + imp + '</table>';
+  t.innerHTML = '<table class="au-grid au-cardgrid dx-grid">' + head() + cal + cnt + imp + '</table>';
   return t.firstChild;
 }
 

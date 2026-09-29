@@ -1918,4 +1918,6 @@ a:focus-visible,
    details window's grid (user, 2026-09-29). */
 .au-cardgrid { font-size: 11px; }
 .au-cardgrid .gap { width: 22px; }
-.au-cardgrid td:not(.lbl):not(.gap):not(.empty):not(.miss):not(.nocal) { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16); }
+.au-cardgrid td:not(.lbl):not(.gap):not(.empty):not(.miss):not(.nocal):not(.warn) { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16); }
+/* The Fix window's grid uses the same look; keep its hover visible. */
+.au-cardgrid.dx-grid td.dx-c:not(.miss):not(.sel):hover { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35) !important; }
