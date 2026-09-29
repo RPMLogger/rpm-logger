@@ -686,8 +686,8 @@ body::before {
 #auditFixContent .field-label { margin-bottom: 16px; }
 #auditFixContent .dx-ed { margin-top: 30px; padding: 20px 22px; }
 #auditFixContent .dx-ed .fx-sub { margin-bottom: 14px; }
-#auditFixContent .fx-row { padding: 10px 0; }
-#auditFixContent .fx-row.dx-blockstart { margin-top: 40px; }   /* second block starts after a gap */
+#auditFixContent .fx-row { padding: 7px 0; }
+#auditFixContent .fx-row.dx-blockstart { margin-top: 22px; }   /* second block after a gap, like the grid's block gap (2026-09-29) */
 #auditFixContent .link-btn .trash-icon { height: 11px; width: auto; }
 #auditFixContent .dx-ed { position: relative; }
 #auditFixContent .dx-close { position: absolute; top: 12px; right: 12px; margin: 0; }
