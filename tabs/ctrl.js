@@ -623,6 +623,7 @@ function _dxEdit(which, k) {
     title.textContent = "Google Calendar · " + ev.date;
     line.appendChild(st);
     var del = _fxBtn("Delete event"); del._fxState = st; line.appendChild(del);
+    del.insertAdjacentHTML("afterbegin", TRASH_ICON);   // label lives in its <span>, so the icon survives label changes
     var armed = false;
     del.onclick = function() {
       if (!armed) { armed = true; _trSetLabel(del, "Delete? Press again"); setTimeout(function() { if (armed) { armed = false; _trSetLabel(del, "Delete event"); } }, 3000); return; }
