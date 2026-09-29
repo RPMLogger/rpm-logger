@@ -460,7 +460,7 @@ function loadIncomingPayments() {
           "</div>" +
           "<div style='display:flex;flex-direction:column;gap:6px;flex-shrink:0'>" +
             "<button class='incoming-confirm'" + (isTrial ? " disabled data-tip='Trial payment.\nRecorded from the Trial tab.' style='opacity:.35;cursor:not-allowed'" : "") + ">" + THUMB_UP_ICON + "Confirm →</button>" +
-            "<button class='incoming-dismiss'>" + THUMB_DOWN_ICON + "Dismiss</button>" +
+            "<button class='incoming-dismiss'>Dismiss</button>" +
           "</div>";
 
         if (!isTrial) card.querySelector(".incoming-confirm").addEventListener("click", function() {
