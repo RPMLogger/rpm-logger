@@ -699,6 +699,7 @@ body::before {
 #auditFixContent .dx-lessons { padding-bottom: 20px; }   /* room under the last row */
 /* Lesson rows without dividing lines (user, 2026-09-28). */
 #auditFixContent .dx-lessons .fx-row { border-bottom: none; }
+#auditFixContent .dx-lessons .fx-s { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* one line, long subjects end in … */
 #auditFixContent .fx-row.dx-blank { min-height: 17px; }   /* empty slot keeps its row height */
 #auditFixContent .fx-row.dx-blank .fx-n { opacity: 0.6; }
 .dx-miss .fx-s { color: var(--warn); }   /* amber: to log, like the cards' IMPORT MISSING */
