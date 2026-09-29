@@ -170,7 +170,7 @@ function _auPayDetails(i) {
     ov = document.createElement("div");
     ov.id = "auPayOverlay"; ov.className = "settings-overlay";
     ov.onclick = function(e) { if (e.target === ov) ov.style.display = "none"; };
-    ov.innerHTML = '<div class="settings-modal fx-modal" onclick="event.stopPropagation()">' +
+    ov.innerHTML = '<div class="settings-modal fx-modal au-pay-modal" onclick="event.stopPropagation()">' +
       '<div class="settings-title"><span><span id="auPayTitle"></span><span style="color:var(--muted);font-weight:400"> · Details</span></span>' +
       '<button class="settings-close" onclick="document.getElementById(\'auPayOverlay\').style.display=\'none\'">✕</button></div>' +
       '<div id="auPayBody"></div></div>';
@@ -231,7 +231,9 @@ function _auPayGridHtml(d, s) {
           _auEsc([_dxShort(blk.pay.date), blk.pay.note].filter(Boolean).join(' · ')) + '</div></td>'
       : '<td colspan="4" class="pg-pay empty"></td>';
   });
-  return '<table class="au-grid au-paygrid"><tr>' + head + '</tr><tr>' + les + '</tr><tr class="pg-space"><td colspan="10"></td></tr><tr>' + pay + '</tr></table>';
+  // The payment window icon (om-46) on top, like the Trial Payment window.
+  return '<div style="margin:4px 0 18px">' + PAY_ICON + '</div>' +
+    '<table class="au-grid au-paygrid"><tr>' + head + '</tr><tr>' + les + '</tr><tr class="pg-space"><td colspan="10"></td></tr><tr>' + pay + '</tr></table>';
 }
 
 

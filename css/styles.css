@@ -998,6 +998,7 @@ body::before {
   cursor: pointer; transition: all 0.2s; white-space: nowrap;
 }
 .incoming-dismiss:hover { border-color: var(--accent); color: var(--accent); }
+.incoming-confirm .inc-icon, .incoming-dismiss .inc-icon { vertical-align: -1px; margin-right: 6px; }
 .incoming-nomatch { font-size: 9px; color: var(--accent); letter-spacing: 1px; margin-top: 4px; }
 
 /* ─── INCOMING NOTE PANEL ─────────────────────────────────────────────────── */
@@ -1918,8 +1919,9 @@ a:focus-visible,
 /* Unpaid Details window (2026-09-29): the Unlogged grid's 1234 1234 with
    one merged cell under each block, same look as the date cells. */
 .au-paygrid { font-size: 11px; margin-top: 4px; }
+.au-pay-modal { background: #131313; }   /* a shade darker than --surface (user, 2026-09-29) */
 .au-paygrid tr.pg-space td { height: 18px; background: none; }
 .au-paygrid .gap { width: 22px; }   /* more air between block 1 and 2 */
 /* The paid cell: the check icon (om-63), the date + amount under it. */
 .au-paygrid td.pg-pay { height: 46px; }
-.au-paygrid .pg-lbl { line-height: 0; color: rgba(255,255,255,0.6); margin-bottom: 5px; }
+.au-paygrid .pg-lbl { line-height: 0; color: var(--green); margin-bottom: 5px; }
