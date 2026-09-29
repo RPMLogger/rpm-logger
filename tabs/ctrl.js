@@ -84,9 +84,7 @@ function _auditSectionFail(section, why) {
 //               OVERDUE · LESSON 4 DONE date                    (red)
 //               DUE AT THIS LESSON · LESSON 4 TODAY             (amber)
 //   rows        Block −1, Block −2, Last paid, Reminder
-//   pending     each Venmo/Zelle waiting, with Confirm payment ▸
-//   buttons     Log cash ▸ (dim, left) · Send reminder (amber, right; only
-//               when nothing is pending — a waiting payment is the answer)
+//   buttons     Details ▸, bottom right (Send reminder is in its window)
 function _auDate(d) { return (d || "").toString().replace(/\s*\/\s*/, " ").trim(); }
 function _auEsc(v) {
   return String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -108,57 +106,61 @@ function renderUnpaidCards(audit) {
   section.innerHTML = audit.map(_auUnpaidCard).join("");
 }
 
+// Every payment reminder for a student, oldest first: [{ at: Date, kind:
+// "Auto" | "Manual" }]. s.reminders when the backend sends it; until then
+// the one manual date the card always had.
+function _auReminders(s) {
+  var list = [];
+  (s.reminders || []).forEach(function(r) {
+    var d = new Date(r.at);
+    if (!isNaN(d)) list.push({ at: d, kind: r.kind === "Auto" ? "Auto" : "Manual" });
+  });
+  if (!s.reminders && s.lastReminderAt) {
+    var d = new Date(s.lastReminderAt);
+    if (!isNaN(d)) list.push({ at: d, kind: "Manual" });
+  }
+  list.sort(function(a, b) { return a.at - b.at; });
+  var out = { list: list, lastAuto: null, lastManual: null };
+  list.forEach(function(r) { if (r.kind === "Auto") out.lastAuto = r.at; else out.lastManual = r.at; });
+  return out;
+}
+
+// "Sep 27, 2026 8:58 AM", the card's old reminder format.
+function _auRemWhen(d) {
+  var h = d.getHours(), m = d.getMinutes();
+  return MONTHS[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear() + " " +
+    ((h % 12) || 12) + ":" + (m < 10 ? "0" : "") + m + (h < 12 ? " AM" : " PM");
+}
+
 function _auUnpaidCard(s, i) {
   var line = _auStatusLine(s);
   // Block −1 / −2 / Last paid moved into the Details window's payment grid
   // (2026-09-28): where each payment landed among the lessons.
+  // Reminders split by who sent them (2026-09-29): Auto = the Secretary's
+  // payment-due reminders, Manual = Send reminder in the Details window.
+  var rem = _auReminders(s);
   var rows = "";
-  rows += '<span class="inq-flabel">Reminder</span><span class="inq-fval" id="auRem-' + i + '">' +
-    _auEsc(s.lastReminderAt || "None sent yet") + '</span>';
-
-  // A Venmo / Zelle already waiting is confirmed in Incoming, at the top of
-  // this tab; the card only points at it, so there is one place to confirm.
-  var pending = s.pendingPayments || [];
-  var pendHtml = "";
-  if (pending.length) {
-    pendHtml = '<hr class="divider" style="margin:18px 0">' +
-      '<div class="au-cap">Pending payment</div>' +
-      pending.map(function(p) {
-        return '<div class="au-pend">' +
-          '<span class="au-amt">' + _auEsc(p.amount) + '</span>' +
-          '<span>' + _auEsc(p.method) + '</span><span>' + _auEsc(p.date) + '</span>' +
-          '<span style="margin-left:auto">Waiting in Incoming above</span>' +
-        '</div>';
-      }).join("");
-  }
-
-  var right = pending.length ? "" :
-    '<button class="link-btn amber" id="auRemBtn-' + i + '" onclick="_auRemind(' + i + ')" ' +
-      'data-tip="Instant.\nEmails them a payment reminder.\nNo amounts in it." data-tip-wrap data-tip-left>' +
-      ENVELOPE_ICON + '<span>Send reminder</span></button>';
+  rows += '<span class="inq-flabel">Auto reminder</span><span class="inq-fval">' +
+    _auEsc(rem.lastAuto ? _auRemWhen(rem.lastAuto) : "None sent yet") + '</span>';
+  rows += '<span class="inq-flabel">Manual reminder</span><span class="inq-fval" id="auRem-' + i + '">' +
+    _auEsc(rem.lastManual ? _auRemWhen(rem.lastManual) : "None sent yet") + '</span>';
 
   return '<div class="inq-dcard au-card" id="auCard-' + i + '">' +
       '<div class="inq-name-line"><span class="inq-name">' + _auEsc(s.name) + '</span></div>' +
       '<div class="au-sub ' + line.cls + '">' + _auEsc(line.text) + '</div>' +
       '<hr class="divider" style="margin:18px 0">' +
       '<div class="inq-fields">' + rows + '</div>' +
-      pendHtml +
       '<hr class="divider" style="margin:18px 0 16px">' +
+      // Details alone, bottom right; Send reminder lives in its window
+      // (2026-09-29) so you see the lessons and payments before sending.
       '<div class="au-acts">' +
-        '<button class="link-btn opens-window" onclick="_auCash(' + i + ')" ' +
-          'data-tip="Opens a window.\nLogs a cash payment for them." data-tip-wrap>Log cash</button>' +
+        '<span class="au-state"></span>' +
         '<button class="link-btn opens-window au-details" onclick="_auPayDetails(' + i + ')" ' +
-          'data-tip="Opens a window.\nShows where each payment landed among the lessons." data-tip-wrap>' + DETAILS_ICON + 'Details</button>' +
-        '<span class="au-state" id="auState-' + i + '"></span>' +
-        right +
+          'data-tip="Opens a window.\nShows where each payment landed among the lessons." data-tip-wrap data-tip-left>' + DETAILS_ICON + 'Details</button>' +
       '</div>' +
     '</div>';
 }
 
-function _auCash(i) {
-  var s = (window._auUnpaid || [])[i]; if (!s) return;
-  _openCashFromAudit(s.name, s.lessonDate);
-}
 
 // ─── UNPAID DETAILS: the payment grid (2026-09-28) ──────────────────────────
 // The Counter's last two blocks laid out like Students Import (user,
@@ -176,6 +178,7 @@ function _auPayDetails(i) {
       '<div id="auPayBody"></div></div>';
     document.body.appendChild(ov);
   }
+  window._auPayIdx = i;
   document.getElementById("auPayTitle").textContent = s.name;
   var body = document.getElementById("auPayBody");
   body.innerHTML = '<div class="empty-state rpm-loading" style="padding:24px">Loading</div>';
@@ -184,6 +187,7 @@ function _auPayDetails(i) {
     .then(function(r) { return r.json(); })
     .then(function(resp) {
       if (!resp.success) { body.innerHTML = '<div class="empty-state" id="auPayFail"></div>'; rpmFail("auPayFail", resp.message || "unknown", "center"); return; }
+      window._auPayData = resp.data;
       body.innerHTML = _auPayGridHtml(resp.data, s);
     })
     .catch(function() { body.innerHTML = '<div class="empty-state" id="auPayFail"></div>'; rpmFail("auPayFail", "No answer from Google.", "center"); });
@@ -233,7 +237,73 @@ function _auPayGridHtml(d, s) {
   });
   // The payment window icon (om-46) on top, like the Trial Payment window.
   return '<div style="margin:4px 0 18px">' + PAY_ICON + '</div>' +
-    '<table class="au-grid au-paygrid"><tr>' + head + '</tr><tr>' + les + '</tr><tr class="pg-space"><td colspan="10"></td></tr><tr>' + pay + '</tr></table>';
+    '<table class="au-grid au-paygrid"><tr>' + head + '</tr><tr>' + les + '</tr><tr class="pg-space"><td colspan="10"></td></tr><tr>' + pay + '</tr></table>' +
+    _auPayRemList(s) +
+    _auPayActs(s);
+}
+
+// Under a divider, the reminders as a plain list, newest first (2026-09-29):
+// AUTO / MANUAL on the left like the card's labels, when it went out beside it.
+function _auPayRemList(s) {
+  var list = _auReminders(s).list.slice().reverse();
+  return '<hr class="divider" style="margin:40px 0 28px">' +
+    '<div class="au-cap" style="margin-bottom:16px">Reminders</div>' +
+    (list.length
+      ? '<div class="inq-fields au-rem-list">' + list.map(function(r) {
+          return '<span class="inq-flabel au-rem-kind ' + r.kind.toLowerCase() + '">' + r.kind + '</span>' +
+            '<span class="inq-fval">' + _auEsc(_auRemWhen(r.at)) + '</span>';
+        }).join("") + '</div>'
+      : '<div class="au-rem-none">None sent yet</div>');
+}
+
+// Send reminder, bottom right of the Details window (2026-09-29). Locked
+// while a Venmo / Zelle waits in Incoming: that payment is the answer.
+function _auPayActs(s) {
+  var waiting = (s.pendingPayments || []).length > 0;
+  return '<div class="au-pay-acts">' +
+      '<span id="auPayState"></span>' +
+      '<button class="link-btn amber" id="auPayRemBtn"' +
+        (waiting
+          ? ' disabled data-tip="A payment is waiting in Incoming.\nConfirm it there instead." data-tip-wrap data-tip-left>'
+          : ' onclick="_auPayRemind()" data-tip="Instant.\nEmails them a payment reminder.\nNo amounts in it." data-tip-wrap data-tip-left>') +
+        ENVELOPE_ICON + '<span>Send reminder</span></button>' +
+    '</div>';
+}
+
+// The Trial feedback rule: the window dims, "Sending…"; success says Sent ✓
+// and the new Manual line lands in the Reminders row; failure is the red
+// Unsuccessful badge beside the button.
+function _auPayRemind() {
+  var url = getScriptUrl(); if (!url) return;
+  var i = window._auPayIdx, s = (window._auUnpaid || [])[i]; if (!s) return;
+  var modal = document.getElementById("auPayBody");   // dims the grid, keeps the button row lit
+  var btn = document.getElementById("auPayRemBtn");
+  if (!btn || btn.disabled) return;
+  document.getElementById("auPayState").innerHTML = "";
+  btn.disabled = true; _trSetLabel(btn, "Sending…");
+  rpmBusy(modal, btn, true);
+  var fail = function(why) {
+    rpmBusy(modal, btn, false);
+    btn.disabled = false; _trSetLabel(btn, "Send reminder");
+    rpmFail("auPayState", why);
+  };
+  fetch(url + "?action=sendPaymentReminder&studentName=" + encodeURIComponent(s.name))
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (!(d && d.success)) { fail((d && d.message) || "Reminder failed"); return; }
+      rpmBusy(modal, btn, false);
+      var now = new Date();
+      if (!s.reminders) s.reminders = s.lastReminderAt ? [{ at: s.lastReminderAt, kind: "Manual" }] : [];
+      s.reminders.push({ at: now.toString(), kind: "Manual" });
+      var rem = document.getElementById("auRem-" + i);
+      if (rem) rem.textContent = _auRemWhen(now);
+      if (window._auPayData) {
+        document.getElementById("auPayBody").innerHTML = _auPayGridHtml(window._auPayData, s);
+        var b2 = document.getElementById("auPayRemBtn");
+        if (b2) { b2.disabled = true; b2.className = "link-btn green"; b2.innerHTML = "<span>Sent ✓</span>"; }
+      }
+    })
+    .catch(function() { fail("No answer from Google. Check Sent mail before trying again."); });
 }
 
 
@@ -359,10 +429,9 @@ function _fixDateSpinner(initialDisp, onChange) {
     if (which === "mon") {
       state.mon = (state.mon + dir + 12) % 12;
     } else {
-      var max = new Date(2024, state.mon + 1, 0).getDate();
-      state.day += dir;
-      if (state.day < 1) state.day = max;
-      if (state.day > max) state.day = 1;
+      // Rolls into the next / previous month (Sep 30 ↑ → Oct 1), 2026-09-29.
+      var d = new Date(_fixInferYear(state.mon, state.day), state.mon, state.day + dir);
+      state.mon = d.getMonth(); state.day = d.getDate();
     }
     var maxNew = new Date(2024, state.mon + 1, 0).getDate();
     if (state.day > maxNew) state.day = maxNew;
@@ -809,53 +878,6 @@ function _logImportSection(controls, btn, label) {
     });
   }
   next();
-}
-
-// Open the Payments tab's Cash Payment modal with this student preselected
-// and the date prefilled with the last lesson date (instead of today).
-function _openCashFromAudit(studentName, lessonDate) {
-  if (typeof openManualEntryModal !== "function" || typeof openCashLogPanel !== "function") {
-    addLog("auditFeed", "Cash payment flow not loaded", "error");
-    return;
-  }
-  openManualEntryModal();
-  var tab = (studentName || "").split(" ")[0].toUpperCase();
-  openCashLogPanel(studentName, tab, null);
-  if (lessonDate) setCashDate(lessonDate); // spinner infers the year on submit
-}
-
-// Send reminder: the backend works out which email (mid-block, next block
-// due, or 2+ blocks owed) from the same rule the card used. Trial feedback:
-// the card dims with the moving dots, success only changes the words, a
-// failure is the red badge beside the button, reason in its tooltip.
-function _auRemind(i) {
-  var url = getScriptUrl(); if (!url) return;
-  var s = (window._auUnpaid || [])[i]; if (!s) return;
-  var card = document.getElementById("auCard-" + i);
-  var btn  = document.getElementById("auRemBtn-" + i);
-  var st   = document.getElementById("auState-" + i);
-  if (!btn || btn.disabled) return;
-  if (st) st.innerHTML = "";
-  btn.disabled = true; _trSetLabel(btn, "Sending…");
-  rpmBusy(card, btn, true);
-  fetch(url + "?action=sendPaymentReminder&studentName=" + encodeURIComponent(s.name))
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      rpmBusy(card, btn, false);
-      if (d && d.success) {
-        _trSetLabel(btn, "Sent ✓");
-        var rem = document.getElementById("auRem-" + i);
-        if (rem) rem.textContent = "Just now";
-      } else {
-        btn.disabled = false; _trSetLabel(btn, "Send reminder");
-        rpmFail(st, (d && d.message) || "Reminder failed");
-      }
-    })
-    .catch(function() {
-      rpmBusy(card, btn, false);
-      btn.disabled = false; _trSetLabel(btn, "Send reminder");
-      rpmFail(st, "No answer from Google. Check Sent mail before trying again.");
-    });
 }
 
 // Convert an audit display date like "Jun 19" into a local-noon date string

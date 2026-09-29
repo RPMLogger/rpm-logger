@@ -41,52 +41,101 @@ function todayFormatted() {
   return mn[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
 }
 
-// ─── MANUAL ENTRY MODAL ───────────────────────────────────────────────────────
+// ─── CASH PAYMENT WINDOW ─────────────────────────────────────────────────────
+// The Trial window look (2026-09-29): "Payments · Log cash", the payment icon, the
+// student dropdown, then Date / Amount / Note and one bright Log bottom right.
+var cashDdHi = -1;   // the option ↑↓ has lit while the list is open
+
 function openManualEntryModal() {
-  var pillContainer = document.getElementById("manualStudentPills");
-  pillContainer.innerHTML = "";
+  var list = document.getElementById("cashDdList");
+  list.innerHTML = "";
   allStudentData.forEach(function(s) {
     var name = typeof s === "string" ? s : (s.name || s.tab);
     var tab  = (typeof s === "object" && s.tab) ? s.tab : name;
-    var pill = document.createElement("button");
-    pill.className = "student-pill";
-    pill.textContent = name;
-    pill.onclick = function() { openCashLogPanel(name, tab, pill); };
-    pillContainer.appendChild(pill);
+    if (/^--/.test(name)) return;   // the --BLANK-- template tab isn't a student
+    var o = document.createElement("button");
+    o.type = "button";
+    o.className = "cash-dd-opt";
+    o.textContent = name;
+    o.onclick = function() { cashDdClose(); openCashLogPanel(name, tab); };
+    o.onmouseenter = function() { cashDdLight([].indexOf.call(list.children, o)); };
+    list.appendChild(o);
   });
+  var caret = document.querySelector("#cashDdBtn .cash-dd-caret");
+  if (caret && !caret.innerHTML) caret.innerHTML = TRI_ICON;
+  var ico = document.getElementById("cashIcon");
+  if (ico && !ico.innerHTML) ico.innerHTML = PAY_ICON;
   closeCashLogPanel(true);
   document.getElementById("manualEntryModal").classList.add("active");
 }
 
 function closeManualEntryModal() {
   document.getElementById("manualEntryModal").classList.remove("active");
+  cashDdClose();
   closeCashLogPanel(true);
 }
 
-function openCashLogPanel(name, tab, pillEl) {
-  document.querySelectorAll(".student-pill").forEach(function(p) { p.classList.remove("active"); });
-  if (pillEl) pillEl.classList.add("active");
+// ─── Student dropdown (the portal's own, not the OS menu) ───────────────────
+function cashDdOpen() { return !document.getElementById("cashDdList").hidden; }
+
+function cashDdToggle() {
+  var list = document.getElementById("cashDdList");
+  if (!list.hidden) { cashDdClose(); return; }
+  list.hidden = false;
+  document.getElementById("cashDd").classList.add("open");
+  var opts = list.children, cur = -1;
+  for (var i = 0; i < opts.length; i++) if (opts[i].classList.contains("on")) cur = i;
+  cashDdLight(cur);
+  if (cur >= 0) opts[cur].scrollIntoView({ block: "nearest" });
+}
+
+function cashDdClose() {
+  var list = document.getElementById("cashDdList");
+  if (!list) return;
+  list.hidden = true;
+  document.getElementById("cashDd").classList.remove("open");
+}
+
+function cashDdLight(i) {
+  var opts = document.getElementById("cashDdList").children;
+  cashDdHi = i;
+  for (var k = 0; k < opts.length; k++) opts[k].classList.toggle("hi", k === i);
+  if (opts[i]) opts[i].scrollIntoView({ block: "nearest" });
+}
+
+// A click anywhere else in the window closes the list.
+document.addEventListener("click", function(e) {
+  var dd = document.getElementById("cashDd");
+  if (dd && cashDdOpen() && !dd.contains(e.target)) cashDdClose();
+});
+
+function openCashLogPanel(name, tab) {
+  [].forEach.call(document.getElementById("cashDdList").children, function(o) {
+    o.classList.toggle("on", o.textContent === name);
+  });
+  var lbl = document.getElementById("cashDdLabel");
+  lbl.textContent = name;
+  document.getElementById("cashDdBtn").classList.add("picked");
   activeCashStudent = { name: name, tab: tab };
   document.getElementById("cashLogPanel").classList.add("active");
-  document.getElementById("cashLogName").textContent = name;
+  document.getElementById("cashActs").classList.add("active");
   setCashDate(todayFormatted());
   document.getElementById("cashAmount").value = "380";
   document.getElementById("cashNotes").value = "";
+  document.getElementById("cashMsg").innerHTML = "";
   var btn = document.getElementById("btnCashLog");
-  btn.textContent = "Log Payment →";
+  btn.textContent = "Log"; btn.className = "link-btn bright";
   btn.disabled = false;
-  btn.className = "btn-log";
 }
 
-// ─── CASH DATE SPINNER (Mon / Day) ───────────────────────────────────────────
+// ─── CASH DATE PICKER (Mon / Day) ────────────────────────────────────────────
 // The cash date is written straight into Students Import and RPM Payments, so
 // a typo breaks the "Aug /24" format the audits match on. No free typing: the
-// month and day are stepped instead. Keyboard is the main path (↑↓ steps the
-// focused segment, ←→ moves between month and day); the arrows are there for
-// the mouse. Year is inferred on submit.
+// Trial windows' picker (grey box, ▲ / ▼ above and below each value). Hover
+// or click lights a value; ↑↓ step it, ←→ move between month and day, Enter
+// logs. Year is inferred on submit.
 var CASH_MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-var cashDate    = { mon: null, day: null };
-var cashDateEls = null; // { mon: <div>, day: <div> } — built once, then reused
+var cashDate    = { mon: null, day: null, on: 0 };
 
 // 2024 is a leap year, so Feb 29 stays reachable while stepping. getCashDate()
 // clamps against the real inferred year before it hands the date over.
@@ -111,9 +160,8 @@ function setCashDate(disp) {
     cashDate.mon = t.getMonth();
     cashDate.day = t.getDate();
   }
-  buildCashDate();
+  cashDate.on = 0;
   renderCashDate();
-  if (cashDateEls) cashDateEls.mon.focus(); // land on the month, ready to arrow
 }
 
 function stepCashDate(which, dir) {
@@ -122,64 +170,68 @@ function stepCashDate(which, dir) {
     cashDate.mon = (cashDate.mon + dir + 12) % 12;
     cashDate.day = Math.min(cashDate.day, cashMonthLen(cashDate.mon));
   } else {
-    var max = cashMonthLen(cashDate.mon);
-    cashDate.day += dir;
-    if (cashDate.day < 1)   cashDate.day = max;
-    if (cashDate.day > max) cashDate.day = 1;
+    // The day rolls into the next / previous month (Sep 30 ↑ → Oct 1), like
+    // Pick a time's real dates (2026-09-29; it used to wrap to Sep 1).
+    var y = cashInferYear(cashDate.mon, cashDate.day);
+    var d = new Date(y, cashDate.mon, cashDate.day + dir);
+    cashDate.mon = d.getMonth();
+    cashDate.day = d.getDate();
   }
   renderCashDate();
 }
 
-// Built once so that stepping never blows away focus mid-keystroke;
-// renderCashDate() only rewrites the two numbers.
-function buildCashDate() {
-  var box = document.getElementById("cashDateSpin");
-  if (!box) return;
-  // Rebuild if the cached nodes were detached (modal torn down and re-rendered).
-  if (cashDateEls && box.contains(cashDateEls.mon)) return;
-  box.innerHTML = "";
-  cashDateEls = {};
-
-  ["mon", "day"].forEach(function(which) {
-    var grp = document.createElement("div");
-    grp.className = "cash-date-grp";
-
-    var val = document.createElement("div");
-    val.className = "cash-date-val";
-    val.tabIndex = 0;
-    val.onclick  = function() { val.focus(); };
-    val.onkeydown = function(e) {
-      if (e.key === "ArrowUp")         { e.preventDefault(); stepCashDate(which, 1); }
-      else if (e.key === "ArrowDown")  { e.preventDefault(); stepCashDate(which, -1); }
-      else if (e.key === "ArrowRight") { e.preventDefault(); cashDateEls.day.focus(); }
-      else if (e.key === "ArrowLeft")  { e.preventDefault(); cashDateEls.mon.focus(); }
-    };
-
-    grp.appendChild(cashDateArrow(which, 1, val));
-    grp.appendChild(val);
-    grp.appendChild(cashDateArrow(which, -1, val));
-    box.appendChild(grp);
-    cashDateEls[which] = val;
-  });
+function cashDateOn(i) {
+  cashDate.on = i;
+  document.querySelectorAll("#cashDtRow .dt-val").forEach(function(el, k) { el.classList.toggle("on", k === i); });
 }
 
-// Clicking an arrow also focuses its segment, so the keyboard picks up
-// from wherever the mouse left off.
-function cashDateArrow(which, dir, val) {
-  var b = document.createElement("button");
-  b.type = "button";
-  b.tabIndex = -1;
-  b.className = "cash-date-arrow";
-  b.innerHTML = dir > 0 ? "&#9650;" : "&#9660;";
-  b.onclick = function() { stepCashDate(which, dir); val.focus(); };
-  return b;
-}
-
+// Redrawn whole on every step, like Pick a time; nothing holds focus.
 function renderCashDate() {
-  if (!cashDateEls) return;
-  cashDateEls.mon.textContent = CASH_MONTHS[cashDate.mon];
-  cashDateEls.day.textContent = String(cashDate.day);
+  var box = document.getElementById("cashDtRow");
+  if (!box || cashDate.mon == null) return;
+  var parts = [["mon", CASH_MONTHS[cashDate.mon], 44], ["day", String(cashDate.day), 34]];
+  box.innerHTML = parts.map(function(p, i) {
+    var tri = function(dir) {
+      return '<button type="button" class="tb-tri' + (dir < 0 ? ' down' : '') + '" tabindex="-1" ' +
+        'onclick="cashDateOn(' + i + ');stepCashDate(\'' + p[0] + '\',' + dir + ')">' + TRI_ICON + '</button>';
+    };
+    return '<div class="tb-col">' + tri(1) +
+      '<div class="dt-seg"><button type="button" class="dt-val' + (cashDate.on === i ? ' on' : '') + '" tabindex="-1" ' +
+        'style="min-width:' + p[2] + 'px" onmouseenter="cashDateOn(' + i + ')" onclick="cashDateOn(' + i + ')">' + p[1] + '</button></div>' +
+      tri(-1) + '</div>';
+  }).join("");
 }
+
+document.addEventListener("keydown", function(e) {
+  var ov = document.getElementById("manualEntryModal");
+  if (!ov || !ov.classList.contains("active")) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  // Open student list: ↑↓ walk it, Enter picks, Esc closes.
+  if (cashDdOpen()) {
+    var opts = document.getElementById("cashDdList").children;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      cashDdLight(Math.max(0, Math.min(opts.length - 1, cashDdHi + (e.key === "ArrowDown" ? 1 : -1))));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (opts[cashDdHi]) opts[cashDdHi].click();
+    } else if (e.key === "Escape") {
+      e.preventDefault(); cashDdClose();
+    }
+    return;
+  }
+  if (!activeCashStudent) return;
+  var typing = /^(INPUT|TEXTAREA)$/.test((document.activeElement || {}).tagName || "");
+  if (e.key === "Enter") { e.preventDefault(); submitCashLog(); return; }
+  if (typing) return;
+  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+    e.preventDefault();
+    stepCashDate(cashDate.on ? "day" : "mon", e.key === "ArrowUp" ? 1 : -1);
+  } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+    e.preventDefault();
+    cashDateOn(e.key === "ArrowRight" ? 1 : 0);
+  }
+});
 
 // → "Aug 24, 2026", already normalized so it needs no normalizePayDate pass.
 function getCashDate() {
@@ -199,15 +251,22 @@ function formatCashAmount(raw) {
 function closeCashLogPanel(silent) {
   activeCashStudent = null;
   document.getElementById("cashLogPanel").classList.remove("active");
-  if (!silent) {
-    document.querySelectorAll(".student-pill").forEach(function(p) { p.classList.remove("active"); });
-  }
+  document.getElementById("cashActs").classList.remove("active");
+  document.getElementById("cashDdLabel").textContent = "Pick student";
+  document.getElementById("cashDdBtn").classList.remove("picked");
+  [].forEach.call(document.getElementById("cashDdList").children, function(o) { o.classList.remove("on"); });
+  rpmBusy(document.getElementById("cashModal"), null, false);
 }
 
 // ─── SUBMIT CASH PAYMENT ─────────────────────────────────────────────────────
+// The Trial feedback rule: the window dims while it logs; success turns Log
+// into a green "Logged ✓" and the window closes a second later; failure is
+// the red Unsuccessful badge beside Log, reason in its tooltip, window stays.
 function submitCashLog() {
   var url = getScriptUrl(); if (!url) return;
   if (!activeCashStudent) return;
+  var btn = document.getElementById("btnCashLog");
+  if (btn.disabled) return;
 
   var name   = activeCashStudent.name;
   var tab    = activeCashStudent.tab;
@@ -215,23 +274,35 @@ function submitCashLog() {
   var amount = formatCashAmount(document.getElementById("cashAmount").value);
   var notes  = document.getElementById("cashNotes").value.trim();
 
-  if (!date) return; // spinner always holds a date, so this can't normally fire
+  if (!date) return; // the picker always holds a date, so this can't normally fire
 
-  var btn = document.getElementById("btnCashLog");
-  btn.textContent = "Logging..."; btn.disabled = true;
+  var modal = document.getElementById("cashModal");
+  document.getElementById("cashMsg").innerHTML = "";
+  btn.textContent = "Logging…"; btn.disabled = true;
+  rpmBusy(modal, btn, true);
 
-  callScript(url, "logPaymentNote", { studentName: tab, paymentDate: date, note: notes }, function(data) {
-    if (data.success) {
+  var fail = function(why) {
+    rpmBusy(modal, btn, false);
+    btn.textContent = "Log"; btn.disabled = false;
+    rpmFail("cashMsg", why, "right");
+  };
+  fetch(url + "?action=logPaymentNote&studentName=" + encodeURIComponent(tab) +
+      "&paymentDate=" + encodeURIComponent(date) + "&note=" + encodeURIComponent(notes))
+    .then(function(r) { return r.json(); })
+    .catch(function() { return { success: false, message: "No answer from Google." }; })
+    .then(function(data) {
+    if (data && data.success) {
+      rpmBusy(modal, btn, false);
       callScript(url, "logPayment", {
         date: date, studentName: name, method: "Cash", amount: amount, notes: notes
       }, function() {});
-      btn.textContent = "✓ Logged!"; btn.className = "btn-log success";
-      addLog("paymentFeed", "✓ " + shortDate(date) + " · " + name + " · " + amount + " · Cash", "success");
       payHistoryLoaded = false;
-      setTimeout(function() { closeManualEntryModal(); }, 1200);
+      // Success in the window, the house way (Log lesson): the button turns
+      // green "Logged ✓", then the window closes a second later.
+      btn.textContent = "Logged ✓"; btn.className = "link-btn green";
+      setTimeout(closeManualEntryModal, 1000);
     } else {
-      btn.textContent = "Log Payment →"; btn.disabled = false;
-      addLog("paymentFeed", "❌ " + (data.message || "Error logging cash payment"), "error");
+      fail((data && data.message) || "Google did not log it.");
     }
   });
 }

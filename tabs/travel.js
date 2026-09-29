@@ -149,13 +149,16 @@ function _travelRenderDateSpinner(slotId, label, stateKey, baseOrder) {
   function step(which, dir) {
     var d = _ymdToDate(_travelState[stateKey]);
     var y = d.getFullYear(), m = d.getMonth(), dd = d.getDate();
-    if (which === 'month')      m = (m + dir + 12) % 12;
+    // Day and month roll over like real dates (2026-09-29): Sep 30 ↑ → Oct 1,
+    // Dec ↑ → Jan of the next year. They used to wrap inside the month / year.
+    if (which === 'month') {
+      var nm = new Date(y, m + dir, 1);
+      y = nm.getFullYear(); m = nm.getMonth();
+    }
     else if (which === 'year')  y = y + dir;
     else if (which === 'day') {
-      var maxNow = new Date(y, m + 1, 0).getDate();
-      dd = dd + dir;
-      if (dd < 1)      dd = maxNow;
-      if (dd > maxNow) dd = 1;
+      var nd = new Date(y, m, dd + dir);
+      y = nd.getFullYear(); m = nd.getMonth(); dd = nd.getDate();
     }
     var maxNew = new Date(y, m + 1, 0).getDate();
     if (dd > maxNew) dd = maxNew;
