@@ -260,19 +260,14 @@ function submitLog() {
         window._stLogActive = null;
         _stOpenStudent(_stName);
       }
-      // If this log came from the Audit tab's fix-1 flow, restore the modal to
-      // its home and optimistically drop just the resolved chip — no full
-      // re-audit. The ↻ Refresh button re-verifies against the sheets on demand.
-      // The panel stays floated until Done: closeLogPanel puts it back.
+      // If this log came from the Audit tab, reload the whole Audit list so
+      // the grids show the new lesson (user, 2026-09-29: the old optimistic
+      // chip removal left the red cell on the card). The panel stays floated
+      // until Done: closeLogPanel puts it back.
       if (window._auditFixActive) {
         window._auditFixActive = false;
-        var res = window._auditResolve;
         window._auditResolve = null;
-        if (res && typeof _auditRemoveResolved === "function") {
-          _auditRemoveResolved(res.name, res.disp);
-        } else if (typeof initAuditTab === "function") {
-          initAuditTab();
-        }
+        if (typeof initAuditTab === "function") initAuditTab();
       }
       // Only if it's still this lesson's window (not one opened since).
       var done = activeStudent;
