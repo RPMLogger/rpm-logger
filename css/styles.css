@@ -1908,12 +1908,11 @@ a:focus-visible,
 .au-paygrid td.pg-pay { height: 46px; }
 .au-paygrid .pg-lbl { line-height: 0; color: var(--green); margin-bottom: 5px; }
 /* Reminders list under the grid (2026-09-29): the card's label / value rows,
-   AUTO / MANUAL in caps. Manual amber like the Send reminder button. */
+   AUTO in caps. */
 .au-rem-list { row-gap: 12px; column-gap: 24px; }
 .au-rem-kind { text-transform: uppercase; letter-spacing: 1px; }
-.au-rem-kind.manual { color: color-mix(in srgb, #d9a441 80%, transparent); }
 .au-rem-none { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
-.au-pay-acts { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 32px; }
+
 
 /* Unlogged Lessons card grid: same cell outline, block gap and size as the
    details window's grid (user, 2026-09-29). */

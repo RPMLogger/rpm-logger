@@ -83,8 +83,7 @@ function _auditSectionFail(section, why) {
 //   caps line   UNPAID / OWES N BLOCKS · LESSON n · date        (amber)
 //               OVERDUE · LESSON 4 DONE date                    (red)
 //               DUE AT THIS LESSON · LESSON 4 TODAY             (amber)
-//   rows        Block −1, Block −2, Last paid, Reminder
-//   buttons     Details ▸, bottom right (Send reminder is in its window)
+//   buttons     Details ▸, bottom right
 function _auDate(d) { return (d || "").toString().replace(/\s*\/\s*/, " ").trim(); }
 function _auEsc(v) {
   return String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -107,25 +106,18 @@ function renderUnpaidCards(audit) {
 }
 
 // Every payment reminder for a student, oldest first: [{ at: Date, kind:
-// "Auto" | "Manual" }]. s.reminders when the backend sends it; until then
-// the one manual date the card always had.
+// "Auto" | "Manual" }], from s.reminders (auditUnpaid).
 function _auReminders(s) {
   var list = [];
   (s.reminders || []).forEach(function(r) {
     var d = new Date(r.at);
     if (!isNaN(d)) list.push({ at: d, kind: r.kind === "Auto" ? "Auto" : "Manual" });
   });
-  if (!s.reminders && s.lastReminderAt) {
-    var d = new Date(s.lastReminderAt);
-    if (!isNaN(d)) list.push({ at: d, kind: "Manual" });
-  }
   list.sort(function(a, b) { return a.at - b.at; });
-  var out = { list: list, lastAuto: null, lastManual: null };
-  list.forEach(function(r) { if (r.kind === "Auto") out.lastAuto = r.at; else out.lastManual = r.at; });
-  return out;
+  return { list: list };
 }
 
-// "Sep 27, 2026 8:58 AM", the card's old reminder format.
+// "Sep 27, 2026 8:58 AM" for the Details window's Reminders list.
 function _auRemWhen(d) {
   var h = d.getHours(), m = d.getMinutes();
   return MONTHS[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear() + " " +
@@ -134,26 +126,13 @@ function _auRemWhen(d) {
 
 function _auUnpaidCard(s, i) {
   var line = _auStatusLine(s);
-  // Block −1 / −2 / Last paid moved into the Details window's payment grid
-  // (2026-09-28): where each payment landed among the lessons.
-  // Reminders split by who sent them (2026-09-29): Auto = the Secretary's
-  // payment-due reminders, Manual = Send reminder in the Details window.
-  var rem = _auReminders(s);
-  var rows = "";
-  rows += '<span class="inq-flabel">Auto reminder</span><span class="inq-fval">' +
-    _auEsc(rem.lastAuto ? _auRemWhen(rem.lastAuto) : "None sent yet") + '</span>';
-  rows += '<span class="inq-flabel">Manual reminder</span><span class="inq-fval" id="auRem-' + i + '">' +
-    _auEsc(rem.lastManual ? _auRemWhen(rem.lastManual) : "None sent yet") + '</span>';
-
+  // Block −1 / −2 / Last paid and the reminder dates all live in the Details
+  // window now (2026-09-29); the card is name, status and Details.
   return '<div class="inq-dcard au-card" id="auCard-' + i + '">' +
       '<div class="inq-name-line"><span class="inq-name">' + _auEsc(s.name) + '</span></div>' +
       '<div class="au-sub ' + line.cls + '">' + _auEsc(line.text) + '</div>' +
-      '<hr class="divider" style="margin:18px 0">' +
-      '<div class="inq-fields">' + rows + '</div>' +
-      '<hr class="divider" style="margin:18px 0 16px">' +
-      // Details alone, bottom right; Send reminder lives in its window
-      // (2026-09-29) so you see the lessons and payments before sending.
-      '<div class="au-acts">' +
+      // No divider (2026-09-29): name, status, then Details alone, bottom right.
+      '<div class="au-acts" style="margin-top:4px">' +
         '<span class="au-state"></span>' +
         '<button class="link-btn opens-window au-details" onclick="_auPayDetails(' + i + ')" ' +
           'data-tip="Opens a window.\nShows where each payment landed among the lessons." data-tip-wrap data-tip-left>' + DETAILS_ICON + 'Details</button>' +
@@ -187,7 +166,6 @@ function _auPayDetails(i) {
     .then(function(r) { return r.json(); })
     .then(function(resp) {
       if (!resp.success) { body.innerHTML = '<div class="empty-state" id="auPayFail"></div>'; rpmFail("auPayFail", resp.message || "unknown", "center"); return; }
-      window._auPayData = resp.data;
       body.innerHTML = _auPayGridHtml(resp.data, s);
     })
     .catch(function() { body.innerHTML = '<div class="empty-state" id="auPayFail"></div>'; rpmFail("auPayFail", "No answer from Google.", "center"); });
@@ -238,14 +216,18 @@ function _auPayGridHtml(d, s) {
   // The payment window icon (om-46) on top, like the Trial Payment window.
   return '<div style="margin:4px 0 18px">' + PAY_ICON + '</div>' +
     '<table class="au-grid au-paygrid"><tr>' + head + '</tr><tr>' + les + '</tr><tr class="pg-space"><td colspan="10"></td></tr><tr>' + pay + '</tr></table>' +
-    _auPayRemList(s) +
-    _auPayActs(s);
+    _auPayRemList(s, _auPayDay(_dxShort(slots.filter(Boolean)[0] || "")));
 }
 
 // Under a divider, the reminders as a plain list, newest first (2026-09-29):
-// AUTO / MANUAL on the left like the card's labels, when it went out beside it.
-function _auPayRemList(s) {
-  var list = _auReminders(s).list.slice().reverse();
+// AUTO on the left like the card's labels, when it went out beside it. Only
+// the ones from the grid's first lesson on (from: a Date), so the list covers
+// the same two blocks as the grid. Manual reminders were removed (user,
+// 2026-09-29), so their old log rows are left out too.
+function _auPayRemList(s, from) {
+  var list = _auReminders(s).list.filter(function(r) {
+    return r.kind === "Auto" && (!from || r.at >= from);
+  }).reverse();
   return '<hr class="divider" style="margin:40px 0 28px">' +
     '<div class="au-cap" style="margin-bottom:16px">Reminders</div>' +
     (list.length
@@ -255,59 +237,6 @@ function _auPayRemList(s) {
         }).join("") + '</div>'
       : '<div class="au-rem-none">None sent yet</div>');
 }
-
-// Send reminder, bottom right of the Details window (2026-09-29). Locked
-// while a Venmo / Zelle waits in Incoming: that payment is the answer.
-function _auPayActs(s) {
-  var waiting = (s.pendingPayments || []).length > 0;
-  return '<div class="au-pay-acts">' +
-      '<span id="auPayState"></span>' +
-      '<button class="link-btn amber" id="auPayRemBtn"' +
-        (waiting
-          ? ' disabled data-tip="A payment is waiting in Incoming.\nConfirm it there instead." data-tip-wrap data-tip-left>'
-          : ' onclick="_auPayRemind()" data-tip="Instant.\nEmails them a payment reminder.\nNo amounts in it." data-tip-wrap data-tip-left>') +
-        ENVELOPE_ICON + '<span>Send reminder</span></button>' +
-    '</div>';
-}
-
-// The Trial feedback rule: the window dims, "Sending…"; success says Sent ✓
-// and the new Manual line lands in the Reminders row; failure is the red
-// Unsuccessful badge beside the button.
-function _auPayRemind() {
-  var url = getScriptUrl(); if (!url) return;
-  var i = window._auPayIdx, s = (window._auUnpaid || [])[i]; if (!s) return;
-  var modal = document.getElementById("auPayBody");   // dims the grid, keeps the button row lit
-  var btn = document.getElementById("auPayRemBtn");
-  if (!btn || btn.disabled) return;
-  document.getElementById("auPayState").innerHTML = "";
-  btn.disabled = true; _trSetLabel(btn, "Sending…");
-  rpmBusy(modal, btn, true);
-  var fail = function(why) {
-    rpmBusy(modal, btn, false);
-    btn.disabled = false; _trSetLabel(btn, "Send reminder");
-    rpmFail("auPayState", why);
-  };
-  fetch(url + "?action=sendPaymentReminder&studentName=" + encodeURIComponent(s.name))
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (!(d && d.success)) { fail((d && d.message) || "Reminder failed"); return; }
-      rpmBusy(modal, btn, false);
-      var now = new Date();
-      if (!s.reminders) s.reminders = s.lastReminderAt ? [{ at: s.lastReminderAt, kind: "Manual" }] : [];
-      s.reminders.push({ at: now.toString(), kind: "Manual" });
-      var rem = document.getElementById("auRem-" + i);
-      if (rem) rem.textContent = _auRemWhen(now);
-      if (window._auPayData) {
-        document.getElementById("auPayBody").innerHTML = _auPayGridHtml(window._auPayData, s);
-        var b2 = document.getElementById("auPayRemBtn");
-        if (b2) { b2.disabled = true; b2.className = "link-btn green"; b2.innerHTML = "<span>Sent ✓</span>"; }
-      }
-    })
-    .catch(function() { fail("No answer from Google. Check Sent mail before trying again."); });
-}
-
-
-
 
 // ─── AUDIT 2 FIX MODAL ──────────────────────────────────────────────────────
 var _fixCurrentName = null;
@@ -773,15 +702,7 @@ function _dxEdit(which, k) {
   } else if (which === "cal" || which === "extra") {
     var ev = which === "cal" ? sl.cal : _dx.extras[k];
     title.textContent = "Google Calendar · " + ev.date;
-    line.appendChild(st);
-    var del = _fxBtn("Delete event"); del._fxState = st; line.appendChild(del);
-    del.insertAdjacentHTML("afterbegin", TRASH_ICON);   // label lives in its <span>, so the icon survives label changes
-    var armed = false;
-    del.onclick = function() {
-      if (!armed) { armed = true; _trSetLabel(del, "Delete? Press again"); setTimeout(function() { if (armed) { armed = false; _trSetLabel(del, "Delete event"); } }, 3000); return; }
-      armed = false;
-      _deleteCalEvent(ev.calId, ev.id, ev.date, null, del, ev.ymd);
-    };
+    line.innerHTML = '<span class="fx-hint">Change this lesson in Google Calendar.</span>';
   }
   ed.appendChild(box);
 }
@@ -798,26 +719,6 @@ function _fxCall(action, params) {
   return fetch(q).then(function(r) { return r.json(); })
     .then(function(d) { return { ok: !!(d && d.success), why: (d && d.message) || "" }; })
     .catch(function() { return { ok: false, why: "No answer from Google." }; });
-}
-
-// Delete one calendar event (2nd tap of the delete control confirmed it).
-function _deleteCalEvent(calId, eventId, dateText, lineEl, btn, ymd) {
-  var label = btn._fxState ? "Delete event" : "✕";
-  if (btn._fxState) { btn._fxState.innerHTML = ""; _trSetLabel(btn, "Deleting…"); _fxBusy(btn, true); } else btn.textContent = "…";
-  btn.disabled = true;
-  // The day goes along: the backend deletes only that occurrence (a repeating
-  // lesson's id is the whole series).
-  _fxCall("deleteCalendarEvent", { calId: calId, eventId: eventId, date: ymd || "" }).then(function(r) {
-    if (btn._fxState) _fxBusy(btn, false);
-    if (r.ok) {
-      if (lineEl) { lineEl.style.transition = "opacity 0.3s"; lineEl.style.opacity = "0"; setTimeout(function() { lineEl.remove(); }, 300); }
-      else if (_fixCurrentName) _loadFixData(_fixCurrentName);
-    } else {
-      btn.disabled = false;
-      if (btn._fxState) { _trSetLabel(btn, label); rpmFail(btn._fxState, r.why || "Delete failed"); }
-      else { btn.textContent = label; btn.classList.remove("armed"); rpmToast("fail", "Unsuccessful", r.why || "Delete failed"); }
-    }
-  });
 }
 
 // Commit the whole Counter row at once: every block cell + Finished (E).
