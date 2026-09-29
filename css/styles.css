@@ -1914,3 +1914,9 @@ a:focus-visible,
 .au-rem-kind.manual { color: color-mix(in srgb, #d9a441 80%, transparent); }
 .au-rem-none { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
 .au-pay-acts { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 32px; }
+
+/* Unlogged Lessons card grid: same cell outline, block gap and size as the
+   details window's grid (user, 2026-09-29). */
+.au-cardgrid { font-size: 11px; }
+.au-cardgrid .gap { width: 22px; }
+.au-cardgrid td:not(.lbl):not(.gap):not(.empty):not(.miss):not(.nocal) { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16); }

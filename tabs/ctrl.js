@@ -1112,7 +1112,7 @@ function _auGridHtml(grid, missing, nmArg, locked, noCal) {
       (go ? ' onclick="_auGridLog(this,' + nmArg + ')" data-tip="Opens the Log lesson window.\nLogs ' + _auEsc(d) + ' into Students Import."'
           : ' data-tip="' + (locked ? 'Calendar and Counter disagree.\nFix that first with Mismatch.' : 'Log the earlier date first.\nImport fills its rows in order.') + '"') + '>' + _auEsc(d) + '</td>';
   });
-  return '<table class="au-grid">' + head() + counter + imp + '</table>';
+  return '<table class="au-grid au-cardgrid">' + head() + counter + imp + '</table>';
 }
 function _auInGrid(grid, d) {
   var n = _psNormD(d);
