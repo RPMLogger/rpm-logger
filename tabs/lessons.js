@@ -243,8 +243,9 @@ function submitLog() {
         if (t.name === student.name && t.eventDate === student.eventDate) t.alreadyLogged = true;
       });
       addLog("lessonFeed", "✓ " + student.name + " — " + subject, "success");
-      // The window stays open; only the button's words change (no success
-      // line). ✕ closes it. Logged is final here, so the rows and buttons lock.
+      // No success line: the button says Logged ✓, the rows and buttons lock
+      // (logged is final), and a second later the window closes by itself
+      // (2026-09-28). A failure keeps it open with its Unsuccessful badge.
       if (activeStudent) activeStudent.logged = true;
       btn.textContent = "Logged ✓"; btn.className = "link-btn green";
       var mic = document.getElementById("logMicBtn");
@@ -273,6 +274,9 @@ function submitLog() {
           initAuditTab();
         }
       }
+      // Only if it's still this lesson's window (not one opened since).
+      var done = activeStudent;
+      setTimeout(function() { if (done && activeStudent === done) closeLogPanel(); }, 1000);
     } else {
       fail(data.message || "Error logging");
     }
