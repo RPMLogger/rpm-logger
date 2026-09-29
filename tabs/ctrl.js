@@ -480,19 +480,30 @@ function _dxGrid() {
     return '<td class="' + cls + ' dx-c" onclick="_dxEdit(\'' + which + '\',' + k + ')"' +
       (tip ? ' data-tip="' + tip + '"' : '') + '>' + _auEsc(text) + '</td>';
   }
+  // Red / amber by DATE, not slot by slot (user, 2026-09-28): one extra event
+  // shifts the row, and slot-by-slot then painted every later cell red.
+  // Red = on the calendar, not in the Counter. Amber outline = counted, no
+  // calendar event that day (the card's look).
+  // The backend sends only the last 8 past events, so a Counter date older
+  // than the oldest of them can't be checked: no amber there.
+  var inCounter = {}, onCal = {}, calOldest = null;
+  function _dxDay(v) { var p = _fixParseMonDay(v); return p ? new Date(_fixInferYear(p.mon, p.day), p.mon, p.day) : null; }
+  s.forEach(function(sl) { if (sl.counter && !sl.counter.empty) inCounter[_dxN(sl.counter.value)] = true; });
+  (_dx.d.calendar || []).forEach(function(ev) {
+    onCal[_dxN(ev.date)] = true;
+    var dd = _dxDay(ev.date); if (dd && (!calOldest || dd < calOldest)) calOldest = dd;
+  });
   var cal = row("Calendar", function(sl, k) {
-    var has = sl.counter && !sl.counter.empty;
-    if (sl.cal) {
-      var same = has && _dxN(sl.cal.date) === _dxN(sl.counter.value);
-      return td(same ? "" : "miss", _dxShort(sl.cal.date), "cal", k, same ? "" : "Doesn't match the Counter here.");
-    }
-    if (has) return '<td class="warn" data-tip="Counted, but no calendar event here.">—</td>';
-    return '<td class="empty"></td>';
+    if (!sl.cal) return '<td class="empty"></td>';
+    var counted = inCounter[_dxN(sl.cal.date)];
+    return td(counted ? "" : "miss", _dxShort(sl.cal.date), "cal", k, counted ? "" : "On the calendar, not in the Counter.");
   });
   var cnt = row("Counter", function(sl, k) {
     if (!sl.counter) return '<td class="empty"></td>';
     if (sl.counter.empty) return td("empty", "", "counter", k, "Adds a date here.");
-    return td("", _dxShort(sl.counter.value), "counter", k);
+    var cd = _dxDay(sl.counter.value);
+    var noEv = !onCal[_dxN(sl.counter.value)] && !!(cd && calOldest && cd >= calOldest);
+    return td(noEv ? "nocal" : "", _dxShort(sl.counter.value), "counter", k, noEv ? "Counted, but no calendar event on this day." : "");
   });
   var firstMiss = -1;
   s.forEach(function(sl, k) {
