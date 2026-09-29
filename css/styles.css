@@ -974,10 +974,10 @@ body::before {
 /* ─── INCOMING PAYMENTS ───────────────────────────────────────────────────── */
 .incoming-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-  padding: 11px 14px; margin-bottom: 8px;   /* 4 → 8px, a little air (2026-09-29) */
+  padding: 11px 14px; margin-bottom: 4px;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
-.incoming-name { font-family: "Syne", sans-serif; font-size: 13px; margin-bottom: 5px; }
+.incoming-name { font-family: "Syne", sans-serif; font-size: 13px; margin-bottom: 10px; }   /* 5 → 10px: name and payment line apart (2026-09-29) */
 .incoming-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .incoming-method { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; font-family: "DM Mono", monospace; }
 .incoming-method.venmo { background: rgba(0,130,200,0.15); color: #0082c8; }
@@ -985,12 +985,16 @@ body::before {
 .incoming-amount { font-family: "DM Mono", monospace; font-size: 12px; color: var(--green); }
 .incoming-date { font-size: 10px; color: var(--muted); }
 .incoming-confirm {
-  padding: 7px 14px; border: 1px solid var(--green); border-radius: 4px;
-  background: transparent; color: var(--green); font-family: "DM Mono", monospace;
+  /* Green with a resting wash that deepens on hover, the intake link
+     buttons' way (2026-09-29): Log cash. Confirm on the cards is amber. */
+  padding: 7px 14px; border: 1px solid color-mix(in srgb, var(--green) 70%, transparent); border-radius: 4px;
+  background: color-mix(in srgb, var(--green) 12%, transparent); color: var(--green); font-family: "DM Mono", monospace;
   font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
   cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
 }
-.incoming-confirm:hover { background: rgba(46,204,113,0.1); }
+.incoming-confirm:hover { border-color: var(--green); background: color-mix(in srgb, var(--green) 24%, transparent); }
+.incoming-card .incoming-confirm { color: #d9a441; border-color: color-mix(in srgb, #d9a441 55%, transparent); background: color-mix(in srgb, #d9a441 6%, transparent); }
+.incoming-card .incoming-confirm:hover { border-color: #d9a441; background: color-mix(in srgb, #d9a441 16%, transparent); }
 .incoming-dismiss {
   padding: 5px 10px; border: 1px solid var(--border); border-radius: 4px;
   background: transparent; color: var(--muted); font-family: "DM Mono", monospace;
@@ -999,6 +1003,9 @@ body::before {
 }
 .incoming-dismiss:hover { border-color: var(--accent); color: var(--accent); }
 .incoming-confirm .inc-icon { vertical-align: -1px; margin-right: 6px; }
+.log-cash-btn { margin-top: 14px; }
+.incoming-confirm { min-width: 124px; justify-content: center; }   /* Confirm and Log cash one size */
+.log-cash-btn [data-icon] { display: inline-flex; vertical-align: -2px; margin-right: 7px; }
 .incoming-nomatch { font-size: 9px; color: var(--accent); letter-spacing: 1px; margin-top: 4px; }
 
 /* ─── INCOMING NOTE PANEL ─────────────────────────────────────────────────── */
@@ -1116,16 +1123,8 @@ body::before {
 .cash-date-val:focus { background: rgba(232,70,58,0.18); color: var(--accent); }
 
 /* ─── PAYMENT HISTORY ─────────────────────────────────────────────────────── */
-.btn-pay-history {
-  display: block; width: 100%; padding: 12px;
-  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-  color: var(--muted); font-family: "DM Mono", monospace; font-size: 9px;
-  letter-spacing: 3px; text-transform: uppercase; cursor: pointer; text-align: left;
-  transition: color 0.15s; margin-top: 8px;
-}
-.btn-pay-history:active { color: var(--text); }
-#payHistorySection { display: none; margin-top: 12px; max-height: 360px; overflow-y: auto; }
-#payHistorySection.active { display: block; }
+.pay-history-modal { max-width: 520px; }
+.pay-history-modal .pay-history-month { color: var(--accent); }   /* month titles red here; the Week tab keeps amber */
 .pay-history-month {
   font-family: "Bebas Neue", sans-serif; font-size: 13px;
   letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent2); padding: 10px 0 4px;

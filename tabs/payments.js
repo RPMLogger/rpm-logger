@@ -510,18 +510,16 @@ function checkEmptyIncoming() {
 }
 
 // ─── PAYMENT HISTORY ─────────────────────────────────────────────────────────
-function togglePaymentHistory() {
-  var section = document.getElementById("payHistorySection");
-  var btn     = document.getElementById("btnPayHistory");
-  var isOpen  = section.classList.contains("active");
-  if (isOpen) {
-    section.classList.remove("active");
-    btn.textContent = "▾ View Payment History";
-  } else {
-    section.classList.add("active");
-    btn.textContent = "▴ Hide Payment History";
-    if (!payHistoryLoaded) loadPaymentHistory();
-  }
+// Payment history opens in its own window (2026-09-29); loads once, again
+// after a payment is confirmed (payHistoryLoaded goes false).
+function openPaymentHistory() {
+  document.getElementById("payHistoryIcon").innerHTML = PAY_ICON;
+  document.getElementById("payHistoryModal").style.display = "flex";
+  if (!payHistoryLoaded) loadPaymentHistory();
+}
+
+function closePaymentHistory() {
+  document.getElementById("payHistoryModal").style.display = "none";
 }
 
 function loadPaymentHistory() {
