@@ -530,7 +530,7 @@ function loadIncomingPayments() {
               : (p.matched ? "" : "<div class='incoming-nomatch'>⚠ Name not matched in student sheets</div>")) +
           "</div>" +
           "<div style='display:flex;flex-direction:column;gap:6px;flex-shrink:0'>" +
-            "<button class='incoming-confirm'" + (isTrial ? " disabled data-tip='Trial payment.\nRecorded from the Trial tab.' style='opacity:.35;cursor:not-allowed'" : "") + ">" + THUMB_UP_ICON + "Confirm →</button>" +
+            "<button class='incoming-confirm'" + (isTrial ? " disabled data-tip='Trial payment.\nRecorded from the Trial tab.' style='opacity:.35;cursor:not-allowed'" : "") + ">Confirm →</button>" +
             "<button class='incoming-dismiss'>Dismiss</button>" +
           "</div>";
 

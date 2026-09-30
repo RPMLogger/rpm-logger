@@ -620,6 +620,10 @@ body::before {
 .au-cap { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
 .au-acts { display: flex; align-items: center; gap: 8px; }
 .au-acts .au-state { flex: 1; text-align: right; }
+.au-unpaid { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 22px; }   /* Unpaid card: Details on the right, one row (2026-09-29) */
+.au-unpaid .inq-name-line { margin: 0 0 2px; }
+.au-unpaid .au-details { flex-shrink: 0; }
+.au-sub.au-detail { color: var(--muted); margin-top: 3px; }   /* Unpaid card: the lesson line under the status, grey */
 /* Lesson Sync chips: one amber for everything that needs a look (was orange,
    amber and yellow for the same meaning). A date you can log has the ▸ and
    opens the Log lesson window; a format warning is a note to fix by hand. */
@@ -1000,10 +1004,11 @@ body::before {
 }
 .incoming-dismiss:hover { border-color: var(--accent); color: var(--accent); }
 .incoming-confirm .inc-icon { vertical-align: -1px; margin-right: 6px; }
-.log-cash-btn { margin-top: 14px; }
+.log-cash-btn { margin-top: 24px; }   /* 14 → 24px: air above Log cash (2026-09-29) */
 .incoming-confirm { min-width: 124px; justify-content: center; }   /* Confirm and Log cash one size */
-.log-cash-btn { color: #d9a441; border-color: color-mix(in srgb, #d9a441 55%, transparent); background: color-mix(in srgb, #d9a441 6%, transparent); }   /* amber like Confirm (2026-09-29) */
-.log-cash-btn:hover { border-color: #d9a441; background: color-mix(in srgb, #d9a441 16%, transparent); }
+.log-cash-btn { color: var(--muted); border-color: rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); }   /* grey like Payment history (2026-09-29) */
+.log-cash-btn:hover { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
+.incoming-card .incoming-confirm { padding: 5px 10px; font-size: 9px; min-width: 0; }   /* card Confirm same size as Dismiss (2026-09-29) */
 .incoming-nomatch { font-size: 9px; color: var(--accent); letter-spacing: 1px; margin-top: 4px; }
 
 /* ─── INCOMING NOTE PANEL ─────────────────────────────────────────────────── */

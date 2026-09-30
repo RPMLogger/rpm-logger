@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=715">
+  <link rel="stylesheet" href="css/styles.css?v=716">
 </head>
 <body>
 <div class="container">
@@ -141,7 +141,7 @@
     <!-- Payment history: a small button at the very top that opens its own
          window (2026-09-29). -->
     <button id="btnPayHistory" class="link-btn opens-window" onclick="openPaymentHistory()" data-tip="Opens a window.&#10;Every logged payment, by month." data-tip-wrap>Payment history</button>
-    <div class="section-label" style="margin-top:28px;margin-bottom:18px">
+    <div class="section-label" style="margin-top:28px;margin-bottom:26px">
       Incoming <span style="color:var(--blue)">Venmo &amp; Zelle</span>
     </div>
     <div id="incomingPayments"><div class="rpm-loading" style="color:var(--muted);font-size:11px">Loading</div></div>
@@ -152,8 +152,8 @@
     <!-- Who owes, moved here from the Audit tab (2026-09-28) so every money
          question lives in one tab. Cards drawn by ctrl.js renderUnpaidCards;
          confirming happens only in Incoming above. -->
-    <hr class="divider" style="margin-top:24px">
-    <div class="section-label" style="margin-bottom:18px">Unpaid Students</div>
+    <hr class="divider" style="margin-top:36px;margin-bottom:32px">
+    <div class="section-label" style="margin-bottom:26px">Unpaid Students</div>
     <div id="auditUnpaidSection"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
@@ -792,7 +792,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">715</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">716</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -812,42 +812,42 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=715"></script>
-<script src="core/storage.js?v=715"></script>
-<script src="core/utils.js?v=715"></script>
-<script src="core/dialog.js?v=715"></script>
-<script src="core/api.js?v=715"></script>
+<script src="core/state.js?v=716"></script>
+<script src="core/storage.js?v=716"></script>
+<script src="core/utils.js?v=716"></script>
+<script src="core/dialog.js?v=716"></script>
+<script src="core/api.js?v=716"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=715"></script>
-<script src="tabs/lessons.js?v=715"></script>
-<script src="tabs/payments.js?v=715"></script>
-<script src="tabs/week.js?v=715"></script>
-<script src="tabs/general.js?v=715"></script>
-<script src="tabs/financial.js?v=715"></script>
-<script src="tabs/inquiries.js?v=715"></script>
-<script src="tabs/inqarchive.js?v=715"></script>
-<script src="tabs/comms.js?v=715"></script>
-<script src="tabs/notes.js?v=715"></script>
-<script src="tabs/todo.js?v=715"></script>
-<script src="tabs/availability.js?v=715"></script>
-<script src="tabs/biweekly.js?v=715"></script>
-<script src="tabs/travel.js?v=715"></script>
-<script src="tabs/tripsummary.js?v=715"></script>
-<script src="tabs/triphistory.js?v=715"></script>
-<script src="tabs/skips.js?v=715"></script>
-<script src="tabs/student.js?v=715"></script>
-<script src="tabs/ctrl.js?v=715"></script>
-<script src="tabs/mailcenter.js?v=715"></script>
-<script src="tabs/dropbox.js?v=715"></script>
-<script src="tabs/trial.js?v=715"></script>
-<script src="tabs/rates.js?v=715"></script>
-<script src="tabs/ending.js?v=715"></script>
-<script src="tabs/thisyear.js?v=715"></script>
-<script src="tabs/sheets.js?v=715"></script>
-<script src="tabs/studentline.js?v=715"></script>
-<script src="tabs/calendar.js?v=715"></script>
-<script src="tabs/fixedcal.js?v=715"></script>
+<script src="tabs/icons.js?v=716"></script>
+<script src="tabs/lessons.js?v=716"></script>
+<script src="tabs/payments.js?v=716"></script>
+<script src="tabs/week.js?v=716"></script>
+<script src="tabs/general.js?v=716"></script>
+<script src="tabs/financial.js?v=716"></script>
+<script src="tabs/inquiries.js?v=716"></script>
+<script src="tabs/inqarchive.js?v=716"></script>
+<script src="tabs/comms.js?v=716"></script>
+<script src="tabs/notes.js?v=716"></script>
+<script src="tabs/todo.js?v=716"></script>
+<script src="tabs/availability.js?v=716"></script>
+<script src="tabs/biweekly.js?v=716"></script>
+<script src="tabs/travel.js?v=716"></script>
+<script src="tabs/tripsummary.js?v=716"></script>
+<script src="tabs/triphistory.js?v=716"></script>
+<script src="tabs/skips.js?v=716"></script>
+<script src="tabs/student.js?v=716"></script>
+<script src="tabs/ctrl.js?v=716"></script>
+<script src="tabs/mailcenter.js?v=716"></script>
+<script src="tabs/dropbox.js?v=716"></script>
+<script src="tabs/trial.js?v=716"></script>
+<script src="tabs/rates.js?v=716"></script>
+<script src="tabs/ending.js?v=716"></script>
+<script src="tabs/thisyear.js?v=716"></script>
+<script src="tabs/sheets.js?v=716"></script>
+<script src="tabs/studentline.js?v=716"></script>
+<script src="tabs/calendar.js?v=716"></script>
+<script src="tabs/fixedcal.js?v=716"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>

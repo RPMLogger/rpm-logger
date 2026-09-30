@@ -80,22 +80,24 @@ function _auditSectionFail(section, why) {
 // Who shows up is the shared backend rule (RPM_PayState.js): the NEXT lesson
 // has to be paid for. One card per student:
 //   name
-//   caps line   UNPAID / OWES N BLOCKS · LESSON n · date        (amber)
-//               OVERDUE · LESSON 4 DONE date                    (red)
-//               DUE AT THIS LESSON · LESSON 4 TODAY             (amber)
+//   caps line   UNPAID / OWES N BLOCKS                          (amber)
+//               OVERDUE                                         (red)
+//               DUE AT THIS LESSON                              (amber)
+//   grey line   FINISHED · LESSON n  /  LESSON 4 · TODAY   (no dates, 2026-09-29)
 //   buttons     Details ▸, bottom right
 function _auDate(d) { return (d || "").toString().replace(/\s*\/\s*/, " ").trim(); }
 function _auEsc(v) {
   return String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+// Two lines (2026-09-29): the status alone in colour, then the lesson in grey.
 function _auStatusLine(s) {
-  var owes = s.owes || 0, n = s.lessonNum, d = _auDate(s.lessonDate);
-  if (s.status === "Due at this lesson") return { cls: "due", text: "Due at this lesson · Lesson 4 today" };
+  var owes = s.owes || 0, n = s.lessonNum;
+  if (s.status === "Due at this lesson") return { cls: "due", text: "Due at this lesson", detail: "Lesson 4 · Today" };
   if (s.status === "Overdue") {
-    return { cls: "over", text: "Overdue" + (owes >= 2 ? " · Owes " + owes + " blocks" : "") + " · Lesson 4 done " + d };
+    return { cls: "over", text: "Overdue" + (owes >= 2 ? " · Owes " + owes + " blocks" : ""), detail: "Finished · Lesson 4" };
   }
-  return { cls: "due", text: (owes >= 2 ? "Owes " + owes + " blocks" : "Unpaid") + " · Lesson " + n + " · " + d };
+  return { cls: "due", text: (owes >= 2 ? "Owes " + owes + " blocks" : "Unpaid"), detail: "Finished · Lesson " + n };
 }
 
 function renderUnpaidCards(audit) {
@@ -128,15 +130,15 @@ function _auUnpaidCard(s, i) {
   var line = _auStatusLine(s);
   // Block −1 / −2 / Last paid and the reminder dates all live in the Details
   // window now (2026-09-29); the card is name, status and Details.
-  return '<div class="inq-dcard au-card" id="auCard-' + i + '">' +
-      '<div class="inq-name-line"><span class="inq-name">' + _auEsc(s.name) + '</span></div>' +
-      '<div class="au-sub ' + line.cls + '">' + _auEsc(line.text) + '</div>' +
-      // No divider (2026-09-29): name, status, then Details alone, bottom right.
-      '<div class="au-acts" style="margin-top:4px">' +
-        '<span class="au-state"></span>' +
-        '<button class="link-btn opens-window au-details" onclick="_auPayDetails(' + i + ')" ' +
-          'data-tip="Opens a window.\nShows where each payment landed among the lessons." data-tip-wrap data-tip-left>' + DETAILS_ICON + 'Details</button>' +
+  // Details sits on the right beside name + status (2026-09-29): a shorter card.
+  return '<div class="inq-dcard au-card au-unpaid" id="auCard-' + i + '">' +
+      '<div class="au-unpaid-left">' +
+        '<div class="inq-name-line"><span class="inq-name">' + _auEsc(s.name) + '</span></div>' +
+        '<div class="au-sub ' + line.cls + '">' + _auEsc(line.text) + '</div>' +
+        '<div class="au-sub au-detail">' + _auEsc(line.detail) + '</div>' +
       '</div>' +
+      '<button class="link-btn opens-window au-details" onclick="_auPayDetails(' + i + ')" ' +
+        'data-tip="Opens a window.\nShows where each payment landed among the lessons." data-tip-wrap data-tip-left>' + DETAILS_ICON + 'Details</button>' +
     '</div>';
 }
 
