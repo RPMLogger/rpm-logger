@@ -1926,3 +1926,26 @@ a:focus-visible,
 .au-cardgrid td:not(.lbl):not(.gap):not(.empty):not(.miss):not(.nocal):not(.warn) { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16); }
 /* The Fix window's grid uses the same look; keep its hover visible. */
 .au-cardgrid.dx-grid td.dx-c:not(.miss):not(.sel):hover { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35) !important; }
+
+/* ── Load tab (2026-09-30): card look, scoped so the other .load-table tabs
+   (Week, Availability, Skips) keep theirs. Label grey, value bright; Weekly,
+   Biweekly, Total Income grey (.sub); Normalized + Gregorian amber (.lead). ───────────────────── */
+.ld-cards { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; align-items: stretch; margin-bottom: 32px; }
+.ld-card { border-left-color: var(--warn); margin-bottom: 0; display: flex; flex-direction: column; }
+/* Card title in the window-title face (Bebas 20px, 2px tracking), grey. */
+.ld-title { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--muted); margin-bottom: 22px; line-height: 1; }
+.ld-row { display: flex; align-items: baseline; justify-content: space-between; padding: 7px 0; }
+.ld-l { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.3px; color: rgba(255,255,255,0.5); }
+.ld-v { font-family: "DM Mono", monospace; font-size: 13px; color: var(--text); }
+.ld-row.lead .ld-l, .ld-row.lead .ld-v { color: var(--warn); }
+.ld-row.lead .ld-l { text-transform: uppercase; letter-spacing: 1px; }   /* the amber rows read in caps */
+.ld-row.sub .ld-v { color: var(--muted); }
+.ld-rule { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+.ld-row.pick { align-items: center; padding: 3px 0; }
+.ld-foot { display: flex; justify-content: flex-end; margin-top: auto; padding-top: 14px; }   /* Reset sits at the card foot */
+/* The picker: − value + in one grey box, the value on a darker well. */
+.ld-pick { display: inline-flex; align-items: stretch; padding: 2px; gap: 1px; border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); border-radius: 8px; background: var(--surface2); }
+.ld-pb { width: 22px; background: transparent; border: none; border-radius: 5px; color: rgba(255,255,255,0.55); font-family: "DM Mono", monospace; font-size: 13px; line-height: 1; cursor: pointer; transition: color .12s, background .12s; }
+.ld-pb:hover { color: #fff; background: color-mix(in srgb, #fff 8%, transparent); }
+.ld-pb:focus { outline: none; }
+.ld-pv { min-width: 42px; text-align: center; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.5px; color: var(--muted); padding: 4px 6px; border-radius: 5px; background: var(--bg); }
