@@ -79,7 +79,7 @@ function initLoadRatesCard() {
             return '<div class="ld-row sub"><span class="ld-l">' + inqEsc(r.type) + '</span>' +
               '<span class="ld-v">' + inqEsc(r.monthly) + ' / month</span></div>';
           }).join('') : '') +
-        (oneDate && froms[0] ? '<div class="ld-note">Since ' + inqEsc(froms[0]) + '</div>' : '') +
+        (oneDate && froms[0] ? '<div class="ld-note">Last raise: ' + inqEsc(froms[0]) + '</div>' : '') +
         // A half-filled block in the archive (a raise typed in but not finished)
         // gets shouted, as the old Rates tab did.
         ((d.problems || []).length ? '<div class="ld-problems">Unfinished in the archive' +
@@ -91,7 +91,8 @@ function initLoadRatesCard() {
 // ── Since 2026 card ───────────────────────────────────────────────────────
 // Did the raise change how many applicants become students? (2026-09-30)
 // getRaiseStats splits this year's inquiries at every Weekly rate change in the
-// Website Rates Archive; students = Trial Lessons Outcome "Successful", by email.
+// Website Rates Archive. Offered trial = trial finished (Outcome Successful or
+// Unsuccessful); students = Successful. Matched to inquiries by email.
 function initLoadYearCard() {
   var url  = getScriptUrl();
   var body = document.getElementById('loadYearBody');
@@ -101,13 +102,17 @@ function initLoadYearCard() {
     .then(function (d) {
       if (!d.success) { body.innerHTML = '<div class="empty-state">' + inqEsc(d.message || 'Could not load') + '</div>'; return; }
       body.innerHTML = (d.periods || []).map(function (p, k) {
-        var head = p.rate != null
-          ? '$' + p.rate + ' · ' + (p.to ? p.from + ' – ' + p.to : 'Since ' + p.from)
-          : 'Before the raise · ' + p.from + ' – ' + (p.to || 'now');
+        // The archive starts at the Aug 25 2026 raise; the price before it was
+        // $95 but is deliberately NOT in the archive (adding it would reprice
+        // income history), so it is named here, for the card's first period only.
+        var rate = p.rate != null ? p.rate : (k === 0 ? 95 : null);
+        // Rate only, no dates: the rate already says which period it is.
+        var head = rate != null ? 'Rate: $' + rate : (p.to ? p.from + ' – ' + p.to : 'Since ' + p.from);
         var pct = p.inquiries ? Math.round(p.students / p.inquiries * 100) + '%' : '';
         return (k ? '<hr class="ld-rule">' : '') +
           '<div class="ld-sublabel">' + inqEsc(head) + '</div>' +
           '<div class="ld-row sub caps"><span class="ld-l">Inquiries</span><span class="ld-v">' + p.inquiries + '</span></div>' +
+          '<div class="ld-row sub caps"><span class="ld-l">Offered trial</span><span class="ld-v">' + (p.trials != null ? p.trials : '—') + '</span></div>' +
           '<div class="ld-row lead"><span class="ld-l">Became students</span><span class="ld-v">' +
             (pct ? '<span class="ld-vsub">' + pct + '</span>' : '') + p.students + '</span></div>';
       }).join('');
