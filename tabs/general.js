@@ -87,3 +87,30 @@ function initLoadRatesCard() {
     })
     .catch(function () { body.innerHTML = '<div class="empty-state">Could not load.</div>'; });
 }
+
+// ── Since 2026 card ───────────────────────────────────────────────────────
+// Did the raise change how many applicants become students? (2026-09-30)
+// getRaiseStats splits this year's inquiries at every Weekly rate change in the
+// Website Rates Archive; students = Trial Lessons Outcome "Successful", by email.
+function initLoadYearCard() {
+  var url  = getScriptUrl();
+  var body = document.getElementById('loadYearBody');
+  if (!body || !url) return;
+  fetch(url + '?action=getRaiseStats')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) { body.innerHTML = '<div class="empty-state">' + inqEsc(d.message || 'Could not load') + '</div>'; return; }
+      body.innerHTML = (d.periods || []).map(function (p, k) {
+        var head = p.rate != null
+          ? '$' + p.rate + ' · ' + (p.to ? p.from + ' – ' + p.to : 'Since ' + p.from)
+          : 'Before the raise · ' + p.from + ' – ' + (p.to || 'now');
+        var pct = p.inquiries ? Math.round(p.students / p.inquiries * 100) + '%' : '';
+        return (k ? '<hr class="ld-rule">' : '') +
+          '<div class="ld-sublabel">' + inqEsc(head) + '</div>' +
+          '<div class="ld-row sub caps"><span class="ld-l">Inquiries</span><span class="ld-v">' + p.inquiries + '</span></div>' +
+          '<div class="ld-row lead"><span class="ld-l">Became students</span><span class="ld-v">' +
+            (pct ? '<span class="ld-vsub">' + pct + '</span>' : '') + p.students + '</span></div>';
+      }).join('');
+    })
+    .catch(function () { body.innerHTML = '<div class="empty-state">Could not load.</div>'; });
+}

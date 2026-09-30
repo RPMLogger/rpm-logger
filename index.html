@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=719">
+  <link rel="stylesheet" href="css/styles.css?v=720">
 </head>
 <body>
 <div class="container">
@@ -262,6 +262,11 @@
       <div class="inq-dcard ld-card" id="loadRatesCard">
         <div class="ld-title">Website Rates</div>
         <div id="loadRatesBody"><div class="empty-state rpm-loading">Loading</div></div>
+      </div>
+      <!-- Since 2026: inquiries -> students, split at each rate raise (getRaiseStats). -->
+      <div class="inq-dcard ld-card" id="loadYearCard">
+        <div class="ld-title">Since 2026</div>
+        <div id="loadYearBody"><div class="empty-state rpm-loading">Loading</div></div>
       </div>
     </div>
     <!-- Student List table removed 2026-09-16. Empty placeholder only because an older
@@ -779,7 +784,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">719</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">720</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -799,41 +804,41 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=719"></script>
-<script src="core/storage.js?v=719"></script>
-<script src="core/utils.js?v=719"></script>
-<script src="core/dialog.js?v=719"></script>
-<script src="core/api.js?v=719"></script>
+<script src="core/state.js?v=720"></script>
+<script src="core/storage.js?v=720"></script>
+<script src="core/utils.js?v=720"></script>
+<script src="core/dialog.js?v=720"></script>
+<script src="core/api.js?v=720"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=719"></script>
-<script src="tabs/lessons.js?v=719"></script>
-<script src="tabs/payments.js?v=719"></script>
-<script src="tabs/week.js?v=719"></script>
-<script src="tabs/general.js?v=719"></script>
-<script src="tabs/financial.js?v=719"></script>
-<script src="tabs/inquiries.js?v=719"></script>
-<script src="tabs/inqarchive.js?v=719"></script>
-<script src="tabs/comms.js?v=719"></script>
-<script src="tabs/notes.js?v=719"></script>
-<script src="tabs/todo.js?v=719"></script>
-<script src="tabs/availability.js?v=719"></script>
-<script src="tabs/biweekly.js?v=719"></script>
-<script src="tabs/travel.js?v=719"></script>
-<script src="tabs/tripsummary.js?v=719"></script>
-<script src="tabs/triphistory.js?v=719"></script>
-<script src="tabs/skips.js?v=719"></script>
-<script src="tabs/student.js?v=719"></script>
-<script src="tabs/ctrl.js?v=719"></script>
-<script src="tabs/mailcenter.js?v=719"></script>
-<script src="tabs/dropbox.js?v=719"></script>
-<script src="tabs/trial.js?v=719"></script>
-<script src="tabs/ending.js?v=719"></script>
-<script src="tabs/thisyear.js?v=719"></script>
-<script src="tabs/sheets.js?v=719"></script>
-<script src="tabs/studentline.js?v=719"></script>
-<script src="tabs/calendar.js?v=719"></script>
-<script src="tabs/fixedcal.js?v=719"></script>
+<script src="tabs/icons.js?v=720"></script>
+<script src="tabs/lessons.js?v=720"></script>
+<script src="tabs/payments.js?v=720"></script>
+<script src="tabs/week.js?v=720"></script>
+<script src="tabs/general.js?v=720"></script>
+<script src="tabs/financial.js?v=720"></script>
+<script src="tabs/inquiries.js?v=720"></script>
+<script src="tabs/inqarchive.js?v=720"></script>
+<script src="tabs/comms.js?v=720"></script>
+<script src="tabs/notes.js?v=720"></script>
+<script src="tabs/todo.js?v=720"></script>
+<script src="tabs/availability.js?v=720"></script>
+<script src="tabs/biweekly.js?v=720"></script>
+<script src="tabs/travel.js?v=720"></script>
+<script src="tabs/tripsummary.js?v=720"></script>
+<script src="tabs/triphistory.js?v=720"></script>
+<script src="tabs/skips.js?v=720"></script>
+<script src="tabs/student.js?v=720"></script>
+<script src="tabs/ctrl.js?v=720"></script>
+<script src="tabs/mailcenter.js?v=720"></script>
+<script src="tabs/dropbox.js?v=720"></script>
+<script src="tabs/trial.js?v=720"></script>
+<script src="tabs/ending.js?v=720"></script>
+<script src="tabs/thisyear.js?v=720"></script>
+<script src="tabs/sheets.js?v=720"></script>
+<script src="tabs/studentline.js?v=720"></script>
+<script src="tabs/calendar.js?v=720"></script>
+<script src="tabs/fixedcal.js?v=720"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -913,7 +918,7 @@
     if (tab === "dropbox") initDropboxTab();
     if (tab === "initiate") initTrialTab();
     if (tab === "trial") initTrialStageTab();
-    if (tab === "general") initLoadRatesCard();
+    if (tab === "general") { initLoadRatesCard(); initLoadYearCard(); }
     if (tab === "ending") initEndingTab();
     if (tab === "thisyear") initThisYearTab();
     if (tab === "inquiries") initInquiriesTab();
