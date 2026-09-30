@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=718">
+  <link rel="stylesheet" href="css/styles.css?v=719">
 </head>
 <body>
 <div class="container">
@@ -35,7 +35,7 @@
   <!-- TABS — built tabs in a flat grid, alphabetical by label. Unbuilt tabs live
        in the "Coming Soon" dropdown (last cell); move a button out when its tab is built.
        Trip tabs live in "Vacation"; pre-student tabs (Inquiries, Initiate, Trial) in "Intake";
-       Availability + Skips in "Data".
+       Availability, General, Skips, Trial Analysis in "Data".
        A .nav-drop can hold any group of tabs.
        switchTab selects by data-tab, so button order is free to change. -->
   <div class="tabs">
@@ -61,6 +61,7 @@
       <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Data ▾</button>
       <div class="nav-menu">
         <button class="tab-btn nav-item" data-tab="availability" onclick="switchTab('availability')">Availability</button>
+        <button class="tab-btn nav-item" data-tab="general" onclick="switchTab('general')">General</button>
         <button class="tab-btn nav-item" data-tab="skips" onclick="switchTab('skips')">Skips</button>
         <button class="tab-btn nav-item" data-tab="trialanalysis" onclick="switchTab('trialanalysis')">Trial Analysis</button>
       </div>
@@ -70,11 +71,9 @@
     <button class="tab-btn" data-tab="fixedcal" onclick="switchTab('fixedcal')">Fixed Calendar</button>
     <button class="tab-btn" data-tab="holidays" onclick="switchTab('holidays')">Holidays Alerts</button>
     <button class="tab-btn" data-tab="student" onclick="switchTab('student')">Home</button>
-    <button class="tab-btn" data-tab="general" onclick="switchTab('general')">Load</button>
     <button class="tab-btn" data-tab="mailcenter" onclick="switchTab('mailcenter')">Mail Center<span class="inq-badge" id="gbNavBadge" style="display:none"></span></button>
     <button class="tab-btn" data-tab="newsched" onclick="switchTab('newsched')">New Students</button>
     <button class="tab-btn" data-tab="notes" onclick="switchTab('notes')">Notes</button>
-    <button class="tab-btn" data-tab="rates" onclick="switchTab('rates')">Rates</button>
     <button class="tab-btn" data-tab="sheets" onclick="switchTab('sheets')">Sheets</button>
     <button class="tab-btn" data-tab="studentline" onclick="switchTab('studentline')">Student Line<span class="inq-badge" id="slNavBadge" style="display:none"></span></button>
     <button class="tab-btn" data-tab="ending" onclick="switchTab('ending')">Terminate</button>
@@ -232,7 +231,7 @@
     <div class="week-tab-grid" id="weekTabGrid"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
-  <!-- LOAD (tab id is still "general") -->
+  <!-- GENERAL (was Load; under Data). Holds the Website Rates card since the Rates tab went, 2026-09-30. -->
   <div class="tab-panel" id="tab-general">
     <!-- 2026-09-30: card look (was the old striped .load-table). Colour only on
          the numbers that matter: Normalized + Gregorian amber, the rest grey. -->
@@ -258,6 +257,11 @@
         <div class="ld-row sub"><span class="ld-l">Total Income</span><span class="ld-v" id="est-total">—</span></div>
         <div class="ld-row lead"><span class="ld-l">Gregorian Income</span><span class="ld-v" id="est-greg">—</span></div>
         <div class="ld-foot"><button class="link-btn" onclick="estReset()" data-tip="Instant.&#10;Sets Students and Rate back to your current load.">Reset</button></div>
+      </div>
+      <!-- Website rates: read from the Website Rates Archive, same as the Rates tab. -->
+      <div class="inq-dcard ld-card" id="loadRatesCard">
+        <div class="ld-title">Website Rates</div>
+        <div id="loadRatesBody"><div class="empty-state rpm-loading">Loading</div></div>
       </div>
     </div>
     <!-- Student List table removed 2026-09-16. Empty placeholder only because an older
@@ -604,12 +608,6 @@
   </div>
 
   <!-- RATE DECISION -->
-  <!-- RATES — what the website charges, read from the Website Rates Archive -->
-  <div class="tab-panel" id="tab-rates">
-    <div class="section-label">Rates · Website</div>
-    <div id="ratesBody"><div class="empty-state rpm-loading">Loading</div></div>
-  </div>
-
   <!-- REVIEWS -->
   <div class="tab-panel" id="tab-reviews">
     <div class="section-label">Reviews</div>
@@ -781,7 +779,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">718</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">719</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -801,42 +799,41 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=718"></script>
-<script src="core/storage.js?v=718"></script>
-<script src="core/utils.js?v=718"></script>
-<script src="core/dialog.js?v=718"></script>
-<script src="core/api.js?v=718"></script>
+<script src="core/state.js?v=719"></script>
+<script src="core/storage.js?v=719"></script>
+<script src="core/utils.js?v=719"></script>
+<script src="core/dialog.js?v=719"></script>
+<script src="core/api.js?v=719"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=718"></script>
-<script src="tabs/lessons.js?v=718"></script>
-<script src="tabs/payments.js?v=718"></script>
-<script src="tabs/week.js?v=718"></script>
-<script src="tabs/general.js?v=718"></script>
-<script src="tabs/financial.js?v=718"></script>
-<script src="tabs/inquiries.js?v=718"></script>
-<script src="tabs/inqarchive.js?v=718"></script>
-<script src="tabs/comms.js?v=718"></script>
-<script src="tabs/notes.js?v=718"></script>
-<script src="tabs/todo.js?v=718"></script>
-<script src="tabs/availability.js?v=718"></script>
-<script src="tabs/biweekly.js?v=718"></script>
-<script src="tabs/travel.js?v=718"></script>
-<script src="tabs/tripsummary.js?v=718"></script>
-<script src="tabs/triphistory.js?v=718"></script>
-<script src="tabs/skips.js?v=718"></script>
-<script src="tabs/student.js?v=718"></script>
-<script src="tabs/ctrl.js?v=718"></script>
-<script src="tabs/mailcenter.js?v=718"></script>
-<script src="tabs/dropbox.js?v=718"></script>
-<script src="tabs/trial.js?v=718"></script>
-<script src="tabs/rates.js?v=718"></script>
-<script src="tabs/ending.js?v=718"></script>
-<script src="tabs/thisyear.js?v=718"></script>
-<script src="tabs/sheets.js?v=718"></script>
-<script src="tabs/studentline.js?v=718"></script>
-<script src="tabs/calendar.js?v=718"></script>
-<script src="tabs/fixedcal.js?v=718"></script>
+<script src="tabs/icons.js?v=719"></script>
+<script src="tabs/lessons.js?v=719"></script>
+<script src="tabs/payments.js?v=719"></script>
+<script src="tabs/week.js?v=719"></script>
+<script src="tabs/general.js?v=719"></script>
+<script src="tabs/financial.js?v=719"></script>
+<script src="tabs/inquiries.js?v=719"></script>
+<script src="tabs/inqarchive.js?v=719"></script>
+<script src="tabs/comms.js?v=719"></script>
+<script src="tabs/notes.js?v=719"></script>
+<script src="tabs/todo.js?v=719"></script>
+<script src="tabs/availability.js?v=719"></script>
+<script src="tabs/biweekly.js?v=719"></script>
+<script src="tabs/travel.js?v=719"></script>
+<script src="tabs/tripsummary.js?v=719"></script>
+<script src="tabs/triphistory.js?v=719"></script>
+<script src="tabs/skips.js?v=719"></script>
+<script src="tabs/student.js?v=719"></script>
+<script src="tabs/ctrl.js?v=719"></script>
+<script src="tabs/mailcenter.js?v=719"></script>
+<script src="tabs/dropbox.js?v=719"></script>
+<script src="tabs/trial.js?v=719"></script>
+<script src="tabs/ending.js?v=719"></script>
+<script src="tabs/thisyear.js?v=719"></script>
+<script src="tabs/sheets.js?v=719"></script>
+<script src="tabs/studentline.js?v=719"></script>
+<script src="tabs/calendar.js?v=719"></script>
+<script src="tabs/fixedcal.js?v=719"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -889,7 +886,7 @@
     // tab button is removed. The #tab-lessons panel div still lives in the DOM
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
-    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","rates","reviews","lifetime","concert","newsched","thisyear","sheets","skips","studentline","calendar","fixedcal","inqarchive","trialanalysis","comms"];
+    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","reviews","lifetime","concert","newsched","thisyear","sheets","skips","studentline","calendar","fixedcal","inqarchive","trialanalysis","comms"];
     tabs.forEach(function(t) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       var btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
@@ -916,7 +913,7 @@
     if (tab === "dropbox") initDropboxTab();
     if (tab === "initiate") initTrialTab();
     if (tab === "trial") initTrialStageTab();
-    if (tab === "rates") initRatesTab();
+    if (tab === "general") initLoadRatesCard();
     if (tab === "ending") initEndingTab();
     if (tab === "thisyear") initThisYearTab();
     if (tab === "inquiries") initInquiriesTab();

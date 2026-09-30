@@ -1940,6 +1940,15 @@ a:focus-visible,
 .ld-row.lead .ld-l, .ld-row.lead .ld-v { color: var(--warn); }
 .ld-row.lead .ld-l { text-transform: uppercase; letter-spacing: 1px; }   /* the amber rows read in caps */
 .ld-row.sub .ld-v { color: var(--muted); }
+/* Website Rates card: prices, then "Listed as" (the monthly the site shows)
+   under a rule; the shared Since date is one grey line at the foot. */
+.ld-vsub { color: var(--muted); margin-left: 10px; }
+.ld-row.caps .ld-l { text-transform: uppercase; letter-spacing: 1px; }
+.ld-problems { margin-top: 14px; font-family: "DM Mono", monospace; font-size: 11px; color: var(--accent); }
+.ld-problems div { color: var(--text); margin-top: 3px; }
+.ld-sublabel { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.ld-note { margin-top: auto; padding-top: 14px; font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
+#loadRatesBody { display: flex; flex-direction: column; flex: 1; }
 .ld-rule { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
 .ld-row.pick { align-items: center; padding: 3px 0; }
 .ld-foot { display: flex; justify-content: flex-end; margin-top: auto; padding-top: 14px; }   /* Reset sits at the card foot */
