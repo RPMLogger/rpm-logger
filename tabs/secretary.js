@@ -62,7 +62,7 @@ var SEC_LOGIC = [
     ['When does "Your Recurring Slot Has Changed" go out?',
      'A regular student (not a trial) with 2 or more upcoming lessons in the list, where every one is still there, every one moved, and all the new times fall on one weekday (any day, including the old one). Lessons that already happened today are ignored.'],
     ['Move or delete-and-recreate?',
-     'Move. A "This and following events" edit blanks the labels, but in the same run Secretary labels the blank lessons 1, 2, 3… before comparing, so they pair with the old ones in date order and read as moved. Delete-and-recreate only works if no run lands between the delete and the create.'],
+     'Move. A "This and following events" edit copies the edited lesson’s label onto every new lesson (learned Oct 1, 2026 from Charlotte’s wrong email). Before comparing, Secretary treats repeated labels as copies: the earliest keeps the label (or the one still where the student was last told), and the rest are relabeled in date order, so they pair with the old lessons and read as moved. Delete-and-recreate only works if no run lands between the delete and the create.'],
     ['Example',
      'Charlotte Kang, biweekly Wed 7:30 PM → Tue 8:30 PM from Oct 6, moved on Oct 1. The window holds Oct 7, 21, Nov 4, 18; they become Oct 6, 20, Nov 3, 17. All moved onto Tuesday, so she gets "Your Recurring Slot Has Changed — Tuesdays at 8:30 PM (Starting October 6)".'],
     ['What can still go wrong?',
