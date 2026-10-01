@@ -91,8 +91,12 @@ function _fcRender(statusMsg) {
   });
 
   // Counts don't depend on the view.
-  var open = 0, half = 0, paired = 0, weekly = 0, biweekly = 0;
-  students.forEach(function(s) { s.type === 'weekly' ? weekly++ : biweekly++; });
+  var open = 0, half = 0, paired = 0, weekly = 0, biweekly = 0, wkA = 0, wkB = 0;
+  students.forEach(function(s) {
+    if (s.type === 'weekly') { weekly++; return; }
+    biweekly++;
+    s.week === 'B' ? wkB++ : wkA++;   // A vs B balance (was the Biweekly tab, 2026-10-01)
+  });
   days.forEach(function(d) {
     rows.forEach(function(m) {
       var c = cells[d + '|' + m];
@@ -122,6 +126,7 @@ function _fcRender(statusMsg) {
       "<span><b class='g'>" + open + "</b> open</span>" +
       "<span><b>" + half + "</b> half-open <em>(biweekly only)</em></span>" +
       "<span><b>" + paired + "</b> paired</span>" +
+      "<span><b style='color:" + FC_COLORS.A + "'>" + wkA + "</b> A · <b style='color:" + FC_COLORS.B + "'>" + wkB + "</b> B</span>" +
       "<span><b class='p'>" + pencilled.length + "</b> pencilled</span>" +
     "</div>" +
     "<div class='fc-wrap'><table class='fc-table'><thead><tr><th></th>";

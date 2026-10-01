@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=722">
+  <link rel="stylesheet" href="css/styles.css?v=723">
 </head>
 <body>
 <div class="container">
@@ -63,7 +63,6 @@
         <button class="tab-btn nav-item" data-tab="trialanalysis" onclick="switchTab('trialanalysis')">Trial Analysis</button>
       </div>
     </div>
-    <button class="tab-btn" data-tab="biweekly" onclick="switchTab('biweekly')">Biweekly</button>
     <button class="tab-btn" data-tab="calendar" onclick="switchTab('calendar')">Calendar</button>
     <button class="tab-btn" data-tab="comms" onclick="switchTab('comms')">Comms<span class="inq-badge" id="commsNavBadge" style="display:none"></span></button>
     <button class="tab-btn" data-tab="dropbox" onclick="switchTab('dropbox')">Dropbox</button>
@@ -368,12 +367,6 @@
   <div class="tab-panel" id="tab-availability">
     <div id="availabilityList"><div class="empty-state rpm-loading">Loading</div></div>
     <div class="log-feed" id="availFeed"></div>
-  </div>
-
-  <!-- BIWEEKLY -->
-  <div class="tab-panel" id="tab-biweekly">
-    <div class="section-label">Biweekly Balancer · next 90 days</div>
-    <div id="biweeklyBody"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
   <!-- AUDIT -->
@@ -795,7 +788,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">722</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">723</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -815,42 +808,41 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=722"></script>
-<script src="core/storage.js?v=722"></script>
-<script src="core/utils.js?v=722"></script>
-<script src="core/dialog.js?v=722"></script>
-<script src="core/api.js?v=722"></script>
+<script src="core/state.js?v=723"></script>
+<script src="core/storage.js?v=723"></script>
+<script src="core/utils.js?v=723"></script>
+<script src="core/dialog.js?v=723"></script>
+<script src="core/api.js?v=723"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=722"></script>
-<script src="tabs/lessons.js?v=722"></script>
-<script src="tabs/payments.js?v=722"></script>
-<script src="tabs/week.js?v=722"></script>
-<script src="tabs/general.js?v=722"></script>
-<script src="tabs/financial.js?v=722"></script>
-<script src="tabs/inquiries.js?v=722"></script>
-<script src="tabs/inqarchive.js?v=722"></script>
-<script src="tabs/comms.js?v=722"></script>
-<script src="tabs/notes.js?v=722"></script>
-<script src="tabs/todo.js?v=722"></script>
-<script src="tabs/availability.js?v=722"></script>
-<script src="tabs/biweekly.js?v=722"></script>
-<script src="tabs/travel.js?v=722"></script>
-<script src="tabs/tripsummary.js?v=722"></script>
-<script src="tabs/triphistory.js?v=722"></script>
-<script src="tabs/skips.js?v=722"></script>
-<script src="tabs/student.js?v=722"></script>
-<script src="tabs/ctrl.js?v=722"></script>
-<script src="tabs/mailcenter.js?v=722"></script>
-<script src="tabs/dropbox.js?v=722"></script>
-<script src="tabs/trial.js?v=722"></script>
-<script src="tabs/ending.js?v=722"></script>
-<script src="tabs/thisyear.js?v=722"></script>
-<script src="tabs/sheets.js?v=722"></script>
-<script src="tabs/studentline.js?v=722"></script>
-<script src="tabs/calendar.js?v=722"></script>
-<script src="tabs/fixedcal.js?v=722"></script>
-<script src="tabs/secretary.js?v=722"></script>
+<script src="tabs/icons.js?v=723"></script>
+<script src="tabs/lessons.js?v=723"></script>
+<script src="tabs/payments.js?v=723"></script>
+<script src="tabs/week.js?v=723"></script>
+<script src="tabs/general.js?v=723"></script>
+<script src="tabs/financial.js?v=723"></script>
+<script src="tabs/inquiries.js?v=723"></script>
+<script src="tabs/inqarchive.js?v=723"></script>
+<script src="tabs/comms.js?v=723"></script>
+<script src="tabs/notes.js?v=723"></script>
+<script src="tabs/todo.js?v=723"></script>
+<script src="tabs/availability.js?v=723"></script>
+<script src="tabs/travel.js?v=723"></script>
+<script src="tabs/tripsummary.js?v=723"></script>
+<script src="tabs/triphistory.js?v=723"></script>
+<script src="tabs/skips.js?v=723"></script>
+<script src="tabs/student.js?v=723"></script>
+<script src="tabs/ctrl.js?v=723"></script>
+<script src="tabs/mailcenter.js?v=723"></script>
+<script src="tabs/dropbox.js?v=723"></script>
+<script src="tabs/trial.js?v=723"></script>
+<script src="tabs/ending.js?v=723"></script>
+<script src="tabs/thisyear.js?v=723"></script>
+<script src="tabs/sheets.js?v=723"></script>
+<script src="tabs/studentline.js?v=723"></script>
+<script src="tabs/calendar.js?v=723"></script>
+<script src="tabs/fixedcal.js?v=723"></script>
+<script src="tabs/secretary.js?v=723"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -903,7 +895,7 @@
     // tab button is removed. The #tab-lessons panel div still lives in the DOM
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
-    var tabs = ["student","payments","week","general","financial","inquiries","availability","biweekly","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","reviews","lifetime","concert","newsched","thisyear","sheets","skips","studentline","calendar","fixedcal","inqarchive","trialanalysis","comms","seclogic","sectemplates"];
+    var tabs = ["student","payments","week","general","financial","inquiries","availability","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","reviews","lifetime","concert","newsched","thisyear","sheets","skips","studentline","calendar","fixedcal","inqarchive","trialanalysis","comms","seclogic","sectemplates"];
     tabs.forEach(function(t) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       var btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
@@ -924,7 +916,6 @@
     if (tab === "triphistory") initTripHistoryTab();
     if (tab === "skips") initSkipsTab();
     if (tab === "availability") initAvailabilityTab();
-    if (tab === "biweekly") initBiweeklyTab();
     if (tab === "todo") initTodoTab();
     if (tab === "notes") initNotesTab();
     if (tab === "mailcenter") initMailCenterTab();

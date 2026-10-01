@@ -48,6 +48,22 @@ function estReset() {
 
 estCalc();
 
+// ── Instant cards (2026-09-30) ────────────────────────────────────────────
+// A card draws its last answer from localStorage at once, then fetches and
+// redraws when Google answers, so opening General never sits on "Loading".
+// A failed fetch leaves the last numbers up rather than an error.
+function _ldCached(action, url, body, render) {
+  var key = 'ldCache:' + action, had = false;
+  try { var old = JSON.parse(localStorage.getItem(key) || 'null'); if (old) { render(old); had = true; } } catch (e) {}
+  fetch(url + '?action=' + action)
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      render(d);
+      if (d && d.success) { try { localStorage.setItem(key, JSON.stringify(d)); } catch (e) {} }
+    })
+    .catch(function () { if (!had) body.innerHTML = '<div class="empty-state">Could not load.</div>'; });
+}
+
 // ── Website Rates card ────────────────────────────────────────────────────
 // The website's price list, card-sized (2026-09-30; replaced the Rates tab).
 // Reads getWebsiteRates (RPM_Rates.gs), so it cannot disagree with the sheet.
@@ -55,9 +71,7 @@ function initLoadRatesCard() {
   var url  = getScriptUrl();
   var body = document.getElementById('loadRatesBody');
   if (!body || !url) return;
-  fetch(url + '?action=getWebsiteRates')
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
+  _ldCached('getWebsiteRates', url, body, function (d) {
       if (!d.success) { body.innerHTML = '<div class="empty-state">' + inqEsc(d.message || d.error || 'Could not load') + '</div>'; return; }
       var rates = d.rates || [];
       if (!rates.length) { body.innerHTML = '<div class="empty-state">None</div>'; return; }
@@ -84,8 +98,7 @@ function initLoadRatesCard() {
         // gets shouted, as the old Rates tab did.
         ((d.problems || []).length ? '<div class="ld-problems">Unfinished in the archive' +
           d.problems.map(function (p) { return '<div>' + inqEsc(p) + '</div>'; }).join('') + '</div>' : '');
-    })
-    .catch(function () { body.innerHTML = '<div class="empty-state">Could not load.</div>'; });
+  });
 }
 
 // ── Since 2026 card ───────────────────────────────────────────────────────
@@ -97,9 +110,7 @@ function initLoadYearCard() {
   var url  = getScriptUrl();
   var body = document.getElementById('loadYearBody');
   if (!body || !url) return;
-  fetch(url + '?action=getRaiseStats')
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
+  _ldCached('getRaiseStats', url, body, function (d) {
       if (!d.success) { body.innerHTML = '<div class="empty-state">' + inqEsc(d.message || 'Could not load') + '</div>'; return; }
       body.innerHTML = (d.periods || []).map(function (p, k) {
         // The archive starts at the Aug 25 2026 raise; the price before it was
@@ -116,6 +127,5 @@ function initLoadYearCard() {
           '<div class="ld-row lead"><span class="ld-l">Became students</span><span class="ld-v">' +
             (pct ? '<span class="ld-vsub">' + pct + '</span>' : '') + p.students + '</span></div>';
       }).join('');
-    })
-    .catch(function () { body.innerHTML = '<div class="empty-state">Could not load.</div>'; });
+  });
 }
