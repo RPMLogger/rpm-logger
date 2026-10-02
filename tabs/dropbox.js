@@ -11,11 +11,8 @@ var DB_INVITE_MSG = "IMPORTANT: Please read the [Dropbox Instructions] sent via 
 var DB_EMAIL_MSG = "Here are the instructions on how to manage OUR SHARED Dropbox folder.";
 var DB_PDF_LINK = "https://github.com/RPMLogger/rpm-logger/blob/main/Dropbox%20Instructions%20-%202026.pdf";
 
-// Student folder list + current sort, so the Students list can re-sort in place
-// without re-fetching. Modes: 'az' (default, so a card never jumps when its
-// folder fills or empties), 'attention', 'size'.
+// Student folder list, kept so the Students section can redraw without a fetch.
 var _dbFolders = [];
-var _dbSort = 'az';
 
 function initDropboxTab() {
   var url = getScriptUrl();
@@ -92,8 +89,8 @@ function _dbAuditHtml(audit) {
   // What each line checks lives in its tooltip (2026-10-02), not in the
   // Fix window.
   function check(label, ok, tip) {
-    // The tip sits on the text, not the line: the line's ::before is the box.
-    return '<div class="db-check' + (ok ? ' on' : '') + '"><span data-tip="' + tip + '">' + label + '</span></div>';
+    // The tip sits on the checkbox (2026-10-02).
+    return '<div class="db-check' + (ok ? ' on' : '') + '"><span class="db-tip" data-tip="' + tip + '"><i class="db-box"></i></span>' + label + '</div>';
   }
   var html = '<div class="win-gap">' + _dbLbl('Folder audit') +
     '<div class="db-audit">' +
@@ -175,7 +172,7 @@ function _dbOpenFix() {
         // What's inside, from the folder list already loaded, so you know
         // what you're deleting before you delete it.
         var f = (_dbFolders || []).filter(function (x) { return x.name === n; })[0];
-        var inside = !f || f.empty ? 'Empty' : f.files + ' file' + (f.files === 1 ? '' : 's') + ' · ' + _dbSize(f.bytes);
+        var inside = !f || f.empty ? 'Empty' : _dbSize(f.bytes);
         return '<div style="margin-bottom:14px">' +
           _dbLbl('Folder name') + _dbRow(n) +
           '<div style="margin-top:20px">' + _dbLbl('Inside') + '</div>' + _dbRow(inside) +
@@ -316,52 +313,34 @@ function renderDropbox(d) {
     '<div id="dbActionStatus"></div>' +
   '</div>';
 
-  // ── Teacher window: non-student folders (Video Lessons, AAA-*) ──
+  // ── Students window: one card each (people), A–Z ──
+  _dbFolders = d.folders || [];
+  html += '<div id="dbStudentsSection">' + _dbStudentsHtml() + '</div>';
+
+  // ── Teacher window, last on the page (2026-10-02): non-student folders ──
   if (d.categories && d.categories.length) {
     html += '<div class="win-panel">' + _dbTitle('Teacher folders') +
       d.categories.map(function (c) { return _dbTeacherRow(c); }).join('') +
     '</div>';
   }
 
-  // ── Students: one card each (people), sortable in place ──
-  _dbFolders = d.folders || [];
-  html += '<div id="dbStudentsSection">' + _dbStudentsHtml() + '</div>';
 
   body.innerHTML = html;
 }
 
 // One student folder card — click opens the folder in the local Dropbox app.
-// Empty folders show a green "EMPTY" badge; full ones show file count + age.
+// Empty folders: a grey dash under the name, a green dash on the right; full ones show size + age.
 function _dbCard(f) {
   var open = 'onclick="openDropboxLocalFolder(\'' + _dbEsc(f.name) + '\')" data-tip="Opens elsewhere.\nGoes to the folder in the Dropbox app." ';
   var col = f.empty ? 'var(--green)' : _dbAgeColor(f.ageDays);
-  var chrome = 'style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' + col + ';' +
-    'border-radius:10px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px"';
-  // The out arrow after the name: the whole card is a link out of the portal.
-  var name = '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + f.name + '<span class="out-ico">' + OPEN_OUT_ICON + '</span></div>';
-  if (f.empty) {
-    return '<div ' + open + chrome + '>' +
-      '<div style="min-width:0">' + name +
-        '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:3px">Empty</div>' +
-      '</div>' +
-      '<div style="flex-shrink:0;margin-left:12px;text-align:right">' +
-        '<div style="display:inline-block;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;' +
-          'color:var(--green);border:1px solid var(--green);border-radius:6px;padding:3px 9px">EMPTY</div>' +
-        '<div>' + _dbRecoverBtn(f.name) + '</div>' +
-      '</div>' +
-    '</div>';
-  }
-  return '<div ' + open + chrome + '>' +
-    '<div style="min-width:0">' + name +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:3px">' +
-        f.files + ' file' + (f.files === 1 ? '' : 's') + ' · ' + _dbSize(f.bytes) +
-      '</div>' +
-    '</div>' +
-    '<div style="text-align:right;flex-shrink:0;margin-left:12px">' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:13px;font-weight:500;color:' + col + '">' + _dbAgeText(f.ageDays) + '</div>' +
-      '<div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:3px">since added</div>' +
-      _dbRecoverBtn(f.name) +
-    '</div>' +
+  // Cards inside the Students window (2026-10-02), two lines.
+  // Left: name ↗ over size (a dash if empty). Right: Recover over the age,
+  // under the window's SINCE ADDED (a green dash if empty).
+  return '<div class="db-card" ' + open + '>' +   // edge: the storage bar's steel blue (2026-10-02)
+    '<div class="db-card-l"><span class="db-card-n">' + f.name + '<span class="out-ico">' + OPEN_OUT_ICON + '</span></span>' +
+      '<span class="db-card-s">' + (f.empty ? '—' : _dbSize(f.bytes)) + '</span></div>' +
+    '<div class="db-card-r">' + _dbRecoverBtn(f.name) +
+      '<span class="db-card-a" style="color:' + col + '">' + (f.empty ? '—' : _dbAgeText(f.ageDays)) + '</span></div>' +
   '</div>';
 }
 
@@ -370,7 +349,7 @@ function _dbCard(f) {
 function _dbRecoverBtn(name) {
   return '<button onclick="event.stopPropagation();_dbRecoverFolder(\'' + _dbEsc(name) + '\',this)" ' +
     'data-tip="Asks first.\nRestores this student’s deleted files from the last 30 days.\nResets their 14-day copy window.\nEmails them." ' +
-    'style="margin-top:7px;font-family:\'DM Mono\',monospace;font-size:10px;background:transparent;color:var(--muted);' +
+    'style="font-family:\'DM Mono\',monospace;font-size:10px;background:transparent;color:var(--muted);' +
     'border:1px solid var(--border);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap">↺ Recover</button>';
 }
 
@@ -379,51 +358,24 @@ function _dbRecoverBtn(name) {
 function _dbTeacherRow(c) {
   return '<div class="win-row opens" onclick="openDropboxLocalFolder(\'' + _dbEsc(c.name) + '\')" data-tip="Opens elsewhere.\nGoes to the folder in the Dropbox app.">' +
     '<span class="win-row-main"><b>' + c.name + '</b></span>' +
-    '<span class="win-row-side">' + c.files + ' file' + (c.files === 1 ? '' : 's') + ' · ' + _dbSize(c.bytes) + OPEN_OUT_ICON + '</span>' +
+    '<span class="win-row-side">' + (c.bytes ? _dbSize(c.bytes) : 'Empty') + OPEN_OUT_ICON + '</span>' +
   '</div>';
 }
 
-// ── Students list: sortable in place ────────────────────────────────────────
-// Returns the Students header (with sort pills) + the cards in the current order.
+// ── Students list ───────────────────────────────────────────────────────────
+// Always A–Z (2026-10-02: the sort choices went; a card never moves when its
+// folder fills or empties). SINCE ADDED heads the column of ages on the right,
+// across from STUDENTS, instead of sitting on every card.
 function _dbStudentsHtml() {
-  var sorted = _dbSortFolders(_dbFolders.slice(), _dbSort);
+  var sorted = _dbFolders.slice().sort(function (a, b) { return a.name.localeCompare(b.name); });
   var header =
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;margin-bottom:10px">' +
-      '<span class="section-label" style="margin:0">Students</span>' +
-      '<span class="sort-opts">' + _dbPill('az', 'A–Z') + _dbPill('attention', 'Attention') + _dbPill('size', 'Size') + '</span>' +
+    '<div style="display:flex;align-items:baseline;justify-content:space-between">' +
+      _dbLbl(sorted.length + ' students') + _dbLbl('Since added') +
     '</div>';
   var cards = sorted.length
     ? sorted.map(function (f) { return _dbCard(f); }).join('')
-    : '<div class="empty-state">None</div>';
-  return header + cards;
-}
-
-// Sort a copy of the student folders by the chosen mode.
-function _dbSortFolders(arr, mode) {
-  if (mode === 'az') {
-    arr.sort(function (a, b) { return a.name.localeCompare(b.name); });
-  } else if (mode === 'size') {
-    arr.sort(function (a, b) { return (b.bytes || 0) - (a.bytes || 0) || a.name.localeCompare(b.name); });
-  } else { // 'attention': folders with files first (oldest first), then empty
-    arr.sort(function (a, b) {
-      if (a.empty !== b.empty) return a.empty ? 1 : -1;
-      if (!a.empty && !b.empty) return (b.ageDays || 0) - (a.ageDays || 0);
-      return a.name.localeCompare(b.name);
-    });
-  }
-  return arr;
-}
-
-// One sort choice: label + the Trial checklist's box, ticked on the order in use.
-function _dbPill(mode, label) {
-  return '<button class="sort-opt' + (_dbSort === mode ? ' on' : '') + '" onclick="_dbSetSort(\'' + mode + '\')">' + label + '</button>';
-}
-
-// Switch sort and re-render just the Students section (no re-fetch).
-function _dbSetSort(mode) {
-  _dbSort = mode;
-  var sec = document.getElementById('dbStudentsSection');
-  if (sec) sec.innerHTML = _dbStudentsHtml();
+    : _dbRow('None');
+  return '<div class="win-panel">' + _dbTitle('Students') + header + cards + '</div>';
 }
 
 // Escape a string for safe use inside a single-quoted onclick attribute.
