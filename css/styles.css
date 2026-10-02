@@ -126,7 +126,7 @@ body::before {
   line-height: 1.6; text-decoration: none; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }  /* same height as .rpm-field */
 .tl-doc:hover { color: var(--text); border-color: var(--muted); }
 .tl-doc .open-out-icon { opacity: .6; flex: none; }
-.win-icon { flex: none; color: var(--muted); height: 30px; width: auto; }
+.win-icon { flex: none; color: var(--muted); height: 20px; width: auto; }   /* 2026-10-02: 30 → 20, every window */
 /* A value shown under a field-label that cannot be edited: plain text in the
    field's own face, no box. */
 .field-text { font-family: Arial, sans-serif; font-size: 12px; color: rgba(255,255,255,0.5); padding: 2px 1px 0; }
@@ -1967,8 +1967,8 @@ a:focus-visible,
 .win-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
   padding: 28px; margin-bottom: 18px; box-sizing: border-box; }
 .win-panel .settings-title .win-sub { color: var(--muted); font-weight: 400; }
-.win-panel .win-icon-row { margin: 4px 0 18px; }
-.win-panel .win-gap { margin-top: 22px; }
+.win-icon-row { margin: 4px 0 18px; }   /* the Text window's own icon spacing */
+.win-gap { margin-top: 22px; }   /* panels and pop-up windows alike */
 /* A read-only line in the field's own box, optionally with a button or a
    note at its right end. */
 .win-row { display: flex; align-items: center; justify-content: space-between; gap: 10px;
@@ -2016,3 +2016,4 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
   color: var(--muted); display: inline-flex; align-items: center; justify-content: center; transition: color .12s, background .12s; }
 .win-refresh:hover { color: var(--text); background: var(--surface2); }
 .win-refresh svg { width: auto; height: 14px; }   /* 14px tall, like the ✕ disc */
+
