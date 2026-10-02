@@ -375,7 +375,9 @@ function _dbStudentsHtml() {
   var cards = sorted.length
     ? sorted.map(function (f) { return _dbCard(f); }).join('')
     : _dbRow('None');
-  return '<div class="win-panel">' + _dbTitle('Students') + header + cards + '</div>';
+  // No window frame (2026-10-02): the window's title and header, then the
+  // cards straight on the page.
+  return '<div class="db-students">' + _dbTitle('Students') + header + cards + '</div>';
 }
 
 // Escape a string for safe use inside a single-quoted onclick attribute.

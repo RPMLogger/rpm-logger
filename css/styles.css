@@ -1966,7 +1966,7 @@ a:focus-visible,
    field-labels over dark boxes, dim .link-btn actions bottom right. */
 .win-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
   padding: 28px; margin-bottom: 18px; box-sizing: border-box; }
-.win-panel .settings-title .win-sub { color: var(--muted); font-weight: 400; }
+.settings-title .win-sub { color: var(--muted); font-weight: 400; }   /* in a window or not */
 .win-icon-row { margin: 4px 0 18px; }   /* the Text window's own icon spacing */
 .win-gap { margin-top: 22px; }   /* panels and pop-up windows alike */
 /* A read-only line in the field's own box, optionally with a button or a
@@ -2009,11 +2009,12 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .win-refresh svg { width: auto; height: 14px; }   /* 14px tall, like the ✕ disc */
 
 
-/* Student cards inside the Students window (2026-10-02): two lines - name
-   over size on the left, Recover over the age on the right - on the field-box
-   face, a left edge in the storage bar's steel blue. */
+/* Student cards (2026-10-02): two lines - name over size on the left,
+   Recover over the age on the right - straight on the page under a window-
+   style title (no frame), a left edge in the storage bar's steel blue. */
+.db-students { margin: 8px 0 18px; }
 .db-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer;
-  background: var(--bg); border: 1px solid var(--border); border-left: 3px solid #3d5f8f; border-radius: 8px;
+  background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid #3d5f8f; border-radius: 10px;
   padding: 12px 14px; margin-bottom: 8px; }
 .db-card:hover { border-color: var(--muted); border-left-color: #3d5f8f; }
 .db-card-l { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
