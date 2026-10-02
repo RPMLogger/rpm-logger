@@ -8,9 +8,13 @@
 var DB_INVITE_MSG = "IMPORTANT: Please read the [Dropbox Instructions] sent via email to see how we will be using Dropbox.";
 
 // Student folder list + current sort, so the Students list can re-sort in place
-// without re-fetching. Modes: 'attention' (default), 'az', 'size'.
+// without re-fetching. Modes: 'az' (default, so a card never jumps when its
+// folder fills or empties), 'attention', 'size'.
 var _dbFolders = [];
-var _dbSort = 'attention';
+var _dbSort = 'az';
+// Who each folder is shared with, by folder name (null until _dbLoadShares
+// answers). Read by _dbCard, so it survives re-sorts and re-checks.
+var _dbShare = null;
 
 function initDropboxTab() {
   var url = getScriptUrl();
@@ -36,6 +40,7 @@ function initDropboxTab() {
 
 function _dbSize(b) {
   if (!b) return '—';
+  if (b >= 1073741824) return parseFloat((b / 1073741824).toFixed(2)) + ' GB';
   if (b >= 1048576) return (b / 1048576).toFixed(1) + ' MB';
   if (b >= 1024) return Math.round(b / 1024) + ' KB';
   return b + ' B';
@@ -55,7 +60,24 @@ function _dbAgeText(age) {
   return age + ' days';
 }
 
-// Audit block: students missing a folder, and folders with no student.
+// ── Window panels (2026-10-02) ──────────────────────────────────────────────
+// Cards are for people: only the student folders stay cards. Everything else on
+// the tab sits in the pop-up windows' frame (.win-panel in styles.css).
+function _dbTitle(part, right) {
+  return '<div class="settings-title"><span>Dropbox<span class="win-sub"> · ' + part + '</span></span>' + (right || '') + '</div>';
+}
+function _dbLbl(t) { return '<label class="field-label">' + t + '</label>'; }
+function _dbActs(html) {
+  return '<div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:16px">' + html + '</div>';
+}
+function _dbRow(main, side) {
+  return '<div class="win-row"><span class="win-row-main">' + main + '</span>' +
+    (side ? '<span class="win-row-side">' + side + '</span>' : '') + '</div>';
+}
+
+// Audit: a plain list in one field box (2026-10-02), the Trial checklist's box
+// in front of each line: ticked + grey when it passes, empty + white when it
+// needs you. Whatever failed is listed under it, a grey note + a row per name.
 function _dbAuditHtml(audit) {
   if (!audit) return '';
   var missing = audit.missing || [];
@@ -63,144 +85,112 @@ function _dbAuditHtml(audit) {
   var mismatches = audit.mismatches || [];
   var notShared = audit.notShared || [];
   var duplicates = audit.duplicates || [];
-  var html = '<div class="section-label" style="margin-top:4px;margin-bottom:10px">Folder Audit</div>';
-
-  if (!missing.length && !orphans.length && !mismatches.length && !notShared.length && !duplicates.length) {
-    return html + '<div style="border-left:3px solid var(--green);padding:2px 0 2px 14px;margin-bottom:18px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted)">' +
-      '<span style="color:var(--green)">✓</span> Every student has a folder · no leftover folders</div>';
+  function check(label, ok) {
+    return '<div class="db-check' + (ok ? ' on' : '') + '">' + label + '</div>';
   }
-
-  function block(title, names, color, sub) {
-    return '<div style="border-left:3px solid ' + color + ';padding:2px 0 10px 14px;margin-bottom:14px">' +
-      '<div style="font-family:\'Syne\',sans-serif;font-size:14px;color:var(--text)">' + title + '</div>' +
-      '<div style="font-size:10px;color:var(--muted);margin:3px 0 8px">' + sub + '</div>' +
-      names.map(function (n) {
-        return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);padding:3px 0">' + n + '</div>';
-      }).join('') +
+  var html = '<div class="win-gap">' + _dbLbl('Folder audit') +
+    '<div class="db-audit">' +
+      check('Every student has a folder', !missing.length) +
+      check('No leftover folders from old students', !orphans.length) +
+      check('Folder names match the Counter', !mismatches.length) +
+      check('Every folder is shared', !notShared.length) +
+      check('No duplicate folders', !duplicates.length) +
     '</div>';
-  }
+  if (missing.length || orphans.length || mismatches.length || notShared.length || duplicates.length) html += '<div style="height:12px"></div>';
+
+  function s(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
 
   if (mismatches.length) {
-    html += '<div style="border-left:3px solid var(--blue);padding:2px 0 10px 14px;margin-bottom:14px">' +
-      '<div style="font-family:\'Syne\',sans-serif;font-size:14px;color:var(--text)">🔤 ' + mismatches.length +
-        ' spelling mismatch' + (mismatches.length === 1 ? '' : 'es') + '</div>' +
-      '<div style="font-size:10px;color:var(--muted);margin:3px 0 8px">Dropbox folder name doesn\'t match the Counter sheet — correct the folder</div>' +
+    html += '<div class="win-note">' + s(mismatches.length, 'spelling mismatch', 'spelling mismatches') +
+      ' · the Dropbox name doesn’t match the Counter sheet</div>' +
       mismatches.map(function (mm) {
-        var r = _dbEsc(mm.roster), f = _dbEsc(mm.folder);
-        return '<div style="padding:6px 0">' +
-          '<div style="font-family:\'DM Mono\',monospace;font-size:12px">' +
-            '<span style="color:var(--muted)">Counter:</span> <span style="color:var(--text)">' + mm.roster + '</span>' +
-            '<span style="color:var(--muted)"> · Dropbox:</span> <span style="color:var(--text)">' + mm.folder + '</span>' +
-          '</div>' +
-          '<div style="margin-top:6px">' +
-            '<button class="db-mini-btn" onclick="_dbCorrectFolder(\'' + f + '\',\'' + r + '\')">✓ Correct folder → "' + mm.roster + '"</button>' +
-          '</div>' +
-        '</div>';
-      }).join('') +
-    '</div>';
+        return _dbRow('<b>' + mm.folder + '</b> → ' + mm.roster,
+          '<button class="link-btn" onclick="_dbCorrectFolder(\'' + _dbEsc(mm.folder) + '\',\'' + _dbEsc(mm.roster) + '\',this)">Rename</button>');
+      }).join('');
   }
   if (missing.length) {
-    html += '<div style="border-left:3px solid var(--accent);padding:2px 0 10px 14px;margin-bottom:14px">' +
-      '<div style="font-family:\'Syne\',sans-serif;font-size:14px;color:var(--text)">⚠ ' + missing.length +
-        ' student' + (missing.length === 1 ? '' : 's') + ' missing a folder</div>' +
-      '<div style="font-size:10px;color:var(--muted);margin:3px 0 8px">In your roster but no Dropbox folder — create one and share it</div>' +
+    html += '<div class="win-note">' + s(missing.length, 'student', 'students') +
+      ' missing a folder · create one and share it</div>' +
       missing.map(function (m, i) {
         var nm = _dbEsc(m.name);
-        return '<div style="padding:6px 0;border-top:1px solid var(--border)">' +
-          '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">' +
-            '<span style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' + m.name + '</span>' +
-            '<button class="db-mini-btn" onclick="_dbShowCreate(' + i + ')">＋ Create folder</button>' +
-          '</div>' +
-          '<div id="dbCreate-' + i + '" style="display:none;margin-top:6px">' +
-            '<input id="dbCreateEmail-' + i + '" type="text" value="' + _dbEsc(m.email || '') + '" placeholder="student email to share with" ' +
-              'style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:6px;' +
-              'padding:7px 10px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:12px;margin-bottom:6px">' +
-            '<textarea id="dbCreateMsg-' + i + '" rows="3" placeholder="invite message" ' +
-              'style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:6px;' +
-              'padding:7px 10px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:12px;margin-bottom:6px;resize:vertical">' +
-              _dbEsc(DB_INVITE_MSG) + '</textarea>' +
-            '<button class="db-mini-btn" onclick="_dbCreateFolder(\'' + nm + '\',' + i + ',this)">Create &amp; share →</button>' +
-          '</div>' +
-        '</div>';
-      }).join('') +
-    '</div>';
+        return _dbRow('<b>' + m.name + '</b>', '<button class="link-btn" onclick="_dbShowCreate(' + i + ')">' + ROW_ADD_ICON + '<span>Create folder</span></button>') +
+          '<div id="dbCreate-' + i + '" style="display:none;margin:4px 0 14px">' +
+            _dbLbl('Share with') +
+            '<input id="dbCreateEmail-' + i + '" class="rpm-field" type="text" value="' + _dbEsc(m.email || '') + '" placeholder="student email">' +
+            '<div style="margin-top:12px">' + _dbLbl('Invite message') + '</div>' +
+            '<textarea id="dbCreateMsg-' + i + '" class="rpm-field" rows="3">' + _dbEsc(DB_INVITE_MSG) + '</textarea>' +
+            _dbActs('<button class="link-btn bright" onclick="_dbCreateFolder(\'' + nm + '\',' + i + ',this)">Create &amp; share</button>') +
+          '</div>';
+      }).join('');
   }
   if (notShared.length) {
-    html += block('🔒 ' + notShared.length + ' folder' + (notShared.length === 1 ? '' : 's') + ' not shared',
-      notShared, 'var(--accent)', 'Folder exists but isn\'t shared — the student can\'t see their homework');
+    html += '<div class="win-note">' + s(notShared.length, 'folder', 'folders') +
+      ' not shared · the student can’t see their homework</div>' +
+      notShared.map(function (n) { return _dbRow('<b>' + n + '</b>'); }).join('');
   }
   if (orphans.length) {
-    html += '<div style="border-left:3px solid var(--accent2);padding:2px 0 10px 14px;margin-bottom:14px">' +
-      '<div style="font-family:\'Syne\',sans-serif;font-size:14px;color:var(--text)">🗑 ' + orphans.length +
-        ' folder' + (orphans.length === 1 ? '' : 's') + ' with no student</div>' +
-      '<div style="font-size:10px;color:var(--muted);margin:3px 0 8px">Dropbox folder but not in roster — likely former students · delete moves it to Dropbox trash (recoverable ~30 days)</div>' +
+    html += '<div class="win-note">' + s(orphans.length, 'folder', 'folders') +
+      ' with no student · Delete moves it to Dropbox trash (~30 days)</div>' +
       orphans.map(function (n) {
-        var nm = _dbEsc(n);
-        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0">' +
-          '<span style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + n + '</span>' +
-          '<button class="db-mini-btn" onclick="_dbDeleteFolder(\'' + nm + '\',this)">🗑 Delete</button>' +
-        '</div>';
-      }).join('') +
-    '</div>';
+        return _dbRow('<b>' + n + '</b>',
+          '<button class="link-btn" onclick="_dbDeleteFolder(\'' + _dbEsc(n) + '\',this)">' + TRASH_ICON + '<span>Delete</span></button>');
+      }).join('');
   }
   if (duplicates.length) {
-    html += '<div style="border-left:3px solid var(--accent2);padding:2px 0 10px 14px;margin-bottom:14px">' +
-      '<div style="font-family:\'Syne\',sans-serif;font-size:14px;color:var(--text)">👯 ' + duplicates.length +
-        ' possible duplicate' + (duplicates.length === 1 ? '' : 's') + '</div>' +
-      '<div style="font-size:10px;color:var(--muted);margin:3px 0 8px">Two folders with near-identical names — one may be a stray</div>' +
-      duplicates.map(function (dp) {
-        return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);padding:4px 0">' +
-          dp.a + ' <span style="color:var(--muted)">↔</span> ' + dp.b + '</div>';
-      }).join('') +
-    '</div>';
+    html += '<div class="win-note">' + s(duplicates.length, 'possible duplicate', 'possible duplicates') +
+      ' · one may be a stray</div>' +
+      duplicates.map(function (dp) { return _dbRow('<b>' + dp.a + '</b> ↔ <b>' + dp.b + '</b>'); }).join('');
   }
-  return html + '<div style="height:8px"></div>';
+  return html + '</div>';
+}
+
+// The whole Dropbox account, like Dropbox's own Plan page: one bar, used |
+// free, "Using X of Y" under it. d.space = { used,
+// allocated } in bytes from the backend (users/get_space_usage); nothing shows
+// until it is there. "Your files" is everything that isn't a student folder.
+function _dbSpaceHtml(d) {
+  var sp = d.space;
+  if (!sp || !sp.allocated) return '';
+  var student = Math.min(d.totalBytes || 0, sp.used);
+  var mine = Math.max(sp.used - student, 0);
+  var w = sp.used ? Math.max(sp.used / sp.allocated * 100, 0.6) : 0;   // a sliver stays visible
+  // One colour for everything used (2026-10-02); the split is in the hover.
+  return '<div>' + _dbLbl('Storage') +
+    '<div class="db-bar"><span class="db-bar-used" style="width:' + w + '%" ' +
+      'data-tip="Your files · ' + _dbSize(mine) + '\nStudent folders · ' + _dbSize(student) + '"></span></div>' +
+    '<div class="win-note" style="margin:8px 0 0;color:rgba(255,255,255,.3)">Using ' + _dbSize(sp.used) + ' of ' + _dbSize(sp.allocated) + '</div>' +   // a step dimmer than the usual grey note
+  '</div>';
 }
 
 function renderDropbox(d) {
   var body = document.getElementById('dropboxBody');
-  var empty = d.folders.filter(function (f) { return f.empty; });
   var html = '';
 
-  // ── Analysis ──
-  html += '<div class="section-label" style="margin-top:4px;margin-bottom:10px">Analysis</div>';
-  function _dbStat(val, color, label) {
-    return '<div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:center">' +
-      '<div style="font-size:24px;font-weight:800;color:' + color + ';line-height:1">' + val + '</div>' +
-      '<div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:5px">' + label + '</div>' +
-    '</div>';
-  }
-  html +=
-    '<div style="display:flex;gap:10px;margin-bottom:18px">' +
-      _dbStat(_dbSize(d.totalBytes), 'var(--text)', 'in shared folders') +
-      _dbStat(d.nonEmpty, d.nonEmpty ? 'var(--accent)' : 'var(--green)', 'need attention') +
-      _dbStat(empty.length, 'var(--green)', 'empty') +
-    '</div>';
+  // ── Overview window: storage, audit, refresh ──
+  // (The Student folders / Need attention / Empty boxes went 2026-10-02: the
+  // space bar says the first, the cards below say the other two.)
+  html += '<div class="win-panel">' +
+    // Refresh sits where a window's ✕ sits: re-reads folders, space and audit.
+    _dbTitle('Overview', '<button class="win-refresh" onclick="initDropboxTab()" data-tip="Instant.\nRe-reads folders, storage and the audit from Dropbox.\nChanges nothing.">' + REFRESH_ICON + '</button>') +
+    '<div class="win-icon-row">' + DBX_ICON + '</div>' +
+    _dbSpaceHtml(d) +
+    _dbAuditHtml(d.audit) +
+    '<div id="dbActionStatus"></div>' +
+  '</div>';
 
-  // ── Inline status (no popups) ──
-  html += '<div id="dbActionStatus"></div>';
-
-  // ── Audit: roster vs folders ──
-  html += _dbAuditHtml(d.audit);
-
-  // ── On-demand sharing-recipient check ──
-  html += '<button class="refresh-btn" style="margin-bottom:14px" onclick="_dbCheckSharing()">🔗 Check who folders are shared with</button>';
-  html += '<div id="dbSharingResult" style="margin-bottom:8px"></div>';
-
-  // ── Teacher: non-student folders (Video Lessons, AAA-*), same card style ──
+  // ── Teacher window: non-student folders (Video Lessons, AAA-*) ──
   if (d.categories && d.categories.length) {
-    html += '<div class="section-label" style="margin-top:8px;margin-bottom:10px">Teacher</div>';
-    d.categories.forEach(function (c) { html += _dbTeacherCard(c); });
+    html += '<div class="win-panel">' + _dbTitle('Teacher folders') +
+      d.categories.map(function (c) { return _dbTeacherRow(c); }).join('') +
+    '</div>';
   }
 
-  // ── Students: one card each, sortable in place (attention / A–Z / size) ──
+  // ── Students: one card each (people), sortable in place ──
   _dbFolders = d.folders || [];
   html += '<div id="dbStudentsSection">' + _dbStudentsHtml() + '</div>';
 
-  // ── Refresh ──
-  html += '<hr class="divider" style="margin-top:22px"><button class="refresh-btn" onclick="initDropboxTab()">⟳ Re-check Dropbox</button>';
-
   body.innerHTML = html;
+  _dbLoadShares();
 }
 
 // One student folder card — click opens the folder in the local Dropbox app.
@@ -211,7 +201,7 @@ function _dbCard(f) {
   var chrome = 'style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' + col + ';' +
     'border-radius:10px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px"';
   // The out arrow after the name: the whole card is a link out of the portal.
-  var name = '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + f.name + '<span class="out-ico">' + OPEN_OUT_ICON + '</span></div>';
+  var name = '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + f.name + '<span class="out-ico">' + OPEN_OUT_ICON + '</span>' + _dbShareTag(f.name) + '</div>';
   if (f.empty) {
     return '<div ' + open + chrome + '>' +
       '<div style="min-width:0">' + name +
@@ -238,6 +228,15 @@ function _dbCard(f) {
   '</div>';
 }
 
+// The address the folder is shared with, beside the student's name: what to
+// tell a student who says nothing shows up in their Dropbox. Fills in a few
+// seconds after the cards draw (_dbLoadShares); blank if shared with no one.
+function _dbShareTag(name) {
+  var r = _dbShare && _dbShare[name];
+  if (!r || !r.sharedWith || !r.sharedWith.length) return '';
+  return '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-left:12px">' + r.sharedWith.join(', ') + '</span>';
+}
+
 // Small "Recover" button for a student card. stopPropagation so it doesn't also
 // trigger the card's open-in-Dropbox click. Present on every student card.
 function _dbRecoverBtn(name) {
@@ -247,20 +246,12 @@ function _dbRecoverBtn(name) {
     'border:1px solid var(--border);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap">↺ Recover</button>';
 }
 
-// A teacher (non-student) folder card — same card shape, neutral blue spine,
-// file count + size, no age/cleanup signal. Click opens it locally.
-function _dbTeacherCard(c) {
-  return '<div onclick="openDropboxLocalFolder(\'' + _dbEsc(c.name) + '\')" data-tip="Opens elsewhere.\nGoes to the folder in the Dropbox app." ' +
-    'style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--blue);' +
-    'border-radius:10px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px">' +
-    '<div style="min-width:0">' +
-      '<div style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + c.name + '<span class="out-ico">' + OPEN_OUT_ICON + '</span></div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:3px">' +
-        c.files + ' file' + (c.files === 1 ? '' : 's') + ' · ' + _dbSize(c.bytes) +
-      '</div>' +
-    '</div>' +
-    '<div style="flex-shrink:0;margin-left:12px;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:1px;' +
-      'color:var(--blue);border:1px solid var(--blue);border-radius:6px;padding:3px 9px">TEACHER</div>' +
+// A teacher (non-student) folder: one row in the Teacher window, file count +
+// size at its right end, no age/cleanup signal. Click opens it locally.
+function _dbTeacherRow(c) {
+  return '<div class="win-row opens" onclick="openDropboxLocalFolder(\'' + _dbEsc(c.name) + '\')" data-tip="Opens elsewhere.\nGoes to the folder in the Dropbox app.">' +
+    '<span class="win-row-main"><b>' + c.name + '</b></span>' +
+    '<span class="win-row-side">' + c.files + ' file' + (c.files === 1 ? '' : 's') + ' · ' + _dbSize(c.bytes) + OPEN_OUT_ICON + '</span>' +
   '</div>';
 }
 
@@ -271,7 +262,7 @@ function _dbStudentsHtml() {
   var header =
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;margin-bottom:10px">' +
       '<span class="section-label" style="margin:0">Students</span>' +
-      '<span>' + _dbPill('attention', 'Attention') + _dbPill('az', 'A–Z') + _dbPill('size', 'Size') + '</span>' +
+      '<span class="sort-opts">' + _dbPill('az', 'A–Z') + _dbPill('attention', 'Attention') + _dbPill('size', 'Size') + '</span>' +
     '</div>';
   var cards = sorted.length
     ? sorted.map(function (f) { return _dbCard(f); }).join('')
@@ -295,13 +286,9 @@ function _dbSortFolders(arr, mode) {
   return arr;
 }
 
-// One sort pill; the active mode is highlighted in accent.
+// One sort choice: label + the Trial checklist's box, ticked on the order in use.
 function _dbPill(mode, label) {
-  var active = _dbSort === mode;
-  return '<span onclick="_dbSetSort(\'' + mode + '\')" style="cursor:pointer;font-family:\'DM Mono\',monospace;font-size:10px;' +
-    'letter-spacing:1px;text-transform:uppercase;padding:4px 9px;border-radius:6px;margin-left:6px;' +
-    'border:1px solid ' + (active ? 'var(--accent)' : 'var(--border)') + ';' +
-    'color:' + (active ? 'var(--accent)' : 'var(--muted)') + '">' + label + '</span>';
+  return '<button class="sort-opt' + (_dbSort === mode ? ' on' : '') + '" onclick="_dbSetSort(\'' + mode + '\')">' + label + '</button>';
 }
 
 // Switch sort and re-render just the Students section (no re-fetch).
@@ -316,24 +303,33 @@ function _dbEsc(s) {
   return (s || '').toString().replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
 
-// Quiet inline status (no popups).
+// Quiet inline status under the Overview window's fields (no popups): a grey
+// line, red only when something failed.
 function _dbStatus(msg, color) {
   var st = document.getElementById('dbActionStatus');
   if (!st) return;
-  st.innerHTML = msg ? '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' +
-    (color || 'var(--muted)') + ';border-radius:8px;padding:10px 14px;margin-bottom:12px;' +
-    'font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' + msg + '</div>' : '';
+  st.innerHTML = msg ? '<div class="win-note" style="margin:12px 0 0;color:' +
+    (color === 'var(--accent)' ? 'var(--accent)' : 'var(--muted)') + '">' + msg + '</div>' : '';
 }
 
-// Generic write call: POST an action, refresh the tab on success, inline error otherwise.
-// On failure, re-enable the button passed as `btn` (if any) so it isn't stuck on "Working…".
-function _dbAction(params, btn, restoreLabel) {
+// A button doing its job: dim, locked, its label swapped for "…ing…"; put back
+// exactly as it was (icon and all) if the job fails.
+function _dbBusy(btn, label) {
+  if (!btn) return;
+  btn._dbHtml = btn.innerHTML; btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait';
+  btn.innerHTML = '<span>' + label + '</span>';
+}
+function _dbUnbusy(btn) {
+  if (!btn || btn._dbHtml == null) return;
+  btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; btn.innerHTML = btn._dbHtml;
+}
+
+// Generic write call: GET an action, refresh the tab on success, inline error otherwise.
+// On failure the button passed as `btn` (if any) comes back as it was.
+function _dbAction(params, btn) {
   var url = getScriptUrl();
   if (!url) return;
-  _dbStatus('Working…', 'var(--accent2)');
-  function _restore() {
-    if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; btn.textContent = restoreLabel || 'Create & share →'; }
-  }
+  _dbStatus('Working…');
   var qs = Object.keys(params).map(function (k) {
     return k + '=' + encodeURIComponent(params[k]);
   }).join('&');
@@ -341,14 +337,15 @@ function _dbAction(params, btn, restoreLabel) {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (d.success) { initDropboxTab(); }
-      else { _dbStatus('⚠ ' + (d.message || 'Failed'), 'var(--accent)'); _restore(); }
+      else { _dbStatus('⚠ ' + (d.message || 'Failed'), 'var(--accent)'); _dbUnbusy(btn); }
     })
-    .catch(function () { _dbStatus('❌ Could not reach the portal.', 'var(--accent)'); _restore(); });
+    .catch(function () { _dbStatus('❌ Could not reach the portal.', 'var(--accent)'); _dbUnbusy(btn); });
 }
 
 // Mismatch: rename the Dropbox folder to match the Counter sheet (no popup).
-function _dbCorrectFolder(folderName, counterName) {
-  _dbAction({ action: 'renameDropboxFolder', from: folderName, to: counterName });
+function _dbCorrectFolder(folderName, counterName, btn) {
+  _dbBusy(btn, 'Renaming…');
+  _dbAction({ action: 'renameDropboxFolder', from: folderName, to: counterName }, btn);
 }
 
 // Recover: put back a student's recently-deleted files (last 30 days), give them a
@@ -387,8 +384,8 @@ function _dbRecoverGo(name, btn, url) {
 
 // Orphan: unshare + delete the folder (one click; goes to Dropbox trash).
 function _dbDeleteFolder(folderName, btn) {
-  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Deleting…'; }
-  _dbAction({ action: 'deleteDropboxFolder', name: folderName }, btn, '🗑 Delete');
+  _dbBusy(btn, 'Deleting…');
+  _dbAction({ action: 'deleteDropboxFolder', name: folderName }, btn);
 }
 
 // Missing: reveal the email field for a student.
@@ -404,54 +401,24 @@ function _dbCreateFolder(name, i, btn) {
   var email = input ? input.value.trim() : '';
   var message = msgEl ? msgEl.value.trim() : '';
   if (!email || email.indexOf('@') === -1) { _dbStatus('Enter a valid email to share the folder with.', 'var(--accent)'); return; }
-  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Working…'; }
+  _dbBusy(btn, 'Creating…');
   _dbAction({ action: 'createDropboxFolder', name: name, email: email, message: message }, btn);
 }
 
-// On-demand: check who each folder is actually shared with vs the email on file.
-function _dbCheckSharing() {
+// Who each folder is shared with (one Dropbox call per folder, so a few
+// seconds): fetched quietly after the tab draws, then the student cards redraw
+// with the address beside each name. A failure just leaves the names bare.
+function _dbLoadShares() {
   var url = getScriptUrl();
-  var box = document.getElementById('dbSharingResult');
-  if (!url || !box) return;
-  box.innerHTML = '<div class="empty-state">Checking who each folder is shared with… (a few seconds)</div>';
+  if (!url) return;
   fetch(url + '?action=getDropboxSharing')
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (!d.success) { box.innerHTML = '<div class="empty-state">⚠ ' + (d.message || 'failed') + '</div>'; return; }
-      _dbRenderSharing(d, box);
+      if (!d.success) return;
+      _dbShare = {};
+      (d.results || []).forEach(function (r) { _dbShare[r.name] = r; });
+      var sec = document.getElementById('dbStudentsSection');
+      if (sec) sec.innerHTML = _dbStudentsHtml();
     })
-    .catch(function () { box.innerHTML = '<div class="empty-state">❌ Could not check sharing.</div>'; });
+    .catch(function () {});
 }
-
-function _dbRenderSharing(d, box) {
-  var problems = d.problems || [];
-  if (!problems.length) {
-    box.innerHTML = '<div style="border-left:3px solid var(--green);padding:2px 0 2px 14px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted)">' +
-      '<span style="color:var(--green)">✓</span> All ' + d.total + ' folders shared with the student on file</div>';
-    return;
-  }
-  var labels = {
-    notshared:    { c: 'var(--accent)',  t: 'NOT shared with anyone — student can\'t access' },
-    wrong:        { c: 'var(--accent2)', t: 'shared with a different address than on file — likely their other email, worth a glance' },
-    noEmailOnFile:{ c: 'var(--muted)',   t: 'no email on file to compare' }
-  };
-  var rank = { notshared: 0, wrong: 1, noEmailOnFile: 2 };
-  problems = problems.slice().sort(function (a, b) {
-    return (rank[a.status] || 9) - (rank[b.status] || 9);
-  });
-  var html = '';
-  problems.forEach(function (p) {
-    var L = labels[p.status] || { c: 'var(--accent2)', t: p.status };
-    html += '<div style="border-left:3px solid ' + L.c + ';padding:2px 0 10px 14px;margin-bottom:12px">' +
-      '<div style="font-family:\'Syne\',sans-serif;font-size:15px;color:var(--text)">' + p.name + '</div>' +
-      '<div style="font-size:10px;color:var(--muted);margin:2px 0 6px">' + L.t + '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' +
-        '<span style="color:var(--muted)">On file:</span> ' + (p.expected || '—') + '<br>' +
-        '<span style="color:var(--muted)">Shared with:</span> ' + (p.sharedWith && p.sharedWith.length ? p.sharedWith.join(', ') : '(nobody)') +
-      '</div>' +
-    '</div>';
-  });
-  box.innerHTML = '<div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:4px 0 8px">' +
-    problems.length + ' to review · ' + d.okCount + ' ok</div>' + html;
-}
-

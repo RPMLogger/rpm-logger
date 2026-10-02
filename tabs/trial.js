@@ -533,9 +533,9 @@ function _trOpenText(email) {
       "</div>" +
       "<div style='margin:4px 0 18px'>" + TEXT_WIN_ICON + "</div>" +
       lbl("Phone") + ro(phonePretty || "No phone number on file") +
-      // Its own row under the number it saves. Bright: the first thing to do here.
+      // Its own row under the number it saves. Dim like the helpers below.
       (phoneDigits
-        ? _tlActs("<button class='link-btn bright' onclick='_trDownloadCard(this)'>" + CONTACT_ADD_ICON + "<span>Download card</span></button>")
+        ? _tlActs("<button class='link-btn' onclick='_trDownloadCard(this)'>" + CONTACT_ADD_ICON + "<span>Download card</span></button>")
         : "") +
       "<div style='margin-top:24px'>" + lbl("Message", "trFcSms") + "</div>" +
       "<textarea id='trFcSms' rows='3' readonly class='rpm-field'>" + inqEsc(sms) + "</textarea>" +
