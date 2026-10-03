@@ -361,7 +361,7 @@ function _dbDetailsBtn(name) {
 // like an Initiate card: label column + value column, buttons along the bottom.
 // Email the folder is shared with, the files in it now, a homework drop zone
 // (same uploader as Home) and Log lesson (the same Log window Home opens).
-var _dbDt = null;          // { name, date } of the open page
+var _dbDt = null;          // { name } of the open page
 var _dbSharing = null;     // getDropboxSharing results by folder name, fetched once
 var _dbLastData = null;    // last getDropboxFolders reply, so Back redraws without a fetch
 
@@ -372,8 +372,21 @@ var DB_BULLET_ARROW =
   '<path d="M417.5 217.5 576.3 376.2c17.7 17.7 17.7 46.4 0 64.1L417.5 599 353.4 534.9 480.1 408.3 353.4 281.6z"/>' +
   '<path d="M498.8 90.8c-123.2 0-230.2 70.2-282.8 173L135.3 222.5C202.9 90.6 340.2.1 498.8.1 724.3.1 907 182.8 907 408.3S724.3 816.4 498.8 816.4c-158.6 0-296-90.5-363.5-222.4l80.7-41.3c52.6 102.8 159.6 173 282.8 173 175.3 0 317.4-142.1 317.4-317.4S674.2 90.8 498.8 90.8z"/></svg>';
 
+// Trying the user's om-73 plain right arrow as the bullet (2026-10-03).
+var DB_BULLET_RIGHT =
+  '<svg class="db-bullet" viewBox="0 0 907.5 690" width="12" height="10" fill="currentColor" aria-hidden="true">' +
+  '<path d="M886.4 294.9 612.7 21.4C599.4 8.2 581.7.8 563 .8s-36.4 7.4-49.7 20.6c-13.3 13.3-20.7 31-20.7 49.7s7.4 36.4 20.7 49.7l153.5 153.5H70.4C31.6 274.3 0 305.9 0 344.6s31.6 70.3 70.4 70.3h596.4L513.2 568.4c-13.3 13.3-20.6 31-20.6 49.7s7.3 36.4 20.6 49.7c13.3 13.3 31 20.6 49.7 20.6s36.4-7.3 49.7-20.6l273.2-273c13.4-13 20.9-30.6 20.9-49.7.2-19.1-7-36.7-20.4-50.2z"/></svg>';
+
+// Trying the user's om-75 page outline as the file bullet (2026-10-03): page
+// for files, folder glyph for folders.
+var DB_BULLET_PAGE =
+  '<svg class="db-bullet" viewBox="0 0 907.5 1134" width="10" height="12" fill="currentColor" fill-rule="evenodd" aria-hidden="true">' +
+  '<path d="M557.6 9.6H143A143 143 0 0 0 0 152.6v828.8a143 143 0 0 0 143 143h621a143 143 0 0 0 143-143V358.9a37 37 0 0 0-10.9-26.3L583.9 20.5a37 37 0 0 0-26.3-10.9z' +
+  'M594.8 136.5 780.1 321.7H594.8z' +
+  'M764 1050.1H143a68.6 68.6 0 0 1-68.7-68.7V152.6A68.6 68.6 0 0 1 143 83.9h377.4v275a37.2 37.2 0 0 0 37.2 37.2h275.1v585.3a68.6 68.6 0 0 1-68.7 68.7z"/></svg>';
+
 function _dbOpenDetails(name) {
-  _dbDt = { name: name, date: new Date() };
+  _dbDt = { name: name };
   _dbRenderDetails();
   window.scrollTo(0, 0);
   _dbDetailsEmail(name);
@@ -387,25 +400,31 @@ function _dbRenderDetails() {
   var fields = [
     ['Email', '<span id="dbDtEmail">checking…</span>'],
     ['Since added', f.empty ? '—' : _dbAgeText(f.ageDays)],
-    ['Size', f.empty ? '—' : _dbSize(f.bytes)],
-    ['Files', '<span id="dbDtFiles">' + _dbDetailsFilesHtml(f) + '</span>']
+    ['Size', f.empty ? '—' : _dbSize(f.bytes)]
   ];
+  // The card is only who they are; files, Log lesson and homework sit under it
+  // in bordered boxes, the Folder audit's box (2026-10-03).
   body.innerHTML =
-    '<div style="margin-bottom:14px"><button class="link-btn" onclick="_dbCloseDetails()" data-tip="Instant.\nBack to the Dropbox list.">' + ARROW_ICON + '<span>Back</span></button></div>' +
-    '<div class="inq-dcard db-page' + (f.empty ? '' : ' db-card-full') + '">' +
-      '<div class="inq-drow"><span class="inq-chan">Dropbox</span></div>' +
+    '<div style="margin-bottom:22px"><button class="link-btn" onclick="_dbCloseDetails()" data-tip="Instant.\nBack to the Dropbox list.">' + ARROW_ICON + '<span>Back</span></button></div>' +
+    _dbLbl('Student') +
+    '<div class="inq-dcard" style="margin-bottom:0">' +   // the card's own red edge
+      // Open in Finder and Log lesson in the card's top right corner (2026-10-03).
+      '<div class="inq-drow"><span class="inq-chan">Dropbox</span>' +
+        '<span style="display:flex;gap:8px">' +
+          '<button class="link-btn amber" onclick="openDropboxLocalFolder(_dbDt.name)" data-tip="Opens elsewhere.\nGoes to the folder in the Dropbox app."><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
+          '<button class="link-btn green opens-window" onclick="_dbDetailsLog()" data-tip="Opens a window.\nThe Log lesson window, for today." data-tip-left>Log lesson</button>' +
+        '</span></div>' +
       '<div class="inq-name-line"><span class="inq-name">' + name + '</span></div>' +
       '<div class="inq-fields">' + fields.map(function (x) {
         return '<span class="inq-flabel">' + x[0] + '</span><span class="inq-fval">' + x[1] + '</span>';
       }).join('') + '</div>' +
-      '<div class="inq-acts">' +
-        '<span style="margin-right:auto">' + _dbRecoverBtn(name) + '</span>' +
-        '<button class="link-btn" onclick="openDropboxLocalFolder(_dbDt.name)" data-tip="Opens elsewhere.\nGoes to the folder in the Dropbox app."><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
-      '</div>' +
-      '<div class="inq-acts">' + _dbDetailsLogHtml() + '</div>' +
     '</div>' +
-    // Homework upload under the card, as on Home: big drop zone, Browse folder under it.
-    '<div style="margin-top:18px">' + _dbDetailsUploadHtml(name) + '</div>';
+    // Homework right under the card (2026-10-03): big drop zone, buttons under it.
+    '<div class="db-dt-gap">' + _dbLbl('HW') + _dbDetailsUploadHtml(name) + '</div>' +
+    '<div class="db-dt-gap">' + _dbLbl('Files') +   // (Recover lives on the list's card)
+      '<div class="db-panel db-files"><div id="dbDtFiles">' + _dbDetailsFilesHtml(f) + '</div></div>' +
+    '</div>';
+
 }
 
 function _dbCloseDetails() {
@@ -440,14 +459,20 @@ function _dbDetailsEmail(name) {
 // The folder's files, newest first, one per line: bullet, name, size · age.
 // Files inside a subfolder sit under that folder's name, indented (needs the
 // backend's item.path, portal v314+; without it everything lists flat).
-var DB_FOLDER_GLYPH = DBX_ICON.replace('class="win-icon"', 'class="db-bullet"').replace('width="36" height="30"', 'width="14" height="12"');
+// Folder lines: the user's om-74 open-folder outline (2026-10-03), same line
+// weight as the om-75 page on the file lines.
+var DB_FOLDER_GLYPH =
+  '<svg class="db-bullet" viewBox="0 0 907.5 721.5" width="15" height="12" fill="currentColor" aria-hidden="true">' +
+  '<path d="M894.1 233.8c-9.6-13-24.6-20.5-40.8-20.5h-80.7v-60.9c0-33.6-27.3-60.9-60.9-60.9H345.1L269.8 6.8C266.1 2.4 260.5 0 254.7 0H61.7C28.1 0 .8 27.3.8 60.9v599.2c0 33.6 27.3 60.9 60.9 60.9h668c22.4 0 42-14.4 48.5-35.9l123.6-406.2c4.8-15.6 1.9-32-7.7-45.1z' +
+  'M41.4 60.9c0-11.2 9.2-20.3 20.3-20.3h183.8l75.2 84.6c3.8 4.4 9.3 6.8 15.1 6.8h375.7c11.2 0 20.3 9.1 20.3 20.3v60.9H185.8c-22.4 0-42 14.4-48.5 35.9L41.4 564.2z' +
+  'M863 267 739.3 673.2c-1.3 4.3-5.2 7.2-9.6 7.2H62.3c-4.5 0-7-2.5-8.1-4.1-1.2-1.6-2.9-4.8-1.6-9L176.2 261.1c1.3-4.4 5.2-7.2 9.6-7.2h667.4c4.5 0 7 2.5 8.1 4.1 1.2 1.6 2.9 4.8 1.6 9z"/></svg>';
 
 function _dbDetailsFilesHtml(f) {
   var items = (f && f.items) || [];
   if (!items.length) return 'Empty';
   function line(it, indent) {
     var age = it.modified ? Math.floor((Date.now() - new Date(it.modified).getTime()) / 86400000) : null;
-    return '<span class="db-file"' + (indent ? ' style="padding-left:20px"' : '') + '>' + DB_BULLET_ARROW +
+    return '<span class="db-file"' + (indent ? ' style="padding-left:20px"' : '') + '>' + DB_BULLET_PAGE +
       '<span>' + inqEsc(it.name) + '</span>' +
       '<span style="color:rgba(255,255,255,0.24)">' + _dbSize(it.bytes) + (age == null ? '' : ' · ' + _dbAgeText(age)) + '</span></span>';
   }
@@ -459,44 +484,43 @@ function _dbDetailsFilesHtml(f) {
     if (!byDir[dir]) { byDir[dir] = { dir: dir, items: [] }; groups.push(byDir[dir]); }
     byDir[dir].items.push(it);
   });
+  // Each group in its own block, a gap between groups.
   return groups.map(function (g) {
-    if (!g.dir) return g.items.map(function (it) { return line(it, false); }).join('');
-    return '<span class="db-file">' + DB_FOLDER_GLYPH + '<span>' + inqEsc(g.dir) + '</span></span>' +
-      g.items.map(function (it) { return line(it, true); }).join('');
+    if (!g.dir) return '<span class="db-group">' + g.items.map(function (it) { return line(it, false); }).join('') + '</span>';
+    return '<span class="db-group"><span class="db-file db-dir">' + DB_FOLDER_GLYPH + '<span style="text-transform:uppercase">' + inqEsc(g.dir) + '</span></span>' +   // folder names in caps
+      g.items.map(function (it) { return line(it, true); }).join('') + '</span>';
   }).join('');
 }
 
-// Drop zone + Browse folder, the Home tab's look (student.js).
+// Drop zone (the Home tab's look, student.js) + a row of small buttons.
 function _dbDetailsUploadHtml(name) {
   var idle = '⬆ Drag homework files or folders here to upload to ' + inqEsc(name) + '’s Dropbox';
   return '<div id="dbDtDrop" data-idle="' + idle + '" onclick="document.getElementById(\'dbDtFileIn\').click()" ' +
       'ondragover="event.preventDefault();this.style.borderColor=\'#5b9dff\';this.style.background=\'rgba(91,157,255,0.08)\'" ' +
-      'ondragleave="this.style.borderColor=\'rgba(91,157,255,0.4)\';this.style.background=\'transparent\'" ' +
+      'ondragleave="this.style.borderColor=\'rgba(91,157,255,0.4)\';this.style.background=\'var(--surface)\'" ' +
       'ondrop="_dbDetailsDrop(event)" ' +
-      'style="padding:60px 16px;border:1.5px dashed rgba(91,157,255,0.4);border-radius:8px;text-align:center;' +
+      'style="padding:60px 16px;border:1.5px dashed rgba(91,157,255,0.4);border-radius:8px;text-align:center;background:var(--surface);' +   // the card's background
       'font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted);cursor:pointer;transition:border-color .15s,background .15s">' + idle + '</div>' +
-    '<button onclick="document.getElementById(\'dbDtFolderIn\').click()" data-tip="Opens a file picker.\nUploads a whole folder, subfolders kept." ' +
-      'style="width:100%;margin-top:8px;padding:9px;font-size:12px;background:transparent;color:var(--text);border:1px solid rgba(91,157,255,0.4);border-radius:6px;cursor:pointer">📂 Browse folder</button>' +
-    '<input type="file" id="dbDtFileIn" multiple style="display:none" onchange="_dbDetailsPicked(this, false)">' +
-    '<input type="file" id="dbDtFolderIn" multiple webkitdirectory style="display:none" onchange="_dbDetailsPicked(this, true)">';
+    // Browse files under the drop zone, washed blue like the zone (2026-10-03).
+    '<div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:10px">' +
+      '<button class="link-btn blue" onclick="document.getElementById(\'dbDtFileIn\').click()" data-tip="Opens a file picker.\nPick one or more files to upload.\n(Folders: drag them onto the box.)">Browse files</button>' +
+    '</div>' +
+    '<input type="file" id="dbDtFileIn" multiple style="display:none" onchange="_dbDetailsPicked(this)">';
 }
 
 function _dbDetailsDrop(ev) {
   ev.preventDefault();
   var zone = document.getElementById('dbDtDrop');
   if (!zone || !ev.dataTransfer) return;
-  zone.style.borderColor = 'rgba(91,157,255,0.4)'; zone.style.background = 'transparent';
+  zone.style.borderColor = 'rgba(91,157,255,0.4)'; zone.style.background = 'var(--surface)';
   zone.textContent = 'Reading…';
   collectDroppedFiles(ev.dataTransfer, function (files) {
     if (files.length) _dbDetailsUpload(files); else zone.textContent = zone.dataset.idle;
   });
 }
 
-function _dbDetailsPicked(input, isFolder) {
+function _dbDetailsPicked(input) {
   var files = Array.prototype.slice.call(input.files || []);
-  if (isFolder) files = files.filter(function (f) {
-    return !f.webkitRelativePath.split('/').some(function (seg) { return seg.charAt(0) === '.'; });
-  });
   input.value = '';
   if (files.length) _dbDetailsUpload(files);
 }
@@ -537,32 +561,11 @@ function _dbDetailsRefresh(name) {
     .catch(function () {});
 }
 
-// Log lesson: a date (today, ‹ › to step a day) and the same Log window Home
-// opens (openLogFresh, lessons.js), which opens on top of this one.
-function _dbDetailsLogHtml() {
-  return '<button class="link-btn" onclick="_dbDetailsShift(-1)" data-tip="Instant.\nOne day earlier.">‹</button>' +
-    '<span id="dbDtDate" style="min-width:150px;text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--text)">' + _dbDetailsDateText() + '</span>' +
-    '<button class="link-btn" onclick="_dbDetailsShift(1)" data-tip="Instant.\nOne day later.">›</button>' +
-    '<button class="link-btn bright opens-window" onclick="_dbDetailsLog()" data-tip="Opens a window.\nThe Log lesson window for this date.">' + LOG_ICON + '<span>Log lesson</span></button>';
-}
-
-function _dbDetailsDateText() {
-  var d = _dbDt.date, t = new Date();
-  var txt = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-  return d.toDateString() === t.toDateString() ? 'Today · ' + txt : txt;
-}
-
-function _dbDetailsShift(n) {
-  if (!_dbDt) return;
-  _dbDt.date = new Date(_dbDt.date.getFullYear(), _dbDt.date.getMonth(), _dbDt.date.getDate() + n);
-  var el = document.getElementById('dbDtDate');
-  if (el) el.textContent = _dbDetailsDateText();
-}
-
+// Log lesson: the same Log window Home opens (openLogFresh, lessons.js), for today.
 function _dbDetailsLog() {
   if (!_dbDt || typeof openLogFresh !== 'function') return;
   // yyyy/MM/dd: slashes parse in local time on the backend (see _stLogLessonFor).
-  var d = _dbDt.date, m = d.getMonth() + 1, dd = d.getDate();
+  var d = new Date(), m = d.getMonth() + 1, dd = d.getDate();
   var eventDate = d.getFullYear() + '/' + (m < 10 ? '0' + m : m) + '/' + (dd < 10 ? '0' + dd : dd);
   window._auditFixActive = false;
   openLogFresh({ name: _dbDt.name, eventDate: eventDate, calType: 'regular' }, undefined);

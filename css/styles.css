@@ -2033,10 +2033,16 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .db-card-r { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
 .db-card-a { font-family: "DM Mono", monospace; font-size: 12px; line-height: 16px; white-space: nowrap; text-transform: uppercase;
   padding-right: 10px; }   /* ends under Recover's text, not its border */
-.db-page { border-left-color: #3d5f8f; }   /* student page: the cards' edges */
-.db-page.db-card-full { border-left-color: #d9a441; }
-.db-file { display: flex; align-items: center; gap: 8px; }
+.db-dt-gap { margin-top: 30px; }   /* student page: even room between sections */
+.db-panel { box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface);   /* the Folder audit's box, the card's background */
+  font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.5; color: rgba(255,255,255,0.5); }
+.db-files { padding: 16px 14px; }   /* even room top and bottom */
+.db-file { display: flex; align-items: center; gap: 11px; }   /* room after the folder/page icon */
 .db-file .db-bullet { flex: none; }
+.db-group { display: block; }
+.db-group + .db-group { margin-top: 16px; }   /* space between file groups */
+.db-files .db-file { padding: 3px 0; }   /* rows spaced out */
+.db-files .db-file.db-dir { margin-bottom: 3px; }   /* a little more under a folder's name */
 .db-card-btns { display: flex; gap: 6px; }   /* Details + Recover side by side */
 .db-card-r .link-btn { height: 22px; margin: 2px 0; box-sizing: border-box;   /* the portal's washed button, small, centred on the name line, */
   text-transform: none; letter-spacing: 0; font-size: 10px; padding: 0 9px; }   /* in small letters */
