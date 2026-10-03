@@ -2012,13 +2012,31 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Student cards (2026-10-02): two lines - name over size on the left,
    Recover over the age on the right - straight on the page under a window-
    style title (no frame), a left edge in the storage bar's steel blue. */
-.db-students { margin: 8px 0 18px; }
+/* Dropbox tab sections (2026-10-02): window titles and fields, no frame -
+   the space between sections does the frame's job. */
+.db-section { margin: 8px 0 44px; }
 .db-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer;
   background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid #3d5f8f; border-radius: 10px;
   padding: 12px 14px; margin-bottom: 8px; }
+/* Header over the cards: 24 STUDENTS starts where the names start (3px edge
+   + 14px padding); SINCE ADDED starts where Recover starts. */
+.db-cards-head { display: flex; align-items: baseline; justify-content: space-between; padding: 0 16px 0 17px; }
+.db-cards-head .field-label { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0; color: var(--muted); }   /* plain words, not a title */
 .db-card:hover { border-color: var(--muted); border-left-color: #3d5f8f; }
-.db-card-l { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.db-card-n { font-family: "Syne", sans-serif; font-size: 15px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.db-card-s { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); white-space: nowrap; }
+.db-card-full, .db-card-full:hover { border-left-color: #d9a441; }   /* student folder with files: amber edge */
+.db-card-lesson, .db-card-lesson:hover { border-left-color: var(--green); }   /* Lesson folders: green edge */
+.db-card-l { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+/* Two lines that line up across the card: name ↔ Recover (both 26px tall),
+   size ↔ age (same mono 12px). */
+.db-card-n { font-family: "Syne", sans-serif; font-size: 15px; line-height: 26px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.db-card-s { font-family: "DM Mono", monospace; font-size: 12px; line-height: 16px; color: var(--muted); white-space: nowrap; }
 .db-card-r { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
-.db-card-a { font-family: "DM Mono", monospace; font-size: 13px; font-weight: 500; white-space: nowrap; }
+.db-card-a { font-family: "DM Mono", monospace; font-size: 12px; line-height: 16px; white-space: nowrap; text-transform: uppercase;
+  padding-right: 10px; }   /* ends under Recover's text, not its border */
+.db-page { border-left-color: #3d5f8f; }   /* student page: the cards' edges */
+.db-page.db-card-full { border-left-color: #d9a441; }
+.db-file { display: flex; align-items: center; gap: 8px; }
+.db-file .db-bullet { flex: none; }
+.db-card-btns { display: flex; gap: 6px; }   /* Details + Recover side by side */
+.db-card-r .link-btn { height: 22px; margin: 2px 0; box-sizing: border-box;   /* the portal's washed button, small, centred on the name line, */
+  text-transform: none; letter-spacing: 0; font-size: 10px; padding: 0 9px; }   /* in small letters */

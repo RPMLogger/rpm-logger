@@ -44,13 +44,6 @@ function _dbSize(b) {
   return b + ' B';
 }
 
-// Age → color: <14d fresh (green), 14–29d aging (amber), 30d+ stale (red).
-function _dbAgeColor(age) {
-  if (age == null) return 'var(--muted)';
-  if (age >= 30) return 'var(--accent)';
-  if (age >= 14) return 'var(--accent2)';
-  return 'var(--green)';
-}
 function _dbAgeText(age) {
   if (age == null) return '';
   if (age === 0) return 'today';
@@ -298,13 +291,14 @@ function _dbCloseFix() {
 }
 
 function renderDropbox(d) {
+  _dbLastData = d;
   var body = document.getElementById('dropboxBody');
   var html = '';
 
   // ── Overview window: storage, audit, refresh ──
   // (The Student folders / Need attention / Empty boxes went 2026-10-02: the
   // space bar says the first, the cards below say the other two.)
-  html += '<div class="win-panel">' +
+  html += '<div class="db-section">' +
     // Refresh sits where a window's ✕ sits: re-reads folders, space and audit.
     _dbTitle('Overview', '<button class="win-refresh" onclick="initDropboxTab()" data-tip="Instant.\nRe-reads folders, storage and the audit from Dropbox.\nChanges nothing.">' + REFRESH_ICON + '</button>') +
     '<div class="win-icon-row">' + DBX_ICON + '</div>' +
@@ -317,9 +311,10 @@ function renderDropbox(d) {
   _dbFolders = d.folders || [];
   html += '<div id="dbStudentsSection">' + _dbStudentsHtml() + '</div>';
 
-  // ── Teacher window, last on the page (2026-10-02): non-student folders ──
+  // ── Lesson folders, last on the page (2026-10-03): non-student folders, as
+  // cards like the students' but with a green edge ──
   if (d.categories && d.categories.length) {
-    html += '<div class="win-panel">' + _dbTitle('Teacher folders') +
+    html += '<div class="db-section">' + _dbTitle('Lesson folders') +
       d.categories.map(function (c) { return _dbTeacherRow(c); }).join('') +
     '</div>';
   }
@@ -332,14 +327,15 @@ function renderDropbox(d) {
 // Empty folders: a grey dash under the name, a green dash on the right; full ones show size + age.
 function _dbCard(f) {
   var open = 'onclick="openDropboxLocalFolder(\'' + _dbEsc(f.name) + '\')" data-tip="Opens elsewhere.\nGoes to the folder in the Dropbox app." ';
-  var col = f.empty ? 'var(--green)' : _dbAgeColor(f.ageDays);
+  var col = 'var(--accent)';   // every age (and empty dash) in the DROPBOX title's red, 2026-10-03
   // Cards inside the Students window (2026-10-02), two lines.
   // Left: name ↗ over size (a dash if empty). Right: Recover over the age,
   // under the window's SINCE ADDED (a green dash if empty).
-  return '<div class="db-card" ' + open + '>' +   // edge: the storage bar's steel blue (2026-10-02)
-    '<div class="db-card-l"><span class="db-card-n">' + f.name + '<span class="out-ico">' + OPEN_OUT_ICON + '</span></span>' +
+  // Edge: the storage bar's steel blue; amber when the folder has files (2026-10-03).
+  return '<div class="db-card' + (f.empty ? '' : ' db-card-full') + '" ' + open + '>' +
+    '<div class="db-card-l"><span class="db-card-n">' + f.name + '</span>' +
       '<span class="db-card-s">' + (f.empty ? '—' : _dbSize(f.bytes)) + '</span></div>' +
-    '<div class="db-card-r">' + _dbRecoverBtn(f.name) +
+    '<div class="db-card-r"><span class="db-card-btns">' + _dbDetailsBtn(f.name) + _dbRecoverBtn(f.name) + '</span>' +
       '<span class="db-card-a" style="color:' + col + '">' + (f.empty ? '—' : _dbAgeText(f.ageDays)) + '</span></div>' +
   '</div>';
 }
@@ -349,35 +345,255 @@ function _dbCard(f) {
 function _dbRecoverBtn(name) {
   return '<button onclick="event.stopPropagation();_dbRecoverFolder(\'' + _dbEsc(name) + '\',this)" ' +
     'data-tip="Asks first.\nRestores this student’s deleted files from the last 30 days.\nResets their 14-day copy window.\nEmails them." ' +
-    'style="font-family:\'DM Mono\',monospace;font-size:10px;background:transparent;color:var(--muted);' +
-    'border:1px solid var(--border);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap">↺ Recover</button>';
+    'class="link-btn">↺ Recover</button>';
 }
 
-// A teacher (non-student) folder: one row in the Teacher window, file count +
-// size at its right end, no age/cleanup signal. Click opens it locally.
+// "Details" button: opens the student's Dropbox window (below). stopPropagation
+// so the card's open-in-Finder click doesn't fire too.
+function _dbDetailsBtn(name) {
+  return '<button onclick="event.stopPropagation();_dbOpenDetails(\'' + _dbEsc(name) + '\')" ' +
+    'data-tip="Opens a window.\nTheir email, the files in their folder, homework upload and Log lesson." ' +
+    'class="link-btn">Details</button>';
+}
+
+// ── Student page (2026-10-03) ────────────────────────────────────────────────
+// One student's Dropbox on its own page (Back returns to the list), laid out
+// like an Initiate card: label column + value column, buttons along the bottom.
+// Email the folder is shared with, the files in it now, a homework drop zone
+// (same uploader as Home) and Log lesson (the same Log window Home opens).
+var _dbDt = null;          // { name, date } of the open page
+var _dbSharing = null;     // getDropboxSharing results by folder name, fetched once
+var _dbLastData = null;    // last getDropboxFolders reply, so Back redraws without a fetch
+
+// File bullet: the user's om-71 arrow-in circle (2026-10-03; picked over om-72).
+var DB_BULLET_ARROW =
+  '<svg class="db-bullet" viewBox="0 0 907.5 816.75" width="12" height="12" fill="currentColor" fill-rule="evenodd" aria-hidden="true">' +
+  '<path d="M0 362.9h544.2v90.7H0z"/>' +
+  '<path d="M417.5 217.5 576.3 376.2c17.7 17.7 17.7 46.4 0 64.1L417.5 599 353.4 534.9 480.1 408.3 353.4 281.6z"/>' +
+  '<path d="M498.8 90.8c-123.2 0-230.2 70.2-282.8 173L135.3 222.5C202.9 90.6 340.2.1 498.8.1 724.3.1 907 182.8 907 408.3S724.3 816.4 498.8 816.4c-158.6 0-296-90.5-363.5-222.4l80.7-41.3c52.6 102.8 159.6 173 282.8 173 175.3 0 317.4-142.1 317.4-317.4S674.2 90.8 498.8 90.8z"/></svg>';
+
+function _dbOpenDetails(name) {
+  _dbDt = { name: name, date: new Date() };
+  _dbRenderDetails();
+  window.scrollTo(0, 0);
+  _dbDetailsEmail(name);
+}
+
+function _dbRenderDetails() {
+  var body = document.getElementById('dropboxBody');
+  if (!body || !_dbDt) return;
+  var name = _dbDt.name;
+  var f = _dbFolders.filter(function (x) { return x.name === name; })[0] || { empty: true, items: [] };
+  var fields = [
+    ['Email', '<span id="dbDtEmail">checking…</span>'],
+    ['Since added', f.empty ? '—' : _dbAgeText(f.ageDays)],
+    ['Size', f.empty ? '—' : _dbSize(f.bytes)],
+    ['Files', '<span id="dbDtFiles">' + _dbDetailsFilesHtml(f) + '</span>']
+  ];
+  body.innerHTML =
+    '<div style="margin-bottom:14px"><button class="link-btn" onclick="_dbCloseDetails()" data-tip="Instant.\nBack to the Dropbox list.">' + ARROW_ICON + '<span>Back</span></button></div>' +
+    '<div class="inq-dcard db-page' + (f.empty ? '' : ' db-card-full') + '">' +
+      '<div class="inq-drow"><span class="inq-chan">Dropbox</span></div>' +
+      '<div class="inq-name-line"><span class="inq-name">' + name + '</span></div>' +
+      '<div class="inq-fields">' + fields.map(function (x) {
+        return '<span class="inq-flabel">' + x[0] + '</span><span class="inq-fval">' + x[1] + '</span>';
+      }).join('') + '</div>' +
+      '<div class="inq-acts">' +
+        '<span style="margin-right:auto">' + _dbRecoverBtn(name) + '</span>' +
+        '<button class="link-btn" onclick="openDropboxLocalFolder(_dbDt.name)" data-tip="Opens elsewhere.\nGoes to the folder in the Dropbox app."><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
+      '</div>' +
+      '<div class="inq-acts">' + _dbDetailsLogHtml() + '</div>' +
+    '</div>' +
+    // Homework upload under the card, as on Home: big drop zone, Browse folder under it.
+    '<div style="margin-top:18px">' + _dbDetailsUploadHtml(name) + '</div>';
+}
+
+function _dbCloseDetails() {
+  _dbDt = null;
+  if (_dbLastData) renderDropbox(_dbLastData); else initDropboxTab();
+}
+
+// Who the folder is shared with, and the RPM-Counter email beside it when the
+// two differ. One sharing check covers every folder, so it runs once per load.
+function _dbDetailsEmail(name) {
+  function show(r) {
+    var el = document.getElementById('dbDtEmail');
+    if (!el || !_dbDt || _dbDt.name !== name) return;
+    if (!r) { el.textContent = '—'; return; }
+    var shared = (r.sharedWith || []).join(', ');
+    var html = inqEsc(shared || 'Not shared');
+    if (r.expected && r.expected.toLowerCase() !== (shared || '').toLowerCase())
+      html += '<br><span style="color:rgba(255,255,255,0.24)">RPM-Counter: ' + inqEsc(r.expected) + '</span>';
+    el.innerHTML = html;
+  }
+  if (_dbSharing) { show(_dbSharing[name]); return; }
+  fetch(getScriptUrl() + '?action=getDropboxSharing')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      _dbSharing = {};
+      (d.results || []).forEach(function (r) { _dbSharing[r.name] = r; });
+      show(_dbSharing[name]);
+    })
+    .catch(function () { show(null); });
+}
+
+// The folder's files, newest first, one per line: bullet, name, size · age.
+// Files inside a subfolder sit under that folder's name, indented (needs the
+// backend's item.path, portal v314+; without it everything lists flat).
+var DB_FOLDER_GLYPH = DBX_ICON.replace('class="win-icon"', 'class="db-bullet"').replace('width="36" height="30"', 'width="14" height="12"');
+
+function _dbDetailsFilesHtml(f) {
+  var items = (f && f.items) || [];
+  if (!items.length) return 'Empty';
+  function line(it, indent) {
+    var age = it.modified ? Math.floor((Date.now() - new Date(it.modified).getTime()) / 86400000) : null;
+    return '<span class="db-file"' + (indent ? ' style="padding-left:20px"' : '') + '>' + DB_BULLET_ARROW +
+      '<span>' + inqEsc(it.name) + '</span>' +
+      '<span style="color:rgba(255,255,255,0.24)">' + _dbSize(it.bytes) + (age == null ? '' : ' · ' + _dbAgeText(age)) + '</span></span>';
+  }
+  // Group by the folder a file sits in, in order of each folder's newest file.
+  var groups = [], byDir = {};
+  items.forEach(function (it) {
+    var p = it.path || it.name, cut = p.lastIndexOf('/');
+    var dir = cut > 0 ? p.slice(0, cut) : '';
+    if (!byDir[dir]) { byDir[dir] = { dir: dir, items: [] }; groups.push(byDir[dir]); }
+    byDir[dir].items.push(it);
+  });
+  return groups.map(function (g) {
+    if (!g.dir) return g.items.map(function (it) { return line(it, false); }).join('');
+    return '<span class="db-file">' + DB_FOLDER_GLYPH + '<span>' + inqEsc(g.dir) + '</span></span>' +
+      g.items.map(function (it) { return line(it, true); }).join('');
+  }).join('');
+}
+
+// Drop zone + Browse folder, the Home tab's look (student.js).
+function _dbDetailsUploadHtml(name) {
+  var idle = '⬆ Drag homework files or folders here to upload to ' + inqEsc(name) + '’s Dropbox';
+  return '<div id="dbDtDrop" data-idle="' + idle + '" onclick="document.getElementById(\'dbDtFileIn\').click()" ' +
+      'ondragover="event.preventDefault();this.style.borderColor=\'#5b9dff\';this.style.background=\'rgba(91,157,255,0.08)\'" ' +
+      'ondragleave="this.style.borderColor=\'rgba(91,157,255,0.4)\';this.style.background=\'transparent\'" ' +
+      'ondrop="_dbDetailsDrop(event)" ' +
+      'style="padding:60px 16px;border:1.5px dashed rgba(91,157,255,0.4);border-radius:8px;text-align:center;' +
+      'font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted);cursor:pointer;transition:border-color .15s,background .15s">' + idle + '</div>' +
+    '<button onclick="document.getElementById(\'dbDtFolderIn\').click()" data-tip="Opens a file picker.\nUploads a whole folder, subfolders kept." ' +
+      'style="width:100%;margin-top:8px;padding:9px;font-size:12px;background:transparent;color:var(--text);border:1px solid rgba(91,157,255,0.4);border-radius:6px;cursor:pointer">📂 Browse folder</button>' +
+    '<input type="file" id="dbDtFileIn" multiple style="display:none" onchange="_dbDetailsPicked(this, false)">' +
+    '<input type="file" id="dbDtFolderIn" multiple webkitdirectory style="display:none" onchange="_dbDetailsPicked(this, true)">';
+}
+
+function _dbDetailsDrop(ev) {
+  ev.preventDefault();
+  var zone = document.getElementById('dbDtDrop');
+  if (!zone || !ev.dataTransfer) return;
+  zone.style.borderColor = 'rgba(91,157,255,0.4)'; zone.style.background = 'transparent';
+  zone.textContent = 'Reading…';
+  collectDroppedFiles(ev.dataTransfer, function (files) {
+    if (files.length) _dbDetailsUpload(files); else zone.textContent = zone.dataset.idle;
+  });
+}
+
+function _dbDetailsPicked(input, isFolder) {
+  var files = Array.prototype.slice.call(input.files || []);
+  if (isFolder) files = files.filter(function (f) {
+    return !f.webkitRelativePath.split('/').some(function (seg) { return seg.charAt(0) === '.'; });
+  });
+  input.value = '';
+  if (files.length) _dbDetailsUpload(files);
+}
+
+// Upload, then re-read Dropbox so the Files list and the cards behind show it.
+function _dbDetailsUpload(files) {
+  if (!_dbDt) return;
+  var name = _dbDt.name;
+  uploadFilesToDropbox(name, files, {
+    onProgress: function (fn, i, total) {
+      var z = document.getElementById('dbDtDrop');
+      if (z) z.textContent = 'Uploading ' + (i + 1) + '/' + total + ': ' + fn + ' …';
+    },
+    onDone: function (ok, fail, total) {
+      var z = document.getElementById('dbDtDrop');
+      if (z) {
+        z.textContent = (fail ? '⚠ ' : '✓ ') + ok + '/' + total + ' uploaded' + (fail ? ', ' + fail + ' failed' : '') + ' · click to add more';
+        z.style.color = fail ? 'var(--accent)' : 'var(--green)';
+        setTimeout(function () {
+          var z2 = document.getElementById('dbDtDrop');
+          if (z2) { z2.textContent = z2.dataset.idle; z2.style.color = 'var(--muted)'; }
+        }, 8000);
+      }
+      if (ok) _dbDetailsRefresh(name);
+    }
+  });
+}
+
+function _dbDetailsRefresh(name) {
+  fetch(getScriptUrl() + '?action=getDropboxFolders')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) return;
+      _dbLastData = d;
+      _dbFolders = d.folders || [];
+      if (_dbDt && _dbDt.name === name) { _dbRenderDetails(); _dbDetailsEmail(name); }
+    })
+    .catch(function () {});
+}
+
+// Log lesson: a date (today, ‹ › to step a day) and the same Log window Home
+// opens (openLogFresh, lessons.js), which opens on top of this one.
+function _dbDetailsLogHtml() {
+  return '<button class="link-btn" onclick="_dbDetailsShift(-1)" data-tip="Instant.\nOne day earlier.">‹</button>' +
+    '<span id="dbDtDate" style="min-width:150px;text-align:center;font-family:\'DM Mono\',monospace;font-size:11px;color:var(--text)">' + _dbDetailsDateText() + '</span>' +
+    '<button class="link-btn" onclick="_dbDetailsShift(1)" data-tip="Instant.\nOne day later.">›</button>' +
+    '<button class="link-btn bright opens-window" onclick="_dbDetailsLog()" data-tip="Opens a window.\nThe Log lesson window for this date.">' + LOG_ICON + '<span>Log lesson</span></button>';
+}
+
+function _dbDetailsDateText() {
+  var d = _dbDt.date, t = new Date();
+  var txt = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  return d.toDateString() === t.toDateString() ? 'Today · ' + txt : txt;
+}
+
+function _dbDetailsShift(n) {
+  if (!_dbDt) return;
+  _dbDt.date = new Date(_dbDt.date.getFullYear(), _dbDt.date.getMonth(), _dbDt.date.getDate() + n);
+  var el = document.getElementById('dbDtDate');
+  if (el) el.textContent = _dbDetailsDateText();
+}
+
+function _dbDetailsLog() {
+  if (!_dbDt || typeof openLogFresh !== 'function') return;
+  // yyyy/MM/dd: slashes parse in local time on the backend (see _stLogLessonFor).
+  var d = _dbDt.date, m = d.getMonth() + 1, dd = d.getDate();
+  var eventDate = d.getFullYear() + '/' + (m < 10 ? '0' + m : m) + '/' + (dd < 10 ? '0' + dd : dd);
+  window._auditFixActive = false;
+  openLogFresh({ name: _dbDt.name, eventDate: eventDate, calType: 'regular' }, undefined);
+}
+
+// A lesson (non-student) folder: a card like a student's, green edge, name
+// over its size (a dash if empty), no age or Recover. Click opens it locally.
 function _dbTeacherRow(c) {
-  return '<div class="win-row opens" onclick="openDropboxLocalFolder(\'' + _dbEsc(c.name) + '\')" data-tip="Opens elsewhere.\nGoes to the folder in the Dropbox app.">' +
-    '<span class="win-row-main"><b>' + c.name + '</b></span>' +
-    '<span class="win-row-side">' + (c.bytes ? _dbSize(c.bytes) : 'Empty') + OPEN_OUT_ICON + '</span>' +
+  return '<div class="db-card db-card-lesson" onclick="openDropboxLocalFolder(\'' + _dbEsc(c.name) + '\')" data-tip="Opens elsewhere.\nGoes to the folder in the Dropbox app.">' +
+    '<div class="db-card-l"><span class="db-card-n">' + c.name + '</span>' +
+      '<span class="db-card-s">' + (c.bytes ? _dbSize(c.bytes) : '—') + '</span></div>' +
   '</div>';
 }
 
 // ── Students list ───────────────────────────────────────────────────────────
-// Always A–Z (2026-10-02: the sort choices went; a card never moves when its
-// folder fills or empties). SINCE ADDED heads the column of ages on the right,
-// across from STUDENTS, instead of sitting on every card.
+// Anyone whose files came in today on top, then everyone A–Z (2026-10-03).
+// SINCE ADDED heads the column of ages on the right, across from STUDENTS,
+// instead of sitting on every card.
 function _dbStudentsHtml() {
-  var sorted = _dbFolders.slice().sort(function (a, b) { return a.name.localeCompare(b.name); });
+  function today(f) { return !f.empty && f.ageDays === 0 ? 0 : 1; }
+  var sorted = _dbFolders.slice().sort(function (a, b) { return today(a) - today(b) || a.name.localeCompare(b.name); });
   var header =
-    '<div style="display:flex;align-items:baseline;justify-content:space-between">' +
+    '<div class="db-cards-head">' +   // lines up with the cards' name and Recover
       _dbLbl(sorted.length + ' students') + _dbLbl('Since added') +
     '</div>';
   var cards = sorted.length
     ? sorted.map(function (f) { return _dbCard(f); }).join('')
     : _dbRow('None');
-  // No window frame (2026-10-02): the window's title and header, then the
-  // cards straight on the page.
-  return '<div class="db-students">' + _dbTitle('Students') + header + cards + '</div>';
+  // No window frame (2026-10-02), like every section on this tab: the
+  // window's title and header, then the cards straight on the page.
+  return '<div class="db-section">' + _dbTitle('Students') + header + cards + '</div>';
 }
 
 // Escape a string for safe use inside a single-quoted onclick attribute.
