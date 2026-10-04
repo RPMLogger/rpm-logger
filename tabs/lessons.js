@@ -9,6 +9,8 @@ function closeLogPanel() {
   document.getElementById("logPanel").classList.remove("active");
   document.querySelectorAll(".today-btn").forEach(function(b) { b.classList.remove("recording"); });
   activeStudent = null;
+  logHw = null;
+  _logHwOnly(false);
   window._auditFixActive = false;
   window._auditResolve = null;
   if (typeof _unfloatLogPanel === "function") _unfloatLogPanel();
@@ -84,8 +86,12 @@ function _logState(text, color) {
   if (el) { el.textContent = text || ""; el.style.color = color || "var(--muted)"; }
 }
 
-function openLogFresh(student, idx) {
-  activeStudent = { student: student, idx: idx };
+// opts.hwOnly: the same window asking only the HW question, for a lesson
+// already logged without it (Dropbox Today card).
+function openLogFresh(student, idx, opts) {
+  var hwOnly = !!(opts && opts.hwOnly);
+  activeStudent = { student: student, idx: idx, hwOnly: hwOnly };
+  _logHwOnly(hwOnly);
   var panel = document.getElementById("logPanel");
   panel.classList.add("active");
   // A window everywhere, like the Trial card's (was inline on the Today grid).
@@ -118,6 +124,8 @@ function openLogFresh(student, idx) {
     };
     document.getElementById("logActions").insertBefore(tog, document.getElementById("btnLog"));
   }
+  logHwOpen(student);
+  if (hwOnly) lb.textContent = "Save";
 }
 
 function setRecordingUI(recording, idx) {
@@ -203,6 +211,8 @@ function stopRecording() {
 // ─── SUBMIT LESSON LOG ───────────────────────────────────────────────────────
 function submitLog() {
   var url = getScriptUrl(); if (!url) return;
+  if (activeStudent && activeStudent.hwOnly) { logHwSaveOnly(); return; }
+  if (logHw && !logHw.choice) return;
 
   var parts = llValues(_logBox()).filter(function(v) { return v; }).map(toTitleCase);
   var subject = parts.join(" - ");
@@ -225,11 +235,18 @@ function submitLog() {
 
   var params = { studentName: student.name, subject: subject, trialPaid: trialPaid ? "1" : "0" };
   if (student.eventDate) params.lessonDate = student.eventDate;
+  if (logHw) {
+    params.hw = logHw.choice;
+    params.hwFiles = logHw.choice === "sent" ? logHw.files.map(function(f) { return f.path; }).join("\n") : "";
+    params.hwSource = logHw.choice === "sent" ? "Auto" : "Manual";
+    logHw.locked = true; _logHwRender();
+  }
 
   var q = url + "?action=" + (student.calType === "trial" ? "logTrial" : "logLesson");
   for (var k in params) q += "&" + k + "=" + encodeURIComponent(params[k]);
   function fail(why) {
     rpmBusy(panel, btn, false);
+    if (logHw) { logHw.locked = false; _logHwRender(); }
     btn.textContent = "Log"; btn.disabled = false;
     rpmFail("logPanelStatus", why);
   }
@@ -242,6 +259,8 @@ function submitLog() {
       todayStudents.forEach(function(t) {
         if (t.name === student.name && t.eventDate === student.eventDate) t.alreadyLogged = true;
       });
+      if (data.hwSaved) _logHwSaved(student.name, logHw);
+      if (typeof _dbRefreshToday === "function") _dbRefreshToday();   // Dropbox Today checklist
       addLog("lessonFeed", "✓ " + student.name + " — " + subject, "success");
       // No success line: the button says Logged ✓, the rows and buttons lock
       // (logged is final), and a second later the window closes by itself
@@ -269,6 +288,9 @@ function submitLog() {
         window._auditResolve = null;
         if (typeof initAuditTab === "function") initAuditTab();
       }
+      // The lesson saved but its HW didn't: amber half badge, the window stays
+      // open so it's seen (the HW can be saved again from the Dropbox card).
+      if (data.hwError) { rpmHalf("logPanelStatus", "HW not saved", data.hwError); return; }
       // Only if it's still this lesson's window (not one opened since).
       var done = activeStudent;
       setTimeout(function() { if (done && activeStudent === done) closeLogPanel(); }, 1000);
@@ -295,7 +317,9 @@ function onRowInput() {
 
 function updateLogButton() {
   if (activeStudent && activeStudent.logged) return;
-  document.getElementById("btnLog").disabled = !llValues(_logBox()).some(function(v) { return v; });
+  var rowsOk = (activeStudent && activeStudent.hwOnly) || llValues(_logBox()).some(function(v) { return v; });
+  var hwOk = !logHw || (!!logHw.choice && !logHw.loading);
+  document.getElementById("btnLog").disabled = !(rowsOk && hwOk);
 }
 
 function resetRows() {
@@ -316,4 +340,140 @@ function toTitleCase(str) {
     if (i !== 0 && i !== words.length - 1 && small.indexOf(w) !== -1) return w;
     return w.charAt(0).toUpperCase() + w.slice(1);
   }).join(" ");
+}
+
+// ─── HW (2026-10-03) ─────────────────────────────────────────────────────────
+// Every lesson ends Sent or No HW, asked here and saved with the lesson to the
+// HW Log tab (Students Import) (backend RPM_HwLog.gs). The files are what's in the
+// student's Dropbox that isn't on an earlier lesson's row yet; finding files
+// picks Sent, finding none leaves No HW to press. Log stays locked until one
+// is picked. Not asked for trials (their card has Send HW) or for lessons
+// before HW_START (starting fresh).
+var HW_START = "2026-10-03";
+var logHw = null;   // { name, date, files:[{name,path,bytes,modified}], choice, loading, locked, noFolder, seq }
+var _logHwSeq = 0;
+
+// The lesson's date as yyyy-MM-dd: eventDate is "2026-10-03T16:00:00" or "2026/10/03".
+function _logHwDate(student) {
+  var s = String((student && student.eventDate) || "").slice(0, 10).replace(/\//g, "-");
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  var d = new Date(), m = d.getMonth() + 1, dd = d.getDate();
+  return d.getFullYear() + "-" + (m < 10 ? "0" + m : m) + "-" + (dd < 10 ? "0" + dd : dd);
+}
+
+function logHwOpen(student) {
+  var box = document.getElementById("logHw");
+  if (!box) return;
+  var date = _logHwDate(student);
+  if (student.calType === "trial" || date < HW_START) { logHw = null; box.style.display = "none"; return; }
+  box.style.display = "";
+  var rb = document.getElementById("logHwRecheck");
+  if (rb && !rb.innerHTML && typeof REFRESH_ICON !== "undefined") rb.innerHTML = REFRESH_ICON;
+  logHw = { name: student.name, date: date, files: [], choice: null, loading: true, locked: false };
+  logHwCheck();
+}
+
+// Ask the backend which files are new for this lesson.
+function logHwCheck() {
+  if (!logHw || logHw.locked) return;
+  var hw = logHw, seq = ++_logHwSeq;
+  hw.loading = true; _logHwRender(); updateLogButton();
+  fetch(getScriptUrl() + "?action=getHwPending&name=" + encodeURIComponent(hw.name) + "&lessonDate=" + hw.date)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (logHw !== hw || seq !== _logHwSeq) return;
+      hw.loading = false;
+      if (!d.success) { hw.error = d.message || "Couldn't read Dropbox"; hw.files = []; }
+      else {
+        hw.error = null;
+        hw.noFolder = !!d.noFolder;
+        hw.files = d.files || [];
+        if (d.existing) {
+          // Already answered for this lesson: show that answer, and keep its
+          // files listed even if Dropbox has cleaned them out since.
+          var have = {};
+          hw.files.forEach(function(f) { have[f.path.toLowerCase()] = 1; });
+          (d.existing.files || []).forEach(function(p) {
+            if (!have[p.toLowerCase()]) hw.files.push({ name: p.split("/").pop(), path: p });
+          });
+          if (!hw.choice) hw.choice = d.existing.hw === "Sent" ? "sent" : "none";
+        }
+        if (!hw.choice && hw.files.length) hw.choice = "sent";
+        if (hw.choice === "sent" && !hw.files.length) hw.choice = null;
+      }
+      _logHwRender(); updateLogButton();
+    })
+    .catch(function() {
+      if (logHw !== hw || seq !== _logHwSeq) return;
+      hw.loading = false; hw.error = "No answer from Google";
+      _logHwRender(); updateLogButton();
+    });
+}
+
+function logHwPick(c) {
+  if (!logHw || logHw.locked || logHw.loading) return;
+  if (c === "sent" && !logHw.files.length) return;
+  logHw.choice = c;
+  _logHwRender(); updateLogButton();
+}
+
+function _logHwRender() {
+  var hw = logHw;
+  var list = document.getElementById("logHwFiles");
+  var sent = document.getElementById("logHwSent"), none = document.getElementById("logHwNone");
+  if (!hw || !list) return;
+  var dim = "<span style='color:var(--muted)'>";
+  if (hw.loading) list.innerHTML = dim + "Checking Dropbox…</span>";
+  else if (hw.error) list.innerHTML = "<span style='color:var(--warn)'>" + inqEsc(hw.error) + "</span>";
+  else if (!hw.files.length) list.innerHTML = dim + (hw.noFolder ? "No Dropbox folder named " + inqEsc(hw.name) : "No new files in their Dropbox") + "</span>";
+  else list.innerHTML = _dbDetailsFilesHtml({ items: hw.files });
+  list.style.opacity = hw.choice === "none" && hw.files.length ? ".4" : "";   // No HW: the files aren't this lesson's
+  var n = hw.files.length;
+  sent.querySelector("span").textContent = n ? "Sent · " + n + (n === 1 ? " file" : " files") : "Sent";
+  sent.classList.toggle("done", hw.choice === "sent");
+  none.classList.toggle("done", hw.choice === "none");
+  sent.parentNode.classList.toggle("picked", !!hw.choice);
+  sent.disabled = hw.locked || hw.loading || !n;
+  none.disabled = hw.locked || hw.loading;
+}
+
+// HW-only mode hides the lesson rows; the window title says HW.
+function _logHwOnly(on) {
+  var panel = document.getElementById("logPanel");
+  if (!panel) return;
+  panel.classList.toggle("hw-only", !!on);
+  var t = panel.querySelector(".settings-title > span > span:last-child");
+  if (t) t.textContent = on ? " · HW" : " · Log Lesson";
+}
+
+// HW-only Save: the HW row alone (lesson already logged).
+function logHwSaveOnly() {
+  if (!logHw || !logHw.choice) return;
+  var hw = logHw, btn = document.getElementById("btnLog"), panel = document.getElementById("logPanel");
+  btn.textContent = "Saving…"; btn.disabled = true;
+  rpmBusy(panel, btn, true);
+  hw.locked = true; _logHwRender();
+  var q = getScriptUrl() + "?action=saveHw&name=" + encodeURIComponent(hw.name) + "&lessonDate=" + hw.date +
+    "&hw=" + hw.choice + "&source=" + (hw.choice === "sent" ? "Auto" : "Manual") +
+    "&files=" + encodeURIComponent(hw.choice === "sent" ? hw.files.map(function(f) { return f.path; }).join("\n") : "");
+  fetch(q).then(function(r) { return r.json(); }).then(function(d) {
+    rpmBusy(panel, btn, false);
+    if (!d.success) throw new Error(d.message || "Error saving");
+    activeStudent.logged = true;
+    btn.textContent = "Saved ✓";
+    _logHwSaved(hw.name, hw);
+    var done = activeStudent;
+    setTimeout(function() { if (done && activeStudent === done) closeLogPanel(); }, 1000);
+  }).catch(function(e) {
+    rpmBusy(panel, btn, false);
+    hw.locked = false; _logHwRender();
+    btn.textContent = "Save"; btn.disabled = false;
+    rpmFail("logPanelStatus", e && e.message && e.message !== "Failed to fetch" ? e.message : "No answer from Google.");
+  });
+}
+
+// Tell the Dropbox tab (its Today card and the open student page).
+function _logHwSaved(name, hw) {
+  if (!hw) return;
+  if (typeof _dbHwSaved === "function") _dbHwSaved(name, hw.date, hw.choice === "sent" ? "Sent" : "No HW");
 }

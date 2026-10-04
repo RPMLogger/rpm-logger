@@ -54,8 +54,8 @@ function _dbAgeText(age) {
 // ── Window panels (2026-10-02) ──────────────────────────────────────────────
 // Cards are for people: only the student folders stay cards. Everything else on
 // the tab sits in the pop-up windows' frame (.win-panel in styles.css).
-function _dbTitle(part, right) {
-  return '<div class="settings-title"><span>Dropbox<span class="win-sub"> · ' + part + '</span></span>' + (right || '') + '</div>';
+function _dbTitle(part, right, first) {
+  return '<div class="settings-title"><span>' + (first || 'Dropbox') + '<span class="win-sub"> · ' + part + '</span></span>' + (right || '') + '</div>';
 }
 function _dbLbl(t) { return '<label class="field-label">' + t + '</label>'; }
 function _dbActs(html) {
@@ -294,6 +294,12 @@ function renderDropbox(d) {
   _dbLastData = d;
   var body = document.getElementById('dropboxBody');
   var html = '';
+  _dbFolders = d.folders || [];
+  _dbLoadHwToday();
+
+  // ── Today, first on the page (2026-10-03): today's students, the hub for
+  // homework and logging. Same cards as Students below. ──
+  html += '<div class="db-section" id="dbTodaySection">' + _dbTodayHtml() + '</div>';
 
   // ── Overview window: storage, audit, refresh ──
   // (The Student folders / Need attention / Empty boxes went 2026-10-02: the
@@ -308,7 +314,6 @@ function renderDropbox(d) {
   '</div>';
 
   // ── Students window: one card each (people), A–Z ──
-  _dbFolders = d.folders || [];
   html += '<div id="dbStudentsSection">' + _dbStudentsHtml() + '</div>';
 
   // ── Lesson folders, last on the page (2026-10-03): non-student folders, as
@@ -325,16 +330,17 @@ function renderDropbox(d) {
 
 // One student folder card — click opens the folder in the local Dropbox app.
 // Empty folders: a grey dash under the name, a green dash on the right; full ones show size + age.
-function _dbCard(f) {
+function _dbCard(f, today) {
   var open = 'onclick="openDropboxLocalFolder(\'' + _dbEsc(f.name) + '\')" data-tip="Opens elsewhere.\nGoes to the folder in the Dropbox app." ';
   var col = 'var(--accent)';   // every age (and empty dash) in the DROPBOX title's red, 2026-10-03
   // Cards inside the Students window (2026-10-02), two lines.
   // Left: name ↗ over size (a dash if empty). Right: Recover over the age,
   // under the window's SINCE ADDED (a green dash if empty).
-  // Edge: the storage bar's steel blue; amber when the folder has files (2026-10-03).
-  return '<div class="db-card' + (f.empty ? '' : ' db-card-full') + '" ' + open + '>' +
+  // Edge: the storage bar's steel blue (amber for full folders went 2026-10-03).
+  return '<div class="db-card" ' + open + '>' +
     '<div class="db-card-l"><span class="db-card-n">' + f.name + '</span>' +
-      '<span class="db-card-s">' + (f.empty ? '—' : _dbSize(f.bytes)) + '</span></div>' +
+      '<span class="db-card-s">' + (f.empty ? '—' : _dbSize(f.bytes)) + '</span>' +
+      (today ? _dbTodaySteps(f, today) : '') + '</div>' +
     '<div class="db-card-r"><span class="db-card-btns">' + _dbDetailsBtn(f.name) + _dbRecoverBtn(f.name) + '</span>' +
       '<span class="db-card-a" style="color:' + col + '">' + (f.empty ? '—' : _dbAgeText(f.ageDays)) + '</span></div>' +
   '</div>';
@@ -423,8 +429,40 @@ function _dbRenderDetails() {
     '<div class="db-dt-gap">' + _dbLbl('HW') + _dbDetailsUploadHtml(name) + '</div>' +
     '<div class="db-dt-gap">' + _dbLbl('Files') +   // (Recover lives on the list's card)
       '<div class="db-panel db-files"><div id="dbDtFiles">' + _dbDetailsFilesHtml(f) + '</div></div>' +
+    '</div>' +
+    // Every lesson's HW, newest first, from the HW Log tab (Students Import) (2026-10-03).
+    '<div class="db-dt-gap">' + _dbLbl('HW log') +
+      '<div class="db-panel db-files"><div id="dbDtHwLog">Loading</div></div>' +
     '</div>';
+  _dbDetailsHwLog(name);
 
+}
+
+// One block per lesson: "Oct 3 · Lesson 2" over its files (grouped by folder,
+// the Files box's look) or a single No HW line.
+function _dbDetailsHwLog(name) {
+  fetch(getScriptUrl() + '?action=getHwLog&name=' + encodeURIComponent(name))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var el = document.getElementById('dbDtHwLog');
+      if (!el || !_dbDt || _dbDt.name !== name) return;
+      if (!d.success) { el.textContent = d.message || 'Could not read the HW log'; return; }
+      var rows = d.rows || [];
+      if (!rows.length) { el.textContent = 'Nothing yet. Each logged lesson adds a line here.'; return; }
+      var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      el.innerHTML = rows.map(function (r) {
+        var p = String(r.date).split('-');
+        var head = MON[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10) + (r.lesson ? ' · Lesson ' + r.lesson : '');
+        var body = r.hw === 'Sent'
+          ? _dbDetailsFilesHtml({ items: r.files.map(function (x) { return { name: x.split('/').pop(), path: x }; }) })
+          : '<span class="db-file" style="color:rgba(255,255,255,0.4)">No HW</span>';
+        return '<div class="db-hw-entry"><div class="db-hw-head">' + head + '</div>' + body + '</div>';
+      }).join('');
+    })
+    .catch(function () {
+      var el = document.getElementById('dbDtHwLog');
+      if (el) el.textContent = 'No answer from Google';
+    });
 }
 
 function _dbCloseDetails() {
@@ -474,7 +512,8 @@ function _dbDetailsFilesHtml(f) {
     var age = it.modified ? Math.floor((Date.now() - new Date(it.modified).getTime()) / 86400000) : null;
     return '<span class="db-file"' + (indent ? ' style="padding-left:20px"' : '') + '>' + DB_BULLET_PAGE +
       '<span>' + inqEsc(it.name) + '</span>' +
-      '<span style="color:rgba(255,255,255,0.24)">' + _dbSize(it.bytes) + (age == null ? '' : ' · ' + _dbAgeText(age)) + '</span></span>';
+      (it.bytes == null ? '' :   // HW log lines: names only (the file may be gone)
+        '<span style="color:rgba(255,255,255,0.24)">' + _dbSize(it.bytes) + (age == null ? '' : ' · ' + _dbAgeText(age)) + '</span>') + '</span>';
   }
   // Group by the folder a file sits in, in order of each folder's newest file.
   var groups = [], byDir = {};
@@ -562,13 +601,25 @@ function _dbDetailsRefresh(name) {
 }
 
 // Log lesson: the same Log window Home opens (openLogFresh, lessons.js), for today.
-function _dbDetailsLog() {
-  if (!_dbDt || typeof openLogFresh !== 'function') return;
+function _dbDetailsLog() { if (_dbDt) _dbLogFor(_dbDt.name); }
+
+function _dbLogFor(name) {
+  if (typeof openLogFresh !== 'function') return;
+  // A student on today's calendar logs against that lesson, the way the Home
+  // Today grid does, so the tick (alreadyLogged) flips when it saves.
+  var today = (typeof todayStudents !== 'undefined' && todayStudents) || [];
+  for (var i = 0; i < today.length; i++) {
+    if (_dbKey(today[i].name) === _dbKey(name)) {
+      window._auditFixActive = false;
+      openLogFresh(today[i], i);
+      return;
+    }
+  }
   // yyyy/MM/dd: slashes parse in local time on the backend (see _stLogLessonFor).
   var d = new Date(), m = d.getMonth() + 1, dd = d.getDate();
   var eventDate = d.getFullYear() + '/' + (m < 10 ? '0' + m : m) + '/' + (dd < 10 ? '0' + dd : dd);
   window._auditFixActive = false;
-  openLogFresh({ name: _dbDt.name, eventDate: eventDate, calType: 'regular' }, undefined);
+  openLogFresh({ name: name, eventDate: eventDate, calType: 'regular' }, undefined);
 }
 
 // A lesson (non-student) folder: a card like a student's, green edge, name
@@ -596,8 +647,93 @@ function _dbStudentsHtml() {
     : _dbRow('None');
   // No window frame (2026-10-02), like every section on this tab: the
   // window's title and header, then the cards straight on the page.
-  return '<div class="db-section">' + _dbTitle('Students') + header + cards + '</div>';
+  return '<div class="db-section">' + _dbTitle('Folders') + header + cards + '</div>';
 }
+
+// Today's students (todayStudents, loaded at portal start from the calendar),
+// in lesson order, each as its Dropbox card. Someone with no folder is skipped.
+function _dbTodayHtml() {
+  var today = (typeof todayStudents !== 'undefined' && todayStudents) || [];
+  var byName = {};
+  _dbFolders.forEach(function (f) { byName[_dbKey(f.name)] = f; });
+  var seen = {}, cards = [];
+  today.forEach(function (t) {
+    var f = byName[_dbKey(t.name)];
+    if (f && !seen[f.name]) { seen[f.name] = 1; cards.push(_dbCard(f, t)); }
+  });
+  return _dbTitle('Today', '', 'Students') +
+    '<div class="db-cards-head">' + _dbLbl(cards.length ? cards.length + (cards.length === 1 ? ' student' : ' students') : 'No lessons today') +
+      (cards.length ? _dbLbl('Since added') : '') + '</div>' +
+    cards.join('');
+}
+
+// Redraw Today once the portal's lesson list arrives (it can land after the
+// Dropbox page drew). Called from fetchWeekStudents (core/api.js).
+function _dbRefreshToday() {
+  var el = document.getElementById('dbTodaySection');
+  if (el) el.innerHTML = _dbTodayHtml();
+}
+
+// A Today card's checklist, the Trial card's step buttons and tick (2026-10-03):
+//   1. Lesson logged  today's lesson is in the sheet (todayStudents.alreadyLogged);
+//                     opens the Log window until then, then just keeps its tick
+//   2. HW             today's row in the HW Log tab (reads "HW sent" or "No HW").
+//                     The Log window asks it with the lesson; if the lesson was
+//                     logged without it, this opens the window in HW-only mode
+function _dbTodaySteps(f, t) {
+  var logged = !!t.alreadyLogged;
+  var hwAns = _dbHwToday[_dbKey(f.name)] || '';
+  var hw = !!hwAns;
+  function step(n, label, done, flat, click) {
+    return '<div class="tr-step' + (done ? ' is-done' : '') + '">' +
+      '<span class="tr-step-n">' + n + '.</span>' +
+      '<button class="tr-step-b' + (done ? ' done' : '') + (flat ? ' flat' : '') + '" ' +
+        (flat ? 'tabindex="-1" onclick="event.stopPropagation()"' : 'onclick="event.stopPropagation();' + click + '"') + '>' +
+        '<span>' + label + '</span></button></div>';
+  }
+  var nm = _dbEsc(f.name);
+  // Stacked and white, exactly the Trial card's list (tr-col).
+  return '<div class="db-steps tr-col">' +
+    step(1, 'Lesson logged', logged, logged, '_dbLogFor(\'' + nm + '\')') +
+    step(2, hwAns === 'No HW' ? 'No HW' : 'HW sent', hw, hw, (logged ? '_dbHwFor' : '_dbLogFor') + '(\'' + nm + '\')') +
+  '</div>';
+}
+
+// Today's HW answers from the HW Log tab (Students Import), by student: 'Sent' / 'No HW'.
+// Read when the tab draws; the Log window updates it on save (_dbHwSaved).
+var _dbHwToday = {};
+function _dbLoadHwToday() {
+  var d = new Date(), m = d.getMonth() + 1, dd = d.getDate();
+  var key = d.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (dd < 10 ? '0' + dd : dd);
+  fetch(getScriptUrl() + '?action=getHwLog&date=' + key)
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) return;
+      _dbHwToday = {};
+      (d.rows || []).forEach(function (r) { _dbHwToday[_dbKey(r.student)] = r.hw; });
+      _dbRefreshToday();
+    })
+    .catch(function () {});
+}
+
+// The Log window saved a HW answer (lessons.js _logHwSaved).
+function _dbHwSaved(name, date, hw) {
+  var d = new Date(), m = d.getMonth() + 1, dd = d.getDate();
+  if (date === d.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (dd < 10 ? '0' + dd : dd)) _dbHwToday[_dbKey(name)] = hw;
+  _dbRefreshToday();
+  if (_dbDt && _dbKey(_dbDt.name) === _dbKey(name)) _dbDetailsHwLog(_dbDt.name);
+}
+
+// HW only, for a lesson already logged without it: the Log window in HW mode.
+function _dbHwFor(name) {
+  if (typeof openLogFresh !== 'function') return;
+  var today = (typeof todayStudents !== 'undefined' && todayStudents) || [];
+  for (var i = 0; i < today.length; i++) {
+    if (_dbKey(today[i].name) === _dbKey(name)) { openLogFresh(today[i], i, { hwOnly: true }); return; }
+  }
+}
+
+function _dbKey(n) { return String(n || '').trim().toLowerCase().replace(/\s+/g, ' '); }
 
 // Escape a string for safe use inside a single-quoted onclick attribute.
 function _dbEsc(s) {

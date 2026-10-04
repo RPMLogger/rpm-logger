@@ -32,6 +32,7 @@ function fetchWeekStudents(url) {
       });
       weekStudents  = f;
       todayStudents = f.filter(function(s) { return s.isToday; });
+      if (typeof _dbRefreshToday === "function") _dbRefreshToday();   // Dropbox tab's Today section
 
       // Render each section independently — a failure in one is reported
       // but no longer aborts the others.
