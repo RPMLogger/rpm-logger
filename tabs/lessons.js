@@ -10,6 +10,7 @@ function closeLogPanel() {
   document.querySelectorAll(".today-btn").forEach(function(b) { b.classList.remove("recording"); });
   activeStudent = null;
   logHw = null;
+  window._auditHwActive = false;
   _logHwOnly(false);
   window._auditFixActive = false;
   window._auditResolve = null;
@@ -125,7 +126,12 @@ function openLogFresh(student, idx, opts) {
     document.getElementById("logActions").insertBefore(tog, document.getElementById("btnLog"));
   }
   logHwOpen(student);
-  if (hwOnly) lb.textContent = "Save";
+  if (hwOnly) {
+    lb.textContent = "Save";
+    // Which lesson: "· HW · Oct 3" (Audit can have several waiting).
+    var t = panel.querySelector(".settings-title > span > span:last-child");
+    if (t && logHw) { var p = logHw.date.split("-"); t.textContent = " · HW · " + MONTHS[parseInt(p[1], 10) - 1] + " " + parseInt(p[2], 10); }
+  }
 }
 
 function setRecordingUI(recording, idx) {
@@ -475,5 +481,11 @@ function logHwSaveOnly() {
 // Tell the Dropbox tab (its Today card and the open student page).
 function _logHwSaved(name, hw) {
   if (!hw) return;
+  // Opened from the Audit tab's Missing HW: reload that list. (A Log lesson
+  // from Audit reloads the whole tab, this list included.)
+  if (window._auditHwActive && typeof _runHwAudit === "function") {
+    window._auditHwActive = false;
+    _runHwAudit();
+  }
   if (typeof _dbHwSaved === "function") _dbHwSaved(name, hw.date, hw.choice === "sent" ? "Sent" : "No HW");
 }

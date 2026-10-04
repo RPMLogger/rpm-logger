@@ -10,6 +10,7 @@ function initAuditTab() {
     return;
   }
   _runSyncAudits(url);
+  _runHwAudit(url);
   // Unpaid Students moved to the Payments tab (2026-09-28); it loads there.
 }
 
@@ -68,6 +69,49 @@ function _runAudit3(url) {
       renderUnpaidCards(data.audit || []);
     })
     .catch(function() { _auditSectionFail(section, "No answer from Google."); });
+}
+
+// ─── MISSING HW (2026-10-04) ─────────────────────────────────────────────────
+// Lessons in Students Import from HW_START on with no Sent / No HW answer in
+// the HW Tracking sheet (backend getHwAudit). One card per student, the dates
+// in grey; Log HW opens the Log window in HW-only mode for the oldest one,
+// and the section reloads once it saves (lessons.js _logHwSaved).
+function _runHwAudit(url) {
+  var section = document.getElementById("auditHwSection");
+  if (!section) return;
+  section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  fetch((url || getScriptUrl()) + "?action=getHwAudit")
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.success) { _auditSectionFail(section, data.message || "unknown"); return; }
+      var list = data.audit || [];
+      section.innerHTML = list.length ? list.map(_auHwCard).join("") : '<div class="empty-state">None</div>';
+    })
+    .catch(function() { _auditSectionFail(section, "No answer from Google."); });
+}
+
+function _auHwDay(k) {   // "2026-10-03" → "Oct 3"
+  var p = String(k).split("-");
+  return MONTHS[parseInt(p[1], 10) - 1] + " " + parseInt(p[2], 10);
+}
+
+function _auHwCard(s) {
+  var n = s.dates.length, nm = _auEsc(s.name), oldest = s.dates[0];
+  return '<div class="inq-dcard au-card">' +
+      '<div class="inq-name-line"><span class="inq-name">' + nm + '</span></div>' +
+      '<div class="au-sub due">No HW answer' + (n > 1 ? ' · ' + n + ' lessons' : '') + '</div>' +
+      '<div class="au-sub" style="color:var(--muted)">' + s.dates.map(_auHwDay).join(" · ") + '</div>' +
+      '<hr class="divider" style="margin:24px 0 27px">' +
+      '<div class="au-acts"><span class="au-state"></span>' +
+        '<button class="link-btn bright opens-window" onclick="_auHwLog(' + _auEsc(JSON.stringify(s.name)) + ',\'' + oldest + '\')" ' +
+          'data-tip="Opens a window.\nSent or No HW for ' + _auHwDay(oldest) + '.' + (n > 1 ? '\n(Oldest first.)' : '') + '" data-tip-wrap data-tip-left>Log HW</button>' +
+      '</div>' +
+    '</div>';
+}
+
+function _auHwLog(name, date) {
+  window._auditHwActive = true;
+  openLogFresh({ name: name, eventDate: date.replace(/-/g, "/"), calType: "regular" }, undefined, { hwOnly: true });
 }
 
 // A section that could not load: the Trial tab's red badge, reason in its tooltip.
