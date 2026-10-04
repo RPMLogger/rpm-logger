@@ -134,8 +134,18 @@ function updateCommsSummary(type, count) {
 //   opts.onDone(ok, fail, total)            — when all files are finished
 // A file may carry `_rpmPath` (or webkitRelativePath from a folder picker): its
 // path inside the student folder, e.g. "Lesson 5/tab.pdf". Subfolders are kept.
+// Everything uploaded in one day goes inside one folder for that lesson,
+// "LESSON - OCT 4" (2026-10-04, caps by the user), so a lesson's HW stays together in the
+// student's Dropbox. Dropbox makes the folder on the first upload; a second
+// upload the same day lands in the same folder.
+function lessonFolderName(d) {
+  d = d || new Date();
+  return ("Lesson - " + MONTHS[d.getMonth()] + " " + d.getDate()).toUpperCase();
+}
+
 function uploadFilesToDropbox(folderName, fileList, opts) {
   opts = opts || {};
+  var wrap = lessonFolderName();
   var url = getScriptUrl();
   var files = Array.prototype.slice.call(fileList);
   var total = files.length;
@@ -147,6 +157,7 @@ function uploadFilesToDropbox(folderName, fileList, opts) {
     var file = files[i];
     var relPath = file._rpmPath || file.webkitRelativePath || file.name;
     if (opts.onProgress) opts.onProgress(relPath, i, total);
+    relPath = wrap + "/" + relPath;
     if (file.size > MAX) { fail++; next(i + 1); return; }
     var reader = new FileReader();
     reader.onload = function () {

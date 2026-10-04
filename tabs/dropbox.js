@@ -510,24 +510,36 @@ function _dbDetailsFilesHtml(f) {
   if (!items.length) return 'Empty';
   function line(it, indent) {
     var age = it.modified ? Math.floor((Date.now() - new Date(it.modified).getTime()) / 86400000) : null;
-    return '<span class="db-file"' + (indent ? ' style="padding-left:20px"' : '') + '>' + DB_BULLET_PAGE +
+    return '<span class="db-file"' + (indent ? ' style="padding-left:' + (20 * indent) + 'px"' : '') + '>' + DB_BULLET_PAGE +
       '<span>' + inqEsc(it.name) + '</span>' +
       (it.bytes == null ? '' :   // HW log lines: names only (the file may be gone)
         '<span style="color:rgba(255,255,255,0.24)">' + _dbSize(it.bytes) + (age == null ? '' : ' · ' + _dbAgeText(age)) + '</span>') + '</span>';
   }
-  // Group by the folder a file sits in, in order of each folder's newest file.
-  var groups = [], byDir = {};
+  // Group by the top folder a file sits in (usually "Lesson - Oct 4"), in
+  // order of each folder's newest file; inside it, the lesson's own folders
+  // get their own heading, one step further in (2026-10-04).
+  function dirOf(it) { var p = it.path || it.name, cut = p.lastIndexOf('/'); return cut > 0 ? p.slice(0, cut) : ''; }
+  function head(name, indent) {
+    return '<span class="db-file db-dir"' + (indent ? ' style="padding-left:20px"' : '') + '>' + DB_FOLDER_GLYPH +
+      '<span style="text-transform:uppercase">' + inqEsc(name) + '</span></span>';   // folder names in caps
+  }
+  var groups = [], byTop = {};
   items.forEach(function (it) {
-    var p = it.path || it.name, cut = p.lastIndexOf('/');
-    var dir = cut > 0 ? p.slice(0, cut) : '';
-    if (!byDir[dir]) { byDir[dir] = { dir: dir, items: [] }; groups.push(byDir[dir]); }
-    byDir[dir].items.push(it);
+    var dir = dirOf(it), cut = dir.indexOf('/');
+    var top = cut > 0 ? dir.slice(0, cut) : dir, sub = cut > 0 ? dir.slice(cut + 1) : '';
+    if (!byTop[top]) { byTop[top] = { top: top, subs: [], bySub: {} }; groups.push(byTop[top]); }
+    var g = byTop[top];
+    if (!g.bySub[sub]) { g.bySub[sub] = []; g.subs.push(sub); }
+    g.bySub[sub].push(it);
   });
   // Each group in its own block, a gap between groups.
   return groups.map(function (g) {
-    if (!g.dir) return '<span class="db-group">' + g.items.map(function (it) { return line(it, false); }).join('') + '</span>';
-    return '<span class="db-group"><span class="db-file db-dir">' + DB_FOLDER_GLYPH + '<span style="text-transform:uppercase">' + inqEsc(g.dir) + '</span></span>' +   // folder names in caps
-      g.items.map(function (it) { return line(it, true); }).join('') + '</span>';
+    if (!g.top) return '<span class="db-group">' + g.bySub[''].map(function (it) { return line(it, 0); }).join('') + '</span>';
+    // Loose files in the top folder first, then each subfolder.
+    var subs = g.subs.slice().sort(function (a, b) { return (a ? 1 : 0) - (b ? 1 : 0); });
+    return '<span class="db-group">' + head(g.top, false) + subs.map(function (sub) {
+      return (sub ? head(sub, true) : '') + g.bySub[sub].map(function (it) { return line(it, sub ? 2 : 1); }).join('');
+    }).join('') + '</span>';
   }).join('');
 }
 
