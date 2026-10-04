@@ -515,7 +515,7 @@ function _dbDetailsFilesHtml(f) {
       (it.bytes == null ? '' :   // HW log lines: names only (the file may be gone)
         '<span style="color:rgba(255,255,255,0.24)">' + _dbSize(it.bytes) + (age == null ? '' : ' · ' + _dbAgeText(age)) + '</span>') + '</span>';
   }
-  // Group by the top folder a file sits in (usually "Lesson - Oct 4"), in
+  // Group by the top folder a file sits in (usually "HW - OCT 4"), in
   // order of each folder's newest file; inside it, the lesson's own folders
   // get their own heading, one step further in (2026-10-04).
   function dirOf(it) { var p = it.path || it.name, cut = p.lastIndexOf('/'); return cut > 0 ? p.slice(0, cut) : ''; }

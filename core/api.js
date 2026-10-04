@@ -135,12 +135,12 @@ function updateCommsSummary(type, count) {
 // A file may carry `_rpmPath` (or webkitRelativePath from a folder picker): its
 // path inside the student folder, e.g. "Lesson 5/tab.pdf". Subfolders are kept.
 // Everything uploaded in one day goes inside one folder for that lesson,
-// "LESSON - OCT 4" (2026-10-04, caps by the user), so a lesson's HW stays together in the
+// "HW - OCT 4" (2026-10-04, caps by the user; was LESSON - OCT 4), so a lesson's HW stays together in the
 // student's Dropbox. Dropbox makes the folder on the first upload; a second
 // upload the same day lands in the same folder.
 function lessonFolderName(d) {
   d = d || new Date();
-  return ("Lesson - " + MONTHS[d.getMonth()] + " " + d.getDate()).toUpperCase();
+  return ("HW - " + MONTHS[d.getMonth()] + " " + d.getDate()).toUpperCase();
 }
 
 function uploadFilesToDropbox(folderName, fileList, opts) {
