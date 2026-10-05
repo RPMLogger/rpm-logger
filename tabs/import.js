@@ -69,16 +69,25 @@ function _imBack() {
   return '<div style="margin-bottom:22px"><button class="link-btn" onclick="_imClose()" data-tip="Instant.\nBack to the students.">' + ARROW_ICON + '<span>Back</span></button></div>';
 }
 
-function _imClose() { _imOpen = null; _imRoster ? _imRenderCards() : initImportTab(); }
+function _imClose() { _imOpen = null; _imLast = null; _imRoster ? _imRenderCards() : initImportTab(); }
+
+// Sort order, remembered in this browser: 'new' (newest block first) or 'old'.
+function _imSort() { try { return localStorage.getItem('imSort') === 'old' ? 'old' : 'new'; } catch (e) { return 'new'; } }
+function _imSetSort(v) {
+  try { localStorage.setItem('imSort', v); } catch (e) {}
+  if (_imLast) _imRenderStudent(_imLast.name, _imLast.lessons);
+}
+var _imLast = null;   // { name, lessons } of the open student, for re-sorting
 
 // lessons arrive newest first, dates without a year ("Sep /30"). Walking down
-// the list, a month later than the one above it means the year went back one.
+// that list, a month later than the one above it means the year went back one.
+// Then blocks of 4, 1 2 3 4 inside each, as the sheet lays them out; empty
+// slots (the current block's, or a blank row) show dimmed.
 function _imRenderStudent(name, lessons) {
+  _imLast = { name: name, lessons: lessons };
   var body = document.getElementById('importBody');
-  var total = lessons.length, year = new Date().getFullYear(), prevMon = null;
-  var nowMon = new Date().getMonth();
-  var rows = [], lastYear = null;
-  lessons.forEach(function (l, i) {
+  var total = lessons.length, year = new Date().getFullYear(), prevMon = null, nowMon = new Date().getMonth();
+  var items = lessons.map(function (l) {
     var m = String(l.date || '').replace(/\//g, '').trim().match(/^([A-Za-z]{3})\s*(\d{1,2})$/);
     var mon = m ? MONTHS.indexOf(m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase()) : -1;
     if (mon >= 0) {
@@ -86,16 +95,52 @@ function _imRenderStudent(name, lessons) {
       else if (mon > prevMon) year--;
       prevMon = mon;
     }
-    if (year !== lastYear) { rows.push('<div class="im-year">' + year + '</div>'); lastYear = year; }
-    rows.push('<div class="im-row">' +
-      '<span class="im-n">' + (total - i) + '</span>' +
-      '<span class="im-d">' + inqEsc(m ? m[1] + ' ' + parseInt(m[2], 10) : (l.date || '—')) + '</span>' +
-      '<span class="im-s">' + (l.subject ? inqEsc(l.subject) : '<span style="color:var(--muted)">—</span>') + '</span>' +
-    '</div>');
-  });
+    return { year: year, row: l.row, n: l.n, date: m ? m[1] + ' ' + parseInt(m[2], 10) : (l.date || '—'), subject: l.subject };
+  }).reverse();   // oldest first
+
+  // Blocks are the sheet's own: column M numbers each row 1-4, so a blank row
+  // stays an empty slot. Without row numbers (older backend), count
+  // lessons in fours instead.
+  var blocks = [];
+  if (items.length && items[0].row) {
+    var byBlock = {}, keys = [];
+    items.forEach(function (it) {
+      // Column M's 1-4 decides the slot; the row is the fallback.
+      var slot = (it.n >= 1 && it.n <= 4) ? it.n - 1 : (it.row - 12) % 4;
+      var b = it.row - slot;   // the block's first row
+      if (!byBlock[b]) { byBlock[b] = [null, null, null, null]; keys.push(b); }
+      byBlock[b][slot] = it;
+    });
+    blocks = keys.map(function (b) { var a = byBlock[b]; a.year = (a.filter(Boolean)[0] || {}).year; return a; });
+  } else {
+    for (var i = 0; i < items.length; i += 4) { var c = items.slice(i, i + 4); c.year = c[0].year; blocks.push(c); }
+  }
+  var sort = _imSort();
+  var order = sort === 'old' ? blocks : blocks.slice().reverse();
+
+  var lastYear = null;
+  var html = order.map(function (b) {
+    var y = b.year, head = '';
+    if (y !== lastYear) { head = '<div class="im-year">' + y + '</div>'; lastYear = y; }
+    var rows = [0, 1, 2, 3].map(function (k) {
+      var l = b[k];
+      if (!l) return '<div class="im-row im-empty"><span class="im-n">' + (k + 1) + '</span><span class="im-d">—</span><span class="im-s"></span></div>';
+      return '<div class="im-row">' +
+        '<span class="im-n">' + (k + 1) + '</span>' +
+        '<span class="im-d">' + inqEsc(l.date) + '</span>' +
+        '<span class="im-s">' + (l.subject ? inqEsc(l.subject) : '<span style="color:var(--muted)">—</span>') + '</span>' +
+      '</div>';
+    }).join('');
+    return head + '<div class="im-block">' + rows + '</div>';
+  }).join('');
+
+  function opt(v, label) {
+    return '<button class="link-btn' + (sort === v ? ' bright' : '') + '" onclick="_imSetSort(\'' + v + '\')" data-tip="Instant.\nRemembered for next time.">' + label + '</button>';
+  }
   body.innerHTML = _imBack() +
     '<label class="field-label">Student</label>' +
     '<div class="im-head"><span class="inq-name">' + inqEsc(name) + '</span>' +
       '<span class="im-count">' + total + (total === 1 ? ' lesson' : ' lessons') + '</span></div>' +
-    '<div class="db-panel im-list">' + (rows.length ? rows.join('') : 'No lessons logged yet') + '</div>';
+    '<div class="im-sort">' + opt('new', 'Newest first') + opt('old', 'Oldest first') + '</div>' +
+    '<div class="db-panel im-list">' + (items.length ? html : 'No lessons logged yet') + '</div>';
 }

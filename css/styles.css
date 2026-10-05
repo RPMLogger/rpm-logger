@@ -2086,3 +2086,10 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-n, .im-d { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
 .im-n { text-align: right; }
 .im-s { font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.45; color: var(--text); }
+/* Import: blocks of 4 (2026-10-04) with a gap between, sort buttons above. */
+.im-sort { display: flex; gap: 8px; justify-content: flex-end; margin: -6px 0 12px; }
+.im-block { padding: 4px 0; }
+.im-block + .im-block { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 10px; }
+.im-block .im-row { border-bottom: none; padding: 4px 0; }
+.im-row.im-empty .im-n, .im-row.im-empty .im-d { opacity: .35; }
+.im-year + .im-block { border-top: none; margin-top: 0; }
