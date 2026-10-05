@@ -792,10 +792,10 @@ function _stOpenSkipModal(studentName, lesson, opts) {
   var who = 'Student';
   var w = _stWin('stSkipModal', studentName, 'Skip', CALENDAR_ICON,
     "<div class='st-when'>" + lesson.dateLabel + " · " + lesson.time + "</div>" +
-    "<label class='field-label'>Who asked?</label>" + _stWhoSeg('stSkipWho', who) +
-    "<label class='field-label' style='margin-top:16px'>Note (optional)</label>" +
-    "<input id='stSkipNote' type='text' class='rpm-field' placeholder='Reason or context' style='width:100%'>" +
-    "<div class='ll-acts' style='margin-top:18px'><span class='ll-state' id='stSkipState' style='flex:1'></span>" +
+    "<label class='field-label'>Requested by</label>" + _stWhoSeg('stSkipWho', who) +
+    "<label class='field-label st-gap'>Reason (optional)</label>" +
+    "<input id='stSkipNote' type='text' class='rpm-field' style='width:100%'>" +
+    "<div class='ll-acts st-foot'><span class='ll-state' id='stSkipState' style='flex:1'></span>" +
       "<button class='link-btn bright' id='stSkipConfirm' data-tip='Removes this one lesson from the calendar\nand logs it to Skip Logs.' data-tip-left>Confirm skip</button></div>");
   _stWireWho(w, 'stSkipWho', function(v) { who = v; });
 
@@ -830,7 +830,7 @@ function _stOpenLessonActions(studentName, lesson, opts) {
     "<div class='st-when'>" + lesson.dateLabel + " · " + lesson.time + "</div>" +
     (to ? "<div class='st-when' style='color:var(--blue)'>Dropped on " + to.label + "</div>" : "") +
     (to && to.overlaps && to.overlaps.length ? "<div class='st-when' style='color:var(--warn)'>Overlaps " + to.overlaps.join(', ') + "</div>" : "") +
-    "<div class='ll-acts' style='margin-top:18px;justify-content:flex-end'>" +
+    "<div class='ll-acts st-foot' style='justify-content:flex-end'>" +
       "<button class='link-btn opens-window' id='stActSkip' data-tip='Opens a window.\nTakes this one lesson off the calendar.'>Skip</button>" +
       "<button class='link-btn opens-window' id='stActReschedule' data-tip='Opens a window.\nMoves this one lesson to another day or time.' data-tip-left>Reschedule</button>" +
     "</div>");
@@ -958,22 +958,23 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
   var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function dayOf(ymd) { var p = ymd.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
   function dayText() { var d = dayOf(newYmd); return DAYS[d.getDay()] + ', ' + MON[d.getMonth()] + ' ' + d.getDate(); }
-  function hourText() { var h = Math.floor(mins / 60); return ((h % 12) || 12) + ' ' + (h < 12 ? 'AM' : 'PM'); }
-  function minText() { return ':' + _stPad2(mins % 60); }
-  function seg(id, w, txt) {
-    return "<span class='dt-seg'><span class='dt-stack'>" +
-      "<button type='button' class='dt-arrow' tabindex='-1' data-step='" + id + "' data-dir='1'>" + dtArrow(1) + "</button>" +
-      "<button type='button' class='dt-arrow' tabindex='-1' data-step='" + id + "' data-dir='-1'>" + dtArrow(-1) + "</button></span>" +
-      "<button type='button' class='dt-val' id='stDt_" + id + "' data-step='" + id + "' style='min-width:" + w + "px'>" + txt + "</button></span>";
+  function timeText() { var h = Math.floor(mins / 60); return ((h % 12) || 12) + ':' + _stPad2(mins % 60) + ' ' + (h < 12 ? 'AM' : 'PM'); }
+  // The Trial "Pick a time" picker (2026-10-05) with + above and − below each value,
+  // both in one grey box; the value last touched is lit (.on).
+  function seg(id, txt) {
+    return "<div class='tb-col'>" +
+      "<button type='button' class='tb-tri st-pm' tabindex='-1' data-step='" + id + "' data-dir='1'>+</button>" +
+      "<div class='dt-seg'><button type='button' class='dt-val' id='stDt_" + id + "' data-step='" + id + "'>" + txt + "</button></div>" +
+      "<button type='button' class='tb-tri st-pm' tabindex='-1' data-step='" + id + "' data-dir='-1' style='grid-row:3'>−</button></div>";
   }
   var w = _stWin('stTimeModal', studentName, 'Reschedule', CALENDAR_ICON,
     "<div class='st-when'>From " + lesson.dateLabel + " · " + lesson.time + "</div>" +
     "<label class='field-label'>Move to</label>" +
-    "<span class='dt-row'>" + seg('day', 78, dayText()) + seg('hour', 42, hourText()) + seg('min', 26, minText()) + "</span>" +
-    "<label class='field-label' style='margin-top:16px'>Who asked?</label>" + _stWhoSeg('stRsWho', who) +
-    "<label class='field-label' style='margin-top:16px'>Reason (optional)</label>" +
-    "<input id='stRsNote' type='text' class='rpm-field' placeholder='Reason or context' style='width:100%'>" +
-    "<div class='ll-acts' style='margin-top:18px'><span class='ll-state' id='stRsState' style='flex:1'></span>" +
+    "<div class='dt-row' id='stDtRow'>" + seg('day', dayText()) + seg('time', timeText()) + "</div>" +
+    "<label class='field-label st-gap'>Requested by</label>" + _stWhoSeg('stRsWho', who) +
+    "<label class='field-label st-gap'>Reason (optional)</label>" +
+    "<input id='stRsNote' type='text' class='rpm-field' style='width:100%'>" +
+    "<div class='ll-acts st-foot'><span class='ll-state' id='stRsState' style='flex:1'></span>" +
       "<button class='link-btn bright' id='stTimeConfirm' data-tip='Moves only this lesson in Google Calendar\nand logs it to Reschedule Logs.' data-tip-left>Confirm move</button></div>");
   _stWireWho(w, 'stRsWho', function(v) { who = v; });
 
@@ -984,16 +985,17 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
       if (d < today) return;   // never into the past
       newYmd = d.getFullYear() + '-' + _stPad2(d.getMonth() + 1) + '-' + _stPad2(d.getDate());
     }
-    if (id === 'hour') mins = (mins + dir * 60 + 1440) % 1440;
-    if (id === 'min')  mins = Math.floor(mins / 60) * 60 + ((mins % 60) + dir * 5 + 60) % 60;
+    // Time moves in 15-minute steps (2026-10-05); an odd time snaps to the quarter.
+    if (id === 'time') mins = ((Math.round((mins + dir * 15) / 15) * 15) % 1440 + 1440) % 1440;
     document.getElementById('stDt_day').textContent  = dayText();
-    document.getElementById('stDt_hour').textContent = hourText();
-    document.getElementById('stDt_min').textContent  = minText();
+    document.getElementById('stDt_time').textContent = timeText();
   }
-  w.querySelectorAll('.dt-arrow').forEach(function(b) {
-    b.onclick = function() { step(b.dataset.step, parseInt(b.dataset.dir, 10)); document.getElementById('stDt_' + b.dataset.step).focus(); };
+  function light(id) { w.querySelectorAll('#stDtRow .dt-val').forEach(function(v) { v.classList.toggle('on', v.dataset.step === id); }); }
+  w.querySelectorAll('.tb-tri').forEach(function(b) {
+    b.onclick = function() { step(b.dataset.step, parseInt(b.dataset.dir, 10)); light(b.dataset.step); document.getElementById('stDt_' + b.dataset.step).focus(); };
   });
   w.querySelectorAll('.dt-val').forEach(function(v) {
+    v.onclick = function() { light(v.dataset.step); };
     v.onkeydown = function(e) {
       if (e.key === 'ArrowUp')   { e.preventDefault(); step(v.dataset.step, 1); }
       if (e.key === 'ArrowDown') { e.preventDefault(); step(v.dataset.step, -1); }
@@ -1041,16 +1043,17 @@ function _stWin(id, name, part, icon, body) {
   return back;
 }
 
-// Student / Teacher, the Trial windows' two-way choice (.tl-seg).
+// Student / Teacher as two step buttons, the picked one bright with the
+// tick (2026-10-05: the HW step's Sent / No HW look, was .tl-seg).
 function _stWhoSeg(id, on) {
-  return "<div class='tl-seg' id='" + id + "'>" + ['Student', 'Teacher'].map(function(v) {
-    return "<button type='button' class='tl-seg-opt" + (v === on ? " on" : "") + "' data-who='" + v + "'>" + v + "</button>";
+  return "<div class='lh-hw-pick picked st-who' id='" + id + "'>" + ['Student', 'Teacher'].map(function(v) {
+    return "<button type='button' class='tr-step-b" + (v === on ? " done" : "") + "' data-who='" + v + "'><span>" + v + "</span></button>";
   }).join('') + "</div>";
 }
 function _stWireWho(w, id, set) {
-  var opts = w.querySelectorAll('#' + id + ' .tl-seg-opt');
+  var opts = w.querySelectorAll('#' + id + ' .tr-step-b');
   opts.forEach(function(b) {
-    b.onclick = function() { opts.forEach(function(o) { o.classList.toggle('on', o === b); }); set(b.dataset.who); };
+    b.onclick = function() { opts.forEach(function(o) { o.classList.toggle('done', o === b); }); set(b.dataset.who); };
   });
 }
 
