@@ -18,8 +18,7 @@ var _stState = {
   view:     'search',  // 'search' | 'detail' | 'audit' | 'calendar'
   roster:   null,      // cached list of student names
   current:  null,      // current student detail object
-  lessons:  null,      // current student's upcoming lessons (calendar view)
-  reschedule: null     // { studentName, lesson } while a drag-to-move is active
+  lessons:  null       // current student's upcoming lessons (calendar view)
 };
 
 function initStudentTab() {
@@ -666,7 +665,6 @@ function _stOpenCalendarFor(name) {
 }
 
 function _stOpenCalendar() {
-  _stState.reschedule = null; // never resume a stale drag on a fresh load
   var section = document.getElementById('studentBody');
   section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   var url = getScriptUrl(); if (!url) return;
@@ -724,12 +722,8 @@ function _stRenderCalendar() {
 
   var hint = document.createElement('div');
   hint.style.cssText = 'font-size:11px;color:var(--muted);text-align:center;margin-top:12px';
-  hint.textContent = _stState.reschedule
-    ? 'Drag the highlighted lesson onto a new day.'
-    : 'Tap a lesson day to reschedule or skip it.';
+  hint.textContent = 'Tap a lesson day to reschedule or skip it.';
   section.appendChild(hint);
-
-  if (_stState.reschedule) _stEnableRescheduleDrag(section);
 }
 
 function _stBuildWeekStrip(monday, byDate, today, studentName) {
@@ -753,8 +747,7 @@ function _stBuildWeekStrip(monday, byDate, today, studentName) {
 
     var cell = document.createElement('button');
     cell.style.cssText = 'flex:1;padding:6px 4px;border-radius:4px;font-family:inherit;border:1px solid transparent;';
-    // Tag every cell with its date + whether it holds a lesson, so the
-    // reschedule drag can find drop targets and skip past/lesson days.
+    // Tag every cell with its date + whether it holds a lesson.
     cell.dataset.ymd  = ymd;
     cell.dataset.past = isPast ? '1' : '0';
     cell.dataset.has  = (lesson && !isPast) ? '1' : '0';
@@ -837,113 +830,19 @@ function _stOpenLessonActions(studentName, lesson, opts) {
   document.getElementById('stActSkip').onclick = function() { w.remove(); _stOpenSkipModal(studentName, lesson, opts); };
   document.getElementById('stActReschedule').onclick = function() {
     w.remove();
-    // Calendar tab has no 8-week strip to drag in, so go straight to the day/time picker.
+    // Straight to the Reschedule window, which moves the day itself (2026-10-05:
+    // Home's drag-onto-a-day step went; a Calendar drop starts at its spot).
     if (opts && opts.fromCalendar) _stOpenTimeConfirm(studentName, lesson, (to && to.ymd) || lesson.date,
       { dayChange: true, startTime: to && to.time, onDone: opts.onDone, onFail: opts.onFail });
-    else _stBeginReschedule(studentName, lesson);
+    else _stOpenTimeConfirm(studentName, lesson, lesson.date);
   };
 }
 
 
-// ─── RESCHEDULE (drag a lesson to a new day, within the visible 8 weeks) ─────
+// ─── RESCHEDULE ──────────────────────────────────────────────────────────────
 
-function _stBeginReschedule(studentName, lesson) {
-  _stState.reschedule = { studentName: studentName, lesson: lesson };
-  _stRenderCalendar();
-}
-
-function _stCancelReschedule() {
-  _stState.reschedule = null;
-  _stRenderCalendar();
-}
-
-// Called from _stRenderCalendar when a reschedule is in progress. Adds the
-// banner and wires pointer-drag from the source lesson cell onto any other
-// (non-past) day cell in the grid.
-function _stEnableRescheduleDrag(section) {
-  var rs      = _stState.reschedule;
-  var lesson  = rs.lesson;
-  var srcCell = section.querySelector('[data-ymd="' + lesson.date + '"]');
-
-  // Banner at the top of the calendar.
-  var banner = document.createElement('div');
-  banner.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px;background:rgba(91,157,255,0.12);border:1px solid rgba(91,157,255,0.45);border-radius:6px;padding:10px 12px;margin-bottom:12px';
-  banner.innerHTML =
-    "<div style='font-size:12px;color:#9ec3ff;line-height:1.4'>Drag <b>" + rs.studentName + "</b>'s lesson (" + lesson.dateLabel + ") to a new day, or click it to change only the time.</div>" +
-    "<button id='stRsCancel' style='flex:0 0 auto;padding:6px 12px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>Cancel</button>";
-  section.insertBefore(banner, section.children[1] || null);
-  banner.querySelector('#stRsCancel').onclick = _stCancelReschedule;
-
-  if (!srcCell) return;
-
-  // Highlight the source cell as "the one being moved".
-  srcCell.style.outline = '2px dashed #5b9dff';
-  srcCell.style.outlineOffset = '1px';
-  srcCell.style.touchAction = 'none';
-
-  var ghost = null, lastTarget = null, dragging = false;
-
-  function clearTarget() {
-    if (lastTarget) { lastTarget.style.boxShadow = ''; lastTarget.style.background = lastTarget.dataset.bg || ''; }
-    lastTarget = null;
-  }
-
-  function targetUnder(x, y) {
-    var el = document.elementFromPoint(x, y);
-    if (!el) return null;
-    var cell = el.closest ? el.closest('[data-ymd]') : null;
-    if (!cell || !section.contains(cell)) return null;
-    if (cell === srcCell) return null;
-    if (cell.dataset.past === '1') return null; // can't move into the past
-    return cell;
-  }
-
-  function onMove(e) {
-    if (!dragging) return;
-    e.preventDefault();
-    if (ghost) { ghost.style.left = e.clientX + 'px'; ghost.style.top = e.clientY + 'px'; }
-    var t = targetUnder(e.clientX, e.clientY);
-    if (t !== lastTarget) {
-      clearTarget();
-      if (t) {
-        if (!t.dataset.bg) t.dataset.bg = t.style.background || '';
-        t.style.boxShadow = 'inset 0 0 0 2px #5b9dff';
-        t.style.background = 'rgba(91,157,255,0.14)';
-        lastTarget = t;
-      }
-    }
-  }
-
-  function onUp(e) {
-    if (!dragging) return;
-    dragging = false;
-    document.removeEventListener('pointermove', onMove, true);
-    document.removeEventListener('pointerup', onUp, true);
-    if (ghost) { ghost.remove(); ghost = null; }
-    var t = lastTarget;
-    clearTarget();
-    if (t) { _stOpenTimeConfirm(rs.studentName, lesson, t.dataset.ymd); return; }
-    // Let go on its own day (a click, or dragged back): same day, new time
-    // (2026-10-05: same-day moves weren't possible). Day arrows included.
-    var el = document.elementFromPoint(e.clientX, e.clientY);
-    var over = el && el.closest ? el.closest('[data-ymd]') : null;
-    if (over === srcCell) _stOpenTimeConfirm(rs.studentName, lesson, lesson.date, { dayChange: true });
-  }
-
-  srcCell.addEventListener('pointerdown', function(e) {
-    e.preventDefault();
-    dragging = true;
-    ghost = document.createElement('div');
-    ghost.style.cssText = 'position:fixed;left:' + e.clientX + 'px;top:' + e.clientY + 'px;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;background:rgba(91,157,255,0.95);color:#06203f;font-weight:700;font-size:12px;padding:6px 10px;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,0.5)';
-    ghost.textContent = rs.studentName.split(' ')[0] + ' · ' + lesson.time;
-    document.body.appendChild(ghost);
-    document.addEventListener('pointermove', onMove, true);
-    document.addEventListener('pointerup', onUp, true);
-  });
-}
-
-// After a drop, confirm the new day and let the user adjust the time
-// (prefilled from the original lesson). Confirm → backend move → refresh.
+// The Reschedule window: pick the new day and time (prefilled from the
+// original lesson, or a Calendar drop). Confirm → backend move → refresh.
 // opts (optional, used by the Calendar tab): startTime prefills a dropped
 // time; onDone(data) / onFail(msg) replace the Home-strip refresh + feed log.
 // The day can always move (‹ › on the date); it never goes into the past.
@@ -1013,7 +912,6 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
     }, function(data) {
       w.remove();
       if (opts.onDone) { opts.onDone(data); return; }
-      _stState.reschedule = null;
       addLog('studentFeed', '📅 ' + studentName + ' moved to ' + data.newLabel + ' · ' + data.newTime + ' (' + (data.who || who) + ' asked)', 'success');
       _stOpenCalendar(); // refresh — lesson now sits on the new day
     }, function(msg) {
