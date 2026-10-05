@@ -881,7 +881,13 @@ function _stOpenLessonActions(studentName, lesson, opts) {
   box.innerHTML =
     "<div style='font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Lesson</div>" +
     "<div style='font-weight:700;font-size:14px;margin-bottom:2px'>" + studentName + "</div>" +
-    "<div style='font-size:12px;color:var(--muted);margin-bottom:16px'>" + lesson.dateLabel + " · " + lesson.time + "</div>" +
+    "<div style='font-size:12px;color:var(--muted);margin-bottom:" + (opts && opts.to ? 6 : 16) + "px'>" + lesson.dateLabel + " · " + lesson.time + "</div>" +
+    // Dragged on the Calendar tab (2026-10-05): where it was dropped, and
+    // anyone it would overlap. Reschedule starts from that day and time.
+    (opts && opts.to
+      ? "<div style='font-size:12px;color:#5b9dff;margin-bottom:" + (opts.to.overlaps && opts.to.overlaps.length ? 6 : 16) + "px'>Dropped on " + opts.to.label + "</div>" +
+        (opts.to.overlaps && opts.to.overlaps.length ? "<div style='font-size:12px;color:var(--warn);margin-bottom:16px'>Overlaps " + opts.to.overlaps.join(', ') + "</div>" : "")
+      : "") +
     "<div style='display:flex;gap:8px;margin-bottom:8px'>" +
       "<button id='stActReschedule' style='flex:1;padding:12px;font-size:13px;background:rgba(91,157,255,0.16);color:#5b9dff;border:1px solid rgba(91,157,255,0.55);border-radius:5px;cursor:pointer;font-weight:600;letter-spacing:0.5px'>Reschedule</button>" +
       "<button id='stActSkip' style='flex:1;padding:12px;font-size:13px;background:rgba(232,70,58,0.16);color:var(--accent);border:1px solid rgba(232,70,58,0.55);border-radius:5px;cursor:pointer;font-weight:600;letter-spacing:0.5px'>Skip</button>" +
@@ -895,7 +901,8 @@ function _stOpenLessonActions(studentName, lesson, opts) {
   document.getElementById('stActReschedule').onclick = function() {
     overlay.remove();
     // Calendar tab has no 8-week strip to drag in, so go straight to the day/time picker.
-    if (opts && opts.fromCalendar) _stOpenTimeConfirm(studentName, lesson, lesson.date, { dayChange: true, onDone: opts.onDone, onFail: opts.onFail });
+    if (opts && opts.fromCalendar) _stOpenTimeConfirm(studentName, lesson, (opts.to && opts.to.ymd) || lesson.date,
+      { dayChange: true, startTime: opts.to && opts.to.time, onDone: opts.onDone, onFail: opts.onFail });
     else _stBeginReschedule(studentName, lesson);
   };
 }
@@ -1004,7 +1011,7 @@ function _stEnableRescheduleDrag(section) {
 // onDone(data) / onFail(msg) replace the Home-strip refresh + feed log.
 function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
   opts = opts || {};
-  var t = _stParseTime(lesson.time); // { h12, min, ap }
+  var t = _stParseTime(opts.startTime || lesson.time); // { h12, min, ap }; a Calendar drop starts at its new time
   var state = { h12: t.h12, min: t.min, ap: t.ap };
 
   function dayLabelOf(ymd) {

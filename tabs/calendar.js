@@ -1,11 +1,11 @@
 // ─── TABS / CALENDAR.JS ─────────────────────────────────────────────────────
 // Own week grid over the three RPM calendars (Weekly / Biweekly / Trial).
-// Mon–Sun columns, 9:30 AM – 9:30 PM rows. Drag a lesson to a new day/hour →
-// confirm → moves ONLY that occurrence in Google Calendar (backend
-// moveCalendarEvent_ in RPM_Calendar.gs). Google stays the source of truth, so
-// the sheets and Secretary keep reading it exactly as before.
-//
-// Click a lesson (no drag) → Home's Reschedule / Skip popups from tabs/student.js.
+// Mon–Sun columns, 9:30 AM – 9:30 PM rows. Drag a lesson to a new day/hour,
+// or click it → Home's Reschedule / Skip popups from tabs/student.js
+// (2026-10-05: a drag used to move straight through moveCalendarEvent_ with
+// no log; now it goes through Reschedule, so Reschedule Logs records who
+// asked and why). Only that occurrence moves. Google stays the source of
+// truth, so the sheets and Secretary keep reading it exactly as before.
 // Past lessons can't be dragged or clicked (the counter/income recorder already read them).
 // With no script URL (localhost preview) it shows sample lessons; drags there
 // don't save anywhere. The plain Google embed lives behind "Google view".
@@ -58,34 +58,6 @@ function _calLoad(statusMsg) {
     .catch(function() { if (token === _calLoadToken) _calSetStatus('Connection failed'); });
 }
 
-function _calSave(ev, newDayIdx, newStartMin) {
-  var mon     = _calMonday(_calWeekOffset);
-  var newDate = _calYmd(_calAddDays(mon, newDayIdx));
-
-  if (_calSample) {
-    ev.dayIdx = newDayIdx; ev.endMin = newStartMin + (ev.endMin - ev.startMin); ev.startMin = newStartMin;
-    ev.date = newDate;
-    _calRenderEvents();
-    _calSetStatus('Sample only · nothing saved');
-    return;
-  }
-
-  _calSetStatus('Moving ' + ev.title + '…');
-  var url = getScriptUrl();
-  if (!url) return;
-  fetch(url + '?action=moveCalendarEvent' +
-        '&calType='     + encodeURIComponent(ev.calType) +
-        '&id='          + encodeURIComponent(ev.id) +
-        '&oldStart='    + ev.startMs +
-        '&newDate='     + newDate +
-        '&newStartMin=' + newStartMin)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.success) { _calLoad('Not moved: ' + (data.message || 'unknown')); return; }
-      _calLoad('Moved ' + (data.title || ev.title) + ' → ' + data.newTime);
-    })
-    .catch(function() { _calLoad('Connection failed · not moved'); });
-}
 
 // ── Rendering ───────────────────────────────────────────────────────────────
 
@@ -241,52 +213,26 @@ function _calDragEnd() {
     return o !== d.ev && o.dayIdx === d.dayIdx && o.startMin < newEnd && o.endMin > d.startMin;
   }).map(function(o) { return o.title; });
 
-  _calConfirm(d.ev, d.dayIdx, d.startMin, overlaps);
-}
-
-function _calConfirm(ev, dayIdx, startMin, overlaps) {
-  var mon  = _calMonday(_calWeekOffset);
-  var from = _calDayLabel(_calAddDays(mon, ev.dayIdx)) + ', ' + _calFmt(ev.startMin);
-  var to   = _calDayLabel(_calAddDays(mon, dayIdx)) + ', ' + _calFmt(startMin);
-
-  var ov = document.createElement('div');
-  ov.className = 'cal-modal';
-  ov.innerHTML =
-    "<div class='cal-modal-box'>" +
-      "<div class='cal-modal-title'>Move " + _calEsc(ev.title) + "?</div>" +
-      "<div class='cal-modal-row'><span>From</span>" + _calEsc(from) + "</div>" +
-      "<div class='cal-modal-row'><span>To</span><b>" + _calEsc(to) + "</b></div>" +
-      "<div class='cal-modal-note'>Only this lesson moves" + (ev.recurring ? ". The rest of the series stays where it is." : ".") + "</div>" +
-      (overlaps.length ? "<div class='cal-modal-warn'>Overlaps " + _calEsc(overlaps.join(', ')) + "</div>" : "") +
-      (_calSample ? "<div class='cal-modal-note'>Sample data · nothing will be saved.</div>" : "") +
-      "<div class='cal-modal-btns'><button class='cal-btn' data-a='no'>Cancel</button><button class='cal-btn cal-btn-go' data-a='yes'>Move</button></div>" +
-    "</div>";
-
-  function close(go) {
-    document.removeEventListener('keydown', onKey);
-    ov.remove();
-    if (go) _calSave(ev, dayIdx, startMin); else _calRenderEvents();
-  }
-  function onKey(k) { if (k.key === 'Escape') close(false); if (k.key === 'Enter') close(true); }
-  ov.addEventListener('click', function(c) {
-    if (c.target === ov) close(false);
-    var a = c.target.getAttribute && c.target.getAttribute('data-a');
-    if (a) close(a === 'yes');
-  });
-  document.addEventListener('keydown', onKey);
-  document.body.appendChild(ov);
+  // The same Reschedule / Skip box a click opens (2026-10-05), so a drag is
+  // logged with who asked and why. Reschedule starts at the dropped day/time.
+  _calRenderEvents();
+  _calOpenActions(d.ev, { ymd: _calYmd(_calAddDays(mon, d.dayIdx)), time: _calFmt(d.startMin),
+    label: _calDayLabel(_calAddDays(mon, d.dayIdx)) + ' · ' + _calFmt(d.startMin), overlaps: overlaps });
 }
 
 // ── Controls ────────────────────────────────────────────────────────────────
 
-// Click (no drag) on a lesson → Home's Reschedule / Skip chooser and popups
-// (tabs/student.js): same backend, same Skip Logs. Results refresh this grid.
-function _calOpenActions(ev) {
+// Click or drag on a lesson → Home's Reschedule / Skip chooser and popups
+// (tabs/student.js): same backend, same Skip Logs and Reschedule Logs. A drag
+// passes `to` (dropped day, time, overlaps) so Reschedule starts there.
+// Results refresh this grid.
+function _calOpenActions(ev, to) {
   if (_calSample) { _calSetStatus('Sample only · Skip / Reschedule need real data'); return; }
   var p = ev.date.split('-');
   var lesson = { date: ev.date, dateLabel: _calDayLabel(new Date(+p[0], +p[1] - 1, +p[2])), time: _calFmt(ev.startMin) };
   _stOpenLessonActions(ev.title, lesson, {
     fromCalendar: true,
+    to: to,
     onDone: function(data) {
       _calLoad(data.newTime
         ? 'Moved ' + ev.title + ' → ' + data.newLabel + ' · ' + data.newTime
