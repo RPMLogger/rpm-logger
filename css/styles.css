@@ -2108,3 +2108,10 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-note-a { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
 .im-notes { overflow-x: hidden; }
 .im-note-a .link-btn { white-space: nowrap; flex: none; }
+/* Lesson / Reschedule / Skip windows (2026-10-05, student.js _stWin): the
+   Log window's frame, floated over a dim backdrop. */
+.st-win { width: min(460px, 94vw); box-sizing: border-box; max-height: 90vh; overflow: auto; overflow-x: hidden; margin: 0; }
+.st-when { font-family: "DM Mono", monospace; font-size: 11px; color: rgba(255,255,255,0.5); margin: -6px 0 16px; }
+.st-when + .st-when { margin-top: -12px; }
+.st-win .field-label { display: block; margin-bottom: 6px; }
+.st-win .rpm-field { box-sizing: border-box; }

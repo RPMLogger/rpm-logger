@@ -789,76 +789,31 @@ function _stBuildWeekStrip(monday, byDate, today, studentName) {
 // the Home-strip refresh + feed log.
 function _stOpenSkipModal(studentName, lesson, opts) {
   opts = opts || {};
-  var existing = document.getElementById('stSkipModal');
-  if (existing) existing.remove();
+  var who = 'Student';
+  var w = _stWin('stSkipModal', studentName, 'Skip', CALENDAR_ICON,
+    "<div class='st-when'>" + lesson.dateLabel + " · " + lesson.time + "</div>" +
+    "<label class='field-label'>Who asked?</label>" + _stWhoSeg('stSkipWho', who) +
+    "<label class='field-label' style='margin-top:16px'>Note (optional)</label>" +
+    "<input id='stSkipNote' type='text' class='rpm-field' placeholder='Reason or context' style='width:100%'>" +
+    "<div class='ll-acts' style='margin-top:18px'><span class='ll-state' id='stSkipState' style='flex:1'></span>" +
+      "<button class='link-btn bright' id='stSkipConfirm' data-tip='Removes this one lesson from the calendar\nand logs it to Skip Logs.' data-tip-left>Confirm skip</button></div>");
+  _stWireWho(w, 'stSkipWho', function(v) { who = v; });
 
-  var overlay = document.createElement('div');
-  overlay.id = 'stSkipModal';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px';
-  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
-
-  var box = document.createElement('div');
-  box.style.cssText = 'background:#141414;border:1px solid var(--border);border-radius:8px;padding:18px;max-width:420px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,0.6)';
-  overlay.appendChild(box);
-  box.innerHTML =
-    "<div style='font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Mark Skip</div>" +
-    "<div style='font-weight:700;font-size:14px;margin-bottom:2px'>" + studentName + "</div>" +
-    "<div style='font-size:12px;color:var(--muted);margin-bottom:14px'>" + lesson.dateLabel + " · " + lesson.time + "</div>" +
-
-    "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px'>Who initiated?</div>" +
-    "<div style='display:flex;gap:6px;margin-bottom:12px' id='stWhoRow'>" +
-      "<button data-who='Student' class='stWhoBtn' style='flex:1;padding:8px;font-size:12px;background:rgba(91,157,255,0.18);color:#5b9dff;border:1px solid rgba(91,157,255,0.6);border-radius:4px;cursor:pointer;font-weight:600'>Student</button>" +
-      "<button data-who='Teacher' class='stWhoBtn' style='flex:1;padding:8px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>Teacher</button>" +
-    "</div>" +
-
-    "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Note (optional)</div>" +
-    "<input id='stSkipNote' type='text' placeholder='reason or context' " +
-      "style='width:100%;padding:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:12px;margin-bottom:14px'>" +
-
-    "<div style='display:flex;gap:8px'>" +
-      "<button id='stSkipCancel' style='flex:0 0 auto;padding:10px 16px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>Cancel</button>" +
-      "<button id='stSkipConfirm' style='flex:1;padding:10px;font-size:12px;background:rgba(232,70,58,0.25);color:var(--accent);border:1px solid var(--accent);border-radius:4px;cursor:pointer;font-weight:600;letter-spacing:0.5px'>Confirm Skip</button>" +
-    "</div>";
-
-  document.body.appendChild(overlay);
-
-  var selectedWho = 'Student';
-  var whoBtns = overlay.querySelectorAll('.stWhoBtn');
-  whoBtns.forEach(function(btn) {
-    btn.onclick = function() {
-      selectedWho = btn.dataset.who;
-      whoBtns.forEach(function(b) {
-        if (b.dataset.who === selectedWho) {
-          var color = selectedWho === 'Student' ? '91,157,255' : '255,165,0';
-          var hex   = selectedWho === 'Student' ? '#5b9dff'    : '#ffa500';
-          b.style.cssText = 'flex:1;padding:8px;font-size:12px;background:rgba(' + color + ',0.18);color:' + hex + ';border:1px solid rgba(' + color + ',0.6);border-radius:4px;cursor:pointer;font-weight:600';
-        } else {
-          b.style.cssText = 'flex:1;padding:8px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer';
-        }
-      });
-    };
-  });
-
-  document.getElementById('stSkipCancel').onclick = function() { overlay.remove(); };
   document.getElementById('stSkipConfirm').onclick = function() {
-    var note = document.getElementById('stSkipNote').value.trim();
-    var btn  = document.getElementById('stSkipConfirm');
-    btn.disabled = true; btn.textContent = '…';
+    var btn = this, panel = w.querySelector('.st-win');
     var url = getScriptUrl(); if (!url) return;
-    callScript(url, 'markSkip', {
-      name: studentName, date: lesson.date, who: selectedWho, note: note
-    }, function(data) {
-      if (data && data.success) {
-        overlay.remove();
+    btn.textContent = 'Skipping…'; btn.disabled = true; rpmBusy(panel, btn, true);
+    _stCall(url, 'markSkip', { name: studentName, date: lesson.date, who: who, note: document.getElementById('stSkipNote').value.trim() },
+      function(data) {
+        w.remove();
         if (opts.onDone) { opts.onDone(data); return; }
         _stOpenCalendar();   // refresh the strip; the skipped lesson drops off
-      } else {
-        var b = document.getElementById('stSkipConfirm');
-        if (b) { b.disabled = false; b.textContent = 'Confirm Skip'; }
-        if (opts.onFail) { opts.onFail(data && data.message ? data.message : 'Skip failed'); return; }
-        addLog('studentFeed', '❌ ' + (data && data.message ? data.message : 'Skip failed'), 'error');
-      }
-    });
+      },
+      function(msg) {
+        rpmBusy(panel, btn, false); btn.textContent = 'Confirm skip'; btn.disabled = false;
+        rpmFail('stSkipState', msg);
+        if (opts.onFail) opts.onFail(msg);
+      });
   };
 }
 
@@ -868,41 +823,23 @@ function _stOpenSkipModal(studentName, lesson, opts) {
 // modal (unchanged). Reschedule → drag-to-move mode within the 8-week grid.
 
 function _stOpenLessonActions(studentName, lesson, opts) {
-  var existing = document.getElementById('stActionModal');
-  if (existing) existing.remove();
-
-  var overlay = document.createElement('div');
-  overlay.id = 'stActionModal';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px';
-  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
-
-  var box = document.createElement('div');
-  box.style.cssText = 'background:#141414;border:1px solid var(--border);border-radius:8px;padding:18px;max-width:420px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,0.6)';
-  box.innerHTML =
-    "<div style='font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Lesson</div>" +
-    "<div style='font-weight:700;font-size:14px;margin-bottom:2px'>" + studentName + "</div>" +
-    "<div style='font-size:12px;color:var(--muted);margin-bottom:" + (opts && opts.to ? 6 : 16) + "px'>" + lesson.dateLabel + " · " + lesson.time + "</div>" +
-    // Dragged on the Calendar tab (2026-10-05): where it was dropped, and
-    // anyone it would overlap. Reschedule starts from that day and time.
-    (opts && opts.to
-      ? "<div style='font-size:12px;color:#5b9dff;margin-bottom:" + (opts.to.overlaps && opts.to.overlaps.length ? 6 : 16) + "px'>Dropped on " + opts.to.label + "</div>" +
-        (opts.to.overlaps && opts.to.overlaps.length ? "<div style='font-size:12px;color:var(--warn);margin-bottom:16px'>Overlaps " + opts.to.overlaps.join(', ') + "</div>" : "")
-      : "") +
-    "<div style='display:flex;gap:8px;margin-bottom:8px'>" +
-      "<button id='stActReschedule' style='flex:1;padding:12px;font-size:13px;background:rgba(91,157,255,0.16);color:#5b9dff;border:1px solid rgba(91,157,255,0.55);border-radius:5px;cursor:pointer;font-weight:600;letter-spacing:0.5px'>Reschedule</button>" +
-      "<button id='stActSkip' style='flex:1;padding:12px;font-size:13px;background:rgba(232,70,58,0.16);color:var(--accent);border:1px solid rgba(232,70,58,0.55);border-radius:5px;cursor:pointer;font-weight:600;letter-spacing:0.5px'>Skip</button>" +
-    "</div>" +
-    "<button id='stActCancel' style='width:100%;padding:9px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:5px;cursor:pointer'>Cancel</button>";
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
-
-  document.getElementById('stActCancel').onclick     = function() { overlay.remove(); };
-  document.getElementById('stActSkip').onclick       = function() { overlay.remove(); _stOpenSkipModal(studentName, lesson, opts); };
+  // Dragged on the Calendar tab (2026-10-05): where it was dropped, and
+  // anyone it would overlap. Reschedule starts from that day and time.
+  var to = opts && opts.to;
+  var w = _stWin('stActionModal', studentName, 'Lesson', CALENDAR_ICON,
+    "<div class='st-when'>" + lesson.dateLabel + " · " + lesson.time + "</div>" +
+    (to ? "<div class='st-when' style='color:var(--blue)'>Dropped on " + to.label + "</div>" : "") +
+    (to && to.overlaps && to.overlaps.length ? "<div class='st-when' style='color:var(--warn)'>Overlaps " + to.overlaps.join(', ') + "</div>" : "") +
+    "<div class='ll-acts' style='margin-top:18px;justify-content:flex-end'>" +
+      "<button class='link-btn opens-window' id='stActSkip' data-tip='Opens a window.\nTakes this one lesson off the calendar.'>Skip</button>" +
+      "<button class='link-btn opens-window' id='stActReschedule' data-tip='Opens a window.\nMoves this one lesson to another day or time.' data-tip-left>Reschedule</button>" +
+    "</div>");
+  document.getElementById('stActSkip').onclick = function() { w.remove(); _stOpenSkipModal(studentName, lesson, opts); };
   document.getElementById('stActReschedule').onclick = function() {
-    overlay.remove();
+    w.remove();
     // Calendar tab has no 8-week strip to drag in, so go straight to the day/time picker.
-    if (opts && opts.fromCalendar) _stOpenTimeConfirm(studentName, lesson, (opts.to && opts.to.ymd) || lesson.date,
-      { dayChange: true, startTime: opts.to && opts.to.time, onDone: opts.onDone, onFail: opts.onFail });
+    if (opts && opts.fromCalendar) _stOpenTimeConfirm(studentName, lesson, (to && to.ymd) || lesson.date,
+      { dayChange: true, startTime: to && to.time, onDone: opts.onDone, onFail: opts.onFail });
     else _stBeginReschedule(studentName, lesson);
   };
 }
@@ -1007,139 +944,123 @@ function _stEnableRescheduleDrag(section) {
 
 // After a drop, confirm the new day and let the user adjust the time
 // (prefilled from the original lesson). Confirm → backend move → refresh.
-// opts (optional, used by the Calendar tab): dayChange adds ‹ › day arrows;
-// onDone(data) / onFail(msg) replace the Home-strip refresh + feed log.
+// opts (optional, used by the Calendar tab): startTime prefills a dropped
+// time; onDone(data) / onFail(msg) replace the Home-strip refresh + feed log.
+// The day can always move (‹ › on the date); it never goes into the past.
+// Window look (2026-10-05): the portal's date/time picker, the Trial
+// windows' Student / Teacher choice, dim + dots while saving, a red
+// Unsuccessful badge on failure.
 function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
   opts = opts || {};
   var t = _stParseTime(opts.startTime || lesson.time); // { h12, min, ap }; a Calendar drop starts at its new time
-  var state = { h12: t.h12, min: t.min, ap: t.ap };
-
-  function dayLabelOf(ymd) {
-    var parts = ymd.split('-');
-    var nd = new Date(parseInt(parts[0],10), parseInt(parts[1],10) - 1, parseInt(parts[2],10));
-    return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][nd.getDay()] + ' ' +
-           ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][nd.getMonth()] + ' ' + nd.getDate();
+  var mins = ((t.h12 % 12) + (t.ap === 'PM' ? 12 : 0)) * 60 + t.min;
+  var who = 'Student';
+  var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function dayOf(ymd) { var p = ymd.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function dayText() { var d = dayOf(newYmd); return DAYS[d.getDay()] + ', ' + MON[d.getMonth()] + ' ' + d.getDate(); }
+  function hourText() { var h = Math.floor(mins / 60); return ((h % 12) || 12) + ' ' + (h < 12 ? 'AM' : 'PM'); }
+  function minText() { return ':' + _stPad2(mins % 60); }
+  function seg(id, w, txt) {
+    return "<span class='dt-seg'><span class='dt-stack'>" +
+      "<button type='button' class='dt-arrow' tabindex='-1' data-step='" + id + "' data-dir='1'>" + dtArrow(1) + "</button>" +
+      "<button type='button' class='dt-arrow' tabindex='-1' data-step='" + id + "' data-dir='-1'>" + dtArrow(-1) + "</button></span>" +
+      "<button type='button' class='dt-val' id='stDt_" + id + "' data-step='" + id + "' style='min-width:" + w + "px'>" + txt + "</button></span>";
   }
-  var dayLabel = dayLabelOf(newYmd);
-  var dayBtn = "style='padding:1px 8px;margin:0 4px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:inherit'";
+  var w = _stWin('stTimeModal', studentName, 'Reschedule', CALENDAR_ICON,
+    "<div class='st-when'>From " + lesson.dateLabel + " · " + lesson.time + "</div>" +
+    "<label class='field-label'>Move to</label>" +
+    "<span class='dt-row'>" + seg('day', 78, dayText()) + seg('hour', 42, hourText()) + seg('min', 26, minText()) + "</span>" +
+    "<label class='field-label' style='margin-top:16px'>Who asked?</label>" + _stWhoSeg('stRsWho', who) +
+    "<label class='field-label' style='margin-top:16px'>Reason (optional)</label>" +
+    "<input id='stRsNote' type='text' class='rpm-field' placeholder='Reason or context' style='width:100%'>" +
+    "<div class='ll-acts' style='margin-top:18px'><span class='ll-state' id='stRsState' style='flex:1'></span>" +
+      "<button class='link-btn bright' id='stTimeConfirm' data-tip='Moves only this lesson in Google Calendar\nand logs it to Reschedule Logs.' data-tip-left>Confirm move</button></div>");
+  _stWireWho(w, 'stRsWho', function(v) { who = v; });
 
-  var overlay = document.createElement('div');
-  overlay.id = 'stTimeModal';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px';
-  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
-
-  var box = document.createElement('div');
-  box.style.cssText = 'background:#141414;border:1px solid var(--border);border-radius:8px;padding:18px;max-width:420px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,0.6)';
-  function spinSeg(id, val) {
-    return "<div style='display:flex;flex-direction:column;align-items:center;gap:4px'>" +
-      "<button data-spin='" + id + "' data-dir='1' style='width:42px;padding:4px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>▲</button>" +
-      "<div id='stSeg_" + id + "' style='font-size:20px;font-weight:700;min-width:42px;text-align:center'>" + val + "</div>" +
-      "<button data-spin='" + id + "' data-dir='-1' style='width:42px;padding:4px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>▼</button>" +
-    "</div>";
-  }
-  box.innerHTML =
-    "<div style='font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Reschedule</div>" +
-    "<div style='font-weight:700;font-size:14px;margin-bottom:2px'>" + studentName + "</div>" +
-    "<div style='font-size:12px;color:var(--muted);margin-bottom:14px'>Move to " +
-      (opts.dayChange ? "<button data-day='-1' " + dayBtn + " title='Earlier day'>\u25bc</button>" : "") +
-      "<b id='stTimeDay' style='color:#5b9dff'>" + dayLabel + "</b>" +
-      (opts.dayChange ? "<button data-day='1' " + dayBtn + " title='Later day'>\u25b2</button>" : "") +
-    "</div>" +
-    "<div style='display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px'>" +
-      spinSeg('h', state.h12) +
-      "<div style='font-size:20px;font-weight:700;color:var(--muted)'>:</div>" +
-      spinSeg('m', _stPad2(state.min)) +
-      spinSeg('ap', state.ap) +
-    "</div>" +
-
-    // Same Who / Reason pair as the skip modal — every move is logged to
-    // "Reschedule Logs" so the split (who disrupts whom) stays countable.
-    "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px'>Who asked?</div>" +
-    "<div style='display:flex;gap:6px;margin-bottom:12px' id='stRsWhoRow'>" +
-      "<button data-who='Student' class='stRsWhoBtn' style='flex:1;padding:8px;font-size:12px;background:rgba(91,157,255,0.18);color:#5b9dff;border:1px solid rgba(91,157,255,0.6);border-radius:4px;cursor:pointer;font-weight:600'>Student</button>" +
-      "<button data-who='Teacher' class='stRsWhoBtn' style='flex:1;padding:8px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>Teacher</button>" +
-    "</div>" +
-
-    "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Reason (optional)</div>" +
-    "<input id='stRsNote' type='text' placeholder='reason or context' " +
-      "style='width:100%;padding:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:12px;margin-bottom:14px'>" +
-
-    "<div style='display:flex;gap:8px'>" +
-      "<button id='stTimeCancel' style='flex:0 0 auto;padding:10px 16px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>Cancel</button>" +
-      "<button id='stTimeConfirm' style='flex:1;padding:10px;font-size:12px;background:rgba(91,157,255,0.22);color:#5b9dff;border:1px solid #5b9dff;border-radius:4px;cursor:pointer;font-weight:600;letter-spacing:0.5px'>Confirm Move</button>" +
-    "</div>";
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
-
-  function redraw() {
-    document.getElementById('stSeg_h').textContent  = state.h12;
-    document.getElementById('stSeg_m').textContent  = _stPad2(state.min);
-    document.getElementById('stSeg_ap').textContent = state.ap;
-  }
-  box.querySelectorAll('[data-spin]').forEach(function(btn) {
-    btn.onclick = function() {
-      var seg = btn.dataset.spin, dir = parseInt(btn.dataset.dir, 10);
-      if (seg === 'h')  { state.h12 = ((state.h12 - 1 + dir + 12) % 12) + 1; }
-      if (seg === 'm')  { state.min = (state.min + dir * 5 + 60) % 60; }
-      if (seg === 'ap') { state.ap  = state.ap === 'AM' ? 'PM' : 'AM'; }
-      redraw();
-    };
-  });
-
-  box.querySelectorAll('[data-day]').forEach(function(btn) {
-    btn.onclick = function() {
-      var p = newYmd.split('-');
-      var d = new Date(+p[0], +p[1] - 1, +p[2] + parseInt(btn.dataset.day, 10));
+  function step(id, dir) {
+    if (id === 'day') {
+      var d = dayOf(newYmd); d.setDate(d.getDate() + dir);
       var today = new Date(); today.setHours(0, 0, 0, 0);
-      if (d < today) return; // can't move into the past
+      if (d < today) return;   // never into the past
       newYmd = d.getFullYear() + '-' + _stPad2(d.getMonth() + 1) + '-' + _stPad2(d.getDate());
-      document.getElementById('stTimeDay').textContent = dayLabelOf(newYmd);
+    }
+    if (id === 'hour') mins = (mins + dir * 60 + 1440) % 1440;
+    if (id === 'min')  mins = Math.floor(mins / 60) * 60 + ((mins % 60) + dir * 5 + 60) % 60;
+    document.getElementById('stDt_day').textContent  = dayText();
+    document.getElementById('stDt_hour').textContent = hourText();
+    document.getElementById('stDt_min').textContent  = minText();
+  }
+  w.querySelectorAll('.dt-arrow').forEach(function(b) {
+    b.onclick = function() { step(b.dataset.step, parseInt(b.dataset.dir, 10)); document.getElementById('stDt_' + b.dataset.step).focus(); };
+  });
+  w.querySelectorAll('.dt-val').forEach(function(v) {
+    v.onkeydown = function(e) {
+      if (e.key === 'ArrowUp')   { e.preventDefault(); step(v.dataset.step, 1); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); step(v.dataset.step, -1); }
     };
   });
 
-  var rsWho    = 'Student';
-  var rsWhoBtns = overlay.querySelectorAll('.stRsWhoBtn');
-  rsWhoBtns.forEach(function(btn) {
-    btn.onclick = function() {
-      rsWho = btn.dataset.who;
-      rsWhoBtns.forEach(function(b) {
-        if (b.dataset.who === rsWho) {
-          var rgb = rsWho === 'Student' ? '91,157,255' : '255,165,0';
-          var hex = rsWho === 'Student' ? '#5b9dff'    : '#ffa500';
-          b.style.cssText = 'flex:1;padding:8px;font-size:12px;background:rgba(' + rgb + ',0.18);color:' + hex + ';border:1px solid rgba(' + rgb + ',0.6);border-radius:4px;cursor:pointer;font-weight:600';
-        } else {
-          b.style.cssText = 'flex:1;padding:8px;font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer';
-        }
-      });
-    };
-  });
-
-  document.getElementById('stTimeCancel').onclick = function() { overlay.remove(); };
   document.getElementById('stTimeConfirm').onclick = function() {
-    var btn = document.getElementById('stTimeConfirm');
-    btn.disabled = true; btn.textContent = '…';
-    var h24 = (state.h12 % 12) + (state.ap === 'PM' ? 12 : 0);
-    var hhmm = _stPad2(h24) + ':' + _stPad2(state.min);
-    var url = getScriptUrl(); if (!url) { overlay.remove(); return; }
-    var rsNoteEl = document.getElementById('stRsNote');
-    callScript(url, 'rescheduleLesson', {
+    var btn = this, panel = w.querySelector('.st-win');
+    var url = getScriptUrl(); if (!url) return;
+    var hhmm = _stPad2(Math.floor(mins / 60)) + ':' + _stPad2(mins % 60);
+    btn.textContent = 'Moving…'; btn.disabled = true; rpmBusy(panel, btn, true);
+    _stCall(url, 'rescheduleLesson', {
       name: studentName, date: lesson.date, newDate: newYmd, time: hhmm,
-      who: rsWho, note: rsNoteEl ? rsNoteEl.value.trim() : ''
+      who: who, note: document.getElementById('stRsNote').value.trim()
     }, function(data) {
-      if (data && data.success) {
-        overlay.remove();
-        if (opts.onDone) { opts.onDone(data); return; }
-        _stState.reschedule = null;
-        addLog('studentFeed', '📅 ' + studentName + ' moved to ' + data.newLabel + ' · ' + data.newTime + ' (' + (data.who || rsWho) + ' asked)', 'success');
-        _stOpenCalendar(); // refresh — lesson now sits on the new day
-      } else {
-        var b = document.getElementById('stTimeConfirm');
-        if (b) { b.disabled = false; b.textContent = 'Confirm Move'; }
-        if (opts.onFail) { opts.onFail(data && data.message ? data.message : 'Reschedule failed'); return; }
-        addLog('studentFeed', '❌ ' + (data && data.message ? data.message : 'Reschedule failed'), 'error');
-      }
+      w.remove();
+      if (opts.onDone) { opts.onDone(data); return; }
+      _stState.reschedule = null;
+      addLog('studentFeed', '📅 ' + studentName + ' moved to ' + data.newLabel + ' · ' + data.newTime + ' (' + (data.who || who) + ' asked)', 'success');
+      _stOpenCalendar(); // refresh — lesson now sits on the new day
+    }, function(msg) {
+      rpmBusy(panel, btn, false); btn.textContent = 'Confirm move'; btn.disabled = false;
+      rpmFail('stRsState', msg);
+      if (opts.onFail) opts.onFail(msg);
     });
   };
+}
+
+// ── Window helpers for Skip / Lesson / Reschedule (2026-10-05) ──
+// The Log window's look: red name + grey part, ✕ to close, icon under it.
+function _stWin(id, name, part, icon, body) {
+  var old = document.getElementById(id);
+  if (old) old.remove();
+  var back = document.createElement('div');
+  back.id = id;
+  back.className = 'im-notes-back';
+  back.onclick = function(e) { if (e.target === back) back.remove(); };
+  back.innerHTML = "<div class='log-panel active st-win'>" +
+    "<div class='settings-title'><span>" + name + "<span class='win-sub'> · " + part + "</span></span>" +
+      "<button class='settings-close' data-close>✕</button></div>" +
+    (icon ? "<div style='margin:4px 0 18px'>" + icon.replace(/class="[^"]*"/, 'class="win-icon"') + "</div>" : "") +
+    body + "</div>";
+  document.body.appendChild(back);
+  back.querySelector('[data-close]').onclick = function() { back.remove(); };
+  return back;
+}
+
+// Student / Teacher, the Trial windows' two-way choice (.tl-seg).
+function _stWhoSeg(id, on) {
+  return "<div class='tl-seg' id='" + id + "'>" + ['Student', 'Teacher'].map(function(v) {
+    return "<button type='button' class='tl-seg-opt" + (v === on ? " on" : "") + "' data-who='" + v + "'>" + v + "</button>";
+  }).join('') + "</div>";
+}
+function _stWireWho(w, id, set) {
+  var opts = w.querySelectorAll('#' + id + ' .tl-seg-opt');
+  opts.forEach(function(b) {
+    b.onclick = function() { opts.forEach(function(o) { o.classList.toggle('on', o === b); }); set(b.dataset.who); };
+  });
+}
+
+// GET the backend; ok(data) on success, fail(message) on anything else.
+function _stCall(url, action, params, ok, fail) {
+  var q = url + '?action=' + action;
+  for (var k in params) q += '&' + k + '=' + encodeURIComponent(params[k]);
+  fetch(q).then(function(r) { return r.json(); }).then(function(d) {
+    if (d && d.success) ok(d); else fail(d && d.message ? d.message : 'Not saved');
+  }).catch(function() { fail('No answer from Google. Check the calendar before trying again.'); });
 }
 
 function _stParseTime(s) {
