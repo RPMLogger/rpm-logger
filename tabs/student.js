@@ -941,17 +941,18 @@ function _stWin(id, name, part, icon, body) {
   return back;
 }
 
-// Student / Teacher as two step buttons, the picked one bright with the
-// tick (2026-10-05: the HW step's Sent / No HW look, was .tl-seg).
+// Student / Teacher as a plain pick-one (2026-10-05): the portal's tick-box
+// line (.db-check, the Dropbox audit's), normal case, not buttons.
 function _stWhoSeg(id, on) {
-  return "<div class='lh-hw-pick picked st-who' id='" + id + "'>" + ['Student', 'Teacher'].map(function(v) {
-    return "<button type='button' class='tr-step-b" + (v === on ? " done" : "") + "' data-who='" + v + "'><span>" + v + "</span></button>";
+  return "<div class='st-who' id='" + id + "'>" + ['Student', 'Teacher'].map(function(v) {
+    return "<span class='db-check" + (v === on ? " on" : "") + "' data-who='" + v + "' role='radio' tabindex='0'><i class='db-box'></i>" + v + "</span>";
   }).join('') + "</div>";
 }
 function _stWireWho(w, id, set) {
-  var opts = w.querySelectorAll('#' + id + ' .tr-step-b');
+  var opts = w.querySelectorAll('#' + id + ' .db-check');
   opts.forEach(function(b) {
-    b.onclick = function() { opts.forEach(function(o) { o.classList.toggle('done', o === b); }); set(b.dataset.who); };
+    b.onclick = function() { opts.forEach(function(o) { o.classList.toggle('on', o === b); }); set(b.dataset.who); };
+    b.onkeydown = function(e) { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); b.onclick(); } };
   });
 }
 

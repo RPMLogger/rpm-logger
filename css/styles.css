@@ -2149,3 +2149,35 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #stDtRow { column-gap: 12px; }
 #stDtRow::before { display: none; }
 #stDtRow .dt-seg, #stDtRow .tb-col:last-child .dt-seg { padding: 3px; border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); border-radius: 7px; background: var(--surface2); }
+/* Lesson / Reschedule / Skip balance pass (2026-10-05): smaller picker,
+   tighter rhythm, one text size for values. */
+.st-win .win-icon { height: 18px; }
+.st-win .st-when { margin: -4px 0 18px; font-size: 10.5px; }
+.st-win .st-when + .st-when { margin-top: -14px; }
+.st-win .field-label { margin-bottom: 7px; }
+.st-win .st-gap { margin-top: 18px; }
+.st-win .st-foot { margin-top: 22px; }
+#stDtRow { column-gap: 8px; row-gap: 3px; }
+#stDtRow .dt-seg, #stDtRow .tb-col:last-child .dt-seg { padding: 2px; border-radius: 6px; }
+#stDtRow .dt-val { font-size: 10px; letter-spacing: 0.8px; padding: 4px 9px; }
+#stDtRow .st-pm { width: 20px; height: 15px; font-size: 11px; margin: 0; border-radius: 3px; }
+.st-who { max-width: 200px; }
+.st-who .tr-step-b { padding: 3px 8px; }
+/* Requested by as tick-box lines (2026-10-05, replaces the step buttons). */
+.st-who { display: flex; gap: 22px; max-width: none; }
+.st-who .db-check { cursor: pointer; user-select: none; }
+.st-who .db-check:hover { color: #fff; }
+.st-who .db-check:focus { outline: none; }
+.st-who .db-check:focus-visible { color: #fff; }
+.st-who .db-check.on { color: rgba(255,255,255,.82); }   /* picked = lit, not dimmed like a passed audit line */
+/* Requested by in the picker's type (2026-10-05): DM Mono 10px like MON, OCT 12,
+   normal case; dim until picked, like the picker's values. */
+.st-who .db-check { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.8px; color: rgba(255,255,255,0.55); }
+.st-who .db-check.on { color: #fff; }
+.st-who .db-check, .st-who .db-check.on { color: rgba(255,255,255,0.55); }   /* the date's brightness; the tick shows the pick */
+.st-who .db-check:hover { color: #fff; }
+/* A little more air between the sections (2026-10-05). */
+.st-win .st-gap { margin-top: 26px; }
+.st-win .field-label { margin-bottom: 11px; }
+#stDtRow { row-gap: 5px; }
+#stDtRow .dt-val { text-transform: none; }   /* "Mon, Oct 12", "1:30 PM": normal case like Student / Teacher (2026-10-05) */
