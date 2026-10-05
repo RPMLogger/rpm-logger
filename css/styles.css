@@ -2181,3 +2181,4 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .st-win .field-label { margin-bottom: 11px; }
 #stDtRow { row-gap: 5px; }
 #stDtRow .dt-val { text-transform: none; }   /* "Mon, Oct 12", "1:30 PM": normal case like Student / Teacher (2026-10-05) */
+.st-win .st-from { margin: 0 0 14px; }   /* the From line under Move to */

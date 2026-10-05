@@ -233,12 +233,10 @@ function _calOpenActions(ev, to) {
   _stOpenLessonActions(ev.title, lesson, {
     fromCalendar: true,
     to: to,
-    onDone: function(data) {
-      _calLoad(data.newTime
-        ? 'Moved ' + ev.title + ' → ' + data.newLabel + ' · ' + data.newTime
-        : 'Skipped ' + ev.title + ' · ' + lesson.dateLabel);
-    },
-    onFail: function(msg) { _calSetStatus('Not done: ' + msg); }
+    // No success line (2026-10-05): the window closes and the grid redraws
+    // with the lesson in its new spot; a failure shows in the window itself.
+    onDone: function() { _calLoad(); },
+    onFail: function() {}
   });
 }
 

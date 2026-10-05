@@ -787,7 +787,7 @@ function _stOpenSkipModal(studentName, lesson, opts) {
     "<div class='st-when'>" + lesson.dateLabel + " · " + lesson.time + "</div>" +
     "<label class='field-label'>Requested by</label>" + _stWhoSeg('stSkipWho', who) +
     "<label class='field-label st-gap'>Reason (optional)</label>" +
-    "<input id='stSkipNote' type='text' class='rpm-field' style='width:100%'>" +
+    "<input id='stSkipNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" +
     "<div class='ll-acts st-foot'><span class='ll-state' id='stSkipState' style='flex:1'></span>" +
       "<button class='link-btn bright' id='stSkipConfirm' data-tip='Removes this one lesson from the calendar\nand logs it to Skip Logs.' data-tip-left>Confirm skip</button></div>");
   _stWireWho(w, 'stSkipWho', function(v) { who = v; });
@@ -867,12 +867,13 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
       "<button type='button' class='tb-tri st-pm' tabindex='-1' data-step='" + id + "' data-dir='-1' style='grid-row:3'>−</button></div>";
   }
   var w = _stWin('stTimeModal', studentName, 'Reschedule', CALENDAR_ICON,
-    "<div class='st-when'>From " + lesson.dateLabel + " · " + lesson.time + "</div>" +
+    // Move to first, the lesson's current time under it, then the picker (2026-10-05).
     "<label class='field-label'>Move to</label>" +
+    "<div class='st-when st-from'>From " + lesson.dateLabel + " · " + lesson.time + "</div>" +
     "<div class='dt-row' id='stDtRow'>" + seg('day', dayText()) + seg('time', timeText()) + "</div>" +
     "<label class='field-label st-gap'>Requested by</label>" + _stWhoSeg('stRsWho', who) +
     "<label class='field-label st-gap'>Reason (optional)</label>" +
-    "<input id='stRsNote' type='text' class='rpm-field' style='width:100%'>" +
+    "<input id='stRsNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" +
     "<div class='ll-acts st-foot'><span class='ll-state' id='stRsState' style='flex:1'></span>" +
       "<button class='link-btn bright' id='stTimeConfirm' data-tip='Moves only this lesson in Google Calendar\nand logs it to Reschedule Logs.' data-tip-left>Confirm move</button></div>");
   _stWireWho(w, 'stRsWho', function(v) { who = v; });
@@ -898,6 +899,12 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
     v.onkeydown = function(e) {
       if (e.key === 'ArrowUp')   { e.preventDefault(); step(v.dataset.step, 1); }
       if (e.key === 'ArrowDown') { e.preventDefault(); step(v.dataset.step, -1); }
+      // Left / Right move between the date and the time (2026-10-05).
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        var to = e.key === 'ArrowLeft' ? 'day' : 'time';
+        light(to); document.getElementById('stDt_' + to).focus();
+      }
     };
   });
 
@@ -912,7 +919,6 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
     }, function(data) {
       w.remove();
       if (opts.onDone) { opts.onDone(data); return; }
-      addLog('studentFeed', '📅 ' + studentName + ' moved to ' + data.newLabel + ' · ' + data.newTime + ' (' + (data.who || who) + ' asked)', 'success');
       _stOpenCalendar(); // refresh — lesson now sits on the new day
     }, function(msg) {
       rpmBusy(panel, btn, false); btn.textContent = 'Confirm move'; btn.disabled = false;
