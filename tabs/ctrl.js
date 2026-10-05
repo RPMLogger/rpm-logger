@@ -815,7 +815,7 @@ function _logImportSection(controls, btn, label) {
     var c = pending[i++];
     _fxCall("logLesson", {
       studentName: _fixCurrentName,
-      subject:     (typeof toTitleCase === "function") ? toTitleCase(c.subjIn.value) : c.subjIn.value,
+      subject:     (typeof toSentenceCase === "function") ? toSentenceCase(c.subjIn.value) : c.subjIn.value,
       lessonDate:  c.sp.getValue(),
       trialPaid:   "0"
     }).then(function(r) {

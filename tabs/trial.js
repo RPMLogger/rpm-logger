@@ -1556,7 +1556,7 @@ function _tlLogWhat() {
   if (!_tl || _tl.logged || _tl.logging) return;
   if (_tlMicRec) { _tl.logAfterMic = true; try { _tlMicRec.stop(); } catch (e) {} return; }
   var v = llValues(_tlBox())
-    .filter(function (x) { return x; }).map(toTitleCase).join(' - ');
+    .filter(function (x) { return x; }).map(toSentenceCase).join(' - ');
   if (!v) { _tlSetMsg('tlWhatMsg', 'Nothing to log yet.', 'var(--accent)'); return; }
   var btn = document.getElementById('tlLogBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Logging…'; }

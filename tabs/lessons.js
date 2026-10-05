@@ -221,7 +221,7 @@ function submitLog() {
   if (activeStudent && activeStudent.hwOnly) { logHwSaveOnly(); return; }
   if (logHw && !logHw.choice) return;
 
-  var parts = llValues(_logBox()).filter(function(v) { return v; }).map(toTitleCase);
+  var parts = llValues(_logBox()).filter(function(v) { return v; }).map(toSentenceCase);
   var subject = parts.join(" - ");
   if (!subject) { addLog("lessonFeed", "Nothing to log!", "error"); return; }
 
@@ -344,6 +344,14 @@ function resetRows() {
   llReset(box);
   rowFinals = [""];
   activeRow = 0;
+}
+
+// Sentence case for lesson logs (2026-10-05, was Title Case): the first
+// letter capitalised, a lone "i" made "I", everything else exactly as typed
+// or dictated, so a song name typed with capitals keeps them.
+function toSentenceCase(str) {
+  var t = String(str || "").replace(/\s+/g, " ").trim().replace(/(^|\s)i(?=\s|$|')/g, "$1I");
+  return t.charAt(0).toUpperCase() + t.slice(1);
 }
 
 function toTitleCase(str) {
