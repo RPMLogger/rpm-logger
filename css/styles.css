@@ -2072,3 +2072,17 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .lh-hw-pick.picked .tr-step-b:not(.done) { color: rgba(255,255,255,0.24); border-color: color-mix(in srgb, var(--muted) 22%, transparent); background: transparent; }
 .lh-hw-pick.picked .tr-step-b:not(.done):not(:disabled):hover { color: var(--accent2); border-color: var(--accent2); }
 #logHwFiles { background: var(--bg); }
+
+/* Import tab (2026-10-04, tabs/import.js): every logged lesson for a student.
+   Number · date · what we covered, one line each, under year headings. */
+.im-card { cursor: pointer; }
+.im-today { border-left-color: var(--warn); }
+.im-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 4px 0 18px; }
+.im-count { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
+.im-list { padding: 8px 14px 14px; }
+.im-year { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); padding: 14px 0 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.im-row { display: grid; grid-template-columns: 38px 58px 1fr; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
+.im-row:last-child { border-bottom: none; }
+.im-n, .im-d { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
+.im-n { text-align: right; }
+.im-s { font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.45; color: var(--text); }
