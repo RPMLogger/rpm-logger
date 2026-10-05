@@ -42,7 +42,7 @@ function _stLoadRoster() {
         return;
       }
       _stState.roster = data.students || [];
-      _stRenderSearch();
+      if (_stState.view === 'search') _stRenderSearch();   // not over a page opened meanwhile
     })
     .catch(function() {
       section.innerHTML = '<div class="empty-state">Connection failed</div>';
@@ -648,6 +648,22 @@ function _stRenderAudit(data) {
 
 
 // ─── 4) CALENDAR DRILL-DOWN (per-student 8-week strips) ─────────────────────
+
+// From another tab (Import's Reschedule button): this student's 8-week
+// calendar straight away. Back from it lands on their Home page.
+function _stOpenCalendarFor(name) {
+  _stState.view = 'detail';
+  var section = document.getElementById('studentBody');
+  section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  var url = getScriptUrl(); if (!url) return;
+  fetch(url + '?action=getStudentDetail&name=' + encodeURIComponent(name))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.success) { section.innerHTML = '<div class="empty-state">Error: ' + (data.message || 'unknown') + '</div>'; return; }
+      _stState.current = data;
+      _stOpenCalendar();
+    });
+}
 
 function _stOpenCalendar() {
   _stState.reschedule = null; // never resume a stale drag on a fresh load

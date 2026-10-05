@@ -50,7 +50,9 @@ function _imRenderCards() {
 function _imOpenStudent(name) {
   _imOpen = name;
   _imHw = null;
+  _imDetail = null;
   _imLoadHw(name);
+  _imLoadDetail(name);
   var body = document.getElementById('importBody');
   body.innerHTML = _imBack() + '<div class="empty-state rpm-loading">Loading</div>';
   window.scrollTo(0, 0);
@@ -136,6 +138,7 @@ function _imRenderStudent(name, lessons) {
     // " · Lessons" in grey.
     '<div class="db-panel im-list" id="imList">' +
       '<div class="settings-title im-title"><span>' + inqEsc(name) + '<span class="win-sub"> · Lessons</span></span></div>' +
+      _imButtons(name) +
       (items.length ?
 html
       : 'No lessons logged yet') + '</div>' +
@@ -173,4 +176,105 @@ function _imLastHwHtml() {
     ? _dbDetailsFilesHtml({ items: r.files.map(function (x) { return { name: x.split('/').pop(), path: x }; }) })
     : '<span class="db-file" style="color:rgba(255,255,255,0.4)">No HW</span>';
   return '<div class="db-hw-head">' + head + '</div>' + body;
+}
+
+// ── Buttons (2026-10-05): what a lesson needs, top right of the list ──
+//   Log lesson  the Log window (lesson + HW) for today; the list redraws after
+//   Reschedule  this student's 8-week calendar on Home
+//   Notes       wrong-number text, payment due (amber when there's something)
+//   Dropbox     their Dropbox page: the files, Open in Finder
+var _imDetail = null;   // getStudentDetail reply (notes come from it)
+
+function _imButtons(name) {
+  var n = _auEsc(JSON.stringify(name));
+  var notes = _imNotes();
+  return '<span class="im-btns">' +
+    '<button class="link-btn green opens-window" onclick="_imLog(' + n + ')" data-tip="Opens a window.\nLog today\'s lesson, with its HW." data-tip-left>Log lesson</button>' +
+    '<button class="link-btn" onclick="_imReschedule(' + n + ')" data-tip="Goes to Home.\nTheir next 8 weeks: skip or move a lesson." data-tip-left>Reschedule</button>' +
+    '<button class="link-btn opens-window' + (notes.length ? ' amber' : '') + '" id="imNotesBtn" onclick="_imOpenNotes()" data-tip="Opens a window.\n' +
+      (notes.length ? notes.length + (notes.length === 1 ? ' thing' : ' things') + ' to mention.' : 'Nothing to mention right now.') + '" data-tip-left>Notes' + (notes.length ? ' · ' + notes.length : '') + '</button>' +
+    '<button class="link-btn" onclick="_imDropbox(' + n + ')" data-tip="Goes to Dropbox.\nTheir folder: the files, Open in Finder." data-tip-left>Dropbox</button>' +
+  '</span>';
+}
+
+function _imLog(name) {
+  window._imLogActive = name;
+  _dbLogFor(name);   // dropbox.js: today's calendar lesson if there is one, else today
+}
+
+function _imReschedule(name) {
+  switchTab('student');
+  _stOpenCalendarFor(name);
+}
+
+function _imDropbox(name) {
+  window._dbOpenAfterLoad = name;
+  switchTab('dropbox');
+}
+
+// The HW-only or Log window saved an answer: refresh Last HW.
+function _imHwSaved(name) {
+  if (_imOpen && _imKey(_imOpen) === _imKey(name)) _imLoadHw(_imOpen);
+}
+
+function _imLoadDetail(name) {
+  fetch(getScriptUrl() + '?action=getStudentDetail&name=' + encodeURIComponent(name))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (_imOpen !== name || !d.success) return;
+      _imDetail = d;
+      if (_imLast && _imLast.name === name) _imRenderStudent(name, _imLast.lessons);   // Notes button lights up
+    })
+    .catch(function () {});
+}
+
+// What's worth mentioning, from Home's data: [{ kind, html }]
+function _imNotes() {
+  var d = _imDetail, out = [];
+  if (!d) return out;
+  if (d.wrongNumberFlag) {
+    out.push({ kind: 'wrong', html:
+      '<div class="im-note-h">Texted the RPM line by mistake</div>' +
+      '<div class="im-note-t">“' + inqEsc(d.wrongNumberFlag.text || '') + '”</div>' +
+      '<div class="im-note-d">' + inqEsc(d.wrongNumberFlag.flaggedAt || '') + '</div>' +
+      '<div class="im-note-a"><span class="im-note-d">Remind them: RPM number vs personal, keep chat on personal.</span>' +
+        '<button class="link-btn" id="imWrongDone" onclick="_imClearWrong()" data-tip="Clears the warning.\nPress once you\'ve reminded them.">Reminded ✓</button></div>' });
+  }
+  if (d.paymentStatus && d.paymentStatus !== 'Paid' && d.paymentStatus !== '—') {
+    out.push({ kind: 'pay', html:
+      '<div class="im-note-h">Payment</div><div class="im-note-t">' + inqEsc(d.paymentStatus) + '</div>' });
+  }
+  return out;
+}
+
+function _imOpenNotes() {
+  var name = _imOpen; if (!name) return;
+  var notes = _imNotes();
+  var back = document.createElement('div');
+  back.id = 'imNotesBack';
+  back.className = 'im-notes-back';
+  back.onclick = function (e) { if (e.target === back) _imCloseNotes(); };
+  back.innerHTML = '<div class="log-panel active im-notes">' +
+    '<div class="settings-title"><span>' + inqEsc(name) + '<span class="win-sub"> · Notes</span></span>' +
+      '<button class="settings-close" onclick="_imCloseNotes()">✕</button></div>' +
+    (_imDetail ? (notes.length ? notes.map(function (x) { return '<div class="im-note">' + x.html + '</div>'; }).join('')
+                               : '<div class="im-note-d">Nothing to mention right now.</div>')
+               : '<div class="im-note-d">Loading</div>') +
+  '</div>';
+  document.body.appendChild(back);
+}
+function _imCloseNotes() { var b = document.getElementById('imNotesBack'); if (b) b.remove(); }
+
+function _imClearWrong() {
+  var name = _imOpen, btn = document.getElementById('imWrongDone');
+  if (!name || !btn) return;
+  btn.disabled = true; btn.textContent = 'Saving…';
+  fetch(getScriptUrl() + '?action=clearWrongNumberFlag&student=' + encodeURIComponent(name))
+    .then(function (r) { return r.json(); })
+    .then(function () {
+      if (_imDetail) _imDetail.wrongNumberFlag = null;
+      _imCloseNotes();
+      if (_imLast) _imRenderStudent(_imLast.name, _imLast.lessons);
+    })
+    .catch(function () { btn.disabled = false; btn.textContent = 'Reminded ✓'; });
 }

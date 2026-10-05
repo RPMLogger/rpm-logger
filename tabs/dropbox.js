@@ -326,6 +326,8 @@ function renderDropbox(d) {
 
 
   body.innerHTML = html;
+  // Sent here from another tab to open one student (Import's Dropbox button).
+  if (window._dbOpenAfterLoad) { var n = window._dbOpenAfterLoad; window._dbOpenAfterLoad = null; _dbOpenDetails(n); }
 }
 
 // One student folder card — click opens the folder in the local Dropbox app.

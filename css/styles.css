@@ -2096,3 +2096,15 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-row.im-empty .im-n, .im-row.im-empty .im-d { opacity: .35; }
 .im-year + .im-block { border-top: none; margin-top: 0; }
 .im-title { margin: 10px 0 14px; }   /* the Import list's title, inside its box like a window */
+/* Import student page buttons + Notes window (2026-10-05). */
+.im-title span { white-space: nowrap; }
+.im-btns { display: flex; gap: 8px; flex-wrap: wrap; margin: -4px 0 16px; }   /* own row under the title */
+.im-notes-back { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9998; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.im-notes { width: min(460px, 94vw); box-sizing: border-box; max-height: 90vh; overflow: auto; margin: 0; }
+.im-note + .im-note { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+.im-note-h { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--warn); margin-bottom: 6px; }
+.im-note-t { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.5); white-space: pre-wrap; }
+.im-note-d { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.24); margin-top: 4px; }
+.im-note-a { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+.im-notes { overflow-x: hidden; }
+.im-note-a .link-btn { white-space: nowrap; flex: none; }

@@ -11,6 +11,7 @@ function closeLogPanel() {
   activeStudent = null;
   logHw = null;
   window._auditHwActive = false;
+  window._imLogActive = null;
   _logHwOnly(false);
   window._auditFixActive = false;
   window._auditResolve = null;
@@ -280,6 +281,12 @@ function submitLog() {
       // If this log came from the Home/student page, re-fetch that student's
       // detail so the Past section reflects the lesson just logged. Same hook
       // pattern as the Audit fix flow below.
+      // Logged from the Import tab's Log lesson: redraw that student's list.
+      if (window._imLogActive && typeof _imOpenStudent === "function") {
+        var _imName = window._imLogActive;
+        window._imLogActive = null;
+        _imOpenStudent(_imName);
+      }
       if (window._stLogActive && typeof _stOpenStudent === "function") {
         var _stName = window._stLogActive;
         window._stLogActive = null;
@@ -488,4 +495,5 @@ function _logHwSaved(name, hw) {
     _runHwAudit();
   }
   if (typeof _dbHwSaved === "function") _dbHwSaved(name, hw.date, hw.choice === "sent" ? "Sent" : "No HW");
+  if (typeof _imHwSaved === "function") _imHwSaved(name);   // Import's Last HW
 }
