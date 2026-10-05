@@ -925,7 +925,7 @@ function _stEnableRescheduleDrag(section) {
   var banner = document.createElement('div');
   banner.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px;background:rgba(91,157,255,0.12);border:1px solid rgba(91,157,255,0.45);border-radius:6px;padding:10px 12px;margin-bottom:12px';
   banner.innerHTML =
-    "<div style='font-size:12px;color:#9ec3ff;line-height:1.4'>Drag <b>" + rs.studentName + "</b>'s lesson (" + lesson.dateLabel + ") to a new day.</div>" +
+    "<div style='font-size:12px;color:#9ec3ff;line-height:1.4'>Drag <b>" + rs.studentName + "</b>'s lesson (" + lesson.dateLabel + ") to a new day, or click it to change only the time.</div>" +
     "<button id='stRsCancel' style='flex:0 0 auto;padding:6px 12px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>Cancel</button>";
   section.insertBefore(banner, section.children[1] || null);
   banner.querySelector('#stRsCancel').onclick = _stCancelReschedule;
@@ -978,7 +978,12 @@ function _stEnableRescheduleDrag(section) {
     if (ghost) { ghost.remove(); ghost = null; }
     var t = lastTarget;
     clearTarget();
-    if (t) _stOpenTimeConfirm(rs.studentName, lesson, t.dataset.ymd);
+    if (t) { _stOpenTimeConfirm(rs.studentName, lesson, t.dataset.ymd); return; }
+    // Let go on its own day (a click, or dragged back): same day, new time
+    // (2026-10-05: same-day moves weren't possible). Day arrows included.
+    var el = document.elementFromPoint(e.clientX, e.clientY);
+    var over = el && el.closest ? el.closest('[data-ymd]') : null;
+    if (over === srcCell) _stOpenTimeConfirm(rs.studentName, lesson, lesson.date, { dayChange: true });
   }
 
   srcCell.addEventListener('pointerdown', function(e) {
