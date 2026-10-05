@@ -2081,11 +2081,13 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-count { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
 .im-list { padding: 8px 14px 14px; }
 .im-year { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); padding: 14px 0 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
-.im-row { display: grid; grid-template-columns: 38px 58px 1fr; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
+.im-row { display: grid; grid-template-columns: 14px 1fr auto; gap: 14px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
 .im-row:last-child { border-bottom: none; }
-.im-n, .im-d { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
+.im-n, .im-d { font-family: "DM Mono", monospace; font-size: 11px; color: rgba(255,255,255,0.24); }   /* Intake labels' brightness */
 .im-n { text-align: right; }
-.im-s { font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.45; color: var(--text); }
+.im-d { text-align: right; white-space: nowrap; min-width: 48px; }
+.im-s { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.5); }
+.im-s { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* one line each; the full text on hover (2026-10-04) */   /* Intake values' brightness (2026-10-04) */
 /* Import: blocks of 4 (2026-10-04) with a gap between, sort buttons above. */
 .im-sort { display: flex; gap: 8px; justify-content: flex-end; margin: -6px 0 12px; }
 .im-block { padding: 4px 0; }
@@ -2093,3 +2095,4 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-block .im-row { border-bottom: none; padding: 4px 0; }
 .im-row.im-empty .im-n, .im-row.im-empty .im-d { opacity: .35; }
 .im-year + .im-block { border-top: none; margin-top: 0; }
+.im-title { margin: 10px 0 14px; }   /* the Import list's title, inside its box like a window */

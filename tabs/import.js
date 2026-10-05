@@ -49,6 +49,8 @@ function _imRenderCards() {
 
 function _imOpenStudent(name) {
   _imOpen = name;
+  _imHw = null;
+  _imLoadHw(name);
   var body = document.getElementById('importBody');
   body.innerHTML = _imBack() + '<div class="empty-state rpm-loading">Loading</div>';
   window.scrollTo(0, 0);
@@ -71,12 +73,6 @@ function _imBack() {
 
 function _imClose() { _imOpen = null; _imLast = null; _imRoster ? _imRenderCards() : initImportTab(); }
 
-// Sort order, remembered in this browser: 'new' (newest block first) or 'old'.
-function _imSort() { try { return localStorage.getItem('imSort') === 'old' ? 'old' : 'new'; } catch (e) { return 'new'; } }
-function _imSetSort(v) {
-  try { localStorage.setItem('imSort', v); } catch (e) {}
-  if (_imLast) _imRenderStudent(_imLast.name, _imLast.lessons);
-}
 var _imLast = null;   // { name, lessons } of the open student, for re-sorting
 
 // lessons arrive newest first, dates without a year ("Sep /30"). Walking down
@@ -115,8 +111,7 @@ function _imRenderStudent(name, lessons) {
   } else {
     for (var i = 0; i < items.length; i += 4) { var c = items.slice(i, i + 4); c.year = c[0].year; blocks.push(c); }
   }
-  var sort = _imSort();
-  var order = sort === 'old' ? blocks : blocks.slice().reverse();
+  var order = blocks;   // always oldest first (2026-10-04: the newest lesson sits on top of Last HW)
 
   var lastYear = null;
   var html = order.map(function (b) {
@@ -124,23 +119,58 @@ function _imRenderStudent(name, lessons) {
     if (y !== lastYear) { head = '<div class="im-year">' + y + '</div>'; lastYear = y; }
     var rows = [0, 1, 2, 3].map(function (k) {
       var l = b[k];
-      if (!l) return '<div class="im-row im-empty"><span class="im-n">' + (k + 1) + '</span><span class="im-d">—</span><span class="im-s"></span></div>';
+      // 1-4, the lesson, and the date on the right (2026-10-04). No HW
+      // column: Last HW under the list covers it (user's call).
+      if (!l) return '<div class="im-row im-empty"><span class="im-n">' + (k + 1) + '</span><span class="im-s"></span><span class="im-d">—</span></div>';
       return '<div class="im-row">' +
         '<span class="im-n">' + (k + 1) + '</span>' +
-        '<span class="im-d">' + inqEsc(l.date) + '</span>' +
         '<span class="im-s">' + (l.subject ? inqEsc(l.subject) : '<span style="color:var(--muted)">—</span>') + '</span>' +
+        '<span class="im-d">' + inqEsc(l.date) + '</span>' +
       '</div>';
     }).join('');
     return head + '<div class="im-block">' + rows + '</div>';
   }).join('');
 
-  function opt(v, label) {
-    return '<button class="link-btn' + (sort === v ? ' bright' : '') + '" onclick="_imSetSort(\'' + v + '\')" data-tip="Instant.\nRemembered for next time.">' + label + '</button>';
-  }
   body.innerHTML = _imBack() +
-    '<label class="field-label">Student</label>' +
-    '<div class="im-head"><span class="inq-name">' + inqEsc(name) + '</span>' +
-      '<span class="im-count">' + total + (total === 1 ? ' lesson' : ' lessons') + '</span></div>' +
-    '<div class="im-sort">' + opt('new', 'Newest first') + opt('old', 'Oldest first') + '</div>' +
-    '<div class="db-panel im-list">' + (items.length ? html : 'No lessons logged yet') + '</div>';
+    // Window-style (2026-10-04): the title inside the box, the name in red,
+    // " · Lessons" in grey.
+    '<div class="db-panel im-list" id="imList">' +
+      '<div class="settings-title im-title"><span>' + inqEsc(name) + '<span class="win-sub"> · Lessons</span></span></div>' +
+      (items.length ?
+html
+      : 'No lessons logged yet') + '</div>' +
+    '<div class="db-dt-gap"><label class="field-label">Last HW</label>' +
+      '<div class="db-panel db-files" id="imLastHw">' + _imLastHwHtml() + '</div></div>';
+  // A line cut short with "…" shows its full text on hover.
+  body.querySelectorAll('.im-row .im-s').forEach(function (el) {
+    // On the row: the cell's overflow:hidden would clip its own CSS tooltip.
+    if (el.scrollWidth > el.clientWidth + 1) el.parentNode.setAttribute('data-tip', el.textContent);
+  });
+}
+
+// ── HW (2026-10-04): this student's rows from the HW Tracking sheet ──
+// Under the list, the newest HW in full (Last HW): what was given last time.
+var _imHw = null;   // { rows: [...] newest first }
+
+function _imLoadHw(name) {
+  fetch(getScriptUrl() + '?action=getHwLog&name=' + encodeURIComponent(name))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (_imOpen !== name || !d.success) return;
+      _imHw = { rows: d.rows || [] };
+      if (_imLast && _imLast.name === name) _imRenderStudent(name, _imLast.lessons);
+    })
+    .catch(function () {});
+}
+
+function _imLastHwHtml() {
+  if (!_imHw) return '<span style="color:var(--muted)">Loading</span>';
+  var r = _imHw.rows[0];
+  if (!r) return '<span style="color:var(--muted)">No HW logged yet</span>';
+  var p = String(r.date).split('-');
+  var head = MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10) + (r.lesson ? ' · Lesson ' + r.lesson : '');
+  var body = r.hw === 'Sent'
+    ? _dbDetailsFilesHtml({ items: r.files.map(function (x) { return { name: x.split('/').pop(), path: x }; }) })
+    : '<span class="db-file" style="color:rgba(255,255,255,0.4)">No HW</span>';
+  return '<div class="db-hw-head">' + head + '</div>' + body;
 }
