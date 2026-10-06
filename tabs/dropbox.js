@@ -114,7 +114,7 @@ function _dbSpaceHtml(d) {
   return '<div>' + _dbLbl('Storage') +
     '<div class="db-bar"><span class="db-bar-used" style="width:' + w + '%" ' +
       'data-tip="Your files · ' + _dbSize(mine) + '\nStudent folders · ' + _dbSize(student) + '"></span></div>' +
-    '<div class="win-note" style="margin:8px 0 0;color:rgba(255,255,255,.3)">Using ' + _dbSize(sp.used) + ' of ' + _dbSize(sp.allocated) + '</div>' +   // a step dimmer than the usual grey note
+    '<div class="win-note" style="margin:8px 0 0;line-height:1.2">' + _dbSize(sp.used) + ' of ' + _dbSize(sp.allocated) + '</div>' +   // the usual grey note, like 24 STUDENTS (2026-10-06, was a step dimmer)
   '</div>';
 }
 

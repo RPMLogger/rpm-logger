@@ -2021,7 +2021,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Header over the cards: 24 STUDENTS starts where the names start (3px edge
    + 14px padding); SINCE ADDED starts where Recover starts. */
 .db-cards-head { display: flex; align-items: baseline; justify-content: space-between; padding: 0 16px 0 17px; }
-.db-cards-head .field-label { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0; color: var(--muted); }   /* plain words, not a title */
+.db-cards-head .field-label { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0; color: var(--muted); text-transform: uppercase; }   /* 24 STUDENTS / SINCE ADDED in capitals (2026-10-06) */
 .db-card:hover { border-color: var(--muted); border-left-color: #3d5f8f; }
 .db-card-l { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 /* Two lines that line up across the card: name ↔ Recover (both 26px tall),
