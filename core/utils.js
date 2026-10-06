@@ -182,6 +182,18 @@ function rpmDtpHtml(id, o) {
     }).join('') + '</div>';
 }
 
+// The same boxes, read-only, with no chevrons: a value to compare against
+// the picker under it (Reschedule's Move from). Dimmer, so it reads as fixed.
+function rpmDtpShowHtml(ymd, hhmmOrLabel, o) {
+  o = o || {};
+  var box = function (txt, cls) {
+    return '<div class="dtp-box"><div class="dtp-cell"><span class="dtp-val ' + cls + '">' + txt + '</span></div></div>';
+  };
+  var d = rpmDtpParse(ymd) ? _dtpDateLabel(ymd, o.year) : (o.dateLabel || '\u2014');
+  var t = _dtpMins(hhmmOrLabel) !== null ? _dtpTimeLabel(hhmmOrLabel) : (hhmmOrLabel || '');
+  return '<div class="dtp dtp-ro">' + box(d, o.year ? 'yr' : '') + (t ? box(t, 'tm') : '') + '</div>';
+}
+
 // The hidden inputs sit inside the picker, so a picker that is built but not
 // on the page yet (the Audit Fix window keeps eight) can still be read.
 function _dtpIn(root, id, part) { return root ? root.querySelector('#' + id + part) : null; }

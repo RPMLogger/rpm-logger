@@ -835,9 +835,11 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
   var mins = ((t.h12 % 12) + (t.ap === 'PM' ? 12 : 0)) * 60 + t.min;
   var who = 'Student';
   var w = _stWin('stTimeModal', studentName, 'Reschedule', CALENDAR_ICON,
-    // Move to first, the lesson's current time under it, then the picker (2026-10-05).
-    "<label class='field-label'>Move to</label>" +
-    "<div class='st-when st-from'>From " + lesson.dateLabel + " · " + lesson.time + "</div>" +
+    // Move from: the lesson as it is; Move to: the picker (2026-10-06).
+    "<label class='field-label'>Move from</label>" +
+    // The same boxes as the picker, without chevrons, so the two compare at a glance.
+    rpmDtpShowHtml(lesson.date, lesson.time, { dateLabel: lesson.dateLabel }) +
+    "<label class='field-label st-gap'>Move to</label>" +
     rpmDtpHtml('stRs', { date: newYmd, time: _stPad2(Math.floor(mins / 60)) + ':' + _stPad2(mins % 60), min: 'today', keys: true }) +
     "<label class='field-label st-gap'>Requested by</label>" + _stWhoSeg('stRsWho', who) +
     "<label class='field-label st-gap'>Reason (optional)</label>" +

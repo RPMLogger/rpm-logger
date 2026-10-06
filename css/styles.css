@@ -1399,13 +1399,13 @@ a:focus-visible,
 .dtp-chev:focus { outline: none; }
 .dtp-chev .dt-ico { width: 11px; height: 6px; display: block; margin: 0 auto; fill: currentColor; }
 .dtp-cell {
-  border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent);
+  border: 1px solid color-mix(in srgb, var(--muted) 70%, transparent);
   border-radius: 7px; background: var(--surface2); padding: 4px 6px;
 }
 .dtp-val {
   display: block; min-width: 90px; background: transparent; border: none; border-radius: 5px;
   font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.8px; white-space: nowrap;
-  color: rgba(255,255,255,0.88); text-align: center; padding: 5px 2px; cursor: pointer;
+  color: #fff; text-align: center; padding: 5px 2px; cursor: pointer;
   transition: background .12s, color .12s;
 }
 .dtp-val.tm { min-width: 68px; }
@@ -1413,6 +1413,9 @@ a:focus-visible,
 .dtp-val:hover { color: #fff; }
 .dtp-val:focus { outline: none; }
 .dtp-val.on { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
+/* Read-only boxes (rpmDtpShowHtml): no chevrons, no hover, dimmer. */
+.dtp-ro .dtp-val, .dtp-ro .dtp-val:hover { cursor: default; color: rgba(255,255,255,0.38); }
+.dtp-ro .dtp-cell { border-color: color-mix(in srgb, var(--muted) 25%, transparent); background: transparent; }
 
 /* Trial step windows: a two-way choice (Weekly / Biweekly) in the date and
    time pickers' grey box (2026-09-25, was amber pills), caps like the
