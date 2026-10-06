@@ -2025,7 +2025,9 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-title { margin: 10px 0 14px; }   /* the Import list's title, inside its box like a window */
 /* Import student page buttons + Notes window (2026-10-05). */
 .im-title span { white-space: nowrap; }
-.im-btns { display: flex; gap: 8px; flex-wrap: wrap; margin: -4px 0 16px; }   /* own row under the title */
+.im-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.im-sort-btn { margin-left: auto; }   /* oldest/newest toggle, top right of the box on the title line (2026-10-06) */
+.im-btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 12px; }   /* own row above the box, outside its border (2026-10-06) */
 .im-notes-back { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9998; display: flex; align-items: center; justify-content: center; padding: 16px; }
 .im-notes { width: min(460px, 94vw); box-sizing: border-box; max-height: 90vh; overflow: auto; margin: 0; }
 .im-note + .im-note { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }

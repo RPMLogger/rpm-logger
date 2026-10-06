@@ -1350,7 +1350,7 @@ function _tlDbxHtml(a, s) {
 // ── Log lesson ──
 // The same window as Home's Log Lesson (#logPanel, lessons.js): one row to
 // start, Enter / ＋ row add more (llWire, core/utils.js), mic button, Log.
-// Rows join as "Row 1 - Row 2 - Row 3" in Title Case. Only
+// Rows join as "Row 1, row 2, row 3" (2026-10-06), sentence case. Only
 // Log saves, and a logged lesson is final: step 8 stops opening this window
 // (see _trStepsHtml), so it always starts empty.
 function _tlBox() { return document.getElementById('tlRows'); }
@@ -1453,7 +1453,8 @@ function _tlLogWhat() {
   if (!_tl || _tl.logged || _tl.logging) return;
   if (_tlMicRec) { _tl.logAfterMic = true; try { _tlMicRec.stop(); } catch (e) {} return; }
   var v = llValues(_tlBox())
-    .filter(function (x) { return x; }).map(toSentenceCase).join(' - ');
+    .filter(function (x) { return x; }).join(', ');
+  v = v ? toSentenceCase(v) : '';
   if (!v) { _tlSetMsg('tlWhatMsg', 'Nothing to log yet.', 'var(--accent)'); return; }
   var btn = document.getElementById('tlLogBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Logging…'; }

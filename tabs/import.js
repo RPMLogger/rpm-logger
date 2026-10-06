@@ -113,13 +113,17 @@ function _imRenderStudent(name, lessons) {
   } else {
     for (var i = 0; i < items.length; i += 4) { var c = items.slice(i, i + 4); c.year = c[0].year; blocks.push(c); }
   }
-  var order = blocks;   // always oldest first (2026-10-04: the newest lesson sits on top of Last HW)
+  // Oldest or newest first (2026-10-06): the numbers stay the lessons' own, so
+  // newest first reads 1 2 3 4 from the bottom (4 3 2 1 from the top).
+  var newest = _imNewestFirst();
+  var order = newest ? blocks.slice().reverse() : blocks;
+  var slots = newest ? [3, 2, 1, 0] : [0, 1, 2, 3];
 
   var lastYear = null;
   var html = order.map(function (b) {
     var y = b.year, head = '';
     if (y !== lastYear) { head = '<div class="im-year">' + y + '</div>'; lastYear = y; }
-    var rows = [0, 1, 2, 3].map(function (k) {
+    var rows = slots.map(function (k) {
       var l = b[k];
       // 1-4, the lesson, and the date on the right (2026-10-04). No HW
       // column: Last HW under the list covers it (user's call).
@@ -134,11 +138,14 @@ function _imRenderStudent(name, lessons) {
   }).join('');
 
   body.innerHTML = _imBack() +
+    // Buttons above the box, outside its border (2026-10-06).
+    _imButtons(name) +
     // Window-style (2026-10-04): the title inside the box, the name in red,
     // " · Lessons" in grey.
     '<div class="db-panel im-list" id="imList">' +
-      '<div class="settings-title im-title"><span>' + inqEsc(name) + '<span class="win-sub"> · Lessons</span></span></div>' +
-      _imButtons(name) +
+      '<div class="settings-title im-title"><span>' + inqEsc(name) + '<span class="win-sub"> · Lessons</span></span>' +
+        // Sort toggle top right, inside the box (2026-10-06).
+        '<button class="link-btn im-sort-btn" onclick="_imToggleSort()" data-tip="Flips the list.">' + (_imNewestFirst() ? 'Newest first' : 'Oldest first') + '</button></div>' +
       (items.length ?
 html
       : 'No lessons logged yet') + '</div>' +
@@ -184,6 +191,12 @@ function _imLastHwHtml() {
 //   Notes       wrong-number text, payment due (amber when there's something)
 //   Dropbox     their Dropbox page: the files, Open in Finder
 var _imDetail = null;   // getStudentDetail reply (notes come from it)
+
+function _imNewestFirst() { try { return localStorage.getItem('imNewestFirst') === '1'; } catch (e) { return false; } }
+function _imToggleSort() {
+  try { localStorage.setItem('imNewestFirst', _imNewestFirst() ? '0' : '1'); } catch (e) {}
+  if (_imLast) _imRenderStudent(_imLast.name, _imLast.lessons);
+}
 
 function _imButtons(name) {
   var n = _auEsc(JSON.stringify(name));

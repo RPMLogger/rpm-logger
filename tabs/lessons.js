@@ -221,8 +221,10 @@ function submitLog() {
   if (activeStudent && activeStudent.hwOnly) { logHwSaveOnly(); return; }
   if (logHw && !logHw.choice) return;
 
-  var parts = llValues(_logBox()).filter(function(v) { return v; }).map(toSentenceCase);
-  var subject = parts.join(" - ");
+  // Rows join with commas into one sentence (2026-10-06, was " - "): only the
+  // first letter capitalised.
+  var parts = llValues(_logBox()).filter(function(v) { return v; });
+  var subject = parts.length ? toSentenceCase(parts.join(", ")) : "";
   if (!subject) { addLog("lessonFeed", "Nothing to log!", "error"); return; }
 
   stopRecordingClean();
