@@ -151,7 +151,7 @@ function _enRenderPreview(d) {
   // ── Snapshot card (what gets saved to the Lifetime & Review summary) ──
   html += '<div class="section-label" style="margin-bottom:8px">Snapshot → Lifetime &amp; Review</div>';
   html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:6px 16px;margin-bottom:18px">';
-  var sk = s.skips || {};
+  var sk = s.skips || {}, rs = s.resched || {};
   // Exactly the Lifetime & Review chart's columns, in its order, so what you
   // see here is what lands in the chart. Blank values show as a dash.
   var rateNum = String(s.finalRate == null ? '' : s.finalRate).replace(/[^0-9.]/g, '');
@@ -160,6 +160,7 @@ function _enRenderPreview(d) {
     ['# of Lessons', s.totalLessons], ['Final Rate', rateNum ? '$' + rateNum : ''],
     ['# of Payments', s.paidChecks],
     ['Skips (S)', sk.student || 0], ['Skips (T)', sk.teacher || 0], ['Skips (V)', sk.vacation || 0],
+    ['Reschedules (S)', rs.student || 0], ['Reschedules (T)', rs.teacher || 0],
     ['Left a review', s.leftReview ? 'Yes' : 'No'], ['Asked When?', s.askedWhen]
   ].map(function (row) {
     return [row[0], (row[1] === '' || row[1] == null) ? '\u2014' : row[1]];
