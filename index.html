@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=760">
+  <link rel="stylesheet" href="css/styles.css?v=761">
 </head>
 <body>
 <div class="container">
@@ -90,6 +90,7 @@
     <button class="tab-btn" data-tab="studentline" onclick="switchTab('studentline')">Student Line<span class="inq-badge" id="slNavBadge" style="display:none"></span></button>
     <button class="tab-btn" data-tab="ending" onclick="switchTab('ending')">Terminate</button>
     <button class="tab-btn" data-tab="thisyear" onclick="switchTab('thisyear')">This Year</button>
+    <button class="tab-btn" data-tab="today" onclick="switchTab('today')">Today</button>
     <button class="tab-btn" data-tab="todo" onclick="switchTab('todo')">To-Do</button>
     <div class="nav-drop">
       <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Vacation ▾</button>
@@ -129,6 +130,11 @@
     <div class="log-feed" id="studentFeed"></div>
   </div>
 
+  <!-- TODAY (2026-10-06): today's students, each one's Lessons log / Last HW / Notes, tabs/today.js -->
+  <div class="tab-panel" id="tab-today">
+    <div id="todayBody"><div class="empty-state rpm-loading">Loading</div></div>
+  </div>
+
   <!-- IMPORT (2026-10-04): every logged lesson per student, tabs/import.js -->
   <div class="tab-panel" id="tab-import">
     <div id="importBody"><div class="empty-state rpm-loading">Loading</div></div>
@@ -153,7 +159,7 @@
         <div class="ll-rows" id="logRows"><input type="text" class="rpm-field ll-row active"></div>
         <button class="link-btn tl-mic" id="logMicBtn" data-tip="Starts or stops dictation." data-tip-left onclick="toggleLogMic()"></button>
       </div>
-      <button type="button" class="ll-add" id="logAddRow" data-tip="Instant.&#10;Adds a row. Enter does too.&#10;Each row becomes one part of the log.&#10;Rows are joined with &quot; - &quot; when you log." onclick="llAddRow(this.parentNode.querySelector('.ll-rows'))">＋</button>
+      <button type="button" class="ll-add" id="logAddRow" data-tip="Instant.&#10;Adds a row. Enter does too.&#10;Each row becomes one part of the log.&#10;Rows are joined with commas when you log." onclick="llAddRow(this.parentNode.querySelector('.ll-rows'))">＋</button>
       <!-- HW (2026-10-03): every lesson is Sent or No HW, saved to the HW Log
            tab in Students Import with the lesson. The files are the ones in their Dropbox
            not on an earlier lesson yet (logHwCheck, lessons.js). Hidden for
@@ -828,7 +834,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">760</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">761</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -848,42 +854,43 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=760"></script>
-<script src="core/storage.js?v=760"></script>
-<script src="core/utils.js?v=760"></script>
-<script src="core/dialog.js?v=760"></script>
-<script src="core/api.js?v=760"></script>
+<script src="core/state.js?v=761"></script>
+<script src="core/storage.js?v=761"></script>
+<script src="core/utils.js?v=761"></script>
+<script src="core/dialog.js?v=761"></script>
+<script src="core/api.js?v=761"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=760"></script>
-<script src="tabs/lessons.js?v=760"></script>
-<script src="tabs/payments.js?v=760"></script>
-<script src="tabs/week.js?v=760"></script>
-<script src="tabs/general.js?v=760"></script>
-<script src="tabs/financial.js?v=760"></script>
-<script src="tabs/inquiries.js?v=760"></script>
-<script src="tabs/inqarchive.js?v=760"></script>
-<script src="tabs/comms.js?v=760"></script>
-<script src="tabs/notes.js?v=760"></script>
-<script src="tabs/todo.js?v=760"></script>
-<script src="tabs/availability.js?v=760"></script>
-<script src="tabs/travel.js?v=760"></script>
-<script src="tabs/tripsummary.js?v=760"></script>
-<script src="tabs/triphistory.js?v=760"></script>
-<script src="tabs/skips.js?v=760"></script>
-<script src="tabs/student.js?v=760"></script>
-<script src="tabs/ctrl.js?v=760"></script>
-<script src="tabs/mailcenter.js?v=760"></script>
-<script src="tabs/dropbox.js?v=760"></script>
-<script src="tabs/import.js?v=760"></script>
-<script src="tabs/trial.js?v=760"></script>
-<script src="tabs/ending.js?v=760"></script>
-<script src="tabs/thisyear.js?v=760"></script>
-<script src="tabs/sheets.js?v=760"></script>
-<script src="tabs/studentline.js?v=760"></script>
-<script src="tabs/calendar.js?v=760"></script>
-<script src="tabs/fixedcal.js?v=760"></script>
-<script src="tabs/secretary.js?v=760"></script>
+<script src="tabs/icons.js?v=761"></script>
+<script src="tabs/lessons.js?v=761"></script>
+<script src="tabs/payments.js?v=761"></script>
+<script src="tabs/week.js?v=761"></script>
+<script src="tabs/general.js?v=761"></script>
+<script src="tabs/financial.js?v=761"></script>
+<script src="tabs/inquiries.js?v=761"></script>
+<script src="tabs/inqarchive.js?v=761"></script>
+<script src="tabs/comms.js?v=761"></script>
+<script src="tabs/notes.js?v=761"></script>
+<script src="tabs/todo.js?v=761"></script>
+<script src="tabs/availability.js?v=761"></script>
+<script src="tabs/travel.js?v=761"></script>
+<script src="tabs/tripsummary.js?v=761"></script>
+<script src="tabs/triphistory.js?v=761"></script>
+<script src="tabs/skips.js?v=761"></script>
+<script src="tabs/student.js?v=761"></script>
+<script src="tabs/ctrl.js?v=761"></script>
+<script src="tabs/mailcenter.js?v=761"></script>
+<script src="tabs/dropbox.js?v=761"></script>
+<script src="tabs/import.js?v=761"></script>
+<script src="tabs/today.js?v=761"></script>
+<script src="tabs/trial.js?v=761"></script>
+<script src="tabs/ending.js?v=761"></script>
+<script src="tabs/thisyear.js?v=761"></script>
+<script src="tabs/sheets.js?v=761"></script>
+<script src="tabs/studentline.js?v=761"></script>
+<script src="tabs/calendar.js?v=761"></script>
+<script src="tabs/fixedcal.js?v=761"></script>
+<script src="tabs/secretary.js?v=761"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -936,7 +943,7 @@
     // tab button is removed. The #tab-lessons panel div still lives in the DOM
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
-    var tabs = ["student","payments","week","general","financial","inquiries","availability","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","reviews","lifetime","concert","newsched","thisyear","sheets","skips","studentline","calendar","fixedcal","inqarchive","trialanalysis","comms","seclogic","sectemplates","dbxtemplates","import"];
+    var tabs = ["student","payments","week","general","financial","inquiries","availability","notes","todo","ctrl","travel","tripsummary","triphistory","mailcenter","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","reviews","lifetime","concert","newsched","thisyear","sheets","skips","studentline","calendar","fixedcal","inqarchive","trialanalysis","comms","seclogic","sectemplates","dbxtemplates","import","today"];
     tabs.forEach(function(t) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       var btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
@@ -950,6 +957,7 @@
     });
     if (tab === "student") initStudentTab();
     if (tab === "import") initImportTab();
+    if (tab === "today") initTodayTab();
     if (tab === "seclogic" || tab === "sectemplates") initSecretaryTab(tab);
     if (tab === "payments") { loadIncomingPayments(); var _pu = getScriptUrl(); if (_pu) _runAudit3(_pu); }
     if (tab === "ctrl") initAuditTab();

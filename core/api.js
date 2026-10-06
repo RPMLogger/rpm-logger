@@ -32,6 +32,10 @@ function fetchWeekStudents(url) {
       });
       weekStudents  = f;
       todayStudents = f.filter(function(s) { return s.isToday; });
+      // Today tab (2026-10-06): which day this read was, so it can re-read on a new day.
+      var _wd = new Date(), _wm = _wd.getMonth() + 1, _wdd = _wd.getDate();
+      window._weekFetchedDay = _wd.getFullYear() + "-" + (_wm < 10 ? "0" + _wm : _wm) + "-" + (_wdd < 10 ? "0" + _wdd : _wdd);
+      if (typeof _tdWeekReady === "function") _tdWeekReady();
 
       // Render each section independently — a failure in one is reported
       // but no longer aborts the others.

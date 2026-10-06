@@ -7,8 +7,13 @@
 
 var _imRoster = null;   // names from the Counter, A–Z
 var _imOpen = null;     // name of the open student, or null on the cards
+// Where the student page draws (2026-10-06): 'import' (this tab, with Back)
+// or 'today' (the Today tab, tabs/today.js, under its row of today's students).
+var _imIn = 'import';
+function _imBodyEl() { return document.getElementById(_imIn === 'today' ? 'tdStudent' : 'importBody'); }
 
 function initImportTab() {
+  _imIn = 'import';
   if (_imOpen) { _imOpenStudent(_imOpen); return; }
   if (_imRoster) { _imRenderCards(); return; }
   var body = document.getElementById('importBody');
@@ -48,6 +53,7 @@ function _imRenderCards() {
 }
 
 function _imOpenStudent(name) {
+  if (_imIn === 'today') { _tdRefresh(name); return; }   // after a log on the Today tab
   _imOpen = name;
   _imHw = null;
   _imDetail = null;
@@ -69,8 +75,9 @@ function _imOpenStudent(name) {
     });
 }
 
-function _imBack() {
-  return '<div style="margin-bottom:22px"><button class="link-btn" onclick="_imClose()" data-tip="Instant.\nBack to the students.">' + ARROW_ICON + '<span>Back</span></button></div>';
+function _imBack() { return '<div style="margin-bottom:22px">' + _imBackBtn() + '</div>'; }
+function _imBackBtn() {
+  return '<button class="link-btn" onclick="_imClose()" data-tip="Instant.\nBack to the students.">' + ARROW_ICON + '<span>Back</span></button>';
 }
 
 function _imClose() { _imOpen = null; _imLast = null; _imRoster ? _imRenderCards() : initImportTab(); }
@@ -81,9 +88,31 @@ var _imLast = null;   // { name, lessons } of the open student, for re-sorting
 // that list, a month later than the one above it means the year went back one.
 // Then blocks of 4, 1 2 3 4 inside each, as the sheet lays them out; empty
 // slots (the current block's, or a blank row) show dimmed.
+var _imShowAll = {};   // key → older blocks opened (2026-10-06); Import closes them for the next student
+
 function _imRenderStudent(name, lessons) {
+  if (!_imLast || _imLast.name !== name) _imShowAll = {};
   _imLast = { name: name, lessons: lessons };
-  var body = document.getElementById('importBody');
+  var body = _imBodyEl();
+  if (!body) return;
+  body.innerHTML = _imStudentHtml(name, lessons, _imHw, _imDetail, { back: true, buttons: true, card: true });
+  _imFixTips(body);
+}
+
+// A line cut short with "…" shows its full text on hover.
+function _imFixTips(el) {
+  el.querySelectorAll('.im-row .im-s').forEach(function (s) {
+    // On the row: the cell's overflow:hidden would clip its own CSS tooltip.
+    if (s.scrollWidth > s.clientWidth + 1) s.parentNode.setAttribute('data-tip', s.textContent);
+  });
+}
+
+// One student's page as HTML (2026-10-06, shared with the Today tab):
+// headline, buttons (o.buttons), Lessons log, Last HW, Notes. o.back adds
+// Import's Back; o.sub adds " · <sub>" after the name.
+function _imStudentHtml(name, lessons, hw, detail, o) {
+  o = o || {};
+  var n = _auEsc(JSON.stringify(name)), open = !!_imShowAll[_imKey(name)];
   var total = lessons.length, year = new Date().getFullYear(), prevMon = null, nowMon = new Date().getMonth();
   var items = lessons.map(function (l) {
     var m = String(l.date || '').replace(/\//g, '').trim().match(/^([A-Za-z]{3})\s*(\d{1,2})$/);
@@ -116,7 +145,12 @@ function _imRenderStudent(name, lessons) {
   // Oldest or newest first (2026-10-06): the numbers stay the lessons' own, so
   // newest first reads 1 2 3 4 from the bottom (4 3 2 1 from the top).
   var newest = _imNewestFirst();
-  var order = newest ? blocks.slice().reverse() : blocks;
+  // Only the 3 newest blocks (12 lessons) show; Show all opens the rest (2026-10-06).
+  var hidden = open ? 0 : Math.max(0, blocks.length - 3);
+  var shown = blocks.slice(hidden);
+  var order = newest ? shown.slice().reverse() : shown;
+  var more = blocks.length > 3 ? '<button class="link-btn im-more" onclick="_imToggleAll(' + n + ')">' +
+    (open ? 'Show less' : 'Show all') + '</button>' : '';
   var slots = newest ? [3, 2, 1, 0] : [0, 1, 2, 3];
 
   var lastYear = null;
@@ -137,25 +171,30 @@ function _imRenderStudent(name, lessons) {
     return head + '<div class="im-block">' + rows + '</div>';
   }).join('');
 
-  body.innerHTML = _imBack() +
-    // Buttons above the box, outside its border (2026-10-06).
-    _imButtons(name) +
-    // Window-style (2026-10-04): the title inside the box, the name in red,
-    // " · Lessons" in grey.
-    '<div class="db-panel im-list" id="imList">' +
-      '<div class="settings-title im-title"><span>' + inqEsc(name) + '<span class="win-sub"> · Lessons</span></span>' +
-        // Sort toggle top right, inside the box (2026-10-06).
-        '<button class="link-btn im-sort-btn" onclick="_imToggleSort()" data-tip="Flips the list.">' + (_imNewestFirst() ? 'Newest first' : 'Oldest first') + '</button></div>' +
+  // Back on the left, Log lesson + Reschedule on the right, one row (2026-10-06).
+  return (o.back || o.buttons ? '<div class="im-top">' + (o.back ? _imBackBtn() : '<span></span>') + (o.buttons ? _imButtons(name) : '') + '</div>' : '') +
+    // One card (2026-10-06, the Today tab's look): the name in amber (Today
+    // adds " · Quick look" in grey via o.sub), then the three boxes.
+    (o.card ? '<div class="td-student">' : '') +
+    '<div class="settings-title im-title"><span>' + inqEsc(name) + (o.sub ? '<span class="win-sub"> · ' + inqEsc(o.sub) + '</span>' : '') + '</span></div>' +
+    '<div class="db-panel im-list">' +
+      // Box heading in Dropbox's Info / Files type, sort toggle on its right (2026-10-06).
+      '<div class="db-cx-head im-list-head"><label class="field-label db-cx-t">Lessons log</label>' +
+        '<button class="link-btn im-sort-btn" onclick="_imToggleSort()" data-tip="Flips the list.">' + (_imNewestFirst() ? 'Newest' : 'Oldest') + '</button></div>' +
       (items.length ?
-html
+html + more
       : 'No lessons logged yet') + '</div>' +
-    '<div class="db-dt-gap"><label class="field-label">Last HW</label>' +
-      '<div class="db-panel db-files" id="imLastHw">' + _imLastHwHtml() + '</div></div>';
-  // A line cut short with "…" shows its full text on hover.
-  body.querySelectorAll('.im-row .im-s').forEach(function (el) {
-    // On the row: the cell's overflow:hidden would clip its own CSS tooltip.
-    if (el.scrollWidth > el.clientWidth + 1) el.parentNode.setAttribute('data-tip', el.textContent);
-  });
+    // Last HW in its own box, heading inside like Lessons log (2026-10-06).
+    '<div class="db-panel im-list im-hw-box">' +
+      '<div class="db-cx-head im-list-head"><label class="field-label db-cx-t">Last HW</label></div>' +
+      '<div class="db-files db-files-in">' + _imLastHwHtml(hw) + '</div>' +
+    '</div>' +
+    // Notes in their own box too (2026-10-06), the Notes window's lines.
+    '<div class="db-panel im-list im-hw-box">' +
+      '<div class="db-cx-head im-list-head"><label class="field-label db-cx-t">Notes</label></div>' +
+      '<div class="im-notes-in">' + _imNotesBoxHtml(detail, name) + '</div>' +
+    '</div>' +
+    (o.card ? '</div>' : '');
 }
 
 // ── HW (2026-10-04): this student's rows from the HW Tracking sheet ──
@@ -173,40 +212,50 @@ function _imLoadHw(name) {
     .catch(function () {});
 }
 
-function _imLastHwHtml() {
-  if (!_imHw) return '<span style="color:var(--muted)">Loading</span>';
-  var r = _imHw.rows[0];
-  if (!r) return '<span style="color:var(--muted)">No HW logged yet</span>';
+function _imLastHwHtml(hw) {
+  if (!hw) return '<span style="color:var(--muted)">Loading</span>';
+  var r = hw.rows[0];
+  if (!r) return '<div class="im-none">None</div>';   // the lesson rows' font (2026-10-06)
   var p = String(r.date).split('-');
-  var head = MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10) + (r.lesson ? ' · Lesson ' + r.lesson : '');
-  var body = r.hw === 'Sent'
-    ? _dbDetailsFilesHtml({ items: r.files.map(function (x) { return { name: x.split('/').pop(), path: x }; }) })
-    : '<span class="db-file" style="color:rgba(255,255,255,0.4)">No HW</span>';
-  return '<div class="db-hw-head">' + head + '</div>' + body;
+  // One line like a Lessons log row (2026-10-06): lesson #, Sent / No HW, the
+  // date at the end; a Sent lesson's files under it.
+  var line = '<div class="im-row im-hw-row">' +
+    '<span class="im-n">' + (r.lesson || '') + '</span>' +
+    '<span class="im-s">' + (r.hw === 'Sent' ? 'HW sent' : 'No HW sent') + '</span>' +
+    '<span class="im-d">' + MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10) + '</span></div>';
+  return line + (r.hw === 'Sent'
+    ? '<div class="im-hw-files">' + _dbDetailsFilesHtml({ items: r.files.map(function (x) { return { name: x.split('/').pop(), path: x }; }) }) + '</div>'
+    : '');
 }
 
-// ── Buttons (2026-10-05): what a lesson needs, top right of the list ──
+// ── Buttons (2026-10-05): above the student's card ──
 //   Log lesson  the Log window (lesson + HW) for today; the list redraws after
-//   Reschedule  this student's 8-week calendar on Home
-//   Notes       wrong-number text, payment due (amber when there's something)
-//   Dropbox     their Dropbox page: the files, Open in Finder
+//   Reschedule  a window with this student's next 8 weeks (2026-10-06)
+// (Dropbox button removed 2026-10-06: not needed here.)
+// Notes (wrong-number text, payment due) are a box on the page since 2026-10-06.
 var _imDetail = null;   // getStudentDetail reply (notes come from it)
 
 function _imNewestFirst() { try { return localStorage.getItem('imNewestFirst') === '1'; } catch (e) { return false; } }
+function _imToggleAll(name) {
+  var k = _imKey(name);
+  _imShowAll[k] = !_imShowAll[k];
+  _imRedraw();
+}
 function _imToggleSort() {
   try { localStorage.setItem('imNewestFirst', _imNewestFirst() ? '0' : '1'); } catch (e) {}
+  _imRedraw();
+}
+// Draw again wherever the page is showing: the Today tab or Import.
+function _imRedraw() {
+  if (_imIn === 'today') { _tdRender(); return; }
   if (_imLast) _imRenderStudent(_imLast.name, _imLast.lessons);
 }
 
 function _imButtons(name) {
   var n = _auEsc(JSON.stringify(name));
-  var notes = _imNotes();
   return '<span class="im-btns">' +
-    '<button class="link-btn green opens-window" onclick="_imLog(' + n + ')" data-tip="Opens a window.\nLog today\'s lesson, with its HW." data-tip-left>Log lesson</button>' +
-    '<button class="link-btn" onclick="_imReschedule(' + n + ')" data-tip="Goes to Home.\nTheir next 8 weeks: skip or move a lesson." data-tip-left>Reschedule</button>' +
-    '<button class="link-btn opens-window' + (notes.length ? ' amber' : '') + '" id="imNotesBtn" onclick="_imOpenNotes()" data-tip="Opens a window.\n' +
-      (notes.length ? notes.length + (notes.length === 1 ? ' thing' : ' things') + ' to mention.' : 'Nothing to mention right now.') + '" data-tip-left>Notes' + (notes.length ? ' · ' + notes.length : '') + '</button>' +
-    '<button class="link-btn" onclick="_imDropbox(' + n + ')" data-tip="Goes to Dropbox.\nTheir folder: the files, Open in Finder." data-tip-left>Dropbox</button>' +
+    '<button class="link-btn amber opens-window" onclick="_imLog(' + n + ')" data-tip="Opens a window.\nLog today\'s lesson, with its HW." data-tip-left>Log lesson</button>' +
+    '<button class="link-btn amber opens-window" onclick="_imReschedule(' + n + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson." data-tip-left>Reschedule</button>' +
   '</span>';
 }
 
@@ -224,18 +273,48 @@ function _imLog(name) {
   openLogFresh({ name: name, eventDate: d.getFullYear() + '/' + (m < 10 ? '0' + m : m) + '/' + (dd < 10 ? '0' + dd : dd), calType: 'regular' }, undefined);
 }
 
+// Reschedule opens on this page (2026-10-06, was a jump to Home): a window
+// with their next 8 weeks, Home's strips. A red day → Skip / Reschedule
+// (student.js windows); when one saves, the strips refresh in place.
 function _imReschedule(name) {
-  switchTab('student');
-  _stOpenCalendarFor(name);
+  var w = _stWin('imRsWin', inqEsc(name), 'Reschedule', CALENDAR_ICON,
+    "<label class='field-label'>Next 8 weeks</label><div id='imRsBody'><div class='empty-state rpm-loading'>Loading</div></div>" +
+    "<div class='im-rs-hint'>Click a lesson day to reschedule or skip it.</div>");
+  w.querySelector('.st-win').classList.add('im-rs-win');
+  _imRsLoad(name);
 }
 
-function _imDropbox(name) {
-  window._dbOpenAfterLoad = name;
-  switchTab('dropbox');
+function _imRsLoad(name) {
+  var url = getScriptUrl(); if (!url) return;
+  fetch(url + '?action=getStudentLessons&name=' + encodeURIComponent(name))
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var box = document.getElementById('imRsBody');
+      if (!box) return;   // window closed meanwhile
+      if (!data.success) { box.innerHTML = '<div class="empty-state">Error: ' + inqEsc(data.message || 'unknown') + '</div>'; return; }
+      if (!data.lessons || !data.lessons.length) { box.innerHTML = '<div class="empty-state">No lessons on the calendar</div>'; return; }
+      var byDate = {};
+      data.lessons.forEach(function (l) { byDate[l.date] = l; });
+      var today = _stToday(), monday = _stMondayOf(today);
+      var opts = { onDone: function () { _imRsLoad(name); } };
+      box.innerHTML = '';
+      var strips = document.createElement('div');
+      strips.className = 'im-rs-strips';
+      for (var k = 0; k < (data.weeks || 8); k++) {
+        strips.appendChild(_stBuildWeekStrip(new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + k * 7), byDate, today, data.student || name, opts));
+      }
+      box.appendChild(strips);
+    })
+    .catch(function () {
+      var box = document.getElementById('imRsBody');
+      if (box) box.innerHTML = '<div class="empty-state">No answer from Google.</div>';
+    });
 }
+
 
 // The HW-only or Log window saved an answer: refresh Last HW.
 function _imHwSaved(name) {
+  if (_imIn === 'today') { _tdRefresh(name); return; }
   if (_imOpen && _imKey(_imOpen) === _imKey(name)) _imLoadHw(_imOpen);
 }
 
@@ -250,9 +329,9 @@ function _imLoadDetail(name) {
     .catch(function () {});
 }
 
-// What's worth mentioning, from Home's data: [{ kind, html }]
-function _imNotes() {
-  var d = _imDetail, out = [];
+// What's worth mentioning, from Home's data (getStudentDetail): [{ kind, html }]
+function _imNotes(d, name) {
+  var out = [];
   if (!d) return out;
   if (d.wrongNumberFlag) {
     out.push({ kind: 'wrong', html:
@@ -260,7 +339,7 @@ function _imNotes() {
       '<div class="im-note-t">“' + inqEsc(d.wrongNumberFlag.text || '') + '”</div>' +
       '<div class="im-note-d">' + inqEsc(d.wrongNumberFlag.flaggedAt || '') + '</div>' +
       '<div class="im-note-a"><span class="im-note-d">Remind them: RPM number vs personal, keep chat on personal.</span>' +
-        '<button class="link-btn" id="imWrongDone" onclick="_imClearWrong()" data-tip="Clears the warning.\nPress once you\'ve reminded them.">Reminded ✓</button></div>' });
+        '<button class="link-btn" onclick="_imClearWrong(this, ' + _auEsc(JSON.stringify(name)) + ')" data-tip="Clears the warning.\nPress once you\'ve reminded them.">Reminded ✓</button></div>' });
   }
   if (d.paymentStatus && d.paymentStatus !== 'Paid' && d.paymentStatus !== '—') {
     out.push({ kind: 'pay', html:
@@ -269,34 +348,23 @@ function _imNotes() {
   return out;
 }
 
-function _imOpenNotes() {
-  var name = _imOpen; if (!name) return;
-  var notes = _imNotes();
-  var back = document.createElement('div');
-  back.id = 'imNotesBack';
-  back.className = 'im-notes-back';
-  back.onclick = function (e) { if (e.target === back) _imCloseNotes(); };
-  back.innerHTML = '<div class="log-panel active im-notes">' +
-    '<div class="settings-title"><span>' + inqEsc(name) + '<span class="win-sub"> · Notes</span></span>' +
-      '<button class="settings-close" onclick="_imCloseNotes()">✕</button></div>' +
-    (_imDetail ? (notes.length ? notes.map(function (x) { return '<div class="im-note">' + x.html + '</div>'; }).join('')
-                               : '<div class="im-note-d">Nothing to mention right now.</div>')
-               : '<div class="im-note-d">Loading</div>') +
-  '</div>';
-  document.body.appendChild(back);
+function _imNotesBoxHtml(d, name) {
+  if (!d) return '<div class="im-note-d">Loading</div>';
+  var notes = _imNotes(d, name);
+  return notes.length ? notes.map(function (x) { return '<div class="im-note">' + x.html + '</div>'; }).join('')
+                      : '<div class="im-none">None</div>';   // the lesson rows' font (2026-10-06)
 }
-function _imCloseNotes() { var b = document.getElementById('imNotesBack'); if (b) b.remove(); }
 
-function _imClearWrong() {
-  var name = _imOpen, btn = document.getElementById('imWrongDone');
+function _imClearWrong(btn, name) {
   if (!name || !btn) return;
   btn.disabled = true; btn.textContent = 'Saving…';
   fetch(getScriptUrl() + '?action=clearWrongNumberFlag&student=' + encodeURIComponent(name))
     .then(function (r) { return r.json(); })
     .then(function () {
-      if (_imDetail) _imDetail.wrongNumberFlag = null;
-      _imCloseNotes();
-      if (_imLast) _imRenderStudent(_imLast.name, _imLast.lessons);
+      // The detail this page drew from: Import's open student, or the Today tab's copy.
+      var d = _imIn === 'today' ? (_td.data[_imKey(name)] || {}).detail : _imDetail;
+      if (d) d.wrongNumberFlag = null;
+      _imRedraw();
     })
     .catch(function () { btn.disabled = false; btn.textContent = 'Reminded ✓'; });
 }

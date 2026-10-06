@@ -694,7 +694,7 @@ function _stRenderCalendar() {
   var strips = document.createElement('div');
   strips.style.cssText = 'display:flex;flex-direction:column;gap:6px';
   for (var w = 0; w < weeks; w++) {
-    var weekStart = new Date(monday.getTime() + w * 7 * 24 * 60 * 60 * 1000);
+    var weekStart = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + w * 7);
     strips.appendChild(_stBuildWeekStrip(weekStart, byDate, today, data.student));
   }
   section.appendChild(strips);
@@ -705,11 +705,13 @@ function _stRenderCalendar() {
   section.appendChild(hint);
 }
 
-function _stBuildWeekStrip(monday, byDate, today, studentName) {
+// opts (optional, Import's Reschedule window): passed on to the lesson chooser.
+function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
   var row = document.createElement('div');
   row.style.cssText = 'display:flex;gap:4px;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:6px';
   for (var i = 0; i < 7; i++) {
-    var d   = new Date(monday.getTime() + i * 24 * 60 * 60 * 1000);
+    // Calendar days, not 24h steps: a 25-hour day (clocks back, Nov 1) shifted every later day (2026-10-06).
+    var d   = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
     var ymd = _stYmd(d);
     var lesson = byDate[ymd];
     var isPast = d < today;
@@ -739,7 +741,7 @@ function _stBuildWeekStrip(monday, byDate, today, studentName) {
         "<div style='font-size:15px;font-weight:700;line-height:1.3'>" + d.getDate() + "</div>" +
         "<div style='font-size:9px;line-height:1.2;color:var(--accent);opacity:0.85'>" + lesson.time + "</div>";
       (function(l) {
-        cell.onclick = function() { _stOpenLessonActions(studentName, l); };
+        cell.onclick = function() { _stOpenLessonActions(studentName, l, opts); };
       })(lesson);
     } else {
       cell.style.cssText +=
@@ -814,7 +816,8 @@ function _stOpenLessonActions(studentName, lesson, opts) {
     // Home's drag-onto-a-day step went; a Calendar drop starts at its spot).
     if (opts && opts.fromCalendar) _stOpenTimeConfirm(studentName, lesson, (to && to.ymd) || lesson.date,
       { dayChange: true, startTime: to && to.time, onDone: opts.onDone, onFail: opts.onFail });
-    else _stOpenTimeConfirm(studentName, lesson, lesson.date);
+    else _stOpenTimeConfirm(studentName, lesson, lesson.date,
+      opts && opts.onDone ? { onDone: opts.onDone, onFail: opts.onFail } : undefined);
   };
 }
 

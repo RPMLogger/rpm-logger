@@ -2022,20 +2022,35 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-block .im-row { border-bottom: none; padding: 4px 0; }
 .im-row.im-empty .im-n, .im-row.im-empty .im-d { opacity: .35; }
 .im-year + .im-block { border-top: none; margin-top: 0; }
-.im-title { margin: 10px 0 14px; }   /* the Import list's title, inside its box like a window */
+.im-title { margin: 0 0 28px; }   /* the student page's headline, above the buttons (2026-10-06, was inside the box) */
 /* Import student page buttons + Notes window (2026-10-05). */
 .im-title span { white-space: nowrap; }
-.im-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.im-sort-btn { margin-left: auto; }   /* oldest/newest toggle, top right of the box on the title line (2026-10-06) */
-.im-btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 12px; }   /* own row above the box, outside its border (2026-10-06) */
+.im-more { display: block; margin: 10px auto 0; }   /* Show all / Show less, bottom middle, opens the older blocks (2026-10-06) */
+/* Import Reschedule window (2026-10-06): Home's 8-week strips on this page. */
+.im-rs-strips { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.im-rs-hint { font-size: 11px; color: var(--muted); text-align: center; margin-top: 12px; }
+.im-list-head { margin: 10px 0 4px; }   /* LESSONS LOG heading inside the box, sort toggle on its right (2026-10-06) */
+.im-list-head .field-label { margin: 0; }
+.im-notes-in { padding: 10px 0 4px; }   /* Notes box lines (2026-10-06) */
+.im-hw-box { margin-top: 20px; }
+.im-hw-row { border-bottom: none; padding: 4px 0; font-family: inherit; }   /* Last HW: one line like a lesson row (2026-10-06) */
+.im-hw-files { margin-top: 10px; }
+.im-none { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.5); padding: 4px 0; }   /* empty Last HW / Notes: None, like a lesson row */   /* Last HW and Notes: own boxes under the Lessons log (2026-10-06) */
+/* Today tab (2026-10-06): today's students one under the other, room between each. */
+#todayBody > .settings-title { margin-bottom: 30px; }   /* room under Today · date */
+/* Each student is one card (2026-10-06), Today and Import: the Import cards' look, amber edge like the name. */
+.td-student { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid #d9a441; border-radius: 10px; padding: 22px 20px; }
+.td-student + .td-student { margin-top: 28px; }
+.td-student .im-title { margin-top: 0; }
+.td-student .im-title > span { color: #d9a441; }   /* student names in amber, Today + Import (2026-10-06) */
+.im-btns { display: flex; gap: 8px; flex-wrap: wrap; }   /* Log lesson + Reschedule, top right above the card (2026-10-06) */
+.im-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 24px; }   /* Back left, buttons right */
 .im-notes-back { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9998; display: flex; align-items: center; justify-content: center; padding: 16px; }
-.im-notes { width: min(460px, 94vw); box-sizing: border-box; max-height: 90vh; overflow: auto; margin: 0; }
 .im-note + .im-note { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
 .im-note-h { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--warn); margin-bottom: 6px; }
 .im-note-t { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.5); white-space: pre-wrap; }
 .im-note-d { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.24); margin-top: 4px; }
 .im-note-a { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
-.im-notes { overflow-x: hidden; }
 .im-note-a .link-btn { white-space: nowrap; flex: none; }
 /* Lesson / Reschedule / Skip windows (2026-10-05, student.js _stWin): the
    Log window's frame, floated over a dim backdrop. */

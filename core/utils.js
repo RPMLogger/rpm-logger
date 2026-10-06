@@ -443,7 +443,7 @@ function rpmToast(kind, text, why) {
 // holds the mic: it sits inside the right end of the row you are in and moves
 // with you (llPlaceMic). llWire hooks the box up once and calls
 // onFocus(index) / onChange() so each window keeps its own mic and Log state.
-var LL_ADD_TIP = 'Instant.\nAdds a row. Enter does too.\nEach row becomes one part of the log.\nRows are joined with &quot; - &quot; when you log.';
+var LL_ADD_TIP = 'Instant.\nAdds a row. Enter does too.\nEach row becomes one part of the log.\nRows are joined with commas when you log.';
 var LL_LOG_TIP = 'Saves the lesson log.\n⌘ Enter does too.';
 function llRowHtml() { return '<input type="text" class="rpm-field ll-row">'; }
 function llAddInner() { return (typeof ROW_ADD_ICON === 'string' ? ROW_ADD_ICON : '＋'); }
