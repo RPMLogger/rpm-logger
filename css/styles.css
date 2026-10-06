@@ -2180,3 +2180,27 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #stDtRow .dt-val { text-transform: none; }   /* "Mon, Oct 12", "1:30 PM": normal case like Student / Teacher (2026-10-05) */
 .st-win .st-from { margin: 0 0 14px; }   /* the From line under Move to */
 .db-files .db-file.db-subgap { margin-top: 10px; }   /* room above a subfolder that follows another (2026-10-06) */
+/* Student folder cards (2026-10-06): not clickable themselves, the age in
+   the edge's steel blue, lightened a step so it reads on the dark card. */
+.db-card.db-card-still { cursor: default; }
+.db-card.db-card-still:hover { border-color: var(--border); border-left-color: #3d5f8f; }
+.db-card-still .db-card-a { color: #6d8fc0; }
+.db-files.db-files-in { padding: 10px 0 0; font-family: "DM Mono", monospace; font-size: 10.5px; }   /* the file list inside the student's card (2026-10-06) */
+.db-files-in .db-file { color: rgba(255,255,255,0.5); }   /* names at the card values' brightness */
+.db-files-in .db-file.db-dir { color: rgba(255,255,255,0.5); }
+/* A student card opened with Files (2026-10-06): the card grows downward,
+   a rule, then Info (email, since added, size, Open in Finder) and the files. */
+.db-card.db-card-open { flex-wrap: wrap; align-items: flex-start; }
+.db-cx { flex-basis: 100%; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); cursor: default; }
+.db-cx-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.db-cx .db-dt-sub { margin-top: 0; }
+.db-cx .db-cx-t { margin: 0; }
+.db-finder { display: inline-flex; vertical-align: middle; margin-left: 8px; cursor: pointer; color: var(--green); opacity: .8; transition: opacity .12s; }   /* Open in Finder icon after the name */
+.db-finder:hover { opacity: 1; }
+.db-finder svg { width: 11px; height: 11px; }
+.db-card-rec { display: block; margin-top: 8px; }   /* Recover under the size, on the left */
+.db-card-rec .link-btn { height: 22px; box-sizing: border-box; text-transform: none; letter-spacing: 0; font-size: 10px; padding: 0 9px; }
+.db-files-btn { gap: 6px; }
+.db-files-btn .db-bullet { width: 12px; height: 10px; }
+.db-card-still .db-card-a { color: var(--warn); }   /* ages and EMPTY in amber (2026-10-06, was light blue) */
+.db-finder { color: var(--blue); }   /* Open in Finder icon in blue, like Files (2026-10-06, was green) */
