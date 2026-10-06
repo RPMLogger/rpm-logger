@@ -229,7 +229,8 @@ function _calDragEnd() {
 function _calOpenActions(ev, to) {
   if (_calSample) { _calSetStatus('Sample only · Skip / Reschedule need real data'); return; }
   var p = ev.date.split('-');
-  var lesson = { date: ev.date, dateLabel: _calDayLabel(new Date(+p[0], +p[1] - 1, +p[2])), time: _calFmt(ev.startMin) };
+  var lesson = { date: ev.date, dateLabel: _calDayLabel(new Date(+p[0], +p[1] - 1, +p[2])), time: _calFmt(ev.startMin),
+                 id: ev.id, stamp: ev.startMs };   // id + stamp → backend acts on this exact event
   _stOpenLessonActions(ev.title, lesson, {
     fromCalendar: true,
     to: to,

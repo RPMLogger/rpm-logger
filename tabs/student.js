@@ -775,7 +775,8 @@ function _stOpenSkipModal(studentName, lesson, opts) {
     var btn = this, panel = w.querySelector('.st-win');
     var url = getScriptUrl(); if (!url) return;
     btn.textContent = 'Skipping…'; btn.disabled = true; rpmBusy(panel, btn, true);
-    _stCall(url, 'markSkip', { name: studentName, date: lesson.date, who: who, note: document.getElementById('stSkipNote').value.trim() },
+    _stCall(url, 'markSkip', { name: studentName, date: lesson.date, id: lesson.id || '', start: lesson.stamp || '',
+                              who: who, note: document.getElementById('stSkipNote').value.trim() },
       function(data) {
         w.remove();
         if (opts.onDone) { opts.onDone(data); return; }
@@ -851,7 +852,8 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
     var when = rpmDtpGet('stRs');
     btn.textContent = 'Moving…'; btn.disabled = true; rpmBusy(panel, btn, true);
     _stCall(url, 'rescheduleLesson', {
-      name: studentName, date: lesson.date, newDate: when.date, time: when.time,
+      name: studentName, date: lesson.date, id: lesson.id || '', start: lesson.stamp || '',
+      newDate: when.date, time: when.time,
       who: who, note: document.getElementById('stRsNote').value.trim()
     }, function(data) {
       w.remove();
