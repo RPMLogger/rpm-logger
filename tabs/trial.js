@@ -779,8 +779,6 @@ function _trBookAccepted(name, email) {
     '</div>';
 
   _trRenderOfferedSlots(email, 'tb');
-  var f = document.getElementById('tbDateLbl');
-  if (f) f.focus();
 }
 
 var _TR_TB_BOOK_LABEL = CALENDAR_ICON + '<span>Book</span>';
@@ -908,136 +906,35 @@ function _trRestoreBook(p) {
   else btn.textContent = '＋ Book trial';
 }
 
-// ── Trial date/time stepper ─────────────────────────────────────────────────
-// ▲ Sun, Sep 13 ▼   ▲ 10:30 PM ▼   (day steps ±1, time steps ±15 min)
-// The portal's one arrow rule, the one the Payments and Travel date fields
-// already keep on the keyboard: VERTICAL arrows change the value under them,
-// HORIZONTAL arrows move between fields. So both halves step with ▲▼, and
-// Left/Right hops date <-> time rather than nudging a number. This picker used
-// to break it twice - ◀▶ on the date, ▲▼ on the time, in the same row.
-// The labels are buttons so they can hold focus and take ↑↓ / ←→ themselves.
-// The real values live in hidden inputs p+'Date' (yyyy-MM-dd) and p+'Time'
-// (HH:mm), so _trBook, _trPickSlot and the reset keep reading/writing them as
-// before. A blank value shows as tomorrow at 5:00 PM.
-var _TR_DT_MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-var _TR_DT_DAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-function _trDtPad(n) { return (n < 10 ? '0' : '') + n; }
-function _trDtYmd(d) { return d.getFullYear() + '-' + _trDtPad(d.getMonth() + 1) + '-' + _trDtPad(d.getDate()); }
-
+// ── Trial date/time picker ──────────────────────────────────────────────────
+// The portal's one picker (rpmDtpHtml, core/utils.js): a date box and a time
+// box, chevrons above and below, a day or 15 minutes a step. The values live in
+// hidden inputs p+'Date' (yyyy-MM-dd) and p+'Time' (HH:mm), so _trBook,
+// _trPickSlot and the reset keep reading/writing them as before. A blank value
+// shows as tomorrow at 5:00 PM. The windows (tb, ts) take the keys as they
+// open; in tb, Enter lands on Book and a second Enter books.
 function _trDtDefault() {
   var d = new Date(); d.setDate(d.getDate() + 1);
-  return { date: _trDtYmd(d), time: '17:00' };
+  return { date: rpmDtpYmd(d), time: '17:00' };
 }
 
 function _trDtHtml(p) {
   var def = _trDtDefault();
-  // The arrows stack to the left of the value and stay small: they say the
-  // value moves, the value itself is what you click. See .dt-row.
-  var btn = function (fn, n, dir) {
-    return '<button type="button" class="dt-arrow" tabindex="-1" ' +
-      'onclick="' + fn + '(\'' + p + '\',' + n + ')">' + dtArrow(dir) + '</button>';
-  };
-  // The card's Book a trial window (tb): ▲ above each pill, ▼ below, big
-  // enough to tap. Clicking one also lights the pill, so the keys carry on
-  // from there.
-  var tri = function (fn, n, id, down) {
-    return '<button type="button" class="tb-tri' + (down ? ' down' : '') + '" tabindex="-1" ' +
-      'onclick="' + fn + '(\'' + p + '\',' + n + ');document.getElementById(\'' + id + '\').focus()">' + TRI_ICON + '</button>';
-  };
-  var seg = function (id, order, fn, step, w, txt) {
-    if (p === 'tb' || p === 'ts') {   // Book a trial manually too (2026-09-26)
-      return '<div class="tb-col">' + tri(fn, step, id) +
-        '<div class="dt-seg">' +
-          '<button type="button" class="dt-val" id="' + id + '" data-dt-nav="' + order + '" ' +
-            'style="min-width:' + w + 'px" onkeydown="_trDtKey(event,\'' + p + '\',\'' + fn + '\',' + step + ')">' + txt + '</button>' +
-        '</div>' + tri(fn, -step, id, true) + '</div>';
-    }
-    return '<div class="dt-seg">' +
-        '<span class="dt-stack">' + btn(fn, step, 1) + btn(fn, -step, -1) + '</span>' +
-        '<button type="button" class="dt-val" id="' + id + '" data-dt-nav="' + order + '" ' +
-          'style="min-width:' + w + 'px" onkeydown="_trDtKey(event,\'' + p + '\',\'' + fn + '\',' + step + ')">' + txt + '</button>' +
-      '</div>';
-  };
-  return '<input type="hidden" id="' + p + 'Date" value="' + def.date + '">' +
-    '<input type="hidden" id="' + p + 'Time" value="' + def.time + '">' +
-    '<div class="dt-row" id="' + p + 'DtRow">' +
-      seg(p + 'DateLbl', 0, '_trDtStepDate', 1,  78, _trDtDateLabel(def.date)) +
-      seg(p + 'TimeLbl', 1, '_trDtStepTime', 15, 52, _trDtTimeLabel(def.time)) +
-    '</div>';
-}
-
-// ↑↓ steps the focused field, ←→ moves to the next one. The horizontal keys
-// never change a value - that is the whole point of the split.
-function _trDtKey(e, p, fn, step) {
-  var f = fn === '_trDtStepDate' ? _trDtStepDate : _trDtStepTime;
-  if (e.key === 'ArrowUp')   { e.preventDefault(); f(p, step);  return; }
-  if (e.key === 'ArrowDown') { e.preventDefault(); f(p, -step); return; }
-  // tb only: Enter moves to Book (lit), a second Enter presses it.
-  if (e.key === 'Enter' && p === 'tb') {
-    e.preventDefault();
-    var bk = document.getElementById('tbBookBtn');
-    if (bk && !bk.disabled) bk.focus();
-    return;
-  }
-  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-  e.preventDefault();
-  var row = document.getElementById(p + 'DtRow');
-  if (!row) return;
-  var here = parseInt(e.target.getAttribute('data-dt-nav'), 10);
-  var next = row.querySelector('[data-dt-nav="' + (here + (e.key === 'ArrowRight' ? 1 : -1)) + '"]');
-  if (next) next.focus();
-}
-
-function _trDtParseDate(v) {
-  var m = String(v || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
-}
-function _trDtMins(v) {
-  var m = String(v || '').match(/^(\d{1,2}):(\d{2})$/);
-  return m ? (+m[1] * 60 + +m[2]) : null;
-}
-function _trDtDateLabel(v) {
-  var d = _trDtParseDate(v);
-  return d ? _TR_DT_DAY[d.getDay()] + ', ' + _TR_DT_MON[d.getMonth()] + ' ' + d.getDate() : '\u2014';
-}
-function _trDtTimeLabel(v) {
-  var t = _trDtMins(v);
-  if (t === null) return '\u2014';
-  var h = Math.floor(t / 60), mi = t % 60;
-  return ((h % 12) || 12) + ':' + _trDtPad(mi) + (h < 12 ? ' AM' : ' PM');
+  return rpmDtpHtml(p, {
+    date: def.date, time: def.time, keys: p === 'tb' || p === 'ts',
+    onChange: function () { if (p === 'tb') _trBookWinPaint(); },
+    onEnter: p === 'tb' ? function () {
+      var bk = document.getElementById('tbBookBtn');
+      if (bk && !bk.disabled) bk.focus();
+    } : null
+  });
 }
 
 // Fill blanks with the default and redraw both labels.
 function _trDtShow(p) {
-  var di = document.getElementById(p + 'Date'), ti = document.getElementById(p + 'Time');
-  if (!di || !ti) return;
-  var def = _trDtDefault();
-  if (!_trDtParseDate(di.value)) di.value = def.date;
-  if (_trDtMins(ti.value) === null) ti.value = def.time;
-  var dl = document.getElementById(p + 'DateLbl'), tl = document.getElementById(p + 'TimeLbl');
-  if (dl) dl.textContent = _trDtDateLabel(di.value);
-  if (tl) tl.textContent = _trDtTimeLabel(ti.value);
+  var v = rpmDtpGet(p), def = _trDtDefault();
+  rpmDtpSet(p, rpmDtpParse(v.date) ? v.date : def.date, /^\d{1,2}:\d{2}$/.test(v.time) ? v.time : def.time);
   if (p === 'tb') _trBookWinPaint();
-}
-
-function _trDtStepDate(p, n) {
-  _trDtShow(p);
-  var di = document.getElementById(p + 'Date');
-  var d = _trDtParseDate(di.value);
-  d.setDate(d.getDate() + n);
-  di.value = _trDtYmd(d);
-  _trDtShow(p);
-}
-
-// Snaps to the 15-minute grid, stays within the same day.
-function _trDtStepTime(p, n) {
-  _trDtShow(p);
-  var ti = document.getElementById(p + 'Time');
-  var t = _trDtMins(ti.value);
-  t = Math.round(t / 15) * 15 + n;
-  t = Math.max(0, Math.min(23 * 60 + 45, t));
-  ti.value = _trDtPad(Math.floor(t / 60)) + ':' + _trDtPad(t % 60);
-  _trDtShow(p);
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -1663,7 +1560,7 @@ function _tlSaveFreq() {
 // ── 5 · Pick a time (first lesson) ──
 // Nothing is saved until Set. Saves First Lesson
 // ("2026-09-20 14:30") and Pencilled Spot ("Sun 2:30 PM"), which the Fixed
-// Calendar reads to draw the pencilled slot. Time steps in half hours.
+// Calendar reads to draw the pencilled slot. Time steps in 15 minutes.
 function _tlTimeState() {
   if (_tl.when) return _tl.when;
   var s = _tl.card.lesson || {};
@@ -1672,7 +1569,7 @@ function _tlTimeState() {
     _tl.when = { date: new Date(d.getFullYear(), d.getMonth(), d.getDate()), mins: d.getHours() * 60 + d.getMinutes() };
   } else {
     var def = _msDefaultStart(_tl.card);
-    _tl.when = { date: def.date, mins: Math.round(def.mins / 30) * 30 };
+    _tl.when = { date: def.date, mins: Math.round(def.mins / 15) * 15 };
   }
   return _tl.when;
 }
@@ -1683,38 +1580,26 @@ function _tlTimeValue() {
          _msPad(Math.floor(w.mins / 60)) + ':' + _msPad(w.mins % 60);
 }
 
-// Book a trial's picker (2026-09-25): the first lesson's date and time in one
-// grey box, ▲ / ▼ above and below each. The regular spot is not asked for
-// separately: it is the first lesson's weekday and time, so the line under it
-// says so. Hover or click makes a field the lit one and it stays lit; ↑↓
-// change it, ←→ move between the two, Enter sets. Keys are read by the one
-// document listener below, so nothing has to hold browser focus.
-var _TL_PT = ['_tlStepDay', '_tlStepMins'];
-var _TL_PT_STEP = [1, 30];
-
+// The first lesson's date and time in the portal's one picker (rpmDtpHtml).
+// The regular spot is not asked for separately: it is the first lesson's
+// weekday and time, so the line under it says so. Every step redraws the
+// window; Enter sets. The date never steps back into the past.
 function _tlTimeHtml(a, s) {
   var w = _tlTimeState();
   var v = _tlTimeValue();
   var spot = _tlSpotStr(w.date.getDay(), w.mins);
   var saved = String(s.firstLesson || '') === v && String(s.pencilledSpot || '') === spot;
   var past = _trFirstLessonDate(v) <= new Date();
-  var on = _tl.ptOn || 0;
   var freq = String(s.frequency || '').trim();
   var h = Math.floor(w.mins / 60), mi = w.mins % 60, d = w.date;
   var dateTxt = _MS_DAYS[d.getDay()] + ', ' + _MS_MONTHS[d.getMonth()] + ' ' + d.getDate();
   var timeTxt = ((h % 12) || 12) + ':' + _msPad(mi) + (h < 12 ? ' AM' : ' PM');
-  var tri = function (i, n, down) {
-    return '<button type="button" class="tb-tri' + (down ? ' down' : '') + '" tabindex="-1" ' +
-      'onclick="_tlPtOn(' + i + ');' + _TL_PT[i] + '(' + n + ')">' + TRI_ICON + '</button>';
-  };
-  var col = function (i, w, label) {
-    return '<div class="tb-col">' + tri(i, _TL_PT_STEP[i]) +
-      '<div class="dt-seg"><button type="button" class="dt-val' + (on === i ? ' on' : '') + '" tabindex="-1" data-pt="' + i + '" ' +
-        'style="min-width:' + w + 'px" onmousemove="_tlPtHover(event,' + i + ')" onclick="_tlPtOn(' + i + ')">' + label + '</button></div>' +
-      tri(i, -_TL_PT_STEP[i], true) + '</div>';
-  };
   return '<div style="margin:4px 0 18px">' + TIME_ICON + '</div>' +
-    '<div class="dt-row" id="tlDtRow" style="margin-top:6px">' + col(0, 90, dateTxt) + col(1, 68, timeTxt) + '</div>' +
+    '<div style="margin-top:6px">' + rpmDtpHtml('tl', {
+      date: rpmDtpYmd(d), time: _msPad(h) + ':' + _msPad(mi), min: 'now', keys: true,
+      onChange: _tlDtpChanged,
+      onEnter: function () { if (_tl && !_tl.busy) _tlSaveTime(); }
+    }) + '</div>' +
     '<div class="pt-sum">Starting ' + inqEsc(dateTxt) + ' · ' + timeTxt + ' · ' +
       '<span class="pt-freq">' + (freq ? inqEsc(freq) : 'Frequency not set') + '</span></div>' +
     (past ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--accent);margin-top:8px">⚠ That is in the past.</div>' : '') +
@@ -1725,55 +1610,12 @@ function _tlTimeHtml(a, s) {
             ' onclick="_tlSaveTime()">Set</button>');
 }
 
-function _tlPtOn(i) {
-  if (!_tl) return;
-  _tl.ptOn = i;
-  var els = document.querySelectorAll('#tlModal [data-pt]');
-  for (var k = 0; k < els.length; k++) els[k].classList.toggle('on', +els[k].getAttribute('data-pt') === i);
-}
-
-// Every step redraws the window, and the browser then reports the new field
-// under a still mouse as hovered. Only a mouse that actually moved counts.
-var _tlPtXY = '';
-function _tlPtHover(e, i) {
-  var xy = e.screenX + ',' + e.screenY;
-  if (xy === _tlPtXY) return;
-  _tlPtXY = xy;
-  if (_tl && _tl.ptOn !== i) _tlPtOn(i);
-}
-
-document.addEventListener('keydown', function (e) {
-  if (!_tl || _tl.step !== 'time' || !_tl.rec || _tl.busy) return;
-  if (e.metaKey || e.ctrlKey || e.altKey) return;
-  var on = _tl.ptOn || 0;
-  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-    e.preventDefault();
-    window[_TL_PT[on]](e.key === 'ArrowUp' ? _TL_PT_STEP[on] : -_TL_PT_STEP[on]);
-  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-    e.preventDefault();
-    _tlPtOn(Math.max(0, Math.min(_TL_PT.length - 1, on + (e.key === 'ArrowRight' ? 1 : -1))));
-  } else if (e.key === 'Enter') {
-    e.preventDefault();
-    _tlSaveTime();
-  }
-});
-
-function _tlAt(date, mins) { var t = new Date(date); t.setHours(0, mins, 0, 0); return t; }
-
-// First lesson date: a day at a time, never back into the past.
-function _tlStepDay(n) {
-  if (!_tl) return;
-  var w = _tlTimeState();
-  var nd = new Date(w.date); nd.setDate(nd.getDate() + n);
-  if (n < 0 && _tlAt(nd, w.mins) <= new Date()) return;
-  w.date = nd;
-  _tlRender();
-}
-
-function _tlStepMins(n) {
-  if (!_tl) return;
-  var w = _tlTimeState();
-  w.mins = Math.min(23 * 60 + 30, Math.max(0, Math.round(w.mins / 30) * 30 + n));
+function _tlDtpChanged() {
+  if (!_tl || _tl.busy) { _tlRender(); return; }
+  var v = rpmDtpGet('tl'), w = _tlTimeState();
+  var nd = rpmDtpParse(v.date), m = v.time.split(':');
+  if (nd) w.date = nd;
+  if (m.length === 2) w.mins = +m[0] * 60 + +m[1];
   _tlRender();
 }
 

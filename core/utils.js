@@ -109,6 +109,238 @@ function dtArrow(dir) {
     '"/></svg>';
 }
 
+// ─── THE DATE / TIME PICKER (2026-10-06) ─────────────────────────────────────
+// The portal's one picker; it replaced seven look-alikes. A date box, and a
+// time box beside it where the time matters. Each value sits in its own
+// border with a thin chevron above and below it, outside the border.
+// The value is the control: click it (or, in a window, hover it) and it
+// lights; ↑↓ step the lit one, a day or 15 minutes; ←→ move between boxes.
+// Holding a chevron repeats. Nothing has to hold browser focus: one listener
+// reads the keys for the picker you last touched, or for a window's picker as
+// soon as the window opens (o.keys).
+//
+// rpmDtpHtml(id, o) → HTML. The values live in hidden inputs id+'Date'
+// (yyyy-MM-dd) and id+'Time' (HH:mm) inside it, so code that already read
+// hidden inputs keeps reading them.
+//   o.date, o.time  start values ('' shows —; the first step starts from today)
+//   o.noTime        the date box only
+//   o.year          show the year (Travel: a trip can run into the new year)
+//   o.min           'today' | 'now': the date never steps back past it
+//   o.keys          take the keys as soon as it is drawn (pickers in windows)
+//   o.onChange(id)  after every step
+//   o.onEnter(id)   Enter, while this picker has the keys
+//   o.group         pickers in one group walk into each other with ←→
+// rpmDtpGet(id) → { date, time }. rpmDtpSet(id, date, time) sets and redraws.
+var _RPM_DTP_DAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var _RPM_DTP_MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var _rpmDtp = {};            // id → { o, lit }
+var _rpmDtpActive = null;    // the id the keys go to
+
+function _dtpPad(n) { return (n < 10 ? '0' : '') + n; }
+function rpmDtpParse(ymd) {
+  var m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+}
+function rpmDtpYmd(d) { return d.getFullYear() + '-' + _dtpPad(d.getMonth() + 1) + '-' + _dtpPad(d.getDate()); }
+function _dtpMins(hhmm) {
+  var m = String(hhmm || '').match(/^(\d{1,2}):(\d{2})$/);
+  return m ? (+m[1] * 60 + +m[2]) : null;
+}
+function _dtpDateLabel(ymd, year) {
+  var d = rpmDtpParse(ymd);
+  if (!d) return '—';
+  return _RPM_DTP_DAY[d.getDay()] + ', ' + _RPM_DTP_MON[d.getMonth()] + ' ' + d.getDate() + (year ? ', ' + d.getFullYear() : '');
+}
+function _dtpTimeLabel(hhmm) {
+  var t = _dtpMins(hhmm);
+  if (t === null) return '—';
+  var h = Math.floor(t / 60);
+  return ((h % 12) || 12) + ':' + _dtpPad(t % 60) + (h < 12 ? ' AM' : ' PM');
+}
+
+function rpmDtpHtml(id, o) {
+  o = o || {};
+  var prev = _rpmDtp[id];
+  var parts = o.noTime ? ['Date'] : ['Date', 'Time'];
+  var lit = Math.min(prev ? prev.lit : 0, parts.length - 1);
+  _rpmDtp[id] = { o: o, lit: lit };
+  if (o.keys) _rpmDtpActive = id;
+  var on = _rpmDtpActive === id;
+  var chev = function (i, dir) {
+    return '<button type="button" class="dtp-chev" tabindex="-1" data-dtp-i="' + i + '" data-dtp-dir="' + dir + '" ' +
+      'aria-label="' + (dir > 0 ? 'Later' : 'Earlier') + '">' + dtArrow(dir) + '</button>';
+  };
+  return '<div class="dtp" id="' + id + 'Dtp" data-dtp="' + id + '"' + (o.group ? ' data-dtp-group="' + o.group + '"' : '') + '>' +
+    '<input type="hidden" id="' + id + 'Date" value="' + (o.date || '') + '">' +
+    (o.noTime ? '' : '<input type="hidden" id="' + id + 'Time" value="' + (o.time || '') + '">') +
+    parts.map(function (p, i) {
+      var cls = 'dtp-val' + (p === 'Time' ? ' tm' : o.year ? ' yr' : '') + (on && i === lit ? ' on' : '');
+      return '<div class="dtp-box">' + chev(i, 1) +
+        '<div class="dtp-cell"><button type="button" class="' + cls + '" tabindex="-1" id="' + id + p + 'Lbl" data-dtp-i="' + i + '">' +
+          (p === 'Date' ? _dtpDateLabel(o.date, o.year) : _dtpTimeLabel(o.time)) + '</button></div>' +
+        chev(i, -1) + '</div>';
+    }).join('') + '</div>';
+}
+
+// The hidden inputs sit inside the picker, so a picker that is built but not
+// on the page yet (the Audit Fix window keeps eight) can still be read.
+function _dtpIn(root, id, part) { return root ? root.querySelector('#' + id + part) : null; }
+function _dtpRoot(id) { return document.getElementById(id + 'Dtp'); }
+
+function rpmDtpGet(id, root) {
+  root = root || _dtpRoot(id);
+  var di = _dtpIn(root, id, 'Date'), ti = _dtpIn(root, id, 'Time');
+  return { date: di ? di.value : '', time: ti ? ti.value : '' };
+}
+
+function rpmDtpPaint(id, root) {
+  root = root || _dtpRoot(id);
+  var r = _rpmDtp[id];
+  if (!root || !r) return;
+  var v = rpmDtpGet(id, root);
+  var dl = root.querySelector('#' + id + 'DateLbl'), tl = root.querySelector('#' + id + 'TimeLbl');
+  if (dl) dl.textContent = _dtpDateLabel(v.date, r.o.year);
+  if (tl) tl.textContent = _dtpTimeLabel(v.time);
+}
+
+function rpmDtpSet(id, date, time, root) {
+  root = root || _dtpRoot(id);
+  var di = _dtpIn(root, id, 'Date'), ti = _dtpIn(root, id, 'Time');
+  if (di && date != null) di.value = date;
+  if (ti && time != null) ti.value = time;
+  rpmDtpPaint(id, root);
+}
+
+function _rpmDtpStep(id, i, dir) {
+  var r = _rpmDtp[id], root = _dtpRoot(id);
+  if (!r || !root || root.closest('.rpm-busy, .tb-busy')) return;
+  var o = r.o, v = rpmDtpGet(id, root);
+  if (i === 0) {
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var d = rpmDtpParse(v.date);
+    if (!d) d = today;                       // blank: the first press lands on today
+    else {
+      var nd = new Date(d.getFullYear(), d.getMonth(), d.getDate() + dir);
+      if (dir < 0 && o.min === 'today' && nd < today) return;
+      if (dir < 0 && o.min === 'now') {
+        var at = new Date(nd); at.setMinutes(_dtpMins(v.time) || 0);
+        if (at <= new Date()) return;
+      }
+      d = nd;
+    }
+    rpmDtpSet(id, rpmDtpYmd(d), null, root);
+  } else {
+    // 15-minute steps; an odd time snaps to the quarter. Stays inside the day.
+    var t = _dtpMins(v.time);
+    t = t === null ? 17 * 60 : Math.round(t / 15) * 15 + dir * 15;
+    t = Math.max(0, Math.min(23 * 60 + 45, t));
+    rpmDtpSet(id, null, _dtpPad(Math.floor(t / 60)) + ':' + _dtpPad(t % 60), root);
+  }
+  if (typeof o.onChange === 'function') o.onChange(id);
+}
+
+// Light box i of picker id and give it the keys. Only one picker is ever lit.
+// take: a click, which also pulls focus out of a text box (Safari leaves it
+// there), or the keys would keep going to the box.
+function _rpmDtpLight(id, i, take) {
+  var r = _rpmDtp[id];
+  if (!r) return;
+  r.lit = i;
+  _rpmDtpActive = id;
+  document.querySelectorAll('.dtp-val.on').forEach(function (el) { el.classList.remove('on'); });
+  var root = _dtpRoot(id);
+  if (!root) return;
+  root.querySelectorAll('.dtp-val').forEach(function (el) {
+    var me = +el.getAttribute('data-dtp-i') === i;
+    el.classList.toggle('on', me);
+    if (me && take) el.focus({ preventScroll: true });
+  });
+}
+
+function _rpmDtpLetGo() {
+  _rpmDtpActive = null;
+  document.querySelectorAll('.dtp-val.on').forEach(function (el) { el.classList.remove('on'); });
+}
+
+(function () {
+  var hold = null, lastXY = '';
+  function stopHold() { if (hold) { clearTimeout(hold); hold = null; } }
+
+  // A chevron steps on press and repeats while held. The repeat goes by id,
+  // not by element: some windows redraw on every step.
+  document.addEventListener('pointerdown', function (e) {
+    var c = e.target.closest && e.target.closest('.dtp-chev');
+    var root = e.target.closest && e.target.closest('.dtp');
+    // An inline picker lets go of the keys when you click anywhere else;
+    // a window's picker keeps them until the window goes.
+    if (_rpmDtpActive && !root) {
+      var r0 = _rpmDtp[_rpmDtpActive];
+      if (!r0 || !r0.o.keys) _rpmDtpLetGo();
+    }
+    if (!c || e.button !== 0) return;
+    e.preventDefault();
+    var id = root.getAttribute('data-dtp'), i = +c.getAttribute('data-dtp-i'), dir = +c.getAttribute('data-dtp-dir');
+    _rpmDtpLight(id, i, true);
+    _rpmDtpStep(id, i, dir);
+    stopHold();
+    var wait = 420;
+    (function again() {
+      hold = setTimeout(function () { _rpmDtpStep(id, i, dir); wait = Math.max(60, wait * 0.7); again(); }, wait);
+    })();
+  });
+  document.addEventListener('pointerup', stopHold);
+  document.addEventListener('pointercancel', stopHold);
+  window.addEventListener('blur', stopHold);
+
+  document.addEventListener('click', function (e) {
+    var v = e.target.closest && e.target.closest('.dtp-val');
+    if (!v) return;
+    _rpmDtpLight(v.closest('.dtp').getAttribute('data-dtp'), +v.getAttribute('data-dtp-i'), true);
+  });
+
+  // In a window, the mouse lights a box just by moving onto it. Only a mouse
+  // that actually moved counts: a redraw under a still mouse is not a choice.
+  document.addEventListener('mousemove', function (e) {
+    var v = e.target.closest && e.target.closest('.dtp-val');
+    if (!v) return;
+    var xy = e.screenX + ',' + e.screenY;
+    if (xy === lastXY) return;
+    lastXY = xy;
+    var id = v.closest('.dtp').getAttribute('data-dtp'), r = _rpmDtp[id], i = +v.getAttribute('data-dtp-i');
+    if (r && r.o.keys && (_rpmDtpActive !== id || r.lit !== i)) _rpmDtpLight(id, i);
+  });
+
+  // On window, so a tab's own listener (a dropdown walking its list) goes first
+  // and can claim the key.
+  window.addEventListener('keydown', function (e) {
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+    var id = _rpmDtpActive, r = id && _rpmDtp[id];
+    if (!r) return;
+    var root = _dtpRoot(id);
+    if (!root || !root.getClientRects().length) return;   // gone, or hidden
+    var t = e.target, tag = t && t.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable)) return;
+    var n = root.querySelectorAll('.dtp-val').length;
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      _rpmDtpStep(id, r.lit, e.key === 'ArrowUp' ? 1 : -1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      var to = r.lit + (e.key === 'ArrowRight' ? 1 : -1);
+      if (to >= 0 && to < n) { _rpmDtpLight(id, to); return; }
+      if (!r.o.group) return;
+      var all = Array.prototype.slice.call(document.querySelectorAll('[data-dtp-group="' + r.o.group + '"]'));
+      var next = all[all.indexOf(root) + (to < 0 ? -1 : 1)];
+      if (next) _rpmDtpLight(next.getAttribute('data-dtp'), to < 0 ? next.querySelectorAll('.dtp-val').length - 1 : 0);
+    } else if (e.key === 'Enter' && typeof r.o.onEnter === 'function') {
+      // A focused button outside the picker (Book, after the first Enter) is pressed as usual.
+      if ((tag === 'BUTTON' || tag === 'A') && !root.contains(t)) return;
+      e.preventDefault();
+      r.o.onEnter(id);
+    }
+  });
+})();
+
 // ─── Moving dots on a waiting button (2026-09-24) ───────────────────────────
 // Any button whose words end in "…" (Sending back…, Booking…, Moving…) gets
 // the user's three dots lighting up in turn while Google works. Nothing at the call

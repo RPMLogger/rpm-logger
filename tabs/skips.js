@@ -140,41 +140,12 @@ function _skLogForm(students) {
   sel.appendChild(selBtn);
   sel.appendChild(selList);
 
-  // Day stepper, the same control as the Trial tab: quiet arrows to the left,
-  // the day itself is what you click, then Up/Down. There is no second field
-  // here, so nothing walks sideways - see .dt-row in styles.css.
-  var day = new Date(); day.setHours(12, 0, 0, 0);
-  var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  // The portal's date picker (rpmDtpHtml), date only (2026-10-06).
+  var today = new Date();
   var dt = document.createElement('span');
-  dt.className = 'dt-row';
   dt.style.cssText = 'flex:0 0 auto';
-  var seg = document.createElement('span');
-  seg.className = 'dt-seg';
-  var stack = document.createElement('span');
-  stack.className = 'dt-stack';
-  var up = document.createElement('button'), down = document.createElement('button');
-  var dLabel = document.createElement('button');
-  up.className = down.className = 'dt-arrow';
-  up.tabIndex = down.tabIndex = -1;
-  up.innerHTML = dtArrow(1); down.innerHTML = dtArrow(-1);
-  dLabel.className = 'dt-val';
-  dLabel.style.cssText = 'min-width:78px';
-  function paintDay() { dLabel.textContent = DAYS[day.getDay()] + ', ' + MONTHS[day.getMonth()] + ' ' + day.getDate(); }
-  function shiftDay(n) { day.setDate(day.getDate() + n); paintDay(); }
-  up.onclick   = function() { shiftDay(1); };
-  down.onclick = function() { shiftDay(-1); };
-  dLabel.onkeydown = function(e) {
-    if (e.key === 'ArrowUp')   { e.preventDefault(); shiftDay(1); }
-    if (e.key === 'ArrowDown') { e.preventDefault(); shiftDay(-1); }
-  };
-  paintDay();
-  stack.appendChild(up); stack.appendChild(down);
-  seg.appendChild(stack); seg.appendChild(dLabel);
-  dt.appendChild(seg);
-  function dayValue() {
-    return day.getFullYear() + '-' + ('0' + (day.getMonth() + 1)).slice(-2) + '-' + ('0' + day.getDate()).slice(-2);
-  }
+  dt.innerHTML = rpmDtpHtml('skDay', { date: rpmDtpYmd(today), noTime: true });
+  function dayValue() { return rpmDtpGet('skDay').date; }
 
   var who = 'Student';
   var whoWrap = document.createElement('span');

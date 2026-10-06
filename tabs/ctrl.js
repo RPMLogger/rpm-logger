@@ -381,60 +381,24 @@ function _fixDateSeg() {
   return b;
 }
 
-// Inline [Mon] [DD] spinner, no year. Click a segment, ↑↓ nudges it.
-// Returns { box, getValue }. getValue() → "" if blank, else "MMM d, yyyy"
-// (year inferred on save so the cell stays a real date).
+// The portal's date picker (rpmDtpHtml), date only (2026-10-06, was a bare
+// Mon / DD spinner). Blank shows —; the first press lands on today.
+// Returns { box, getValue, clear }. getValue() → "" if blank, else
+// "MMM d, yyyy" (year inferred from the cell's Mon d, so it stays a real date).
+var _fixDtpSeq = 0;
 function _fixDateSpinner(initialDisp, onChange) {
   var p = _fixParseMonDay(initialDisp);
-  var state = { mon: p ? p.mon : null, day: p ? p.day : null };
-
+  var id = "fxDt" + (++_fixDtpSeq);
+  var ymd = p ? rpmDtpYmd(new Date(_fixInferYear(p.mon, p.day), p.mon, p.day)) : "";
   var box = document.createElement("span");
-  box.style.cssText = "display:inline-flex;align-items:center;gap:2px;color:var(--muted)";
-  var monSeg = _fixDateSeg(), daySeg = _fixDateSeg();
-
-  function refresh() {
-    monSeg.textContent = (state.mon != null) ? _FIX_MONTHS[state.mon] : "—";
-    daySeg.textContent = (state.day != null) ? String(state.day) : "—";
-    if (typeof onChange === "function") onChange();
-  }
-  function step(which, dir) {
-    if (state.mon == null || state.day == null) {
-      var t = new Date(); state.mon = t.getMonth(); state.day = t.getDate(); refresh(); return;
-    }
-    if (which === "mon") {
-      state.mon = (state.mon + dir + 12) % 12;
-    } else {
-      // Rolls into the next / previous month (Sep 30 ↑ → Oct 1), 2026-09-29.
-      var d = new Date(_fixInferYear(state.mon, state.day), state.mon, state.day + dir);
-      state.mon = d.getMonth(); state.day = d.getDate();
-    }
-    var maxNew = new Date(2024, state.mon + 1, 0).getDate();
-    if (state.day > maxNew) state.day = maxNew;
-    refresh();
-  }
-  // Up/Down steps the segment, Left/Right walks between month and day - the
-  // same split the Payments and Travel date fields use. Left/Right used to do
-  // nothing here, which was the only half of the rule this picker was missing.
-  function handler(which, other) {
-    return function(e) {
-      if (e.key === "ArrowUp")   { e.preventDefault(); step(which, +1); return; }
-      if (e.key === "ArrowDown") { e.preventDefault(); step(which, -1); return; }
-      if (e.key === "ArrowRight" || e.key === "ArrowLeft") { e.preventDefault(); other.focus(); }
-    };
-  }
-  monSeg.onkeydown = handler("mon", daySeg);
-  daySeg.onkeydown = handler("day", monSeg);
-
-  box.appendChild(monSeg); box.appendChild(daySeg);
-  refresh();
-
+  box.innerHTML = rpmDtpHtml(id, { date: ymd, noTime: true, onChange: onChange });
   return {
     box: box,
     getValue: function() {
-      if (state.mon == null || state.day == null) return "";
-      return _FIX_MONTHS[state.mon] + " " + state.day + ", " + _fixInferYear(state.mon, state.day);
+      var d = rpmDtpParse(rpmDtpGet(id, box).date);
+      return d ? _FIX_MONTHS[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear() : "";
     },
-    clear: function() { state.mon = null; state.day = null; refresh(); }
+    clear: function() { rpmDtpSet(id, "", null, box); }
   };
 }
 
@@ -705,7 +669,7 @@ function _dxEdit(which, k) {
   if (which === "counter") {
     title.textContent = "Counter · " + (k < 4 ? "previous" : "current") + " block, lesson " + (k % 4 + 1);
     var sp = _dx.counterSp[k];
-    sp.box.className = "fx-date"; line.appendChild(sp.box);
+    line.appendChild(sp.box);
     // Clearing the date is a trash icon, so the only ✕ in the box closes it.
     var clr = _fxX("Clears this date.\nNothing saves until Save."); clr.innerHTML = TRASH_ICON; clr.classList.add("fx-trash");
     clr.onclick = function() { sp.clear(); }; line.appendChild(clr);

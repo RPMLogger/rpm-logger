@@ -128,18 +128,13 @@ function openCashLogPanel(name, tab) {
   btn.disabled = false;
 }
 
-// ─── CASH DATE PICKER (Mon / Day) ────────────────────────────────────────────
+// ─── CASH DATE PICKER ────────────────────────────────────────────────────────
 // The cash date is written straight into Students Import and RPM Payments, so
 // a typo breaks the "Aug /24" format the audits match on. No free typing: the
-// Trial windows' picker (grey box, ▲ / ▼ above and below each value). Hover
-// or click lights a value; ↑↓ step it, ←→ move between month and day, Enter
-// logs. Year is inferred on submit.
+// portal's date picker (rpmDtpHtml), date only, a day a step (2026-10-06, was
+// separate month and day). It takes the keys while the window is open; Enter
+// logs.
 var CASH_MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-var cashDate    = { mon: null, day: null, on: 0 };
-
-// 2024 is a leap year, so Feb 29 stays reachable while stepping. getCashDate()
-// clamps against the real inferred year before it hands the date over.
-function cashMonthLen(mon, year) { return new Date(year || 2024, mon + 1, 0).getDate(); }
 
 // Pick the year that lands mon/day nearest today (handles Dec viewed in Jan).
 function cashInferYear(mon, day) {
@@ -150,56 +145,16 @@ function cashInferYear(mon, day) {
 
 // Accepts "Aug /24", "Aug 24", "Aug 24, 2026". Falls back to today.
 function setCashDate(disp) {
-  var m = (disp || "").trim().match(/([A-Za-z]{3})[^\d]*(\d{1,2})/);
+  var box = document.getElementById("cashDtWrap");
+  if (!box) return;
+  var m = (disp || "").trim().match(/([A-Za-z]{3})[^\d]*(\d{1,2})(?:[^\d]+(\d{4}))?/);
   var mon = m ? CASH_MONTHS.indexOf(m[1].charAt(0).toUpperCase() + m[1].slice(1, 3).toLowerCase()) : -1;
+  var d = new Date(); d.setHours(0, 0, 0, 0);
   if (m && mon >= 0) {
-    cashDate.mon = mon;
-    cashDate.day = Math.min(parseInt(m[2], 10), cashMonthLen(mon));
-  } else {
-    var t = new Date();
-    cashDate.mon = t.getMonth();
-    cashDate.day = t.getDate();
+    var day = parseInt(m[2], 10), y = m[3] ? +m[3] : cashInferYear(mon, day);
+    d = new Date(y, mon, Math.min(day, new Date(y, mon + 1, 0).getDate()));
   }
-  cashDate.on = 0;
-  renderCashDate();
-}
-
-function stepCashDate(which, dir) {
-  if (cashDate.mon == null) return;
-  if (which === "mon") {
-    cashDate.mon = (cashDate.mon + dir + 12) % 12;
-    cashDate.day = Math.min(cashDate.day, cashMonthLen(cashDate.mon));
-  } else {
-    // The day rolls into the next / previous month (Sep 30 ↑ → Oct 1), like
-    // Pick a time's real dates (2026-09-29; it used to wrap to Sep 1).
-    var y = cashInferYear(cashDate.mon, cashDate.day);
-    var d = new Date(y, cashDate.mon, cashDate.day + dir);
-    cashDate.mon = d.getMonth();
-    cashDate.day = d.getDate();
-  }
-  renderCashDate();
-}
-
-function cashDateOn(i) {
-  cashDate.on = i;
-  document.querySelectorAll("#cashDtRow .dt-val").forEach(function(el, k) { el.classList.toggle("on", k === i); });
-}
-
-// Redrawn whole on every step, like Pick a time; nothing holds focus.
-function renderCashDate() {
-  var box = document.getElementById("cashDtRow");
-  if (!box || cashDate.mon == null) return;
-  var parts = [["mon", CASH_MONTHS[cashDate.mon], 44], ["day", String(cashDate.day), 34]];
-  box.innerHTML = parts.map(function(p, i) {
-    var tri = function(dir) {
-      return '<button type="button" class="tb-tri' + (dir < 0 ? ' down' : '') + '" tabindex="-1" ' +
-        'onclick="cashDateOn(' + i + ');stepCashDate(\'' + p[0] + '\',' + dir + ')">' + TRI_ICON + '</button>';
-    };
-    return '<div class="tb-col">' + tri(1) +
-      '<div class="dt-seg"><button type="button" class="dt-val' + (cashDate.on === i ? ' on' : '') + '" tabindex="-1" ' +
-        'style="min-width:' + p[2] + 'px" onmouseenter="cashDateOn(' + i + ')" onclick="cashDateOn(' + i + ')">' + p[1] + '</button></div>' +
-      tri(-1) + '</div>';
-  }).join("");
+  box.innerHTML = rpmDtpHtml("cash", { date: rpmDtpYmd(d), noTime: true, keys: true });
 }
 
 document.addEventListener("keydown", function(e) {
@@ -221,24 +176,14 @@ document.addEventListener("keydown", function(e) {
     return;
   }
   if (!activeCashStudent) return;
-  var typing = /^(INPUT|TEXTAREA)$/.test((document.activeElement || {}).tagName || "");
-  if (e.key === "Enter") { e.preventDefault(); submitCashLog(); return; }
-  if (typing) return;
-  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-    e.preventDefault();
-    stepCashDate(cashDate.on ? "day" : "mon", e.key === "ArrowUp" ? 1 : -1);
-  } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-    e.preventDefault();
-    cashDateOn(e.key === "ArrowRight" ? 1 : 0);
-  }
+  // ↑↓ step the date: the picker's own listener (core/utils.js).
+  if (e.key === "Enter") { e.preventDefault(); submitCashLog(); }
 });
 
 // → "Aug 24, 2026", already normalized so it needs no normalizePayDate pass.
 function getCashDate() {
-  if (cashDate.mon == null || cashDate.day == null) return "";
-  var y = cashInferYear(cashDate.mon, cashDate.day);
-  var d = Math.min(cashDate.day, cashMonthLen(cashDate.mon, y));
-  return CASH_MONTHS[cashDate.mon] + " " + d + ", " + y;
+  var d = rpmDtpParse(rpmDtpGet("cash").date);
+  return d ? CASH_MONTHS[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear() : "";
 }
 
 // The $ lives in a fixed prefix next to the field, so the input holds digits

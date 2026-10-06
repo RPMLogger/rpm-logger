@@ -1,6 +1,6 @@
 // ─── TABS / TRAVEL.JS  (TRAVEL PLAN) ────────────────────────────────────────
 // The "doing" surface. Two screens:
-//   1) PLAN   — Leaving + Arriving spinners anchor two Mon-Sun day strips; tap a
+//   1) PLAN   — Leaving + Arriving pickers anchor two Mon-Sun day strips; tap a
 //               day to extend the buffer. Live impact ($ / lessons / students)
 //               updates on every change.
 //   2) REVIEW — per-student breakdown (before / skip / resume) + the exact text
@@ -63,7 +63,7 @@ function _travelRenderPlan() {
   section.innerHTML = '';
   section.appendChild(_travelTopBar());
 
-  // Pre-fill with today so the year is already right — just nudge month/day.
+  // Pre-fill with today, so there is always a date to step from.
   if (!_travelState.leaving) {
     var today = _dateToYmd(new Date());
     _travelState.leaving = _travelState.arriving = today;
@@ -89,8 +89,8 @@ function _travelRenderPlan() {
     "<div id='travelArrivingSlot' style='flex:1'></div>";
   section.appendChild(inputs);
 
-  _travelRenderDateSpinner('travelLeavingSlot',  'Leaving',  'leaving',  0);
-  _travelRenderDateSpinner('travelArrivingSlot', 'Arriving', 'arriving', 2);
+  _travelRenderDateSpinner('travelLeavingSlot',  'Leaving',  'leaving');
+  _travelRenderDateSpinner('travelArrivingSlot', 'Arriving', 'arriving');
 
   var leavingWeek = document.createElement('div');
   leavingWeek.id = 'travelLeavingWeek';
@@ -115,116 +115,25 @@ function _travelRenderPlan() {
 }
 
 
-// ─── DATE SPINNER WIDGET ────────────────────────────────────────────────────
+// ─── LEAVING / ARRIVING ──────────────────────────────────────────────────────
+// The portal's date picker (rpmDtpHtml), with the year: a trip can run from
+// Christmas into the new year (2026-10-06, was a Mon / DD / YYYY spinner).
+// A day a step; hold a chevron to run. ←→ walk from Leaving into Arriving.
 
-var _SK_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-function _travelRenderDateSpinner(slotId, label, stateKey, baseOrder) {
+function _travelRenderDateSpinner(slotId, label, stateKey) {
   var wrap = document.getElementById(slotId);
   if (!wrap) return;
-  wrap.innerHTML = '';
-
-  var lbl = document.createElement('div');
-  lbl.style.cssText = 'font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px';
-  lbl.textContent = label;
-  wrap.appendChild(lbl);
-
-  var box = document.createElement('div');
-  box.style.cssText = 'display:inline-flex;align-items:center;background:var(--bg);border:1px solid var(--border);' +
-    'border-radius:4px;padding:6px 10px;font-size:15px;color:var(--text);font-family:inherit';
-
-  var monthSeg = _travelDateSeg();
-  monthSeg.dataset.navOrder = String(baseOrder);
-  var daySeg = _travelDateSeg();
-  daySeg.dataset.navOrder = String(baseOrder + 1);
-  var yearSeg = _travelDateSeg();
-
-  function refresh() {
-    var d = _ymdToDate(_travelState[stateKey]);
-    monthSeg.textContent = _SK_MONTHS[d.getMonth()];
-    daySeg.textContent   = _travelZeroPad(d.getDate());
-    yearSeg.textContent  = String(d.getFullYear());
-  }
-
-  function step(which, dir) {
-    var d = _ymdToDate(_travelState[stateKey]);
-    var y = d.getFullYear(), m = d.getMonth(), dd = d.getDate();
-    // Day and month roll over like real dates (2026-09-29): Sep 30 ↑ → Oct 1,
-    // Dec ↑ → Jan of the next year. They used to wrap inside the month / year.
-    if (which === 'month') {
-      var nm = new Date(y, m + dir, 1);
-      y = nm.getFullYear(); m = nm.getMonth();
-    }
-    else if (which === 'year')  y = y + dir;
-    else if (which === 'day') {
-      var nd = new Date(y, m, dd + dir);
-      y = nd.getFullYear(); m = nd.getMonth(); dd = nd.getDate();
-    }
-    var maxNew = new Date(y, m + 1, 0).getDate();
-    if (dd > maxNew) dd = maxNew;
-
-    var ymd = y + '-' + _travelZeroPad(m + 1) + '-' + _travelZeroPad(dd);
-    _travelState[stateKey] = ymd;
-    if (stateKey === 'leaving')  _travelState.firstOff  = ymd;
-    if (stateKey === 'arriving') _travelState.firstBack = ymd;
-
-    refresh();
-    _travelRebuildWeeks();
-    _travelMarkStale();
-  }
-
-  function arrowHandler(which, hasLeftRight) {
-    return function(e) {
-      if (e.key === 'ArrowUp')   { e.preventDefault(); step(which, +1); return; }
-      if (e.key === 'ArrowDown') { e.preventDefault(); step(which, -1); return; }
-      if (hasLeftRight && e.key === 'ArrowRight') { e.preventDefault(); _travelNavSeg(this, +1); return; }
-      if (hasLeftRight && e.key === 'ArrowLeft')  { e.preventDefault(); _travelNavSeg(this, -1); return; }
-    };
-  }
-
-  monthSeg.onkeydown = arrowHandler('month', true);
-  daySeg.onkeydown   = arrowHandler('day',   true);
-  yearSeg.onkeydown  = arrowHandler('year',  false);
-
-  box.appendChild(monthSeg);
-  box.appendChild(_travelDateSlash());
-  box.appendChild(daySeg);
-  box.appendChild(_travelDateSlash());
-  box.appendChild(yearSeg);
-
-  wrap.appendChild(box);
-  refresh();
-}
-
-function _travelDateSeg() {
-  var b = document.createElement('button');
-  b.type = 'button';
-  b.tabIndex = 0;
-  b.style.cssText =
-    'background:transparent;border:none;color:inherit;font-family:inherit;font-size:inherit;font-weight:600;' +
-    'padding:2px 6px;cursor:pointer;border-radius:3px;outline:none;letter-spacing:0.3px';
-  b.onfocus = function() { b.style.background = 'rgba(232,70,58,0.18)'; b.style.color = 'var(--accent)'; };
-  b.onblur  = function() { b.style.background = 'transparent';          b.style.color = 'inherit'; };
-  b.onclick = function() { b.focus(); };
-  return b;
-}
-
-function _travelDateSlash() {
-  var s = document.createElement('span');
-  s.textContent = '/';
-  s.style.cssText = 'color:var(--muted);margin:0 1px;font-weight:400';
-  return s;
-}
-
-function _travelZeroPad(n) { return n < 10 ? '0' + n : '' + n; }
-
-function _travelNavSeg(seg, dir) {
-  var order = parseInt(seg.dataset.navOrder, 10);
-  if (isNaN(order)) return;
-  var target = order + dir;
-  if (target < 0 || target > 3) return;
-  var next = document.querySelector('[data-nav-order="' + target + '"]');
-  if (next) next.focus();
+  var id = 'tv' + stateKey;
+  wrap.innerHTML =
+    '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0">' + label + '</div>' +
+    rpmDtpHtml(id, { date: _travelState[stateKey], noTime: true, year: true, group: 'travel', onChange: function() {
+      var ymd = rpmDtpGet(id).date;
+      _travelState[stateKey] = ymd;
+      if (stateKey === 'leaving')  _travelState.firstOff  = ymd;
+      if (stateKey === 'arriving') _travelState.firstBack = ymd;
+      _travelRebuildWeeks();
+      _travelMarkStale();
+    } });
 }
 
 function _travelRebuildWeeks() {

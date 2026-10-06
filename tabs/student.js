@@ -411,40 +411,19 @@ function _stRenderDetail() {
     logBtn2.style.cssText = _stLogGreen;
     logBtn2.onclick = function() { _stLogLessonFor(d.name, logDate); };
 
+    // The portal's date picker (rpmDtpHtml), date only (2026-10-06).
     var stepper = document.createElement('div');
-    stepper.tabIndex = 0;
-    stepper.title = 'Focus and use ↑/↓ to change the day';
-    stepper.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:8px;' +
-      'padding:7px;border:1px solid rgba(46,204,113,0.4);border-radius:6px;outline:none';
-    var stepBtn = 'background:transparent;border:none;color:var(--green);font-size:14px;cursor:pointer;padding:2px 10px;line-height:1';
-    var down = document.createElement('button'); down.textContent = '▼'; down.title = 'Earlier day'; down.style.cssText = stepBtn;
-    var up   = document.createElement('button'); up.textContent   = '▲'; up.title   = 'Later day';    up.style.cssText   = stepBtn;
-    var dateLbl = document.createElement('span');
-    dateLbl.style.cssText = 'font-size:14px;color:var(--green);min-width:84px;text-align:center;letter-spacing:0.5px';
+    stepper.style.cssText = 'display:flex;justify-content:center;margin-bottom:8px';
+    stepper.innerHTML = rpmDtpHtml('stLog', { date: rpmDtpYmd(logDate), noTime: true, onChange: function() {
+      logDate = rpmDtpParse(rpmDtpGet('stLog').date) || logDate;
+      _stPaintLogDate();
+    } });
 
     function _stPaintLogDate() {
-      dateLbl.textContent = _stMonDay(logDate);
       logBtn2.textContent = '📊 Log Lesson · ' + _stMonDay(logDate);
-    }
-    function _stShiftLogDate(delta) {
-      logDate = new Date(logDate.getFullYear(), logDate.getMonth(), logDate.getDate() + delta);
-      _stPaintLogDate();
     }
     _stPaintLogDate();
 
-    down.onclick = function() { _stShiftLogDate(-1); };
-    up.onclick   = function() { _stShiftLogDate(1); };
-    // Up/Down only. Left/Right is reserved portal-wide for moving between
-    // fields (see .dt-row in styles.css) and there is no second field here, so
-    // the horizontal keys deliberately do nothing rather than nudge the date.
-    stepper.addEventListener('keydown', function(e) {
-      if (e.key === 'ArrowUp')        { e.preventDefault(); _stShiftLogDate(1); }
-      else if (e.key === 'ArrowDown') { e.preventDefault(); _stShiftLogDate(-1); }
-    });
-
-    stepper.appendChild(down);
-    stepper.appendChild(dateLbl);
-    stepper.appendChild(up);
     logWrap.appendChild(stepper);
     logWrap.appendChild(logBtn2);
     section.appendChild(logWrap);
@@ -845,32 +824,20 @@ function _stOpenLessonActions(studentName, lesson, opts) {
 // original lesson, or a Calendar drop). Confirm → backend move → refresh.
 // opts (optional, used by the Calendar tab): startTime prefills a dropped
 // time; onDone(data) / onFail(msg) replace the Home-strip refresh + feed log.
-// The day can always move (‹ › on the date); it never goes into the past.
-// Window look (2026-10-05): the portal's date/time picker, the Trial
-// windows' Student / Teacher choice, dim + dots while saving, a red
+// The day can always move; it never goes into the past.
+// Window look (2026-10-05): the portal's date/time picker (rpmDtpHtml), the
+// Trial windows' Student / Teacher choice, dim + dots while saving, a red
 // Unsuccessful badge on failure.
 function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
   opts = opts || {};
   var t = _stParseTime(opts.startTime || lesson.time); // { h12, min, ap }; a Calendar drop starts at its new time
   var mins = ((t.h12 % 12) + (t.ap === 'PM' ? 12 : 0)) * 60 + t.min;
   var who = 'Student';
-  var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  function dayOf(ymd) { var p = ymd.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
-  function dayText() { var d = dayOf(newYmd); return DAYS[d.getDay()] + ', ' + MON[d.getMonth()] + ' ' + d.getDate(); }
-  function timeText() { var h = Math.floor(mins / 60); return ((h % 12) || 12) + ':' + _stPad2(mins % 60) + ' ' + (h < 12 ? 'AM' : 'PM'); }
-  // The Trial "Pick a time" picker (2026-10-05) with + above and − below each value,
-  // both in one grey box; the value last touched is lit (.on).
-  function seg(id, txt) {
-    return "<div class='tb-col'>" +
-      "<button type='button' class='tb-tri st-pm' tabindex='-1' data-step='" + id + "' data-dir='1'>+</button>" +
-      "<div class='dt-seg'><button type='button' class='dt-val' id='stDt_" + id + "' data-step='" + id + "'>" + txt + "</button></div>" +
-      "<button type='button' class='tb-tri st-pm' tabindex='-1' data-step='" + id + "' data-dir='-1' style='grid-row:3'>−</button></div>";
-  }
   var w = _stWin('stTimeModal', studentName, 'Reschedule', CALENDAR_ICON,
     // Move to first, the lesson's current time under it, then the picker (2026-10-05).
     "<label class='field-label'>Move to</label>" +
     "<div class='st-when st-from'>From " + lesson.dateLabel + " · " + lesson.time + "</div>" +
-    "<div class='dt-row' id='stDtRow'>" + seg('day', dayText()) + seg('time', timeText()) + "</div>" +
+    rpmDtpHtml('stRs', { date: newYmd, time: _stPad2(Math.floor(mins / 60)) + ':' + _stPad2(mins % 60), min: 'today', keys: true }) +
     "<label class='field-label st-gap'>Requested by</label>" + _stWhoSeg('stRsWho', who) +
     "<label class='field-label st-gap'>Reason (optional)</label>" +
     "<input id='stRsNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" +
@@ -878,43 +845,13 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
       "<button class='link-btn bright' id='stTimeConfirm' data-tip='Moves only this lesson in Google Calendar\nand logs it to Reschedule Logs.' data-tip-left>Confirm move</button></div>");
   _stWireWho(w, 'stRsWho', function(v) { who = v; });
 
-  function step(id, dir) {
-    if (id === 'day') {
-      var d = dayOf(newYmd); d.setDate(d.getDate() + dir);
-      var today = new Date(); today.setHours(0, 0, 0, 0);
-      if (d < today) return;   // never into the past
-      newYmd = d.getFullYear() + '-' + _stPad2(d.getMonth() + 1) + '-' + _stPad2(d.getDate());
-    }
-    // Time moves in 15-minute steps (2026-10-05); an odd time snaps to the quarter.
-    if (id === 'time') mins = ((Math.round((mins + dir * 15) / 15) * 15) % 1440 + 1440) % 1440;
-    document.getElementById('stDt_day').textContent  = dayText();
-    document.getElementById('stDt_time').textContent = timeText();
-  }
-  function light(id) { w.querySelectorAll('#stDtRow .dt-val').forEach(function(v) { v.classList.toggle('on', v.dataset.step === id); }); }
-  w.querySelectorAll('.tb-tri').forEach(function(b) {
-    b.onclick = function() { step(b.dataset.step, parseInt(b.dataset.dir, 10)); light(b.dataset.step); document.getElementById('stDt_' + b.dataset.step).focus(); };
-  });
-  w.querySelectorAll('.dt-val').forEach(function(v) {
-    v.onclick = function() { light(v.dataset.step); };
-    v.onkeydown = function(e) {
-      if (e.key === 'ArrowUp')   { e.preventDefault(); step(v.dataset.step, 1); }
-      if (e.key === 'ArrowDown') { e.preventDefault(); step(v.dataset.step, -1); }
-      // Left / Right move between the date and the time (2026-10-05).
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-        e.preventDefault();
-        var to = e.key === 'ArrowLeft' ? 'day' : 'time';
-        light(to); document.getElementById('stDt_' + to).focus();
-      }
-    };
-  });
-
   document.getElementById('stTimeConfirm').onclick = function() {
     var btn = this, panel = w.querySelector('.st-win');
     var url = getScriptUrl(); if (!url) return;
-    var hhmm = _stPad2(Math.floor(mins / 60)) + ':' + _stPad2(mins % 60);
+    var when = rpmDtpGet('stRs');
     btn.textContent = 'Moving…'; btn.disabled = true; rpmBusy(panel, btn, true);
     _stCall(url, 'rescheduleLesson', {
-      name: studentName, date: lesson.date, newDate: newYmd, time: hhmm,
+      name: studentName, date: lesson.date, newDate: when.date, time: when.time,
       who: who, note: document.getElementById('stRsNote').value.trim()
     }, function(data) {
       w.remove();

@@ -662,9 +662,6 @@ body::before {
 .fx-x.armed { color: #ff5a4d; font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
 .fx-e { display: flex; align-items: center; gap: 10px; margin: 12px 0 0; }
 .fx-hint { font-family: "DM Mono", monospace; font-size: 10px; color: rgba(255,255,255,0.3); }
-.fx-date { display: inline-flex; align-items: center; gap: 2px; flex: none; padding: 2px 6px; border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); }
-.fx-date.auto { border-color: rgba(240,165,0,0.5); }
 .fx-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
   font-family: "DM Mono", monospace; font-size: 11px; }
 .fx-d { color: rgba(255,255,255,0.5); width: 52px; flex: none; }
@@ -1068,7 +1065,7 @@ body::before {
 
 /* ─── CASH PAYMENT WINDOW (2026-09-29) ───────────────────────────────────────
    The Trial window look: 460 wide like the Trial windows, labelled fields,
-   the Trial date picker (#cashDtRow shares its rules), Log bottom right.
+   the portal date picker (.dtp), Log bottom right.
    Student pills: dim grey, the picked one lit soft white like the picker. */
 .cash-modal { max-width: 460px; width: 94%; overflow: visible; }   /* visible: the student list hangs below the window when it is short */
 #cashLogPanel .field-label { margin-top: 18px; }
@@ -1331,7 +1328,7 @@ select:focus-visible { outline: 1px solid var(--focus); outline-offset: -1px; }
 /* Buttons and links, portal wide: Chrome's thick blue ring (white halo and
    all) becomes a thin grey line on the button's own border. Still there for
    the keyboard, just not a colour nobody picked. Classes that set their own
-   ring (.rpm-dlg-btn, .dt-arrow) outrank this and keep theirs. */
+   ring (.rpm-dlg-btn, .dtp-val) outrank this and keep theirs. */
 button:focus-visible,
 a:focus-visible,
 [tabindex]:focus-visible { outline: 1px solid var(--muted); outline-offset: -1px; }
@@ -1384,73 +1381,39 @@ a:focus-visible,
 .db-mini-btn.strong       { border-color: var(--muted); color: var(--text); }
 .db-mini-btn.strong:hover { border-color: var(--accent2); color: var(--accent2); }
 
-/* ─── DATE / TIME PICKERS ───────────────────────────────────────────────────
-   The value is the control. You hover it, click it, and use Up/Down; the
-   arrows beside it are a reminder that it moves, not the main way to move it.
-   They stay clickable, because a mouse-only hand still needs a way through -
-   they are just demoted out of the way of the thing they describe.
-   The keyboard half of the rule is unchanged and portal-wide: VERTICAL keys
-   change the value, HORIZONTAL keys walk between fields. Left never edits a
-   number. Payments and Travel have always worked this way.
-   Used by: Trial book window, Trial manual form, Pick a time, Skips. */
-/* The whole control is one box: date, time and the four chevrons that drive
-   them are a single answer to a single question, and giving each value its own
-   border made them look like two unrelated fields that happened to be side by
-   side. The box holds them, a hairline divides them. */
-.dt-row {
-  display: inline-flex; align-items: center; flex-wrap: wrap;
+/* ─── DATE / TIME PICKER (rpmDtpHtml, core/utils.js, 2026-10-06) ──────────
+   The portal's one picker. A date box, and a time box beside it where the
+   time matters. Each value sits in its own border; a thin chevron above and
+   below it, outside the border, says it moves. The value is the control:
+   click it (in a window, hover it) and it lights; ↑↓ step it, ←→ walk
+   between boxes. Used by: Book a trial (inquiry card, Manually, Trial tab
+   form), Pick a time, Reschedule, Payments cash date, Skips, the Home
+   student page's log date, the Audit Fix window, Travel. */
+.dtp { display: inline-flex; align-items: flex-start; gap: 10px; }
+.dtp-box { display: flex; flex-direction: column; align-items: center; }
+.dtp-chev {
+  background: transparent; border: none; padding: 6px 14px; line-height: 0;
+  cursor: pointer; color: var(--muted); transition: color .12s; touch-action: manipulation;
+}
+.dtp-chev:hover { color: #fff; }
+.dtp-chev:focus { outline: none; }
+.dtp-chev .dt-ico { width: 11px; height: 6px; display: block; margin: 0 auto; fill: currentColor; }
+.dtp-cell {
   border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent);
-  border-radius: 7px; background: var(--surface2); padding: 2px;
+  border-radius: 7px; background: var(--surface2); padding: 4px 6px;
 }
-.dt-seg { display: flex; align-items: center; gap: 5px; padding: 1px 4px; }
-.dt-seg + .dt-seg { border-left: 1px solid var(--border); }
-/* The same hairline that splits date from time also splits each arrow pair
-   from the value it drives, so the control reads as cells rather than as four
-   chevrons loose in a box. */
-.dt-stack {
-  display: flex; flex-direction: column; gap: 3px;
-  border-right: 1px solid var(--border); padding-right: 4px;
-}
-
-/* Back in their own square boxes. Naked chevrons floating beside the value
-   left it ambiguous where one stopped being a hint and started being a button;
-   a box says press me, and says it without the value having to light up to
-   explain itself. */
-.dt-arrow {
-  background: transparent;
-  border: 1px solid var(--border); border-radius: 4px;
-  padding: 2px 5px; line-height: 0; cursor: pointer;
-  color: var(--muted); opacity: 0.85;
-  transition: opacity .12s, color .12s, border-color .12s, background .12s;
-}
-.dt-arrow:hover {
-  opacity: 1; color: rgba(255,255,255,0.92);
-  border-color: color-mix(in srgb, var(--muted) 65%, transparent);
-  background: color-mix(in srgb, #fff 7%, transparent);
-}
-.dt-arrow:focus { outline: none; }
-.dt-arrow:focus-visible { outline: none; color: rgba(255,255,255,0.92); opacity: 1; }
-.dt-ico { width: 9px; height: 5px; display: block; fill: currentColor; }
-
-/* The lit half. No border of its own - the box around the whole control is the
-   edge now, and a second one here would be a box inside a box. Hover and focus
-   fill instead, which reads as "this one" without adding another outline. */
-.dt-val {
-  background: transparent; border: none; border-radius: 5px;
-  font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.8px;
+.dtp-val {
+  display: block; min-width: 90px; background: transparent; border: none; border-radius: 5px;
+  font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.8px; white-space: nowrap;
   color: rgba(255,255,255,0.88); text-align: center; padding: 5px 2px; cursor: pointer;
   transition: background .12s, color .12s;
 }
-.dt-val:hover { color: #fff; }
-.dt-val:focus { outline: none; }
-.dt-val:focus-visible {
-  outline: none; color: #fff;
-  background: color-mix(in srgb, #fff 12%, transparent);
-}
+.dtp-val.tm { min-width: 68px; }
+.dtp-val.yr { min-width: 130px; }
+.dtp-val:hover { color: #fff; }
+.dtp-val:focus { outline: none; }
+.dtp-val.on { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
 
-/* The card's booking window (tb), keys only: with no arrows, the field
-   that has focus is lit even after a mouse click, so you can see which one
-   ↑↓ will move. Book lights up when Enter lands on it. */
 /* Trial step windows: a two-way choice (Weekly / Biweekly) in the date and
    time pickers' grey box (2026-09-25, was amber pills), caps like the
    buttons. The picked one lit soft white, the other dim. */
@@ -1473,41 +1436,6 @@ a:focus-visible,
 #tbModal.tb-busy { pointer-events: none; }
 #tbModal.tb-busy > * { opacity: 0.5; transition: opacity .15s; }
 #tbBookBtn:focus { outline: none; color: #fff; border-color: rgba(255,255,255,0.6); background: var(--surface2); }
-#tbDtRow .dt-val:focus { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
-/* Pick a time's look (2026-09-25, was two amber pills), and Pick a time
-   itself (#tlDtRow) now uses this same picker: date and time in one
-   grey box, normal case, dim until lit, the lit one soft white. The ▲ / ▼
-   stay above and below each value, outside the box. A 3-row grid: arrows,
-   the box (drawn by ::before across both columns), arrows. */
-#tbDtRow, #tlDtRow, #tsDtRow, #cashDtRow {
-  display: inline-grid; grid-template-columns: auto auto; grid-template-rows: auto auto auto;
-  column-gap: 2px; row-gap: 2px; justify-items: stretch; align-items: stretch;   /* .dt-row centers, which squashed the box to a line */
-  border: none; background: transparent; padding: 0;
-}
-#tbDtRow::before, #tlDtRow::before, #tsDtRow::before, #cashDtRow::before {
-  content: ""; grid-row: 2; grid-column: 1 / 3;
-  border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent);
-  border-radius: 7px; background: var(--surface2);
-}
-#tbDtRow .tb-col, #tlDtRow .tb-col, #tsDtRow .tb-col, #cashDtRow .tb-col { display: contents; }
-#tbDtRow .tb-col:first-child > *, #tlDtRow .tb-col:first-child > *, #tsDtRow .tb-col:first-child > *, #cashDtRow .tb-col:first-child > * { grid-column: 1; }
-#tbDtRow .tb-col:last-child > *, #tlDtRow .tb-col:last-child > *, #tsDtRow .tb-col:last-child > *, #cashDtRow .tb-col:last-child > * { grid-column: 2; }
-#tbDtRow .tb-tri, #tlDtRow .tb-tri, #tsDtRow .tb-tri, #cashDtRow .tb-tri { grid-row: 1; justify-self: center; }
-#tbDtRow .tb-tri.down, #tlDtRow .tb-tri.down, #tsDtRow .tb-tri.down, #cashDtRow .tb-tri.down { grid-row: 3; }
-#tbDtRow .dt-seg, #tlDtRow .dt-seg, #tsDtRow .dt-seg, #cashDtRow .dt-seg { grid-row: 2; position: relative; border: none; background: transparent; padding: 3px 0 3px 3px; }
-#tbDtRow .dt-seg + .dt-seg, #tlDtRow .dt-seg + .dt-seg, #tbDtRow .tb-col:last-child .dt-seg, #tlDtRow .tb-col:last-child .dt-seg, #tsDtRow .dt-seg + .dt-seg, #tsDtRow .tb-col:last-child .dt-seg, #cashDtRow .tb-col:last-child .dt-seg { border: none; padding: 3px 3px 3px 0; }
-#tbDtRow .dt-val, #tlDtRow .dt-val, #tsDtRow .dt-val, #cashDtRow .dt-val {
-  width: 100%; font-size: 11px; letter-spacing: 1px; text-transform: uppercase;   /* caps like Frequency */
-  color: rgba(255,255,255,0.55); padding: 7px 10px; border-radius: 5px;
-}
-#tbDtRow .dt-val:hover, #tlDtRow .dt-val:hover, #tsDtRow .dt-val:hover, #cashDtRow .dt-val:hover { color: #fff; }
-/* Pick a time lights the field the mouse last touched (.on), not focus. */
-#tlDtRow .dt-val.on, #cashDtRow .dt-val.on { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
-.tb-tri { background: transparent; border: none; padding: 3px 14px; line-height: 0; cursor: pointer; color: var(--muted); transition: color .12s; }
-.tb-tri:hover { color: #fff; }
-.tb-tri:focus { outline: none; }
-.tb-tri.down .tri-icon { transform: scaleY(-1); }
-.tb-tri .tri-icon { width: 9px; height: 7px; }
 
 /* Trial tab: Pick a time's summary line. The window talking, not a value you
    typed: small grey caps like the field labels; the frequency in amber. */
@@ -2111,28 +2039,6 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .st-when + .st-when { margin-top: -12px; }
 .st-win .field-label { display: block; margin-bottom: 6px; }
 .st-win .rpm-field { box-sizing: border-box; }
-/* The Reschedule window's picker = Pick a time's (#tlDtRow rules above),
-   2026-10-05. */
-#stDtRow {
-  display: inline-grid; grid-template-columns: auto auto; grid-template-rows: auto auto auto;
-  column-gap: 2px; row-gap: 2px; justify-items: stretch; align-items: stretch;
-  border: none; background: transparent; padding: 0;
-}
-#stDtRow::before { content: ""; grid-row: 2; grid-column: 1 / 3; border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); border-radius: 7px; background: var(--surface2); }
-#stDtRow .tb-col { display: contents; }
-#stDtRow .tb-col:first-child > * { grid-column: 1; }
-#stDtRow .tb-col:last-child > * { grid-column: 2; }
-#stDtRow .tb-tri { grid-row: 1; justify-self: center; }
-#stDtRow .tb-tri.down { grid-row: 3; }
-#stDtRow .dt-seg { grid-row: 2; position: relative; border: none; background: transparent; padding: 3px 0 3px 3px; }
-#stDtRow .tb-col:last-child .dt-seg { border: none; padding: 3px 3px 3px 0; }
-#stDtRow .dt-val { width: 100%; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.55); padding: 7px 10px; border-radius: 5px; }
-#stDtRow .dt-val:hover { color: #fff; }
-#stDtRow .dt-val.on { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
-/* + / − instead of ▲ ▼, each in its own small box (2026-10-05). */
-#stDtRow .st-pm { font-family: "DM Mono", monospace; font-size: 13px; line-height: 1; width: 26px; height: 20px; padding: 0; margin: 2px 0;
-  border: 1px solid var(--border); border-radius: 4px; color: var(--muted); display: flex; align-items: center; justify-content: center; }
-#stDtRow .st-pm:hover { color: #fff; border-color: color-mix(in srgb, var(--muted) 65%, transparent); background: color-mix(in srgb, #fff 7%, transparent); }
 /* Lesson / Reschedule / Skip spacing: room between the sections. */
 .st-win .st-when { margin: -2px 0 24px; }
 .st-win .st-when + .st-when { margin-top: -18px; }
@@ -2141,10 +2047,6 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .st-win .st-foot { margin-top: 30px; }
 .st-who { max-width: 230px; margin-top: 0; }
 .st-who .tr-step-b { min-width: 0; padding: 4px 9px; }   /* smaller Student / Teacher (2026-10-05) */
-/* Date and time as two separate boxes (2026-10-05), not one shared box. */
-#stDtRow { column-gap: 12px; }
-#stDtRow::before { display: none; }
-#stDtRow .dt-seg, #stDtRow .tb-col:last-child .dt-seg { padding: 3px; border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); border-radius: 7px; background: var(--surface2); }
 /* Lesson / Reschedule / Skip balance pass (2026-10-05): smaller picker,
    tighter rhythm, one text size for values. */
 .st-win .win-icon { height: 18px; }
@@ -2153,10 +2055,6 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .st-win .field-label { margin-bottom: 7px; }
 .st-win .st-gap { margin-top: 18px; }
 .st-win .st-foot { margin-top: 22px; }
-#stDtRow { column-gap: 8px; row-gap: 3px; }
-#stDtRow .dt-seg, #stDtRow .tb-col:last-child .dt-seg { padding: 2px; border-radius: 6px; }
-#stDtRow .dt-val { font-size: 10px; letter-spacing: 0.8px; padding: 4px 9px; }
-#stDtRow .st-pm { width: 20px; height: 15px; font-size: 11px; margin: 0; border-radius: 3px; }
 .st-who { max-width: 200px; }
 .st-who .tr-step-b { padding: 3px 8px; }
 /* Requested by as tick-box lines (2026-10-05, replaces the step buttons). */
@@ -2175,8 +2073,6 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* A little more air between the sections (2026-10-05). */
 .st-win .st-gap { margin-top: 26px; }
 .st-win .field-label { margin-bottom: 11px; }
-#stDtRow { row-gap: 5px; }
-#stDtRow .dt-val { text-transform: none; }   /* "Mon, Oct 12", "1:30 PM": normal case like Student / Teacher (2026-10-05) */
 .st-win .st-from { margin: 0 0 14px; }   /* the From line under Move to */
 .db-files .db-file.db-subgap { margin-top: 10px; }   /* room above a subfolder that follows another (2026-10-06) */
 /* Student folder cards (2026-10-06): not clickable themselves, the age in
