@@ -482,8 +482,8 @@ function _dbDetailsFilesHtml(f) {
   // order of each folder's newest file; inside it, the lesson's own folders
   // get their own heading, one step further in (2026-10-04).
   function dirOf(it) { var p = it.path || it.name, cut = p.lastIndexOf('/'); return cut > 0 ? p.slice(0, cut) : ''; }
-  function head(name, indent) {
-    return '<span class="db-file db-dir"' + (indent ? ' style="padding-left:20px"' : '') + '>' + DB_FOLDER_GLYPH +
+  function head(name, indent, gap) {   // gap: a little room above a subfolder that follows another
+    return '<span class="db-file db-dir' + (gap ? ' db-subgap' : '') + '"' + (indent ? ' style="padding-left:20px"' : '') + '>' + DB_FOLDER_GLYPH +
       '<span style="text-transform:uppercase">' + inqEsc(name) + '</span></span>';   // folder names in caps
   }
   var groups = [], byTop = {};
@@ -495,13 +495,18 @@ function _dbDetailsFilesHtml(f) {
     if (!g.bySub[sub]) { g.bySub[sub] = []; g.subs.push(sub); }
     g.bySub[sub].push(it);
   });
+  // Inside a folder, files and subfolders by name (01, 02, 03 … as numbers,
+  // 2026-10-06; was upload order).
+  function byName(a, b) { return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' }); }
+  function sorted(list) { return list.slice().sort(function (a, b) { return byName(a.name, b.name); }); }
   // Each group in its own block, a gap between groups.
   return groups.map(function (g) {
-    if (!g.top) return '<span class="db-group">' + g.bySub[''].map(function (it) { return line(it, 0); }).join('') + '</span>';
-    // Loose files in the top folder first, then each subfolder.
-    var subs = g.subs.slice().sort(function (a, b) { return (a ? 1 : 0) - (b ? 1 : 0); });
-    return '<span class="db-group">' + head(g.top, false) + subs.map(function (sub) {
-      return (sub ? head(sub, true) : '') + g.bySub[sub].map(function (it) { return line(it, sub ? 2 : 1); }).join('');
+    if (!g.top) return '<span class="db-group">' + sorted(g.bySub['']).map(function (it) { return line(it, 0); }).join('') + '</span>';
+    // Loose files in the top folder first, then each subfolder (by name), a
+    // small gap between subfolders (2026-10-06).
+    var subs = g.subs.slice().sort(function (a, b) { return (a ? 1 : 0) - (b ? 1 : 0) || byName(a, b); });
+    return '<span class="db-group">' + head(g.top, false) + subs.map(function (sub, i) {
+      return (sub ? head(sub, true, i > 0) : '') + sorted(g.bySub[sub]).map(function (it) { return line(it, sub ? 2 : 1); }).join('');
     }).join('') + '</span>';
   }).join('');
 }
