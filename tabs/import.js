@@ -197,9 +197,18 @@ function _imButtons(name) {
   '</span>';
 }
 
+// Today's calendar lesson if there is one (so Home's Today grid ticks when it
+// saves), else a lesson dated today.
 function _imLog(name) {
   window._imLogActive = name;
-  _dbLogFor(name);   // dropbox.js: today's calendar lesson if there is one, else today
+  window._auditFixActive = false;
+  var today = (typeof todayStudents !== 'undefined' && todayStudents) || [];
+  for (var i = 0; i < today.length; i++) {
+    if (_imKey(today[i].name) === _imKey(name)) { openLogFresh(today[i], i); return; }
+  }
+  // yyyy/MM/dd: slashes parse in local time on the backend (see _stLogLessonFor).
+  var d = new Date(), m = d.getMonth() + 1, dd = d.getDate();
+  openLogFresh({ name: name, eventDate: d.getFullYear() + '/' + (m < 10 ? '0' + m : m) + '/' + (dd < 10 ? '0' + dd : dd), calType: 'regular' }, undefined);
 }
 
 function _imReschedule(name) {

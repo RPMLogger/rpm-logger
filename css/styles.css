@@ -2023,8 +2023,6 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .db-cards-head { display: flex; align-items: baseline; justify-content: space-between; padding: 0 16px 0 17px; }
 .db-cards-head .field-label { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0; color: var(--muted); }   /* plain words, not a title */
 .db-card:hover { border-color: var(--muted); border-left-color: #3d5f8f; }
-#dbTodaySection .db-card, #dbTodaySection .db-card:hover { border-left-color: var(--accent); }   /* Today's cards: red edge */
-#dbTodaySection .db-card { align-items: flex-start; }   /* taller with the checklist: buttons stay on the name line */
 .db-card-lesson, .db-card-lesson:hover { border-left-color: var(--green); }   /* Lesson folders: green edge */
 .db-card-l { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 /* Two lines that line up across the card: name ↔ Recover (both 26px tall),
@@ -2044,7 +2042,6 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .db-group + .db-group { margin-top: 16px; }   /* space between file groups */
 .db-files .db-file { padding: 3px 0; }   /* rows spaced out */
 .db-files .db-file.db-dir { margin-bottom: 3px; }   /* a little more under a folder's name */
-.db-steps { margin-top: 14px; }   /* Today card checklist: the Trial card's stacked step list */
 .db-card-btns { display: flex; gap: 6px; }   /* Details + Recover side by side */
 .db-card-r .link-btn { height: 22px; margin: 2px 0; box-sizing: border-box;   /* the portal's washed button, small, centred on the name line, */
   text-transform: none; letter-spacing: 0; font-size: 10px; padding: 0 9px; }   /* in small letters */

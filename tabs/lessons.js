@@ -267,7 +267,6 @@ function submitLog() {
         if (t.name === student.name && t.eventDate === student.eventDate) t.alreadyLogged = true;
       });
       if (data.hwSaved) _logHwSaved(student.name, logHw);
-      if (typeof _dbRefreshToday === "function") _dbRefreshToday();   // Dropbox Today checklist
       addLog("lessonFeed", "✓ " + student.name + " — " + subject, "success");
       // No success line: the button says Logged ✓, the rows and buttons lock
       // (logged is final), and a second later the window closes by itself
@@ -502,6 +501,5 @@ function _logHwSaved(name, hw) {
     window._auditHwActive = false;
     _runHwAudit();
   }
-  if (typeof _dbHwSaved === "function") _dbHwSaved(name, hw.date, hw.choice === "sent" ? "Sent" : "No HW");
   if (typeof _imHwSaved === "function") _imHwSaved(name);   // Import's Last HW
 }
