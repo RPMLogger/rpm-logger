@@ -2023,7 +2023,6 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .db-cards-head { display: flex; align-items: baseline; justify-content: space-between; padding: 0 16px 0 17px; }
 .db-cards-head .field-label { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0; color: var(--muted); }   /* plain words, not a title */
 .db-card:hover { border-color: var(--muted); border-left-color: #3d5f8f; }
-.db-card-lesson, .db-card-lesson:hover { border-left-color: var(--green); }   /* Lesson folders: green edge */
 .db-card-l { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 /* Two lines that line up across the card: name ↔ Recover (both 26px tall),
    size ↔ age (same mono 12px). */
@@ -2195,12 +2194,19 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .db-cx-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .db-cx .db-dt-sub { margin-top: 0; }
 .db-cx .db-cx-t { margin: 0; }
-.db-finder { display: inline-flex; vertical-align: middle; margin-left: 8px; cursor: pointer; color: var(--green); opacity: .8; transition: opacity .12s; }   /* Open in Finder icon after the name */
+.db-finder { display: inline-flex; align-items: center; height: 26px; padding-right: 10px; cursor: pointer; color: var(--green); opacity: .8; transition: opacity .12s; }   /* Open in Finder: Dropbox icon, top right, across from the name, over the age */
 .db-finder:hover { opacity: 1; }
-.db-finder svg { width: 11px; height: 11px; }
+.db-finder .win-icon { height: 16px; color: inherit; }
 .db-card-rec { display: block; margin-top: 8px; }   /* Recover under the size, on the left */
 .db-card-rec .link-btn { height: 22px; box-sizing: border-box; text-transform: none; letter-spacing: 0; font-size: 10px; padding: 0 9px; }
 .db-files-btn { gap: 6px; }
 .db-files-btn .db-bullet { width: 12px; height: 10px; }
+.db-ov-acts { display: flex; align-items: center; gap: 16px; }   /* All files + refresh, top right of Overview */
+.db-all-btn { height: 22px; box-sizing: border-box; text-transform: none; letter-spacing: 0; font-size: 10px; padding: 0 9px; }   /* the cards' Files button size */
+.db-all { padding: 0; font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.5); }   /* All files window */
+.db-all-folder + .db-all-folder { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }   /* a rule between folders */
+.db-all-folder > .db-dir { color: var(--text); }   /* the Dropbox folder's name a step brighter */
+.db-all-in { padding-left: 20px; margin-top: 4px; }   /* its files one step in */
+.db-all-empty { color: rgba(255,255,255,0.24); }
 .db-card-still .db-card-a { color: var(--warn); }   /* ages and EMPTY in amber (2026-10-06, was light blue) */
 .db-finder { color: var(--blue); }   /* Open in Finder icon in blue, like Files (2026-10-06, was green) */

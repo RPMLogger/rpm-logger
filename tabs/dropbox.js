@@ -285,6 +285,39 @@ function _dbPreviewEmail(bodyId, boxId) {
     .catch(function () { box.innerHTML = _dbRow('❌ Could not reach Google'); });
 }
 
+// ── All files (2026-10-06) ──
+// Every folder in one window, A–Z (students, then lesson folders): the folder
+// name, then its files the way a card's Files list shows them, names only.
+function _dbOpenAllFiles() {
+  var cats = (_dbLastData && _dbLastData.categories) || [];
+  var folders = _dbFolders.slice().sort(function (a, b) { return a.name.localeCompare(b.name); }).concat(cats);
+  var html = folders.map(function (f) {
+    var items = (f.items || []).map(function (it) { return { name: it.name, path: it.path }; });   // no bytes = names only
+    return '<div class="db-all-folder">' +
+      '<span class="db-file db-dir">' + DB_FOLDER_GLYPH + '<span style="text-transform:uppercase">' + inqEsc(f.name) + '</span></span>' +
+      '<div class="db-all-in">' + (items.length ? _dbDetailsFilesHtml({ items: items }) : '<span class="db-all-empty">Empty</span>') + '</div>' +
+    '</div>';
+  }).join('');
+  _dbCloseAllFiles();
+  var overlay = document.createElement('div');
+  overlay.id = 'dbAllModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;' +
+                          'align-items:center;justify-content:center;padding:18px;overflow:auto';
+  overlay.innerHTML =
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:460px;width:100%;padding:28px;box-sizing:border-box;max-height:92vh;overflow:auto">' +
+      '<div class="settings-title"><span>Dropbox<span class="win-sub"> · All files</span></span>' +
+        '<button class="settings-close" onclick="_dbCloseAllFiles()">✕</button></div>' +
+      '<div class="win-icon-row">' + DBX_ICON + '</div>' +
+      '<div class="db-files db-all">' + html + '</div>' +
+    '</div>';
+  overlay.addEventListener('click', function (ev) { if (ev.target === overlay) _dbCloseAllFiles(); });
+  document.body.appendChild(overlay);
+}
+function _dbCloseAllFiles() {
+  var m = document.getElementById('dbAllModal');
+  if (m) m.remove();
+}
+
 function _dbCloseFix() {
   var m = document.getElementById('dbFixModal');
   if (m) m.remove();
@@ -301,7 +334,9 @@ function renderDropbox(d) {
   // space bar says the first, the cards below say the other two.)
   html += '<div class="db-section">' +
     // Refresh sits where a window's ✕ sits: re-reads folders, space and audit.
-    _dbTitle('Overview', '<button class="win-refresh" onclick="initDropboxTab()" data-tip="Instant.\nRe-reads folders, storage and the audit from Dropbox.\nChanges nothing.">' + REFRESH_ICON + '</button>') +
+    _dbTitle('Overview', '<span class="db-ov-acts">' +
+      '<button class="link-btn blue db-files-btn db-all-btn" onclick="_dbOpenAllFiles()" data-tip="Instant.\nOne list of every folder and the files in it.">' + DB_FOLDER_GLYPH + '<span>All files</span></button>' +   // 2026-10-06
+      '<button class="win-refresh" onclick="initDropboxTab()" data-tip="Instant.\nRe-reads folders, storage and the audit from Dropbox.\nChanges nothing.">' + REFRESH_ICON + '</button></span>') +
     '<div class="win-icon-row">' + DBX_ICON + '</div>' +
     _dbSpaceHtml(d) +
     _dbAuditHtml(d.audit) +
@@ -311,12 +346,10 @@ function renderDropbox(d) {
   // ── Students window: one card each (people), A–Z ──
   html += '<div id="dbStudentsSection">' + _dbStudentsHtml() + '</div>';
 
-  // ── Lesson folders, last on the page (2026-10-03): non-student folders, as
-  // cards like the students' but with a green edge ──
+  // ── Lesson folders, last on the page (2026-10-03): non-student folders.
+  // 2026-10-06: the students' card exactly (blue edge, logo, age, Files, Recover) ──
   if (d.categories && d.categories.length) {
-    html += '<div class="db-section">' + _dbTitle('Lesson folders') +
-      d.categories.map(function (c) { return _dbTeacherRow(c); }).join('') +
-    '</div>';
+    html += '<div class="db-section" id="dbLessonSection">' + _dbLessonHtml() + '</div>';
   }
 
 
@@ -336,11 +369,12 @@ function _dbCard(f) {
   // Edge: the storage bar's steel blue (amber for full folders went 2026-10-03).
   var open = _dbOpenCard === f.name;
   return '<div class="db-card db-card-still' + (open ? ' db-card-open' : '') + '">' +
-    '<div class="db-card-l"><span class="db-card-n">' + f.name + _dbFinderBtn(f.name) + '</span>' +
+    '<div class="db-card-l"><span class="db-card-n">' + f.name + '</span>' +
       '<span class="db-card-s">' + (f.empty ? '—' : _dbSize(f.bytes)) + '</span>' +
       '<span class="db-card-rec">' + _dbRecoverBtn(f.name) + '</span></div>' +   // Recover, grey, under the size (2026-10-06)
     // Age on the name line, the buttons under it on the size line (2026-10-06, swapped).
-    '<div class="db-card-r"><span class="db-card-a">' + (f.empty ? 'Empty' : _dbAgeText(f.ageDays)) + '</span>' +   // empty folder says Empty, not a dash (2026-10-06)
+    // Open in Finder: the Dropbox folder icon on top of the right side, across from the name (2026-10-06, was ↗ after the name).
+    '<div class="db-card-r">' + _dbFinderBtn(f.name) + '<span class="db-card-a">' + (f.empty ? 'Empty' : _dbAgeText(f.ageDays)) + '</span>' +   // empty folder says Empty, not a dash (2026-10-06)
       '<span class="db-card-btns">' + _dbDetailsBtn(f.name) + '</span></div>' +
     (open ? _dbCardOpenHtml(f) : '') +
   '</div>';
@@ -356,11 +390,11 @@ function _dbRecoverBtn(name) {
 
 // "Details" button: opens the student's Dropbox window (below). stopPropagation
 // so the card's open-in-Finder click doesn't fire too.
-// Open in Finder: a plain green icon right after the name, no button box
-// (2026-10-06).
+// Open in Finder: the Dropbox logo (DBX_LOGO), no button box,
+// top of the card's right side (2026-10-06).
 function _dbFinderBtn(name) {
   return '<span role="button" tabindex="0" class="db-finder" onclick="event.stopPropagation();openDropboxLocalFolder(\'' + _dbEsc(name) + '\')" ' +
-    'data-tip="Opens elsewhere.\nGoes to the folder in the Dropbox app.">' + OPEN_OUT_ICON + '</span>';
+    'data-tip="Opens elsewhere.\nGoes to the folder in the Dropbox app.">' + DBX_LOGO + '</span>';
 }
 function _dbDetailsBtn(name) {
   var open = _dbOpenCard === name;
@@ -413,6 +447,8 @@ function _dbToggleFiles(name) {
 function _dbRedrawStudents() {
   var sec = document.getElementById('dbStudentsSection');
   if (sec) sec.innerHTML = _dbStudentsHtml();
+  var les = document.getElementById('dbLessonSection');   // lesson folders open the same way
+  if (les) les.innerHTML = _dbLessonHtml();
 }
 
 // The open card's lower half.
@@ -512,13 +548,15 @@ function _dbDetailsFilesHtml(f) {
   }).join('');
 }
 
-// A lesson (non-student) folder: a card like a student's, green edge, name
-// over its size (a dash if empty), no age or Recover. Click opens it locally.
-function _dbTeacherRow(c) {
-  return '<div class="db-card db-card-lesson" onclick="openDropboxLocalFolder(\'' + _dbEsc(c.name) + '\')" data-tip="Opens elsewhere.\nGoes to the folder in the Dropbox app.">' +
-    '<div class="db-card-l"><span class="db-card-n">' + c.name + '</span>' +
-      '<span class="db-card-s">' + (c.bytes ? _dbSize(c.bytes) : '—') + '</span></div>' +
-  '</div>';
+// Lesson (non-student) folders: the student card itself (2026-10-06, was a
+// green-edged name + size card). Older backends send no empty/ageDays/items,
+// so empty falls back to "no bytes".
+function _dbLessonHtml() {
+  var cats = (_dbLastData && _dbLastData.categories) || [];
+  return _dbTitle('Lesson folders') + cats.map(function (c) {
+    return _dbCard({ name: c.name, bytes: c.bytes, empty: c.empty != null ? c.empty : !c.bytes,
+      ageDays: c.ageDays, items: c.items });
+  }).join('');
 }
 
 // ── Students list ───────────────────────────────────────────────────────────

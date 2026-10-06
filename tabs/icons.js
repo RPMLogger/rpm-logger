@@ -51,6 +51,16 @@ var DBX_ICON =
   '<svg class="win-icon" viewBox="0 0 359.25 299.999988" width="36" height="30" aria-hidden="true">' +
   '<defs><clipPath id="dbx47-1c7e512fa7"><path d="M 0 0.3125 L 358 0.3125 L 358 299.6875 L 0 299.6875 Z M 0 0.3125 " clip-rule="nonzero"/></clipPath></defs><g clip-path="url(#dbx47-1c7e512fa7)"><path fill="currentColor" d="M 326.957031 48.164062 L 206.371094 48.164062 L 195.921875 18.859375 C 191.945312 7.734375 181.347656 0.257812 169.535156 0.257812 L 28.695312 0.257812 C 13.25 0.257812 0.683594 12.828125 0.683594 28.273438 L 0.683594 268.882812 C 0.683594 285.898438 14.527344 299.742188 31.542969 299.742188 L 326.957031 299.742188 C 343.972656 299.742188 357.820312 285.898438 357.820312 268.882812 L 357.820312 79.023438 C 357.820312 62.007812 343.972656 48.164062 326.957031 48.164062 Z M 28.695312 16.238281 L 169.535156 16.238281 C 174.609375 16.238281 179.164062 19.453125 180.871094 24.230469 L 189.402344 48.164062 L 31.542969 48.164062 C 26.148438 48.164062 21.078125 49.5625 16.664062 52.003906 L 16.664062 28.273438 C 16.664062 21.640625 22.0625 16.238281 28.695312 16.238281 Z M 341.839844 268.882812 C 341.839844 277.085938 335.164062 283.761719 326.957031 283.761719 L 31.542969 283.761719 C 23.339844 283.761719 16.664062 277.085938 16.664062 268.882812 L 16.664062 79.023438 C 16.664062 70.816406 23.339844 64.144531 31.542969 64.144531 L 326.957031 64.144531 C 335.164062 64.144531 341.839844 70.816406 341.839844 79.023438 Z M 341.839844 268.882812 " fill-opacity="1" fill-rule="nonzero"/></g></svg>';
 
+// Dropbox logo from the user's file (Dropbox_(service)-Icon-White-Logo.wine.svg,
+// 2026-10-06): the five diamonds, filled currentColor, viewBox cropped tight.
+// Open in Finder on the Dropbox student cards. (The blue tile version was tried
+// and dropped the same day.)
+var DBX_LOGO =
+  '<svg class="win-icon" viewBox="0 0 235.45 200" width="24" height="20" fill="currentColor" aria-hidden="true">' +
+  '<path d="M58.86 75l58.87-37.5L58.86 0 0 37.5z"/><path d="M176.59 75l58.86-37.5L176.59 0l-58.86 37.5z"/>' +
+  '<path d="M117.73 112.5L58.86 75 0 112.5 58.86 150z"/><path d="M176.59 150l58.86-37.5L176.59 75l-58.86 37.5z"/>' +
+  '<path d="M176.59 162.5L117.73 125l-58.87 37.5 58.87 37.5z"/></svg>';
+
 // Refresh from the user's design (om-67.svg, 2026-10-02): a solid circular
 // arrow, filled currentColor - as heavy as the window ✕ (om-10), so the two
 // read as the same grey. Top right of the Dropbox Overview window.
