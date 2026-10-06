@@ -335,7 +335,7 @@ function renderDropbox(d) {
   html += '<div class="db-section">' +
     // Refresh sits where a window's ✕ sits: re-reads folders, space and audit.
     _dbTitle('Overview', '<span class="db-ov-acts">' +
-      '<button class="link-btn blue db-files-btn db-all-btn" onclick="_dbOpenAllFiles()" data-tip="Instant.\nOne list of every folder and the files in it.">' + DB_FOLDER_GLYPH + '<span>All files</span></button>' +   // 2026-10-06
+      '<button class="link-btn db-files-btn db-all-btn" onclick="_dbOpenAllFiles()" data-tip="Instant.\nOne list of every folder and the files in it.">' + DB_FOLDER_GLYPH + '<span>All files</span></button>' +   // 2026-10-06
       '<button class="win-refresh" onclick="initDropboxTab()" data-tip="Instant.\nRe-reads folders, storage and the audit from Dropbox.\nChanges nothing.">' + REFRESH_ICON + '</button></span>') +
     '<div class="win-icon-row">' + DBX_ICON + '</div>' +
     _dbSpaceHtml(d) +
