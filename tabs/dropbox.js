@@ -463,7 +463,7 @@ function _dbCardOpenHtml(f) {
     '<div class="inq-fields" style="margin-top:8px">' + fields.map(function (x) {
       return '<span class="inq-flabel">' + x[0] + '</span><span class="inq-fval">' + x[1] + '</span>';
     }).join('') + '</div>' +
-    '<hr class="divider" style="margin:18px 0 14px">' +
+    '<hr class="divider" style="margin:18px 0 20px">' +   // room under the rule before FILES (2026-10-06, was 14px)
     '<label class="field-label db-cx-t">Files</label>' +   // Info / Files: the section-heading type (2026-10-06)
     '<div class="db-files db-files-in">' + _dbDetailsFilesHtml(f) + '</div>' +
   '</div>';

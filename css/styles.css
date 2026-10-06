@@ -2190,7 +2190,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* A student card opened with Files (2026-10-06): the card grows downward,
    a rule, then Info (email, since added, size, Open in Finder) and the files. */
 .db-card.db-card-open { flex-wrap: wrap; align-items: flex-start; }
-.db-cx { flex-basis: 100%; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); cursor: default; }
+.db-cx { flex-basis: 100%; margin-top: 14px; padding: 20px 0 8px; border-top: 1px solid var(--border); cursor: default; }   /* a bit more room under the rule and at the end (2026-10-06, was 14px / 0) */
 .db-cx-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .db-cx .db-dt-sub { margin-top: 0; }
 .db-cx .db-cx-t { margin: 0; }
