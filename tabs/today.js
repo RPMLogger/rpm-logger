@@ -33,6 +33,18 @@ function _tdWeekReady() {
   if (p && p.classList.contains('active')) initTodayTab();
 }
 
+// One colour per student (2026-10-06), so the cards feel different as you
+// scroll: the card's edge, the name, and its dot in the list at the top.
+var TD_COLORS = ['#d9a441', '#5b9dff', '#2ecc71', '#b07cff', '#3fc1c9', '#e86fa8'];
+function _tdColor(i) { return TD_COLORS[i % TD_COLORS.length]; }
+
+function _tdTime(iso) {
+  var m = String(iso || '').match(/T(\d{2}):(\d{2})/);
+  if (!m) return '';
+  var h = parseInt(m[1], 10);
+  return ((h % 12) || 12) + ':' + m[2] + ' ' + (h >= 12 ? 'PM' : 'AM');
+}
+
 function _tdRender() {
   var body = document.getElementById('todayBody');
   if (!body) return;
@@ -42,10 +54,22 @@ function _tdRender() {
     ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()] + ', ' + MONTHS[now.getMonth()] + ' ' + now.getDate() + '</span></span></div>';
   if (!list.length) { body.innerHTML = head + '<div class="empty-state">No lessons today</div>'; return; }
   list.forEach(function (s) { if (!_td.data[_imKey(s.name)]) _tdLoad(s.name); });
-  body.innerHTML = head + list.map(function (s) {
-    return '<div class="td-student" data-key="' + _auEsc(_imKey(s.name)) + '">' + _tdStudentHtml(s) + '</div>';
+  // At the top (2026-10-06): how many, and a mini list of times + names; a
+  // name jumps to its card.
+  var mini = '<div class="db-cx-head im-sec-head td-count"><label class="field-label db-cx-t">' + list.length + (list.length === 1 ? ' student' : ' students') + '</label></div>' +
+    '<div class="db-panel im-list td-mini">' + list.map(function (s, i) {
+      return '<div class="td-mini-row" style="--td-c:' + _tdColor(i) + '" onclick="_tdJump(' + i + ')">' +
+        '<span class="td-mini-t">' + _tdTime(s.eventDate) + '</span><span class="td-mini-n">' + inqEsc(s.name) + '</span></div>';
+    }).join('') + '</div>';
+  body.innerHTML = head + mini + list.map(function (s, i) {
+    return '<div class="td-student" id="tdCard' + i + '" style="--td-c:' + _tdColor(i) + '" data-key="' + _auEsc(_imKey(s.name)) + '">' + _tdStudentHtml(s) + '</div>';
   }).join('');
   _imFixTips(body);
+}
+
+function _tdJump(i) {
+  var el = document.getElementById('tdCard' + i);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function _tdStudentHtml(s) {

@@ -2054,6 +2054,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #imLogDock .ll-wrap + .ll-add, #imLogDock .ll-add { margin-bottom: 0; }
 .td-student.im-do-card { border-left-color: var(--accent); }   /* the doing card's edge in red (2026-10-06) */
 .im-sec-head .field-label { margin: 0; }
+.im-cards-head { margin: 0 0 10px; }   /* "24 students" over the cards, at the cards' edge */
 .im-rs-btn { display: flex; width: 100%; justify-content: center; padding: 10px; }   /* full-width Reschedule in its Schedule box (2026-10-06) */
 .im-sched-box { display: flex; gap: 8px; }   /* Reschedule + Not needed side by side (2026-10-06) */
 .im-sched-box .im-rs-btn { flex: 1; width: auto; }   /* full-width Reschedule between Log lesson and Checklist (2026-10-06) */
@@ -2092,6 +2093,16 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-none { padding: 0; }
 /* Today tab (2026-10-06): today's students one under the other, room between each. */
 #todayBody > .settings-title { margin-bottom: 30px; }   /* room under Today · date */
+/* Today's count + mini list (2026-10-06): time, then the name in that student's colour. */
+#todayBody > .td-count { margin-top: 0; }
+.td-mini { margin-bottom: 34px; display: flex; flex-direction: column; gap: 6px; }
+.td-mini-row { display: flex; align-items: baseline; gap: 14px; cursor: pointer; }
+.td-mini-t { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); min-width: 64px; }
+.td-mini-n { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: var(--td-c); }
+.td-mini-row:hover .td-mini-n { text-decoration: underline; }
+/* Each student's own colour on their card: the edge and the name. */
+#todayBody .td-student { border-left-color: var(--td-c, #d9a441); }
+#todayBody .td-student .im-title > span { color: var(--td-c, #d9a441); }
 /* Each student is one card (2026-10-06), Today and Import: the Import cards' look, amber edge like the name. */
 .td-student { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid #d9a441; border-radius: 10px; padding: 22px 20px; }
 .td-student + .td-student { margin-top: 28px; }

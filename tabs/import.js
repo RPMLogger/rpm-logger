@@ -39,7 +39,8 @@ function _imRenderCards() {
   body.innerHTML =
     '<div class="db-section">' +
       '<div class="settings-title"><span>Import<span class="win-sub"> · Students</span></span></div>' +
-      '<div class="db-cards-head"><label class="field-label">' + names.length + ' students</label></div>' +
+      // The student page's box-title style (2026-10-06): one heading look on this tab.
+      '<div class="db-cx-head im-sec-head im-cards-head"><label class="field-label db-cx-t">' + names.length + ' students</label></div>' +
       names.map(function (n) {
         return '<div class="db-card im-card" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
           '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
@@ -162,14 +163,13 @@ function _imStepsRender() {
   if (!el || !_imOpen || !window._imDocked) return;
   var name = _imOpen, hw = logHw, st = activeStudent;
   var logged = !!(st && st.logged), sched = _imSchedGet(name);
-  var nFiles = hw && hw.files ? hw.files.length : 0;
   // A status list (2026-10-06), not buttons: each line ticks itself when its
   // job is done elsewhere (Reschedule, the HW drop zone / Nothing to send, Log).
   var steps = [
     { label: 'Schedule', done: !!sched,
-      note: sched === 'changed' ? 'changed' : sched === 'nochange' ? 'no change' : '' },
+      note: sched === 'changed' ? 'changed' : sched === 'nochange' ? 'not needed' : '' },   // the button's word (2026-10-06)
     { label: 'HW', done: !!(hw && hw.choice),
-      note: hw && hw.choice === 'sent' ? nFiles + (nFiles === 1 ? ' file' : ' files') : hw && hw.choice === 'none' ? 'nothing to send' : '' },
+      note: hw && hw.choice === 'none' ? 'nothing to send' : '' },   // no file count (2026-10-06)
     { label: 'Lesson log', done: logged, note: '' }
   ];
   if (!hw) steps.splice(1, 1);   // no HW question for this lesson (before HW tracking)
