@@ -362,7 +362,9 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
     // lesson — Log lesson, Reschedule, Checklist.
     // Each box holds only its content, so the room above and below matches;
     // the buttons sit on the title rows (Log; Nothing to send / Browse folder).
+    // The Checklist box at the top of the doing card, its three steps on one line (2026-10-07).
     (o.log ? (o.card ? '</div><div class="td-student im-do-card">' : '') +
+             _imSec('Checklist', '<span class="im-fin" id="imFinDone"></span>', ' im-steps-row', '<div id="imSteps"></div>') +
              _imSec('Log lesson', '<span id="imLogActs"></span>', ' im-log-box', '<div id="imLogDock"></div>') +
              // HW in its own box (2026-10-06): the Log window's HW part, moved here.
              _imSec('HW', '<span id="imHwTools"></span>', ' im-hw-dock-box', '<div id="imHwDock"></div>') +
@@ -370,8 +372,7 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
              // HW's Nothing to send, a click ticks Schedule, again undoes it.
              _imSec('Schedule', '', ' im-sched-box',
                '<button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Reschedule</button>' +
-               '<button class="link-btn im-rs-btn im-nochange' + (_imSchedGet(name) === 'nochange' ? ' pressed' : '') + '" id="imNoChangeBtn" onclick="_imNoChangeToggle(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Nothing to move or skip.\nPress again to undo.">Not needed</button>') +
-             _imSec('Checklist', '<span class="im-fin" id="imFinDone"></span>', '', '<div id="imSteps"></div>') : '') +
+               '<button class="link-btn im-rs-btn im-nochange' + (_imSchedGet(name) === 'nochange' ? ' pressed' : '') + '" id="imNoChangeBtn" onclick="_imNoChangeToggle(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Nothing to move or skip.\nPress again to undo.">Not needed</button>') : '') +
     (o.card ? '</div>' : '');
 }
 
