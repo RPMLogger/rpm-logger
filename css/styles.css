@@ -2124,6 +2124,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-hw-btns { display: flex; justify-content: center; gap: 8px; }
 .im-hw-btns .im-more { margin: 10px 0 0; }
 .im-dbx-head { margin-top: 14px; }
+.im-dbx { border: 1px solid rgba(91,157,255,0.4); border-radius: 8px; padding: 14px; margin-top: 10px; }   /* Dropbox list in the drop zone's blue (2026-10-07) */
 .td-student .im-title { margin-top: 0; }
 .td-student .im-title > span { color: #d9a441; }   /* student names in amber, Today + Import (2026-10-06) */
 .im-notes-back { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9998; display: flex; align-items: center; justify-content: center; padding: 16px; }
