@@ -2098,8 +2098,12 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .td-mini { margin-bottom: 34px; display: flex; flex-direction: column; gap: 6px; }
 .td-mini-row { display: flex; align-items: baseline; gap: 14px; cursor: pointer; }
 .td-mini-t { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); min-width: 64px; }
-.td-mini-n { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: var(--td-c); }
-.td-mini-row:hover .td-mini-n { text-decoration: underline; }
+/* Shaped like the Venmo / Zelle badges on Payments (2026-10-07): tinted box in the
+   student's colour; hover deepens the tint instead of underlining. */
+.td-mini-n { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 3px; color: var(--td-c);
+  background: color-mix(in srgb, var(--td-c) 15%, transparent); transition: background .12s; }
+.td-mini-row:hover .td-mini-n { background: color-mix(in srgb, var(--td-c) 30%, transparent); }
 /* Each student's own colour on their card: the edge and the name. */
 #todayBody .td-student { border-left-color: var(--td-c, #d9a441); }
 #todayBody .td-student .im-title > span { color: var(--td-c, #d9a441); }
