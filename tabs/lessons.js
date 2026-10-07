@@ -16,6 +16,7 @@ function closeLogPanel() {
   window._auditFixActive = false;
   window._auditResolve = null;
   if (typeof _unfloatLogPanel === "function") _unfloatLogPanel();
+  if (typeof _imLogClosed === "function") _imLogClosed();   // Import's docked Log box
 }
 
 // ─── RENDER: TODAY GRID ──────────────────────────────────────────────────────
@@ -219,7 +220,7 @@ function stopRecording() {
 function submitLog() {
   var url = getScriptUrl(); if (!url) return;
   if (activeStudent && activeStudent.hwOnly) { logHwSaveOnly(); return; }
-  if (logHw && !logHw.choice) return;
+  if (logHw && !logHw.choice && !window._imDocked) return;   // the docked box asks HW in Finish logging
 
   // Rows join with commas into one sentence (2026-10-06, was " - "): only the
   // first letter capitalised.
@@ -244,7 +245,7 @@ function submitLog() {
 
   var params = { studentName: student.name, subject: subject, trialPaid: trialPaid ? "1" : "0" };
   if (student.eventDate) params.lessonDate = student.eventDate;
-  if (logHw) {
+  if (logHw && logHw.choice) {
     params.hw = logHw.choice;
     params.hwFiles = logHw.choice === "sent" ? logHw.files.map(function(f) { return f.path; }).join("\n") : "";
     params.hwSource = logHw.choice === "sent" ? "Auto" : "Manual";
@@ -268,6 +269,7 @@ function submitLog() {
       todayStudents.forEach(function(t) {
         if (t.name === student.name && t.eventDate === student.eventDate) t.alreadyLogged = true;
       });
+      if (data.hwSaved && logHw) logHw.saved = true;
       if (data.hwSaved) _logHwSaved(student.name, logHw);
       addLog("lessonFeed", "✓ " + student.name + " — " + subject, "success");
       // No success line: the button says Logged ✓, the rows and buttons lock
@@ -305,6 +307,12 @@ function submitLog() {
       // The lesson saved but its HW didn't: amber half badge, the window stays
       // open so it's seen (the HW can be saved again from the Dropbox card).
       if (data.hwError) { rpmHalf("logPanelStatus", "HW not saved", data.hwError); return; }
+      // Import's docked box stays, locked, its Log lesson step ticked (2026-10-06).
+      if (window._imDocked) {
+        if (logHw) { logHw.locked = false; _logHwRender(); }   // HW can still be answered or changed
+        if (typeof _imStepsRender === "function") _imStepsRender();
+        return;
+      }
       // Only if it's still this lesson's window (not one opened since).
       var done = activeStudent;
       setTimeout(function() { if (done && activeStudent === done) closeLogPanel(); }, 1000);
@@ -332,8 +340,11 @@ function onRowInput() {
 function updateLogButton() {
   if (activeStudent && activeStudent.logged) return;
   var rowsOk = (activeStudent && activeStudent.hwOnly) || llValues(_logBox()).some(function(v) { return v; });
-  var hwOk = !logHw || (!!logHw.choice && !logHw.loading);
+  var hwOk = !logHw || (!!logHw.choice && !logHw.loading && !logHw.uploading);
+  // Import's docked box: HW can be answered after Log (Finish logging, 2026-10-06).
+  if (window._imDocked && logHw) hwOk = !logHw.loading && !logHw.uploading;
   document.getElementById("btnLog").disabled = !(rowsOk && hwOk);
+  if (window._imDocked && typeof _imStepsRender === "function") _imStepsRender();
 }
 
 function resetRows() {
@@ -386,6 +397,7 @@ function _logHwDate(student) {
 function logHwOpen(student) {
   var box = document.getElementById("logHw");
   if (!box) return;
+  _logHwWireDrop();
   var date = _logHwDate(student);
   if (student.calType === "trial" || date < HW_START) { logHw = null; box.style.display = "none"; return; }
   box.style.display = "";
@@ -393,6 +405,89 @@ function logHwOpen(student) {
   if (rb && !rb.innerHTML && typeof REFRESH_ICON !== "undefined") rb.innerHTML = REFRESH_ICON;
   logHw = { name: student.name, date: date, files: [], choice: null, loading: true, locked: false };
   logHwCheck();
+}
+
+// The HW list is a drop area (2026-10-06): files or folders dropped on it,
+// or picked with Browse, upload to the student's Dropbox (uploadFilesToDropbox,
+// core/api.js, wraps them in HW - OCT 6) and the list is read again, so Sent
+// is ready.
+function _logHwWireDrop() {
+  var list = document.getElementById("logHwFiles");
+  if (!list || list._wired) return;
+  list._wired = true;
+  function can() { return logHw && !logHw.locked && !logHw.loading && !logHw.uploading; }
+  list.ondragover = function(ev) { if (!can()) return; ev.preventDefault(); list.classList.add("lh-drop-on"); };
+  list.ondragleave = function() { list.classList.remove("lh-drop-on"); };
+  list.ondrop = function(ev) {
+    ev.preventDefault();
+    list.classList.remove("lh-drop-on");
+    if (!can() || !ev.dataTransfer) return;
+    collectDroppedFiles(ev.dataTransfer, function(files) { if (files.length) logHwUpload(files); });
+  };
+}
+
+// Clicking the drop zone picks files (not when clicking a listed file's name).
+// Chrome's file pickers (2026-10-06) open where you were last time: the `id`
+// makes Chrome remember that folder for this site, across restarts. Other
+// browsers fall back to the plain file inputs.
+var LOG_HW_PICKER = "rpm-hw";
+function _logHwCan() { return logHw && !logHw.locked && !logHw.loading && !logHw.uploading; }
+function logHwBrowse(ev) {
+  if (!_logHwCan()) return;
+  if (ev && ev.target && ev.target.closest && ev.target.closest(".db-file")) return;
+  if (!window.showOpenFilePicker) { document.getElementById("logHwInput").click(); return; }
+  window.showOpenFilePicker({ id: LOG_HW_PICKER, multiple: true })
+    .then(function(handles) { return Promise.all(handles.map(function(h) { return h.getFile(); })); })
+    .then(function(files) { if (files.length) logHwUpload(files); })
+    .catch(function() {});   // cancelled
+}
+function logHwBrowseFolder() {
+  if (!_logHwCan()) return;
+  if (!window.showDirectoryPicker) { document.getElementById("logHwFolder").click(); return; }
+  window.showDirectoryPicker({ id: LOG_HW_PICKER })
+    .then(function(dir) { return _logHwWalk(dir, dir.name); })
+    .then(function(files) { if (files.length) logHwUpload(files); })
+    .catch(function() {});   // cancelled
+}
+// Every file in a picked folder, hidden ones skipped; _rpmPath keeps the
+// structure ("Folder/sub/file.pdf"), as a dropped folder does.
+function _logHwWalk(dir, prefix) {
+  var out = [], subs = [];
+  var it = dir.values();
+  function next() {
+    return it.next().then(function(r) {
+      if (r.done) return;
+      var h = r.value;
+      if (h.name.charAt(0) === ".") return next();
+      if (h.kind === "directory") { subs.push(_logHwWalk(h, prefix + "/" + h.name)); return next(); }
+      return h.getFile().then(function(f) { f._rpmPath = prefix + "/" + h.name; out.push(f); return next(); });
+    });
+  }
+  return next().then(function() { return Promise.all(subs); })
+    .then(function(lists) { lists.forEach(function(l) { out = out.concat(l); }); return out; });
+}
+function logHwUploadFolder(input) {
+  var files = Array.prototype.slice.call(input.files || []).filter(function(f) {
+    return !f.webkitRelativePath.split("/").some(function(seg) { return seg.charAt(0) === "."; });
+  });
+  if (files.length) logHwUpload(files);
+}
+
+function logHwUpload(fileList) {
+  if (!logHw || logHw.locked || logHw.uploading || !fileList || !fileList.length) return;
+  var hw = logHw, list = document.getElementById("logHwFiles");
+  hw.uploading = true; updateLogButton();
+  uploadFilesToDropbox(hw.name, fileList, {
+    onProgress: function(name, i, total) {
+      if (logHw === hw && list) list.innerHTML = "<span style='color:var(--muted)'>Uploading " + (i + 1) + "/" + total + ": " + inqEsc(name) + "…</span>";
+    },
+    onDone: function(ok, fail, total) {
+      hw.uploading = false;
+      if (logHw !== hw) return;
+      if (fail) addLog("lessonFeed", "⚠ " + fail + " of " + total + " file(s) didn't upload to " + hw.name + "'s Dropbox", "warn");
+      logHwCheck();   // the new files list, Sent picked
+    }
+  });
 }
 
 // Ask the backend which files are new for this lesson.
@@ -411,6 +506,7 @@ function logHwCheck() {
         hw.noFolder = !!d.noFolder;
         hw.files = d.files || [];
         if (d.existing) {
+          hw.saved = true;   // answered in the sheet already
           // Already answered for this lesson: show that answer, and keep its
           // files listed even if Dropbox has cleaned them out since.
           var have = {};
@@ -424,6 +520,7 @@ function logHwCheck() {
         if (hw.choice === "sent" && !hw.files.length) hw.choice = null;
       }
       _logHwRender(); updateLogButton();
+      if (typeof _imHwChecked === "function") _imHwChecked();   // Import: files after the log save now
     })
     .catch(function() {
       if (logHw !== hw || seq !== _logHwSeq) return;
@@ -446,9 +543,11 @@ function _logHwRender() {
   if (!hw || !list) return;
   var dim = "<span style='color:var(--muted)'>";
   if (hw.loading) list.innerHTML = dim + "Checking Dropbox…</span>";
-  else if (hw.error) list.innerHTML = "<span style='color:var(--warn)'>" + inqEsc(hw.error) + "</span>";
-  else if (!hw.files.length) list.innerHTML = dim + (hw.noFolder ? "No Dropbox folder named " + inqEsc(hw.name) : "No new files in their Dropbox") + "</span>";
-  else list.innerHTML = _dbDetailsFilesHtml({ items: hw.files });
+  // Grey like the rest of the zone (2026-10-06, was amber), and says what to do.
+  else if (hw.error) list.innerHTML = dim + "Couldn't check their Dropbox. Press ↻ to try again.</span>";
+  else if (!hw.files.length) list.innerHTML = dim + (hw.noFolder ? "No Dropbox folder named " + inqEsc(hw.name) : "⬆ Drag files or folders or browse") + "</span>";
+  else list.innerHTML = _dbDetailsFilesHtml({ items: hw.files }) + "<div class='lh-drop-more'>⬆ Drop more here</div>";
+  list.classList.toggle("lh-empty", !hw.loading && !hw.error && !hw.files.length);
   list.style.opacity = hw.choice === "none" && hw.files.length ? ".4" : "";   // No HW: the files aren't this lesson's
   var n = hw.files.length;
   sent.querySelector("span").textContent = n ? "Sent · " + n + (n === 1 ? " file" : " files") : "Sent";
@@ -457,6 +556,9 @@ function _logHwRender() {
   sent.parentNode.classList.toggle("picked", !!hw.choice);
   sent.disabled = hw.locked || hw.loading || !n;
   none.disabled = hw.locked || hw.loading;
+  var nb = document.getElementById("logHwNothing");
+  if (nb) { nb.classList.toggle("pressed", hw.choice === "none"); nb.disabled = hw.loading || !!hw.uploading || !!hw.saving; }
+  if (window._imDocked && typeof _imStepsRender === "function") _imStepsRender();
 }
 
 // HW-only mode hides the lesson rows; the window title says HW.

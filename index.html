@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=761">
+  <link rel="stylesheet" href="css/styles.css?v=762">
 </head>
 <body>
 <div class="container">
@@ -165,9 +165,17 @@
            not on an earlier lesson yet (logHwCheck, lessons.js). Hidden for
            trials and for lessons before HW tracking started. -->
       <div class="lh-hw" id="logHw" style="display:none">
-        <div class="lh-hw-head"><label class="field-label">HW</label>
-          <button class="win-refresh" id="logHwRecheck" onclick="logHwCheck()" data-tip="Instant.&#10;Looks in their Dropbox again.&#10;Changes nothing." data-tip-left></button></div>
-        <div class="db-panel db-files" id="logHwFiles"></div>
+        <div class="lh-hw-head" id="logHwHead"><label class="field-label">HW</label>
+          <span class="lh-hw-tools">
+            <button type="button" class="link-btn lh-none-btn" id="logHwNothing" onclick="_imNothingToSend()" data-tip="No HW this lesson.&#10;Press again to undo." data-tip-left>Nothing to send</button>
+            <button type="button" class="link-btn lh-folder-btn" onclick="logHwBrowseFolder()" data-tip="Opens your folders, where you were last time.&#10;The whole folder uploads, structure kept." data-tip-left>Browse folder</button>
+            <button class="win-refresh" id="logHwRecheck" onclick="logHwCheck()" data-tip="Instant.&#10;Looks in their Dropbox again.&#10;Changes nothing." data-tip-left></button></span></div>
+        <!-- Home's Dropbox drop zone (2026-10-06): drop files or folders, or
+             click to pick files; they upload to the student's Dropbox
+             (HW - OCT 6 folder) and list here as this lesson's HW. -->
+        <div class="db-panel db-files" id="logHwFiles" onclick="logHwBrowse(event)"></div>
+        <input type="file" id="logHwInput" multiple style="display:none" onchange="logHwUpload(this.files); this.value=''">
+        <input type="file" id="logHwFolder" multiple webkitdirectory style="display:none" onchange="logHwUploadFolder(this); this.value=''">
         <div class="lh-hw-pick">
           <button class="tr-step-b" id="logHwSent" onclick="logHwPick('sent')" data-tip="These files are this lesson's homework."><span>Sent</span></button>
           <button class="tr-step-b" id="logHwNone" onclick="logHwPick('none')" data-tip="No homework this lesson."><span>No HW</span></button>
@@ -834,7 +842,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">761</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">762</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -854,43 +862,43 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=761"></script>
-<script src="core/storage.js?v=761"></script>
-<script src="core/utils.js?v=761"></script>
-<script src="core/dialog.js?v=761"></script>
-<script src="core/api.js?v=761"></script>
+<script src="core/state.js?v=762"></script>
+<script src="core/storage.js?v=762"></script>
+<script src="core/utils.js?v=762"></script>
+<script src="core/dialog.js?v=762"></script>
+<script src="core/api.js?v=762"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=761"></script>
-<script src="tabs/lessons.js?v=761"></script>
-<script src="tabs/payments.js?v=761"></script>
-<script src="tabs/week.js?v=761"></script>
-<script src="tabs/general.js?v=761"></script>
-<script src="tabs/financial.js?v=761"></script>
-<script src="tabs/inquiries.js?v=761"></script>
-<script src="tabs/inqarchive.js?v=761"></script>
-<script src="tabs/comms.js?v=761"></script>
-<script src="tabs/notes.js?v=761"></script>
-<script src="tabs/todo.js?v=761"></script>
-<script src="tabs/availability.js?v=761"></script>
-<script src="tabs/travel.js?v=761"></script>
-<script src="tabs/tripsummary.js?v=761"></script>
-<script src="tabs/triphistory.js?v=761"></script>
-<script src="tabs/skips.js?v=761"></script>
-<script src="tabs/student.js?v=761"></script>
-<script src="tabs/ctrl.js?v=761"></script>
-<script src="tabs/mailcenter.js?v=761"></script>
-<script src="tabs/dropbox.js?v=761"></script>
-<script src="tabs/import.js?v=761"></script>
-<script src="tabs/today.js?v=761"></script>
-<script src="tabs/trial.js?v=761"></script>
-<script src="tabs/ending.js?v=761"></script>
-<script src="tabs/thisyear.js?v=761"></script>
-<script src="tabs/sheets.js?v=761"></script>
-<script src="tabs/studentline.js?v=761"></script>
-<script src="tabs/calendar.js?v=761"></script>
-<script src="tabs/fixedcal.js?v=761"></script>
-<script src="tabs/secretary.js?v=761"></script>
+<script src="tabs/icons.js?v=762"></script>
+<script src="tabs/lessons.js?v=762"></script>
+<script src="tabs/payments.js?v=762"></script>
+<script src="tabs/week.js?v=762"></script>
+<script src="tabs/general.js?v=762"></script>
+<script src="tabs/financial.js?v=762"></script>
+<script src="tabs/inquiries.js?v=762"></script>
+<script src="tabs/inqarchive.js?v=762"></script>
+<script src="tabs/comms.js?v=762"></script>
+<script src="tabs/notes.js?v=762"></script>
+<script src="tabs/todo.js?v=762"></script>
+<script src="tabs/availability.js?v=762"></script>
+<script src="tabs/travel.js?v=762"></script>
+<script src="tabs/tripsummary.js?v=762"></script>
+<script src="tabs/triphistory.js?v=762"></script>
+<script src="tabs/skips.js?v=762"></script>
+<script src="tabs/student.js?v=762"></script>
+<script src="tabs/ctrl.js?v=762"></script>
+<script src="tabs/mailcenter.js?v=762"></script>
+<script src="tabs/dropbox.js?v=762"></script>
+<script src="tabs/import.js?v=762"></script>
+<script src="tabs/today.js?v=762"></script>
+<script src="tabs/trial.js?v=762"></script>
+<script src="tabs/ending.js?v=762"></script>
+<script src="tabs/thisyear.js?v=762"></script>
+<script src="tabs/sheets.js?v=762"></script>
+<script src="tabs/studentline.js?v=762"></script>
+<script src="tabs/calendar.js?v=762"></script>
+<script src="tabs/fixedcal.js?v=762"></script>
+<script src="tabs/secretary.js?v=762"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -938,6 +946,7 @@
 
   function switchTab(tab) {
     if (isRecording) stopRecording();
+    if (tab !== "import" && typeof _imUndock === "function") _imUndock();   // Import's docked Log box
     if (tab === "financial") { initFinancialTab(); }
     // NOTE: "lessons" (the old Today tab) is intentionally NOT in this list — its
     // tab button is removed. The #tab-lessons panel div still lives in the DOM

@@ -765,7 +765,7 @@ function _stOpenSkipModal(studentName, lesson, opts) {
   opts = opts || {};
   var who = 'Student';
   var w = _stWin('stSkipModal', studentName, 'Skip', CALENDAR_ICON,
-    "<div class='st-when'>" + lesson.dateLabel + " · " + lesson.time + "</div>" +
+    "<div class='st-when'>" + _stDayLabel(lesson) + " · " + lesson.time + "</div>" +
     "<label class='field-label'>Requested by</label>" + _stWhoSeg('stSkipWho', who) +
     "<label class='field-label st-gap'>Reason (optional)</label>" +
     "<input id='stSkipNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" +
@@ -802,7 +802,7 @@ function _stOpenLessonActions(studentName, lesson, opts) {
   // anyone it would overlap. Reschedule starts from that day and time.
   var to = opts && opts.to;
   var w = _stWin('stActionModal', studentName, 'Lesson', CALENDAR_ICON,
-    "<div class='st-when'>" + lesson.dateLabel + " · " + lesson.time + "</div>" +
+    "<div class='st-when'>" + _stDayLabel(lesson) + " · " + lesson.time + "</div>" +
     (to ? "<div class='st-when' style='color:var(--blue)'>Dropped on " + to.label + "</div>" : "") +
     (to && to.overlaps && to.overlaps.length ? "<div class='st-when' style='color:var(--warn)'>Overlaps " + to.overlaps.join(', ') + "</div>" : "") +
     "<div class='ll-acts st-foot' style='justify-content:flex-end'>" +
@@ -870,6 +870,12 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
       if (opts.onFail) opts.onFail(msg);
     });
   };
+}
+
+// "Sun, Oct 18" (2026-10-06): the picker's day label, with the comma the
+// backend's "Sun Oct 18" lacks.
+function _stDayLabel(lesson) {
+  return rpmDtpParse(lesson.date) ? _dtpDateLabel(lesson.date) : lesson.dateLabel;
 }
 
 // ── Window helpers for Skip / Lesson / Reschedule (2026-10-05) ──
