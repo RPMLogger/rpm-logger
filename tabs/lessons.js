@@ -401,10 +401,37 @@ function logHwOpen(student) {
   var date = _logHwDate(student);
   if (student.calType === "trial" || date < HW_START) { logHw = null; box.style.display = "none"; return; }
   box.style.display = "";
-  var rb = document.getElementById("logHwRecheck");
-  if (rb && !rb.innerHTML && typeof REFRESH_ICON !== "undefined") rb.innerHTML = REFRESH_ICON;
-  logHw = { name: student.name, date: date, files: [], choice: null, loading: true, locked: false };
-  logHwCheck();
+  // mine: names of the files uploaded here this time (2026-10-07). Only those
+  // (and a saved answer's files) list in the drop zone, not the rest of their Dropbox.
+  logHw = { name: student.name, date: date, files: [], mine: {}, choice: null, loading: true, locked: false };
+  _logHwExisting();
+}
+
+// Opening a lesson reads only the HW Tracking sheet (2026-10-07): was this
+// lesson answered already? No Dropbox read; Dropbox is read only after files
+// are dropped / browsed here (logHwCheck), for their paths.
+function _logHwExisting() {
+  var hw = logHw, seq = ++_logHwSeq;
+  hw.loading = true; _logHwRender(); updateLogButton();
+  function done() { if (logHw !== hw || seq !== _logHwSeq) return false; hw.loading = false; return true; }
+  fetch(getScriptUrl() + "?action=getHwLog&name=" + encodeURIComponent(hw.name) + "&date=" + hw.date)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (!done()) return;
+      var ex = d.success && d.rows && d.rows[0];
+      if (ex) {
+        hw.saved = true;   // answered in the sheet already: show that answer and its files
+        var have = {};
+        hw.files.forEach(function(f) { have[f.path.toLowerCase()] = 1; });
+        (ex.files || []).forEach(function(p) {
+          if (!have[p.toLowerCase()]) hw.files.push({ name: p.split("/").pop(), path: p });
+        });
+        if (!hw.choice) hw.choice = ex.hw === "Sent" ? "sent" : "none";
+        if (hw.choice === "sent" && !hw.files.length) hw.choice = null;
+      }
+      _logHwRender(); updateLogButton();
+    })
+    .catch(function() { if (done()) { _logHwRender(); updateLogButton(); } });
 }
 
 // The HW list is a drop area (2026-10-06): files or folders dropped on it,
@@ -415,7 +442,7 @@ function _logHwWireDrop() {
   var list = document.getElementById("logHwFiles");
   if (!list || list._wired) return;
   list._wired = true;
-  function can() { return logHw && !logHw.locked && !logHw.loading && !logHw.uploading; }
+  function can() { return logHw && !logHw.locked && !logHw.uploading; }   // drops work while the check runs (2026-10-07)
   list.ondragover = function(ev) { if (!can()) return; ev.preventDefault(); list.classList.add("lh-drop-on"); };
   list.ondragleave = function() { list.classList.remove("lh-drop-on"); };
   list.ondrop = function(ev) {
@@ -431,7 +458,7 @@ function _logHwWireDrop() {
 // makes Chrome remember that folder for this site, across restarts. Other
 // browsers fall back to the plain file inputs.
 var LOG_HW_PICKER = "rpm-hw";
-function _logHwCan() { return logHw && !logHw.locked && !logHw.loading && !logHw.uploading; }
+function _logHwCan() { return logHw && !logHw.locked && !logHw.uploading; }
 function logHwBrowse(ev) {
   if (!_logHwCan()) return;
   if (ev && ev.target && ev.target.closest && ev.target.closest(".db-file")) return;
@@ -476,6 +503,7 @@ function logHwUploadFolder(input) {
 function logHwUpload(fileList) {
   if (!logHw || logHw.locked || logHw.uploading || !fileList || !fileList.length) return;
   var hw = logHw, list = document.getElementById("logHwFiles");
+  Array.prototype.forEach.call(fileList, function(f) { hw.mine[String(f.name).toLowerCase()] = 1; });
   hw.uploading = true; updateLogButton();
   uploadFilesToDropbox(hw.name, fileList, {
     onProgress: function(name, i, total) {
@@ -504,7 +532,9 @@ function logHwCheck() {
       else {
         hw.error = null;
         hw.noFolder = !!d.noFolder;
-        hw.files = d.files || [];
+        // Only what was dropped / browsed here (2026-10-07): older files in
+        // their Dropbox stay out of the zone, so it starts empty.
+        hw.files = (d.files || []).filter(function(f) { return hw.mine[String(f.name || f.path.split("/").pop()).toLowerCase()]; });
         if (d.existing) {
           hw.saved = true;   // answered in the sheet already
           // Already answered for this lesson: show that answer, and keep its
@@ -542,12 +572,15 @@ function _logHwRender() {
   var sent = document.getElementById("logHwSent"), none = document.getElementById("logHwNone");
   if (!hw || !list) return;
   var dim = "<span style='color:var(--muted)'>";
-  if (hw.loading) list.innerHTML = dim + "Checking Dropbox…</span>";
+  // The zone starts empty (2026-10-07): no "Checking Dropbox…" while it asks
+  // whether this lesson was answered already; drops work meanwhile.
+  if (hw.loading && !hw.files.length) list.innerHTML = dim + "⬆ Drag files or folders or browse</span>";
+  else if (hw.loading) list.innerHTML = _dbDetailsFilesHtml({ items: hw.files }) + "<div class='lh-drop-more'>⬆ Drop more here</div>";
   // Grey like the rest of the zone (2026-10-06, was amber), and says what to do.
-  else if (hw.error) list.innerHTML = dim + "Couldn't check their Dropbox. Press ↻ to try again.</span>";
+  else if (hw.error) list.innerHTML = dim + "Couldn't check their Dropbox.</span>";
   else if (!hw.files.length) list.innerHTML = dim + (hw.noFolder ? "No Dropbox folder named " + inqEsc(hw.name) : "⬆ Drag files or folders or browse") + "</span>";
   else list.innerHTML = _dbDetailsFilesHtml({ items: hw.files }) + "<div class='lh-drop-more'>⬆ Drop more here</div>";
-  list.classList.toggle("lh-empty", !hw.loading && !hw.error && !hw.files.length);
+  list.classList.toggle("lh-empty", !hw.error && !hw.files.length);
   list.style.opacity = hw.choice === "none" && hw.files.length ? ".4" : "";   // No HW: the files aren't this lesson's
   var n = hw.files.length;
   sent.querySelector("span").textContent = n ? "Sent · " + n + (n === 1 ? " file" : " files") : "Sent";

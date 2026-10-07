@@ -14,6 +14,8 @@ function _imBodyEl() { return document.getElementById(_imIn === 'today' ? 'tdStu
 
 function initImportTab() {
   _imIn = 'import';
+  // Today's students go first: a week read from an earlier day is read again (2026-10-07).
+  if (window._weekFetchedDay && window._weekFetchedDay !== _tdYmd()) { var wu = getScriptUrl(); if (wu) fetchWeekStudents(wu); }
   if (_imOpen) { _imOpenStudent(_imOpen); return; }
   if (_imRoster) { _imRenderCards(); return; }
   var body = document.getElementById('importBody');
@@ -30,19 +32,25 @@ function initImportTab() {
 
 function _imKey(n) { return String(n || '').trim().toLowerCase().replace(/\s+/g, ' '); }
 
-// Plain A–Z (2026-10-06): today's students live on the Today tab now, so no
-// Today label or today-first order here.
+// Today's students first, in lesson-time order and in amber (2026-10-07);
+// everyone else A–Z under them. Resorts itself each day from the week read.
 function _imRenderCards() {
   var body = document.getElementById('importBody');
   _imLift(body);
-  var names = _imRoster.slice().sort(function (a, b) { return a.localeCompare(b); });
+  var today = (todayStudents || []).map(function (s) { return _imKey(s.name); });
+  var isToday = function (n) { return today.indexOf(_imKey(n)) >= 0; };
+  var names = _imRoster.slice().sort(function (a, b) {
+    var ta = today.indexOf(_imKey(a)), tb = today.indexOf(_imKey(b));
+    if (ta >= 0 || tb >= 0) return ta < 0 ? 1 : tb < 0 ? -1 : ta - tb;
+    return a.localeCompare(b);
+  });
   body.innerHTML =
     '<div class="db-section">' +
       '<div class="settings-title"><span>Import<span class="win-sub"> · Students</span></span></div>' +
       // The student page's box-title style (2026-10-06): one heading look on this tab.
       '<div class="db-cx-head im-sec-head im-cards-head"><label class="field-label db-cx-t">' + names.length + ' students</label></div>' +
       names.map(function (n) {
-        return '<div class="db-card im-card" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
+        return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
           '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
         '</div>';
       }).join('') +
@@ -398,15 +406,48 @@ var _imHwHide = {};   // key → files folded
 function _imLastHwHtml(hw, name) {
   if (!hw) return '<span style="color:var(--muted)">Loading</span>';
   var r = hw.rows.filter(function (x) { return x.hw === 'Sent'; })[0];
-  if (!r) return '<div class="im-none">None</div>';
-  var hide = !!_imHwHide[_imKey(name)], n = (r.files || []).length;
-  var p = String(r.date).split('-');
-  return '<div class="im-row im-hw-row">' +
-      '<span class="im-n">' + (r.lesson || '') + '</span>' +
-      '<span class="im-s">' + n + (n === 1 ? ' file' : ' files') + '</span>' +
-      '<span class="im-d">' + MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10) + '</span></div>' +
-    (hide ? '' : '<div class="im-hw-files">' + _dbDetailsFilesHtml({ items: r.files.map(function (x) { return { name: x.split('/').pop(), path: x }; }) }) + '</div>') +
-    '<button class="link-btn im-more" onclick="_imToggleHw(' + _auEsc(JSON.stringify(name)) + ')">' + (hide ? 'Show files' : 'Hide') + '</button>';
+  var k = _imKey(name), out;
+  if (!r) out = '<div class="im-none">None</div>';
+  else {
+    var hide = !!_imHwHide[k], n = (r.files || []).length;
+    var p = String(r.date).split('-');
+    out = '<div class="im-row im-hw-row">' +
+        '<span class="im-n">' + (r.lesson || '') + '</span>' +
+        '<span class="im-s">' + n + (n === 1 ? ' file' : ' files') + '</span>' +
+        '<span class="im-d">' + MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10) + '</span></div>' +
+      (hide ? '' : '<div class="im-hw-files">' + _dbDetailsFilesHtml({ items: r.files.map(function (x) { return { name: x.split('/').pop(), path: x }; }) }) + '</div>');
+  }
+  // Show more (2026-10-07): under the last HW, everything in their Dropbox
+  // folder now (the daily clean-up keeps it to ~15 days). Read only on press.
+  var x = _imDbx[k] || {};
+  if (x.open) out += '<div class="im-year im-dbx-head">Dropbox</div><div class="im-dbx">' +
+    (x.loading ? '<div class="im-none rpm-loading">Loading</div>' :
+     x.error ? '<div class="im-none">' + inqEsc(x.error) + '</div>' :
+     x.items.length ? _dbDetailsFilesHtml({ items: x.items }) : '<div class="im-none">Empty</div>') + '</div>';
+  var n2 = _auEsc(JSON.stringify(name));
+  return out + '<div class="im-hw-btns">' +
+    (r ? '<button class="link-btn im-more" onclick="_imToggleHw(' + n2 + ')">' + (_imHwHide[k] ? 'Show files' : 'Hide') + '</button>' : '') +
+    '<button class="link-btn im-more" onclick="_imToggleDbx(' + n2 + ')" data-tip="Reads their Dropbox folder.">' + (x.open ? 'Show less' : 'Show more') + '</button></div>';
+}
+var _imDbx = {};   // key → { open, loading, items, error }: Show more's Dropbox list
+function _imToggleDbx(name) {
+  var k = _imKey(name), x = _imDbx[k] = _imDbx[k] || {};
+  x.open = !x.open;
+  if (x.open && !x.items && !x.loading) {
+    x.loading = true;
+    // Just this student's folder (getHwPending all=1), not the whole Dropbox.
+    fetch(getScriptUrl() + '?action=getHwPending&all=1&name=' + encodeURIComponent(name) + '&lessonDate=' + _tdYmd())
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        x.loading = false;
+        if (!d.success) { x.error = 'Could not read Dropbox.'; return; }
+        x.items = d.files || [];
+        x.error = d.noFolder ? 'No Dropbox folder named ' + name : null;
+      })
+      .catch(function () { x.loading = false; x.error = 'No answer from Google.'; })
+      .then(function () { if (!x.error) x.error = null; else x.items = null; _imRedraw(); });
+  }
+  _imRedraw();
 }
 function _imToggleHw(name) {
   var k = _imKey(name);

@@ -31,6 +31,9 @@ function initTodayTab() {
 function _tdWeekReady() {
   var p = document.getElementById('tab-today');
   if (p && p.classList.contains('active')) initTodayTab();
+  // Import's card list puts today's students first: redraw it once the week is read.
+  var ip = document.getElementById('tab-import');
+  if (ip && ip.classList.contains('active') && !_imOpen && _imRoster) _imRenderCards();
 }
 
 // One colour per student (2026-10-06), so the cards feel different as you
