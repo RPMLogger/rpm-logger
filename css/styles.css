@@ -2123,7 +2123,8 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Last HW's buttons side by side; Show more's Dropbox list under a year-style label (2026-10-07). */
 .im-hw-btns { display: flex; justify-content: center; gap: 8px; }
 .im-hw-btns .im-more { margin: 10px 0 0; }
-.im-dbx-head { margin-top: 14px; }
+.im-dbx-head { margin-top: 14px; display: flex; align-items: center; gap: 8px; }   /* Dropbox logo + DROPBOX (2026-10-07) */
+.im-dbx-logo { width: 14px; height: 12px; flex: none; color: var(--blue); }
 .im-dbx { border: 1px solid rgba(91,157,255,0.4); border-radius: 8px; padding: 14px; margin-top: 10px; }   /* Dropbox list in the drop zone's blue (2026-10-07) */
 .td-student .im-title { margin-top: 0; }
 .td-student .im-title > span { color: #d9a441; }   /* student names in amber, Today + Import (2026-10-06) */

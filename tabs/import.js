@@ -420,7 +420,7 @@ function _imLastHwHtml(hw, name) {
   // Show more (2026-10-07): under the last HW, everything in their Dropbox
   // folder now (the daily clean-up keeps it to ~15 days). Read only on press.
   var x = _imDbx[k] || {};
-  if (x.open) out += '<div class="im-year im-dbx-head">Dropbox</div><div class="im-dbx">' +
+  if (x.open) out += '<div class="im-year im-dbx-head">' + DBX_LOGO.replace('class="win-icon"', 'class="im-dbx-logo"') + 'DROPBOX</div><div class="im-dbx">' +
     (x.loading ? '<div class="im-none rpm-loading">Loading</div>' :
      x.error ? '<div class="im-none">' + inqEsc(x.error) + '</div>' :
      x.items.length ? _dbDetailsFilesHtml({ items: x.items }) : '<div class="im-none">Empty</div>') + '</div>';
