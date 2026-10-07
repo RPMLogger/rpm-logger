@@ -2054,7 +2054,9 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #imLogDock .ll-wrap + .ll-add, #imLogDock .ll-add { margin-bottom: 0; }
 .td-student.im-do-card { border-left-color: var(--accent); }   /* the doing card's edge in red (2026-10-06) */
 .im-sec-head .field-label { margin: 0; }
-.im-rs-btn { display: flex; width: 100%; justify-content: center; padding: 10px; }   /* full-width Reschedule in its Schedule box (2026-10-06) */   /* full-width Reschedule between Log lesson and Checklist (2026-10-06) */
+.im-rs-btn { display: flex; width: 100%; justify-content: center; padding: 10px; }   /* full-width Reschedule in its Schedule box (2026-10-06) */
+.im-sched-box { display: flex; gap: 8px; }   /* Reschedule + Not needed side by side (2026-10-06) */
+.im-sched-box .im-rs-btn { flex: 1; width: auto; }   /* full-width Reschedule between Log lesson and Checklist (2026-10-06) */
 /* Same room inside every box of the card (2026-10-06): 16px all round, the
    boxes' own first/last spacing zeroed so it doesn't stack on top. */
 .td-student .im-list { padding: 16px; }

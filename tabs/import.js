@@ -149,7 +149,13 @@ function _imLoggedToday(lessons) {
 // Schedule is kept in this browser for the day (nothing in the sheets says "no change" yet).
 function _imSchedKey(name) { return 'imSched|' + _imKey(name) + '|' + new Date().toDateString(); }
 function _imSchedGet(name) { try { return localStorage.getItem(_imSchedKey(name)) || ''; } catch (e) { return ''; } }
-function _imSchedSet(name, v) { try { localStorage.setItem(_imSchedKey(name), v); } catch (e) {} _imStepsRender(); }
+function _imSchedSet(name, v) {
+  try { if (v) localStorage.setItem(_imSchedKey(name), v); else localStorage.removeItem(_imSchedKey(name)); } catch (e) {}
+  var b = document.getElementById('imNoChangeBtn');
+  if (b) b.classList.toggle('pressed', v === 'nochange');
+  _imStepsRender();
+}
+function _imNoChangeToggle(name) { _imSchedSet(name, _imSchedGet(name) === 'nochange' ? '' : 'nochange'); }
 
 function _imStepsRender() {
   var el = document.getElementById('imSteps');
@@ -359,8 +365,11 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
              _imSec('Log lesson', '<span id="imLogActs"></span>', ' im-log-box', '<div id="imLogDock"></div>') +
              // HW in its own box (2026-10-06): the Log window's HW part, moved here.
              _imSec('HW', '<span id="imHwTools"></span>', ' im-hw-dock-box', '<div id="imHwDock"></div>') +
-             // Schedule: its own box with the full-width Reschedule (2026-10-06).
-             _imSec('Schedule', '', '', '<button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Reschedule</button>') +
+             // Schedule box: Reschedule and Not needed side by side (2026-10-06): like
+             // HW's Nothing to send, a click ticks Schedule, again undoes it.
+             _imSec('Schedule', '', ' im-sched-box',
+               '<button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Reschedule</button>' +
+               '<button class="link-btn im-rs-btn im-nochange' + (_imSchedGet(name) === 'nochange' ? ' pressed' : '') + '" id="imNoChangeBtn" onclick="_imNoChangeToggle(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Nothing to move or skip.\nPress again to undo.">Not needed</button>') +
              _imSec('Checklist', '<span class="im-fin" id="imFinDone"></span>', '', '<div id="imSteps"></div>') : '') +
     (o.card ? '</div>' : '');
 }
