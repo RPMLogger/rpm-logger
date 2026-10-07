@@ -334,7 +334,8 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
       // 1-4, the lesson, and the date on the right (2026-10-04). No HW
       // column: Last HW under the list covers it (user's call).
       if (!l) return '<div class="im-row im-empty"><span class="im-n">' + (k + 1) + '</span><span class="im-s"></span><span class="im-d">—</span></div>';
-      return '<div class="im-row">' +
+      // The newest lesson is marked (2026-10-07); the Today tab shows it brighter.
+      return '<div class="im-row' + (l === items[items.length - 1] ? ' im-latest' : '') + '">' +
         '<span class="im-n">' + (k + 1) + '</span>' +
         '<span class="im-s">' + (l.subject ? inqEsc(l.subject) : '<span style="color:var(--muted)">—</span>') + '</span>' +
         '<span class="im-d">' + inqEsc(l.date) + '</span>' +

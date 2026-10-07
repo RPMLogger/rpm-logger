@@ -2027,6 +2027,9 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-block + .im-block { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 10px; }
 .im-block .im-row { border-bottom: none; padding: 4px 0; }
 .im-row.im-empty .im-n, .im-row.im-empty .im-d { opacity: .35; }
+/* Today tab only (2026-10-07): the newest lesson a step brighter, your last log at a glance. */
+#todayBody .im-latest .im-s { color: rgba(255,255,255,0.72); }
+#todayBody .im-latest .im-n, #todayBody .im-latest .im-d { color: rgba(255,255,255,0.4); }
 .im-year + .im-block { border-top: none; margin-top: 0; }
 .im-title { margin: 0 0 28px; }   /* the student page's headline, above the buttons (2026-10-06, was inside the box) */
 /* Import student page buttons + Notes window (2026-10-05). */
