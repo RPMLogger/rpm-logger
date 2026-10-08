@@ -497,7 +497,7 @@ function loadIncomingPayments() {
 
 // Payments the hourly backend job recorded on its own (RPM_AutoConfirm.gs):
 // exact name + exactly 4x the student's rate. Last 14 days, newest first.
-// Same card as Incoming, dimmed, with an Auto tag where the buttons go. Sits
+// Same card as Incoming, with a green circled check where the buttons go. Sits
 // below the pending cards, outside #incomingPayments, so checkEmptyIncoming
 // never wipes it.
 function renderAutoConfirmed(rows) {
@@ -511,21 +511,21 @@ function renderAutoConfirmed(rows) {
   }
   if (!rows || !rows.length) { box.innerHTML = ""; return; }
   box.innerHTML =
-    "<div style='color:var(--muted);font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin:18px 0 8px' " +
+    "<div class='section-label' style='margin-top:56px;margin-bottom:26px' " +
       "data-tip='Recorded without a Confirm press.\nExact name and exactly 4x the student&#39;s rate.\nLast 14 days.'>Auto-confirmed</div>" +
     rows.map(function(r) {
-      return "<div class='incoming-card' style='opacity:.55'>" +
+      // The Payments log keeps amounts as plain numbers ("440"); show them like Incoming ("$440.00").
+      var amt = /^\$/.test(r.amount) ? r.amount : "$" + (parseFloat(r.amount) || 0).toFixed(2);
+      return "<div class='incoming-card'>" +
         "<div class='incoming-left'>" +
           "<div class='incoming-name'>" + r.name + "</div>" +
           "<div class='incoming-meta'>" +
             "<span class='incoming-method " + r.method.toLowerCase() + "'>" + r.method + "</span>" +
-            "<span class='incoming-amount'>" + r.amount + "</span>" +
+            "<span class='incoming-amount'>" + amt + "</span>" +
             "<span class='incoming-date'>" + shortDate(r.date) + "</span>" +
           "</div>" +
         "</div>" +
-        "<span style='flex-shrink:0;display:inline-flex;align-items:center;gap:8px;color:var(--green)'>" + PAID_CHECK_ICON +
-          "<span style='font-family:\"DM Mono\",monospace;font-size:10px;letter-spacing:.12em;" +
-          "border:1px solid var(--green);border-radius:6px;padding:5px 10px'>AUTO</span></span>" +
+        "<span style='flex-shrink:0;display:inline-flex;color:var(--green)'>" + PAID_CHECK_ICON + "</span>" +
       "</div>";
     }).join("");
 }
