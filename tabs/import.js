@@ -39,6 +39,9 @@ function _imRenderCards() {
   _imLift(body);
   var today = (todayStudents || []).map(function (s) { return _imKey(s.name); });
   var isToday = function (n) { return today.indexOf(_imKey(n)) >= 0; };
+  // Today's lesson logged: the card goes green (2026-10-07); clicking it reopens it to edit.
+  var logged = (todayStudents || []).filter(function (s) { return s.alreadyLogged; }).map(function (s) { return _imKey(s.name); });
+  var isDone = function (n) { return logged.indexOf(_imKey(n)) >= 0; };
   var names = _imRoster.slice().sort(function (a, b) {
     var ta = today.indexOf(_imKey(a)), tb = today.indexOf(_imKey(b));
     if (ta >= 0 || tb >= 0) return ta < 0 ? 1 : tb < 0 ? -1 : ta - tb;
@@ -50,7 +53,7 @@ function _imRenderCards() {
       // The student page's box-title style (2026-10-06): one heading look on this tab.
       '<div class="db-cx-head im-sec-head im-cards-head"><label class="field-label db-cx-t">' + names.length + ' students</label></div>' +
       names.map(function (n) {
-        return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
+        return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : '') + (isDone(n) ? ' im-fin' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
           '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
         '</div>';
       }).join('') +
@@ -177,7 +180,7 @@ function _imStepsRender() {
     { label: 'Schedule', done: !!sched,
       note: sched === 'changed' ? 'changed' : sched === 'nochange' ? 'not needed' : '' },   // the button's word (2026-10-06)
     { label: 'HW', done: !!(hw && hw.choice),
-      note: hw && hw.choice === 'none' ? 'nothing to send' : '' },   // no file count (2026-10-06)
+      note: '' },   // just the tick (2026-10-07; was "nothing to send")
     { label: 'Lesson log', done: logged, note: '' }
   ];
   if (!hw) steps.splice(1, 1);   // no HW question for this lesson (before HW tracking)
@@ -187,7 +190,29 @@ function _imStepsRender() {
   }).join('') + '</div>';
   var fin = document.getElementById('imFinDone');
   // Finished: logged, Schedule answered, HW answered and saved.
-  if (fin) fin.textContent = logged && sched && (!hw || (hw.choice && hw.saved)) ? 'Finished ✓' : '';
+  var finished = logged && sched && (!hw || (hw.choice && hw.saved));
+  if (fin) fin.textContent = finished ? 'Finished ✓' : '';
+  // Finished by something pressed here (not just reopened): Done, then back (2026-10-07).
+  if (finished && window._imActed === name) { window._imActed = null; _imDone(name); }
+}
+
+// Anything pressed or dropped in the doing card arms Done for that student,
+// so reopening an already finished one doesn't bounce you out (2026-10-07).
+['click', 'drop'].forEach(function (ev) {
+  document.addEventListener(ev, function (e) {
+    if (_imOpen && e.target.closest && e.target.closest('#importBody .im-do-card')) window._imActed = _imOpen;
+  }, true);
+});
+// All done: the card dims, Done ✓, and back to the student list, where their card is green.
+function _imDone(name) {
+  var card = document.querySelector('#importBody .im-do-card');
+  if (!card) return;
+  card.classList.add('im-done');
+  var msg = document.createElement('div');
+  msg.className = 'im-done-msg';
+  msg.textContent = 'Done ✓';
+  card.appendChild(msg);
+  setTimeout(function () { if (_imOpen === name) _imClose(); }, 1400);
 }
 
 // Nothing to send (2026-10-06): the HW heading's button. Press again to undo

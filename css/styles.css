@@ -2012,6 +2012,14 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-card { cursor: pointer; }
 /* Today's students on Import (2026-10-07): name in the Today tab's amber; the card keeps its blue edge. */
 .im-card.im-today .db-card-n { color: #d9a441; }
+/* Today's lesson logged (2026-10-07): green edge + name, like Finished. */
+.im-card.im-fin, .im-card.im-fin:hover { border-left-color: var(--green); }
+.im-card.im-fin .db-card-n { color: var(--green); }
+/* All steps done: the doing card dims and says Done ✓ before going back to the list. */
+.im-do-card { position: relative; }
+.im-do-card.im-done > *:not(.im-done-msg) { opacity: .3; pointer-events: none; transition: opacity .2s; }
+.im-done-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: "Bebas Neue", sans-serif; font-size: 34px; letter-spacing: 3px; color: #2ecc71; }
 .im-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 4px 0 18px; }
 .im-count { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
 .im-list { padding: 8px 14px 14px; }
