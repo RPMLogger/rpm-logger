@@ -2271,3 +2271,20 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Details window's Lessons in Import's look (2026-10-08); Not logged in the unlogged blue. */
 #auditFixContent .dx-lessons { margin-top: 10px; }
 #auditFixContent .dx-lessons .dx-miss .im-s { color: var(--blue); }
+#auditFixContent .dx-gridbox { margin-top: 10px; padding: 16px; }
+/* Details window like the Import card (2026-10-08): #222 outside, the boxes' #1a1a1a inside. */
+#auditFixContent { background: var(--surface2); }
+/* Details grid columns (2026-10-08): all three agree → dim; any difference → brighter. */
+#auditFixContent .dx-grid td.dx-same:not(.sel) { color: rgba(255,255,255,0.3); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
+#auditFixContent .dx-grid td.dx-diff:not(.miss):not(.nocal):not(.sel) { color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4); }
+/* Each row in its source's colour (2026-10-08): Calendar red, Counter amber, Import blue.
+   Agreeing columns dim, differing ones full colour. Unlogged blue / mismatch red keep theirs. */
+#auditFixContent .dx-grid { --dx-cal: #ff5a4d; --dx-counter: #d9a441; --dx-imp: #4a9eff; }
+#auditFixContent .dx-grid td.dx-l-calendar { color: color-mix(in srgb, var(--dx-cal) 75%, transparent); }
+#auditFixContent .dx-grid td.dx-l-counter  { color: color-mix(in srgb, var(--dx-counter) 75%, transparent); }
+#auditFixContent .dx-grid td.dx-l-import   { color: color-mix(in srgb, var(--dx-imp) 75%, transparent); }
+#auditFixContent .dx-grid td.dx-r-cal     { --dx-c: var(--dx-cal); }
+#auditFixContent .dx-grid td.dx-r-counter { --dx-c: var(--dx-counter); }
+#auditFixContent .dx-grid td.dx-r-imp     { --dx-c: var(--dx-imp); }
+#auditFixContent .dx-grid td.dx-same:not(.sel) { color: color-mix(in srgb, var(--dx-c) 45%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dx-c) 14%, transparent); }
+#auditFixContent .dx-grid td.dx-diff:not(.miss):not(.nocal):not(.sel) { color: var(--dx-c); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dx-c) 55%, transparent); }

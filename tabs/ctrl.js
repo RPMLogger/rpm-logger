@@ -512,13 +512,16 @@ function _renderFixData(d) {
   _dx = { d: d, slots: slots, extras: extras, counterSp: counterSp, cOff: cOff };
 
   body.innerHTML = "";
-  // The window icon under the title, as in the Trial windows: om-58, wrench in a circle.
+  // The window icon under the title, as in the Trial windows.
   var ic = document.createElement("div"); ic.style.margin = "4px 0 34px";
-  ic.innerHTML = FIX_ICON;
+  ic.innerHTML = FIX_WIN_ICON;   // the gear (om-69) of the Dropbox Fix window (2026-10-08; was the wrench om-58)
   body.appendChild(ic);
   var gl = document.createElement("div"); gl.className = "field-label"; gl.textContent = "Last two blocks";
   body.appendChild(gl);
-  body.appendChild(_dxGrid());
+  // In a box like Lessons below (2026-10-08).
+  var gb = document.createElement("div"); gb.className = "db-panel im-list dx-gridbox";
+  gb.appendChild(_dxGrid());
+  body.appendChild(gb);
   if (extras.length) {
     var ex = document.createElement("div"); ex.className = "dx-extra";
     ex.innerHTML = "More on the calendar, past these slots: " + extras.map(function(e, i) {
@@ -554,12 +557,20 @@ function _dxGrid() {
     return '<tr>' + h + '</tr>';
   }
   function row(label, cell) {
-    var h = '<td class="lbl">' + label + '</td>';
+    var h = '<td class="lbl dx-l-' + label.toLowerCase() + '">' + label + '</td>';
     for (var k = 0; k < 8; k++) h += (k === 4 ? '<td class="gap"></td>' : '') + cell(s[k], k);
     return '<tr>' + h + '</tr>';
   }
+  // Each column (2026-10-08): Calendar, Counter and Import all on the same day →
+  // dim; anything different or missing → the three cells brighter.
+  var col = s.map(function(sl) {
+    var c = sl.cal ? _dxN(sl.cal.date) : "", n = sl.counter && !sl.counter.empty ? _dxN(sl.counter.value) : "";
+    var i = sl.imp && !sl.imp.empty ? _dxN(sl.imp.date) : "";
+    if ((!c && !n && !i) || sl.impUnknown) return "";
+    return c && c === n && n === i ? " dx-same" : " dx-diff";
+  });
   function td(cls, text, which, k, tip) {
-    return '<td class="' + cls + ' dx-c" onclick="_dxEdit(\'' + which + '\',' + k + ')"' +
+    return '<td class="' + cls + col[k] + ' dx-c dx-r-' + which + '" onclick="_dxEdit(\'' + which + '\',' + k + ')"' +
       (tip ? ' data-tip="' + tip + '"' : '') + '>' + _auEsc(text) + '</td>';
   }
   // Red / amber by DATE, not slot by slot (user, 2026-09-28): one extra event
