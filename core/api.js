@@ -1,4 +1,37 @@
 // ─── CORE / API.JS ───────────────────────────────────────────────────────────
+
+// Google retry (2026-10-07): now and then Apps Script answers with an HTML
+// error page instead of JSON (or the request drops), and the portal showed
+// "Unsuccessful" / stuck Loading. READS only (get…, preview…, check…, audit…)
+// are tried again, twice, 1.5s then 3s apart. Writes are never retried: the
+// error page doesn't say whether the write already happened.
+(function () {
+  var realFetch = window.fetch.bind(window);
+  var READ = /^(get|preview|check|audit)/;
+  window.fetch = function (input, init) {
+    var url = String((input && input.url) || input);
+    var method = ((init && init.method) || 'GET').toUpperCase();
+    var m = url.match(/[?&]action=([A-Za-z]+)/);
+    if (method !== 'GET' || !/script\.google(usercontent)?\.com/.test(url) || !m || !READ.test(m[1])) return realFetch(input, init);
+    var waits = [1500, 3000];
+    function attempt(left) {
+      return realFetch(input, init).then(function (r) {
+        return r.text().then(function (t) {
+          var c = t.replace(/^\s+/, '').charAt(0);
+          if ((c === '{' || c === '[') || !left.length) {
+            return new Response(t, { status: r.status, statusText: r.statusText, headers: { 'Content-Type': 'application/json' } });
+          }
+          return new Promise(function (res) { setTimeout(res, left[0]); }).then(function () { return attempt(left.slice(1)); });
+        });
+      }, function (err) {
+        if (!left.length) throw err;
+        return new Promise(function (res) { setTimeout(res, left[0]); }).then(function () { return attempt(left.slice(1)); });
+      });
+    }
+    return attempt(waits);
+  };
+})();
+
 function loadData() {
   var url = getScriptUrl();
   if (!url) return;
