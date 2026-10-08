@@ -2015,9 +2015,13 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Today's lesson logged (2026-10-07): green edge + name, like Finished. */
 .im-card.im-fin, .im-card.im-fin:hover { border-left-color: var(--green); }
 .im-card.im-fin .db-card-n { color: var(--green); }
+/* Logged but a step left (2026-10-07): amber, small, on the card's right. */
+.im-miss { display: inline-flex; align-items: center; gap: 7px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #d9a441; flex: none; }
+.im-miss-i { flex: none; }
 /* All steps done: the doing card dims and says Done ✓ before going back to the list. */
 .im-do-card { position: relative; }
 .im-do-card.im-done > *:not(.im-done-msg) { opacity: .3; pointer-events: none; transition: opacity .2s; }
+.im-do-card.im-done .im-fin { visibility: hidden; }   /* DONE says it; no Finished ✓ beside it */
 .im-done-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   font-family: "Bebas Neue", sans-serif; font-size: 34px; letter-spacing: 3px; color: #2ecc71; }
 .im-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 4px 0 18px; }

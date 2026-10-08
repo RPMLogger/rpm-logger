@@ -34,14 +34,22 @@ function _imKey(n) { return String(n || '').trim().toLowerCase().replace(/\s+/g,
 
 // Today's students first, in lesson-time order and in amber (2026-10-07);
 // everyone else A–Z under them. Resorts itself each day from the week read.
-function _imRenderCards() {
+function _imRenderCards(noRead) {
   var body = document.getElementById('importBody');
   _imLift(body);
+  if (!noRead) _imHwTodayLoad();   // today's HW answers, then draws again
   var today = (todayStudents || []).map(function (s) { return _imKey(s.name); });
   var isToday = function (n) { return today.indexOf(_imKey(n)) >= 0; };
-  // Today's lesson logged: the card goes green (2026-10-07); clicking it reopens it to edit.
+  // Today's lesson logged (2026-10-07): green when Schedule and HW are done too,
+  // else the amber card says what's missing; clicking it reopens it to edit.
   var logged = (todayStudents || []).filter(function (s) { return s.alreadyLogged; }).map(function (s) { return _imKey(s.name); });
-  var isDone = function (n) { return logged.indexOf(_imKey(n)) >= 0; };
+  var missing = function (n) {
+    if (logged.indexOf(_imKey(n)) < 0) return null;   // not logged yet: no verdict
+    var m = [];
+    if (_imHwToday.rows && !_imHwToday.rows[_imKey(n)]) m.push('HW');
+    if (!_imSchedGet(n)) m.push('Schedule');
+    return m;
+  };
   var names = _imRoster.slice().sort(function (a, b) {
     var ta = today.indexOf(_imKey(a)), tb = today.indexOf(_imKey(b));
     if (ta >= 0 || tb >= 0) return ta < 0 ? 1 : tb < 0 ? -1 : ta - tb;
@@ -53,11 +61,35 @@ function _imRenderCards() {
       // The student page's box-title style (2026-10-06): one heading look on this tab.
       '<div class="db-cx-head im-sec-head im-cards-head"><label class="field-label db-cx-t">' + names.length + ' students</label></div>' +
       names.map(function (n) {
-        return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : '') + (isDone(n) ? ' im-fin' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
+        var miss = missing(n);
+        return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : '') + (miss && !miss.length ? ' im-fin' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
           '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
+          (miss && miss.length ? '<span class="im-miss">' + MISS_ICON + miss.join(' + ') + ' missing</span>' : '') +
         '</div>';
       }).join('') +
     '</div>';
+}
+
+// Today's HW Tracking rows (getHwLog by date): who has an HW answer for today.
+var _imHwToday = { day: null, rows: null, busy: false };
+function _imHwTodayLoad() {
+  var day = _tdYmd();
+  if (_imHwToday.busy) return;
+  _imHwToday.busy = true;
+  fetch(getScriptUrl() + '?action=getHwLog&date=' + day)
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) return;
+      var rows = {};
+      (d.rows || []).forEach(function (x) { rows[_imKey(x.student)] = x.hw; });
+      _imHwToday = { day: day, rows: rows, busy: false };
+    })
+    .catch(function () {})
+    .then(function () {
+      _imHwToday.busy = false;
+      var p = document.getElementById('tab-import');
+      if (_imRoster && !_imOpen && p && p.classList.contains('active')) _imRenderCards(true);
+    });
 }
 
 function _imOpenStudent(name) {
