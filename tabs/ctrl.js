@@ -138,7 +138,7 @@ function _auEsc(v) {
 function _auStatusLine(s) {
   var owes = s.owes || 0, n = s.lessonNum;
   if (s.status === "Overdue") {
-    return { cls: "over", text: "Overdue" + (owes >= 2 ? " · Owes " + owes + " blocks" : ""), detail: "Finished · Lesson 4" };
+    return { cls: "over", text: "Overdue" + (owes >= 2 ? " · Owes " + owes + " blocks" : ""), detail: "Finished · Lesson " + n };
   }
   return { cls: "due", text: (owes >= 2 ? "Owes " + owes + " blocks" : "Unpaid"), detail: "Finished · Lesson " + n };
 }
