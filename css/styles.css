@@ -2271,7 +2271,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Details window's Lessons in Import's look (2026-10-08); Not logged in the unlogged blue. */
 #auditFixContent .dx-lessons { margin-top: 10px; }
 #auditFixContent .dx-lessons .dx-miss .im-s { color: var(--blue); }
-#auditFixContent .dx-gridbox { margin-top: 10px; padding: 16px; }
+#auditFixContent .dx-gridbox { margin-top: 10px; padding: 16px 16px 32px; }   /* more room under the grid (2026-10-08) */
 /* Details window like the Import card (2026-10-08): #222 outside, the boxes' #1a1a1a inside. */
 #auditFixContent { background: var(--surface2); }
 /* Details grid columns (2026-10-08): all three agree → dim; any difference → brighter. */
@@ -2288,3 +2288,10 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #auditFixContent .dx-grid td.dx-r-imp     { --dx-c: var(--dx-imp); }
 #auditFixContent .dx-grid td.dx-same:not(.sel) { color: color-mix(in srgb, var(--dx-c) 45%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dx-c) 14%, transparent); }
 #auditFixContent .dx-grid td.dx-diff:not(.miss):not(.nocal):not(.sel) { color: var(--dx-c); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dx-c) 55%, transparent); }
+/* Every blue in Browse's look (2026-10-08): full-blue text, 6% fill, 55% border; hover 16% + full border. */
+.au-grid td.miss.unlog { background: color-mix(in srgb, var(--blue) 6%, transparent); color: var(--blue); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--blue) 55%, transparent); }
+.au-grid td.miss.unlog.go { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--blue) 55%, transparent); }
+.au-grid td.miss.unlog.go:hover { background: color-mix(in srgb, var(--blue) 16%, transparent); box-shadow: inset 0 0 0 1px var(--blue) !important; }
+.au-unlog-tag { background: color-mix(in srgb, var(--blue) 6%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--blue) 55%, transparent); }
+#auditFixContent .dx-grid td.dx-r-imp.dx-diff:not(.miss):not(.nocal):not(.sel) { background: color-mix(in srgb, var(--blue) 6%, transparent); }
+.db-finder { opacity: 1; }
