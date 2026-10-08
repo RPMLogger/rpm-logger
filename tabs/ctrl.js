@@ -542,6 +542,8 @@ function _renderFixData(d) {
   var hr = document.createElement("hr"); hr.className = "divider"; hr.style.margin = "36px 0"; body.appendChild(hr);
   var ll = document.createElement("div"); ll.className = "field-label"; ll.textContent = "Lessons"; body.appendChild(ll);
   body.appendChild(_dxLessons());
+  // Lines cut short with "…" show their full text on hover (import.js), once laid out.
+  setTimeout(function() { if (typeof _imFixTips === "function") _imFixTips(body); }, 0);
 }
 
 function _dxGrid() {
@@ -609,31 +611,34 @@ function _dxGrid() {
   return t.firstChild;
 }
 
+// Import's look (2026-10-08): its box, 1-4 · lesson · date on the right,
+// newest first — the later block on top, 4 3 2 1 inside (was oldest first, 1234 1234).
 function _dxLessons() {
-  var wrap = document.createElement("div"); wrap.className = "dx-lessons";
-  // Always two blocks, 1234 then 1234 after a gap, like the grid: a slot
-  // with no lesson yet is a blank numbered row (user, 2026-09-28).
-  _dx.slots.forEach(function(sl, k) {
-    var has = sl.counter && !sl.counter.empty;
-    var logged = sl.imp && !sl.imp.empty;
-    var row = document.createElement("div");
-    var n = '<span class="fx-n">' + (k % 4 + 1) + '</span>';
-    if (logged || (has && !sl.impUnknown)) {
-      row.className = "fx-row" + (logged ? "" : " dx-miss");
-      var date = logged ? sl.imp.date : sl.counter.value;
-      row.innerHTML = n + '<span class="fx-d">' + _auEsc(_dxShort(date)) + '</span>' +
-        '<span class="fx-s">' + (logged ? (sl.imp.subject ? _auEsc(sl.imp.subject) : '<em>(no subject)</em>') : 'Not logged') + '</span>';
-    } else if (has) {
-      // Older than what Import sent: the date, nothing to judge.
-      row.className = "fx-row dx-blank";
-      row.innerHTML = n + '<span class="fx-d">' + _auEsc(_dxShort(sl.counter.value)) + '</span><span class="fx-s"></span>';
-    } else {
-      row.className = "fx-row dx-blank";
-      row.innerHTML = n + '<span class="fx-d"></span><span class="fx-s"></span>';
+  var wrap = document.createElement("div"); wrap.className = "db-panel im-list dx-lessons";
+  var html = "";
+  [4, 0].forEach(function(b) {
+    var rows = "";
+    for (var k = b + 3; k >= b; k--) {
+      var sl = _dx.slots[k];
+      if (!sl) continue;
+      var has = sl.counter && !sl.counter.empty;
+      var logged = sl.imp && !sl.imp.empty;
+      var n = '<span class="im-n">' + (k % 4 + 1) + '</span>', cls = "im-row", sub = "", date = "";
+      if (logged) {
+        date = _dxShort(sl.imp.date);
+        sub = sl.imp.subject ? _auEsc(sl.imp.subject) : '<span style="color:var(--muted)">—</span>';
+      } else if (has && !sl.impUnknown) {
+        cls += " dx-miss"; date = _dxShort(sl.counter.value); sub = "Not logged";
+      } else if (has) {
+        date = _dxShort(sl.counter.value);   // older than what Import sent: the date, nothing to judge
+      } else {
+        cls += " im-empty";
+      }
+      rows += '<div class="' + cls + '">' + n + '<span class="im-s">' + sub + '</span><span class="im-d">' + (date ? _auEsc(date) : "—") + '</span></div>';
     }
-    if (k === 4) row.className += " dx-blockstart";
-    wrap.appendChild(row);
+    if (rows) html += '<div class="im-block">' + rows + '</div>';
   });
+  wrap.innerHTML = html;
   return wrap;
 }
 
