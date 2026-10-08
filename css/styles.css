@@ -2226,16 +2226,10 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .db-card-still .db-card-a { color: var(--warn); }   /* ages and EMPTY in amber (2026-10-06, was light blue) */
 .db-finder { color: var(--blue); }   /* Open in Finder icon in blue, like Files (2026-10-06, was green) */
 
-/* The doing card's top (2026-10-08): the Log window's title + icon, in Import and the Audit window. */
-.im-do-title { margin-bottom: 16px; }
-.im-do-title span { white-space: nowrap; }
-.im-do-icon { margin: 4px 0 18px; }
-.im-do-icon .win-icon { height: 18px; }
-.im-do-icon + .im-sec-head { margin-top: 0; }
-/* Audit's Log lesson window (2026-10-08): Import's doing card inside. */
-.st-win.au-do-win { width: min(620px, 94vw); }
-.au-do .im-list { padding: 16px; }
-.au-do .im-sec-head .field-label { display: inline-block; margin: 0; }
+/* The Log lesson window (2026-10-08, Import + Audit): the doing card inside. */
+.st-win.im-log-win { width: min(620px, 94vw); }
+.im-win-card .im-list { padding: 16px; }
+.im-win-card .im-sec-head .field-label { display: inline-block; margin: 0; }
 .im-none-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; }   /* Nothing to send, bottom right of the drop zone (2026-10-08) */
 .im-steps-row .im-check { color: #d9a441; }   /* to-do steps amber, done ones dim (2026-10-08; was blue, then white) */
 /* Log lesson, HW, Schedule without their boxes (2026-10-08): the card's own background, fields out to its sides. */
@@ -2249,7 +2243,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-do-hr { margin: 30px 0 0; }
 .im-do-hr + .im-sec-head { margin-top: 30px; }
 /* The clipboard is tall and narrow (2026-10-08): 28px high makes it ~19px wide, the other window icons' 20px look. */
-.im-do-icon .win-icon, .st-win.au-do-win .win-icon { height: 30px; }
+.st-win.im-log-win .win-icon { height: 30px; }
 /* A little more room between each title and what's under it, in the doing card (2026-10-08; was 10px). */
 .im-do-card .im-sec-head { margin-bottom: 16px; }
 /* Checklist without its box too (2026-10-08): a status line, not a field. */
@@ -2262,6 +2256,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-steps-row .im-check-hw { color: var(--blue); }
 .im-steps-row .im-check.done { color: rgba(255,255,255,0.35); }
 /* More air under the icon and after the Schedule buttons (2026-10-08). */
-.im-do-icon { margin-bottom: 42px; }
-.au-do { margin-top: 24px; }   /* the window's icon row keeps _stWin's 18px; this adds the rest */
+.im-win-card { margin-top: 24px; }   /* the window's icon row keeps _stWin's 18px; this adds the rest */
 .im-do-card .im-sched-box { margin-bottom: 26px; }
+/* Import's Log lesson when it isn't their lesson day (2026-10-08): grey, its tooltip says why. */
+.link-btn.im-log-off, .link-btn.im-log-off:hover { color: rgba(255,255,255,.18); border-color: rgba(122,122,122,.22); background: transparent; cursor: default; }

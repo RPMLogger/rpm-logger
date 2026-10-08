@@ -137,34 +137,49 @@ function _imRenderStudent(name, lessons) {
   _imLast = { name: name, lessons: lessons };
   var body = _imBodyEl();
   if (!body) return;
-  _imLift(body);   // the docked Log box survives the redraw (what's typed stays)
+  _imLift(body);
   body.innerHTML = _imStudentHtml(name, lessons, _imHw, _imDetail, { back: true, card: true, log: true });
   _imFixTips(body);
-  _imDock();
 }
 
-// ── Log lesson box (2026-10-06): the Log window (#logPanel, lessons.js), docked
-// at the bottom of the student's card instead of floating. Same trick as
-// _floatLogPanel (ctrl.js): _logPanelHome remembers where it lives, so
-// openLogFresh doesn't float it and closeLogPanel puts it back. Undocked on
-// Back, another student, or leaving the tab.
-function _imDock() {
-  var dock = document.getElementById('imLogDock'), panel = document.getElementById('logPanel');
-  if (!dock || !panel || !_imOpen) return;
-  // Only while Import is the open tab: a late redraw (Notes / HW loading in)
-  // after you've left must not pull the Log window into a hidden page.
-  var tab = document.getElementById('tab-import');
-  if (!tab || !tab.classList.contains('active')) return;
-  if (window._imDocked) { dock.appendChild(panel); _imHwOut(); _imStepsRender(); return; }   // a redraw: same lesson, carry on
-  if (window._logPanelHome) return;   // open as a window somewhere else: leave it
+// ── Log lesson window (2026-10-08; was a card docked on the Import page) ──
+// The Log window (#logPanel, lessons.js) inside a window with Checklist, Log
+// lesson, HW, Schedule (_imDoHtml). Import opens it for today's lesson, Audit
+// (ctrl.js openAuditLessonLog) for a missed one; day = that lesson's
+// toDateString (null = today), for Schedule. _logPanelHome remembers where the
+// Log window lives, so openLogFresh doesn't float it and closeLogPanel puts it back.
+function _imLogWinOpen(student, idx, day) {
+  if (window._logPanelHome || window._imDocked) closeLogPanel();
+  var name = student.name;
+  var w = _stWin('imLogWin', inqEsc(name), 'Log Lesson', CLIPBOARD_ICON, '<div class="im-do-card im-win-card">' + _imDoHtml(name, day) + '</div>');
+  w.querySelector('.st-win').classList.add('im-log-win');
+  w.onclick = function (e) { if (e.target === w) closeLogPanel(); };
+  w.querySelector('[data-close]').onclick = closeLogPanel;
+  var panel = document.getElementById('logPanel');
   window._logPanelHome = { parent: panel.parentNode, next: panel.nextSibling, css: panel.style.cssText };
+  window._imWin = { name: name, day: day || null };
   window._imDocked = true;
   panel.style.cssText = '';
-  dock.appendChild(panel);
+  w.querySelector('#imLogDock').appendChild(panel);
   _imHwOut();
-  _imLog(_imOpen);
+  openLogFresh(student, idx);
+  _imStepsRender();
+}
+
+// Import's Log lesson: today's calendar lesson only (2026-10-08). A lesson
+// not logged on its day waits in Audit, with its own date.
+function _imTodayIdx(name) {
+  var today = (typeof todayStudents !== 'undefined' && todayStudents) || [];
+  for (var i = 0; i < today.length; i++) if (_imKey(today[i].name) === _imKey(name)) return i;
+  return -1;
+}
+function _imLogOpen(name) {
+  var i = _imTodayIdx(name);
+  if (i < 0) return;
+  _imLogWinOpen(todayStudents[i], i, null);
+  window._imLogActive = name;   // a save redraws this student's page under the window
   // Already logged today (the sheet says so): show it, locked, like right after Log.
-  var done = _imLoggedToday(_imLast && _imLast.lessons);
+  var done = _imLoggedToday(_imLast && _imLast.name === name && _imLast.lessons);
   if (done !== null && activeStudent) {
     activeStudent.logged = true;
     var row = llRows(_logBox())[0];
@@ -172,8 +187,8 @@ function _imDock() {
     llLock(_logBox());
     var mic = document.getElementById('logMicBtn');
     if (mic) mic.disabled = true;
+    _imStepsRender();
   }
-  _imStepsRender();
 }
 
 // Today's lesson in the list (newest first, dates like "Oct /6"): its text, or null.
@@ -203,11 +218,11 @@ function _imSchedSet(name, v, day) {
 }
 function _imNoChangeToggle(name) { var d = _imCtx().day; _imSchedSet(name, _imSchedGet(name, d) === 'nochange' ? '' : 'nochange', d); }
 
-// Where the doing card is open (2026-10-08): Import's student page, or the
-// Audit tab's Log window (ctrl.js openAuditLessonLog) for that lesson's date.
+// Where the doing card is open (2026-10-08): the Log lesson window
+// (_imLogWinOpen), else Import's page (nothing to tick there).
 function _imCtx() {
-  var a = window._auDock;
-  if (a) return { name: a.name, day: a.day, root: document.getElementById('auDockWin') };
+  var a = window._imWin;
+  if (a) return { name: a.name, day: a.day, root: document.getElementById('imLogWin') };
   return { name: _imOpen, day: null, root: document.getElementById('importBody') };
 }
 function _imQ(id) { var r = _imCtx().root; return r ? r.querySelector('#' + id) : null; }
@@ -243,8 +258,7 @@ function _imStepsRender() {
 ['click', 'drop'].forEach(function (ev) {
   document.addEventListener(ev, function (e) {
     if (!e.target.closest) return;
-    if (window._auDock && e.target.closest('#auDockWin')) window._imActed = window._auDock.name;
-    else if (_imOpen && e.target.closest('#importBody .im-do-card')) window._imActed = _imOpen;
+    if (window._imWin && e.target.closest('#imLogWin')) window._imActed = window._imWin.name;
   }, true);
 });
 // All done: the card dims, Done ✓, and back to the student list, where their card is green.
@@ -257,8 +271,7 @@ function _imDone(name) {
   msg.textContent = 'Done ✓';
   card.appendChild(msg);
   setTimeout(function () {
-    if (window._auDock) { if (window._auDock.name === name) closeLogPanel(); }   // the Audit window closes
-    else if (_imOpen === name) _imClose();
+    if (window._imWin && window._imWin.name === name) closeLogPanel();   // the window closes
   }, 1400);
 }
 
@@ -303,7 +316,7 @@ function _imHwChecked() {
   if (hw.choice === 'sent' && !hw.saved) _imSetHw('sent');
 }
 // Before a redraw: park the docked Log box in its hidden home so innerHTML
-// doesn't throw it away; _imDock puts it back.
+// doesn't throw it away.
 // The Log window's HW part (#logHw) sits in its own box on the card; these
 // move it out of the window and back in (before Log's row) when undocking.
 // Also its HW buttons row (#logHwHead) and Log's row (#logActions) go up to
@@ -351,31 +364,21 @@ function _imHwBack() {
   }
 }
 function _imLift(body) {
-  if (window._auDock) return;   // the Log box is in the Audit window, not on this page
+  if (window._imWin) return;   // the Log box is in the Log lesson window, not on this page
   _imHwBack();
   var panel = document.getElementById('logPanel');
   if (panel && body && body.contains(panel)) (window._logPanelHome ? window._logPanelHome.parent : document.body).appendChild(panel);
 }
 function _imUndock() { if (window._imDocked) closeLogPanel(); }
-// closeLogPanel (lessons.js) calls this. After a log (it closes itself a
-// second later) a fresh box comes back if the student is still open here.
+// closeLogPanel (lessons.js) calls this: the Log lesson window goes with it.
 function _imLogClosed() {
   _imHwBack();
   if (!window._imDocked) return;
   window._imDocked = false;
-  // The Audit window: gone with it (2026-10-08).
-  if (window._auDock) {
-    window._auDock = null;
-    var w = document.getElementById('auDockWin');
-    if (w) w.remove();
-    return;
-  }
-  // Checked after this turn: a tab switch closes the box first and only then
-  // hides Import, so it must not come back in a tab that's going away.
-  setTimeout(function () {
-    var p = document.getElementById('tab-import');
-    if (_imIn === 'import' && _imOpen && p && p.classList.contains('active')) _imDock();
-  }, 0);
+  window._imWin = null;
+  var w = document.getElementById('imLogWin');
+  if (w) w.remove();
+  // Import's card list shows the new state (green / what's missing) when you go back.
 }
 
 // One box of the card: its title (and anything on the title's right) above
@@ -463,7 +466,13 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
     // One card (2026-10-06, the Today tab's look): the name in amber (Today
     // adds " · Quick look" in grey via o.sub), then the three boxes.
     (o.card ? '<div class="td-student">' : '') +
-    '<div class="settings-title im-title"><span>' + inqEsc(name) + (o.sub ? '<span class="win-sub"> · ' + inqEsc(o.sub) + '</span>' : '') + '</span></div>' +
+    '<div class="settings-title im-title"><span>' + inqEsc(name) + (o.sub ? '<span class="win-sub"> · ' + inqEsc(o.sub) + '</span>' : '') + '</span>' +
+      // Log lesson (2026-10-08, replaces the doing card): opens the Log lesson
+      // window, only on their lesson day; otherwise grey, Audit has it.
+      (o.log ? (_imTodayIdx(name) >= 0
+        ? '<button class="link-btn blue opens-window" onclick="_imLogOpen(' + n + ')" data-tip="Opens a window.\nLog, HW and Schedule for today\'s lesson." data-tip-left>Log lesson</button>'
+        : '<button class="link-btn im-log-off" data-tip="Only on their lesson day.\nA lesson not logged on its day waits in Audit." data-tip-left data-tip-wrap>Log lesson</button>') : '') +
+      '</div>' +
     // Each box's small title sits above it, outside its border (2026-10-06).
     // Notes first (2026-10-06): what to mention, before anything else.
     _imSec('Notes', '', '', '<div class="im-notes-in">' + _imNotesBoxHtml(detail, name) + '</div>') +
@@ -477,11 +486,6 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
     // Each box holds only its content, so the room above and below matches;
     // the buttons sit on the title rows (Log; Nothing to send / Browse folder).
     // The Checklist box at the top of the doing card, its three steps on one line (2026-10-07).
-    (o.log ? (o.card ? '</div><div class="td-student im-do-card">' : '') +
-             // The Log window's title and icon on top (2026-10-08), as in the Audit window.
-             '<div class="settings-title im-do-title"><span>' + inqEsc(name) + '<span class="win-sub"> · Log Lesson</span></span></div>' +
-             '<div class="im-do-icon">' + CLIPBOARD_ICON + '</div>' +
-             _imDoHtml(name) : '') +
     (o.card ? '</div>' : '');
 }
 
@@ -594,19 +598,6 @@ function _imRedraw() {
   if (_imLast) _imRenderStudent(_imLast.name, _imLast.lessons);
 }
 
-// Today's calendar lesson if there is one (so Home's Today grid ticks when it
-// saves), else a lesson dated today.
-function _imLog(name) {
-  window._imLogActive = name;
-  window._auditFixActive = false;
-  var today = (typeof todayStudents !== 'undefined' && todayStudents) || [];
-  for (var i = 0; i < today.length; i++) {
-    if (_imKey(today[i].name) === _imKey(name)) { openLogFresh(today[i], i); return; }
-  }
-  // yyyy/MM/dd: slashes parse in local time on the backend (see _stLogLessonFor).
-  var d = new Date(), m = d.getMonth() + 1, dd = d.getDate();
-  openLogFresh({ name: name, eventDate: d.getFullYear() + '/' + (m < 10 ? '0' + m : m) + '/' + (dd < 10 ? '0' + dd : dd), calType: 'regular' }, undefined);
-}
 
 // Reschedule opens on this page (2026-10-06, was a jump to Home): a window
 // with their next 8 weeks, Home's strips. A red day → Skip / Reschedule
@@ -658,7 +649,7 @@ function _imRsLoad(name) {
 
 // The HW-only or Log window saved an answer: refresh Last HW.
 function _imHwSaved(name) {
-  if (window._auDock) return;   // saved in the Audit window: this page redraws when you come back
+  if (window._imWin && window._imWin.name !== _imOpen) return;   // saved for someone not open here
   if (_imIn === 'today') { _tdRefresh(name); return; }
   if (_imOpen && _imKey(_imOpen) === _imKey(name)) _imLoadHw(_imOpen);
 }
