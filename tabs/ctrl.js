@@ -815,10 +815,26 @@ function _auditDateToEventDate(disp) {
 function openAuditLessonLog(name, disp) {
   var eventDate = _auditDateToEventDate(disp);
   if (!eventDate) { addLog("auditFeed", "Could not read date: " + disp, "error"); return; }
+  // Import's doing card in a window (2026-10-08): the Log window's title and
+  // icon, then Checklist, Log lesson, HW, Schedule (import.js _imDoHtml) for
+  // this lesson's date. All three ticked → Done ✓ and it closes.
+  if (window._logPanelHome || window._imDocked) closeLogPanel();
+  var p = eventDate.split("/"), day = new Date(+p[0], +p[1] - 1, +p[2]).toDateString();
+  var w = _stWin("auDockWin", inqEsc(name), "Log Lesson", CLIPBOARD_ICON, '<div class="im-do-card au-do">' + _imDoHtml(name, day) + '</div>');
+  w.querySelector(".st-win").classList.add("au-do-win");
+  w.onclick = function(e) { if (e.target === w) closeLogPanel(); };
+  w.querySelector("[data-close]").onclick = closeLogPanel;
+  var panel = document.getElementById("logPanel");
+  window._logPanelHome = { parent: panel.parentNode, next: panel.nextSibling, css: panel.style.cssText };
+  window._auDock = { name: name, day: day };
+  window._imDocked = true;
+  panel.style.cssText = "";
+  w.querySelector("#imLogDock").appendChild(panel);
+  _imHwOut();
   window._auditFixActive = true;
   window._auditResolve = { name: name, disp: disp };
-  _floatLogPanel();
   openLogFresh({ name: name, eventDate: eventDate, calType: "regular" }, undefined);
+  _imStepsRender();
 }
 
 // ─── OPTIMISTIC REMOVAL ──────────────────────────────────────────────────────

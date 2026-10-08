@@ -190,37 +190,47 @@ function _imLoggedToday(lessons) {
 //   HW          files in the drop zone → sent; Nothing to send → no HW
 //   Lesson log  ticks when the Log box's Log saves (the sheet says so on reopen)
 // HW picked before Log goes with the log; picked after, it saves on its own (saveHw).
-// Schedule is kept in this browser for the day (nothing in the sheets says "no change" yet).
-function _imSchedKey(name) { return 'imSched|' + _imKey(name) + '|' + new Date().toDateString(); }
-function _imSchedGet(name) { try { return localStorage.getItem(_imSchedKey(name)) || ''; } catch (e) { return ''; } }
-function _imSchedSet(name, v) {
-  try { if (v) localStorage.setItem(_imSchedKey(name), v); else localStorage.removeItem(_imSchedKey(name)); } catch (e) {}
-  var b = document.getElementById('imNoChangeBtn');
+// Schedule is kept in this browser for the lesson's day (nothing in the sheets says "no change" yet).
+// day: a Date's toDateString(); Import's is today, the Audit window's its lesson's.
+function _imSchedKey(name, day) { return 'imSched|' + _imKey(name) + '|' + (day || new Date().toDateString()); }
+function _imSchedGet(name, day) { try { return localStorage.getItem(_imSchedKey(name, day)) || ''; } catch (e) { return ''; } }
+function _imSchedSet(name, v, day) {
+  if (day === undefined) day = _imCtx().day;
+  try { if (v) localStorage.setItem(_imSchedKey(name, day), v); else localStorage.removeItem(_imSchedKey(name, day)); } catch (e) {}
+  var b = _imQ('imNoChangeBtn');
   if (b) b.classList.toggle('pressed', v === 'nochange');
   _imStepsRender();
 }
-function _imNoChangeToggle(name) { _imSchedSet(name, _imSchedGet(name) === 'nochange' ? '' : 'nochange'); }
+function _imNoChangeToggle(name) { var d = _imCtx().day; _imSchedSet(name, _imSchedGet(name, d) === 'nochange' ? '' : 'nochange', d); }
+
+// Where the doing card is open (2026-10-08): Import's student page, or the
+// Audit tab's Log window (ctrl.js openAuditLessonLog) for that lesson's date.
+function _imCtx() {
+  var a = window._auDock;
+  if (a) return { name: a.name, day: a.day, root: document.getElementById('auDockWin') };
+  return { name: _imOpen, day: null, root: document.getElementById('importBody') };
+}
+function _imQ(id) { var r = _imCtx().root; return r ? r.querySelector('#' + id) : null; }
 
 function _imStepsRender() {
-  var el = document.getElementById('imSteps');
-  if (!el || !_imOpen || !window._imDocked) return;
-  var name = _imOpen, hw = logHw, st = activeStudent;
-  var logged = !!(st && st.logged), sched = _imSchedGet(name);
+  var c = _imCtx(), el = _imQ('imSteps');
+  if (!el || !c.name || !window._imDocked) return;
+  var name = c.name, hw = logHw, st = activeStudent;
+  var logged = !!(st && st.logged), sched = _imSchedGet(name, c.day);
   // A status list (2026-10-06), not buttons: each line ticks itself when its
   // job is done elsewhere (Reschedule, the HW drop zone / Nothing to send, Log).
+  // The card's order (2026-10-08): Lesson log, HW, Schedule; each in its own colour while to do.
   var steps = [
-    { label: 'Schedule', done: !!sched,
-      note: sched === 'changed' ? 'changed' : sched === 'nochange' ? 'not needed' : '' },   // the button's word (2026-10-06)
-    { label: 'HW', done: !!(hw && hw.choice),
-      note: '' },   // just the tick (2026-10-07; was "nothing to send")
-    { label: 'Lesson log', done: logged, note: '' }
+    { label: 'Lesson log', cls: 'log', done: logged },
+    { label: 'HW', cls: 'hw', done: !!(hw && hw.choice) },
+    { label: 'Schedule', cls: 'sched', done: !!sched }
   ];
   if (!hw) steps.splice(1, 1);   // no HW question for this lesson (before HW tracking)
+  // Circle + label on one line (2026-10-08, back from the Trial pills): done ones dim.
   el.innerHTML = '<div class="im-checks">' + steps.map(function (x) {
-    return '<div class="im-check' + (x.done ? ' done' : '') + '"><i class="im-tick"></i><span>' + inqEsc(x.label) + '</span>' +
-      (x.note ? '<span class="im-check-note">' + inqEsc(x.note) + '</span>' : '') + '</div>';
+    return '<div class="im-check im-check-' + x.cls + (x.done ? ' done' : '') + '"><i class="im-tick"></i><span>' + inqEsc(x.label) + '</span></div>';
   }).join('') + '</div>';
-  var fin = document.getElementById('imFinDone');
+  var fin = _imQ('imFinDone');
   // Finished: logged, Schedule answered, HW answered and saved.
   var finished = logged && sched && (!hw || (hw.choice && hw.saved));
   if (fin) fin.textContent = finished ? 'Finished ✓' : '';
@@ -232,19 +242,24 @@ function _imStepsRender() {
 // so reopening an already finished one doesn't bounce you out (2026-10-07).
 ['click', 'drop'].forEach(function (ev) {
   document.addEventListener(ev, function (e) {
-    if (_imOpen && e.target.closest && e.target.closest('#importBody .im-do-card')) window._imActed = _imOpen;
+    if (!e.target.closest) return;
+    if (window._auDock && e.target.closest('#auDockWin')) window._imActed = window._auDock.name;
+    else if (_imOpen && e.target.closest('#importBody .im-do-card')) window._imActed = _imOpen;
   }, true);
 });
 // All done: the card dims, Done ✓, and back to the student list, where their card is green.
 function _imDone(name) {
-  var card = document.querySelector('#importBody .im-do-card');
+  var c = _imCtx(), card = c.root && c.root.querySelector('.im-do-card');
   if (!card) return;
   card.classList.add('im-done');
   var msg = document.createElement('div');
   msg.className = 'im-done-msg';
   msg.textContent = 'Done ✓';
   card.appendChild(msg);
-  setTimeout(function () { if (_imOpen === name) _imClose(); }, 1400);
+  setTimeout(function () {
+    if (window._auDock) { if (window._auDock.name === name) closeLogPanel(); }   // the Audit window closes
+    else if (_imOpen === name) _imClose();
+  }, 1400);
 }
 
 // Nothing to send (2026-10-06): the HW heading's button. Press again to undo
@@ -294,22 +309,49 @@ function _imHwChecked() {
 // Also its HW buttons row (#logHwHead) and Log's row (#logActions) go up to
 // the box titles.
 function _imHwOut() {
-  var hw = document.getElementById('logHw'), d = document.getElementById('imHwDock');
+  var hw = document.getElementById('logHw'), d = _imQ('imHwDock');
   if (hw && d && hw.parentNode !== d) d.appendChild(hw);
-  var head = document.getElementById('logHwHead'), t = document.getElementById('imHwTools');
+  var head = document.getElementById('logHwHead'), t = _imQ('imHwTools');
   if (head && t && head.parentNode !== t) t.appendChild(head);
-  var acts = document.getElementById('logActions'), a = document.getElementById('imLogActs');
-  if (acts && a && acts.parentNode !== a) a.appendChild(acts);
+  // Under the drop zone (2026-10-08): Nothing to send left, Browse right (both were on the HW title row).
+  var nb = document.getElementById('logHwNothing'), files = document.getElementById('logHwFiles');
+  var br = head && head.querySelector('.lh-folder-btn');
+  if (nb && files && files.parentNode && !(nb.parentNode && nb.parentNode.classList.contains('im-none-row'))) {
+    var row = document.createElement('div');
+    row.className = 'im-none-row';
+    files.parentNode.insertBefore(row, files.nextSibling);
+    row.appendChild(nb);
+    if (br) row.appendChild(br);
+  }
+  // Under the log rows (2026-10-08): add-row on the left, Log on the right.
+  var acts = document.getElementById('logActions'), add = document.getElementById('logAddRow'), dock = _imQ('imLogDock');
+  if (acts && add && dock && dock.contains(add)) {
+    var foot = dock.querySelector('.im-log-foot');
+    if (!foot) { foot = document.createElement('div'); foot.className = 'im-log-foot'; add.parentNode.insertBefore(foot, add); }
+    if (add.parentNode !== foot) foot.appendChild(add);
+    if (acts.parentNode !== foot) foot.appendChild(acts);
+  }
 }
 function _imHwBack() {
   var hw = document.getElementById('logHw'), panel = document.getElementById('logPanel'), acts = document.getElementById('logActions');
   var head = document.getElementById('logHwHead');
   if (!hw || !panel || !acts) return;
+  var foot = panel.querySelector('.im-log-foot'), add = document.getElementById('logAddRow');
+  if (foot) { if (add) panel.insertBefore(add, foot); foot.remove(); }
   if (acts.parentNode !== panel) panel.appendChild(acts);   // last in the window
   if (hw.parentNode !== panel) panel.insertBefore(hw, acts);
   if (head && head.parentNode !== hw) hw.insertBefore(head, hw.firstChild);
+  var nb = document.getElementById('logHwNothing'), tools = head && head.querySelector('.lh-hw-tools');
+  var br = document.querySelector('.im-none-row .lh-folder-btn');
+  if (br && tools) tools.appendChild(br);
+  if (nb && tools && nb.parentNode !== tools) {
+    var row = nb.parentNode;
+    tools.insertBefore(nb, tools.firstChild);
+    if (row && row.classList.contains('im-none-row')) row.remove();
+  }
 }
 function _imLift(body) {
+  if (window._auDock) return;   // the Log box is in the Audit window, not on this page
   _imHwBack();
   var panel = document.getElementById('logPanel');
   if (panel && body && body.contains(panel)) (window._logPanelHome ? window._logPanelHome.parent : document.body).appendChild(panel);
@@ -321,6 +363,13 @@ function _imLogClosed() {
   _imHwBack();
   if (!window._imDocked) return;
   window._imDocked = false;
+  // The Audit window: gone with it (2026-10-08).
+  if (window._auDock) {
+    window._auDock = null;
+    var w = document.getElementById('auDockWin');
+    if (w) w.remove();
+    return;
+  }
   // Checked after this turn: a tab switch closes the box first and only then
   // hides Import, so it must not come back in a tab that's going away.
   setTimeout(function () {
@@ -429,16 +478,30 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
     // the buttons sit on the title rows (Log; Nothing to send / Browse folder).
     // The Checklist box at the top of the doing card, its three steps on one line (2026-10-07).
     (o.log ? (o.card ? '</div><div class="td-student im-do-card">' : '') +
-             _imSec('Checklist', '<span class="im-fin" id="imFinDone"></span>', ' im-steps-row', '<div id="imSteps"></div>') +
-             _imSec('Log lesson', '<span id="imLogActs"></span>', ' im-log-box', '<div id="imLogDock"></div>') +
-             // HW in its own box (2026-10-06): the Log window's HW part, moved here.
-             _imSec('HW', '<span id="imHwTools"></span>', ' im-hw-dock-box', '<div id="imHwDock"></div>') +
-             // Schedule box: Reschedule and Not needed side by side (2026-10-06): like
-             // HW's Nothing to send, a click ticks Schedule, again undoes it.
-             _imSec('Schedule', '', ' im-sched-box',
-               '<button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Reschedule</button>' +
-               '<button class="link-btn im-rs-btn im-nochange' + (_imSchedGet(name) === 'nochange' ? ' pressed' : '') + '" id="imNoChangeBtn" onclick="_imNoChangeToggle(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Nothing to move or skip.\nPress again to undo.">Not needed</button>') : '') +
+             // The Log window's title and icon on top (2026-10-08), as in the Audit window.
+             '<div class="settings-title im-do-title"><span>' + inqEsc(name) + '<span class="win-sub"> · Log Lesson</span></span></div>' +
+             '<div class="im-do-icon">' + CLIPBOARD_ICON + '</div>' +
+             _imDoHtml(name) : '') +
     (o.card ? '</div>' : '');
+}
+
+// The doing card's boxes (shared with the Audit window, 2026-10-08): Checklist,
+// Log lesson (the Log window docks in #imLogDock), HW, Schedule. day: the
+// lesson's (Audit); Import's is today.
+function _imDoHtml(name, day) {
+  return (
+    _imSec('Checklist', '<span class="im-fin" id="imFinDone"></span>', ' im-steps-row', '<div id="imSteps"></div>') +
+    '<hr class="divider im-do-hr">' +
+    _imSec('Log lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
+    // HW in its own box (2026-10-06): the Log window's HW part, moved here.
+    '<hr class="divider im-do-hr">' +
+    _imSec('HW', '<span id="imHwTools"></span>', ' im-hw-dock-box', '<div id="imHwDock"></div>') +
+    // Schedule box: Reschedule and Not needed side by side (2026-10-06): like
+    // HW's Nothing to send, a click ticks Schedule, again undoes it.
+    '<hr class="divider im-do-hr">' +
+    _imSec('Schedule', '', ' im-sched-box',
+      '<button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Reschedule</button>' +
+      '<button class="link-btn im-rs-btn im-nochange' + (_imSchedGet(name, day) === 'nochange' ? ' pressed' : '') + '" id="imNoChangeBtn" onclick="_imNoChangeToggle(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Nothing to move or skip.\nPress again to undo.">Not needed</button>'));
 }
 
 // ── HW (2026-10-04): this student's rows from the HW Tracking sheet ──
@@ -595,6 +658,7 @@ function _imRsLoad(name) {
 
 // The HW-only or Log window saved an answer: refresh Last HW.
 function _imHwSaved(name) {
+  if (window._auDock) return;   // saved in the Audit window: this page redraws when you come back
   if (_imIn === 'today') { _tdRefresh(name); return; }
   if (_imOpen && _imKey(_imOpen) === _imKey(name)) _imLoadHw(_imOpen);
 }

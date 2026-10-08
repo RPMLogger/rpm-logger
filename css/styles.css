@@ -2225,3 +2225,43 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .db-all-empty { color: rgba(255,255,255,0.24); }
 .db-card-still .db-card-a { color: var(--warn); }   /* ages and EMPTY in amber (2026-10-06, was light blue) */
 .db-finder { color: var(--blue); }   /* Open in Finder icon in blue, like Files (2026-10-06, was green) */
+
+/* The doing card's top (2026-10-08): the Log window's title + icon, in Import and the Audit window. */
+.im-do-title { margin-bottom: 16px; }
+.im-do-title span { white-space: nowrap; }
+.im-do-icon { margin: 4px 0 18px; }
+.im-do-icon .win-icon { height: 18px; }
+.im-do-icon + .im-sec-head { margin-top: 0; }
+/* Audit's Log lesson window (2026-10-08): Import's doing card inside. */
+.st-win.au-do-win { width: min(620px, 94vw); }
+.au-do .im-list { padding: 16px; }
+.au-do .im-sec-head .field-label { display: inline-block; margin: 0; }
+.im-none-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; }   /* Nothing to send, bottom right of the drop zone (2026-10-08) */
+.im-steps-row .im-check { color: #d9a441; }   /* to-do steps amber, done ones dim (2026-10-08; was blue, then white) */
+/* Log lesson, HW, Schedule without their boxes (2026-10-08): the card's own background, fields out to its sides. */
+.im-list.im-log-box, .im-list.im-hw-dock-box, .im-list.im-sched-box { background: transparent; border: none; border-radius: 0; padding: 0; }
+/* Under the log rows (2026-10-08): add-row left, Log right (Log was on the title row). */
+.im-log-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+#imLogDock .im-log-foot .ll-add { margin: 0; }
+.im-log-foot #logActions { margin: 0 !important; gap: 10px; }
+.im-log-foot #logPanelStatus { flex: none !important; }
+/* A rule between the doing card's sections (2026-10-08), even room either side. */
+.im-do-hr { margin: 30px 0 0; }
+.im-do-hr + .im-sec-head { margin-top: 30px; }
+/* The clipboard is tall and narrow (2026-10-08): 28px high makes it ~19px wide, the other window icons' 20px look. */
+.im-do-icon .win-icon, .st-win.au-do-win .win-icon { height: 30px; }
+/* A little more room between each title and what's under it, in the doing card (2026-10-08; was 10px). */
+.im-do-card .im-sec-head { margin-bottom: 16px; }
+/* Checklist without its box too (2026-10-08): a status line, not a field. */
+.im-list.im-steps-row { background: transparent; border: none; border-radius: 0; padding: 0; }
+/* Log in the doing card in the Trial cards' green (2026-10-08; was bright, dim until typed). */
+#logPanel .im-log-foot #btnLog, #logPanel .im-log-foot #btnLog:disabled { color: var(--green); border-color: color-mix(in srgb, var(--green) 70%, transparent); background: color-mix(in srgb, var(--green) 12%, transparent); }
+#logPanel .im-log-foot #btnLog:disabled { cursor: default; }
+/* Checklist colours (2026-10-08, was all amber): Lesson log green, HW blue, Schedule green; done ones stay dim. */
+.im-steps-row .im-check-log, .im-steps-row .im-check-sched { color: var(--green); }
+.im-steps-row .im-check-hw { color: var(--blue); }
+.im-steps-row .im-check.done { color: rgba(255,255,255,0.35); }
+/* More air under the icon and after the Schedule buttons (2026-10-08). */
+.im-do-icon { margin-bottom: 42px; }
+.au-do { margin-top: 24px; }   /* the window's icon row keeps _stWin's 18px; this adds the rest */
+.im-do-card .im-sched-box { margin-bottom: 26px; }
