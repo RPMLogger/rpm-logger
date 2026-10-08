@@ -497,7 +497,7 @@ function loadIncomingPayments() {
 
 // Payments the hourly backend job recorded on its own (RPM_AutoConfirm.gs):
 // exact name + exactly 4x the student's rate. Last 14 days, newest first.
-// Same card as Incoming, with a green circled check where the buttons go. Sits
+// Same card as Incoming, with AUTO over a green circled check where the buttons go. Sits
 // below the pending cards, outside #incomingPayments, so checkEmptyIncoming
 // never wipes it.
 function renderAutoConfirmed(rows) {
@@ -525,7 +525,9 @@ function renderAutoConfirmed(rows) {
             "<span class='incoming-date'>" + shortDate(r.date) + "</span>" +
           "</div>" +
         "</div>" +
-        "<span style='flex-shrink:0;display:inline-flex;color:var(--green)'>" + PAID_CHECK_ICON + "</span>" +
+        "<span style='flex-shrink:0;display:inline-flex;flex-direction:column;align-items:center;gap:5px;color:var(--green)'>" +
+          "<span style='font-family:\"DM Mono\",monospace;font-size:9px;letter-spacing:.12em'>AUTO</span>" +
+          PAID_CHECK_ICON.replace('width="13" height="13"', 'width="15" height="15"') + "</span>" +
       "</div>";
     }).join("");
 }
