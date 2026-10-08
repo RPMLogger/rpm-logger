@@ -447,6 +447,7 @@ function loadIncomingPayments() {
     .then(function(data) {
       container.innerHTML = "";
       var tabBtn = document.querySelector(".tab-btn[onclick*=\"payments\"]");
+      renderAutoConfirmed(data.autoRecent);
 
       if (!data.success || !data.payments || !data.payments.length) {
         container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>None</div>";
@@ -493,6 +494,41 @@ function loadIncomingPayments() {
     });
 }
 
+
+// Payments the hourly backend job recorded on its own (RPM_AutoConfirm.gs):
+// exact name + exactly 4x the student's rate. Last 14 days, newest first.
+// Same card as Incoming, dimmed, with an Auto tag where the buttons go. Sits
+// below the pending cards, outside #incomingPayments, so checkEmptyIncoming
+// never wipes it.
+function renderAutoConfirmed(rows) {
+  var box = document.getElementById("autoConfirmed");
+  if (!box) {
+    var inc = document.getElementById("incomingPayments");
+    if (!inc) return;
+    box = document.createElement("div");
+    box.id = "autoConfirmed";
+    inc.parentNode.insertBefore(box, inc.nextSibling);
+  }
+  if (!rows || !rows.length) { box.innerHTML = ""; return; }
+  box.innerHTML =
+    "<div style='color:var(--muted);font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin:18px 0 8px' " +
+      "data-tip='Recorded without a Confirm press.\nExact name and exactly 4x the student&#39;s rate.\nLast 14 days.'>Auto-confirmed</div>" +
+    rows.map(function(r) {
+      return "<div class='incoming-card' style='opacity:.55'>" +
+        "<div class='incoming-left'>" +
+          "<div class='incoming-name'>" + r.name + "</div>" +
+          "<div class='incoming-meta'>" +
+            "<span class='incoming-method " + r.method.toLowerCase() + "'>" + r.method + "</span>" +
+            "<span class='incoming-amount'>" + r.amount + "</span>" +
+            "<span class='incoming-date'>" + shortDate(r.date) + "</span>" +
+          "</div>" +
+        "</div>" +
+        "<span style='flex-shrink:0;display:inline-flex;align-items:center;gap:8px;color:var(--green)'>" + PAID_CHECK_ICON +
+          "<span style='font-family:\"DM Mono\",monospace;font-size:10px;letter-spacing:.12em;" +
+          "border:1px solid var(--green);border-radius:6px;padding:5px 10px'>AUTO</span></span>" +
+      "</div>";
+    }).join("");
+}
 
 // Takes the whole payment, not just the thread id, so the Dismissed tab records a
 // readable row (date, name, method, amount) instead of an opaque Gmail id. Also
