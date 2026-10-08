@@ -600,7 +600,7 @@ function _dxGrid() {
       return td(off ? "miss" : "", _dxShort(sl.imp.date), "imp", k, off ? "Import has a different date than the Counter here." : "");
     }
     if (has && sl.impUnknown) return '<td class="empty" data-tip="Older than what Import sent here.\nSee the sheet.">·</td>';
-    if (has) return td("miss" + (k === firstMiss ? " go" : ""), _dxShort(sl.counter.value), "imp", k,
+    if (has) return td("miss unlog" + (k === firstMiss ? " go" : ""), _dxShort(sl.counter.value), "imp", k,
       k === firstMiss ? "Opens the Log lesson window.\nLogs " + _dxShort(sl.counter.value) + " into Students Import." : "Log the earlier date first.\nImport fills its rows in order.");
     return '<td class="empty"></td>';
   });
@@ -1021,7 +1021,7 @@ function _auGridHtml(grid, missing, nmArg, locked, noCal) {
     var n = _psNormD(d);
     if (!miss[n]) return '<td>' + _auEsc(d) + '</td>';
     var go = n === first && !locked;
-    return '<td class="miss au-gcell' + (go ? ' go' : '') + '" data-d="' + _auEsc(d) + '"' +
+    return '<td class="miss unlog au-gcell' + (go ? ' go' : '') + '" data-d="' + _auEsc(d) + '"' +
       (go ? ' onclick="_auGridLog(this,' + nmArg + ')" data-tip="Opens the Log lesson window.\nLogs ' + _auEsc(d) + ' into Students Import."'
           : ' data-tip="' + (locked ? 'Calendar and Counter disagree.\nFix that first with Mismatch.' : 'Log the earlier date first.\nImport fills its rows in order.') + '"') + '>' + _auEsc(d) + '</td>';
   });
@@ -1157,6 +1157,8 @@ function _auSyncCard(st) {
       // Lessons to log: amber, however many (the red grid cells show them).
       // Anything else wrong (sheets disagree, count off): red.
       '<div class="au-sub ' + (st.missing.length && !mismatch ? 'due' : 'over') + '">' + _auEsc(bits.join(" · ")) + '</div>' +
+      // UNLOGGED tag under it (2026-10-08): the Venmo / Zelle badge look, in the blue cells' blue.
+      (st.missing.length ? '<div class="au-unlog-row"><span class="au-unlog-tag">Unlogged</span></div>' : '') +
       rows + chips +
       // Same foot as the Unpaid cards: rule, dim action left, Fix right.
       (gridNoRule && !st.warnings.length

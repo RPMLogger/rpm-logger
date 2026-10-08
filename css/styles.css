@@ -646,6 +646,11 @@ body::before {
 .au-grid td.miss { background: rgba(255,90,77,0.15); color: #ff5a4d; }
 .au-grid td.miss.go { box-shadow: inset 0 0 0 1px rgba(255,90,77,0.6); cursor: pointer; }
 .au-grid td.miss.go:hover { background: rgba(255,90,77,0.26); }
+/* Not logged yet: blue (2026-10-08), so it isn't read as the payment emails' red unpaid box.
+   Real mismatches (Import's date differs, calendar not counted) stay red. */
+.au-grid td.miss.unlog { background: rgba(74,158,255,0.15); color: var(--blue); }
+.au-grid td.miss.unlog.go { box-shadow: inset 0 0 0 1px rgba(74,158,255,0.6); }
+.au-grid td.miss.unlog.go:hover { background: rgba(74,158,255,0.26); }
 /* ─── FIX WINDOW (Audit), the Trial window look (2026-09-28) ─────────────── */
 .fx-modal { max-width: 720px; width: 94%; max-height: 90vh; overflow-y: auto; overflow-x: hidden; }
 .fx-block { margin-bottom: 12px; }
@@ -2260,3 +2265,6 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-do-card .im-sched-box { margin-bottom: 26px; }
 /* Import's Log lesson when it isn't their lesson day (2026-10-08): grey, its tooltip says why. */
 .link-btn.im-log-off, .link-btn.im-log-off:hover { color: rgba(255,255,255,.18); border-color: rgba(122,122,122,.22); background: transparent; cursor: default; }
+.au-unlog-tag { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 2px; color: var(--blue); background: rgba(74,158,255,0.15); }   /* Venmo / Zelle badge shape (2026-10-08) */
+.au-unlog-row { margin-top: 8px; }
