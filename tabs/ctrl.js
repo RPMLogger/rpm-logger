@@ -137,7 +137,6 @@ function _auEsc(v) {
 // Two lines (2026-09-29): the status alone in colour, then the lesson in grey.
 function _auStatusLine(s) {
   var owes = s.owes || 0, n = s.lessonNum;
-  if (s.status === "Due at this lesson") return { cls: "due", text: "Due at this lesson", detail: "Lesson 4 · Today" };
   if (s.status === "Overdue") {
     return { cls: "over", text: "Overdue" + (owes >= 2 ? " · Owes " + owes + " blocks" : ""), detail: "Finished · Lesson 4" };
   }
