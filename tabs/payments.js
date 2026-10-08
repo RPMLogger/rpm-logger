@@ -512,7 +512,7 @@ function renderAutoConfirmed(rows) {
   if (!rows || !rows.length) { box.innerHTML = ""; return; }
   box.innerHTML =
     "<div class='section-label' style='margin-top:56px;margin-bottom:26px' " +
-      "data-tip='Recorded without a Confirm press.\nExact name and exactly 4x the student&#39;s rate.\nLast 14 days.'>Auto-confirmed</div>" +
+      "data-tip='Recorded without a Confirm press when all 4 hold:\n1. Venmo or Zelle, not a trial payment.\n2. Name exactly matches one student.\n3. Amount is exactly 4x their rate.\n4. Not already recorded.\nLast 14 days.'>Auto-confirmed</div>" +
     rows.map(function(r) {
       // The Payments log keeps amounts as plain numbers ("440"); show them like Incoming ("$440.00").
       var amt = /^\$/.test(r.amount) ? r.amount : "$" + (parseFloat(r.amount) || 0).toFixed(2);
