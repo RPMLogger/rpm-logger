@@ -2312,3 +2312,6 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--blue) 55%, transparent); }   /* the UNLOGGED tag's look */
 /* Dropbox Overview boxes a step lighter than the page (2026-10-08), like boxes everywhere else: #1a1a1a, was the page's #0f0f0f. */
 .db-audit, .db-bar { background: var(--surface); }
+/* Today tab with no lessons (2026-10-08): the resting figure above the line. */
+.td-rest { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 40px; }
+.td-rest .rest-icon { height: 64px; width: auto; color: var(--muted); opacity: .7; }

@@ -16,7 +16,8 @@ function initImportTab() {
   _imIn = 'import';
   // Today's students go first: a week read from an earlier day is read again (2026-10-07).
   if (window._weekFetchedDay && window._weekFetchedDay !== _tdYmd()) { var wu = getScriptUrl(); if (wu) fetchWeekStudents(wu); }
-  if (_imOpen) { _imOpenStudent(_imOpen); return; }
+  // Always the student list when you come to the tab (2026-10-08, was the last student opened).
+  _imOpen = null; _imLast = null;
   if (_imRoster) { _imRenderCards(); return; }
   var body = document.getElementById('importBody');
   body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
@@ -60,7 +61,7 @@ function _imRenderCards(noRead) {
   });
   body.innerHTML =
     '<div class="db-section">' +
-      '<div class="settings-title"><span>Import<span class="win-sub"> · Students</span></span></div>' +
+      '<div class="settings-title"><span>Lesson Log<span class="win-sub"> · Students</span></span></div>' +   // was "Import" (2026-10-09)
       // The student page's box-title style (2026-10-06): one heading look on this tab.
       '<div class="db-cx-head im-sec-head im-cards-head"><label class="field-label db-cx-t">' + names.length + ' students</label></div>' +
       names.map(function (n) {
@@ -229,7 +230,8 @@ function _imRunQueue(q, onEach) {
 function _imLogOpen(name) {
   var q = _imQueue(name);
   if (!q.length) return;
-  _imRunQueue(q, function () { window._imLogActive = name; });   // a save redraws this student's page under the window
+  // A save redraws this student's page under the window; the last Done goes back to the list.
+  _imRunQueue(q, function () { window._imLogActive = name; if (window._imWin) window._imWin.fromImport = true; });
 }
 
 // Today's lesson in the list (newest first, dates like "Oct /6"): its text, or null.
@@ -382,9 +384,10 @@ function _imDone(name) {
   setTimeout(function () {
     var w = window._imWin;
     if (!w || w.name !== name) return;
-    var next = w.next;
+    var next = w.next, fromImport = w.fromImport;
     closeLogPanel();   // the window closes
     if (next) next();  // the student's next open lesson (2026-10-08)
+    else if (fromImport && _imOpen && _imKey(_imOpen) === _imKey(name)) _imClose();   // the last one: back to the list, their card green
   }, 1400);
 }
 
@@ -602,7 +605,7 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
     // Each box's small title sits above it, outside its border (2026-10-06).
     // Notes first (2026-10-06): what to mention, before anything else.
     _imSec('Notes', '', '', '<div class="im-notes-in">' + _imNotesBoxHtml(detail, name) + '</div>') +
-    _imSec('Lessons log', '<button class="link-btn im-sort-btn" onclick="_imToggleSort()" data-tip="Flips the list.">' + (_imNewestFirst() ? 'Newest' : 'Oldest') + '</button>',
+    _imSec('History', '<button class="link-btn im-sort-btn" onclick="_imToggleSort()" data-tip="Flips the list.">' + (_imNewestFirst() ? 'Newest' : 'Oldest') + '</button>',
       '', items.length ? html + more : 'No lessons logged yet') +
     _imSec('HW sent - last', '', '', '<div class="db-files db-files-in">' + _imLastHwHtml(hw, name) + '</div>') +
     // Log lesson, always open, its HW the Dropbox drop area; Checklist, the

@@ -34,7 +34,7 @@ function _travelTopBar() {
     'padding:8px 12px;border-radius:6px;margin-bottom:12px;font-size:11px;' +
     (_travelState.testMode
       ? 'background:rgba(255,180,0,0.12);border:1px solid rgba(255,180,0,0.5);color:#ffb400'
-      : 'background:transparent;border:1px solid var(--border);color:var(--muted)');
+      : 'background:var(--surface);border:1px solid var(--border);color:var(--muted)');   // the box colour, a step off the page (2026-10-08)
   var label = _travelState.testMode
     ? '🧪 TEST MODE — texts go to YOUR phone · calendar: redpickmusic@gmail.com'
     : 'LIVE MODE — texts go to students · Weekly + Biweekly calendars';

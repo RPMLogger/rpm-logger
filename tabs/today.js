@@ -55,7 +55,8 @@ function _tdRender() {
   var now = new Date();
   var head = '<div class="settings-title"><span>Today<span class="win-sub"> · ' +
     ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()] + ', ' + MONTHS[now.getMonth()] + ' ' + now.getDate() + '</span></span></div>';
-  if (!list.length) { body.innerHTML = head + '<div class="empty-state">No lessons today</div>'; return; }
+  // A day off (2026-10-08): the resting figure over the line (om-82).
+  if (!list.length) { body.innerHTML = head + '<div class="empty-state td-rest">' + REST_ICON + '<div>No lessons today!</div></div>'; return; }
   list.forEach(function (s) { if (!_td.data[_imKey(s.name)]) _tdLoad(s.name); });
   // At the top (2026-10-06): how many, and a mini list of times + names; a
   // name jumps to its card.
