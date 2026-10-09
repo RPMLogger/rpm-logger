@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=790">
+  <link rel="stylesheet" href="css/styles.css?v=791">
 </head>
 <body>
 <div class="container">
@@ -35,35 +35,19 @@
   <!-- TABS — built tabs in a flat grid, alphabetical by label. Unbuilt tabs live
        in the "Coming Soon" dropdown (last cell); move a button out when its tab is built.
        Trip tabs live in "Vacation"; pre-student tabs (Inquiries, Initiate, Trial) in "Intake";
-       Availability, General, Skips, Trial Analysis in "Data" (pinned 3rd, after Intake + Audit);
+       Availability, General, Skips, Trial Analysis in "Data" (after the first row, see below);
        Calendar and Fixed Calendar in "Calendar".
        A .nav-drop can hold any group of tabs.
        switchTab selects by data-tab, so button order is free to change. -->
   <div class="tabs">
-    <!-- Today first (2026-10-07): the landing tab, ahead of the alphabetical grid. -->
-    <button class="tab-btn" data-tab="today" onclick="switchTab('today')">Today</button>
-    <div class="nav-drop">
-      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Intake ▾</button>
-      <div class="nav-menu">
-        <button class="tab-btn nav-item" data-tab="inquiries" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
-        <button class="tab-btn nav-item" data-tab="initiate" onclick="switchTab('initiate')">Initiate<span class="inq-badge" id="initNavBadge" style="display:none"></span></button>
-        <button class="tab-btn nav-item" data-tab="trial" onclick="switchTab('trial')">Trial</button>
-      </div>
-    </div>
+    <!-- First row (2026-10-09, user's order): Lesson Log, Audit, Calendar, Intake,
+         Dropbox, then Today; the rest stay alphabetical. -->
+    <button class="tab-btn" data-tab="import" onclick="switchTab('import')">Lesson Log</button>
     <div class="nav-drop">
       <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Audit ▾</button>
       <div class="nav-menu">
         <button class="tab-btn nav-item" data-tab="payments" onclick="switchTab('payments')">Payments</button>
         <button class="tab-btn nav-item" data-tab="ctrl" onclick="switchTab('ctrl')">Logs</button>
-      </div>
-    </div>
-    <div class="nav-drop">
-      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Data ▾</button>
-      <div class="nav-menu">
-        <button class="tab-btn nav-item" data-tab="availability" onclick="switchTab('availability')">Availability</button>
-        <button class="tab-btn nav-item" data-tab="general" onclick="switchTab('general')">General</button>
-        <button class="tab-btn nav-item" data-tab="skips" onclick="switchTab('skips')">Skips</button>
-        <button class="tab-btn nav-item" data-tab="trialanalysis" onclick="switchTab('trialanalysis')">Trial Analysis</button>
       </div>
     </div>
     <div class="nav-drop">
@@ -73,7 +57,14 @@
         <button class="tab-btn nav-item" data-tab="fixedcal" onclick="switchTab('fixedcal')">Fixed Calendar</button>
       </div>
     </div>
-    <button class="tab-btn" data-tab="comms" onclick="switchTab('comms')">Comms<span class="inq-badge" id="commsNavBadge" style="display:none"></span></button>
+    <div class="nav-drop">
+      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Intake ▾</button>
+      <div class="nav-menu">
+        <button class="tab-btn nav-item" data-tab="inquiries" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
+        <button class="tab-btn nav-item" data-tab="initiate" onclick="switchTab('initiate')">Initiate<span class="inq-badge" id="initNavBadge" style="display:none"></span></button>
+        <button class="tab-btn nav-item" data-tab="trial" onclick="switchTab('trial')">Trial</button>
+      </div>
+    </div>
     <div class="nav-drop">
       <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Dropbox ▾</button>
       <div class="nav-menu">
@@ -81,10 +72,21 @@
         <button class="tab-btn nav-item" data-tab="dbxtemplates" onclick="switchTab('dbxtemplates')">Templates</button>
       </div>
     </div>
+    <!-- Today (2026-10-07): still the landing tab. -->
+    <button class="tab-btn" data-tab="today" onclick="switchTab('today')">Today</button>
+    <div class="nav-drop">
+      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Data ▾</button>
+      <div class="nav-menu">
+        <button class="tab-btn nav-item" data-tab="availability" onclick="switchTab('availability')">Availability</button>
+        <button class="tab-btn nav-item" data-tab="general" onclick="switchTab('general')">General</button>
+        <button class="tab-btn nav-item" data-tab="skips" onclick="switchTab('skips')">Skips</button>
+        <button class="tab-btn nav-item" data-tab="trialanalysis" onclick="switchTab('trialanalysis')">Trial Analysis</button>
+      </div>
+    </div>
+    <button class="tab-btn" data-tab="comms" onclick="switchTab('comms')">Comms<span class="inq-badge" id="commsNavBadge" style="display:none"></span></button>
     <button class="tab-btn" data-tab="financial" onclick="switchTab('financial')">Financial<span class="inq-badge" id="finNavBadge" style="display:none">!</span></button>
     <button class="tab-btn" data-tab="holidays" onclick="switchTab('holidays')">Holidays Alerts</button>
     <button class="tab-btn" data-tab="student" onclick="switchTab('student')">Home</button>
-    <button class="tab-btn" data-tab="import" onclick="switchTab('import')">Lesson Log</button>
     <button class="tab-btn" data-tab="mailcenter" onclick="switchTab('mailcenter')">Mail Center<span class="inq-badge" id="gbNavBadge" style="display:none"></span></button>
     <button class="tab-btn" data-tab="newsched" onclick="switchTab('newsched')">New Students</button>
     <button class="tab-btn" data-tab="notes" onclick="switchTab('notes')">Notes</button>
@@ -842,7 +844,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">790</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">791</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -862,43 +864,43 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=790"></script>
-<script src="core/storage.js?v=790"></script>
-<script src="core/utils.js?v=790"></script>
-<script src="core/dialog.js?v=790"></script>
-<script src="core/api.js?v=790"></script>
+<script src="core/state.js?v=791"></script>
+<script src="core/storage.js?v=791"></script>
+<script src="core/utils.js?v=791"></script>
+<script src="core/dialog.js?v=791"></script>
+<script src="core/api.js?v=791"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=790"></script>
-<script src="tabs/lessons.js?v=790"></script>
-<script src="tabs/payments.js?v=790"></script>
-<script src="tabs/week.js?v=790"></script>
-<script src="tabs/general.js?v=790"></script>
-<script src="tabs/financial.js?v=790"></script>
-<script src="tabs/inquiries.js?v=790"></script>
-<script src="tabs/inqarchive.js?v=790"></script>
-<script src="tabs/comms.js?v=790"></script>
-<script src="tabs/notes.js?v=790"></script>
-<script src="tabs/todo.js?v=790"></script>
-<script src="tabs/availability.js?v=790"></script>
-<script src="tabs/travel.js?v=790"></script>
-<script src="tabs/tripsummary.js?v=790"></script>
-<script src="tabs/triphistory.js?v=790"></script>
-<script src="tabs/skips.js?v=790"></script>
-<script src="tabs/student.js?v=790"></script>
-<script src="tabs/ctrl.js?v=790"></script>
-<script src="tabs/mailcenter.js?v=790"></script>
-<script src="tabs/dropbox.js?v=790"></script>
-<script src="tabs/import.js?v=790"></script>
-<script src="tabs/today.js?v=790"></script>
-<script src="tabs/trial.js?v=790"></script>
-<script src="tabs/ending.js?v=790"></script>
-<script src="tabs/thisyear.js?v=790"></script>
-<script src="tabs/sheets.js?v=790"></script>
-<script src="tabs/studentline.js?v=790"></script>
-<script src="tabs/calendar.js?v=790"></script>
-<script src="tabs/fixedcal.js?v=790"></script>
-<script src="tabs/secretary.js?v=790"></script>
+<script src="tabs/icons.js?v=791"></script>
+<script src="tabs/lessons.js?v=791"></script>
+<script src="tabs/payments.js?v=791"></script>
+<script src="tabs/week.js?v=791"></script>
+<script src="tabs/general.js?v=791"></script>
+<script src="tabs/financial.js?v=791"></script>
+<script src="tabs/inquiries.js?v=791"></script>
+<script src="tabs/inqarchive.js?v=791"></script>
+<script src="tabs/comms.js?v=791"></script>
+<script src="tabs/notes.js?v=791"></script>
+<script src="tabs/todo.js?v=791"></script>
+<script src="tabs/availability.js?v=791"></script>
+<script src="tabs/travel.js?v=791"></script>
+<script src="tabs/tripsummary.js?v=791"></script>
+<script src="tabs/triphistory.js?v=791"></script>
+<script src="tabs/skips.js?v=791"></script>
+<script src="tabs/student.js?v=791"></script>
+<script src="tabs/ctrl.js?v=791"></script>
+<script src="tabs/mailcenter.js?v=791"></script>
+<script src="tabs/dropbox.js?v=791"></script>
+<script src="tabs/import.js?v=791"></script>
+<script src="tabs/today.js?v=791"></script>
+<script src="tabs/trial.js?v=791"></script>
+<script src="tabs/ending.js?v=791"></script>
+<script src="tabs/thisyear.js?v=791"></script>
+<script src="tabs/sheets.js?v=791"></script>
+<script src="tabs/studentline.js?v=791"></script>
+<script src="tabs/calendar.js?v=791"></script>
+<script src="tabs/fixedcal.js?v=791"></script>
+<script src="tabs/secretary.js?v=791"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
