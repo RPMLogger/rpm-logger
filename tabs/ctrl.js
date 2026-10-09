@@ -10,7 +10,7 @@ function initAuditTab() {
     return;
   }
   _runSyncAudits(url);
-  _runHwAudit(url);
+  _runCkAudit(url);
   // Unpaid Students moved to the Payments tab (2026-09-28); it loads there.
 }
 
@@ -71,47 +71,50 @@ function _runAudit3(url) {
     .catch(function() { _auditSectionFail(section, "No answer from Google."); });
 }
 
-// ─── MISSING HW (2026-10-04) ─────────────────────────────────────────────────
-// Lessons in Students Import from HW_START on with no Sent / No HW answer in
-// the HW Tracking sheet (backend getHwAudit). One card per student, the dates
-// in grey; Log HW opens the Log window in HW-only mode for the oldest one,
-// and the section reloads once it saves (lessons.js _logHwSaved).
-function _runHwAudit(url) {
-  var section = document.getElementById("auditHwSection");
+// ─── LESSON CHECKLIST (2026-10-08, replaces Missing HW) ─────────────────────
+// Lessons from the Lesson Checklist start (Oct 9) still missing Log, HW or
+// Schedule (getChecklistAudit, read by import.js _ckLoad). One card per
+// student: each lesson's date and what's left. Open runs the Log lesson
+// window through them, oldest first; each window shows what's already done.
+// cached: draw from what _ckLoad last read (after a window closes).
+function _runCkAudit(url, cached) {
+  var section = document.getElementById("auditCkSection");
   if (!section) return;
+  function draw(err) {
+    if (err) { _auditSectionFail(section, err); return; }
+    var list = _ck.audit || [];
+    section.innerHTML = list.length ? list.map(_auCkCard).join("") : '<div class="empty-state">None</div>';
+  }
+  if (cached) { draw(null); return; }
   section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
-  fetch((url || getScriptUrl()) + "?action=getHwAudit")
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.success) { _auditSectionFail(section, data.message || "unknown"); return; }
-      var list = data.audit || [];
-      section.innerHTML = list.length ? list.map(_auHwCard).join("") : '<div class="empty-state">None</div>';
-    })
-    .catch(function() { _auditSectionFail(section, "No answer from Google."); });
+  _ckLoad(draw);
 }
 
-function _auHwDay(k) {   // "2026-10-03" → "Oct 3"
-  var p = String(k).split("-");
-  return MONTHS[parseInt(p[1], 10) - 1] + " " + parseInt(p[2], 10);
-}
-
-function _auHwCard(s) {
-  var n = s.dates.length, nm = _auEsc(s.name), oldest = s.dates[0];
+function _auCkCard(a) {
+  var n = a.lessons.length, nm = _auEsc(a.name);
   return '<div class="inq-dcard au-card">' +
       '<div class="inq-name-line"><span class="inq-name">' + nm + '</span></div>' +
-      '<div class="au-sub due">No HW answer' + (n > 1 ? ' · ' + n + ' lessons' : '') + '</div>' +
-      '<div class="au-sub" style="color:var(--muted)">' + s.dates.map(_auHwDay).join(" · ") + '</div>' +
+      '<div class="au-sub due">' + n + (n === 1 ? ' lesson open' : ' lessons open') + '</div>' +
+      '<div class="au-ck-list">' + a.lessons.map(function(l) {
+        return '<div class="au-ck-line"><span class="au-ck-d">' + _ckDay(l.date) + '</span>' +
+          '<span class="au-ck-m">' + l.missing.map(function(m) { return '<span class="au-ck-tag">' + m + '</span>'; }).join("") + '</span></div>';
+      }).join("") + '</div>' +
       '<hr class="divider" style="margin:24px 0 27px">' +
       '<div class="au-acts"><span class="au-state"></span>' +
-        '<button class="link-btn bright opens-window" onclick="_auHwLog(' + _auEsc(JSON.stringify(s.name)) + ',\'' + oldest + '\')" ' +
-          'data-tip="Opens a window.\nSent or No HW for ' + _auHwDay(oldest) + '.' + (n > 1 ? '\n(Oldest first.)' : '') + '" data-tip-wrap data-tip-left>Log HW</button>' +
+        '<button class="link-btn bright opens-window" onclick="_auCkOpen(' + _auEsc(JSON.stringify(a.name)) + ')" ' +
+          'data-tip="Opens a window.\n' + _ckDay(a.lessons[0].date) + (n > 1 ? ' first, then the next.' : '.') + '" data-tip-wrap data-tip-left>Open</button>' +
       '</div>' +
     '</div>';
 }
 
-function _auHwLog(name, date) {
-  window._auditHwActive = true;
-  openLogFresh({ name: name, eventDate: date.replace(/-/g, "/"), calType: "regular" }, undefined, { hwOnly: true });
+function _auCkOpen(name) {
+  var i = _imTodayIdx(name), today = _tdYmd();
+  var q = (_ck.byName[_imKey(name)] || []).map(function(it) {
+    var cal = it.date === today && i >= 0;   // today's: the calendar lesson (its time)
+    return { date: it.date, item: it, idx: cal ? i : undefined,
+             student: cal ? todayStudents[i] : { name: name, eventDate: it.date.replace(/-/g, "/"), calType: "regular" } };
+  });
+  _imRunQueue(q, function() { window._auditFixActive = true; });   // a log reloads the Audit lists
 }
 
 // A section that could not load: the Trial tab's red badge, reason in its tooltip.
@@ -834,8 +837,8 @@ function openAuditLessonLog(name, disp) {
   // The Log lesson window (2026-10-08, import.js _imLogWinOpen): Checklist,
   // Log lesson, HW, Schedule for this lesson's date. All three ticked → Done ✓, it closes.
   // eventDate is "2026-10-06T12:00:00" (_auditDateToEventDate).
-  var p = String(eventDate).match(/^(\d{4})-(\d{2})-(\d{2})/);
-  _imLogWinOpen({ name: name, eventDate: eventDate, calType: "regular" }, undefined, new Date(+p[1], +p[2] - 1, +p[3]).toDateString());
+  var p = String(eventDate).match(/^(\d{4})-(\d{2})-(\d{2})/), day = p[1] + "-" + p[2] + "-" + p[3];
+  _imLogWinOpen({ name: name, eventDate: eventDate, calType: "regular" }, undefined, day, _ckItem(name, day));
   window._auditFixActive = true;
   window._auditResolve = { name: name, disp: disp };
 }

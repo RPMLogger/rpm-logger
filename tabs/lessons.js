@@ -10,7 +10,6 @@ function closeLogPanel() {
   document.querySelectorAll(".today-btn").forEach(function(b) { b.classList.remove("recording"); });
   activeStudent = null;
   logHw = null;
-  window._auditHwActive = false;
   window._imLogActive = null;
   _logHwOnly(false);
   window._auditFixActive = false;
@@ -575,11 +574,11 @@ function _logHwRender() {
   // The zone starts empty (2026-10-07): no "Checking Dropbox…" while it asks
   // whether this lesson was answered already; drops work meanwhile.
   if (hw.loading && !hw.files.length) list.innerHTML = dim + "⬆ Drag files or folders or browse</span>";
-  else if (hw.loading) list.innerHTML = _dbDetailsFilesHtml({ items: hw.files }) + "<div class='lh-drop-more'>⬆ Drop more here</div>";
+  else if (hw.loading) list.innerHTML = _dbDetailsFilesHtml({ items: hw.files }) + "<div class='lh-drop-more'><span class='link-btn'>⬆ Drop more here</span></div>";
   // Grey like the rest of the zone (2026-10-06, was amber), and says what to do.
   else if (hw.error) list.innerHTML = dim + "Couldn't check their Dropbox.</span>";
   else if (!hw.files.length) list.innerHTML = dim + (hw.noFolder ? "No Dropbox folder named " + inqEsc(hw.name) : "⬆ Drag files or folders or browse") + "</span>";
-  else list.innerHTML = _dbDetailsFilesHtml({ items: hw.files }) + "<div class='lh-drop-more'>⬆ Drop more here</div>";
+  else list.innerHTML = _dbDetailsFilesHtml({ items: hw.files }) + "<div class='lh-drop-more'><span class='link-btn'>⬆ Drop more here</span></div>";
   list.classList.toggle("lh-empty", !hw.error && !hw.files.length);
   list.style.opacity = hw.choice === "none" && hw.files.length ? ".4" : "";   // No HW: the files aren't this lesson's
   var n = hw.files.length;
@@ -632,11 +631,5 @@ function logHwSaveOnly() {
 // Tell the Dropbox tab (its Today card and the open student page).
 function _logHwSaved(name, hw) {
   if (!hw) return;
-  // Opened from the Audit tab's Missing HW: reload that list. (A Log lesson
-  // from Audit reloads the whole tab, this list included.)
-  if (window._auditHwActive && typeof _runHwAudit === "function") {
-    window._auditHwActive = false;
-    _runHwAudit();
-  }
   if (typeof _imHwSaved === "function") _imHwSaved(name);   // Import's Last HW
 }

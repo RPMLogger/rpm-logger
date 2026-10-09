@@ -43,6 +43,9 @@ function _imRenderCards(noRead) {
   // Today's lesson logged (2026-10-07): green when Schedule and HW are done too,
   // else the amber card says what's missing; clicking it reopens it to edit.
   var logged = (todayStudents || []).filter(function (s) { return s.alreadyLogged; }).map(function (s) { return _imKey(s.name); });
+  if (!noRead && !_ck.loaded && !_ck.busy) _ckLoad(function () { var p = document.getElementById('tab-import'); if (_imRoster && !_imOpen && p && p.classList.contains('active')) _imRenderCards(true); });
+  // Missed lessons still open (2026-10-08, Lesson checklist): "2 open".
+  var open = function (n) { return _ckPast(n).length; };
   var missing = function (n) {
     if (logged.indexOf(_imKey(n)) < 0) return null;   // not logged yet: no verdict
     var m = [];
@@ -61,10 +64,13 @@ function _imRenderCards(noRead) {
       // The student page's box-title style (2026-10-06): one heading look on this tab.
       '<div class="db-cx-head im-sec-head im-cards-head"><label class="field-label db-cx-t">' + names.length + ' students</label></div>' +
       names.map(function (n) {
-        var miss = missing(n);
-        return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : '') + (miss && !miss.length ? ' im-fin' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
+        var miss = missing(n), o = open(n);
+        var bits = [];
+        if (o) bits.push(o + (o === 1 ? ' lesson open' : ' lessons open'));
+        if (miss && miss.length) bits.push(miss.join(' + ') + ' missing');
+        return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : '') + (miss && !miss.length && !o ? ' im-fin' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
           '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
-          (miss && miss.length ? '<span class="im-miss">' + MISS_ICON + miss.join(' + ') + ' missing</span>' : '') +
+          (bits.length ? '<span class="im-miss">' + MISS_ICON + bits.join(' · ') + '</span>' : '') +
         '</div>';
       }).join('') +
     '</div>';
@@ -140,55 +146,90 @@ function _imRenderStudent(name, lessons) {
   _imLift(body);
   body.innerHTML = _imStudentHtml(name, lessons, _imHw, _imDetail, { back: true, card: true, log: true });
   _imFixTips(body);
+  if (!_ck.loaded && !_ck.busy) _ckLoad(function () { if (_imOpen === name && _imLast) _imRenderStudent(name, _imLast.lessons); });
 }
 
 // ── Log lesson window (2026-10-08; was a card docked on the Import page) ──
 // The Log window (#logPanel, lessons.js) inside a window with Checklist, Log
-// lesson, HW, Schedule (_imDoHtml). Import opens it for today's lesson, Audit
-// (ctrl.js openAuditLessonLog) for a missed one; day = that lesson's
-// toDateString (null = today), for Schedule. _logPanelHome remembers where the
-// Log window lives, so openLogFresh doesn't float it and closeLogPanel puts it back.
-function _imLogWinOpen(student, idx, day) {
+// lesson, HW, Schedule (_imDoHtml), for one lesson: day = its "2026-10-09"
+// (today if left out). item: its Lesson checklist entry, so what's done shows
+// done (the log text locked; HW and Schedule tick from their sheets).
+// next: opens after Done (the student's next open lesson). _logPanelHome
+// remembers where the Log window lives, so openLogFresh doesn't float it and
+// closeLogPanel puts it back.
+function _imLogWinOpen(student, idx, day, item, next) {
   if (window._logPanelHome || window._imDocked) closeLogPanel();
   var name = student.name;
-  var w = _stWin('imLogWin', inqEsc(name), 'Log Lesson', CLIPBOARD_ICON, '<div class="im-do-card im-win-card">' + _imDoHtml(name, day) + '</div>');
+  day = day || _tdYmd();
+  // The date in the title when it isn't today's lesson (2026-10-08).
+  var part = 'Log Lesson' + (day !== _tdYmd() ? ' · ' + _ckDay(day) : '');
+  var w = _stWin('imLogWin', inqEsc(name), part, CLIPBOARD_ICON, '<div class="im-do-card im-win-card">' + _imDoHtml(name, day) + '</div>');
   w.querySelector('.st-win').classList.add('im-log-win');
   w.onclick = function (e) { if (e.target === w) closeLogPanel(); };
   w.querySelector('[data-close]').onclick = closeLogPanel;
   var panel = document.getElementById('logPanel');
   window._logPanelHome = { parent: panel.parentNode, next: panel.nextSibling, css: panel.style.cssText };
-  window._imWin = { name: name, day: day || null };
+  window._imWin = { name: name, day: day, next: next || null };
   window._imDocked = true;
   panel.style.cssText = '';
   w.querySelector('#imLogDock').appendChild(panel);
   _imHwOut();
   openLogFresh(student, idx);
+  // No HW question for this lesson (before HW tracking, or a trial): no HW section.
+  if (!logHw) {
+    var hb = w.querySelector('.im-hw-dock-box'), hh = hb && hb.previousElementSibling, hr = hh && hh.previousElementSibling;
+    [hb, hh, hr && hr.tagName === 'HR' ? hr : null].forEach(function (el) { if (el) el.style.display = 'none'; });
+  }
+  if (item && item.log) _imLogLock(item.logText || '');
   _imStepsRender();
 }
+// Already logged (the sheet says so): its text in the row, locked, like right after Log.
+function _imLogLock(text) {
+  if (!activeStudent) return;
+  activeStudent.logged = true;
+  var row = llRows(_logBox())[0];
+  if (row) row.value = text;
+  llLock(_logBox());
+  var mic = document.getElementById('logMicBtn');
+  if (mic) mic.disabled = true;
+  var lb = document.getElementById('btnLog');
+  if (lb) { lb.textContent = 'Logged ✓'; lb.disabled = true; }
+}
 
-// Import's Log lesson: today's calendar lesson only (2026-10-08). A lesson
-// not logged on its day waits in Audit, with its own date.
+// A student's open lessons, oldest first (2026-10-08): the past ones from the
+// Lesson checklist, then today's calendar lesson unless all three are done.
+// Each: { date, item, student, idx }.
 function _imTodayIdx(name) {
   var today = (typeof todayStudents !== 'undefined' && todayStudents) || [];
   for (var i = 0; i < today.length; i++) if (_imKey(today[i].name) === _imKey(name)) return i;
   return -1;
 }
-function _imLogOpen(name) {
+function _imQueue(name) {
+  var q = _ckPast(name).map(function (it) {
+    return { date: it.date, item: it, student: { name: name, eventDate: it.date.replace(/-/g, '/'), calType: 'regular' } };
+  });
   var i = _imTodayIdx(name);
-  if (i < 0) return;
-  _imLogWinOpen(todayStudents[i], i, null);
-  window._imLogActive = name;   // a save redraws this student's page under the window
-  // Already logged today (the sheet says so): show it, locked, like right after Log.
-  var done = _imLoggedToday(_imLast && _imLast.name === name && _imLast.lessons);
-  if (done !== null && activeStudent) {
-    activeStudent.logged = true;
-    var row = llRows(_logBox())[0];
-    if (row) row.value = done;
-    llLock(_logBox());
-    var mic = document.getElementById('logMicBtn');
-    if (mic) mic.disabled = true;
-    _imStepsRender();
+  if (i >= 0) {
+    var t = todayStudents[i], day = _tdYmd();
+    var hwDone = !!(_imHwToday.rows && _imHwToday.rows[_imKey(name)]);
+    var logTxt = _imLoggedToday(_imLast && _imLast.name === name && _imLast.lessons);
+    var logged = !!t.alreadyLogged || logTxt !== null;
+    if (!(logged && hwDone && _imSchedGet(name, day)))
+      q.push({ date: day, idx: i, student: t, item: logged ? { log: true, logText: logTxt || '' } : _ckItem(name, day) });
   }
+  return q;
+}
+// Opens the first; after its Done the next one opens, till none are left.
+function _imRunQueue(q, onEach) {
+  var x = q.shift();
+  if (!x) return;
+  _imLogWinOpen(x.student, x.idx, x.date, x.item, q.length ? function () { _imRunQueue(q, onEach); } : null);
+  if (onEach) onEach(x);
+}
+function _imLogOpen(name) {
+  var q = _imQueue(name);
+  if (!q.length) return;
+  _imRunQueue(q, function () { window._imLogActive = name; });   // a save redraws this student's page under the window
 }
 
 // Today's lesson in the list (newest first, dates like "Oct /6"): its text, or null.
@@ -201,29 +242,86 @@ function _imLoggedToday(lessons) {
 }
 
 // ── Finish logging steps (2026-10-06) ──
-//   Schedule    ticks from the Reschedule window: No change, or a skip / move
+//   Schedule    ticks on Not needed, or when a skip / move saves in the Reschedule window
 //   HW          files in the drop zone → sent; Nothing to send → no HW
 //   Lesson log  ticks when the Log box's Log saves (the sheet says so on reopen)
 // HW picked before Log goes with the log; picked after, it saves on its own (saveHw).
-// Schedule is kept in this browser for the lesson's day (nothing in the sheets says "no change" yet).
-// day: a Date's toDateString(); Import's is today, the Audit window's its lesson's.
-function _imSchedKey(name, day) { return 'imSched|' + _imKey(name) + '|' + (day || new Date().toDateString()); }
-function _imSchedGet(name, day) { try { return localStorage.getItem(_imSchedKey(name, day)) || ''; } catch (e) { return ''; } }
+// Schedule (2026-10-08): saved to the Lesson Checklist sheet (saveSchedule,
+// RPM_Checklist.js), so every computer sees it; this browser keeps a copy so
+// the tick shows at once. day: the lesson's "2026-10-09" (default today).
+function _imSchedKey(name, day) { return 'imSched|' + _imKey(name) + '|' + (day || _tdYmd()); }
+function _imSchedGet(name, day) {
+  // The sheet wins when it has the lesson; the browser copy only covers
+  // today's lesson before the Counter has it.
+  var it = _ckItem(name, day || _tdYmd());
+  if (it) return it.sched === 'Changed' ? 'changed' : it.sched ? 'nochange' : '';
+  try { return localStorage.getItem(_imSchedKey(name, day)) || ''; } catch (e) { return ''; }
+}
 function _imSchedSet(name, v, day) {
   if (day === undefined) day = _imCtx().day;
-  try { if (v) localStorage.setItem(_imSchedKey(name, day), v); else localStorage.removeItem(_imSchedKey(name, day)); } catch (e) {}
-  var b = _imQ('imNoChangeBtn');
-  if (b) b.classList.toggle('pressed', v === 'nochange');
-  _imStepsRender();
+  day = day || _tdYmd();
+  var prev = _imSchedGet(name, day);
+  function put(x) {
+    try { if (x) localStorage.setItem(_imSchedKey(name, day), x); else localStorage.removeItem(_imSchedKey(name, day)); } catch (e) {}
+    var it = _ckItem(name, day);
+    if (it) it.sched = x === 'changed' ? 'Changed' : x === 'nochange' ? 'Not needed' : '';
+    var b = _imQ('imNoChangeBtn');
+    if (b) b.classList.toggle('pressed', x === 'nochange');
+    _imStepsRender();
+  }
+  var bk = _imSchedKey(name, day);
+  _imSchedBusy[bk] = true;   // Done waits for Google to say it's saved
+  put(v);
+  fetch(getScriptUrl() + '?action=saveSchedule&name=' + encodeURIComponent(name) + '&lessonDate=' + day + '&sched=' + (v || ''))
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (!d.success) throw new Error(d.message || 'Not saved'); delete _imSchedBusy[bk]; _imStepsRender(); })
+    .catch(function (e) {
+      delete _imSchedBusy[bk];
+      put(prev);
+      if (document.getElementById('logPanelStatus')) rpmFail('logPanelStatus', 'Schedule not saved: ' + (e && e.message && e.message !== 'Failed to fetch' ? e.message : 'no answer from Google.'));
+    });
 }
+var _imSchedBusy = {};   // lesson key → a Schedule save still on its way
 function _imNoChangeToggle(name) { var d = _imCtx().day; _imSchedSet(name, _imSchedGet(name, d) === 'nochange' ? '' : 'nochange', d); }
+
+// ── Lesson checklist (2026-10-08): getChecklistAudit (RPM_Checklist.js) ──
+// Every lesson since the sheet's start (Oct 9) that still misses Log, HW or
+// Schedule, per student, oldest first, with what's done (log text, HW answer).
+// Import's cards and Log lesson button and the Audit tab's Lesson checklist read it.
+var _ck = { byName: {}, loaded: false, busy: false, start: '' };
+function _ckItem(name, day) {
+  var l = _ck.byName[_imKey(name)] || [];
+  for (var i = 0; i < l.length; i++) if (l[i].date === day) return l[i];
+  return null;
+}
+function _ckLoad(then) {
+  var url = getScriptUrl(); if (!url) return;
+  _ck.busy = true;
+  // window._ckStart (a read only): try the checklist on older lessons.
+  fetch(url + '?action=getChecklistAudit' + (window._ckStart ? '&start=' + window._ckStart : ''))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) throw new Error(d.message || 'unknown');
+      var by = {};
+      (d.audit || []).forEach(function (a) { by[_imKey(a.name)] = a.lessons; });
+      _ck = { byName: by, loaded: true, busy: false, start: d.start || '', audit: d.audit || [] };
+      if (then) then(null);
+    })
+    .catch(function (e) { _ck.busy = false; if (then) then(e && e.message || 'No answer from Google.'); });
+}
+// Past lessons still open (before today; today's comes from the calendar).
+function _ckPast(name) {
+  var t = _tdYmd();
+  return (_ck.byName[_imKey(name)] || []).filter(function (x) { return x.date < t; });
+}
+function _ckDay(k) { var p = String(k).split('-'); return MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10); }
 
 // Where the doing card is open (2026-10-08): the Log lesson window
 // (_imLogWinOpen), else Import's page (nothing to tick there).
 function _imCtx() {
   var a = window._imWin;
-  if (a) return { name: a.name, day: a.day, root: document.getElementById('imLogWin') };
-  return { name: _imOpen, day: null, root: document.getElementById('importBody') };
+  if (a) return { name: a.name, day: a.day || _tdYmd(), root: document.getElementById('imLogWin') };
+  return { name: _imOpen, day: _tdYmd(), root: document.getElementById('importBody') };
 }
 function _imQ(id) { var r = _imCtx().root; return r ? r.querySelector('#' + id) : null; }
 
@@ -245,9 +343,20 @@ function _imStepsRender() {
   el.innerHTML = '<div class="im-checks">' + steps.map(function (x) {
     return '<div class="im-check im-check-' + x.cls + (x.done ? ' done' : '') + '"><i class="im-tick"></i><span>' + inqEsc(x.label) + '</span></div>';
   }).join('') + '</div>';
+  // A finished section dims (2026-10-08): Log lesson once logged, HW once
+  // answered and saved, Schedule once answered (Not needed / a change saved).
+  function dim(cls, on) {
+    var box = c.root.querySelector('.' + cls);
+    if (!box) return;
+    box.classList.toggle('im-dim', on);
+    if (box.previousElementSibling) box.previousElementSibling.classList.toggle('im-dim', on);
+  }
+  dim('im-log-box', logged);
+  dim('im-hw-dock-box', !!(hw && hw.choice && hw.saved));
+  dim('im-sched-box', !!sched);
   var fin = _imQ('imFinDone');
   // Finished: logged, Schedule answered, HW answered and saved.
-  var finished = logged && sched && (!hw || (hw.choice && hw.saved));
+  var finished = logged && sched && !_imSchedBusy[_imSchedKey(name, c.day)] && (!hw || (hw.choice && hw.saved));
   if (fin) fin.textContent = finished ? 'Finished ✓' : '';
   // Finished by something pressed here (not just reopened): Done, then back (2026-10-07).
   if (finished && window._imActed === name) { window._imActed = null; _imDone(name); }
@@ -271,7 +380,11 @@ function _imDone(name) {
   msg.textContent = 'Done ✓';
   card.appendChild(msg);
   setTimeout(function () {
-    if (window._imWin && window._imWin.name === name) closeLogPanel();   // the window closes
+    var w = window._imWin;
+    if (!w || w.name !== name) return;
+    var next = w.next;
+    closeLogPanel();   // the window closes
+    if (next) next();  // the student's next open lesson (2026-10-08)
   }, 1400);
 }
 
@@ -378,7 +491,17 @@ function _imLogClosed() {
   window._imWin = null;
   var w = document.getElementById('imLogWin');
   if (w) w.remove();
-  // Import's card list shows the new state (green / what's missing) when you go back.
+  // Read the Lesson checklist again: Import's cards / button and Audit's list follow (2026-10-08).
+  _ckLoad(function () { _ckRedraw(); });
+}
+function _ckRedraw() {
+  if (window._imDocked) return;   // another window opened meanwhile (the next lesson)
+  var ip = document.getElementById('tab-import');
+  if (ip && ip.classList.contains('active') && _imIn === 'import') {
+    if (_imOpen && _imLast) _imRenderStudent(_imOpen, _imLast.lessons);
+    else if (_imRoster && !_imOpen) _imRenderCards(true);
+  }
+  if (typeof _runCkAudit === 'function' && document.getElementById('auditCkSection')) _runCkAudit(null, true);
 }
 
 // One box of the card: its title (and anything on the title's right) above
@@ -467,11 +590,14 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
     // adds " · Quick look" in grey via o.sub), then the three boxes.
     (o.card ? '<div class="td-student">' : '') +
     '<div class="settings-title im-title"><span>' + inqEsc(name) + (o.sub ? '<span class="win-sub"> · ' + inqEsc(o.sub) + '</span>' : '') + '</span>' +
-      // Log lesson (2026-10-08, replaces the doing card): opens the Log lesson
-      // window, only on their lesson day; otherwise grey, Audit has it.
-      (o.log ? (_imTodayIdx(name) >= 0
-        ? '<button class="link-btn blue opens-window" onclick="_imLogOpen(' + n + ')" data-tip="Opens a window.\nLog, HW and Schedule for today\'s lesson." data-tip-left>Log lesson</button>'
-        : '<button class="link-btn im-log-off" data-tip="Only on their lesson day.\nA lesson not logged on its day waits in Audit." data-tip-left data-tip-wrap>Log lesson</button>') : '') +
+      // Log lesson (2026-10-08): the Log lesson window for their oldest open
+      // lesson (a missed one, or today's), then the next. Grey when none is open.
+      (o.log ? (function () {
+        var q = _imQueue(name);
+        if (!q.length) return '<button class="link-btn im-log-off" data-tip="Nothing open.\nEvery lesson has its log, HW and schedule." data-tip-left data-tip-wrap>Log lesson</button>';
+        var tip = q.length > 1 ? q.length + ' lessons open, oldest first:\n' + q.map(function (x) { return _ckDay(x.date); }).join(', ') + '.' : 'Log, HW and Schedule for ' + (q[0].date === _tdYmd() ? 'today\'s lesson' : _ckDay(q[0].date)) + '.';
+        return '<button class="link-btn blue opens-window" onclick="_imLogOpen(' + n + ')" data-tip="Opens a window.\n' + tip + '" data-tip-left data-tip-wrap>Log lesson' + (q.length > 1 ? ' · ' + q.length : '') + '</button>';
+      })() : '') +
       '</div>' +
     // Each box's small title sits above it, outside its border (2026-10-06).
     // Notes first (2026-10-06): what to mention, before anything else.
@@ -606,17 +732,10 @@ function _imReschedule(name) {
   var w = _stWin('imRsWin', inqEsc(name), 'Reschedule', CALENDAR_ICON,
     // The hint under the weeks (2026-10-06).
     "<label class='field-label'>Next 8 weeks</label><div id='imRsBody'><div class='empty-state rpm-loading'>Loading</div></div>" +
-    "<div class='im-rs-hint'>Click to reschedule or skip.</div>" +
-    // No change ticks Finish logging's Schedule step (2026-10-06).
-    "<div class='ll-acts st-foot' style='justify-content:flex-end'><button class='link-btn' onclick='_imNoChange(" + _auEsc(JSON.stringify(name)) + ")' data-tip='Nothing to move or skip.\nTicks Schedule.' data-tip-left>No change</button></div>");
+    // No "No change" button here (2026-10-08): close it and press Not needed instead.
+    "<div class='im-rs-hint'>Click to reschedule or skip.</div>");
   w.querySelector('.st-win').classList.add('im-rs-win');
   _imRsLoad(name);
-}
-
-function _imNoChange(name) {
-  _imSchedSet(name, 'nochange');
-  var w = document.getElementById('imRsWin');
-  if (w) w.remove();
 }
 
 function _imRsLoad(name) {
