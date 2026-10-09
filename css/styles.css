@@ -2120,17 +2120,15 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-none { padding: 0; }
 /* Today tab (2026-10-06): today's students one under the other, room between each. */
 #todayBody > .settings-title { margin-bottom: 30px; }   /* room under Today · date */
-/* Today's count + mini list (2026-10-06): time, then the name in that student's colour. */
+/* Today's count + mini list (2026-10-06): time, then the name as a button. */
 #todayBody > .td-count { margin-top: 0; }
 .td-mini { margin-bottom: 34px; display: flex; flex-direction: column; gap: 6px; }
-.td-mini-row { display: flex; align-items: baseline; gap: 14px; cursor: pointer; }
+#todayBody .td-mini { border: none; background: none; padding: 0; gap: 12px; }   /* a plain list, no box, rows spaced out (2026-10-09) */
+#todayBody .td-mini { margin-bottom: 28px; }
+#todayBody .td-rule { margin: 0 0 28px; }
+#todayBody .td-rule-top { margin: 0 0 18px; }
+.td-mini-row { display: flex; align-items: center; gap: 14px; }
 .td-mini-t { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); min-width: 64px; }
-/* Shaped like the Venmo / Zelle badges on Payments (2026-10-07): tinted box in the
-   student's colour; hover deepens the tint instead of underlining. */
-.td-mini-n { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase;   /* Venmo badge size (2026-10-07) */
-  padding: 2px 6px; border-radius: 2px; color: color-mix(in srgb, var(--td-c) 80%, #fff);   /* a touch brighter */
-  background: color-mix(in srgb, var(--td-c) 24%, transparent); transition: background .12s; }
-.td-mini-row:hover .td-mini-n { background: color-mix(in srgb, var(--td-c) 40%, transparent); }
 /* Each student's own colour on their card: the edge and the name. */
 #todayBody .td-student { border-left-color: var(--td-c, #d9a441); }
 #todayBody .td-student .im-title > span { color: var(--td-c, #d9a441); }
@@ -2142,15 +2140,14 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Today shows one card at a time (2026-10-09): picked from the names at the top. */
 #todayBody .td-student { padding: 0 20px; }
 #todayBody .td-student:not(.td-open) { display: none; }
-/* Today's names are white-on-red buttons, faded; the open one lights up (2026-10-09). */
-#todayBody .td-mini-n { background: color-mix(in srgb, var(--td-c) 60%, transparent); color: #fff; border: 1px solid var(--td-c); transition: background .12s, opacity .12s; }
-#todayBody .td-mini-row .td-mini-n { opacity: 0.45; }   /* at rest: the button, faded */
-#todayBody .td-mini-row:hover .td-mini-n { opacity: 0.7; }
-#todayBody .td-mini-row.td-on .td-mini-n { opacity: 1; }   /* pressed: lit */
+/* Today's names are the portal's plain link buttons; the open one wears the hover look (2026-10-09). */
+.td-mini-row.td-on .td-mini-b { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 #todayBody .td-head { cursor: pointer; user-select: none; margin: 0; padding: 18px 0; }
 #todayBody .td-body { display: none; padding-bottom: 22px; }
 #todayBody .td-open .td-body { display: block; }
-#todayBody .td-open .td-head { padding-bottom: 16px; }
+#todayBody .td-stamp { display: block; height: 28px; width: auto; margin: 0 auto; opacity: .45; transform: rotate(-1deg); }   /* tilted up 1°, like a hand stamp */
+#todayBody .td-stamp + .im-sec-head { margin-top: 10px; }   /* History close under the stamp */
+#todayBody .td-open .td-head { padding-bottom: 6px; }
 .td-chev { color: var(--muted); display: flex; transition: transform .15s, color .12s; }
 .td-chev .dt-ico { width: 12px; height: 7px; fill: currentColor; }
 #todayBody .td-head:hover .td-chev { color: #fff; }

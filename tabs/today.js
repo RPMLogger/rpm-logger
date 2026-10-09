@@ -1,8 +1,8 @@
 // ─── TABS / TODAY.JS ────────────────────────────────────────────────────────
 // Today (2026-10-06): a glance at the day. Today's students in lesson order,
-// one under the other: name · Quick look, then their Lessons log, Last HW and
-// Notes (import.js's _imStudentHtml, no buttons). Everyone loads as soon as
-// the tab opens. Resets by day: a new day starts empty and reads the
+// one under the other: name · Quick look, then their Lessons log and Last HW
+// (import.js's _imStudentHtml, no buttons; no Notes since 2026-10-09).
+// Everyone loads as soon as the tab opens. Resets by day: a new day starts empty and reads the
 // calendar again. One card at a time (2026-10-09): the names in the list at
 // the top are buttons; one opens that student's card, another swaps to theirs.
 // The reads already ran, so it opens at once.
@@ -63,10 +63,13 @@ function _tdRender() {
   // At the top (2026-10-06): how many, and a mini list of times + names; a
   // name jumps to its card.
   var mini = '<div class="db-cx-head im-sec-head td-count"><label class="field-label db-cx-t">' + list.length + (list.length === 1 ? ' student' : ' students') + '</label></div>' +
+    '<hr class="divider td-rule td-rule-top">' +
     '<div class="db-panel im-list td-mini">' + list.map(function (s, i) {
-      return '<div class="td-mini-row' + (_td.sel === _imKey(s.name) ? ' td-on' : '') + '" id="tdMini' + i + '" style="--td-c:' + _tdColor(i) + '" onclick="_tdJump(' + i + ')">' +
-        '<span class="td-mini-t">' + _tdTime(s.eventDate) + '</span><span class="td-mini-n">' + inqEsc(s.name) + '</span></div>';
-    }).join('') + '</div>';
+      // The name is the portal's plain link button; the open one stays lit (2026-10-09).
+      return '<div class="td-mini-row' + (_td.sel === _imKey(s.name) ? ' td-on' : '') + '" id="tdMini' + i + '">' +
+        '<span class="td-mini-t">' + _tdTime(s.eventDate) + '</span><button class="link-btn td-mini-b" onclick="_tdJump(' + i + ')">' + inqEsc(s.name) + '</button></div>';
+    }).join('') + '</div>' +
+    '<hr class="divider td-rule">';   // lines under the count and between the list and the card (2026-10-09)
   body.innerHTML = head + mini + list.map(function (s, i) {
     return '<div class="td-student' + (_td.sel === _imKey(s.name) ? ' td-open' : '') + '" id="tdCard' + i + '" style="--td-c:' + _tdColor(i) + '" data-key="' + _auEsc(_imKey(s.name)) + '">' + _tdStudentHtml(s) + '</div>';
   }).join('');
@@ -93,8 +96,9 @@ function _tdStudentHtml(s) {
     '<span class="win-sub"> · Quick look</span></span><span class="td-chev">' + dtArrow(-1) + '</span></div>';
   var body = d.failed ? '<div class="empty-state">Could not read: ' + inqEsc(d.failed) + '</div>'
     : !d.lessons ? '<div class="empty-state rpm-loading">Loading</div>'
-    : _imStudentHtml(s.name, d.lessons, d.hw, d.detail, { noTitle: true });
-  return title + '<div class="td-body">' + body + '</div>';
+    : _imStudentHtml(s.name, d.lessons, d.hw, null, { noTitle: true, noNotes: true });
+  // The PREVIEW stamp under the name (om-84, 2026-10-09).
+  return title + '<div class="td-body"><img class="td-stamp" src="img/preview-stamp.svg" alt="">' + body + '</div>';
 }
 
 // Redraw one student's part when their reads come in.
@@ -106,7 +110,7 @@ function _tdDrawOne(name) {
   _imFixTips(el);
 }
 
-// The three reads for one student. Each one redraws that student's part.
+// The two reads for one student (Notes' detail read dropped with Notes, 2026-10-09). Each one redraws that student's part.
 function _tdLoad(name) {
   var key = _imKey(name), day = _td.day, url = getScriptUrl();
   if (!url) return;
@@ -123,9 +127,6 @@ function _tdLoad(name) {
     .catch(function () { d.failed = 'No answer from Google.'; done(); });
   get('getHwLog', '&name=' + encodeURIComponent(name))
     .then(function (r) { if (r.success) { d.hw = { rows: r.rows || [] }; done(); } })
-    .catch(function () {});
-  get('getStudentDetail', '&name=' + encodeURIComponent(name))
-    .then(function (r) { if (r.success) { d.detail = r; done(); } })
     .catch(function () {});
 }
 

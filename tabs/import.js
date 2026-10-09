@@ -605,7 +605,8 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
       '</div>') +
     // Each box's small title sits above it, outside its border (2026-10-06).
     // Notes first (2026-10-06): what to mention, before anything else.
-    _imSec('Notes', '', '', '<div class="im-notes-in">' + _imNotesBoxHtml(detail, name) + '</div>') +
+    // Today leaves Notes out (2026-10-09).
+    (o.noNotes ? '' : _imSec('Notes', '', '', '<div class="im-notes-in">' + _imNotesBoxHtml(detail, name) + '</div>')) +
     _imSec('History', '<button class="link-btn im-sort-btn" onclick="_imToggleSort()" data-tip="Flips the list.">' + (_imNewestFirst() ? 'Newest' : 'Oldest') + '</button>',
       '', items.length ? html + more : 'No lessons logged yet') +
     _imSec('HW sent - last', '', '', '<div class="db-files db-files-in">' + _imLastHwHtml(hw, name) + '</div>') +
