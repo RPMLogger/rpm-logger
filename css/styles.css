@@ -2137,6 +2137,24 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Each student is one card (2026-10-06), Today and Import: the Import cards' look, amber edge like the name. */
 .td-student { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid #d9a441; border-radius: 10px; padding: 22px 20px; }
 .td-student + .td-student { margin-top: 48px; }   /* the main cards a bit further apart (2026-10-07, was 28px) */
+/* Today is red, no amber (2026-10-09): sets it apart from the other tabs. */
+#todayBody { --warn: var(--accent); --accent2: var(--accent); }
+/* Today shows one card at a time (2026-10-09): picked from the names at the top. */
+#todayBody .td-student { padding: 0 20px; }
+#todayBody .td-student:not(.td-open) { display: none; }
+/* Today's names are white-on-red buttons, faded; the open one lights up (2026-10-09). */
+#todayBody .td-mini-n { background: color-mix(in srgb, var(--td-c) 60%, transparent); color: #fff; border: 1px solid var(--td-c); transition: background .12s, opacity .12s; }
+#todayBody .td-mini-row .td-mini-n { opacity: 0.45; }   /* at rest: the button, faded */
+#todayBody .td-mini-row:hover .td-mini-n { opacity: 0.7; }
+#todayBody .td-mini-row.td-on .td-mini-n { opacity: 1; }   /* pressed: lit */
+#todayBody .td-head { cursor: pointer; user-select: none; margin: 0; padding: 18px 0; }
+#todayBody .td-body { display: none; padding-bottom: 22px; }
+#todayBody .td-open .td-body { display: block; }
+#todayBody .td-open .td-head { padding-bottom: 16px; }
+.td-chev { color: var(--muted); display: flex; transition: transform .15s, color .12s; }
+.td-chev .dt-ico { width: 12px; height: 7px; fill: currentColor; }
+#todayBody .td-head:hover .td-chev { color: #fff; }
+#todayBody .td-open .td-chev { transform: rotate(180deg); }
 /* Last HW's buttons side by side; Show more's Dropbox list under a year-style label (2026-10-07). */
 .im-hw-btns { display: flex; justify-content: center; gap: 8px; }
 .im-hw-btns .im-more { margin: 10px 0 0; }

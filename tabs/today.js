@@ -3,9 +3,11 @@
 // one under the other: name · Quick look, then their Lessons log, Last HW and
 // Notes (import.js's _imStudentHtml, no buttons). Everyone loads as soon as
 // the tab opens. Resets by day: a new day starts empty and reads the
-// calendar again.
+// calendar again. One card at a time (2026-10-09): the names in the list at
+// the top are buttons; one opens that student's card, another swaps to theirs.
+// The reads already ran, so it opens at once.
 
-var _td = { day: null, data: {} };   // data: key → { lessons, hw, detail, failed }
+var _td = { day: null, data: {}, sel: null };   // data: key → { lessons, hw, detail, failed }; sel: the open card's key
 
 function _tdYmd() {
   var d = new Date(), m = d.getMonth() + 1, dd = d.getDate();
@@ -15,7 +17,7 @@ function _tdYmd() {
 function initTodayTab() {
   _imIn = 'today';
   var day = _tdYmd();
-  if (_td.day !== day) _td = { day: day, data: {} };
+  if (_td.day !== day) _td = { day: day, data: {}, sel: null };
   var body = document.getElementById('todayBody');
   // The calendar read (fetchWeekStudents) is from an earlier day: read it again.
   if (window._weekFetchedDay && window._weekFetchedDay !== day) {
@@ -36,10 +38,10 @@ function _tdWeekReady() {
   if (ip && ip.classList.contains('active') && !_imOpen && _imRoster) _imRenderCards();
 }
 
-// One colour per student (2026-10-06), so the cards feel different as you
-// scroll: the card's edge, the name, and its dot in the list at the top.
-var TD_COLORS = ['#d9a441', '#5b9dff', '#2ecc71', '#b07cff', '#3fc1c9', '#e86fa8'];
-function _tdColor(i) { return TD_COLORS[i % TD_COLORS.length]; }
+// One colour for every Today card (2026-10-09, was one per student): red on
+// the card's edge, the name, and its badge in the list at the top.
+var TD_COLOR = '#e8463a';
+function _tdColor() { return TD_COLOR; }
 
 function _tdTime(iso) {
   var m = String(iso || '').match(/T(\d{2}):(\d{2})/);
@@ -62,27 +64,37 @@ function _tdRender() {
   // name jumps to its card.
   var mini = '<div class="db-cx-head im-sec-head td-count"><label class="field-label db-cx-t">' + list.length + (list.length === 1 ? ' student' : ' students') + '</label></div>' +
     '<div class="db-panel im-list td-mini">' + list.map(function (s, i) {
-      return '<div class="td-mini-row" style="--td-c:' + _tdColor(i) + '" onclick="_tdJump(' + i + ')">' +
+      return '<div class="td-mini-row' + (_td.sel === _imKey(s.name) ? ' td-on' : '') + '" id="tdMini' + i + '" style="--td-c:' + _tdColor(i) + '" onclick="_tdJump(' + i + ')">' +
         '<span class="td-mini-t">' + _tdTime(s.eventDate) + '</span><span class="td-mini-n">' + inqEsc(s.name) + '</span></div>';
     }).join('') + '</div>';
   body.innerHTML = head + mini + list.map(function (s, i) {
-    return '<div class="td-student" id="tdCard' + i + '" style="--td-c:' + _tdColor(i) + '" data-key="' + _auEsc(_imKey(s.name)) + '">' + _tdStudentHtml(s) + '</div>';
+    return '<div class="td-student' + (_td.sel === _imKey(s.name) ? ' td-open' : '') + '" id="tdCard' + i + '" style="--td-c:' + _tdColor(i) + '" data-key="' + _auEsc(_imKey(s.name)) + '">' + _tdStudentHtml(s) + '</div>';
   }).join('');
   _imFixTips(body);
 }
 
+// A name in the list at the top opens that card and closes the one that was
+// open; their name again (or the card's name row) closes it. Kept for the day.
 function _tdJump(i) {
   var el = document.getElementById('tdCard' + i);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (!el) return;
+  var key = el.getAttribute('data-key');
+  _td.sel = _td.sel === key ? null : key;
+  document.querySelectorAll('#todayBody .td-student').forEach(function (c) { c.classList.toggle('td-open', c.getAttribute('data-key') === _td.sel); });
+  document.querySelectorAll('#todayBody .td-mini-row').forEach(function (r, j) { r.classList.toggle('td-on', j === i && !!_td.sel); });
 }
+function _tdToggle(i) { _tdJump(i); }
 
 function _tdStudentHtml(s) {
-  // Name · Quick look (2026-10-06, was the lesson time).
-  var d = _td.data[_imKey(s.name)] || {}, sub = 'Quick look';
-  var title = '<div class="settings-title im-title"><span>' + inqEsc(s.name) + '<span class="win-sub"> · ' + sub + '</span></span></div>';
-  if (d.failed) return title + '<div class="empty-state">Could not read: ' + inqEsc(d.failed) + '</div>';
-  if (!d.lessons) return title + '<div class="empty-state rpm-loading">Loading</div>';
-  return _imStudentHtml(s.name, d.lessons, d.hw, d.detail, { sub: sub });
+  // Name · Quick look (2026-10-06, was the lesson time), with a chevron: the
+  // whole row opens and closes the card (2026-10-09).
+  var d = _td.data[_imKey(s.name)] || {}, i = (todayStudents || []).indexOf(s);
+  var title = '<div class="settings-title im-title td-head" onclick="_tdToggle(' + i + ')"><span>' + inqEsc(s.name) +
+    '<span class="win-sub"> · Quick look</span></span><span class="td-chev">' + dtArrow(-1) + '</span></div>';
+  var body = d.failed ? '<div class="empty-state">Could not read: ' + inqEsc(d.failed) + '</div>'
+    : !d.lessons ? '<div class="empty-state rpm-loading">Loading</div>'
+    : _imStudentHtml(s.name, d.lessons, d.hw, d.detail, { noTitle: true });
+  return title + '<div class="td-body">' + body + '</div>';
 }
 
 // Redraw one student's part when their reads come in.

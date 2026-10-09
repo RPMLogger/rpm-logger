@@ -592,7 +592,8 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
     // One card (2026-10-06, the Today tab's look): the name in amber (Today
     // adds " · Quick look" in grey via o.sub), then the three boxes.
     (o.card ? '<div class="td-student">' : '') +
-    '<div class="settings-title im-title"><span>' + inqEsc(name) + (o.sub ? '<span class="win-sub"> · ' + inqEsc(o.sub) + '</span>' : '') + '</span>' +
+    // Today draws its own name row (the card's open/close bar, 2026-10-09).
+    (o.noTitle ? '' : '<div class="settings-title im-title"><span>' + inqEsc(name) + (o.sub ? '<span class="win-sub"> · ' + inqEsc(o.sub) + '</span>' : '') + '</span>' +
       // Log lesson (2026-10-08): the Log lesson window for their oldest open
       // lesson (a missed one, or today's), then the next. Grey when none is open.
       (o.log ? (function () {
@@ -601,7 +602,7 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
         var tip = q.length > 1 ? q.length + ' lessons open, oldest first:\n' + q.map(function (x) { return _ckDay(x.date); }).join(', ') + '.' : 'Log, HW and Schedule for ' + (q[0].date === _tdYmd() ? 'today\'s lesson' : _ckDay(q[0].date)) + '.';
         return '<button class="link-btn blue opens-window" onclick="_imLogOpen(' + n + ')" data-tip="Opens a window.\n' + tip + '" data-tip-left data-tip-wrap>Log lesson' + (q.length > 1 ? ' · ' + q.length : '') + '</button>';
       })() : '') +
-      '</div>' +
+      '</div>') +
     // Each box's small title sits above it, outside its border (2026-10-06).
     // Notes first (2026-10-06): what to mention, before anything else.
     _imSec('Notes', '', '', '<div class="im-notes-in">' + _imNotesBoxHtml(detail, name) + '</div>') +
