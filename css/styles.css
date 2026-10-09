@@ -2135,6 +2135,12 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Each student is one card (2026-10-06), Today and Import: the Import cards' look, amber edge like the name. */
 .td-student { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid #d9a441; border-radius: 10px; padding: 22px 20px; }
 .td-student + .td-student { margin-top: 48px; }   /* the main cards a bit further apart (2026-10-07, was 28px) */
+#importBody .td-student { border-left-color: #3d5f8f; }   /* Lessons: an opened student's card edge in the list cards' steel blue (2026-10-09, was amber) */
+/* Log lesson in the same steel blue as the card edge (2026-10-09). */
+#importBody .im-title .link-btn.blue { color: #6f93c6; border-color: color-mix(in srgb, #3d5f8f 80%, transparent); background: color-mix(in srgb, #3d5f8f 12%, transparent); }
+#importBody .im-title .link-btn.blue:hover, #importBody .im-title .link-btn.blue.pressed { color: #8aa9d6; border-color: #3d5f8f; background: color-mix(in srgb, #3d5f8f 26%, transparent); }
+/* The name and the notes' headings (PAYMENT…) in the button's blue (2026-10-09, were amber). */
+#importBody .td-student .im-title > span, #importBody .im-note-h { color: #6f93c6; }
 /* Today is red, no amber (2026-10-09): sets it apart from the other tabs. */
 #todayBody { --warn: var(--accent); --accent2: var(--accent); }
 /* Today shows one card at a time (2026-10-09): picked from the names at the top. */
@@ -2263,7 +2269,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-do-hr { margin: 30px 0 0; }
 .im-do-hr + .im-sec-head { margin-top: 30px; }
 /* The clipboard is tall and narrow (2026-10-08): 28px high makes it ~19px wide, the other window icons' 20px look. */
-.st-win.im-log-win .win-icon { height: 30px; }
+.st-win.im-log-win .win-icon { height: 34px; }   /* a bit bigger for om-85 (2026-10-09, was 30) */
 /* A little more room between each title and what's under it, in the doing card (2026-10-08; was 10px). */
 .im-do-card .im-sec-head { margin-bottom: 16px; }
 /* Checklist without its box too (2026-10-08): a status line, not a field. */

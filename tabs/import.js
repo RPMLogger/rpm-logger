@@ -61,7 +61,7 @@ function _imRenderCards(noRead) {
   });
   body.innerHTML =
     '<div class="db-section">' +
-      '<div class="settings-title"><span>Lesson Log<span class="win-sub"> · Students</span></span></div>' +   // was "Import" (2026-10-09)
+      '<div class="settings-title"><span>Lessons<span class="win-sub"> · Students</span></span></div>' +   // was "Import", then "Lesson Log" (2026-10-09)
       // The student page's box-title style (2026-10-06): one heading look on this tab.
       '<div class="db-cx-head im-sec-head im-cards-head"><label class="field-label db-cx-t">' + names.length + ' students</label></div>' +
       names.map(function (n) {
