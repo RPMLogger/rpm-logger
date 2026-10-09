@@ -2145,7 +2145,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #todayBody .td-head { cursor: pointer; user-select: none; margin: 0; padding: 18px 0; }
 #todayBody .td-body { display: none; padding-bottom: 22px; }
 #todayBody .td-open .td-body { display: block; }
-#todayBody .td-stamp { display: block; height: 28px; width: auto; margin: 0 auto; opacity: .45; transform: rotate(-1deg); }   /* tilted up 1°, like a hand stamp */
+#todayBody .td-stamp { display: block; height: 28px; width: auto; margin: 0 auto; opacity: .45; transform: translateY(4px) rotate(-1deg); }   /* tilted up 1°, like a hand stamp; nudged down without moving History */
 #todayBody .td-stamp + .im-sec-head { margin-top: 10px; }   /* History close under the stamp */
 #todayBody .td-open .td-head { padding-bottom: 6px; }
 .td-chev { color: var(--muted); display: flex; transition: transform .15s, color .12s; }
