@@ -138,7 +138,7 @@ function _tdRefresh(name) {
 }
 
 // ── Week window (2026-10-09; was its own Week tab) ──
-// This week's lessons, Mon–Sun, read-only: one group per day (a day off: one line, OPEN for its date), time + name like
+// This week's lessons, Mon–Sun, read-only: one group per day (a day off: one line, a dash for its date), time + name like
 // the list at the top of Today. Every day looks the same (no dimming: Today is the tab for today).
 // The count under the icon in Today's heading, weekly · biweekly under it.
 function _tdWeekOpen() {
@@ -161,8 +161,8 @@ function _tdWeekOpen() {
     if (!list.length) return;
     var d = new Date(mon); d.setDate(mon.getDate() + i);
     body += '<div class="td-wk-day"><label class="field-label"><span class="td-wk-dn">' + day.slice(0, 3) + '</span>' +   // short day (MON), the date in the names' column
-      // A day off is one short line: OPEN in the date's place, small and grey (2026-10-09).
-      (rows.length ? '<span class="td-wk-date">' + md(d) + '</span>' : '<span class="td-wk-none">Open</span>') + '</label>' +
+      // A day off is one short line: a dash in the date's place, small and grey (2026-10-09).
+      (rows.length ? '<span class="td-wk-date">' + md(d) + '</span>' : '<span class="td-wk-none">—</span>') + '</label>' +
       rows.map(function (s) {
         return '<div class="td-mini-row"><span class="td-mini-t">' + _tdTime(s.eventDate) + '</span><span class="td-wk-name">' + inqEsc(s.name) + '</span></div>';
       }).join('') + '</div>';

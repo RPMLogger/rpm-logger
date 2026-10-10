@@ -2325,7 +2325,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Today's Week button + Week window (2026-10-09; the Week tab's list, in the portal's window look). */
 .td-week-btn .calendar-icon { margin-right: 6px; }
 .st-win .td-wk-head { margin: 0 0 6px; }
-.td-wk-count { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--muted); margin: 0 0 18px; }
+.td-wk-count { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.24); margin: 0 0 18px; }   /* the clock times' dark grey (2026-10-10) */
 .td-wk-day { display: flex; flex-direction: column; gap: 9px; }
 .td-wk-day + .td-wk-day { margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--border); }
 .st-win .td-wk-day .field-label { margin-bottom: 2px; }
