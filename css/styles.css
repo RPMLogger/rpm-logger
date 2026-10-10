@@ -354,19 +354,6 @@ body::before {
 .past-date    { font-size: 10px; color: var(--accent2); white-space: nowrap; }
 .past-paid    { font-size: 10px; color: var(--green); }
 
-/* ─── WEEK TAB ────────────────────────────────────────────────────────────── */
-.week-tab-header { font-family: "DM Mono", monospace; font-size: 11px; font-weight: 400; color: var(--muted); margin-bottom: 14px; letter-spacing: 0px; }
-.week-tab-grid   { display: flex; flex-wrap: wrap; gap: 7px; }
-.week-tab-pill {
-  padding: 7px 14px; border: 1px solid var(--border); border-radius: 20px;
-  background: var(--surface); color: var(--muted); font-family: "DM Mono", monospace;
-  font-size: 11px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
-}
-.week-tab-pill:hover   { border-color: var(--accent); color: var(--text); }
-.week-tab-pill.logged  { border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.06); }
-.week-tab-pill .wt-check { display: none; }
-.week-tab-pill.logged .wt-check { display: inline; }
-.week-tab-pill.forgot  { border-color: #444; color: #888; background: rgba(255,255,255,0.03); }
 .week-bar {
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;
@@ -1231,9 +1218,6 @@ body::before {
 .load-row.blue .load-label { color: var(--blue); }
 .load-row.blue .load-value { color: var(--blue); font-size: 13px; }
 
-#weekTabGrid .pay-history-month { display: block; }
-#weekTabGrid .pay-history-row   { display: block; }
-#weekTabGrid { display: block; }
 
 
 /* ── Estimator ────────────────────────────────────────────────────────── */
@@ -2120,6 +2104,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-none { padding: 0; }
 /* Today tab (2026-10-06): today's students one under the other, room between each. */
 #todayBody > .settings-title { margin-bottom: 30px; }   /* room under Today · date */
+#todayBody > .settings-title .win-sub { color: rgba(255,255,255,0.3); }   /* the date a step darker than the names under it (2026-10-09) */
 /* Today's count + mini list (2026-10-06): time, then the name as a button. */
 #todayBody > .td-count { margin-top: 0; }
 .td-mini { margin-bottom: 34px; display: flex; flex-direction: column; gap: 6px; }
@@ -2336,3 +2321,19 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Today tab with no lessons (2026-10-08): the resting figure above the line. */
 .td-rest { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 40px; }
 .td-rest .rest-icon { height: 64px; width: auto; color: var(--muted); opacity: .7; }
+
+/* Today's Week button + Week window (2026-10-09; the Week tab's list, in the portal's window look). */
+.td-week-btn .calendar-icon { margin-right: 6px; }
+.st-win .td-wk-head { margin: 0 0 6px; }
+.td-wk-count { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--muted); margin: 0 0 18px; }
+.td-wk-day { display: flex; flex-direction: column; gap: 9px; }
+.td-wk-day + .td-wk-day { margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--border); }
+.st-win .td-wk-day .field-label { margin-bottom: 2px; }
+.td-wk-date { color: var(--muted); }
+.td-wk-dn { display: inline-block; width: 78px; }   /* the time column + gap, so the date lines up with the names */
+/* Times and names in the Intake cards' label + value look (Date · Sep 23): DM Mono 10.5px, 24% / 50% white. */
+.td-wk-day .td-mini-t { font-size: 10.5px; color: rgba(255,255,255,0.24); }
+.td-wk-name { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.5); }
+.td-wk-day .field-label { color: var(--accent); }   /* every day red, none dimmed */
+.td-wk-none { font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }   /* a day off: OPEN in the date's place, small, the date's grey */
+.st-win .td-wk-rule { margin: 0 0 12px; }

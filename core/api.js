@@ -36,7 +36,6 @@ function loadData() {
   var url = getScriptUrl();
   if (!url) return;
   document.getElementById("todayGrid").innerHTML     = "<div class='empty-state rpm-loading'>Loading</div>";
-  document.getElementById("weekTabGrid").innerHTML   = "<div class='empty-state rpm-loading'>Loading</div>";
   document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty rpm-loading'>Loading</div>";
   ["loadTotal","loadNorm","loadWeekly","loadBiweekly","loadIncome","loadGregorian"].forEach(function(id){
     document.getElementById(id).textContent = "—";
@@ -72,7 +71,7 @@ function fetchWeekStudents(url) {
 
       // Render each section independently — a failure in one is reported
       // but no longer aborts the others.
-      [renderTodayGrid, renderWeekTab]
+      [renderTodayGrid]
         .forEach(function(fn) {
           try { fn(); }
           catch (err) { addLog("lessonFeed", "⚠ Render error: " + (err && err.message ? err.message : err), "error"); }
