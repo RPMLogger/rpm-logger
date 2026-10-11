@@ -2136,17 +2136,16 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #todayBody .td-head { cursor: pointer; user-select: none; margin: 0; padding: 18px 0; }
 #todayBody .td-body { display: none; padding-bottom: 22px; }
 #todayBody .td-open .td-body { display: block; }
-#todayBody .td-stamp { display: block; height: 28px; width: auto; margin: 0 auto; opacity: .45; transform: translateY(4px) rotate(-1deg); }   /* tilted up 1°, like a hand stamp; nudged down without moving History */
+#todayBody .td-stamp { display: block; height: 28px; width: auto; margin: 0 auto; opacity: .38; transform: translateY(4px) rotate(-1deg); }   /* tilted up 1°, like a hand stamp; nudged down without moving History */
 #todayBody .td-stamp + .im-sec-head { margin-top: 10px; }   /* History close under the stamp */
 #todayBody .td-open .td-head { padding-bottom: 6px; }
 .td-chev { color: var(--muted); display: flex; transition: transform .15s, color .12s; }
 .td-chev .dt-ico { width: 12px; height: 7px; fill: currentColor; }
 #todayBody .td-head:hover .td-chev { color: #fff; }
 #todayBody .td-open .td-chev { transform: rotate(180deg); }
-/* Log lesson left of the chevron on Today's name row, in the Lessons tab's blue (2026-10-11). */
-#todayBody .td-head-r { display: flex; align-items: center; gap: 14px; }
-#todayBody .td-head .link-btn.blue { color: #6f93c6; border-color: color-mix(in srgb, #3d5f8f 80%, transparent); background: color-mix(in srgb, #3d5f8f 12%, transparent); }
-#todayBody .td-head .link-btn.blue:hover { color: #8aa9d6; border-color: #3d5f8f; background: color-mix(in srgb, #3d5f8f 26%, transparent); }
+/* Jump to log, small and grey, bottom left of the Today card (2026-10-11). */
+#todayBody .td-foot { margin-top: 18px; }
+#todayBody .td-foot .link-btn { font-size: 9px; padding: 3px 8px; gap: 5px; }
 /* Last HW's buttons side by side; Show more's Dropbox list under a year-style label (2026-10-07). */
 .im-hw-btns { display: flex; justify-content: center; gap: 8px; }
 .im-hw-btns .im-more { margin: 10px 0 0; }
@@ -2379,3 +2378,21 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #tab-general .ld-pick { padding: 1px; border-radius: 7px; }
 #tab-general .ld-pb { width: 18px; font-size: 11px; }
 #tab-general .ld-pv { min-width: 34px; font-size: 10px; padding: 2px 5px; }
+
+/* The Log lesson window opened from Today (2026-10-11): Today's look. Grey
+   buttons and steps, red only on the name and Reschedule; Lessons keeps its colours. */
+/* Checklist steps as Today's name buttons (2026-10-11): no circle while to do,
+   the tick only once done, and a done step dims. */
+.st-win.td-look .im-steps-row .im-checks { gap: 8px 10px; }
+.st-win.td-look .im-steps-row .im-check { gap: 7px; padding: 4px 10px; border-radius: 7px; cursor: default;
+  border: 1px solid rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); color: var(--muted); transition: opacity .15s; }
+.st-win.td-look .im-steps-row .im-check:not(.done) .im-tick { display: none; }
+.st-win.td-look .im-steps-row .im-check.done { color: var(--muted); opacity: .4; }
+.st-win.td-look .im-fin { color: var(--text); }
+.st-win.td-look #logPanel .im-log-foot #btnLog { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: color-mix(in srgb, #fff 4%, transparent); }
+.st-win.td-look #logPanel .im-log-foot #btnLog:disabled { color: var(--muted); border-color: rgba(255,255,255,0.10); }
+.st-win.td-look #logPanel .im-log-foot #btnLog:not(:disabled):hover { background: var(--surface2); border-color: var(--muted); }
+.st-win.td-look #logHwFiles { border-color: rgba(255,255,255,0.14); }
+.st-win.td-look #logHwFiles:hover, .st-win.td-look #logHwFiles.lh-drop-on { border-color: color-mix(in srgb, var(--muted) 70%, transparent); background: color-mix(in srgb, #fff 3%, transparent); }
+.st-win.td-look .link-btn.blue { color: var(--muted); border-color: rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); }
+.st-win.td-look .link-btn.blue:hover { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }

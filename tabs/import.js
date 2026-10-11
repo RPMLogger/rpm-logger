@@ -166,6 +166,8 @@ function _imLogWinOpen(student, idx, day, item, next) {
   var part = 'Log Lesson' + (day !== _tdYmd() ? ' · ' + _ckDay(day) : '');
   var w = _stWin('imLogWin', inqEsc(name), part, CLIPBOARD_ICON, '<div class="im-do-card im-win-card">' + _imDoHtml(name, day) + '</div>');
   w.querySelector('.st-win').classList.add('im-log-win');
+  // Opened from Today (2026-10-11): Today's look, grey buttons, red only on the name.
+  if (_imIn === 'today') w.querySelector('.st-win').classList.add('td-look');
   w.onclick = function (e) { if (e.target === w) closeLogPanel(); };
   w.querySelector('[data-close]').onclick = closeLogPanel;
   var panel = document.getElementById('logPanel');
@@ -622,12 +624,14 @@ function _imFixTips(el) {
 
 // Log lesson (2026-10-08): the Log lesson window for their oldest open
 // lesson (a missed one, or today's), then the next. Grey when none is open.
-// Shared with the Today card's name row (2026-10-11); a click there doesn't fold the card.
-function _imLogBtnHtml(name) {
-  var n = _auEsc(JSON.stringify(name)), q = _imQueue(name);
-  if (!q.length) return '<button class="link-btn im-log-off" onclick="event.stopPropagation()" data-tip="Nothing open.\nEvery lesson has its log, HW and schedule." data-tip-left data-tip-wrap>Log lesson</button>';
+// Shared with the Today card (2026-10-11): o.label, and o.plain for the grey
+// look (not Lessons' blue, so it reads as a different button).
+function _imLogBtnHtml(name, o) {
+  o = o || {};
+  var n = _auEsc(JSON.stringify(name)), q = _imQueue(name), label = o.label || 'Log lesson';
+  if (!q.length) return '<button class="link-btn im-log-off" data-tip="Nothing open.\nEvery lesson has its log, HW and schedule." data-tip-left data-tip-wrap>' + label + '</button>';
   var tip = q.length > 1 ? q.length + ' lessons open, oldest first:\n' + q.map(function (x) { return _ckDay(x.date); }).join(', ') + '.' : 'Log, HW and Schedule for ' + (q[0].date === _tdYmd() ? 'today\'s lesson' : _ckDay(q[0].date)) + '.';
-  return '<button class="link-btn blue opens-window" onclick="event.stopPropagation(); _imLogOpen(' + n + ')" data-tip="Opens a window.\n' + tip + '" data-tip-left data-tip-wrap>Log lesson' + (q.length > 1 ? ' · ' + q.length : '') + '</button>';
+  return '<button class="link-btn' + (o.plain ? '' : ' blue') + ' opens-window" onclick="_imLogOpen(' + n + ')" data-tip="Opens a window.\n' + tip + '" data-tip-left data-tip-wrap>' + label + (q.length > 1 ? ' · ' + q.length : '') + '</button>';
 }
 
 // One student's page as HTML (2026-10-06, shared with the Today tab):
