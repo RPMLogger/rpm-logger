@@ -2358,3 +2358,19 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #tab-general .ld-row.pick { padding: 3px 0; }
 #tab-general .ld-pick { justify-self: start; }
 #tab-general .ld-foot { justify-content: flex-start; margin: 10px 0 0 170px; padding: 0; }   /* Reset under the values */
+#tab-general #loadRatesCard .ld-row.lead .ld-v { color: rgba(255,255,255,0.5); }
+#tab-general #estimatorTable .ld-row .ld-v { color: rgba(255,255,255,0.24); }   /* the Estimator's two incomes in the monthly prices' dark grey (2026-10-10) */   /* Estimator's Gregorian income and the Weekly/Biweekly rates the same grey as the rows around them (2026-10-10) */
+#tab-general .ld-raise { margin-bottom: 6px; }   /* Last raise row at the top, a small gap before the prices */
+#tab-general .ld-vmo { margin-left: 10px; color: rgba(255,255,255,0.24); }   /* the monthly after the price and a dash, the labels' dark grey */
+/* 2026-10-10: Raised on date, Weekly/Biweekly counts and Load's Gregorian income in the dark grey; Load's Total income bright. */
+#tab-general .ld-raise .ld-v, #tab-general #loadWeekly, #tab-general #loadBiweekly, #tab-general #loadGregorian { color: rgba(255,255,255,0.24); }
+#tab-general #loadIncome { color: rgba(255,255,255,0.85); }
+#tab-general > .ld-head { margin-bottom: 10px; }
+#tab-general > .ld-icon { margin: 0 0 26px; }   /* the stats icon under the title, window style */
+#tab-general .ld-rule.ld-gap { margin: 18px 0; }   /* 2026 inquiries: the two rate groups further apart */
+#tab-general > .ld-icon .win-icon { height: 34px; }   /* bigger, like the Log lesson window's icon */
+#tab-general .ld-card + .ld-card { margin-top: 24px; padding-top: 24px; }   /* the same room above and below each line between sections (2026-10-10) */
+/* The Estimator's pickers a step smaller (2026-10-10). */
+#tab-general .ld-pick { padding: 1px; border-radius: 7px; }
+#tab-general .ld-pb { width: 18px; font-size: 11px; }
+#tab-general .ld-pv { min-width: 34px; font-size: 10px; padding: 2px 5px; }

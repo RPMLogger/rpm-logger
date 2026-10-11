@@ -78,22 +78,18 @@ function initLoadRatesCard() {
       // One "Since" line when every type shares the date; otherwise per row.
       var froms = rates.map(function (r) { return r.from || ''; });
       var oneDate = froms.every(function (f) { return f === froms[0]; });
-      // Prices up top (Weekly + Biweekly amber caps, Trial grey caps); what the
-      // website lists them as (monthly) under a rule.
+      // One row per type: the price, then what the website lists it as
+      // (monthly) after a dash, darker (2026-10-10; was its own "Listed as" block).
       var price = function (r) {
         var cls = /weekly/i.test(r.type) ? ' lead' : ' sub caps';
         return '<div class="ld-row' + cls + '"><span class="ld-l">' + inqEsc(r.type) + '</span>' +
           '<span class="ld-v">' + (r.rate == null ? '—' : '$' + r.rate) +
+          (r.monthly ? '<span class="ld-vmo">— ' + inqEsc(r.monthly) + ' / month</span>' : '') +
           (!oneDate && r.from ? ' <span class="ld-vsub">' + inqEsc(r.from) + '</span>' : '') + '</span></div>';
       };
-      var listed = rates.filter(function (r) { return r.monthly; });
-      body.innerHTML = rates.map(price).join('') +
-        (listed.length ? '<hr class="ld-rule"><div class="ld-sublabel">Listed as</div>' +
-          listed.map(function (r) {
-            return '<div class="ld-row sub"><span class="ld-l">' + inqEsc(r.type) + '</span>' +
-              '<span class="ld-v">' + inqEsc(r.monthly) + ' / month</span></div>';
-          }).join('') : '') +
-        (oneDate && froms[0] ? '<div class="ld-note">Last raise: ' + inqEsc(froms[0]) + '</div>' : '') +
+      // Raised on, up top above Weekly, as a row: label, then the date in the values' column (2026-10-10; was the card's foot).
+      body.innerHTML = (oneDate && froms[0] ? '<div class="ld-row sub ld-raise"><span class="ld-l">Raised on</span><span class="ld-v">' + inqEsc(froms[0]) + '</span></div>' : '') +
+        rates.map(price).join('') +
         // A half-filled block in the archive (a raise typed in but not finished)
         // gets shouted, as the old Rates tab did.
         ((d.problems || []).length ? '<div class="ld-problems">Unfinished in the archive' +
@@ -112,20 +108,26 @@ function initLoadYearCard() {
   if (!body || !url) return;
   _ldCached('getRaiseStats', url, body, function (d) {
       if (!d.success) { body.innerHTML = '<div class="empty-state">' + inqEsc(d.message || 'Could not load') + '</div>'; return; }
-      body.innerHTML = (d.periods || []).map(function (p, k) {
+      // Trial section (2026-10-10): offered = trial finished, became students = Successful, all rates added up.
+      var tb = document.getElementById('loadTrialBody');
+      if (tb) {
+        var off = 0, acc = 0;
+        (d.periods || []).forEach(function (p) { off += p.trials || 0; acc += p.students || 0; });
+        tb.innerHTML = '<div class="ld-row sub caps"><span class="ld-l">Offered</span><span class="ld-v">' + off + '</span></div>' +
+          '<div class="ld-row sub caps"><span class="ld-l">Became students</span><span class="ld-v">' + acc + '</span></div>';
+      }
+      // Year as the first row (2026-10-10; was in the heading): getRaiseStats counts this year.
+      body.innerHTML = '<div class="ld-row sub ld-raise"><span class="ld-l">Year</span><span class="ld-v">' + new Date().getFullYear() + '</span></div>' +
+        (d.periods || []).map(function (p, k) {
         // The archive starts at the Aug 25 2026 raise; the price before it was
         // $95 but is deliberately NOT in the archive (adding it would reprice
         // income history), so it is named here, for the card's first period only.
         var rate = p.rate != null ? p.rate : (k === 0 ? 95 : null);
-        // Rate only, no dates: the rate already says which period it is.
-        var head = rate != null ? 'Rate: $' + rate : (p.to ? p.from + ' – ' + p.to : 'Since ' + p.from);
-        var pct = p.inquiries ? Math.round(p.students / p.inquiries * 100) + '%' : '';
-        return (k ? '<hr class="ld-rule">' : '') +
-          '<div class="ld-sublabel">' + inqEsc(head) + '</div>' +
-          '<div class="ld-row sub caps"><span class="ld-l">Inquiries</span><span class="ld-v">' + p.inquiries + '</span></div>' +
-          '<div class="ld-row sub caps"><span class="ld-l">Offered trial</span><span class="ld-v">' + (p.trials != null ? p.trials : '—') + '</span></div>' +
-          '<div class="ld-row lead"><span class="ld-l">Became students</span><span class="ld-v">' +
-            (pct ? '<span class="ld-vsub">' + pct + '</span>' : '') + p.students + '</span></div>';
+        // No rate: the period's dates instead.
+        var head = p.to ? p.from + ' – ' + p.to : 'Since ' + p.from;
+        // One row per rate (2026-10-10): "Inquiries ($95)" in the label column, the count beside it.
+        return '<div class="ld-row sub caps"><span class="ld-l">Inquiries (' + (rate != null ? '$' + rate : inqEsc(head)) + ')</span>' +
+          '<span class="ld-v">' + p.inquiries + '</span></div>';
       }).join('');
   });
 }
