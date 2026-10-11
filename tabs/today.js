@@ -98,8 +98,8 @@ function _tdStudentHtml(s) {
   var body = d.failed ? '<div class="empty-state">Could not read: ' + inqEsc(d.failed) + '</div>'
     : !d.lessons ? '<div class="empty-state rpm-loading">Loading</div>'
     : _imStudentHtml(s.name, d.lessons, d.hw, null, { noTitle: true, noNotes: true }) +
-      // Jump to log (2026-10-11): the Log lesson window without leaving Today; small, grey, bottom left.
-      '<div class="td-foot">' + _imLogBtnHtml(s.name, { label: 'Jump to log', plain: true }) + '</div>';
+      // Log lesson (2026-10-11): the Log lesson window without leaving Today; small, grey, bottom left.
+      '<div class="td-foot">' + _imLogBtnHtml(s.name, { plain: true }) + '</div>';
   // The PREVIEW stamp under the name (om-84, 2026-10-09).
   return title + '<div class="td-body"><img class="td-stamp" src="img/preview-stamp.svg" alt="">' + body + '</div>';
 }

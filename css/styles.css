@@ -2143,7 +2143,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .td-chev .dt-ico { width: 12px; height: 7px; fill: currentColor; }
 #todayBody .td-head:hover .td-chev { color: #fff; }
 #todayBody .td-open .td-chev { transform: rotate(180deg); }
-/* Jump to log, small and grey, bottom left of the Today card (2026-10-11). */
+/* Log lesson, small and grey, bottom left of the Today card (2026-10-11). */
 #todayBody .td-foot { margin-top: 18px; }
 #todayBody .td-foot .link-btn { font-size: 9px; padding: 3px 8px; gap: 5px; }
 /* Last HW's buttons side by side; Show more's Dropbox list under a year-style label (2026-10-07). */
@@ -2379,8 +2379,8 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #tab-general .ld-pb { width: 18px; font-size: 11px; }
 #tab-general .ld-pv { min-width: 34px; font-size: 10px; padding: 2px 5px; }
 
-/* The Log lesson window opened from Today (2026-10-11): Today's look. Grey
-   buttons and steps, red only on the name and Reschedule; Lessons keeps its colours. */
+/* The Log lesson window in Today's look (2026-10-11; from Lessons too since):
+   grey buttons and steps, red only on the name and Reschedule. */
 /* Checklist steps as Today's name buttons (2026-10-11): no circle while to do,
    the tick only once done, and a done step dims. */
 .st-win.td-look .im-steps-row .im-checks { gap: 8px 10px; }

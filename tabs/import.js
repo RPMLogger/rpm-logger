@@ -166,8 +166,8 @@ function _imLogWinOpen(student, idx, day, item, next) {
   var part = 'Log Lesson' + (day !== _tdYmd() ? ' · ' + _ckDay(day) : '');
   var w = _stWin('imLogWin', inqEsc(name), part, CLIPBOARD_ICON, '<div class="im-do-card im-win-card">' + _imDoHtml(name, day) + '</div>');
   w.querySelector('.st-win').classList.add('im-log-win');
-  // Opened from Today (2026-10-11): Today's look, grey buttons, red only on the name.
-  if (_imIn === 'today') w.querySelector('.st-win').classList.add('td-look');
+  // Today's look (2026-10-11, from Today; everywhere since): grey, red only on the name and Reschedule.
+  w.querySelector('.st-win').classList.add('td-look');
   w.onclick = function (e) { if (e.target === w) closeLogPanel(); };
   w.querySelector('[data-close]').onclick = closeLogPanel;
   var panel = document.getElementById('logPanel');
