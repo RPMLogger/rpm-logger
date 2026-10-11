@@ -2246,8 +2246,9 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-win-card .im-sec-head .field-label { display: inline-block; margin: 0; }
 .im-none-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; }   /* Nothing to send, bottom right of the drop zone (2026-10-08) */
 /* HW answers stacked on the left, each its own width, left aligned (2026-10-11):
-   Sent, Nothing to send, Sent video lesson; Browse right, Open on the HW title row. */
+   Nothing to send, Sent video lesson; Browse right; Sent beside the HW title, Open on the HW title row. */
 .im-none-row { align-items: flex-start; }
+.im-sec-head > .lh-sent-btn { display: inline-flex; margin: 0 auto 0 14px; }   /* Sent beside the HW title, level with Open (2026-10-11) */
 .im-hw-col { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-right: auto; }
 .lh-dbx-ico { width: 12px; height: 10px; flex: none; }   /* Open: the Dropbox logo before the word (2026-10-11) */
 .im-steps-row .im-check { color: #d9a441; }   /* to-do steps amber, done ones dim (2026-10-08; was blue, then white) */

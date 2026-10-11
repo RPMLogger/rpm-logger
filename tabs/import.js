@@ -555,18 +555,19 @@ function _imHwOut() {
     var row = document.createElement('div');
     row.className = 'im-none-row';
     files.parentNode.insertBefore(row, files.nextSibling);
-    // The three HW answers stacked on the left (2026-10-11): Sent, Nothing
-    // to send, Sent video lesson; Browse on the right.
+    // HW answers stacked on the left (2026-10-11): Nothing to send, Sent
+    // video lesson; Browse on the right. Sent sits on the title row.
     var col = document.createElement('div');
     col.className = 'im-hw-col';
     row.appendChild(col);
-    var sb = document.getElementById('logHwSentBtn');
-    if (sb) col.appendChild(sb);
     col.appendChild(nb);
     var vb = document.getElementById('logHwVideoBtn');
     if (vb) col.appendChild(vb);
     if (br) row.appendChild(br);
   }
+  // Sent on the HW title row, left after the title, level with Open (2026-10-11).
+  var sb = document.getElementById('logHwSentBtn');
+  if (sb && t && t.parentNode && sb.parentNode !== t.parentNode) t.parentNode.insertBefore(sb, t);
   // Open stays in the HW title row's tools, top right of the box (2026-10-11).
   var db = document.getElementById('logHwDbxBtn');
   if (db && !db.querySelector('svg')) db.insertAdjacentHTML('afterbegin', DBX_LOGO.replace('class="win-icon"', 'class="lh-dbx-ico"'));
