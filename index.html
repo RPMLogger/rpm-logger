@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=807">
+  <link rel="stylesheet" href="css/styles.css?v=808">
 </head>
 <body>
 <div class="container">
@@ -173,8 +173,8 @@
             <!-- Sent (2026-10-11): uploads no longer tick HW; this does, once every file is in. -->
             <button type="button" class="link-btn lh-none-btn lh-sent-btn" id="logHwSentBtn" onclick="_imHwSent()" data-tip="These files are this lesson's HW.&#10;Press again to undo." data-tip-left>Sent</button>
             <button type="button" class="link-btn lh-none-btn" id="logHwVideoBtn" onclick="_imHwVideo()" data-tip="Sent a video lesson instead of files.&#10;Counts as HW. Press again to undo." data-tip-left data-tip-wrap>Sent video lesson</button>
-            <!-- Open (2026-10-11): today's HW folder in the Dropbox app, Dropbox logo added by _imHwOut. -->
-            <button type="button" class="link-btn lh-none-btn lh-dbx-btn" id="logHwDbxBtn" onclick="logHwOpenDbx()" data-tip="Opens elsewhere.&#10;Today's HW folder in the Dropbox app,&#10;their folder before anything is uploaded." data-tip-left data-tip-wrap>Open</button>
+            <!-- Open (2026-10-11): today's HW folder in the Dropbox app; just the Dropbox logo, added by _imHwOut. -->
+            <button type="button" class="link-btn lh-none-btn lh-dbx-btn" id="logHwDbxBtn" onclick="logHwOpenDbx()" aria-label="Open in Dropbox" data-tip="Opens elsewhere.&#10;Today's HW folder in the Dropbox app,&#10;their folder before anything is uploaded." data-tip-left data-tip-wrap></button>
             <button type="button" class="link-btn blue lh-folder-btn opens-window" onclick="logHwBrowseFolder()" data-tip="Opens your folders, where you were last time.&#10;The whole folder uploads, structure kept." data-tip-left>Browse</button></span></div>
         <!-- Home's Dropbox drop zone (2026-10-06): drop files or folders, or
              click to pick files; they upload to the student's Dropbox
@@ -851,7 +851,8 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">807</span></span>
+    <div id="secAlert"></div>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">808</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -871,42 +872,43 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=807"></script>
-<script src="core/storage.js?v=807"></script>
-<script src="core/utils.js?v=807"></script>
-<script src="core/dialog.js?v=807"></script>
-<script src="core/api.js?v=807"></script>
+<script src="core/state.js?v=808"></script>
+<script src="core/storage.js?v=808"></script>
+<script src="core/utils.js?v=808"></script>
+<script src="core/dialog.js?v=808"></script>
+<script src="core/api.js?v=808"></script>
+<script src="core/secalert.js?v=808"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=807"></script>
-<script src="tabs/lessons.js?v=807"></script>
-<script src="tabs/payments.js?v=807"></script>
-<script src="tabs/general.js?v=807"></script>
-<script src="tabs/financial.js?v=807"></script>
-<script src="tabs/inquiries.js?v=807"></script>
-<script src="tabs/inqarchive.js?v=807"></script>
-<script src="tabs/comms.js?v=807"></script>
-<script src="tabs/notes.js?v=807"></script>
-<script src="tabs/todo.js?v=807"></script>
-<script src="tabs/availability.js?v=807"></script>
-<script src="tabs/travel.js?v=807"></script>
-<script src="tabs/tripsummary.js?v=807"></script>
-<script src="tabs/triphistory.js?v=807"></script>
-<script src="tabs/skips.js?v=807"></script>
-<script src="tabs/student.js?v=807"></script>
-<script src="tabs/ctrl.js?v=807"></script>
-<script src="tabs/mailcenter.js?v=807"></script>
-<script src="tabs/dropbox.js?v=807"></script>
-<script src="tabs/import.js?v=807"></script>
-<script src="tabs/today.js?v=807"></script>
-<script src="tabs/trial.js?v=807"></script>
-<script src="tabs/ending.js?v=807"></script>
-<script src="tabs/thisyear.js?v=807"></script>
-<script src="tabs/sheets.js?v=807"></script>
-<script src="tabs/studentline.js?v=807"></script>
-<script src="tabs/calendar.js?v=807"></script>
-<script src="tabs/fixedcal.js?v=807"></script>
-<script src="tabs/secretary.js?v=807"></script>
+<script src="tabs/icons.js?v=808"></script>
+<script src="tabs/lessons.js?v=808"></script>
+<script src="tabs/payments.js?v=808"></script>
+<script src="tabs/general.js?v=808"></script>
+<script src="tabs/financial.js?v=808"></script>
+<script src="tabs/inquiries.js?v=808"></script>
+<script src="tabs/inqarchive.js?v=808"></script>
+<script src="tabs/comms.js?v=808"></script>
+<script src="tabs/notes.js?v=808"></script>
+<script src="tabs/todo.js?v=808"></script>
+<script src="tabs/availability.js?v=808"></script>
+<script src="tabs/travel.js?v=808"></script>
+<script src="tabs/tripsummary.js?v=808"></script>
+<script src="tabs/triphistory.js?v=808"></script>
+<script src="tabs/skips.js?v=808"></script>
+<script src="tabs/student.js?v=808"></script>
+<script src="tabs/ctrl.js?v=808"></script>
+<script src="tabs/mailcenter.js?v=808"></script>
+<script src="tabs/dropbox.js?v=808"></script>
+<script src="tabs/import.js?v=808"></script>
+<script src="tabs/today.js?v=808"></script>
+<script src="tabs/trial.js?v=808"></script>
+<script src="tabs/ending.js?v=808"></script>
+<script src="tabs/thisyear.js?v=808"></script>
+<script src="tabs/sheets.js?v=808"></script>
+<script src="tabs/studentline.js?v=808"></script>
+<script src="tabs/calendar.js?v=808"></script>
+<script src="tabs/fixedcal.js?v=808"></script>
+<script src="tabs/secretary.js?v=808"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -1021,6 +1023,7 @@
       loadData();                  // background-loads cross-tab data (week, payments, etc.)
       refreshInitiateBadge();      // so a reply is visible on the tab without opening it
       refreshFinanceBadge();       // "!" on Financial when income is not being recorded right
+      refreshSecretaryAlert();     // big warning by the build number if a Secretary night run was stopped
       // The portal lands on Today (2026-10-07; was Trial from 2026-09-23).
       switchTab('today');
     }

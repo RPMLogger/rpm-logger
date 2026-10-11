@@ -565,12 +565,16 @@ function _imHwOut() {
     if (vb) col.appendChild(vb);
     if (br) row.appendChild(br);
   }
-  // Sent on the HW title row, left after the title, level with Open (2026-10-11).
-  var sb = document.getElementById('logHwSentBtn');
-  if (sb && t && t.parentNode && sb.parentNode !== t.parentNode) t.parentNode.insertBefore(sb, t);
-  // Open stays in the HW title row's tools, top right of the box (2026-10-11).
-  var db = document.getElementById('logHwDbxBtn');
+  // Above the drop zone (2026-10-11): Sent left, Open (the Dropbox logo in a button) right.
+  var sb = document.getElementById('logHwSentBtn'), db = document.getElementById('logHwDbxBtn');
   if (db && !db.querySelector('svg')) db.insertAdjacentHTML('afterbegin', DBX_LOGO.replace('class="win-icon"', 'class="lh-dbx-ico"'));
+  if (sb && files && files.parentNode && !(sb.parentNode && sb.parentNode.classList.contains('im-sent-row'))) {
+    var sr = document.createElement('div');
+    sr.className = 'im-sent-row';
+    files.parentNode.insertBefore(sr, files);
+    sr.appendChild(sb);
+    if (db) sr.appendChild(db);
+  }
   // Under the log rows (2026-10-08): add-row on the left, Log on the right.
   var acts = document.getElementById('logActions'), add = document.getElementById('logAddRow'), dock = _imQ('imLogDock');
   if (acts && add && dock && dock.contains(add)) {
@@ -592,12 +596,15 @@ function _imHwBack() {
   var nb = document.getElementById('logHwNothing'), tools = head && head.querySelector('.lh-hw-tools');
   var br = document.querySelector('.im-none-row .lh-folder-btn');
   if (br && tools) tools.appendChild(br);
-  var sb = document.getElementById('logHwSentBtn');
-  if (sb && tools && sb.parentNode !== tools) tools.insertBefore(sb, br && br.parentNode === tools ? br : null);
+  var sb = document.getElementById('logHwSentBtn'), db = document.getElementById('logHwDbxBtn');
+  if (sb && tools && sb.parentNode !== tools) {
+    var sr = sb.parentNode && sb.parentNode.classList.contains('im-sent-row') ? sb.parentNode : null;
+    tools.insertBefore(sb, br && br.parentNode === tools ? br : null);
+    if (db) tools.insertBefore(db, br && br.parentNode === tools ? br : null);
+    if (sr) sr.remove();
+  }
   var vb = document.getElementById('logHwVideoBtn');
   if (vb && tools && vb.parentNode !== tools) tools.insertBefore(vb, br && br.parentNode === tools ? br : null);
-  var db = document.getElementById('logHwDbxBtn');
-  if (db && tools && db.parentNode !== tools) tools.insertBefore(db, br && br.parentNode === tools ? br : null);
   if (nb && tools && nb.parentNode !== tools) {
     var row = nb.parentNode && nb.parentNode.closest('.im-none-row');
     tools.insertBefore(nb, tools.firstChild);
