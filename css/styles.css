@@ -2337,3 +2337,24 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .td-wk-day .field-label { color: var(--accent); }   /* every day red, none dimmed */
 .td-wk-none { font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }   /* a day off: OPEN in the date's place, small, the date's grey */
 .st-win .td-wk-rule { margin: 0 0 12px; }
+
+/* General tab in the This Week window's look (2026-10-10): the four gold cards
+   become flat sections one under the other. Section names red like MON; labels
+   in the clock times' dark grey caps; values at Intake brightness in one column
+   (the key ones a step brighter); a line between sections, no gold anywhere. */
+#tab-general > .ld-head { margin-bottom: 30px; }
+#tab-general .ld-cards { display: block; margin-bottom: 32px; }
+#tab-general .ld-card { background: none; border: none; border-radius: 0; padding: 0; margin: 0; display: block; }
+#tab-general .ld-card + .ld-card { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+#tab-general .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; color: var(--accent); margin-bottom: 10px; }
+#tab-general .ld-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); align-items: center; gap: 0; padding: 4px 0; }
+#tab-general .ld-row .ld-l { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.24); }
+#tab-general .ld-row .ld-v { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.5); text-align: left; }
+#tab-general .ld-row.lead .ld-v { color: rgba(255,255,255,0.85); }   /* the numbers that matter: brighter, not amber */
+#tab-general .ld-vsub { color: rgba(255,255,255,0.24); margin: 0 10px 0 0; }
+#tab-general .ld-rule { border: none; margin: 6px 0; }   /* a small gap inside a section, the line is between sections */
+#tab-general .ld-sublabel { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 4px 0 2px; }
+#tab-general .ld-note { margin: 6px 0 0; padding: 0; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.24); }
+#tab-general .ld-row.pick { padding: 3px 0; }
+#tab-general .ld-pick { justify-self: start; }
+#tab-general .ld-foot { justify-content: flex-start; margin: 10px 0 0 170px; padding: 0; }   /* Reset under the values */

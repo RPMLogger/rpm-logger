@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=798">
+  <link rel="stylesheet" href="css/styles.css?v=799">
 </head>
 <body>
 <div class="container">
@@ -282,7 +282,9 @@
   <div class="tab-panel" id="tab-general">
     <!-- 2026-09-30: card look (was the old striped .load-table). Colour only on
          the numbers that matter: Normalized + Gregorian amber, the rest grey. -->
-    <!-- Side by side, each half width, so a label sits close to its number. -->
+    <!-- 2026-10-10: the This Week window's look (Today-style title, red section
+         names, dark caps labels, values in one column, lines between sections). -->
+    <div class="settings-title ld-head"><span>Data<span class="win-sub"> · General</span></span></div>
     <div class="ld-cards">
       <div class="inq-dcard ld-card" id="loadTable">
         <div class="ld-title">Load</div>
@@ -838,7 +840,7 @@
 
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">798</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">799</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -858,42 +860,42 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=798"></script>
-<script src="core/storage.js?v=798"></script>
-<script src="core/utils.js?v=798"></script>
-<script src="core/dialog.js?v=798"></script>
-<script src="core/api.js?v=798"></script>
+<script src="core/state.js?v=799"></script>
+<script src="core/storage.js?v=799"></script>
+<script src="core/utils.js?v=799"></script>
+<script src="core/dialog.js?v=799"></script>
+<script src="core/api.js?v=799"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=798"></script>
-<script src="tabs/lessons.js?v=798"></script>
-<script src="tabs/payments.js?v=798"></script>
-<script src="tabs/general.js?v=798"></script>
-<script src="tabs/financial.js?v=798"></script>
-<script src="tabs/inquiries.js?v=798"></script>
-<script src="tabs/inqarchive.js?v=798"></script>
-<script src="tabs/comms.js?v=798"></script>
-<script src="tabs/notes.js?v=798"></script>
-<script src="tabs/todo.js?v=798"></script>
-<script src="tabs/availability.js?v=798"></script>
-<script src="tabs/travel.js?v=798"></script>
-<script src="tabs/tripsummary.js?v=798"></script>
-<script src="tabs/triphistory.js?v=798"></script>
-<script src="tabs/skips.js?v=798"></script>
-<script src="tabs/student.js?v=798"></script>
-<script src="tabs/ctrl.js?v=798"></script>
-<script src="tabs/mailcenter.js?v=798"></script>
-<script src="tabs/dropbox.js?v=798"></script>
-<script src="tabs/import.js?v=798"></script>
-<script src="tabs/today.js?v=798"></script>
-<script src="tabs/trial.js?v=798"></script>
-<script src="tabs/ending.js?v=798"></script>
-<script src="tabs/thisyear.js?v=798"></script>
-<script src="tabs/sheets.js?v=798"></script>
-<script src="tabs/studentline.js?v=798"></script>
-<script src="tabs/calendar.js?v=798"></script>
-<script src="tabs/fixedcal.js?v=798"></script>
-<script src="tabs/secretary.js?v=798"></script>
+<script src="tabs/icons.js?v=799"></script>
+<script src="tabs/lessons.js?v=799"></script>
+<script src="tabs/payments.js?v=799"></script>
+<script src="tabs/general.js?v=799"></script>
+<script src="tabs/financial.js?v=799"></script>
+<script src="tabs/inquiries.js?v=799"></script>
+<script src="tabs/inqarchive.js?v=799"></script>
+<script src="tabs/comms.js?v=799"></script>
+<script src="tabs/notes.js?v=799"></script>
+<script src="tabs/todo.js?v=799"></script>
+<script src="tabs/availability.js?v=799"></script>
+<script src="tabs/travel.js?v=799"></script>
+<script src="tabs/tripsummary.js?v=799"></script>
+<script src="tabs/triphistory.js?v=799"></script>
+<script src="tabs/skips.js?v=799"></script>
+<script src="tabs/student.js?v=799"></script>
+<script src="tabs/ctrl.js?v=799"></script>
+<script src="tabs/mailcenter.js?v=799"></script>
+<script src="tabs/dropbox.js?v=799"></script>
+<script src="tabs/import.js?v=799"></script>
+<script src="tabs/today.js?v=799"></script>
+<script src="tabs/trial.js?v=799"></script>
+<script src="tabs/ending.js?v=799"></script>
+<script src="tabs/thisyear.js?v=799"></script>
+<script src="tabs/sheets.js?v=799"></script>
+<script src="tabs/studentline.js?v=799"></script>
+<script src="tabs/calendar.js?v=799"></script>
+<script src="tabs/fixedcal.js?v=799"></script>
+<script src="tabs/secretary.js?v=799"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
