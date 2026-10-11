@@ -524,6 +524,12 @@ function _imHwSent() {
   if (!hw || hw.loading || hw.uploading || hw.saving || !hw.files.length) return;
   _imSetHw(hw.choice === 'sent' ? null : 'sent');
 }
+// Sent video lesson (2026-10-11): a video instead of files answers HW too.
+function _imHwVideo() {
+  var hw = logHw;
+  if (!hw || hw.loading || hw.uploading || hw.saving) return;
+  _imSetHw(hw.choice === 'video' ? null : 'video');
+}
 // Ticks only (2026-10-09): it saves with Log and Schedule (_imSend).
 function _imSetHw(c) {
   var hw = logHw;
@@ -545,20 +551,25 @@ function _imHwOut() {
   // Under the drop zone (2026-10-08): Nothing to send left, Browse right (both were on the HW title row).
   var nb = document.getElementById('logHwNothing'), files = document.getElementById('logHwFiles');
   var br = head && head.querySelector('.lh-folder-btn');
-  if (nb && files && files.parentNode && !(nb.parentNode && nb.parentNode.classList.contains('im-none-row'))) {
+  if (nb && files && files.parentNode && !(nb.parentNode && nb.parentNode.classList.contains('im-hw-col'))) {
     var row = document.createElement('div');
     row.className = 'im-none-row';
     files.parentNode.insertBefore(row, files.nextSibling);
-    row.appendChild(nb);
+    // The three HW answers stacked on the left (2026-10-11): Sent, Nothing
+    // to send, Sent video lesson; Browse on the right.
+    var col = document.createElement('div');
+    col.className = 'im-hw-col';
+    row.appendChild(col);
     var sb = document.getElementById('logHwSentBtn');
-    if (sb) row.appendChild(sb);
-    var db = document.getElementById('logHwDbxBtn');
-    if (db) {
-      if (!db.querySelector('svg')) db.insertAdjacentHTML('afterbegin', DBX_LOGO.replace('class="win-icon"', 'class="lh-dbx-ico"'));
-      row.appendChild(db);
-    }
+    if (sb) col.appendChild(sb);
+    col.appendChild(nb);
+    var vb = document.getElementById('logHwVideoBtn');
+    if (vb) col.appendChild(vb);
     if (br) row.appendChild(br);
   }
+  // Open stays in the HW title row's tools, top right of the box (2026-10-11).
+  var db = document.getElementById('logHwDbxBtn');
+  if (db && !db.querySelector('svg')) db.insertAdjacentHTML('afterbegin', DBX_LOGO.replace('class="win-icon"', 'class="lh-dbx-ico"'));
   // Under the log rows (2026-10-08): add-row on the left, Log on the right.
   var acts = document.getElementById('logActions'), add = document.getElementById('logAddRow'), dock = _imQ('imLogDock');
   if (acts && add && dock && dock.contains(add)) {
@@ -582,10 +593,12 @@ function _imHwBack() {
   if (br && tools) tools.appendChild(br);
   var sb = document.getElementById('logHwSentBtn');
   if (sb && tools && sb.parentNode !== tools) tools.insertBefore(sb, br && br.parentNode === tools ? br : null);
+  var vb = document.getElementById('logHwVideoBtn');
+  if (vb && tools && vb.parentNode !== tools) tools.insertBefore(vb, br && br.parentNode === tools ? br : null);
   var db = document.getElementById('logHwDbxBtn');
   if (db && tools && db.parentNode !== tools) tools.insertBefore(db, br && br.parentNode === tools ? br : null);
   if (nb && tools && nb.parentNode !== tools) {
-    var row = nb.parentNode;
+    var row = nb.parentNode && nb.parentNode.closest('.im-none-row');
     tools.insertBefore(nb, tools.firstChild);
     if (row && row.classList.contains('im-none-row')) row.remove();
   }

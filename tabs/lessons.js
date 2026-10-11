@@ -431,7 +431,7 @@ function _logHwExisting() {
         (ex.files || []).forEach(function(p) {
           if (!have[p.toLowerCase()]) hw.files.push({ name: p.split("/").pop(), path: p });
         });
-        if (!hw.choice) hw.choice = ex.hw === "Sent" ? "sent" : "none";
+        if (!hw.choice) hw.choice = _logHwChoice(ex.hw);
         if (hw.choice === "sent" && !hw.files.length) hw.choice = null;
       }
       _logHwRender(); updateLogButton();
@@ -533,6 +533,9 @@ function _logHwUploadNext(hw) {
   });
 }
 
+// The sheet's HW answer as the window's choice (Video lesson added 2026-10-11).
+function _logHwChoice(v) { return v === "Sent" ? "sent" : v === "Video lesson" ? "video" : "none"; }
+
 // Ask the backend which files are new for this lesson.
 function logHwCheck() {
   if (!logHw || logHw.locked) return;
@@ -559,7 +562,7 @@ function logHwCheck() {
           (d.existing.files || []).forEach(function(p) {
             if (!have[p.toLowerCase()]) hw.files.push({ name: p.split("/").pop(), path: p });
           });
-          if (!hw.choice) hw.choice = d.existing.hw === "Sent" ? "sent" : "none";
+          if (!hw.choice) hw.choice = _logHwChoice(d.existing.hw);
         }
         // The Log lesson window waits for its Sent press (2026-10-11), so more can go in first.
         if (!hw.choice && hw.files.length && !window._imDocked) hw.choice = "sent";
@@ -596,7 +599,7 @@ function _logHwRender() {
   else if (!hw.files.length) list.innerHTML = dim + (hw.noFolder ? "No Dropbox folder named " + inqEsc(hw.name) : "⬆ Drag files or folders or browse") + "</span>";
   else list.innerHTML = _dbDetailsFilesHtml({ items: hw.files }) + "<div class='lh-drop-more'><span class='link-btn'>⬆ Drop more here</span></div>";
   list.classList.toggle("lh-empty", !hw.error && !hw.files.length);
-  list.style.opacity = hw.choice === "none" && hw.files.length ? ".4" : "";   // No HW: the files aren't this lesson's
+  list.style.opacity = (hw.choice === "none" || hw.choice === "video") && hw.files.length ? ".4" : "";   // No HW / Video lesson: the files aren't this lesson's
   var n = hw.files.length;
   sent.querySelector("span").textContent = n ? "Sent · " + n + (n === 1 ? " file" : " files") : "Sent";
   sent.classList.toggle("done", hw.choice === "sent");
@@ -608,6 +611,8 @@ function _logHwRender() {
   if (nb) { nb.classList.toggle("pressed", hw.choice === "none"); nb.disabled = hw.loading || !!hw.uploading || !!hw.saving; }
   var sb = document.getElementById("logHwSentBtn");
   if (sb) { sb.classList.toggle("pressed", hw.choice === "sent"); sb.disabled = hw.loading || !!hw.uploading || !!hw.saving || !n; }
+  var vb = document.getElementById("logHwVideoBtn");
+  if (vb) { vb.classList.toggle("pressed", hw.choice === "video"); vb.disabled = hw.loading || !!hw.uploading || !!hw.saving; }
   if (window._imDocked && typeof _imStepsRender === "function") _imStepsRender();
 }
 
