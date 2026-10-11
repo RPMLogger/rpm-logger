@@ -2143,6 +2143,10 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .td-chev .dt-ico { width: 12px; height: 7px; fill: currentColor; }
 #todayBody .td-head:hover .td-chev { color: #fff; }
 #todayBody .td-open .td-chev { transform: rotate(180deg); }
+/* Log lesson left of the chevron on Today's name row, in the Lessons tab's blue (2026-10-11). */
+#todayBody .td-head-r { display: flex; align-items: center; gap: 14px; }
+#todayBody .td-head .link-btn.blue { color: #6f93c6; border-color: color-mix(in srgb, #3d5f8f 80%, transparent); background: color-mix(in srgb, #3d5f8f 12%, transparent); }
+#todayBody .td-head .link-btn.blue:hover { color: #8aa9d6; border-color: #3d5f8f; background: color-mix(in srgb, #3d5f8f 26%, transparent); }
 /* Last HW's buttons side by side; Show more's Dropbox list under a year-style label (2026-10-07). */
 .im-hw-btns { display: flex; justify-content: center; gap: 8px; }
 .im-hw-btns .im-more { margin: 10px 0 0; }
@@ -2242,6 +2246,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-win-card .im-list { padding: 16px; }
 .im-win-card .im-sec-head .field-label { display: inline-block; margin: 0; }
 .im-none-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; }   /* Nothing to send, bottom right of the drop zone (2026-10-08) */
+.im-none-row .lh-sent-btn { margin-right: auto; }   /* Sent beside Nothing to send, Browse stays right (2026-10-11) */
 .im-steps-row .im-check { color: #d9a441; }   /* to-do steps amber, done ones dim (2026-10-08; was blue, then white) */
 /* Log lesson, HW, Schedule without their boxes (2026-10-08): the card's own background, fields out to its sides. */
 .im-list.im-log-box, .im-list.im-hw-dock-box, .im-list.im-sched-box { background: transparent; border: none; border-radius: 0; padding: 0; }

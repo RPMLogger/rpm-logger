@@ -259,18 +259,23 @@ function _imSchedGet(name, day) {
   if (it) return it.sched === 'Changed' ? 'changed' : it.sched ? 'nochange' : '';
   try { return localStorage.getItem(_imSchedKey(name, day)) || ''; } catch (e) { return ''; }
 }
+// The tick on this browser and the loaded checklist, no save.
+function _imSchedPut(name, day, x) {
+  try { if (x) localStorage.setItem(_imSchedKey(name, day), x); else localStorage.removeItem(_imSchedKey(name, day)); } catch (e) {}
+  var it = _ckItem(name, day);
+  if (it) it.sched = x === 'changed' ? 'Changed' : x === 'nochange' ? 'Not needed' : '';
+  var b = _imQ('imNoChangeBtn');
+  if (b) b.classList.toggle('pressed', x === 'nochange');
+  _imStepsRender();
+}
 function _imSchedSet(name, v, day) {
   if (day === undefined) day = _imCtx().day;
   day = day || _tdYmd();
+  // In the Log lesson window (2026-10-09) it only ticks; it saves with the rest (_imSend).
+  var w = window._imWin;
+  if (w && _imKey(w.name) === _imKey(name) && w.day === day) { w.pendSched = v; _imSchedPut(name, day, v); return; }
   var prev = _imSchedGet(name, day);
-  function put(x) {
-    try { if (x) localStorage.setItem(_imSchedKey(name, day), x); else localStorage.removeItem(_imSchedKey(name, day)); } catch (e) {}
-    var it = _ckItem(name, day);
-    if (it) it.sched = x === 'changed' ? 'Changed' : x === 'nochange' ? 'Not needed' : '';
-    var b = _imQ('imNoChangeBtn');
-    if (b) b.classList.toggle('pressed', x === 'nochange');
-    _imStepsRender();
-  }
+  function put(x) { _imSchedPut(name, day, x); }
   var bk = _imSchedKey(name, day);
   _imSchedBusy[bk] = true;   // Done waits for Google to say it's saved
   put(v);
@@ -353,15 +358,123 @@ function _imStepsRender() {
     box.classList.toggle('im-dim', on);
     if (box.previousElementSibling) box.previousElementSibling.classList.toggle('im-dim', on);
   }
+  // Dims the moment it's ticked (2026-10-09), not when Google answers.
   dim('im-log-box', logged);
-  dim('im-hw-dock-box', !!(hw && hw.choice && hw.saved));
+  dim('im-hw-dock-box', !!(hw && hw.choice));
   dim('im-sched-box', !!sched);
+  var w = window._imWin;
+  var all = logged && !!sched && (!hw || (!!hw.choice && !hw.loading && !hw.uploading));
+  var pending = !!w && _imPending(w, hw), sending = !!(w && w.sending);
   var fin = _imQ('imFinDone');
-  // Finished: logged, Schedule answered, HW answered and saved.
-  var finished = logged && sched && !_imSchedBusy[_imSchedKey(name, c.day)] && (!hw || (hw.choice && hw.saved));
-  if (fin) fin.textContent = finished ? 'Finished ✓' : '';
+  // Finished: all three ticked and saved.
+  var finished = all && !pending && !sending && !_imSchedBusy[_imSchedKey(name, c.day)];
+  if (fin) fin.innerHTML = sending ? '<span class="rpm-loading">Saving</span>' : finished ? 'Finished ✓' : '';
+  // All three ticked: they go to Google together.
+  if (all && pending && !sending) { _imSend(w, hw); return; }
   // Finished by something pressed here (not just reopened): Done, then back (2026-10-07).
   if (finished && window._imActed === name) { window._imActed = null; _imDone(name); }
+}
+
+// ── One save at the end (2026-10-09) ──
+// In the Log lesson window Log, HW and Schedule tick and dim the moment
+// they're pressed; nothing goes to Google till all three are ticked, then
+// all at once: the lesson with its HW in one call, Schedule beside it.
+// Closing the window early saves whatever was ticked (_imFlushOnClose).
+function _imPendLog(student, params, action) {
+  var w = window._imWin;
+  if (!w || !activeStudent) return;
+  w.pendLog = { student: student, params: params, action: action };
+  activeStudent.logged = true;
+  llLock(_logBox());
+  var mic = document.getElementById('logMicBtn');
+  if (mic) mic.disabled = true;
+  var lb = document.getElementById('btnLog');
+  if (lb) { lb.textContent = 'Logged ✓'; lb.className = 'link-btn green'; lb.disabled = true; }
+  _imStepsRender();
+}
+// HW to save: answered here, or files picked up here, and not in the sheet yet.
+function _imHwNeeds(hw) { return !!(hw && hw.choice && (hw.dirty || !hw.saved) && !hw.loading && !hw.uploading); }
+function _imPending(w, hw) { return !!(w.pendLog || _imHwNeeds(hw) || w.pendSched !== undefined); }
+function _imSend(w, hw) {
+  if (!w || w.sending || !_imPending(w, hw)) return;
+  w.sending = true;
+  var url = getScriptUrl(), log = w.pendLog, sched = w.pendSched, hwc = _imHwNeeds(hw) ? hw.choice : null;
+  var hwq = hwc ? '&hw=' + hwc + '&source=' + (hwc === 'sent' ? 'Auto' : 'Manual') +
+    '&files=' + encodeURIComponent(hwc === 'sent' ? hw.files.map(function (f) { return f.path; }).join('\n') : '') : '';
+  function get(q) {
+    return fetch(q).then(function (r) { return r.json(); })
+      .catch(function () { return { success: false, message: 'No answer from Google.' }; });
+  }
+  var calls = [];
+  if (log) {
+    var q = url + '?action=' + log.action;
+    for (var k in log.params) q += '&' + k + '=' + encodeURIComponent(log.params[k]);
+    // logLesson's own HW names (hwFiles, hwSource).
+    if (hwc) q += '&hw=' + hwc + '&hwSource=' + (hwc === 'sent' ? 'Auto' : 'Manual') +
+      '&hwFiles=' + encodeURIComponent(hwc === 'sent' ? hw.files.map(function (f) { return f.path; }).join('\n') : '');
+    calls.push(get(q));
+  } else calls.push(Promise.resolve(null));
+  calls.push(hwc && !log ? get(url + '?action=saveHw&name=' + encodeURIComponent(hw.name) + '&lessonDate=' + hw.date + hwq) : Promise.resolve(null));
+  calls.push(sched !== undefined ? get(url + '?action=saveSchedule&name=' + encodeURIComponent(w.name) + '&lessonDate=' + w.day + '&sched=' + (sched || '')) : Promise.resolve(null));
+  if (hw) hw.locked = true;
+  if (window._imWin === w) { rpmBusy(document.querySelector('#imLogWin .im-do-card'), null, true); _logHwRender(); _imStepsRender(); }
+  Promise.all(calls).then(function (r) {
+    var lr = r[0], hr = r[1], sr = r[2], why = [];
+    w.sending = false;
+    if (hw) hw.locked = false;
+    if (lr) {
+      w.pendLog = null;
+      if (lr.success) {
+        _logLessonDone(log.student, log.params.subject, lr, hw);
+        if (lr.hwSaved && hw && hw.choice === hwc) hw.dirty = false;
+        if (lr.hwError) { why.push('HW: ' + lr.hwError); if (hw && hw.choice === hwc) { hw.choice = null; hw.dirty = false; } }
+      } else {
+        why.push(lr.message || 'Lesson not logged.');
+        // Back to Log: the rows open again; HW and Schedule stay ticked and go with the next Log.
+        if (window._imWin === w && activeStudent) {
+          activeStudent.logged = false;
+          var box = _logBox();
+          if (box) { box.classList.remove('locked'); llRows(box).forEach(function (el) { el.readOnly = false; }); }
+          var mic = document.getElementById('logMicBtn');
+          if (mic) mic.disabled = false;
+          var lb = document.getElementById('btnLog');
+          if (lb) { lb.textContent = 'Log'; lb.className = 'link-btn bright'; lb.disabled = false; }
+        }
+      }
+    }
+    if (hr) {
+      if (hr.success) {
+        if (hw.choice === hwc) { hw.saved = true; hw.dirty = false; }
+        _logHwSaved(hw.name, hw);
+      } else {
+        why.push('HW: ' + (hr.message || 'not saved.'));
+        if (hw.choice === hwc) { hw.choice = null; hw.dirty = false; }   // un-ticked: pick it again to retry
+      }
+    }
+    if (sr) {
+      if (w.pendSched === sched) delete w.pendSched;
+      if (!sr.success) {
+        why.push('Schedule: ' + (sr.message || 'not saved.'));
+        if (window._imWin === w) _imSchedPut(w.name, w.day, ''); else try { localStorage.removeItem(_imSchedKey(w.name, w.day)); } catch (e) {}
+      }
+    }
+    if (window._imWin === w) {
+      var card2 = document.querySelector('#imLogWin .im-do-card');
+      rpmBusy(card2, null, false);
+      if (why.length) { window._imActed = null; rpmFail('logPanelStatus', why.join(' ')); }
+      _logHwRender(); updateLogButton(); _imStepsRender();
+    } else {
+      // Saved after the window closed: say so only if something didn't.
+      if (why.length) rpmToast('fail', 'Not saved', w.name + ': ' + why.join(' '));
+      if (_imOpen && _imKey(_imOpen) === _imKey(w.name) && typeof _imOpenStudent === 'function') _imOpenStudent(_imOpen);
+      _ckLoad(function () { _ckRedraw(); });
+    }
+  });
+}
+// closeLogPanel: the window shuts now; what was ticked still saves.
+function _imFlushOnClose() {
+  var w = window._imWin;
+  if (w && !w.sending && _imPending(w, logHw)) _imSend(w, logHw);
 }
 
 // Anything pressed or dropped in the doing card arms Done for that student,
@@ -396,40 +509,21 @@ function _imDone(name) {
 function _imNothingToSend() {
   var hw = logHw;
   if (!hw || hw.loading || hw.uploading || hw.saving) return;
-  _imSetHw(hw.choice === 'none' ? (hw.files.length ? 'sent' : null) : 'none');
+  _imSetHw(hw.choice === 'none' ? null : 'none');
 }
-// Before the log the answer waits and goes with it; once logged it saves now.
+// Sent (2026-10-11): the files in the zone are this lesson's HW. Uploads
+// don't tick it, so more can go in first; again undoes it.
+function _imHwSent() {
+  var hw = logHw;
+  if (!hw || hw.loading || hw.uploading || hw.saving || !hw.files.length) return;
+  _imSetHw(hw.choice === 'sent' ? null : 'sent');
+}
+// Ticks only (2026-10-09): it saves with Log and Schedule (_imSend).
 function _imSetHw(c) {
   var hw = logHw;
   if (!hw) return;
-  var logged = !!(activeStudent && activeStudent.logged);
-  if (!logged || !c) {
-    hw.choice = c;
-    _logHwRender(); updateLogButton(); _imStepsRender(); return;
-  }
-  var prev = hw.choice, prevSaved = hw.saved;
-  hw.choice = c; hw.saving = true; _logHwRender(); _imStepsRender();
-  var q = getScriptUrl() + '?action=saveHw&name=' + encodeURIComponent(hw.name) + '&lessonDate=' + hw.date +
-    '&hw=' + c + '&source=' + (c === 'sent' ? 'Auto' : 'Manual') +
-    '&files=' + encodeURIComponent(c === 'sent' ? hw.files.map(function (f) { return f.path; }).join('\n') : '');
-  fetch(q).then(function (r) { return r.json(); }).then(function (d) {
-    hw.saving = false;
-    if (!d.success) throw new Error(d.message || 'Not saved');
-    hw.saved = true;
-    _logHwRender(); _imStepsRender();
-    if (typeof _logHwSaved === 'function') _logHwSaved(hw.name, hw);   // HW sent - last + Audit
-  }).catch(function (e) {
-    hw.saving = false; hw.choice = prev; hw.saved = prevSaved;
-    _logHwRender(); _imStepsRender();
-    rpmFail('logPanelStatus', e && e.message && e.message !== 'Failed to fetch' ? e.message : 'No answer from Google.');
-  });
-}
-// After a Dropbox check (lessons.js logHwCheck): files found after the lesson
-// was logged are this lesson's HW, so they save straight away.
-function _imHwChecked() {
-  var hw = logHw;
-  if (!window._imDocked || !hw || hw.saving || !(activeStudent && activeStudent.logged)) return;
-  if (hw.choice === 'sent' && !hw.saved) _imSetHw('sent');
+  hw.choice = c; hw.dirty = !!c;
+  _logHwRender(); updateLogButton(); _imStepsRender();
 }
 // Before a redraw: park the docked Log box in its hidden home so innerHTML
 // doesn't throw it away.
@@ -450,6 +544,8 @@ function _imHwOut() {
     row.className = 'im-none-row';
     files.parentNode.insertBefore(row, files.nextSibling);
     row.appendChild(nb);
+    var sb = document.getElementById('logHwSentBtn');
+    if (sb) row.appendChild(sb);
     if (br) row.appendChild(br);
   }
   // Under the log rows (2026-10-08): add-row on the left, Log on the right.
@@ -473,6 +569,8 @@ function _imHwBack() {
   var nb = document.getElementById('logHwNothing'), tools = head && head.querySelector('.lh-hw-tools');
   var br = document.querySelector('.im-none-row .lh-folder-btn');
   if (br && tools) tools.appendChild(br);
+  var sb = document.getElementById('logHwSentBtn');
+  if (sb && tools && sb.parentNode !== tools) tools.insertBefore(sb, br && br.parentNode === tools ? br : null);
   if (nb && tools && nb.parentNode !== tools) {
     var row = nb.parentNode;
     tools.insertBefore(nb, tools.firstChild);
@@ -520,6 +618,16 @@ function _imFixTips(el) {
     // On the row: the cell's overflow:hidden would clip its own CSS tooltip.
     if (s.scrollWidth > s.clientWidth + 1) s.parentNode.setAttribute('data-tip', s.textContent);
   });
+}
+
+// Log lesson (2026-10-08): the Log lesson window for their oldest open
+// lesson (a missed one, or today's), then the next. Grey when none is open.
+// Shared with the Today card's name row (2026-10-11); a click there doesn't fold the card.
+function _imLogBtnHtml(name) {
+  var n = _auEsc(JSON.stringify(name)), q = _imQueue(name);
+  if (!q.length) return '<button class="link-btn im-log-off" onclick="event.stopPropagation()" data-tip="Nothing open.\nEvery lesson has its log, HW and schedule." data-tip-left data-tip-wrap>Log lesson</button>';
+  var tip = q.length > 1 ? q.length + ' lessons open, oldest first:\n' + q.map(function (x) { return _ckDay(x.date); }).join(', ') + '.' : 'Log, HW and Schedule for ' + (q[0].date === _tdYmd() ? 'today\'s lesson' : _ckDay(q[0].date)) + '.';
+  return '<button class="link-btn blue opens-window" onclick="event.stopPropagation(); _imLogOpen(' + n + ')" data-tip="Opens a window.\n' + tip + '" data-tip-left data-tip-wrap>Log lesson' + (q.length > 1 ? ' · ' + q.length : '') + '</button>';
 }
 
 // One student's page as HTML (2026-10-06, shared with the Today tab):
@@ -594,14 +702,7 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
     (o.card ? '<div class="td-student">' : '') +
     // Today draws its own name row (the card's open/close bar, 2026-10-09).
     (o.noTitle ? '' : '<div class="settings-title im-title"><span>' + inqEsc(name) + (o.sub ? '<span class="win-sub"> · ' + inqEsc(o.sub) + '</span>' : '') + '</span>' +
-      // Log lesson (2026-10-08): the Log lesson window for their oldest open
-      // lesson (a missed one, or today's), then the next. Grey when none is open.
-      (o.log ? (function () {
-        var q = _imQueue(name);
-        if (!q.length) return '<button class="link-btn im-log-off" data-tip="Nothing open.\nEvery lesson has its log, HW and schedule." data-tip-left data-tip-wrap>Log lesson</button>';
-        var tip = q.length > 1 ? q.length + ' lessons open, oldest first:\n' + q.map(function (x) { return _ckDay(x.date); }).join(', ') + '.' : 'Log, HW and Schedule for ' + (q[0].date === _tdYmd() ? 'today\'s lesson' : _ckDay(q[0].date)) + '.';
-        return '<button class="link-btn blue opens-window" onclick="_imLogOpen(' + n + ')" data-tip="Opens a window.\n' + tip + '" data-tip-left data-tip-wrap>Log lesson' + (q.length > 1 ? ' · ' + q.length : '') + '</button>';
-      })() : '') +
+      (o.log ? _imLogBtnHtml(name) : '') +
       '</div>') +
     // Each box's small title sits above it, outside its border (2026-10-06).
     // Notes first (2026-10-06): what to mention, before anything else.

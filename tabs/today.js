@@ -94,7 +94,9 @@ function _tdStudentHtml(s) {
   // whole row opens and closes the card (2026-10-09).
   var d = _td.data[_imKey(s.name)] || {}, i = (todayStudents || []).indexOf(s);
   var title = '<div class="settings-title im-title td-head" onclick="_tdToggle(' + i + ')"><span>' + inqEsc(s.name) +
-    '<span class="win-sub"> · Quick look</span></span><span class="td-chev">' + dtArrow(-1) + '</span></div>';
+    '<span class="win-sub"> · Quick look</span></span>' +
+    // Log lesson on the name row (2026-10-11), the Lessons tab's button: logs without leaving Today.
+    '<span class="td-head-r">' + (d.lessons ? _imLogBtnHtml(s.name) : '') + '<span class="td-chev">' + dtArrow(-1) + '</span></span></div>';
   var body = d.failed ? '<div class="empty-state">Could not read: ' + inqEsc(d.failed) + '</div>'
     : !d.lessons ? '<div class="empty-state rpm-loading">Loading</div>'
     : _imStudentHtml(s.name, d.lessons, d.hw, null, { noTitle: true, noNotes: true });

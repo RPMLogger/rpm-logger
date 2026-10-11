@@ -5,6 +5,7 @@ var rowFinals = [""];
 function _logBox() { return document.getElementById("logRows"); }
 
 function closeLogPanel() {
+  if (typeof _imFlushOnClose === "function") _imFlushOnClose();   // Log lesson window: save what's ticked
   stopRecordingClean();
   document.getElementById("logPanel").classList.remove("active");
   document.querySelectorAll(".today-btn").forEach(function(b) { b.classList.remove("recording"); });
@@ -231,6 +232,17 @@ function submitLog() {
   setRecordingUI(false, activeStudent ? activeStudent.idx : undefined);
 
   var student = activeStudent.student;
+  var trialPaid = false;
+  var pe = document.getElementById("trialPaidCheck");
+  if (pe) trialPaid = pe.checked;
+  var params = { studentName: student.name, subject: subject, trialPaid: trialPaid ? "1" : "0" };
+  if (student.eventDate) params.lessonDate = student.eventDate;
+  var action = student.calType === "trial" ? "logTrial" : "logLesson";
+
+  // The Log lesson window (2026-10-09): Log only ticks; the lesson goes to
+  // Google with its HW and Schedule once all three are done (_imSend, import.js).
+  if (window._imDocked && typeof _imPendLog === "function") { _imPendLog(student, params, action); return; }
+
   var btn = document.getElementById("btnLog");
   var panel = document.getElementById("logPanel");
   btn.textContent = "Logging…"; btn.disabled = true;
@@ -238,12 +250,6 @@ function submitLog() {
   // Trial window feedback: the window dims, the button keeps its dots.
   rpmBusy(panel, btn, true);
 
-  var trialPaid = false;
-  var pe = document.getElementById("trialPaidCheck");
-  if (pe) trialPaid = pe.checked;
-
-  var params = { studentName: student.name, subject: subject, trialPaid: trialPaid ? "1" : "0" };
-  if (student.eventDate) params.lessonDate = student.eventDate;
   if (logHw && logHw.choice) {
     params.hw = logHw.choice;
     params.hwFiles = logHw.choice === "sent" ? logHw.files.map(function(f) { return f.path; }).join("\n") : "";
@@ -251,7 +257,7 @@ function submitLog() {
     logHw.locked = true; _logHwRender();
   }
 
-  var q = url + "?action=" + (student.calType === "trial" ? "logTrial" : "logLesson");
+  var q = url + "?action=" + action;
   for (var k in params) q += "&" + k + "=" + encodeURIComponent(params[k]);
   function fail(why) {
     rpmBusy(panel, btn, false);
@@ -262,15 +268,7 @@ function submitLog() {
   fetch(q).then(function(r) { return r.json(); }).then(function(data) {
     rpmBusy(panel, btn, false);
     if (data.success) {
-      // No client-side memory: the sheet is the source of truth. Flag this
-      // student optimistically so the button drops off the Today grid now; the
-      // next loadData re-derives alreadyLogged straight from the sheet.
-      todayStudents.forEach(function(t) {
-        if (t.name === student.name && t.eventDate === student.eventDate) t.alreadyLogged = true;
-      });
-      if (data.hwSaved && logHw) logHw.saved = true;
-      if (data.hwSaved) _logHwSaved(student.name, logHw);
-      addLog("lessonFeed", "✓ " + student.name + " — " + subject, "success");
+      _logLessonDone(student, subject, data, logHw);
       // No success line: the button says Logged ✓, the rows and buttons lock
       // (logged is final), and a second later the window closes by itself
       // (2026-09-28). A failure keeps it open with its Unsuccessful badge.
@@ -279,39 +277,9 @@ function submitLog() {
       var mic = document.getElementById("logMicBtn");
       if (mic) mic.disabled = true;
       llLock(_logBox());
-      renderTodayGrid();
-      // If this log came from the Home/student page, re-fetch that student's
-      // detail so the Past section reflects the lesson just logged. Same hook
-      // pattern as the Audit fix flow below.
-      // Logged from the Import tab's Log lesson: redraw that student's list.
-      if (window._imLogActive && typeof _imOpenStudent === "function") {
-        var _imName = window._imLogActive;
-        window._imLogActive = null;
-        _imOpenStudent(_imName);
-      }
-      if (window._stLogActive && typeof _stOpenStudent === "function") {
-        var _stName = window._stLogActive;
-        window._stLogActive = null;
-        _stOpenStudent(_stName);
-      }
-      // If this log came from the Audit tab, reload the whole Audit list so
-      // the grids show the new lesson (user, 2026-09-29: the old optimistic
-      // chip removal left the red cell on the card). The panel stays floated
-      // until Done: closeLogPanel puts it back.
-      if (window._auditFixActive) {
-        window._auditFixActive = false;
-        window._auditResolve = null;
-        if (typeof initAuditTab === "function") initAuditTab();
-      }
       // The lesson saved but its HW didn't: amber half badge, the window stays
       // open so it's seen (the HW can be saved again from the Dropbox card).
       if (data.hwError) { rpmHalf("logPanelStatus", "HW not saved", data.hwError); return; }
-      // Import's docked box stays, locked, its Log lesson step ticked (2026-10-06).
-      if (window._imDocked) {
-        if (logHw) { logHw.locked = false; _logHwRender(); }   // HW can still be answered or changed
-        if (typeof _imStepsRender === "function") _imStepsRender();
-        return;
-      }
       // Only if it's still this lesson's window (not one opened since).
       var done = activeStudent;
       setTimeout(function() { if (done && activeStudent === done) closeLogPanel(); }, 1000);
@@ -319,6 +287,44 @@ function submitLog() {
       fail(data.message || "Error logging");
     }
   }).catch(function() { fail("No answer from Google. Check the sheet before trying again."); });
+}
+
+// A lesson's log saved (submitLog, or the Log lesson window's _imSend):
+// everything else that follows it. hw: its HW, when it went with the log.
+function _logLessonDone(student, subject, data, hw) {
+  // No client-side memory: the sheet is the source of truth. Flag this
+  // student optimistically so the button drops off the Today grid now; the
+  // next loadData re-derives alreadyLogged straight from the sheet.
+  todayStudents.forEach(function(t) {
+    if (t.name === student.name && t.eventDate === student.eventDate) t.alreadyLogged = true;
+  });
+  if (data.hwSaved && hw) hw.saved = true;
+  if (data.hwSaved) _logHwSaved(student.name, hw);
+  addLog("lessonFeed", "✓ " + student.name + " — " + subject, "success");
+  renderTodayGrid();
+  // If this log came from the Home/student page, re-fetch that student's
+  // detail so the Past section reflects the lesson just logged. Same hook
+  // pattern as the Audit fix flow below.
+  // Logged from the Import tab's Log lesson: redraw that student's list.
+  if (window._imLogActive && typeof _imOpenStudent === "function") {
+    var _imName = window._imLogActive;
+    window._imLogActive = null;
+    _imOpenStudent(_imName);
+  }
+  if (window._stLogActive && typeof _stOpenStudent === "function") {
+    var _stName = window._stLogActive;
+    window._stLogActive = null;
+    _stOpenStudent(_stName);
+  }
+  // If this log came from the Audit tab, reload the whole Audit list so
+  // the grids show the new lesson (user, 2026-09-29: the old optimistic
+  // chip removal left the red cell on the card). The panel stays floated
+  // until Done: closeLogPanel puts it back.
+  if (window._auditFixActive) {
+    window._auditFixActive = false;
+    window._auditResolve = null;
+    if (typeof initAuditTab === "function") initAuditTab();
+  }
 }
 
 // ─── MULTI-ROW HELPERS ───────────────────────────────────────────────────────
@@ -441,7 +447,7 @@ function _logHwWireDrop() {
   var list = document.getElementById("logHwFiles");
   if (!list || list._wired) return;
   list._wired = true;
-  function can() { return logHw && !logHw.locked && !logHw.uploading; }   // drops work while the check runs (2026-10-07)
+  function can() { return logHw && !logHw.locked; }   // drops work while the check runs (2026-10-07) and while uploading (queued, 2026-10-11)
   list.ondragover = function(ev) { if (!can()) return; ev.preventDefault(); list.classList.add("lh-drop-on"); };
   list.ondragleave = function() { list.classList.remove("lh-drop-on"); };
   list.ondrop = function(ev) {
@@ -457,7 +463,7 @@ function _logHwWireDrop() {
 // makes Chrome remember that folder for this site, across restarts. Other
 // browsers fall back to the plain file inputs.
 var LOG_HW_PICKER = "rpm-hw";
-function _logHwCan() { return logHw && !logHw.locked && !logHw.uploading; }
+function _logHwCan() { return logHw && !logHw.locked; }   // while uploading too: the next pick waits its turn (2026-10-11)
 function logHwBrowse(ev) {
   if (!_logHwCan()) return;
   if (ev && ev.target && ev.target.closest && ev.target.closest(".db-file")) return;
@@ -499,20 +505,30 @@ function logHwUploadFolder(input) {
   if (files.length) logHwUpload(files);
 }
 
+// A pick or drop while one is uploading waits in hw.queue and goes next
+// (2026-10-11): no waiting for each folder before choosing the next.
 function logHwUpload(fileList) {
-  if (!logHw || logHw.locked || logHw.uploading || !fileList || !fileList.length) return;
-  var hw = logHw, list = document.getElementById("logHwFiles");
+  if (!logHw || logHw.locked || !fileList || !fileList.length) return;
+  var hw = logHw;
   Array.prototype.forEach.call(fileList, function(f) { hw.mine[String(f.name).toLowerCase()] = 1; });
-  hw.uploading = true; updateLogButton();
-  uploadFilesToDropbox(hw.name, fileList, {
+  hw.queue = hw.queue || [];
+  hw.queue.push(Array.prototype.slice.call(fileList));
+  if (!hw.uploading) _logHwUploadNext(hw);
+}
+function _logHwUploadNext(hw) {
+  var files = hw.queue.shift(), list = document.getElementById("logHwFiles");
+  hw.uploading = true; _logHwRender(); updateLogButton();
+  uploadFilesToDropbox(hw.name, files, {
     onProgress: function(name, i, total) {
-      if (logHw === hw && list) list.innerHTML = "<span style='color:var(--muted)'>Uploading " + (i + 1) + "/" + total + ": " + inqEsc(name) + "…</span>";
+      var wait = hw.queue.length ? " · " + hw.queue.length + " more waiting" : "";
+      if (logHw === hw && list) list.innerHTML = "<span style='color:var(--muted)'>Uploading " + (i + 1) + "/" + total + ": " + inqEsc(name) + "…" + wait + "</span>";
     },
     onDone: function(ok, fail, total) {
-      hw.uploading = false;
-      if (logHw !== hw) return;
+      if (logHw !== hw) { hw.uploading = false; return; }
       if (fail) addLog("lessonFeed", "⚠ " + fail + " of " + total + " file(s) didn't upload to " + hw.name + "'s Dropbox", "warn");
-      logHwCheck();   // the new files list, Sent picked
+      if (hw.queue.length) { _logHwUploadNext(hw); return; }
+      hw.uploading = false;
+      logHwCheck();   // the new files list
     }
   });
 }
@@ -545,11 +561,11 @@ function logHwCheck() {
           });
           if (!hw.choice) hw.choice = d.existing.hw === "Sent" ? "sent" : "none";
         }
-        if (!hw.choice && hw.files.length) hw.choice = "sent";
+        // The Log lesson window waits for its Sent press (2026-10-11), so more can go in first.
+        if (!hw.choice && hw.files.length && !window._imDocked) hw.choice = "sent";
         if (hw.choice === "sent" && !hw.files.length) hw.choice = null;
       }
       _logHwRender(); updateLogButton();
-      if (typeof _imHwChecked === "function") _imHwChecked();   // Import: files after the log save now
     })
     .catch(function() {
       if (logHw !== hw || seq !== _logHwSeq) return;
@@ -590,6 +606,8 @@ function _logHwRender() {
   none.disabled = hw.locked || hw.loading;
   var nb = document.getElementById("logHwNothing");
   if (nb) { nb.classList.toggle("pressed", hw.choice === "none"); nb.disabled = hw.loading || !!hw.uploading || !!hw.saving; }
+  var sb = document.getElementById("logHwSentBtn");
+  if (sb) { sb.classList.toggle("pressed", hw.choice === "sent"); sb.disabled = hw.loading || !!hw.uploading || !!hw.saving || !n; }
   if (window._imDocked && typeof _imStepsRender === "function") _imStepsRender();
 }
 
