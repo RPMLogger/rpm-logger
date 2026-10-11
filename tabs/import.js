@@ -548,6 +548,11 @@ function _imHwOut() {
     row.appendChild(nb);
     var sb = document.getElementById('logHwSentBtn');
     if (sb) row.appendChild(sb);
+    var db = document.getElementById('logHwDbxBtn');
+    if (db) {
+      if (!db.querySelector('svg')) db.insertAdjacentHTML('afterbegin', DBX_LOGO.replace('class="win-icon"', 'class="lh-dbx-ico"'));
+      row.appendChild(db);
+    }
     if (br) row.appendChild(br);
   }
   // Under the log rows (2026-10-08): add-row on the left, Log on the right.
@@ -573,6 +578,8 @@ function _imHwBack() {
   if (br && tools) tools.appendChild(br);
   var sb = document.getElementById('logHwSentBtn');
   if (sb && tools && sb.parentNode !== tools) tools.insertBefore(sb, br && br.parentNode === tools ? br : null);
+  var db = document.getElementById('logHwDbxBtn');
+  if (db && tools && db.parentNode !== tools) tools.insertBefore(db, br && br.parentNode === tools ? br : null);
   if (nb && tools && nb.parentNode !== tools) {
     var row = nb.parentNode;
     tools.insertBefore(nb, tools.firstChild);

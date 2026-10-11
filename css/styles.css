@@ -2246,6 +2246,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-win-card .im-sec-head .field-label { display: inline-block; margin: 0; }
 .im-none-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; }   /* Nothing to send, bottom right of the drop zone (2026-10-08) */
 .im-none-row .lh-sent-btn { margin-right: auto; }   /* Sent beside Nothing to send, Browse stays right (2026-10-11) */
+.lh-dbx-ico { width: 12px; height: 10px; flex: none; }   /* Open: the Dropbox logo before the word (2026-10-11) */
 .im-steps-row .im-check { color: #d9a441; }   /* to-do steps amber, done ones dim (2026-10-08; was blue, then white) */
 /* Log lesson, HW, Schedule without their boxes (2026-10-08): the card's own background, fields out to its sides. */
 .im-list.im-log-box, .im-list.im-hw-dock-box, .im-list.im-sched-box { background: transparent; border: none; border-radius: 0; padding: 0; }
