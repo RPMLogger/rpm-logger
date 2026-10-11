@@ -417,7 +417,11 @@ function _imSend(w, hw) {
     calls.push(get(q));
   } else calls.push(Promise.resolve(null));
   calls.push(hwc && !log ? get(url + '?action=saveHw&name=' + encodeURIComponent(hw.name) + '&lessonDate=' + hw.date + hwq) : Promise.resolve(null));
-  calls.push(sched !== undefined ? get(url + '?action=saveSchedule&name=' + encodeURIComponent(w.name) + '&lessonDate=' + w.day + '&sched=' + (sched || '')) : Promise.resolve(null));
+  // Schedule after the log and HW answer (2026-10-11): sent at the same moment
+  // they wrote the same checklist row and the log wiped it (Gulnara, Oct 11).
+  calls.push(sched !== undefined ? Promise.all(calls.slice()).then(function () {
+    return get(url + '?action=saveSchedule&name=' + encodeURIComponent(w.name) + '&lessonDate=' + w.day + '&sched=' + (sched || ''));
+  }) : Promise.resolve(null));
   if (hw) hw.locked = true;
   if (window._imWin === w) { rpmBusy(document.querySelector('#imLogWin .im-do-card'), null, true); _logHwRender(); _imStepsRender(); }
   Promise.all(calls).then(function (r) {

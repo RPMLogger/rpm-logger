@@ -611,6 +611,13 @@ function _logHwRender() {
   if (window._imDocked && typeof _imStepsRender === "function") _imStepsRender();
 }
 
+// Open (2026-10-11): today's HW folder (where uploads go, lessonFolderName)
+// in the Dropbox app; their own folder while the zone is empty.
+function logHwOpenDbx() {
+  if (!logHw) return;
+  openDropboxLocalFolder(logHw.files.length ? logHw.name + "/" + lessonFolderName() : logHw.name);
+}
+
 // HW-only mode hides the lesson rows; the window title says HW.
 function _logHwOnly(on) {
   var panel = document.getElementById("logPanel");
