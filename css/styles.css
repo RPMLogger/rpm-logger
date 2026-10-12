@@ -2145,6 +2145,11 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #todayBody .td-open .td-chev { transform: rotate(180deg); }
 /* Log lesson, small and grey, bottom left of the Today card (2026-10-11). */
 #todayBody .td-foot { margin-top: 18px; }
+/* Owes 2 blocks (quiet) / 3+ (red alert), under the name on Today (2026-10-12) */
+#todayBody .td-owe { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: rgba(217,164,65,0.75); margin: -4px 0 12px; }   /* the portal amber: --warn is red inside Today */
+#todayBody .td-owe-alert { color: var(--accent); font-size: 11px; }
+/* Lessons card Payment note at 3+ blocks owed: red (2026-10-12) */
+.im-note-alert .im-note-h, #importBody .im-note-alert .im-note-h, .im-note-alert .im-note-t { color: var(--accent); }
 #todayBody .td-foot .link-btn { font-size: 9px; padding: 3px 8px; gap: 5px; }
 /* Last HW's buttons side by side; Show more's Dropbox list under a year-style label (2026-10-07). */
 .im-hw-btns { display: flex; justify-content: center; gap: 8px; }

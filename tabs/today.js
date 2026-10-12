@@ -100,8 +100,13 @@ function _tdStudentHtml(s) {
     : _imStudentHtml(s.name, d.lessons, d.hw, null, { noTitle: true, noNotes: true }) +
       // Log lesson (2026-10-11): the Log lesson window without leaving Today; small, grey, bottom left.
       '<div class="td-foot">' + _imLogBtnHtml(s.name, { plain: true }) + '</div>';
+  // Owes 2 blocks: a quiet line; 3+: red (2026-10-12), under the name even
+  // with the card closed, so it's seen during the lesson.
+  var owes = (d.pay && d.pay.owes) || 0;
+  var owe = owes >= 2 ? '<div class="td-owe' + (owes >= 3 ? ' td-owe-alert' : '') + '">' +
+    (owes >= 3 ? '⚠ ' : '') + 'Owes ' + owes + ' blocks</div>' : '';
   // The PREVIEW stamp under the name (om-84, 2026-10-09).
-  return title + '<div class="td-body"><img class="td-stamp" src="img/preview-stamp.svg" alt="">' + body + '</div>';
+  return title + owe + '<div class="td-body"><img class="td-stamp" src="img/preview-stamp.svg" alt="">' + body + '</div>';
 }
 
 // Redraw one student's part when their reads come in.
@@ -113,7 +118,7 @@ function _tdDrawOne(name) {
   _imFixTips(el);
 }
 
-// The two reads for one student (Notes' detail read dropped with Notes, 2026-10-09). Each one redraws that student's part.
+// The reads for one student (+ payment, 2026-10-12) (Notes' detail read dropped with Notes, 2026-10-09). Each one redraws that student's part.
 function _tdLoad(name) {
   var key = _imKey(name), day = _td.day, url = getScriptUrl();
   if (!url) return;
@@ -130,6 +135,9 @@ function _tdLoad(name) {
     .catch(function () { d.failed = 'No answer from Google.'; done(); });
   get('getHwLog', '&name=' + encodeURIComponent(name))
     .then(function (r) { if (r.success) { d.hw = { rows: r.rows || [] }; done(); } })
+    .catch(function () {});
+  get('getPayInfo', '&name=' + encodeURIComponent(name))
+    .then(function (r) { if (r.success) { d.pay = { status: r.status, owes: r.owes || 0 }; done(); } })
     .catch(function () {});
 }
 

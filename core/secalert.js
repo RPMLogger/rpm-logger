@@ -10,6 +10,10 @@
 function refreshSecretaryAlert() {
   var box = document.getElementById('secAlert');
   if (!box) return;
+  if (/[?&]secAlertDemo=owes/.test(location.search)) {
+    _secAlertRender([{ row: 0, night: 'Christian Sakai|8', type: 'owes', student: 'Christian Sakai', trial: 'Dec 1, 6:00 PM' }]);
+    return;
+  }
   if (/[?&]secAlertDemo=trial/.test(location.search)) {
     _secAlertRender([{ row: 0, night: 'alexkim1', type: 'trial', student: 'Alex Kim', trial: 'Oct 17, 11:00 AM' }]);
     return;
@@ -40,6 +44,17 @@ function _secAlertRender(alerts) {
       "<span class='sa-text'>No Trial Information was sent" + more +
         ". Add their email as a guest on the event; Secretary sends it within the hour.</span>" +
       "<button class='sa-btn' onclick='_secAlertDismiss(" + a.row + ", \"" + a.night + "\")'>Got it</button>";
+    box.style.display = 'flex';
+    return;
+  }
+  // A student owes 3+ blocks (2026-10-12): the Secretary stopped their
+  // reminders and leaves it to you.
+  if (a.type === 'owes') {
+    box.innerHTML =
+      "<span class='sa-head'>⚠ " + (a.student || '').toUpperCase() + " owes 3+ blocks</span>" +
+      "<span class='sa-text'>Automatic reminders stopped until they pay" + more +
+        ". Next lesson " + (a.trial || '') + ".</span>" +
+      "<button class='sa-btn' onclick='_secAlertDismiss(" + a.row + ", \"" + a.night.replace(/'/g, '&#39;') + "\")'>Got it</button>";
     box.style.display = 'flex';
     return;
   }

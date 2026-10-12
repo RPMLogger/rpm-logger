@@ -950,8 +950,12 @@ function _imNotes(d, name) {
         '<button class="link-btn" onclick="_imClearWrong(this, ' + _auEsc(JSON.stringify(name)) + ')" data-tip="Clears the warning.\nPress once you\'ve reminded them.">Reminded ✓</button></div>' });
   }
   if (d.paymentStatus && d.paymentStatus !== 'Paid' && d.paymentStatus !== '—') {
-    out.push({ kind: 'pay', html:
-      '<div class="im-note-h">Payment</div><div class="im-note-t">' + inqEsc(d.paymentStatus) + '</div>' });
+    // Owes 2 blocks = a quiet warning, 3+ = red alert (2026-10-12; 3 is where
+    // the Secretary stops reminding and leaves it to you).
+    var owes = d.paymentOwes || 0;
+    out.push({ kind: owes >= 3 ? 'pay-alert' : 'pay', html:
+      '<div class="im-note-h">Payment</div><div class="im-note-t">' + inqEsc(d.paymentStatus) +
+      (owes >= 2 ? ' · Owes ' + owes + ' blocks' : '') + '</div>' });
   }
   return out;
 }
@@ -959,7 +963,7 @@ function _imNotes(d, name) {
 function _imNotesBoxHtml(d, name) {
   if (!d) return '<div class="im-note-d">Loading</div>';
   var notes = _imNotes(d, name);
-  return notes.length ? notes.map(function (x) { return '<div class="im-note">' + x.html + '</div>'; }).join('')
+  return notes.length ? notes.map(function (x) { return '<div class="im-note' + (x.kind === 'pay-alert' ? ' im-note-alert' : '') + '">' + x.html + '</div>'; }).join('')
                       : '<div class="im-none">None</div>';   // the lesson rows' font (2026-10-06)
 }
 
