@@ -217,7 +217,18 @@ function stopRecording() {
 }
 
 // ─── SUBMIT LESSON LOG ───────────────────────────────────────────────────────
-function submitLog() {
+// No show (2026-10-11): logs the lesson as "No show" (it counts and is paid)
+// and asks logLesson for a row in the Counter's No Show Logs (RPM_NoShow.js).
+// HW and Schedule stay open: HW or a video lesson can still go to them.
+function logNoShow() {
+  var box = _logBox();
+  if (!box || !activeStudent || activeStudent.logged || activeStudent.hwOnly) return;
+  if (activeStudent.student && activeStudent.student.calType === "trial") return;
+  llRows(box).forEach(function(el, i) { el.value = i ? "" : "No show"; });
+  submitLog(true);
+}
+
+function submitLog(noShow) {
   var url = getScriptUrl(); if (!url) return;
   if (activeStudent && activeStudent.hwOnly) { logHwSaveOnly(); return; }
   if (logHw && !logHw.choice && !window._imDocked) return;   // the docked box asks HW in Finish logging
@@ -237,6 +248,7 @@ function submitLog() {
   if (pe) trialPaid = pe.checked;
   var params = { studentName: student.name, subject: subject, trialPaid: trialPaid ? "1" : "0" };
   if (student.eventDate) params.lessonDate = student.eventDate;
+  if (noShow === true) params.noShow = "1";
   var action = student.calType === "trial" ? "logTrial" : "logLesson";
 
   // The Log lesson window (2026-10-09): Log only ticks; the lesson goes to
@@ -343,6 +355,11 @@ function onRowInput() {
 }
 
 function updateLogButton() {
+  var ns = document.getElementById("btnNoShow");
+  if (ns) {
+    ns.disabled = !!(activeStudent && activeStudent.logged);
+    ns.hidden = !!(activeStudent && (activeStudent.hwOnly || (activeStudent.student && activeStudent.student.calType === "trial")));
+  }
   if (activeStudent && activeStudent.logged) return;
   var rowsOk = (activeStudent && activeStudent.hwOnly) || llValues(_logBox()).some(function(v) { return v; });
   var hwOk = !logHw || (!!logHw.choice && !logHw.loading && !logHw.uploading);

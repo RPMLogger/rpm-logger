@@ -392,6 +392,8 @@ function _imPendLog(student, params, action) {
   if (mic) mic.disabled = true;
   var lb = document.getElementById('btnLog');
   if (lb) { lb.textContent = 'Logged ✓'; lb.className = 'link-btn green'; lb.disabled = true; }
+  var ns = document.getElementById('btnNoShow');
+  if (ns) ns.disabled = true;
   _imStepsRender();
 }
 // HW to save: answered here, or files picked up here, and not in the sheet yet.
@@ -433,6 +435,7 @@ function _imSend(w, hw) {
       if (lr.success) {
         _logLessonDone(log.student, log.params.subject, lr, hw);
         if (lr.hwSaved && hw && hw.choice === hwc) hw.dirty = false;
+        if (lr.noShowError) why.push('No show: ' + lr.noShowError + '.');
         if (lr.hwError) { why.push('HW: ' + lr.hwError); if (hw && hw.choice === hwc) { hw.choice = null; hw.dirty = false; } }
       } else {
         why.push(lr.message || 'Lesson not logged.');
@@ -445,6 +448,8 @@ function _imSend(w, hw) {
           if (mic) mic.disabled = false;
           var lb = document.getElementById('btnLog');
           if (lb) { lb.textContent = 'Log'; lb.className = 'link-btn bright'; lb.disabled = false; }
+          var ns = document.getElementById('btnNoShow');
+          if (ns) ns.disabled = false;
         }
       }
     }

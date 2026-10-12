@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=809">
+  <link rel="stylesheet" href="css/styles.css?v=810">
 </head>
 <body>
 <div class="container">
@@ -189,6 +189,8 @@
       </div>
       <div class="ll-acts" id="logActions" style="margin-top:16px">
         <span class="ll-state" id="logPanelStatus" style="flex:1"></span>
+        <!-- No show (2026-10-11): Log lesson window only; logs "No show" and a No Show Logs row (Counter). -->
+        <button class="link-btn" id="btnNoShow" data-tip="Logs this lesson as No show.&#10;It counts and is paid; HW and Schedule stay open.&#10;Also adds a row to No Show Logs (Counter)." data-tip-left data-tip-wrap onclick="logNoShow()">No show</button>
         <button class="link-btn bright" id="btnLog" data-tip="Saves the lesson log.&#10;⌘ Enter does too." data-tip-left onclick="submitLog()" disabled>Log</button>
       </div>
     </div>
@@ -852,7 +854,7 @@
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
     <div id="secAlert"></div>
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">809</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">810</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -872,43 +874,43 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=809"></script>
-<script src="core/storage.js?v=809"></script>
-<script src="core/utils.js?v=809"></script>
-<script src="core/dialog.js?v=809"></script>
-<script src="core/api.js?v=809"></script>
-<script src="core/secalert.js?v=809"></script>
+<script src="core/state.js?v=810"></script>
+<script src="core/storage.js?v=810"></script>
+<script src="core/utils.js?v=810"></script>
+<script src="core/dialog.js?v=810"></script>
+<script src="core/api.js?v=810"></script>
+<script src="core/secalert.js?v=810"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=809"></script>
-<script src="tabs/lessons.js?v=809"></script>
-<script src="tabs/payments.js?v=809"></script>
-<script src="tabs/general.js?v=809"></script>
-<script src="tabs/financial.js?v=809"></script>
-<script src="tabs/inquiries.js?v=809"></script>
-<script src="tabs/inqarchive.js?v=809"></script>
-<script src="tabs/comms.js?v=809"></script>
-<script src="tabs/notes.js?v=809"></script>
-<script src="tabs/todo.js?v=809"></script>
-<script src="tabs/availability.js?v=809"></script>
-<script src="tabs/travel.js?v=809"></script>
-<script src="tabs/tripsummary.js?v=809"></script>
-<script src="tabs/triphistory.js?v=809"></script>
-<script src="tabs/skips.js?v=809"></script>
-<script src="tabs/student.js?v=809"></script>
-<script src="tabs/ctrl.js?v=809"></script>
-<script src="tabs/mailcenter.js?v=809"></script>
-<script src="tabs/dropbox.js?v=809"></script>
-<script src="tabs/import.js?v=809"></script>
-<script src="tabs/today.js?v=809"></script>
-<script src="tabs/trial.js?v=809"></script>
-<script src="tabs/ending.js?v=809"></script>
-<script src="tabs/thisyear.js?v=809"></script>
-<script src="tabs/sheets.js?v=809"></script>
-<script src="tabs/studentline.js?v=809"></script>
-<script src="tabs/calendar.js?v=809"></script>
-<script src="tabs/fixedcal.js?v=809"></script>
-<script src="tabs/secretary.js?v=809"></script>
+<script src="tabs/icons.js?v=810"></script>
+<script src="tabs/lessons.js?v=810"></script>
+<script src="tabs/payments.js?v=810"></script>
+<script src="tabs/general.js?v=810"></script>
+<script src="tabs/financial.js?v=810"></script>
+<script src="tabs/inquiries.js?v=810"></script>
+<script src="tabs/inqarchive.js?v=810"></script>
+<script src="tabs/comms.js?v=810"></script>
+<script src="tabs/notes.js?v=810"></script>
+<script src="tabs/todo.js?v=810"></script>
+<script src="tabs/availability.js?v=810"></script>
+<script src="tabs/travel.js?v=810"></script>
+<script src="tabs/tripsummary.js?v=810"></script>
+<script src="tabs/triphistory.js?v=810"></script>
+<script src="tabs/skips.js?v=810"></script>
+<script src="tabs/student.js?v=810"></script>
+<script src="tabs/ctrl.js?v=810"></script>
+<script src="tabs/mailcenter.js?v=810"></script>
+<script src="tabs/dropbox.js?v=810"></script>
+<script src="tabs/import.js?v=810"></script>
+<script src="tabs/today.js?v=810"></script>
+<script src="tabs/trial.js?v=810"></script>
+<script src="tabs/ending.js?v=810"></script>
+<script src="tabs/thisyear.js?v=810"></script>
+<script src="tabs/sheets.js?v=810"></script>
+<script src="tabs/studentline.js?v=810"></script>
+<script src="tabs/calendar.js?v=810"></script>
+<script src="tabs/fixedcal.js?v=810"></script>
+<script src="tabs/secretary.js?v=810"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
