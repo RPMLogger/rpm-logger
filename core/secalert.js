@@ -4,11 +4,16 @@
 // students fake schedule changes; the Secretary now recovers without emailing
 // and raises this). The Secretary writes the row to the Counter sheet's
 // "Secretary Alerts" tab; the same alert also goes out by email and text.
-// Stays until "Got it". Add ?secAlertDemo to the URL to see a sample.
+// Also (2026-10-12) a new trial with no guest email. Stays until "Got it".
+// Add ?secAlertDemo (night run) or ?secAlertDemo=trial to see a sample.
 
 function refreshSecretaryAlert() {
   var box = document.getElementById('secAlert');
   if (!box) return;
+  if (/[?&]secAlertDemo=trial/.test(location.search)) {
+    _secAlertRender([{ row: 0, night: 'alexkim1', type: 'trial', student: 'Alex Kim', trial: 'Oct 17, 11:00 AM' }]);
+    return;
+  }
   if (/[?&]secAlertDemo/.test(location.search)) {
     _secAlertRender([{ row: 0, night: '2026-10-12', recovered: 'Oct 12, 7:48 AM' }]);
     return;
@@ -25,10 +30,22 @@ function _secAlertRender(alerts) {
   var box = document.getElementById('secAlert');
   if (!alerts.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
   var a      = alerts[0];
+  var more   = alerts.length > 1 ? ' · +' + (alerts.length - 1) + ' more' : '';
+  // A new trial with no guest email (2026-10-12): no Trial Information went
+  // out. Clears itself once the email is added and the Secretary sends it.
+  if (a.type === 'trial') {
+    var day = (a.trial || '').split(',')[0];
+    box.innerHTML =
+      "<span class='sa-head'>⚠ Trial without email · " + (a.student + ', ' + day).toUpperCase() + "</span>" +
+      "<span class='sa-text'>No Trial Information was sent" + more +
+        ". Add their email as a guest on the event; Secretary sends it within the hour.</span>" +
+      "<button class='sa-btn' onclick='_secAlertDismiss(" + a.row + ", \"" + a.night + "\")'>Got it</button>";
+    box.style.display = 'flex';
+    return;
+  }
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var p      = a.night.split('-');
   var night  = p.length === 3 ? months[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10) : a.night;
-  var more   = alerts.length > 1 ? ' · +' + (alerts.length - 1) + ' more' : '';
   box.innerHTML =
     "<span class='sa-head'>⚠ Night run stopped · " + night.toUpperCase() + "</span>" +
     "<span class='sa-text'>Secretary recovered " + a.recovered + more +
