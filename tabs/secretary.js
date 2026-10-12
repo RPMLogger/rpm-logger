@@ -21,9 +21,9 @@ function initSecretaryTab(tab) {
 // ── LOGIC ───────────────────────────────────────────────────────────────────
 var SEC_LOGIC = [
   { h: 'Scanning', qa: [
-    ['Does Secretary scan 60 days ahead, every hour?',
+    ['Does Secretary scan 30 days ahead, every hour?',
      'Yes. It runs every hour and checks the Weekly, Biweekly and Trial calendars.'],
-    ['Does the 60-day end move every hour?',
+    ['Does the 30-day end move every hour?',
      'No. The end is fixed once a day, at the first run after midnight. Each hourly check runs from "now" to that fixed end, so the window gets one hour shorter each run. Lessons that already started drop off the front.'],
     ['What happens at midnight?',
      'First, one last change check against yesterday’s list, so a change made late in the evening still gets its email. Then it wipes every label, relabels everything, and saves a new "midnight list": each label with its start and end time.']
@@ -60,13 +60,15 @@ var SEC_LOGIC = [
   ]},
   { h: 'Recurring Slot email', qa: [
     ['When does "Your Recurring Slot Has Changed" go out?',
-     'A regular student (not a trial) with 2 or more upcoming lessons in the list, where every one is still there, every one moved, and all the new times fall on one weekday (any day, including the old one). Lessons that already happened today are ignored.'],
+     'A regular student (not a trial) where, from the first moved upcoming lesson on, every later lesson in the list is still there, moved, and at one new day + time (same day with a new time counts). Then one check past the list: the student’s next 1–2 lessons after the window must be at that new slot too. That tells a series edit from one-off moves: a biweekly student has only ~2 lessons in the 30 days, and moving both one at a time looks the same. No lessons past the window (student ending) = can’t tell = normal email. The night run skips this check, so a series edit made after the last hourly run gets the normal email.'],
+    ['Where is it recorded?',
+     'Each one adds a row to the Counter’s “Slot Changes” tab: Detected, Student, Calendar, Old Slot, New Slot, Starting. Written before the email, so a missing email address doesn’t lose it; never written twice for the same move.'],
     ['Move or delete-and-recreate?',
      'Move. A "This and following events" edit copies the edited lesson’s label onto every new lesson (learned Oct 1, 2026 from Charlotte’s wrong email). Before comparing, Secretary treats repeated labels as copies: the earliest keeps the label (or the one still where the student was last told), and the rest are relabeled in date order, so they pair with the old lessons and read as moved. Delete-and-recreate only works if no run lands between the delete and the create.'],
     ['Example',
      'Charlotte Kang, biweekly Wed 7:30 PM → Tue 8:30 PM from Oct 6, moved on Oct 1. The window holds Oct 7, 21, Nov 4, 18; they become Oct 6, 20, Nov 3, 17. All moved onto Tuesday, so she gets "Your Recurring Slot Has Changed — Tuesdays at 8:30 PM (Starting October 6)".'],
     ['What can still go wrong?',
-     'Moving lessons one at a time across runs gives separate "rescheduled" emails instead. Anything that wipes a label without a same-run relabel (editing a description by hand) turns a move into a cancel.']
+     'Moving lessons one at a time across runs gives separate "rescheduled" emails instead. A Weekly ↔ Biweekly switch and a biweekly week flip (same day + time, other week) get the normal email and no Slot Changes row. Anything that wipes a label without a same-run relabel (editing a description by hand) turns a move into a cancel.']
   ]}
 ];
 
@@ -75,12 +77,12 @@ var SEC_EMAIL_WHEN = [
   ['1 lesson cancelled', 'Your Lesson Is Cancelled'],
   ['Trial moved / cancelled', 'Trial Lesson - Rescheduled / Cancelled'],
   ['2 or more changes in one run', 'Your Schedule Has Changed'],
-  ['Every lesson moved onto one weekday', 'Your Recurring Slot Has Changed']
+  ['All lessons from one onward moved to one new day + time, and later ones too', 'Your Recurring Slot Has Changed']
 ];
 
 function _secLogicHtml() {
   var h = '<div class="section-label">Secretary · Logic</div>' +
-          '<div class="sec-lead">How the Secretary script decides what to label, remind and email. Updated Oct 1, 2026.</div>';
+          '<div class="sec-lead">How the Secretary script decides what to label, remind and email. Updated Oct 12, 2026.</div>';
   SEC_LOGIC.forEach(function(sec) {
     h += '<div class="sec-card"><div class="sec-h">' + sec.h + '</div>';
     sec.qa.forEach(function(p) { h += '<div class="sec-q">' + p[0] + '</div><div class="sec-a">' + p[1] + '</div>'; });
