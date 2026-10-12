@@ -2403,7 +2403,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .st-win.td-look .link-btn.blue { color: var(--muted); border-color: rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); }
 .st-win.td-look .link-btn.blue:hover { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 
-/* No show (2026-10-11): beside Log, in the Log lesson window only. */
+/* No show (2026-10-11): top right of the Log lesson box, in the Log lesson window only. */
 #btnNoShow { display: none; }
-#imLogDock #btnNoShow:not([hidden]) { display: inline-flex; }
-#imLogDock #btnNoShow:disabled { opacity: .4; cursor: default; }
+.im-sec-head > #btnNoShow:not([hidden]) { display: inline-flex; }
+.im-sec-head > #btnNoShow:disabled { opacity: .4; cursor: default; }

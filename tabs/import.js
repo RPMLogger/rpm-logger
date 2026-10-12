@@ -580,6 +580,10 @@ function _imHwOut() {
     sr.appendChild(sb);
     if (db) sr.appendChild(db);
   }
+  // No show on the Log lesson title row, top right (2026-10-11).
+  var ns = document.getElementById('btnNoShow'), lbox = _imQ('imLogDock');
+  var lhead = lbox && lbox.parentNode && lbox.parentNode.previousElementSibling;
+  if (ns && lhead && ns.parentNode !== lhead) lhead.appendChild(ns);
   // Under the log rows (2026-10-08): add-row on the left, Log on the right.
   var acts = document.getElementById('logActions'), add = document.getElementById('logAddRow'), dock = _imQ('imLogDock');
   if (acts && add && dock && dock.contains(add)) {
@@ -593,6 +597,8 @@ function _imHwBack() {
   var hw = document.getElementById('logHw'), panel = document.getElementById('logPanel'), acts = document.getElementById('logActions');
   var head = document.getElementById('logHwHead');
   if (!hw || !panel || !acts) return;
+  var ns = document.getElementById('btnNoShow'), lb = document.getElementById('btnLog');
+  if (ns && lb && ns.parentNode !== acts) acts.insertBefore(ns, lb);
   var foot = panel.querySelector('.im-log-foot'), add = document.getElementById('logAddRow');
   if (foot) { if (add) panel.insertBefore(add, foot); foot.remove(); }
   if (acts.parentNode !== panel) panel.appendChild(acts);   // last in the window
