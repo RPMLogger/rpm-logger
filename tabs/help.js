@@ -1,16 +1,20 @@
 // ─── TABS / HELP.JS ─────────────────────────────────────────────────────────
 // Help ▾ dropdown: static reading pages, no backend calls. One page per
 // system, so how something works can be looked up instead of asked again.
-// Same card look as Secretary ▾ Logic (reuses its sec-* styles).
+// Same card look as the Inquiries tab (.inq-dcard).
 //   Data tracked — everything kept on every student, and where it lives.
 
 function initHelpTab(tab) {
-  _secInjectStyle();
   if (!document.getElementById('helpStyle')) {
     var st = document.createElement('style');
     st.id = 'helpStyle';
-    // The item reads bright, where it lives muted (Secretary's table is the other way round).
-    st.textContent = ".help-tbl td:first-child{color:var(--text);width:48%}.help-tbl td:last-child{color:var(--muted)}";
+    // Inquiries card look (.inq-dcard, css/styles.css); the item labels may wrap here.
+    st.textContent =
+      ".help-lead{font-family:'DM Mono',monospace;font-size:10.5px;color:rgba(255,255,255,0.35);margin:-10px 0 22px}" +
+      ".help-card .inq-fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5px 20px}" +
+      ".help-card .inq-flabel{white-space:normal;color:rgba(255,255,255,0.5)}" +
+      ".help-card .inq-fval{color:rgba(255,255,255,0.3)}" +
+      ".help-card.help-missing{border-left-color:var(--border)}";
     document.head.appendChild(st);
   }
   if (tab === 'helpdata') {
@@ -75,15 +79,17 @@ var HELP_DATA_MISSING = [
 ];
 
 function _helpDataHtml() {
-  var h = '<div class="section-label">Help · Data tracked</div>' +
-          '<div class="sec-lead">Everything kept on every student, and where it lives. Updated Oct 12, 2026.</div>';
+  var h = '<div class="section-label">Data tracked</div>' +
+          '<div class="help-lead">Everything kept on every student, and where it lives. Updated Oct 12, 2026.</div>';
   HELP_DATA.forEach(function(sec) {
-    h += '<div class="sec-card"><div class="sec-h">' + sec.h + '</div><table class="sec-tbl help-tbl">';
-    sec.rows.forEach(function(r) { h += '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>'; });
-    h += '</table></div>';
+    h += '<div class="inq-dcard help-card"><div class="inq-drow"><span class="inq-chan">' + sec.rows.length + ' items</span></div>' +
+         '<div class="inq-name-line"><span class="inq-name">' + sec.h + '</span></div><div class="inq-fields">';
+    sec.rows.forEach(function(r) { h += '<span class="inq-flabel">' + r[0] + '</span><span class="inq-fval">' + r[1] + '</span>'; });
+    h += '</div></div>';
   });
-  h += '<div class="sec-group">Not tracked yet</div><div class="sec-card">';
-  HELP_DATA_MISSING.forEach(function(p) { h += '<div class="sec-q">' + p[0] + '</div><div class="sec-a">' + p[1] + '</div>'; });
-  h += '</div>';
+  h += '<div class="section-label" style="margin-top:30px">Not tracked yet</div>' +
+       '<div class="inq-dcard help-card help-missing"><div class="inq-fields">';
+  HELP_DATA_MISSING.forEach(function(p) { h += '<span class="inq-flabel">' + p[0] + '</span><span class="inq-fval">' + p[1] + '</span>'; });
+  h += '</div></div>';
   return h;
 }
