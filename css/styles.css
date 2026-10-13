@@ -2342,6 +2342,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Today tab with no lessons (2026-10-08): the resting figure above the line. */
 .td-rest { display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 40px; }
 .td-rest .rest-icon { height: 64px; width: auto; color: var(--muted); opacity: .7; }
+.au-good .rest-icon { height: 30px; }   /* Audit all-clear icon, the regular window-icon size (2026-10-13) */
 
 /* Today's Week button + Week window (2026-10-09; the Week tab's list, in the portal's window look). */
 .td-week-btn .calendar-icon { margin-right: 6px; }

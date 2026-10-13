@@ -83,7 +83,7 @@ function _runCkAudit(url, cached) {
   function draw(err) {
     if (err) { _auditSectionFail(section, err); return; }
     var list = _ck.audit || [];
-    section.innerHTML = list.length ? list.map(_auCkCard).join("") : '<div class="empty-state">None</div>';
+    section.innerHTML = list.length ? list.map(_auCkCard).join("") : '<div class="empty-state">Nothing to fix...</div>';
   }
   if (cached) { draw(null); return; }
   section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
@@ -118,6 +118,12 @@ function _auCkOpen(name) {
 }
 
 // A section that could not load: the Trial tab's red badge, reason in its tooltip.
+// Empty Audit section (2026-10-13): the all-clear icon + words, in the Today
+// tab's "No lessons today!" look, in place of "None".
+function _auAllGood() {
+  return '<div class="empty-state td-rest au-good">' + ALLGOOD_ICON + '<div>All is good!</div></div>';
+}
+
 function _auditSectionFail(section, why) {
   section.innerHTML = '<div class="empty-state" id="' + section.id + 'Fail"></div>';
   rpmFail(section.id + "Fail", why, "center");
@@ -890,7 +896,7 @@ function _auditCheckAllClear() {
   var section = document.getElementById("auditLessonSection");
   if (!section) return;
   if (!section.querySelector('[data-audit-student]')) {
-    section.innerHTML = '<div class="empty-state">None</div>';
+    section.innerHTML = _auAllGood();
   }
 }
 
@@ -987,7 +993,7 @@ function renderMergedAuditCards(dateAudit, syncAudit, calAudit) {
     if (!byName[c.name].grid) byName[c.name].grid = c.grid || null;
   });
 
-  if (!order.length) { section.innerHTML = '<div class="empty-state">None</div>'; return; }
+  if (!order.length) { section.innerHTML = _auAllGood(); return; }
   window._auSync = byName;
   section.innerHTML = order.map(function(nm) { return _auSyncCard(byName[nm]); }).join("");
 }
