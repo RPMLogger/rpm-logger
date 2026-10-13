@@ -106,6 +106,10 @@ function _imOpenStudent(name) {
   _imOpen = name;
   _imHw = null;
   _imDetail = null;
+  // Same student drawn again (after a log): Data stays open, its numbers read again.
+  var keepData = _imData.name === name && _imData.open;
+  _imData = { open: false, name: name, d: null };
+  if (keepData) _imDataToggle();
   _imLoadHw(name);
   _imLoadDetail(name);
   var body = document.getElementById('importBody');
@@ -145,7 +149,7 @@ function _imRenderStudent(name, lessons) {
   var body = _imBodyEl();
   if (!body) return;
   _imLift(body);
-  body.innerHTML = _imStudentHtml(name, lessons, _imHw, _imDetail, { back: true, card: true, log: true });
+  body.innerHTML = _imStudentHtml(name, lessons, _imHw, _imDetail, { back: true, card: true, log: true, data: true });
   _imFixTips(body);
   if (!_ck.loaded && !_ck.busy) _ckLoad(function () { if (_imOpen === name && _imLast) _imRenderStudent(name, _imLast.lessons); });
 }
@@ -758,6 +762,7 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
     _imSec('History', '<button class="link-btn im-sort-btn" onclick="_imToggleSort()" data-tip="Flips the list.">' + (_imNewestFirst() ? 'Newest' : 'Oldest') + '</button>',
       '', items.length ? html + more : 'No lessons logged yet') +
     _imSec('HW sent - last', '', '', '<div class="db-files db-files-in">' + _imLastHwHtml(hw, name) + '</div>') +
+    (o.data ? _imDataHtml(name) : '') +
     // Log lesson, always open, its HW the Dropbox drop area; Checklist, the
     // Trial card's to-do look: done when Schedule, HW and Lesson log are ticked.
     // Second card (2026-10-06): the first is for looking, this one does the
@@ -785,6 +790,54 @@ function _imDoHtml(name, day) {
     _imSec('Schedule', '', ' im-sched-box',
       '<button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Reschedule</button>' +
       '<button class="link-btn im-rs-btn im-nochange' + (_imSchedGet(name, day) === 'nochange' ? ' pressed' : '') + '" id="imNoChangeBtn" onclick="_imNoChangeToggle(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Nothing to move or skip.\nPress again to undo.">Not needed</button>'));
+}
+
+// ── Data (2026-10-12): the student's skips and reschedules, all time; the teacher's on their own line ──
+// Lessons card only. Folded: just the title and Show; Show reads Skip Logs and
+// Reschedule Logs (getStudentData) the first time, then draws the box.
+var _imData = { open: false, name: null, d: null };
+
+function _imDataHtml(name) {
+  var open = _imData.open && _imData.name === name;
+  var btn = '<button class="link-btn im-sort-btn" onclick="_imDataToggle()" data-tip="Instant.\n' + (open ? 'Folds the box away.' : 'Skips and reschedules, all time:\nthe student\'s, then yours.') + '" data-tip-left>' + (open ? 'Hide' : 'Show') + '</button>';
+  if (!open) return '<div class="db-cx-head im-sec-head"><label class="field-label db-cx-t">Data</label>' + btn + '</div>';
+  var d = _imData.d, inner;
+  if (!d) inner = '<span class="rpm-loading" style="color:var(--muted)">Loading</span>';
+  else if (!d.success) inner = '<span style="color:var(--muted)">' + inqEsc(d.message || 'No answer from Google.') + '</span>';
+  else {
+    var k = d.skips, r = d.resched;
+    // Two groups (2026-10-12): STUDENT, a blank line, TEACHER; each Skips
+    // and Reschedules. Vacation (your trips) sits under Teacher.
+    var row = function (l, v) { return '<span class="inq-flabel">' + l + '</span><span class="inq-fval">' + v + '</span>'; };
+    var grp = function (t, first) { return '<span class="im-data-h' + (first ? '' : ' im-data-gap') + '">' + t + '</span>'; };
+    // "since Jun 23": each log counts from its own first row (2026-10-12).
+    var since = function (ymd) {
+      var m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      return m ? '<span class="im-data-since">since ' + MONTHS[parseInt(m[2], 10) - 1] + ' ' + parseInt(m[3], 10) + (parseInt(m[1], 10) !== new Date().getFullYear() ? ', ' + m[1] : '') + '</span>' : '';
+    };
+    inner = '<div class="inq-fields im-data">' +
+      grp('Student', true) + row('Skips', k.student + since(d.skipsSince)) + row('Reschedules', r.student + since(d.reschedSince)) +
+      grp('Teacher') + row('Skips', k.teacher + since(d.skipsSince)) + row('Reschedules', r.teacher + since(d.reschedSince)) + row('Vacation', k.vacation + since(d.skipsSince)) +
+    '</div>';
+  }
+  return _imSec('Data', btn, '', inner);
+}
+
+function _imDataToggle() {
+  var name = _imOpen;
+  if (!name) return;
+  _imData.open = !_imData.open;
+  if (_imData.open && !_imData.d) {
+    fetch(getScriptUrl() + '?action=getStudentData&name=' + encodeURIComponent(name))
+      .then(function (r) { return r.json(); })
+      .catch(function () { return { success: false, message: 'No answer from Google.' }; })
+      .then(function (d) {
+        if (_imData.name !== name) return;
+        _imData.d = d;
+        if (_imLast && _imLast.name === name) _imRenderStudent(name, _imLast.lessons);
+      });
+  }
+  if (_imLast && _imLast.name === name) _imRenderStudent(name, _imLast.lessons);
 }
 
 // ── HW (2026-10-04): this student's rows from the HW Tracking sheet ──

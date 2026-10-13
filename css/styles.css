@@ -2037,6 +2037,12 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-title { margin: 0 0 28px; }   /* the student page's headline, above the buttons (2026-10-06, was inside the box) */
 /* Import student page buttons + Notes window (2026-10-05). */
 .im-title span { white-space: nowrap; }
+.im-data { margin-top: 0; font-size: 11px; }   /* Lessons card Data box: skips + reschedules (2026-10-12) */
+.im-data .inq-flabel { color: rgba(255,255,255,0.5); }
+.im-data .inq-fval { color: var(--text); }
+.im-data .im-data-h { grid-column: 1 / -1; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }   /* STUDENT / TEACHER */
+.im-data .im-data-gap { margin-top: 14px; }
+.im-data .im-data-since { margin-left: 14px; color: rgba(255,255,255,0.24); }   /* "since Jun 23": where that log's counting starts */
 .im-more { display: block; margin: 10px auto 0; }   /* Show all / Show less, bottom middle, opens the older blocks (2026-10-06) */
 /* Import Reschedule window (2026-10-06): Home's 8-week strips on this page. */
 .im-rs-strips { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
