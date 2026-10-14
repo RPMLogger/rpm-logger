@@ -183,7 +183,8 @@ function _auUnpaidCard(s, i) {
   // Block −1 / −2 / Last paid and the reminder dates all live in the Details
   // window now (2026-09-29); the card is name, status and Details.
   // Details sits on the right beside name + status (2026-09-29): a shorter card.
-  return '<div class="inq-dcard au-card au-unpaid" id="auCard-' + i + '">' +
+  // The left edge wears the status colour: amber Unpaid, red Overdue (2026-10-14).
+  return '<div class="inq-dcard au-card au-unpaid ' + line.cls + '" id="auCard-' + i + '">' +
       '<div class="au-unpaid-left">' +
         '<div class="inq-name-line"><span class="inq-name">' + _auEsc(s.name) + '</span></div>' +
         '<div class="au-sub ' + line.cls + '">' + _auEsc(line.text) + '</div>' +

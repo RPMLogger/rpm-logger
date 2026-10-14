@@ -356,3 +356,16 @@ var THUMB_UP_ICON =
 var MISS_ICON =
   '<svg class="im-miss-i" viewBox="0 0 907.5 907.5" width="12" height="12" fill="currentColor" aria-hidden="true">' +
   '<path fill-rule="evenodd" d="M 100.37 100.38 C 234.25 -33.49 451.31 -33.49 585.18 100.38 C 710.46 225.65 718.5 423.76 609.31 558.40 L 885.49 771.55 C 900.38 783.03 907.69 799.51 906.98 819.96 C 906.26 840.41 897.72 859.14 881.88 874.98 L 878.43 878.43 L 874.98 881.88 C 859.14 897.72 840.41 906.26 819.96 906.97 C 799.51 907.69 783.03 900.37 771.55 885.49 L 558.40 609.31 C 423.76 718.5 225.65 710.46 100.37 585.18 C -33.49 451.31 -33.49 234.25 100.37 100.38 Z M 342.78 464.21 C 325.65 464.21 311.77 478.10 311.77 495.23 C 311.77 512.35 325.65 526.24 342.78 526.24 C 359.91 526.24 373.79 512.35 373.79 495.23 C 373.79 478.10 359.91 464.21 342.78 464.21 Z M 371.12 388.26 L 372.5 378.08 L 394.28 217.72 C 396.35 202.47 392.17 188.53 382.05 176.93 C 371.92 165.34 358.67 159.32 343.28 159.32 L 342.28 159.32 C 326.89 159.32 313.64 165.34 303.51 176.93 C 293.39 188.53 289.21 202.47 291.28 217.72 L 313.06 378.08 L 314.44 388.26 C 316.38 402.52 328.38 413.00 342.78 413.00 C 357.17 413.00 369.17 402.52 371.12 388.26 Z M 150 150.00 C 43.49 256.50 43.49 429.05 150 535.56 C 256.50 642.07 429.05 642.07 535.56 535.56 C 642.07 429.05 642.07 256.50 535.56 150.00 C 429.05 43.49 256.50 43.49 150 150.00 Z M 150 150.00"/></svg>';
+
+// Audit (2026-10-14, drawn for the portal after the user's reference): a page
+// of lines with a magnifier (check inside) over its lower right, handle out
+// like Details. Thick round strokes like the page icons; take the
+// text colour. Payments Audit title + the Audit payments button.
+var AUDIT_ICON =
+  '<svg class="btn-icon audit-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<path d="M9.5 21H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v4.5"/>' +
+  '<path d="M6.5 6.5h6M6.5 10h3.5M6.5 13.5h2"/>' +
+  '<circle cx="15.5" cy="15" r="4.6"/>' +
+  '<path d="M13.4 15.1l1.5 1.5 2.8-3"/>' +
+  '<path d="M18.9 18.4l2.6 2.6" stroke-width="2.6"/>' +
+  '</svg>';

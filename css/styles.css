@@ -608,6 +608,8 @@ body::before {
 .au-acts { display: flex; align-items: center; gap: 8px; }
 .au-acts .au-state { flex: 1; text-align: right; }
 .au-unpaid { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 22px; }   /* Unpaid card: Details on the right, one row (2026-09-29) */
+.au-unpaid.due  { border-left-color: var(--warn); }   /* edge = status colour (2026-10-14) */
+.au-unpaid.over { border-left-color: #ff5a4d; }
 .au-unpaid .inq-name-line { margin: 0 0 2px; }
 .au-unpaid .au-details { flex-shrink: 0; }
 .au-sub.au-detail { color: var(--muted); margin-top: 3px; }   /* Unpaid card: the lesson line under the status, grey */
@@ -2419,3 +2421,8 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #btnNoShow { display: none; }
 .im-sec-head > #btnNoShow:not([hidden]) { display: inline-flex; }
 .im-sec-head > #btnNoShow:disabled { opacity: .4; cursor: default; }
+/* Payments Audit title (2026-10-14): Today's look, room above and under like #todayBody. */
+.pay-audit-title { margin-top: 28px; }
+.pay-audit-title .win-sub { color: rgba(255,255,255,0.3); }
+/* The AUDIT stamp: centred, faded and tilted like Today's PREVIEW stamp. */
+.pay-audit-stamp { display: block; height: 100px; width: auto; margin: 0 auto 26px; opacity: .7; transform: rotate(-1deg); }
