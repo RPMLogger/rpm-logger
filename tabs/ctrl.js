@@ -155,8 +155,17 @@ function _auStatusLine(s) {
 function renderUnpaidCards(audit) {
   var section = document.getElementById("auditUnpaidSection");
   if (!audit.length) { section.innerHTML = '<div class="empty-state">None</div>'; return; }
+  // Red (Overdue) A–Z on top, a space, then amber (Unpaid) A–Z (2026-10-14).
+  // Sorted in place so Details (by index) still opens the right student.
+  function az(a, b) { return String(a.name).localeCompare(String(b.name)); }
+  var red = audit.filter(function (s) { return _auStatusLine(s).cls === "over"; }).sort(az);
+  var amber = audit.filter(function (s) { return _auStatusLine(s).cls !== "over"; }).sort(az);
+  audit = red.concat(amber);
   window._auUnpaid = audit;
-  section.innerHTML = audit.map(_auUnpaidCard).join("");
+  var cards = audit.map(_auUnpaidCard);
+  section.innerHTML = cards.slice(0, red.length).join("") +
+    (red.length && amber.length ? '<div class="au-unpaid-split"></div>' : "") +
+    cards.slice(red.length).join("");
 }
 
 // Every payment reminder for a student, oldest first: [{ at: Date, kind:

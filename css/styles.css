@@ -610,6 +610,7 @@ body::before {
 .au-unpaid { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 22px; }   /* Unpaid card: Details on the right, one row (2026-09-29) */
 .au-unpaid.due  { border-left-color: var(--warn); }   /* edge = status colour (2026-10-14) */
 .au-unpaid.over { border-left-color: #ff5a4d; }
+.au-unpaid-split { height: 46px; }   /* space (no line) between red and amber cards: 56 with the card gap (2026-10-14) */
 .au-unpaid .inq-name-line { margin: 0 0 2px; }
 .au-unpaid .au-details { flex-shrink: 0; }
 .au-sub.au-detail { color: var(--muted); margin-top: 3px; }   /* Unpaid card: the lesson line under the status, grey */
