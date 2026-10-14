@@ -417,9 +417,8 @@ function submitIncomingWithNote(note, logBtn) {
       checkEmptyIncoming();
       payHistoryLoaded = false;
       if (act.onDone) act.onDone();
-      // Unpaid Students sits under Incoming now: the confirm may have paid
-      // someone up, so check the list again.
-      else if (document.getElementById("auditUnpaidSection") && typeof _runAudit3 === "function") _runAudit3(url);
+      // Unpaid Students is its own page now (Audit payments) and reloads
+      // every time it opens, so nothing to refresh here.
       return;
     }
 
@@ -434,6 +433,25 @@ function submitIncomingWithNote(note, logBtn) {
         (res[0].why || "no reason given") + "\nLog again writes only the log.");
     }
   });
+}
+
+// ─── AUDIT PAYMENTS PAGE (2026-10-14) ────────────────────────────────────────
+// Unpaid Students used to load under Incoming every time the tab opened (~20s).
+// Now Audit payments swaps the page to it and only then asks Google; Back
+// returns to Incoming. Opening the Payments tab always lands on Incoming.
+function openPayAudit() {
+  document.getElementById("payMainView").style.display = "none";
+  document.getElementById("payAuditView").style.display = "";
+  var back = document.getElementById("btnPayAuditBack");
+  if (back && !back.querySelector("svg")) back.insertAdjacentHTML("afterbegin", ARROW_ICON);
+  window.scrollTo(0, 0);
+  var url = getScriptUrl();
+  if (!url) { document.getElementById("auditUnpaidSection").innerHTML = '<div class="empty-state">No script URL set</div>'; return; }
+  _runAudit3(url);
+}
+function closePayAudit() {
+  document.getElementById("payAuditView").style.display = "none";
+  document.getElementById("payMainView").style.display = "";
 }
 
 // ─── INCOMING PAYMENTS (Venmo / Zelle) ───────────────────────────────────────
