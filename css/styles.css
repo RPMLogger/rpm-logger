@@ -1832,6 +1832,12 @@ a:focus-visible,
 /* Filled cells get a visible outline too (user, 2026-09-29): the fill alone
    hid their edges against the dark modal. */
 .au-paygrid tr:not(.pg-space) td:not(.lbl):not(.gap):not(.empty) { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16); }
+/* The reminder emails' chart colours on the lesson cells (2026-10-14): paid
+   block green, unpaid red; a had lesson filled, an empty spot a dashed outline. */
+.au-paygrid tr:not(.pg-space) td.pg-g:not(.lbl):not(.gap):not(.empty) { background: color-mix(in srgb, var(--green) 14%, transparent); color: var(--green); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--green) 60%, transparent); }
+.au-paygrid tr:not(.pg-space) td.pg-r:not(.lbl):not(.gap):not(.empty) { background: color-mix(in srgb, #ff5a4d 14%, transparent); color: #ff5a4d; box-shadow: inset 0 0 0 1px color-mix(in srgb, #ff5a4d 60%, transparent); }
+.au-paygrid td.empty.pg-g { box-shadow: none; border: 1px dashed color-mix(in srgb, var(--green) 55%, transparent); }
+.au-paygrid td.empty.pg-r { box-shadow: none; border: 1px dashed color-mix(in srgb, #ff5a4d 55%, transparent); }
 /* The paid cell: the check icon (om-63), the date + amount under it. */
 .au-paygrid td.pg-pay { height: 46px; }
 .au-paygrid .pg-lbl { line-height: 0; color: var(--green); margin-bottom: 5px; }

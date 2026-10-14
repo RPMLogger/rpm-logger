@@ -270,7 +270,10 @@ function _auPayGridHtml(d, s) {
   blocks.forEach(function(blk, b) {
     if (b) { head += '<th class="gap"></th>'; les += '<td class="gap"></td>'; pay += '<td class="gap"></td>'; }
     for (var k = 1; k <= 4; k++) head += '<th>' + k + '</th>';
-    blk.les.forEach(function(v) { les += v ? '<td>' + _auEsc(_dxShort(v)) + '</td>' : '<td class="empty"></td>'; });
+    // The reminder emails' chart colours (2026-10-14): a paid block's lessons
+    // green, an unpaid block's red; had = filled, empty = dashed outline.
+    var c = blk.pay ? "pg-g" : "pg-r";
+    blk.les.forEach(function(v) { les += v ? '<td class="' + c + '">' + _auEsc(_dxShort(v)) + '</td>' : '<td class="empty ' + c + '"></td>'; });
     // Two lines: the check (om-63) over "Sep 5 · $380.00" (the date look).
     pay += blk.pay
       ? '<td colspan="4" class="pg-pay"><div class="pg-lbl">' + PAID_CHECK_ICON + '</div><div>' +
