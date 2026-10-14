@@ -2,6 +2,22 @@
 // AUDIT 1: Counter dates that don't exist in Students Import.
 // Read-only — reports discrepancies + format warnings, no fix actions.
 
+// ─── LESSONS AUDIT PAGE (2026-10-14) ─────────────────────────────────────────
+// The old Audit ▾ Logs tab now lives in Students: Audit lessons swaps the
+// Students page to it (and runs the audit), Back returns. Like Payments Audit.
+function openLessonAudit() {
+  document.getElementById("imMainView").style.display = "none";
+  document.getElementById("imAuditView").style.display = "";
+  var back = document.getElementById("btnLessonAuditBack");
+  if (back && !back.querySelector("svg")) back.insertAdjacentHTML("afterbegin", ARROW_ICON);
+  window.scrollTo(0, 0);
+  initAuditTab();
+}
+function closeLessonAudit() {
+  document.getElementById("imAuditView").style.display = "none";
+  document.getElementById("imMainView").style.display = "";
+}
+
 function initAuditTab() {
   var url = getScriptUrl();
   if (!url) {

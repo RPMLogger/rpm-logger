@@ -569,7 +569,7 @@ function _stRenderAudit(data) {
   fixBtn.style.cssText = 'width:100%;padding:9px;font-size:12px;border-radius:6px;cursor:pointer;margin-bottom:14px;letter-spacing:0.3px;' +
     (hasProblem ? 'background:rgba(255,180,0,0.14);color:#ffb400;border:1px solid rgba(255,180,0,0.5)'
                 : 'background:transparent;color:var(--muted);border:1px solid var(--border)');
-  fixBtn.onclick = function() { if (typeof switchTab === 'function') switchTab('ctrl'); };
+  fixBtn.onclick = function() { if (typeof switchTab === 'function') { switchTab('import'); openLessonAudit(); } };   // Logs lives in Students now (2026-10-14)
   section.appendChild(fixBtn);
 
   // Payment
