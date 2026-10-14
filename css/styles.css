@@ -2422,7 +2422,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-sec-head > #btnNoShow:not([hidden]) { display: inline-flex; }
 .im-sec-head > #btnNoShow:disabled { opacity: .4; cursor: default; }
 /* Payments Audit title (2026-10-14): Today's look, room above and under like #todayBody. */
-.pay-audit-title { margin-top: 28px; }
+.pay-audit-title { margin: 36px 0 0; }   /* equal gaps: Back, title, stamp, cards (2026-10-14) */
 .pay-audit-title .win-sub { color: rgba(255,255,255,0.3); }
 /* The AUDIT stamp: centred, faded and tilted like Today's PREVIEW stamp. */
-.pay-audit-stamp { display: block; height: 100px; width: auto; margin: 0 auto 26px; opacity: .7; transform: rotate(-1deg); }
+.pay-audit-stamp { display: block; height: 28px; width: auto; margin: 36px auto; opacity: .7; transform: rotate(-1deg); }

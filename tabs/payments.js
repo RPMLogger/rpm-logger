@@ -448,10 +448,10 @@ function openPayAudit() {
   if (!url) { document.getElementById("auditUnpaidSection").innerHTML = '<div class="empty-state">No script URL set</div>'; return; }
   _runAudit3(url);
 }
-// The audit icon on the button, as soon as the page is up.
+// The magnifier (Details icon) on the button, as soon as the page is up.
 document.addEventListener("DOMContentLoaded", function () {
   var b = document.getElementById("btnPayAudit");
-  if (b && !b.querySelector("svg")) b.insertAdjacentHTML("afterbegin", AUDIT_ICON);
+  if (b && !b.querySelector("svg")) b.insertAdjacentHTML("afterbegin", DETAILS_ICON);
 });
 function closePayAudit() {
   document.getElementById("payAuditView").style.display = "none";
