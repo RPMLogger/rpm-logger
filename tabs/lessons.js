@@ -5,8 +5,12 @@ var rowFinals = [""];
 function _logBox() { return document.getElementById("logRows"); }
 
 function closeLogPanel() {
+  // What HW still being typed (never left the box) counts as changed.
+  var ae = document.activeElement;
+  if (ae && ae.closest && ae.closest("#logHwRows") && typeof logHwTextChanged === "function") logHwTextChanged();
   if (typeof _imFlushOnClose === "function") _imFlushOnClose();   // Log lesson window: save what's ticked
   stopRecordingClean();
+  if (typeof _hwMicStop === "function") _hwMicStop();
   document.getElementById("logPanel").classList.remove("active");
   document.querySelectorAll(".today-btn").forEach(function(b) { b.classList.remove("recording"); });
   activeStudent = null;
@@ -157,6 +161,7 @@ function startRecording(idx) {
     addLog("lessonFeed", "Speech not supported. Use Chrome.", "error");
     return;
   }
+  _hwMicStop();   // one mic at a time (What HW has its own, 2026-10-15)
   recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   recognition.lang = "en-US"; recognition.continuous = true; recognition.interimResults = true;
   recognition._suppressed = false;
@@ -263,9 +268,10 @@ function submitLog(noShow) {
   rpmBusy(panel, btn, true);
 
   if (logHw && logHw.choice) {
-    params.hw = logHw.choice;
-    params.hwFiles = logHw.choice === "sent" ? logHw.files.map(function(f) { return f.path; }).join("\n") : "";
-    params.hwSource = logHw.choice === "sent" ? "Auto" : "Manual";
+    params.hw = logHw.choice === "sent" && !logHw.filesOn && !logHw.links.length && logHw.videoOnly ? "video" : logHw.choice;
+    params.hwFiles = logHw.choice === "sent" && logHw.filesOn ? logHw.files.map(function(f) { return f.path; }).join("\n") : "";
+    params.hwLinks = logHw.choice === "sent" ? logHw.links.map(function(l) { return l.kind + ": " + l.url; }).join("\n") : "";
+    params.hwText = logHw.text || "";
     logHw.locked = true; _logHwRender();
   }
 
@@ -398,14 +404,16 @@ function toTitleCase(str) {
 }
 
 // ─── HW (2026-10-03) ─────────────────────────────────────────────────────────
-// Every lesson ends Sent or No HW, asked here and saved with the lesson to the
-// HW Log tab (Students Import) (backend RPM_HwLog.gs). The files are what's in the
+// Every lesson ends Sent, Nothing to send or Video (the sheet's Materials:
+// Files / None / Video), asked here and saved with the lesson to the HW Log
+// (HW Tracking sheet, backend RPM_HwLog.gs), with the HW given as text
+// (What HW box, 2026-10-15; optional). The files are what's in the
 // student's Dropbox that isn't on an earlier lesson's row yet; finding files
 // picks Sent, finding none leaves No HW to press. Log stays locked until one
 // is picked. Not asked for trials (their card has Send HW) or for lessons
 // before HW_START (starting fresh).
 var HW_START = "2026-10-03";
-var logHw = null;   // { name, date, files:[{name,path,bytes,modified}], choice, loading, locked, noFolder, seq }
+var logHw = null;   // { name, date, files:[{name,path,bytes,modified}], choice ('none' | 'sent' | null), filesOn, links:[{kind,url}], text, loading, locked, noFolder, seq }
 var _logHwSeq = 0;
 
 // The lesson's date as yyyy-MM-dd: eventDate is "2026-10-03T16:00:00" or "2026/10/03".
@@ -425,7 +433,13 @@ function logHwOpen(student) {
   box.style.display = "";
   // mine: names of the files uploaded here this time (2026-10-07). Only those
   // (and a saved answer's files) list in the drop zone, not the rest of their Dropbox.
-  logHw = { name: student.name, date: date, files: [], mine: {}, choice: null, loading: true, locked: false };
+  logHw = { name: student.name, date: date, files: [], mine: {}, choice: null, filesOn: false, links: [], text: "", loading: true, locked: false };
+  if (typeof _imHwLinkClear === "function") _imHwLinkClear();
+  _hwMicStop();
+  _hwRowsReset();
+  var tm = document.getElementById("logHwMic"), ta = document.getElementById("logHwAddRow");
+  if (tm) { tm.innerHTML = MIC_ICON; tm.classList.remove("rec"); }
+  if (ta && !ta.querySelector("svg")) ta.innerHTML = llAddInner();
   _logHwExisting();
 }
 
@@ -448,8 +462,8 @@ function _logHwExisting() {
         (ex.files || []).forEach(function(p) {
           if (!have[p.toLowerCase()]) hw.files.push({ name: p.split("/").pop(), path: p });
         });
-        if (!hw.choice) hw.choice = _logHwChoice(ex.hw);
-        if (hw.choice === "sent" && !hw.files.length) hw.choice = null;
+        if (!hw.choice) _logHwRestore(hw, ex);
+        _logHwTextFill(hw, ex.text);
       }
       _logHwRender(); updateLogButton();
     })
@@ -550,8 +564,108 @@ function _logHwUploadNext(hw) {
   });
 }
 
-// The sheet's HW answer as the window's choice (Video lesson added 2026-10-11).
-function _logHwChoice(v) { return v === "Sent" ? "sent" : v === "Video lesson" ? "video" : "none"; }
+// ── Materials (2026-10-15): files (ticked by Send), video lesson links and
+// web links, any mix; or Nothing to send, alone. choice: 'none', 'sent'
+// (something goes) or null (not answered). videoOnly: an old "Video lesson"
+// row, a video with no link. The sheet's Materials ("Files, Link", "None";
+// before 2026-10-15 Sent / No HW / Video lesson) as the window's state:
+function _logHwRestore(hw, ex) {
+  var m = String((ex && ex.hw) || "");
+  if (/^(None|No HW)$/.test(m)) { hw.choice = "none"; return; }
+  hw.links = ((ex && ex.links) || []).slice();
+  hw.filesOn = /Files|Sent/.test(m) && hw.files.length > 0;
+  hw.videoOnly = /Video/.test(m) && !hw.links.some(function(l) { return l.kind === "Video"; });
+  _logHwRecalc(hw);
+}
+function _logHwRecalc(hw) {
+  if (!hw || hw.choice === "none") return;
+  // The Log lesson window has no Send (2026-10-15): files in the zone count.
+  if (window._imDocked) hw.filesOn = hw.files.length > 0;
+  hw.choice = hw.filesOn || hw.links.length || hw.videoOnly ? "sent" : null;
+}
+// The HW answer as query params; pre: "" for saveHw, "hw" for logLesson's names (hwFiles…).
+function _logHwQuery(hw, pre) {
+  var some = hw.choice === "sent";
+  var files = some && hw.filesOn ? hw.files.map(function(f) { return f.path; }).join("\n") : "";
+  var links = some ? hw.links.map(function(l) { return l.kind + ": " + l.url; }).join("\n") : "";
+  var c = some && !files && !links && hw.videoOnly ? "video" : hw.choice;
+  function k(n) { return pre ? pre + n.charAt(0).toUpperCase() + n.slice(1) : n; }
+  return "&hw=" + c + "&" + k("files") + "=" + encodeURIComponent(files) + "&" + k("links") + "=" + encodeURIComponent(links) +
+    "&hwText=" + encodeURIComponent(hw.text || "");
+}
+
+// ── What HW (2026-10-15): the homework given, rows like the lesson log's ──
+// (Enter or ＋ adds one; joined with commas), with their own mic writing into
+// the row you're in. Kept in logHw.text as you type; it goes to Google with
+// the materials answer. A change, once you leave the rows, after that answer
+// was ticked or saved counts as a new answer, so it saves again.
+function _hwRowsBox() { return document.getElementById("logHwRows"); }
+function _hwRowsJoin() { return llValues(_hwRowsBox()).filter(Boolean).join(", "); }
+function _hwRowsReset() {
+  var box = _hwRowsBox();
+  if (!box) return;
+  llWire(box, function(i) { llRows(box).forEach(function(el, j) { el.classList.toggle("active", j === i); }); },
+    logHwTextInput, null);
+  if (!box._hwOut) {
+    box._hwOut = true;
+    box.addEventListener("focusout", function(ev) {
+      if (ev.relatedTarget && box.contains(ev.relatedTarget)) return;   // still in the rows
+      logHwTextChanged();
+    });
+  }
+  llReset(box);
+}
+function _logHwTextFill(hw, text) {
+  var box = _hwRowsBox(), row = box && llRows(box)[0];
+  if (!text || hw.text || _hwRowsJoin()) return;   // never over what's typed here
+  hw.text = hw.textSaved = text;
+  if (row) row.value = text;
+}
+function logHwTextInput() {
+  if (logHw && _hwRowsBox()) logHw.text = _hwRowsJoin();
+}
+// HW is required (2026-10-15): it counts as done once you leave the rows with
+// something in them (textSaved), not on each key, so the window can't save
+// and close while you're still typing.
+function logHwTextChanged() {
+  logHwTextInput();
+  if (!logHw || (logHw.text || "") === (logHw.textSaved || "")) return;
+  logHw.textSaved = logHw.text;
+  if (logHw.choice) logHw.dirty = true;   // else it goes with the materials answer when that's picked
+  updateLogButton();
+  if (window._imDocked && typeof _imStepsRender === "function") _imStepsRender();
+}
+var _hwRec = null;   // the What HW rows' dictation, apart from the log's
+function _hwMicStop() { if (_hwRec) { var r = _hwRec; _hwRec = null; r.onend = null; r.abort(); } }
+function toggleHwMic() {
+  var box = _hwRowsBox(), mic = document.getElementById("logHwMic");
+  if (!box || !mic || !logHw || logHw.locked) return;
+  if (_hwRec) { _hwRec.stop(); return; }
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { _logState("Speech not supported. Use Chrome.", "var(--muted)"); return; }
+  if (isRecording) { stopRecordingClean(); setRecordingUI(false, activeStudent && activeStudent.idx); updateLogButton(); }
+  var row = box.querySelector(".ll-row.active") || llRows(box)[0];
+  var r = _hwRec = new SR(), base = row.value.trim();
+  r.lang = "en-US"; r.continuous = true; r.interimResults = true;
+  r.onstart = function() { mic.innerHTML = MIC_STOP_ICON; mic.classList.add("rec"); playBeep(880, 100); };
+  r.onresult = function(ev) {
+    var fin = "", tmp = "";
+    for (var i = ev.resultIndex; i < ev.results.length; i++) {
+      if (ev.results[i].isFinal) fin += ev.results[i][0].transcript; else tmp += ev.results[i][0].transcript;
+    }
+    if (fin) base = (base + " " + fin).replace(/\s+/g, " ").trim();
+    row.value = (base + " " + tmp).replace(/\s+/g, " ").trim();
+    logHwTextInput();
+  };
+  r.onend = function() {
+    if (_hwRec !== r) return;
+    _hwRec = null;
+    mic.innerHTML = MIC_ICON; mic.classList.remove("rec");
+    playBeep(440, 80, 0.15);
+    logHwTextChanged();
+  };
+  r.start();
+}
 
 // Ask the backend which files are new for this lesson.
 function logHwCheck() {
@@ -579,11 +693,15 @@ function logHwCheck() {
           (d.existing.files || []).forEach(function(p) {
             if (!have[p.toLowerCase()]) hw.files.push({ name: p.split("/").pop(), path: p });
           });
-          if (!hw.choice) hw.choice = _logHwChoice(d.existing.hw);
+          if (!hw.choice) _logHwRestore(hw, d.existing);
+          _logHwTextFill(hw, d.existing.text);
         }
         // The Log lesson window waits for its Sent press (2026-10-11), so more can go in first.
-        if (!hw.choice && hw.files.length && !window._imDocked) hw.choice = "sent";
-        if (hw.choice === "sent" && !hw.files.length) hw.choice = null;
+        if (!hw.choice && hw.files.length && !window._imDocked) hw.filesOn = true;
+        if (!hw.files.length) hw.filesOn = false;
+        var was = hw.choice;
+        _logHwRecalc(hw);
+        if (window._imDocked && hw.choice === "sent" && (was !== "sent" || hw.filesOn)) hw.dirty = true;   // new files: save again
       }
       _logHwRender(); updateLogButton();
     })
@@ -597,7 +715,8 @@ function logHwCheck() {
 function logHwPick(c) {
   if (!logHw || logHw.locked || logHw.loading) return;
   if (c === "sent" && !logHw.files.length) return;
-  logHw.choice = c;
+  if (c === "none") { logHw.choice = "none"; logHw.filesOn = false; logHw.links = []; logHw.videoOnly = false; }
+  else { logHw.choice = null; logHw.filesOn = true; _logHwRecalc(logHw); }
   _logHwRender(); updateLogButton();
 }
 
@@ -616,20 +735,35 @@ function _logHwRender() {
   else if (!hw.files.length) list.innerHTML = dim + (hw.noFolder ? "No Dropbox folder named " + inqEsc(hw.name) : "⬆ Drag files or folders or browse") + "</span>";
   else list.innerHTML = _dbDetailsFilesHtml({ items: hw.files }) + "<div class='lh-drop-more'><span class='link-btn'>⬆ Drop more here</span></div>";
   list.classList.toggle("lh-empty", !hw.error && !hw.files.length);
-  list.style.opacity = (hw.choice === "none" || hw.choice === "video") && hw.files.length ? ".4" : "";   // No HW / Video lesson: the files aren't this lesson's
+  list.style.opacity = !hw.filesOn && hw.choice && hw.files.length ? ".4" : "";   // the files aren't this lesson's
   var n = hw.files.length;
   sent.querySelector("span").textContent = n ? "Sent · " + n + (n === 1 ? " file" : " files") : "Sent";
-  sent.classList.toggle("done", hw.choice === "sent");
+  sent.classList.toggle("done", !!hw.filesOn);
   none.classList.toggle("done", hw.choice === "none");
   sent.parentNode.classList.toggle("picked", !!hw.choice);
   sent.disabled = hw.locked || hw.loading || !n;
   none.disabled = hw.locked || hw.loading;
+  // Nothing to send stands alone: it waits till nothing else is picked, and the rest wait while it's on.
+  var busy = hw.loading || !!hw.uploading || !!hw.saving, none = hw.choice === "none";
   var nb = document.getElementById("logHwNothing");
-  if (nb) { nb.classList.toggle("pressed", hw.choice === "none"); nb.disabled = hw.loading || !!hw.uploading || !!hw.saving; }
+  if (nb) { nb.classList.toggle("pressed", none); nb.disabled = busy || hw.choice === "sent"; }
   var sb = document.getElementById("logHwSentBtn");
-  if (sb) { sb.classList.toggle("pressed", hw.choice === "sent"); sb.disabled = hw.loading || !!hw.uploading || !!hw.saving || !n; }
-  var vb = document.getElementById("logHwVideoBtn");
-  if (vb) { vb.classList.toggle("pressed", hw.choice === "video"); vb.disabled = hw.loading || !!hw.uploading || !!hw.saving; }
+  if (sb) { sb.classList.toggle("pressed", !!hw.filesOn); sb.disabled = busy || none || !n; }
+  // Video lesson link / Web link: the paste boxes wait while None is on; each list shows its links.
+  ["Video", "Link"].forEach(function(kind) {
+    var inp = document.getElementById("logHw" + kind + "Input"), add = document.getElementById("logHw" + kind + "AddBtn");
+    if (inp) inp.disabled = busy || none || !!hw.locked;
+    if (add) add.disabled = busy || none || !!hw.locked;
+    var list = document.getElementById("logHw" + kind + "List");
+    if (list) list.innerHTML = hw.links.map(function(l, i) {
+      if (l.kind !== kind) return "";
+      return "<div class='lh-link'><a href='" + inqEsc(l.url) + "' target='_blank' rel='noopener'>" + inqEsc(l.url) + "</a>" +
+        (hw.locked ? "" : "<button type='button' class='lh-link-x' onclick='_imHwLinkDel(" + i + ")' aria-label='Remove'>×</button>") + "</div>";
+    }).join("") + (kind === "Video" && hw.videoOnly ? "<div class='lh-link'><span class='lh-link-k'>Sent (no link saved)</span></div>" : "");
+  });
+  llRows(_hwRowsBox()).forEach(function(el) { el.disabled = !!hw.locked; });
+  var tm = document.getElementById("logHwMic");
+  if (tm) tm.disabled = !!hw.locked;
   if (window._imDocked && typeof _imStepsRender === "function") _imStepsRender();
 }
 
@@ -657,8 +791,7 @@ function logHwSaveOnly() {
   rpmBusy(panel, btn, true);
   hw.locked = true; _logHwRender();
   var q = getScriptUrl() + "?action=saveHw&name=" + encodeURIComponent(hw.name) + "&lessonDate=" + hw.date +
-    "&hw=" + hw.choice + "&source=" + (hw.choice === "sent" ? "Auto" : "Manual") +
-    "&files=" + encodeURIComponent(hw.choice === "sent" ? hw.files.map(function(f) { return f.path; }).join("\n") : "");
+    _logHwQuery(hw, "");
   fetch(q).then(function(r) { return r.json(); }).then(function(d) {
     rpmBusy(panel, btn, false);
     if (!d.success) throw new Error(d.message || "Error saving");

@@ -179,7 +179,9 @@ function rpmPrompt(opts) {
 // it landed. Hold the lit look for 2.5s so it visibly did.
 document.addEventListener("click", function (e) {
   var b = e.target.closest && e.target.closest(".link-btn");
-  if (!b) return;
+  // data-toggle (2026-10-15): buttons whose pressed look is their on/off state
+  // (Nothing to send's Yes, Not needed) keep it; their own code sets it.
+  if (!b || b.hasAttribute("data-toggle")) return;
   b.classList.add("pressed");
   clearTimeout(b._pressT);
   b._pressT = setTimeout(function () { b.classList.remove("pressed"); }, 2500);

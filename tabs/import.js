@@ -171,7 +171,7 @@ function _imLogWinOpen(student, idx, day, item, next) {
   day = day || _tdYmd();
   // The date in the title when it isn't today's lesson (2026-10-08).
   var part = 'Log Lesson' + (day !== _tdYmd() ? ' · ' + _ckDay(day) : '');
-  var w = _stWin('imLogWin', inqEsc(name), part, CLIPBOARD_ICON, '<div class="im-do-card im-win-card">' + _imDoHtml(name, day) + '</div>');
+  var w = _stWin('imLogWin', inqEsc(name), part, CHECKLIST_ICON, '<div class="im-do-card im-win-card">' + _imDoHtml(name, day) + '</div>');
   w.querySelector('.st-win').classList.add('im-log-win');
   // Today's look (2026-10-11, from Today; everywhere since): grey, red only on the name and Reschedule.
   w.querySelector('.st-win').classList.add('td-look');
@@ -187,8 +187,10 @@ function _imLogWinOpen(student, idx, day, item, next) {
   openLogFresh(student, idx);
   // No HW question for this lesson (before HW tracking, or a trial): no HW section.
   if (!logHw) {
-    var hb = w.querySelector('.im-hw-dock-box'), hh = hb && hb.previousElementSibling, hr = hh && hh.previousElementSibling;
-    [hb, hh, hr && hr.tagName === 'HR' ? hr : null].forEach(function (el) { if (el) el.style.display = 'none'; });
+    ['.im-hwtext-box', '.im-hw-dock-box'].forEach(function (sel) {
+      var hb = w.querySelector(sel), hh = hb && hb.previousElementSibling, hr = hh && hh.previousElementSibling;
+      [hb, hh, hr && hr.tagName === 'HR' ? hr : null].forEach(function (el) { if (el) el.style.display = 'none'; });
+    });
   }
   if (item && item.log) _imLogLock(item.logText || '');
   _imStepsRender();
@@ -348,13 +350,16 @@ function _imStepsRender() {
   var logged = !!(st && st.logged), sched = _imSchedGet(name, c.day);
   // A status list (2026-10-06), not buttons: each line ticks itself when its
   // job is done elsewhere (Reschedule, the HW drop zone / Nothing to send, Log).
-  // The card's order (2026-10-08): Lesson log, HW, Schedule; each in its own colour while to do.
+  // The card's order (2026-10-15): Lesson log, HW (the What HW rows, required),
+  // Materials (was "HW"), Schedule; each in its own colour while to do.
+  var hwText = !!(hw && hw.textSaved);
   var steps = [
     { label: 'Lesson log', cls: 'log', done: logged },
-    { label: 'HW', cls: 'hw', done: !!(hw && hw.choice) },
+    { label: 'HW', cls: 'hw', done: hwText },
+    { label: 'Materials', cls: 'mat', done: !!(hw && hw.choice) },
     { label: 'Schedule', cls: 'sched', done: !!sched }
   ];
-  if (!hw) steps.splice(1, 1);   // no HW question for this lesson (before HW tracking)
+  if (!hw) steps.splice(1, 2);   // no HW question for this lesson (before HW tracking)
   // Circle + label on one line (2026-10-08, back from the Trial pills): done ones dim.
   el.innerHTML = '<div class="im-checks">' + steps.map(function (x) {
     return '<div class="im-check im-check-' + x.cls + (x.done ? ' done' : '') + '"><i class="im-tick"></i><span>' + inqEsc(x.label) + '</span></div>';
@@ -369,10 +374,11 @@ function _imStepsRender() {
   }
   // Dims the moment it's ticked (2026-10-09), not when Google answers.
   dim('im-log-box', logged);
+  dim('im-hwtext-box', hwText);
   dim('im-hw-dock-box', !!(hw && hw.choice));
   dim('im-sched-box', !!sched);
   var w = window._imWin;
-  var all = logged && !!sched && (!hw || (!!hw.choice && !hw.loading && !hw.uploading));
+  var all = logged && !!sched && (!hw || (hwText && !!hw.choice && !hw.loading && !hw.uploading));
   var pending = !!w && _imPending(w, hw), sending = !!(w && w.sending);
   var fin = _imQ('imFinDone');
   // Finished: all three ticked and saved.
@@ -410,8 +416,7 @@ function _imSend(w, hw) {
   if (!w || w.sending || !_imPending(w, hw)) return;
   w.sending = true;
   var url = getScriptUrl(), log = w.pendLog, sched = w.pendSched, hwc = _imHwNeeds(hw) ? hw.choice : null;
-  var hwq = hwc ? '&hw=' + hwc + '&source=' + (hwc === 'sent' ? 'Auto' : 'Manual') +
-    '&files=' + encodeURIComponent(hwc === 'sent' ? hw.files.map(function (f) { return f.path; }).join('\n') : '') : '';
+  var hwq = hwc ? _logHwQuery(hw, '') : '';
   function get(q) {
     return fetch(q).then(function (r) { return r.json(); })
       .catch(function () { return { success: false, message: 'No answer from Google.' }; });
@@ -420,9 +425,8 @@ function _imSend(w, hw) {
   if (log) {
     var q = url + '?action=' + log.action;
     for (var k in log.params) q += '&' + k + '=' + encodeURIComponent(log.params[k]);
-    // logLesson's own HW names (hwFiles, hwSource).
-    if (hwc) q += '&hw=' + hwc + '&hwSource=' + (hwc === 'sent' ? 'Auto' : 'Manual') +
-      '&hwFiles=' + encodeURIComponent(hwc === 'sent' ? hw.files.map(function (f) { return f.path; }).join('\n') : '');
+    // logLesson's own HW names (hwFiles, hwLinks, hwText).
+    if (hwc) q += _logHwQuery(hw, 'hw');
     calls.push(get(q));
   } else calls.push(Promise.resolve(null));
   calls.push(hwc && !log ? get(url + '?action=saveHw&name=' + encodeURIComponent(hw.name) + '&lessonDate=' + hw.date + hwq) : Promise.resolve(null));
@@ -522,31 +526,51 @@ function _imDone(name) {
   }, 1400);
 }
 
-// Nothing to send (2026-10-06): the HW heading's button. Press again to undo
-// (files in the drop zone then count as sent again).
+// Nothing to send (2026-10-06): no materials this lesson. Only while nothing
+// else is picked (2026-10-15); again undoes it.
 function _imNothingToSend() {
   var hw = logHw;
-  if (!hw || hw.loading || hw.uploading || hw.saving) return;
-  _imSetHw(hw.choice === 'none' ? null : 'none');
+  if (!hw || hw.loading || hw.uploading || hw.saving || hw.choice === 'sent') return;
+  hw.choice = hw.choice === 'none' ? null : 'none';
+  _imHwLinkClear();
+  _imHwChanged();
 }
-// Sent (2026-10-11): the files in the zone are this lesson's HW. Uploads
-// don't tick it, so more can go in first; again undoes it.
+// Send (2026-10-11 as Sent): the files in the zone go to them. Uploads don't
+// tick it, so more can go in first; again undoes it. Goes with links (2026-10-15).
 function _imHwSent() {
   var hw = logHw;
-  if (!hw || hw.loading || hw.uploading || hw.saving || !hw.files.length) return;
-  _imSetHw(hw.choice === 'sent' ? null : 'sent');
+  if (!hw || hw.loading || hw.uploading || hw.saving || hw.choice === 'none' || !hw.files.length) return;
+  hw.filesOn = !hw.filesOn;
+  _imHwChanged();
 }
-// Sent video lesson (2026-10-11): a video instead of files answers HW too.
-function _imHwVideo() {
+// Video lesson link / Web link (2026-10-15): paste, Add (or Enter) puts it on
+// that list, × takes it off. Any number, with files too.
+function _imHwLinkAdd(kind) {
+  var hw = logHw, inp = document.getElementById(kind === 'Video' ? 'logHwVideoInput' : 'logHwLinkInput');
+  if (!hw || !inp || hw.choice === 'none' || hw.locked) return;
+  var url = inp.value.trim();
+  if (!url) return;
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  hw.links.push({ kind: kind === 'Video' ? 'Video' : 'Link', url: url });
+  if (kind === 'Video') hw.videoOnly = false;
+  inp.value = '';
+  _imHwChanged();
+}
+function _imHwLinkClear() {
+  ['logHwVideoInput', 'logHwLinkInput'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
+}
+function _imHwLinkDel(i) {
   var hw = logHw;
-  if (!hw || hw.loading || hw.uploading || hw.saving) return;
-  _imSetHw(hw.choice === 'video' ? null : 'video');
+  if (!hw || hw.locked) return;
+  hw.links.splice(i, 1);
+  _imHwChanged();
 }
 // Ticks only (2026-10-09): it saves with Log and Schedule (_imSend).
-function _imSetHw(c) {
+function _imHwChanged() {
   var hw = logHw;
   if (!hw) return;
-  hw.choice = c; hw.dirty = !!c;
+  _logHwRecalc(hw);
+  hw.dirty = !!hw.choice;
   _logHwRender(); updateLogButton(); _imStepsRender();
 }
 // Before a redraw: park the docked Log box in its hidden home so innerHTML
@@ -558,35 +582,23 @@ function _imSetHw(c) {
 function _imHwOut() {
   var hw = document.getElementById('logHw'), d = _imQ('imHwDock');
   if (hw && d && hw.parentNode !== d) d.appendChild(hw);
-  var head = document.getElementById('logHwHead'), t = _imQ('imHwTools');
-  if (head && t && head.parentNode !== t) t.appendChild(head);
-  // Under the drop zone (2026-10-08): Nothing to send left, Browse right (both were on the HW title row).
+  // What HW (2026-10-15) in the HW box above Materials.
+  var what = document.getElementById('logHwWhat'), td = _imQ('imHwTextDock');
+  if (what && td && what.parentNode !== td) td.appendChild(what);
+  // Materials (2026-10-15), each piece under its small title: Yes (small, left;
+  // click to pick, dims while other materials are in) under Nothing to send; Browse and Open (the Dropbox logo) on the Files
+  // title over the drop zone; the Video lesson link and Web link paste boxes
+  // in theirs. No Send: files count once they're in (stays hidden in #logHwHead).
   var nb = document.getElementById('logHwNothing'), files = document.getElementById('logHwFiles');
-  var br = head && head.querySelector('.lh-folder-btn');
-  if (nb && files && files.parentNode && !(nb.parentNode && nb.parentNode.classList.contains('im-hw-col'))) {
-    var row = document.createElement('div');
-    row.className = 'im-none-row';
-    files.parentNode.insertBefore(row, files.nextSibling);
-    // HW answers stacked on the left (2026-10-11): Nothing to send, Sent
-    // video lesson; Browse on the right. Sent sits on the title row.
-    var col = document.createElement('div');
-    col.className = 'im-hw-col';
-    row.appendChild(col);
-    col.appendChild(nb);
-    var vb = document.getElementById('logHwVideoBtn');
-    if (vb) col.appendChild(vb);
-    if (br) row.appendChild(br);
-  }
-  // Above the drop zone (2026-10-11): Sent left, Open (the Dropbox logo in a button) right.
-  var sb = document.getElementById('logHwSentBtn'), db = document.getElementById('logHwDbxBtn');
+  var br = document.querySelector('.lh-folder-btn'), db = document.getElementById('logHwDbxBtn');
   if (db && !db.querySelector('svg')) db.insertAdjacentHTML('afterbegin', DBX_LOGO.replace('class="win-icon"', 'class="lh-dbx-ico"'));
-  if (sb && files && files.parentNode && !(sb.parentNode && sb.parentNode.classList.contains('im-sent-row'))) {
-    var sr = document.createElement('div');
-    sr.className = 'im-sent-row';
-    files.parentNode.insertBefore(sr, files);
-    sr.appendChild(sb);
-    if (db) sr.appendChild(db);
-  }
+  var nt = _imQ('imMatNone'), ft = _imQ('imMatFilesTools');
+  if (nb && nt && nb.parentNode !== nt) nt.appendChild(nb);
+  if (ft) [br, db].forEach(function (el) { if (el && el.parentNode !== ft) ft.appendChild(el); });
+  var vs = document.getElementById('logHwVideo'), vd = _imQ('imMatVideo');
+  if (vs && vd && vs.parentNode !== vd) vd.appendChild(vs);
+  var ls = document.getElementById('logHwLink'), ld = _imQ('imMatLink');
+  if (ls && ld && ls.parentNode !== ld) ld.appendChild(ls);
   // No show on the Log lesson title row, top right (2026-10-11).
   var ns = document.getElementById('btnNoShow'), lbox = _imQ('imLogDock');
   var lhead = lbox && lbox.parentNode && lbox.parentNode.previousElementSibling;
@@ -610,24 +622,21 @@ function _imHwBack() {
   if (foot) { if (add) panel.insertBefore(add, foot); foot.remove(); }
   if (acts.parentNode !== panel) panel.appendChild(acts);   // last in the window
   if (hw.parentNode !== panel) panel.insertBefore(hw, acts);
-  if (head && head.parentNode !== hw) hw.insertBefore(head, hw.firstChild);
-  var nb = document.getElementById('logHwNothing'), tools = head && head.querySelector('.lh-hw-tools');
-  var br = document.querySelector('.im-none-row .lh-folder-btn');
-  if (br && tools) tools.appendChild(br);
-  var sb = document.getElementById('logHwSentBtn'), db = document.getElementById('logHwDbxBtn');
-  if (sb && tools && sb.parentNode !== tools) {
-    var sr = sb.parentNode && sb.parentNode.classList.contains('im-sent-row') ? sb.parentNode : null;
-    tools.insertBefore(sb, br && br.parentNode === tools ? br : null);
-    if (db) tools.insertBefore(db, br && br.parentNode === tools ? br : null);
-    if (sr) sr.remove();
+  // #logHw's pieces back in their HTML order (2026-10-15), the buttons in the head's tools.
+  ['logHwHead', 'logHwWhat', 'logHwFiles', 'logHwVideo', 'logHwLink', 'logHwInput', 'logHwFolder', 'logHwPick'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) hw.appendChild(el);
+  });
+  var tools = head && head.querySelector('.lh-hw-tools');
+  if (tools) {
+    ['logHwNothing', 'logHwSentBtn', 'logHwDbxBtn'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el && el.parentNode !== tools) tools.appendChild(el);
+    });
+    var br = document.querySelector('.lh-folder-btn');
+    if (br && br.parentNode !== tools) tools.appendChild(br);
   }
-  var vb = document.getElementById('logHwVideoBtn');
-  if (vb && tools && vb.parentNode !== tools) tools.insertBefore(vb, br && br.parentNode === tools ? br : null);
-  if (nb && tools && nb.parentNode !== tools) {
-    var row = nb.parentNode && nb.parentNode.closest('.im-none-row');
-    tools.insertBefore(nb, tools.firstChild);
-    if (row && row.classList.contains('im-none-row')) row.remove();
-  }
+  document.querySelectorAll('.im-sent-row, .im-none-row').forEach(function (el) { if (!el.children.length) el.remove(); });
 }
 function _imLift(body) {
   if (window._imWin) return;   // the Log box is in the Log lesson window, not on this page
@@ -780,19 +789,42 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
 // Log lesson (the Log window docks in #imLogDock), HW, Schedule. day: the
 // lesson's (Audit); Import's is today.
 function _imDoHtml(name, day) {
+  var n = _auEsc(JSON.stringify(name));
   return (
     _imSec('Checklist', '<span class="im-fin" id="imFinDone"></span>', ' im-steps-row', '<div id="imSteps"></div>') +
+    // Three sections (2026-10-15): Log (the lesson and the HW), Materials
+    // (what goes to them: nothing, files, video lesson links, web links), Schedule.
     '<hr class="divider im-do-hr">' +
-    _imSec('Log lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
-    // HW in its own box (2026-10-06): the Log window's HW part, moved here.
+    _imMainHead('1. Log', 'Lesson and HW') +
+    _imSub('Lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
+    _imSub('HW', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
     '<hr class="divider im-do-hr">' +
-    _imSec('HW', '<span id="imHwTools"></span>', ' im-hw-dock-box', '<div id="imHwDock"></div>') +
-    // Schedule box: Reschedule and Not needed side by side (2026-10-06): like
-    // HW's Nothing to send, a click ticks Schedule, again undoes it.
+    _imMainHead('2. Materials', 'For practice') +
+    // The Log window's HW part (#logHw) is split over these (_imHwOut).
+    '<div class="im-hw-dock-box">' +
+      _imSub('A. Nothing to send', '', ' im-mat-sec', '<div id="imMatNone"></div>') +
+      _imSub('B. Files', '<span id="imMatFilesTools"></span>', ' im-mat-sec', '<div id="imHwDock"></div>') +
+      _imSub('C. Video lesson link', '', ' im-mat-sec', '<div id="imMatVideo"></div>') +
+      _imSub('D. Web link', '', ' im-mat-sec', '<div id="imMatLink"></div>') +
+    '</div>' +
+    // Schedule: Reschedule and Not needed side by side (2026-10-06); a click
+    // ticks Schedule, again undoes it.
     '<hr class="divider im-do-hr">' +
-    _imSec('Schedule', '', ' im-sched-box',
-      '<button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Reschedule</button>' +
-      '<button class="link-btn im-rs-btn im-nochange' + (_imSchedGet(name, day) === 'nochange' ? ' pressed' : '') + '" id="imNoChangeBtn" onclick="_imNoChangeToggle(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Nothing to move or skip.\nPress again to undo.">Not needed</button>'));
+    _imMainHead('3. Schedule', 'Adjustments') +
+    '<div class="db-panel im-list im-sched-box">' +
+      '<button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + n + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Reschedule</button>' +
+      '<button class="link-btn im-rs-btn im-nochange' + (_imSchedGet(name, day) === 'nochange' ? ' pressed' : '') + '" id="imNoChangeBtn" data-toggle onclick="_imNoChangeToggle(' + n + ')" data-tip="Nothing to move or skip.\nPress again to undo.">Not needed</button>' +
+    '</div>');
+}
+// A main section's title: red, with a grey subtitle like the window title's.
+function _imMainHead(title, sub, right) {
+  return '<div class="db-cx-head im-sec-head im-main-head"><label class="field-label db-cx-t im-main-t">' + title +
+    '<span class="win-sub"> · ' + sub + '</span></label>' + (right || '') + '</div>';
+}
+// A small white title inside a section, and its box.
+function _imSub(title, right, cls, inner) {
+  return '<div class="db-cx-head im-sub-head"><label class="field-label db-cx-t im-sub-t">' + title + '</label>' + (right || '') + '</div>' +
+    '<div class="db-panel im-list' + (cls || '') + '">' + inner + '</div>';
 }
 
 // ── Data (2026-10-12): the student's skips and reschedules, all time; the teacher's on their own line ──
@@ -858,13 +890,14 @@ function _imLoadHw(name) {
     .catch(function () {});
 }
 
-// Last HW sent (2026-10-06): the newest lesson whose HW was Sent, as one
-// lesson-style line (lesson #, how many files, date), its files under it.
-// No HW lessons don't count; never sent → None. Hide folds the files away.
+// Last HW (2026-10-06): the newest lesson with HW, as one lesson-style line
+// (lesson #, how many files, date), then what to practise (the What HW text,
+// 2026-10-15) and its files under it. Lessons with neither don't count;
+// none ever → None. Hide folds the files away.
 var _imHwHide = {};   // key → files folded
 function _imLastHwHtml(hw, name) {
   if (!hw) return '<span style="color:var(--muted)">Loading</span>';
-  var r = hw.rows.filter(function (x) { return x.hw === 'Sent'; })[0];
+  var r = hw.rows.filter(function (x) { return x.text || (x.files || []).length || (x.links || []).length; })[0];
   var k = _imKey(name), out;
   if (!r) out = '<div class="im-none">None</div>';
   else {
@@ -872,9 +905,14 @@ function _imLastHwHtml(hw, name) {
     var p = String(r.date).split('-');
     out = '<div class="im-row im-hw-row">' +
         '<span class="im-n">' + (r.lesson || '') + '</span>' +
-        '<span class="im-s">' + n + (n === 1 ? ' file' : ' files') + '</span>' +
+        '<span class="im-s">' + (n ? n + (n === 1 ? ' file' : ' files') : '') + '</span>' +
         '<span class="im-d">' + MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10) + '</span></div>' +
-      (hide ? '' : '<div class="im-hw-files">' + _dbDetailsFilesHtml({ items: r.files.map(function (x) { return { name: x.split('/').pop(), path: x }; }) }) + '</div>');
+      (r.text ? '<div class="im-hw-text">' + inqEsc(r.text) + '</div>' : '') +
+      (r.links || []).map(function (l) {
+        return '<div class="im-hw-link"><span>' + (l.kind === 'Video' ? 'Video lesson' : 'Link') + '</span>' +
+          '<a href="' + inqEsc(l.url) + '" target="_blank" rel="noopener">' + inqEsc(l.url) + '</a></div>';
+      }).join('') +
+      (hide || !n ? '' : '<div class="im-hw-files">' + _dbDetailsFilesHtml({ items: r.files.map(function (x) { return { name: x.split('/').pop(), path: x }; }) }) + '</div>');
   }
   // Show more (2026-10-07): under the last HW, everything in their Dropbox
   // folder now (the daily clean-up keeps it to ~15 days). Read only on press.
@@ -885,7 +923,7 @@ function _imLastHwHtml(hw, name) {
      x.items.length ? _dbDetailsFilesHtml({ items: x.items }) : '<div class="im-none">Empty</div>') + '</div>';
   var n2 = _auEsc(JSON.stringify(name));
   return out + '<div class="im-hw-btns">' +
-    (r ? '<button class="link-btn im-more" onclick="_imToggleHw(' + n2 + ')">' + (_imHwHide[k] ? 'Show files' : 'Hide') + '</button>' : '') +
+    (r && (r.files || []).length ? '<button class="link-btn im-more" onclick="_imToggleHw(' + n2 + ')">' + (_imHwHide[k] ? 'Show files' : 'Hide') + '</button>' : '') +
     '<button class="link-btn im-more" onclick="_imToggleDbx(' + n2 + ')" data-tip="Reads their Dropbox folder.">' + (x.open ? 'Show less' : 'Show more') + '</button></div>';
 }
 var _imDbx = {};   // key → { open, loading, items, error }: Show more's Dropbox list

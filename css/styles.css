@@ -1987,6 +1987,16 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #logHwFiles.lh-drop-on, #logHwFiles:hover { border-color: #5b9dff; background: rgba(91,157,255,0.08); }
 .lh-drop-more { margin-top: 10px; text-align: center; color: var(--muted); font-size: 10.5px; }
 .lh-hw-tools { display: flex; align-items: center; gap: 8px; }   /* Browse folder + recheck, right of HW (2026-10-06) */
+/* What HW (2026-10-15): one text row with its own mic at the right end, above the materials. */
+.lh-what { position: relative; margin-bottom: 10px; }
+#imHwTextDock .lh-what { margin-bottom: 0; }   /* alone in the window's HW box */
+.lh-what .rpm-field { width: 100%; box-sizing: border-box; }
+#logPanel.hw-only .lh-what .ll-wrap { display: block; }
+#logPanel.hw-only .lh-what .ll-add { display: inline-flex; }
+.lh-what .link-btn.tl-mic { padding: 4px 2px; border-color: transparent; background: transparent; color: var(--muted); }
+.lh-what .link-btn.tl-mic:hover { color: var(--text); }
+.lh-what .link-btn.tl-mic svg { width: 14px; height: 14px; }
+.lh-what .link-btn.tl-mic.rec { color: var(--accent); }
 /* Browse: Reschedule's look in HW's blue, with ▸ (2026-10-07; was a blue-edged plain button). */
 #logHwFiles { font-family: "DM Mono", monospace; font-size: 11px; max-height: 220px; overflow-y: auto; }
 .lh-hw-pick { display: flex; gap: 8px; margin-top: 10px; }
@@ -2092,7 +2102,10 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #imLogDock .ll-wrap { margin-top: 0; }
 #imLogDock .lh-hw-pick, #imHwDock .lh-hw-pick { display: none; }   /* Sent / No HW: the drop zone + Nothing to send instead */
 .lh-none-btn { display: none; }
-#imLogDock .lh-none-btn, #imHwDock .lh-none-btn, #imHwTools .lh-none-btn { display: inline-flex; }   /* Nothing to send, only in Import's box (2026-10-06) */
+#imLogDock .lh-none-btn, #imHwDock .lh-none-btn, #imHwTools .lh-none-btn, #imMatFilesTools .lh-none-btn { display: inline-flex; } /* the HW buttons, only in the Log lesson window (2026-10-06) */
+/* A. Nothing to send (2026-10-15): a small Yes button under its title, on the left; click picks it, again undoes it. */
+#imMatNone .lh-none-btn { display: inline-flex; }
+#imMatNone .lh-none-btn:disabled { opacity: .35; cursor: default; }
 /* Checklist as a status list (2026-10-06): circle + label, ticks itself; done lines fade. */
 .im-checks { display: flex; flex-direction: column; gap: 8px; }
 .im-check { display: flex; align-items: center; gap: 10px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--text); }
@@ -2264,17 +2277,42 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .st-win.im-log-win { width: min(620px, 94vw); }
 .im-win-card .im-list { padding: 16px; }
 .im-win-card .im-sec-head .field-label { display: inline-block; margin: 0; }
-.im-none-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; }   /* Nothing to send, bottom right of the drop zone (2026-10-08) */
+.im-hw-text { margin: 4px 0 6px; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.5; color: var(--text); }   /* Last HW's What HW text (2026-10-15) */
+.im-none-row { display: flex; justify-content: flex-start; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }   /* under the drop zone: Sent video lesson, Nothing to send left; Send right (2026-10-15) */
+.im-none-row .lh-sent-btn { margin-left: auto; }
+/* The Log lesson window's three sections (2026-10-15): a red title with a grey
+   subtitle (like the window title), and small white titles inside them. */
+.im-main-t { font-size: 16px; color: var(--accent); }
+.im-main-t .win-sub { color: var(--muted); }
+.im-do-card .im-sub-head { margin: 26px 0 16px; }   /* small titles look like Checklist's (2026-10-15) */
+.im-do-card .im-main-head + .im-sub-head, .im-do-card .im-main-head + .im-hw-dock-box > .im-sub-head:first-child { margin-top: 0; }
+.im-sub-head .field-label { margin: 0; }
+.im-list.im-mat-sec { background: transparent; border: none; border-radius: 0; padding: 0; }
+#imHwDock .lh-hw-head { display: none; }   /* its buttons live on the sub-titles now */
+/* Video lesson / Link paste box and the links added (2026-10-15) */
+.lh-link-add { display: flex; gap: 8px; align-items: center; }
+.lh-link-sec + .lh-link-sec { margin-top: 10px; }
+#logPanel .lh-link-sec { margin-top: 10px; }   /* HW-only window: under the drop zone */
+.lh-link-add .rpm-field { flex: 1; min-width: 0; }
+.lh-links:empty { display: none; }
+.lh-links { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.lh-link { display: flex; align-items: center; gap: 8px; font-size: 12px; min-width: 0; }
+.lh-link .lh-link-k { flex: none; color: var(--muted); font-family: "DM Mono", monospace; font-size: 11px; }
+.lh-link a { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.lh-link .lh-link-x { flex: none; margin-left: auto; background: none; border: none; color: var(--muted); cursor: pointer; padding: 0 2px; }
+.lh-link .lh-link-x:hover { color: var(--text); }
+.im-hw-link { font-size: 12px; margin: 2px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.im-hw-link span { color: var(--muted); font-family: "DM Mono", monospace; font-size: 11px; margin-right: 6px; }
+.im-hw-link a { color: var(--text); }
 /* HW answers stacked on the left, each its own width, left aligned (2026-10-11):
    Nothing to send, Sent video lesson; Browse right; Sent + Open above the drop zone. */
-.im-none-row { align-items: flex-start; }
-.im-sent-row { display: flex; justify-content: space-between; align-items: center; margin: 0 0 10px; }   /* above the drop zone: Sent left, Open right (2026-10-11) */
+.im-sent-row { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin: 0 0 10px; }   /* above the drop zone: Browse and Open side by side, right (2026-10-15) */
 .lh-dbx-btn .lh-dbx-ico { width: 14px; height: 12px; }   /* Open: the Dropbox logo alone in its button */
 .im-hw-col { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-right: auto; }
 .lh-dbx-ico { width: 12px; height: 10px; flex: none; }   /* Open: the Dropbox logo before the word (2026-10-11) */
 .im-steps-row .im-check { color: #d9a441; }   /* to-do steps amber, done ones dim (2026-10-08; was blue, then white) */
 /* Log lesson, HW, Schedule without their boxes (2026-10-08): the card's own background, fields out to its sides. */
-.im-list.im-log-box, .im-list.im-hw-dock-box, .im-list.im-sched-box { background: transparent; border: none; border-radius: 0; padding: 0; }
+.im-list.im-log-box, .im-list.im-hwtext-box, .im-list.im-hw-dock-box, .im-list.im-sched-box { background: transparent; border: none; border-radius: 0; padding: 0; }
 /* Under the log rows (2026-10-08): add-row left, Log right (Log was on the title row). */
 .im-log-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
 #imLogDock .im-log-foot .ll-add { margin: 0; }
@@ -2294,7 +2332,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #logPanel .im-log-foot #btnLog:disabled { cursor: default; }
 /* Checklist colours (2026-10-08, was all amber): Lesson log green, HW blue, Schedule green; done ones stay dim. */
 .im-steps-row .im-check-log, .im-steps-row .im-check-sched { color: var(--green); }
-.im-steps-row .im-check-hw { color: var(--blue); }
+.im-steps-row .im-check-hw, .im-steps-row .im-check-mat { color: var(--blue); }
 .im-steps-row .im-check.done { color: rgba(255,255,255,0.35); }
 /* More air under the icon and after the Schedule buttons (2026-10-08). */
 .im-win-card { margin-top: 24px; }   /* the window's icon row keeps _stWin's 18px; this adds the rest */
