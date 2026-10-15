@@ -2475,22 +2475,22 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Section colours in the Log lesson window (2026-10-15): 1. Log's buttons green,
    2. Materials' blue (the Checklist's old step colours); Schedule keeps its red
    Reschedule. Ids beat the window's grey .td-look. */
-#imLogWin #logPanel .im-log-foot #btnLog, #imLogWin .im-sub-head > #btnNoShow { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 6%, transparent); }   /* Intake's look 2026-10-15: Trial card Confirm student */
-#imLogWin #logPanel .im-log-foot #btnLog:not(:disabled):hover, #imLogWin .im-sub-head > #btnNoShow:not(:disabled):hover { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 14%, transparent); }
+#imLogWin #logPanel .im-log-foot #btnLog, #imLogWin .im-sub-head > #btnNoShow { color: color-mix(in srgb, var(--green) 60%, var(--muted)); border-color: color-mix(in srgb, var(--green) 28%, transparent); background: color-mix(in srgb, var(--green) 3%, transparent); }   /* dim 2026-10-15: colour mixed with grey, faint border */
+#imLogWin #logPanel .im-log-foot #btnLog:not(:disabled):hover, #imLogWin .im-sub-head > #btnNoShow:not(:disabled):hover { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 9%, transparent); }
 #imLogWin #logPanel .im-log-foot #btnLog:disabled, #imLogWin .im-sub-head > #btnNoShow:disabled { opacity: .45; }
-#imLogWin #imMatFilesTools .link-btn { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 40%, transparent); background: color-mix(in srgb, var(--blue) 7%, transparent); }   /* Intake's look 2026-10-15: Trial card Log lesson / Send HW */
-#imLogWin #imMatFilesTools .link-btn:not(:disabled):hover { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 55%, transparent); background: color-mix(in srgb, var(--blue) 14%, transparent); }
+#imLogWin #imMatFilesTools .link-btn { color: color-mix(in srgb, var(--blue) 60%, var(--muted)); border-color: color-mix(in srgb, var(--blue) 28%, transparent); background: color-mix(in srgb, var(--blue) 3%, transparent); }   /* dim 2026-10-15 */
+#imLogWin #imMatFilesTools .link-btn:not(:disabled):hover { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 55%, transparent); background: color-mix(in srgb, var(--blue) 9%, transparent); }
 #imLogWin .im-hw-dock-box .link-btn:disabled { opacity: .45; }   /* Yes and Add stay grey (2026-10-15); Browse + Open blue */
 /* B. Files' title buttons (2026-10-15): Browse and Open the same height, a gap between. */
 #imMatFilesTools { display: inline-flex; align-items: stretch; gap: 8px; }
 #imMatFilesTools .link-btn { align-items: center; }
 /* Checklist pills in the Log lesson window (2026-10-15): the logs green (like
    1. Log's buttons), Materials sent blue, Schedule checked red; done ones still dim (.done). */
-#imLogWin .st-win.td-look .im-steps-row .im-check-log, #imLogWin .st-win.td-look .im-steps-row .im-check-hw { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 6%, transparent); }   /* pills in Intake's look 2026-10-15 */
-#imLogWin .st-win.td-look .im-steps-row .im-check-mat { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 40%, transparent); background: color-mix(in srgb, var(--blue) 7%, transparent); }
-#imLogWin .st-win.td-look .im-steps-row .im-check-sched { color: color-mix(in srgb, #ff5a4d 84%, transparent); border-color: color-mix(in srgb, #ff5a4d 42%, transparent); background: color-mix(in srgb, #ff5a4d 6%, transparent); }   /* like Trial card Dismiss */
+#imLogWin .st-win.td-look .im-steps-row .im-check-log, #imLogWin .st-win.td-look .im-steps-row .im-check-hw { color: color-mix(in srgb, var(--green) 60%, var(--muted)); border-color: color-mix(in srgb, var(--green) 28%, transparent); background: color-mix(in srgb, var(--green) 3%, transparent); }   /* pills dim 2026-10-15 */
+#imLogWin .st-win.td-look .im-steps-row .im-check-mat { color: color-mix(in srgb, var(--blue) 60%, var(--muted)); border-color: color-mix(in srgb, var(--blue) 28%, transparent); background: color-mix(in srgb, var(--blue) 3%, transparent); }
+#imLogWin .st-win.td-look .im-steps-row .im-check-sched { color: color-mix(in srgb, #ff5a4d 60%, var(--muted)); border-color: color-mix(in srgb, #ff5a4d 28%, transparent); background: color-mix(in srgb, #ff5a4d 3%, transparent); }
 /* 3. Schedule spaced out (2026-10-15): more room under its title and below the buttons. */
 #imLogWin .im-main-head + .im-sched-box { margin-top: 44px; margin-bottom: 56px; }
 /* B. Files' drop zone blue dashed (2026-10-15), with the Materials buttons; brighter on hover / drop. */
-#imLogWin .st-win.td-look #logHwFiles { border: 1.5px dashed color-mix(in srgb, var(--blue) 40%, transparent); }   /* same 40% border as the blue buttons (2026-10-15, was 50) */
+#imLogWin .st-win.td-look #logHwFiles { border: 1.5px dashed color-mix(in srgb, var(--blue) 28%, transparent); }   /* dim like the blue buttons (2026-10-15, was 50) */
 #imLogWin .st-win.td-look #logHwFiles:hover, #imLogWin .st-win.td-look #logHwFiles.lh-drop-on { border-color: color-mix(in srgb, var(--blue) 55%, transparent); background: color-mix(in srgb, var(--blue) 4%, transparent); }
