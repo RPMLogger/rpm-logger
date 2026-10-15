@@ -2284,9 +2284,9 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
    subtitle (like the window title), and small white titles inside them. */
 .im-main-t { font-size: 16px; color: var(--accent); }
 .im-main-t .win-sub { color: var(--muted); }
-.im-do-card .im-sub-head { margin: 26px 0 16px; }   /* small titles look like Checklist's (2026-10-15) */
+.im-do-card .im-sub-head { margin: 40px 0 16px; }   /* small titles look like Checklist's (2026-10-15) */
 .im-do-card .im-main-head + .im-sub-head, .im-do-card .im-main-head + .im-hw-dock-box > .im-sub-head:first-child { margin-top: 0; }
-.im-sub-head .field-label { margin: 0; }
+.im-sub-head .field-label { margin: 0; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }   /* typewriter like the buttons (2026-10-15) */
 .im-list.im-mat-sec { background: transparent; border: none; border-radius: 0; padding: 0; }
 #imHwDock .lh-hw-head { display: none; }   /* its buttons live on the sub-titles now */
 /* Video lesson / Link paste box and the links added (2026-10-15) */
@@ -2319,12 +2319,12 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-log-foot #logActions { margin: 0 !important; gap: 10px; }
 .im-log-foot #logPanelStatus { flex: none !important; }
 /* A rule between the doing card's sections (2026-10-08), even room either side. */
-.im-do-hr { margin: 30px 0 0; }
-.im-do-hr + .im-sec-head { margin-top: 30px; }
+.im-do-hr { margin: 44px 0 0; }   /* spaced out 2026-10-15 (was 30) */
+.im-do-hr + .im-sec-head { margin-top: 44px; }
 /* The clipboard is tall and narrow (2026-10-08): 28px high makes it ~19px wide, the other window icons' 20px look. */
 .st-win.im-log-win .win-icon { height: 34px; }   /* a bit bigger for om-85 (2026-10-09, was 30) */
 /* A little more room between each title and what's under it, in the doing card (2026-10-08; was 10px). */
-.im-do-card .im-sec-head { margin-bottom: 16px; }
+.im-do-card .im-sec-head { margin-bottom: 20px; }
 /* Checklist without its box too (2026-10-08): a status line, not a field. */
 .im-list.im-steps-row { background: transparent; border: none; border-radius: 0; padding: 0; }
 /* Log in the doing card in the Trial cards' green (2026-10-08; was bright, dim until typed). */
@@ -2464,10 +2464,33 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 
 /* No show (2026-10-11): top right of the Log lesson box, in the Log lesson window only. */
 #btnNoShow { display: none; }
-.im-sec-head > #btnNoShow:not([hidden]) { display: inline-flex; }
-.im-sec-head > #btnNoShow:disabled { opacity: .4; cursor: default; }
+.im-sec-head > #btnNoShow:not([hidden]), .im-sub-head > #btnNoShow:not([hidden]) { display: inline-flex; }
+.im-sec-head > #btnNoShow:disabled, .im-sub-head > #btnNoShow:disabled { opacity: .4; cursor: default; }
 /* Payments Audit title (2026-10-14): Today's look, room above and under like #todayBody. */
 .pay-audit-title { margin: 36px 0 0; }   /* equal gaps: Back, title, stamp, cards (2026-10-14) */
 .pay-audit-title .win-sub { color: rgba(255,255,255,0.3); }
 /* The AUDIT stamp: centred, faded and tilted like Today's PREVIEW stamp. */
 .pay-audit-stamp { display: block; height: 28px; width: auto; margin: 36px auto; opacity: .7; transform: rotate(-1deg); }
+
+/* Section colours in the Log lesson window (2026-10-15): 1. Log's buttons green,
+   2. Materials' blue (the Checklist's old step colours); Schedule keeps its red
+   Reschedule. Ids beat the window's grey .td-look. */
+#imLogWin #logPanel .im-log-foot #btnLog, #imLogWin .im-sub-head > #btnNoShow { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 6%, transparent); }   /* Intake's look 2026-10-15: Trial card Confirm student */
+#imLogWin #logPanel .im-log-foot #btnLog:not(:disabled):hover, #imLogWin .im-sub-head > #btnNoShow:not(:disabled):hover { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 14%, transparent); }
+#imLogWin #logPanel .im-log-foot #btnLog:disabled, #imLogWin .im-sub-head > #btnNoShow:disabled { opacity: .45; }
+#imLogWin #imMatFilesTools .link-btn { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 40%, transparent); background: color-mix(in srgb, var(--blue) 7%, transparent); }   /* Intake's look 2026-10-15: Trial card Log lesson / Send HW */
+#imLogWin #imMatFilesTools .link-btn:not(:disabled):hover { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 55%, transparent); background: color-mix(in srgb, var(--blue) 14%, transparent); }
+#imLogWin .im-hw-dock-box .link-btn:disabled { opacity: .45; }   /* Yes and Add stay grey (2026-10-15); Browse + Open blue */
+/* B. Files' title buttons (2026-10-15): Browse and Open the same height, a gap between. */
+#imMatFilesTools { display: inline-flex; align-items: stretch; gap: 8px; }
+#imMatFilesTools .link-btn { align-items: center; }
+/* Checklist pills in the Log lesson window (2026-10-15): the logs green (like
+   1. Log's buttons), Materials sent blue, Schedule checked red; done ones still dim (.done). */
+#imLogWin .st-win.td-look .im-steps-row .im-check-log, #imLogWin .st-win.td-look .im-steps-row .im-check-hw { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 6%, transparent); }   /* pills in Intake's look 2026-10-15 */
+#imLogWin .st-win.td-look .im-steps-row .im-check-mat { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 40%, transparent); background: color-mix(in srgb, var(--blue) 7%, transparent); }
+#imLogWin .st-win.td-look .im-steps-row .im-check-sched { color: color-mix(in srgb, #ff5a4d 84%, transparent); border-color: color-mix(in srgb, #ff5a4d 42%, transparent); background: color-mix(in srgb, #ff5a4d 6%, transparent); }   /* like Trial card Dismiss */
+/* 3. Schedule spaced out (2026-10-15): more room under its title and below the buttons. */
+#imLogWin .im-main-head + .im-sched-box { margin-top: 44px; margin-bottom: 56px; }
+/* B. Files' drop zone blue dashed (2026-10-15), with the Materials buttons; brighter on hover / drop. */
+#imLogWin .st-win.td-look #logHwFiles { border: 1.5px dashed color-mix(in srgb, var(--blue) 40%, transparent); }   /* same 40% border as the blue buttons (2026-10-15, was 50) */
+#imLogWin .st-win.td-look #logHwFiles:hover, #imLogWin .st-win.td-look #logHwFiles.lh-drop-on { border-color: color-mix(in srgb, var(--blue) 55%, transparent); background: color-mix(in srgb, var(--blue) 4%, transparent); }

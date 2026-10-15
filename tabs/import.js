@@ -350,14 +350,14 @@ function _imStepsRender() {
   var logged = !!(st && st.logged), sched = _imSchedGet(name, c.day);
   // A status list (2026-10-06), not buttons: each line ticks itself when its
   // job is done elsewhere (Reschedule, the HW drop zone / Nothing to send, Log).
-  // The card's order (2026-10-15): Lesson log, HW (the What HW rows, required),
-  // Materials (was "HW"), Schedule; each in its own colour while to do.
+  // The card's order (2026-10-15): Lesson log, HW log (the HW rows, required),
+  // Materials sent (was "HW"), Schedule checked; green, green, blue, red.
   var hwText = !!(hw && hw.textSaved);
   var steps = [
     { label: 'Lesson log', cls: 'log', done: logged },
-    { label: 'HW', cls: 'hw', done: hwText },
-    { label: 'Materials', cls: 'mat', done: !!(hw && hw.choice) },
-    { label: 'Schedule', cls: 'sched', done: !!sched }
+    { label: 'HW log', cls: 'hw', done: hwText },
+    { label: 'Materials sent', cls: 'mat', done: !!(hw && hw.choice) },
+    { label: 'Schedule checked', cls: 'sched', done: !!sched }
   ];
   if (!hw) steps.splice(1, 2);   // no HW question for this lesson (before HW tracking)
   // Circle + label on one line (2026-10-08, back from the Trial pills): done ones dim.
@@ -795,11 +795,11 @@ function _imDoHtml(name, day) {
     // Three sections (2026-10-15): Log (the lesson and the HW), Materials
     // (what goes to them: nothing, files, video lesson links, web links), Schedule.
     '<hr class="divider im-do-hr">' +
-    _imMainHead('1. Log', 'Lesson and HW') +
-    _imSub('Lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
-    _imSub('HW', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
+    _imMainHead('1. Log', 'Lesson and HW', '', 'im-main-log') +
+    _imSub('A. Lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
+    _imSub('B. HW', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
     '<hr class="divider im-do-hr">' +
-    _imMainHead('2. Materials', 'For practice') +
+    _imMainHead('2. Materials', 'For practice', '', 'im-main-mat') +
     // The Log window's HW part (#logHw) is split over these (_imHwOut).
     '<div class="im-hw-dock-box">' +
       _imSub('A. Nothing to send', '', ' im-mat-sec', '<div id="imMatNone"></div>') +
@@ -817,8 +817,8 @@ function _imDoHtml(name, day) {
     '</div>');
 }
 // A main section's title: red, with a grey subtitle like the window title's.
-function _imMainHead(title, sub, right) {
-  return '<div class="db-cx-head im-sec-head im-main-head"><label class="field-label db-cx-t im-main-t">' + title +
+function _imMainHead(title, sub, right, cls) {
+  return '<div class="db-cx-head im-sec-head im-main-head' + (cls ? ' ' + cls : '') + '"><label class="field-label db-cx-t im-main-t">' + title +
     '<span class="win-sub"> · ' + sub + '</span></label>' + (right || '') + '</div>';
 }
 // A small white title inside a section, and its box.
