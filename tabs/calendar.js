@@ -115,6 +115,7 @@ function _calRenderEvents() {
 
   var mon = _calMonday(_calWeekOffset);
   var now = new Date();
+  _calLayoutLanes();
 
   _calEvents.forEach(function(ev) {
     var col = cols[ev.dayIdx];
@@ -130,6 +131,11 @@ function _calRenderEvents() {
     el.className = 'cal-ev' + (ev.past ? ' past' : '');
     el.style.top    = ((s - CAL_DAY_START) / 60 * CAL_HOUR_PX) + 'px';
     el.style.height = Math.max(((e - s) / 60 * CAL_HOUR_PX) - 2, 16) + 'px';
+    if (ev._lanes > 1) {   // shares its time with another lesson: side by side, like Google Calendar
+      el.style.left  = 'calc((100% - 3px) * ' + ev._lane + ' / ' + ev._lanes + ' + 3px)';
+      el.style.width = 'calc((100% - 3px) / ' + ev._lanes + ' - 3px)';
+      el.style.right = 'auto';
+    }
     el.style.borderLeftColor = color;
     el.style.background = _calFade(color, 0.22);
     el.title = ev.title + ' · ' + _calFmt(ev.startMin) + (ev.past ? ' · past, locked' : ' · click: skip / reschedule · drag: move');
@@ -156,6 +162,28 @@ function _calRenderEvents() {
 
 var _calDrag = null;
 
+// Lessons on the same day whose times overlap (2026-10-15): each gets a lane (ev._lane) and the group shares
+// the column width (ev._lanes). A group is every lesson chained by overlaps; a lane is reused once its lesson ends.
+function _calLayoutLanes() {
+  var byDay = {};
+  _calEvents.forEach(function(ev) { (byDay[ev.dayIdx] = byDay[ev.dayIdx] || []).push(ev); });
+  Object.keys(byDay).forEach(function(k) {
+    var list = byDay[k].sort(function(a, b) { return a.startMin - b.startMin || b.endMin - a.endMin; });
+    var group = [], laneEnds = [], groupEnd = -1;
+    function close() { group.forEach(function(g) { g._lanes = laneEnds.length; }); group = []; laneEnds = []; }
+    list.forEach(function(ev) {
+      if (ev.startMin >= groupEnd) close();
+      var lane = 0;
+      while (lane < laneEnds.length && laneEnds[lane] > ev.startMin) lane++;
+      laneEnds[lane] = ev.endMin;
+      ev._lane = lane;
+      group.push(ev);
+      groupEnd = Math.max(groupEnd, ev.endMin);
+    });
+    close();
+  });
+}
+
 function _calDragStart(e) {
   if (e.button !== 0) return;
   var el = e.currentTarget;
@@ -173,6 +201,7 @@ function _calDragMove(e) {
   if (!d.moved && Math.abs(e.clientX - d.x) + Math.abs(e.clientY - d.y) < 5) return;
   d.moved = true;
   d.el.classList.add('dragging');
+  d.el.style.left = '3px'; d.el.style.right = '3px'; d.el.style.width = '';   // full width while it moves
 
   var cols = document.querySelectorAll('#calGridBody .cal-col');
   var dayIdx = d.ev.dayIdx;
