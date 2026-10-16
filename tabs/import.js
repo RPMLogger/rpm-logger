@@ -50,8 +50,11 @@ function _imRenderCards(noRead) {
   var missing = function (n) {
     if (logged.indexOf(_imKey(n)) < 0) return null;   // not logged yet: no verdict
     var m = [];
-    if (_imHwToday.rows && !_imHwToday.rows[_imKey(n)]) m.push('HW');
+    var hr = _imHwToday.rows && _imHwToday.rows[_imKey(n)];
+    if (_imHwToday.rows && !(hr && hr.text)) m.push('HW');
+    if (_imHwToday.rows && !hr) m.push('Materials');
     if (!_imSchedGet(n)) m.push('Schedule');
+    if (_imMailNeeded(n, _tdYmd())) m.push('Email');
     return m;
   };
   var names = _imRoster.slice().sort(function (a, b) {
@@ -66,7 +69,7 @@ function _imRenderCards(noRead) {
       // Audit lessons (2026-10-14): red, right, level with "24 students", like Audit
       // payments; opens the old Logs page (Unlogged Lessons + Lesson Checklist) here.
       '<div class="db-cx-head im-sec-head im-cards-head"><label class="field-label db-cx-t">' + names.length + ' students</label>' +
-        '<button class="link-btn red" onclick="openLessonAudit()" data-tip="Opens a page.\nLessons missing a log, HW or schedule." data-tip-wrap>' + DETAILS_ICON + '<span>Audit lessons</span></button></div>' +
+        '<button class="link-btn red" onclick="openLessonAudit()" data-tip="Opens a page.\nLessons missing a log, HW, materials,\nschedule or email." data-tip-wrap>' + DETAILS_ICON + '<span>Audit lessons</span></button></div>' +
       names.map(function (n) {
         var miss = missing(n), o = open(n);
         var bits = [];
@@ -80,7 +83,8 @@ function _imRenderCards(noRead) {
     '</div>';
 }
 
-// Today's HW Tracking rows (getHwLog by date): who has an HW answer for today.
+// Today's HW Tracking rows (getHwLog by date): who has an HW answer for today
+// ({ hw: the Materials, text: the HW, files, links }).
 var _imHwToday = { day: null, rows: null, busy: false };
 function _imHwTodayLoad() {
   var day = _tdYmd();
@@ -91,7 +95,7 @@ function _imHwTodayLoad() {
     .then(function (d) {
       if (!d.success) return;
       var rows = {};
-      (d.rows || []).forEach(function (x) { rows[_imKey(x.student)] = x.hw; });
+      (d.rows || []).forEach(function (x) { rows[_imKey(x.student)] = { hw: x.hw, text: x.text || '', files: x.files || [], links: x.links || [] }; });
       _imHwToday = { day: day, rows: rows, busy: false };
     })
     .catch(function () {})
@@ -223,19 +227,34 @@ function _imQueue(name) {
   var i = _imTodayIdx(name);
   if (i >= 0) {
     var t = todayStudents[i], day = _tdYmd();
-    var hwDone = !!(_imHwToday.rows && _imHwToday.rows[_imKey(name)]);
+    var hr = _imHwToday.rows && _imHwToday.rows[_imKey(name)];
     var logTxt = _imLoggedToday(_imLast && _imLast.name === name && _imLast.lessons);
     var logged = !!t.alreadyLogged || logTxt !== null;
-    if (!(logged && hwDone && _imSchedGet(name, day)))
+    var sched = _imSchedGet(name, day), mailLeft = day >= MSG_START && !_imMsgGet(name, day);
+    if (logged && hr && hr.text && sched && mailLeft)   // only the email left
+      q.push({ date: day, idx: i, student: t, item: { date: day, log: true, logText: logTxt || '', hw: hr.hw, hwText: hr.text,
+        hwFiles: hr.files || [], hwLinks: hr.links || [], missing: ['Email'] } });
+    else if (!(logged && hr && hr.text && sched && !mailLeft))
       q.push({ date: day, idx: i, student: t, item: logged ? { log: true, logText: logTxt || '' } : _ckItem(name, day) });
   }
   return q;
 }
 // Opens the first; after its Done the next one opens, till none are left.
+// Only the email left (2026-10-16): the Email window, no Log lesson window.
 function _imRunQueue(q, onEach) {
   var x = q.shift();
   if (!x) return;
-  _imLogWinOpen(x.student, x.idx, x.date, x.item, q.length ? function () { _imRunQueue(q, onEach); } : null);
+  var next = q.length ? function () { _imRunQueue(q, onEach); } : null;
+  var m = x.item && x.item.missing;
+  if (m && m.length === 1 && m[0] === 'Email') {
+    var mail = _imMailFromItem(x.student.name, x.item);
+    mail.next = next;
+    _imMailOpen(mail);
+    if (onEach) onEach(x);
+    if (window._imLogActive) mail.fromImport = true;
+    return;
+  }
+  _imLogWinOpen(x.student, x.idx, x.date, x.item, next);
   if (onEach) onEach(x);
 }
 function _imLogOpen(name) {
@@ -301,6 +320,275 @@ function _imSchedSet(name, v, day) {
 }
 var _imSchedBusy = {};   // lesson key → a Schedule save still on its way
 function _imNoChangeToggle(name) { var d = _imCtx().day; _imSchedSet(name, _imSchedGet(name, d) === 'nochange' ? '' : 'nochange', d); }
+
+// ── Email window (2026-10-16): the lesson recap email (RPM_LessonMsg.js) ──
+// When the Log lesson window's four steps are done it closes ("Logged ✓") and
+// this opens for the same lesson (from the Audit, or Students' Log lesson,
+// straight away when only the email is left). "Your Guitar Lesson Recap —
+// Oct 15": the short log and HW line sit on top for reference, and you dictate
+// Lesson notes and Things to practice as proper sentences (both required),
+// plus optional Notes ("bring your capo"; left out when empty). Materials come
+// from what was sent. Preview shows the email exactly as it will go
+// (previewLessonMessage); Send sends it, ticks Email in the Lesson Checklist,
+// keeps a Lesson Recaps row, and the lesson is Done. (No "No email" button,
+// user 2026-10-16; saveLessonMessage stays for later.) What's typed is kept in this
+// browser till it's sent, so a closed window loses nothing. Email only.
+var MSG_START = '2026-10-16';   // Email is a required step from here (CHECK_START2 in RPM_Checklist.js)
+function _imMsgKey(name, day) { return 'imMsg|' + _imKey(name) + '|' + (day || _tdYmd()); }
+// 'Sent', 'Not needed' or ''.
+function _imMsgGet(name, day) {
+  day = day || _tdYmd();
+  var m = window._imMail;
+  if (m && m.state !== undefined && _imKey(m.name) === _imKey(name) && m.day === day) return m.state;
+  var it = _ckItem(name, day);
+  if (it) return it.msg || '';
+  try { return localStorage.getItem(_imMsgKey(name, day)) || ''; } catch (e) { return ''; }
+}
+function _imMsgPut(name, day, v) {
+  try { if (v) localStorage.setItem(_imMsgKey(name, day), v); else localStorage.removeItem(_imMsgKey(name, day)); } catch (e) {}
+  var it = _ckItem(name, day);
+  if (it) it.msg = v;
+  var m = window._imMail;
+  if (m && _imKey(m.name) === _imKey(name) && m.day === day) m.state = v;
+}
+// Still to send for this lesson (from Oct 16; trials and older lessons have none).
+function _imMailNeeded(name, day) { return day >= MSG_START && !_imMsgGet(name, day); }
+// The lesson, from the Log lesson window as it closes.
+function _imMailFromWin(w) {
+  var hw = logHw, sent = hw.choice === 'sent';
+  return { name: w.name, day: w.day,
+    log: toSentenceCase(llValues(_logBox()).filter(Boolean).join(', ')), hw: hw.text || '',
+    files: !!(sent && hw.filesOn && hw.files.length), links: sent ? hw.links.slice() : [], none: hw.choice === 'none' };
+}
+// The lesson, from a Lesson checklist entry (Audit / Students' Log lesson).
+function _imMailFromItem(name, it) {
+  return { name: name, day: it.date, log: it.logText || '', hw: it.hwText || '',
+    files: !!(it.hwFiles && it.hwFiles.length), links: (it.hwLinks || []).slice(), none: /None/.test(it.hw || '') };
+}
+function _imMailDraftKey(m) { return 'imMail|' + _imKey(m.name) + '|' + m.day; }
+function _imMailDraft(m, d) {
+  try {
+    if (d === undefined) return JSON.parse(localStorage.getItem(_imMailDraftKey(m)) || '{}');
+    if (d) localStorage.setItem(_imMailDraftKey(m), JSON.stringify(d)); else localStorage.removeItem(_imMailDraftKey(m));
+  } catch (e) { return {}; }
+}
+function _imMailQ(id) { var w = document.getElementById('imMailWin'); return w ? w.querySelector('#' + id) : null; }
+// m: { name, day, log, hw, files, links, none, next?, fromImport? }
+function _imMailOpen(m) {
+  window._imMail = m;
+  var dr = _imMailDraft(m), esc = inqEsc;
+  // Rows like the Log window's (2026-10-16): Enter or ＋ adds one, each row is
+  // a sentence (it gets its full stop), rows join with spaces.
+  function field(id, title, ref, ph, val, cls) {
+    var rows = (Array.isArray(val) ? val : [val || '']).filter(function (v, i) { return v || !i; });
+    // The short log / HW rows as a small italic list under the title (2026-10-16).
+    return '<div class="im-mail-sec' + (cls || '') + '"><div class="im-mail-head"><label class="field-label">' + title + '</label>' +
+      // As a list (user, 2026-10-16): the log's comma-joined rows, one per line.
+      (ref !== null ? '<div class="im-mail-ref">' + (ref ? '<ul>' + String(ref).split(/\s*,\s*/).filter(Boolean).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : 'Nothing logged') + '</div>' : '') + '</div>' +
+      '<div class="ll-wrap"><div class="ll-rows" id="' + id + '">' + rows.map(function (v, i) {
+        return '<input type="text" class="rpm-field ll-row' + (i ? '' : ' active') + '"' + ' value="' + _auEsc(v) + '">';
+      }).join('') + '</div>' +
+      '<button type="button" class="link-btn tl-mic" data-mic="' + id + '" data-tip="Starts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
+      '<button type="button" class="ll-add" data-add="' + id + '" data-tip="Instant.&#10;Adds a row. Enter does too.&#10;Each row is a sentence.">' + llAddInner() + '</button></div>';
+  }
+  var mats = [];
+  // The kind in capitals (user, 2026-10-16): FILES, VIDEO LESSON, LINK.
+  if (m.files) mats.push('<span class="im-mail-k">Files:</span> added to your Dropbox lesson folder');
+  m.links.forEach(function (l) { mats.push('<span class="im-mail-k">' + (l.kind === 'Video' ? 'Video lesson' : 'Link') + ':</span> <a href="' + _auEsc(l.url) + '" target="_blank" rel="noopener">' + esc(l.url.replace(/^https?:\/\/(www\.)?/i, '')) + '</a>'); });
+  var body =
+    // Bands (2026-10-16): the title row dark, then 1 and 3 lighter, 2 and 4 dark.
+    // Look (user, 2026-10-16): no To or Subject on show (To is the Counter
+    // email, the subject is fixed); four numbered red titles like the Log
+    // window's "1. Log"; the short log / HW line in italics above its box;
+    // Notes a small optional box; buttons amber.
+    // Under the icon the subject as a bigger white title, a line under it (user, 2026-10-16). No email on show, no hints in the boxes.
+    '<div class="im-mail">' +
+      '<input id="imMailTo" type="hidden" value="' + _auEsc(dr.to || '') + '">' +
+      '<hr class="divider im-mail-hr">' +
+      field('imMailLesson', '1. Lesson notes', m.log, 'Dictate the lesson as sentences', dr.lesson, ' im-mail-log im-mail-band') +
+      '<hr class="divider im-mail-hr">' +
+      field('imMailHw', '2. Things to practice', m.hw, 'Dictate the practice as sentences', dr.hw, ' im-mail-log') +
+      '<hr class="divider im-mail-hr">' +
+      field('imMailNotes', '3. Notes <span class="im-mail-opt">(optional)</span>', null, 'Bring your capo next time…', dr.notes, ' im-mail-small im-mail-band') +
+      '<hr class="divider im-mail-hr">' +
+      '<div class="im-mail-sec im-mail-matsec"><label class="field-label">4. Materials</label><div class="im-mail-mat">' +
+        (mats.length ? '<ul>' + mats.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>' : (m.none ? 'Nothing to send' : '<i>None</i>')) +
+      '</div></div>' +
+      '<hr class="divider im-mail-hr">' +
+      '<div class="im-mail-foot"><span class="ll-state" id="imMailStatus"></span>' +
+        '<button class="link-btn" id="imMailPrev">Preview</button>' +
+        '<button class="link-btn bright" id="imMailSend">' + SEND_ICON + '<span>Send</span></button></div>' +
+      '<iframe class="im-msg-frame" id="imMailFrame" title="The email" hidden></iframe>' +
+    '</div>';
+  // Title: just their name; right under it, before the icon, "GUITAR LESSON
+  // RECAP (OCT 15)" in small caps grey (user, 2026-10-16).
+  var w = _stWin('imMailWin', esc(m.name), '', RECAP_WIN_ICON, body);
+  w.querySelector('.st-win').classList.add('im-mail-win');
+  w.querySelectorAll('.settings-title .win-sub').forEach(function (x) { x.remove(); });
+  w.querySelector('.settings-title').insertAdjacentHTML('afterend', '<div class="im-mail-meta"><b>Guitar Lesson Recap (' + _ckDay(m.day) + ')</b></div>');
+  w.onclick = function (e) { if (e.target === w) _imMailClose(); };
+  w.querySelector('[data-close]').onclick = _imMailClose;
+  ['imMailLesson', 'imMailHw', 'imMailNotes'].forEach(function (id) {
+    var box = _imMailQ(id);
+    llWire(box, function (i) { llRows(box).forEach(function (el, j) { el.classList.toggle('active', j === i); }); }, _imMailKeep, null);
+    llPlaceMic(box);
+  });
+  w.querySelectorAll('[data-add]').forEach(function (b) { b.onclick = function () { llAddRow(_imMailQ(b.getAttribute('data-add'))); }; });
+  w.querySelectorAll('[data-mic]').forEach(function (b) { b.onclick = function () { _imMailMic(b); }; });
+  _imMailQ('imMailPrev').onclick = _imMailPreview;
+  _imMailQ('imMailSend').onclick = _imMailSend;
+  // Their email (Counter) and whether it already went.
+  fetch(getScriptUrl() + '?action=getLessonMsgInfo&name=' + encodeURIComponent(m.name) + '&lessonDate=' + m.day)
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (window._imMail !== m || !d.success) return;
+      if (d.msg) m.state = d.msg;
+      var to = _imMailQ('imMailTo');
+      if (to && !to.value) to.value = d.email || '';
+    })
+    .catch(function () {});
+  // Start in the first empty box (To is hidden).
+  var first = ['imMailLesson', 'imMailHw', 'imMailNotes'].filter(function (id) { return !_imMailText(id); })[0];
+  if (first) llRows(_imMailQ(first))[0].focus();
+}
+// One box's rows as sentences: capital first letter, a full stop unless it
+// ends in . ! or ?, joined with spaces.
+function _imMailText(id) {
+  return llValues(_imMailQ(id)).filter(Boolean).map(function (t) {
+    t = t.charAt(0).toUpperCase() + t.slice(1);
+    return /[.!?]$/.test(t) ? t : t + '.';
+  }).join(' ');
+}
+function _imMailKeep() {
+  var m = window._imMail;
+  if (!m) return;
+  _imMailDraft(m, { to: _imMailQ('imMailTo').value, lesson: llValues(_imMailQ('imMailLesson')), hw: llValues(_imMailQ('imMailHw')), notes: llValues(_imMailQ('imMailNotes')) });
+}
+function _imMailClose() {
+  _imMailMicStop();
+  var w = document.getElementById('imMailWin');
+  if (w) w.remove();
+  window._imMail = null;
+  _ckLoad(function () { _ckRedraw(); });
+}
+// Dictation into the box's active row (one box at a time), added after what's there.
+var _imMailRec = null;
+function _imMailMicStop() { if (_imMailRec) { var r = _imMailRec; _imMailRec = null; r.onend = null; r.abort(); } }
+function _imMailMic(btn) {
+  var box = _imMailQ(btn.getAttribute('data-mic'));
+  if (!box) return;
+  var ta = box.querySelector('.ll-row.active') || llRows(box)[0];
+  if (_imMailRec) { var same = _imMailRec._btn === btn; _imMailRec.stop(); if (same) return; }
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { rpmFail('imMailStatus', 'Speech not supported. Use Chrome.'); return; }
+  var r = _imMailRec = new SR(), base = ta.value.trim();
+  r._btn = btn;
+  r.lang = 'en-US'; r.continuous = true; r.interimResults = true;
+  r.onstart = function () { btn.innerHTML = MIC_STOP_ICON; btn.classList.add('rec'); playBeep(880, 100); };
+  r.onresult = function (ev) {
+    var fin = '', tmp = '';
+    for (var i = ev.resultIndex; i < ev.results.length; i++) {
+      if (ev.results[i].isFinal) fin += ev.results[i][0].transcript; else tmp += ev.results[i][0].transcript;
+    }
+    if (fin) base = (base + ' ' + fin).replace(/\s+/g, ' ').trim();
+    ta.value = (base + ' ' + tmp).replace(/\s+/g, ' ').trim();
+    _imMailKeep();
+  };
+  r.onend = function () {
+    btn.innerHTML = MIC_ICON; btn.classList.remove('rec');
+    if (_imMailRec !== r) return;
+    _imMailRec = null;
+    playBeep(440, 80, 0.15);
+  };
+  r.start();
+}
+// What previewLessonMessage / sendLessonMessage take.
+function _imMailParams(m) {
+  return {
+    name: m.name, lessonDate: m.day,
+    lesson: _imMailText('imMailLesson'), hw: _imMailText('imMailHw'), notes: _imMailText('imMailNotes'),
+    links: m.links.map(function (l) { return l.kind + ': ' + l.url; }).join('\n'), files: m.files ? '1' : '0'
+  };
+}
+function _imMsgQuery(p) {
+  return Object.keys(p).map(function (k) { return '&' + k + '=' + encodeURIComponent(p[k]); }).join('');
+}
+function _imMailCheck(p) {
+  if (!p.lesson) return 'Lesson notes are empty.';
+  if (!p.hw) return 'Things to practice is empty.';
+  return '';
+}
+// The email in a white card, its own page so the portal's styles stay out.
+function _imMsgShow(f, html) {
+  var logo = new URL('img/email-logo.png', location.href).href;
+  f.hidden = false;
+  f.onload = function () { try { f.style.height = (f.contentDocument.documentElement.scrollHeight + 2) + 'px'; } catch (e) {} };
+  f.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><style>' +
+    'html,body{margin:0;background:#fff;color:#222;font:small/1.45 Arial,Helvetica,sans-serif}body{padding:18px 20px 20px}a{color:#1a0dab}' +
+    '</style></head><body>' + String(html || '').replace(/cid:logo/g, logo) + '</body></html>';
+}
+function _imMailBusy(btn, on) {
+  var m = window._imMail;
+  if (m) m.busy = on;
+  rpmBusy(document.querySelector('#imMailWin .im-mail'), btn, on);
+}
+function _imMailPreview() {
+  var m = window._imMail, btn = _imMailQ('imMailPrev');
+  if (!m || m.busy) return;
+  var p = _imMailParams(m), why = _imMailCheck(p);
+  _imMailQ('imMailStatus').innerHTML = '';
+  if (why) { rpmFail('imMailStatus', why); return; }
+  _imMailBusy(btn, true);
+  fetch(getScriptUrl() + '?action=previewLessonMessage' + _imMsgQuery(p))
+    .then(function (r) { return r.json(); })
+    .catch(function () { return { success: false, message: 'No answer from Google.' }; })
+    .then(function (d) {
+      if (window._imMail !== m) return;
+      _imMailBusy(btn, false);
+      if (!d.success) { rpmFail('imMailStatus', d.message || 'Preview not loaded.'); return; }
+      var f = _imMailQ('imMailFrame');
+      _imMsgShow(f, d.html);
+      setTimeout(function () { f.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
+    });
+}
+function _imMailSend() {
+  var m = window._imMail, btn = _imMailQ('imMailSend');
+  if (!m || m.busy) return;
+  var p = _imMailParams(m), why = _imMailCheck(p), to = _imMailQ('imMailTo').value.trim();
+  _imMailQ('imMailStatus').innerHTML = '';
+  if (!why && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) why = 'No email for ' + m.name + ' in the Counter (column D).';
+  if (why) { rpmFail('imMailStatus', why); return; }
+  _imMailBusy(btn, true);
+  // GET, like every portal action (a POST lands in the Twilio webhook).
+  fetch(getScriptUrl() + '?action=sendLessonMessage' + _imMsgQuery(p) + '&to=' + encodeURIComponent(to))
+    .then(function (r) { return r.json(); })
+    .catch(function () { return { success: false, message: 'No answer from Google.' }; })
+    .then(function (d) {
+      if (d.success) { _imMsgPut(m.name, m.day, 'Sent'); _imMailDraft(m, null); }
+      if (window._imMail !== m) { if (!d.success) rpmToast('fail', 'Email not sent', m.name + ': ' + (d.message || '')); return; }
+      _imMailBusy(btn, false);
+      if (!d.success) { rpmFail('imMailStatus', d.message || 'Not sent.'); return; }
+      if (d.tickError) { rpmHalf('imMailStatus', 'Sent, not recorded', d.tickError + '. The email went out.'); setTimeout(function () { _imMailDone(m); }, 2500); return; }
+      _imMailDone(m);
+    });
+}
+// Done ✓, the window closes, then the student's next open lesson or back to the list.
+function _imMailDone(m) {
+  var card = document.querySelector('#imMailWin .im-mail');
+  if (card) {
+    card.classList.add('im-done');
+    var t = document.createElement('div');
+    t.className = 'im-done-msg';
+    t.textContent = 'Done ✓';
+    card.appendChild(t);
+  }
+  setTimeout(function () {
+    if (window._imMail !== m) return;
+    _imMailClose();
+    if (m.next) m.next();
+    else if (m.fromImport && _imOpen && _imKey(_imOpen) === _imKey(m.name)) _imClose();
+  }, 1400);
+}
 
 // ── Lesson checklist (2026-10-08): getChecklistAudit (RPM_Checklist.js) ──
 // Every lesson since the sheet's start (Oct 9) that still misses Log, HW or
@@ -381,10 +669,10 @@ function _imStepsRender() {
   var all = logged && !!sched && (!hw || (hwText && !!hw.choice && !hw.loading && !hw.uploading));
   var pending = !!w && _imPending(w, hw), sending = !!(w && w.sending);
   var fin = _imQ('imFinDone');
-  // Finished: all three ticked and saved.
+  // Finished: all four ticked and saved.
   var finished = all && !pending && !sending && !_imSchedBusy[_imSchedKey(name, c.day)];
   if (fin) fin.innerHTML = sending ? '<span class="rpm-loading">Saving</span>' : finished ? 'Finished ✓' : '';
-  // All three ticked: they go to Google together.
+  // All four ticked: they go to Google together.
   if (all && pending && !sending) { _imSend(w, hw); return; }
   // Finished by something pressed here (not just reopened): Done, then back (2026-10-07).
   if (finished && window._imActed === name) { window._imActed = null; _imDone(name); }
@@ -508,19 +796,22 @@ function _imFlushOnClose() {
   }, true);
 });
 // All done: the card dims, Done ✓, and back to the student list, where their card is green.
+// The email still to send (2026-10-16): "Logged ✓", then the Email window opens.
 function _imDone(name) {
   var c = _imCtx(), card = c.root && c.root.querySelector('.im-do-card');
   if (!card) return;
+  var w0 = window._imWin, mail = w0 && logHw && _imMailNeeded(name, c.day) ? _imMailFromWin(w0) : null;
   card.classList.add('im-done');
   var msg = document.createElement('div');
   msg.className = 'im-done-msg';
-  msg.textContent = 'Done ✓';
+  msg.textContent = mail ? 'Logged ✓' : 'Done ✓';
   card.appendChild(msg);
   setTimeout(function () {
     var w = window._imWin;
     if (!w || w.name !== name) return;
     var next = w.next, fromImport = w.fromImport;
     closeLogPanel();   // the window closes
+    if (mail) { mail.next = next; mail.fromImport = fromImport; _imMailOpen(mail); return; }
     if (next) next();  // the student's next open lesson (2026-10-08)
     else if (fromImport && _imOpen && _imKey(_imOpen) === _imKey(name)) _imClose();   // the last one: back to the list, their card green
   }, 1400);
@@ -786,7 +1077,7 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
 }
 
 // The doing card's boxes (shared with the Audit window, 2026-10-08): Checklist,
-// Log lesson (the Log window docks in #imLogDock), HW, Schedule. day: the
+// Log lesson (the Log window docks in #imLogDock), HW, Schedule (the email has its own window). day: the
 // lesson's (Audit); Import's is today.
 function _imDoHtml(name, day) {
   var n = _auEsc(JSON.stringify(name));

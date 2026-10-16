@@ -2494,3 +2494,100 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* B. Files' drop zone blue dashed (2026-10-15), with the Materials buttons; brighter on hover / drop. */
 #imLogWin .st-win.td-look #logHwFiles { border: 1.5px dashed color-mix(in srgb, var(--blue) 28%, transparent); }   /* dim like the blue buttons (2026-10-15, was 50) */
 #imLogWin .st-win.td-look #logHwFiles:hover, #imLogWin .st-win.td-look #logHwFiles.lh-drop-on { border-color: color-mix(in srgb, var(--blue) 55%, transparent); background: color-mix(in srgb, var(--blue) 4%, transparent); }
+/* The Email window (2026-10-16, Lesson Recap): Intake Compose's look. Each box
+   has its title, the short log / HW line above it for reference, and a mic in
+   its top-right corner; the email preview is a white card (an iframe, so the
+   portal's styles stay out). */
+.im-mail .field-label { display: block; margin: 22px 0 8px; }
+.im-mail > .field-label:first-child { margin-top: 0; }
+.im-mail-sec { margin-top: 26px; }
+.im-mail-ref { color: var(--muted); font-size: 12px; line-height: 1.5; margin: -2px 0 8px; padding-left: 10px; border-left: 2px solid var(--border); }
+.im-mail-field { position: relative; }
+.im-mail-field textarea { resize: vertical; line-height: 1.5; padding-right: 38px; min-height: 64px; }
+#imMailWin .link-btn.tl-mic { position: absolute; right: 8px; top: 8px; padding: 4px 2px; border-color: transparent; background: transparent; color: var(--muted); }
+#imMailWin .link-btn.tl-mic:hover { color: var(--text); }
+#imMailWin .link-btn.tl-mic svg { width: 14px; height: 14px; }
+#imMailWin .link-btn.tl-mic.rec { color: var(--accent); }
+.im-mail-mat { font-size: 13px; color: var(--text); }
+.im-mail-mat ul { margin: 0; padding-left: 18px; }
+.im-mail-mat li { margin: 3px 0; }
+.im-mail-mat a { color: var(--text); }
+.im-mail-foot { display: flex; align-items: center; gap: 8px; margin-top: 30px; }
+.im-mail-foot .ll-state { flex: 1; text-align: right; }
+.im-mail .im-msg-frame { margin-top: 22px; }
+.im-mail { position: relative; }
+.im-msg-frame { display: block; width: 100%; height: 420px; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.im-mail.im-done > *:not(.im-done-msg) { opacity: .3; pointer-events: none; transition: opacity .2s; }   /* Done ✓ over the Email window (2026-10-16) */
+.im-msg-frame[hidden] { display: none; }
+/* Email window look (user, 2026-10-16): subject small text on top; Lesson notes
+   and Things to practice titles green like 1. Log; Notes a small optional box;
+   Materials in 2. Materials' Dropbox blue. Same dim mixes as the Log window. */
+.im-mail-subj { font-size: 12px; color: var(--muted); margin: -6px 0 22px; }
+.im-mail-log > .field-label { color: color-mix(in srgb, var(--green) 70%, var(--muted)); }
+.im-mail-log .im-mail-ref { border-left-color: color-mix(in srgb, var(--green) 35%, transparent); }
+.im-mail-log textarea:focus { border-color: color-mix(in srgb, var(--green) 45%, transparent); }
+.im-mail-small > .field-label { font-size: 0.92em; }
+.im-mail-opt { color: var(--muted); font-weight: 400; letter-spacing: 0; text-transform: none; font-size: 11px; font-family: "DM Mono", monospace; }
+.im-mail-small textarea { min-height: 38px; font-size: 13px; }
+.im-mail-matsec > .field-label { color: color-mix(in srgb, var(--blue) 70%, var(--muted)); }
+.im-mail-matsec .im-mail-mat { color: color-mix(in srgb, var(--blue) 60%, var(--text)); border-left: 2px solid color-mix(in srgb, var(--blue) 35%, transparent); padding-left: 10px; }
+.im-mail-matsec .im-mail-mat a { color: inherit; }
+/* Email window tweaks (user, 2026-10-16): the reference line in italics, no
+   line, more room above its box; Materials: only the title blue, the list
+   plain text, links not underlined; Preview and Send amber (the to-do colour). */
+.im-mail-ref, .im-mail-log .im-mail-ref { border-left: none; padding-left: 0; font-style: italic; margin: 0 0 16px; color: color-mix(in srgb, var(--text) 45%, transparent); }
+.im-mail-matsec .im-mail-mat { color: var(--text); border-left: none; padding-left: 0; }
+.im-mail-mat a, .im-mail-matsec .im-mail-mat a { text-decoration: none; }
+#imMailWin #imMailPrev, #imMailWin #imMailSend { color: color-mix(in srgb, #d9a441 70%, var(--muted)); border-color: color-mix(in srgb, #d9a441 35%, transparent); background: color-mix(in srgb, #d9a441 4%, transparent); }
+#imMailWin #imMailPrev:hover, #imMailWin #imMailSend:hover { color: #d9a441; border-color: color-mix(in srgb, #d9a441 60%, transparent); background: color-mix(in srgb, #d9a441 10%, transparent); }
+.im-mail-matsec .im-mail-mat { color: color-mix(in srgb, var(--text) 62%, transparent); }   /* not so bright (user, 2026-10-16) */
+/* Email window titles in the Log window's "A. Lesson" look (user, 2026-10-16), not green / blue. */
+#imMailWin .im-mail-sec > .field-label { color: rgba(255,255,255,0.72); font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; font-weight: 400; text-transform: uppercase; }
+/* Numbered red titles, the Log window's "1. Log" look (user, 2026-10-16; replaces the grey ones above). */
+#imMailWin .im-mail-sec > .field-label { color: #e8463a; font-family: "Bebas Neue", sans-serif; font-size: 16px; letter-spacing: 1.5px; font-weight: 400; text-transform: none; }
+.st-win.im-mail-win .win-icon { height: 30px; width: auto; }   /* bigger, like Intake Compose's envelope (user, 2026-10-16) */
+/* Email window boxes as rows (2026-10-16), the Log window's look: ＋ under each, right. */
+#imMailWin .ll-add { display: flex; width: fit-content; margin: 8px 0 0; }   /* left, like the HW box's */
+#imMailWin .ll-wrap .link-btn.tl-mic { right: 10px; }
+/* The short log / HW line next to its title (user, 2026-10-16), same small italics. */
+#imMailWin .im-mail-head { display: flex; align-items: baseline; gap: 12px; margin: 0 0 10px; }
+#imMailWin .im-mail-head > .field-label { margin: 0; flex: none; }
+#imMailWin .im-mail-head .im-mail-ref { margin: 0; flex: 1; min-width: 0; }
+#imMailWin .im-mail-head > .field-label { color: #e8463a; font-family: "Bebas Neue", sans-serif; font-size: 16px; letter-spacing: 1.5px; font-weight: 400; text-transform: none; }   /* the numbered red titles, inside the title row too */
+/* Spaced out with dividers between the sections (user, 2026-10-16), like the Log window's. */
+#imMailWin .im-mail-sec { margin-top: 0; }
+#imMailWin .im-mail-hr { margin: 36px -24px; }   /* edge to edge of the window (its 24px padding), user 2026-10-16 */
+#imMailWin .im-mail-foot { margin-top: 0; }
+#imMailWin .im-mail > .im-mail-sec:first-of-type { margin-top: 22px; }
+/* Alternating bands (user, 2026-10-16, "just for fun"; 1 and 3 lighter since the title got its line): each section runs edge to
+   edge between the lines; 2. Things to practice and 4. Materials a touch lighter. */
+#imMailWin .im-mail-sec { margin: 0 -24px; padding: 30px 24px; }
+#imMailWin .im-mail > .im-mail-sec:first-of-type { margin-top: 0; padding-top: 22px; }
+#imMailWin .im-mail-hr { margin: 0 -24px; }
+#imMailWin .im-mail-band { background: rgba(255,255,255,0.035); }
+#imMailWin .im-mail-foot { margin-top: 22px; }
+#imMailWin .im-mail-k { text-transform: uppercase; letter-spacing: .5px; }
+#imMailWin .im-mail-ref ul { margin: 0; padding-left: 14px; }   #imMailWin .im-mail-ref li { margin: 0 0 2px; }
+/* The log / HW list under its title, not beside it (user, 2026-10-16). */
+#imMailWin .im-mail-head { display: block; margin: 0 0 14px; }
+#imMailWin .im-mail-head .im-mail-ref { margin: 10px 0 0; }
+#imMailWin .im-mail-head { margin-bottom: 24px; }   /* more room between the list and the box (user, 2026-10-16) */
+/* Materials' bullets like the log / HW lists' (user, 2026-10-16): same indent, same small grey dot. */
+#imMailWin .im-mail-mat ul { padding-left: 14px; }
+#imMailWin .im-mail-mat li::marker, #imMailWin .im-mail-ref li::marker { color: color-mix(in srgb, var(--text) 45%, transparent); font-size: 10px; }
+/* To: / Sbj: under the icon (user, 2026-10-16): small text, no fields. */
+#imMailWin .im-mail-meta { font-size: 12px; line-height: 1.7; color: var(--muted); margin: -6px 0 6px; }
+#imMailWin .im-mail-meta span { display: inline-block; width: 34px; }
+#imMailWin .im-mail-meta b { font-weight: 400; color: color-mix(in srgb, var(--text) 75%, transparent); }
+/* Darker, no gap after "Sbj:", no "To:" (user, 2026-10-16). */
+#imMailWin .im-mail-meta span { width: auto; margin-right: 4px; }
+#imMailWin .im-mail-meta, #imMailWin .im-mail-meta b { color: color-mix(in srgb, var(--text) 38%, transparent); }
+/* The subject as a bigger white title with a line under it (user, 2026-10-16). */
+#imMailWin .im-mail-meta { margin: 2px 0 22px; }
+#imMailWin .im-mail-meta b { color: var(--text); font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1.5px; font-weight: 400; }
+#imMailWin .im-mail-meta b { font-size: 15px; letter-spacing: 1.2px; }   /* smaller (user, 2026-10-16) */
+#imMailWin .im-mail-meta b { font-family: "DM Mono", monospace; font-size: 14px; letter-spacing: .3px; text-transform: none; }   /* the portal text font, normal case (user, 2026-10-16) */
+/* The title under the icon in caps, the Materials lines' colour and size (user, 2026-10-16). */
+#imMailWin .im-mail-meta b { font-family: "DM Mono", monospace; font-size: 13px; letter-spacing: .5px; text-transform: uppercase; color: color-mix(in srgb, var(--text) 62%, transparent); }
+/* "GUITAR LESSON RECAP (OCT 15)" under the name, before the icon (user, 2026-10-16). */
+#imMailWin .settings-title + .im-mail-meta { margin: -6px 0 14px; }

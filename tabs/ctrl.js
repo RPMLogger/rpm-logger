@@ -88,8 +88,9 @@ function _runAudit3(url) {
 }
 
 // ─── LESSON CHECKLIST (2026-10-08, replaces Missing HW) ─────────────────────
-// Lessons from the Lesson Checklist start (Oct 9) still missing Log, HW or
-// Schedule (getChecklistAudit, read by import.js _ckLoad). One card per
+// Lessons from the Lesson Checklist start (Oct 9) still missing a step, five
+// since 2026-10-15: Log, HW (the HW text), Materials, Schedule, Email (its own window, 2026-10-16)
+// (getChecklistAudit, read by import.js _ckLoad; the tags are its words). One card per
 // student: each lesson's date and what's left. Open runs the Log lesson
 // window through them, oldest first; each window shows what's already done.
 // cached: draw from what _ckLoad last read (after a window closes).
