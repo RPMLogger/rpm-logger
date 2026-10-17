@@ -229,7 +229,13 @@ function _imQueue(name) {
     var t = todayStudents[i], day = _tdYmd();
     var hr = _imHwToday.rows && _imHwToday.rows[_imKey(name)];
     var logTxt = _imLoggedToday(_imLast && _imLast.name === name && _imLast.lessons);
-    var logged = !!t.alreadyLogged || logTxt !== null;
+    // Today's HW list is read once, when Students draws (2026-10-16): after the
+    // Log window it's out of date, so the Lesson checklist fills in (an email
+    // window closed by mistake reopened the Log window, not the email).
+    var ck = _ckItem(name, day);
+    if (ck && !(hr && hr.text) && ck.hwText) hr = { hw: ck.hw, text: ck.hwText, files: ck.hwFiles || [], links: ck.hwLinks || [] };
+    if (ck && ck.log && !logTxt) logTxt = ck.logText || '';
+    var logged = !!t.alreadyLogged || logTxt !== null || !!(ck && ck.log);
     var sched = _imSchedGet(name, day), mailLeft = day >= MSG_START && !_imMsgGet(name, day);
     if (logged && hr && hr.text && sched && mailLeft)   // only the email left
       q.push({ date: day, idx: i, student: t, item: { date: day, log: true, logText: logTxt || '', hw: hr.hw, hwText: hr.text,
@@ -426,7 +432,7 @@ function _imMailOpen(m) {
   w.querySelector('.st-win').classList.add('im-mail-win');
   w.querySelectorAll('.settings-title .win-sub').forEach(function (x) { x.remove(); });
   w.querySelector('.settings-title').insertAdjacentHTML('afterend', '<div class="im-mail-meta"><b>Guitar Lesson Recap (' + _ckDay(m.day) + ')</b></div>');
-  w.onclick = function (e) { if (e.target === w) _imMailClose(); };
+  w.onclick = null;   // only ✕ closes it (user, 2026-10-16): a click outside lost a half-done email
   w.querySelector('[data-close]').onclick = _imMailClose;
   ['imMailLesson', 'imMailHw', 'imMailNotes'].forEach(function (id) {
     var box = _imMailQ(id);
