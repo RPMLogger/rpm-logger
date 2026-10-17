@@ -49,13 +49,7 @@ function _imRenderCards(noRead) {
   var open = function (n) { return _ckPast(n).length; };
   var missing = function (n) {
     if (logged.indexOf(_imKey(n)) < 0) return null;   // not logged yet: no verdict
-    var m = [];
-    var hr = _imHwToday.rows && _imHwToday.rows[_imKey(n)];
-    if (_imHwToday.rows && !(hr && hr.text)) m.push('HW');
-    if (_imHwToday.rows && !hr) m.push('Materials');
-    if (!_imSchedGet(n)) m.push('Schedule');
-    if (_imMailNeeded(n, _tdYmd())) m.push('Email');
-    return m;
+    return _imTodayMiss(n);
   };
   var names = _imRoster.slice().sort(function (a, b) {
     var ta = today.indexOf(_imKey(a)), tb = today.indexOf(_imKey(b));
@@ -71,13 +65,14 @@ function _imRenderCards(noRead) {
       '<div class="db-cx-head im-sec-head im-cards-head"><label class="field-label db-cx-t">' + names.length + ' students</label>' +
         '<button class="link-btn red" onclick="openLessonAudit()" data-tip="Opens a page.\nLessons missing a log, HW, materials,\nschedule or email." data-tip-wrap>' + DETAILS_ICON + '<span>Audit lessons</span></button></div>' +
       names.map(function (n) {
-        var miss = missing(n), o = open(n);
-        var bits = [];
-        if (o) bits.push(o + (o === 1 ? ' lesson open' : ' lessons open'));
-        if (miss && miss.length) bits.push(miss.join(' + ') + ' missing');
+        var miss = missing(n), o = open(n), past = _ckPast(n);
+        // The oldest open lesson's steps (user, 2026-10-17; was "1 lesson open"):
+        // ✓ done, ☐ still to do, "· 2 open" when more lessons wait.
+        var todo = miss && miss.length ? 1 : 0, all = o + todo;
+        var first = past.length ? { day: past[0].date, miss: past[0].missing || [], hw: past[0].hwText } : todo ? { day: _tdYmd(), miss: miss } : null;
         return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : '') + (miss && !miss.length && !o ? ' im-fin' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
           '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
-          (bits.length ? '<span class="im-miss">' + MISS_ICON + bits.join(' · ') + '</span>' : '') +
+          (first ? '<span class="im-steps">' + _imStepsHtml(first.day, first.miss, first.hw, n) + (all > 1 ? '<span class="im-step-more">· ' + all + ' open</span>' : '') + '</span>' : '') +
         '</div>';
       }).join('') +
     '</div>';
@@ -339,6 +334,33 @@ function _imNoChangeToggle(name) { var d = _imCtx().day; _imSchedSet(name, _imSc
 // keeps a Lesson Recaps row, and the lesson is Done. (No "No email" button,
 // user 2026-10-16; saveLessonMessage stays for later.) What's typed is kept in this
 // browser till it's sent, so a closed window loses nothing. Email only.
+// Today's lesson, once logged: the steps still missing (Students cards + the student page).
+function _imTodayMiss(n) {
+  var m = [];
+  var hr = _imHwToday.rows && _imHwToday.rows[_imKey(n)];
+  if (_imHwToday.rows && !(hr && hr.text)) m.push('HW');
+  if (_imHwToday.rows && !hr) m.push('Materials');
+  if (!_imSchedGet(n)) m.push('Schedule');
+  if (_imMailNeeded(n, _tdYmd())) m.push('Email');
+  return m;
+}
+var HW_TEXT_START = '2026-10-16';   // HW text is a step from here (CHECK_START2 in RPM_Checklist.js)
+// A lesson's steps on its Students card (2026-10-17): Log · HW · Materials · Schedule · Email
+// as small buttons, grey when done, amber when missing (an amber one opens that lesson's
+// window). HW and Email only from their start days.
+function _imStepsHtml(day, miss, hwText, name, onlyMissing) {
+  var n = _auEsc(JSON.stringify(name));
+  var steps = ['Log', 'HW', 'Materials', 'Schedule', 'Email'].filter(function (s) {
+    return (s !== 'HW' || day >= HW_TEXT_START || hwText) && (s !== 'Email' || day >= MSG_START);   // HW shown on older lessons too when they have it
+  });
+  function red(label, tip, mark) { return '<button class="im-step todo opens-window" onclick="event.stopPropagation(); _imLogOpen(' + n + ')" data-tip="Opens a window.\n' + tip + '">' + (mark === false ? '' : '✕ ') + label + '</button>'; }
+  // Nothing done yet: one "Not logged" button, not a row of them (user, 2026-10-17).
+  if (steps.every(function (s) { return miss.indexOf(s) >= 0; })) return red('Not logged', _ckDay(day) + ' not logged.', false);   // no ✕ on this one (user, 2026-10-17)
+  return steps.map(function (s) {
+    return miss.indexOf(s) >= 0 ? red(s, s + ' missing for ' + _ckDay(day) + '.')
+                                : onlyMissing ? '' : '<span class="im-step">✓ ' + s + '</span>';   // a plain check / x in front (user, 2026-10-17)
+  }).join('');
+}
 var MSG_START = '2026-10-14';   // Email is a required step from here (CHECK_MSG_START in RPM_Checklist.js; Oct 16 → Oct 14, user 2026-10-17)
 function _imMsgKey(name, day) { return 'imMsg|' + _imKey(name) + '|' + (day || _tdYmd()); }
 // 'Sent', 'Not needed' or ''.
@@ -998,6 +1020,14 @@ function _imLogBtnHtml(name, o) {
   o = o || {};
   var n = _auEsc(JSON.stringify(name)), q = _imQueue(name), label = o.label || 'Log lesson';
   if (!q.length) return '<button class="link-btn im-log-off" data-tip="Nothing open.\nEvery lesson has its log, HW and schedule." data-tip-left data-tip-wrap>' + label + '</button>';
+  // The student page (2026-10-17): the oldest open lesson's missing steps as the
+  // Students card's amber buttons ("✕ Email ▸", or "Not logged ▸"), not Log lesson.
+  if (!o.plain) {
+    var x = q[0], it = x.item || {};
+    var miss = it.missing || (it.log ? (x.date === _tdYmd() ? _imTodayMiss(name) : []) : ['Log', 'HW', 'Materials', 'Schedule', 'Email']);
+    var btns = _imStepsHtml(x.date, miss, it.hwText, name, true);
+    if (btns) return '<span class="im-steps im-steps-page">' + btns + (q.length > 1 ? '<span class="im-step-more">· ' + q.length + ' open</span>' : '') + '</span>';
+  }
   var tip = q.length > 1 ? q.length + ' lessons open, oldest first:\n' + q.map(function (x) { return _ckDay(x.date); }).join(', ') + '.' : 'Log, HW and Schedule for ' + (q[0].date === _tdYmd() ? 'today\'s lesson' : _ckDay(q[0].date)) + '.';
   return '<button class="link-btn' + (o.plain ? '' : ' blue') + ' opens-window" onclick="_imLogOpen(' + n + ')" data-tip="Opens a window.\n' + tip + '" data-tip-left data-tip-wrap>' + label + (q.length > 1 ? ' · ' + q.length : '') + '</button>';
 }

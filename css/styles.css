@@ -2026,6 +2026,14 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Logged but a step left (2026-10-07): amber, small, on the card's right. */
 .im-miss { display: inline-flex; align-items: center; gap: 7px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #d9a441; flex: none; }
 .im-miss-i { flex: none; }
+/* A lesson's steps on its Students card (2026-10-17): small buttons, grey = done, amber = missing. */
+.im-steps { display: inline-flex; align-items: center; gap: 6px; flex: none; font-family: "DM Mono", monospace; font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; }
+.im-step { font: inherit; letter-spacing: inherit; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); color: rgba(255,255,255,0.3); background: transparent; line-height: 1.2; }
+.im-step.todo { cursor: pointer; color: #d9a441; border-color: color-mix(in srgb, #d9a441 55%, transparent); background: color-mix(in srgb, #d9a441 7%, transparent); }   /* amber, was red (user, 2026-10-17) */
+.im-step.todo:hover { border-color: #d9a441; background: color-mix(in srgb, #d9a441 16%, transparent); }
+.im-step-more { color: var(--muted); }
+.im-steps-page { font-size: 11px; }   /* on the student page, a touch bigger, next to the name (2026-10-17) */
+.im-steps-page .im-step { padding: 6px 12px; border-radius: 8px; }
 /* All steps done: the doing card dims and says Done ✓ before going back to the list. */
 .im-do-card { position: relative; }
 .im-do-card.im-done > *:not(.im-done-msg) { opacity: .3; pointer-events: none; transition: opacity .2s; }
