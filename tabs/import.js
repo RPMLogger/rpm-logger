@@ -339,7 +339,7 @@ function _imNoChangeToggle(name) { var d = _imCtx().day; _imSchedSet(name, _imSc
 // keeps a Lesson Recaps row, and the lesson is Done. (No "No email" button,
 // user 2026-10-16; saveLessonMessage stays for later.) What's typed is kept in this
 // browser till it's sent, so a closed window loses nothing. Email only.
-var MSG_START = '2026-10-16';   // Email is a required step from here (CHECK_START2 in RPM_Checklist.js)
+var MSG_START = '2026-10-14';   // Email is a required step from here (CHECK_MSG_START in RPM_Checklist.js; Oct 16 → Oct 14, user 2026-10-17)
 function _imMsgKey(name, day) { return 'imMsg|' + _imKey(name) + '|' + (day || _tdYmd()); }
 // 'Sent', 'Not needed' or ''.
 function _imMsgGet(name, day) {
