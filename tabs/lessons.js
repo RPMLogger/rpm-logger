@@ -243,6 +243,7 @@ function submitLog(noShow) {
   var parts = llValues(_logBox()).filter(function(v) { return v; });
   var subject = parts.length ? toSentenceCase(parts.join(", ")) : "";
   if (!subject) { addLog("lessonFeed", "Nothing to log!", "error"); return; }
+  if (typeof _imRowsPut === "function") _imRowsPut("log", parts.map(function(v, i) { return i ? v : toSentenceCase(v); }));   // each box its own line in the Email window
 
   stopRecordingClean();
   setRecordingUI(false, activeStudent ? activeStudent.idx : undefined);
@@ -623,6 +624,7 @@ function _logHwTextFill(hw, text) {
 }
 function logHwTextInput() {
   if (logHw && _hwRowsBox()) logHw.text = _hwRowsJoin();
+  if (logHw && _hwRowsBox() && typeof _imRowsPut === "function") _imRowsPut("hw", llValues(_hwRowsBox()));
 }
 // HW is required (2026-10-15): it counts as done once you leave the rows with
 // something in them (textSaved), not on each key, so the window can't save

@@ -2532,10 +2532,10 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-mail-matsec > .field-label { color: color-mix(in srgb, var(--blue) 70%, var(--muted)); }
 .im-mail-matsec .im-mail-mat { color: color-mix(in srgb, var(--blue) 60%, var(--text)); border-left: 2px solid color-mix(in srgb, var(--blue) 35%, transparent); padding-left: 10px; }
 .im-mail-matsec .im-mail-mat a { color: inherit; }
-/* Email window tweaks (user, 2026-10-16): the reference line in italics, no
+/* Email window tweaks (user, 2026-10-16): the reference line (no italics, 2026-10-17), no
    line, more room above its box; Materials: only the title blue, the list
    plain text, links not underlined; Preview and Send amber (the to-do colour). */
-.im-mail-ref, .im-mail-log .im-mail-ref { border-left: none; padding-left: 0; font-style: italic; margin: 0 0 16px; color: color-mix(in srgb, var(--text) 45%, transparent); }
+.im-mail-ref, .im-mail-log .im-mail-ref { border-left: none; padding-left: 0; margin: 0 0 16px; color: color-mix(in srgb, var(--text) 45%, transparent); }
 .im-mail-matsec .im-mail-mat { color: var(--text); border-left: none; padding-left: 0; }
 .im-mail-mat a, .im-mail-matsec .im-mail-mat a { text-decoration: none; }
 #imMailWin #imMailPrev, #imMailWin #imMailSend { color: color-mix(in srgb, #d9a441 70%, var(--muted)); border-color: color-mix(in srgb, #d9a441 35%, transparent); background: color-mix(in srgb, #d9a441 4%, transparent); }
@@ -2545,7 +2545,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #imMailWin .im-mail-sec > .field-label { color: rgba(255,255,255,0.72); font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; font-weight: 400; text-transform: uppercase; }
 /* Numbered red titles, the Log window's "1. Log" look (user, 2026-10-16; replaces the grey ones above). */
 #imMailWin .im-mail-sec > .field-label { color: #e8463a; font-family: "Bebas Neue", sans-serif; font-size: 16px; letter-spacing: 1.5px; font-weight: 400; text-transform: none; }
-.st-win.im-mail-win .win-icon { height: 30px; width: auto; }   /* bigger, like Intake Compose's envelope (user, 2026-10-16) */
+.st-win.im-mail-win .win-icon { height: 18px; width: auto; }   /* This Week's size (user, 2026-10-17; was 30px like Intake Compose) */
 /* Email window boxes as rows (2026-10-16), the Log window's look: ＋ under each, right. */
 #imMailWin .ll-add { display: flex; width: fit-content; margin: 8px 0 0; }   /* left, like the HW box's */
 #imMailWin .ll-wrap .link-btn.tl-mic { right: 10px; }
@@ -2559,13 +2559,14 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #imMailWin .im-mail-hr { margin: 36px -24px; }   /* edge to edge of the window (its 24px padding), user 2026-10-16 */
 #imMailWin .im-mail-foot { margin-top: 0; }
 #imMailWin .im-mail > .im-mail-sec:first-of-type { margin-top: 22px; }
-/* Alternating bands (user, 2026-10-16, "just for fun"; 1 and 3 lighter since the title got its line): each section runs edge to
-   edge between the lines; 2. Things to practice and 4. Materials a touch lighter. */
-#imMailWin .im-mail-sec { margin: 0 -24px; padding: 30px 24px; }
+/* No bands, dividers inside the padding like the rest of the portal (user, 2026-10-17; the
+   2026-10-16 alternating bands and edge-to-edge lines are gone). */
+#imMailWin .im-mail-sec { margin: 0; padding: 30px 0; }
 #imMailWin .im-mail > .im-mail-sec:first-of-type { margin-top: 0; padding-top: 22px; }
-#imMailWin .im-mail-hr { margin: 0 -24px; }
-#imMailWin .im-mail-band { background: rgba(255,255,255,0.035); }
+#imMailWin .im-mail-hr { margin: 0; }
 #imMailWin .im-mail-foot { margin-top: 22px; }
+/* The number grey, the title red, like a window title's "This week · Oct 12 – Oct 18" (.win-sub; user, 2026-10-17). */
+#imMailWin .im-mail-n { color: var(--muted); margin-right: 6px; }
 #imMailWin .im-mail-k { text-transform: uppercase; letter-spacing: .5px; }
 #imMailWin .im-mail-ref ul { margin: 0; padding-left: 14px; }   #imMailWin .im-mail-ref li { margin: 0 0 2px; }
 /* The log / HW list under its title, not beside it (user, 2026-10-16). */
@@ -2591,3 +2592,22 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #imMailWin .im-mail-meta b { font-family: "DM Mono", monospace; font-size: 13px; letter-spacing: .5px; text-transform: uppercase; color: color-mix(in srgb, var(--text) 62%, transparent); }
 /* "GUITAR LESSON RECAP (OCT 15)" under the name, before the icon (user, 2026-10-16). */
 #imMailWin .settings-title + .im-mail-meta { margin: -6px 0 14px; }
+/* The This Week window's look (user, 2026-10-17): titles its day size, all grey
+   like its dates (number too, no red); the log / HW / materials lines its small
+   grey DM Mono names, no bullets, its row spacing. */
+#imMailWin .im-mail-sec > .field-label, #imMailWin .im-mail-head > .field-label { color: var(--muted); font-size: 14px; letter-spacing: 1.5px; }
+#imMailWin .im-mail-n { color: inherit; margin-right: 4px; }
+#imMailWin .im-mail-ref, #imMailWin .im-mail-mat, #imMailWin .im-mail-matsec .im-mail-mat { font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.4; color: rgba(255,255,255,0.24); }   /* the times' dark grey (user, 2026-10-17) */
+#imMailWin .im-mail-ref ul, #imMailWin .im-mail-mat ul { list-style: none; padding-left: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }   /* tighter than This Week's 9px (user, 2026-10-17) */
+#imMailWin .im-mail-ref li, #imMailWin .im-mail-mat li { margin: 0; }
+#imMailWin .im-mail-head .im-mail-ref { margin: 12px 0 0; }
+#imMailWin .im-mail-to { display: flex; flex-direction: column; gap: 4px; margin: 0 0 22px; }
+#imMailWin .im-mail-to .td-mini-t { font-size: 10.5px; color: rgba(255,255,255,0.24); min-width: 0; width: 24px; }   /* "To:" / "Sbj:" as typed (user, 2026-10-17); just wide enough for "Sbj:" */
+#imMailWin .im-mail-to .td-mini-row { gap: 3px; }   /* tight after the colon (user, 2026-10-17) */
+#imMailWin .im-mail-to .td-wk-name { color: rgba(255,255,255,0.24); }   /* as dark as the log lines (user, 2026-10-17; amber tried, back to grey) */
+#imMailWin .im-mail-to, #imMailWin .im-mail-to .td-mini-t, #imMailWin .im-mail-to .td-wk-name, #imMailWin .im-mail-opt { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; }   /* To / Sbj and (optional) in the History list font (user, 2026-10-17) */
+/* Send green, Preview stays amber (user, 2026-10-17). */
+#imMailWin #imMailSend { color: color-mix(in srgb, var(--green) 70%, var(--muted)); border-color: color-mix(in srgb, var(--green) 35%, transparent); background: color-mix(in srgb, var(--green) 4%, transparent); }
+#imMailWin #imMailSend:hover { color: var(--green); border-color: color-mix(in srgb, var(--green) 60%, transparent); background: color-mix(in srgb, var(--green) 10%, transparent); }
+#imMailWin .im-mail-opt { color: rgba(255,255,255,0.24); }   /* (optional) as dark as the lines (user, 2026-10-17) */
+#imMailWin .im-mail-ref li::before, #imMailWin .im-mail-mat li::before { content: "– "; color: rgba(255,255,255,0.24); }   /* a dash, not a bullet (user, 2026-10-17) */

@@ -371,6 +371,24 @@ function _imMailFromItem(name, it) {
   return { name: name, day: it.date, log: it.logText || '', hw: it.hwText || '',
     files: !!(it.hwFiles && it.hwFiles.length), links: (it.hwLinks || []).slice(), none: /None/.test(it.hw || '') };
 }
+// The Log window's boxes, one per row (2026-10-17): the sheet joins them with
+// commas, so "b7, root" typed in one box came back as two lines. Kept in this
+// browser at Log / HW time; used only while they still join to the saved text
+// (else, or on another computer, the comma split as before).
+function _imRowsKey(name, day) { return 'imRows|' + _imKey(name) + '|' + day; }
+function _imRowsPut(part, rows) {
+  var w = window._imWin;
+  if (!w) return;
+  var k = _imRowsKey(w.name, w.day || _tdYmd()), o = {};
+  try { o = JSON.parse(localStorage.getItem(k) || '{}'); o[part] = (rows || []).filter(Boolean); localStorage.setItem(k, JSON.stringify(o)); } catch (e) {}
+}
+function _imRowsFor(m, part, text) {
+  var o = {};
+  try { o = JSON.parse(localStorage.getItem(_imRowsKey(m.name, m.day)) || '{}'); } catch (e) {}
+  var r = o[part];
+  var norm = function (t) { return String(t || '').replace(/\s+/g, ' ').trim().toLowerCase(); };
+  return r && r.length && norm(r.join(', ')) === norm(text) ? r : text;
+}
 function _imMailDraftKey(m) { return 'imMail|' + _imKey(m.name) + '|' + m.day; }
 function _imMailDraft(m, d) {
   try {
@@ -388,19 +406,16 @@ function _imMailOpen(m) {
   function field(id, title, ref, ph, val, cls) {
     var rows = (Array.isArray(val) ? val : [val || '']).filter(function (v, i) { return v || !i; });
     // The short log / HW rows as a small italic list under the title (2026-10-16).
-    return '<div class="im-mail-sec' + (cls || '') + '"><div class="im-mail-head"><label class="field-label">' + title + '</label>' +
+    return '<div class="im-mail-sec' + (cls || '') + '"><div class="im-mail-head"><label class="field-label">' + title.replace(/^((?:[A-Z]|\d+)\.)\s*/, '<span class="im-mail-n">$1</span>') + '</label>' +
       // As a list (user, 2026-10-16): the log's comma-joined rows, one per line.
-      (ref !== null ? '<div class="im-mail-ref">' + (ref ? '<ul>' + String(ref).split(/\s*,\s*/).filter(Boolean).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : 'Nothing logged') + '</div>' : '') + '</div>' +
+      (ref !== null ? '<div class="im-mail-ref">' + (ref && ref.length ? '<ul>' + (Array.isArray(ref) ? ref : String(ref).split(/\s*,\s*/)).filter(Boolean).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : 'Nothing logged') + '</div>' : '') + '</div>' +
       '<div class="ll-wrap"><div class="ll-rows" id="' + id + '">' + rows.map(function (v, i) {
         return '<input type="text" class="rpm-field ll-row' + (i ? '' : ' active') + '"' + ' value="' + _auEsc(v) + '">';
       }).join('') + '</div>' +
       '<button type="button" class="link-btn tl-mic" data-mic="' + id + '" data-tip="Starts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
       '<button type="button" class="ll-add" data-add="' + id + '" data-tip="Instant.&#10;Adds a row. Enter does too.&#10;Each row is a sentence.">' + llAddInner() + '</button></div>';
   }
-  var mats = [];
-  // The kind in capitals (user, 2026-10-16): FILES, VIDEO LESSON, LINK.
-  if (m.files) mats.push('<span class="im-mail-k">Files:</span> added to your Dropbox lesson folder');
-  m.links.forEach(function (l) { mats.push('<span class="im-mail-k">' + (l.kind === 'Video' ? 'Video lesson' : 'Link') + ':</span> <a href="' + _auEsc(l.url) + '" target="_blank" rel="noopener">' + esc(l.url.replace(/^https?:\/\/(www\.)?/i, '')) + '</a>'); });
+  // No Materials section (user, 2026-10-17): it fills itself from the Log window; the email still lists them (m.files, m.links).
   var body =
     // Bands (2026-10-16): the title row dark, then 1 and 3 lighter, 2 and 4 dark.
     // Look (user, 2026-10-16): no To or Subject on show (To is the Counter
@@ -410,28 +425,24 @@ function _imMailOpen(m) {
     // Under the icon the subject as a bigger white title, a line under it (user, 2026-10-16). No email on show, no hints in the boxes.
     '<div class="im-mail">' +
       '<input id="imMailTo" type="hidden" value="' + _auEsc(dr.to || '') + '">' +
+      // To and Subject back on show, read only, in This Week's row look (user, 2026-10-17).
+      '<div class="im-mail-to"><div class="td-mini-row"><span class="td-mini-t">To:</span><span class="td-wk-name" id="imMailToShow">' + esc(dr.to || '…') + '</span></div>' +
+        '<div class="td-mini-row"><span class="td-mini-t">Sbj:</span><span class="td-wk-name">Your Guitar Lesson Recap — ' + _ckDay(m.day) + '</span></div></div>' +
       '<hr class="divider im-mail-hr">' +
-      field('imMailLesson', '1. Lesson notes', m.log, 'Dictate the lesson as sentences', dr.lesson, ' im-mail-log im-mail-band') +
+      field('imMailLesson', 'A. Lesson notes', _imRowsFor(m, 'log', m.log), 'Dictate the lesson as sentences', dr.lesson, ' im-mail-log im-mail-band') +
       '<hr class="divider im-mail-hr">' +
-      field('imMailHw', '2. Things to practice', m.hw, 'Dictate the practice as sentences', dr.hw, ' im-mail-log') +
+      field('imMailHw', 'B. HW', _imRowsFor(m, 'hw', m.hw), 'Dictate the practice as sentences', dr.hw, ' im-mail-log') +
       '<hr class="divider im-mail-hr">' +
-      field('imMailNotes', '3. Notes <span class="im-mail-opt">(optional)</span>', null, 'Bring your capo next time…', dr.notes, ' im-mail-small im-mail-band') +
-      '<hr class="divider im-mail-hr">' +
-      '<div class="im-mail-sec im-mail-matsec"><label class="field-label">4. Materials</label><div class="im-mail-mat">' +
-        (mats.length ? '<ul>' + mats.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>' : (m.none ? 'Nothing to send' : '<i>None</i>')) +
-      '</div></div>' +
-      '<hr class="divider im-mail-hr">' +
+      field('imMailNotes', 'C. Notes <span class="im-mail-opt">(optional)</span>', null, 'Bring your capo next time…', dr.notes, ' im-mail-small im-mail-band') +
+      // No line before the buttons (user, 2026-10-17).
       '<div class="im-mail-foot"><span class="ll-state" id="imMailStatus"></span>' +
-        '<button class="link-btn" id="imMailPrev">Preview</button>' +
+        '<button class="link-btn" id="imMailPrev">' + DETAILS_ICON + '<span>Preview</span></button>' +   // your magnifier (user, 2026-10-17)
         '<button class="link-btn bright" id="imMailSend">' + SEND_ICON + '<span>Send</span></button></div>' +
       '<iframe class="im-msg-frame" id="imMailFrame" title="The email" hidden></iframe>' +
     '</div>';
-  // Title: just their name; right under it, before the icon, "GUITAR LESSON
-  // RECAP (OCT 15)" in small caps grey (user, 2026-10-16).
-  var w = _stWin('imMailWin', esc(m.name), '', RECAP_WIN_ICON, body);
+  // Back to the windows' title (user, 2026-10-17): "Tianyi Cao · Oct 16", the name red, the date grey.
+  var w = _stWin('imMailWin', esc(m.name), _ckDay(m.day), RECAP_WIN_ICON, body);
   w.querySelector('.st-win').classList.add('im-mail-win');
-  w.querySelectorAll('.settings-title .win-sub').forEach(function (x) { x.remove(); });
-  w.querySelector('.settings-title').insertAdjacentHTML('afterend', '<div class="im-mail-meta"><b>Guitar Lesson Recap (' + _ckDay(m.day) + ')</b></div>');
   w.onclick = null;   // only ✕ closes it (user, 2026-10-16): a click outside lost a half-done email
   w.querySelector('[data-close]').onclick = _imMailClose;
   ['imMailLesson', 'imMailHw', 'imMailNotes'].forEach(function (id) {
@@ -449,8 +460,9 @@ function _imMailOpen(m) {
     .then(function (d) {
       if (window._imMail !== m || !d.success) return;
       if (d.msg) m.state = d.msg;
-      var to = _imMailQ('imMailTo');
+      var to = _imMailQ('imMailTo'), show = _imMailQ('imMailToShow');
       if (to && !to.value) to.value = d.email || '';
+      if (show) show.textContent = (to && to.value) || 'No email in the Counter';
     })
     .catch(function () {});
   // Start in the first empty box (To is hidden).
@@ -521,7 +533,7 @@ function _imMsgQuery(p) {
 }
 function _imMailCheck(p) {
   if (!p.lesson) return 'Lesson notes are empty.';
-  if (!p.hw) return 'Things to practice is empty.';
+  if (!p.hw) return 'HW is empty.';
   return '';
 }
 // The email in a white card, its own page so the portal's styles stay out.
