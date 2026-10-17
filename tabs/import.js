@@ -430,7 +430,7 @@ function _imMailOpen(m) {
     // The short log / HW rows as a small italic list under the title (2026-10-16).
     return '<div class="im-mail-sec' + (cls || '') + '"><div class="im-mail-head"><label class="field-label">' + title.replace(/^((?:[A-Z]|\d+)\.)\s*/, '<span class="im-mail-n">$1</span>') + '</label>' +
       // As a list (user, 2026-10-16): the log's comma-joined rows, one per line.
-      (ref !== null ? '<div class="im-mail-ref">' + (ref && ref.length ? '<ul>' + (Array.isArray(ref) ? ref : String(ref).split(/\s*,\s*/)).filter(Boolean).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : 'Nothing logged') + '</div>' : '') + '</div>' +
+      (ref !== null ? '<div class="im-mail-ref">' + (ref && ref.length ? '<ul>' + (Array.isArray(ref) ? ref : String(ref).split(/\s*,\s*/)).filter(Boolean).map(function (x) { return '<li class="im-copy"><span class="im-copy-t">' + esc(x) + '</span><button type="button" class="im-copy-b" data-tip="Instant.&#10;Copies this line.">' + COPY_ICON + '</button></li>'; }).join('') + '</ul>' : 'Nothing logged') + '</div>' : '') + '</div>' +
       '<div class="ll-wrap"><div class="ll-rows" id="' + id + '">' + rows.map(function (v, i) {
         return '<input type="text" class="rpm-field ll-row' + (i ? '' : ' active') + '"' + ' value="' + _auEsc(v) + '">';
       }).join('') + '</div>' +
@@ -474,6 +474,18 @@ function _imMailOpen(m) {
   });
   w.querySelectorAll('[data-add]').forEach(function (b) { b.onclick = function () { llAddRow(_imMailQ(b.getAttribute('data-add'))); }; });
   w.querySelectorAll('[data-mic]').forEach(function (b) { b.onclick = function () { _imMailMic(b); }; });
+  // A copy button at the end of each log / HW line (user, 2026-10-17): the line flashes amber.
+  w.querySelectorAll('.im-copy').forEach(function (li) {
+    li.querySelector('.im-copy-b').onclick = function () {
+      var t = li.querySelector('.im-copy-t').textContent;
+      (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).catch(function () {
+        var ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {} ta.remove();
+      });
+      li.classList.add('copied');
+      setTimeout(function () { li.classList.remove('copied'); }, 700);
+    };
+  });
   _imMailQ('imMailPrev').onclick = _imMailPreview;
   _imMailQ('imMailSend').onclick = _imMailSend;
   // Their email (Counter) and whether it already went.

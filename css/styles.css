@@ -2608,6 +2608,11 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #imMailWin .im-mail-ref, #imMailWin .im-mail-mat, #imMailWin .im-mail-matsec .im-mail-mat { font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.4; color: rgba(255,255,255,0.24); }   /* the times' dark grey (user, 2026-10-17) */
 #imMailWin .im-mail-ref ul, #imMailWin .im-mail-mat ul { list-style: none; padding-left: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }   /* tighter than This Week's 9px (user, 2026-10-17) */
 #imMailWin .im-mail-ref li, #imMailWin .im-mail-mat li { margin: 0; }
+#imMailWin .im-copy { transition: color .2s; }
+#imMailWin .im-copy-b { background: none; border: none; padding: 0 0 0 8px; color: rgba(255,255,255,0.24); cursor: pointer; vertical-align: -2px; }
+#imMailWin .im-copy-b .copy-icon { width: 11px; height: 11px; }
+#imMailWin .im-copy-b:hover { color: rgba(255,255,255,0.6); }
+#imMailWin .im-copy.copied, #imMailWin .im-copy.copied .im-copy-b { color: #d9a441; }   /* copied: a short amber flash (2026-10-17) */
 #imMailWin .im-mail-head .im-mail-ref { margin: 12px 0 0; }
 #imMailWin .im-mail-to { display: flex; flex-direction: column; gap: 4px; margin: 0 0 22px; }
 #imMailWin .im-mail-to .td-mini-t { font-size: 10.5px; color: rgba(255,255,255,0.24); min-width: 0; width: 24px; }   /* "To:" / "Sbj:" as typed (user, 2026-10-17); just wide enough for "Sbj:" */
