@@ -325,10 +325,14 @@ function _logLessonDone(student, subject, data, hw) {
   // detail so the Past section reflects the lesson just logged. Same hook
   // pattern as the Audit fix flow below.
   // Logged from the Import tab's Log lesson: redraw that student's list.
+  // Only redraw their page if it's the one open (2026-10-17): started from a card
+  // on the Students list, opening the page closed the Log window mid-save and the
+  // Email window came seconds later from the backup path. On the list: redraw the cards.
   if (window._imLogActive && typeof _imOpenStudent === "function") {
     var _imName = window._imLogActive;
     window._imLogActive = null;
-    _imOpenStudent(_imName);
+    if (_imOpen && _imKey(_imOpen) === _imKey(_imName)) _imOpenStudent(_imOpen);
+    else if (!_imOpen && _imRoster && typeof _imRenderCards === "function") _imRenderCards(true);
   }
   if (window._stLogActive && typeof _stOpenStudent === "function") {
     var _stName = window._stLogActive;
@@ -486,7 +490,13 @@ function _logHwWireDrop() {
     ev.preventDefault();
     list.classList.remove("lh-drop-on");
     if (!can() || !ev.dataTransfer) return;
-    collectDroppedFiles(ev.dataTransfer, function(files) { if (files.length) logHwUpload(files); });
+    // Says so the moment they land (2026-10-17): reading a folder takes a moment.
+    var hw = logHw;
+    if (!hw.uploading) { hw.upMsg = "Reading files"; _logHwRender(); }
+    collectDroppedFiles(ev.dataTransfer, function(files) {
+      if (files.length) logHwUpload(files);
+      else if (logHw === hw && !hw.uploading) { hw.upMsg = ""; _logHwRender(); }
+    });
   };
 }
 
@@ -549,18 +559,20 @@ function logHwUpload(fileList) {
 }
 function _logHwUploadNext(hw) {
   var files = hw.queue.shift(), list = document.getElementById("logHwFiles");
-  hw.uploading = true; _logHwRender(); updateLogButton();
+  hw.uploading = true; hw.upMsg = "Uploading"; _logHwRender(); updateLogButton();
   uploadFilesToDropbox(hw.name, files, {
     day: hw.date,   // the folder is the lesson's day, not the upload day
     onProgress: function(name, i, total) {
       var wait = hw.queue.length ? " · " + hw.queue.length + " more waiting" : "";
-      if (logHw === hw && list) list.innerHTML = "<span style='color:var(--muted)'>Uploading " + (i + 1) + "/" + total + ": " + inqEsc(name) + "…" + wait + "</span>";
+      hw.upMsg = "Uploading " + (i + 1) + "/" + total + ": " + name + wait;   // kept on hw: a redraw meanwhile shows it too (2026-10-17)
+      if (logHw === hw && list) _logHwRender();
     },
     onDone: function(ok, fail, total) {
       if (logHw !== hw) { hw.uploading = false; return; }
       if (fail) addLog("lessonFeed", "⚠ " + fail + " of " + total + " file(s) didn't upload to " + hw.name + "'s Dropbox", "warn");
       if (hw.queue.length) { _logHwUploadNext(hw); return; }
       hw.uploading = false;
+      hw.upMsg = "Checking Dropbox";   // till the new list is in, not "Drag files" again
       logHwCheck();   // the new files list
     }
   });
@@ -680,6 +692,7 @@ function logHwCheck() {
     .then(function(d) {
       if (logHw !== hw || seq !== _logHwSeq) return;
       hw.loading = false;
+      if (!hw.uploading) hw.upMsg = "";
       if (!d.success) { hw.error = d.message || "Couldn't read Dropbox"; hw.files = []; }
       else {
         hw.error = null;
@@ -711,6 +724,7 @@ function logHwCheck() {
     .catch(function() {
       if (logHw !== hw || seq !== _logHwSeq) return;
       hw.loading = false; hw.error = "No answer from Google";
+      if (!hw.uploading) hw.upMsg = "";
       _logHwRender(); updateLogButton();
     });
 }
@@ -731,13 +745,15 @@ function _logHwRender() {
   var dim = "<span style='color:var(--muted)'>";
   // The zone starts empty (2026-10-07): no "Checking Dropbox…" while it asks
   // whether this lesson was answered already; drops work meanwhile.
-  if (hw.loading && !hw.files.length) list.innerHTML = dim + "⬆ Drag files or folders or browse</span>";
+  // Reading / uploading / checking (2026-10-17): said in the zone the whole time, files so far above it.
+  if (hw.upMsg) list.innerHTML = (hw.files.length ? _dbDetailsFilesHtml({ items: hw.files }) : "") + "<div class='lh-up-line'><span class='rpm-loading'>" + inqEsc(hw.upMsg) + "</span></div>";
+  else if (hw.loading && !hw.files.length) list.innerHTML = dim + "⬆ Drag files or folders or browse</span>";
   else if (hw.loading) list.innerHTML = _dbDetailsFilesHtml({ items: hw.files }) + "<div class='lh-drop-more'><span class='link-btn'>⬆ Drop more here</span></div>";
   // Grey like the rest of the zone (2026-10-06, was amber), and says what to do.
   else if (hw.error) list.innerHTML = dim + "Couldn't check their Dropbox.</span>";
   else if (!hw.files.length) list.innerHTML = dim + (hw.noFolder ? "No Dropbox folder named " + inqEsc(hw.name) : "⬆ Drag files or folders or browse") + "</span>";
   else list.innerHTML = _dbDetailsFilesHtml({ items: hw.files }) + "<div class='lh-drop-more'><span class='link-btn'>⬆ Drop more here</span></div>";
-  list.classList.toggle("lh-empty", !hw.error && !hw.files.length);
+  list.classList.toggle("lh-empty", !hw.error && !hw.files.length && !hw.upMsg);
   list.style.opacity = !hw.filesOn && hw.choice && hw.files.length ? ".4" : "";   // the files aren't this lesson's
   var n = hw.files.length;
   sent.querySelector("span").textContent = n ? "Sent · " + n + (n === 1 ? " file" : " files") : "Sent";
