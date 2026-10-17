@@ -63,7 +63,7 @@ function _imRenderCards(noRead) {
       // Audit lessons (2026-10-14): red, right, level with "24 students", like Audit
       // payments; opens the old Logs page (Unlogged Lessons + Lesson Checklist) here.
       '<div class="db-cx-head im-sec-head im-cards-head"><label class="field-label db-cx-t">' + names.length + ' students</label>' +
-        '<button class="link-btn red" onclick="openLessonAudit()" data-tip="Opens a page.\nLessons missing a log, HW, materials,\nschedule or email." data-tip-wrap>' + DETAILS_ICON + '<span>Audit lessons</span></button></div>' +
+        '<button class="link-btn amber" onclick="openLessonAudit()" data-tip="Opens a page.\nLessons missing a log, HW, materials,\nschedule or email." data-tip-wrap>' + DETAILS_ICON + '<span>Audit lessons</span></button></div>' +
       names.map(function (n) {
         var miss = missing(n), o = open(n), past = _ckPast(n);
         // The oldest open lesson's steps (user, 2026-10-17; was "1 lesson open"):
@@ -353,7 +353,7 @@ function _imStepsHtml(day, miss, hwText, name, onlyMissing) {
   var steps = ['Log', 'HW', 'Materials', 'Schedule', 'Email'].filter(function (s) {
     return (s !== 'HW' || day >= HW_TEXT_START || hwText) && (s !== 'Email' || day >= MSG_START);   // HW shown on older lessons too when they have it
   });
-  function red(label, tip, mark) { return '<button class="im-step todo opens-window" onclick="event.stopPropagation(); _imLogOpen(' + n + ')" data-tip="Opens a window.\n' + tip + '">' + (mark === false ? '' : '✕ ') + label + '</button>'; }
+  function red(label, tip, mark) { return '<button class="im-step todo' + (mark === false ? ' nolog' : '') + ' opens-window" onclick="event.stopPropagation(); _imLogOpen(' + n + ')" data-tip="Opens a window.\n' + tip + '">' + (mark === false ? '' : '✕ ') + label + '</button>'; }
   // Nothing done yet: one "Not logged" button, not a row of them (user, 2026-10-17).
   if (steps.every(function (s) { return miss.indexOf(s) >= 0; })) return red('Not logged', _ckDay(day) + ' not logged.', false);   // no ✕ on this one (user, 2026-10-17)
   return steps.map(function (s) {
