@@ -174,7 +174,7 @@ function _imLogWinOpen(student, idx, day, item, next) {
   w.querySelector('.st-win').classList.add('im-log-win');
   // Today's look (2026-10-11, from Today; everywhere since): grey, red only on the name and Reschedule.
   w.querySelector('.st-win').classList.add('td-look');
-  w.onclick = function (e) { if (e.target === w) closeLogPanel(); };
+  w.onclick = null;   // only ✕ closes it (user, 2026-10-17, like the Email window): an outside click lost Jiayi's Email window
   w.querySelector('[data-close]').onclick = closeLogPanel;
   var panel = document.getElementById('logPanel');
   window._logPanelHome = { parent: panel.parentNode, next: panel.nextSibling, css: panel.style.cssText };
@@ -829,7 +829,12 @@ function _imSend(w, hw) {
       // Saved after the window closed: say so only if something didn't.
       if (why.length) rpmToast('fail', 'Not saved', w.name + ': ' + why.join(' '));
       if (_imOpen && _imKey(_imOpen) === _imKey(w.name) && typeof _imOpenStudent === 'function') _imOpenStudent(_imOpen);
-      _ckLoad(function () { _ckRedraw(); });
+      // Closed before Done but everything saved, only the email left (2026-10-17): the Email window anyway.
+      _ckLoad(function () {
+        _ckRedraw();
+        var it = !why.length && _ckItem(w.name, w.day);
+        if (it && it.missing && it.missing.length === 1 && it.missing[0] === 'Email' && !window._imMail && !window._imWin) _imMailOpen(_imMailFromItem(w.name, it));
+      });
     }
   });
 }
@@ -1153,10 +1158,11 @@ function _imDoHtml(name, day) {
     _imMainHead('2. Materials', 'For practice', '', 'im-main-mat') +
     // The Log window's HW part (#logHw) is split over these (_imHwOut).
     '<div class="im-hw-dock-box">' +
-      _imSub('A. Nothing to send', '', ' im-mat-sec', '<div id="imMatNone"></div>') +
-      _imSub('B. Files', '<span id="imMatFilesTools"></span>', ' im-mat-sec', '<div id="imHwDock"></div>') +
-      _imSub('C. Video lesson link', '', ' im-mat-sec', '<div id="imMatVideo"></div>') +
-      _imSub('D. Web link', '', ' im-mat-sec', '<div id="imMatLink"></div>') +
+      // Nothing to send is one button on top, no title of its own; it dims once pressed (user, 2026-10-17).
+      '<div id="imMatNone" class="im-mat-none"></div>' +
+      _imSub('A. Files', '<span id="imMatFilesTools"></span>', ' im-mat-sec', '<div id="imHwDock"></div>') +
+      _imSub('B. Video lesson link', '', ' im-mat-sec', '<div id="imMatVideo"></div>') +
+      _imSub('C. Web link', '', ' im-mat-sec', '<div id="imMatLink"></div>') +
     '</div>' +
     // Schedule: Reschedule and Not needed side by side (2026-10-06); a click
     // ticks Schedule, again undoes it.

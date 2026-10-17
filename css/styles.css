@@ -2114,6 +2114,8 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* A. Nothing to send (2026-10-15): a small Yes button under its title, on the left; click picks it, again undoes it. */
 #imMatNone .lh-none-btn { display: inline-flex; }
 #imMatNone .lh-none-btn:disabled { opacity: .35; cursor: default; }
+.im-mat-none { margin: 0 0 22px; }
+#imMatNone .lh-none-btn.pressed { opacity: .4; }   /* pressed: dims, like a finished step (user, 2026-10-17) */
 /* Checklist as a status list (2026-10-06): circle + label, ticks itself; done lines fade. */
 .im-checks { display: flex; flex-direction: column; gap: 8px; }
 .im-check { display: flex; align-items: center; gap: 10px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--text); }
