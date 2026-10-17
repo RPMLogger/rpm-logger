@@ -551,6 +551,7 @@ function _logHwUploadNext(hw) {
   var files = hw.queue.shift(), list = document.getElementById("logHwFiles");
   hw.uploading = true; _logHwRender(); updateLogButton();
   uploadFilesToDropbox(hw.name, files, {
+    day: hw.date,   // the folder is the lesson's day, not the upload day
     onProgress: function(name, i, total) {
       var wait = hw.queue.length ? " · " + hw.queue.length + " more waiting" : "";
       if (logHw === hw && list) list.innerHTML = "<span style='color:var(--muted)'>Uploading " + (i + 1) + "/" + total + ": " + inqEsc(name) + "…" + wait + "</span>";
@@ -773,7 +774,7 @@ function _logHwRender() {
 // in the Dropbox app; their own folder while the zone is empty.
 function logHwOpenDbx() {
   if (!logHw) return;
-  openDropboxLocalFolder(logHw.files.length ? logHw.name + "/" + lessonFolderName() : logHw.name);
+  openDropboxLocalFolder(logHw.files.length ? logHw.name + "/" + lessonFolderName(logHw.date) : logHw.name);
 }
 
 // HW-only mode hides the lesson rows; the window title says HW.

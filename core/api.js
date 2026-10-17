@@ -173,14 +173,17 @@ function updateCommsSummary(type, count) {
 // "HW - OCT 4" (2026-10-04, caps by the user; was LESSON - OCT 4), so a lesson's HW stays together in the
 // student's Dropbox. Dropbox makes the folder on the first upload; a second
 // upload the same day lands in the same folder.
+// d: the lesson's day, a Date or "2026-10-16" (2026-10-17: the lesson day, not
+// the upload day, so HW put in late still says the lesson's date).
 function lessonFolderName(d) {
-  d = d || new Date();
+  if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}/.test(d)) { var p = d.split("-"); d = new Date(+p[0], +p[1] - 1, +p[2].slice(0, 2)); }
+  d = d instanceof Date && !isNaN(d) ? d : new Date();
   return ("HW - " + MONTHS[d.getMonth()] + " " + d.getDate()).toUpperCase();
 }
 
 function uploadFilesToDropbox(folderName, fileList, opts) {
   opts = opts || {};
-  var wrap = lessonFolderName();
+  var wrap = lessonFolderName(opts.day);   // opts.day: the lesson day (default today)
   var url = getScriptUrl();
   var files = Array.prototype.slice.call(fileList);
   var total = files.length;
