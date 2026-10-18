@@ -1,7 +1,8 @@
 // ─── TABS / TRAVEL.JS  (TRAVEL PLAN) ────────────────────────────────────────
 // The "doing" surface. Two screens:
 //   1) PLAN   — Leaving + Arriving pickers over a two-month calendar (each
-//               follows the other). Calculate shows the impact ($ / lessons).
+//               follows the other); tap outside the trip to buffer it.
+//               Calculate shows the impact ($ / lessons).
 //   2) REVIEW — per-student breakdown (before / skip / resume) + the exact text
 //               each student will receive. GO LIVE deletes the events, texts the
 //               students (TEST → your own phone), and logs the trip.
@@ -70,7 +71,13 @@ function _travelRenderPlan() {
     "<div class='tv-cal-cols tv-cal-pickers'>" +
       "<div id='travelLeavingSlot'></div><div id='travelArrivingSlot'></div>" +
     "</div>" +
-    "<div class='tv-cal-cols' id='travelCalMonths'></div>";
+    "<div class='tv-cal-cols' id='travelCalMonths'></div>" +
+    "<div class='tv-cal-legend'>" +
+      "<span><i class='lg-off'></i>First day off — lessons from here are cancelled</span>" +
+      "<span><i class='lg-buf'></i>Buffer — extra days off: tap before Leaving or after Arriving</span>" +
+      "<span><i class='lg-back'></i>First day teaching — lessons start again</span>" +
+      "<span><i class='lg-travel'></i>Travel day</span>" +
+    "</div>";
   section.appendChild(cal);
 
   var summary = document.createElement('div');
@@ -78,42 +85,37 @@ function _travelRenderPlan() {
   summary.style.cssText = 'border:1px solid var(--border);border-radius:var(--radius-card);padding:14px;background:var(--panel)';
   section.appendChild(summary);
 
-  _travelRenderDateSpinner('travelLeavingSlot',  'Leaving',  'firstOff',  'tv-off');
-  _travelRenderDateSpinner('travelArrivingSlot', 'Arriving', 'firstBack', 'tv-back');
+  _travelRenderDateSpinner('travelLeavingSlot',  'Leaving',  'leaving');
+  _travelRenderDateSpinner('travelArrivingSlot', 'Arriving', 'arriving');
   _travelRenderCal();
   _travelMarkStale();
 }
 
 
 // ─── LEAVING / ARRIVING + TRIP CALENDAR ─────────────────────────────────────
-// Two ways to set the same two days: the portal's date picker (rpmDtpHtml, with
-// the year — a trip can run into the new year), or a tap on the two-month
-// calendar under them (a trip never runs past two months). Each follows the
-// other, and the calendar slides to keep both days in view. On the calendar a
-// tap before the trip moves Leaving, after it moves Arriving, anything else
-// starts a new trip (2026-10-18, was the pickers over two Mon–Sun week strips).
-// Leaving is the first day off, Arriving the first day teaching.
+// Leaving and Arriving are the travel days: the portal's date picker
+// (rpmDtpHtml, with the year — a trip can run into the new year), or a tap on
+// the two-month calendar under them (a trip never runs past two months). Each
+// follows the other, and the calendar slides to keep the day in view.
+// Once both are set, a tap on or before Leaving moves the first day off
+// earlier, a tap on or after Arriving moves the first day teaching later: the
+// buffer (2026-10-18, was the pickers over two Mon–Sun week strips).
 
-function _travelRenderDateSpinner(slotId, label, stateKey, tone) {
+function _travelRenderDateSpinner(slotId, label, stateKey) {
   var wrap = document.getElementById(slotId);
   if (!wrap) return;
   var id = 'tv' + stateKey;
   wrap.innerHTML =
-    "<div class='tv-cal-label " + tone + "'>" + label + "</div>" +
+    "<div class='tv-cal-label'>" + label + "</div>" +
     rpmDtpHtml(id, { date: _travelState[stateKey], noTime: true, year: true, min: 'today', group: 'travel', onChange: function() {
       var ymd = rpmDtpGet(id).date;
       _travelState[stateKey] = ymd;
-      _travelSync();
+      if (stateKey === 'leaving')  _travelState.firstOff  = ymd;   // moving a travel day drops its buffer
+      if (stateKey === 'arriving') _travelState.firstBack = ymd;
       _travelShowMonth(ymd);
       _travelRenderCal();
       _travelMarkStale();
     } });
-}
-
-// leaving / arriving only feed the summary's buffer line; they are the same days now.
-function _travelSync() {
-  _travelState.leaving  = _travelState.firstOff;
-  _travelState.arriving = _travelState.firstBack;
 }
 
 // Slide the two months so this day is on screen.
@@ -125,32 +127,44 @@ function _travelShowMonth(ymd) {
   else if (k > 1) _travelState.calMonth = new Date(d.getFullYear(), d.getMonth() - 1, 1);
 }
 
+// The days as drawn: Arriving only counts once it is after Leaving.
+function _travelDays() {
+  var s = _travelState;
+  var arr = s.arriving > s.leaving ? s.arriving : '';
+  return { leaving: s.leaving, arriving: arr, off: s.firstOff, back: arr ? s.firstBack : '' };
+}
+
 function _travelRenderCal() {
   var head = document.getElementById('travelCalHead');
   var months = document.getElementById('travelCalMonths');
   if (!head || !months) return;
-  var s = _travelState;
+  var s = _travelState, t = _travelDays();
   var now = new Date();
   var thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   if (!s.calMonth) s.calMonth = thisMonth;
-  var off = s.firstOff, back = s.firstBack > off ? s.firstBack : '';
 
-  var n = back ? _daysBetween(off, back) : 0;
+  var line;
+  if (!t.leaving)       line = "<span class='tv-cal-muted'>Pick the day you leave</span>";
+  else if (!t.arriving) line = "<span class='tv-cal-muted'>Now pick the day you arrive back</span>";
+  else {
+    var n = _daysBetween(t.off, t.back), bb = _daysBetween(t.off, t.leaving), ba = _daysBetween(t.arriving, t.back);
+    var buf = [];
+    if (bb > 0) buf.push(bb + ' before');
+    if (ba > 0) buf.push(ba + ' after');
+    line = n + " day" + (n === 1 ? '' : 's') + " off" +
+           (buf.length ? "<span class='tv-cal-muted'> · buffer " + buf.join(', ') + "</span>" : "");
+  }
   head.innerHTML =
-    "<div class='tv-cal-hint'>" +
-      (!off  ? "<span class='tv-cal-muted'>Pick the day you leave</span>"
-      : !back ? "<span class='tv-cal-muted'>Now pick the day you're back teaching</span>"
-      : n + " day" + (n === 1 ? '' : 's') + " off") +
-    "</div>" +
-    (off ? "<button class='tv-cal-clear' onclick='_travelClear()'>Clear</button>" : "");
+    "<div class='tv-cal-hint'>" + line + "</div>" +
+    (t.leaving ? "<button class='tv-cal-clear' onclick='_travelClear()'>Clear</button>" : "");
 
   var second = new Date(s.calMonth.getFullYear(), s.calMonth.getMonth() + 1, 1);
   months.innerHTML =
-    _travelMonthHtml(s.calMonth, 'prev', s.calMonth <= thisMonth, off, back) +
-    _travelMonthHtml(second, 'next', false, off, back);
+    _travelMonthHtml(s.calMonth, 'prev', s.calMonth <= thisMonth, t) +
+    _travelMonthHtml(second, 'next', false, t);
 }
 
-function _travelMonthHtml(first, navSide, navOff, off, back) {
+function _travelMonthHtml(first, navSide, navOff, t) {
   var today = _dateToYmd(new Date());
   var y = first.getFullYear(), m = first.getMonth();
   var name = first.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -168,12 +182,14 @@ function _travelMonthHtml(first, navSide, navOff, off, back) {
   var days = new Date(y, m + 1, 0).getDate();
   for (var d = 1; d <= days; d++) {
     var ymd = _dateToYmd(new Date(y, m, d));
+    var buf = (ymd >= t.off && ymd < t.leaving) || (t.back && ymd >= t.arriving && ymd < t.back);
     var cls = 'tv-cal-day';
-    if (ymd < today)                         cls += ' is-past';
-    if (ymd === today)                       cls += ' is-today';
-    if (ymd === off)                         cls += ' is-off' + (back ? ' has-end' : '');
-    if (ymd === back)                        cls += ' is-back';
-    if (back && ymd > off && ymd < back)     cls += ' is-in';
+    if (ymd < today)                                cls += ' is-past';
+    if (ymd === today)                              cls += ' is-today';
+    if (ymd === t.off)                              cls += ' is-off' + (t.back ? ' has-end' : '');
+    if (ymd === t.back)                             cls += ' is-back';
+    if (t.back && ymd > t.off && ymd < t.back)      cls += buf ? ' is-buf' : ' is-in';
+    if (ymd === t.leaving || ymd === t.arriving)    cls += ' is-travel';
     html += "<button class='" + cls + "'" + (ymd < today ? " disabled" : " onclick=\"_travelPickDay('" + ymd + "')\"") +
             "><span>" + d + "</span></button>";
   }
@@ -181,14 +197,19 @@ function _travelMonthHtml(first, navSide, navOff, off, back) {
 }
 
 function _travelPickDay(ymd) {
-  var s = _travelState, off = s.firstOff, back = s.firstBack > off ? s.firstBack : '';
-  if (off && !back && ymd > off)       s.firstBack = ymd;
-  else if (off && back && ymd < off)   s.firstOff  = ymd;
-  else if (off && back && ymd > back)  s.firstBack = ymd;
-  else { s.firstOff = ymd; s.firstBack = ''; }
-  _travelSync();
-  rpmDtpSet('tvfirstOff',  s.firstOff);
-  rpmDtpSet('tvfirstBack', s.firstBack);
+  var s = _travelState, t = _travelDays();
+  if (!t.leaving || (!t.arriving && ymd <= t.leaving)) {   // a new Leaving
+    s.leaving = s.firstOff = ymd;
+    s.arriving = s.firstBack = '';
+  } else if (!t.arriving) {                                // Arriving
+    s.arriving = s.firstBack = ymd;
+  } else if (ymd <= t.leaving) {                           // buffer before
+    s.firstOff = ymd;
+  } else if (ymd >= t.arriving) {                          // buffer after
+    s.firstBack = ymd;
+  } else return;                                           // inside the trip: already off
+  rpmDtpSet('tvleaving',  s.leaving);
+  rpmDtpSet('tvarriving', s.arriving);
   _travelRenderCal();
   _travelMarkStale();
 }
@@ -203,8 +224,8 @@ function _travelClear() {
   var s = _travelState;
   s.leaving = s.arriving = s.firstOff = s.firstBack = '';
   s.preview = null;
-  rpmDtpSet('tvfirstOff', '');
-  rpmDtpSet('tvfirstBack', '');
+  rpmDtpSet('tvleaving', '');
+  rpmDtpSet('tvarriving', '');
   _travelRenderCal();
   _travelMarkStale();
 }

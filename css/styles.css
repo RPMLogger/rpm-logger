@@ -2670,7 +2670,8 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .tv-cal-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
 .tv-cal-pickers { margin-bottom: 18px; }
 .tv-cal-pickers > div { display: flex; flex-direction: column; align-items: center; }
-.tv-cal-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+.tv-cal-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+.tv-cal .dtp-val.on { background: transparent; }   /* both boxes one colour; ←→ still moves the keys */
 .tv-cal-title { position: relative; text-align: center; font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1px; margin-bottom: 8px; }
 .tv-cal-nav { position: absolute; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--muted); font-size: 22px; line-height: 1; padding: 2px 8px; cursor: pointer; font-family: inherit; }
 .tv-cal-nav.prev { left: 0; }
@@ -2687,5 +2688,16 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .tv-cal-day.is-in { background: rgba(232,70,58,0.14); }
 .tv-cal-day.is-off.has-end { background: linear-gradient(to right, transparent 50%, rgba(232,70,58,0.14) 50%); }
 .tv-cal-day.is-back { background: linear-gradient(to left, transparent 50%, rgba(232,70,58,0.14) 50%); }
+.tv-cal-day.is-buf { background: repeating-linear-gradient(135deg, rgba(232,70,58,0.22) 0 4px, rgba(232,70,58,0.06) 4px 8px); }
+.tv-cal-day.is-travel span { position: relative; }
+.tv-cal-day.is-travel span::after { content: ''; position: absolute; bottom: 3px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: currentColor; }
 .tv-cal-day.is-off span { background: var(--accent); border-color: var(--accent); color: #fff; }
 .tv-cal-day.is-back span { background: rgba(46,204,113,0.15); border-color: #2ecc71; color: #2ecc71; }
+
+.tv-cal-legend { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); }
+.tv-cal-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.tv-cal-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
+.tv-cal-legend .lg-off  { background: var(--accent); }
+.tv-cal-legend .lg-buf  { border-radius: 3px; background: repeating-linear-gradient(135deg, rgba(232,70,58,0.5) 0 3px, rgba(232,70,58,0.12) 3px 6px); }
+.tv-cal-legend .lg-back { background: rgba(46,204,113,0.15); border: 1px solid #2ecc71; }
+.tv-cal-legend .lg-travel { width: 4px; height: 4px; margin: 0 4px; background: var(--text); }
