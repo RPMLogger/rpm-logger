@@ -1,8 +1,7 @@
 // ─── TABS / TRAVEL.JS  (TRAVEL PLAN) ────────────────────────────────────────
 // The "doing" surface. Two screens:
-//   1) PLAN   — Leaving + Arriving pickers anchor two Mon-Sun day strips; tap a
-//               day to extend the buffer. Live impact ($ / lessons / students)
-//               updates on every change.
+//   1) PLAN   — Leaving + Arriving pickers over a two-month calendar (each
+//               follows the other). Calculate shows the impact ($ / lessons).
 //   2) REVIEW — per-student breakdown (before / skip / resume) + the exact text
 //               each student will receive. GO LIVE deletes the events, texts the
 //               students (TEST → your own phone), and logs the trip.
@@ -63,140 +62,151 @@ function _travelRenderPlan() {
   section.innerHTML = '';
   section.appendChild(_travelTopBar());
 
-  // Pre-fill with today, so there is always a date to step from.
-  if (!_travelState.leaving) {
-    var today = _dateToYmd(new Date());
-    _travelState.leaving = _travelState.arriving = today;
-    _travelState.firstOff = _travelState.firstBack = today;
-  }
-
-  var hdr = document.createElement('div');
-  hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px';
-  hdr.innerHTML =
-    "<div style='font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px'>Plan a Trip</div>" +
-    "<button id='travelReset' style='padding:6px 12px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>↺ Reset dates</button>";
-  section.appendChild(hdr);
-  document.getElementById('travelReset').onclick = function() {
-    _travelState.leaving = _travelState.arriving = _travelState.firstOff = _travelState.firstBack = '';
-    _travelState.preview = null;
-    _travelRenderPlan();
-  };
-
-  var inputs = document.createElement('div');
-  inputs.style.cssText = 'display:flex;gap:10px;margin-bottom:10px';
-  inputs.innerHTML =
-    "<div id='travelLeavingSlot'  style='flex:1'></div>" +
-    "<div id='travelArrivingSlot' style='flex:1'></div>";
-  section.appendChild(inputs);
-
-  _travelRenderDateSpinner('travelLeavingSlot',  'Leaving',  'leaving');
-  _travelRenderDateSpinner('travelArrivingSlot', 'Arriving', 'arriving');
-
-  var leavingWeek = document.createElement('div');
-  leavingWeek.id = 'travelLeavingWeek';
-  leavingWeek.style.cssText = 'margin-bottom:8px';
-  section.appendChild(leavingWeek);
-
-  var arrivingWeek = document.createElement('div');
-  arrivingWeek.id = 'travelArrivingWeek';
-  arrivingWeek.style.cssText = 'margin-bottom:14px';
-  section.appendChild(arrivingWeek);
+  // The pickers sit outside the redrawn parts, so stepping them keeps their keys.
+  var cal = document.createElement('div');
+  cal.className = 'tv-cal';
+  cal.innerHTML =
+    "<div class='tv-cal-head' id='travelCalHead'></div>" +
+    "<div class='tv-cal-cols tv-cal-pickers'>" +
+      "<div id='travelLeavingSlot'></div><div id='travelArrivingSlot'></div>" +
+    "</div>" +
+    "<div class='tv-cal-cols' id='travelCalMonths'></div>";
+  section.appendChild(cal);
 
   var summary = document.createElement('div');
   summary.id = 'travelSummary';
-  summary.style.cssText = 'border:1px solid var(--border);border-radius:6px;padding:14px;background:var(--panel)';
-  summary.innerHTML = "<div class='empty-state'>Pick leaving + arriving dates to see impact</div>";
+  summary.style.cssText = 'border:1px solid var(--border);border-radius:var(--radius-card);padding:14px;background:var(--panel)';
   section.appendChild(summary);
 
-  if (_travelState.leaving && _travelState.arriving) {
-    _travelRebuildWeeks();
-    _travelMarkStale();
-  }
+  _travelRenderDateSpinner('travelLeavingSlot',  'Leaving',  'firstOff',  'tv-off');
+  _travelRenderDateSpinner('travelArrivingSlot', 'Arriving', 'firstBack', 'tv-back');
+  _travelRenderCal();
+  _travelMarkStale();
 }
 
 
-// ─── LEAVING / ARRIVING ──────────────────────────────────────────────────────
-// The portal's date picker (rpmDtpHtml), with the year: a trip can run from
-// Christmas into the new year (2026-10-06, was a Mon / DD / YYYY spinner).
-// A day a step; hold a chevron to run. ←→ walk from Leaving into Arriving.
+// ─── LEAVING / ARRIVING + TRIP CALENDAR ─────────────────────────────────────
+// Two ways to set the same two days: the portal's date picker (rpmDtpHtml, with
+// the year — a trip can run into the new year), or a tap on the two-month
+// calendar under them (a trip never runs past two months). Each follows the
+// other, and the calendar slides to keep both days in view. On the calendar a
+// tap before the trip moves Leaving, after it moves Arriving, anything else
+// starts a new trip (2026-10-18, was the pickers over two Mon–Sun week strips).
+// Leaving is the first day off, Arriving the first day teaching.
 
-function _travelRenderDateSpinner(slotId, label, stateKey) {
+function _travelRenderDateSpinner(slotId, label, stateKey, tone) {
   var wrap = document.getElementById(slotId);
   if (!wrap) return;
   var id = 'tv' + stateKey;
   wrap.innerHTML =
-    '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0">' + label + '</div>' +
-    rpmDtpHtml(id, { date: _travelState[stateKey], noTime: true, year: true, group: 'travel', onChange: function() {
+    "<div class='tv-cal-label " + tone + "'>" + label + "</div>" +
+    rpmDtpHtml(id, { date: _travelState[stateKey], noTime: true, year: true, min: 'today', group: 'travel', onChange: function() {
       var ymd = rpmDtpGet(id).date;
       _travelState[stateKey] = ymd;
-      if (stateKey === 'leaving')  _travelState.firstOff  = ymd;
-      if (stateKey === 'arriving') _travelState.firstBack = ymd;
-      _travelRebuildWeeks();
+      _travelSync();
+      _travelShowMonth(ymd);
+      _travelRenderCal();
       _travelMarkStale();
     } });
 }
 
-function _travelRebuildWeeks() {
-  _renderWeekStrip('travelLeavingWeek',  'First day off  (tap to buffer earlier)',
-                   _travelState.leaving,  _travelState.firstOff,  'before', 'var(--accent)');
-  _renderWeekStrip('travelArrivingWeek', 'First day teaching  (tap to buffer later)',
-                   _travelState.arriving, _travelState.firstBack, 'after',  'var(--green)');
+// leaving / arriving only feed the summary's buffer line; they are the same days now.
+function _travelSync() {
+  _travelState.leaving  = _travelState.firstOff;
+  _travelState.arriving = _travelState.firstBack;
 }
 
-function _renderWeekStrip(wrapId, label, anchorYmd, selectedYmd, mode, accentVar) {
-  var wrap = document.getElementById(wrapId);
-  wrap.innerHTML = '';
-  if (!anchorYmd) return;
-  accentVar = accentVar || 'var(--accent)';
-  // Tint the selected pill's background from the accent (accent for off, green
-  // for the resume day). Fixed low-alpha wash keeps it subtle in both cases.
-  var accentBg = accentVar === 'var(--green)' ? 'rgba(0,200,100,0.18)' : 'rgba(232,70,58,0.18)';
+// Slide the two months so this day is on screen.
+function _travelShowMonth(ymd) {
+  var d = _ymdToDate(ymd), c = _travelState.calMonth;
+  if (!d || !c) return;
+  var k = (d.getFullYear() - c.getFullYear()) * 12 + d.getMonth() - c.getMonth();
+  if (k < 0)      _travelState.calMonth = new Date(d.getFullYear(), d.getMonth(), 1);
+  else if (k > 1) _travelState.calMonth = new Date(d.getFullYear(), d.getMonth() - 1, 1);
+}
 
-  var lbl = document.createElement('div');
-  lbl.style.cssText = 'font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px';
-  lbl.textContent = label;
-  wrap.appendChild(lbl);
+function _travelRenderCal() {
+  var head = document.getElementById('travelCalHead');
+  var months = document.getElementById('travelCalMonths');
+  if (!head || !months) return;
+  var s = _travelState;
+  var now = new Date();
+  var thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  if (!s.calMonth) s.calMonth = thisMonth;
+  var off = s.firstOff, back = s.firstBack > off ? s.firstBack : '';
 
-  var pillRow = document.createElement('div');
-  pillRow.style.cssText = 'display:flex;gap:4px;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:6px';
+  var n = back ? _daysBetween(off, back) : 0;
+  head.innerHTML =
+    "<div class='tv-cal-hint'>" +
+      (!off  ? "<span class='tv-cal-muted'>Pick the day you leave</span>"
+      : !back ? "<span class='tv-cal-muted'>Now pick the day you're back teaching</span>"
+      : n + " day" + (n === 1 ? '' : 's') + " off") +
+    "</div>" +
+    (off ? "<button class='tv-cal-clear' onclick='_travelClear()'>Clear</button>" : "");
 
-  var anchor = _ymdToDate(anchorYmd);
-  var monday = _mondayOfWeek(anchor);
+  var second = new Date(s.calMonth.getFullYear(), s.calMonth.getMonth() + 1, 1);
+  months.innerHTML =
+    _travelMonthHtml(s.calMonth, 'prev', s.calMonth <= thisMonth, off, back) +
+    _travelMonthHtml(second, 'next', false, off, back);
+}
 
-  for (var i = 0; i < 7; i++) {
-    var d        = new Date(monday.getTime() + i * 24 * 60 * 60 * 1000);
-    var ymd      = _dateToYmd(d);
-    var enabled  = mode === 'before' ? (d <= anchor) : (d >= anchor);
-    var selected = ymd === selectedYmd;
-    var isAnchor = ymd === anchorYmd;
-    var dayName  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
-
-    var btn = document.createElement('button');
-    btn.innerHTML =
-      "<div style='font-size:9px;line-height:1;letter-spacing:0.5px'>" + dayName.toUpperCase() + "</div>" +
-      "<div style='font-size:15px;font-weight:600;line-height:1.3'>" + d.getDate() + "</div>";
-    btn.style.cssText =
-      'flex:1;padding:6px 4px;border-radius:4px;font-family:inherit;' +
-      'border:1px solid ' + (selected ? accentVar : 'transparent') + ';' +
-      'background:' + (selected ? accentBg : 'transparent') + ';' +
-      'color:' + (enabled ? (selected ? accentVar : 'var(--text)') : 'rgba(180,180,180,0.25)') + ';' +
-      'cursor:' + (enabled ? 'pointer' : 'default') + ';' +
-      'opacity:' + (enabled ? '1' : '0.5') + ';' +
-      (isAnchor && !selected ? 'box-shadow:inset 0 -2px 0 var(--muted);' : '');
-
-    if (enabled) {
-      (function(ymdCap) {
-        btn.onclick = function() {
-          if (mode === 'before') _travelState.firstOff  = ymdCap;
-          else                   _travelState.firstBack = ymdCap;
-          _travelRebuildWeeks();
-          _travelMarkStale();
-        };
-      })(ymd);
-    }
-    pillRow.appendChild(btn);
+function _travelMonthHtml(first, navSide, navOff, off, back) {
+  var today = _dateToYmd(new Date());
+  var y = first.getFullYear(), m = first.getMonth();
+  var name = first.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  var html =
+    "<div class='tv-cal-month'>" +
+      "<div class='tv-cal-title'>" +
+        "<button class='tv-cal-nav " + navSide + "'" + (navOff ? " disabled" : "") +
+          " onclick='_travelCalStep(" + (navSide === 'prev' ? -1 : 1) + ")'>" + (navSide === 'prev' ? '‹' : '›') + "</button>" +
+        name +
+      "</div>" +
+      "<div class='tv-cal-grid'>";
+  ['M','T','W','T','F','S','S'].forEach(function(d) { html += "<div class='tv-cal-dow'>" + d + "</div>"; });
+  var lead = (first.getDay() + 6) % 7;                 // Monday-first, like the rest of the portal
+  for (var i = 0; i < lead; i++) html += "<div></div>";
+  var days = new Date(y, m + 1, 0).getDate();
+  for (var d = 1; d <= days; d++) {
+    var ymd = _dateToYmd(new Date(y, m, d));
+    var cls = 'tv-cal-day';
+    if (ymd < today)                         cls += ' is-past';
+    if (ymd === today)                       cls += ' is-today';
+    if (ymd === off)                         cls += ' is-off' + (back ? ' has-end' : '');
+    if (ymd === back)                        cls += ' is-back';
+    if (back && ymd > off && ymd < back)     cls += ' is-in';
+    html += "<button class='" + cls + "'" + (ymd < today ? " disabled" : " onclick=\"_travelPickDay('" + ymd + "')\"") +
+            "><span>" + d + "</span></button>";
   }
-  wrap.appendChild(pillRow);
+  return html + "</div></div>";
+}
+
+function _travelPickDay(ymd) {
+  var s = _travelState, off = s.firstOff, back = s.firstBack > off ? s.firstBack : '';
+  if (off && !back && ymd > off)       s.firstBack = ymd;
+  else if (off && back && ymd < off)   s.firstOff  = ymd;
+  else if (off && back && ymd > back)  s.firstBack = ymd;
+  else { s.firstOff = ymd; s.firstBack = ''; }
+  _travelSync();
+  rpmDtpSet('tvfirstOff',  s.firstOff);
+  rpmDtpSet('tvfirstBack', s.firstBack);
+  _travelRenderCal();
+  _travelMarkStale();
+}
+
+function _travelCalStep(n) {
+  var c = _travelState.calMonth;
+  _travelState.calMonth = new Date(c.getFullYear(), c.getMonth() + n, 1);
+  _travelRenderCal();
+}
+
+function _travelClear() {
+  var s = _travelState;
+  s.leaving = s.arriving = s.firstOff = s.firstBack = '';
+  s.preview = null;
+  rpmDtpSet('tvfirstOff', '');
+  rpmDtpSet('tvfirstBack', '');
+  _travelRenderCal();
+  _travelMarkStale();
 }
 
 // Manual calculate flow: moving the dates NEVER auto-scans. It just clears any
@@ -217,9 +227,7 @@ function _travelRenderCalcPrompt() {
   if (!box) return;
   var off = _travelState.firstOff, back = _travelState.firstBack;
   var ready = off && back && off < back;
-  box.innerHTML =
-    (ready ? "" :
-      "<div class='empty-state' style='margin-bottom:10px'>Set a first day off and a later first day back</div>") +
+  box.innerHTML =     // the calendar's own line says what to tap next
     "<button id='travelCalcBtn'" + (ready ? "" : " disabled") +
       " style='width:100%;padding:12px;font-size:13px;background:rgba(232,70,58,0.15);color:var(--accent);" +
       "border:1px solid rgba(232,70,58,0.4);border-radius:4px;letter-spacing:0.5px;" +

@@ -2656,3 +2656,36 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #imLogWin .im-log-foot-all #btnLog:disabled { cursor: default; }
 #imLogWin .im-dim:hover { opacity: .35; }   /* dimmed stays dimmed on hover (user, 2026-10-18) */
 #imLogWin #logPanel > #logAddRow { display: inline-flex; margin: 10px 0 0; }   /* left under the log rows, like HW's (Log moved under HW, 2026-10-18) */
+
+/* Travel Plan (2026-10-18): Leaving + Arriving pickers over a two-month
+   calendar; each follows the other. Off = accent, back = green. */
+.tv-cal { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px 20px 18px; margin-bottom: 14px; }
+.tv-cal-head { display: flex; justify-content: space-between; align-items: center; min-height: 30px; margin-bottom: 14px; }
+.tv-cal-hint { font-size: 13px; color: var(--text); }
+.tv-cal-muted { color: var(--muted); }
+.tv-off  { color: var(--accent); }
+.tv-back { color: #2ecc71; }
+.tv-cal-clear { background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: inherit; font-size: 11px; padding: 6px 12px; border-radius: var(--radius-pill); cursor: pointer; }
+.tv-cal-clear:hover { color: var(--text); }
+.tv-cal-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+.tv-cal-pickers { margin-bottom: 18px; }
+.tv-cal-pickers > div { display: flex; flex-direction: column; align-items: center; }
+.tv-cal-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+.tv-cal-title { position: relative; text-align: center; font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1px; margin-bottom: 8px; }
+.tv-cal-nav { position: absolute; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--muted); font-size: 22px; line-height: 1; padding: 2px 8px; cursor: pointer; font-family: inherit; }
+.tv-cal-nav.prev { left: 0; }
+.tv-cal-nav.next { right: 0; }
+.tv-cal-nav:hover:not(:disabled) { color: var(--text); }
+.tv-cal-nav:disabled { opacity: 0.2; cursor: default; }
+.tv-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 4px; }
+.tv-cal-dow { text-align: center; font-size: 10px; color: var(--muted); letter-spacing: 0.5px; padding-bottom: 6px; margin-bottom: 4px; border-bottom: 1px solid var(--border); }
+.tv-cal-day { height: 36px; background: transparent; border: none; padding: 0; color: var(--text); font-family: inherit; font-size: 13px; cursor: pointer; }
+.tv-cal-day span { display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid transparent; }
+.tv-cal-day:not(:disabled):not(.is-off):not(.is-back):hover span { background: var(--surface2); }
+.tv-cal-day.is-past { color: rgba(240,237,232,0.18); cursor: default; }
+.tv-cal-day.is-today span { border-color: var(--muted); }
+.tv-cal-day.is-in { background: rgba(232,70,58,0.14); }
+.tv-cal-day.is-off.has-end { background: linear-gradient(to right, transparent 50%, rgba(232,70,58,0.14) 50%); }
+.tv-cal-day.is-back { background: linear-gradient(to left, transparent 50%, rgba(232,70,58,0.14) 50%); }
+.tv-cal-day.is-off span { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tv-cal-day.is-back span { background: rgba(46,204,113,0.15); border-color: #2ecc71; color: #2ecc71; }
