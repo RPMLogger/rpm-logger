@@ -2300,7 +2300,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-main-t .win-sub { color: var(--muted); }
 .im-do-card .im-sub-head { margin: 40px 0 16px; }   /* small titles look like Checklist's (2026-10-15) */
 .im-do-card .im-main-head + .im-sub-head, .im-do-card .im-main-head + .im-hw-dock-box > .im-sub-head:first-child { margin-top: 0; }
-.im-sub-head .field-label { margin: 0; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }   /* typewriter like the buttons (2026-10-15) */
+.im-sub-head .field-label, .im-mat-row > .field-label { margin: 0; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }   /* typewriter like the buttons (2026-10-15) */
 .im-list.im-mat-sec { background: transparent; border: none; border-radius: 0; padding: 0; }
 #imHwDock .lh-hw-head { display: none; }   /* its buttons live on the sub-titles now */
 /* Video lesson / Link paste box and the links added (2026-10-15) */
@@ -2635,3 +2635,20 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #imMatNone { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
 #logHwPhoneBtn.pressed { opacity: .4; }
 #imMatNone .link-btn.pressed::after { content: "✓"; margin-left: 8px; }
+/* Log, Materials, Schedule each in a bordered box instead of dividers (2026-10-18) */
+.im-main-box { border: 1px solid var(--border); border-radius: 10px; padding: 24px 22px 26px; background: rgba(255,255,255,0.035); }   /* neutral fill, a little lighter than the window (2026-10-18) */
+.im-do-card .im-main-head { margin-bottom: 14px; }   /* titles sit just above their box */
+.im-main-box + .im-main-head { margin-top: 36px; }
+.im-main-box > .im-sub-head:first-child, .im-main-box > .im-hw-dock-box > .im-sub-head:first-child { margin-top: 0; }
+#imLogWin .im-main-box > .im-sched-box { margin-top: 0; margin-bottom: 0; }
+.im-mat-row { display: flex; align-items: center; gap: 12px; }   /* A. / B. before the Materials buttons (2026-10-18) */
+.im-mat-row > .im-sub-t { margin: 0; min-width: 18px; }
+#imLogWin #imMatNone .link-btn, #imLogWin #logHwVideoAddBtn, #imLogWin #logHwLinkAddBtn, #imLogWin #logPanel .im-log-foot #btnLog, #imLogWin .im-sub-head > #btnNoShow { color: color-mix(in srgb, #ffffff 60%, var(--muted)); border-color: color-mix(in srgb, #ffffff 25%, transparent); background: color-mix(in srgb, #ffffff 5%, transparent); }   /* A./B., Add, Log and No show faint white, not the box's grey (2026-10-18) */
+#imLogWin #imMatNone .link-btn:not(:disabled):hover, #imLogWin #logHwVideoAddBtn:not(:disabled):hover, #imLogWin #logHwLinkAddBtn:not(:disabled):hover, #imLogWin #logPanel .im-log-foot #btnLog:not(:disabled):hover, #imLogWin .im-sub-head > #btnNoShow:not(:disabled):hover { color: #ffffff; border-color: color-mix(in srgb, #ffffff 50%, transparent); background: color-mix(in srgb, #ffffff 10%, transparent); }
+#imLogWin .ll-rows .ll-row.active { outline: none; }   /* no light border on the mic row, matches the link boxes (2026-10-18) */
+/* A finished section (2026-10-18): ✓ after its title, title and box dim (its parts don't dim twice) */
+.im-main-box { transition: opacity .15s; }
+.im-main-box.im-sec-done, .im-main-head.im-sec-done { opacity: .25; transition: opacity .15s; }   /* title too, dimmer (2026-10-18) */
+.im-main-box.im-sec-done:hover { opacity: .7; }
+.im-main-box.im-sec-done .im-dim { opacity: 1; }
+.im-main-head.im-sec-done .im-main-t::after { content: "✓"; margin-left: 10px; }

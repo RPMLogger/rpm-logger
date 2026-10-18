@@ -437,6 +437,12 @@ function _imMailOpen(m) {
       '<button type="button" class="link-btn tl-mic" data-mic="' + id + '" data-tip="Starts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
       '<button type="button" class="ll-add" data-add="' + id + '" data-tip="Instant.&#10;Adds a row. Enter does too.&#10;Each row is a sentence.">' + llAddInner() + '</button></div>';
   }
+  // Lesson notes and HW start filled with the Log window's rows, one row each (user, 2026-10-18),
+  // so no reference list above them; a draft already typed here wins.
+  function prefill(draft, ref) {
+    if (Array.isArray(draft) ? draft.some(Boolean) : draft) return draft;
+    return (Array.isArray(ref) ? ref : String(ref || '').split(/\s*,\s*/)).filter(Boolean);
+  }
   // No Materials section (user, 2026-10-17): it fills itself from the Log window; the email still lists them (m.files, m.links).
   var body =
     // Bands (2026-10-16): the title row dark, then 1 and 3 lighter, 2 and 4 dark.
@@ -451,9 +457,9 @@ function _imMailOpen(m) {
       '<div class="im-mail-to"><div class="td-mini-row"><span class="td-mini-t">To:</span><span class="td-wk-name" id="imMailToShow">' + esc(dr.to || '…') + '</span></div>' +
         '<div class="td-mini-row"><span class="td-mini-t">Sbj:</span><span class="td-wk-name">Your Guitar Lesson Recap — ' + _ckDay(m.day) + '</span></div></div>' +
       '<hr class="divider im-mail-hr">' +
-      field('imMailLesson', 'A. Lesson notes', _imRowsFor(m, 'log', m.log), 'Dictate the lesson as sentences', dr.lesson, ' im-mail-log im-mail-band') +
+      field('imMailLesson', 'A. Lesson notes', null, 'Dictate the lesson as sentences', prefill(dr.lesson, _imRowsFor(m, 'log', m.log)), ' im-mail-log im-mail-band') +
       '<hr class="divider im-mail-hr">' +
-      field('imMailHw', 'B. HW', _imRowsFor(m, 'hw', m.hw), 'Dictate the practice as sentences', dr.hw, ' im-mail-log') +
+      field('imMailHw', 'B. HW', null, 'Dictate the practice as sentences', prefill(dr.hw, _imRowsFor(m, 'hw', m.hw)), ' im-mail-log') +
       '<hr class="divider im-mail-hr">' +
       field('imMailNotes', 'C. Notes <span class="im-mail-opt">(optional)</span>', null, 'Bring your capo next time…', dr.notes, ' im-mail-small im-mail-band') +
       // No line before the buttons (user, 2026-10-17).
@@ -684,8 +690,10 @@ function _imCtx() {
 function _imQ(id) { var r = _imCtx().root; return r ? r.querySelector('#' + id) : null; }
 
 function _imStepsRender() {
+  // The Checklist box is gone (2026-10-18, user doesn't look at it); this still
+  // dims finished sections and sends the lesson once all steps are ticked.
   var c = _imCtx(), el = _imQ('imSteps');
-  if (!el || !c.name || !window._imDocked) return;
+  if (!c.root || !c.name || !window._imDocked) return;
   var name = c.name, hw = logHw, st = activeStudent;
   var logged = !!(st && st.logged), sched = _imSchedGet(name, c.day);
   // A status list (2026-10-06), not buttons: each line ticks itself when its
@@ -701,7 +709,7 @@ function _imStepsRender() {
   ];
   if (!hw) steps.splice(1, 2);   // no HW question for this lesson (before HW tracking)
   // Circle + label on one line (2026-10-08, back from the Trial pills): done ones dim.
-  el.innerHTML = '<div class="im-checks">' + steps.map(function (x) {
+  if (el) el.innerHTML = '<div class="im-checks">' + steps.map(function (x) {
     return '<div class="im-check im-check-' + x.cls + (x.done ? ' done' : '') + '"><i class="im-tick"></i><span>' + inqEsc(x.label) + '</span></div>';
   }).join('') + '</div>';
   // A finished section dims (2026-10-08): Log lesson once logged, HW once
@@ -717,6 +725,12 @@ function _imStepsRender() {
   dim('im-hwtext-box', hwText);
   dim('im-hw-dock-box', !!(hw && hw.choice));
   dim('im-sched-box', !!sched);
+  // A finished section (2026-10-18): ✓ after its red title, its whole box dims.
+  var secs = c.root.querySelectorAll('.im-main-box'), secDone = [logged && (!hw || hwText), !!(hw && hw.choice), !!sched];
+  Array.prototype.forEach.call(secs, function (box, i) {
+    box.classList.toggle('im-sec-done', !!secDone[i]);
+    if (box.previousElementSibling) box.previousElementSibling.classList.toggle('im-sec-done', !!secDone[i]);
+  });
   var w = window._imWin;
   var all = logged && !!sched && (!hw || (hwText && !!hw.choice && !hw.loading && !hw.uploading));
   var pending = !!w && _imPending(w, hw), sending = !!(w && w.sending);
@@ -948,8 +962,8 @@ function _imHwOut() {
   var nb = document.getElementById('logHwNothing'), files = document.getElementById('logHwFiles');
   var br = document.querySelector('.lh-folder-btn'), db = document.getElementById('logHwDbxBtn');
   if (db && !db.querySelector('svg')) db.insertAdjacentHTML('afterbegin', DBX_LOGO.replace('class="win-icon"', 'class="lh-dbx-ico"'));
-  var nt = _imQ('imMatNone'), ft = _imQ('imMatFilesTools');
-  if (nb && nt && nb.parentNode !== nt) nt.insertBefore(nb, nt.firstChild);   // above Recorded on their phone
+  var nt = _imQ('imMatNoneSlot'), ft = _imQ('imMatFilesTools');
+  if (nb && nt && nb.parentNode !== nt) nt.appendChild(nb);   // A., above B. Recorded on their phone
   if (ft) [br, db].forEach(function (el) { if (el && el.parentNode !== ft) ft.appendChild(el); });
   var vs = document.getElementById('logHwVideo'), vd = _imQ('imMatVideo');
   if (vs && vd && vs.parentNode !== vd) vd.appendChild(vs);
@@ -1155,40 +1169,47 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
 function _imDoHtml(name, day) {
   var n = _auEsc(JSON.stringify(name));
   return (
-    _imSec('Checklist', '<span class="im-fin" id="imFinDone"></span>', ' im-steps-row', '<div id="imSteps"></div>') +
     // Three sections (2026-10-15): Log (the lesson and the HW), Materials
     // (what goes to them: nothing, files, video lesson links, web links), Schedule.
-    '<hr class="divider im-do-hr">' +
-    _imMainHead('1. Log', 'Lesson and HW', '', 'im-main-log') +
-    _imSub('A. Lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
-    _imSub('B. HW', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
-    '<hr class="divider im-do-hr">' +
-    _imMainHead('2. Materials', 'For practice', '', 'im-main-mat') +
+    // Each of the three sections sits in its own bordered box, its title above it, no dividers (2026-10-18).
+    _imMainHead('1. Log the lesson and HW', '', '', 'im-main-log') +   // all red (2026-10-18)
+    '<div class="im-main-box">' +
+      _imSub('A. Lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
+      _imSub('B. HW', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
+    '</div>' +
+    _imMainHead('2. Send practice materials', '', '', 'im-main-mat') +   // all red (2026-10-18)
+    '<div class="im-main-box">' +
     // The Log window's HW part (#logHw) is split over these (_imHwOut).
     '<div class="im-hw-dock-box">' +
       // Nothing to send is one button on top, no title of its own; it dims once pressed (user, 2026-10-17).
       // Recorded on their phone under it (2026-10-18): the student filmed the lesson; the email says so.
       // Either one, pressed, dims and shows a ✓ inside.
+      // Lettered A and B like the parts under them (2026-10-18): Files C, Video D, Web link E.
       '<div id="imMatNone" class="im-mat-none">' +
-        '<button type="button" class="link-btn lh-phone-btn" id="logHwPhoneBtn" data-toggle onclick="_imHwPhone()" data-tip="They filmed the lesson on their phone.&#10;Goes with files and links. Press again to undo." data-tip-left>Recorded on their phone</button>' +
+        '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">A.</label><span id="imMatNoneSlot"></span></div>' +
+        '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">B.</label>' +
+          '<button type="button" class="link-btn lh-phone-btn" id="logHwPhoneBtn" data-toggle onclick="_imHwPhone()" data-tip="They filmed the lesson on their phone.&#10;Goes with files and links. Press again to undo." data-tip-left>Recorded on their phone</button>' +
+        '</div>' +
       '</div>' +
-      _imSub('A. Files', '<span id="imMatFilesTools"></span>', ' im-mat-sec', '<div id="imHwDock"></div>') +
-      _imSub('B. Video lesson link', '', ' im-mat-sec', '<div id="imMatVideo"></div>') +
-      _imSub('C. Web link', '', ' im-mat-sec', '<div id="imMatLink"></div>') +
+      _imSub('C. Files', '<span id="imMatFilesTools"></span>', ' im-mat-sec', '<div id="imHwDock"></div>') +
+      _imSub('D. Video lesson link', '', ' im-mat-sec', '<div id="imMatVideo"></div>') +
+      _imSub('E. Web link', '', ' im-mat-sec', '<div id="imMatLink"></div>') +
+    '</div>' +
     '</div>' +
     // Schedule: Reschedule and Not needed side by side (2026-10-06); a click
     // ticks Schedule, again undoes it.
-    '<hr class="divider im-do-hr">' +
-    _imMainHead('3. Schedule', 'Adjustments') +
+    _imMainHead('3. Schedule adjustments') +   // all red, no grey subtitle (2026-10-18)
+    '<div class="im-main-box">' +
     '<div class="db-panel im-list im-sched-box">' +
       '<button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + n + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Reschedule</button>' +
       '<button class="link-btn im-rs-btn im-nochange' + (_imSchedGet(name, day) === 'nochange' ? ' pressed' : '') + '" id="imNoChangeBtn" data-toggle onclick="_imNoChangeToggle(' + n + ')" data-tip="Nothing to move or skip.\nPress again to undo.">Not needed</button>' +
+    '</div>' +
     '</div>');
 }
-// A main section's title: red, with a grey subtitle like the window title's.
+// A main section's title: red, with a grey subtitle like the window title's (none: all red).
 function _imMainHead(title, sub, right, cls) {
   return '<div class="db-cx-head im-sec-head im-main-head' + (cls ? ' ' + cls : '') + '"><label class="field-label db-cx-t im-main-t">' + title +
-    '<span class="win-sub"> · ' + sub + '</span></label>' + (right || '') + '</div>';
+    (sub ? '<span class="win-sub"> · ' + sub + '</span>' : '') + '</label>' + (right || '') + '</div>';
 }
 // A small white title inside a section, and its box.
 function _imSub(title, right, cls, inner) {
