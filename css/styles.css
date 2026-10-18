@@ -2491,7 +2491,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
    Reschedule. Ids beat the window's grey .td-look. */
 #imLogWin #logPanel .im-log-foot #btnLog, #imLogWin .im-sub-head > #btnNoShow { color: color-mix(in srgb, var(--green) 60%, var(--muted)); border-color: color-mix(in srgb, var(--green) 28%, transparent); background: color-mix(in srgb, var(--green) 3%, transparent); }   /* dim 2026-10-15: colour mixed with grey, faint border */
 #imLogWin #logPanel .im-log-foot #btnLog:not(:disabled):hover, #imLogWin .im-sub-head > #btnNoShow:not(:disabled):hover { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 9%, transparent); }
-#imLogWin #logPanel .im-log-foot #btnLog:disabled, #imLogWin .im-sub-head > #btnNoShow:disabled { opacity: .45; }
+#imLogWin #logPanel .im-log-foot #btnLog:disabled, #imLogWin .im-log-foot-all #btnLog:disabled, #imLogWin #imMatFinishBtn:disabled, #imLogWin .im-sub-head > #btnNoShow:disabled { opacity: .45; }
 #imLogWin #imMatFilesTools .link-btn { color: color-mix(in srgb, var(--blue) 60%, var(--muted)); border-color: color-mix(in srgb, var(--blue) 28%, transparent); background: color-mix(in srgb, var(--blue) 3%, transparent); }   /* dim 2026-10-15 */
 #imLogWin #imMatFilesTools .link-btn:not(:disabled):hover { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 55%, transparent); background: color-mix(in srgb, var(--blue) 9%, transparent); }
 #imLogWin .im-hw-dock-box .link-btn:disabled { opacity: .45; }   /* Yes and Add stay grey (2026-10-15); Browse + Open blue */
@@ -2643,12 +2643,16 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #imLogWin .im-main-box > .im-sched-box { margin-top: 0; margin-bottom: 0; }
 .im-mat-row { display: flex; align-items: center; gap: 12px; }   /* A. / B. before the Materials buttons (2026-10-18) */
 .im-mat-row > .im-sub-t { margin: 0; min-width: 18px; }
-#imLogWin #imMatNone .link-btn, #imLogWin #logHwVideoAddBtn, #imLogWin #logHwLinkAddBtn, #imLogWin #logPanel .im-log-foot #btnLog, #imLogWin .im-sub-head > #btnNoShow { color: color-mix(in srgb, #ffffff 60%, var(--muted)); border-color: color-mix(in srgb, #ffffff 25%, transparent); background: color-mix(in srgb, #ffffff 5%, transparent); }   /* A./B., Add, Log and No show faint white, not the box's grey (2026-10-18) */
-#imLogWin #imMatNone .link-btn:not(:disabled):hover, #imLogWin #logHwVideoAddBtn:not(:disabled):hover, #imLogWin #logHwLinkAddBtn:not(:disabled):hover, #imLogWin #logPanel .im-log-foot #btnLog:not(:disabled):hover, #imLogWin .im-sub-head > #btnNoShow:not(:disabled):hover { color: #ffffff; border-color: color-mix(in srgb, #ffffff 50%, transparent); background: color-mix(in srgb, #ffffff 10%, transparent); }
+#imLogWin #imMatNone .link-btn, #imLogWin #logHwVideoAddBtn, #imLogWin #logHwLinkAddBtn, #imLogWin #logPanel .im-log-foot #btnLog, #imLogWin .im-log-foot-all #btnLog, #imLogWin #imMatFinishBtn, #imLogWin .im-sub-head > #btnNoShow { color: color-mix(in srgb, #ffffff 60%, var(--muted)); border-color: color-mix(in srgb, #ffffff 25%, transparent); background: color-mix(in srgb, #ffffff 5%, transparent); }   /* A./B., Add, Log and No show faint white, not the box's grey (2026-10-18) */
+#imLogWin #imMatNone .link-btn:not(:disabled):hover, #imLogWin #logHwVideoAddBtn:not(:disabled):hover, #imLogWin #logHwLinkAddBtn:not(:disabled):hover, #imLogWin #logPanel .im-log-foot #btnLog:not(:disabled):hover, #imLogWin .im-log-foot-all #btnLog:not(:disabled):hover, #imLogWin #imMatFinishBtn:not(:disabled):hover, #imLogWin .im-sub-head > #btnNoShow:not(:disabled):hover { color: #ffffff; border-color: color-mix(in srgb, #ffffff 50%, transparent); background: color-mix(in srgb, #ffffff 10%, transparent); }
 #imLogWin .ll-rows .ll-row.active { outline: none; }   /* no light border on the mic row, matches the link boxes (2026-10-18) */
 /* A finished section (2026-10-18): ✓ after its title, title and box dim (its parts don't dim twice) */
 .im-main-box { transition: opacity .15s; }
 .im-main-box.im-sec-done, .im-main-head.im-sec-done { opacity: .25; transition: opacity .15s; }   /* title too, dimmer (2026-10-18) */
-.im-main-box.im-sec-done:hover { opacity: .7; }
 .im-main-box.im-sec-done .im-dim { opacity: 1; }
 .im-main-head.im-sec-done .im-main-t::after { content: "✓"; margin-left: 10px; }
+/* One Log for the lesson and HW, bottom right of section 1 (2026-10-18) */
+.im-log-foot-all { justify-content: flex-end; margin-top: 28px; }
+#imLogWin .im-log-foot-all #btnLog:disabled { cursor: default; }
+#imLogWin .im-dim:hover { opacity: .35; }   /* dimmed stays dimmed on hover (user, 2026-10-18) */
+#imLogWin #logPanel > #logAddRow { display: inline-flex; margin: 10px 0 0; }   /* left under the log rows, like HW's (Log moved under HW, 2026-10-18) */

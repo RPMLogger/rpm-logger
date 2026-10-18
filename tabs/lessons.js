@@ -377,6 +377,8 @@ function updateLogButton() {
   var hwOk = !logHw || (!!logHw.choice && !logHw.loading && !logHw.uploading);
   // Import's docked box: HW can be answered after Log (Finish logging, 2026-10-06).
   if (window._imDocked && logHw) hwOk = !logHw.loading && !logHw.uploading;
+  // One Log for the lesson and its HW (2026-10-18): both need something in them.
+  if (window._imDocked && logHw && !(activeStudent && activeStudent.hwOnly)) hwOk = hwOk && !!_hwRowsJoin();
   document.getElementById("btnLog").disabled = !(rowsOk && hwOk);
   if (window._imDocked && typeof _imStepsRender === "function") _imStepsRender();
 }
@@ -640,12 +642,16 @@ function _logHwTextFill(hw, text) {
 function logHwTextInput() {
   if (logHw && _hwRowsBox()) logHw.text = _hwRowsJoin();
   if (logHw && _hwRowsBox() && typeof _imRowsPut === "function") _imRowsPut("hw", llValues(_hwRowsBox()));
+  if (window._imDocked && activeStudent && !activeStudent.logged) updateLogButton();   // Log waits for HW too
 }
 // HW is required (2026-10-15): it counts as done once you leave the rows with
 // something in them (textSaved), not on each key, so the window can't save
 // and close while you're still typing.
 function logHwTextChanged() {
   logHwTextInput();
+  // Log lesson window (2026-10-18): HW ticks with the lesson when Log is pressed, not on leaving the rows
+  // (after a No show it still ticks here).
+  if (window._imDocked && activeStudent && !activeStudent.logged) return;
   if (!logHw || (logHw.text || "") === (logHw.textSaved || "")) return;
   logHw.textSaved = logHw.text;
   if (logHw.choice) logHw.dirty = true;   // else it goes with the materials answer when that's picked
@@ -656,7 +662,7 @@ var _hwRec = null;   // the What HW rows' dictation, apart from the log's
 function _hwMicStop() { if (_hwRec) { var r = _hwRec; _hwRec = null; r.onend = null; r.abort(); } }
 function toggleHwMic() {
   var box = _hwRowsBox(), mic = document.getElementById("logHwMic");
-  if (!box || !mic || !logHw || logHw.locked) return;
+  if (!box || !mic || !logHw || logHw.locked || logHw.textLocked) return;
   if (_hwRec) { _hwRec.stop(); return; }
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { _logState("Speech not supported. Use Chrome.", "var(--muted)"); return; }
@@ -786,7 +792,7 @@ function _logHwRender() {
   });
   llRows(_hwRowsBox()).forEach(function(el) { el.disabled = !!hw.locked; });
   var tm = document.getElementById("logHwMic");
-  if (tm) tm.disabled = !!hw.locked;
+  if (tm) tm.disabled = !!(hw.locked || hw.textLocked);
   if (window._imDocked && typeof _imStepsRender === "function") _imStepsRender();
 }
 

@@ -701,6 +701,14 @@ function _imStepsRender() {
   // The card's order (2026-10-15): Lesson log, HW log (the HW rows, required),
   // Materials sent (was "HW"), Schedule checked; green, green, blue, red.
   var hwText = !!(hw && hw.textSaved);
+  // Materials (2026-10-18): files / links / phone wait for Finish; Nothing to send is
+  // its own answer; one already in the sheet counts.
+  var matOk = !!(hw && hw.choice && (hw.choice === 'none' || hw.saved || hw.matDone));
+  var fb = _imQ('imMatFinishBtn');
+  if (fb) {
+    fb.disabled = !(hw && hw.choice === 'sent' && !hw.loading && !hw.uploading && !matOk);
+    fb.textContent = matOk && hw.choice === 'sent' ? 'Finished ✓' : 'Finish';
+  }
   var steps = [
     { label: 'Lesson log', cls: 'log', done: logged },
     { label: 'HW log', cls: 'hw', done: hwText },
@@ -723,16 +731,16 @@ function _imStepsRender() {
   // Dims the moment it's ticked (2026-10-09), not when Google answers.
   dim('im-log-box', logged);
   dim('im-hwtext-box', hwText);
-  dim('im-hw-dock-box', !!(hw && hw.choice));
+  dim('im-hw-dock-box', matOk);
   dim('im-sched-box', !!sched);
   // A finished section (2026-10-18): ✓ after its red title, its whole box dims.
-  var secs = c.root.querySelectorAll('.im-main-box'), secDone = [logged && (!hw || hwText), !!(hw && hw.choice), !!sched];
+  var secs = c.root.querySelectorAll('.im-main-box'), secDone = [logged && (!hw || hwText), matOk, !!sched];
   Array.prototype.forEach.call(secs, function (box, i) {
     box.classList.toggle('im-sec-done', !!secDone[i]);
     if (box.previousElementSibling) box.previousElementSibling.classList.toggle('im-sec-done', !!secDone[i]);
   });
   var w = window._imWin;
-  var all = logged && !!sched && (!hw || (hwText && !!hw.choice && !hw.loading && !hw.uploading));
+  var all = logged && !!sched && (!hw || (hwText && matOk && !hw.loading && !hw.uploading));
   var pending = !!w && _imPending(w, hw), sending = !!(w && w.sending);
   var fin = _imQ('imFinDone');
   // Finished: all four ticked and saved.
@@ -761,6 +769,17 @@ function _imPendLog(student, params, action) {
   if (lb) { lb.textContent = 'Logged ✓'; lb.className = 'link-btn green'; lb.disabled = true; }
   var ns = document.getElementById('btnNoShow');
   if (ns) ns.disabled = true;
+  // Log is for the lesson and its HW together (2026-10-18): the HW rows tick and lock with it.
+  // A No show leaves HW open, as before.
+  if (logHw && !params.noShow) {
+    _hwMicStop();
+    logHwTextInput();
+    if ((logHw.text || '') !== (logHw.textSaved || '')) { logHw.textSaved = logHw.text; if (logHw.choice) logHw.dirty = true; }
+    logHw.textLocked = true;
+    llLock(_hwRowsBox());
+    var hm = document.getElementById('logHwMic');
+    if (hm) hm.disabled = true;
+  }
   _imStepsRender();
 }
 // HW to save: answered here, or files picked up here, and not in the sheet yet.
@@ -888,6 +907,13 @@ function _imDone(name) {
   }, 1400);
 }
 
+// Finish (2026-10-18): the files / links / phone are all in; till then Materials stays open.
+function _imMatFinish() {
+  var hw = logHw;
+  if (!hw || hw.choice !== 'sent' || hw.loading || hw.uploading) return;
+  hw.matDone = true;
+  _imStepsRender();
+}
 // Nothing to send (2026-10-06): no materials this lesson. Only while nothing
 // else is picked (2026-10-15); again undoes it.
 function _imNothingToSend() {
@@ -973,12 +999,13 @@ function _imHwOut() {
   var ns = document.getElementById('btnNoShow'), lbox = _imQ('imLogDock');
   var lhead = lbox && lbox.parentNode && lbox.parentNode.previousElementSibling;
   if (ns && lhead && ns.parentNode !== lhead) lhead.appendChild(ns);
-  // Under the log rows (2026-10-08): add-row on the left, Log on the right.
-  var acts = document.getElementById('logActions'), add = document.getElementById('logAddRow'), dock = _imQ('imLogDock');
-  if (acts && add && dock && dock.contains(add)) {
-    var foot = dock.querySelector('.im-log-foot');
-    if (!foot) { foot = document.createElement('div'); foot.className = 'im-log-foot'; add.parentNode.insertBefore(foot, add); }
-    if (add.parentNode !== foot) foot.appendChild(add);
+  // Log at the bottom of 1. Log the lesson and HW, under HW (2026-10-18; was under the
+  // log rows): one button for both. The add-row stays under the log rows.
+  var acts = document.getElementById('logActions'), dock = _imQ('imLogDock');
+  var sec = dock && dock.closest('.im-main-box');
+  if (acts && sec) {
+    var foot = sec.querySelector(':scope > .im-log-foot');
+    if (!foot) { foot = document.createElement('div'); foot.className = 'im-log-foot im-log-foot-all'; sec.appendChild(foot); }
     if (acts.parentNode !== foot) foot.appendChild(acts);
   }
 }
@@ -1195,6 +1222,8 @@ function _imDoHtml(name, day) {
       _imSub('D. Video lesson link', '', ' im-mat-sec', '<div id="imMatVideo"></div>') +
       _imSub('E. Web link', '', ' im-mat-sec', '<div id="imMatLink"></div>') +
     '</div>' +
+    // Finish (2026-10-18): Materials waits for it, like Log for section 1.
+    '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn" id="imMatFinishBtn" onclick="_imMatFinish()" disabled data-tip="All files and links are in.&#10;Till then Materials stays open." data-tip-left>Finish</button></div>' +
     '</div>' +
     // Schedule: Reschedule and Not needed side by side (2026-10-06); a click
     // ticks Schedule, again undoes it.
