@@ -269,9 +269,10 @@ function submitLog(noShow) {
   rpmBusy(panel, btn, true);
 
   if (logHw && logHw.choice) {
-    params.hw = logHw.choice === "sent" && !logHw.filesOn && !logHw.links.length && logHw.videoOnly ? "video" : logHw.choice;
+    params.hw = logHw.choice === "sent" && !logHw.filesOn && !logHw.links.length && !logHw.phone && logHw.videoOnly ? "video" : logHw.choice;
     params.hwFiles = logHw.choice === "sent" && logHw.filesOn ? logHw.files.map(function(f) { return f.path; }).join("\n") : "";
     params.hwLinks = logHw.choice === "sent" ? logHw.links.map(function(l) { return l.kind + ": " + l.url; }).join("\n") : "";
+    params.hwPhone = logHw.choice === "sent" && logHw.phone ? "1" : "";
     params.hwText = logHw.text || "";
     logHw.locked = true; _logHwRender();
   }
@@ -589,23 +590,24 @@ function _logHwRestore(hw, ex) {
   hw.links = ((ex && ex.links) || []).slice();
   hw.filesOn = /Files|Sent/.test(m) && hw.files.length > 0;
   hw.videoOnly = /Video/.test(m) && !hw.links.some(function(l) { return l.kind === "Video"; });
+  hw.phone = /Phone/.test(m);   // recorded on their phone (2026-10-18)
   _logHwRecalc(hw);
 }
 function _logHwRecalc(hw) {
   if (!hw || hw.choice === "none") return;
   // The Log lesson window has no Send (2026-10-15): files in the zone count.
   if (window._imDocked) hw.filesOn = hw.files.length > 0;
-  hw.choice = hw.filesOn || hw.links.length || hw.videoOnly ? "sent" : null;
+  hw.choice = hw.filesOn || hw.links.length || hw.videoOnly || hw.phone ? "sent" : null;
 }
 // The HW answer as query params; pre: "" for saveHw, "hw" for logLesson's names (hwFiles…).
 function _logHwQuery(hw, pre) {
   var some = hw.choice === "sent";
   var files = some && hw.filesOn ? hw.files.map(function(f) { return f.path; }).join("\n") : "";
   var links = some ? hw.links.map(function(l) { return l.kind + ": " + l.url; }).join("\n") : "";
-  var c = some && !files && !links && hw.videoOnly ? "video" : hw.choice;
+  var c = some && !files && !links && !hw.phone && hw.videoOnly ? "video" : hw.choice;
   function k(n) { return pre ? pre + n.charAt(0).toUpperCase() + n.slice(1) : n; }
   return "&hw=" + c + "&" + k("files") + "=" + encodeURIComponent(files) + "&" + k("links") + "=" + encodeURIComponent(links) +
-    "&hwText=" + encodeURIComponent(hw.text || "");
+    "&" + k("phone") + "=" + (some && hw.phone ? "1" : "") + "&hwText=" + encodeURIComponent(hw.text || "");
 }
 
 // ── What HW (2026-10-15): the homework given, rows like the lesson log's ──
@@ -732,7 +734,7 @@ function logHwCheck() {
 function logHwPick(c) {
   if (!logHw || logHw.locked || logHw.loading) return;
   if (c === "sent" && !logHw.files.length) return;
-  if (c === "none") { logHw.choice = "none"; logHw.filesOn = false; logHw.links = []; logHw.videoOnly = false; }
+  if (c === "none") { logHw.choice = "none"; logHw.filesOn = false; logHw.links = []; logHw.videoOnly = false; logHw.phone = false; }
   else { logHw.choice = null; logHw.filesOn = true; _logHwRecalc(logHw); }
   _logHwRender(); updateLogButton();
 }
@@ -768,6 +770,8 @@ function _logHwRender() {
   if (nb) { nb.classList.toggle("pressed", none); nb.disabled = busy || hw.choice === "sent"; }
   var sb = document.getElementById("logHwSentBtn");
   if (sb) { sb.classList.toggle("pressed", !!hw.filesOn); sb.disabled = busy || none || !n; }
+  var pb = document.getElementById("logHwPhoneBtn");   // D. Recorded on their phone (2026-10-18)
+  if (pb) { pb.classList.toggle("pressed", !!hw.phone); pb.disabled = busy || none || !!hw.locked; }
   // Video lesson link / Web link: the paste boxes wait while None is on; each list shows its links.
   ["Video", "Link"].forEach(function(kind) {
     var inp = document.getElementById("logHw" + kind + "Input"), add = document.getElementById("logHw" + kind + "AddBtn");

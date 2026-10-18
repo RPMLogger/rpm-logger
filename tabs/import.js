@@ -386,12 +386,12 @@ function _imMailFromWin(w) {
   var hw = logHw, sent = hw.choice === 'sent';
   return { name: w.name, day: w.day,
     log: toSentenceCase(llValues(_logBox()).filter(Boolean).join(', ')), hw: hw.text || '',
-    files: !!(sent && hw.filesOn && hw.files.length), links: sent ? hw.links.slice() : [], none: hw.choice === 'none' };
+    files: !!(sent && hw.filesOn && hw.files.length), links: sent ? hw.links.slice() : [], phone: !!(sent && hw.phone), none: hw.choice === 'none' };
 }
 // The lesson, from a Lesson checklist entry (Audit / Students' Log lesson).
 function _imMailFromItem(name, it) {
   return { name: name, day: it.date, log: it.logText || '', hw: it.hwText || '',
-    files: !!(it.hwFiles && it.hwFiles.length), links: (it.hwLinks || []).slice(), none: /None/.test(it.hw || '') };
+    files: !!(it.hwFiles && it.hwFiles.length), links: (it.hwLinks || []).slice(), phone: /Phone/.test(it.hw || ''), none: /None/.test(it.hw || '') };
 }
 // The Log window's boxes, one per row (2026-10-17): the sheet joins them with
 // commas, so "b7, root" typed in one box came back as two lines. Kept in this
@@ -559,7 +559,7 @@ function _imMailParams(m) {
   return {
     name: m.name, lessonDate: m.day,
     lesson: _imMailText('imMailLesson'), hw: _imMailText('imMailHw'), notes: _imMailText('imMailNotes'),
-    links: m.links.map(function (l) { return l.kind + ': ' + l.url; }).join('\n'), files: m.files ? '1' : '0'
+    links: m.links.map(function (l) { return l.kind + ': ' + l.url; }).join('\n'), files: m.files ? '1' : '0', phone: m.phone ? '1' : '0'
   };
 }
 function _imMsgQuery(p) {
@@ -891,6 +891,14 @@ function _imHwSent() {
   hw.filesOn = !hw.filesOn;
   _imHwChanged();
 }
+// Recorded on their phone (2026-10-18): a materials answer of its own, with
+// files and links too; again undoes it.
+function _imHwPhone() {
+  var hw = logHw;
+  if (!hw || hw.loading || hw.saving || hw.choice === 'none' || hw.locked) return;
+  hw.phone = !hw.phone;
+  _imHwChanged();
+}
 // Video lesson link / Web link (2026-10-15): paste, Add (or Enter) puts it on
 // that list, × takes it off. Any number, with files too.
 function _imHwLinkAdd(kind) {
@@ -941,7 +949,7 @@ function _imHwOut() {
   var br = document.querySelector('.lh-folder-btn'), db = document.getElementById('logHwDbxBtn');
   if (db && !db.querySelector('svg')) db.insertAdjacentHTML('afterbegin', DBX_LOGO.replace('class="win-icon"', 'class="lh-dbx-ico"'));
   var nt = _imQ('imMatNone'), ft = _imQ('imMatFilesTools');
-  if (nb && nt && nb.parentNode !== nt) nt.appendChild(nb);
+  if (nb && nt && nb.parentNode !== nt) nt.insertBefore(nb, nt.firstChild);   // above Recorded on their phone
   if (ft) [br, db].forEach(function (el) { if (el && el.parentNode !== ft) ft.appendChild(el); });
   var vs = document.getElementById('logHwVideo'), vd = _imQ('imMatVideo');
   if (vs && vd && vs.parentNode !== vd) vd.appendChild(vs);
@@ -1159,7 +1167,11 @@ function _imDoHtml(name, day) {
     // The Log window's HW part (#logHw) is split over these (_imHwOut).
     '<div class="im-hw-dock-box">' +
       // Nothing to send is one button on top, no title of its own; it dims once pressed (user, 2026-10-17).
-      '<div id="imMatNone" class="im-mat-none"></div>' +
+      // Recorded on their phone under it (2026-10-18): the student filmed the lesson; the email says so.
+      // Either one, pressed, dims and shows a ✓ inside.
+      '<div id="imMatNone" class="im-mat-none">' +
+        '<button type="button" class="link-btn lh-phone-btn" id="logHwPhoneBtn" data-toggle onclick="_imHwPhone()" data-tip="They filmed the lesson on their phone.&#10;Goes with files and links. Press again to undo." data-tip-left>Recorded on their phone</button>' +
+      '</div>' +
       _imSub('A. Files', '<span id="imMatFilesTools"></span>', ' im-mat-sec', '<div id="imHwDock"></div>') +
       _imSub('B. Video lesson link', '', ' im-mat-sec', '<div id="imMatVideo"></div>') +
       _imSub('C. Web link', '', ' im-mat-sec', '<div id="imMatLink"></div>') +

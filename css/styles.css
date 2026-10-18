@@ -2630,3 +2630,8 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #imMailWin #imMailSend:hover { color: var(--green); border-color: color-mix(in srgb, var(--green) 60%, transparent); background: color-mix(in srgb, var(--green) 10%, transparent); }
 #imMailWin .im-mail-opt { color: rgba(255,255,255,0.24); }   /* (optional) as dark as the lines (user, 2026-10-17) */
 #imMailWin .im-mail-ref li::before, #imMailWin .im-mail-mat li::before { content: "– "; color: rgba(255,255,255,0.24); }   /* a dash, not a bullet (user, 2026-10-17) */
+/* Nothing to send + Recorded on their phone (2026-10-18): stacked on top of Materials;
+   whichever is pressed dims and shows a ✓ inside. */
+#imMatNone { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+#logHwPhoneBtn.pressed { opacity: .4; }
+#imMatNone .link-btn.pressed::after { content: "✓"; margin-left: 8px; }
