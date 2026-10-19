@@ -2660,44 +2660,105 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* Travel Plan (2026-10-18): Leaving + Arriving pickers over a two-month
    calendar; each follows the other. Off = accent, back = green. */
 .tv-cal { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px 20px 18px; margin-bottom: 14px; }
-.tv-cal-head { display: flex; justify-content: space-between; align-items: center; min-height: 30px; margin-bottom: 14px; }
+.tv-cal-head { display: flex; justify-content: space-between; align-items: center; min-height: 30px; margin-top: 14px; }   /* under the months (2026-10-18) */
 .tv-cal-hint { font-size: 13px; color: var(--text); }
 .tv-cal-muted { color: var(--muted); }
 .tv-off  { color: var(--accent); }
-.tv-back { color: #2ecc71; }
-.tv-cal-clear { background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: inherit; font-size: 11px; padding: 6px 12px; border-radius: var(--radius-pill); cursor: pointer; }
-.tv-cal-clear:hover { color: var(--text); }
+.tv-back { color: var(--green); }
+.tv-cal-btns { display: flex; gap: 8px; }
+/* the Calculate result: two numbers, Next on the right */
+.tv-sum { display: flex; align-items: center; gap: 32px; }
+.tv-sum .link-btn { margin-left: auto; }
+.tv-sum-num b { display: block; font-family: "Bebas Neue", sans-serif; font-size: 30px; font-weight: 400; letter-spacing: 1px; line-height: 1; color: var(--text); }
+.tv-sum-num.loss b { color: var(--accent); }
+.tv-sum-num span { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
 .tv-cal-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
-.tv-cal-pickers { margin-bottom: 18px; }
-.tv-cal-pickers > div { display: flex; flex-direction: column; align-items: center; }
-.tv-cal-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+.tv-dates { display: flex; justify-content: flex-start; gap: 10px; }
+.tv-dates-link i { display: inline-flex; }
+.tv-dates-link .dt-ico { width: 11px; height: 6px; fill: currentColor; }
+.tv-dates-link .l .dt-ico { transform: rotate(-90deg); }
+.tv-dates-link .r .dt-ico { transform: rotate(90deg); }
+.tv-dates-link { flex: none; align-self: center; display: inline-flex; align-items: center; gap: 2px; line-height: 0; color: color-mix(in srgb, var(--muted) 55%, transparent); }   /* the ▲▼'s colour */   /* left, under the section title (user, 2026-10-18) */
+.tv-date { display: flex; flex-direction: column; align-items: center; }
+/* full width: each date half stretches, the arrow stays narrow (user, 2026-10-18) */
+.tv-date-off, .tv-date-back { flex: 1; align-items: stretch; }
+/* Every part its own cell, a line between each (user, 2026-10-18):
+   Leaving on | date | Back on | date | Set. No top/bottom padding so the lines run edge to edge. */
+.tv-date-off .dtp-cell, .tv-date-back .dtp-cell { display: flex; align-items: stretch; padding: 0 6px 0 0; }
+.tv-dates .tv-date-off .dtp-val, .tv-dates .tv-date-back .dtp-val { padding-top: 9px; padding-bottom: 9px; color: rgba(240,237,232,0.72); }   /* whites dimmer (user, 2026-10-18) */
+.tv-dates .tv-date-off .dtp-val:hover, .tv-dates .tv-date-back .dtp-val:hover { color: #fff; }
+.tv-in-label { flex: none; display: flex; align-items: center; padding: 0 12px; border-right: 1px solid color-mix(in srgb, var(--muted) 35%, transparent); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+.tv-in-arrow { margin-left: 8px; }
+/* The label cells take the calendar's colours: Leaving on / First day off like the red
+   first-day-off circle, Back on / First day teaching like the green one; the dates
+   beside them have no fill (user, 2026-10-19; was a wash over each whole half). */
+.tv-date-off .dtp-cell, .tv-date-back .dtp-cell { background: transparent; }
+/* Leaving on / Back on grey; the red / green lives in the key under each box (user, 2026-10-19) */
+
+.tv-dates .tv-date > .dtp, .tv-dates .tv-date > .dtp > .dtp-box { display: flex; width: 100%; }
+.tv-dates .dtp-box { flex-direction: column; align-items: center; }
+.tv-dates .dtp-cell { align-self: stretch; border-color: var(--muted); }   /* the Lock button's border colour (user, 2026-10-19) */
+.tv-dates .dtp-chev { color: color-mix(in srgb, var(--muted) 55%, transparent); }   /* ▲▼ darker (user, 2026-10-18); white on hover still */
+.tv-dates .dtp-chev:hover { color: #fff; }
+.tv-dates .tv-date-off .dtp-val, .tv-dates .tv-date-back .dtp-val { width: 100%; }   /* each date centred in its half */
+/* Set: the frame's third part, the same width as a date, a line before it */
+.tv-dates-foot { display: flex; justify-content: flex-start; margin-top: 14px; }   /* Lock, left under the dates, over its numbers (user, 2026-10-19) */
+.tv-lock-sum { text-align: left; margin-top: 24px; font-size: 11px; color: var(--muted); min-height: 16px; }   /* what the locked days cost: grey words, red numbers, room under Lock (user, 2026-10-19) */
+.tv-lock-sum > div + div { margin-top: 6px; }
+.tv-lock-sum .rpm-loading { justify-content: flex-start; }   /* Counting lessons on the left too */
+.tv-lock-n { font-family: "Bebas Neue", sans-serif; font-size: 18px; letter-spacing: 1px; color: var(--warn); }   /* the counts amber, Trial's amber (user, 2026-10-19; were red) */
+.tv-lock-n.loss { color: var(--warn); }
+#travelSetBtn { display: inline-flex; align-items: center; gap: 7px; }   /* the Trial tab's plain link-btn, padlock in front (user, 2026-10-19) */
+/* one frame: the left box loses its right edge, the right box its left, the arrow both */
+.tv-date-off .dtp-cell  { border-radius: 7px; }   /* two rounded boxes side by side, a gap between (user, 2026-10-19) */
+.tv-date-back .dtp-cell { border-radius: 7px; }
+.tv-cal-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
 .tv-cal .dtp-val.on { background: transparent; }   /* both boxes one colour; ←→ still moves the keys */
-.tv-cal-title { position: relative; text-align: center; font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1px; margin-bottom: 8px; }
+.tv-cal-title { position: relative; text-align: center; font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; margin-bottom: 8px; color: rgba(240,237,232,0.72); }   /* the dates' softer white (user, 2026-10-19) */   /* under the 16px section title (user, 2026-10-18; was 20px) */
 .tv-cal-nav { position: absolute; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--muted); font-size: 22px; line-height: 1; padding: 2px 8px; cursor: pointer; font-family: inherit; }
 .tv-cal-nav.prev { left: 0; }
 .tv-cal-nav.next { right: 0; }
 .tv-cal-nav:hover:not(:disabled) { color: var(--text); }
 .tv-cal-nav:disabled { opacity: 0.2; cursor: default; }
 .tv-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 4px; }
-.tv-cal-dow { text-align: center; font-size: 10px; color: var(--muted); letter-spacing: 0.5px; padding-bottom: 6px; margin-bottom: 4px; border-bottom: 1px solid var(--border); }
-.tv-cal-day { height: 36px; background: transparent; border: none; padding: 0; color: var(--text); font-family: inherit; font-size: 13px; cursor: pointer; }
-.tv-cal-day span { display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid transparent; }
+.tv-cal-dow { text-align: center; font-size: 10px; color: var(--muted); letter-spacing: 1px; padding-bottom: 6px; margin-bottom: 4px; border-bottom: 1px solid var(--border); }
+.tv-cal-day { height: 36px; background: transparent; border: none; padding: 0; color: rgba(240,237,232,0.5); font-family: inherit; font-size: 13px; cursor: pointer; }   /* every day grey, the trip's too (user, 2026-10-18) */
+.tv-cal-day { position: relative; }
+/* The days-off band: opaque, so neighbouring days meet with no seam; the day's circle sits on top. */
+.tv-band { position: absolute; top: 50%; height: 32px; margin-top: -16px; background: color-mix(in srgb, #f0ede8 7%, var(--panel)); pointer-events: none; }
+.tv-cal-day span { position: relative; z-index: 1; display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid transparent; }
 .tv-cal-day:not(:disabled):not(.is-off):not(.is-back):hover span { background: var(--surface2); }
-.tv-cal-day.is-past { color: rgba(240,237,232,0.18); cursor: default; }
-.tv-cal-day.is-today span { border-color: var(--muted); }
-.tv-cal-day.is-in { background: rgba(232,70,58,0.14); }
-.tv-cal-day.is-off.has-end { background: linear-gradient(to right, transparent 50%, rgba(232,70,58,0.14) 50%); }
-.tv-cal-day.is-back { background: linear-gradient(to left, transparent 50%, rgba(232,70,58,0.14) 50%); }
-.tv-cal-day.is-buf { background: repeating-linear-gradient(135deg, rgba(232,70,58,0.22) 0 4px, rgba(232,70,58,0.06) 4px 8px); }
-.tv-cal-day.is-travel span { position: relative; }
-.tv-cal-day.is-travel span::after { content: ''; position: absolute; bottom: 3px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: currentColor; }
-.tv-cal-day.is-off span { background: var(--accent); border-color: var(--accent); color: #fff; }
-.tv-cal-day.is-back span { background: rgba(46,204,113,0.15); border-color: #2ecc71; color: #2ecc71; }
+.tv-cal-day.is-past { color: rgba(240,237,232,0.12); cursor: default; }   /* very dark */
+.tv-cal-day:not(:disabled):hover { color: var(--text); }
+.tv-cal-day.is-travel span { border-color: rgba(240,237,232,0.45); color: rgba(240,237,232,0.72); background: var(--panel); }   /* solid, so the band stops at its edge */   /* the day you leave / are back: a grey ring (was a dot) */
+.tv-cal-day.is-off span { background: var(--panel); border-color: color-mix(in srgb, var(--accent) 84%, transparent); color: color-mix(in srgb, var(--accent) 84%, transparent); }   /* a ring like the green one (user, 2026-10-18; was solid red) */
+.tv-cal-day.is-back span { background: var(--panel); border-color: var(--green); color: var(--green); }
+.tv-cal-day.is-sel span { box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 30%, transparent); }   /* the ring ← → moves */
 
-.tv-cal-legend { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); }
+.tv-cal-legend { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; margin-top: 26px; font-size: 10px; color: var(--muted); }   /* under the date row, above the divider; a step under the steps' 11px (user, 2026-10-19) */
 .tv-cal-legend span { display: inline-flex; align-items: center; gap: 7px; }
-.tv-cal-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
-.tv-cal-legend .lg-off  { background: var(--accent); }
-.tv-cal-legend .lg-buf  { border-radius: 3px; background: repeating-linear-gradient(135deg, rgba(232,70,58,0.5) 0 3px, rgba(232,70,58,0.12) 3px 6px); }
-.tv-cal-legend .lg-back { background: rgba(46,204,113,0.15); border: 1px solid #2ecc71; }
-.tv-cal-legend .lg-travel { width: 4px; height: 4px; margin: 0 4px; background: var(--text); }
+.tv-steps { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.tv-steps span { display: inline-flex; align-items: center; gap: 7px; }
+.tv-steps i { font-style: normal; width: 10px; }   /* as wide as a legend circle, so the words line up */
+.tv-cal-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.tv-cal-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.tv-buf-key { margin: -8px 0 44px; }   /* under Set buffer's line; room before the calendar (user, 2026-10-19) */
+.tv-cal .lg-off  { background: transparent; border: 1px solid color-mix(in srgb, var(--accent) 84%, transparent); }
+.tv-cal .lg-trip { background: transparent; border: 1px solid rgba(240,237,232,0.45); }   /* the Leave / Return ring */
+.tv-cal .lg-back { background: transparent; border: 1px solid var(--green); }
+
+/* Travel Plan sections (2026-10-18): 1. Set the dates, 2. Buffer — titled like
+   a window's sections, a rule between them. */
+.tv-cal .tv-sec-head { margin: 0 0 18px; }   /* room under the title (user, 2026-10-19) */
+#travelSetBtn.is-done:disabled { opacity: 0.35; cursor: default; }   /* Set pressed: dimmed, done */
+.tv-dates.is-locked { opacity: 0.35; transition: opacity .15s; }
+.tv-dates.is-locked:hover { opacity: 0.7; }   /* still steppable: a moved date unlocks */
+.tv-sec-icon { margin: -12px 0 24px; line-height: 0; }   /* under the how-to line (its 30px bottom margin, less a bit) */
+.tv-sec-icon .win-icon { height: 34px; }   /* bigger than a window icon (user, 2026-10-18) */
+.tv-sec-note { font-size: 11px; color: var(--muted); margin-bottom: 30px; }   /* how-to line under a section title */
+.tv-cal .tv-sec-rule { margin: 26px 0; }
+
+/* Travel Plan headings: the page title the grey section label, the section titles red (user, 2026-10-19; a red page title was tried and dropped). */
+
+/* The calendar in its own soft frame inside the card (user, 2026-10-19). */
+#travelCalMonths { border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px 18px 12px; }
