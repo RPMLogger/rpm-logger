@@ -2531,6 +2531,8 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .im-mail .im-msg-frame { margin-top: 22px; }
 .im-mail { position: relative; }
 .im-msg-frame { display: block; width: 100%; height: 420px; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
+.im-rs-win { position: relative; }
+.im-rs-win.im-done > *:not(.im-done-msg) { opacity: .3; pointer-events: none; transition: opacity .2s; }   /* Rescheduled ✓ over the Reschedule window (2026-10-19) */
 .im-mail.im-done > *:not(.im-done-msg) { opacity: .3; pointer-events: none; transition: opacity .2s; }   /* Done ✓ over the Email window (2026-10-16) */
 .im-msg-frame[hidden] { display: none; }
 /* Email window look (user, 2026-10-16): subject small text on top; Lesson notes

@@ -376,7 +376,8 @@ function updateLogButton() {
   var rowsOk = (activeStudent && activeStudent.hwOnly) || llValues(_logBox()).some(function(v) { return v; });
   var hwOk = !logHw || (!!logHw.choice && !logHw.loading && !logHw.uploading);
   // Import's docked box: HW can be answered after Log (Finish logging, 2026-10-06).
-  if (window._imDocked && logHw) hwOk = !logHw.loading && !logHw.uploading;
+  // Not while Dropbox uploads either (user, 2026-10-19): Log only ticks here; it all saves once the upload and Finish are done.
+  if (window._imDocked && logHw) hwOk = !logHw.loading;
   // One Log for the lesson and its HW (2026-10-18): both need something in them.
   if (window._imDocked && logHw && !(activeStudent && activeStudent.hwOnly)) hwOk = hwOk && !!_hwRowsJoin();
   document.getElementById("btnLog").disabled = !(rowsOk && hwOk);

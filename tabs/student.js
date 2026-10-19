@@ -781,7 +781,7 @@ function _stOpenSkipModal(studentName, lesson, opts) {
                               who: who, note: document.getElementById('stSkipNote').value.trim() },
       function(data) {
         w.remove();
-        if (opts.onDone) { opts.onDone(data); return; }
+        if (opts.onDone) { opts.onDone(data, 'Skipped'); return; }
         _stOpenCalendar();   // refresh the strip; the skipped lesson drops off
       },
       function(msg) {
@@ -862,7 +862,7 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
       who: who, note: document.getElementById('stRsNote').value.trim()
     }, function(data) {
       w.remove();
-      if (opts.onDone) { opts.onDone(data); return; }
+      if (opts.onDone) { opts.onDone(data, 'Rescheduled'); return; }
       _stOpenCalendar(); // refresh — lesson now sits on the new day
     }, function(msg) {
       rpmBusy(panel, btn, false); btn.textContent = 'Confirm move'; btn.disabled = false;

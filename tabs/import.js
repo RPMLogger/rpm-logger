@@ -1050,6 +1050,8 @@ function _imLogClosed() {
   window._imWin = null;
   var w = document.getElementById('imLogWin');
   if (w) w.remove();
+  var rs = document.getElementById('imRsWin');   // its Reschedule window too (2026-10-19): it stayed behind the Email window
+  if (rs) rs.remove();
   // Read the Lesson checklist again: Import's cards / button and Audit's list follow (2026-10-08).
   _ckLoad(function () { _ckRedraw(); });
 }
@@ -1416,7 +1418,8 @@ function _imRsLoad(name) {
       var byDate = {};
       data.lessons.forEach(function (l) { byDate[l.date] = l; });
       var today = _stToday(), monday = _stMondayOf(today);
-      var opts = { onDone: function () { _imSchedSet(name, 'changed'); _imRsLoad(name); } };
+      // Saved (user, 2026-10-19): "Rescheduled ✓" (or Skipped ✓) a moment, then the window goes, back to the Log window.
+      var opts = { onDone: function (d, what) { _imSchedSet(name, 'changed'); _imRsDone(what || 'Rescheduled'); } };
       box.innerHTML = '';
       var strips = document.createElement('div');
       strips.className = 'im-rs-strips';
@@ -1429,6 +1432,17 @@ function _imRsLoad(name) {
       var box = document.getElementById('imRsBody');
       if (box) box.innerHTML = '<div class="empty-state">No answer from Google.</div>';
     });
+}
+
+function _imRsDone(what) {
+  var w = document.getElementById('imRsWin'), p = w && w.querySelector('.st-win');
+  if (!p) return;
+  p.classList.add('im-done');
+  var msg = document.createElement('div');
+  msg.className = 'im-done-msg';
+  msg.textContent = what + ' ✓';
+  p.appendChild(msg);
+  setTimeout(function () { if (w.parentNode) w.remove(); }, 1200);
 }
 
 
