@@ -66,21 +66,24 @@ function _travelRenderPlan() {
     "<div class='tv-lock-sum' id='travelLockSum'></div>" +   // Lock's own count: the vacation days only
     "<hr class='divider tv-sec-rule'>" +
     head('Set buffer') +
-    "<div class='tv-sec-note tv-steps'><span><i>1.</i>Click the day you leave or the day you're back</span><span><i>2.</i>Use ← → to add buffer days</span></div>" +
+    "<div class='tv-buf-top'>" +   // steps left, the calendar's key on the right (user, 2026-10-19)
+    "<div class='tv-sec-note tv-steps'><span><i>1.</i>Click the day you leave or the day you're back</span><span><i>2.</i>Use keyboard arrows ← → to add buffer days</span></div>" +
     // The calendar's key lives here: first day off, first day teaching and buffer are all set in this section (user, 2026-10-19).
     "<div class='tv-cal-legend tv-buf-key'>" +
       "<span><i class='lg-trip'></i>Vacation dates</span>" +   // the grey Leave / Return ring (user, 2026-10-19)
       "<span><i class='lg-off'></i>First day off</span>" +
       "<span><i class='lg-back'></i>First day teaching</span>" +
     "</div>" +
+    "</div>" +
     // The calendar under it still follows the dates above.
     "<div class='tv-cal-cols' id='travelCalMonths'></div>" +
-    "<div class='tv-cal-head' id='travelCalHead'></div>" +
-    "<div class='tv-lock-sum' id='travelBufSum'></div>";   // what the buffer days cost
+    "<div class='tv-lock-sum' id='travelBufSum'></div>" +   // what the buffer days cost
+    "<div class='tv-cal-head' id='travelCalHead'></div>";   // Review → last, under the buffer tables (user, 2026-10-19)
   section.appendChild(cal);
 
   _travelRenderDateSpinner('travelLeavingSlot',  'Leave',  'leaving');
   _travelRenderDateSpinner('travelArrivingSlot', 'Return', 'arriving');
+  _travelYearShow();
   _travelRenderCal();
   _travelSetBtn();
   _travelMarkStale();
@@ -109,6 +112,11 @@ function _travelRenderDateSpinner(slotId, label, stateKey) {
     rpmDtpHtml(id, { date: _travelState[stateKey], noTime: true, year: true, min: 'today', group: 'travel', onChange: function() {
       var s = _travelState, ymd = rpmDtpGet(id).date;
       s[stateKey] = ymd;
+      // Leave pushed onto or past Return: Return goes along, a day after it (user, 2026-10-19; it stayed on today).
+      if (stateKey === 'leaving' && s.arriving <= ymd) {
+        s.arriving = _travelAddDays(ymd, 1);
+        rpmDtpSet('tvarriving', s.arriving);
+      }
       s.picked = true;                    // today counts as Leaving once either moves
       _travelDatesMoved();
       _travelShowMonth(ymd);
@@ -129,6 +137,7 @@ function _travelDatesMoved() {
   var s = _travelState;
   s.datesSet = false;
   s.bufKey = null;
+  s.bufPicked = { off: false, back: false };
   _travelLockSeq++;                   // a count still on its way is for the old dates: drop it
   _travelLockSum('');
   _travelBufSeq++;
@@ -136,6 +145,18 @@ function _travelDatesMoved() {
   s.firstOff = s.leaving;
   s.firstBack = _travelAddDays(s.arriving, 1);   // the Return day is a day off: teaching starts the day after (user, 2026-10-19)
   _travelSetBtn();
+  _travelYearShow();
+}
+
+// The year shows in the date boxes only when the trip runs into the next year,
+// Dec → Jan (user, 2026-10-19; was always shown).
+function _travelYearShow() {
+  var s = _travelState, cross = !!s.leaving && !!s.arriving && s.leaving.slice(0, 4) !== s.arriving.slice(0, 4);
+  ['tvleaving', 'tvarriving'].forEach(function (id) {
+    if (!_rpmDtp[id]) return;
+    _rpmDtp[id].o.year = cross;
+    rpmDtpPaint(id);
+  });
 }
 
 // Slide the two months so this day is on screen.
@@ -177,6 +198,18 @@ function _travelLockSum(html) {
   if (el) el.innerHTML = html;
 }
 
+// Days / Lessons / Revenue loss as a small table: grey labels over amber
+// numbers, three even centred columns (user, 2026-10-19; Calculate's count, then
+// each buffer side's too; were "13 days / 31 lessons · $3,060 revenue loss" lines).
+function _travelCountTable(days, n, revenue) {
+  var cell = function (label, val) { return "<div class='tv-lock-cell'><span class='tv-in-label'>" + label + "</span>" + val + "</div>"; };
+  return "<div class='tv-lock-table'>" +
+    cell('Days', "<span class='tv-lock-n'>" + days + "</span>") +
+    cell('Lessons', "<span class='tv-lock-n'" + (n ? '' : " style='color:var(--green)'") + ">" + (n || 0) + "</span>") +
+    cell('Revenue loss', "<span class='tv-lock-n loss'>$" + (revenue || 0).toLocaleString() + "</span>") +
+  "</div>";
+}
+
 function _travelLockCalc() {
   var s = _travelState, url = getScriptUrl();
   if (!url) return;
@@ -188,11 +221,7 @@ function _travelLockCalc() {
       if (mySeq !== _travelLockSeq) return;
       if (!data.success) { _travelLockSum("<span class='tv-cal-muted'>Couldn't count: " + _escapeHtml(data.message || 'unknown') + "</span>"); return; }
       var n = data.totalLessons || 0, d = _daysBetween(s.leaving, s.arriving) + 1;   // Leave and Return both counted
-      var days = "<div><span class='tv-lock-n'>" + d + "</span> day" + (d === 1 ? '' : 's') + "</div>";   // days on their own line
-      _travelLockSum(days + "<div>" + (n
-        ? "<span class='tv-lock-n'>" + n + "</span> lesson" + (n === 1 ? '' : 's') +
-          " <span class='tv-cal-muted'>·</span> <span class='tv-lock-n loss'>$" + (data.totalRevenue || 0).toLocaleString() + "</span> revenue loss"
-        : "<span style='color:var(--green)'>no lessons</span>") + "</div>");
+      _travelLockSum(_travelCountTable(d, n, data.totalRevenue));
     })
     .catch(function () {
       if (mySeq === _travelLockSeq) _travelLockSum("<span class='tv-cal-muted'>Connection failed</span>");
@@ -221,21 +250,13 @@ function _travelRenderCal() {
   var thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   if (!s.calMonth) s.calMonth = thisMonth;
 
-  var line;
-  if (!t.leaving)       line = "<span class='tv-cal-muted'>Pick the day you leave</span>";
-  else if (!t.arriving) line = "<span class='tv-cal-muted'>Now pick the day you arrive back</span>";
-  else {
-    var n = _daysBetween(t.off, t.back), bb = _daysBetween(t.off, t.leaving), ba = _daysBetween(t.arriving, t.back) - 1;   // after the Return day
-    var buf = [];
-    if (bb > 0) buf.push(bb + ' before');
-    if (ba > 0) buf.push(ba + ' after');
-    line = n + " day" + (n === 1 ? '' : 's') + " off" +
-           (buf.length ? "<span class='tv-cal-muted'> · buffer " + buf.join(', ') + "</span>" : "");
-  }
   head.innerHTML =
-    "<div class='tv-cal-hint'>" + line + "</div>" +
+    "<div class='tv-cal-hint'></div>" +   // no hint line (user, 2026-10-19: was "Pick the day you leave" / the days-off count)
     "<div class='tv-cal-btns'>" +
-      (t.back && s.datesSet ? "<button class='link-btn bright' id='travelReviewBtn' onclick='_travelGoReview()'>Review →</button>" : "") +
+      // Always shown; dimmed until Calculate is pressed and both rings, red and green, are clicked
+      // (no buffer is fine, but it's said by clicking) (user, 2026-10-19; was hidden till Calculate).
+      "<button class='link-btn bright' id='travelReviewBtn' onclick='_travelGoReview()'" +
+        (t.back && s.datesSet && s.bufPicked && s.bufPicked.off && s.bufPicked.back ? "" : " disabled") + ">Review →</button>" +
     "</div>";
 
   var rs = document.getElementById('travelResetSlot');
@@ -250,10 +271,11 @@ function _travelRenderCal() {
 function _travelMonthHtml(first, navSide, navOff, t) {
   var today = _dateToYmd(new Date()), locked = _travelState.datesSet, sel = _travelState.bufKey;
   // A ring shows once it's picked or moved off its travel day.
-  var showOff  = locked && t.off  && (t.off < t.leaving || sel === 'off');
-  var showBack = locked && t.back && (t.back > _travelAddDays(t.arriving, 1) || sel === 'back');
+  var bp = _travelState.bufPicked || {};
+  var showOff  = locked && t.off  && (t.off < t.leaving || sel === 'off' || bp.off);
+  var showBack = locked && t.back && (t.back > _travelAddDays(t.arriving, 1) || sel === 'back' || bp.back);
   var y = first.getFullYear(), m = first.getMonth();
-  var name = first.toLocaleDateString('en-US', { month: 'short' });   // "Oct": no year, the dates above carry it (user, 2026-10-19)
+  var name = first.toLocaleDateString('en-US', { month: 'short' });   // "Oct": short, no year, the dates above carry it (user, 2026-10-19; full names tried and dropped)
   var html =
     "<div class='tv-cal-month'>" +
       "<div class='tv-cal-title'>" +
@@ -330,6 +352,8 @@ function _travelPickDay(ymd) {
     // before it) the red first day off, the Return day (or a day after) the green
     // first day teaching (user, 2026-10-19).
     s.bufKey = ymd <= t.leaving ? 'off' : 'back';
+    s.bufPicked[s.bufKey] = true;                          // its ring stays once clicked: zero buffer is a choice too
+    _travelShowMonth(s.bufKey === 'off' ? s.firstOff : s.firstBack);   // the green ring can fall in the next month
     _rpmDtpLetGo();                                        // the keys leave the date boxes
     _travelRenderCal();
     _travelMarkStale();
@@ -353,6 +377,7 @@ function _travelStartToday() {
   s.picked = false;
   s.datesSet = false;
   s.bufKey = null;
+  s.bufPicked = { off: false, back: false };
 }
 
 function _travelClear() {
@@ -450,13 +475,10 @@ function _travelBufCalc() {
       if (mySeq !== _travelBufSeq) return;
       var bad = res.filter(function (d) { return !d.success; })[0];
       if (bad) { _travelBufSum("<span class='tv-cal-muted'>Couldn't count: " + _escapeHtml(bad.message || 'unknown') + "</span>"); return; }
-      _travelBufSum(ranges.map(function (r, i) {
-        var d = res[i], days = _daysBetween(r[1], r[2]), n = d.totalLessons || 0;
-        return "<div>" + r[0] + ": <span class='tv-lock-n'>" + days + "</span> day" + (days === 1 ? '' : 's') +
-          " <span class='tv-cal-muted'>·</span> " + (n
-            ? "<span class='tv-lock-n'>" + n + "</span> lesson" + (n === 1 ? '' : 's') +
-              " <span class='tv-cal-muted'>·</span> <span class='tv-lock-n loss'>$" + (d.totalRevenue || 0).toLocaleString() + "</span>"
-            : "<span style='color:var(--green)'>no lessons</span>") + "</div>";
+      _travelBufSum(ranges.map(function (r, i) {   // a captioned table per side
+        var d = res[i];
+        return "<div class='tv-buf-table'><div class='tv-lock-cap'>" + r[0] + "</div>" +
+          _travelCountTable(_daysBetween(r[1], r[2]), d.totalLessons || 0, d.totalRevenue) + "</div>";
       }).join(''));
     })
     .catch(function () { if (mySeq === _travelBufSeq) _travelBufSum("<span class='tv-cal-muted'>Connection failed</span>"); });

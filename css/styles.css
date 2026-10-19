@@ -2704,7 +2704,7 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .tv-dates .dtp-chev:hover { color: #fff; }
 .tv-dates .tv-date-off .dtp-val, .tv-dates .tv-date-back .dtp-val { width: 100%; }   /* each date centred in its half */
 /* Set: the frame's third part, the same width as a date, a line before it */
-.tv-dates-foot { display: flex; justify-content: flex-start; margin-top: 14px; }   /* Lock, left under the dates, over its numbers (user, 2026-10-19) */
+.tv-dates-foot { display: flex; justify-content: flex-start; margin-top: 30px; }   /* Lock, left under the dates, over its numbers (user, 2026-10-19) */
 .tv-lock-sum { text-align: left; margin-top: 24px; font-size: 11px; color: var(--muted); min-height: 16px; }   /* what the locked days cost: grey words, red numbers, room under Lock (user, 2026-10-19) */
 .tv-lock-sum > div + div { margin-top: 6px; }
 .tv-lock-sum .rpm-loading { justify-content: flex-start; }   /* Counting lessons on the left too */
@@ -2764,3 +2764,29 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 
 /* The calendar in its own soft frame inside the card (user, 2026-10-19). */
 #travelCalMonths { border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px 18px 12px; }
+.tv-cal-cols { position: relative; }
+.tv-cal-cols::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; border-left: 1px solid var(--border); }   /* a line between the two months (user, 2026-10-19) */
+.tv-cal-dow { position: relative; }   /* the line under M T W … runs to the frame and the middle line (user, 2026-10-19) */
+.tv-cal-dow:first-child::before, .tv-cal-dow:nth-child(7)::after { content: ''; position: absolute; bottom: -1px; width: 18px; border-bottom: 1px solid var(--border); }
+.tv-cal-dow:first-child::before { left: -18px; }
+.tv-cal-dow:nth-child(7)::after { right: -18px; }
+.tv-lock-table { display: inline-grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--border); border-radius: 7px; }   /* Calculate's counts as a small table (user, 2026-10-19) */
+.tv-lock-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 18px; }   /* centred, all three as wide as the widest (user, 2026-10-19) */
+.tv-lock-cell + .tv-lock-cell { border-left: 1px solid var(--border); }
+.tv-lock-cell .tv-in-label { padding: 0; border: none; }
+.tv-lock-cell .tv-lock-n { font-size: 22px; line-height: 1; }
+.tv-lock-cap { font-size: 11px; color: var(--muted); margin-bottom: 8px; }   /* "Pre buffer" / "Post buffer" over its table */
+.tv-lock-sum > .tv-buf-table + .tv-buf-table { margin-top: 16px; }
+.tv-buf-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-bottom: 44px; }   /* Set buffer's steps left, legend right (user, 2026-10-19) */
+.tv-buf-top .tv-sec-note, .tv-buf-top .tv-buf-key { margin: 0; }
+.tv-buf-key span { letter-spacing: 0.8px; }   /* the date boxes' spacing, the grey kept (user, 2026-10-19) */
+#travelSetBtn.link-btn.red { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 55%, transparent); background: color-mix(in srgb, var(--warn) 7%, transparent); }   /* Calculate amber, like its numbers (user, 2026-10-19; was red) */
+#travelSetBtn.link-btn.red:hover:not(:disabled) { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 16%, transparent); }
+#travelReviewBtn:disabled { opacity: 0.35; cursor: default; }   /* there but dimmed until the dates and buffer are set (user, 2026-10-19) */
+/* The date boxes hug their text: even room each side of the date, both boxes one width (user, 2026-10-19; each stretched to half the card) */
+.tv-dates .tv-date-off, .tv-dates .tv-date-back { flex: none; }
+.tv-dates .tv-date-off .dtp-val, .tv-dates .tv-date-back .dtp-val { padding-left: 18px; padding-right: 18px; min-width: 15ch; box-sizing: content-box; }
+.tv-dates .tv-date-off .dtp-cell, .tv-dates .tv-date-back .dtp-cell { padding-right: 0; }
+.tv-dates .tv-in-label { min-width: 82px; box-sizing: border-box; }   /* LEAVE → as wide as RETURN →, so the boxes match */
+#travelReviewBtn.link-btn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 55%, transparent); background: color-mix(in srgb, var(--warn) 7%, transparent); }   /* Review amber, like Calculate (user, 2026-10-19; was white) */
+#travelReviewBtn.link-btn:hover:not(:disabled) { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 16%, transparent); }
