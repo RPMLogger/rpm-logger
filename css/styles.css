@@ -2783,10 +2783,10 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 #travelSetBtn.link-btn.red { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 55%, transparent); background: color-mix(in srgb, var(--warn) 7%, transparent); }   /* Calculate amber, like its numbers (user, 2026-10-19; was red) */
 #travelSetBtn.link-btn.red:hover:not(:disabled) { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 16%, transparent); }
 #travelReviewBtn:disabled { opacity: 0.35; cursor: default; }   /* there but dimmed until the dates and buffer are set (user, 2026-10-19) */
-/* The date boxes hug their text: even room each side of the date, both boxes one width (user, 2026-10-19; each stretched to half the card) */
-.tv-dates .tv-date-off, .tv-dates .tv-date-back { flex: none; }
-.tv-dates .tv-date-off .dtp-val, .tv-dates .tv-date-back .dtp-val { padding-left: 18px; padding-right: 18px; min-width: 15ch; box-sizing: content-box; }
+/* The date boxes fill the card again, half each (user, 2026-10-19; hugging the text was tried) */
 .tv-dates .tv-date-off .dtp-cell, .tv-dates .tv-date-back .dtp-cell { padding-right: 0; }
-.tv-dates .tv-in-label { min-width: 82px; box-sizing: border-box; }   /* LEAVE → as wide as RETURN →, so the boxes match */
+.tv-dates .tv-in-label { min-width: 95px; box-sizing: border-box; }   /* BACK ON as wide as LEAVING ON, so both dates sit alike */
 #travelReviewBtn.link-btn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 55%, transparent); background: color-mix(in srgb, var(--warn) 7%, transparent); }   /* Review amber, like Calculate (user, 2026-10-19; was white) */
 #travelReviewBtn.link-btn:hover:not(:disabled) { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 16%, transparent); }
+.tv-dates { gap: 16px; }   /* just a gap between the boxes, no < > (user, 2026-10-19) */
+.tv-dates .tv-date-off .dtp-val, .tv-dates .tv-date-back .dtp-val { text-transform: uppercase; }   /* MON, OCT 19 (user, 2026-10-19) */

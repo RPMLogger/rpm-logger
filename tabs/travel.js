@@ -51,8 +51,7 @@ function _travelRenderPlan() {
   var pair = function (a, b) {
     return "<div class='tv-dates'>" +
       "<div id='" + a + "' class='tv-date tv-date-off'></div>" +
-      // between the boxes: two of the ▲▼ chevron tips turned outwards, < >, no line (user, 2026-10-19; was ⟷)
-      "<span class='tv-dates-link' aria-hidden='true'><i class='l'>" + dtArrow(1) + "</i><i class='r'>" + dtArrow(1) + "</i></span>" +
+      // nothing between the boxes (user, 2026-10-19; the < > chevron tips came off, ⟷ before that)
       "<div id='" + b + "' class='tv-date tv-date-back'></div>" +
     "</div>";
   };
@@ -67,7 +66,7 @@ function _travelRenderPlan() {
     "<hr class='divider tv-sec-rule'>" +
     head('Set buffer') +
     "<div class='tv-buf-top'>" +   // steps left, the calendar's key on the right (user, 2026-10-19)
-    "<div class='tv-sec-note tv-steps'><span><i>1.</i>Click the day you leave or the day you're back</span><span><i>2.</i>Use keyboard arrows ← → to add buffer days</span></div>" +
+    "<div class='tv-sec-note tv-steps'><span><i>1.</i>Click on the dates to activate buffer</span><span><i>2.</i>Use keyboard arrows to add buffer days</span></div>" +
     // The calendar's key lives here: first day off, first day teaching and buffer are all set in this section (user, 2026-10-19).
     "<div class='tv-cal-legend tv-buf-key'>" +
       "<span><i class='lg-trip'></i>Vacation dates</span>" +   // the grey Leave / Return ring (user, 2026-10-19)
@@ -81,8 +80,8 @@ function _travelRenderPlan() {
     "<div class='tv-cal-head' id='travelCalHead'></div>";   // Review → last, under the buffer tables (user, 2026-10-19)
   section.appendChild(cal);
 
-  _travelRenderDateSpinner('travelLeavingSlot',  'Leave',  'leaving');
-  _travelRenderDateSpinner('travelArrivingSlot', 'Return', 'arriving');
+  _travelRenderDateSpinner('travelLeavingSlot',  'Leaving on', 'leaving');   // user, 2026-10-19 (was Leave / Return)
+  _travelRenderDateSpinner('travelArrivingSlot', 'Back on',    'arriving');
   _travelYearShow();
   _travelRenderCal();
   _travelSetBtn();
@@ -126,7 +125,7 @@ function _travelRenderDateSpinner(slotId, label, stateKey) {
   // The label sits in the box, before the date (2026-10-18; was a row above it).
   var cell = wrap.querySelector('.dtp-cell');
   if (!cell) return;
-  cell.insertAdjacentHTML('afterbegin', "<span class='tv-in-label'>" + label + "<span class='tv-in-arrow'>→</span></span>");   // pointing at its date
+  cell.insertAdjacentHTML('afterbegin', "<span class='tv-in-label'>" + label + "</span>");   // no → after it (user, 2026-10-19)
   // ▲▼ over the date, not the middle of the box: shift them half the label's width (user, 2026-10-19).
   var shift = (cell.firstChild.offsetWidth - 6) / 2;   // less the box's 6px right padding
   wrap.querySelectorAll('.dtp-chev').forEach(function (c) { c.style.transform = 'translateX(' + shift + 'px)'; });
