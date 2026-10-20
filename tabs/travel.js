@@ -225,7 +225,8 @@ function _travelSumRender() {
   el.innerHTML =
     "<div class='tv-sum-card'>" +
       "<div class='tv-sum-row tv-sum-cols'><span></span><span>Days</span><span>Lessons</span><span>Revenue loss</span></div>" +
-      row('Vacation', m.trip) + row('Pre buffer', m.pre, 'tv-sum-buf') + row('Post buffer', m.post, 'tv-sum-buf') + row('Total', total, 'tv-sum-total') +
+      // Total first, then Vacation, then the buffers (user, 2026-10-20; Total was last)
+      row('Total', total, 'tv-sum-total') + row('Vacation', m.trip) + row('Pre buffer', m.pre, 'tv-sum-buf') + row('Post buffer', m.post, 'tv-sum-buf') +
     "</div>" +
     (errs.length ? "<div class='tv-cal-muted tv-sum-err'>Couldn't count: " + _escapeHtml(errs[0]) + "</div>" : "");
 }
