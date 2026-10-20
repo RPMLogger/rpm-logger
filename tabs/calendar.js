@@ -354,7 +354,7 @@ function _calInjectStyle() {
     "#calBody,#calGoogle{width:min(1200px,calc(100vw - 40px));position:relative;left:50%;transform:translateX(-50%)}" +
     ".cal-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}" +
     ".cal-btn{padding:6px 12px;font-size:12px;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:inherit}" +
-    ".cal-btn:hover{border-color:#555}" +
+    ".cal-btn:hover:where(:not(:disabled)){border-color:#555}" +
     ".cal-btn-go{background:var(--accent);border-color:var(--accent);color:#fff}" +
     ".cal-range{font-size:13px;letter-spacing:1px;min-width:140px;text-align:center}" +
     ".cal-legend{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);margin-left:8px}" +
