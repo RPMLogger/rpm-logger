@@ -290,10 +290,11 @@ function _travelRenderCal() {
 
 function _travelMonthHtml(first, navSide, navOff, t) {
   var today = _dateToYmd(new Date()), locked = _travelState.datesSet, sel = _travelState.bufKey;
-  // A ring shows once it's picked or moved off its travel day.
-  var bp = _travelState.bufPicked || {};
-  var showOff  = locked && t.off  && (t.off < t.leaving || sel === 'off' || bp.off);
-  var showBack = locked && t.back && (t.back > _travelAddDays(t.arriving, 1) || sel === 'back' || bp.back);
+  // The red and green rings show as soon as Calculate is pressed, on their
+  // starting days (first day off = Leaving on, first day teaching = the day after
+  // Back on) (user, 2026-10-20; they waited for a click before).
+  var showOff  = locked && !!t.off;
+  var showBack = locked && !!t.back;
   var y = first.getFullYear(), m = first.getMonth();
   var name = first.toLocaleDateString('en-US', { month: 'short' });   // "Oct": short, no year, the dates above carry it (user, 2026-10-19; full names tried and dropped)
   var html =
