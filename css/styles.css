@@ -2705,11 +2705,6 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 .tv-dates .tv-date-off .dtp-val, .tv-dates .tv-date-back .dtp-val { width: 100%; }   /* each date centred in its half */
 /* Set: the frame's third part, the same width as a date, a line before it */
 .tv-dates-foot { display: flex; justify-content: flex-start; margin-top: 30px; }   /* Lock, left under the dates, over its numbers (user, 2026-10-19) */
-.tv-lock-sum { text-align: left; margin-top: 24px; font-size: 11px; color: var(--muted); min-height: 16px; }   /* what the locked days cost: grey words, red numbers, room under Lock (user, 2026-10-19) */
-.tv-lock-sum > div + div { margin-top: 6px; }
-.tv-lock-sum .rpm-loading { justify-content: flex-start; }   /* Counting lessons on the left too */
-.tv-lock-n { font-family: "Bebas Neue", sans-serif; font-size: 18px; letter-spacing: 1px; color: var(--warn); }   /* the counts amber, Trial's amber (user, 2026-10-19; were red) */
-.tv-lock-n.loss { color: var(--warn); }
 #travelSetBtn { display: inline-flex; align-items: center; gap: 7px; }   /* the Trial tab's plain link-btn, padlock in front (user, 2026-10-19) */
 /* one frame: the left box loses its right edge, the right box its left, the arrow both */
 .tv-date-off .dtp-cell  { border-radius: 7px; }   /* two rounded boxes side by side, a gap between (user, 2026-10-19) */
@@ -2765,28 +2760,47 @@ a.win-row:hover, .win-row.opens:hover { border-color: var(--muted); color: var(-
 /* The calendar in its own soft frame inside the card (user, 2026-10-19). */
 #travelCalMonths { border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px 18px 12px; }
 .tv-cal-cols { position: relative; }
-.tv-cal-cols::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; border-left: 1px solid var(--border); }   /* a line between the two months (user, 2026-10-19) */
-.tv-cal-dow { position: relative; }   /* the line under M T W … runs to the frame and the middle line (user, 2026-10-19) */
-.tv-cal-dow:first-child::before, .tv-cal-dow:nth-child(7)::after { content: ''; position: absolute; bottom: -1px; width: 18px; border-bottom: 1px solid var(--border); }
-.tv-cal-dow:first-child::before { left: -18px; }
-.tv-cal-dow:nth-child(7)::after { right: -18px; }
-.tv-lock-table { display: inline-grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--border); border-radius: 7px; }   /* Calculate's counts as a small table (user, 2026-10-19) */
-.tv-lock-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 18px; }   /* centred, all three as wide as the widest (user, 2026-10-19) */
-.tv-lock-cell + .tv-lock-cell { border-left: 1px solid var(--border); }
-.tv-lock-cell .tv-in-label { padding: 0; border: none; }
-.tv-lock-cell .tv-lock-n { font-size: 22px; line-height: 1; }
-.tv-lock-cap { font-size: 11px; color: var(--muted); margin-bottom: 8px; }   /* "Pre buffer" / "Post buffer" over its table */
-.tv-lock-sum > .tv-buf-table + .tv-buf-table { margin-top: 16px; }
+.tv-cal-cols::before { content: ''; position: absolute; top: 16px; bottom: 12px; left: 50%; border-left: 1px solid var(--border); }   /* a line between the two months, short of the frame (user, 2026-10-19) */
 .tv-buf-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-bottom: 44px; }   /* Set buffer's steps left, legend right (user, 2026-10-19) */
 .tv-buf-top .tv-sec-note, .tv-buf-top .tv-buf-key { margin: 0; }
-.tv-buf-key span { letter-spacing: 0.8px; }   /* the date boxes' spacing, the grey kept (user, 2026-10-19) */
-#travelSetBtn.link-btn.red { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 55%, transparent); background: color-mix(in srgb, var(--warn) 7%, transparent); }   /* Calculate amber, like its numbers (user, 2026-10-19; was red) */
-#travelSetBtn.link-btn.red:hover:not(:disabled) { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 16%, transparent); }
+.tv-buf-key span { letter-spacing: 1px; text-transform: uppercase; }   /* LEAVING ON / BACK ON's lettering, in caps, the grey kept (user, 2026-10-19) */
 #travelReviewBtn:disabled { opacity: 0.35; cursor: default; }   /* there but dimmed until the dates and buffer are set (user, 2026-10-19) */
 /* The date boxes fill the card again, half each (user, 2026-10-19; hugging the text was tried) */
 .tv-dates .tv-date-off .dtp-cell, .tv-dates .tv-date-back .dtp-cell { padding-right: 0; }
 .tv-dates .tv-in-label { min-width: 95px; box-sizing: border-box; }   /* BACK ON as wide as LEAVING ON, so both dates sit alike */
-#travelReviewBtn.link-btn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 55%, transparent); background: color-mix(in srgb, var(--warn) 7%, transparent); }   /* Review amber, like Calculate (user, 2026-10-19; was white) */
-#travelReviewBtn.link-btn:hover:not(:disabled) { color: var(--warn); border-color: var(--warn); background: color-mix(in srgb, var(--warn) 16%, transparent); }
 .tv-dates { gap: 16px; }   /* just a gap between the boxes, no < > (user, 2026-10-19) */
 .tv-dates .tv-date-off .dtp-val, .tv-dates .tv-date-back .dtp-val { text-transform: uppercase; }   /* MON, OCT 19 (user, 2026-10-19) */
+.tv-dates .tv-in-label { background: color-mix(in srgb, var(--muted) 22%, var(--panel)); color: rgba(240,237,232,0.72); border-right-color: transparent; border-radius: 6px 0 0 6px; }   /* LEAVING ON / BACK ON a solid tab, set apart from the date (user, 2026-10-19) */
+.tv-sec-icon.tv-icon-top { margin: 0 0 22px; }   /* the suitcase first, under the title, then the steps */
+/* Cost analysis: one card like the Students tab's, a line per row (user, 2026-10-19; was a table, then a card per row).
+   Name left, Days / Lessons / Revenue loss right; buffers smaller and dimmer, Total amber. */
+#travelSumTable { margin-top: 0; }
+.tv-sum-card { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid #3d5f8f; border-radius: 10px; padding: 2px 14px; }
+.tv-sum-row { display: grid; grid-template-columns: 1fr 70px 80px 120px; align-items: center; padding: 11px 0; font-size: 13px; color: rgba(240,237,232,0.72); letter-spacing: 0.5px; }
+.tv-sum-row + .tv-sum-row { border-top: 1px solid var(--border); }
+.tv-sum-row > span:not(.tv-sum-name) { text-align: right; }
+.tv-sum-row.tv-sum-cols { padding: 10px 0 8px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.tv-sum-name, .tv-sum-row.tv-sum-buf .tv-sum-name { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }   /* row names in the header row's lettering (user, 2026-10-19) */
+.tv-sum-row.tv-sum-buf { padding: 7px 0; font-size: 11px; color: rgba(240,237,232,0.5); }
+.tv-sum-row.tv-sum-total { color: var(--warn); }
+.tv-sum-none { color: color-mix(in srgb, var(--muted) 60%, transparent); }
+.tv-sum-err { font-size: 11px; margin-top: 8px; }
+.tv-cal .tv-sec-rule.tv-cost-rule { margin-top: 40px; }   /* more room: calendar → divider, title → card, card → Review (user, 2026-10-19) */
+.tv-cost-head .tv-sec-head { margin-bottom: 26px; }
+#travelSumTable + .tv-cal-head { margin-top: 28px; }
+.tv-sum-card { padding: 0; }
+.tv-sum-row, .tv-sum-row.tv-sum-cols, .tv-sum-row.tv-sum-buf { height: 40px; padding: 0 14px; }   /* lines run the card's full width */   /* every row the same height (user, 2026-10-19); buffers keep their smaller numbers */
+.tv-sum-card { background: transparent; border: 1px solid #3d5f8f; }   /* no card fill, a steel-blue frame all round (user, 2026-10-19) */
+/* Column lines too (user, 2026-10-19): each cell runs the row's height, a line before each number column */
+.tv-sum-row, .tv-sum-row.tv-sum-cols, .tv-sum-row.tv-sum-buf { padding: 0; align-items: stretch; grid-template-columns: 1fr 80px 90px 130px; }
+.tv-sum-row > span { display: flex; align-items: center; padding: 0 14px; }
+.tv-sum-row > span:not(.tv-sum-name) { justify-content: flex-end; border-left: 1px solid var(--border); }
+.tv-sum-row.tv-sum-cols > span:first-child { border-left: none; }
+.tv-sum-card { border-color: color-mix(in srgb, var(--warn) 55%, transparent); }   /* amber frame, like Calculate / Review's border (user, 2026-10-19; was steel blue) */
+#travelCalMonths { border-color: #3d5f8f; }   /* calendar frame steel blue (user, 2026-10-19) */
+.tv-dates .dtp-cell { border-color: color-mix(in srgb, var(--warn) 55%, transparent); }   /* Leaving on / Back on boxes amber, like Calculate (user, 2026-10-19; were grey) */
+/* The coloured frames, dim (user, 2026-10-19): date boxes blue, calendar red, Cost analysis amber */
+.tv-sum-card { border-color: color-mix(in srgb, var(--warn) 30%, transparent); }
+.tv-dates .dtp-cell { border-color: color-mix(in srgb, #3d5f8f 60%, transparent); }   /* date boxes blue, calendar red (user, 2026-10-19) */
+#travelCalMonths { border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.tv-dates-foot { justify-content: flex-end; }   /* Calculate bottom right, like Review; both red again (user, 2026-10-19) */
