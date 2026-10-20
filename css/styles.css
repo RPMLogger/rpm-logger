@@ -2830,3 +2830,17 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .tv-cal-day span { width: 28px; height: 28px; }
 .tv-band { height: 28px; margin-top: -14px; }
 .tv-sum-cols + .tv-sum-row { border-top-width: 2px; } .tv-sum-row > span:nth-child(2) { border-left-width: 2px; }   /* header row and name column set off by the frame's 2px (user, 2026-10-20) */
+
+/* Travel Plan review cards (2026-10-20): Dates as one row of cells like the
+   Counter grid on Payments Audit — 60% border, no tinted fill (user, 2026-10-20). */
+.tv-rv-dates { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }   /* bottoms in line: Resume has its word on top */
+.tv-rv-dcell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.tv-rv-dcell span { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+.tv-rv-dcell b { font-weight: 400; font-size: 11px; min-width: 74px; padding: 7px 12px; box-sizing: border-box; text-align: center; border-radius: 6px; white-space: nowrap; }
+.tv-rv-dcell .tv-c-before, .tv-rv-key .tv-c-before { color: var(--green); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--green) 60%, transparent); }   /* before the trip green, skips red, like the Counter (user, 2026-10-20) */
+.tv-rv-dcell .tv-c-skip, .tv-rv-key .tv-c-skip { color: #ff5a4d; box-shadow: inset 0 0 0 1px color-mix(in srgb, #ff5a4d 60%, transparent); }
+.tv-rv-dcell .tv-c-resume { color: var(--green); background: color-mix(in srgb, var(--green) 14%, transparent);   /* only Resume keeps a fill (user, 2026-10-20) */ box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--green) 60%, transparent); }   /* green = a lesson, red = none (user, 2026-10-20) */
+/* The key for the date cells, right of the steps (user, 2026-10-20). */
+.tv-rv-key { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+.tv-rv-key span { display: inline-flex; align-items: center; gap: 8px; }
+.tv-rv-key i { display: inline-block; width: 14px; height: 10px; border-radius: 3px; }
