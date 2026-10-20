@@ -2802,3 +2802,31 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .tv-dates .dtp-cell { border-color: color-mix(in srgb, #3d5f8f 60%, transparent); }   /* date boxes blue (user, 2026-10-19) */
 .tv-dates-foot { justify-content: flex-end; }   /* Calculate bottom right, like Review; both red again (user, 2026-10-19) */
 .tv-sum-row > span:not(.tv-sum-name) { justify-content: center; text-align: center; }   /* Days / Lessons / Revenue loss centred, headers and numbers (user, 2026-10-19) */
+.tv-sum-name, .tv-sum-row.tv-sum-buf .tv-sum-name { color: rgba(240,237,232,0.72); }   /* row names in the months' / dates' white (user, 2026-10-20) */
+#travelSumTable { max-width: 480px; margin-left: auto; margin-right: auto; }   /* narrower, centred (user, 2026-10-20) */
+.tv-sec-icon .win-icon.tv-buf-icon { height: 14px; }   /* smaller than the suitcase (user, 2026-10-20) */
+.tv-buf-flip { transform: scaleX(-1); margin-left: 6px; }   /* the same icon mirrored, for the buffer after the trip (user, 2026-10-20) */
+.tv-buf-key .lg-t-trip { color: rgba(240,237,232,0.45); }                        /* each key's words in its ring's colour (user, 2026-10-20) */
+.tv-buf-key .lg-t-off  { color: color-mix(in srgb, var(--accent) 84%, transparent); }
+.tv-buf-key .lg-t-back { color: var(--green); }
+.tv-buf-key b { font-weight: 400; font-size: 9px; padding: 2px 6px; border-radius: 2px; }   /* each key's words in a tinted box, the Venmo / Zelle badge shape (user, 2026-10-20) */
+.tv-buf-key .lg-t-trip b { background: rgba(240,237,232,0.07); }
+.tv-buf-key .lg-t-off b  { background: color-mix(in srgb, var(--accent) 15%, transparent); }
+.tv-buf-key .lg-t-back b { background: color-mix(in srgb, var(--green) 15%, transparent); }
+.tv-sec-icon .win-icon.tv-cost-icon { height: 39px; }   /* bigger than the suitcase (user, 2026-10-20) */
+.tv-sum-card { border-width: 2px; }   /* a thicker frame (user, 2026-10-20) */
+#travelCalMonths, .tv-dates .dtp-cell { border-width: 2px; }   /* the calendar and Leaving on / Back on frames thick like Cost analysis (user, 2026-10-20) */
+.tv-dates-foot { gap: 8px; }   /* Reset beside Calculate (user, 2026-10-20) */
+.tv-sum-row, .tv-sum-row.tv-sum-cols, .tv-sum-row.tv-sum-buf { grid-template-columns: repeat(4, 1fr); }   /* four equal columns (user, 2026-10-20) */
+.tv-sum-row > span { padding: 0 10px; }
+.tv-sum-row + .tv-sum-row, .tv-sum-row > span:not(.tv-sum-name) { border-color: color-mix(in srgb, #3d5f8f 60%, transparent); }   /* inner lines the frame's dim blue (user, 2026-10-20) */
+#travelSumTable + .tv-cal-head { margin-top: 44px; }   /* more room before Review (user, 2026-10-20; was 28px) */
+.tv-sum-row.tv-sum-cols { color: rgba(240,237,232,0.72); }   /* Days / Lessons / Revenue loss in the row names' white (user, 2026-10-20) */
+.tv-dates { max-width: 480px; margin-left: auto; margin-right: auto; }   /* as wide as the Cost analysis table, centred; fits a Dec → Jan date with its year (user, 2026-10-20) */
+.tv-cost-head + .tv-sec-icon { margin-bottom: 48px; }   /* icon → table the same gap as the steps → Leaving on (user, 2026-10-20; was 22px) */
+/* Calendar as wide as the table and date row (user, 2026-10-20): smaller circles, months closer. */
+#travelCalMonths { max-width: 480px; margin-left: auto; margin-right: auto; padding-left: 12px; padding-right: 12px; gap: 20px; }
+.tv-cal-day { height: 32px; }
+.tv-cal-day span { width: 28px; height: 28px; }
+.tv-band { height: 28px; margin-top: -14px; }
+.tv-sum-cols + .tv-sum-row { border-top-width: 2px; } .tv-sum-row > span:nth-child(2) { border-left-width: 2px; }   /* header row and name column set off by the frame's 2px (user, 2026-10-20) */

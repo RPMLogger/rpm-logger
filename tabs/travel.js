@@ -56,27 +56,30 @@ function _travelRenderPlan() {
     "</div>";
   };
   cal.innerHTML =
-    head('Set vacation dates', "<span id='travelResetSlot'></span>") +   // Reset top right (user, 2026-10-19)
+    head('Set vacation dates') +   // Reset moved down next to Calculate (user, 2026-10-20; was top right)
     // The steps as a list like the legend's: the number where its circle sits (user, 2026-10-19).
     "<div class='tv-sec-icon tv-icon-top'>" + LUGGAGE_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + "</div>" +   // under the title, over the steps (user, 2026-10-19)
     "<div class='tv-sec-note tv-steps'><span><i>1.</i>Adjust vacation dates</span><span><i>2.</i>Press Calculate</span></div>" +
     pair('travelLeavingSlot', 'travelArrivingSlot') +
-    "<div class='tv-dates-foot'><button class='link-btn red' id='travelSetBtn' onclick='_travelSetDates()'></button></div>" +
+    "<div class='tv-dates-foot'><span id='travelResetSlot'></span><button class='link-btn amber' id='travelSetBtn' onclick='_travelSetDates()'></button></div>" +
     "<hr class='divider tv-sec-rule'>" +
     head('Set buffer') +
+    "<div class='tv-sec-icon tv-icon-top'>" + BUFFER_ICON.replace(/class="[^"]*"/, 'class="win-icon tv-buf-icon"') +
+      BUFFER_ICON.replace(/class="[^"]*"/, 'class="win-icon tv-buf-icon tv-buf-flip"') + "</div>" +   // and flipped: buffer before and after (user, 2026-10-20)   // its own icon like the suitcase (user, 2026-10-20)
     "<div class='tv-buf-top'>" +   // steps left, the calendar's key on the right (user, 2026-10-19)
     "<div class='tv-sec-note tv-steps'><span><i>1.</i>Click on the dates to activate buffer</span><span><i>2.</i>Use keyboard arrows to add buffer days</span></div>" +
     // The calendar's key lives here: first day off, first day teaching and buffer are all set in this section (user, 2026-10-19).
     "<div class='tv-cal-legend tv-buf-key'>" +
-      "<span><i class='lg-trip'></i>Vacation dates</span>" +   // the grey Leave / Return ring (user, 2026-10-19)
-      "<span><i class='lg-off'></i>First day off</span>" +
-      "<span><i class='lg-back'></i>First day teaching</span>" +
+      "<span class='lg-t-trip'><i class='lg-trip'></i><b>Vacation dates</b></span>" +   // the grey Leave / Return ring (user, 2026-10-19)
+      "<span class='lg-t-off'><i class='lg-off'></i><b>First day off</b></span>" +
+      "<span class='lg-t-back'><i class='lg-back'></i><b>First day teaching</b></span>" +
     "</div>" +
     "</div>" +
     // The calendar under it still follows the dates above.
     "<div class='tv-cal-cols' id='travelCalMonths'></div>" +
     "<hr class='divider tv-sec-rule tv-cost-rule'>" +   // a divider, then the table full width (user, 2026-10-19)
     "<div class='tv-cost-head'>" + head('Cost analysis') + "</div>" +
+    "<div class='tv-sec-icon tv-icon-top'>" + COST_ICON.replace(/class="[^"]*"/, 'class="win-icon tv-cost-icon"') + "</div>" +   // its own icon like the suitcase (user, 2026-10-20)
     "<div id='travelSumTable'></div>" +   // one table: Vacation / Pre buffer / Post buffer / Total (user, 2026-10-19)
     "<div class='tv-cal-head' id='travelCalHead'></div>";   // Review → last, under the table
   section.appendChild(cal);
@@ -208,7 +211,7 @@ function _travelSumRender() {
   var cells = function (v) {
     if (v === '…' || !ok(v)) {
       if (v && v.err) errs.push(v.err);
-      var ph = "<span class='tv-sum-none'>" + (v === '…' ? '…' : '—') + "</span>";
+      var ph = "<span class='tv-sum-none'>" + (v === '…' ? '…' : '–') + "</span>";   // en dash, shorter (user, 2026-10-20)
       return ph + ph + ph;
     }
     return "<span>" + v.d + "</span><span>" + v.n + "</span><span>$" + (v.rev || 0).toLocaleString() + "</span>";
@@ -271,12 +274,13 @@ function _travelRenderCal() {
     "<div class='tv-cal-btns'>" +
       // Always shown; dimmed until Calculate is pressed and both rings, red and green, are clicked
       // (no buffer is fine, but it's said by clicking) (user, 2026-10-19; was hidden till Calculate).
-      "<button class='link-btn red' id='travelReviewBtn' onclick='_travelGoReview()'" +
+      "<button class='link-btn amber' id='travelReviewBtn' onclick='_travelGoReview()'" +
         (t.back && s.datesSet && s.bufPicked && s.bufPicked.off && s.bufPicked.back ? "" : " disabled") + ">Review →</button>" +
     "</div>";
 
   var rs = document.getElementById('travelResetSlot');
-  if (rs) rs.innerHTML = t.leaving ? "<button class='link-btn' onclick='_travelClear()' data-tip='Reset days' data-tip-left>↺ Reset</button>" : "";
+  // Always there, left of Calculate; dimmed until a day is picked (user, 2026-10-20).
+  if (rs) rs.innerHTML = "<button class='link-btn' onclick='_travelClear()' data-tip='Reset days'" + (t.leaving ? "" : " disabled") + ">↺ Reset</button>";
 
   var second = new Date(s.calMonth.getFullYear(), s.calMonth.getMonth() + 1, 1);
   months.innerHTML =
@@ -314,6 +318,8 @@ function _travelMonthHtml(first, navSide, navOff, t) {
     var cls = 'tv-cal-day';
     if (ymd < today)                                              cls += ' is-past';
     if (ymd === t.leaving || ymd === t.arriving)                  cls += ' is-travel';
+    // Nothing picked yet: the rings sit on the pickers' day, today, so they're always there (user, 2026-10-20).
+    else if (!_travelState.picked && (ymd === _travelState.leaving || ymd === _travelState.arriving)) cls += ' is-travel';
     if (showOff && ymd === t.off)                                 cls += ' is-off'  + (sel === 'off'  ? ' is-sel' : '');
     if (showBack && ymd === t.back)                               cls += ' is-back' + (sel === 'back' ? ' is-sel' : '');
     var dow = new Date(y, m, d).getDay();
