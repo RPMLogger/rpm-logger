@@ -40,6 +40,12 @@ function _tsRender(active, past) {
   } else {
     active.forEach(function(trip) { section.appendChild(_tsActiveCard(trip)); });
   }
+  if (_tsReopenRow) {
+    var again = null;
+    active.forEach(function (t) { t.students.forEach(function (x) { if (x.row === _tsReopenRow) again = x; }); });
+    _tsReopenRow = null;
+    if (again) _tsOpenStudent(again);
+  }
 
   // ── clear test data (only when test rows exist, active or past) ──
   var hasTest = active.concat(past || []).some(function(t) { return t.isTest; });
@@ -59,46 +65,20 @@ function _tsRender(active, past) {
 // ─── ACTIVE TRIP CARD (full detail) ─────────────────────────────────────────
 
 function _tsActiveCard(trip) {
-  var card = document.createElement('div');
-  card.style.cssText = 'border:1px solid var(--border);border-radius:6px;background:var(--panel);overflow:hidden;margin-bottom:14px';
-
   var allConfirmed = trip.confirmed === trip.students.length;
-  var accent = trip.isTest ? '#ffb400' : (allConfirmed ? 'var(--green)' : '#ffb400');
-
-  var hdr = document.createElement('div');
-  hdr.style.cssText = 'padding:10px 12px;border-bottom:1px solid var(--border);border-left:3px solid ' + accent;
-  var reviewBadge = trip.needsReview
-    ? " <span style='font-size:9px;background:rgba(255,120,60,0.2);color:#ff7a3c;padding:1px 6px;border-radius:3px;margin-left:6px'>" + trip.needsReview + " need you</span>"
-    : "";
   var testBadge = trip.isTest
     ? " <span style='font-size:9px;background:rgba(255,180,0,0.2);color:#ffb400;padding:1px 6px;border-radius:3px;margin-left:6px'>TEST</span>"
     : "";
-  // Archive is the trip's big finishing action, so it gates on completion: gray
-  // and disabled while anyone is still unconfirmed, then it lights up solid
-  // yellow (and becomes clickable) once every student has confirmed.
+  // Archive: the portal's red button with the tray icon, like Go live; dimmed and locked
+  // until every student has confirmed (user, 2026-10-20; was a solid yellow button).
   var _archReady = allConfirmed;
-  var archStyle  = _archReady
-    ? 'font-size:11px;padding:5px 13px;font-weight:700;letter-spacing:.3px;background:#ffb400;color:#1a1200;border:1px solid #ffb400;border-radius:5px;cursor:pointer;box-shadow:0 0 10px rgba(255,180,0,0.35);transition:transform .1s,box-shadow .1s'
-    : 'font-size:11px;padding:5px 13px;font-weight:600;letter-spacing:.3px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:5px;cursor:not-allowed;opacity:.55';
-  var archAttrs  = _archReady
-    ? " data-tip='Asks first.\nMoves this trip to Trip History.'"
-    : " disabled data-tip='Locked until every student confirms.'";
-  hdr.innerHTML =
-    "<div style='display:flex;justify-content:space-between;align-items:center;gap:8px'>" +
-      "<span style='font-weight:700;font-size:13px'>" + trip.tripStart + ' → ' + trip.tripEnd + testBadge + reviewBadge + "</span>" +
-      "<span style='display:flex;align-items:center;gap:8px;flex-shrink:0'>" +
-        "<span style='font-size:11px;color:var(--muted)'>" + trip.confirmed + ' / ' + trip.students.length + " confirmed</span>" +
-        "<button class='ts-archive-btn'" + archAttrs + " style='" + archStyle + "'>Archive</button>" +
-      "</span>" +
-    "</div>" +
-    "<div style='font-size:10px;color:var(--muted);margin-top:3px'>" + _tsPlural(trip.days, 'day') + ' · ' + _tsPlural(trip.lessonCount, 'lesson') + ' · $' + (trip.revenue || 0).toLocaleString() + ' lost</div>';
-  card.appendChild(hdr);
-
-  var _arch = hdr.querySelector('.ts-archive-btn');
-  if (_arch && _archReady) {
-    _arch.onmouseenter = function() { _arch.style.transform = 'translateY(-1px)'; _arch.style.boxShadow = '0 0 16px rgba(255,180,0,0.55)'; };
-    _arch.onmouseleave = function() { _arch.style.transform = ''; _arch.style.boxShadow = '0 0 10px rgba(255,180,0,0.35)'; };
-  }
+  var archLabel = TRAY_IN_ICON + '<span>Archive</span>';
+  var tally = document.createElement('span');
+  tally.className = 'ts-tally';
+  tally.innerHTML = "<button class='link-btn red ts-archive-btn'" +
+    (_archReady ? " data-tip='Asks first.\nMoves this trip to Trip History.'" : " disabled data-tip='Locked until every student confirms.'") +
+    ">" + archLabel + "</button>";
+  var _arch = tally.querySelector('.ts-archive-btn');
   if (_arch && _archReady) _arch.onclick = function() {
     rpmConfirm({
       title: 'Archive this trip?',
@@ -107,76 +87,107 @@ function _tsActiveCard(trip) {
     }).then(function (ok) {
     if (!ok) return;
     var url = getScriptUrl(); if (!url) return;
-    _arch.disabled = true; _arch.textContent = '…';
+    _arch.disabled = true; _arch.querySelector('span').textContent = '…';
     callScript(url, 'archiveTrip', { tripStart: trip.tripStart, tripEnd: trip.tripEnd }, function(data) {
       if (data && data.success) {
         addLog('tripsummaryFeed', '✓ Archived ' + trip.tripStart + ' → ' + trip.tripEnd + ' → Trip History', 'success');
         initTripSummaryTab();
       } else {
         addLog('tripsummaryFeed', '❌ ' + (data && data.message ? data.message : 'Archive failed'), 'error');
-        _arch.disabled = false; _arch.textContent = 'Archive';
+        _arch.disabled = false; _arch.innerHTML = archLabel;
       }
     });
     });
   };
 
-  // Editable location (shows in Trip History).
-  var locBar = document.createElement('div');
-  locBar.style.cssText = 'padding:6px 12px;border-bottom:1px solid var(--border);font-size:11px;color:var(--muted);cursor:pointer';
-  locBar.innerHTML = trip.location
-    ? "📍 " + _tsEsc(trip.location) + " <span style='opacity:0.55'>· edit</span>"
-    : "📍 <span style='opacity:0.7'>Set location…</span>";
-  locBar.onclick = function() {
-    rpmPrompt({
-      title: 'Trip location',
-      message: 'Shows in Trip History.',
-      value: trip.location || '',
-      placeholder: 'e.g. Turkey',
-      confirmLabel: 'Save'
-    }).then(function (v) {
-      if (v === null) return;
-      var url = getScriptUrl(); if (!url) return;
-      callScript(url, 'setTripLocation', { tripStart: trip.tripStart, tripEnd: trip.tripEnd, location: v.trim() }, function(data) {
-        if (data && data.success) initTripSummaryTab();
-        else addLog('tripsummaryFeed', '❌ ' + (data && data.message ? data.message : 'Location update failed'), 'error');
-      });
-    });
+  // One list per trip (user, 2026-10-20): a row per student like the Terminate list,
+  // name left, status badge right; clicking opens the student's card in a window.
+  // Needs reply first, then Awaiting, then Confirmed, A–Z within each. The pills box is gone.
+  var head = function (t) {
+    var h = document.createElement('div');
+    h.className = 'db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head';
+    h.innerHTML = "<label class='field-label db-cx-t im-main-t'>" + t + "</label>";
+    return h;
   };
-  card.appendChild(locBar);
-
-  card.appendChild(_tsRosterStrip(trip));
-
-  // Detail rows alphabetical, matching the roster strip above.
-  var ordered = trip.students.slice().sort(function(a, b) { return a.name.localeCompare(b.name); });
-  ordered.forEach(function(s) { card.appendChild(_tsStudentRow(s, false)); });
-  return card;
-}
-
-// At-a-glance roster: every student's name, alphabetical, colored by status —
-// green = confirmed, orange = replied but needs you, red = not yet confirmed.
-function _tsRosterStrip(trip) {
   var wrap = document.createElement('div');
-  wrap.style.cssText = 'padding:10px 12px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px';
-  var sorted = trip.students.slice().sort(function(a, b) { return a.name.localeCompare(b.name); });
-  sorted.forEach(function(s) {
-    var color, bg, bd;
-    if (s.confirmedAt)      { color = 'var(--green)'; bg = 'rgba(0,200,100,0.12)';  bd = 'rgba(0,200,100,0.4)'; }
-    else if (s.needsReview) { color = '#ff7a3c';      bg = 'rgba(255,120,60,0.12)'; bd = 'rgba(255,120,60,0.4)'; }
-    else                    { color = '#ff6b6b';      bg = 'rgba(255,107,107,0.1)'; bd = 'rgba(255,107,107,0.35)'; }
-    var chip = document.createElement('span');
-    chip.textContent = s.name;
-    chip.style.cssText = 'font-size:11px;padding:3px 8px;border-radius:4px;cursor:pointer;color:' + color + ';background:' + bg + ';border:1px solid ' + bd;
-    (function(rowId) { chip.onclick = function() { _tsJumpToStudent(rowId); }; })('ts-row-' + s.row);
-    wrap.appendChild(chip);
+  var th = head('Confirmations');
+  wrap.appendChild(th);
+  // How-to steps under the title, Travel Plan's numbered list (user, 2026-10-20).
+  var steps = document.createElement('div');
+  steps.className = 'tv-sec-note tv-steps ts-steps';
+  steps.innerHTML =
+    // Two steps, the first with dashed sub-lines (user, 2026-10-20).
+    "<span><i>1.</i>Check confirmations</span>" +
+    "<span class='ts-sub'><i>-</i>Auto, manual and awaiting</span>" +
+    "<span class='ts-sub'><i>-</i>Needs reply: answer in the Text back box</span>" +
+    "<span class='ts-sub'><i>-</i>No answer yet: Nudge to text them again</span>" +
+    "<span><i>2.</i>When all are confirmed, archive the trip</span>";
+  wrap.appendChild(steps);
+  tally.classList.add('ts-arch-row');   // Archive under step 2, over the divider (user, 2026-10-20; was on the title line)
+  wrap.appendChild(tally);
+  var rule = document.createElement('hr');
+  rule.className = 'divider ts-rule';   // between the steps and the list (user, 2026-10-20)
+  wrap.appendChild(rule);
+  var dates = document.createElement('div');
+  dates.className = 'ts-trip-dates';
+  dates.innerHTML = trip.confirmed + ' / ' + trip.students.length + ' confirmed' + testBadge;   // the tally under the title; the trip dates dropped (user, 2026-10-20)
+  wrap.appendChild(dates);
+
+  var rank = function (x) { return _tsNeedsReply(x) ? 0 : (x.confirmedAt ? 2 : 1); };
+  var ordered = trip.students.slice().sort(function(a, b) { return (rank(a) - rank(b)) || a.name.localeCompare(b.name); });
+  var list = document.createElement('div');
+  ordered.forEach(function(s) {
+    var r = document.createElement('div');
+    r.className = 'ts-row ' + (_tsNeedsReply(s) ? 'ts-row-reply' : (s.confirmedAt ? 'ts-row-ok' : 'ts-row-wait'));   // edge in the status colour (user, 2026-10-20)
+    r.innerHTML = "<span class='ts-row-name'>" + _tsEsc(s.name) + "</span>" + _tsStatusPill(s);
+    r.onclick = function () { _tsOpenStudent(s); };
+    list.appendChild(r);
   });
+  wrap.appendChild(list);
   return wrap;
 }
 
+// A student's card in the portal window (_stWin, the Log window's look) (user, 2026-10-20).
+var _tsReopenRow = null;   // after Send / Manual confirm the list reloads, then this card opens again
+function _tsOpenStudent(s) {
+  var w = _stWin('tsStuWin', _tsEsc(s.name), 'Trip confirmation', null, '');
+  var panel = w.querySelector('.st-win');
+  var c = _tsStudentRow(s, false);
+  c.className = 'ts-card ts-win-card';
+  c.style.cssText = '';
+  // The window title has the name: Skip / Resume take its place, the status stays top right.
+  var nm = c.querySelector('.inq-name'), hd = nm.parentElement, meta = hd.nextElementSibling;
+  nm.remove();
+  meta.style.marginTop = '0';
+  hd.insertBefore(meta, hd.firstChild);
+  hd.style.alignItems = 'flex-start';
+  panel.appendChild(c);
+  var t = c.querySelector('.ts-thread'); if (t) t.scrollTop = t.scrollHeight;
+}
+
+// Reload the list; reopen this student's window once it's drawn.
+function _tsRefresh(row) {
+  var w = document.getElementById('tsStuWin'); if (w) w.remove();
+  _tsReopenRow = row || null;
+  initTripSummaryTab();
+}
+
+// Needs reply = they sent something that isn't a Y and it's still the last text: once
+// you text back it's Awaiting again (user, 2026-10-20; the sheet flag stays until a Y).
+function _tsNeedsReply(s) {
+  if (!s.needsReview || s.confirmedAt) return false;
+  var t = s.thread || [];
+  return !t.length || t[t.length - 1].dir === 'in';
+}
+
 function _tsStatusPill(s) {
-  if (s.confirmedAt)  return "<span style='font-size:10px;color:var(--green);border:1px solid rgba(0,200,100,0.4);background:rgba(0,200,100,0.12);border-radius:4px;padding:2px 7px'>✓ Confirmed</span>";
-  if (s.needsReview)  return "<span style='font-size:10px;color:#ff7a3c;border:1px solid rgba(255,120,60,0.4);background:rgba(255,120,60,0.12);border-radius:4px;padding:2px 7px'>⚠ Needs you</span>";
-  if (s.messageSentAt) return "<span style='font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:2px 7px'>Sent · awaiting</span>";
-  return "<span style='font-size:10px;color:#ff6b6b;border:1px solid rgba(255,107,107,0.4);border-radius:4px;padding:2px 7px'>Not sent</span>";
+  // Small caps tags at Trial's strength (user, 2026-10-20; were filled pills).
+  // Tinted boxes like Payments' Venmo / Zelle badges, so a status never looks like a button (user, 2026-10-20).
+  var tag = function (c, t, bg) { return "<span class='ts-tag' style='color:" + c + ";background:" + (bg || "color-mix(in srgb, " + c + " 15%, transparent)") + "'>" + t + "</span>"; };
+  if (s.confirmedAt)   return tag('var(--green)', 'Confirmed');
+  if (_tsNeedsReply(s)) return tag('var(--warn)', 'Needs reply');   // (user, 2026-10-20; was Needs you)
+  if (s.messageSentAt) return tag('var(--muted)', 'Awaiting', 'rgba(240,237,232,0.07)');   // the grey key badge on Travel Plan
+  return tag('#ff5a4d', 'Not sent');
 }
 
 function _tsStudentRow(s, readOnly) {
@@ -187,41 +198,62 @@ function _tsStudentRow(s, readOnly) {
   var head = document.createElement('div');
   head.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px';
   head.innerHTML =
-    "<div style='font-weight:600;font-size:13px'>" + _tsEsc(s.name) + "</div>" +
-    "<div>" + _tsStatusPill(s) + "</div>";
+    "<span class='inq-name'>" + _tsEsc(s.name) + "</span>" +   // the Trial card's name (user, 2026-10-20)
+    "<div class='ts-tag-wrap'>" + _tsStatusPill(s) + "</div>";
   row.appendChild(head);
 
   var meta = document.createElement('div');
-  meta.style.cssText = 'font-size:10px;color:var(--muted);margin-top:2px';
-  meta.innerHTML = 'Skip: ' + _tsEsc(s.skipDates || '—') + ' · Resume: ' + _tsEsc(s.firstBack || '—');
+  meta.style.cssText = 'font-size:10px;color:var(--muted);margin-top:6px';   // a little off the name (user, 2026-10-20; was 2px)
+  meta.innerHTML = 'SKIP: ' + _tsEsc(s.skipDates || '—') + '<br>RESUME: ' + _tsEsc(String(s.firstBack || '—').replace(/,\s*(\d{1,2}:\d{2}\s*[AP]M)\s*$/i, ' - $1').replace(/^([A-Z][a-z]{2}) /, '$1, '));   // "Sun, Dec 13 - 11:30 AM": a dash before the time (user, 2026-10-20)   // labels in caps (user, 2026-10-20)   // Resume on its own line (user, 2026-10-20)
+  meta.style.lineHeight = '1.7';
   row.appendChild(meta);
 
-  // Thread (inbound + outbound texts)
-  if (s.thread && s.thread.length) {
-    var thread = document.createElement('div');
-    thread.style.cssText = 'margin-top:8px;display:flex;flex-direction:column;gap:4px';
-    s.thread.forEach(function(m) {
-      var out = m.dir === 'out';
-      var bubble = document.createElement('div');
-      bubble.style.cssText =
-        'max-width:85%;font-size:11px;line-height:1.4;padding:6px 9px;border-radius:8px;white-space:pre-wrap;' +
-        (out
-          ? 'align-self:flex-end;background:rgba(232,70,58,0.15);border:1px solid rgba(232,70,58,0.3);color:var(--text)'
-          : 'align-self:flex-start;background:var(--bg);border:1px solid var(--border);color:var(--text)');
-      bubble.innerHTML = _tsEsc(m.body) +
-        "<div style='font-size:8px;color:var(--muted);margin-top:2px'>" + (out ? 'you' : 'them') + ' · ' + _tsEsc(m.ts) + "</div>";
-      thread.appendChild(bubble);
-    });
-    row.appendChild(thread);
-  } else if (s.replyText) {
-    // Fallback if only the latest reply is stored (older rows without threads).
-    var rep = document.createElement('div');
-    rep.style.cssText = 'margin-top:8px;font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 9px';
-    rep.innerHTML = _tsEsc(s.replyText) + "<div style='font-size:8px;color:var(--muted);margin-top:2px'>them · " + _tsEsc(s.replyAt) + "</div>";
-    row.appendChild(rep);
-  }
+  // Thread (inbound + outbound texts) in a fixed-height dark box, so every card is the
+  // same size; it scrolls, opened at the newest (user, 2026-10-20; grew with the thread).
+  var thread = document.createElement('div');
+  thread.className = 'ts-thread';
+  var msgs = (s.thread && s.thread.length) ? s.thread
+    : (s.replyText ? [{ dir: 'in', body: s.replyText, ts: s.replyAt }] : []);   // older rows: only the latest reply stored
+  if (!msgs.length) thread.innerHTML = "<div class='ts-thread-none'>No reply yet</div>";
+  // A centred time line like Messages, before the first text and after any hour-long gap;
+  // no you / them line in the bubbles (user, 2026-10-20). ts is "yyyy-MM-dd HH:mm".
+  var tsDate = function (t) { var x = String(t || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/); return x ? new Date(+x[1], x[2] - 1, +x[3], +x[4], +x[5]) : null; };
+  var tsShow = function (d, raw) {
+    if (!d) return _tsEsc(raw || '');
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + ' at ' +
+      d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  };
+  var prevAt = null;
+  msgs.forEach(function(m) {
+    var out = m.dir === 'out';
+    var at = tsDate(m.ts);
+    if (m.ts && (!prevAt || !at || at - prevAt > 60 * 60 * 1000)) {
+      var stamp = document.createElement('div');
+      stamp.className = 'ts-stamp';
+      stamp.innerHTML = tsShow(at, m.ts);
+      thread.appendChild(stamp);
+    }
+    prevAt = at || prevAt;
+    var bubble = document.createElement('div');
+    bubble.style.cssText =
+      'max-width:85%;font-size:11px;line-height:1.4;padding:6px 9px;border-radius:8px;white-space:pre-wrap;' +
+      (out ? 'align-self:flex-end;' : 'align-self:flex-start;');   // blue, both sides (user, 2026-10-20; was neutral)
+    bubble.className = 'ts-bub' + (out ? '' : ' ts-bub-in');   // yours blue, theirs grey, like Messages (user, 2026-10-20)
+    bubble.innerHTML = _tsEsc(m.body);
+    thread.appendChild(bubble);
+  });
+  // Small grey titles over the thread and the text box, like the review cards' (user, 2026-10-20).
+  var lbl = function (t) { var l = document.createElement('label'); l.className = 'field-label ts-lbl'; l.textContent = t; return l; };
+  // The hand-and-phone (om-100) on its own line over THREAD, bigger (user, 2026-10-20).
+  var thIcon = document.createElement('div');
+  thIcon.className = 'ts-th-icon';
+  thIcon.innerHTML = PHONE_ICON.replace('class="win-icon"', 'class="ts-lbl-icon"');
+  row.appendChild(thIcon);
+  row.appendChild(lbl('Thread'));
+  row.appendChild(thread);
+  setTimeout(function () { thread.scrollTop = thread.scrollHeight; }, 0);
 
-  if (readOnly) return row;
+  if (readOnly || s.confirmedAt) return row;   // confirmed: just the thread, no Text back (user, 2026-10-20)
 
   // Actions: reply box (multi-line, auto-growing) on top, buttons below.
   var actions = document.createElement('div');
@@ -233,17 +265,19 @@ function _tsStudentRow(s, readOnly) {
   input.disabled = !s.phone;
   input.style.cssText = 'width:100%;box-sizing:border-box;resize:none;overflow:hidden;min-height:36px;' +
     'padding:8px 9px;font-size:12px;line-height:1.5;font-family:inherit;background:var(--bg);' +
-    'border:1px solid var(--border);border-radius:4px;color:var(--text)';
+    'border:1.5px dashed color-mix(in srgb, var(--blue) 28%, transparent);border-radius:8px;color:var(--text)';   // dashed dim blue like the thread box (user, 2026-10-20)
   function _tsAutoGrow() { input.style.height = 'auto'; input.style.height = input.scrollHeight + 'px'; }
   input.addEventListener('input', _tsAutoGrow);
 
   var btnRow = document.createElement('div');
-  btnRow.style.cssText = 'display:flex;gap:6px';
+  btnRow.className = 'inq-acts';   // portal buttons on the right, like Trial's (user, 2026-10-20)
+  btnRow.style.marginTop = '6px';
 
   var sendBtn = document.createElement('button');
-  sendBtn.textContent = 'Send';
+  sendBtn.innerHTML = SEND_ICON + '<span>Send</span>';
   sendBtn.disabled = !s.phone;
-  sendBtn.style.cssText = 'flex:0 0 auto;padding:7px 14px;font-size:11px;background:rgba(232,70,58,0.15);color:var(--accent);border:1px solid rgba(232,70,58,0.4);border-radius:4px;cursor:pointer';
+  sendBtn.className = 'link-btn bright';
+  sendBtn.style.cssText = 'display:inline-flex;align-items:center;gap:7px';
   sendBtn.onclick = function() {
     var body = input.value.trim();
     if (!body) return;
@@ -252,10 +286,10 @@ function _tsStudentRow(s, readOnly) {
     callScript(url, 'sendTravelReply', { row: s.row, body: body }, function(data) {
       if (data && data.success) {
         addLog('tripsummaryFeed', '✓ Texted ' + s.name, 'success');
-        initTripSummaryTab();
+        _tsRefresh(s.row);
       } else {
         addLog('tripsummaryFeed', '❌ ' + (data && data.message ? data.message : 'Send failed'), 'error');
-        sendBtn.disabled = false; sendBtn.textContent = 'Send';
+        sendBtn.disabled = false; sendBtn.innerHTML = SEND_ICON + '<span>Send</span>';
       }
     });
   };
@@ -266,28 +300,26 @@ function _tsStudentRow(s, readOnly) {
 
   var confirmBtn = document.createElement('button');
   var isC = !!s.confirmedAt;
-  confirmBtn.textContent = isC ? '✓ Confirmed' : 'Confirm';
+  confirmBtn.textContent = isC ? '✓ Confirmed' : 'Manual confirm';   // marks it without a text (user, 2026-10-20; was Confirm)
   confirmBtn.title = isC ? 'Confirmed — click to undo' : 'Mark confirmed manually';
-  confirmBtn.style.cssText = 'flex:0 0 auto;padding:7px 12px;font-size:11px;border-radius:4px;cursor:pointer;' +
-    (isC ? 'background:rgba(0,200,100,0.15);color:var(--green);border:1px solid rgba(0,200,100,0.4)'
-         : 'background:transparent;color:var(--muted);border:1px solid var(--border)');
+  confirmBtn.className = 'link-btn' + (isC ? ' green' : '');
   confirmBtn.onclick = function() {
     var url = getScriptUrl(); if (!url) return;
     confirmBtn.disabled = true; confirmBtn.textContent = '…';
     callScript(url, isC ? 'clearTravelConfirmed' : 'markTravelConfirmed', { row: s.row }, function() {
-      initTripSummaryTab();
+      _tsRefresh(s.row);
     });
   };
 
-  btnRow.appendChild(sendBtn);
 
   // Nudge: pre-fill a friendly follow-up asking an unconfirmed student to reply Y.
   if (!s.confirmedAt) {
     var nudgeBtn = document.createElement('button');
     nudgeBtn.textContent = 'Nudge';
     nudgeBtn.title = 'Pre-fill a follow-up asking them to confirm';
-    nudgeBtn.disabled = !s.phone;
-    nudgeBtn.style.cssText = 'flex:0 0 auto;padding:7px 12px;font-size:11px;background:transparent;color:#ffb400;border:1px solid rgba(255,180,0,0.4);border-radius:4px;cursor:pointer';
+    nudgeBtn.disabled = !s.phone || _tsNeedsReply(s);   // a reply waiting on you: no nudge (user, 2026-10-20)
+    nudgeBtn.className = 'link-btn amber';
+    nudgeBtn.style.cssText = 'order:-1;margin-right:auto';   // bottom left, Send stays right (user, 2026-10-20)
     nudgeBtn.onclick = function() {
       input.value =
         "Hi " + _tsFirst(s.name) + "!\n\n" +
@@ -301,9 +333,19 @@ function _tsStudentRow(s, readOnly) {
     btnRow.appendChild(nudgeBtn);
   }
 
-  btnRow.appendChild(confirmBtn);
+  // Confirmed cards: no button, the CONFIRMED tag says it (user, 2026-10-20; was ✓ Confirmed, click to undo).
+  // Manual confirm sits under the status tag, top right (user, 2026-10-20; was with Send / Nudge).
+  if (!isC) {
+    confirmBtn.classList.add('ts-manual');
+    // Off while a reply is waiting on you: answer it first (user, 2026-10-20).
+    if (_tsNeedsReply(s)) { confirmBtn.disabled = true; confirmBtn.title = 'Reply first'; }
+    head.querySelector('.ts-tag-wrap').appendChild(confirmBtn);
+  }
+  actions.appendChild(lbl('Text back'));   // (user, 2026-10-20; was Text)
+  // Send back under the box, the portal's paper-plane Send (user, 2026-10-20; was briefly inside the box).
+  btnRow.insertBefore(sendBtn, btnRow.firstChild);
   actions.appendChild(input);
-  actions.appendChild(btnRow);
+  actions.appendChild(btnRow);   // kept even when empty (confirmed), so every card is the same size
   row.appendChild(actions);
   return row;
 }
@@ -369,18 +411,6 @@ function _tsClearTestDataGo() {
 
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
-
-// Scroll a student's detail row into view when their roster chip is tapped,
-// with a brief highlight flash so it's clear where you landed.
-function _tsJumpToStudent(rowId) {
-  var el = document.getElementById(rowId);
-  if (!el) return;
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  var prev = el.style.background;
-  el.style.transition = 'background 0.3s';
-  el.style.background = 'rgba(232,70,58,0.14)';
-  setTimeout(function() { el.style.background = prev || ''; }, 1100);
-}
 
 function _tsFirst(name) { return String(name || '').trim().split(/\s+/)[0] || ''; }
 

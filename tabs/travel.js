@@ -56,12 +56,20 @@ function _travelRenderPlan() {
     "</div>";
   };
   cal.innerHTML =
+    // Where the trip goes, first; required for Review. Saved with the trip (Travel sheet col Q),
+    // shown in Trip History (user, 2026-10-20; was optional, on the review screen).
+    head('Set vacation place') +
+    "<div class='tv-sec-icon tv-icon-top'>" + PIN_ICON + "</div>" +
+    "<input class='tv-place' id='travelPlace' type='text' placeholder='Where to?' autocomplete='off' value='" +
+      _escapeHtml(_travelState.location || '') + "' oninput='_travelPlaceInput(this.value)'>" +
+    "<hr class='divider tv-sec-rule'>" +
     head('Set vacation dates') +   // Reset moved down next to Calculate (user, 2026-10-20; was top right)
     // The steps as a list like the legend's: the number where its circle sits (user, 2026-10-19).
     "<div class='tv-sec-icon tv-icon-top'>" + LUGGAGE_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + "</div>" +   // under the title, over the steps (user, 2026-10-19)
     "<div class='tv-sec-note tv-steps'><span><i>1.</i>Adjust vacation dates</span><span><i>2.</i>Press Calculate</span></div>" +
+    "<div class='tv-reset-row'><span id='travelResetSlot'></span></div>" +   // Reset above the dates, right in line with Calculate (user, 2026-10-20; was beside Calculate)
     pair('travelLeavingSlot', 'travelArrivingSlot') +
-    "<div class='tv-dates-foot'><span id='travelResetSlot'></span><button class='link-btn amber' id='travelSetBtn' onclick='_travelSetDates()'></button></div>" +
+    "<div class='tv-dates-foot'><button class='link-btn amber' id='travelSetBtn' onclick='_travelSetDates()'></button></div>" +
     "<hr class='divider tv-sec-rule'>" +
     head('Set buffer') +
     "<div class='tv-sec-icon tv-icon-top'>" + BUFFER_ICON.replace(/class="[^"]*"/, 'class="win-icon tv-buf-icon"') +
@@ -261,6 +269,18 @@ function _travelSetBtn() {
   }
 }
 
+// Review waits for Calculate, both rings clicked and a vacation place (user, 2026-10-20).
+function _travelReviewReady() {
+  var s = _travelState, t = _travelDays();
+  return !!(t.back && s.datesSet && s.bufPicked && s.bufPicked.off && s.bufPicked.back && (s.location || '').trim());
+}
+
+function _travelPlaceInput(v) {
+  _travelState.location = v;
+  var btn = document.getElementById('travelReviewBtn');
+  if (btn) btn.disabled = !_travelReviewReady();
+}
+
 function _travelRenderCal() {
   var head = document.getElementById('travelCalHead');
   var months = document.getElementById('travelCalMonths');
@@ -276,7 +296,7 @@ function _travelRenderCal() {
       // Always shown; dimmed until Calculate is pressed and both rings, red and green, are clicked
       // (no buffer is fine, but it's said by clicking) (user, 2026-10-19; was hidden till Calculate).
       "<button class='link-btn amber' id='travelReviewBtn' onclick='_travelGoReview()'" +
-        (t.back && s.datesSet && s.bufPicked && s.bufPicked.off && s.bufPicked.back ? "" : " disabled") + ">Review →</button>" +
+        (_travelReviewReady() ? "" : " disabled") + ">Review →</button>" +
     "</div>";
 
   var rs = document.getElementById('travelResetSlot');
@@ -603,7 +623,7 @@ function _travelRenderReview() {
   });
   section.appendChild(list);
 
-  // Location moves to the plan screen (user, 2026-10-20; to do there). Off this page for now; executeTravel still sends _travelState.location.
+  // Location is set on the plan screen now (Set vacation place, required); executeTravel sends _travelState.location.
 
   var actions = document.createElement('div');
   actions.style.cssText = 'display:flex;flex-direction:column;align-items:flex-start;gap:14px';   // the steps, then Go live, then what it does (user, 2026-10-20)
@@ -666,10 +686,12 @@ function _travelExecute() {
         '✓ Deleted ' + data.deleted + ' · texted ' + data.textsSent + '/' + data.studentsLogged +
         (data.skipsLogged != null ? ' · ' + data.skipsLogged + ' skips logged' : '') + failed + noPhone,
         'success');
+      var st = _travelState;   // what the Trip is live screen shows, kept before the plan is cleared
+      var snap = { place: st.location, leaving: st.leaving, arriving: st.arriving, revenue: st.preview ? st.preview.totalRevenue : null };
       _travelState.leaving = _travelState.arriving = _travelState.firstOff = _travelState.firstBack = '';
       _travelState.location = '';
       _travelState.preview = null;
-      _travelRenderDone(data);
+      _travelRenderDone(data, snap);
     } else {
       addLog('travelFeed', '❌ ' + (data && data.message ? data.message : 'Execute failed'), 'error');
       _travelRenderReview();
@@ -677,37 +699,45 @@ function _travelExecute() {
   });
 }
 
-function _travelRenderDone(data) {
+// "Trip is live" in the plan screen's look: one card, red title + icon, steps,
+// a summary table like Cost analysis, Trip Summary → bottom right (Plan another dropped, user 2026-10-20) (user, 2026-10-20; was a green box).
+function _travelRenderDone(data, snap) {
+  snap = snap || {};
   var section = document.getElementById('travelBody');
   section.innerHTML = '';
 
+  var day = function (ymd) {   // TUE, OCT 20, the date boxes' style; the year only if the trip crosses one
+    var d = _ymdToDate(ymd); if (!d) return '–';
+    var o = { weekday: 'short', month: 'short', day: 'numeric' };
+    if (snap.leaving && snap.arriving && snap.leaving.slice(0, 4) !== snap.arriving.slice(0, 4)) o.year = 'numeric';
+    return d.toLocaleDateString('en-US', o).toUpperCase();
+  };
+  var row = function (label, val, cls) {
+    return "<div class='tv-sum-row" + (cls ? ' ' + cls : '') + "'><span class='tv-sum-name'>" + label + "</span><span>" + val + "</span></div>";
+  };
+  var texted = data.textsSent + ' / ' + data.studentsLogged + (data.isTest ? ' (test)' : '');
+  var rows =
+    row('Place', _escapeHtml(snap.place || '–')) +
+    row('Leaving on', day(snap.leaving)) +
+    row('Back on', day(snap.arriving)) +
+    row('Lessons deleted', data.deleted) +
+    row('Students texted', texted) +
+    (snap.revenue != null ? row('Revenue loss', '$' + Number(snap.revenue).toLocaleString(), 'tv-sum-total') : '') +
+    (data.textsFailed ? row('Texts failed', data.textsFailed, 'tv-live-bad') : '') +
+    ((data.noPhone && data.noPhone.length) ? row('No phone', _escapeHtml(data.noPhone.join(', ')), 'tv-live-warn') : '');
+
   var card = document.createElement('div');
-  card.style.cssText = 'border:1px solid var(--green);border-radius:6px;background:rgba(0,200,100,0.08);padding:18px;text-align:center;margin-bottom:14px';
+  card.className = 'tv-cal tv-live';
   card.innerHTML =
-    "<div style='font-size:15px;font-weight:700;color:var(--green);margin-bottom:8px'>✓ Trip is live</div>" +
-    "<div style='font-size:12px;color:var(--text);line-height:1.6'>" +
-      data.deleted + " lessons cancelled<br>" +
-      data.textsSent + " / " + data.studentsLogged + " students texted" +
-      (data.isTest ? " <span style='color:#ffb400'>(to your phone — test)</span>" : "") +
-      (data.textsFailed ? "<br><span style='color:#ff6b6b'>" + data.textsFailed + " texts failed</span>" : "") +
-      ((data.noPhone && data.noPhone.length) ? "<br><span style='color:#ffb400'>No phone on file: " + data.noPhone.join(', ') + "</span>" : "") +
+    "<div class='db-cx-head im-sec-head im-main-head tv-sec-head'><label class='field-label db-cx-t im-main-t'>Trip is live</label></div>" +
+    "<div class='tv-sec-icon tv-icon-top'>" + LIVE_ICON + "</div>" +
+    "<div class='tv-sec-note tv-steps'><span><i>1.</i>Check replies and confirmations in Trip Summary</span></div>" +   // step 2 (Secretary's email) dropped (user, 2026-10-20)
+    "<div class='tv-live-table'><div class='tv-sum-card'>" + rows + "</div></div>" +
+    "<div class='tv-dates-foot'>" +
+      "<button class='link-btn amber' id='travelToSummary'>Trip Summary →</button>" +
     "</div>";
   section.appendChild(card);
-
-  var btns = document.createElement('div');
-  btns.style.cssText = 'display:flex;gap:8px';
-  var summaryBtn = document.createElement('button');
-  summaryBtn.textContent = 'View in Trip Summary →';
-  summaryBtn.style.cssText = 'flex:1;padding:12px;font-size:13px;background:rgba(232,70,58,0.15);color:var(--accent);border:1px solid rgba(232,70,58,0.4);border-radius:4px;cursor:pointer;letter-spacing:0.5px';
-  summaryBtn.onclick = function() { if (typeof switchTab === 'function') switchTab('tripsummary'); };
-  btns.appendChild(summaryBtn);
-
-  var planBtn = document.createElement('button');
-  planBtn.textContent = 'Plan another';
-  planBtn.style.cssText = 'flex:0 0 auto;padding:12px 18px;font-size:13px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer';
-  planBtn.onclick = _travelRenderPlan;
-  btns.appendChild(planBtn);
-  section.appendChild(btns);
+  document.getElementById('travelToSummary').onclick = function () { if (typeof switchTab === 'function') switchTab('tripsummary'); };
 }
 
 

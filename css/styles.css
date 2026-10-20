@@ -2844,3 +2844,93 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .tv-rv-key { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
 .tv-rv-key span { display: inline-flex; align-items: center; gap: 8px; }
 .tv-rv-key i { display: inline-block; width: 14px; height: 10px; border-radius: 3px; }
+.tv-sum-card, .tv-dates .tv-date-off .dtp-cell, .tv-dates .tv-date-back .dtp-cell { background: #131313; }   /* Cost analysis table + Leaving on / Back on boxes dark like the review's text box; frames stay solid (user, 2026-10-20) */
+.tv-dates .tv-date-off .dtp-val, .tv-dates .tv-date-back .dtp-val, .tv-dates .tv-in-label, .tv-cal-title, .tv-cal-day.is-travel span,
+.tv-sum-row, .tv-sum-name, .tv-sum-row.tv-sum-buf .tv-sum-name, .tv-sum-row.tv-sum-cols { color: var(--text); }   /* the whites as bright as a student's name (user, 2026-10-20; were 72%) */
+#travelCalMonths { background: #131313; }   /* the calendar dark like the date boxes and Cost analysis (user, 2026-10-20) */
+#travelCalMonths .tv-cal-day.is-travel span, #travelCalMonths .tv-cal-day.is-off span, #travelCalMonths .tv-cal-day.is-back span { background: #131313; }   /* rings still stop the band, on the new dark */
+#travelCalMonths .tv-band { background: color-mix(in srgb, #f0ede8 7%, #131313); }
+/* Set vacation place (user, 2026-10-20): first section, one entry box, dark and framed like the date boxes, as wide as the table. */
+.tv-place { display: block; box-sizing: border-box; width: 100%; max-width: 480px; margin: 0 auto 30px; padding: 11px 14px; background: #131313; border: 2px solid color-mix(in srgb, #3d5f8f 60%, transparent); border-radius: 7px; color: var(--text); font-family: inherit; font-size: 13px; letter-spacing: 0.5px; outline: none; }
+.tv-place::placeholder { color: var(--muted); }
+.tv-place:focus { border-color: color-mix(in srgb, #3d5f8f 100%, transparent); }
+.tv-place, .tv-dates .dtp-cell { height: 40px; box-sizing: border-box; }   /* place box and Leaving on / Back on as tall as a Cost analysis row (user, 2026-10-20) */
+.tv-place { padding-top: 0; padding-bottom: 0; }
+.tv-dates .tv-date-off .dtp-val, .tv-dates .tv-date-back .dtp-val { padding-top: 0; padding-bottom: 0; display: flex; align-items: center; justify-content: center; }
+.tv-reset-row { display: flex; justify-content: flex-end; margin-bottom: 8px; }   /* Reset above the dates, right like Calculate (user, 2026-10-20) */
+/* Trip is live (user, 2026-10-20): the plan screen's card; a two-column summary table like Cost analysis. */
+.tv-live-table { max-width: 480px; margin: 48px auto 0; }
+.tv-live .tv-sum-row { grid-template-columns: 1fr 1fr; }
+.tv-live .tv-sum-row > span:not(.tv-sum-name) { border-left-width: 2px; }
+.tv-live .tv-sum-row.tv-live-bad { color: #ff5a4d; }
+.tv-live .tv-sum-row.tv-live-warn { color: var(--warn); height: auto; min-height: 40px; }
+.tv-live .tv-sum-row.tv-live-warn > span { padding-top: 10px; padding-bottom: 10px; line-height: 1.5; }
+.tv-live .tv-dates-foot { margin-top: 44px; }
+/* Trip Summary: Overview / Replies titles over their cards (user, 2026-10-20). */
+.ts-sec-head { margin: 0 0 12px; }
+.ts-sec-head ~ .ts-sec-head { margin-top: 32px; }
+/* Trip Summary student cards (user, 2026-10-20): red edge until confirmed, then green. */
+.ts-card { margin-bottom: 20px; }
+.ts-card.ts-card-ok { border-left-color: var(--green); }
+/* Trip Summary at Trial's strength (user, 2026-10-20): amber 70% like #tab-trial, green edge dimmed. */
+#tab-tripsummary { --warn: rgba(217,164,65,0.7); --accent2: rgba(240,165,0,0.7); }
+.ts-card.ts-card-ok { border-left-color: color-mix(in srgb, var(--green) 60%, transparent); }
+.ts-tag { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; border: 1px solid; border-radius: 4px; padding: 3px 8px; white-space: nowrap; }
+/* Trip Summary (user, 2026-10-20): tally + Archive on the Replies title line; every card the same size. */
+.ts-sec-head { display: flex; justify-content: space-between; align-items: center; }
+.ts-tally { display: flex; align-items: center; gap: 10px; }
+.ts-thread { height: 132px; overflow-y: auto; box-sizing: border-box; margin-top: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px;
+             background: #131313; border: 1px solid var(--border); border-radius: 8px; }
+.ts-thread-none { margin: auto; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: color-mix(in srgb, var(--muted) 60%, transparent); }
+.ts-bub { background: color-mix(in srgb, #3d5f8f 35%, #131313); border: 1px solid color-mix(in srgb, #3d5f8f 60%, transparent); color: var(--text); }   /* texts on a dim blue, the frames' blue (user, 2026-10-20) */
+/* Trip Summary cards: Thread / Text titles, more room between the two (user, 2026-10-20). */
+.ts-card .ts-lbl { display: block; color: rgba(255,255,255,.5); margin: 22px 0 10px; }
+.ts-card .ts-thread { margin-top: 0; }
+.ts-card .ts-lbl + textarea { margin-top: 0; }
+.ts-card > .ts-lbl { margin-top: 34px; }   /* THREAD further from the Skip line (user, 2026-10-20) */
+.ts-th-icon { margin-top: 34px; line-height: 0; color: rgba(255,255,255,.5); }   /* the phone over THREAD (user, 2026-10-20) */
+.ts-lbl-icon { width: auto; height: 30px; }
+.ts-th-icon + .ts-lbl { margin-top: 14px; }
+.ts-thread { border: 1.5px dashed color-mix(in srgb, var(--blue) 28%, transparent); }   /* dashed dim blue like the review's text box (user, 2026-10-20) */
+.ts-bub.ts-bub-in { background: color-mix(in srgb, var(--muted) 22%, #131313); border-color: color-mix(in srgb, var(--muted) 30%, transparent); }   /* their texts grey, yours blue (user, 2026-10-20) */
+.ts-bub.ts-bub-in { background: color-mix(in srgb, var(--muted) 38%, #131313); border-color: color-mix(in srgb, var(--muted) 45%, transparent); }   /* lighter grey (user, 2026-10-20; was 22%) */
+.ts-bub { border-color: color-mix(in srgb, #3d5f8f 35%, #131313); }   /* borders the bubble's own fill, no outline (user, 2026-10-20) */
+.ts-bub.ts-bub-in { border-color: color-mix(in srgb, var(--muted) 38%, #131313); }
+.ts-stamp { align-self: center; font-size: 9px; color: var(--muted); margin: 4px 0 2px; }   /* "Sun, Nov 1 at 10:02 AM" over the texts, like Messages (user, 2026-10-20) */
+.ts-card .ts-tag { display: inline-block; font-size: 10px; padding: 6px 11px; line-height: 1; }   /* bigger, centred on the name (user, 2026-10-20) */
+.ts-card .ts-tag-wrap { display: flex; align-items: center; }
+.ts-card .ts-tag-wrap { position: relative; }
+.ts-card .ts-manual { position: absolute; top: calc(100% + 8px); right: 0; white-space: nowrap; }   /* under AWAITING / NEEDS YOU, the name line keeps its height (user, 2026-10-20) */
+.ts-card .inq-acts { min-height: 23px; }   /* the Nudge row's height, empty on confirmed cards */
+#tab-tripsummary .link-btn:disabled { color: rgba(255,255,255,.18); border-color: rgba(122,122,122,.22); background: transparent; cursor: default; }   /* off = fully dimmed, like the Log window's (user, 2026-10-20) */
+.ts-card { border-left-color: color-mix(in srgb, var(--accent) 42%, transparent); }   /* red edge at the green's strength (green 70% × 60% ≈ 42%) (user, 2026-10-20) */
+.ts-card .ts-tag { border: none; border-radius: 3px; font-family: "DM Mono", monospace; }   /* Venmo / Zelle badge shape: tinted box, no outline (user, 2026-10-20) */
+.ts-card .ts-tag-wrap { min-width: 120px; justify-content: center; }   /* status centred over Manual confirm, same column on every card (user, 2026-10-20) */
+.ts-card .ts-manual { left: 0; right: 0; justify-content: center; }
+/* Trip Summary as a list (user, 2026-10-20): a row per student like Terminate's, status badge right; the card opens in a window. */
+.ts-trip-dates { font-size: 10px; letter-spacing: 1px; color: var(--muted); margin: -4px 0 16px; }
+.ts-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; margin-bottom: 8px;
+          background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; }
+.ts-row:hover { border-color: color-mix(in srgb, var(--muted) 45%, transparent); }
+.ts-row-name { font-family: "Syne", sans-serif; font-size: 16px; color: var(--text); }
+.ts-row .ts-tag, .ts-card .ts-tag { display: inline-block; font-size: 10px; padding: 6px 11px; line-height: 1; letter-spacing: 1px; text-transform: uppercase;
+          border: none; border-radius: 3px; font-family: "DM Mono", monospace; white-space: nowrap; }
+.ts-row, .ts-card { --warn: rgba(217,164,65,0.7); --accent2: rgba(240,165,0,0.7); }   /* Trial's 70% amber, also in the window (outside the tab) */
+.ts-card .link-btn:disabled { color: rgba(255,255,255,.18); border-color: rgba(122,122,122,.22); background: transparent; cursor: default; }
+.ts-win-card { margin: 0; }
+.ts-row .ts-tag { background: none !important; padding: 0; font-size: 11px; }   /* list: just the coloured word, like Terminate → (user, 2026-10-20) */
+/* List rows: a left edge in the status word's colour, at the cards' 42% strength (user, 2026-10-20). */
+.ts-row { border-left-width: 3px; }
+.ts-row.ts-row-ok    { border-left-color: color-mix(in srgb, var(--green) 60%, transparent); }
+.ts-row.ts-row-reply { border-left-color: color-mix(in srgb, #d9a441 42%, transparent); }
+.ts-row.ts-row-wait  { border-left-color: color-mix(in srgb, var(--muted) 42%, transparent); }
+.ts-trip-dates { text-transform: uppercase; }   /* 3 / 6 CONFIRMED (user, 2026-10-20) */
+.ts-steps { margin: 4px 0 22px; }   /* steps under CONFIRMATIONS, then the tally and the list (user, 2026-10-20) */
+.ts-steps + .ts-trip-dates { margin-top: 0; }
+.ts-steps .ts-sub { padding-left: 17px; }   /* dashed sub-lines under step 1, the dash under the words (user, 2026-10-20) */
+.ts-steps .ts-sub + span:not(.ts-sub) { margin-top: 10px; }   /* room before step 2 (user, 2026-10-20) */
+.ts-rule { margin: 0 0 22px; }
+.ts-steps { margin-bottom: 18px; }
+.ts-arch-row { margin: 0 0 22px; }
+.ts-archive-btn { display: inline-flex; align-items: center; gap: 8px; }   /* tray icon + Archive (user, 2026-10-20) */
+.ts-card .ts-tag { background: none !important; padding: 0; font-size: 11px; }   /* window: just the coloured word too, like the list (user, 2026-10-20) */
