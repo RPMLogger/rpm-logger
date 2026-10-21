@@ -76,7 +76,7 @@ function _tsActiveCard(trip) {
   var tally = document.createElement('span');
   tally.className = 'ts-tally';
   tally.innerHTML = "<button class='link-btn red ts-archive-btn'" +
-    (_archReady ? " data-tip='Asks first.\nMoves this trip to Trip History.'" : " disabled data-tip='Locked until every student confirms.'") +
+    (_archReady ? " data-tip='Asks first.\nMoves this trip to Trip History.'" : " disabled data-tip='Locked.\nUntil every student is confirmed.'") + " data-tip-wrap" +
     ">" + archLabel + "</button>";
   var _arch = tally.querySelector('.ts-archive-btn');
   if (_arch && _archReady) _arch.onclick = function() {
@@ -140,6 +140,8 @@ function _tsActiveCard(trip) {
     var r = document.createElement('div');
     r.className = 'ts-row ' + (_tsNeedsReply(s) ? 'ts-row-reply' : (s.confirmedAt ? 'ts-row-ok' : 'ts-row-wait'));   // edge in the status colour (user, 2026-10-20)
     r.innerHTML = "<span class='ts-row-name'>" + _tsEsc(s.name) + "</span>" + _tsStatusPill(s);
+    r.setAttribute('data-tip', 'Opens a window.\nTheir dates, texts and reply box.');
+    r.setAttribute('data-tip-wrap', '');
     r.onclick = function () { _tsOpenStudent(s); };
     list.appendChild(r);
   });
@@ -276,6 +278,8 @@ function _tsStudentRow(s, readOnly) {
   var sendBtn = document.createElement('button');
   sendBtn.innerHTML = SEND_ICON + '<span>Send</span>';
   sendBtn.disabled = !s.phone;
+  sendBtn.setAttribute('data-tip', 'Instant.\nTexts them what is in the box.\nShows in the thread.');
+  sendBtn.setAttribute('data-tip-left', ''); sendBtn.setAttribute('data-tip-wrap', '');
   sendBtn.className = 'link-btn bright';
   sendBtn.style.cssText = 'display:inline-flex;align-items:center;gap:7px';
   sendBtn.onclick = function() {
@@ -301,7 +305,8 @@ function _tsStudentRow(s, readOnly) {
   var confirmBtn = document.createElement('button');
   var isC = !!s.confirmedAt;
   confirmBtn.textContent = isC ? '✓ Confirmed' : 'Manual confirm';   // marks it without a text (user, 2026-10-20; was Confirm)
-  confirmBtn.title = isC ? 'Confirmed — click to undo' : 'Mark confirmed manually';
+  confirmBtn.setAttribute('data-tip', 'Instant.\nMarks them confirmed.\nNothing is sent.');
+  confirmBtn.setAttribute('data-tip-left', ''); confirmBtn.setAttribute('data-tip-wrap', '');
   confirmBtn.className = 'link-btn' + (isC ? ' green' : '');
   confirmBtn.onclick = function() {
     var url = getScriptUrl(); if (!url) return;
@@ -316,9 +321,11 @@ function _tsStudentRow(s, readOnly) {
   if (!s.confirmedAt) {
     var nudgeBtn = document.createElement('button');
     nudgeBtn.textContent = 'Nudge';
-    nudgeBtn.title = 'Pre-fill a follow-up asking them to confirm';
+    nudgeBtn.setAttribute('data-tip', _tsNeedsReply(s) ? 'Locked.\nAnswer their reply first.'
+      : 'Instant.\nFills the box with a follow-up asking them to confirm.\nNothing sends until you press Send.');
+    nudgeBtn.setAttribute('data-tip-wrap', '');
     nudgeBtn.disabled = !s.phone || _tsNeedsReply(s);   // a reply waiting on you: no nudge (user, 2026-10-20)
-    nudgeBtn.className = 'link-btn amber';
+    nudgeBtn.className = 'link-btn amber ts-nudge';
     nudgeBtn.style.cssText = 'order:-1;margin-right:auto';   // bottom left, Send stays right (user, 2026-10-20)
     nudgeBtn.onclick = function() {
       input.value =
@@ -338,7 +345,7 @@ function _tsStudentRow(s, readOnly) {
   if (!isC) {
     confirmBtn.classList.add('ts-manual');
     // Off while a reply is waiting on you: answer it first (user, 2026-10-20).
-    if (_tsNeedsReply(s)) { confirmBtn.disabled = true; confirmBtn.title = 'Reply first'; }
+    if (_tsNeedsReply(s)) { confirmBtn.disabled = true; confirmBtn.setAttribute('data-tip', 'Locked.\nAnswer their reply first.'); }
     head.querySelector('.ts-tag-wrap').appendChild(confirmBtn);
   }
   actions.appendChild(lbl('Text back'));   // (user, 2026-10-20; was Text)

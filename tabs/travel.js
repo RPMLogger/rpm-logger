@@ -69,7 +69,7 @@ function _travelRenderPlan() {
     "<div class='tv-sec-note tv-steps'><span><i>1.</i>Adjust vacation dates</span><span><i>2.</i>Press Calculate</span></div>" +
     "<div class='tv-reset-row'><span id='travelResetSlot'></span></div>" +   // Reset above the dates, right in line with Calculate (user, 2026-10-20; was beside Calculate)
     pair('travelLeavingSlot', 'travelArrivingSlot') +
-    "<div class='tv-dates-foot'><button class='link-btn amber' id='travelSetBtn' onclick='_travelSetDates()'></button></div>" +
+    "<div class='tv-dates-foot'><button class='link-btn amber' id='travelSetBtn' onclick='_travelSetDates()' data-tip='Instant.\nLocks the dates and counts the lessons.\nNothing is sent.' data-tip-left data-tip-wrap></button></div>" +
     "<hr class='divider tv-sec-rule'>" +
     head('Set buffer') +
     "<div class='tv-sec-icon tv-icon-top'>" + BUFFER_ICON.replace(/class="[^"]*"/, 'class="win-icon tv-buf-icon"') +
@@ -219,7 +219,9 @@ function _travelSumRender() {
   var cells = function (v) {
     if (v === '…' || !ok(v)) {
       if (v && v.err) errs.push(v.err);
-      var ph = "<span class='tv-sum-none'>" + (v === '…' ? '…' : '–') + "</span>";   // en dash, shorter (user, 2026-10-20)
+      // Counting: the portal's spinner in each cell, so it's clearly working (user, 2026-10-20; was …).
+      var ph = v === '…' ? "<span class='tv-sum-none'><i class='rpm-loading tv-sum-spin'></i></span>"
+                         : "<span class='tv-sum-none'>–</span>";   // en dash, shorter (user, 2026-10-20)
       return ph + ph + ph;
     }
     return "<span>" + v.d + "</span><span>" + v.n + "</span><span>$" + (v.rev || 0).toLocaleString() + "</span>";
@@ -295,13 +297,13 @@ function _travelRenderCal() {
     "<div class='tv-cal-btns'>" +
       // Always shown; dimmed until Calculate is pressed and both rings, red and green, are clicked
       // (no buffer is fine, but it's said by clicking) (user, 2026-10-19; was hidden till Calculate).
-      "<button class='link-btn amber' id='travelReviewBtn' onclick='_travelGoReview()'" +
+      "<button class='link-btn amber' id='travelReviewBtn' onclick='_travelGoReview()' data-tip='Opens the next page.\nEach student&#39;s dates and text.\nNothing is sent yet.' data-tip-left data-tip-wrap" +
         (_travelReviewReady() ? "" : " disabled") + ">Review →</button>" +
     "</div>";
 
   var rs = document.getElementById('travelResetSlot');
   // Always there, left of Calculate; dimmed until a day is picked (user, 2026-10-20).
-  if (rs) rs.innerHTML = "<button class='link-btn' onclick='_travelClear()' data-tip='Reset days'" + (t.leaving ? "" : " disabled") + ">↺ Reset</button>";
+  if (rs) rs.innerHTML = "<button class='link-btn' onclick='_travelClear()' data-tip='Instant.\nBoth dates back to today.\nClears the buffer and the counts.' data-tip-left data-tip-wrap" + (t.leaving ? "" : " disabled") + ">↺ Reset</button>";
 
   var second = new Date(s.calMonth.getFullYear(), s.calMonth.getMonth() + 1, 1);
   months.innerHTML =
@@ -525,19 +527,19 @@ function _travelGoReview() {
   var s = _travelState, btn = document.getElementById('travelReviewBtn');
   if (!s.firstOff || !s.firstBack || s.firstOff >= s.firstBack || !getScriptUrl()) return;
   var mySeq = ++_travelPreviewSeq;
-  if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+  if (btn) { btn.disabled = true; btn.classList.add('tv-busy'); btn.innerHTML = "<span class='rpm-loading'>Loading</span>"; }   // spinner, not a still word (user, 2026-10-20)
   fetch(_travelPreviewUrl(s.firstOff, s.firstBack))
     .then(function (r) { return r.json(); })
     .then(function (data) {
       if (mySeq !== _travelPreviewSeq) return;   // a date changed while it loaded → drop it
       if (!data.success) throw new Error(data.message || 'unknown');
-      if (!data.totalLessons) { if (btn) { btn.disabled = false; btn.textContent = 'No lessons to cancel'; } return; }
+      if (!data.totalLessons) { if (btn) { btn.disabled = false; btn.classList.remove('tv-busy'); btn.textContent = 'No lessons to cancel'; } return; }
       s.preview = data;
       _travelRenderReview();
     })
     .catch(function (e) {
       if (mySeq !== _travelPreviewSeq) return;
-      if (btn) { btn.disabled = false; btn.textContent = 'Review →'; }
+      if (btn) { btn.disabled = false; btn.classList.remove('tv-busy'); btn.textContent = 'Review →'; }
       addLog('travelFeed', '❌ ' + (e && e.message ? e.message : 'Connection failed'), 'error');
     });
 }
@@ -569,7 +571,7 @@ function _travelRenderReview() {
         "</div>" +
       "</div>" +
     "</div>" +
-    "<button id='travelBackToPrev' class='link-btn'>← Back</button>";
+    "<button id='travelBackToPrev' class='link-btn' data-tip='Back to the plan.\nDates and buffer stay as set.' data-tip-left data-tip-wrap>← Back</button>";
   section.appendChild(hdr);
   document.getElementById('travelBackToPrev').onclick = _travelRenderPlan;
 
@@ -653,10 +655,12 @@ function _travelRenderReview() {
       danger: true
     }).then(function (ok) {
       if (!ok) return;
-      go.disabled = true; go.querySelector('span').textContent = 'Working…';
+      go.disabled = true; go.classList.add('tv-busy'); go.innerHTML = "<span class='rpm-loading'>Working</span>";   // spinner while it deletes and texts (user, 2026-10-20)
       _travelExecute();
     });
   };
+  go.setAttribute('data-tip', 'Asks first.\nDeletes the skipped lessons from the calendar.\nTexts each student their message.\nSecretary emails them within the hour.');
+  go.setAttribute('data-tip-wrap', '');
   actions.appendChild(go);
   // Go live right under the steps, in the header block (user, 2026-10-20; was at the bottom, then over the cards).
   var top = hdr.querySelector('.tv-cal'), steps = top.querySelector('.tv-buf-top');
@@ -734,7 +738,7 @@ function _travelRenderDone(data, snap) {
     "<div class='tv-sec-note tv-steps'><span><i>1.</i>Check replies and confirmations in Trip Summary</span></div>" +   // step 2 (Secretary's email) dropped (user, 2026-10-20)
     "<div class='tv-live-table'><div class='tv-sum-card'>" + rows + "</div></div>" +
     "<div class='tv-dates-foot'>" +
-      "<button class='link-btn amber' id='travelToSummary'>Trip Summary →</button>" +
+      "<button class='link-btn amber' id='travelToSummary' data-tip='Opens Trip Summary.\nReplies and confirmations come in there.' data-tip-left data-tip-wrap>Trip Summary →</button>" +
     "</div>";
   section.appendChild(card);
   document.getElementById('travelToSummary').onclick = function () { if (typeof switchTab === 'function') switchTab('tripsummary'); };

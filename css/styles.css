@@ -2934,3 +2934,10 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .ts-arch-row { margin: 0 0 22px; }
 .ts-archive-btn { display: inline-flex; align-items: center; gap: 8px; }   /* tray icon + Archive (user, 2026-10-20) */
 .ts-card .ts-tag { background: none !important; padding: 0; font-size: 11px; }   /* window: just the coloured word too, like the list (user, 2026-10-20) */
+/* Travel Plan loading (user, 2026-10-20): spinners while counting, Review loading, Go live working. */
+.tv-sum-spin { display: inline-flex; }
+.tv-sum-spin::before { width: 13px; height: 13px; }
+.link-btn.tv-busy:disabled { opacity: 1; cursor: progress; }
+.link-btn.tv-busy .rpm-loading::before { width: 13px; height: 13px; }
+#travelReviewBtn.tv-busy:disabled { opacity: 1; cursor: progress; }   /* loading: full strength, not the "not ready" dim (user, 2026-10-20) */
+.ts-nudge[data-tip]::before { left: 0; right: auto; transform: none; }   /* Nudge sits at the left edge: its tip opens rightward */
