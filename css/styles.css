@@ -2948,3 +2948,74 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .tv-sum-row:not(.tv-sum-total):not(.tv-sum-cols) > span:not(.tv-sum-name) { color: rgba(240,237,232,0.5); }   /* numbers in the calendar days' grey; Total stays amber (user, 2026-10-21) */
 .tv-sum-row.tv-sum-total > span:not(.tv-sum-name) { font-size: 16px; }   /* Total's numbers bigger than the rest (user, 2026-10-21; rows are 13px) */
 .tv-dates .tv-in-label { justify-content: center; text-align: center; }   /* LEAVING ON / BACK ON centred in their tab (user, 2026-10-21) */
+/* Go live's Warning popup (user, 2026-10-21): wider, roomier, Cancel and Activate both red (link-btn red). */
+.rpm-dlg-confirm.tv-golive-dlg { max-width: 480px; padding: 26px 28px; }
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-title { font-size: 22px; }
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-msg { font-size: 12px; margin-top: 16px; }
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn,
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn.danger { color: #ff5a4d; border-color: color-mix(in srgb, #ff5a4d 55%, transparent); background: color-mix(in srgb, #ff5a4d 7%, transparent); padding: 8px 16px; }
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn:hover:where(:not(:disabled)) { color: #ff5a4d; border-color: #ff5a4d; background: color-mix(in srgb, #ff5a4d 16%, transparent); }
+/* Warning popup, round 2 (user, 2026-10-21): more room between title, points and buttons;
+   buttons in the portal's link-btn red, Go live's size (caps, 1px spacing, 12px, 9px 20px). */
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-msg { margin-top: 24px; line-height: 1.8; }
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-acts { margin-top: 30px; gap: 10px; }
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn,
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn.danger {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 9px 20px; border-radius: 7px;
+}
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn svg { width: 16px; height: 15px; }
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn:not(.danger) { color: var(--muted); border-color: rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); }   /* Cancel = the plain grey link-btn (user, 2026-10-21) */
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn:not(.danger):hover:where(:not(:disabled)) { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
+.rpm-dlg-sub { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.5); margin-top: 6px; }   /* small grey line under a dialog title (2026-10-21) */
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-sub + .rpm-dlg-msg { margin-top: 18px; }
+.rpm-dlg-ticon { margin-top: 16px; line-height: 0; color: var(--muted); }   /* a dialog's icon on its own line under the title, the window-icon grey (2026-10-21) */
+.rpm-dlg-ticon + .rpm-dlg-sub { margin-top: 14px; }
+/* Go live popup: "Upon activation" + the points framed, dark like Travel's boxes, a dim red edge for the warning (user, 2026-10-21). */
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body { margin-top: 18px; padding: 16px 18px; background: #131313; border: 1.5px solid color-mix(in srgb, #ff5a4d 35%, transparent); border-radius: 8px; }
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body .rpm-dlg-sub { margin-top: 0; }
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body .rpm-dlg-msg { margin-top: 12px; }
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body .rpm-dlg-msg { text-transform: uppercase; letter-spacing: 0.5px; }   /* the dashed points in caps (user, 2026-10-21) */
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body { padding: 24px 26px; }   /* more room inside the frame (user, 2026-10-21) */
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-sub { font-size: 22px; letter-spacing: 2px; }   /* UPON ACTIVATION as big as WARNING, still grey (user, 2026-10-21) */
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body .rpm-dlg-msg { font-size: 10.5px; }   /* the points smaller (user, 2026-10-21; was 12px) */
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body { border-color: color-mix(in srgb, var(--accent) 42%, transparent); }   /* the dimmed red of the Trip Summary edges (user, 2026-10-21) */
+/* Dates and texts: the unsent text as a thread bubble, Trip Summary's look; the box grows to fit (user, 2026-10-21). */
+.tv-rv-thread { height: auto; overflow: visible; margin: 0 0 8px; padding: 14px; }
+.tv-rv-bub { align-self: flex-end; max-width: 85%; font-size: 11px; line-height: 1.5; padding: 10px 14px; border-radius: 10px; white-space: pre-wrap; }
+.tv-rv-card { border-left-color: color-mix(in srgb, var(--accent) 42%, transparent); }   /* Dates and texts cards: the dimmed red edge (user, 2026-10-21) */
+/* Legends one size down (user, 2026-10-21; were 9px): Dates and texts' Lesson / Skip and Set buffer's three. */
+.tv-rv-key, .tv-buf-key b { font-size: 8px; }
+.ts-lbl-icon.tv-rv-cal-icon { height: 22px; }   /* the calendar a step smaller than the phone (user, 2026-10-21; was 30px) */
+/* Dates and texts cells at Trial's 70% (user, 2026-10-21): Skip red dimmed to match the green; Resume no fill. */
+.tv-rv-dcell .tv-c-skip, .tv-rv-key .tv-c-skip { color: rgba(255,90,77,0.7); box-shadow: inset 0 0 0 1px rgba(255,90,77,0.42); }
+.tv-rv-dcell .tv-c-resume { background: none; }
+.tv-rv-arrow { align-self: flex-end; height: 28px; display: inline-flex; align-items: center; font-size: 16px; color: var(--muted); padding: 0 2px; }   /* › between Before / Skip / Resume, on the cells' middle (user, 2026-10-21) */
+/* Dates in their own box, the text box's twin: dark fill, dashed dim blue (user, 2026-10-21). */
+.tv-rv-dates { padding: 16px 18px; background: #131313; border: 1.5px dashed color-mix(in srgb, var(--blue) 28%, transparent); border-radius: 8px; row-gap: 14px; }
+.tv-rv-group { display: inline-flex; align-items: flex-end; gap: 8px; flex-wrap: nowrap; }   /* a group of date cells never splits (user, 2026-10-21) */
+.tv-rv-dates { column-gap: 8px; }
+.tv-rv-dcell b { min-width: 64px; padding: 7px 10px; }   /* a little narrower so a trip fits on fewer lines */
+/* Before / Resume cells (and the Lesson key) grey instead of green; Skip stays red (user, 2026-10-21). */
+.tv-rv-dcell .tv-c-before, .tv-rv-dcell .tv-c-resume, .tv-rv-key .tv-c-before { color: rgba(240,237,232,0.6); box-shadow: inset 0 0 0 1px rgba(240,237,232,0.25); }
+.tv-rv-dcell .tv-c-resume { background: rgba(240,237,232,0.07) !important; }   /* Resume set apart by a grey wash (user, 2026-10-21) */
+.tv-rv-resume { text-align: right; margin-top: 12px; font-size: 13px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; }   /* RESUMING ON MON, DEC 8 AT 5:00 PM, like SKIPPING N LESSONS (user, 2026-10-21) */
+.tv-rv-dates, .ts-thread.tv-rv-thread { border-color: var(--border); }   /* Dates and texts boxes: the usual grey edge, not blue (user, 2026-10-21) */
+.tv-rv-dates, .ts-thread.tv-rv-thread { border-style: solid; }   /* solid, not dashed (user, 2026-10-21) */
+.tv-rv-resume-d { text-transform: none; letter-spacing: 0.5px; }   /* RESUME ON: Sun, Dec 7 at 2:00 PM (user, 2026-10-21) */
+.tv-rv-resume { margin-top: 20px; }   /* more room under the schedule box (user, 2026-10-21; was 12px) */
+.tv-rv-dcell span.tv-rv-arr { font-size: 14px; line-height: 10px; letter-spacing: 0; }   /* → over repeated boxes, bigger; same row height as the words (user, 2026-10-21) */
+.tv-rv-key .tv-c-resume { box-shadow: inset 0 0 0 1px rgba(240,237,232,0.25); background: rgba(240,237,232,0.07); }   /* the key's Resume swatch (user, 2026-10-21) */
+/* More room inside the schedule and text boxes (user, 2026-10-21). */
+.tv-rv-dates { padding: 22px 24px; }
+.ts-thread.tv-rv-thread { padding: 22px 24px; }
+.link-btn.red.tv-golive-btn { background: color-mix(in srgb, #ff5a4d 16%, transparent); }   /* Go live with a red wash (user, 2026-10-21) */
+.link-btn.red.tv-golive-btn:hover:where(:not(:disabled)) { background: color-mix(in srgb, #ff5a4d 24%, transparent); }
+/* Dates and texts: the Lesson / Skip / Resume key under the steps, in a row (user, 2026-10-21). */
+.tv-rv-top { flex-direction: column; align-items: flex-start; }
+.tv-rv-top .tv-rv-key { flex-direction: row; gap: 20px; margin-top: 16px; }
+.tv-rv-top { gap: 0; }
+/* Go live and Activate the same size, a touch smaller (user, 2026-10-21). */
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn, .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn.danger { font-size: 11px; padding: 8px 16px; }
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn svg { width: 14px; height: 13px; }

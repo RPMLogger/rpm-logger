@@ -566,11 +566,12 @@ function _travelRenderReview() {
       "<div class='db-cx-head im-sec-head im-main-head tv-sec-head'><label class='field-label db-cx-t im-main-t'>Dates and texts</label></div>" +
       "<div class='tv-sec-icon tv-icon-top'>" + PHONE_ICON.replace('class="win-icon"', 'class="win-icon" style="height:42px;width:auto"') + "</div>" +
       // Steps left, the date cells' key right, like Set buffer's (user, 2026-10-20; the cells had labels on top).
-      "<div class='tv-buf-top'>" +
+      "<div class='tv-buf-top tv-rv-top'>" +   // key under the steps (user, 2026-10-21; was on the right)
         "<div class='tv-sec-note tv-steps'><span><i>1.</i>Check each student's lessons, dates and text</span><span><i>2.</i>Press Go live to send</span></div>" +
         "<div class='tv-rv-key'>" +
           "<span><i class='tv-c-before'></i>Lesson</span>" +   // green = a lesson, red = none; Before and Resume both green (user, 2026-10-20)
           "<span><i class='tv-c-skip'></i>Skip</span>" +
+          "<span><i class='tv-c-resume'></i>Resume</span>" +   // Resume's grey wash in the key too (user, 2026-10-21)
         "</div>" +
       "</div>" +
     "</div>" +
@@ -595,7 +596,7 @@ function _travelRenderReview() {
   data.students.forEach(function(s) {
     var f = function (k, v, style) { return "<span class='inq-flabel'>" + k + "</span><span class='inq-fval'" + (style ? " style='" + style + "'" : '') + ">" + v + "</span>"; };
     var card = document.createElement('div');
-    card.className = 'inq-dcard accepted';
+    card.className = 'inq-dcard accepted tv-rv-card';   // dimmed red edge, like Trip Summary's (user, 2026-10-21)
     card.style.marginBottom = '20px';   // more room between cards (user, 2026-10-20)
     card.innerHTML =
       // The money on the right, the lesson count under it (user, 2026-10-20; was "1 × $110 = $110" top left).
@@ -607,22 +608,35 @@ function _travelRenderReview() {
         "</div>" +
       "</div>" +
       // Two sections per card, 1. Dates then 2. Text message: Bebas like the red title, in grey (user, 2026-10-20).
-      "<label class='field-label' style='color:rgba(255,255,255,.5);margin:22px 0 18px'>1. Dates</label>" +
+      // 1. Schedule, then its calendar-grid icon (om-102) under it (user, 2026-10-21).
+      "<label class='field-label' style='color:rgba(255,255,255,.5);margin:22px 0 0'>1. Schedule</label>" +   // (user, 2026-10-21; was Dates)
+      "<div class='ts-th-icon' style='margin:14px 0 18px'>" + SCHEDULE_ICON.replace(/class="[^"]*"/, 'class="ts-lbl-icon tv-rv-cal-icon"') + "</div>" +   // om-102 calendar grid (user, 2026-10-21)   // title, then its icon (user, 2026-10-21)
       // One row of date cells, left to right, like the Counter grid on Payments Audit (user, 2026-10-20; was Before / Skip / Resume lines).
       "<div class='tv-rv-dates'>" +
-        (s.beforeDates || []).map(function (d) { return _travelDateCell('Before', d, 'tv-c-before'); }).join('') +
-        s.skipDates.map(function (d) { return _travelDateCell('Skip', d, 'tv-c-skip'); }).join('') +
-        _travelDateCell('Resume', s.firstBack, 'tv-c-resume') +
+        // Each group stays together, so a wrap moves the whole group (user, 2026-10-21).
+        // The group's word over its first box, → over the ones after it (user, 2026-10-21).
+        [(s.beforeDates || []).map(function (d, i) { return _travelDateCell(i ? '→' : 'Before', d, 'tv-c-before'); }).join(''),
+         s.skipDates.map(function (d, i) { return _travelDateCell(i ? '→' : 'Skip', d, 'tv-c-skip'); }).join(''),
+         _travelDateCell('Resume', String(s.firstBack || '').replace(/,\s*\d{1,2}:\d{2}\s*[AP]M\s*$/i, ''), 'tv-c-resume')]   // date only; the time is in the line under the box (user, 2026-10-21)
+          .filter(Boolean)
+          .map(function (g) { return "<span class='tv-rv-group'>" + g + "</span>"; })   // no › between groups (user, 2026-10-21)
+          .join('') +
       "</div>" +
+      // Under the box, right, in the SKIPPING N LESSONS style: when they're back, with the time (user, 2026-10-21).
+      "<div class='tv-rv-resume'>Resume on: <span class='tv-rv-resume-d'>" + _escapeHtml(_travelResumeLine(s.firstBack)) + "</span></div>" +   // the date in normal case (user, 2026-10-21)
       // Read-only, so the card's own colour, not the black of a box you type in; dashed blue like the Dropbox drop zone (user, 2026-10-20).
       // The header above the box, not inside it (user, 2026-10-20).
       "<hr class='divider' style='margin:32px 0 0'>" +   // a line between Dates and Text message (user, 2026-10-20)
+      // 2. Text message, then the hand-and-phone under it (user, 2026-10-21).
       "<label class='field-label' style='color:rgba(255,255,255,.5);margin:32px 0 6px'>2. Text message</label>" +
-      // The number it goes to, under the title, over the text (user, 2026-10-20; was in Dates).
-      "<div style='font-family:\"DM Mono\",monospace;font-size:10.5px;margin-bottom:20px;color:" + (s.phone ? "rgba(255,255,255,.5)" : "#ff6b6b") + "'>" +
+      // The number it goes to, under the title, then the phone icon, then the text (user, 2026-10-21).
+      "<div style='font-family:\"DM Mono\",monospace;font-size:10.5px;color:" + (s.phone ? "rgba(255,255,255,.5)" : "#ff6b6b") + "'>" +
         (s.phone ? _escapeHtml(s.phone) : '⚠ No number on file — will NOT be texted') + "</div>" +
-      "<div style='font-size:11px;color:var(--muted);background:#131313;border:1.5px dashed color-mix(in srgb, var(--blue) 28%, transparent);border-radius:8px;padding:16px 18px;line-height:1.5;white-space:pre-wrap;margin-bottom:8px'>" +
-        _escapeHtml(s.smsText || '') +
+      "<div class='ts-th-icon' style='margin:14px 0 18px'>" + PHONE_ICON.replace('class="win-icon"', 'class="ts-lbl-icon"') + "</div>" +
+      // The text as it will look in Trip Summary's thread: a blue bubble on the right in the
+      // dashed box; no time, it isn't sent yet (user, 2026-10-21; was plain text in the box).
+      "<div class='ts-thread tv-rv-thread'>" +
+        "<div class='ts-bub tv-rv-bub'>" + _escapeHtml(s.smsText || '') + "</div>" +
       "</div>";
     list.appendChild(card);
   });
@@ -631,56 +645,72 @@ function _travelRenderReview() {
   // Location is set on the plan screen now (Set vacation place, required); executeTravel sends _travelState.location.
 
   var actions = document.createElement('div');
-  actions.style.cssText = 'display:flex;flex-direction:column;align-items:flex-start;gap:14px';   // the steps, then Go live, then what it does (user, 2026-10-20)
+  actions.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:16px';   // one row: what it does left, Go live right (user, 2026-10-21; was stacked)   // even with the line → divider gap (user, 2026-10-21; was 14px)   // the steps, then Go live, then what it does (user, 2026-10-20)
 
   // No ← Back here: the one at the top is enough; only Go live (user, 2026-10-20).
 
   var go = document.createElement('button');
   // The button says only Go live; what it does is the line beside it (user, 2026-10-20).
   var what = document.createElement('span');
-  what.style.cssText = 'font-size:11px;color:rgba(255,255,255,.5);order:2;text-transform:uppercase;letter-spacing:1px';   // under the button
+  what.style.cssText = 'font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px';   // left of the button
   what.textContent = _travelState.testMode
-    ? 'Texts YOU ×' + data.totalStudents + ' (test) · deletes ' + data.totalLessons + ' lessons from calendar'
-    : 'Texts ' + data.totalStudents + ' students · deletes ' + data.totalLessons + ' lessons from calendar';   // texts first (user, 2026-10-20)
+    ? 'Texts YOU ×' + data.totalStudents + ' (test) · deletes ' + _travelPlural(data.totalLessons, 'lesson') + ' from calendar'
+    : 'Texts ' + _travelPlural(data.totalStudents, 'student') + ' · deletes ' + _travelPlural(data.totalLessons, 'lesson') + ' from calendar';   // texts first (user, 2026-10-20); 1 student / 1 lesson (2026-10-21)
   actions.appendChild(what);
   // The portal's button (link-btn, red like Trial's danger ones) with the warning sign (om-101) (user, 2026-10-20).
-  go.className = 'link-btn red';
-  go.style.cssText = 'font-size:12px;padding:9px 20px;gap:8px';   // bigger than the usual link-btn (user, 2026-10-20)
-  go.innerHTML = WARN_ICON.replace('width="13" height="12"', 'width="16" height="15"') + '<span>' + (_travelState.testMode ? 'Go live (test)' : 'Go live') + '</span>';
+  go.className = 'link-btn red opens-window';   // ▸: a popup asks first (portal rule, 2026-10-21)
+  go.style.cssText = 'font-size:11px;padding:8px 16px;gap:8px;flex:none';   // a touch smaller, the same as Activate in its popup (user, 2026-10-21; was 12px, 9px 20px)
+  go.classList.add('tv-golive-btn');   // red wash (user, 2026-10-21)
+  go.innerHTML = WARN_ICON.replace('width="13" height="12"', 'width="14" height="13"') + '<span>' + (_travelState.testMode ? 'Go live (test)' : 'Go live') + '</span>';
   go.onclick = function() {
-    var who = _travelState.testMode
-      ? 'Texts go to YOUR phone (test).'
-      : 'Each student will be TEXTED their trip message now.';
+    // Warning / Upon activation: what Go live does, an arrow per point (user, 2026-10-21; were dashes) (user, 2026-10-21; was "Delete N lessons across N students?").
+    var nL = data.totalLessons, nS = data.totalStudents;
     rpmConfirm({
-      title: 'Delete ' + data.totalLessons + ' lessons across ' + data.totalStudents + ' students?',
-      message: who + '\n\nSecretary also emails on its next hourly run.',
-      confirmLabel: 'Delete and text',
-      danger: true
+      title: 'Warning!',
+      subtitle: 'Upon activation:',   // small grey line under it (user, 2026-10-21)
+      message:
+        '→ ' + nL + ' lesson' + (nL === 1 ? '' : 's') + ' across ' + nS + ' student' + (nS === 1 ? '' : 's') + ' will be deleted from the calendar.\n\n' +
+        '→ ' + (_travelState.testMode ? 'The texts go to YOUR phone (test): ' : 'Each student is texted ') +
+          'their last lesson before the trip, the skipped dates and the day they resume.\n\n' +
+        '→ On its next hourly run, Secretary sees the cancelled lessons and emails each student about them.',
+      confirmLabel: 'Activate',
+      icon: WARN_ICON,   // the warning sign on Activate (user, 2026-10-21)
+      danger: true,
+      className: 'tv-golive-dlg'   // bigger, both buttons red (user, 2026-10-21)
     }).then(function (ok) {
       if (!ok) return;
-      go.disabled = true; go.classList.add('tv-busy'); go.innerHTML = "<span class='rpm-loading'>Working</span>";   // spinner while it deletes and texts (user, 2026-10-20)
+      go.disabled = true; go.classList.add('tv-busy'); go.classList.remove('opens-window'); go.innerHTML = "<span class='rpm-loading'>Working</span>";   // spinner while it deletes and texts (user, 2026-10-20)
       _travelExecute();
     });
   };
   go.setAttribute('data-tip', 'Asks first.\nDeletes the skipped lessons from the calendar.\nTexts each student their message.\nSecretary emails them within the hour.');
   go.setAttribute('data-tip-wrap', '');
   actions.appendChild(go);
-  // Go live right under the steps, in the header block (user, 2026-10-20; was at the bottom, then over the cards).
+  // The Texts line + Go live under the header, full width so Go live lines up with the cards' right edge (user, 2026-10-21).
   var top = hdr.querySelector('.tv-cal'), steps = top.querySelector('.tv-buf-top');
-  steps.style.marginBottom = '18px';
-  top.appendChild(actions);
+  steps.style.marginBottom = '0';
+  actions.style.marginTop = '28px';   // room under the legend (user, 2026-10-21; was 6px)
+  section.insertBefore(actions, list);
   // A divider line before the cards and one after them (user, 2026-10-20).
-  var hrTop = document.createElement('hr'); hrTop.className = 'divider'; hrTop.style.margin = '24px 0';
+  var hrTop = document.createElement('hr'); hrTop.className = 'divider'; hrTop.style.margin = '20px 0 24px';   // 20 over it = Go live → line (user, 2026-10-21)
   var hrEnd = document.createElement('hr'); hrEnd.className = 'divider'; hrEnd.style.margin = '24px 0';
   section.insertBefore(hrTop, list);
   section.appendChild(hrEnd);
 }
 
+// "Mon Dec 8, 5:00 PM" -> "Mon, Dec 8 at 5:00 PM".
+function _travelResumeLine(fb) {
+  return String(fb || '').replace(/^([A-Za-z]{3}),?\s+/, '$1, ').replace(/,\s*(\d{1,2}:\d{2}\s*[AP]M)\s*$/i, ' at $1');
+}
+
+// "1 student" / "2 students".
+function _travelPlural(n, word) { return n + ' ' + word + (Number(n) === 1 ? '' : 's'); }
+
 // A date cell for the review cards, the weekday dropped ("Sun Nov 8" → "Nov 8").
 function _travelDateCell(label, d, cls) {
   var txt = String(d || '').replace(/^[A-Za-z]{3},?\s+/, '');
   // Every cell's word over it again: Before / Skip / Resume (user, 2026-10-20).
-  return "<div class='tv-rv-dcell'><span>" + label + "</span><b class='" + cls + "'>" + _escapeHtml(txt) + "</b></div>";
+  return "<div class='tv-rv-dcell'><span" + (label === '→' ? " class='tv-rv-arr'" : '') + ">" + label + "</span><b class='" + cls + "'>" + _escapeHtml(txt) + "</b></div>";
 }
 
 function _travelExecute() {

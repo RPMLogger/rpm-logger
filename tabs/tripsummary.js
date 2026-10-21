@@ -75,7 +75,7 @@ function _tsActiveCard(trip) {
   var archLabel = TRAY_IN_ICON + '<span>Archive</span>';
   var tally = document.createElement('span');
   tally.className = 'ts-tally';
-  tally.innerHTML = "<button class='link-btn red ts-archive-btn'" +
+  tally.innerHTML = "<button class='link-btn red ts-archive-btn opens-window'" +   // ▸: asks first
     (_archReady ? " data-tip='Asks first.\nMoves this trip to Trip History.'" : " disabled data-tip='Locked.\nUntil every student is confirmed.'") + " data-tip-wrap" +
     ">" + archLabel + "</button>";
   var _arch = tally.querySelector('.ts-archive-btn');
@@ -267,7 +267,7 @@ function _tsStudentRow(s, readOnly) {
   input.disabled = !s.phone;
   input.style.cssText = 'width:100%;box-sizing:border-box;resize:none;overflow:hidden;min-height:36px;' +
     'padding:8px 9px;font-size:12px;line-height:1.5;font-family:inherit;background:var(--bg);' +
-    'border:1.5px dashed color-mix(in srgb, var(--blue) 28%, transparent);border-radius:8px;color:var(--text)';   // dashed dim blue like the thread box (user, 2026-10-20)
+    'border:1.5px dashed color-mix(in srgb, var(--blue) 28%, transparent);border-radius:8px;color:var(--text)';   // dashed dim blue like the thread box (user, 2026-10-20; kept 2026-10-21)
   function _tsAutoGrow() { input.style.height = 'auto'; input.style.height = input.scrollHeight + 'px'; }
   input.addEventListener('input', _tsAutoGrow);
 

@@ -5,7 +5,7 @@
 // "rpmlogger.github.io says", and completely unstyleable. It was the only
 // light-themed thing in the portal. These three replace it.
 //
-//   rpmConfirm({ title, message, confirmLabel, cancelLabel, danger, icon })  -> Promise<bool>
+//   rpmConfirm({ title, subtitle, message, confirmLabel, cancelLabel, danger, icon, titleIcon, className })  -> Promise<bool>
 //     icon: optional SVG string (tabs/icons.js) shown before the confirm label
 //   rpmAlert({ title, message, confirmLabel })                         -> Promise<void>
 //   rpmPrompt({ title, message, value, placeholder, confirmLabel })    -> Promise<string|null>
@@ -32,7 +32,8 @@ function _rpmDialog(opts) {
 
     var box = document.createElement("div");
     box.className = "rpm-dlg" + (kind === "prompt" ? " rpm-dlg-wide" : "") +
-      (kind === "confirm" ? " rpm-dlg-confirm" : "");
+      (kind === "confirm" ? " rpm-dlg-confirm" : "") +
+      (opts.className ? " " + opts.className : "");   // className: an extra class for one dialog's own look (Go live, 2026-10-21)
     box.setAttribute("role", "dialog");
     box.setAttribute("aria-modal", "true");
 
@@ -57,12 +58,34 @@ function _rpmDialog(opts) {
     }
     box.appendChild(head);
 
+    // titleIcon: optional SVG string on its own line under the title, in the icon grey,
+    // like a Travel Plan section's icon (Go live's warning sign, 2026-10-21).
+    if (opts.titleIcon) {
+      var ti = document.createElement("div");
+      ti.className = "rpm-dlg-ticon";
+      ti.innerHTML = opts.titleIcon;
+      box.appendChild(ti);
+    }
+
+    // subtitle: optional small grey line under the title (Go live's "Upon activation", 2026-10-21).
+    // With a subtitle, subtitle + message sit together in .rpm-dlg-body, so a dialog can frame them.
+    var bodyBox = box;
+    if (opts.subtitle) {
+      bodyBox = document.createElement("div");
+      bodyBox.className = "rpm-dlg-body";
+      box.appendChild(bodyBox);
+      var sub = document.createElement("div");
+      sub.className = "rpm-dlg-sub";
+      sub.textContent = opts.subtitle;
+      bodyBox.appendChild(sub);
+    }
+
     // ── message ──
     if (opts.message) {
       var msg = document.createElement("div");
       msg.className = "rpm-dlg-msg";
       msg.textContent = opts.message;
-      box.appendChild(msg);
+      bodyBox.appendChild(msg);
     }
 
     // ── input (prompt only) ──
