@@ -192,6 +192,9 @@ function _travelSetDates() {
   _travelSetBtn();
   _travelRenderCal();
   _travelLockCalc();
+  // Next step is the buffer: bring Set buffer to the top of the screen (user, 2026-10-21).
+  var bh = [].slice.call(document.querySelectorAll('#travelBody .tv-sec-head')).filter(function (h) { return /set buffer/i.test(h.textContent); })[0];
+  if (bh) window.scrollTo({ top: bh.getBoundingClientRect().top + window.pageYOffset - 16, behavior: 'smooth' });
 }
 
 // Lock counts the vacation days (Leaving on up to Back on) once, against the
