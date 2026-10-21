@@ -246,7 +246,7 @@ function _todoSubmitAll() {
 
   var btn = document.getElementById("todoLog");
   var orig = btn.textContent;
-  btn.textContent = "Logging..."; btn.disabled = true;
+  btn.textContent = "Logging…"; btn.disabled = true;
 
   callScript(url, "addTodo", { task: task }, function(data) {
     btn.textContent = orig; btn.disabled = false;

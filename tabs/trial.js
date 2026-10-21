@@ -1803,7 +1803,7 @@ function _tlDrop(ev) {
   var zone = document.getElementById('tlDrop');
   if (!zone || !ev.dataTransfer) return;
   zone.style.borderColor = 'rgba(91,157,255,0.4)'; zone.style.background = 'transparent';
-  zone.textContent = 'Reading\u2026';
+  rpmSetLoading(zone, 'Reading');
   collectDroppedFiles(ev.dataTransfer, function (files) {
     if (files.length) _tlUpload(files); else zone.textContent = zone.dataset.idle;
   });
@@ -1825,7 +1825,7 @@ function _tlUpload(files) {
   uploadFilesToDropbox(folder, files, {
     onProgress: function (name, i, total) {
       var z = document.getElementById('tlDrop');
-      if (z) z.textContent = 'Uploading ' + (i + 1) + '/' + total + ': ' + name + ' \u2026';
+      if (z) rpmSetLoading(z, 'Uploading ' + (i + 1) + '/' + total + ': ' + name);
     },
     onDone: function (ok, fail, total) {
       var z = document.getElementById('tlDrop');
@@ -2608,9 +2608,8 @@ function _msRenderForm() {
 function _msRateHint() {
   var el = document.getElementById('msRateHint');
   if (!el) return;
-  el.textContent = _msRates
-    ? 'Website: weekly $' + (_msRates.weekly || '?') + ' · biweekly $' + (_msRates.biweekly || '?')
-    : 'Loading website rates…';
+  if (!_msRates) return rpmSetLoading(el, 'Loading website rates');
+  el.textContent = 'Website: weekly $' + (_msRates.weekly || '?') + ' · biweekly $' + (_msRates.biweekly || '?');
 }
 
 function _msLoadRates() {

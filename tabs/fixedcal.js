@@ -28,7 +28,7 @@ function initFixedCalTab() {
   _fcInjectStyle();
   var body = document.getElementById('fcBody');
   if (!body) return;
-  if (!_fcData) body.innerHTML = '<div class="empty-state">Reading 8 weeks of lessons...</div>';
+  if (!_fcData) body.innerHTML = '<div class="empty-state rpm-loading">Reading 8 weeks of lessons</div>';
 
   var url = (document.getElementById('scriptUrl').value || '').trim();
   if (!url) { _fcData = _fcSample(); _fcRender('Sample data · no data connected'); return; }

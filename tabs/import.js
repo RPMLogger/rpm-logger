@@ -1328,7 +1328,7 @@ function _imLoadHw(name) {
 // none ever → None. Hide folds the files away.
 var _imHwHide = {};   // key → files folded
 function _imLastHwHtml(hw, name) {
-  if (!hw) return '<span style="color:var(--muted)">Loading</span>';
+  if (!hw) return '<span class="rpm-loading is-inline" style="color:var(--muted)">Loading</span>';
   var r = hw.rows.filter(function (x) { return x.text || (x.files || []).length || (x.links || []).length; })[0];
   var k = _imKey(name), out;
   if (!r) out = '<div class="im-none">None</div>';
@@ -1499,7 +1499,7 @@ function _imNotes(d, name) {
 }
 
 function _imNotesBoxHtml(d, name) {
-  if (!d) return '<div class="im-note-d">Loading</div>';
+  if (!d) return '<div class="im-note-d"><span class="rpm-loading is-inline">Loading</span></div>';
   var notes = _imNotes(d, name);
   return notes.length ? notes.map(function (x) { return '<div class="im-note' + (x.kind === 'pay-alert' ? ' im-note-alert' : '') + '">' + x.html + '</div>'; }).join('')
                       : '<div class="im-none">None</div>';   // the lesson rows' font (2026-10-06)

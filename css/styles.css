@@ -230,6 +230,7 @@ body::before {
   animation: rpm-spin 1s steps(8) infinite;
 }
 @keyframes rpm-spin { to { transform: rotate(360deg); } }
+.rpm-loading.is-inline { display: inline-flex; }   /* inside a line of text or a status note (2026-10-21) */
 
 /* ─── WEEK PILLS ──────────────────────────────────────────────────────────── */
 .week-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }

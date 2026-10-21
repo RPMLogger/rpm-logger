@@ -228,7 +228,7 @@ function _notesSubmit() {
 
   var btn = document.getElementById("notesLog");
   var orig = btn.textContent;
-  btn.textContent = "Logging..."; btn.disabled = true;
+  btn.textContent = "Logging…"; btn.disabled = true;
 
   callScript(url, "addNote", { note: note }, function(data) {
     btn.textContent = orig; btn.disabled = false;

@@ -471,7 +471,7 @@ function _stRenderDetail() {
     ev.preventDefault();
     drop.style.borderColor = 'rgba(91,157,255,0.4)'; drop.style.background = 'transparent';
     if (!ev.dataTransfer) return;
-    drop.textContent = 'Reading\u2026';
+    rpmSetLoading(drop, 'Reading');
     collectDroppedFiles(ev.dataTransfer, function (files) {
       if (files.length) _stUploadToDropbox(d.name, files, drop);
       else drop.textContent = drop.dataset.idle;
@@ -943,7 +943,7 @@ function _stOpenDropbox(studentName) {
 function _stUploadToDropbox(folderName, fileList, zone) {
   uploadFilesToDropbox(folderName, fileList, {
     onProgress: function (name, i, total) {
-      zone.textContent = 'Uploading ' + (i + 1) + '/' + total + ': ' + name + ' …';
+      rpmSetLoading(zone, 'Uploading ' + (i + 1) + '/' + total + ': ' + name);
     },
     onDone: function (ok, fail, total) {
       zone.textContent = (fail ? '⚠ ' : '✓ ') + ok + '/' + total + ' uploaded' +

@@ -21,7 +21,7 @@ function initDropboxTab() {
     body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>';
     return;
   }
-  body.innerHTML = '<div class="empty-state">Checking Dropbox…</div>';
+  body.innerHTML = '<div class="empty-state rpm-loading">Checking Dropbox</div>';   // the portal's spinning ring (user, 2026-10-21)
   fetch(url + '?action=getDropboxFolders')
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -610,7 +610,7 @@ function _dbUnbusy(btn) {
 function _dbAction(params, btn) {
   var url = getScriptUrl();
   if (!url) return;
-  _dbStatus('Working…');
+  _dbStatus("<span class='rpm-loading is-inline'>Working</span>");
   var qs = Object.keys(params).map(function (k) {
     return k + '=' + encodeURIComponent(params[k]);
   }).join('&');
@@ -644,7 +644,7 @@ function _dbRecoverFolder(name, btn) {
 
 function _dbRecoverGo(name, btn, url) {
   if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Recovering…'; }
-  _dbStatus('Recovering ' + name + '’s deleted files…', 'var(--accent2)');
+  _dbStatus("<span class='rpm-loading is-inline'>Recovering " + name + "’s deleted files</span>", 'var(--accent2)');
   fetch(url + '?action=restoreDropboxFolder&name=' + encodeURIComponent(name))
     .then(function (r) { return r.json(); })
     .then(function (d) {

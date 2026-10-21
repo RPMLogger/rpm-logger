@@ -396,6 +396,19 @@ var _RPM_DOTS_SVG =
   }).observe(document.documentElement, { subtree: true, childList: true, characterData: true });
 })();
 
+// ─── Spinning ring in a line of text (2026-10-21) ───────────────────────────
+// For waiting words that aren't on a button (drop zones, hints): puts the
+// portal's .rpm-loading ring in front of the text. textContent, so file names
+// need no escaping.
+function rpmSetLoading(el, text) {
+  if (!el) return;
+  var s = document.createElement('span');
+  s.className = 'rpm-loading is-inline';
+  s.textContent = text;
+  el.textContent = '';
+  el.appendChild(s);
+}
+
 // ─── Save / send feedback, one rule (2026-09-26) ────────────────────────────
 // Trial, Initiate and Inquiries. While Google works the window dims and the
 // pressed button keeps its moving dots. Success says nothing: the window

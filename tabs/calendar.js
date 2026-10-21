@@ -45,7 +45,7 @@ function _calLoad(statusMsg) {
   }
 
   _calSample = false;
-  _calSetStatus('Loading…');
+  _calSetStatus('Loading', true);
   fetch(url + '?action=getCalendarWeek&weekStart=' + _calYmd(mon))
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -290,9 +290,11 @@ function _calToggleGoogle() {
   if (b) b.textContent = open ? 'Hide Google view' : 'Google view';
 }
 
-function _calSetStatus(msg) {
+function _calSetStatus(msg, busy) {
   var s = document.getElementById('calStatus');
-  if (s) s.textContent = msg || '';
+  if (!s) return;
+  if (busy) s.innerHTML = "<span class='rpm-loading is-inline'>" + msg + "</span>";   // spinning ring while it loads (user, 2026-10-21)
+  else s.textContent = msg || '';
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
