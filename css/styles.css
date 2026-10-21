@@ -3061,6 +3061,8 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .link-btn.red.en-go:hover:where(:not(:disabled)) { background: color-mix(in srgb, #ff5a4d 24%, transparent); }
 .en-fields { margin-top: 10px; }   /* stats card: the Inquiries field grid under the name */
 .en-fgap { grid-column: 1 / -1; height: 12px; }   /* a break in the stats grid (between the groups) */
+/* Review texts loading: the plan steps back, only the button's spinner stays bright (user, 2026-10-21). */
+.tv-cal.tv-loading > *:not(#travelCalHead) { opacity: 0.35; pointer-events: none; transition: opacity .15s; }
 /* Reviews tab, Ended students (2026-10-21; was Terminate ▾ Reviews): the stats card look. */
 .en-rv-head { margin: 0 0 16px; padding: 0 22px 0 25px; }   /* lines up with the names (3px edge + 22px padding) */
 .en-rv { margin-bottom: 10px; }

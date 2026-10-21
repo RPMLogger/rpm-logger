@@ -65,7 +65,7 @@ function _travelRenderPlan() {
     "<hr class='divider tv-sec-rule'>" +
     head('Set vacation dates') +   // Reset moved down next to Calculate (user, 2026-10-20; was top right)
     // The steps as a list like the legend's: the number where its circle sits (user, 2026-10-19).
-    "<div class='tv-sec-icon tv-icon-top'>" + LUGGAGE_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + "</div>" +   // under the title, over the steps (user, 2026-10-19)
+    "<div class='tv-sec-icon tv-icon-top'>" + SUITCASE_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + "</div>" +   // under the title, over the steps (user, 2026-10-19); om-103 suitcase (2026-10-21, was LUGGAGE_ICON)
     "<div class='tv-sec-note tv-steps'><span><i>1.</i>Adjust vacation dates</span><span><i>2.</i>Press Calculate</span></div>" +
     "<div class='tv-reset-row'><span id='travelResetSlot'></span></div>" +   // Reset above the dates, right in line with Calculate (user, 2026-10-20; was beside Calculate)
     pair('travelLeavingSlot', 'travelArrivingSlot') +
@@ -301,7 +301,7 @@ function _travelRenderCal() {
       // Always shown; dimmed until Calculate is pressed and both rings, red and green, are clicked
       // (no buffer is fine, but it's said by clicking) (user, 2026-10-19; was hidden till Calculate).
       "<button class='link-btn amber' id='travelReviewBtn' onclick='_travelGoReview()' data-tip='Opens the next page.\nEach student&#39;s dates and text.\nNothing is sent yet.' data-tip-left data-tip-wrap" +
-        (_travelReviewReady() ? "" : " disabled") + ">Review →</button>" +
+        (_travelReviewReady() ? "" : " disabled") + ">Review texts →</button>" +   // (user, 2026-10-21; was Review →)
     "</div>";
 
   var rs = document.getElementById('travelResetSlot');
@@ -525,24 +525,32 @@ function _travelBufCalc() {
   });
 }
 
+// Dim the plan (everything but the Review row) and block clicks while Review texts loads.
+function _travelPlanDim(on) {
+  var c = document.querySelector('#travelBody .tv-cal');
+  if (c) c.classList.toggle('tv-loading', !!on);
+}
+
 // Review: count the whole trip once (first day off up to first day teaching) and open the texts.
 function _travelGoReview() {
   var s = _travelState, btn = document.getElementById('travelReviewBtn');
   if (!s.firstOff || !s.firstBack || s.firstOff >= s.firstBack || !getScriptUrl()) return;
   var mySeq = ++_travelPreviewSeq;
   if (btn) { btn.disabled = true; btn.classList.add('tv-busy'); btn.innerHTML = "<span class='rpm-loading'>Loading</span>"; }   // spinner, not a still word (user, 2026-10-20)
+  _travelPlanDim(true);   // the page steps back while it gathers the texts (user, 2026-10-21)
   fetch(_travelPreviewUrl(s.firstOff, s.firstBack))
     .then(function (r) { return r.json(); })
     .then(function (data) {
       if (mySeq !== _travelPreviewSeq) return;   // a date changed while it loaded → drop it
       if (!data.success) throw new Error(data.message || 'unknown');
-      if (!data.totalLessons) { if (btn) { btn.disabled = false; btn.classList.remove('tv-busy'); btn.textContent = 'No lessons to cancel'; } return; }
+      if (!data.totalLessons) { _travelPlanDim(false); if (btn) { btn.disabled = false; btn.classList.remove('tv-busy'); btn.textContent = 'No lessons to cancel'; } return; }
       s.preview = data;
       _travelRenderReview();
     })
     .catch(function (e) {
       if (mySeq !== _travelPreviewSeq) return;
-      if (btn) { btn.disabled = false; btn.classList.remove('tv-busy'); btn.textContent = 'Review →'; }
+      if (btn) { btn.disabled = false; btn.classList.remove('tv-busy'); btn.textContent = 'Review texts →'; }
+      _travelPlanDim(false);
       addLog('travelFeed', '❌ ' + (e && e.message ? e.message : 'Connection failed'), 'error');
     });
 }
