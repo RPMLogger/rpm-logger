@@ -2528,6 +2528,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-mail-mat a { color: var(--text); }
 .im-mail-foot { display: flex; align-items: center; gap: 8px; margin-top: 30px; }
 .im-mail-foot .ll-state { flex: 1; text-align: right; }
+#imMailWin .im-mail.rpm-busy .im-mail-foot > .link-btn:not(.rpm-acting) { opacity: .4; }   /* sending: the other button dims too (user, 2026-10-21) */
 .im-mail .im-msg-frame { margin-top: 22px; }
 .im-mail { position: relative; }
 .im-msg-frame { display: block; width: 100%; height: 420px; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
@@ -2939,5 +2940,8 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .tv-sum-spin::before { width: 13px; height: 13px; }
 .link-btn.tv-busy:disabled { opacity: 1; cursor: progress; }
 .link-btn.tv-busy .rpm-loading::before { width: 13px; height: 13px; }
+/* Log lesson window (2026-10-21): "Logging" spinner under the three sections while they go to Google. */
+.im-saving { margin-top: 18px; color: var(--muted); font-size: 11px; }
+.im-saving:empty { display: none; }
 #travelReviewBtn.tv-busy:disabled { opacity: 1; cursor: progress; }   /* loading: full strength, not the "not ready" dim (user, 2026-10-20) */
 .ts-nudge[data-tip]::before { left: 0; right: auto; transform: none; }   /* Nudge sits at the left edge: its tip opens rightward */

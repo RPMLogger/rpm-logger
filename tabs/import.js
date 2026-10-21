@@ -589,6 +589,14 @@ function _imMailBusy(btn, on) {
   var m = window._imMail;
   if (m) m.busy = on;
   rpmBusy(document.querySelector('#imMailWin .im-mail'), btn, on);
+  // The pressed button spins with its word, the other one dims (2026-10-21).
+  if (!btn) return;
+  if (on) {
+    btn._html = btn.innerHTML; btn.disabled = true; btn.classList.add('tv-busy');
+    btn.innerHTML = "<span class='rpm-loading'>" + (btn.id === 'imMailSend' ? 'Sending' : 'Loading') + '</span>';
+  } else if (btn._html != null) {
+    btn.innerHTML = btn._html; btn._html = null; btn.disabled = false; btn.classList.remove('tv-busy');
+  }
 }
 function _imMailPreview() {
   var m = window._imMail, btn = _imMailQ('imMailPrev');
@@ -745,7 +753,8 @@ function _imStepsRender() {
   var fin = _imQ('imFinDone');
   // Finished: all four ticked and saved.
   var finished = all && !pending && !sending && !_imSchedBusy[_imSchedKey(name, c.day)];
-  if (fin) fin.innerHTML = sending ? '<span class="rpm-loading">Saving</span>' : finished ? 'Finished ✓' : '';
+  // The window dims while it all goes to Google (2026-10-21): a spinner says it's working, no success line.
+  if (fin) fin.innerHTML = sending ? '<span class="rpm-loading">Logging</span>' : '';
   // All four ticked: they go to Google together.
   if (all && pending && !sending) { _imSend(w, hw); return; }
   // Finished by something pressed here (not just reopened): Done, then back (2026-10-07).
@@ -1235,7 +1244,9 @@ function _imDoHtml(name, day) {
       '<button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + n + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Reschedule</button>' +
       '<button class="link-btn im-rs-btn im-nochange' + (_imSchedGet(name, day) === 'nochange' ? ' pressed' : '') + '" id="imNoChangeBtn" data-toggle onclick="_imNoChangeToggle(' + n + ')" data-tip="Nothing to move or skip.\nPress again to undo.">Not needed</button>' +
     '</div>' +
-    '</div>');
+    '</div>' +
+    // "Logging" spinner while the three go to Google; stays bright in the dimmed window (2026-10-21).
+    '<div id="imFinDone" class="im-saving rpm-keep"></div>');
 }
 // A main section's title: red, with a grey subtitle like the window title's (none: all red).
 function _imMainHead(title, sub, right, cls) {
