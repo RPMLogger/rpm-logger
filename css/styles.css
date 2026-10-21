@@ -2946,3 +2946,4 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #travelReviewBtn.tv-busy:disabled { opacity: 1; cursor: progress; }   /* loading: full strength, not the "not ready" dim (user, 2026-10-20) */
 .ts-nudge[data-tip]::before { left: 0; right: auto; transform: none; }   /* Nudge sits at the left edge: its tip opens rightward */
 .tv-sum-row:not(.tv-sum-total):not(.tv-sum-cols) > span:not(.tv-sum-name) { color: rgba(240,237,232,0.5); }   /* numbers in the calendar days' grey; Total stays amber (user, 2026-10-21) */
+.tv-sum-row.tv-sum-total > span:not(.tv-sum-name) { font-size: 16px; }   /* Total's numbers bigger than the rest (user, 2026-10-21; rows are 13px) */
