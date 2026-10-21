@@ -1,48 +1,16 @@
 // ─── FINISHED TAB ────────────────────────────────────────────────────────────
 // The exit door of the student lifecycle. Pick a student who's stopping lessons,
-// review a full snapshot + a review-gate + the exact list of what will be
-// deleted, then confirm. Archives them to Eski and cleans them out of every
+// review the snapshot, then confirm in the Warning! popup, which lists exactly
+// what will be deleted. Archives them to Eski and cleans them out of every
 // active list. Two-step (preview → confirm) because the cleanup is irreversible.
+// The goodbye review follow-up lives on the Reviews tab (tabs/reviews.js).
 // Backend: getEndingPreview / finishStudent (RPM_Ending.js).
 
-// ── Your Google review link ──────────────────────────────────────────────────
-// Paste your g.page review link here (the one in your "would love your feedback"
-// text cards). It gets baked into templates A and C below.
-var EN_REVIEW_LINK = 'https://g.page/r/CdeK_Lah36oBEBM/review';
-
 var _enState = {
-  roster:    null,  // cached list of student names
-  filter:    '',    // current search text
-  preview:   null,  // last loaded preview (so confirm reuses the name)
-  templates: []     // ask-for-review templates for the current student (copy buttons)
+  roster:   null,  // cached list of student names
+  previews: {},    // name → getEndingPreview answer, loaded when its card first opens
+  gone:     []     // terminated this visit (left out of the list until Reload)
 };
-
-// Three ask-for-review templates in Bilgehan's voice. [brackets] are left for
-// him to fill per student (the personal callback). [Name] is auto-filled.
-function _enBuildTemplates(name) {
-  var link = EN_REVIEW_LINK;
-  return [
-    { label: 'A · Warm — you clicked',
-      text:
-        name + '!\n\n' +
-        '[personal callback — e.g. "That video came out so cool, I\'m glad we took it."] It was a fun journey with you, and you can come back anytime if you change your mind.\n\n' +
-        'Quick favor — would you leave a review on my Google page? It helps me and other people looking for lessons. Here\'s the link:\n' +
-        link + '\n\n' +
-        'Stay in touch and keep playing!' },
-    { label: 'B · Life got busy',
-      text:
-        'Hey ' + name + ',\n\n' +
-        'Sorry to see you go, man — you do what you have to do. It was a pleasure, and good luck with the guitar and everything else.\n\n' +
-        'If you find the time, a quick review would really help — my reviews are getting old and I could use some fresh ones. Google or Yelp, whatever\'s easier. No rush at all.\n\n' +
-        'Take care, stay in touch.\nBilgehan..' },
-    { label: 'C · Short & friendly',
-      text:
-        name + '!\n\n' +
-        'Thanks for all the lessons — it was a lot of fun. Quick favor if you have a minute: a Google review really helps me out and means a lot. Here\'s the link:\n' +
-        link + '\n\n' +
-        'Keep playing!' }
-  ];
-}
 
 function initEndingTab() {
   var url = getScriptUrl();
@@ -51,7 +19,6 @@ function initEndingTab() {
     body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>';
     return;
   }
-  _enState.preview = null;
   if (!_enState.roster) _enLoadRoster();
   else _enRenderSearch();
 }
@@ -65,266 +32,186 @@ function _enLoadRoster() {
     .then(function (data) {
       if (!data.success) { body.innerHTML = '<div class="empty-state">⚠ ' + (data.message || 'Could not load roster') + '</div>'; return; }
       _enState.roster = data.students || [];
+      _enState.previews = {};
+      _enState.gone = [];
       _enRenderSearch();
     })
     .catch(function () { body.innerHTML = '<div class="empty-state">❌ Could not connect.</div>'; });
 }
 
-// ── Step 1: pick a student ───────────────────────────────────────────────────
+// ── The list: one card per student, opened in place (2026-10-21) ─────────────
+// Only the names load with the page. Clicking a card's name opens it and loads
+// that student's numbers (getEndingPreview) the first time; any number of
+// cards can be open at once, and an opened card reopens instantly until the
+// tab reloads. Each open card has its own Terminate & archive ▸.
 function _enRenderSearch() {
   var body = document.getElementById('endingBody');
   body.innerHTML =
-    '<div style="font-size:11px;color:var(--muted);margin-bottom:12px">' +
-      'Terminating a student archives them to Eski and removes them from every active list. Pick who\'s stopping.' +
-    '</div>' +
-    '<input id="enSearch" type="text" placeholder="Search a student…" oninput="_enFilter(this.value)" ' +
-      'style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:8px;' +
-      'padding:11px 14px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:14px;margin-bottom:12px">' +
-    '<div id="enList"></div>' +
-    '<hr class="divider" style="margin-top:20px"><button class="refresh-btn" onclick="_enState.roster=null;initEndingTab()">⟳ Reload roster</button>';
-  _enRenderList();
-  var s = document.getElementById('enSearch');
-  if (s) { s.value = _enState.filter; s.focus(); }
-}
-
-function _enFilter(v) { _enState.filter = v; _enRenderList(); }
-
-function _enRenderList() {
+    '<div id="enList" style="margin-top:32px"></div>' +
+    '<div class="en-reload"><button class="link-btn" onclick="_enState.roster=null;initEndingTab()" data-tip="Instant.\nReloads the student list.">Reload</button></div>';
   var list = document.getElementById('enList');
-  if (!list) return;
-  var f = (_enState.filter || '').toLowerCase();
-  var matches = (_enState.roster || []).filter(function (n) { return n.toLowerCase().indexOf(f) !== -1; });
-  if (!matches.length) { list.innerHTML = '<div class="empty-state">No match.</div>'; return; }
-  list.innerHTML = matches.map(function (n) {
-    var nm = _enEsc(n);
-    return '<div onclick="_enLoadPreview(\'' + nm + '\')" ' +
-      'style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;' +
-      'display:flex;align-items:center;justify-content:space-between;padding:13px 16px">' +
-      '<span style="font-family:\'Syne\',sans-serif;font-size:16px;color:var(--text)">' + n + '</span>' +
-      '<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted)">Terminate →</span>' +
+  var roster = _enState.roster || [];
+  var gone = _enState.gone || [];
+  if (!roster.length) { list.innerHTML = '<div class="empty-state">None</div>'; return; }
+  // Cards keep their roster index as their id (the open cards' buttons point
+  // at it), so a terminated student is skipped here, never spliced out.
+  list.innerHTML = roster.map(function (n, i) {
+    if (gone.indexOf(n) !== -1) return '';
+    return '<div class="en-card" id="enC-' + i + '">' +
+      '<div class="en-card-head" onclick="_enToggle(' + i + ')">' +
+        '<span class="en-card-n">' + _enEscHtml(n) + '</span>' +
+        '<span class="en-card-a" id="enA-' + i + '">▾</span>' +
+      '</div>' +
+      '<div class="en-card-body" id="enB-' + i + '" style="display:none"></div>' +
     '</div>';
   }).join('');
 }
 
-// ── Step 2: preview (read-only) ──────────────────────────────────────────────
-function _enLoadPreview(name) {
-  var url = getScriptUrl();
-  var body = document.getElementById('endingBody');
-  body.innerHTML = '<div class="empty-state">Gathering ' + name + '’s record…</div>';
-  fetch(url + '?action=getEndingPreview&name=' + encodeURIComponent(name))
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (!d.success) { body.innerHTML = '<div class="empty-state">⚠ ' + (d.message || 'Failed') + '</div>' + _enBackBtn(); return; }
-      _enState.preview = d;
-      _enRenderPreview(d);
-    })
-    .catch(function () { body.innerHTML = '<div class="empty-state">❌ Could not reach the portal.</div>' + _enBackBtn(); });
+function _enToggle(i) {
+  var card = document.getElementById('enC-' + i), box = document.getElementById('enB-' + i), arrow = document.getElementById('enA-' + i);
+  if (!card || !box) return;
+  var open = box.style.display === 'none';
+  box.style.display = open ? 'block' : 'none';
+  card.classList.toggle('open', open);
+  if (arrow) arrow.textContent = open ? '▴' : '▾';
+  if (open && !box.innerHTML) _enLoadCard(i);
 }
 
-function _enRenderPreview(d) {
+function _enLoadCard(i) {
+  var name = (_enState.roster || [])[i];
+  var box = document.getElementById('enB-' + i);
+  if (!name || !box) return;
+  if (_enState.previews[name]) { _enRenderCard(i, _enState.previews[name]); return; }
+  box.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';   // the portal's spinning ring
+  fetch(getScriptUrl() + '?action=getEndingPreview&name=' + encodeURIComponent(name))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) { box.innerHTML = '<div class="en-note warn">⚠ ' + _enEscHtml(d.message || 'Failed') + '</div>'; return; }
+      _enState.previews[name] = d;
+      _enRenderCard(i, d);
+    })
+    .catch(function () { box.innerHTML = '<div class="en-note warn">❌ Could not reach the portal.</div>'; });
+}
+
+// The open card: the stats grid (what gets saved to the Lifetime & Review
+// summary), then the Go live row at its foot.
+function _enRenderCard(i, d) {
+  var box = document.getElementById('enB-' + i);
+  if (!box) return;
   var s = d.snapshot || {};
-  var body = document.getElementById('endingBody');
-  var html = '';
-
-  html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">' +
-    '<div style="font-family:\'Syne\',sans-serif;font-size:22px;color:var(--text)">' + d.name + '</div>' +
-    '<button class="refresh-btn" style="width:auto;margin:0;padding:6px 12px" onclick="_enRenderSearch()">← back</button>' +
-  '</div>';
-
-  // ── Review gate ──
-  if (d.reviewGate && d.reviewGate.needsAsk) {
-    html += '<div style="border-left:3px solid var(--accent);background:var(--surface2);border:1px solid var(--border);' +
-      'border-radius:10px;padding:12px 16px;margin-bottom:12px">' +
-      '<div style="font-family:\'Syne\',sans-serif;font-size:15px;color:var(--text)">⭐ No review yet' +
-        (d.reviewGate.askedWhen ? ' · asked ' + _enEsc(d.reviewGate.askedWhen) : ' · never asked') + '</div>' +
-      '<div style="font-size:11px;color:var(--muted);margin-top:4px">This is your last clean moment to ask. Send a request, then archive.</div>' +
-    '</div>';
-
-    // Templates stay hidden until you ask for them — kept out of the way.
-    html += '<button class="refresh-btn" style="margin-bottom:12px" onclick="_enToggleTemplates(\'' + _enEsc(d.name) + '\')">✍ Ask for a review</button>';
-    html += '<div id="enTemplates" style="display:none;margin-bottom:18px"></div>';
-  } else if (d.reviewGate) {
-    html += '<div style="border-left:3px solid var(--green);padding:2px 0 2px 14px;margin-bottom:16px;' +
-      'font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> Already left a review</div>';
-  }
-
-  // ── Snapshot card (what gets saved to the Lifetime & Review summary) ──
-  html += '<div class="section-label" style="margin-bottom:8px">Snapshot → Lifetime &amp; Review</div>';
-  html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:6px 16px;margin-bottom:18px">';
+  var html = '<div class="inq-fields en-fields">';
   var sk = s.skips || {}, rs = s.resched || {};
-  // Exactly the Lifetime & Review chart's columns, in its order, so what you
-  // see here is what lands in the chart. Blank values show as a dash.
+  // The Lifetime & Review chart's columns, so what you see here is what
+  // lands in the chart (Final Rate shown after # of Payments, user
+  // 2026-10-21; the chart keeps its own order). Blank values show as a dash.
   var rateNum = String(s.finalRate == null ? '' : s.finalRate).replace(/[^0-9.]/g, '');
   [
     ['Start Date', s.startDate], ['End Date', s.endDate], ['Lifetime', s.lifetime],
-    ['# of Lessons', s.totalLessons], ['Final Rate', rateNum ? '$' + rateNum : ''],
-    ['# of Payments', s.paidChecks],
+    ['# of Lessons', s.totalLessons], ['# of Payments', s.paidChecks],
+    ['Final Rate', rateNum ? '$' + rateNum : ''],
     ['Skips (S)', sk.student || 0], ['Skips (T)', sk.teacher || 0], ['Skips (V)', sk.vacation || 0],
-    ['Reschedules (S)', rs.student || 0], ['Reschedules (T)', rs.teacher || 0],
-    ['Left a review', s.leftReview ? 'Yes' : 'No'], ['Asked When?', s.askedWhen]
+    ['Reschedules (S)', rs.student || 0], ['Reschedules (T)', rs.teacher || 0]
+    // Left a review / Asked When? are not stats: the Reviews tab follows the
+    // review up (the summary row still gets both columns).
   ].map(function (row) {
-    return [row[0], (row[1] === '' || row[1] == null) ? '\u2014' : row[1]];
+    return [row[0], (row[1] === '' || row[1] == null) ? '—' : row[1]];
   }).forEach(function (row) {
-    html += '<div style="display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--border)">' +
-      '<span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">' + row[0] + '</span>' +
-      '<span style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text);text-align:right">' + _enEsc(String(row[1])) + '</span>' +
-    '</div>';
+    // The Inquiries card's field grid: dim label, value beside it. Gaps
+    // split the groups: dates, counts, skips, reschedules.
+    if (['# of Lessons', 'Skips (S)', 'Reschedules (S)'].indexOf(row[0]) !== -1) html += '<span class="en-fgap"></span>';
+    html += '<span class="inq-flabel">' + row[0] + '</span><span class="inq-fval">' + _enEscHtml(String(row[1])) + '</span>';
   });
   html += '</div>';
-
-  // ── What will be deleted ──
-  html += '<div class="section-label" style="margin-bottom:8px">Then deletes</div>';
-  html += '<div style="border-left:3px solid var(--accent);padding:2px 0 2px 14px;margin-bottom:18px">' +
-    (d.willDelete || []).map(function (line) {
-      var warn = line.indexOf('⚠') === 0;
-      return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;padding:3px 0;color:' +
-        (warn ? 'var(--accent)' : 'var(--text)') + '">' + _enEsc(line) + '</div>';
-    }).join('') +
-  '</div>';
-
-  // ── Inline status + confirm ──
-  html += '<div id="enActionStatus"></div>';
-  html += '<button id="enConfirmBtn" onclick="_enConfirmFinish()" ' +
-    'style="width:100%;box-sizing:border-box;background:var(--accent);color:#fff;border:none;border-radius:10px;' +
-    'padding:14px;font-family:\'Syne\',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px">' +
-    '⚑ Terminate & Archive ' + d.name + '</button>';
-  html += '<div style="font-size:10px;color:var(--muted);text-align:center">Archives first, then deletes. Cannot be undone.</div>';
-
-  body.innerHTML = html;
+  // Travel's Go live row: what it does left, the red button right.
+  html += '<div id="enS-' + i + '"></div>' +
+    '<div class="en-foot en-card-foot">' +
+      '<span class="en-foot-note">Archives first, then deletes. Cannot be undone.</span>' +
+      '<button id="enGo-' + i + '" class="link-btn red en-go opens-window" onclick="_enAskFinish(' + i + ')" data-tip-wrap ' +
+        'data-tip="Asks first.\nArchives them to Eski, then deletes them from every active list.\nCannot be undone.">' + _enGoLabel() + '</button>' +
+    '</div>';
+  box.innerHTML = html;
 }
 
-// ── Step 3: confirm (destructive) ────────────────────────────────────────────
-function _enConfirmFinish() {
-  var d = _enState.preview;
+// ── Confirm (destructive) ────────────────────────────────────────────────────
+// Travel's Go live popup: Warning! / Upon activation:, an arrow per point,
+// both buttons red. Nothing runs until Terminate is pressed in it.
+function _enAskFinish(i) {
+  var d = _enState.previews[(_enState.roster || [])[i]];
   if (!d || !d.name) return;
-  var url = getScriptUrl();
-  var btn = document.getElementById('enConfirmBtn');
-  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'wait'; btn.textContent = 'Archiving & cleaning up…'; }
-  _enStatus('Working… archiving then deleting.', 'var(--accent2)');
-  fetch(url + '?action=finishStudent&confirm=1&name=' + encodeURIComponent(d.name))
+  // The backend's exact step list (getEndingPreview willDelete), an arrow per
+  // step; the dates line (↳) stays under its lessons line. It lives only here,
+  // not on the page (user, 2026-10-21).
+  var msg = '';
+  (d.willDelete || []).forEach(function (line) {
+    if (line.trim().indexOf('↳') === 0) msg += '\n' + line.trim();
+    else msg += (msg ? '\n\n' : '') + (line.indexOf('⚠') === 0 ? line : '→ ' + line);
+  });
+  rpmConfirm({
+    title: 'Warning!',
+    subtitle: 'Upon activation:',
+    message: msg + '\n\n→ This cannot be undone.',
+    confirmLabel: 'Terminate',
+    icon: WARN_ICON,
+    danger: true,
+    className: 'tv-golive-dlg'
+  }).then(function (ok) { if (ok) _enConfirmFinish(i); });
+}
+
+function _enConfirmFinish(i) {
+  var d = _enState.previews[(_enState.roster || [])[i]];
+  if (!d || !d.name) return;
+  var btn = document.getElementById('enGo-' + i);
+  function reset() { if (btn) { btn.disabled = false; btn.classList.remove('tv-busy'); btn.classList.add('opens-window'); btn.innerHTML = _enGoLabel(); } }
+  if (btn) { btn.disabled = true; btn.classList.add('tv-busy'); btn.classList.remove('opens-window'); btn.innerHTML = "<span class='rpm-loading'>Working</span>"; }   // Go live's spinner
+  _enStatus(i, "<span class='rpm-loading is-inline'>Archiving then deleting</span>", 'var(--accent2)');
+  fetch(getScriptUrl() + '?action=finishStudent&confirm=1&name=' + encodeURIComponent(d.name))
     .then(function (r) { return r.json(); })
     .then(function (res) {
-      if (!res.success) {
-        _enStatus('⚠ ' + (res.message || 'Failed — nothing may have been deleted.'), 'var(--accent)');
-        if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer'; btn.textContent = '⚑ Terminate & Archive ' + d.name; }
-        return;
-      }
-      _enRenderDone(res);
+      if (!res.success) { _enStatus(i, '⚠ ' + (res.message || 'Failed — nothing may have been deleted.'), 'var(--accent)'); reset(); return; }
+      _enRenderDone(i, res);
     })
-    .catch(function () {
-      _enStatus('❌ Could not reach the portal.', 'var(--accent)');
-      if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = 'pointer'; btn.textContent = '⚑ Terminate & Archive ' + d.name; }
-    });
+    .catch(function () { _enStatus(i, '❌ Could not reach the portal.', 'var(--accent)'); reset(); });
 }
 
-function _enRenderDone(res) {
-  // The finished student is gone — drop them from the cached roster.
-  if (_enState.roster) _enState.roster = _enState.roster.filter(function (n) { return n !== res.name; });
-  var body = document.getElementById('endingBody');
-  var html = '<div style="font-family:\'Syne\',sans-serif;font-size:22px;color:var(--text);margin-bottom:4px">✓ ' + res.name + ' terminated</div>' +
-    '<div style="font-size:11px;color:var(--muted);margin-bottom:16px">Archived to Eski as "' + _enEsc(res.archivedAs || res.name) + '"</div>';
+// The card turns into the result: green edge when every step went through,
+// red when one didn't. The student leaves the list on the next reload.
+function _enRenderDone(i, res) {
+  var card = document.getElementById('enC-' + i), box = document.getElementById('enB-' + i);
+  if (!card || !box) return;
   // A step that failed must NOT read as a success. Everything used to render
   // with a green tick, so "Dropbox folder NOT deleted" looked identical to a
   // completed step and slipped past unnoticed.
   var failed = (res.steps || []).filter(function (st) { return st.indexOf('⚠') === 0; });
-  html += '<div style="border-left:3px solid ' + (failed.length ? 'var(--accent)' : 'var(--green)') +
-    ';padding:2px 0 2px 14px;margin-bottom:18px">' +
+  card.classList.add(failed.length ? 'bad' : 'ok', 'done');
+  var head = card.querySelector('.en-card-n');
+  if (head) head.textContent = res.name + ' terminated';
+  box.innerHTML =
+    '<div class="en-scard-sub">Archived to Eski as "' + _enEscHtml(res.archivedAs || res.name) + '"</div>' +
     (res.steps || []).map(function (st) {
       var bad = st.indexOf('⚠') === 0;
-      return '<div style="font-family:\'DM Mono\',monospace;font-size:12px;padding:3px 0;color:' +
-        (bad ? 'var(--accent)' : 'var(--text)') + '">' +
-        (bad ? '' : '<span style="color:var(--green)">✓</span> ') + _enEscHtml(st) + '</div>';
+      return '<div class="en-line' + (bad ? ' warn' : '') + '">' +
+        (bad ? '' : '<span class="en-tick">✓</span> ') + _enEscHtml(st) + '</div>';
     }).join('') +
-  '</div>';
-  if (failed.length) {
-    html += '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);' +
-      'border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--muted)">' +
-      failed.length + ' step' + (failed.length > 1 ? 's' : '') + ' did not complete. The archive and the sheet ' +
-      'cleanup still went through; finish the flagged item by hand.</div>';
-  }
-  html += '<button class="refresh-btn" onclick="_enRenderSearch()">← Terminate another student</button>';
-  body.innerHTML = html;
+    (failed.length ? '<div class="en-note warn">' + failed.length + ' step' + (failed.length > 1 ? 's' : '') +
+      ' did not complete. The archive and the sheet cleanup still went through; finish the flagged item by hand.</div>' : '');
+  // The terminated student is gone: reopening the tab leaves them out, and
+  // Reload fetches a roster without them anyway.
+  delete _enState.previews[res.name];
+  _enState.gone = (_enState.gone || []).concat([res.name]);
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
-function _enStatus(msg, color) {
-  var st = document.getElementById('enActionStatus');
+// The Terminate button's face: Travel's Go live warning sign + the words.
+function _enGoLabel() {
+  return WARN_ICON.replace('width="13" height="12"', 'width="14" height="13"') + '<span>Terminate &amp; archive</span>';
+}
+
+function _enStatus(i, msg, color) {
+  var st = document.getElementById('enS-' + i);
   if (!st) return;
-  st.innerHTML = msg ? '<div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid ' +
-    (color || 'var(--muted)') + ';border-radius:8px;padding:10px 14px;margin-bottom:12px;' +
-    'font-family:\'DM Mono\',monospace;font-size:12px;color:var(--text)">' + msg + '</div>' : '';
+  st.innerHTML = msg ? '<div class="en-status" style="border-left-color:' + (color || 'var(--muted)') + '">' + msg + '</div>' : '';
 }
 
-function _enBackBtn() {
-  return '<button class="refresh-btn" style="margin-top:14px" onclick="_enRenderSearch()">← back</button>';
-}
-
-// Toggle the templates panel (built on first open). Each template is an editable
-// textarea so you can tweak the wording before copying.
-function _enToggleTemplates(name) {
-  var box = document.getElementById('enTemplates');
-  if (!box) return;
-  if (box.style.display === 'none') {
-    if (!box.innerHTML) box.innerHTML = _enTemplatesHtml(name);
-    box.style.display = 'block';
-  } else {
-    box.style.display = 'none';
-  }
-}
-
-// Build the three editable templates. Textareas hold the raw text directly, so
-// apostrophes render normally (no escaping artifacts) and you can edit in place.
-function _enTemplatesHtml(name) {
-  var tpl = _enBuildTemplates(name);
-  return tpl.map(function (t, i) {
-    return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">' +
-        '<span style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">' + _enEscHtml(t.label) + '</span>' +
-        '<button class="db-mini-btn" id="enCopyBtn-' + i + '" onclick="_enCopyTemplate(' + i + ')">⧉ Copy</button>' +
-      '</div>' +
-      '<textarea id="enTA-' + i + '" rows="9" ' +
-        'style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:8px;' +
-        'padding:10px 12px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:12px;line-height:1.5;resize:vertical">' +
-        _enEscHtml(t.text) + '</textarea>' +
-    '</div>';
-  }).join('');
-}
-
-// Copy the (possibly edited) textarea text to the clipboard. Falls back to
-// execCommand for older WebViews. Flashes the button label so the tap registers.
-function _enCopyTemplate(i) {
-  var ta = document.getElementById('enTA-' + i);
-  if (!ta) return;
-  var text = ta.value;
-  var btn = document.getElementById('enCopyBtn-' + i);
-  function flash(ok) {
-    if (!btn) return;
-    btn.textContent = ok ? '✓ Copied' : '⚠ Select & copy';
-    setTimeout(function () { btn.textContent = '⧉ Copy'; }, 1600);
-  }
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(function () { flash(true); }, function () { _enCopyFallback(text, flash); });
-  } else {
-    _enCopyFallback(text, flash);
-  }
-}
-function _enCopyFallback(text, flash) {
-  try {
-    var ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.focus(); ta.select();
-    var ok = document.execCommand('copy');
-    document.body.removeChild(ta);
-    flash(ok);
-  } catch (e) { flash(false); }
-}
-
-// Escape for single-quoted onclick attributes (used by the roster list).
-function _enEsc(s) {
-  return (s || '').toString().replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-}
 // Escape for HTML text / textarea content — only the markup-significant chars,
 // so apostrophes and quotes stay literal (fixes the stray backslashes).
 function _enEscHtml(s) {

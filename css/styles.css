@@ -1938,14 +1938,14 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .win-refresh svg { width: auto; height: 14px; }   /* 14px tall, like the ✕ disc */
 
 
-/* Student cards (2026-10-02): two lines - name over size on the left,
+/* Student cards (2026-10-02; #1a1a1a like Inquiries cards 2026-10-21): two lines - name over size on the left,
    Recover over the age on the right - straight on the page under a window-
    style title (no frame), a left edge in the storage bar's steel blue. */
 /* Dropbox tab sections (2026-10-02): window titles and fields, no frame -
    the space between sections does the frame's job. */
 .db-section { margin: 8px 0 44px; }
 .db-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer;
-  background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid #3d5f8f; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3d5f8f; border-radius: 10px;
   padding: 12px 14px; margin-bottom: 8px; }
 /* Header over the cards: 24 STUDENTS starts where the names start (3px edge
    + 14px padding); SINCE ADDED starts where Recover starts. */
@@ -3019,3 +3019,52 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Go live and Activate the same size, a touch smaller (user, 2026-10-21). */
 .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn, .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn.danger { font-size: 11px; padding: 8px 16px; }
 .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn svg { width: 14px; height: 13px; }
+
+/* Terminate tab student list (2026-10-21): the Lessons/Dropbox card shape
+   with a dim white left edge; hover brightens the edge. A card opens in
+   place (the name row toggles it) to show its stats and Terminate. */
+.en-card { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid rgba(255,255,255,0.28); border-radius: 10px;
+  margin-bottom: 8px; }
+.en-card:hover:where(:not(:disabled)), .en-card.open { border-color: var(--muted); border-left-color: rgba(255,255,255,0.6); }
+.en-card.done.ok, .en-card.done.ok:hover:where(:not(:disabled)) { border-left-color: var(--green); }
+.en-card.done.bad, .en-card.done.bad:hover:where(:not(:disabled)) { border-left-color: #ff5a4d; }
+.en-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; padding: 12px 14px; }
+.en-card-body { padding: 0 14px 18px; }
+.en-card-body .en-fields { margin-top: 2px; }
+.en-card-body .empty-state.rpm-loading { padding: 14px 0 6px; }
+.en-foot.en-card-foot { justify-content: space-between; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border); }   /* Travel's Go live row at the card's foot */
+.en-foot.en-card-foot .en-foot-note { font-size: 11px; color: rgba(255,255,255,.5); }
+.en-foot.en-card-foot .en-go { font-size: 11px; padding: 8px 16px; gap: 8px; flex: none; }
+.en-card-body .en-status { margin: 16px 0 0; }
+.en-card-n { font-family: "Syne", sans-serif; font-size: 15px; line-height: 26px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.en-card-a { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); white-space: nowrap; }
+/* Stat-style card (Reviews tab cards; .en-scard-sub = the Done line on a
+   terminated card), same dim white edge as the Terminate list cards. */
+.en-scard { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid rgba(255,255,255,0.28); border-radius: 10px;
+  padding: 20px 22px; margin-bottom: 32px; }
+.en-scard-sub { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 6px 0 14px; }
+.en-reload { margin-top: 24px; }
+.en-note { font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.5; color: var(--muted); margin-bottom: 8px; }
+.en-note.warn { color: #ff5a4d; margin-top: 12px; }
+.en-line { font-family: "DM Mono", monospace; font-size: 12px; line-height: 1.5; color: var(--text); padding: 4px 0; }
+.en-line.warn { color: #ff5a4d; }
+.en-tick { color: var(--green); }
+.en-tpl { margin-top: 18px; }
+.en-tpl-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.en-tpl-ta { width: 100%; font-size: 12px; line-height: 1.5; resize: vertical; }
+.en-status { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--muted); border-radius: 10px;
+  padding: 10px 14px; margin-bottom: 16px; font-family: "DM Mono", monospace; font-size: 12px; color: var(--text); }
+.en-foot { display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
+.en-foot-note { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+.link-btn.red.en-go { background: color-mix(in srgb, #ff5a4d 16%, transparent); }   /* the Go live red wash: the one irreversible button */
+.link-btn.red.en-go:hover:where(:not(:disabled)) { background: color-mix(in srgb, #ff5a4d 24%, transparent); }
+.en-fields { margin-top: 10px; }   /* stats card: the Inquiries field grid under the name */
+.en-fgap { grid-column: 1 / -1; height: 12px; }   /* a break in the stats grid (between the groups) */
+/* Reviews tab, Ended students (2026-10-21; was Terminate ▾ Reviews): the stats card look. */
+.en-rv-head { margin: 0 0 16px; padding: 0 22px 0 25px; }   /* lines up with the names (3px edge + 22px padding) */
+.en-rv { margin-bottom: 10px; }
+.en-rv-acts { margin-top: 16px; }
+.en-rv-closed { margin-top: 24px; }
+.en-rv-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }   /* Reviews card: name left, Left a review / Remove top right */
+.en-rv-pick { margin-top: 0; }
+.st-win .en-tpl:first-child { margin-top: 0; }   /* Ask / Nudge window: first template right under the title */
