@@ -82,7 +82,7 @@ function _enLoadCard(i) {
   var box = document.getElementById('enB-' + i);
   if (!name || !box) return;
   if (_enState.previews[name]) { _enRenderCard(i, _enState.previews[name]); return; }
-  box.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';   // the portal's spinning ring
+  box.innerHTML = '<div class="empty-state rpm-loading">Gathering data</div>';   // the portal's spinning ring
   fetch(getScriptUrl() + '?action=getEndingPreview&name=' + encodeURIComponent(name))
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -102,24 +102,38 @@ function _enRenderCard(i, d) {
   var html = '<div class="inq-fields en-fields">';
   var sk = s.skips || {}, rs = s.resched || {};
   // The Lifetime & Review chart's columns, so what you see here is what
-  // lands in the chart (Final Rate shown after # of Payments, user
-  // 2026-10-21; the chart keeps its own order). Blank values show as a dash.
+  // lands in the chart (the card keeps its own order, user 2026-10-22).
+  // Blank values show as a dash.
   var rateNum = String(s.finalRate == null ? '' : s.finalRate).replace(/[^0-9.]/g, '');
-  [
+  var dn = s.density;
+  var rows = [
     ['Start Date', s.startDate], ['End Date', s.endDate], ['Lifetime', s.lifetime],
-    ['# of Lessons', s.totalLessons], ['# of Payments', s.paidChecks],
-    ['Final Rate', rateNum ? '$' + rateNum : ''],
+    ['# of Lessons', s.totalLessons],
     ['Skips (S)', sk.student || 0], ['Skips (T)', sk.teacher || 0], ['Skips (V)', sk.vacation || 0],
+    ['Density', dn ? dn.pct + '%' : ''],
     ['Reschedules (S)', rs.student || 0], ['Reschedules (T)', rs.teacher || 0]
-    // Left a review / Asked When? are not stats: the Reviews tab follows the
-    // review up (the summary row still gets both columns).
-  ].map(function (row) {
+  ];
+  // Left a review / Asked when show only when there's one, so a yes stands
+  // out (user 2026-10-22). The summary row gets both columns either way.
+  if (s.leftReview) rows.push(['Left a review', 'Yes']);
+  if (s.askedWhen) rows.push(['Asked when', s.askedWhen]);
+  rows.push(['# of Payments', s.paidChecks], ['Final Rate', rateNum ? '$' + rateNum : '']);
+  // Amber: the values that say how long and how steadily they came.
+  var AMBER = ['Start Date', 'Lifetime', 'Density'];
+  // Gaps split the groups: dates, lessons, skips, density, reschedules,
+  // review, payments.
+  var GAP = ['# of Lessons', 'Skips (S)', 'Density', 'Reschedules (S)', s.leftReview ? 'Left a review' : 'Asked when', '# of Payments'];
+  rows.map(function (row) {
     return [row[0], (row[1] === '' || row[1] == null) ? '—' : row[1]];
   }).forEach(function (row) {
-    // The Inquiries card's field grid: dim label, value beside it. Gaps
-    // split the groups: dates, counts, skips, reschedules.
-    if (['# of Lessons', 'Skips (S)', 'Reschedules (S)'].indexOf(row[0]) !== -1) html += '<span class="en-fgap"></span>';
-    html += '<span class="inq-flabel">' + row[0] + '</span><span class="inq-fval">' + _enEscHtml(String(row[1])) + '</span>';
+    // The Inquiries card's field grid: dim label, value beside it.
+    if (GAP.indexOf(row[0]) !== -1) html += '<span class="en-fgap"></span>';
+    var tip = row[0] === 'Density'
+      ? ' data-tip="' + (dn ? dn.had + ' of ' + dn.owed + ' lessons since Jul 8, 2026.\n' : 'Nothing to measure yet.\n') +
+        'Teacher and vacation skips don\'t count against them."'
+      : '';
+    html += '<span class="inq-flabel">' + row[0] + '</span><span class="inq-fval' +
+      (AMBER.indexOf(row[0]) !== -1 ? ' en-amber' : '') + '"' + tip + '>' + _enEscHtml(String(row[1])) + '</span>';
   });
   html += '</div>';
   // Travel's Go live row: what it does left, the red button right.
