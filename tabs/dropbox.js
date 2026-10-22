@@ -610,7 +610,9 @@ function _dbUnbusy(btn) {
 function _dbAction(params, btn) {
   var url = getScriptUrl();
   if (!url) return;
-  _dbStatus("<span class='rpm-loading is-inline'>Working</span>");
+  var fx = document.getElementById('dbFixStatus');   // Fix window: the spinner in the middle of it (user, 2026-10-21)
+  if (fx) fx.innerHTML = "<div class='rpm-load-center'><span class='rpm-loading'>Working</span></div>";
+  else _dbStatus("<span class='rpm-loading is-inline'>Working</span>");
   var qs = Object.keys(params).map(function (k) {
     return k + '=' + encodeURIComponent(params[k]);
   }).join('&');

@@ -231,6 +231,14 @@ body::before {
 }
 @keyframes rpm-spin { to { transform: rotate(360deg); } }
 .rpm-loading.is-inline { display: inline-flex; }   /* inside a line of text or a status note (2026-10-21) */
+/* A window's own spinner: in the middle of the screen, over the dimmed window (user, 2026-10-21). */
+.rpm-load-center {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9000;
+  margin: 0; padding: 14px 22px; border-radius: 10px; pointer-events: none;
+  background: var(--surface); border: 1px solid var(--border); box-shadow: 0 6px 24px rgba(0,0,0,.45);
+  color: var(--muted); font-size: 11px; opacity: 1 !important;
+}
+.rpm-load-center:empty { display: none; }
 
 /* ─── WEEK PILLS ──────────────────────────────────────────────────────────── */
 .week-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
@@ -2944,6 +2952,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Log lesson window (2026-10-21): "Logging" spinner under the three sections while they go to Google. */
 .im-saving { margin-top: 18px; color: var(--muted); font-size: 11px; }
 .im-saving:empty { display: none; }
+.im-saving.rpm-load-center { margin: 0; }   /* centred pill, not a row under the sections */
 #travelReviewBtn.tv-busy:disabled { opacity: 1; cursor: progress; }   /* loading: full strength, not the "not ready" dim (user, 2026-10-20) */
 .ts-nudge[data-tip]::before { left: 0; right: auto; transform: none; }   /* Nudge sits at the left edge: its tip opens rightward */
 .tv-sum-row:not(.tv-sum-total):not(.tv-sum-cols) > span:not(.tv-sum-name) { color: rgba(240,237,232,0.5); }   /* numbers in the calendar days' grey; Total stays amber (user, 2026-10-21) */
