@@ -54,7 +54,6 @@ function _f2Chip(label, value, color) {
 function _f2Render(d) {
   var blocks = d.blocks || [];
   var curBlock = d.curWeek >= 0 ? Math.floor(d.curWeek / 4) : -1;
-  var cb = blocks[curBlock] || null;
 
   // Season so far: blocks that have any recorded week.
   var lessons = 0, gigs = 0, net = 0;
@@ -72,21 +71,15 @@ function _f2Render(d) {
       '</div>'
     : '';
 
-  var chips =
-    '<div class="section-label" style="margin-bottom:10px">' + (cb ? 'Month ' + cb.n + ' (this 4 weeks)' : 'This 4 weeks') + '</div>' +
-    '<div class="f2-chips">' +
-      _f2Chip('Income', cb ? _f2Money(cb.monthly) || '$0' : '—') +
-      _f2Chip('Expense', cb ? _f2Money(cb.expense) || '—' : '—', 'var(--muted)') +
-      _f2Chip('Net', cb ? _f2Money(cb.net) || '$0' : '—', 'var(--green)') +
-      _f2Chip('Gregorian', cb ? _f2Money(cb.gregorian) || '$0' : '—') +
-      _f2Chip('Avg students', cb ? _f2Num(cb.avgStudents) || '0' : '—') +
-    '</div>' +
-    '<div class="section-label" style="margin:16px 0 10px">Season so far</div>' +
-    '<div class="f2-chips">' +
-      _f2Chip('Lessons', _f2Money(lessons)) +
-      _f2Chip('Gigs', _f2Money(gigs)) +
-      _f2Chip('Net', _f2Money(net), 'var(--green)') +
-    '</div>';
+  // Current total: one row — season income so far (lessons + gigs) and how many weeks that covers.
+  var weeksSoFar = 0;
+  blocks.forEach(function (b) { b.weeks.forEach(function (w) { if (d.curWeek >= 0 && w.idx <= d.curWeek) weeksSoFar++; }); });
+  var season =
+    '<div class="f2-wrap" style="margin-top:34px"><table class="f2-table">' +
+      '<tr class="f2-row f2-cur"><td class="f2-curlbl">Current total</td>' +
+        '<td class="f2-net">' + _f2Money(lessons + gigs) + '</td>' +
+        '<td>' + weeksSoFar + ' weeks</td></tr>' +
+    '</table></div>';
 
   // Income grid — same columns as the sheet; H..L span their 4-week block.
   // Two header rows: "Income" spans Lessons/Gigs/Weekly/Monthly; widths live on the <col>s.
@@ -125,10 +118,14 @@ function _f2Render(d) {
     });
   });
   var income =
-    '<div class="section-label" style="margin:22px 0 10px">Income</div>' +
+    '<div class="section-label" style="margin-bottom:10px">Income</div>' +
     '<div class="f2-wrap"><table class="f2-table">' + head + body + '</table></div>' +
+    // Under the table: Accountant note on the left, Show more on the right.
+    '<div class="f2-foot">' + status +
     (curBlock >= 0 && blocks.length > curBlock + 2
-      ? '<div class="f2-more"><button class="link-btn" onclick="_f2ToggleLater(this)">Show more</button></div>' : '');
+      ? '<button class="link-btn" onclick="_f2ToggleLater(this)">Show more</button>' : '') +
+    '</div>' +
+    season;
 
   // Expenses — app, who, card, price, renewal. Login columns are never sent.
   var ex = d.expenses || [];
@@ -143,7 +140,7 @@ function _f2Render(d) {
     '</tr>';
   }).join('');
   var expenses =
-    '<div class="section-label" style="margin:22px 0 10px">Expenses</div>' +
+    '<div class="section-label" style="margin:36px 0 10px">Expenses</div>' +
     '<div class="f2-chips" style="margin-bottom:12px">' +
       _f2Chip('Monthly average', _f2Money(d.totalMonthly) || '—') +
       _f2Chip('Per 4 weeks', _f2Money(d.perFourWeeks) || '—') +
@@ -154,5 +151,5 @@ function _f2Render(d) {
       exRows +
     '</table></div>';
 
-  return status + chips + income + expenses;
+  return income + expenses;
 }
