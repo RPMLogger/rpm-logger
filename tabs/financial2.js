@@ -57,21 +57,20 @@ function _f2Render(d) {
 
   var st = d.status;
   var status = st
-    ? '<div class="f2-status">Accountant last run ' + _f2Esc(st.lastRun || '—') +
-        // OK says nothing; anything else shows in red with its message (user 2026-10-22)
-        (st.result === 'OK' ? ''
-                            : ' · <span style="color:var(--accent)">' + _f2Esc(st.result || '?') + '</span>' +
-                              (st.message ? ' — ' + _f2Esc(st.message) : '')) +
-      '</div>'
+    // A blue badge like Payments' Venmo / Zelle tags; red when the run didn't go through (user 2026-10-22)
+    ? '<div class="f2-lastrun"><span class="f2-badge' + (st.result === 'OK' ? '' : ' bad') + '">Last run ' + _f2Esc(st.lastRun || '—') +
+        (st.result === 'OK' ? '' : ' · ' + _f2Esc(st.result || '?') + (st.message ? ' — ' + _f2Esc(st.message) : '')) +
+      '</span></div>'
     : '';
 
   // Current total: one row — season income so far (lessons + gigs) and how many weeks that covers.
-  var weeksSoFar = 0;
+  var weeksSoFar = 0, expSoFar = 0;
+  blocks.forEach(function (b, bi) { if (curBlock >= 0 && bi <= curBlock && b.expense != null) expSoFar += b.expense; });
   blocks.forEach(function (b) { b.weeks.forEach(function (w) { if (d.curWeek >= 0 && w.idx <= d.curWeek) weeksSoFar++; }); });
   var season =
-    '<div class="f2-head" style="margin-top:34px">Current total</div>' +   // no divider above it (user 2026-10-22)   // divider + heading like Income (user 2026-10-22)
+    '<div class="f2-head" style="margin-top:48px">Current total income</div>' +   // no divider above it (user 2026-10-22)   // divider + heading like Income (user 2026-10-22)
     '<div class="f2-cur"><span class="f2-hi">' + _f2Money(lessons + gigs) + '</span> · ' + weeksSoFar + ' weeks</div>' +   // plain text, not a table (user 2026-10-22)
-    '<hr class="divider f2-rule" style="margin-top:28px">';
+    '<hr class="divider f2-rule">';
 
   // Income grid — same columns as the sheet; H..L span their 4-week block.
   // Two header rows: "Income" spans Lessons/Gigs/Weekly/Monthly; widths live on the <col>s.
@@ -111,10 +110,13 @@ function _f2Render(d) {
   var income =
     '<div class="f2-icon">' + COST_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>' +   // om-98 calculator + coin under the title (user 2026-10-22)
     '<hr class="divider f2-rule">' +
-    '<div class="f2-head">Income</div>' +   // the title's gray half, Bebas (user 2026-10-22; was a section-label)
+    // INCOME left, the Accountant's last run right, above the table (user 2026-10-22)
+    '<div class="f2-head-row"><div class="f2-head f2-red">Income</div></div>' +
+    '<div class="tv-sec-note f2-note">Filled by the Accountant every morning at 6am</div>' +   // like Travel Plan's how-to lines (user 2026-10-22)
+    status +   // its last run, right under that line (user 2026-10-22)   // the title's gray half, Bebas (user 2026-10-22; was a section-label)
     '<div class="f2-wrap"><table class="f2-table f2-inc">' + head + body + '</table></div>' +
     // Under the table: Accountant note on the left, Show more on the right.
-    '<div class="f2-foot">' + status +   // Accountant line back under the table, Show more right (user 2026-10-22)
+    '<div class="f2-foot">' +   // Show more, right
     (curBlock >= 0 && blocks.length > curBlock + 2
       ? '<button class="link-btn" onclick="_f2ToggleLater(this)">Show more</button>' : '') +
     '</div>' +
@@ -124,7 +126,8 @@ function _f2Render(d) {
   var ex = d.expenses || [];
   _f2Ex = ex;
   var exRows = ex.map(function (e, i) {
-    return '<tr class="f2-row f2-click" onclick="_f2OpenExpense(' + i + ')">' +   // click → Edit window
+    // click = select (highlight) for Edit / Remove under the table; double-click = Edit (user 2026-10-22)
+    return '<tr class="f2-row f2-click" data-i="' + i + '" onclick="_f2ExSelect(this)" ondblclick="_f2OpenExpense(' + i + ')">' +
       '<td class="f2-app">' + _f2Esc(e.app) + '<span>' + _f2Esc(e.vendor) + '</span></td>' +
       '<td>' + _f2Esc(e.on) + '</td>' +
       '<td>' + _f2Money(e.yearly) + '</td>' +
@@ -134,21 +137,33 @@ function _f2Render(d) {
     '</tr>';
   }).join('');
   var expenses =
-    '<div class="f2-head">Expenses</div>' +   // like Income / Current total (user 2026-10-22)
+    // EXPENSES left; right, the receipts in Gmail — the "Subscriptions - RPM" label the user's filter fills (2026-10-22)
+    '<div class="f2-head-row"><div class="f2-head f2-red">Expenses</div>' +
+      '<a class="link-btn" href="https://mail.google.com/mail/u/0/#label/Subscriptions+-+RPM" target="_blank" rel="noopener" ' +
+        'data-tip="Opens elsewhere.\nYour subscription receipts in Gmail." data-tip-left><span>Receipts in Gmail</span><span data-icon="out">' + OPEN_OUT_ICON + '</span></a></div>' +
     '<div class="f2-icon">' + MONEY_OUT_ICON + '</div>' +   // om-105 under the heading (user 2026-10-22)
+    // how-to under the icon, as numbered steps like Travel Plan's (user 2026-10-22)
+    '<div class="tv-sec-note tv-steps f2-howto"><span><i>1.</i>Press + Add expense to add one</span>' +
+      '<span><i>2.</i>Click a row, then Edit or Remove</span></div>' +
     '<div class="f2-wrap"><table class="f2-table f2-ex">' +
       '<tr><th>Application</th><th>Paid on</th><th>Yearly</th><th>Monthly</th><th>Length</th><th>Renewal</th></tr>' +
       exRows +
     '</table></div>' +
     // The asterisk's footnote, as far under this table as the Accountant line is under Income (user 2026-10-22)
-    // The asterisk's footnote left, + Add expense right — like the Accountant line + Show more under Income
-    '<div class="f2-foot"><div class="f2-status">* Normalized: for 4 week length months</div>' +
-      '<button class="link-btn" onclick="_f2OpenExpense(-1)">+ Add expense</button></div>' +
+    // Edit / Remove / + Add expense, right — like Show more under Income
+    '<div class="f2-foot">' +
+      '<span class="f2-ex-acts"><button class="link-btn" id="f2ExEditPicked" disabled onclick="_f2EditPicked()">Edit</button>' +
+      '<button class="link-btn" id="f2ExRemovePicked" disabled onclick="_f2RemovePicked()">Remove</button>' +
+      '<button class="link-btn" onclick="_f2OpenExpense(-1)">+ Add expense</button></span></div>' +
     // Average expenses: the old three boxes as one line of text, like Current total (user 2026-10-22)
-    '<div class="f2-head" style="margin-top:34px">Average expenses</div>' +
+    '<div class="f2-head" style="margin-top:48px">Average expenses</div>' +
     '<div class="f2-cur"><span class="f2-hi">' + (_f2Money(d.totalMonthly) || '—') + '</span> monthly · ' +
-      '<span class="f2-hi">' + (_f2Money(d.perFourWeeks) || '—') + '</span> normalized<sup>*</sup> · ' +
-      '<span class="f2-hi">' + ex.length + '</span> subscriptions</div>';
+      '<span class="f2-hi">' + (_f2Money(d.perFourWeeks) || '—') + '</span> normalized · ' +
+      '<span class="f2-hi">' + ex.length + '</span> subscriptions</div>' +
+    '<div class="f2-status" style="margin-top:10px">Normalized for 4 week length months</div>' +   // under Average expenses, no asterisk (user 2026-10-22)
+    // Current total expense: the Exp. column summed over this season's months so far (user 2026-10-22)
+    '<div class="f2-head" style="margin-top:48px">Current total expense</div>' +
+    '<div class="f2-cur"><span class="f2-hi">' + _f2Money(expSoFar) + '</span> · ' + weeksSoFar + ' weeks</div>';   // footnote at the bottom (user 2026-10-22)
 
   return income + expenses;
 }
@@ -247,28 +262,69 @@ function _f2RemoveExpense(btn) {
   });
 }
 
+// One selected Expenses row at a time; a second click on it unselects.
+function _f2ExSelect(tr) {
+  var on = !tr.classList.contains('f2-sel');
+  document.querySelectorAll('#fin2Body .f2-ex .f2-sel').forEach(function (x) { x.classList.remove('f2-sel'); });
+  if (on) tr.classList.add('f2-sel');
+  ['f2ExEditPicked', 'f2ExRemovePicked'].forEach(function (id) {
+    var b = document.getElementById(id);
+    if (b) b.disabled = !on;
+  });
+}
+
+function _f2SelIdx() {
+  var tr = document.querySelector('#fin2Body .f2-ex .f2-sel');
+  return tr ? +tr.getAttribute('data-i') : -1;
+}
+
+function _f2EditPicked() {
+  var i = _f2SelIdx();
+  if (i >= 0) _f2OpenExpense(i);
+}
+
+// Remove the selected row straight from the table (user 2026-10-22).
+function _f2RemovePicked() {
+  var e = _f2Ex[_f2SelIdx()];
+  if (!e) return;
+  if (!e.row) { rpmToast('fail', 'Unsuccessful', 'This row has no sheet row number yet. Reload the tab.'); return; }
+  rpmConfirm({
+    title: 'Remove ' + e.app + '?',
+    message: 'Clears this row in the Expenses sheet. A saved login in the sheet stays.',
+    confirmLabel: 'Remove', danger: true
+  }).then(function (ok) {
+    if (!ok) return;
+    _f2ExCall('removeExpense', '&row=' + encodeURIComponent(e.row) + '&was=' + encodeURIComponent(e.app), null, 'Removing', 'Removed', true);
+  });
+}
+
 // While Google works the whole window dims, every button included, and a
 // separate "Saving…" / "Removing…" with the rolling ring sits mid-window
 // (user rule 2026-10-22). When it's done the centre text turns "Saved ✓" for a
 // moment, then the window closes and the whole tab reloads (its Loading) with
 // the new numbers.
-function _f2ExCall(action, q, btn, word, doneWord) {
-  var modal = document.getElementById('f2ExModal'), st = document.getElementById('f2ExStatus');
+function _f2ExCall(action, q, btn, word, doneWord, onTab) {
+  // onTab: the action came from the tab itself (Remove under the table), not the window —
+  // the whole tab dims instead, and a failure shows as a toast.
+  var modal = onTab ? document.getElementById('fin2Body') : document.getElementById('f2ExModal');
+  var st = onTab ? null : document.getElementById('f2ExStatus');
+  var fail = function (why) { if (st) rpmFail(st, why); else rpmToast('fail', 'Unsuccessful', why); };
   var busy = function (on) {
+    if (on && document.activeElement) document.activeElement.blur();   // a focused button would glow through the dim
     modal.classList.toggle('rpm-busy', on);
     var msg = modal.querySelector('.rpm-load-center');   // the portal's own mid-screen loading box
     if (on && !msg) modal.insertAdjacentHTML('beforeend', '<div class="rpm-load-center rpm-keep"><span class="rpm-loading">' + word + '…</span></div>');
     else if (!on && msg) msg.remove();
   };
-  st.innerHTML = '';
+  if (st) st.innerHTML = '';
   busy(true);
   fetch(getScriptUrl() + '?action=' + action + q)
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (!d || !d.success) { busy(false); rpmFail(st, (d && d.message) || 'No answer'); return; }
+      if (!d || !d.success) { busy(false); fail((d && d.message) || 'No answer'); return; }
       var msg = modal.querySelector('.rpm-load-center');
       if (msg) msg.innerHTML = '<span class="f2-done">' + doneWord + ' ✓</span>';
-      setTimeout(function () { busy(false); _f2CloseExpense(); initFinancial2Tab(); }, 900);
+      setTimeout(function () { busy(false); if (!onTab) _f2CloseExpense(); initFinancial2Tab(); }, 900);
     })
-    .catch(function (err) { busy(false); rpmFail(st, err.message); });
+    .catch(function (err) { busy(false); fail(err.message); });
 }
