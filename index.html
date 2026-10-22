@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=868">
+  <link rel="stylesheet" href="css/styles.css?v=869">
 </head>
 <body>
 <div class="container">
@@ -36,15 +36,41 @@
        in the "Coming Soon" dropdown (last cell); move a button out when its tab is built.
        Trip tabs live in "Vacation"; pre-student tabs (Inquiries, Initiate, Trial) in "Intake";
        Availability, General, Skips, Trial Analysis in "Data" (after the first row, see below);
-       Schedule and Fixed schedule in "Schedule" (first).
+       Schedule and Fixed schedule in "Calendar" (first).
        A .nav-drop can hold any group of tabs.
        switchTab selects by data-tab, so button order is free to change. -->
   <div class="tabs">
     <!-- First row (2026-10-09, user's order): Lessons (was Lesson Log), Audit, Calendar, Intake,
          Dropbox, then Today; the rest stay alphabetical. -->
-    <!-- Schedule first (2026-10-15, was "Calendar" third): code ids stay calendar / fixedcal. -->
+    <!-- Today first (2026-10-21, user): still the landing tab. -->
+    <button class="tab-btn" data-tab="today" onclick="switchTab('today')">Today</button>
     <div class="nav-drop">
-      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Schedule ▾</button>
+      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Dropbox ▾</button>
+      <div class="nav-menu">
+        <button class="tab-btn nav-item" data-tab="dropbox" onclick="switchTab('dropbox')">Folders</button>
+        <button class="tab-btn nav-item" data-tab="dbxtemplates" onclick="switchTab('dbxtemplates')">Templates</button>
+      </div>
+    </div>
+    <div class="nav-drop">
+      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Data ▾</button>
+      <div class="nav-menu">
+        <button class="tab-btn nav-item" data-tab="availability" onclick="switchTab('availability')">Availability</button>
+        <button class="tab-btn nav-item" data-tab="general" onclick="switchTab('general')">General</button>
+        <button class="tab-btn nav-item" data-tab="skips" onclick="switchTab('skips')">Skips</button>
+        <button class="tab-btn nav-item" data-tab="trialanalysis" onclick="switchTab('trialanalysis')">Trial Analysis</button>
+      </div>
+    </div>
+    <div class="nav-drop">
+      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Vacation ▾</button>
+      <div class="nav-menu">
+        <button class="tab-btn nav-item" data-tab="tripsummary" onclick="switchTab('tripsummary')">Active Trips</button>
+        <button class="tab-btn nav-item" data-tab="travel" onclick="switchTab('travel')">Travel Plan</button>
+        <button class="tab-btn nav-item" data-tab="triphistory" onclick="switchTab('triphistory')">Trip History</button>
+      </div>
+    </div>
+    <!-- Schedule first (2026-10-15, was "Calendar" third); dropdown renamed back to "Calendar" 2026-10-21. Code ids stay calendar / fixedcal. -->
+    <div class="nav-drop">
+      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Calendar ▾</button>
       <div class="nav-menu">
         <button class="tab-btn nav-item" data-tab="calendar" onclick="switchTab('calendar')">Schedule</button>
         <button class="tab-btn nav-item" data-tab="fixedcal" onclick="switchTab('fixedcal')">Fixed schedule</button>
@@ -63,24 +89,6 @@
         <button class="tab-btn nav-item" data-tab="trial" onclick="switchTab('trial')">Trial</button>
       </div>
     </div>
-    <div class="nav-drop">
-      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Dropbox ▾</button>
-      <div class="nav-menu">
-        <button class="tab-btn nav-item" data-tab="dropbox" onclick="switchTab('dropbox')">Folders</button>
-        <button class="tab-btn nav-item" data-tab="dbxtemplates" onclick="switchTab('dbxtemplates')">Templates</button>
-      </div>
-    </div>
-    <!-- Today (2026-10-07): still the landing tab. -->
-    <button class="tab-btn" data-tab="today" onclick="switchTab('today')">Today</button>
-    <div class="nav-drop">
-      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Data ▾</button>
-      <div class="nav-menu">
-        <button class="tab-btn nav-item" data-tab="availability" onclick="switchTab('availability')">Availability</button>
-        <button class="tab-btn nav-item" data-tab="general" onclick="switchTab('general')">General</button>
-        <button class="tab-btn nav-item" data-tab="skips" onclick="switchTab('skips')">Skips</button>
-        <button class="tab-btn nav-item" data-tab="trialanalysis" onclick="switchTab('trialanalysis')">Trial Analysis</button>
-      </div>
-    </div>
     <button class="tab-btn" data-tab="comms" onclick="switchTab('comms')">Comms<span class="inq-badge" id="commsNavBadge" style="display:none"></span></button>
     <button class="tab-btn" data-tab="financial" onclick="switchTab('financial')">Financial<span class="inq-badge" id="finNavBadge" style="display:none">!</span></button>
     <button class="tab-btn" data-tab="holidays" onclick="switchTab('holidays')">Holidays Alerts</button>
@@ -93,14 +101,6 @@
     <button class="tab-btn" data-tab="ending" onclick="switchTab('ending')">Terminate</button>
     <button class="tab-btn" data-tab="thisyear" onclick="switchTab('thisyear')">This Year</button>
     <button class="tab-btn" data-tab="todo" onclick="switchTab('todo')">To-Do</button>
-    <div class="nav-drop">
-      <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Vacation ▾</button>
-      <div class="nav-menu">
-        <button class="tab-btn nav-item" data-tab="tripsummary" onclick="switchTab('tripsummary')">Active Trips</button>
-        <button class="tab-btn nav-item" data-tab="travel" onclick="switchTab('travel')">Travel Plan</button>
-        <button class="tab-btn nav-item" data-tab="triphistory" onclick="switchTab('triphistory')">Trip History</button>
-      </div>
-    </div>
     <div class="nav-drop">
       <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Coming Soon ▾</button>
       <div class="nav-menu">
@@ -906,7 +906,7 @@
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
     <div id="secAlert"></div>
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">868</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">869</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -926,45 +926,45 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=868"></script>
-<script src="core/storage.js?v=868"></script>
-<script src="core/utils.js?v=868"></script>
-<script src="core/dialog.js?v=868"></script>
-<script src="core/api.js?v=868"></script>
-<script src="core/secalert.js?v=868"></script>
+<script src="core/state.js?v=869"></script>
+<script src="core/storage.js?v=869"></script>
+<script src="core/utils.js?v=869"></script>
+<script src="core/dialog.js?v=869"></script>
+<script src="core/api.js?v=869"></script>
+<script src="core/secalert.js?v=869"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=868"></script>
-<script src="tabs/lessons.js?v=868"></script>
-<script src="tabs/payments.js?v=868"></script>
-<script src="tabs/general.js?v=868"></script>
-<script src="tabs/financial.js?v=868"></script>
-<script src="tabs/inquiries.js?v=868"></script>
-<script src="tabs/inqarchive.js?v=868"></script>
-<script src="tabs/comms.js?v=868"></script>
-<script src="tabs/notes.js?v=868"></script>
-<script src="tabs/todo.js?v=868"></script>
-<script src="tabs/availability.js?v=868"></script>
-<script src="tabs/travel.js?v=868"></script>
-<script src="tabs/tripsummary.js?v=868"></script>
-<script src="tabs/triphistory.js?v=868"></script>
-<script src="tabs/skips.js?v=868"></script>
-<script src="tabs/student.js?v=868"></script>
-<script src="tabs/ctrl.js?v=868"></script>
-<script src="tabs/mailcenter.js?v=868"></script>
-<script src="tabs/dropbox.js?v=868"></script>
-<script src="tabs/import.js?v=868"></script>
-<script src="tabs/today.js?v=868"></script>
-<script src="tabs/trial.js?v=868"></script>
-<script src="tabs/ending.js?v=868"></script>
-<script src="tabs/reviews.js?v=868"></script>
-<script src="tabs/thisyear.js?v=868"></script>
-<script src="tabs/sheets.js?v=868"></script>
-<script src="tabs/studentline.js?v=868"></script>
-<script src="tabs/calendar.js?v=868"></script>
-<script src="tabs/fixedcal.js?v=868"></script>
-<script src="tabs/secretary.js?v=868"></script>
-<script src="tabs/help.js?v=868"></script>
+<script src="tabs/icons.js?v=869"></script>
+<script src="tabs/lessons.js?v=869"></script>
+<script src="tabs/payments.js?v=869"></script>
+<script src="tabs/general.js?v=869"></script>
+<script src="tabs/financial.js?v=869"></script>
+<script src="tabs/inquiries.js?v=869"></script>
+<script src="tabs/inqarchive.js?v=869"></script>
+<script src="tabs/comms.js?v=869"></script>
+<script src="tabs/notes.js?v=869"></script>
+<script src="tabs/todo.js?v=869"></script>
+<script src="tabs/availability.js?v=869"></script>
+<script src="tabs/travel.js?v=869"></script>
+<script src="tabs/tripsummary.js?v=869"></script>
+<script src="tabs/triphistory.js?v=869"></script>
+<script src="tabs/skips.js?v=869"></script>
+<script src="tabs/student.js?v=869"></script>
+<script src="tabs/ctrl.js?v=869"></script>
+<script src="tabs/mailcenter.js?v=869"></script>
+<script src="tabs/dropbox.js?v=869"></script>
+<script src="tabs/import.js?v=869"></script>
+<script src="tabs/today.js?v=869"></script>
+<script src="tabs/trial.js?v=869"></script>
+<script src="tabs/ending.js?v=869"></script>
+<script src="tabs/reviews.js?v=869"></script>
+<script src="tabs/thisyear.js?v=869"></script>
+<script src="tabs/sheets.js?v=869"></script>
+<script src="tabs/studentline.js?v=869"></script>
+<script src="tabs/calendar.js?v=869"></script>
+<script src="tabs/fixedcal.js?v=869"></script>
+<script src="tabs/secretary.js?v=869"></script>
+<script src="tabs/help.js?v=869"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
