@@ -3141,6 +3141,13 @@ th.f2-blk { background:none; }
 .f2-click { cursor:pointer; }   /* an Expenses row opens its Edit window */
 .f2-click:hover td { background:rgba(255,255,255,0.03); }
 .f2-ex-btns { display:flex; justify-content:space-between; align-items:center; margin-top:16px; }
+#f2ExModal.rpm-busy > *:not(.rpm-keep) { opacity:.15; }   /* dimmer than .4 so the centre text reads */
+#f2ExModal .rpm-load-center { background:none; border:none; box-shadow:none; }   /* just the ring + text, no box (user 2026-10-22) */
+.f2-bill { display:flex; gap:22px; margin:2px 0 14px; }   /* Billed: Monthly / Yearly radios */
+.f2-radio { display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); cursor:pointer; }
+.f2-radio input { appearance:none; -webkit-appearance:none; margin:0; width:9px; height:9px; border:1px solid var(--muted); border-radius:50%; background:none; cursor:pointer; }
+.f2-radio input:checked { background:rgba(255,255,255,0.5); border-color:rgba(255,255,255,0.5); }   /* grey ring → soft white when picked (user 2026-10-22) */
+.f2-radio:has(input:checked) { color:rgba(255,255,255,0.5); }
 .f2-table:not(.f2-ex) th, .f2-table:not(.f2-ex) td { text-align:center !important; vertical-align:middle; }   /* Income: all centered both ways (user 2026-10-22) */
 .f2-table:not(.f2-ex) th { padding:9px 5px; }
 .f2-ex td:first-child, .f2-ex th:first-child { text-align:left; }

@@ -177,6 +177,10 @@ function _f2OpenExpense(i) {
     ov.addEventListener('click', function (ev) { if (ev.target === ov) _f2CloseExpense(); });
     document.body.appendChild(ov);
   }
+  // Monthly-billed when the sheet's Length says month (e.g. "1 Month"); else yearly.
+  var monthlyBill = !!(e && /month/i.test(e.length || ''));
+  var price = e ? (monthlyBill ? e.monthly : e.yearly) : null;
+  price = price != null ? String(price) : '';
   var f = function (id, label, val, ph) {
     return '<label class="settings-label" for="' + id + '">' + label + '</label>' +
       '<input class="settings-input" id="' + id + '" type="text" autocomplete="off" value="' + _f2Esc(val) + '"' +
@@ -188,10 +192,16 @@ function _f2OpenExpense(i) {
     f('f2ExApp', 'Application', e ? e.app : '', 'Zoom') +
     f('f2ExVendor', 'Company', e ? e.vendor : '', 'Zoom Communications Inc.') +
     f('f2ExOn', 'Paid on', e ? e.on : '', 'PayPal') +
-    f('f2ExYearly', 'Yearly $', e && e.yearly != null ? String(e.yearly) : '', '179') +
+    // Billed monthly or yearly (user 2026-10-22): one price box, the other is worked out.
+    '<label class="settings-label">Billed</label>' +
+    // Radio circles (user 2026-10-22): grey ring, white when picked
+    '<div class="f2-bill">' +
+      '<label class="f2-radio"><input type="radio" name="f2Bill" value="m"' + (monthlyBill ? ' checked' : '') + ' onchange="_f2PickBill(this)">Monthly</label>' +
+      '<label class="f2-radio"><input type="radio" name="f2Bill" value="y"' + (monthlyBill ? '' : ' checked') + ' onchange="_f2PickBill(this)">Yearly</label>' +
+    '</div>' +
+    f('f2ExPrice', 'Price $', price, monthlyBill ? '10' : '179') +
     f('f2ExLength', 'Length', e ? e.length : '', '1 Year') +
     f('f2ExRenewal', 'Renewal', e ? e.renewal : '', 'June 9, 2027') +
-    '<div class="win-note">Monthly is worked out from Yearly.</div>' +
     '<div class="f2-ex-btns">' +
       (e ? '<button class="link-btn" onclick="_f2RemoveExpense(this)">Remove</button>' : '<span></span>') +
       '<button class="link-btn" onclick="_f2SaveExpense(this)">Save</button>' +
@@ -201,18 +211,26 @@ function _f2OpenExpense(i) {
   document.getElementById('f2ExApp').focus();
 }
 
+function _f2PickBill(r) {
+  var m = r.value === 'm';
+  document.getElementById('f2ExPrice').placeholder = m ? '10' : '179';
+}
+
 function _f2SaveExpense(btn) {
   var e = _f2ExIdx >= 0 ? _f2Ex[_f2ExIdx] : null;
   var v = function (id) { return (document.getElementById(id).value || '').trim(); };
   var st = document.getElementById('f2ExStatus');
   if (!v('f2ExApp')) { rpmFail(st, 'Application is required.'); return; }
-  if (!isFinite(parseFloat(v('f2ExYearly').replace(/[$,]/g, '')))) { rpmFail(st, 'Yearly must be a number.'); return; }
+  var price = parseFloat(v('f2ExPrice').replace(/[$,]/g, ''));
+  if (!isFinite(price)) { rpmFail(st, 'Price must be a number.'); return; }
+  var monthlyBill = !!document.querySelector('#f2ExModal input[name="f2Bill"][value="m"]:checked');
+  var yearly = monthlyBill ? Math.round(price * 12 * 100) / 100 : price;   // the sheet keeps Yearly; Monthly = Yearly / 12
   if (e && !e.row) { rpmFail(st, 'This row has no sheet row number yet. Reload the tab.'); return; }
   var q = '&row=' + encodeURIComponent(e ? (e.row || '') : '') + '&was=' + encodeURIComponent(e ? e.app : '') +
     '&app=' + encodeURIComponent(v('f2ExApp')) + '&vendor=' + encodeURIComponent(v('f2ExVendor')) +
-    '&on=' + encodeURIComponent(v('f2ExOn')) + '&yearly=' + encodeURIComponent(v('f2ExYearly')) +
+    '&on=' + encodeURIComponent(v('f2ExOn')) + '&yearly=' + encodeURIComponent(yearly) +
     '&length=' + encodeURIComponent(v('f2ExLength')) + '&renewal=' + encodeURIComponent(v('f2ExRenewal'));
-  _f2ExCall('saveExpense', q, btn);
+  _f2ExCall('saveExpense', q, btn, 'Saving', 'Saved');
 }
 
 function _f2RemoveExpense(btn) {
@@ -225,22 +243,32 @@ function _f2RemoveExpense(btn) {
     confirmLabel: 'Remove', danger: true
   }).then(function (ok) {
     if (!ok) return;
-    _f2ExCall('removeExpense', '&row=' + encodeURIComponent(e.row || '') + '&was=' + encodeURIComponent(e.app), btn);
+    _f2ExCall('removeExpense', '&row=' + encodeURIComponent(e.row || '') + '&was=' + encodeURIComponent(e.app), btn, 'Removing', 'Removed');
   });
 }
 
-// Success says nothing: the window closes and the tab reloads with the new numbers.
-function _f2ExCall(action, q, btn) {
+// While Google works the whole window dims, every button included, and a
+// separate "Saving…" / "Removing…" with the rolling ring sits mid-window
+// (user rule 2026-10-22). When it's done the centre text turns "Saved ✓" for a
+// moment, then the window closes and the whole tab reloads (its Loading) with
+// the new numbers.
+function _f2ExCall(action, q, btn, word, doneWord) {
   var modal = document.getElementById('f2ExModal'), st = document.getElementById('f2ExStatus');
+  var busy = function (on) {
+    modal.classList.toggle('rpm-busy', on);
+    var msg = modal.querySelector('.rpm-load-center');   // the portal's own mid-screen loading box
+    if (on && !msg) modal.insertAdjacentHTML('beforeend', '<div class="rpm-load-center rpm-keep"><span class="rpm-loading">' + word + '…</span></div>');
+    else if (!on && msg) msg.remove();
+  };
   st.innerHTML = '';
-  rpmBusy(modal, btn, true);
+  busy(true);
   fetch(getScriptUrl() + '?action=' + action + q)
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      rpmBusy(modal, btn, false);
-      if (!d || !d.success) { rpmFail(st, (d && d.message) || 'No answer'); return; }
-      _f2CloseExpense();
-      initFinancial2Tab();
+      if (!d || !d.success) { busy(false); rpmFail(st, (d && d.message) || 'No answer'); return; }
+      var msg = modal.querySelector('.rpm-load-center');
+      if (msg) msg.innerHTML = '<span class="f2-done">' + doneWord + ' ✓</span>';
+      setTimeout(function () { busy(false); _f2CloseExpense(); initFinancial2Tab(); }, 900);
     })
-    .catch(function (err) { rpmBusy(modal, btn, false); rpmFail(st, err.message); });
+    .catch(function (err) { busy(false); rpmFail(st, err.message); });
 }
