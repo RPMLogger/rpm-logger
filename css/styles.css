@@ -3048,6 +3048,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .en-card-body .en-status { margin: 16px 0 0; }
 .en-card-n { font-family: "Syne", sans-serif; font-size: 15px; line-height: 26px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .en-card-a { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); white-space: nowrap; }
+.en-card-r { display: flex; align-items: center; gap: 14px; }   /* head right: Ask for a review, then the arrow */
 /* Stat-style card (Reviews tab cards; .en-scard-sub = the Done line on a
    terminated card), same dim white edge as the Terminate list cards. */
 .en-scard { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid rgba(255,255,255,0.28); border-radius: 10px;

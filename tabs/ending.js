@@ -60,7 +60,8 @@ function _enRenderSearch() {
     return '<div class="en-card" id="enC-' + i + '">' +
       '<div class="en-card-head" onclick="_enToggle(' + i + ')">' +
         '<span class="en-card-n">' + _enEscHtml(n) + '</span>' +
-        '<span class="en-card-a" id="enA-' + i + '">▾</span>' +
+        '<span class="en-card-r"><span id="enAsk-' + i + '"></span>' +
+        '<span class="en-card-a" id="enA-' + i + '">▾</span></span>' +
       '</div>' +
       '<div class="en-card-body" id="enB-' + i + '" style="display:none"></div>' +
     '</div>';
@@ -113,16 +114,13 @@ function _enRenderCard(i, d) {
     ['Density', dn ? dn.pct + '%' : ''],
     ['Reschedules (S)', rs.student || 0], ['Reschedules (T)', rs.teacher || 0]
   ];
-  // Left a review / Asked when show only when there's one, so a yes stands
-  // out (user 2026-10-22). The summary row gets both columns either way.
-  if (s.leftReview) rows.push(['Left a review', 'Yes']);
-  if (s.askedWhen) rows.push(['Asked when', s.askedWhen]);
+  rows.push(['Left a review', s.leftReview ? 'Yes' : 'No'], ['Asked when', s.askedWhen]);
   rows.push(['# of Payments', s.paidChecks], ['Final Rate', rateNum ? '$' + rateNum : '']);
   // Amber: the values that say how long and how steadily they came.
   var AMBER = ['Start Date', 'Lifetime', 'Density'];
   // Gaps split the groups: dates, lessons, skips, density, reschedules,
   // review, payments.
-  var GAP = ['# of Lessons', 'Skips (S)', 'Density', 'Reschedules (S)', s.leftReview ? 'Left a review' : 'Asked when', '# of Payments'];
+  var GAP = ['# of Lessons', 'Skips (S)', 'Density', 'Reschedules (S)', 'Left a review', '# of Payments'];
   rows.map(function (row) {
     return [row[0], (row[1] === '' || row[1] == null) ? '—' : row[1]];
   }).forEach(function (row) {
@@ -145,6 +143,12 @@ function _enRenderCard(i, d) {
         'data-tip="Asks first.\nArchives them to Eski, then deletes them from every active list.\nCannot be undone.">' + _enGoLabel() + '</button>' +
     '</div>';
   box.innerHTML = html;
+  // No review yet: Ask for a review top right of the card, which goes to
+  // the Reviews tab (user 2026-10-22).
+  var ask = document.getElementById('enAsk-' + i);
+  if (ask) ask.innerHTML = s.leftReview ? '' :
+    '<button class="link-btn bright" onclick="event.stopPropagation();switchTab(\'reviews\')" ' +
+      'data-tip="Instant.\nOpens the Reviews tab.">Ask for a review</button>';
 }
 
 // ── Confirm (destructive) ────────────────────────────────────────────────────
