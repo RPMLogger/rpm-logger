@@ -3079,6 +3079,11 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .en-rv-closed { margin-top: 24px; }
 .en-rv-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }   /* Reviews card: name left, Left a review / Remove top right */
 .en-rv-pick { margin-top: 0; }
+/* Reviews tab, Google (2026-10-22): the "left a review" emails, same card look. */
+.rv-g-title { margin: 48px 0 0; }
+.rv-g-title + #googleReviewsBody { margin-top: 20px; }
+.rv-g-stars { font-size: 14px; letter-spacing: 2px; color: #f5b83d; white-space: nowrap; }
+.rv-g-text { font-family: "DM Mono", monospace; font-size: 12px; line-height: 1.6; color: var(--text); margin-top: 12px; white-space: pre-line; }
 .st-win .en-tpl:first-child { margin-top: 0; }   /* Ask / Nudge window: first template right under the title */
 
 /* Google Business window (Mail Center, 2026-10-21): the email list uses

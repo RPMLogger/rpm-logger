@@ -1,12 +1,14 @@
 // ─── REVIEWS TAB ─────────────────────────────────────────────────────────────
 // Google reviews (2026-10-21). First section: Ended students, the goodbye
 // review follow-up after Terminate (moved here from Terminate ▾ Reviews).
+// Second section: Google, the review emails from Google (2026-10-22).
 // A Current students section is still to be shaped.
 // Backend: getEndReviews / endReviewAsked / endReviewNudge / endReviewClose
-// (RPM_Ending.js).
+// (RPM_Ending.js), getGoogleReviews (RPM_GReviews.js).
 
 var _rvState = {
-  list: null   // getEndReviews answer: { reviews, closed, closeDays }
+  list: null,    // getEndReviews answer: { reviews, closed, closeDays }
+  google: null   // getGoogleReviews answer: [{ name, stars, text, link, date }]
 };
 
 // ── Your Google review link ──────────────────────────────────────────────────
@@ -119,6 +121,7 @@ function initReviewsTab() {
   var body = document.getElementById('endReviewsBody');
   if (!url) { body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>'; return; }
   body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  _rvLoadGoogle(url);
   fetch(url + '?action=getEndReviews')
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -234,6 +237,54 @@ function _rvClose(row, result, btn) {
       if (btn) btn.textContent = was;
       rpmAlert({ title: 'Not saved', message: String(e && e.message || e) });
     });
+}
+
+// ── Google reviews ───────────────────────────────────────────────────────────
+// The "<Name> left a review for Red Pick Music" emails since Jan 1 2024, newest
+// first, read from Gmail (2026-10-22). Google's email holds only the first
+// ~100 characters of the review, so each card links to the full one.
+// Backend: getGoogleReviews (RPM_GReviews.js).
+
+function _rvLoadGoogle(url) {
+  var body = document.getElementById('googleReviewsBody');
+  if (!body) return;
+  body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  fetch(url + '?action=getGoogleReviews')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.success) { body.innerHTML = '<div class="empty-state">⚠ ' + _rvEscHtml(d.message || 'Could not load Google reviews') + '</div>'; return; }
+      _rvState.google = d.reviews || [];
+      _rvRenderGoogle();
+    })
+    .catch(function () { body.innerHTML = '<div class="empty-state">❌ Could not connect.</div>'; });
+}
+
+function _rvRenderGoogle() {
+  var list = _rvState.google || [];
+  var html = '<div class="db-cards-head en-rv-head"><span class="field-label">' + list.length + ' since Jan 1, 2024</span>' +
+    '<span class="field-label">Google emails the first lines only</span></div>';
+  if (!list.length) html += '<div class="inq-empty">None</div>';
+  list.forEach(function (r, i) {
+    html += '<div class="en-scard en-rv">' +
+      '<div class="en-rv-top">' +
+        '<div class="inq-name">' + _rvEscHtml(r.name) + '</div>' +
+        (r.stars ? '<span class="rv-g-stars" title="' + r.stars + ' stars">' + new Array(r.stars + 1).join('★') + '</span>' : '') +
+      '</div>' +
+      '<div class="inq-fields en-fields">' +
+        '<span class="inq-flabel">Date</span><span class="inq-fval">' + _rvEscHtml(r.date) + '</span>' +
+      '</div>' +
+      '<div class="rv-g-text">' + _rvEscHtml(r.text || '') + '</div>' +
+      (r.link ? '<div class="inq-acts en-rv-acts">' +
+        '<button class="link-btn" onclick="_rvOpenGoogle(' + i + ')" data-tip="Opens elsewhere.\nThe full review on Google, in a new tab."><span>Read on Google</span><span data-icon="out">' + OPEN_OUT_ICON + '</span></button>' +
+      '</div>' : '') +
+    '</div>';
+  });
+  document.getElementById('googleReviewsBody').innerHTML = html;
+}
+
+function _rvOpenGoogle(i) {
+  var r = (_rvState.google || [])[i];
+  if (r && r.link) window.open(r.link, '_blank');
 }
 
 // Escape for HTML text / textarea content (only the markup-significant chars;
