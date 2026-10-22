@@ -133,7 +133,8 @@ function _enRenderCard(i, d) {
         'Teacher and vacation skips don\'t count against them."'
       : '';
     html += '<span class="inq-flabel">' + row[0] + '</span><span class="inq-fval' +
-      (AMBER.indexOf(row[0]) !== -1 ? ' en-amber' : '') + '"' + tip + '>' + _enEscHtml(String(row[1])) + '</span>';
+      (AMBER.indexOf(row[0]) !== -1 ? ' en-amber' : '') + '"' + tip + '>' + _enEscHtml(String(row[1])) +
+      (row[0] === 'Density' && dn ? '<span class="en-since">(since Jul 8, 2026)</span>' : '') + '</span>';
   });
   html += '</div>';
   // Travel's Go live row: what it does left, the red button right.
