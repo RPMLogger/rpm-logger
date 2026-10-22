@@ -3100,24 +3100,43 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .f2-chip { flex:1; min-width:92px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:12px; text-align:center; }
 .f2-chip-val { font-family:'Syne',sans-serif; font-size:24px; color:var(--text); }
 .f2-chip-lbl { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:var(--muted); margin-top:3px; }
-.f2-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius-card); background:var(--surface); }
-.f2-table { width:100%; border-collapse:collapse; font-family:'DM Mono',monospace; font-size:11.5px; color:var(--text); }
-.f2-table th { font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:var(--muted); font-weight:400; text-align:right; padding:10px 5px 8px; border-bottom:1px solid var(--border); white-space:nowrap; }
+.f2-wrap { overflow-x:auto; border:2px solid #3a3a3a; border-radius:var(--radius-card); background:var(--surface); }
+.f2-table { width:100%; border-collapse:collapse; font-family:'DM Mono',monospace; font-size:10.5px; color:rgba(255,255,255,0.5); }   /* values = Reviews card .inq-fval, labels = .inq-flabel 0.24 (user 2026-10-22) */
+.f2-table th { font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:rgba(255,255,255,0.24); font-weight:400; text-align:right; padding:10px 5px 8px; border-bottom:1px solid var(--border); white-space:nowrap; }
 .f2-table th span { text-transform:none; letter-spacing:0; }
 .f2-table th:first-child, .f2-table th:nth-child(2) { text-align:left; }
 .f2-table td { text-align:right; padding:6px 5px; white-space:nowrap; }
+.f2-row td { border-top:1px solid rgba(255,255,255,0.05); }
+.f2-table th + th, .f2-sub th:first-child, .f2-table td + td, .f2-row:not(.f2-first) td:first-child { border-left:1px solid rgba(255,255,255,0.05); }
 .f2-row.f2-first td { border-top:1px solid var(--border); }
-.f2-table tr:nth-child(2) td { border-top:none; }
-.f2-month { text-align:center !important; font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--muted); vertical-align:middle; }
-.f2-week { text-align:left !important; color:var(--muted); }
-.f2-blk { background:var(--surface2); vertical-align:middle; }
+.f2-table tr:nth-child(3) td { border-top:none; }
+.f2-month { text-align:center !important; font-family:'Bebas Neue',sans-serif; font-size:20px; color:rgba(255,255,255,0.24); vertical-align:middle; }
+.f2-week { text-align:left !important; color:rgba(255,255,255,0.24); }
+.f2-blk { vertical-align:middle; }   /* Av.S., Net, Gregorian: no fill (user 2026-10-22) */
 th.f2-blk { background:none; }
-.f2-muted { color:var(--muted); }
-.f2-net { color:var(--green); }
+.f2-mid { vertical-align:middle; }   /* Monthly: left-side look, centered in its 4 weeks (user 2026-10-22) */
+.f2-table td.f2-tot { background:#1d1d1d; }   /* Mo. Tot. + Expense Ave.: a faint fill (user 2026-10-22) */
+.f2-table .f2-sep { border-left:2px solid #3a3a3a; }   /* before Av.S.: as heavy as the outer border (user 2026-10-22) */
+.f2-table .f2-sub th, .f2-table th[rowspan] { border-bottom:2px solid #3a3a3a; }   /* under the header: as heavy as the outer border (user 2026-10-22) */
+.f2-table:not(.f2-all) .f2-later { display:none; }
+.f2-more { text-align:center; margin-top:8px; }
 .f2-future td { opacity:.4; }
 .f2-now td:not(.f2-blk):not(.f2-month) { background:rgba(74,158,255,0.10); }
-.f2-now .f2-week { color:var(--text); }
-.f2-nowtag { font-size:9px; text-transform:uppercase; letter-spacing:.5px; color:var(--blue); margin-left:4px; }
+.f2-now .f2-week { color:inherit; }
+.f2-muted { color:rgba(255,255,255,0.36); }   /* Lessons: between values (0.5) and labels (0.24) (user 2026-10-22) */
+.f2-net { color:rgba(217,164,65,0.5); }
+.f2-hi { color:rgba(217,164,65,0.5); }   /* #St, Net, Avg students: amber, dimmer than Trial's 70% (user 2026-10-22) */
+/* Net in the Month number's font, 16px; St. + Av.S. stay DM Mono (user 2026-10-22) */
+.f2-table td.f2-net { font-family:'Bebas Neue',sans-serif; line-height:1; letter-spacing:.3px; }
+.f2-table td.f2-net { font-size:16px; }
+.f2-table col.f2-eq { width:56px; }   /* Week, Lessons, Gigs, Weekly: one width (user 2026-10-22) */
+.f2-table col.f2-eq2 { width:63px; }   /* Monthly, Expense, Net, Gregorian: one width (user 2026-10-22) */
+.f2-table col.f2-nar { width:40px; }   /* Mo. (user 2026-10-22) */
+.f2-table col.f2-avs { width:48px; }   /* Av. St. */
+.f2-dash { color:rgba(255,255,255,0.24); font-family:'DM Mono',monospace; font-size:10.5px; }   /* 0 / blank in Income shows a dim 0 (user 2026-10-22) */
+.f2-table:not(.f2-ex) { table-layout:fixed; }
+.f2-table:not(.f2-ex) th, .f2-table:not(.f2-ex) td { text-align:center !important; vertical-align:middle; }   /* Income: all centered both ways (user 2026-10-22) */
+.f2-table:not(.f2-ex) th { padding:9px 5px; }
 .f2-ex td:first-child, .f2-ex th:first-child { text-align:left; }
 .f2-ex td { padding:8px 10px; border-top:1px solid var(--border); }
-.f2-app span { display:block; font-size:10px; color:var(--muted); margin-top:2px; }
+.f2-app span { display:block; font-size:10px; color:rgba(255,255,255,0.24); margin-top:2px; }

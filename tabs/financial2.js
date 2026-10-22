@@ -31,6 +31,18 @@ function _f2Money(n) {
   return n < 0 ? '-' + s : s;
 }
 function _f2Num(n) { return n == null ? '' : String(Math.round(n)); }
+// Income table cells: past/current 0 or blank = a dim 0; future = empty.
+function _f2Cell(n, fmt, future) {
+  if (future) return '';
+  return n == null || Math.round(n) === 0 ? '<span class="f2-dash">0</span>' : fmt(n);
+}
+
+// Income shows this month + one empty month; Show more reveals the rest of the season.
+function _f2ToggleLater(btn) {
+  var t = document.querySelector('#fin2Body .f2-table');
+  var open = t.classList.toggle('f2-all');
+  btn.textContent = open ? 'Show less' : 'Show more';
+}
 
 function _f2Chip(label, value, color) {
   return '<div class="f2-chip">' +
@@ -77,38 +89,46 @@ function _f2Render(d) {
     '</div>';
 
   // Income grid — same columns as the sheet; H..L span their 4-week block.
+  // Two header rows: "Income" spans Lessons/Gigs/Weekly/Monthly; widths live on the <col>s.
   var head =
-    '<tr><th>Month</th><th>Week</th><th>Students</th><th>Lessons</th><th>Gigs</th><th>Weekly</th>' +
-    '<th class="f2-blk">Monthly</th><th class="f2-blk">Expense<br><span>/ 4 wks</span></th>' +
-    '<th class="f2-blk">Net</th><th class="f2-blk">Gregorian</th><th class="f2-blk">Avg<br><span>students</span></th></tr>';
+    '<colgroup><col class="f2-nar"><col class="f2-eq"><col><col class="f2-eq"><col class="f2-eq"><col class="f2-eq">' +
+    '<col class="f2-eq2"><col class="f2-eq2"><col class="f2-avs"><col class="f2-eq2"><col class="f2-eq2"></colgroup>' +
+    '<tr><th rowspan="2" title="Month">Mo.</th><th rowspan="2">Week</th><th rowspan="2" title="Students">St.</th><th colspan="4">Income</th><th class="f2-blk" title="Expense">Exp.</th><th rowspan="2" class="f2-blk f2-sep" title="Avg students">Av. St.</th>' +
+    '<th colspan="2" class="f2-blk">Income</th></tr>' +
+    '<tr class="f2-sub"><th title="Lessons">Les.</th><th title="Gigs">Gig.</th><th title="Weekly total">We. Tot.</th><th title="Monthly total">Mo. Tot.</th><th class="f2-blk" title="Average per 4 weeks">Ave.</th><th class="f2-blk">Net</th><th class="f2-blk" title="Gregorian income">Gre. Inc.</th></tr>';
   var body = '';
   blocks.forEach(function (b, bi) {
     var future = curBlock >= 0 && bi > curBlock;
     b.weeks.forEach(function (w, wi) {
+      var wFuture = d.curWeek >= 0 && w.idx > d.curWeek;
       var cls = ['f2-row'];
       if (wi === 0) cls.push('f2-first');
       if (future) cls.push('f2-future');
+      if (curBlock >= 0 && bi > curBlock + 1) cls.push('f2-later');
+      if (w.weekly === 0) cls.push('f2-zero');
       if (w.idx === d.curWeek) cls.push('f2-now');
       body += '<tr class="' + cls.join(' ') + '">' +
         (wi === 0 ? '<td rowspan="4" class="f2-month">' + b.n + '</td>' : '') +
-        '<td class="f2-week">' + _f2Esc(w.date) + (w.idx === d.curWeek ? ' <span class="f2-nowtag">now</span>' : '') + '</td>' +
-        '<td>' + _f2Num(w.students) + '</td>' +
-        '<td>' + _f2Money(w.lessons) + '</td>' +
-        '<td>' + _f2Money(w.gigs) + '</td>' +
-        '<td>' + _f2Money(w.weekly) + '</td>' +
+        '<td class="f2-week">' + _f2Esc(w.date) + '</td>' +
+        '<td class="f2-hi">' + _f2Cell(w.students, _f2Num, wFuture) + '</td>' +
+        '<td class="f2-muted">' + _f2Cell(w.lessons, _f2Money, wFuture) + '</td>' +
+        '<td>' + _f2Cell(w.gigs, _f2Money, wFuture) + '</td>' +
+        '<td>' + _f2Cell(w.weekly, _f2Money, wFuture) + '</td>' +
         (wi === 0
-          ? '<td rowspan="4" class="f2-blk">' + _f2Money(b.monthly) + '</td>' +
-            '<td rowspan="4" class="f2-blk f2-muted">' + _f2Money(b.expense) + '</td>' +
-            '<td rowspan="4" class="f2-blk f2-net">' + _f2Money(b.net) + '</td>' +
-            '<td rowspan="4" class="f2-blk">' + _f2Money(b.gregorian) + '</td>' +
-            '<td rowspan="4" class="f2-blk">' + _f2Num(b.avgStudents) + '</td>'
+          ? '<td rowspan="4" class="f2-mid f2-tot">' + _f2Cell(b.monthly, _f2Money, future) + '</td>' +
+            '<td rowspan="4" class="f2-blk f2-tot">' + _f2Cell(b.expense, _f2Money, future) + '</td>' +
+            '<td rowspan="4" class="f2-blk f2-hi f2-sep">' + _f2Cell(b.avgStudents, _f2Num, future) + '</td>' +
+            '<td rowspan="4" class="f2-blk f2-net">' + _f2Cell(b.net, _f2Money, future) + '</td>' +
+            '<td rowspan="4" class="f2-blk">' + _f2Cell(b.gregorian, _f2Money, future) + '</td>'
           : '') +
       '</tr>';
     });
   });
   var income =
     '<div class="section-label" style="margin:22px 0 10px">Income</div>' +
-    '<div class="f2-wrap"><table class="f2-table">' + head + body + '</table></div>';
+    '<div class="f2-wrap"><table class="f2-table">' + head + body + '</table></div>' +
+    (curBlock >= 0 && blocks.length > curBlock + 2
+      ? '<div class="f2-more"><button class="link-btn" onclick="_f2ToggleLater(this)">Show more</button></div>' : '');
 
   // Expenses — app, who, card, price, renewal. Login columns are never sent.
   var ex = d.expenses || [];
