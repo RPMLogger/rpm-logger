@@ -393,18 +393,21 @@ body::before {
 .load-row.highlight .load-label { color: var(--accent2); }
 .load-row.highlight .load-value { color: var(--accent2); font-size: 13px; }
 .load-row.income .load-value    { color: var(--green); }
-/* Availability tab rows (Week-tab look) */
-.avail-card { border-bottom: 1px solid var(--border); }
-.avail-card:last-child { border-bottom: none; }
-.avail-row  { cursor: pointer; border-bottom: none; user-select: none; }
-.avail-row:hover:where(:not(:disabled)) { background: rgba(255,255,255,0.025); }
-.avail-card .avail-close {
-  position: absolute; top: 6px; right: 12px; background: none; border: none;
-  color: var(--muted); font-size: 14px; line-height: 1; padding: 2px 4px; cursor: pointer;
-}
-.avail-card .avail-close:hover:where(:not(:disabled)) { color: var(--text); }
-.avail-name { font-family: "DM Mono", monospace; font-size: 12px; color: var(--muted); }
-.avail-row:hover:where(:not(:disabled)) .avail-name { color: #b5b5b5; }
+/* Availability tab: Terminate's cards (2026-10-22) */
+#availabilityList { margin-top: 32px; }
+.en-card-a.av-never { color: rgba(255,255,255,0.24); }   /* never updated: the labels' grey */
+.av-field { margin-top: 2px; }
+.av-field .av-ta { padding-right: 40px; resize: none; }   /* room for the mic inside the box, like the Log lesson rows */
+.ll-wrap.av-field .link-btn.tl-mic { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); padding: 4px 2px; border-color: transparent; background: transparent; color: var(--muted); }
+.av-field .link-btn.tl-mic:hover:where(:not(:disabled)) { color: var(--text); }
+.av-field .link-btn.tl-mic svg { width: 14px; height: 14px; }
+.av-field .link-btn.tl-mic.rec { color: var(--accent); }
+.av-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; }
+/* Saving: the whole page steps back, Save too; the ring says Saving in the middle of the screen (user 2026-10-22) */
+#tab-availability.av-saving { pointer-events: none; cursor: progress; }
+#tab-availability.av-saving > :not(.av-saving-msg) { opacity: .35; transition: opacity .15s; }
+.av-saving-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 50;
+  font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text); }
 .summary-box {
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
