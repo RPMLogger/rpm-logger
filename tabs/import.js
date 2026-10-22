@@ -586,9 +586,18 @@ function _imMsgShow(f, html) {
     '</style></head><body>' + String(html || '').replace(/cid:logo/g, logo) + '</body></html>';
 }
 function _imMailBusy(btn, on) {
-  var m = window._imMail;
+  var m = window._imMail, root = document.querySelector('#imMailWin .im-mail');
   if (m) m.busy = on;
-  rpmBusy(document.querySelector('#imMailWin .im-mail'), btn, on);
+  // Send (user, 2026-10-21): everything dims, Send too, and the spinner sits in the middle of the window.
+  if (btn && btn.id === 'imMailSend') {
+    rpmBusy(root, null, on);
+    btn.disabled = on;
+    var pill = root && root.querySelector('.rpm-load-center');
+    if (on && root && !pill) root.insertAdjacentHTML('beforeend', "<div class='rpm-load-center rpm-keep'><span class='rpm-loading'>Sending</span></div>");
+    else if (!on && pill) pill.remove();
+    return;
+  }
+  rpmBusy(root, btn, on);
   // The pressed button spins with its word, the other one dims (2026-10-21).
   if (!btn) return;
   if (on) {
