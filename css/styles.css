@@ -3119,7 +3119,7 @@ th.f2-blk { background:none; }
 .f2-table .f2-sep { border-left:2px solid #3a3a3a; }   /* before Av.S.: as heavy as the outer border (user 2026-10-22) */
 .f2-table .f2-sub th, .f2-table th[rowspan] { border-bottom:2px solid #3a3a3a; }   /* under the header: as heavy as the outer border (user 2026-10-22) */
 .f2-table:not(.f2-all) .f2-later { display:none; }
-.f2-foot { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; }   /* Accountant note left, Show more right */
+.f2-foot { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:20px; }   /* Accountant note left, Show more right */
 .f2-foot > :only-child { margin-left:auto; }
 .f2-icon { margin:0 0 28px; line-height:0; }   /* under the title, like Travel Plan's icons */
 .divider.f2-rule { margin:48px 0; }   /* one section gap on both sides of a line (user 2026-10-22: even spacing) */
@@ -3163,5 +3163,7 @@ th.f2-blk { background:none; }
 .f2-ex td { padding:8px 10px; border-top:1px solid var(--border); }
 .f2-app span { display:block; font-size:10px; color:rgba(255,255,255,0.24); margin-top:2px; }
 .f2-ex .f2-sel td { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.82); }   /* the selected expense row (user 2026-10-22) */
-.f2-ex-acts { display:flex; gap:8px; }
-#tab-financial2 .link-btn:disabled { color:rgba(255,255,255,.18); border-color:rgba(122,122,122,.22); background:transparent; cursor:default; }   /* Remove until a row is picked */
+.f2-ex-acts { display:flex; gap:14px; }
+#f2ExEditPicked:not(:disabled), #f2ExRemovePicked:not(:disabled) { color:rgba(255,255,255,0.82); border-color:color-mix(in srgb, var(--muted) 55%, transparent); background:var(--surface2); }   /* lit once a row is selected (user 2026-10-22) */
+.f2-sheet-links { display:flex; gap:8px; letter-spacing:0; }   /* Income / Expenses sheet links, top right of the title */
+#tab-financial2 .link-btn:disabled { cursor:default; }   /* Edit / Remove look like Receipts in Gmail until a row is picked, then light up (user 2026-10-22) */

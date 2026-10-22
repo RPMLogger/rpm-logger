@@ -19,6 +19,12 @@ function initFinancial2Tab() {
     .catch(function () { body.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
 }
 
+var F2_ACC_SHEET = 'https://docs.google.com/spreadsheets/d/1pHKWO9j2DrVWrGRYT3bEdvXKHkEIqQZq-Gib27bC_CA/edit?gid=';
+function _f2SheetLink(label, gid, tab) {
+  return '<a class="link-btn" target="_blank" rel="noopener" href="' + F2_ACC_SHEET + gid + '#gid=' + gid + '" ' +
+    'data-tip="Opens elsewhere.\nThe Accountant sheet&#39;s ' + tab + ' tab." data-tip-left><span>' + label + '</span><span data-icon="out">' + OPEN_OUT_ICON + '</span></a>';
+}
+
 function _f2Esc(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -111,7 +117,9 @@ function _f2Render(d) {
     '<div class="f2-icon">' + COST_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>' +   // om-98 calculator + coin under the title (user 2026-10-22)
     '<hr class="divider f2-rule">' +
     // INCOME left, the Accountant's last run right, above the table (user 2026-10-22)
-    '<div class="f2-head-row"><div class="f2-head f2-red">Income</div></div>' +
+    // INCOME left; the Accountant sheet's own Income + Expenses tabs on its line, right (user 2026-10-22)
+    '<div class="f2-head-row"><div class="f2-head f2-red">Income</div><span class="f2-sheet-links">' +
+      _f2SheetLink('Income sheet', '671214587', 'Income') + _f2SheetLink('Expenses sheet', '0', 'Expenses') + '</span></div>' +
     '<div class="tv-sec-note f2-note">Filled by the Accountant every morning at 6am</div>' +   // like Travel Plan's how-to lines (user 2026-10-22)
     status +   // its last run, right under that line (user 2026-10-22)   // the title's gray half, Bebas (user 2026-10-22; was a section-label)
     '<div class="f2-wrap"><table class="f2-table f2-inc">' + head + body + '</table></div>' +
