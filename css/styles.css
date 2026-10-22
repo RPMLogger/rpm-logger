@@ -3085,3 +3085,4 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
    .win-row; unread rows are brighter, the opened email sits in a white frame. */
 .win-row.gb-unread { color: rgba(255,255,255,.82); }
 .gb-frame { display: block; width: 100%; height: 62vh; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+.win-row .gb-new { flex: none; margin-left: auto; }   /* the Inquiries New tag, just left of the date (2026-10-21) */

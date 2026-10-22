@@ -6,8 +6,11 @@
 // It was the Mail Center tab, a hub with one button that opened the label in
 // Gmail; the list lands on the tab itself now. Click an email and it opens in
 // its own window as Gmail would show it, in a sandboxed frame: no scripts,
-// links open in a new tab. Opening it marks it read in Gmail, so the badge on
-// the tab goes down.
+// links open in a new tab.
+//
+// New (2026-10-21): an email is New until it is opened HERE, whatever Gmail
+// says; the backend keeps the opened ids. New rows carry the Inquiries "New"
+// tag and the tab badge counts them. Opening one also marks it read in Gmail.
 //
 // A "Trial Lesson Inquiries" row used to sit in Mail Center counting
 // `label:Inquiries is:unread`. Removed 2026-09-01: that counts whether an email
@@ -45,14 +48,15 @@ function _gbRenderList() {
     body.innerHTML = '<div id="gbStatus"><div class="empty-state rpm-loading">Loading</div></div>';
     return;
   }
-  var unread = _gbMail.filter(function(e) { return e.unread; }).length;
+  var fresh = _gbMail.filter(function(e) { return e.isNew; }).length;
   body.innerHTML =
     '<div class="win-note">' + _gbMail.length + ' email' + (_gbMail.length === 1 ? '' : 's') +
-      (unread ? ' · ' + unread + ' unread' : '') + '</div>' +
+      (fresh ? ' · ' + fresh + ' new' : '') + '</div>' +
     (_gbMail.length
       ? _gbMail.map(function(e, i) {
-          return '<div class="win-row opens' + (e.unread ? ' gb-unread' : '') + '" onclick="_gbOpen(' + i + ')">' +
-            '<span class="win-row-main">' + (e.unread ? '<b>' + inqEsc(e.subject) + '</b>' : inqEsc(e.subject)) + '</span>' +
+          return '<div class="win-row opens' + (e.isNew ? ' gb-unread' : '') + '" onclick="_gbOpen(' + i + ')">' +
+            '<span class="win-row-main">' + (e.isNew ? '<b>' + inqEsc(e.subject) + '</b>' : inqEsc(e.subject)) + '</span>' +
+            (e.isNew ? '<span class="inq-new gb-new">New</span>' : '') +
             '<span class="win-row-side">' + inqEsc(e.date) + '</span></div>';
         }).join("")
       : '<div class="win-note">No emails under the G-Business label since Jan 1.</div>');
@@ -91,7 +95,7 @@ function _gbOpen(i) {
       var st = document.getElementById("gbMsgStatus"), fr = document.getElementById("gbFrame");
       if (st) st.innerHTML = "";
       if (fr) fr.srcdoc = '<base target="_blank"><style>body{margin:0;padding:16px;background:#fff}</style>' + data.html;
-      if (e.unread) _gbMarkRead(e);
+      if (e.isNew || e.unread) _gbMarkRead(e);
     })
     .catch(function(err) {
       var st = document.getElementById("gbMsgStatus");
@@ -105,13 +109,14 @@ function _gbMarkRead(e) {
     .then(function(data) {
       if (!data || !data.success) return;
       e.unread = false;
+      e.isNew = false;
       _gbRenderList();
       fetchGBusinessUnread();
     })
     .catch(function() {});
 }
 
-// Unread count for the badge on the G Business tab button. core/api.js calls
+// New-email count for the badge on the G Business tab button. core/api.js calls
 // it at portal start.
 function fetchGBusinessUnread() {
   var url = getScriptUrl();
