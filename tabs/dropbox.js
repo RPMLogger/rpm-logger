@@ -472,7 +472,7 @@ function _dbCardOpenHtml(f) {
 // Who the folder is shared with, and the RPM-Counter email beside it when the
 // two differ. One sharing check covers every folder, so it runs once per load.
 function _dbEmailHtml(name) {
-  if (!_dbSharing) return 'checking…';
+  if (!_dbSharing) return '<span class="rpm-loading is-inline">checking…</span>';   // the portal's ring while Dropbox is read (2026-10-22)
   var r = _dbSharing[name];
   if (!r) return '—';
   var shared = (r.sharedWith || []).join(', ');
@@ -695,56 +695,4 @@ function _dbCreateFolder(name, i, btn) {
   _dbBusy(btn, 'Creating…');
   _dbAction({ action: 'createDropboxFolder', name: name, email: email, message: message,
               emailBody: bodyEl ? bodyEl.value.trim() : '' }, btn);
-}
-
-
-// ─── DROPBOX ▾ TEMPLATES ────────────────────────────────────────────────────
-// A static reading tab (like Secretary ▾ Templates, no backend calls): every
-// email the Dropbox side sends, for a sample student, each in its own window
-// on the same white card as the Fix window's Preview. The wording is copied
-// from RPM_Dropbox.gs on Oct 2 2026 - change it here too if it changes there.
-var DBX_TEMPLATES = [
-  { name: 'Dropbox invite', from: 'Dropbox',
-    when: 'Create & share or Share, in the Fix window. Dropbox writes and sends this one; your invite message is the note inside it.',
-    note: DB_INVITE_MSG },
-  { name: 'Dropbox Instructions', subject: 'Dropbox Instructions', attach: 'Dropbox Instructions - 2026.pdf',
-    when: 'Right after the Dropbox invite (Create & share, Share). The text can be edited in the Fix window each time.',
-    body: DB_EMAIL_MSG },
-  { name: 'New homework', subject: 'New Homework in Your Dropbox — Copy Within 14 Days',
-    when: 'Automatically, when the daily clean finds a new file in a student’s folder.',
-    body: 'Hi Sam Lee,\n\nI just added new homework to our shared Dropbox folder. Please copy it to your device within 14 days — after that it’s cleared out automatically.' },
-  { name: 'Files put back', subject: 'I’ve Put Your Dropbox Files Back — Please Copy Them Within 14 Days',
-    when: 'After Recover on a student card puts files back (only if something came back).',
-    body: 'Hi Sam Lee,\n\nI’ve put your homework files back in our shared Dropbox folder this time. Please make sure you copy them to your device within 14 days — after that they’ll be cleared out again automatically.\n\nThanks!' },
-  { name: 'Clean-out warning', subject: 'Heads Up — I’m Clearing Out Our Dropbox Folder',
-    when: 'One time only, run by hand from the script editor before auto-clean started. Already sent; kept here for the record.',
-    body: 'Hi Sam Lee,\n\nI’m starting to automatically tidy up our shared Dropbox folder. Starting July 1, anything older than 15 days will be cleared out. If there’s something in there you want to keep, please download it to your device before then.\n\nGoing forward I’ll email you whenever I add new homework.' }
-];
-
-function initDropboxTemplatesTab() {
-  var box = document.getElementById('dbxTemplatesBody');
-  if (!box || box.dataset.done) return;
-  box.innerHTML = DBX_TEMPLATES.map(function (t) {
-    return '<div class="win-panel">' +
-      '<div class="settings-title"><span>Email<span class="win-sub"> · ' + t.name + '</span></span></div>' +
-      '<div class="win-icon-row">' + EMAIL_WIN_ICON + '</div>' +
-      _dbLbl('Goes out') + '<div class="field-text" style="margin-bottom:20px">' + t.when + '</div>' +
-      (t.from === 'Dropbox'
-        ? _dbLbl('Invite message') + '<div class="win-row"><span>' + inqEsc(t.note) + '</span></div>'   // wraps: the whole message, not cut off
-        : _dbLbl('Preview') + _tlPreviewHtml(t.subject, _dbHouseHtml(t.body)) +
-          (t.attach ? '<div class="win-note" style="margin:6px 0 0">+ ' + t.attach + ' attached</div>' : '')) +
-    '</div>';
-  }).join('');
-  box.dataset.done = '1';
-}
-
-// The house email built here from plain text, the way rpmSendHouseEmail_
-// does it (paragraphs on blank lines, then name / RED PICK MUSIC / logo), so
-// this tab needs no call to Google. _tlPreviewHtml turns the logo into a box.
-function _dbHouseHtml(text) {
-  var paras = String(text).split(/\n\s*\n/).map(function (p) {
-    return "<p style='margin:0 0 14px 0;'>" + inqEsc(p).replace(/\n/g, '<br>') + '</p>';
-  }).join('');
-  return paras + "<p style='margin:18px 0 0 0;'>Bilgehan Tuncer<br>RED PICK MUSIC</p>" +
-    "<div style='margin-top:8px'><img src='cid:logo' alt='Red Pick Music'></div>";
 }
