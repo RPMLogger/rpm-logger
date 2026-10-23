@@ -83,7 +83,7 @@ function _toggleAvailRow(row) {
   foot.innerHTML = '<span class="av-status"></span>';
   var saveBtn = document.createElement("button");
   saveBtn.className = "link-btn bright";
-  saveBtn.textContent = "Save";
+  saveBtn.innerHTML = SAVE_ICON + "<span>Save</span>";   // the floppy disk (user, 2026-10-23)
   saveBtn.setAttribute("data-tip", "Saves to the sheet with today's date.");
   saveBtn.setAttribute("data-tip-left", "");
   saveBtn.onclick = function() {
@@ -101,7 +101,6 @@ function _buildAvailField(label, type, student) {
   var ta = document.createElement("textarea");
   ta.rows = 2;
   ta.className = "rpm-field av-ta";
-  ta.placeholder = label;
   ta.value = _avSentence(student[type]);
   wrap.appendChild(ta);
 
@@ -183,7 +182,7 @@ function _availLog(row, availability, btn, recState) {
   // Success says nothing more than "✓ Saved".
   var panel = document.getElementById("tab-availability");
   var status = btn.parentNode.querySelector(".av-status");
-  var orig = btn.textContent;
+  var orig = btn.innerHTML;
   if (status) status.innerHTML = "";
   btn.disabled = true;
   if (panel) {
@@ -201,7 +200,7 @@ function _availLog(row, availability, btn, recState) {
       if (m) m.remove();
     }
     if (!a || !a.success) {
-      btn.textContent = orig; btn.disabled = false;
+      btn.innerHTML = orig; btn.disabled = false;
       if (status) rpmFail(status, (a && a.message) || "Could not reach the portal.", "left");
       return;
     }

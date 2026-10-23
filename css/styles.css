@@ -754,6 +754,7 @@ body::before {
    On a card that is itself the link (Dropbox), just the arrow after the name. */
 .out-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 32px; }
 .link-btn .open-out-icon { width: 11px; height: 11px; flex: none; }
+.link-btn .save-icon { width: 11px; height: 12px; flex: none; }
 .out-ico { display: inline-flex; margin-left: 8px; color: var(--muted); vertical-align: 2px; }
 .out-ico .open-out-icon { width: 11px; height: 11px; }
 
