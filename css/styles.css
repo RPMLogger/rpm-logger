@@ -2452,7 +2452,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #tab-general .ld-row { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
 #tab-general .ld-row.pick { padding: 6px 0; }
 #tab-general .ld-rule { display: none; }   /* the row lines already split them */
-#loadTable .ld-row.lead .ld-v:not(#loadGregorian), #tab-general #loadIncome { font-size: 13px; }   /* Load's white numbers bigger (user 2026-10-23) */
+#loadTable .ld-row.lead .ld-v:not(#loadGregorian), #tab-general #loadIncome { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1px; line-height: 1; color: var(--muted); }   /* Load's main numbers bigger, Bebas Neue, a window title's date grey (.win-sub; user 2026-10-23) */
 /* The Estimator's pickers a step smaller (2026-10-10). */
 #tab-general .ld-pick { padding: 1px; border-radius: 7px; }
 #tab-general .ld-pb { width: 18px; font-size: 11px; }
