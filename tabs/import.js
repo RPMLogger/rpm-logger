@@ -170,6 +170,7 @@ function _imLogWinOpen(student, idx, day, item, next) {
   day = day || _tdYmd();
   // The date in the title when it isn't today's lesson (2026-10-08).
   var part = 'Log Lesson' + (day !== _tdYmd() ? ' · ' + _ckDay(day) : '');
+  if (student.trialEmail) part = 'Trial · ' + _ckDay(day);   // from the Trial card (2026-10-23)
   var w = _stWin('imLogWin', inqEsc(name), part, CHECKLIST_ICON, '<div class="im-do-card im-win-card">' + _imDoHtml(name, day) + '</div>');
   w.querySelector('.st-win').classList.add('im-log-win');
   // Today's look (2026-10-11, from Today; everywhere since): grey, red only on the name and Reschedule.
@@ -178,7 +179,7 @@ function _imLogWinOpen(student, idx, day, item, next) {
   w.querySelector('[data-close]').onclick = closeLogPanel;
   var panel = document.getElementById('logPanel');
   window._logPanelHome = { parent: panel.parentNode, next: panel.nextSibling, css: panel.style.cssText };
-  window._imWin = { name: name, day: day, next: next || null };
+  window._imWin = { name: name, day: day, next: next || null, trial: student.trialEmail || null };
   window._imDocked = true;
   panel.style.cssText = '';
   w.querySelector('#imLogDock').appendChild(panel);
@@ -190,6 +191,11 @@ function _imLogWinOpen(student, idx, day, item, next) {
       var hb = w.querySelector(sel), hh = hb && hb.previousElementSibling, hr = hh && hh.previousElementSibling;
       [hb, hh, hr && hr.tagName === 'HR' ? hr : null].forEach(function (el) { if (el) el.style.display = 'none'; });
     });
+  }
+  // A trial has no regular lessons to move yet (2026-10-23): no 3. Schedule adjustments.
+  if (student.trialEmail) {
+    var sb = w.querySelector('.im-sched-box'), sec = sb && sb.closest('.im-main-box');
+    if (sec) { sec.style.display = 'none'; if (sec.previousElementSibling) sec.previousElementSibling.style.display = 'none'; }
   }
   if (item && item.log) _imLogLock(item.logText || '');
   _imStepsRender();
@@ -386,7 +392,8 @@ function _imMailFromWin(w) {
   var hw = logHw, sent = hw.choice === 'sent';
   return { name: w.name, day: w.day,
     log: toSentenceCase(llValues(_logBox()).filter(Boolean).join(', ')), hw: hw.text || '',
-    files: !!(sent && hw.filesOn && hw.files.length), links: sent ? hw.links.slice() : [], phone: !!(sent && hw.phone), none: hw.choice === 'none' };
+    files: !!(sent && hw.filesOn && hw.files.length), links: sent ? hw.links.slice() : [], phone: !!(sent && hw.phone), none: hw.choice === 'none',
+    trial: w.trial || null, to: w.trial || '' };
 }
 // The lesson, from a Lesson checklist entry (Audit / Students' Log lesson).
 function _imMailFromItem(name, it) {
@@ -452,10 +459,10 @@ function _imMailOpen(m) {
     // Notes a small optional box; buttons amber.
     // Under the icon the subject as a bigger white title, a line under it (user, 2026-10-16). No email on show, no hints in the boxes.
     '<div class="im-mail">' +
-      '<input id="imMailTo" type="hidden" value="' + _auEsc(dr.to || '') + '">' +
+      '<input id="imMailTo" type="hidden" value="' + _auEsc(dr.to || m.to || '') + '">' +
       // To and Subject back on show, read only, in This Week's row look (user, 2026-10-17).
-      '<div class="im-mail-to"><div class="td-mini-row"><span class="td-mini-t">To:</span><span class="td-wk-name" id="imMailToShow">' + esc(dr.to || '…') + '</span></div>' +
-        '<div class="td-mini-row"><span class="td-mini-t">Sbj:</span><span class="td-wk-name">Your Guitar Lesson Recap — ' + _ckDay(m.day) + '</span></div></div>' +
+      '<div class="im-mail-to"><div class="td-mini-row"><span class="td-mini-t">To:</span><span class="td-wk-name" id="imMailToShow">' + esc(dr.to || m.to || '…') + '</span></div>' +
+        '<div class="td-mini-row"><span class="td-mini-t">Sbj:</span><span class="td-wk-name">Your ' + (m.trial ? 'Trial' : 'Guitar') + ' Lesson Recap — ' + _ckDay(m.day) + '</span></div></div>' +
       '<hr class="divider im-mail-hr">' +
       field('imMailLesson', 'A. Lesson notes', null, 'Dictate the lesson as sentences', prefill(dr.lesson, _imRowsFor(m, 'log', m.log)), ' im-mail-log im-mail-band') +
       '<hr class="divider im-mail-hr">' +
@@ -469,7 +476,7 @@ function _imMailOpen(m) {
       '<iframe class="im-msg-frame" id="imMailFrame" title="The email" hidden></iframe>' +
     '</div>';
   // Back to the windows' title (user, 2026-10-17): "Tianyi Cao · Oct 16", the name red, the date grey.
-  var w = _stWin('imMailWin', esc(m.name), _ckDay(m.day), RECAP_WIN_ICON, body);
+  var w = _stWin('imMailWin', esc(m.name), (m.trial ? 'Trial · ' : '') + _ckDay(m.day), RECAP_WIN_ICON, body);
   w.querySelector('.st-win').classList.add('im-mail-win');
   w.onclick = null;   // only ✕ closes it (user, 2026-10-16): a click outside lost a half-done email
   w.querySelector('[data-close]').onclick = _imMailClose;
@@ -495,14 +502,14 @@ function _imMailOpen(m) {
   _imMailQ('imMailPrev').onclick = _imMailPreview;
   _imMailQ('imMailSend').onclick = _imMailSend;
   // Their email (Counter) and whether it already went.
-  fetch(getScriptUrl() + '?action=getLessonMsgInfo&name=' + encodeURIComponent(m.name) + '&lessonDate=' + m.day)
+  fetch(getScriptUrl() + '?action=getLessonMsgInfo&name=' + encodeURIComponent(m.name) + '&lessonDate=' + m.day + (m.trial ? '&trial=' + encodeURIComponent(m.trial) : ''))
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (window._imMail !== m || !d.success) return;
       if (d.msg) m.state = d.msg;
       var to = _imMailQ('imMailTo'), show = _imMailQ('imMailToShow');
       if (to && !to.value) to.value = d.email || '';
-      if (show) show.textContent = (to && to.value) || 'No email in the Counter';
+      if (show) show.textContent = (to && to.value) || (m.trial ? 'No email on the trial row' : 'No email in the Counter');
     })
     .catch(function () {});
   // Start in the first empty box (To is hidden).
@@ -565,7 +572,8 @@ function _imMailParams(m) {
   return {
     name: m.name, lessonDate: m.day,
     lesson: _imMailText('imMailLesson'), hw: _imMailText('imMailHw'), notes: _imMailText('imMailNotes'),
-    links: m.links.map(function (l) { return l.kind + ': ' + l.url; }).join('\n'), files: m.files ? '1' : '0', phone: m.phone ? '1' : '0'
+    links: m.links.map(function (l) { return l.kind + ': ' + l.url; }).join('\n'), files: m.files ? '1' : '0', phone: m.phone ? '1' : '0',
+    trial: m.trial || ''
   };
 }
 function _imMsgQuery(p) {
@@ -616,7 +624,7 @@ function _imMailSend() {
   if (!m || m.busy) return;
   var p = _imMailParams(m), why = _imMailCheck(p), to = _imMailQ('imMailTo').value.trim();
   _imMailQ('imMailStatus').innerHTML = '';
-  if (!why && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) why = 'No email for ' + m.name + ' in the Counter (column D).';
+  if (!why && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) why = 'No email for ' + m.name + (m.trial ? ' on the trial row.' : ' in the Counter (column D).');
   if (why) { rpmFail('imMailStatus', why); return; }
   _imMailBusy(btn, true);
   // GET, like every portal action (a POST lands in the Twilio webhook).
@@ -625,6 +633,7 @@ function _imMailSend() {
     .catch(function () { return { success: false, message: 'No answer from Google.' }; })
     .then(function (d) {
       if (d.success) { _imMsgPut(m.name, m.day, 'Sent'); _imMailDraft(m, null); }
+      if (d.success && m.trial && typeof _tlMarkEmail === 'function') _tlMarkEmail(m.trial, { recap: 'Sent' });   // the Trial card's Email step
       if (window._imMail !== m) { if (!d.success) rpmToast('fail', 'Email not sent', m.name + ': ' + (d.message || '')); return; }
       _imMailBusy(btn, false);
       if (!d.success) { rpmFail('imMailStatus', d.message || 'Not sent.'); return; }
@@ -697,7 +706,8 @@ function _imStepsRender() {
   var c = _imCtx(), el = _imQ('imSteps');
   if (!c.root || !c.name || !window._imDocked) return;
   var name = c.name, hw = logHw, st = activeStudent;
-  var logged = !!(st && st.logged), sched = _imSchedGet(name, c.day);
+  // A trial has no Schedule step: counts as answered.
+  var logged = !!(st && st.logged), sched = window._imWin && window._imWin.trial ? 'trial' : _imSchedGet(name, c.day);
   // A status list (2026-10-06), not buttons: each line ticks itself when its
   // job is done elsewhere (Reschedule, the HW drop zone / Nothing to send, Log).
   // The card's order (2026-10-15): Lesson log, HW log (the HW rows, required),
@@ -807,7 +817,8 @@ function _imSend(w, hw) {
     if (hwc) q += _logHwQuery(hw, 'hw');
     calls.push(get(q));
   } else calls.push(Promise.resolve(null));
-  calls.push(hwc && !log ? get(url + '?action=saveHw&name=' + encodeURIComponent(hw.name) + '&lessonDate=' + hw.date + hwq) : Promise.resolve(null));
+  calls.push(hwc && !log ? get(url + '?action=saveHw&name=' + encodeURIComponent(hw.name) + '&lessonDate=' + hw.date + hwq +
+    (w.trial ? '&trial=' + encodeURIComponent(w.trial) : '')) : Promise.resolve(null));
   // Schedule after the log and HW answer (2026-10-11): sent at the same moment
   // they wrote the same checklist row and the log wiped it (Gulnara, Oct 11).
   calls.push(sched !== undefined ? Promise.all(calls.slice()).then(function () {
@@ -823,6 +834,12 @@ function _imSend(w, hw) {
       w.pendLog = null;
       if (lr.success) {
         _logLessonDone(log.student, log.params.subject, lr, hw);
+        // The Trial card's steps follow (2026-10-23).
+        if (w.trial && typeof _tlMarkEmail === 'function') {
+          var tp = { whatWeDid: log.params.subject, hwLog: log.params.hwText || '' };
+          if (lr.hwSaved) tp.hwSent = true;
+          _tlMarkEmail(w.trial, tp);
+        }
         if (lr.hwSaved && hw && hw.choice === hwc) hw.dirty = false;
         if (lr.noShowError) why.push('No show: ' + lr.noShowError + '.');
         if (lr.hwError) { why.push('HW: ' + lr.hwError); if (hw && hw.choice === hwc) { hw.choice = null; hw.dirty = false; } }
@@ -846,6 +863,7 @@ function _imSend(w, hw) {
       if (hr.success) {
         if (hw.choice === hwc) { hw.saved = true; hw.dirty = false; }
         _logHwSaved(hw.name, hw);
+        if (w.trial && typeof _tlMarkEmail === 'function') _tlMarkEmail(w.trial, { hwSent: true, hwLog: hw.text || '' });
       } else {
         why.push('HW: ' + (hr.message || 'not saved.'));
         if (hw.choice === hwc) { hw.choice = null; hw.dirty = false; }   // un-ticked: pick it again to retry
@@ -895,7 +913,8 @@ function _imFlushOnClose() {
 function _imDone(name) {
   var c = _imCtx(), card = c.root && c.root.querySelector('.im-do-card');
   if (!card) return;
-  var w0 = window._imWin, mail = w0 && logHw && _imMailNeeded(name, c.day) ? _imMailFromWin(w0) : null;
+  // A trial's recap is always asked for (2026-10-23), whatever its date.
+  var w0 = window._imWin, mail = w0 && logHw && (w0.trial ? !_imMsgGet(name, c.day) : _imMailNeeded(name, c.day)) ? _imMailFromWin(w0) : null;
   card.classList.add('im-done');
   var msg = document.createElement('div');
   msg.className = 'im-done-msg';

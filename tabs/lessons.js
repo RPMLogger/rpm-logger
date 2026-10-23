@@ -120,7 +120,7 @@ function openLogFresh(student, idx, opts) {
 
   var ex = document.getElementById("trialPaidToggle");
   if (ex) ex.remove();
-  if (student.calType === "trial") {
+  if (student.calType === "trial" && !student.trialEmail) {   // the old Home trial log; the Trial card's has no Paid tick
     var tog = document.createElement("label");
     tog.className = "trial-paid"; tog.id = "trialPaidToggle";
     tog.innerHTML = "<input type='checkbox' id='trialPaidCheck'> ✓ Trial Paid";
@@ -256,6 +256,8 @@ function submitLog(noShow) {
   if (student.eventDate) params.lessonDate = student.eventDate;
   if (noShow === true) params.noShow = "1";
   var action = student.calType === "trial" ? "logTrial" : "logLesson";
+  // From the Trial card (2026-10-23): the trial row and HW Tracking, never a Students Import tab.
+  if (student.trialEmail) { action = "logTrialLesson"; params.email = student.trialEmail; params.hwText = (logHw && logHw.text) || ""; }
 
   // The Log lesson window (2026-10-09): Log only ticks; the lesson goes to
   // Google with its HW and Schedule once all three are done (_imSend, import.js).
@@ -438,7 +440,8 @@ function logHwOpen(student) {
   if (!box) return;
   _logHwWireDrop();
   var date = _logHwDate(student);
-  if (student.calType === "trial" || date < HW_START) { logHw = null; box.style.display = "none"; return; }
+  // The Trial card's Log lesson (student.trialEmail, 2026-10-23) has HW like a regular lesson.
+  if (!student.trialEmail && (student.calType === "trial" || date < HW_START)) { logHw = null; box.style.display = "none"; return; }
   box.style.display = "";
   // mine: names of the files uploaded here this time (2026-10-07). Only those
   // (and a saved answer's files) list in the drop zone, not the rest of their Dropbox.
@@ -487,7 +490,7 @@ function _logHwWireDrop() {
   var list = document.getElementById("logHwFiles");
   if (!list || list._wired) return;
   list._wired = true;
-  function can() { return logHw && !logHw.locked; }   // drops work while the check runs (2026-10-07) and while uploading (queued, 2026-10-11)
+  function can() { return logHw && !logHw.locked && !logHw.noDbx; }   // drops work while the check runs (2026-10-07) and while uploading (queued, 2026-10-11)
   list.ondragover = function(ev) { if (!can()) return; ev.preventDefault(); list.classList.add("lh-drop-on"); };
   list.ondragleave = function() { list.classList.remove("lh-drop-on"); };
   list.ondrop = function(ev) {
@@ -509,7 +512,8 @@ function _logHwWireDrop() {
 // makes Chrome remember that folder for this site, across restarts. Other
 // browsers fall back to the plain file inputs.
 var LOG_HW_PICKER = "rpm-hw";
-function _logHwCan() { return logHw && !logHw.locked; }   // while uploading too: the next pick waits its turn (2026-10-11)
+// noDbx (2026-10-23): a trial without its Dropbox folder yet; an upload would make an unshared one.
+function _logHwCan() { return logHw && !logHw.locked && !logHw.noDbx; }   // while uploading too: the next pick waits its turn (2026-10-11)
 function logHwBrowse(ev) {
   if (!_logHwCan()) return;
   if (ev && ev.target && ev.target.closest && ev.target.closest(".db-file")) return;
@@ -755,7 +759,8 @@ function _logHwRender() {
   // The zone starts empty (2026-10-07): no "Checking Dropbox…" while it asks
   // whether this lesson was answered already; drops work meanwhile.
   // Reading / uploading / checking (2026-10-17): said in the zone the whole time, files so far above it.
-  if (hw.upMsg) list.innerHTML = (hw.files.length ? _dbDetailsFilesHtml({ items: hw.files }) : "") + "<div class='lh-up-line'><span class='rpm-loading'>" + inqEsc(hw.upMsg) + "</span></div>";
+  if (hw.noDbx) list.innerHTML = dim + "No Dropbox folder yet. Make it in step 2, Dropbox.</span>";
+  else if (hw.upMsg) list.innerHTML = (hw.files.length ? _dbDetailsFilesHtml({ items: hw.files }) : "") + "<div class='lh-up-line'><span class='rpm-loading'>" + inqEsc(hw.upMsg) + "</span></div>";
   else if (hw.loading && !hw.files.length) list.innerHTML = dim + "⬆ Drag files or folders or browse</span>";
   else if (hw.loading) list.innerHTML = _dbDetailsFilesHtml({ items: hw.files }) + "<div class='lh-drop-more'><span class='link-btn'>⬆ Drop more here</span></div>";
   // Grey like the rest of the zone (2026-10-06, was amber), and says what to do.
@@ -777,6 +782,9 @@ function _logHwRender() {
   if (nb) { nb.classList.toggle("pressed", none); nb.disabled = busy || hw.choice === "sent"; }
   var sb = document.getElementById("logHwSentBtn");
   if (sb) { sb.classList.toggle("pressed", !!hw.filesOn); sb.disabled = busy || none || !n; }
+  // A trial with no Dropbox folder yet (2026-10-23): Browse and Open wait too.
+  var brb = document.querySelector(".lh-folder-btn"), dbb = document.getElementById("logHwDbxBtn");
+  [brb, dbb].forEach(function(el) { if (el) el.disabled = !!hw.noDbx; });
   var pb = document.getElementById("logHwPhoneBtn");   // D. Recorded on their phone (2026-10-18)
   if (pb) { pb.classList.toggle("pressed", !!hw.phone); pb.disabled = busy || none || !!hw.locked; }
   // Video lesson link / Web link: the paste boxes wait while None is on; each list shows its links.

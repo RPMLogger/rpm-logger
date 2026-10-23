@@ -1048,6 +1048,18 @@ var _TR_STEPS = [
   { key: 'log',   label: 'Log lesson', lesson: true, required: true },
   { key: 'hw',    label: 'Send HW',    lesson: true, required: true }
 ];
+// From 2026-10-23 Log lesson is the regular Log lesson window (Lesson + HW,
+// then Materials; no Schedule), and the Trial Recap email is its own step.
+// A trial logged the old way (Lesson Log, no HW Log) keeps Log lesson + Send HW.
+var _TR_LESSON_NEW = [
+  { key: 'log',   label: 'Log lesson', lesson: true, required: true },
+  { key: 'mail',  label: 'Email',      lesson: true, required: true }
+];
+function _trOldLog(s) { s = s || {}; return _trFilled(s.whatWeDid) && !_trFilled(s.hwLog); }
+function _trSteps(a) {
+  if (_trOldLog(a && a.lesson)) return _TR_STEPS;
+  return _TR_STEPS.filter(function (x) { return !x.lesson; }).concat(_TR_LESSON_NEW);
+}
 
 function _trFilled(v) { return !!String(v == null ? '' : v).trim(); }
 
@@ -1075,6 +1087,7 @@ function _trStepState(a) {
     dbx:   !!s.dropboxMade,
     log:   _trFilled(s.whatWeDid),
     hw:    s.hwSent === true || String(s.hwSent || '').toUpperCase() === 'TRUE',
+    mail:  String(s.recap || '').trim() === 'Sent',
     freq:  /^(weekly|biweekly)$/i.test(String(s.frequency || '').trim()),
     time:  (function () { var d = _trFirstLessonDate(s.firstLesson); return !!d && d > new Date(); })(),
     pay:   s.paid === true || String(s.paid || '').toUpperCase() === 'TRUE' || !!_trTrialPayFor(a.email),
@@ -1085,7 +1098,9 @@ function _trStepState(a) {
     setup: !!s.setupSent,
     setupSent: !!s.setupSent
   };
-  st.missing = _TR_STEPS.filter(function (x) { return (!x.lesson || x.required) && !st[x.key]; })
+  // The new Log lesson is done once the lesson, its HW and the materials are all in.
+  if (!_trOldLog(s)) st.log = st.log && _trFilled(s.hwLog) && st.hw;
+  st.missing = _trSteps(a).filter(function (x) { return (!x.lesson || x.required) && !st[x.key]; })
     .map(function (x) {
       // The button labels are steps, not reasons. Say what is actually missing.
       if (x.key === 'terms') return 'Terms not sent';
@@ -1123,18 +1138,20 @@ function _trStepsHtml(a) {
   // each start at 1. The lesson steps used to number themselves 1 and 2 beside
   // a left column that ran 1 to 7, which read as two separate checklists when
   // it is one: nine steps, five then four.
-  var all = _TR_STEPS.filter(function (x) { return !x.lesson; })
-              .concat(_TR_STEPS.filter(function (x) { return x.lesson; }));
+  var steps = _trSteps(a);
+  var all = steps.filter(function (x) { return !x.lesson; })
+              .concat(steps.filter(function (x) { return x.lesson; }));
   var SPLIT = 5;
 
   function step(x, n) {
     var done = x.key === 'terms' ? (st.termsBack || st.termsSent) : st[x.key];
     // A logged lesson is logged: step 8 keeps its tick but no longer opens.
-    var flat = x.noWindow || (x.key === 'log' && done);
+    // The Trial Recap is sent once, too.
+    var flat = x.noWindow || ((x.key === 'log' || x.key === 'mail') && done);
     return '<div class="tr-step' + (done ? ' is-done' : '') + '">' +
              '<span class="tr-step-n">' + n + '.</span>' +
              '<button class="tr-step-b' + (x.lesson ? ' lesson' : '') + (done ? ' done' : '') + (flat ? ' flat' : '') + '" ' +
-               (flat ? 'tabindex="-1"' : 'onclick="_tlOpen(\'' + em + '\',\'' + x.key + '\')"') + '>' +
+               (flat ? 'tabindex="-1"' : 'onclick="' + _trStepClick(a, x.key) + '"') + '>' +
                '<span>' + x.label + '</span>' +
              '</button>' +
            '</div>';
@@ -1170,6 +1187,65 @@ function _trActionsHtml(a) {
           'data-tip="Opens a window.\nPick Not Continued or No Show.\nCard disappears from Trial.\nStays in Inquiry Archive.\n(Not in Email list.)" data-tip-wrap data-tip-left>Dismiss</button>' +
       '</div>' +
     '</div>';
+}
+
+// A step's onclick. The new Log lesson and Email open the regular Log lesson
+// and Email windows (import.js); every other step opens its Trial window.
+function _trStepClick(a, key) {
+  var em = _trEsc(a.email || '');
+  if (!_trOldLog(a.lesson) && key === 'log')  return "_trLogOpen('" + em + "')";
+  if (!_trOldLog(a.lesson) && key === 'mail') return "_trMailOpen('" + em + "')";
+  return "_tlOpen('" + em + "','" + key + "')";
+}
+
+// ── Log lesson (2026-10-23): the regular Log lesson window for the trial ──
+// Lesson + HW, then Materials (Files need the Dropbox folder: step 2); no
+// Schedule. Saves to the trial row (Lesson Log, HW Log, HW Sent) and HW
+// Tracking; when it's done the Trial Recap email window opens.
+function _trLogOpen(email) {
+  var a = _trStageCache.filter(function (x) { return (x.email || '') === email; })[0];
+  if (!a) return;
+  var s = a.lesson || {};
+  var day = /^\d{4}-\d{2}-\d{2}$/.test(String(a.trialDate || '')) ? a.trialDate : _tdYmd();
+  var student = { name: a.name, eventDate: day, calType: 'trial', trialEmail: a.email };
+  // Logged already, materials still open: the log stays locked with its text.
+  var item = _trFilled(s.whatWeDid) ? { log: true, logText: s.whatWeDid } : null;
+  _imLogWinOpen(student, -1, day, item, null);
+  // Files wait for the Dropbox step (video and web links don't).
+  if (logHw && !s.dropboxMade) { logHw.noDbx = true; _logHwRender(); }
+  if (item && logHw && _trFilled(s.hwLog)) {
+    _logHwTextFill(logHw, s.hwLog);
+    logHw.textLocked = true;
+    llLock(_hwRowsBox());
+    var hm = document.getElementById('logHwMic');
+    if (hm) hm.disabled = true;
+  }
+}
+
+// ── Email (2026-10-23): the Trial Recap, in the regular Email window ──
+// Opens straight after Log lesson; this is for when that window was closed.
+// The materials come back from HW Tracking.
+function _trMailOpen(email) {
+  var a = _trStageCache.filter(function (x) { return (x.email || '') === email; })[0];
+  if (!a) return;
+  var s = a.lesson || {};
+  var day = /^\d{4}-\d{2}-\d{2}$/.test(String(a.trialDate || '')) ? a.trialDate : _tdYmd();
+  if (!_trFilled(s.whatWeDid) || !s.hwSent) { _trLogOpen(email); return; }   // Log lesson first
+  var m = { name: a.name, day: day, log: s.whatWeDid || '', hw: s.hwLog || '', files: false, links: [], phone: false, none: false,
+            trial: a.email, to: a.email };
+  fetch(getScriptUrl() + '?action=getHwLog&name=' + encodeURIComponent(a.name) + '&date=' + day)
+    .then(function (r) { return r.json(); })
+    .catch(function () { return {}; })
+    .then(function (d) {
+      var ex = d && d.success && d.rows && d.rows[0];
+      if (ex) {
+        m.files = !!(ex.files && ex.files.length);
+        m.links = (ex.links || []).slice();
+        m.phone = /Phone/.test(ex.hw || '');
+        m.none = /None/.test(ex.hw || '');
+      }
+      _imMailOpen(m);
+    });
 }
 
 var _tl = null;   // { card, step, rec, busy }
@@ -1214,7 +1290,7 @@ function _tlSyncCard() {
   var rec = _tl.rec || {}, patch = {};
   if (!rec.row) return;
   ['first', 'last', 'goals', 'availability', 'guitar', 'whatWeDid', 'firstLesson', 'frequency',
-   'pencilledSpot', 'phone', 'city', 'schoolJob', 'interests', 'dropboxEmail', 'sentDate', 'returnDate', 'setupDate']
+   'pencilledSpot', 'phone', 'city', 'schoolJob', 'interests', 'dropboxEmail', 'sentDate', 'returnDate', 'setupDate', 'hwLog', 'recap']
     .forEach(function (k) { patch[k] = rec[k] || ''; });
   patch.dropboxMade = String(rec.dropboxMade || '').toUpperCase() === 'TRUE';
   patch.termsSent   = String(rec.termsSent || '').toUpperCase() === 'TRUE';
@@ -1235,7 +1311,7 @@ function _tlClose() {
 
 function _tlTitle() {
   var a = _tl.card;
-  var step = _TR_STEPS.filter(function (x) { return x.key === _tl.step; })[0] ||
+  var step = _trSteps(a).filter(function (x) { return x.key === _tl.step; })[0] ||
              (_tl.step === 'status' ? { label: 'Status' } : null);
   return '<div class="settings-title"><span>' + inqEsc(a.name || '') +
       (step ? '<span style="color:var(--muted);font-weight:400"> · ' + step.label + '</span>' : '') +
@@ -2467,13 +2543,14 @@ function _msOpen(email) {
     // look), each opening its step; the title-above-box label; terms-not-back
     // in the summary line's amber caps; no OK, the ✕ closes it like every
     // step window.
-    var all = _TR_STEPS.filter(function (x) { return !x.lesson; })
-                .concat(_TR_STEPS.filter(function (x) { return x.lesson; }));
+    var steps = _trSteps(a);
+    var all = steps.filter(function (x) { return !x.lesson; })
+                .concat(steps.filter(function (x) { return x.lesson; }));
     var rows = all.map(function (x, n) {
       if ((x.lesson && !x.required) || st[x.key]) return '';
       return '<div class="tr-step"><span class="tr-step-n">' + (n + 1) + '.</span>' +
         '<button class="tr-step-b' + (x.lesson ? ' lesson' : '') + '" ' +
-          'onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'' + x.key + '\')"><span>' + x.label + '</span></button></div>';
+          'onclick="_msClose();' + _trStepClick(a, x.key) + '"><span>' + x.label + '</span></button></div>';
     }).join('');
     _msOverlay();
     document.getElementById('msModal').innerHTML =
