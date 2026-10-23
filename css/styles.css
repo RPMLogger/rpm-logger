@@ -414,9 +414,10 @@ body::before {
   font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text); }
 /* Skips tab: Availability's cards (2026-10-22) */
 .sk-card .en-card-head.sk-none { cursor: default; }
+.en-card.sk-card.open { border-color: var(--border); border-left-color: rgba(255,255,255,0.28); }   /* an open card keeps its closed look (user 2026-10-23) */
 .sk-card .en-card-head.sk-none .sk-caret { visibility: hidden; }   /* keeps the counts lined up with the cards that open */
 .sk-counts { font-family: "DM Mono", monospace; font-size: 13px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }   /* Travel Plan's SKIPPING N LESSONS */
-.f2-icon.sk-icon .win-icon { height: 56px; width: auto; }   /* the calendar + person icon, larger (user 2026-10-22) */
+.f2-icon.sk-icon .win-icon { height: 34px; width: auto; }   /* the calendar + person icon, Availability's size (user 2026-10-23) */
 .sk-hi { color: rgba(217,164,65,0.9); }   /* Financial 2's amber, a bit brighter (user 2026-10-22) */
 .sk-counts.av-never { color: rgba(255,255,255,0.24); }
 .sk-group { margin-top: 6px; }

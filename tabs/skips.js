@@ -50,7 +50,8 @@ function _skRender() {
     "<div class='f2-icon sk-icon' style='margin-bottom:40px'>" + SKIPS_ICON + "</div>" +   // calendar + person icon under the title (user 2026-10-22)
     // One line (user 2026-10-22): Total skips, the counts, Since Jun 2026,
     // all in Financial 2's number font.
-    "<div class='f2-cur' style='margin-bottom:18px'>Total skips · " +
+    "<div style='border-top:1px solid var(--border);margin-bottom:18px'></div>" +   // the line above Total skips (user 2026-10-23)
+    "<div class='f2-cur' style='margin-bottom:18px;font-size:12px'>Total skips · " +   // smaller than Financial 2's 15px (user 2026-10-23)
       "<span class='f2-hi sk-hi'>" + (totals.student || 0) + " student</span> · " +
       "<span class='f2-hi sk-hi'>" + (totals.teacher || 0) + " teacher</span> · " +
       "Since Jun 2026</div>" +
@@ -60,7 +61,7 @@ function _skRender() {
   var logBtn = document.createElement('button');
   // The portal's plain button, no + (user 2026-10-22).
   logBtn.className = 'link-btn';
-  logBtn.textContent = 'Log skip';
+  logBtn.textContent = '＋ Log skip';   // plus sign (user 2026-10-23)
   logBtn.onclick = function() { _skFormOpen = !_skFormOpen; _skRender(); };
   btns.appendChild(logBtn);
   // Log skip up on the SKIPS title line, right (user 2026-10-22); the old one
@@ -248,7 +249,8 @@ function _skStudentCard(s) {
     var grp = document.createElement('div');
     grp.className = 'sk-group';
     // Every group heading amber, the totals' colour (user 2026-10-22).
-    grp.innerHTML = "<div class='sk-group-h sk-hi'>" + _skEsc(w) + " · " + list.length + "</div>";
+    // Count first: "1 skip · Student", "5 skips · Vacation" (user 2026-10-23).
+    grp.innerHTML = "<div class='sk-group-h sk-hi'>" + list.length + (list.length === 1 ? " skip" : " skips") + " · " + _skEsc(w) + "</div>";
     var lastNote = null;
     list.forEach(function(k) {
       var note = k.note && k.note !== lastNote ? toSentenceCase(String(k.note)) : '';
@@ -263,6 +265,8 @@ function _skStudentCard(s) {
     body.style.display = open ? 'block' : 'none';
     card.classList.toggle('open', open);
     hdr.querySelector('.sk-caret').textContent = open ? '▴' : '▾';
+    // Open card: the counts go, the group headings already show them (user 2026-10-23).
+    hdr.querySelector('.sk-counts').style.visibility = open ? 'hidden' : '';
   };
   hdr.onclick = function() {
     var open = body.style.display === 'none';
