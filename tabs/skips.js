@@ -50,12 +50,12 @@ function _skRender() {
     "<div class='f2-icon sk-icon' style='margin-bottom:40px'>" + SKIPS_ICON + "</div>" +   // calendar + person icon under the title (user 2026-10-22)
     // One line (user 2026-10-22): Total skips, the counts, Since Jun 2026,
     // all in Financial 2's number font.
-    "<div style='border-top:1px solid var(--border);margin-bottom:18px'></div>" +   // the line above Total skips (user 2026-10-23)
-    "<div class='f2-cur' style='margin-bottom:18px;font-size:12px'>Total skips · " +   // smaller than Financial 2's 15px (user 2026-10-23)
+    // No line above it now; right-aligned, sitting on the line just over the cards, like the Dashboard's Load line (user 2026-10-23).
+    "<div class='f2-cur' style='margin-bottom:8px;font-size:12px;text-align:right'>Total skips · " +   // smaller than Financial 2's 15px (user 2026-10-23)
       "<span class='f2-hi sk-hi'>" + (totals.student || 0) + " student</span> · " +
       "<span class='f2-hi sk-hi'>" + (totals.teacher || 0) + " teacher</span> · " +
       "Since Jun 2026</div>" +
-    "<div style='border-top:1px solid var(--border);margin-bottom:24px'></div>";   // the line under Total skips (user 2026-10-22)
+    "<div style='border-top:1px solid var(--border);margin-bottom:12px'></div>";   // the line under Total skips, the cards close under it (user 2026-10-23; was 24px)
   var btns = document.createElement('span');
   btns.style.cssText = 'display:flex;gap:6px';
   var logBtn = document.createElement('button');

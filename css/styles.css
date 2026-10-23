@@ -417,7 +417,7 @@ body::before {
 .sk-card .en-card-head.sk-none { cursor: default; }
 .en-card.sk-card.open { border-color: var(--border); border-left-color: rgba(255,255,255,0.28); }   /* an open card keeps its closed look (user 2026-10-23) */
 .sk-card .en-card-head.sk-none .sk-caret { visibility: hidden; }   /* keeps the counts lined up with the cards that open */
-.sk-counts { font-family: "DM Mono", monospace; font-size: 13px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }   /* Travel Plan's SKIPPING N LESSONS */
+.sk-counts { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }   /* Travel Plan's SKIPPING N LESSONS; 10.5px like the portal's other DM Mono values (user 2026-10-23; was 13px) */
 .f2-icon.sk-icon .win-icon { height: 34px; width: auto; }   /* the calendar + person icon, Availability's size (user 2026-10-23) */
 .sk-hi { color: rgba(217,164,65,0.9); }   /* Financial 2's amber, a bit brighter (user 2026-10-22) */
 .sk-counts.av-never { color: rgba(255,255,255,0.24); }
@@ -1911,6 +1911,11 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .db-tip { display: inline-flex; padding: 3px; margin: -3px; cursor: help; }   /* holds the line's tooltip around its box */
 .db-check.on { color: rgba(255,255,255,.5); }
 .db-check.on .db-box { opacity: .8; }
+/* Folder audit in the Financial 2 Expenses table's look (user, 2026-10-23): the heavy grey frame, a line between rows, DM Mono. */
+.db-audit { padding: 0; gap: 0; border: 2px solid #3a3a3a; border-radius: var(--radius-card); width: fit-content; max-width: 100%; }   /* only as wide as its longest line (user, 2026-10-23) */
+.db-audit .db-check { padding-right: 24px; }
+.db-audit .db-check { padding: 8px 10px; font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.6; }
+.db-audit .db-check + .db-check { border-top: 1px solid var(--border); }
 
 
 /* A window's refresh, top right where the ✕ sits: same grey, same round
@@ -1932,8 +1937,8 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
   padding: 12px 14px; margin-bottom: 8px; }
 /* Header over the cards: 24 STUDENTS starts where the names start (3px edge
    + 14px padding); SINCE ADDED starts where Recover starts. */
-.db-cards-head { display: flex; align-items: baseline; justify-content: space-between; padding: 0 16px 0 17px; }
-.db-cards-head .field-label { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0; color: var(--muted); text-transform: uppercase; }   /* 24 STUDENTS / SINCE ADDED in capitals (2026-10-06) */
+.db-cards-head { display: flex; align-items: baseline; justify-content: space-between; padding: 0 16px 0 0; }   /* 24 STUDENTS flush left, like FOLDER AUDIT (user, 2026-10-23; was 17px in) */
+.db-cards-head .field-label + .field-label {   /* SINCE ADDED only; 24 STUDENTS takes the plain Folder audit label (user, 2026-10-23) */ font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0; color: var(--muted); text-transform: uppercase; }   /* 24 STUDENTS / SINCE ADDED in capitals (2026-10-06) */
 .db-card:hover:where(:not(:disabled)) { border-color: var(--muted); border-left-color: #3d5f8f; }
 .db-card-l { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 /* Two lines that line up across the card: name ↔ Recover (both 26px tall),
@@ -2130,7 +2135,8 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Today tab (2026-10-06): today's students one under the other, room between each. */
 #todayBody > .settings-title { margin-bottom: 10px; }   /* the calendar icon right under Today · date (2026-10-23; was 30px) */
 #todayBody > .td-icon { margin: 0 0 26px; color: var(--muted); }   /* then the room under it, like Availability */
-#todayBody > .td-icon .win-icon { height: 34px; }
+#todayBody > .td-icon .win-icon { height: 20px; }   /* as big as the Dropbox Overview folder (user, 2026-10-23; was 34px) */
+#tdWeekWin .win-icon { height: 20px; }   /* This Week's calendar, same size too (user, 2026-10-23; was 18px) */
 #todayBody > .settings-title .win-sub { color: rgba(255,255,255,0.3); }   /* the date a step darker than the names under it (2026-10-09) */
 /* Today's count + mini list (2026-10-06): time, then the name as a button. */
 #todayBody > .td-count { margin-top: 0; }
@@ -2405,6 +2411,11 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .td-wk-day .field-label { color: var(--accent); }   /* every day red, none dimmed */
 .td-wk-none { font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }   /* a day off: OPEN in the date's place, small, the date's grey */
 .st-win .td-wk-rule { margin: 0 0 12px; }
+.td-wk-day { gap: 0; }   /* Dashboard's row lines (user, 2026-10-23): the strong line under the day, a faint one under every lesson, none above the next day */
+.td-wk-day + .td-wk-day { margin-top: 18px; padding-top: 0; border-top: none; }
+.st-win .td-wk-day .field-label { margin-bottom: 0; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.td-wk-day .td-mini-row { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.td-wk-day .td-mini-row:last-child { border-bottom: none; }   /* nothing after a day's last lesson (user, 2026-10-23) */
 
 /* General tab in the This Week window's look (2026-10-10): the four gold cards
    become flat sections one under the other. Section names red like MON; labels
@@ -2441,11 +2452,13 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Skips card group look (user 2026-10-23): small caps heading with a line under it,
    faint lines between rows, no line between sections. */
 #tab-general .ld-card + .ld-card { border-top: none; padding-top: 0; margin-top: 28px; }
-#tab-general .ld-title { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 0; color: rgba(217,164,65,0.9); }   /* Skips' amber (.sk-hi) */
+#tab-general .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 0; color: rgba(255,255,255,.72); }   /* Folder audit's Bebas Neue and grey (user, 2026-10-23; was DM Mono 10px in Skips' amber) */
 #tab-general .ld-row { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
 #tab-general .ld-row.pick { padding: 6px 0; }
 #tab-general .ld-rule { display: none; }   /* the row lines already split them */
-#loadTable .ld-row.lead .ld-v:not(#loadGregorian), #tab-general #loadIncome { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1px; line-height: 1; color: var(--muted); }   /* Load's main numbers bigger, Bebas Neue, a window title's date grey (.win-sub; user 2026-10-23) */
+#tab-general #loadTable .ld-row .ld-v { color: rgba(255,255,255,0.24); }   /* Load's numbers all one grey and size; the headline at the top carries them (user 2026-10-23; was big Bebas, then amber) */
+#tab-general .ld-title-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+#tab-general .ld-title-sum .ld-sum { font-size: 12px; letter-spacing: .5px; }   /* 24 STUDENTS · 17.5 NORMALIZED · $6,940 on Load's title line, right, the Skips tab's Total skips line (user 2026-10-23) */
 /* The Estimator's pickers a step smaller (2026-10-10). */
 #tab-general .ld-pick { padding: 1px; border-radius: 7px; }
 #tab-general .ld-pb { width: 18px; font-size: 11px; }

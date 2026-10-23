@@ -114,6 +114,11 @@ function fetchStudentLoad(url) {
         document.getElementById("loadBiweekly").textContent  = data.biweeklyCount;
         document.getElementById("loadIncome").textContent    = "$" + data.totalIncome.toLocaleString();
         document.getElementById("loadGregorian").textContent = "$" + data.gregorian.toLocaleString();
+        // The Dashboard's headline, like Skips' Total skips line: STUDENTS 24 · NORMALIZED 17.5 · INCOME $6,940
+        document.getElementById("loadSum").innerHTML =   // label first, the number amber after it (user 2026-10-23)
+          "Students <span class='f2-hi sk-hi'>" + data.totalStudents + "</span> · " +
+          "Normalized <span class='f2-hi sk-hi'>" + data.normalized + "</span> · " +
+          "Income <span class='f2-hi sk-hi'>$" + data.totalIncome.toLocaleString() + "</span>";
       }
     }).catch(function() {});
 }
