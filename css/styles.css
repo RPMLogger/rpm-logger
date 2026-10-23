@@ -3178,6 +3178,7 @@ th.f2-blk { background:none; }
 .f2-table:not(.f2-ex) th, .f2-table:not(.f2-ex) td { text-align:center !important; vertical-align:middle; }   /* Income: all centered both ways (user 2026-10-22) */
 .f2-table:not(.f2-ex) th { padding:9px 5px; }
 .f2-ex td:first-child, .f2-ex th:first-child { text-align:left; }
+.f2-ex th:nth-child(2) { text-align:right; }   /* Paid on over its right-aligned values (the shared rule left-aligns header 2 for Income's Week) */
 .f2-ex td { padding:8px 10px; border-top:1px solid var(--border); }
 .f2-app span { display:block; font-size:10px; color:rgba(255,255,255,0.24); margin-top:2px; }
 .f2-ex .f2-sel td { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.82); }   /* the selected expense row (user 2026-10-22) */
