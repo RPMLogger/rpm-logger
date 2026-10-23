@@ -1,20 +1,33 @@
 // ─── TABS / HELP.JS ─────────────────────────────────────────────────────────
-// Help ▾ dropdown: static reading pages, no backend calls. One page per
-// system, so how something works can be looked up instead of asked again.
-// Same card look as the Inquiries tab (.inq-dcard).
-//   Data tracked — everything kept on every student, and where it lives.
+// Help (in the Data ▾ menu): static reading pages, no backend calls.
+//   Data tracked — the short page: what is tracked that matters, in two parts
+//   (Students, Money), each in the order things happen, then what is not
+//   tracked yet. Where each thing is stored is for the full data map (planned,
+//   read live from the sheets), not this page.
+// Update HELP_DATA in the same change whenever something that matters gets tracked.
 
 function initHelpTab(tab) {
   if (!document.getElementById('helpStyle')) {
     var st = document.createElement('style');
     st.id = 'helpStyle';
-    // Inquiries card look (.inq-dcard, css/styles.css); the item labels may wrap here.
+    // Dashboard tab look (#tab-general, css/styles.css): red title, small amber
+    // caps headings with a line under, faint lines between rows, no cards.
     st.textContent =
-      ".help-lead{font-family:'DM Mono',monospace;font-size:10.5px;color:rgba(255,255,255,0.35);margin:-10px 0 22px}" +
-      ".help-card .inq-fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5px 20px}" +
-      ".help-card .inq-flabel{white-space:normal;color:rgba(255,255,255,0.5)}" +
-      ".help-card .inq-fval{color:rgba(255,255,255,0.3)}" +
-      ".help-card.help-missing{border-left-color:var(--border)}";
+      "#helpDataBody > .settings-title{margin-bottom:6px}" +
+      ".help-lead{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.24);margin-bottom:30px}" +
+      ".help-sec{margin-bottom:28px}" +
+      ".help-gh{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(217,164,65,0.9);padding-bottom:8px;border-bottom:1px solid var(--border)}" +
+      ".help-r{display:grid;grid-template-columns:170px minmax(0,1fr);gap:16px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:10.5px;line-height:1.5}" +
+      ".help-w{letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.24)}" +
+      ".help-s{color:rgba(255,255,255,0.5)}" +
+      // part heading: the Dashboard title's red, a step smaller
+      ".help-ph{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--accent);margin:44px 0 18px}" +
+      ".help-sec + .help-ph, .help-lead + .help-ph{margin-top:0}" +
+      ".help-miss + .help-ph{margin-top:44px}" +
+      // not tracked yet: red heading, labels a step brighter, reasons dimmer
+      ".help-miss .help-gh{color:var(--accent)}" +
+      ".help-miss .help-w{color:rgba(255,255,255,0.5)}" +
+      ".help-miss .help-s{color:rgba(255,255,255,0.24)}";
     document.head.appendChild(st);
   }
   if (tab === 'helpdata') {
@@ -24,72 +37,93 @@ function initHelpTab(tab) {
 }
 
 // ── DATA TRACKED ────────────────────────────────────────────────────────────
-// [what, where it lives]
+// rows: [label, what is kept]. missing: [what, why it matters / what exists today]
+var HELP_UPDATED = 'Oct 23, 2026';
 var HELP_DATA = [
-  { h: 'Who they are', rows: [
-    ['Name, email', 'Counter sheet → Counter tab'],
-    ['Phone', 'Counter sheet → Phone Numbers tab'],
-    ['City, school or job, goals, interests', 'Students Import → their tab, top block'],
-    ['Inquiry: date, gender, age, level', 'Inquiries sheet → Inquiries tab (one column each)']
+  { id: 'students', h: 'Students', groups: [
+    { h: 'Who they are', rows: [
+      ['Contact', 'Name, email, phone'],
+      ['About them', 'City, school or job, goals, interests'],
+      ['Inquiry', 'Date, gender, age, level']
+    ]},
+    { h: 'Start', rows: [
+      ['Trial', 'Date, lesson log, HW sent, outcome'],
+      ['Start date', 'First regular lesson']
+    ]},
+    { h: 'Schedule', rows: [
+      ['Slot', 'Weekly or biweekly, day and time'],
+      ['Slot changes', 'Old, new, start date'],
+      ['Availability', 'When they can come']
+    ]},
+    { h: 'Lessons', rows: [
+      ['Lesson log', 'Date and subject, every lesson'],
+      ['Block', 'Place in the current 4-lesson block'],
+      ['HW', 'Files, links, video lessons, recorded on their phone, sent or not'],
+      ['Recap email', 'Lesson notes, things to practice, sent at'],
+      ['Checklist', 'Log, HW, schedule, email: done or open']
+    ]},
+    { h: 'Attendance', rows: [
+      ['Skips', 'Who (student / teacher) and why'],
+      ['Reschedules', 'Who asked and why'],
+      ['No shows', 'Date'],
+      ['Density', 'Lessons had vs. what their slot should give, from Jul 8, 2026']
+    ]},
+    { h: 'End and review', rows: [
+      ['End date', 'Written by Terminate'],
+      ['Lifetime', 'How long they stayed, with totals: lessons, payments, skips, reschedules'],
+      ['Review', 'Left one or not; if not, when asked'],
+      ['Google reviews', 'Name, date, start of the review']
+    ]}
+  ], missing: [
+    ['How they found you', 'Google, referral, flyer. Inquiries has no field for it.'],
+    ['Why they left', 'Terminate saves that they ended, not why.'],
+    ['Notice given', 'On skips and reschedules: last minute or a week ahead.'],
+    ['Review posted date', 'Shown on the Reviews tab, not saved to the student.']
   ]},
-  { h: 'Schedule and rate', rows: [
-    ['Weekly or biweekly, regular slot', 'Google Calendar (RPM - Weekly / Biweekly)'],
-    ['Availability notes', 'Student Availability sheet'],
-    ['Current rate', 'Rates, Raise, Lifetime & Review History sheet'],
-    ['Raise dates', 'Rates, Raise, Lifetime & Review History sheet'],
-    ['Website prices and the day they changed', 'Website Rates Archive sheet']
-  ]},
-  { h: 'Lessons', rows: [
-    ['Every lesson: date and what was taught', 'Students Import → their tab, row 12 down'],
-    ['Lesson number in the 4-lesson block', 'Counter sheet → Counter tab'],
-    ['Log / HW / Schedule done, per lesson', 'HW Tracking sheet → Lesson Checklist tab'],
-    ['HW given, files, sent or not', 'HW Tracking sheet → HW Log tab'],
-    ['Lesson folders', 'Dropbox → their folder']
-  ]},
-  { h: 'Money', rows: [
-    ['Every payment: date, amount, method', 'RPM Payments sheet'],
-    ['Payment reminders sent', 'Counter sheet → Payment Reminders tab'],
-    ['What each lesson earned', 'Income sheet']
-  ]},
-  { h: 'Attendance', rows: [
-    ['Skips: who (student / teacher) and why', 'Counter sheet → Skip Logs tab'],
-    ['Reschedules: who asked and why', 'Counter sheet → Reschedule Logs tab'],
-    ['No shows', 'Counter sheet → No Show Logs tab'],
-    ['Lessons cancelled for your trips', 'RPM Travel Agent sheet']
-  ]},
-  { h: 'Start, end, review', rows: [
-    ['Start date, how long with you', 'Rates, Raise, Lifetime & Review History sheet'],
-    ['Left a review (yes / no), asked when', 'Rates, Raise, Lifetime & Review History sheet'],
-    ['Trial: how it went', 'Intake ▾ Trial card'],
-    ['End date + totals (lessons, payments, skips, reschedules, review)', 'Inquiries sheet → Lifetime & Review tab (written by Terminate)'],
-    ['Their full lesson tab after they end', 'Eski sheet']
-  ]},
-  { h: 'Messages', rows: [
-    ['Texts with them', 'RPM Comms sheet → Inbox and Student Line tabs']
+  { id: 'money', h: 'Money', groups: [
+    { h: 'Rates', rows: [
+      ['Rate', 'Each student, with raise dates'],
+      ['Website prices', 'Weekly, biweekly, trial, and the day they changed']
+    ]},
+    { h: 'Payments', rows: [
+      ['Payments', 'Date, amount, method (cash, Venmo, Zelle)'],
+      ['Reminders', 'Every payment reminder sent']
+    ]},
+    { h: 'Income', rows: [
+      ['Lessons', 'Per week, from the calendars every morning'],
+      ['Gigs', 'Per week, typed in by hand'],
+      ['Totals', 'Weekly, 4-week, average, net']
+    ]},
+    { h: 'Spending', rows: [
+      ['Subscriptions', 'App, company, yearly, monthly, renewal'],
+      ['Expense', 'Per 4 weeks, taken off for net']
+    ]}
+  ], missing: [
+    ['Each gig on its own', 'Date, where, amount, how paid. Only a weekly total exists.'],
+    ['One-off spending', 'Gear, strings, books: anything not a subscription.'],
+    ['Subscription price changes', 'From Gmail receipts. An idea, not built.'],
+    ['Tax', 'The Tax tab is a placeholder.'],
+    ['End of year', 'The End of Year tab is a placeholder.']
   ]}
 ];
 
-var HELP_DATA_MISSING = [
-  ['How they found you', 'Google, referral, flyer. Inquiries has no field for it.'],
-  ['Why they left', 'Terminate saves that they ended, not why.'],
-  ['How much notice they gave', 'On skips and reschedules: last minute or a week ahead.'],
-  ['Referrals', 'Who they sent your way.'],
-  ['Review posted date', 'The day the review showed up on Google, not just yes / no. Needed to check reviews are spaced about a week apart.'],
-  ['Parent contact', 'For students who are kids.']
-];
-
 function _helpDataHtml() {
-  var h = '<div class="section-label">Data tracked</div>' +
-          '<div class="help-lead">Everything kept on every student, and where it lives. Updated Oct 12, 2026.</div>';
-  HELP_DATA.forEach(function(sec) {
-    h += '<div class="inq-dcard help-card"><div class="inq-drow"><span class="inq-chan">' + sec.rows.length + ' items</span></div>' +
-         '<div class="inq-name-line"><span class="inq-name">' + sec.h + '</span></div><div class="inq-fields">';
-    sec.rows.forEach(function(r) { h += '<span class="inq-flabel">' + r[0] + '</span><span class="inq-fval">' + r[1] + '</span>'; });
-    h += '</div></div>';
+  var h = '<div class="settings-title"><span>Data tracked</span></div>' +
+          '<div class="help-lead">What we track that matters · updated ' + HELP_UPDATED + '</div>';
+  HELP_DATA.forEach(function(p, i) {
+    h += '<div class="help-ph">0' + (i + 1) + ' · ' + p.h + '</div>';
+    p.groups.forEach(function(g) {
+      h += '<div class="help-sec"><div class="help-gh">' + g.h + '</div>';
+      g.rows.forEach(function(r) {
+        h += '<div class="help-r"><span class="help-w">' + r[0] + '</span><span class="help-s">' + r[1] + '</span></div>';
+      });
+      h += '</div>';
+    });
+    h += '<div class="help-sec help-miss"><div class="help-gh">Not tracked yet</div>';
+    p.missing.forEach(function(m) {
+      h += '<div class="help-r"><span class="help-w">' + m[0] + '</span><span class="help-s">' + m[1] + '</span></div>';
+    });
+    h += '</div>';
   });
-  h += '<div class="section-label" style="margin-top:30px">Not tracked yet</div>' +
-       '<div class="inq-dcard help-card help-missing"><div class="inq-fields">';
-  HELP_DATA_MISSING.forEach(function(p) { h += '<span class="inq-flabel">' + p[0] + '</span><span class="inq-fval">' + p[1] + '</span>'; });
-  h += '</div></div>';
   return h;
 }
