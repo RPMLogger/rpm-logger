@@ -1228,7 +1228,7 @@ function _auSyncCard(st) {
       '<div class="au-acts">' +
         (st.missing.length && !mismatch && (!st.grid || offGrid)
           ? '<button class="link-btn bright opens-window au-logbtn" onclick="_auLogNext(this)" ' +
-              'data-tip="Opens a window.\nLogs ' + _auEsc(_auDate(st.missing[0])) + ' into Students Import.' + (st.missing.length > 1 ? '\n(Oldest first.)' : '') + '" data-tip-wrap>Log lesson</button>'
+              'data-tip="Opens a window.\nLogs ' + _auEsc(_auDate(st.missing[0])) + ' into Students Import.' + (st.missing.length > 1 ? '\n(Oldest first.)' : '') + '" data-tip-wrap>＋ Log lesson</button>'
           : '') +
         calOnlyNote +
         '<span class="au-state"></span>' +

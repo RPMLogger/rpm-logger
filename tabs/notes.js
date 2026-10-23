@@ -228,9 +228,12 @@ function _notesSubmit() {
 
   var btn = document.getElementById("notesLog");
   var orig = btn.textContent;
+  var panel = document.getElementById("notesPanel");
   btn.textContent = "Logging…"; btn.disabled = true;
+  rpmBusy(panel, btn, true);
 
   callScript(url, "addNote", { note: note }, function(data) {
+    rpmBusy(panel, btn, false);
     btn.textContent = orig; btn.disabled = false;
     if (data && data.success) {
       _notesClosePanel();

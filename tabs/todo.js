@@ -246,9 +246,12 @@ function _todoSubmitAll() {
 
   var btn = document.getElementById("todoLog");
   var orig = btn.textContent;
+  var panel = document.getElementById("todoPanel");
   btn.textContent = "Logging…"; btn.disabled = true;
+  rpmBusy(panel, btn, true);
 
   callScript(url, "addTodo", { task: task }, function(data) {
+    rpmBusy(panel, btn, false);
     btn.textContent = orig; btn.disabled = false;
     if (data && data.success) {
       _todoClosePanel();

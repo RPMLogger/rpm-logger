@@ -588,24 +588,9 @@ function _imMsgShow(f, html) {
 function _imMailBusy(btn, on) {
   var m = window._imMail, root = document.querySelector('#imMailWin .im-mail');
   if (m) m.busy = on;
-  // Send (user, 2026-10-21): everything dims, Send too, and the spinner sits in the middle of the window.
-  if (btn && btn.id === 'imMailSend') {
-    rpmBusy(root, null, on);
-    btn.disabled = on;
-    var pill = root && root.querySelector('.rpm-load-center');
-    if (on && root && !pill) root.insertAdjacentHTML('beforeend', "<div class='rpm-load-center rpm-keep'><span class='rpm-loading'>Sending</span></div>");
-    else if (!on && pill) pill.remove();
-    return;
-  }
-  rpmBusy(root, btn, on);
-  // The pressed button spins with its word, the other one dims (2026-10-21).
-  if (!btn) return;
-  if (on) {
-    btn._html = btn.innerHTML; btn.disabled = true; btn.classList.add('tv-busy');
-    btn.innerHTML = "<span class='rpm-loading'>" + (btn.id === 'imMailSend' ? 'Sending' : 'Loading') + '</span>';
-  } else if (btn._html != null) {
-    btn.innerHTML = btn._html; btn._html = null; btn.disabled = false; btn.classList.remove('tv-busy');
-  }
+  // Everything dims, the pressed button too, and SENDING / LOADING sits in the middle of the window (user, 2026-10-21 / 2026-10-23).
+  rpmBusy(root, btn, on, btn && btn.id === 'imMailSend' ? 'Sending' : 'Loading');
+  if (btn) btn.disabled = on;
 }
 function _imMailPreview() {
   var m = window._imMail, btn = _imMailQ('imMailPrev');
@@ -829,7 +814,7 @@ function _imSend(w, hw) {
     return get(url + '?action=saveSchedule&name=' + encodeURIComponent(w.name) + '&lessonDate=' + w.day + '&sched=' + (sched || ''));
   }) : Promise.resolve(null));
   if (hw) hw.locked = true;
-  if (window._imWin === w) { rpmBusy(document.querySelector('#imLogWin .im-do-card'), null, true); _logHwRender(); _imStepsRender(); }
+  if (window._imWin === w) { rpmBusy(document.querySelector('#imLogWin .im-do-card'), null, true, false); _logHwRender(); _imStepsRender(); }
   Promise.all(calls).then(function (r) {
     var lr = r[0], hr = r[1], sr = r[2], why = [];
     w.sending = false;
@@ -1106,7 +1091,7 @@ function _imFixTips(el) {
 // look (not Lessons' blue, so it reads as a different button).
 function _imLogBtnHtml(name, o) {
   o = o || {};
-  var n = _auEsc(JSON.stringify(name)), q = _imQueue(name), label = o.label || 'Log lesson';
+  var n = _auEsc(JSON.stringify(name)), q = _imQueue(name), label = o.label || '＋ Log lesson';   // plus sign (user 2026-10-23)
   if (!q.length) return '<button class="link-btn im-log-off" data-tip="Nothing open.\nEvery lesson has its log, HW and schedule." data-tip-left data-tip-wrap>' + label + '</button>';
   // The student page (2026-10-17): the oldest open lesson's missing steps as the
   // Students card's amber buttons ("✕ Email ▸", or "Not logged ▸"), not Log lesson.

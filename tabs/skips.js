@@ -188,14 +188,14 @@ function _skLogForm(students) {
 
   save.onclick = function() {
     if (!sel.value) { msg.hidden = false; msg.style.color = '#ff5a5a'; msg.textContent = 'Pick a student.'; return; }
-    save.disabled = true; save.textContent = 'Saving…';
+    save.disabled = true; save.textContent = 'Saving…'; rpmBusy(box, save, true);
     var q = '?action=logSkipManual&name=' + encodeURIComponent(sel.value) + '&date=' + encodeURIComponent(dayValue()) +
             '&who=' + encodeURIComponent(who) + '&note=' + encodeURIComponent(note.value.trim());
     fetch(getScriptUrl() + q)
       .then(function(r) { return r.json(); })
       .then(function(d) {
         if (!d.success) {
-          save.disabled = false; save.textContent = 'Save';
+          rpmBusy(box, save, false); save.disabled = false; save.textContent = 'Save';
           msg.hidden = false; msg.style.color = '#ff5a5a'; msg.textContent = d.message || 'Failed';
           return;
         }
@@ -203,7 +203,7 @@ function _skLogForm(students) {
         initSkipsTab();
       })
       .catch(function() {
-        save.disabled = false; save.textContent = 'Save';
+        rpmBusy(box, save, false); save.disabled = false; save.textContent = 'Save';
         msg.hidden = false; msg.style.color = '#ff5a5a'; msg.textContent = 'Connection failed';
       });
   };

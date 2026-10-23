@@ -409,23 +409,34 @@ function rpmSetLoading(el, text) {
   el.appendChild(s);
 }
 
-// ─── Save / send feedback, one rule (2026-09-26) ────────────────────────────
-// Trial, Initiate and Inquiries. While Google works the window dims and the
-// pressed button keeps its moving dots. Success says nothing: the window
-// closes, the card moves, or the button's words change. Failure is one red
-// "Unsuccessful" badge with the reason in its tooltip. A half-success (it went
-// out, but the sheet did not record it) is an amber badge, never "try again".
+// ─── Save / send feedback, one rule (2026-09-26, busy look 2026-10-23) ──────
+// While Google works the whole window (or the card it belongs to) dims, every
+// button included, the pressed one too, and a separate word with the rolling
+// ring sits mid-screen: SAVING, LOGGING, SENDING (caps from .rpm-loading).
+// Success says nothing: the window closes, the card moves, or the button's
+// words change. Failure is one red "Unsuccessful" badge with the reason in its
+// tooltip. A half-success (it went out, but the sheet did not record it) is an
+// amber badge, never "try again".
 function _rpmAttr(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
 
-// root: the window (or card); btn: the button that was pressed.
-function rpmBusy(root, btn, on) {
+// root: the window (or card); btn: the button that was pressed. word: the
+// centre word; left out, it comes from the button ("Logging…" → Logging);
+// false: dim only, the window shows its own centre word.
+function rpmBusy(root, btn, on, word) {
   if (!root) return;
+  if (on && document.activeElement && root.contains(document.activeElement)) document.activeElement.blur();   // a focused button would glow through the dim
   root.classList.toggle('rpm-busy', !!on);
-  if (!btn) return;
-  var row = btn;
-  while (row.parentElement && row.parentElement !== root) row = row.parentElement;
-  if (row.parentElement === root) row.classList.toggle('rpm-keep', !!on);
-  btn.classList.toggle('rpm-acting', !!on);
+  var pill = root.querySelector(':scope > .rpm-busy-msg');
+  if (on && !pill && word !== false)
+    root.insertAdjacentHTML('beforeend', '<div class="rpm-load-center rpm-keep rpm-busy-msg"><span class="rpm-loading">' + _rpmAttr(word || rpmBusyWord(btn)) + '</span></div>');
+  else if (!on && pill) pill.remove();
+}
+var RPM_BUSY_WORDS = { log: 'Logging', save: 'Saving', set: 'Saving', send: 'Sending', remove: 'Removing', 'delete': 'Removing',
+  move: 'Moving', skip: 'Skipping', book: 'Booking', upload: 'Uploading' };
+function rpmBusyWord(btn) {
+  var t = btn ? String(btn.textContent || '').trim() : '';
+  if (/(…|\.\.\.)$/.test(t)) return t.replace(/\s*(…|\.\.\.)$/, '');   // the button already says it: "Skipping…"
+  return RPM_BUSY_WORDS[t.split(/\s+/)[0].toLowerCase()] || 'Saving';
 }
 
 function _rpmBadge(el, cls, text, tip, align) {

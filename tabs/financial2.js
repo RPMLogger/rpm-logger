@@ -151,18 +151,18 @@ function _f2Render(d) {
         'data-tip="Opens elsewhere.\nYour subscription receipts in Gmail." data-tip-left><span>Receipts in Gmail</span><span data-icon="out">' + OPEN_OUT_ICON + '</span></a></div>' +
     '<div class="f2-icon">' + MONEY_OUT_ICON + '</div>' +   // om-105 under the heading (user 2026-10-22)
     // how-to under the icon, as numbered steps like Travel Plan's (user 2026-10-22)
-    '<div class="tv-sec-note tv-steps f2-howto"><span><i>1.</i>Press + Add expense to add one</span>' +
+    '<div class="tv-sec-note tv-steps f2-howto"><span><i>1.</i>Press Add expense to add one</span>' +
       '<span><i>2.</i>Click a row, then Edit or Remove</span></div>' +
     '<div class="f2-wrap"><table class="f2-table f2-ex">' +
       '<tr><th>Application</th><th>Paid on</th><th>Yearly</th><th>Monthly</th><th>Length</th><th>Renewal</th></tr>' +
       exRows +
     '</table></div>' +
     // The asterisk's footnote, as far under this table as the Accountant line is under Income (user 2026-10-22)
-    // Edit / Remove / + Add expense, right — like Show more under Income
+    // Edit / Remove / ＋ Add expense, right — like Show more under Income (plain ＋ like Log skip, user 2026-10-23)
     '<div class="f2-foot">' +
       '<span class="f2-ex-acts"><button class="link-btn" id="f2ExEditPicked" disabled onclick="_f2EditPicked()">Edit</button>' +
       '<button class="link-btn" id="f2ExRemovePicked" disabled onclick="_f2RemovePicked()">Remove</button>' +
-      '<button class="link-btn" onclick="_f2OpenExpense(-1)">+ Add expense</button></span></div>' +
+      '<button class="link-btn" onclick="_f2OpenExpense(-1)">＋ Add expense</button></span></div>' +
     // Average expenses: the old three boxes as one line of text, like Current total (user 2026-10-22)
     '<div class="f2-head" style="margin-top:48px">Average expenses</div>' +
     '<div class="f2-cur"><span class="f2-hi">' + (_f2Money(d.totalMonthly) || '—') + '</span> monthly · ' +

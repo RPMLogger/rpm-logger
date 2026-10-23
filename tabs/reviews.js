@@ -215,15 +215,13 @@ function _rvCopied(row) {
     .catch(function (e) { if (cell) cell.textContent = '⚠ Not saved' + (e && e.message ? ': ' + e.message : ''); });
 }
 
-// Left a review / Remove: the card dims while it saves, then leaves the list.
-// The pressed button says "Saving…" so its dots move, like an Inquiries card (2026-10-21).
+// Left a review / Remove: the card dims while it saves, buttons too, with SAVING
+// mid-screen (2026-10-23), then leaves the list.
 function _rvClose(row, result, btn) {
   var r = _rvFind(row), card = document.getElementById('rv' + row + 'Card');
   if (!r || !card) return;
-  card.classList.add('inq-busy');
   card.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
-  var was = btn && btn.textContent;
-  if (btn) btn.textContent = 'Saving…';
+  rpmBusy(card, btn, true, 'Saving');
   fetch(getScriptUrl() + '?action=endReviewClose&row=' + row + '&name=' + encodeURIComponent(r.name) + '&result=' + result)
     .then(function (x) { return x.json(); })
     .then(function (res) {
@@ -232,9 +230,8 @@ function _rvClose(row, result, btn) {
       _rvRender();
     })
     .catch(function (e) {
-      card.classList.remove('inq-busy');
+      rpmBusy(card, btn, false);
       card.querySelectorAll('button').forEach(function (b) { b.disabled = false; });
-      if (btn) btn.textContent = was;
       rpmAlert({ title: 'Not saved', message: String(e && e.message || e) });
     });
 }

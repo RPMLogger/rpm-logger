@@ -275,7 +275,7 @@ function openIncomingNotePanel(payment, cardEl, onDone) {
     "</div>" +
     "<div class='inp-actions'>" +
       "<span class='inp-state' style='flex:1'></span>" +
-      "<button class='inp-log btn-log'>Log →</button>" +
+      "<button class='inp-log btn-log'>＋ Log →</button>" +
       "<button class='inp-cancel'>✕</button>" +
     "</div>";
 
@@ -422,7 +422,7 @@ function submitIncomingWithNote(note, logBtn) {
       return;
     }
 
-    logBtn.textContent = "Log →"; logBtn.disabled = false;
+    logBtn.textContent = "＋ Log →"; logBtn.disabled = false;
     if (!wrote.log && !wrote.box) {
       rpmFail(stateEl, [res[0].why, res[1].why].filter(Boolean).join(" · "));
     } else if (!wrote.box) {

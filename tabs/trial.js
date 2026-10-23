@@ -846,11 +846,9 @@ function _trBook(p) {
   var stBox = document.getElementById(stEl); if (stBox) stBox.innerHTML = '';
   var btn = document.getElementById(p + 'BookBtn');
   if (p === 'tb') {
-    // The card's window: the whole window fades like a waiting card, and the
-    // button says what Google is doing (the dots come from core/utils.js).
-    var md = document.getElementById('tbModal');
-    if (md) md.classList.add('tb-busy');
+    // The card's window: the whole window dims, Book too, and BOOKING sits mid-window (2026-10-23).
     if (btn) { btn.disabled = true; btn.style.cursor = 'wait'; btn.textContent = 'Creating event…'; }
+    rpmBusy(document.getElementById('tbModal'), btn, true, 'Booking');
   } else if (btn) {
     btn.disabled = true; btn.style.cursor = 'wait'; btn.textContent = 'Booking…';
     if (p === 'ts') rpmBusy(document.getElementById('tsModal'), btn, true);
@@ -895,7 +893,7 @@ function _trBook(p) {
 function _trRestoreBook(p) {
   p = p || 'tr';
   if (p === 'tb' && _trBookWin) _trBookWin.busy = false;
-  if (p === 'tb') { var md = document.getElementById('tbModal'); if (md) md.classList.remove('tb-busy'); }
+  if (p === 'tb') rpmBusy(document.getElementById('tbModal'), null, false);
   if (p === 'ts') _tsBusy = false;
   var btn = document.getElementById(p + 'BookBtn');
   if (!btn) return;
@@ -1733,11 +1731,11 @@ function _tlSaveFields(fields, msgId, onOk) {
   var email = _tl.card.email || '';
   _tlSetMsg(msgId, '');
   var m0 = document.getElementById(msgId); if (m0) m0.style.textAlign = '';
-  // The window dims while Google works; the Save button keeps its moving dots
-  // (2026-09-26). Success closes it, failure brings it back with "Unsuccessful".
+  // The window dims while Google works, Save too, and SAVING sits mid-window
+  // (2026-10-23). Success closes it, failure brings it back with "Unsuccessful".
   var md = document.getElementById('tlModal');
-  if (md) md.classList.add('tl-busy');
-  function undim() { var m = document.getElementById('tlModal'); if (m) m.classList.remove('tl-busy'); }
+  rpmBusy(md, _tlBusyBtn(md), true);
+  function undim() { rpmBusy(document.getElementById('tlModal'), null, false); }
   // One badge for every failure, "Unsuccessful"; the reason is in its tooltip.
   function fail(why) { undim(); _tlResetSaveBtns(); _tlFail(msgId, why); }
   var timer = setTimeout(function () { fail('no answer from Google in 20 seconds'); }, _TL_SAVE_LIMIT);
@@ -1755,6 +1753,11 @@ function _tlSaveFields(fields, msgId, onOk) {
       if (onOk) onOk();
     })
     .catch(function () { clearTimeout(timer); fail('could not reach Google'); });
+}
+
+// The pressed button: the one already saying "Saving…" / "Logging…", for the centre word.
+function _tlBusyBtn(md) {
+  return md ? [].filter.call(md.querySelectorAll('button'), function (b) { return /…$/.test(b.textContent.trim()); })[0] : null;
 }
 
 // After a failed save, put the Save / Set buttons back so it can be retried.
@@ -1879,8 +1882,8 @@ function _tlDropbox() {
   _tl.busy = true; btn.disabled = true; btn.textContent = 'Creating…';
   _tlSetMsg('tlDbxMsg', '');
   var md = document.getElementById('tlModal');
-  if (md) md.classList.add('tl-busy');
-  function undim() { var m = document.getElementById('tlModal'); if (m) m.classList.remove('tl-busy'); }
+  rpmBusy(md, _tlBusyBtn(md), true);
+  function undim() { rpmBusy(document.getElementById('tlModal'), null, false); }
   fetch(url + '?action=trialDropbox&email=' + encodeURIComponent(a.email || '') +
         '&name=' + encodeURIComponent(a.name || '') + '&dropboxEmail=' + encodeURIComponent(dbx))
     .then(function (r) { return r.json(); })
@@ -1954,8 +1957,8 @@ function _tlSend(which) {
   _tl.busy = true; btn.disabled = true; lbl.textContent = 'Sending…';
   _tlSetMsg(msg, '');
   var md = document.getElementById('tlModal');
-  if (md) md.classList.add('tl-busy');
-  function undim() { var m = document.getElementById('tlModal'); if (m) m.classList.remove('tl-busy'); }
+  rpmBusy(md, _tlBusyBtn(md), true);
+  function undim() { rpmBusy(document.getElementById('tlModal'), null, false); }
   fetch(url + '?action=sendTrialTerms&which=' + which + '&email=' + encodeURIComponent(a.email || '') + '&name=' + encodeURIComponent(a.name || ''))
     .then(function (r) { return r.json(); })
     .then(function (d) {

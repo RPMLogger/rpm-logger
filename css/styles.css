@@ -221,7 +221,8 @@ body::before {
 .empty-state { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 11px; line-height: 2; }
 /* Every loading state in the portal: the dot ring, then the word. Nothing
    else says "loading" anywhere, so the shape alone is enough to recognise. */
-.rpm-loading { display: flex; align-items: center; justify-content: center; gap: 9px; line-height: 1; }
+.rpm-loading { display: flex; align-items: center; justify-content: center; gap: 9px; line-height: 1;
+  text-transform: uppercase; letter-spacing: 1.5px; }   /* LOADING, SAVING, GATHERING DATA: all caps everywhere (user, 2026-10-23) */
 .rpm-loading::before {
   content: ""; width: 16px; height: 16px; flex: none;
   background: url("../img/loading.png") center / contain no-repeat;
@@ -231,11 +232,11 @@ body::before {
 }
 @keyframes rpm-spin { to { transform: rotate(360deg); } }
 .rpm-loading.is-inline { display: inline-flex; }   /* inside a line of text or a status note (2026-10-21) */
-/* A window's own spinner: in the middle of the screen, over the dimmed window (user, 2026-10-21). */
+/* A window's own spinner: in the middle of the screen, over the dimmed window (user, 2026-10-21).
+   Just the ring and the word, no box (user, 2026-10-22). */
 .rpm-load-center {
   position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9000;
-  margin: 0; padding: 14px 22px; border-radius: 10px; pointer-events: none;
-  background: var(--surface); border: 1px solid var(--border); box-shadow: 0 6px 24px rgba(0,0,0,.45);
+  margin: 0; padding: 14px 22px; pointer-events: none;
   color: var(--muted); font-size: 11px; opacity: 1 !important;
 }
 .rpm-load-center:empty { display: none; }
@@ -801,9 +802,6 @@ body::before {
 .tr-steps  { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; margin: 20px 0; }
 /* A Trial window while Google saves: dimmed and untouchable, except the row
    holding the Save button, which shows its moving dots (2026-09-26). */
-#tlModal.tl-busy { pointer-events: none; }
-#tlModal.tl-busy > *:not(:has(.link-btn.bright)) { opacity: .4; transition: opacity .15s; }
-#tlModal.tl-busy .link-btn.bright:disabled { color: var(--text); border-color: var(--muted); }   /* Saving… stays bright, not the locked look */
 .tr-col    { display: flex; flex-direction: column; gap: 5px; }
 .tr-step   { display: flex; align-items: center; gap: 9px; }
 /* The gutter reads the same whether or not the step is done: the list is one
@@ -1464,8 +1462,6 @@ a:focus-visible,
 
 /* While it books: what's inside fades to the waiting-card level; the window
    itself stays solid, or the card behind would show through. */
-#tbModal.tb-busy { pointer-events: none; }
-#tbModal.tb-busy > * { opacity: 0.5; transition: opacity .15s; }
 #tbBookBtn:focus { outline: none; color: #fff; border-color: rgba(255,255,255,0.6); background: var(--surface2); }
 
 /* Trial tab: Pick a time's summary line. The window talking, not a value you
@@ -1482,11 +1478,10 @@ a:focus-visible,
   padding: 3px 8px; border-radius: 3px; color: #ff5a4d; background: rgba(255,90,77,0.15); }
 .tl-half { display: inline-block; font-family: "DM Mono", monospace; font-size: 11px;
   padding: 3px 8px; border-radius: 3px; color: var(--accent2); background: rgba(240,165,0,0.14); }   /* half-success: amber */
-/* A window (or card) while Google works: dimmed and untouchable, except the
-   row holding the pressed button, which keeps its moving dots. */
+/* A window (or card) while Google works: dimmed and untouchable, every button
+   too; only the centre word (rpm-keep) stays bright (user, 2026-10-23). */
 .rpm-busy { pointer-events: none; }
-.rpm-busy > *:not(.rpm-keep) { opacity: .4; transition: opacity .15s; }
-.rpm-acting, .rpm-acting:disabled { opacity: 1 !important; }
+.rpm-busy > *:not(.rpm-keep) { opacity: .15; transition: opacity .15s; }
 .rpm-toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 10000; max-width: 88vw;
   display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border);
   border-radius: 10px; padding: 10px 14px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
@@ -1737,8 +1732,6 @@ a:focus-visible,
 /* Dimmed by colour, not opacity, so a locked button's tooltip stays readable. */
 #tlModal .link-btn:disabled:not(.green), #logPanel .link-btn:disabled:not(.green) { color: rgba(255,255,255,.18); border-color: rgba(122,122,122,.22); background: transparent; cursor: default; }
 #tlModal .link-btn.green:disabled, #logPanel .link-btn.green:disabled { cursor: default; }
-/* Logging… keeps its bright look while the window dims around it. */
-#logPanel .link-btn.rpm-acting:disabled { color: var(--text); border-color: var(--muted); }
 /* Done keeps the button's own colour (2026-09-26): green means go elsewhere in
    the portal, so a finished button only changes its words (Sent ✓, Logged ✓). */
 #tlModal .link-btn.green, #tlModal .link-btn.green:hover:where(:not(:disabled)), #tlModal .link-btn.green.pressed,
@@ -2528,7 +2521,6 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-mail-mat a { color: var(--text); }
 .im-mail-foot { display: flex; align-items: center; gap: 8px; margin-top: 30px; }
 .im-mail-foot .ll-state { flex: 1; text-align: right; }
-#imMailWin .im-mail.rpm-busy .im-mail-foot > .link-btn:not(.rpm-acting) { opacity: .4; }   /* sending: the other button dims too (user, 2026-10-21) */
 .im-mail .im-msg-frame { margin-top: 22px; }
 .im-mail { position: relative; }
 .im-msg-frame { display: block; width: 100%; height: 420px; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
