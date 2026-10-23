@@ -396,6 +396,7 @@ body::before {
 /* Availability tab: Terminate's cards (2026-10-22) */
 #availabilityList { margin-top: 32px; }
 .en-card-a.av-never { color: rgba(255,255,255,0.24); }   /* never updated: the labels' grey */
+#availabilityList .en-card-r .en-card-a { text-transform: uppercase; }   /* the dates and Never in caps (user, 2026-10-23) */
 .av-field { margin-top: 2px; }
 .av-field .av-ta { padding-right: 40px; resize: none; }   /* room for the mic inside the box, like the Log lesson rows */
 .ll-wrap.av-field .link-btn.tl-mic { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); padding: 4px 2px; border-color: transparent; background: transparent; color: var(--muted); }
@@ -403,11 +404,11 @@ body::before {
 .av-field .link-btn.tl-mic svg { width: 14px; height: 14px; }
 .av-field .link-btn.tl-mic.rec { color: var(--accent); }
 .av-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; }
-/* Saving: the whole page steps back, Save too; the ring says Saving in the middle of the screen (user 2026-10-22) */
-#tab-availability.av-saving { pointer-events: none; cursor: progress; }
 #tab-availability > .ld-head { margin-bottom: 10px; }
 #tab-availability > .ld-icon { margin: 0 0 26px; }   /* the calendar icon under the title, like General's (user, 2026-10-23) */
 #tab-availability > .ld-icon .win-icon { height: 34px; }
+/* Saving: the whole page steps back, Save too; the ring says Saving in the middle of the screen (user 2026-10-22) */
+#tab-availability.av-saving { pointer-events: none; cursor: progress; }
 #tab-availability.av-saving > :not(.av-saving-msg) { opacity: .35; transition: opacity .15s; }
 .av-saving-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 50;
   font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text); }
