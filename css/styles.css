@@ -408,6 +408,24 @@ body::before {
 #tab-availability.av-saving > :not(.av-saving-msg) { opacity: .35; transition: opacity .15s; }
 .av-saving-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 50;
   font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text); }
+/* Skips tab: Availability's cards (2026-10-22) */
+.sk-card .en-card-head.sk-none { cursor: default; }
+.sk-card .en-card-head.sk-none .sk-caret { visibility: hidden; }   /* keeps the counts lined up with the cards that open */
+.sk-counts { font-family: "DM Mono", monospace; font-size: 13px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }   /* Travel Plan's SKIPPING N LESSONS */
+.f2-icon.sk-icon .win-icon { height: 56px; width: auto; }   /* the calendar + person icon, larger (user 2026-10-22) */
+.sk-hi { color: rgba(217,164,65,0.9); }   /* Financial 2's amber, a bit brighter (user 2026-10-22) */
+.sk-counts.av-never { color: rgba(255,255,255,0.24); }
+.sk-group { margin-top: 6px; }
+.sk-group + .sk-group { margin-top: 18px; }
+.sk-group-h { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.sk-row { display: flex; align-items: baseline; gap: 14px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: "DM Mono", monospace; font-size: 12px; }
+.sk-row:last-child { border-bottom: none; }
+.sk-date { flex: 0 0 52px; color: var(--text); }
+.sk-when { flex: 0 0 auto; color: var(--muted); font-size: 11px; }
+.sk-note { flex: 1 1 auto; min-width: 0; color: var(--muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sk-del { flex: 0 0 auto; background: transparent; border: none; color: var(--muted); font-size: 14px; line-height: 1; cursor: pointer; padding: 0 4px; opacity: 0; }
+.sk-row:hover .sk-del { opacity: 1; }
+.sk-del:hover:where(:not(:disabled)) { color: var(--text); }
 .summary-box {
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;

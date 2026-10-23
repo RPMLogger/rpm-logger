@@ -2,7 +2,7 @@
 // Who's skipping, this year. View over Skip Logs (the source of truth) —
 // skips are normally LOGGED from the Home tab: tap a red lesson day → Skip →
 // Student/Teacher. Writes here touch Skip Logs only (no calendar, no email):
-// "+ Log skip" adds a row, × on an expanded skip deletes that row.
+// "Log skip" adds a row, × on an expanded skip deletes that row.
 //
 // Each student row shows three counts: Student (they cancelled), Teacher (you
 // cancelled), Vacation (travel blocks; per-student only, not in the top totals).
@@ -10,7 +10,7 @@
 // individual skips with date + note.
 
 var _skData = null;      // last payload, so expand/collapse needs no refetch
-var _skFormOpen = false; // "+ Log skip" form visible
+var _skFormOpen = false; // "Log skip" form visible
 
 function initSkipsTab() {
   var section = document.getElementById('skipsBody');
@@ -42,30 +42,35 @@ function _skRender() {
   var totals  = _skData.totals || { student: 0, teacher: 0, vacation: 0 };
   var year    = _skData.year || '';
 
-  // ── Header: title + gray summary; actions on the next line, left; then the
+  // ── Header: Total skips with the actions on its right, the counts under it; then the
   //    form (if open), a divider, and the student list ──
   var bar = document.createElement('div');
   bar.innerHTML =
-    "<div class='section-label' style='font-size:11px;margin-bottom:10px'>Skips</div>" +
-    // Same highlight as the Week tab's "Student #" row (.load-row.highlight).
-    "<div style='border:1px solid var(--border);border-radius:6px;background:rgba(240,165,0,0.06);padding:10px 12px;margin-bottom:14px;" +
-                "text-transform:uppercase;font-size:11px;color:var(--accent2);letter-spacing:1px'>" +
-      "Since Jun 2026 · Total: " + (totals.student || 0) + " student · " + (totals.teacher || 0) + " teacher" +
-    "</div>";
-  var refreshBtn = document.createElement('button');
-  refreshBtn.textContent = '⟳ Refresh';
-  refreshBtn.style.cssText = 'padding:6px 14px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer;letter-spacing:0.5px;flex:0 0 auto';
-  refreshBtn.onclick = initSkipsTab;
+    // Financial 2's Average expenses look (user 2026-10-22; was an amber box).
+    "<div class='f2-icon sk-icon' style='margin-bottom:40px'>" + SKIPS_ICON + "</div>" +   // calendar + person icon under the title (user 2026-10-22)
+    // One line (user 2026-10-22): Total skips, the counts, Since Jun 2026,
+    // all in Financial 2's number font.
+    "<div class='f2-cur' style='margin-bottom:18px'>Total skips · " +
+      "<span class='f2-hi sk-hi'>" + (totals.student || 0) + " student</span> · " +
+      "<span class='f2-hi sk-hi'>" + (totals.teacher || 0) + " teacher</span> · " +
+      "Since Jun 2026</div>" +
+    "<div style='border-top:1px solid var(--border);margin-bottom:24px'></div>";   // the line under Total skips (user 2026-10-22)
   var btns = document.createElement('span');
-  btns.style.cssText = 'display:flex;gap:6px;margin-bottom:12px';
+  btns.style.cssText = 'display:flex;gap:6px';
   var logBtn = document.createElement('button');
-  logBtn.textContent = _skFormOpen ? '− Log skip' : '+ Log skip';
-  logBtn.style.cssText = 'padding:6px 14px;font-size:11px;background:transparent;color:#ff7a3c;border:1px solid rgba(255,122,60,0.45);border-radius:4px;cursor:pointer;letter-spacing:0.5px';
+  // The portal's plain button, no + (user 2026-10-22).
+  logBtn.className = 'link-btn';
+  logBtn.textContent = 'Log skip';
   logBtn.onclick = function() { _skFormOpen = !_skFormOpen; _skRender(); };
   btns.appendChild(logBtn);
-  btns.appendChild(refreshBtn);
+  // Log skip up on the SKIPS title line, right (user 2026-10-22); the old one
+  // goes first, since every render makes a new button.
+  var title = document.querySelector('#tab-skips > .ld-head');
+  var oldBtns = title && title.querySelector('.sk-acts');
+  if (oldBtns) oldBtns.remove();
+  btns.className = 'sk-acts';
+  if (title) title.appendChild(btns); else section.appendChild(btns);
   section.appendChild(bar);
-  section.appendChild(btns);
 
   if (_skFormOpen) section.appendChild(_skLogForm(_skData.students || []));
 
@@ -81,10 +86,10 @@ function _skRender() {
     return;
   }
 
-  // Every student: most Student skips first, ties by total skips (S+T+V),
-  // then alphabetical only as a last resort.
+  // Every student: most Student skips first, ties by Teacher skips, then
+  // alphabetical. Vacation doesn't move anyone up (user 2026-10-22).
   all.slice().sort(function(a, b) {
-    return (b.totalStudent - a.totalStudent) || (b.total - a.total) || a.name.localeCompare(b.name);
+    return (b.totalStudent - a.totalStudent) || (b.totalTeacher - a.totalTeacher) || a.name.localeCompare(b.name);
   }).forEach(function(s) {
     section.appendChild(_skStudentCard(s));
   });
@@ -207,55 +212,104 @@ function _skLogForm(students) {
   return box;
 }
 
+// Availability's card look (2026-10-22): name left, the counts and the
+// arrow right; a card opens in place, one open at a time.
 function _skStudentCard(s) {
   var card = document.createElement('div');
-  card.style.cssText = 'border:1px solid var(--border);border-radius:6px;background:var(--panel);margin-bottom:8px;overflow:hidden';
+  card.className = 'en-card sk-card';
 
   var hasSkips = s.total > 0;
 
   var hdr = document.createElement('div');
-  hdr.style.cssText = 'padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px' +
-                      (hasSkips ? ';cursor:pointer' : '');
+  hdr.className = 'en-card-head' + (hasSkips ? '' : ' sk-none');
   hdr.innerHTML =
-    "<span style='font-weight:600;font-size:11px;color:rgba(255,255,255,0.62);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" +
-      "<span class='sk-caret' style='color:var(--muted);font-size:10px;margin-right:6px;display:inline-block'>▸</span>" +
-      _skEsc(s.name) +
-    "</span>" +
-    "<span style='display:flex;align-items:center;gap:5px;flex:0 0 auto'>" +
-      _skChip(s.totalStudent,  '#ff7a3c', 'Skips they cancelled.') +
-      _skChip(s.totalTeacher,  '#ffb400', 'Skips you cancelled.') +
-      _skChip(s.totalVacation, '#4aa3ff', 'Skips from your travel.') +
+    "<span class='en-card-n'>" + _skEsc(s.name) + "</span>" +
+    "<span class='en-card-r'>" +
+      "<span class='sk-counts" + (s.totalStudent || s.totalTeacher ? "" : " av-never") + "'>" + _skCounts(s) + "</span>" +
+      "<span class='en-card-a sk-caret'>▾</span>" +
     "</span>";
   card.appendChild(hdr);
 
   if (!hasSkips) return card;
 
   var body = document.createElement('div');
-  body.style.cssText = 'display:none;border-top:1px solid var(--border)';
-  (s.skips || []).forEach(function(k) {
-    var row = document.createElement('div');
-    row.style.cssText = 'padding:8px 12px;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:baseline;gap:10px';
-    row.innerHTML =
-      "<div style='min-width:0'>" +
-        "<span style='font-size:11px;font-weight:600;color:rgba(255,255,255,0.62)'>" + _skEsc(k.date) + "</span>" +
-        (k.day ? "<span style='font-size:10px;color:var(--muted);margin-left:6px'>" + _skEsc(k.day) + "</span>" : "") +
-        (k.note ? "<div style='font-size:10px;color:var(--muted);margin-top:2px;word-break:break-word'>" + _skEsc(k.note) + "</div>" : "") +
-      "</div>" +
-      "<span style='display:flex;align-items:center;gap:8px;flex:0 0 auto'>" +
-        _skWhoBadge(k.who) +
-        "<button class='sk-del' data-tip='Asks first.\nDeletes this skip.' style='background:transparent;border:none;color:var(--muted);font-size:14px;line-height:1;cursor:pointer;padding:2px 4px'>×</button>" +
-      "</span>";
-    row.querySelector('.sk-del').onclick = function(e) {
-      e.stopPropagation();
-      var btn = e.currentTarget;
-      // Every delete in the portal asks first; this one used to go at once.
-      rpmConfirm({
-        title: 'Delete this skip?',
-        confirmLabel: 'Delete',
-        icon: TRASH_ICON,
-        danger: true
-      }).then(function (ok) { if (ok) go(); });
-      function go() {
+  body.className = 'en-card-body';
+  body.style.display = 'none';
+  // One group per who (Student, Teacher, Vacation), newest first. A note the
+  // row above already showed (the same trip) is not repeated.
+  var groups = {};
+  (s.skips || []).forEach(function(k) { (groups[k.who] = groups[k.who] || []).push(k); });
+  var order = ['Student', 'Teacher', 'Vacation'];
+  Object.keys(groups).forEach(function(w) { if (order.indexOf(w) < 0) order.push(w); });
+  order.forEach(function(w) {
+    var list = groups[w];
+    if (!list) return;
+    list.sort(function(x, y) { return (Date.parse(y.date) || 0) - (Date.parse(x.date) || 0); });
+    var grp = document.createElement('div');
+    grp.className = 'sk-group';
+    // Every group heading amber, the totals' colour (user 2026-10-22).
+    grp.innerHTML = "<div class='sk-group-h sk-hi'>" + _skEsc(w) + " · " + list.length + "</div>";
+    var lastNote = null;
+    list.forEach(function(k) {
+      var note = k.note && k.note !== lastNote ? toSentenceCase(String(k.note)) : '';
+      lastNote = k.note;
+      grp.appendChild(_skRow(s, k, note));
+    });
+    body.appendChild(grp);
+  });
+  card.appendChild(body);
+
+  card._skToggle = function(open) {
+    body.style.display = open ? 'block' : 'none';
+    card.classList.toggle('open', open);
+    hdr.querySelector('.sk-caret').textContent = open ? '▴' : '▾';
+  };
+  hdr.onclick = function() {
+    var open = body.style.display === 'none';
+    // Opening one closes whichever other card is open.
+    if (open) document.querySelectorAll('#skipsBody .sk-card.open').forEach(function(c) {
+      if (c !== card && c._skToggle) c._skToggle(false);
+    });
+    card._skToggle(open);
+  };
+
+  return card;
+}
+
+
+// Head counts as plain text in Travel Plan's "Skipping 5 lessons" font (user 2026-10-22): "5 student · 1 teacher".
+function _skCounts(s) {
+  var parts = [];
+  if (s.totalStudent)  parts.push(s.totalStudent + ' student');
+  if (s.totalTeacher)  parts.push(s.totalTeacher + ' teacher');
+  // Vacation skips only show inside the card (user 2026-10-22: least important).
+  // No student/teacher skips: just a dash (user 2026-10-22). Vacation-only
+  // cards still open.
+  return parts.length ? parts.join(' · ') : '—';
+}
+
+// One skip: date, day + time, note, and × (shown on hover) to delete it.
+function _skRow(s, k, note) {
+  var year = String(new Date().getFullYear());
+  var date = String(k.date || '').replace(new RegExp('\\s' + year + '$'), '');
+  var row = document.createElement('div');
+  row.className = 'sk-row';
+  row.innerHTML =
+    "<span class='sk-date'>" + _skEsc(date) + "</span>" +
+    "<span class='sk-when'>" + _skEsc(k.day || '') + "</span>" +
+    "<span class='sk-note'>" + _skEsc(note) + "</span>" +
+    "<button class='sk-del' data-tip='Asks first.\nDeletes this skip.'>×</button>";
+  row.querySelector('.sk-del').onclick = function(e) {
+    e.stopPropagation();
+    var btn = e.currentTarget;
+    // Every delete in the portal asks first; this one used to go at once.
+    rpmConfirm({
+      title: 'Delete this skip?',
+      confirmLabel: 'Delete',
+      icon: TRASH_ICON,
+      danger: true
+    }).then(function (ok) { if (ok) go(); });
+    function go() {
       btn.disabled = true; btn.textContent = '…';
       fetch(getScriptUrl() + '?action=deleteSkipLog&row=' + encodeURIComponent(k.row) +
             '&name=' + encodeURIComponent(s.name) + '&date=' + encodeURIComponent(k.date))
@@ -271,42 +325,9 @@ function _skStudentCard(s) {
           rpmAlert({ title: 'Connection failed', message: 'Could not reach the portal. Check your connection and try again.' });
           btn.disabled = false; btn.textContent = '×';
         });
-      }
-    };
-    body.appendChild(row);
-  });
-  card.appendChild(body);
-
-  hdr.onclick = function() {
-    var open = body.style.display !== 'none';
-    body.style.display = open ? 'none' : 'block';
-    var caret = hdr.querySelector('.sk-caret');
-    if (caret) caret.textContent = open ? '▸' : '▾';
+    }
   };
-
-  return card;
-}
-
-// A count chip. Zero counts stay in place but dimmed, so the three columns
-// line up down the list instead of jumping around.
-function _skChip(n, color, title) {
-  var on = Number(n) > 0;
-  return "<span data-tip='" + _skEsc(title) + "' style='min-width:18px;text-align:center;font-size:9px;font-weight:600;padding:2px 5px;border-radius:3px;" +
-         (on ? "color:" + color + ";background:" + _skFade(color) + ";border:1px solid " + _skFade(color, 0.45)
-             : "color:var(--border);background:transparent;border:1px solid transparent") +
-         "'>" + (n || 0) + "</span>";
-}
-
-function _skWhoBadge(who) {
-  var map = {
-    'Student':  '#ff7a3c',
-    'Teacher':  '#ffb400',
-    'Vacation': '#4aa3ff'
-  };
-  var c = map[who] || 'var(--muted)';
-  return "<span style='flex:0 0 auto;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:" + c +
-         ";border:1px solid " + _skFade(c, 0.4) + ";background:" + _skFade(c) + ";border-radius:3px;padding:2px 6px'>" +
-         _skEsc(who) + "</span>";
+  return row;
 }
 
 // Hex → rgba at low alpha, for chip backgrounds. Non-hex passes through.
