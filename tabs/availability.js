@@ -5,6 +5,8 @@
 var _availStudents = [];
 
 function initAvailabilityTab() {
+  var icon = document.getElementById("availIcon");   // the calendar under the title, General's window-style icon
+  if (icon && !icon.querySelector("svg")) icon.innerHTML = CALENDAR_ICON.replace('class="calendar-icon"', 'class="win-icon"');
   var section = document.getElementById("availabilityList");
   if (!section) return;
   section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
