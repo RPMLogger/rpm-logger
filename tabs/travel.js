@@ -528,7 +528,13 @@ function _travelBufCalc() {
 // Dim the plan (everything but the Review row) and block clicks while Review texts loads.
 function _travelPlanDim(on) {
   var c = document.querySelector('#travelBody .tv-cal');
-  if (c) c.classList.toggle('tv-loading', !!on);
+  if (!c) return;
+  if (on && document.activeElement) document.activeElement.blur();   // a focused button would glow through the dim
+  c.classList.toggle('tv-loading', !!on);
+  // Everything dims, Review's button too, and "Gathering data…" sits mid-screen (user, 2026-10-23; the button had its own spinner).
+  var msg = c.querySelector('.rpm-load-center');
+  if (on && !msg) c.insertAdjacentHTML('beforeend', "<div class='rpm-load-center rpm-keep'><span class='rpm-loading'>Gathering data…</span></div>");
+  else if (!on && msg) msg.remove();
 }
 
 // Review: count the whole trip once (first day off up to first day teaching) and open the texts.
@@ -536,7 +542,7 @@ function _travelGoReview() {
   var s = _travelState, btn = document.getElementById('travelReviewBtn');
   if (!s.firstOff || !s.firstBack || s.firstOff >= s.firstBack || !getScriptUrl()) return;
   var mySeq = ++_travelPreviewSeq;
-  if (btn) { btn.disabled = true; btn.classList.add('tv-busy'); btn.innerHTML = "<span class='rpm-loading'>Loading</span>"; }   // spinner, not a still word (user, 2026-10-20)
+  if (btn) btn.disabled = true;   // dims with the page; the spinner is mid-screen now (user, 2026-10-23)
   _travelPlanDim(true);   // the page steps back while it gathers the texts (user, 2026-10-21)
   fetch(_travelPreviewUrl(s.firstOff, s.firstBack))
     .then(function (r) { return r.json(); })
