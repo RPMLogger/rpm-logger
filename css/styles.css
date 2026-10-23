@@ -2443,6 +2443,14 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #tab-general .ld-rule.ld-gap { margin: 18px 0; }   /* 2026 inquiries: the two rate groups further apart */
 #tab-general > .ld-icon .win-icon { height: 34px; }   /* bigger, like the Log lesson window's icon */
 #tab-general .ld-card + .ld-card { margin-top: 24px; padding-top: 24px; }   /* the same room above and below each line between sections (2026-10-10) */
+/* Skips card group look (user 2026-10-23): small caps heading with a line under it,
+   faint lines between rows, no line between sections. */
+#tab-general .ld-card + .ld-card { border-top: none; padding-top: 0; margin-top: 28px; }
+#tab-general .ld-title { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 0; color: rgba(217,164,65,0.9); }   /* Skips' amber (.sk-hi) */
+#tab-general .ld-row { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+#tab-general .ld-row.pick { padding: 6px 0; }
+#tab-general .ld-rule { display: none; }   /* the row lines already split them */
+#loadTable .ld-row.lead .ld-v:not(#loadGregorian), #tab-general #loadIncome { font-size: 13px; }   /* Load's white numbers bigger (user 2026-10-23) */
 /* The Estimator's pickers a step smaller (2026-10-10). */
 #tab-general .ld-pick { padding: 1px; border-radius: 7px; }
 #tab-general .ld-pb { width: 18px; font-size: 11px; }
