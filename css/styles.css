@@ -2135,7 +2135,9 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-none, .im-hw-row .im-s { font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.6; color: var(--muted); }   /* None / No HW sent: the HW drop area's "No new files" type (2026-10-06) */
 .im-none { padding: 0; }
 /* Today tab (2026-10-06): today's students one under the other, room between each. */
-#todayBody > .settings-title { margin-bottom: 30px; }   /* room under Today · date */
+#todayBody > .settings-title { margin-bottom: 10px; }   /* the calendar icon right under Today · date (2026-10-23; was 30px) */
+#todayBody > .td-icon { margin: 0 0 26px; color: var(--muted); }   /* then the room under it, like Availability */
+#todayBody > .td-icon .win-icon { height: 34px; }
 #todayBody > .settings-title .win-sub { color: rgba(255,255,255,0.3); }   /* the date a step darker than the names under it (2026-10-09) */
 /* Today's count + mini list (2026-10-06): time, then the name as a button. */
 #todayBody > .td-count { margin-top: 0; }
@@ -2402,7 +2404,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .td-wk-day { display: flex; flex-direction: column; gap: 9px; }
 .td-wk-day + .td-wk-day { margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--border); }
 .st-win .td-wk-day .field-label { margin-bottom: 2px; }
-.td-wk-date { color: rgba(255,255,255,.72); }   /* as bright as "15 students" (user, 2026-10-23) */
+.td-wk-date { color: var(--muted); }
 .td-wk-dn { display: inline-block; width: 78px; }   /* the time column + gap, so the date lines up with the names */
 /* Times and names in the Intake cards' label + value look (Date · Sep 23): DM Mono 10.5px, 24% / 50% white. */
 .td-wk-day .td-mini-t { font-size: 10.5px; color: rgba(255,255,255,0.24); }

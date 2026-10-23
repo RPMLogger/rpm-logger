@@ -57,7 +57,8 @@ function _tdRender() {
   var now = new Date();
   var head = '<div class="settings-title"><span>Today<span class="win-sub"> · ' +
     ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()] + ', ' + MONTHS[now.getMonth()] + ' ' + now.getDate() + '</span></span>' +
-    '<button class="link-btn td-week-btn" onclick="_tdWeekOpen()">' + CALENDAR_ICON + '<span>Week</span></button></div>';
+    '<button class="link-btn td-week-btn" onclick="_tdWeekOpen()">' + CALENDAR_ICON + '<span>Week</span></button></div>' +
+    '<div class="ld-icon td-icon">' + CALENDAR_ICON.replace('class="calendar-icon"', 'class="win-icon"') + '</div>';   // the Week window's calendar under the title, like Availability (user, 2026-10-23)
   // A day off (2026-10-08): the resting figure over the line (om-82).
   if (!list.length) { body.innerHTML = head + '<div class="empty-state td-rest">' + REST_ICON + '<div>No lessons today!</div></div>'; return; }
   list.forEach(function (s) { if (!_td.data[_imKey(s.name)]) _tdLoad(s.name); });
