@@ -79,31 +79,30 @@ function _iaAnalysisHtml() {
   var inq = (_iaCache || []).length;
   function num(x) { return x ? x : "—"; }
   function pct(a, b) { return (a && b) ? Math.round(a / b * 100) + "%" : ""; }
-  // label · share (of the line it splits) · number
+  // The Dashboard's row (2026-10-23): label · number, then the share (of the
+  // line it splits) after it in the dark grey. lead = brighter number.
   function row(label, n, share, cls) {
-    return "<div class='iat-row" + (cls ? " " + cls : "") + "'>" +
-      "<span class='iat-l'>" + label + "</span>" +
-      "<span class='iat-p'>" + share + "</span>" +
-      "<span class='iat-n'>" + num(n) + "</span></div>";
+    return "<div class='ld-row " + (cls || "sub") + "'>" +
+      "<span class='ld-l'>" + label + "</span>" +
+      "<span class='ld-v'>" + num(n) + (share ? "<span class='ld-vmo'>" + share + "</span>" : "") + "</span></div>";
   }
 
-  // Box 1: who wrote in, and who got a trial (and how it was booked).
-  // Box 2, Trial Outcome: every booked trial by how it ended, counts only.
-  return "<div class='section-label'>Analysis</div>" +
-    "<div class='iat'>" +
-      row("Inquiries",        inq,        "",                       "top") +
-      row("Trials Booked",    t.booked,   pct(t.booked, inq),       "top") +
-      row("From Website",     t.website,  pct(t.website, t.booked), "sub") +
-      row("Manual Booking",   t.manual,   pct(t.manual, t.booked),  "sub") +
+  // Section 1: who wrote in, and who got a trial (and how it was booked).
+  // Section 2, Trial Outcome: every booked trial by how it ended, counts only.
+  return "<div class='ld-cards'>" +
+    "<div class='inq-dcard ld-card'><div class='ld-title'>Analysis</div>" +
+      row("Inquiries",        inq,        "",                       "lead") +
+      row("Trials Booked",    t.booked,   pct(t.booked, inq),       "lead") +
+      row("From Website",     t.website,  pct(t.website, t.booked)) +
+      row("Manual Booking",   t.manual,   pct(t.manual, t.booked)) +
     "</div>" +
     // Every booked trial, best ending first: these four add up to Trials Booked.
-    "<div class='section-label'>Trial Outcome</div>" +
-    "<div class='iat'>" +
-      row("Turned Students", t.students,      "") +
-      row("Not Continued",   t.didntContinue, "") +
-      row("In Progress",     t.inProgress,    "") +
-      row("No Shows",        t.noShow,        "") +
-    "</div>";
+    "<div class='inq-dcard ld-card'><div class='ld-title'>Trial Outcome</div>" +
+      row("Turned Students", t.students) +
+      row("Not Continued",   t.didntContinue) +
+      row("In Progress",     t.inProgress) +
+      row("No Shows",        t.noShow) +
+    "</div></div>";
 }
 
 function _iaPaintAnalysis() {

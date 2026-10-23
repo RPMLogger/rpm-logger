@@ -2421,48 +2421,48 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
    become flat sections one under the other. Section names red like MON; labels
    in the clock times' dark grey caps; values at Intake brightness in one column
    (the key ones a step brighter); a line between sections, no gold anywhere. */
-#tab-general > .ld-head { margin-bottom: 30px; }
-#tab-general .ld-cards { display: block; margin-bottom: 32px; }
-#tab-general .ld-card { background: none; border: none; border-radius: 0; padding: 0; margin: 0; display: block; }
-#tab-general .ld-card + .ld-card { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
-#tab-general .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; color: var(--accent); margin-bottom: 10px; }
-#tab-general .ld-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); align-items: center; gap: 0; padding: 4px 0; }
-#tab-general .ld-row .ld-l { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.24); }
-#tab-general .ld-row .ld-v { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.5); text-align: left; }
-#tab-general .ld-row.lead .ld-v { color: rgba(255,255,255,0.85); }   /* the numbers that matter: brighter, not amber */
-#tab-general .ld-vsub { color: rgba(255,255,255,0.24); margin: 0 10px 0 0; }
-#tab-general .ld-rule { border: none; margin: 6px 0; }   /* a small gap inside a section, the line is between sections */
-#tab-general .ld-sublabel { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 4px 0 2px; }
-#tab-general .ld-note { margin: 6px 0 0; padding: 0; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.24); }
-#tab-general .ld-row.pick { padding: 3px 0; }
-#tab-general .ld-pick { justify-self: start; }
-#tab-general .ld-foot { justify-content: flex-start; margin: 10px 0 0 170px; padding: 0; }   /* Reset under the values */
-#tab-general #loadRatesCard .ld-row.lead .ld-v { color: rgba(255,255,255,0.5); }
-#tab-general #estimatorTable .ld-row .ld-v { color: rgba(255,255,255,0.24); }   /* the Estimator's two incomes in the monthly prices' dark grey (2026-10-10) */   /* Estimator's Gregorian income and the Weekly/Biweekly rates the same grey as the rows around them (2026-10-10) */
-#tab-general .ld-raise { margin-bottom: 6px; }   /* Last raise row at the top, a small gap before the prices */
-#tab-general .ld-vmo { margin-left: 10px; color: rgba(255,255,255,0.24); }   /* the monthly after the price and a dash, the labels' dark grey */
+:is(#tab-general, #tab-trialanalysis) > .ld-head { margin-bottom: 30px; }
+:is(#tab-general, #tab-trialanalysis) .ld-cards { display: block; margin-bottom: 32px; }
+:is(#tab-general, #tab-trialanalysis) .ld-card { background: none; border: none; border-radius: 0; padding: 0; margin: 0; display: block; }
+:is(#tab-general, #tab-trialanalysis) .ld-card + .ld-card { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+:is(#tab-general, #tab-trialanalysis) .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; color: var(--accent); margin-bottom: 10px; }
+:is(#tab-general, #tab-trialanalysis) .ld-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); align-items: center; gap: 0; padding: 4px 0; }
+:is(#tab-general, #tab-trialanalysis) .ld-row .ld-l { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.24); }
+:is(#tab-general, #tab-trialanalysis) .ld-row .ld-v { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.5); text-align: left; }
+:is(#tab-general, #tab-trialanalysis) .ld-row.lead .ld-v { color: rgba(255,255,255,0.85); }   /* the numbers that matter: brighter, not amber */
+:is(#tab-general, #tab-trialanalysis) .ld-vsub { color: rgba(255,255,255,0.24); margin: 0 10px 0 0; }
+:is(#tab-general, #tab-trialanalysis) .ld-rule { border: none; margin: 6px 0; }   /* a small gap inside a section, the line is between sections */
+:is(#tab-general, #tab-trialanalysis) .ld-sublabel { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 4px 0 2px; }
+:is(#tab-general, #tab-trialanalysis) .ld-note { margin: 6px 0 0; padding: 0; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.24); }
+:is(#tab-general, #tab-trialanalysis) .ld-row.pick { padding: 3px 0; }
+:is(#tab-general, #tab-trialanalysis) .ld-pick { justify-self: start; }
+:is(#tab-general, #tab-trialanalysis) .ld-foot { justify-content: flex-start; margin: 10px 0 0 170px; padding: 0; }   /* Reset under the values */
+:is(#tab-general, #tab-trialanalysis) #loadRatesCard .ld-row.lead .ld-v { color: rgba(255,255,255,0.5); }
+:is(#tab-general, #tab-trialanalysis) #estimatorTable .ld-row .ld-v { color: rgba(255,255,255,0.24); }   /* the Estimator's two incomes in the monthly prices' dark grey (2026-10-10) */   /* Estimator's Gregorian income and the Weekly/Biweekly rates the same grey as the rows around them (2026-10-10) */
+:is(#tab-general, #tab-trialanalysis) .ld-raise { margin-bottom: 6px; }   /* Last raise row at the top, a small gap before the prices */
+:is(#tab-general, #tab-trialanalysis) .ld-vmo { margin-left: 10px; color: rgba(255,255,255,0.24); }   /* the monthly after the price and a dash, the labels' dark grey */
 /* 2026-10-10: Raised on date, Weekly/Biweekly counts and Load's Gregorian income in the dark grey; Load's Total income bright. */
-#tab-general .ld-raise .ld-v, #tab-general #loadWeekly, #tab-general #loadBiweekly, #tab-general #loadGregorian { color: rgba(255,255,255,0.24); }
-#tab-general #loadIncome { color: rgba(255,255,255,0.85); }
-#tab-general > .ld-head { margin-bottom: 10px; }
-#tab-general > .ld-icon { margin: 0 0 26px; }   /* the stats icon under the title, window style */
-#tab-general .ld-rule.ld-gap { margin: 18px 0; }   /* 2026 inquiries: the two rate groups further apart */
-#tab-general > .ld-icon .win-icon { height: 34px; }   /* bigger, like the Log lesson window's icon */
-#tab-general .ld-card + .ld-card { margin-top: 24px; padding-top: 24px; }   /* the same room above and below each line between sections (2026-10-10) */
+:is(#tab-general, #tab-trialanalysis) .ld-raise .ld-v, :is(#tab-general, #tab-trialanalysis) #loadWeekly, :is(#tab-general, #tab-trialanalysis) #loadBiweekly, :is(#tab-general, #tab-trialanalysis) #loadGregorian { color: rgba(255,255,255,0.24); }
+:is(#tab-general, #tab-trialanalysis) #loadIncome { color: rgba(255,255,255,0.85); }
+:is(#tab-general, #tab-trialanalysis) > .ld-head { margin-bottom: 10px; }
+:is(#tab-general, #tab-trialanalysis) > .ld-icon { margin: 0 0 26px; }   /* the stats icon under the title, window style */
+:is(#tab-general, #tab-trialanalysis) .ld-rule.ld-gap { margin: 18px 0; }   /* 2026 inquiries: the two rate groups further apart */
+:is(#tab-general, #tab-trialanalysis) > .ld-icon .win-icon { height: 34px; }   /* bigger, like the Log lesson window's icon */
+:is(#tab-general, #tab-trialanalysis) .ld-card + .ld-card { margin-top: 24px; padding-top: 24px; }   /* the same room above and below each line between sections (2026-10-10) */
 /* Skips card group look (user 2026-10-23): small caps heading with a line under it,
    faint lines between rows, no line between sections. */
-#tab-general .ld-card + .ld-card { border-top: none; padding-top: 0; margin-top: 28px; }
-#tab-general .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 0; color: rgba(255,255,255,.72); }   /* Folder audit's Bebas Neue and grey (user, 2026-10-23; was DM Mono 10px in Skips' amber) */
-#tab-general .ld-row { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-#tab-general .ld-row.pick { padding: 6px 0; }
-#tab-general .ld-rule { display: none; }   /* the row lines already split them */
-#tab-general #loadTable .ld-row .ld-v { color: rgba(255,255,255,0.24); }   /* Load's numbers all one grey and size; the headline at the top carries them (user 2026-10-23; was big Bebas, then amber) */
-#tab-general .ld-title-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-#tab-general .ld-title-sum .ld-sum { font-size: 12px; letter-spacing: .5px; }   /* 24 STUDENTS · 17.5 NORMALIZED · $6,940 on Load's title line, right, the Skips tab's Total skips line (user 2026-10-23) */
+:is(#tab-general, #tab-trialanalysis) .ld-card + .ld-card { border-top: none; padding-top: 0; margin-top: 28px; }
+:is(#tab-general, #tab-trialanalysis) .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 0; color: rgba(255,255,255,.72); }   /* Folder audit's Bebas Neue and grey (user, 2026-10-23; was DM Mono 10px in Skips' amber) */
+:is(#tab-general, #tab-trialanalysis) .ld-row { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+:is(#tab-general, #tab-trialanalysis) .ld-row.pick { padding: 6px 0; }
+:is(#tab-general, #tab-trialanalysis) .ld-rule { display: none; }   /* the row lines already split them */
+:is(#tab-general, #tab-trialanalysis) #loadTable .ld-row .ld-v { color: rgba(255,255,255,0.24); }   /* Load's numbers all one grey and size; the headline at the top carries them (user 2026-10-23; was big Bebas, then amber) */
+:is(#tab-general, #tab-trialanalysis) .ld-title-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+:is(#tab-general, #tab-trialanalysis) .ld-title-sum .ld-sum { font-size: 12px; letter-spacing: .5px; }   /* 24 STUDENTS · 17.5 NORMALIZED · $6,940 on Load's title line, right, the Skips tab's Total skips line (user 2026-10-23) */
 /* The Estimator's pickers a step smaller (2026-10-10). */
-#tab-general .ld-pick { padding: 1px; border-radius: 7px; }
-#tab-general .ld-pb { width: 18px; font-size: 11px; }
-#tab-general .ld-pv { min-width: 34px; font-size: 10px; padding: 2px 5px; }
+:is(#tab-general, #tab-trialanalysis) .ld-pick { padding: 1px; border-radius: 7px; }
+:is(#tab-general, #tab-trialanalysis) .ld-pb { width: 18px; font-size: 11px; }
+:is(#tab-general, #tab-trialanalysis) .ld-pv { min-width: 34px; font-size: 10px; padding: 2px 5px; }
 
 /* The Log lesson window in Today's look (2026-10-11; from Lessons too since):
    grey buttons and steps, red only on the name and Reschedule. */
