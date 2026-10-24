@@ -2447,7 +2447,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 :is(#tab-general, #tab-trialanalysis) > .ld-head { margin-bottom: 10px; }
 :is(#tab-general, #tab-trialanalysis) > .ld-icon { margin: 0 0 26px; }   /* the stats icon under the title, window style */
 :is(#tab-general, #tab-trialanalysis) .ld-rule.ld-gap { margin: 18px 0; }   /* 2026 inquiries: the two rate groups further apart */
-:is(#tab-general, #tab-trialanalysis) > .ld-icon .win-icon { height: 34px; }   /* bigger, like the Log lesson window's icon */
+:is(#tab-general, #tab-trialanalysis) > .ld-icon .win-icon { height: 24px; margin-left: 2px; }   /* om-110 (user, 2026-10-23): smaller (was 34px), nudged in so its axis sits under the title's D */
 :is(#tab-general, #tab-trialanalysis) .ld-card + .ld-card { margin-top: 24px; padding-top: 24px; }   /* the same room above and below each line between sections (2026-10-10) */
 /* Skips card group look (user 2026-10-23): small caps heading with a line under it,
    faint lines between rows, no line between sections. */
@@ -2463,6 +2463,15 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 :is(#tab-general, #tab-trialanalysis) .ld-pick { padding: 1px; border-radius: 7px; }
 :is(#tab-general, #tab-trialanalysis) .ld-pb { width: 18px; font-size: 11px; }
 :is(#tab-general, #tab-trialanalysis) .ld-pv { min-width: 34px; font-size: 10px; padding: 2px 5px; }
+/* Dashboard + Trial Analysis sections boxed like Help's Data tracked windows (user 2026-10-23):
+   2px rounded border, faint lines between rows, none under the last. */
+:is(#tab-general, #tab-trialanalysis) .ld-card { border: 2px solid var(--border); border-radius: var(--radius-card); padding: 4px 14px; }
+:is(#tab-general, #tab-trialanalysis) .ld-card + .ld-card { border-top: 2px solid var(--border); padding-top: 4px; margin-top: 22px; }
+:is(#tab-general, #tab-trialanalysis) .ld-card, :is(#tab-general, #tab-trialanalysis) .ld-card + .ld-card { padding-top: 0; overflow: hidden; }
+:is(#tab-general, #tab-trialanalysis) .ld-title { margin: 0 -14px; padding: 12px 14px 10px; background: rgba(255,255,255,0.035); border-bottom: 1px solid var(--border); }   /* a washed header band across the box top */
+:is(#tab-general, #tab-trialanalysis) .ld-card > .ld-row:last-child, :is(#tab-general, #tab-trialanalysis) .ld-card > div > .ld-row:last-child, :is(#tab-general, #tab-trialanalysis) .ld-card > .ld-row:nth-last-child(2):has(+ .ld-foot) { border-bottom: 0; }
+:is(#tab-general, #tab-trialanalysis) .ld-foot { margin-bottom: 12px; }
+#tab-trialanalysis > .ld-icon .win-icon { height: 34px; margin-left: -3px; }   /* om-109 bars: bigger, its axis pulled flush with the title (user 2026-10-23) */
 
 /* The Log lesson window in Today's look (2026-10-11; from Lessons too since):
    grey buttons and steps, red only on the name and Reschedule. */
