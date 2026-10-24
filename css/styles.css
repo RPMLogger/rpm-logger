@@ -3248,7 +3248,7 @@ th.f2-blk { background:none; }
 #travelBody .tv-sum-row > span { padding:0 8px; white-space:nowrap; }
 #travelBody .tv-dates { flex-direction:column; align-items:flex-start; max-width:none; margin-left:0; }   /* Leaving on over Back on, left (user 2026-10-23; were side by side) */
 #travelBody .tv-dates > .tv-date { width:calc(50% - 8px); flex:none; }
-#travelBody .tv-dates-foot { justify-content:flex-end; }   /* Lock the dates bottom right of its box (user 2026-10-23) */
+#travelBody .tv-dates-foot { justify-content:flex-start; }   /* Set bottom left of its box (user 2026-10-24; was bottom right) */
 #travelBody .tv-sub-head { margin-bottom:12px; }
 #travelBody .tv-sub-head label { font-size:14px; letter-spacing:1.5px; margin:0; }
 /* Travel Plan boxes framed like the Dashboard's (user 2026-10-23): 2px --border frame, no fill,
@@ -3275,9 +3275,10 @@ th.f2-blk { background:none; }
    the shared picker's own .dtp-chevs since 2026-10-24. The date gives way to the box's width, not the ▲▼. */
 #travelBody .tv-dates .dtp-val { flex:1; min-width:0; }
 /* A Travel Plan section in its own box, like the Dashboard's (user 2026-10-23): 2px frame, title on a washed band, content under it. */
-/* 2026-10-24: title outside, over the frame; the frame has no band (user). */
-#travelBody .tv-box > .tv-sub-head { margin:0 0 8px; padding:0 2px; }
-#travelBody .tv-box-body { padding:14px; border:2px solid var(--border); border-radius:var(--radius-card); }
+#travelBody .tv-box { border:2px solid var(--border); border-radius:var(--radius-card); overflow:hidden; }
+/* Band more washed so it reads apart from the inside (user 2026-10-24; was rgba(255,255,255,0.035)). */
+#travelBody .tv-box > .tv-sub-head { margin:0; padding:12px 14px 10px; background:rgba(255,255,255,0.07); border-bottom:1px solid var(--border); }
+#travelBody .tv-box-body { padding:14px; }
 /* Where to in the Leaving on / Back on box look (user 2026-10-23): framed, WHERE TO tab, the field borderless beside it. */
 #travelBody .tv-place-box { display:flex; align-items:stretch; width:calc(50% - 8px); height:40px; box-sizing:border-box; border:2px solid var(--border); border-radius:var(--radius-card); overflow:hidden; }
 #travelBody .tv-place-box:focus-within { border-color:#3a3a3a; }
@@ -3303,3 +3304,28 @@ th.f2-blk { background:none; }
 #payMainView > .pay-page-icon { margin:0 0 26px; color:var(--muted); line-height:0; }
 #payMainView > .pay-page-icon .win-icon { height:24px; width:auto; }
 #payMainView > .settings-title .pay-title-btns { display:flex; gap:8px; }   /* Payment history + Audit payments top right (user 2026-10-24) */
+/* A plane beside Leaving on (taking off) and Back on (landing), on the box's right (user 2026-10-24; was over it, then left). */
+#travelBody .tv-dates { display:grid; grid-template-columns:calc(50% - 8px) auto; justify-content:start; align-items:center; column-gap:14px; row-gap:16px; }
+#travelBody .tv-dates > .tv-date { width:auto; grid-column:1; }
+#travelBody .tv-dates > .tv-date-off { grid-row:1; }
+#travelBody .tv-dates > .tv-date-back { grid-row:2; }
+#travelBody .tv-date-ico { grid-column:2; line-height:0; color:var(--muted); text-align:center; }
+#travelBody .tv-date-ico:nth-child(1) { grid-row:1; }
+#travelBody .tv-date-ico:nth-child(3) { grid-row:2; }
+#travelBody .tv-date-ico svg { width:26px; height:26px; }   /* a tiny bit smaller (user 2026-10-24; was 30px) */
+/* Calculator + coin over the Cost analysis table, at its left; the table runs from the date boxes' left edge to the planes' right edge (user 2026-10-24). */
+#travelBody .tv-cost-row { display:grid; grid-template-columns:calc(50% - 8px + 14px + 26px); row-gap:10px; }
+#travelBody .tv-cost-row > .tv-date-ico { grid-column:1; grid-row:1; text-align:left; }
+#travelBody .tv-cost-row > #travelSumTable { grid-column:1; grid-row:2; width:auto; max-width:none; margin:0; }
+#travelBody .tv-cost-row .tv-date-ico svg { width:30px; height:auto; }
+/* Review dates and messages grey + dim until it can be pressed, amber once it can (user 2026-10-24). */
+#travelReviewBtn:disabled:not(.tv-busy) { color:var(--muted); border-color:rgba(255,255,255,0.10); background:color-mix(in srgb, #fff 4%, transparent); }
+#travelBody .tv-rv-resume { font-size:11px; }   /* smaller, like SKIPPING N LESSONS (user 2026-10-24; was 13px) */
+#travelBody .tv-rv-resume-d { display:block; margin-top:4px; }   /* RESUME ON: over the date, the date on its own line (user 2026-10-24) */
+#travelBody .tv-rv-bub { color:rgba(255,255,255,0.5); }   /* the bubble stays blue; its text the Dashboard's row-label grey (user 2026-10-24; was white) */
+#travelBody > .tv-rv-key { flex-direction:row; gap:20px; }   /* the key in one row under Go live (user 2026-10-24) */
+#travelBody .tv-rv-resume-d { text-transform:uppercase; letter-spacing:1px; }   /* SUN, NOV 15 in caps like RESUMING (user 2026-10-24) */
+#travelBody .tv-rv-resume-t { margin-top:2px; }
+/* The schedule's date cells brighter (user 2026-10-24; skip was 70% / 42%, lesson + resume 60% / 25%). */
+#travelBody .tv-rv-dcell .tv-c-skip { color:rgba(255,90,77,0.92); box-shadow:inset 0 0 0 1px rgba(255,90,77,0.6); }
+#travelBody .tv-rv-dcell .tv-c-before, #travelBody .tv-rv-dcell .tv-c-resume { color:rgba(240,237,232,0.88); box-shadow:inset 0 0 0 1px rgba(240,237,232,0.38); }

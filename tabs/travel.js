@@ -50,7 +50,10 @@ function _travelRenderPlan() {
   // Two dates in one full-width frame: the first half washed red, the second green.
   var pair = function (a, b) {
     return "<div class='tv-dates'>" +
+      // a plane over each box: taking off over Leaving on, landing over Back on (user, 2026-10-24)
+      "<div class='tv-date-ico'>" + PLANE_UP_ICON + "</div>" +
       "<div id='" + a + "' class='tv-date tv-date-off'></div>" +
+      "<div class='tv-date-ico'>" + PLANE_DOWN_ICON + "</div>" +
       // nothing between the boxes (user, 2026-10-19; the < > chevron tips came off, ⟷ before that)
       "<div id='" + b + "' class='tv-date tv-date-back'></div>" +
     "</div>";
@@ -69,9 +72,9 @@ function _travelRenderPlan() {
       _escapeHtml(_travelState.location || '') + "' oninput='_travelPlaceInput(this.value)'></div></div></div>" +
     "<div class='tv-box'>" + head('Set vacation dates') + "<div class='tv-box-body'>" +   // boxed like Set vacation place (user, 2026-10-23)
     // The steps as a list like the legend's: the number where its circle sits (user, 2026-10-19).
-    "<div class='tv-sec-note tv-steps'><span><i>1.</i>Adjust vacation dates</span><span><i>2.</i>Press Lock the dates</span></div>" +
+    "<div class='tv-sec-note tv-steps'><span><i>1.</i>Adjust vacation dates on the date picker or by clicking on the calendar</span><span><i>2.</i>Press Set</span></div>" +
     pair('travelLeavingSlot', 'travelArrivingSlot') +
-    "<div class='tv-dates-foot'><button class='link-btn red' id='travelSetBtn' onclick='_travelSetDates()' data-tip='Instant.\nLocks the dates and counts the lessons.\nNothing is sent.' data-tip-left data-tip-wrap></button></div>" +
+    "<div class='tv-dates-foot'><button class='link-btn red' id='travelSetBtn' onclick='_travelSetDates()' data-tip='Instant.\nSets the dates and counts the lessons.\nNothing is sent.' data-tip-left data-tip-wrap></button></div>" +
     "</div></div>" +
     "<div class='tv-box'>" + head('Set buffer') + "<div class='tv-box-body'>" +   // boxed with its calendar (user, 2026-10-23)
     "<div class='tv-buf-top'>" +   // steps left, the calendar's key on the right (user, 2026-10-19)
@@ -87,7 +90,9 @@ function _travelRenderPlan() {
     "<div class='tv-cal-cols' id='travelCalMonths'></div>" +
     "</div></div>" +
     "<div class='tv-box'>" + head('Cost analysis') + "<div class='tv-box-body'>" +   // boxed like the rest (user, 2026-10-23)
-    "<div id='travelSumTable'></div>" +   // one table: Vacation / Pre buffer / Post buffer / Total (user, 2026-10-19)
+    // the calculator + coin on the table's left, like the planes by the dates (user, 2026-10-24)
+    "<div class='tv-cost-row'><div class='tv-date-ico'>" + COST_ICON + "</div>" +
+    "<div id='travelSumTable'></div></div>" +   // one table: Vacation / Pre buffer / Post buffer / Total (user, 2026-10-19)
     "</div></div>" +
     "<div class='tv-cal-head' id='travelCalHead'></div>";   // Review → last, under the table
   section.appendChild(cal);
@@ -266,7 +271,7 @@ function _travelSetBtn() {
     b.classList.toggle('is-done', on);
     var lv = document.getElementById('travelLeavingSlot');
     if (lv) lv.parentNode.classList.toggle('is-locked', on);   // Leave / Return dim with Lock; still there to change (user, 2026-10-19)
-    b.innerHTML = LOCK_ICON + (on ? 'Dates locked' : 'Lock the dates');   // red (user, 2026-10-23; was amber Calculate / Calculated, Lock and Set the dates before that)
+    b.innerHTML = LOCK_ICON + (on ? 'Dates set' : 'Set');   // Set with the lock (user, 2026-10-24; was Lock the dates); red (user, 2026-10-23; was amber Calculate / Calculated, Lock and Set the dates before that)
   }
 }
 
@@ -297,7 +302,7 @@ function _travelRenderCal() {
       // Always shown; dimmed until Calculate is pressed and both rings, red and green, are clicked
       // (no buffer is fine, but it's said by clicking) (user, 2026-10-19; was hidden till Calculate).
       "<button class='link-btn amber' id='travelReviewBtn' onclick='_travelGoReview()' data-tip='Opens the next page.\nEach student&#39;s dates and text.\nNothing is sent yet.' data-tip-left data-tip-wrap" +
-        (_travelReviewReady() ? "" : " disabled") + ">Review texts →</button>" +   // (user, 2026-10-21; was Review →)
+        (_travelReviewReady() ? "" : " disabled") + ">Review dates and messages →</button>" +   // (user, 2026-10-24; was Review texts →, Review → before that)
     "</div>";
 
   var rs = document.getElementById('travelResetSlot');
@@ -551,7 +556,7 @@ function _travelGoReview() {
     })
     .catch(function (e) {
       if (mySeq !== _travelPreviewSeq) return;
-      if (btn) { btn.disabled = false; btn.classList.remove('tv-busy'); btn.textContent = 'Review texts →'; }
+      if (btn) { btn.disabled = false; btn.classList.remove('tv-busy'); btn.textContent = 'Review dates and messages →'; }
       _travelPlanDim(false);
       addLog('travelFeed', '❌ ' + (e && e.message ? e.message : 'Connection failed'), 'error');
     });
@@ -610,17 +615,17 @@ function _travelRenderReview() {
     card.style.marginBottom = '20px';   // more room between cards (user, 2026-10-20)
     card.innerHTML =
       // The money on the right, the lesson count under it (user, 2026-10-20; was "1 × $110 = $110" top left).
-      "<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px'>" +
+      "<div style='display:flex;justify-content:space-between;align-items:baseline;gap:12px'>" +   // name and SKIPPING on one baseline (user, 2026-10-24; was flex-start, 2px off)
         "<div class='inq-name-line' style='margin-top:0'><span class='inq-name'>" + _escapeHtml(s.name) + "</span></div>" +
         "<div style='text-align:right;font-family:\"DM Mono\",monospace;line-height:1.4'>" +
           // Just the count, no money, in the old first line's font (user, 2026-10-20; was "2 × $95 = $190" over "2 LESSONS").
-          "<div style='font-size:13px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px'>Skipping " + s.lessonCount + " lesson" + (s.lessonCount === 1 ? '' : 's') + "</div>" +
+          "<div style='font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px'>Skipping<br>" + s.lessonCount + " lesson" + (s.lessonCount === 1 ? '' : 's') + "</div>" +   // SKIPPING: over the count (user, 2026-10-24)
         "</div>" +
       "</div>" +
       // Two sections per card, 1. Dates then 2. Text message: Bebas like the red title, in grey (user, 2026-10-20).
-      // 1. Schedule, then its calendar-grid icon (om-102) under it (user, 2026-10-21).
-      "<label class='field-label' style='color:rgba(255,255,255,.5);margin:22px 0 0'>1. Schedule</label>" +   // (user, 2026-10-21; was Dates)
-      "<div class='ts-th-icon' style='margin:14px 0 18px'>" + SCHEDULE_ICON.replace(/class="[^"]*"/, 'class="ts-lbl-icon tv-rv-cal-icon"') + "</div>" +   // om-102 calendar grid (user, 2026-10-21)   // title, then its icon (user, 2026-10-21)
+      // Today's calendar icon over Schedule (user, 2026-10-24; was the om-102 grid, under the title).
+      "<div class='ts-th-icon' style='margin:22px 0 10px'>" + CALENDAR_ICON.replace(/class="[^"]*"/, 'class="ts-lbl-icon tv-rv-cal-icon"') + "</div>" +
+      "<label class='field-label' style='color:rgba(255,255,255,.72);margin:0 0 18px'>Schedule</label>" +   // no number (user, 2026-10-24); (user, 2026-10-21; was Dates)
       // One row of date cells, left to right, like the Counter grid on Payments Audit (user, 2026-10-20; was Before / Skip / Resume lines).
       "<div class='tv-rv-dates'>" +
         // Each group stays together, so a wrap moves the whole group (user, 2026-10-21).
@@ -633,16 +638,17 @@ function _travelRenderReview() {
           .join('') +
       "</div>" +
       // Under the box, right, in the SKIPPING N LESSONS style: when they're back, with the time (user, 2026-10-21).
-      "<div class='tv-rv-resume'>Resume on: <span class='tv-rv-resume-d'>" + _escapeHtml(_travelResumeLine(s.firstBack)) + "</span></div>" +   // the date in normal case (user, 2026-10-21)
+      // RESUMING / SUN, NOV 15 / 11:30 AM, the day in caps and the time a line down (user, 2026-10-24; was "Sun, Nov 15 at 11:30 AM" on one line)
+      "<div class='tv-rv-resume'>Resuming" + _escapeHtml(_travelResumeLine(s.firstBack)).split(' at ').map(function (p, i) {
+        return "<span class='tv-rv-resume-d" + (i ? " tv-rv-resume-t" : "") + "'>" + p + "</span>"; }).join('') + "</div>" +
       // Read-only, so the card's own colour, not the black of a box you type in; dashed blue like the Dropbox drop zone (user, 2026-10-20).
       // The header above the box, not inside it (user, 2026-10-20).
-      "<hr class='divider' style='margin:32px 0 0'>" +   // a line between Dates and Text message (user, 2026-10-20)
-      // 2. Text message, then the hand-and-phone under it (user, 2026-10-21).
-      "<label class='field-label' style='color:rgba(255,255,255,.5);margin:32px 0 6px'>2. Text message</label>" +
-      // The number it goes to, under the title, then the phone icon, then the text (user, 2026-10-21).
-      "<div style='font-family:\"DM Mono\",monospace;font-size:10.5px;color:" + (s.phone ? "rgba(255,255,255,.5)" : "#ff6b6b") + "'>" +
+      // The hand-and-phone over 2. Text message (user, 2026-10-24; was under it).
+      "<div class='ts-th-icon' style='margin:40px 0 10px'>" + PHONE_ICON.replace('class="win-icon"', 'class="ts-lbl-icon"') + "</div>" +
+      "<label class='field-label' style='color:rgba(255,255,255,.72);margin:0 0 6px'>Text message</label>" +   // no number; 72% like the Dashboard's titles (user, 2026-10-24)
+      // The number it goes to, under the title, then the text (user, 2026-10-21; taken out and put back 2026-10-24).
+      "<div style='margin-bottom:18px;font-family:\"DM Mono\",monospace;font-size:10.5px;color:" + (s.phone ? "rgba(255,255,255,.5)" : "#ff6b6b") + "'>" +
         (s.phone ? _escapeHtml(s.phone) : '⚠ No number on file — will NOT be texted') + "</div>" +
-      "<div class='ts-th-icon' style='margin:14px 0 18px'>" + PHONE_ICON.replace('class="win-icon"', 'class="ts-lbl-icon"') + "</div>" +
       // The text as it will look in Trip Summary's thread: a blue bubble on the right in the
       // dashed box; no time, it isn't sent yet (user, 2026-10-21; was plain text in the box).
       "<div class='ts-thread tv-rv-thread'>" +
@@ -655,7 +661,7 @@ function _travelRenderReview() {
   // Location is set on the plan screen now (Set vacation place, required); executeTravel sends _travelState.location.
 
   var actions = document.createElement('div');
-  actions.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:16px';   // one row: what it does left, Go live right (user, 2026-10-21; was stacked)   // even with the line → divider gap (user, 2026-10-21; was 14px)   // the steps, then Go live, then what it does (user, 2026-10-20)
+  actions.style.cssText = 'display:flex;align-items:center;gap:16px';   // Go live left, the TEXTS N STUDENTS line beside it (user, 2026-10-24; was Go live under it, one row with Go live right before that)   // even with the line → divider gap (user, 2026-10-21; was 14px)   // the steps, then Go live, then what it does (user, 2026-10-20)
 
   // No ← Back here: the one at the top is enough; only Go live (user, 2026-10-20).
 
@@ -669,7 +675,7 @@ function _travelRenderReview() {
   actions.appendChild(what);
   // The portal's button (link-btn, red like Trial's danger ones) with the warning sign (om-101) (user, 2026-10-20).
   go.className = 'link-btn red opens-window';   // ▸: a popup asks first (portal rule, 2026-10-21)
-  go.style.cssText = 'font-size:11px;padding:8px 16px;gap:8px;flex:none';   // a touch smaller, the same as Activate in its popup (user, 2026-10-21; was 12px, 9px 20px)
+  go.style.cssText = 'font-size:11px;padding:8px 16px;gap:8px;flex:none;order:-1';   // order: before the line (user, 2026-10-24)   // a touch smaller, the same as Activate in its popup (user, 2026-10-21; was 12px, 9px 20px)
   go.classList.add('tv-golive-btn');   // red wash (user, 2026-10-21)
   go.innerHTML = WARN_ICON.replace('width="13" height="12"', 'width="14" height="13"') + '<span>' + (_travelState.testMode ? 'Go live (test)' : 'Go live') + '</span>';
   go.onclick = function() {
@@ -701,11 +707,12 @@ function _travelRenderReview() {
   steps.style.marginBottom = '0';
   actions.style.marginTop = '28px';   // room under the legend (user, 2026-10-21; was 6px)
   section.insertBefore(actions, list);
-  // A divider line before the cards and one after them (user, 2026-10-20).
-  var hrTop = document.createElement('hr'); hrTop.className = 'divider'; hrTop.style.margin = '20px 0 24px';   // 20 over it = Go live → line (user, 2026-10-21)
-  var hrEnd = document.createElement('hr'); hrEnd.className = 'divider'; hrEnd.style.margin = '24px 0';
-  section.insertBefore(hrTop, list);
-  section.appendChild(hrEnd);
+  // The Lesson / Skip / Resume key under Go live, just over the cards it explains (user, 2026-10-24; was under the steps).
+  var key = hdr.querySelector('.tv-rv-key');
+  key.style.margin = '32px 0 0';   // more room under Go live (user, 2026-10-24; was 20px)
+  section.insertBefore(key, list);
+  // No divider lines before / after the cards, just the gap (user, 2026-10-24; were lines since 2026-10-20).
+  key.style.marginBottom = '32px';
 }
 
 // "Mon Dec 8, 5:00 PM" -> "Mon, Dec 8 at 5:00 PM".
