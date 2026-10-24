@@ -42,9 +42,9 @@ function _travelRenderPlan() {
   // The pickers sit outside the redrawn parts, so stepping them keeps their keys.
   var cal = document.createElement('div');
   cal.className = 'tv-cal';
-  // Sections titled like a window's ("1. Log" in the Log window), all red.
+  // Section titles small and white like Dropbox's Storage; only the page title is red (user, 2026-10-23; were all red).
   var head = function (t, right) {   // no numbers (user, 2026-10-19); the steps under it carry them
-    return "<div class='db-cx-head im-sec-head im-main-head tv-sec-head'><label class='field-label db-cx-t im-main-t'>" +
+    return "<div class='db-cx-head tv-sec-head tv-sub-head'><label class='field-label db-cx-t'>" +
       t + "</label>" + (right || '') + "</div>";
   };
   // Two dates in one full-width frame: the first half washed red, the second green.
@@ -56,39 +56,39 @@ function _travelRenderPlan() {
     "</div>";
   };
   cal.innerHTML =
+    // The page title red with Reset on its line, one icon under it, like Today and Dropbox (user, 2026-10-23; was a grey label).
+    "<div class='settings-title tv-page-title'><span>Travel Plan</span><span id='travelResetSlot'></span></div>" +
+    "<div class='tv-sec-icon tv-page-icon'>" + SUITCASE_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + "</div>" +
     // Where the trip goes, first; required for Review. Saved with the trip (Travel sheet col Q),
     // shown in Trip History (user, 2026-10-20; was optional, on the review screen).
-    head('Set vacation place') +
-    "<div class='tv-sec-icon tv-icon-top'>" + PIN_ICON + "</div>" +
-    "<input class='tv-place' id='travelPlace' type='text' placeholder='Where to?' autocomplete='off' value='" +
-      _escapeHtml(_travelState.location || '') + "' oninput='_travelPlaceInput(this.value)'>" +
-    "<hr class='divider tv-sec-rule'>" +
-    head('Set vacation dates') +   // Reset moved down next to Calculate (user, 2026-10-20; was top right)
+    // In a box of its own like a Dashboard section: title on the washed band, the field under it (user, 2026-10-23).
+    "<div class='tv-box'>" + head('Set vacation place') +
+    // A WHERE TO tab before the field, like Leaving on / Back on (user, 2026-10-23; was the placeholder).
+    "<div class='tv-box-body'><div class='tv-place-box'><span class='tv-in-label'>Where to</span>" +
+    "<input class='tv-place' id='travelPlace' type='text' autocomplete='off' value='" +
+      _escapeHtml(_travelState.location || '') + "' oninput='_travelPlaceInput(this.value)'></div></div></div>" +
+    "<div class='tv-box'>" + head('Set vacation dates') + "<div class='tv-box-body'>" +   // boxed like Set vacation place (user, 2026-10-23)
     // The steps as a list like the legend's: the number where its circle sits (user, 2026-10-19).
-    "<div class='tv-sec-icon tv-icon-top'>" + SUITCASE_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + "</div>" +   // under the title, over the steps (user, 2026-10-19); om-103 suitcase (2026-10-21, was LUGGAGE_ICON)
-    "<div class='tv-sec-note tv-steps'><span><i>1.</i>Adjust vacation dates</span><span><i>2.</i>Press Calculate</span></div>" +
-    "<div class='tv-reset-row'><span id='travelResetSlot'></span></div>" +   // Reset above the dates, right in line with Calculate (user, 2026-10-20; was beside Calculate)
+    "<div class='tv-sec-note tv-steps'><span><i>1.</i>Adjust vacation dates</span><span><i>2.</i>Press Lock the dates</span></div>" +
     pair('travelLeavingSlot', 'travelArrivingSlot') +
-    "<div class='tv-dates-foot'><button class='link-btn amber' id='travelSetBtn' onclick='_travelSetDates()' data-tip='Instant.\nLocks the dates and counts the lessons.\nNothing is sent.' data-tip-left data-tip-wrap></button></div>" +
-    "<hr class='divider tv-sec-rule'>" +
-    head('Set buffer') +
-    "<div class='tv-sec-icon tv-icon-top'>" + BUFFER_ICON.replace(/class="[^"]*"/, 'class="win-icon tv-buf-icon"') +
-      BUFFER_ICON.replace(/class="[^"]*"/, 'class="win-icon tv-buf-icon tv-buf-flip"') + "</div>" +   // and flipped: buffer before and after (user, 2026-10-20)   // its own icon like the suitcase (user, 2026-10-20)
+    "<div class='tv-dates-foot'><button class='link-btn red' id='travelSetBtn' onclick='_travelSetDates()' data-tip='Instant.\nLocks the dates and counts the lessons.\nNothing is sent.' data-tip-left data-tip-wrap></button></div>" +
+    "</div></div>" +
+    "<div class='tv-box'>" + head('Set buffer') + "<div class='tv-box-body'>" +   // boxed with its calendar (user, 2026-10-23)
     "<div class='tv-buf-top'>" +   // steps left, the calendar's key on the right (user, 2026-10-19)
     "<div class='tv-sec-note tv-steps'><span><i>1.</i>Click on the dates to activate buffer</span><span><i>2.</i>Use keyboard arrows to add buffer days</span></div>" +
     // The calendar's key lives here: first day off, first day teaching and buffer are all set in this section (user, 2026-10-19).
     "<div class='tv-cal-legend tv-buf-key'>" +
       "<span class='lg-t-trip'><i class='lg-trip'></i><b>Vacation dates</b></span>" +   // the grey Leave / Return ring (user, 2026-10-19)
       "<span class='lg-t-off'><i class='lg-off'></i><b>First day off</b></span>" +
-      "<span class='lg-t-back'><i class='lg-back'></i><b>First day teaching</b></span>" +
+      "<span class='lg-t-back'><i class='lg-back'></i><b>First teaching day</b></span>" +   // (user, 2026-10-23; was First day teaching)
     "</div>" +
     "</div>" +
     // The calendar under it still follows the dates above.
     "<div class='tv-cal-cols' id='travelCalMonths'></div>" +
-    "<hr class='divider tv-sec-rule tv-cost-rule'>" +   // a divider, then the table full width (user, 2026-10-19)
-    "<div class='tv-cost-head'>" + head('Cost analysis') + "</div>" +
-    "<div class='tv-sec-icon tv-icon-top'>" + COST_ICON.replace(/class="[^"]*"/, 'class="win-icon tv-cost-icon"') + "</div>" +   // its own icon like the suitcase (user, 2026-10-20)
+    "</div></div>" +
+    "<div class='tv-box'>" + head('Cost analysis') + "<div class='tv-box-body'>" +   // boxed like the rest (user, 2026-10-23)
     "<div id='travelSumTable'></div>" +   // one table: Vacation / Pre buffer / Post buffer / Total (user, 2026-10-19)
+    "</div></div>" +
     "<div class='tv-cal-head' id='travelCalHead'></div>";   // Review → last, under the table
   section.appendChild(cal);
 
@@ -135,9 +135,11 @@ function _travelRenderDateSpinner(slotId, label, stateKey) {
   var cell = wrap.querySelector('.dtp-cell');
   if (!cell) return;
   cell.insertAdjacentHTML('afterbegin', "<span class='tv-in-label'>" + label + "</span>");   // no → after it (user, 2026-10-19)
-  // ▲▼ over the date, not the middle of the box: shift them half the label's width (user, 2026-10-19).
-  var shift = (cell.firstChild.offsetWidth - 6) / 2;   // less the box's 6px right padding
-  wrap.querySelectorAll('.dtp-chev').forEach(function (c) { c.style.transform = 'translateX(' + shift + 'px)'; });
+  // ▲▼ inside the frame, a short column at the right end (user, 2026-10-23; were over and under the date).
+  var col = document.createElement('span');
+  col.className = 'tv-chevs';
+  wrap.querySelectorAll('.dtp-chev').forEach(function (c) { col.appendChild(c); });
+  cell.appendChild(col);
 }
 
 // The vacation dates moved: Set again, and the buffer starts over at none.
@@ -237,7 +239,7 @@ function _travelSumRender() {
   } else if (m.trip === '…') total = '…';
   el.innerHTML =
     "<div class='tv-sum-card'>" +
-      "<div class='tv-sum-row tv-sum-cols'><span></span><span>Days</span><span>Lessons</span><span>Revenue loss</span></div>" +
+      "<div class='tv-sum-row tv-sum-cols'><span></span><span>Days</span><span>Lessons</span><span>Loss</span></div>" +   // Revenue dropped, fits the narrow table (user 2026-10-23)
       // Total first, then Vacation, then the buffers (user, 2026-10-20; Total was last)
       row('Total', total, 'tv-sum-total') + row('Vacation', m.trip) + row('Pre buffer', m.pre, 'tv-sum-buf') + row('Post buffer', m.post, 'tv-sum-buf') +
     "</div>" +
@@ -270,7 +272,7 @@ function _travelSetBtn() {
     b.classList.toggle('is-done', on);
     var lv = document.getElementById('travelLeavingSlot');
     if (lv) lv.parentNode.classList.toggle('is-locked', on);   // Leave / Return dim with Lock; still there to change (user, 2026-10-19)
-    b.innerHTML = LOCK_ICON + (on ? 'Calculated' : 'Calculate');   // locks the dates and counts them (user, 2026-10-19; was Lock, Set the dates before that)
+    b.innerHTML = LOCK_ICON + (on ? 'Dates locked' : 'Lock the dates');   // red (user, 2026-10-23; was amber Calculate / Calculated, Lock and Set the dates before that)
   }
 }
 

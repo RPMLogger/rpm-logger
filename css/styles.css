@@ -3205,3 +3205,59 @@ th.f2-blk { background:none; }
 #travelBody .tv-buf-top { margin-bottom:24px; }   /* steps + key → calendar, tightened (user 2026-10-23; was 44px) */
 #travelBody .tv-cal.tv-loading > *:not(.rpm-keep) { opacity:.15; pointer-events:none; transition:opacity .15s; }   /* Review loading: the whole plan dims, its button too (user 2026-10-23; Review's row stayed bright) */
 #travelBody .rpm-load-center { background:none; border:none; box-shadow:none; }   /* just the ring + text, like Financial 2 */
+/* Travel Plan in the Today / Dropbox look (user 2026-10-23): one red title with Reset on its line, one icon, white section titles. */
+#travelBody .tv-page-title { margin-bottom:10px; }
+#travelBody .tv-page-icon { margin:0 0 26px; color:var(--muted); }
+#travelBody .tv-page-icon .win-icon { height:32px; }
+#travelBody .tv-place { width:calc(50% - 8px); margin-left:0; }   /* Where to? as wide as the Leaving on box (user 2026-10-23; was full width) */
+#travelBody #travelSumTable { max-width:calc(50% - 8px); margin-left:0; }   /* Cost analysis as wide as Leaving on / Back on (user 2026-10-23; was 400px, full width before) */
+#travelBody .tv-sum-row, #travelBody .tv-sum-row.tv-sum-cols, #travelBody .tv-sum-row.tv-sum-buf { grid-template-columns:92px 1fr 1fr 1fr; }   /* row names on one line at this width */
+#travelBody .tv-sum-row > span { padding:0 8px; white-space:nowrap; }
+#travelBody .tv-dates { flex-direction:column; align-items:flex-start; max-width:none; margin-left:0; }   /* Leaving on over Back on, left (user 2026-10-23; were side by side) */
+#travelBody .tv-dates > .tv-date { width:calc(50% - 8px); flex:none; }
+#travelBody .tv-dates-foot { justify-content:flex-end; }   /* Lock the dates bottom right of its box (user 2026-10-23) */
+#travelBody .tv-sub-head { margin-bottom:12px; }
+#travelBody .tv-sub-head label { font-size:14px; letter-spacing:1.5px; margin:0; }
+/* Travel Plan boxes framed like the Dashboard's (user 2026-10-23): 2px --border frame, no fill,
+   washed header band (Cost analysis header row, Leaving on / Back on tabs), faint 1px inner lines. */
+#travelBody .tv-place, #travelBody .tv-dates .tv-date-off .dtp-cell, #travelBody .tv-dates .tv-date-back .dtp-cell,
+#travelBody .tv-sum-card { border:2px solid var(--border); background:transparent; }   /* the calendar keeps its own wash and frame (user 2026-10-23) */
+#travelBody .tv-place { border-radius:var(--radius-card); }
+#travelBody .tv-place:focus { border-color:#3a3a3a; }
+#travelBody .tv-dates .tv-in-label { background:rgba(255,255,255,0.035); border-right:1px solid var(--border); }
+#travelBody .tv-sum-card { overflow:hidden; }
+#travelBody .tv-sum-row.tv-sum-cols { background:rgba(255,255,255,0.035); }
+#travelBody .tv-sum-row + .tv-sum-row, #travelBody .tv-sum-row > span:not(.tv-sum-name) { border-color:var(--border); }
+#travelBody .tv-sum-cols + .tv-sum-row { border-top-width:1px; }
+#travelBody .tv-sum-row > span:nth-child(2) { border-left-width:1px; }
+/* Calendar like Cost analysis (user 2026-10-23): months + weekdays on the header band's wash with one full-width line under,
+   the days on no fill; rings on the page colour so they still stop the trip band. */
+#travelBody #travelCalMonths { border:2px solid var(--border); background:linear-gradient(rgba(255,255,255,0.035) 0 60px, var(--border) 60px 61px, transparent 61px); }
+#travelCalMonths .tv-cal-dow { border-bottom-color:transparent; }   /* the band's line replaces the short weekday lines */
+#travelCalMonths.tv-cal-cols::before { top:61px; }   /* the month divider starts under the band */
+#travelCalMonths .tv-cal-day.is-travel span, #travelCalMonths .tv-cal-day.is-off span, #travelCalMonths .tv-cal-day.is-back span { background:var(--bg); }
+#travelBody .tv-dates .tv-date-off .dtp-cell, #travelBody .tv-dates .tv-date-back .dtp-cell { border-radius:var(--radius-card); overflow:hidden; }   /* Leaving on / Back on corners like the Dashboard's boxes (user 2026-10-23; were 7px) */
+#travelBody .tv-dates .tv-in-label { border-radius:0; }   /* the box's corner clips the tab */
+/* Leaving on / Back on ▲▼ in the box's right end, stacked in a short column split off by a line (user 2026-10-23). */
+#travelBody .tv-chevs { flex:none; display:flex; flex-direction:column; justify-content:center; border-left:1px solid var(--border); background:rgba(255,255,255,0.035); }
+#travelBody .tv-chevs .dtp-chev { padding:4px 12px; }
+/* A Travel Plan section in its own box, like the Dashboard's (user 2026-10-23): 2px frame, title on a washed band, content under it. */
+#travelBody .tv-box { border:2px solid var(--border); border-radius:var(--radius-card); overflow:hidden; }
+#travelBody .tv-box > .tv-sub-head { margin:0; padding:12px 14px 10px; background:rgba(255,255,255,0.035); border-bottom:1px solid var(--border); }
+#travelBody .tv-box-body { padding:14px; }
+/* Where to in the Leaving on / Back on box look (user 2026-10-23): framed, WHERE TO tab, the field borderless beside it. */
+#travelBody .tv-place-box { display:flex; align-items:stretch; width:calc(50% - 8px); height:40px; box-sizing:border-box; border:2px solid var(--border); border-radius:var(--radius-card); overflow:hidden; }
+#travelBody .tv-place-box:focus-within { border-color:#3a3a3a; }
+#travelBody .tv-place-box .tv-in-label { min-width:95px; box-sizing:border-box; justify-content:center; background:rgba(255,255,255,0.035); border-right:1px solid var(--border); color:var(--text); }
+#travelBody .tv-place-box .tv-place { flex:1; min-width:0; width:auto; height:auto; margin:0; border:none; border-radius:0; background:transparent; font-size:10px; letter-spacing:.8px; }
+#travelBody .tv-place-box .tv-place:focus { border:none; outline:none; }
+#travelBody .tv-box + .tv-box { margin-top:22px; }   /* no dividers between the boxes, the Dashboard's gap (user 2026-10-23) */
+/* White kept for titles (user 2026-10-23): box tabs grey like the Dashboard's row labels, dates + place like its values. */
+#travelBody .tv-dates .tv-in-label, #travelBody .tv-place-box .tv-in-label { color:rgba(255,255,255,0.24); }
+#travelBody .tv-dates .tv-date-off .dtp-val, #travelBody .tv-dates .tv-date-back .dtp-val, #travelBody .tv-place-box .tv-place { color:rgba(255,255,255,0.5); }
+#travelBody .tv-buf-key b { background:none; padding-left:0; padding-right:0; }   /* key words plain, no tinted box (user 2026-10-23) */
+#travelSumTable .tv-sum-row > span:not(.tv-sum-name) { justify-content:center; text-align:center; }   /* Days / Lessons / Loss and their numbers centred (user 2026-10-23) */
+#travelBody .tv-dates .tv-date-off .dtp-val, #travelBody .tv-dates .tv-date-back .dtp-val { color:var(--text); }   /* the dates white, important like the ringed days (user 2026-10-23; were 50%) */
+#travelBody .tv-buf-key b { font-size:10px; }   /* key words bigger (user 2026-10-23; were 8px) */
+#travelBody .tv-place-box .tv-place { color:var(--text); }   /* the typed place white like the dates (user 2026-10-23) */
+#travelBody .tv-rv-key { font-size:10px; }   /* Lesson / Skip / Resume as big as the plan page's key (user 2026-10-23; were 8px) */
