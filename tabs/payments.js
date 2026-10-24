@@ -477,7 +477,7 @@ function loadIncomingPayments() {
         return;
       }
 
-      if (tabBtn) tabBtn.innerHTML = "Payments <span style='background:var(--accent);color:#fff;font-size:8px;border-radius:8px;padding:1px 5px;vertical-align:middle;margin-left:2px'>!</span>";
+      if (tabBtn) tabBtn.innerHTML = "Payments<span class='inq-badge'>!</span>";
 
       data.payments.forEach(function(p) {
         // A trial payment is recorded from the Trial tab (Make Student / Not
