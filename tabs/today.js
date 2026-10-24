@@ -27,6 +27,7 @@ function initTodayTab() {
   }
   if (!window._weekFetchedDay) { body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>'; return; }
   _tdRender();
+  _tdHolCheck();   // the holiday reminder window, once a day
 }
 
 // fetchWeekStudents (core/api.js) calls this once today's students are in.
@@ -188,4 +189,100 @@ function _tdWeekHtml() {
       }).join('') + '</div>';
   });
   return { body: body, sub: md(mon) + ' – ' + md(sun) };
+}
+
+// ── Holiday reminder (2026-10-24) ──
+// While a holiday from the Holidays tab (tabs/holidays.js; real dates only, not the "~" school guesses) is
+// TD_HOL_DAYS away or less, a plain warning pop-up (rpmAlert) shows over Today, once a day (user, 2026-10-24;
+// was a box between Today and This Week, then a portal window): per holiday "Halloween coming up in 7 days" with its date under it, and under that that day's
+// lessons from the Calendar tab's week read (getCalendarWeek), so students can be asked ahead.
+var TD_HOL_DAYS = 15;   // starts 15 days ahead and counts down each day (user, 2026-10-24)
+var _tdHolDay = null;   // the day the reminder was last read for (one read + one pop-up a day)
+
+function _tdHolCheck() {
+  if (typeof _holUpcoming !== 'function') return;
+  var day = _tdYmd();
+  if (_tdHolDay === day) return;
+  _tdHolDay = day;
+  try { if (localStorage.getItem('tdHolShown') === day) return; } catch (e) {}
+  var near = _tdHolNear();
+  if (near.length) _tdHolLoad(near, day);
+}
+
+function _tdHolNear() {
+  var now = new Date(), lim = new Date(now.getFullYear(), now.getMonth(), now.getDate() + TD_HOL_DAYS + 1);
+  var muted = _tdHolMuted();
+  return _holUpcoming().filter(function (e) { return !e.i.approx && e.d < lim && !muted[_tdHolKey(e)]; });
+}
+
+// "Don't warn about it again" silences that holiday for this date only; next year it warns again.
+function _tdHolKey(e) { return e.i.n + '|' + _tdHolYmd(e.d); }
+function _tdHolMuted() { try { return JSON.parse(localStorage.getItem('tdHolMuted') || '{}'); } catch (e) { return {}; } }
+function _tdHolMute(list) {
+  var m = _tdHolMuted();
+  list.forEach(function (e) { m[_tdHolKey(e)] = 1; });
+  try { localStorage.setItem('tdHolMuted', JSON.stringify(m)); } catch (e) {}
+}
+
+function _tdHolYmd(d) {
+  var m = d.getMonth() + 1, dd = d.getDate();
+  return d.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (dd < 10 ? '0' + dd : dd);
+}
+
+// Each holiday's days → the Mondays of their weeks → one getCalendarWeek read per week, then the window.
+function _tdHolLoad(near, day) {
+  var url = getScriptUrl(), weeks = {};
+  near.forEach(function (e) {
+    for (var d = new Date(e.d); d <= e.last; d.setDate(d.getDate() + 1)) {
+      var mon = new Date(d); mon.setDate(d.getDate() - (d.getDay() + 6) % 7);
+      weeks[_tdHolYmd(mon)] = 1;
+    }
+  });
+  function done(events) {
+    if (_tdYmd() !== day) return;
+    _tdHolOpen(near.map(function (e) {
+      if (!events) return { e: e, lessons: null };
+      var from = _tdHolYmd(e.d), to = _tdHolYmd(e.last);
+      return { e: e, lessons: events.filter(function (ev) { return ev.date >= from && ev.date <= to && isReal(ev.title); })
+                                     .sort(function (a, b) { return a.startMs - b.startMs; }) };
+    }));
+    try { localStorage.setItem('tdHolShown', day); } catch (e) {}
+  }
+  if (!url) { done(null); return; }
+  Promise.all(Object.keys(weeks).map(function (mon) {
+    return fetch(url + '?action=getCalendarWeek&weekStart=' + mon).then(function (r) { return r.json(); })
+      .then(function (d) { if (!d.success) throw new Error(d.message); return d.events || []; });
+  })).then(function (lists) { done([].concat.apply([], lists)); }).catch(function () { done(null); });
+}
+
+function _tdHolOpen(items) {
+  var now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  function md(d) { return MONTHS[d.getMonth()] + ' ' + d.getDate(); }
+  function hm(min) { var h = Math.floor(min / 60), m = min % 60; return ((h % 12) || 12) + ':' + (m < 10 ? '0' + m : m) + ' ' + (h >= 12 ? 'PM' : 'AM'); }
+  // Per holiday: a calendar page with its date (OCT over 31), "Halloween coming up in 7 days", a run of days
+  // under it (Nov 23–27), then that day's lessons (user, 2026-10-24; the date was a line of text before).
+  var html = items.map(function (x) {
+    var e = x.e, multi = e.last > e.d;
+    var away = Math.round((e.d - today) / 86400000);
+    var line = away <= 0 ? e.i.n + ' is today' : e.i.n + ' coming up ' + (away === 1 ? 'tomorrow' : 'in ' + away + ' days');
+    var lessons = x.lessons === null ? '<div class="td-hol-l">Could not read the calendar</div>'
+      : x.lessons.map(function (ev) {
+          var d = new Date(ev.startMs);
+          return '<div class="td-hol-l">' + (multi ? HOL_DAYS[d.getDay()] + ' ' : '') + hm(ev.startMin) + '  ' + inqEsc(ev.title) + '</div>';
+        }).join('');
+    return '<div class="td-hol-one">' +
+      '<div class="td-hol-cal"><div class="td-hol-mo">' + MONTHS[e.d.getMonth()] + '</div><div class="td-hol-dd">' + e.d.getDate() + '</div></div>' +
+      '<div>' + line + '</div>' +
+      (multi ? '<div class="td-hol-l">' + md(e.d) + '–' + (e.last.getMonth() === e.d.getMonth() ? e.last.getDate() : md(e.last)) + '</div>' : '') +
+      lessons + '</div>';
+  }).join('');
+  // A plain pop-up (the portal's alert box): no title, icon or colour; ✕, Escape or a click outside closes it
+  // until tomorrow; the button silences these holidays for good (user, 2026-10-24).
+  rpmAlert({ title: '', message: ' ', confirmLabel: "Don't warn about it again", className: 'td-hol-dlg' })
+    .then(function (v) { if (v === undefined) _tdHolMute(items.map(function (x) { return x.e; })); });   // undefined = the button, null = ✕
+  var box = document.querySelector('.rpm-dlg.td-hol-dlg');
+  if (!box) return;
+  box.querySelector('.rpm-dlg-msg').innerHTML = html;   // the alert only takes text; the calendar pages go in after
+  var btn = box.querySelector('.rpm-dlg-btn');
+  if (btn) { btn.className = 'link-btn'; btn.blur(); }   // the portal's own button look; unfocused so a stray Enter doesn't press it
 }

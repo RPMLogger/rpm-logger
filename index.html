@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=925">
+  <link rel="stylesheet" href="css/styles.css?v=926">
 </head>
 <body>
 <div class="container">
@@ -541,109 +541,16 @@
   <div class="tab-panel" id="tab-helpdata"><div id="helpDataBody"></div></div>
 
   <!-- HOLIDAYS ALERTS -->
+  <!-- 2026-10-24: the Dashboard's look (user): red title, calendar icon, boxed sections; css shares #tab-general's rules.
+       Rows live in tabs/holidays.js (HOL_GROUPS); By type / Chronological picks the view. -->
   <div class="tab-panel" id="tab-holidays">
-    <div class="section-label">Holidays Alerts</div>
-    <div class="hol-note">Holidays most relevant for scheduling adult students.</div>
-
-    <!-- ALWAYS WATCH -->
-    <div class="hol-watch">
-      <div class="hol-watch-title">🔴 Always Watch · Biggest Disruptions</div>
-      <div class="hol-watch-item">New Year's Day <span class="hol-when">Jan 1</span></div>
-      <div class="hol-watch-item">Memorial Day <span class="hol-when">Last Mon in May</span></div>
-      <div class="hol-watch-item">Independence Day <span class="hol-when">Jul 4</span></div>
-      <div class="hol-watch-item">Labor Day <span class="hol-when">1st Mon in Sep</span></div>
-      <div class="hol-watch-item">Thanksgiving <span class="hol-when">4th Thu in Nov · often 4-day</span></div>
-      <div class="hol-watch-item">Christmas Eve <span class="hol-when">Dec 24</span></div>
-      <div class="hol-watch-item">Christmas Day <span class="hol-when">Dec 25</span></div>
-      <div class="hol-watch-item">New Year's Eve <span class="hol-when">Dec 31</span></div>
+    <div class="settings-title ld-head"><span>Holidays Alerts</span></div>
+    <div class="ld-icon" data-icon="calendar"></div>
+    <div class="hol-views" id="holViews">
+      <button class="link-btn" data-view="type" onclick="_holSetView('type')">By type</button>
+      <button class="link-btn" data-view="chrono" onclick="_holSetView('chrono')">Chronological</button>
     </div>
-
-    <!-- FULL TABLE -->
-    <div class="section-label">All Holidays</div>
-    <div class="hol-table">
-      <div class="hol-row high">
-        <div class="hol-main"><div class="hol-name">New Year's Day</div><div class="hol-when2">January 1</div></div>
-        <div class="hol-badges"><span class="hol-lw">Sometimes</span><span class="hol-impact vhigh">Very High</span></div>
-      </div>
-      <div class="hol-row">
-        <div class="hol-main"><div class="hol-name">Martin Luther King Jr. Day</div><div class="hol-when2">3rd Monday in January</div></div>
-        <div class="hol-badges"><span class="hol-lw yes">Long wknd</span><span class="hol-impact mod">Moderate</span></div>
-      </div>
-      <div class="hol-row">
-        <div class="hol-main"><div class="hol-name">Presidents' Day</div><div class="hol-when2">3rd Monday in February</div></div>
-        <div class="hol-badges"><span class="hol-lw yes">Long wknd</span><span class="hol-impact mod">Moderate</span></div>
-      </div>
-      <div class="hol-row high">
-        <div class="hol-main"><div class="hol-name">Memorial Day</div><div class="hol-when2">Last Monday in May</div></div>
-        <div class="hol-badges"><span class="hol-lw yes">Long wknd</span><span class="hol-impact vhigh">Very High</span></div>
-      </div>
-      <div class="hol-row high">
-        <div class="hol-main"><div class="hol-name">Independence Day</div><div class="hol-when2">July 4</div></div>
-        <div class="hol-badges"><span class="hol-lw">Sometimes</span><span class="hol-impact vhigh">Very High</span></div>
-      </div>
-      <div class="hol-row high">
-        <div class="hol-main"><div class="hol-name">Labor Day</div><div class="hol-when2">1st Monday in September</div></div>
-        <div class="hol-badges"><span class="hol-lw yes">Long wknd</span><span class="hol-impact vhigh">Very High</span></div>
-      </div>
-      <div class="hol-row">
-        <div class="hol-main"><div class="hol-name">Columbus / Indigenous Peoples' Day</div><div class="hol-when2">2nd Monday in October</div></div>
-        <div class="hol-badges"><span class="hol-lw yes">Long wknd</span><span class="hol-impact mod">Moderate</span></div>
-      </div>
-      <div class="hol-row high">
-        <div class="hol-main"><div class="hol-name">Thanksgiving</div><div class="hol-when2">4th Thursday in November · often 4-day</div></div>
-        <div class="hol-badges"><span class="hol-lw yes">Long wknd</span><span class="hol-impact vhigh">Very High</span></div>
-      </div>
-      <div class="hol-row high">
-        <div class="hol-main"><div class="hol-name">Christmas Eve</div><div class="hol-when2">December 24</div></div>
-        <div class="hol-badges"><span class="hol-lw yes">Often</span><span class="hol-impact vhigh">Very High</span></div>
-      </div>
-      <div class="hol-row high">
-        <div class="hol-main"><div class="hol-name">Christmas Day</div><div class="hol-when2">December 25</div></div>
-        <div class="hol-badges"><span class="hol-lw">Sometimes</span><span class="hol-impact vhigh">Very High</span></div>
-      </div>
-      <div class="hol-row high">
-        <div class="hol-main"><div class="hol-name">New Year's Eve</div><div class="hol-when2">December 31</div></div>
-        <div class="hol-badges"><span class="hol-lw yes">Often</span><span class="hol-impact vhigh">Very High</span></div>
-      </div>
-    </div>
-
-    <!-- RECURRING LONG WEEKENDS -->
-    <div class="section-label">✅ Recurring Long Weekends</div>
-    <div class="hol-table">
-      <div class="hol-row"><div class="hol-main"><div class="hol-name">Martin Luther King Jr. Day</div><div class="hol-when2">3rd Monday in January</div></div></div>
-      <div class="hol-row"><div class="hol-main"><div class="hol-name">Presidents' Day</div><div class="hol-when2">3rd Monday in February</div></div></div>
-      <div class="hol-row"><div class="hol-main"><div class="hol-name">Memorial Day</div><div class="hol-when2">Last Monday in May</div></div></div>
-      <div class="hol-row"><div class="hol-main"><div class="hol-name">Labor Day</div><div class="hol-when2">1st Monday in September</div></div></div>
-      <div class="hol-row"><div class="hol-main"><div class="hol-name">Columbus / Indigenous Peoples' Day</div><div class="hol-when2">2nd Monday in October · many office workers</div></div></div>
-      <div class="hol-row"><div class="hol-main"><div class="hol-name">Thanksgiving</div><div class="hol-when2">Commonly a 4-day weekend with Friday off</div></div></div>
-    </div>
-
-    <!-- DERIN · SCHOOL CALENDAR -->
-    <hr class="divider">
-    <div class="section-label">Derin · School Calendar</div>
-
-    <div class="section-label" style="margin-top:14px">🍁 Fall Holidays &amp; Breaks</div>
-    <div class="hol-table">
-      <div class="hol-row"><div class="hol-main"><div class="hol-name">Labor Day</div><div class="hol-when2">Closed · early September</div></div></div>
-      <div class="hol-row"><div class="hol-main"><div class="hol-name">Professional Development / In-Service Days</div><div class="hol-when2">A couple of Friday closures in Sep &amp; Oct for staff training</div></div></div>
-      <div class="hol-row"><div class="hol-main"><div class="hol-name">Parent-Teacher Conferences</div><div class="hol-when2">Two-day closure · late Oct or early Nov</div></div></div>
-      <div class="hol-row high"><div class="hol-main"><div class="hol-name">Thanksgiving Break</div><div class="hol-when2">Closed a full week · the week of Thanksgiving</div></div></div>
-    </div>
-
-    <div class="section-label" style="margin-top:14px">❄️ Winter Holidays &amp; Breaks</div>
-    <div class="hol-table">
-      <div class="hol-row high"><div class="hol-main"><div class="hol-name">Winter Holiday Break</div><div class="hol-when2">Closed ~2 weeks · just before Christmas through New Year's Day</div></div></div>
-      <div class="hol-row"><div class="hol-main"><div class="hol-name">Martin Luther King Jr. Day</div><div class="hol-when2">Closed · 3rd Monday in January</div></div></div>
-      <div class="hol-row"><div class="hol-main"><div class="hol-name">Presidents' Day Holiday</div><div class="hol-when2">Closed · mid-February</div></div></div>
-      <div class="hol-row"><div class="hol-main"><div class="hol-name">Parent-Teacher Conferences</div><div class="hol-when2">Two-day closure · late February</div></div></div>
-    </div>
-
-    <div class="section-label" style="margin-top:14px">🌱 Spring Holidays &amp; Breaks</div>
-    <div class="hol-table">
-      <div class="hol-row high"><div class="hol-main"><div class="hol-name">Spring Break</div><div class="hol-when2">Typically a one-week closure · late March</div></div></div>
-      <div class="hol-row"><div class="hol-main"><div class="hol-name">Professional Development Days</div><div class="hol-when2">A couple of scattered days in April &amp; May</div></div></div>
-      <div class="hol-row"><div class="hol-main"><div class="hol-name">Memorial Day</div><div class="hol-when2">Closed · late May · usually leads right up to end of school year</div></div></div>
-    </div>
+    <div id="holBody"></div>
   </div>
 
   <!-- ZOOM -->
@@ -777,7 +684,7 @@
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
     <div id="secAlert"></div>
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">925</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">926</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -797,44 +704,45 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=925"></script>
-<script src="core/storage.js?v=925"></script>
-<script src="core/utils.js?v=925"></script>
-<script src="core/dialog.js?v=925"></script>
-<script src="core/api.js?v=925"></script>
-<script src="core/secalert.js?v=925"></script>
+<script src="core/state.js?v=926"></script>
+<script src="core/storage.js?v=926"></script>
+<script src="core/utils.js?v=926"></script>
+<script src="core/dialog.js?v=926"></script>
+<script src="core/api.js?v=926"></script>
+<script src="core/secalert.js?v=926"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=925"></script>
-<script src="tabs/lessons.js?v=925"></script>
-<script src="tabs/payments.js?v=925"></script>
-<script src="tabs/general.js?v=925"></script>
-<script src="tabs/financial.js?v=925"></script>
-<script src="tabs/inquiries.js?v=925"></script>
-<script src="tabs/inqarchive.js?v=925"></script>
-<script src="tabs/comms.js?v=925"></script>
-<script src="tabs/notes.js?v=925"></script>
-<script src="tabs/todo.js?v=925"></script>
-<script src="tabs/availability.js?v=925"></script>
-<script src="tabs/travel.js?v=925"></script>
-<script src="tabs/tripsummary.js?v=925"></script>
-<script src="tabs/triphistory.js?v=925"></script>
-<script src="tabs/skips.js?v=925"></script>
-<script src="tabs/student.js?v=925"></script>
-<script src="tabs/ctrl.js?v=925"></script>
-<script src="tabs/gbusiness.js?v=925"></script>
-<script src="tabs/dropbox.js?v=925"></script>
-<script src="tabs/import.js?v=925"></script>
-<script src="tabs/today.js?v=925"></script>
-<script src="tabs/trial.js?v=925"></script>
-<script src="tabs/ending.js?v=925"></script>
-<script src="tabs/reviews.js?v=925"></script>
-<script src="tabs/financial2.js?v=925"></script>
-<script src="tabs/sheets.js?v=925"></script>
-<script src="tabs/studentline.js?v=925"></script>
-<script src="tabs/calendar.js?v=925"></script>
-<script src="tabs/fixedcal.js?v=925"></script>
-<script src="tabs/help.js?v=925"></script>
+<script src="tabs/icons.js?v=926"></script>
+<script src="tabs/lessons.js?v=926"></script>
+<script src="tabs/payments.js?v=926"></script>
+<script src="tabs/general.js?v=926"></script>
+<script src="tabs/financial.js?v=926"></script>
+<script src="tabs/inquiries.js?v=926"></script>
+<script src="tabs/inqarchive.js?v=926"></script>
+<script src="tabs/comms.js?v=926"></script>
+<script src="tabs/notes.js?v=926"></script>
+<script src="tabs/todo.js?v=926"></script>
+<script src="tabs/availability.js?v=926"></script>
+<script src="tabs/travel.js?v=926"></script>
+<script src="tabs/tripsummary.js?v=926"></script>
+<script src="tabs/triphistory.js?v=926"></script>
+<script src="tabs/skips.js?v=926"></script>
+<script src="tabs/student.js?v=926"></script>
+<script src="tabs/ctrl.js?v=926"></script>
+<script src="tabs/gbusiness.js?v=926"></script>
+<script src="tabs/dropbox.js?v=926"></script>
+<script src="tabs/import.js?v=926"></script>
+<script src="tabs/today.js?v=926"></script>
+<script src="tabs/trial.js?v=926"></script>
+<script src="tabs/ending.js?v=926"></script>
+<script src="tabs/reviews.js?v=926"></script>
+<script src="tabs/financial2.js?v=926"></script>
+<script src="tabs/sheets.js?v=926"></script>
+<script src="tabs/studentline.js?v=926"></script>
+<script src="tabs/calendar.js?v=926"></script>
+<script src="tabs/fixedcal.js?v=926"></script>
+<script src="tabs/help.js?v=926"></script>
+<script src="tabs/holidays.js?v=926"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -909,6 +817,7 @@
     if (tab === "import") { closeLessonAudit(); initImportTab(); }
     if (tab === "today") initTodayTab();
     if (tab === "helpdata") initHelpTab(tab);
+    if (tab === "holidays") initHolidaysTab();
     if (tab === "payments") { closePayAudit(); loadIncomingPayments(); }
     if (tab === "travel") initTravelTab();
     if (tab === "tripsummary") initTripSummaryTab();

@@ -1602,47 +1602,15 @@ a:focus-visible,
 @keyframes msSpin { to { transform: rotate(360deg); } }
 
 /* ─── HOLIDAYS ALERTS ─────────────────────────────────────────────── */
-.hol-note { color: var(--muted); font-size: 11px; line-height: 1.6; margin-bottom: 16px; }
-.hol-watch {
-  background: rgba(232,70,58,0.06);
-  border: 1px solid rgba(232,70,58,0.28);
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 20px;
-}
-.hol-watch-title {
-  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
-  color: var(--accent); margin-bottom: 10px;
-}
-.hol-watch-item {
-  display: flex; align-items: baseline; gap: 8px;
-  font-size: 12px; color: var(--text); padding: 3px 0;
-}
-.hol-watch-item .hol-when { color: var(--muted); font-size: 10px; font-family: "DM Mono", monospace; }
-
-.hol-table { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 18px; }
-.hol-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; border-bottom: 1px solid var(--border);
-}
-.hol-row:last-child { border-bottom: none; }
-.hol-row.high { background: rgba(232,70,58,0.05); }
-.hol-main { flex: 1; min-width: 0; }
-.hol-name { font-size: 13px; color: var(--text); font-weight: 500; }
-.hol-when2 { font-size: 10px; color: var(--muted); font-family: "DM Mono", monospace; margin-top: 2px; }
-.hol-badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.hol-lw {
-  font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase;
-  padding: 2px 6px; border-radius: 4px; white-space: nowrap;
-  border: 1px solid var(--border); color: var(--muted);
-}
-.hol-lw.yes { color: var(--green); border-color: rgba(46,204,113,0.35); background: rgba(46,204,113,0.06); }
-.hol-impact {
-  font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase;
-  padding: 2px 7px; border-radius: 4px; white-space: nowrap; font-weight: 600;
-}
-.hol-impact.vhigh { color: var(--accent);  background: rgba(232,70,58,0.12); }
-.hol-impact.mod   { color: var(--accent2); background: rgba(240,165,0,0.12); }
+/* 2026-10-24: in the Dashboard's look (shares the :is(#tab-general …) rules below);
+   wider label column for the holiday names, Availability's calendar size. */
+#tab-holidays.tab-panel > .ld-icon .win-icon { height: 34px; margin-left: 0; }
+#tab-holidays .ld-card .ld-row { grid-template-columns: 260px minmax(0, 1fr); }   /* a step more specific than the shared 170px rule further down */
+.hol-views { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 22px; }   /* By type / Chronological, the lit one is the view shown */
+#tab-holidays .hol-sub { font-family: "Bebas Neue", sans-serif; font-size: 13px; letter-spacing: 1.5px; line-height: 1.2; color: var(--accent); padding: 16px 0 6px; border-bottom: 1px solid rgba(255,255,255,0.04); }   /* a group's heading inside its box (Very high impact, Fall …) */
+#tab-holidays .ld-row:has(+ .hol-sub) { border-bottom: none; }   /* no faint line right above a heading */
+#tab-holidays .hol-note { color: rgba(255,255,255,0.24); }   /* the note after the dot, the labels' dark grey */
+#tab-holidays .hol-chrono .ld-row { grid-template-columns: 160px minmax(0, 1fr); }   /* the left column only holds a date */
 
 /* ─── TOOLTIP ─────────────────────────────────────────────────────────────── */
 /* data-tip instead of title: the native title tooltip is drawn by the browser
@@ -2518,61 +2486,72 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .td-wk-box .td-wk-head { margin: 0 0 10px; }   /* the count → line → list spacing of Today's box (user, 2026-10-24) */
 .td-wk-box .td-wk-day .field-label { margin-bottom: 2px; }
 .td-wk-box .td-wk-rule { margin: 0 0 18px; }
+/* Today's holiday reminder (2026-10-24): the alert box as just text, no title or colour; the button is a .link-btn (today.js). */
+.rpm-dlg.td-hol-dlg .rpm-dlg-title { display: none; }
+.rpm-dlg.td-hol-dlg .rpm-dlg-head { justify-content: flex-end; }
+.rpm-dlg.td-hol-dlg .rpm-dlg-acts { justify-content: center; }   /* the button centred under the text (user 2026-10-24) */
+.rpm-dlg.td-hol-dlg .rpm-dlg-msg { color: rgba(255,255,255,0.5); text-align: center; font-size: 14px; }   /* the Dashboard values' grey; bigger than the alert's 11px (user 2026-10-24) */
+/* The date as a calendar page (user 2026-10-24): the calendar icon's grey line, month in the top band, the day big. */
+.td-hol-dlg .td-hol-one + .td-hol-one { margin-top: 22px; }
+.td-hol-dlg .td-hol-cal { width: 48px; margin: 0 auto 14px; border: 1.5px solid var(--muted); border-radius: 7px; overflow: hidden; text-align: center; }
+.td-hol-dlg .td-hol-mo { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); padding: 3px 0 2px; border-bottom: 1.5px solid var(--muted); }
+.td-hol-dlg .td-hol-dd { font-family: "Bebas Neue", sans-serif; font-size: 24px; line-height: 1; letter-spacing: 1px; color: rgba(255,255,255,0.5); padding: 6px 0 4px; }
+.td-hol-dlg .td-hol-l { margin-top: 4px; font-size: 11px; color: rgba(255,255,255,0.24); white-space: pre; }
 
 /* General tab in the This Week window's look (2026-10-10): the four gold cards
    become flat sections one under the other. Section names red like MON; labels
    in the clock times' dark grey caps; values at Intake brightness in one column
    (the key ones a step brighter); a line between sections, no gold anywhere. */
-:is(#tab-general, #tab-trialanalysis) > .ld-head { margin-bottom: 30px; }
-:is(#tab-general, #tab-trialanalysis) .ld-cards { display: block; margin-bottom: 32px; }
-:is(#tab-general, #tab-trialanalysis) .ld-card { background: none; border: none; border-radius: 0; padding: 0; margin: 0; display: block; }
-:is(#tab-general, #tab-trialanalysis) .ld-card + .ld-card { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
-:is(#tab-general, #tab-trialanalysis) .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; color: var(--accent); margin-bottom: 10px; }
-:is(#tab-general, #tab-trialanalysis) .ld-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); align-items: center; gap: 0; padding: 4px 0; }
-:is(#tab-general, #tab-trialanalysis) .ld-row .ld-l { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.24); }
-:is(#tab-general, #tab-trialanalysis) .ld-row .ld-v { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.5); text-align: left; }
-:is(#tab-general, #tab-trialanalysis) .ld-row.lead .ld-v { color: rgba(255,255,255,0.85); }   /* the numbers that matter: brighter, not amber */
-:is(#tab-general, #tab-trialanalysis) .ld-vsub { color: rgba(255,255,255,0.24); margin: 0 10px 0 0; }
-:is(#tab-general, #tab-trialanalysis) .ld-rule { border: none; margin: 6px 0; }   /* a small gap inside a section, the line is between sections */
-:is(#tab-general, #tab-trialanalysis) .ld-sublabel { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 4px 0 2px; }
-:is(#tab-general, #tab-trialanalysis) .ld-note { margin: 6px 0 0; padding: 0; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.24); }
-:is(#tab-general, #tab-trialanalysis) .ld-row.pick { padding: 3px 0; }
-:is(#tab-general, #tab-trialanalysis) .ld-pick { justify-self: start; }
-:is(#tab-general, #tab-trialanalysis) .ld-foot { justify-content: flex-start; margin: 10px 0 0 170px; padding: 0; }   /* Reset under the values */
-:is(#tab-general, #tab-trialanalysis) #loadRatesCard .ld-row.lead .ld-v { color: rgba(255,255,255,0.5); }
-:is(#tab-general, #tab-trialanalysis) #estimatorTable .ld-row .ld-v { color: rgba(255,255,255,0.24); }   /* the Estimator's two incomes in the monthly prices' dark grey (2026-10-10) */   /* Estimator's Gregorian income and the Weekly/Biweekly rates the same grey as the rows around them (2026-10-10) */
-:is(#tab-general, #tab-trialanalysis) .ld-raise { margin-bottom: 6px; }   /* Last raise row at the top, a small gap before the prices */
-:is(#tab-general, #tab-trialanalysis) .ld-vmo { margin-left: 10px; color: rgba(255,255,255,0.24); }   /* the monthly after the price and a dash, the labels' dark grey */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) > .ld-head { margin-bottom: 30px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-cards { display: block; margin-bottom: 32px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-card { background: none; border: none; border-radius: 0; padding: 0; margin: 0; display: block; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-card + .ld-card { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; color: var(--accent); margin-bottom: 10px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); align-items: center; gap: 0; padding: 4px 0; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-row .ld-l { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.24); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-row .ld-v { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.5); text-align: left; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-row.lead .ld-v { color: rgba(255,255,255,0.85); }   /* the numbers that matter: brighter, not amber */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-vsub { color: rgba(255,255,255,0.24); margin: 0 10px 0 0; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-rule { border: none; margin: 6px 0; }   /* a small gap inside a section, the line is between sections */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-sublabel { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 4px 0 2px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-note { margin: 6px 0 0; padding: 0; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.24); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-row.pick { padding: 3px 0; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-pick { justify-self: start; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-foot { justify-content: flex-start; margin: 10px 0 0 170px; padding: 0; }   /* Reset under the values */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) #loadRatesCard .ld-row.lead .ld-v { color: rgba(255,255,255,0.5); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) #estimatorTable .ld-row .ld-v { color: rgba(255,255,255,0.24); }   /* the Estimator's two incomes in the monthly prices' dark grey (2026-10-10) */   /* Estimator's Gregorian income and the Weekly/Biweekly rates the same grey as the rows around them (2026-10-10) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-raise { margin-bottom: 6px; }   /* Last raise row at the top, a small gap before the prices */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-vmo { margin-left: 10px; color: rgba(255,255,255,0.24); }   /* the monthly after the price and a dash, the labels' dark grey */
 /* 2026-10-10: Raised on date, Weekly/Biweekly counts and Load's Gregorian income in the dark grey; Load's Total income bright. */
-:is(#tab-general, #tab-trialanalysis) .ld-raise .ld-v, :is(#tab-general, #tab-trialanalysis) #loadWeekly, :is(#tab-general, #tab-trialanalysis) #loadBiweekly, :is(#tab-general, #tab-trialanalysis) #loadGregorian { color: rgba(255,255,255,0.24); }
-:is(#tab-general, #tab-trialanalysis) #loadIncome { color: rgba(255,255,255,0.85); }
-:is(#tab-general, #tab-trialanalysis) > .ld-head { margin-bottom: 10px; }
-:is(#tab-general, #tab-trialanalysis) > .ld-icon { margin: 0 0 26px; }   /* the stats icon under the title, window style */
-:is(#tab-general, #tab-trialanalysis) .ld-rule.ld-gap { margin: 18px 0; }   /* 2026 inquiries: the two rate groups further apart */
-:is(#tab-general, #tab-trialanalysis) > .ld-icon .win-icon { height: 24px; margin-left: 2px; }   /* om-110 (user, 2026-10-23): smaller (was 34px), nudged in so its axis sits under the title's D */
-:is(#tab-general, #tab-trialanalysis) .ld-card + .ld-card { margin-top: 24px; padding-top: 24px; }   /* the same room above and below each line between sections (2026-10-10) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-raise .ld-v, :is(#tab-general, #tab-trialanalysis, #tab-holidays) #loadWeekly, :is(#tab-general, #tab-trialanalysis, #tab-holidays) #loadBiweekly, :is(#tab-general, #tab-trialanalysis, #tab-holidays) #loadGregorian { color: rgba(255,255,255,0.24); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) #loadIncome { color: rgba(255,255,255,0.85); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) > .ld-head { margin-bottom: 10px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) > .ld-icon { margin: 0 0 26px; }   /* the stats icon under the title, window style */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-rule.ld-gap { margin: 18px 0; }   /* 2026 inquiries: the two rate groups further apart */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) > .ld-icon .win-icon { height: 24px; margin-left: 2px; }   /* om-110 (user, 2026-10-23): smaller (was 34px), nudged in so its axis sits under the title's D */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-card + .ld-card { margin-top: 24px; padding-top: 24px; }   /* the same room above and below each line between sections (2026-10-10) */
 /* Skips card group look (user 2026-10-23): small caps heading with a line under it,
    faint lines between rows, no line between sections. */
-:is(#tab-general, #tab-trialanalysis) .ld-card + .ld-card { border-top: none; padding-top: 0; margin-top: 28px; }
-:is(#tab-general, #tab-trialanalysis) .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 0; color: rgba(255,255,255,.72); }   /* Folder audit's Bebas Neue and grey (user, 2026-10-23; was DM Mono 10px in Skips' amber) */
-:is(#tab-general, #tab-trialanalysis) .ld-row { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-:is(#tab-general, #tab-trialanalysis) .ld-row.pick { padding: 6px 0; }
-:is(#tab-general, #tab-trialanalysis) .ld-rule { display: none; }   /* the row lines already split them */
-:is(#tab-general, #tab-trialanalysis) #loadTable .ld-row .ld-v { color: rgba(255,255,255,0.24); }   /* Load's numbers all one grey and size; the headline at the top carries them (user 2026-10-23; was big Bebas, then amber) */
-:is(#tab-general, #tab-trialanalysis) .ld-title-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-:is(#tab-general, #tab-trialanalysis) .ld-title-sum .ld-sum { font-size: 12px; letter-spacing: .5px; }   /* 24 STUDENTS · 17.5 NORMALIZED · $6,940 on Load's title line, right, the Skips tab's Total skips line (user 2026-10-23) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-card + .ld-card { border-top: none; padding-top: 0; margin-top: 28px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 0; color: rgba(255,255,255,.72); }   /* Folder audit's Bebas Neue and grey (user, 2026-10-23; was DM Mono 10px in Skips' amber) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-row { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-row.pick { padding: 6px 0; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-rule { display: none; }   /* the row lines already split them */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) #loadTable .ld-row .ld-v { color: rgba(255,255,255,0.24); }   /* Load's numbers all one grey and size; the headline at the top carries them (user 2026-10-23; was big Bebas, then amber) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-title-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-title-sum .ld-sum { font-size: 12px; letter-spacing: .5px; }   /* 24 STUDENTS · 17.5 NORMALIZED · $6,940 on Load's title line, right, the Skips tab's Total skips line (user 2026-10-23) */
 /* The Estimator's pickers a step smaller (2026-10-10). */
-:is(#tab-general, #tab-trialanalysis) .ld-pick { padding: 1px; border-radius: 7px; }
-:is(#tab-general, #tab-trialanalysis) .ld-pb { width: 18px; font-size: 11px; }
-:is(#tab-general, #tab-trialanalysis) .ld-pv { min-width: 34px; font-size: 10px; padding: 2px 5px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-pick { padding: 1px; border-radius: 7px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-pb { width: 18px; font-size: 11px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-pv { min-width: 34px; font-size: 10px; padding: 2px 5px; }
 /* Dashboard + Trial Analysis sections boxed like Help's Data tracked windows (user 2026-10-23):
    2px rounded border, faint lines between rows, none under the last. */
-:is(#tab-general, #tab-trialanalysis) .ld-card { border: 2px solid var(--border); border-radius: var(--radius-card); padding: 4px 14px; }
-:is(#tab-general, #tab-trialanalysis) .ld-card + .ld-card { border-top: 2px solid var(--border); padding-top: 4px; margin-top: 22px; }
-:is(#tab-general, #tab-trialanalysis) .ld-card, :is(#tab-general, #tab-trialanalysis) .ld-card + .ld-card { padding-top: 0; overflow: hidden; }
-:is(#tab-general, #tab-trialanalysis) .ld-title { margin: 0 -14px; padding: 12px 14px 10px; background: rgba(255,255,255,0.035); border-bottom: 1px solid var(--border); }   /* a washed header band across the box top */
-:is(#tab-general, #tab-trialanalysis) .ld-card > .ld-row:last-child, :is(#tab-general, #tab-trialanalysis) .ld-card > div > .ld-row:last-child, :is(#tab-general, #tab-trialanalysis) .ld-card > .ld-row:nth-last-child(2):has(+ .ld-foot) { border-bottom: 0; }
-:is(#tab-general, #tab-trialanalysis) .ld-foot { margin-bottom: 12px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-card { border: 2px solid var(--border); border-radius: var(--radius-card); padding: 4px 14px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-card + .ld-card { border-top: 2px solid var(--border); padding-top: 4px; margin-top: 22px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-card, :is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-card + .ld-card { padding-top: 0; overflow: hidden; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-title { margin: 0 -14px; padding: 12px 14px 10px; background: rgba(255,255,255,0.035); border-bottom: 1px solid var(--border); }   /* a washed header band across the box top */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-card > .ld-row:last-child, :is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-card > div > .ld-row:last-child, :is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-card > .ld-row:nth-last-child(2):has(+ .ld-foot) { border-bottom: 0; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays) .ld-foot { margin-bottom: 12px; }
 #tab-trialanalysis > .ld-icon .win-icon { height: 34px; margin-left: -3px; }   /* om-109 bars: bigger, its axis pulled flush with the title (user 2026-10-23) */
 
 /* The Log lesson window in Today's look (2026-10-11; from Lessons too since):
