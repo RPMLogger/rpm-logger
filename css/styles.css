@@ -2085,7 +2085,6 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #imLogDock .ll-wrap + .ll-add, #imLogDock .ll-add { margin-bottom: 0; }
 .td-student.im-do-card { border-left-color: var(--blue); }   /* the doing card's edge in blue (2026-10-07; was red) */
 .im-sec-head .field-label { margin: 0; }
-.im-cards-head { margin: 0 0 10px; }   /* "24 students" over the cards, at the cards' edge */
 .im-rs-btn { display: flex; width: 100%; justify-content: center; padding: 10px; }   /* full-width Reschedule in its Schedule box (2026-10-06) */
 .im-sched-box { display: flex; gap: 8px; }   /* Reschedule + Not needed side by side (2026-10-06) */
 .im-sched-box .im-rs-btn { flex: 1; width: auto; }   /* full-width Reschedule between Log lesson and Checklist (2026-10-06) */
@@ -3261,3 +3260,7 @@ th.f2-blk { background:none; }
 #travelBody .tv-buf-key b { font-size:10px; }   /* key words bigger (user 2026-10-23; were 8px) */
 #travelBody .tv-place-box .tv-place { color:var(--text); }   /* the typed place white like the dates (user 2026-10-23) */
 #travelBody .tv-rv-key { font-size:10px; }   /* Lesson / Skip / Resume as big as the plan page's key (user 2026-10-23; were 8px) */
+/* Students: om-112 icon under the red title, like Today / Dashboard (user 2026-10-23). */
+#importBody .settings-title:has(+ .st-page-icon) { margin-bottom:10px; }
+#importBody .st-page-icon { margin:0 0 26px; color:var(--muted); line-height:0; }
+#importBody .st-page-icon .win-icon { height:24px; width:auto; }

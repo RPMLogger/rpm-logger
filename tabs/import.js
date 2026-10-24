@@ -58,12 +58,13 @@ function _imRenderCards(noRead) {
   });
   body.innerHTML =
     '<div class="db-section">' +
-      '<div class="settings-title"><span>Students</span></div>' +   // was "Import", then "Lesson Log" (2026-10-09), then "Lessons" (renamed Students 2026-10-13)
+      // Audit lessons red on the title line, right (user, 2026-10-23; was amber, level with "24 students").
+      '<div class="settings-title"><span>Students<span class="win-sub"> · ' + names.length + ' students</span></span>' +   // the count grey beside the title (user, 2026-10-23; was its own line over the cards)   // was "Import", then "Lesson Log" (2026-10-09), then "Lessons" (renamed Students 2026-10-13)
+        '<button class="link-btn red" onclick="openLessonAudit()" data-tip="Opens a page.\nLessons missing a log, HW, materials,\nschedule or email." data-tip-wrap>' + DETAILS_ICON + '<span>Audit lessons</span></button></div>' +
+      '<div class="st-page-icon">' + STUDENTS_ICON.replace('class="students-icon"', 'class="win-icon"') + '</div>' +   // om-112 under the title, like Today / Dashboard (user, 2026-10-23)
       // The student page's box-title style (2026-10-06): one heading look on this tab.
       // Audit lessons (2026-10-14): red, right, level with "24 students", like Audit
       // payments; opens the old Logs page (Unlogged Lessons + Lesson Checklist) here.
-      '<div class="db-cx-head im-sec-head im-cards-head"><label class="field-label db-cx-t">' + names.length + ' students</label>' +
-        '<button class="link-btn amber" onclick="openLessonAudit()" data-tip="Opens a page.\nLessons missing a log, HW, materials,\nschedule or email." data-tip-wrap>' + DETAILS_ICON + '<span>Audit lessons</span></button></div>' +
       names.map(function (n) {
         var miss = missing(n), o = open(n), past = _ckPast(n);
         // The oldest open lesson's steps (user, 2026-10-17; was "1 lesson open"):
