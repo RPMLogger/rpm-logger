@@ -159,17 +159,21 @@ body::before {
 }
 
 /* ─── TABS: SIDEBAR ──────────────────────────────────────────────────────── */
-/* The tabs are a grouped list down the left (user, 2026-10-24; was a 6-wide grid).
+/* The tabs are a grouped list down the left (user, 2026-10-24; was a 6-wide grid),
+   hidden off the edge until ☰ top-left slides it in over the dimmed page; picking a
+   tab, the dimmed page or Esc closes it. ☰ carries a dot while any tab has one.
    The dropdowns stay open as sections, their toggle the heading; loose tabs get a
    heading drawn above the first one (.sb-h, data-h). Group order is set here with
    `order`, so the buttons' order in index.html does not matter. */
-body { padding-left: 216px; }
 .tabs {
-  position: fixed; left: 0; top: 0; bottom: 0; width: 200px; z-index: 40;
+  position: fixed; left: 0; top: 0; bottom: 0; width: 240px; z-index: 60;
   display: flex; flex-direction: column; gap: 1px;
   padding: 24px 12px 32px; overflow-y: auto;
   background: var(--surface); border-right: 1px solid var(--border);
+  transform: translateX(-100%); transition: transform 0.22s ease;
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
 }
+body.sb-open .tabs { transform: none; }
 .tab-btn {
   display: flex; align-items: center; flex: none; text-align: left;
   padding: 7px 10px; border: none; border-radius: 4px;
@@ -204,7 +208,7 @@ body { padding-left: 216px; }
 .nav-drop.sb-soon .nav-toggle { pointer-events: auto; padding: 7px 10px; }
 .nav-drop.sb-soon .nav-toggle:hover:where(:not(:disabled)) { color: var(--text); }
 .nav-drop.sb-soon .nav-menu {
-  display: none; position: fixed; left: 200px; bottom: 32px; z-index: 50; min-width: 170px; padding: 4px;
+  display: none; position: fixed; left: 240px; bottom: 32px; z-index: 50; min-width: 170px; padding: 4px;
   background: var(--surface); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,.45);
 }
 .nav-drop.sb-soon .nav-menu.open { display: flex; }
@@ -231,34 +235,26 @@ body { padding-left: 216px; }
 .tabs > [data-tab=sheets]      { order: 72; }
 .tabs > .sb-soon               { order: 99; }
 
-/* Phone (≤ 700px): the sidebar hides off the left edge; ☰ top-left slides it in
-   over the dimmed page, and picking a tab closes it (switchTab). ☰ carries a dot
-   while any tab has one. */
-.sb-burger, .sb-scrim { display: none; }
+/* ☰ and the dimmed page behind the open drawer */
+.sb-burger {
+  display: flex; align-items: center; justify-content: center;
+  position: fixed; left: 16px; top: 16px; z-index: 55; width: 38px; height: 38px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); font-size: 16px; cursor: pointer; transition: border-color 0.2s;
+}
+.sb-burger:hover { border-color: var(--muted); }
+.sb-burger.has-dot::after {
+  content: ""; position: absolute; top: 6px; right: 6px; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--accent);
+}
+.sb-scrim {
+  position: fixed; inset: 0; z-index: 59; background: rgba(0,0,0,0.5);
+  opacity: 0; pointer-events: none; transition: opacity 0.22s;
+}
+body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 @media (max-width: 700px) {
-  body { padding-left: 16px; }
-  .tabs {
-    width: 240px; z-index: 60; transform: translateX(-100%); transition: transform 0.22s ease;
-    box-shadow: 0 0 40px rgba(0,0,0,0.6);
-  }
-  body.sb-open .tabs { transform: none; }
   .tabs .tab-btn:not(.nav-toggle) { padding: 10px 12px; font-size: 11px; }   /* finger-sized rows */
-  .nav-drop.sb-soon .nav-menu { left: 240px; }
-  .sb-burger {
-    display: flex; align-items: center; justify-content: center;
-    position: fixed; left: 12px; top: 14px; z-index: 55; width: 38px; height: 38px;
-    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
-    color: var(--text); font-size: 16px; cursor: pointer;
-  }
-  .sb-burger.has-dot::after {
-    content: ""; position: absolute; top: 6px; right: 6px; width: 6px; height: 6px;
-    border-radius: 50%; background: var(--accent);
-  }
-  .sb-scrim {
-    display: block; position: fixed; inset: 0; z-index: 59; background: rgba(0,0,0,0.5);
-    opacity: 0; pointer-events: none; transition: opacity 0.22s;
-  }
-  body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
+  .sb-burger { left: 12px; top: 14px; }
 }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
