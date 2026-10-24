@@ -613,32 +613,53 @@ function loadPaymentHistory() {
         return;
       }
 
+      // 2026-10-24: one Dashboard-look box per month, newest first, month
+      // total in its header; "Auto-confirmed" notes hidden (it's most rows).
+      var rows = data.rows.map(function(row, i) {
+        var t = new Date(row.date).getTime();
+        return { row: row, t: isNaN(t) ? 0 : t, i: i };
+      });
+      rows.sort(function(a, b) { return (b.t - a.t) || (a.i - b.i); });
+
       var groups = {};
       var order  = [];
-      data.rows.forEach(function(row) {
-        var monthKey = extractMonthKey(row.date);
+      rows.forEach(function(r) {
+        var monthKey = extractMonthKey(r.row.date);
         if (!groups[monthKey]) { groups[monthKey] = []; order.push(monthKey); }
-        groups[monthKey].push(row);
+        groups[monthKey].push(r.row);
       });
 
       order.forEach(function(month) {
-        var header = document.createElement("div");
-        header.className = "pay-history-month";
-        header.textContent = month.toUpperCase();
-        list.appendChild(header);
-
+        var total = groups[month].reduce(function(s, row) { return s + (parseFloat(String(row.amount).replace(/[^0-9.]/g, "")) || 0); }, 0);
+        // Month + total as the box's header band, like the Dashboard's boxes.
+        var html = "<div class='f2-wrap'><div class='pay-history-month'><span>" + inqEsc(month) + "</span>" +
+          "<span class='pay-history-total'>" + payHistMoney(total) + "</span></div>" +
+          "<table class='f2-table pay-history-table'><tbody>";
         groups[month].forEach(function(row) {
-          var item = document.createElement("div");
-          item.className = "pay-history-row";
-          var parts = [shortDate(row.date), row.name, row.amount, row.method].filter(Boolean);
-          if (row.notes) parts.push(row.notes);
-          item.textContent = parts.join(" · ");
-          list.appendChild(item);
+          // A note pops up on hover over the name; a dot marks the names that have one.
+          var hasNote = row.notes && row.notes !== "Auto-confirmed";
+          var name = hasNote
+            ? "<span class='pay-history-noted' data-tip='" + inqEsc(row.notes) + "'>" + inqEsc(row.name || "") + "<span class='pay-history-dot'></span></span>"
+            : inqEsc(row.name || "");
+          html += "<tr class='f2-row'>" +
+            "<td class='ph-date'>" + inqEsc(shortDate(row.date)) + "</td>" +
+            "<td class='ph-name'>" + name + "</td>" +
+            "<td class='ph-method'>" + inqEsc(row.method || "") + "</td>" +
+            "<td class='ph-amt'>" + payHistMoney(row.amount) + "</td></tr>";
         });
+        html += "</tbody></table></div>";
+        list.insertAdjacentHTML("beforeend", html);
       });
     }).catch(function() {
       list.innerHTML = "<div style='color:var(--muted);font-size:11px'>Could not load history</div>";
     });
+}
+
+// "$1,240" — whole dollars unless there are cents.
+function payHistMoney(v) {
+  var n = parseFloat(String(v == null ? "" : v).replace(/[^0-9.]/g, ""));
+  if (isNaN(n)) return inqEsc(v);
+  return "$" + n.toLocaleString("en-US", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
 }
 
 function extractMonthKey(dateStr) {

@@ -1253,15 +1253,33 @@ input[type="checkbox"]:checked {
 
 /* ─── PAYMENT HISTORY ─────────────────────────────────────────────────────── */
 .pay-history-modal { max-width: 520px; }
-.pay-history-modal .pay-history-month { color: var(--accent); }   /* month titles red here; the Week tab keeps amber */
 .pay-history-month {
   font-family: "Bebas Neue", sans-serif; font-size: 13px;
   letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent2); padding: 10px 0 4px;
 }
-.pay-history-row {
-  font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted);
-  padding: 5px 0; border-bottom: 1px solid var(--border); line-height: 1.4;
-}
+/* 2026-10-24: each month a box in the Dashboard Estimator's look (user): 2px --border frame, no fill,
+   washed header band with the month left and its total right, rows inset 14px with faint lines,
+   dates + methods in the label grey caps, names + amounts in the value grey. */
+.pay-history-modal .f2-wrap { border-color: var(--border); background: transparent; }
+.pay-history-modal .f2-wrap + .f2-wrap { margin-top: 22px; }
+.pay-history-modal .pay-history-month { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 14px 10px; background: rgba(255,255,255,0.035); border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.2; color: rgba(255,255,255,0.72); }
+.pay-history-modal .pay-history-table { width: calc(100% - 28px); margin: 0 14px; font-size: 10.5px; }
+.pay-history-modal .pay-history-table td { padding: 8px 10px; border-left: none !important; border-top-color: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5); }   /* row lines only, no column lines */
+.pay-history-modal .pay-history-table td:first-child { padding-left: 0; }
+.pay-history-modal .pay-history-table td:last-child { padding-right: 0; }
+.pay-history-table tr:first-child td { border-top: none; }
+.pay-history-modal .pay-history-table td.ph-date, .pay-history-modal .pay-history-table td.ph-name, .pay-history-modal .pay-history-table td.ph-method { text-align: left !important; }   /* beats Financial's centered cells */
+.pay-history-modal .pay-history-table td.ph-amt { text-align: right !important; width: 50px; }
+.pay-history-modal .pay-history-table td.ph-date, .pay-history-modal .pay-history-table td.ph-method { width: 50px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.24); }
+.pay-history-table td.ph-name { white-space: normal; }
+/* Notes pop up on hover over the name (user 2026-10-24; were tags). The box lets the tip out, so its
+   header band rounds its own top corners; the tip opens rightward and sooner than button tips. */
+.pay-history-modal .f2-wrap { overflow: visible; }
+.pay-history-modal .pay-history-month { border-radius: calc(var(--radius-card) - 2px) calc(var(--radius-card) - 2px) 0 0; }
+.pay-history-noted { cursor: default; }
+.pay-history-noted[data-tip]::before { left: 0; right: auto; transform: none; }
+.pay-history-noted[data-tip]:hover::before { transition-delay: .25s; }
+.pay-history-dot { display: inline-block; width: 4px; height: 4px; margin-left: 6px; border-radius: 50%; background: rgba(255,255,255,0.24); vertical-align: middle; }
 
 /* ─── WEEK TAB — NEW HEADER & DAY LIST ───────────────────────────────────── */
 .wtab-header-wrap  { margin-bottom: 18px; }
