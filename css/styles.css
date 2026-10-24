@@ -42,11 +42,11 @@ body::before {
     linear-gradient(90deg, rgba(232,70,58,0.03) 1px, transparent 1px);
   background-size: 40px 40px; pointer-events: none;
 }
-/* Two faint lines down the page, a little outside the content on each side (user, 2026-10-24) */
+/* The page column, a little wider than the content, with the sides outside it a
+   shade darker (user, 2026-10-24; the lines that edged it were dropped) */
 body::after {
   content: ""; position: fixed; top: 0; bottom: 0; left: 50%; z-index: 0;   /* under the page, so windows and menus are never shaded */
   width: 648px; transform: translateX(-50%);
-  border-left: 1px solid var(--border); border-right: 1px solid var(--border);
   box-shadow: 0 0 0 100vw rgba(0,0,0,0.28);   /* the sides outside the lines a shade darker */
   pointer-events: none;
 }
@@ -61,17 +61,12 @@ body:has(#tab-calendar.active)::after, body:has(#tab-fixedcal.active)::after { d
   display: flex; align-items: center; justify-content: center;
   gap: 14px; margin: 40px 0 70px; position: relative;   /* logo lower, room under it where the tab menu was (user, 2026-10-24) */
 }
-/* a line under the logo, from side line to side line (user, 2026-10-24) */
-.header::after {
-  content: ""; position: absolute; left: -24px; right: -24px; bottom: -36px;
-  border-top: 1px solid var(--border);
-}
-/* the logo's band, top of the screen down to that line, a shade lighter */
+/* the logo's band, from the top of the screen, a shade lighter (user, 2026-10-24) */
 .header::before {
   content: ""; position: absolute; left: -24px; right: -24px; top: -64px; bottom: -36px; z-index: -1;
   background: rgba(255,255,255,0.03);
 }
-@media (max-width: 700px) { .header::after, .header::before { left: 0; right: 0; } }
+@media (max-width: 700px) { .header::before { left: 0; right: 0; } }
 .header img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
 .header-title {
   font-family: "Bebas Neue", sans-serif; font-size: 28px;
