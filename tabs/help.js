@@ -61,7 +61,7 @@ var HELP_DATA = [
 ];
 
 function _helpDataHtml() {
-  return '<div class="settings-title"><span>Data tracked</span></div>' +
+  return '<div class="settings-title"><span>Tracked data</span></div>' +
          '<div class="help-icon">' + HELP_ICON + '</div>' +   // under the title, like the Dashboard's
          '<div class="help-lead">Updated ' + HELP_UPDATED + '</div>' +
          '<div class="help-btns">' +
@@ -75,5 +75,5 @@ function _helpOpen(id) {
   var body = p.boxes.map(function(box) {
     return '<div class="help-box">' + box.map(function(i) { return '<div class="help-i">' + i + '</div>'; }).join('') + '</div>';
   }).join('');
-  _stWin('helpWin', 'Data tracked', p.h, HELP_ICON, body);
+  _stWin('helpWin', 'Tracked data', p.h, HELP_ICON, body);
 }
