@@ -661,18 +661,12 @@ function _travelRenderReview() {
   // Location is set on the plan screen now (Set vacation place, required); executeTravel sends _travelState.location.
 
   var actions = document.createElement('div');
-  actions.style.cssText = 'display:flex;align-items:center;gap:16px';   // Go live left, the TEXTS N STUDENTS line beside it (user, 2026-10-24; was Go live under it, one row with Go live right before that)   // even with the line → divider gap (user, 2026-10-21; was 14px)   // the steps, then Go live, then what it does (user, 2026-10-20)
+  actions.style.cssText = 'display:flex;align-items:center;gap:16px';   // Go live left (user, 2026-10-24)   // even with the line → divider gap (user, 2026-10-21; was 14px)   // the steps, then Go live, then what it does (user, 2026-10-20)
 
   // No ← Back here: the one at the top is enough; only Go live (user, 2026-10-20).
 
   var go = document.createElement('button');
-  // The button says only Go live; what it does is the line beside it (user, 2026-10-20).
-  var what = document.createElement('span');
-  what.style.cssText = 'font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px';   // left of the button
-  what.textContent = _travelState.testMode
-    ? 'Texts YOU ×' + data.totalStudents + ' (test) · deletes ' + _travelPlural(data.totalLessons, 'lesson') + ' from calendar'
-    : 'Texts ' + _travelPlural(data.totalStudents, 'student') + ' · deletes ' + _travelPlural(data.totalLessons, 'lesson') + ' from calendar';   // texts first (user, 2026-10-20); 1 student / 1 lesson (2026-10-21)
-  actions.appendChild(what);
+  // No TEXTS N STUDENTS · DELETES N LESSONS line: Go live alone, its popup says what it does (user, 2026-10-24).
   // The portal's button (link-btn, red like Trial's danger ones) with the warning sign (om-101) (user, 2026-10-20).
   go.className = 'link-btn red opens-window';   // ▸: a popup asks first (portal rule, 2026-10-21)
   go.style.cssText = 'font-size:11px;padding:8px 16px;gap:8px;flex:none;order:-1';   // order: before the line (user, 2026-10-24)   // a touch smaller, the same as Activate in its popup (user, 2026-10-21; was 12px, 9px 20px)
