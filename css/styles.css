@@ -835,27 +835,46 @@ body::before {
    carry a ✓ character. Nothing else uses it: the confirm window had a tick
    column and lost it, because the step list behind that window already says
    what is done. */
-/* Every step carries the box; only a done one has a check struck through it.
+/* Every step carries a mark; only a done one has the check in it.
    A tick that appears out of nowhere makes the done steps the only ones with
-   anything in that column, so the list reads as "what I did". An empty box on
+   anything in that column, so the list reads as "what I did". An empty mark on
    the pending ones turns it back into a checklist: same slot, same shape, and
-   the eye goes to the boxes still waiting to be filled.
-   The empty box is the tick icon's own first path - same corner gap, same
-   weight - so the two states cannot drift apart. */
+   the eye goes to the marks still waiting to be filled.
+   The marks are the Auto-confirmed circled check (om-63) and a full circle the
+   same size and weight (user, 2026-10-24): one pair for every tick and pick in
+   the portal - checklist steps, Student/Teacher, Billed radios, checkboxes. */
+:root {
+  --ck-ring: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907.5 885"%3E%3Ccircle cx="441.3" cy="442" r="395" fill="none" stroke="black" stroke-width="92"/%3E%3C/svg%3E');
+  --ck-on: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907.5 885"%3E%3Cpath d="M 460.453125 450.824219 C 502.453125 365.488281 550.554688 287.421875 612.960938 218.957031 C 660.160156 167.1875 714.566406 124.777344 779.445312 97.007812 C 823.902344 77.96875 872.242188 71.113281 906.910156 78.1875 C 906.585938 78.980469 906.457031 80.277344 905.917969 80.496094 C 820.941406 114.855469 757.308594 175.648438 704.996094 248.210938 C 665.378906 303.15625 630.207031 361.371094 593.910156 418.667969 C 541.960938 500.644531 502.976562 589.121094 465.292969 678.214844 C 464.570312 679.910156 463.503906 681.441406 461.988281 684.097656 C 440.84375 652.191406 420.292969 620.738281 399.292969 589.628906 C 364.425781 538 329.085938 486.699219 294.292969 435.035156 C 273.5625 404.265625 252.941406 373.390625 233.441406 341.828125 C 227.5 332.210938 223.019531 320.335938 222.261719 309.203125 C 221.488281 297.851562 223.183594 284.335938 228.945312 274.917969 C 242.289062 253.117188 264.316406 240.902344 288.386719 233.808594 C 302.671875 229.605469 315.742188 236.28125 324.464844 247.199219 C 349.382812 278.34375 374.410156 309.546875 397.089844 342.316406 C 416.320312 370.105469 432.425781 400.0625 449.707031 429.1875 C 453.390625 435.429688 456.207031 442.214844 460.453125 450.824219 Z M 460.453125 450.824219"/%3E%3Cpath d="M 828.363281 229.839844 L 759.671875 298.484375 C 779.5 342.261719 790.515625 390.859375 790.515625 442.035156 C 790.515625 634.777344 634.195312 791.015625 441.3125 791.015625 C 248.445312 791.015625 92.109375 634.796875 92.109375 442.035156 C 92.109375 249.292969 248.425781 93.054688 441.3125 93.054688 C 489.523438 93.054688 535.425781 102.816406 577.191406 120.464844 L 646.382812 51.316406 C 585.117188 19.125 515.34375 0.933594 441.3125 0.933594 C 197.542969 0.933594 -0.0703125 198.421875 -0.0703125 442.035156 C -0.0703125 685.648438 197.542969 883.136719 441.3125 883.136719 C 685.082031 883.136719 882.695312 685.648438 882.695312 442.035156 C 882.695312 365.125 862.996094 292.78125 828.363281 229.839844 Z M 828.363281 229.839844"/%3E%3C/svg%3E');
+}
 .tr-step-b::after, .db-box {
-  content: ""; display: inline-block; width: 13px; height: 11px; flex: none;
-  background: currentColor; vertical-align: -1px; margin-left: auto;
+  content: ""; display: inline-block; width: 13px; height: 13px; flex: none;
+  background: currentColor; vertical-align: -2px; margin-left: auto;
   opacity: 0.45;
-  -webkit-mask: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907 790"%3E%3Cpath d="M 59.664062 788.589844 C 27.722656 788.589844 1.863281 762.746094 1.863281 730.855469 L 1.863281 170.082031 C 1.863281 138.191406 27.722656 112.320312 59.664062 112.320312 L 533.144531 112.320312 C 555.046875 112.320312 566.011719 138.773438 550.558594 154.242188 L 549.976562 154.824219 C 545.382812 159.441406 539.117188 162.042969 532.613281 162.042969 L 80.769531 162.042969 C 64.652344 162.042969 51.589844 175.070312 51.589844 191.175781 L 51.589844 709.738281 C 51.589844 725.839844 64.652344 738.894531 80.769531 738.894531 L 599.675781 738.894531 C 615.789062 738.894531 628.828125 725.839844 628.828125 709.738281 L 628.828125 445.933594 C 628.828125 440.546875 630.605469 435.292969 633.84375 431.019531 C 634.03125 430.808594 634.1875 430.597656 634.347656 430.359375 C 648.605469 411.574219 678.578125 421.707031 678.578125 445.269531 L 678.578125 730.855469 C 678.578125 762.746094 652.695312 788.589844 620.78125 788.589844 L 59.664062 788.589844 "/%3E%3C/svg%3E') center / contain no-repeat;
-          mask: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907 790"%3E%3Cpath d="M 59.664062 788.589844 C 27.722656 788.589844 1.863281 762.746094 1.863281 730.855469 L 1.863281 170.082031 C 1.863281 138.191406 27.722656 112.320312 59.664062 112.320312 L 533.144531 112.320312 C 555.046875 112.320312 566.011719 138.773438 550.558594 154.242188 L 549.976562 154.824219 C 545.382812 159.441406 539.117188 162.042969 532.613281 162.042969 L 80.769531 162.042969 C 64.652344 162.042969 51.589844 175.070312 51.589844 191.175781 L 51.589844 709.738281 C 51.589844 725.839844 64.652344 738.894531 80.769531 738.894531 L 599.675781 738.894531 C 615.789062 738.894531 628.828125 725.839844 628.828125 709.738281 L 628.828125 445.933594 C 628.828125 440.546875 630.605469 435.292969 633.84375 431.019531 C 634.03125 430.808594 634.1875 430.597656 634.347656 430.359375 C 648.605469 411.574219 678.578125 421.707031 678.578125 445.269531 L 678.578125 730.855469 C 678.578125 762.746094 652.695312 788.589844 620.78125 788.589844 L 59.664062 788.589844 "/%3E%3C/svg%3E') center / contain no-repeat;
+  -webkit-mask: var(--ck-ring) center / contain no-repeat;
+          mask: var(--ck-ring) center / contain no-repeat;
 }
 .tr-step-b:hover:where(:not(:disabled))::after { opacity: 0.75; }
 
 .tr-step-b.done::after, .db-check.on .db-box {
-  content: ""; display: inline-block; width: 13px; height: 11px; flex: none;
-  background: currentColor; vertical-align: -1px; opacity: 1;
-  -webkit-mask: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907 790"%3E%3Cpath d="M 59.664062 788.589844 C 27.722656 788.589844 1.863281 762.746094 1.863281 730.855469 L 1.863281 170.082031 C 1.863281 138.191406 27.722656 112.320312 59.664062 112.320312 L 533.144531 112.320312 C 555.046875 112.320312 566.011719 138.773438 550.558594 154.242188 L 549.976562 154.824219 C 545.382812 159.441406 539.117188 162.042969 532.613281 162.042969 L 80.769531 162.042969 C 64.652344 162.042969 51.589844 175.070312 51.589844 191.175781 L 51.589844 709.738281 C 51.589844 725.839844 64.652344 738.894531 80.769531 738.894531 L 599.675781 738.894531 C 615.789062 738.894531 628.828125 725.839844 628.828125 709.738281 L 628.828125 445.933594 C 628.828125 440.546875 630.605469 435.292969 633.84375 431.019531 C 634.03125 430.808594 634.1875 430.597656 634.347656 430.359375 C 648.605469 411.574219 678.578125 421.707031 678.578125 445.269531 L 678.578125 730.855469 C 678.578125 762.746094 652.695312 788.589844 620.78125 788.589844 L 59.664062 788.589844 "/%3E%3Cpath d="M 396.359375 613.71875 C 387.199219 613.71875 378.652344 610.058594 372.332031 603.398438 L 179.292969 400.21875 C 158.746094 378.59375 137.132812 336.195312 148.550781 316.246094 L 148.734375 315.925781 C 157.761719 299.078125 170.214844 290.535156 185.691406 290.535156 C 201.59375 290.535156 220.074219 299.476562 239.109375 316.457031 C 278.71875 351.71875 313.898438 390.402344 337.183594 415.976562 C 366.707031 448.453125 371.855469 453.863281 380.882812 453.863281 L 381.175781 453.863281 C 388.371094 453.707031 388.371094 453.707031 412.554688 423.433594 C 478.398438 341.050781 678.738281 90.328125 873.957031 1.949219 C 876.636719 0.730469 879.503906 0.117188 882.480469 0.117188 C 888.824219 0.117188 894.957031 2.90625 899.285156 7.785156 L 899.683594 8.238281 C 903.902344 12.988281 905.867188 19.035156 905.257812 25.324219 C 904.648438 31.585938 901.539062 37.128906 896.523438 40.925781 C 887.761719 47.558594 878.683594 54.5625 869.523438 61.699219 L 869.230469 61.9375 C 689.359375 211.207031 498.019531 487.136719 424.105469 598.835938 C 417.917969 608.171875 407.566406 613.71875 396.359375 613.71875 "/%3E%3C/svg%3E') center / contain no-repeat;
-          mask: url('data:image/svg+xml;utf8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 907 790"%3E%3Cpath d="M 59.664062 788.589844 C 27.722656 788.589844 1.863281 762.746094 1.863281 730.855469 L 1.863281 170.082031 C 1.863281 138.191406 27.722656 112.320312 59.664062 112.320312 L 533.144531 112.320312 C 555.046875 112.320312 566.011719 138.773438 550.558594 154.242188 L 549.976562 154.824219 C 545.382812 159.441406 539.117188 162.042969 532.613281 162.042969 L 80.769531 162.042969 C 64.652344 162.042969 51.589844 175.070312 51.589844 191.175781 L 51.589844 709.738281 C 51.589844 725.839844 64.652344 738.894531 80.769531 738.894531 L 599.675781 738.894531 C 615.789062 738.894531 628.828125 725.839844 628.828125 709.738281 L 628.828125 445.933594 C 628.828125 440.546875 630.605469 435.292969 633.84375 431.019531 C 634.03125 430.808594 634.1875 430.597656 634.347656 430.359375 C 648.605469 411.574219 678.578125 421.707031 678.578125 445.269531 L 678.578125 730.855469 C 678.578125 762.746094 652.695312 788.589844 620.78125 788.589844 L 59.664062 788.589844 "/%3E%3Cpath d="M 396.359375 613.71875 C 387.199219 613.71875 378.652344 610.058594 372.332031 603.398438 L 179.292969 400.21875 C 158.746094 378.59375 137.132812 336.195312 148.550781 316.246094 L 148.734375 315.925781 C 157.761719 299.078125 170.214844 290.535156 185.691406 290.535156 C 201.59375 290.535156 220.074219 299.476562 239.109375 316.457031 C 278.71875 351.71875 313.898438 390.402344 337.183594 415.976562 C 366.707031 448.453125 371.855469 453.863281 380.882812 453.863281 L 381.175781 453.863281 C 388.371094 453.707031 388.371094 453.707031 412.554688 423.433594 C 478.398438 341.050781 678.738281 90.328125 873.957031 1.949219 C 876.636719 0.730469 879.503906 0.117188 882.480469 0.117188 C 888.824219 0.117188 894.957031 2.90625 899.285156 7.785156 L 899.683594 8.238281 C 903.902344 12.988281 905.867188 19.035156 905.257812 25.324219 C 904.648438 31.585938 901.539062 37.128906 896.523438 40.925781 C 887.761719 47.558594 878.683594 54.5625 869.523438 61.699219 L 869.230469 61.9375 C 689.359375 211.207031 498.019531 487.136719 424.105469 598.835938 C 417.917969 608.171875 407.566406 613.71875 396.359375 613.71875 "/%3E%3C/svg%3E') center / contain no-repeat;
+  content: ""; display: inline-block; width: 13px; height: 13px; flex: none;
+  background: currentColor; vertical-align: -2px; opacity: 1;
+  -webkit-mask: var(--ck-on) center / contain no-repeat;
+          mask: var(--ck-on) center / contain no-repeat;
+}
+/* Plain checkboxes (Send welcome text, wrong-number reminder, To-do) in the
+   same marks: grey circle, soft white check when ticked - not browser blue. */
+input[type="checkbox"] {
+  appearance: none; -webkit-appearance: none; margin: 0; flex: none;
+  width: 13px; height: 13px; vertical-align: -2px; cursor: pointer;
+  color: var(--muted); background: currentColor; border: none;
+  -webkit-mask: var(--ck-ring) center / contain no-repeat;
+          mask: var(--ck-ring) center / contain no-repeat;
+}
+input[type="checkbox"]:checked {
+  color: rgba(255,255,255,0.5);
+  -webkit-mask-image: var(--ck-on);
+          mask-image: var(--ck-on);
 }
 .tr-step-b.done::after { margin-left: auto; }
 .tr-step-b.done:hover:where(:not(:disabled))::after { opacity: 1; }
@@ -3169,8 +3188,9 @@ th.f2-blk { background:none; }
 #f2ExModal .rpm-load-center, #fin2Body .rpm-load-center { background:none; border:none; box-shadow:none; }   /* just the ring + text, no box (user 2026-10-22) */
 .f2-bill { display:flex; gap:22px; margin:2px 0 14px; }   /* Billed: Monthly / Yearly radios */
 .f2-radio { display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); cursor:pointer; }
-.f2-radio input { appearance:none; -webkit-appearance:none; margin:0; width:9px; height:9px; border:1px solid var(--muted); border-radius:50%; background:none; cursor:pointer; }
-.f2-radio input:checked { background:rgba(255,255,255,0.5); border-color:rgba(255,255,255,0.5); }   /* grey ring → soft white when picked (user 2026-10-22) */
+.f2-radio input { appearance:none; -webkit-appearance:none; margin:0; width:13px; height:13px; border:none; color:var(--muted); background:currentColor; cursor:pointer;
+  -webkit-mask:var(--ck-ring) center / contain no-repeat; mask:var(--ck-ring) center / contain no-repeat; }
+.f2-radio input:checked { color:rgba(255,255,255,0.5); -webkit-mask-image:var(--ck-on); mask-image:var(--ck-on); }   /* grey circle → soft white circled check when picked (user 2026-10-24) */
 .f2-radio:has(input:checked) { color:rgba(255,255,255,0.5); }
 .f2-table:not(.f2-ex) th, .f2-table:not(.f2-ex) td { text-align:center !important; vertical-align:middle; }   /* Income: all centered both ways (user 2026-10-22) */
 .f2-table:not(.f2-ex) th { padding:9px 5px; }
@@ -3255,9 +3275,9 @@ th.f2-blk { background:none; }
    the shared picker's own .dtp-chevs since 2026-10-24. The date gives way to the box's width, not the ▲▼. */
 #travelBody .tv-dates .dtp-val { flex:1; min-width:0; }
 /* A Travel Plan section in its own box, like the Dashboard's (user 2026-10-23): 2px frame, title on a washed band, content under it. */
-#travelBody .tv-box { border:2px solid var(--border); border-radius:var(--radius-card); overflow:hidden; }
-#travelBody .tv-box > .tv-sub-head { margin:0; padding:12px 14px 10px; background:rgba(255,255,255,0.035); border-bottom:1px solid var(--border); }
-#travelBody .tv-box-body { padding:14px; }
+/* 2026-10-24: title outside, over the frame; the frame has no band (user). */
+#travelBody .tv-box > .tv-sub-head { margin:0 0 8px; padding:0 2px; }
+#travelBody .tv-box-body { padding:14px; border:2px solid var(--border); border-radius:var(--radius-card); }
 /* Where to in the Leaving on / Back on box look (user 2026-10-23): framed, WHERE TO tab, the field borderless beside it. */
 #travelBody .tv-place-box { display:flex; align-items:stretch; width:calc(50% - 8px); height:40px; box-sizing:border-box; border:2px solid var(--border); border-radius:var(--radius-card); overflow:hidden; }
 #travelBody .tv-place-box:focus-within { border-color:#3a3a3a; }
