@@ -3223,6 +3223,13 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .en-fgap { grid-column: 1 / -1; height: 12px; }   /* a break in the stats grid (between the groups) */
 .en-fields .inq-fval.en-amber { color: var(--warn); }   /* Start Date, Lifetime, Density (user 2026-10-22) */
 .en-since { color: rgba(255,255,255,0.24); margin-left: 8px; }   /* Density's "(since Jul 8, 2026)": the labels' grey */
+/* Before archiving (2026-10-24): the 4 questions, label left, an open box
+   right; Terminate stays dimmed until all 4 have text. */
+.en-ask { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border); }
+.en-ask-h { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 14px; }
+.en-ask-grid { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; align-items: center; font-family: "DM Mono", monospace; font-size: 10.5px; }
+.en-ask-in { width: 100%; font-size: 12px; }
+.link-btn.red.en-go:disabled:not(.tv-busy) { opacity: .35; cursor: default; }   /* until all 4 are answered */
 /* Review texts loading: the plan steps back, only the button's spinner stays bright (user, 2026-10-21). */
 .tv-cal.tv-loading > *:not(#travelCalHead) { opacity: 0.35; pointer-events: none; transition: opacity .15s; }
 /* Reviews tab, Ended students (2026-10-21; was Terminate ▾ Reviews): the stats card look. */

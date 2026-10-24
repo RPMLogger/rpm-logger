@@ -135,6 +135,7 @@ function _enRenderCard(i, d) {
       (row[0] === 'Density' && dn ? '<span class="en-since">(since Jul 8, 2026)</span>' : '') + '</span>';
   });
   html += '</div>';
+  html += _enAskHtml(i);
   // Travel's Go live row: what it does left, the red button right.
   html += '<div id="enS-' + i + '"></div>' +
     '<div class="en-foot en-card-foot">' +
@@ -143,6 +144,7 @@ function _enRenderCard(i, d) {
         'data-tip="Asks first.\nArchives them to Eski, then deletes them from every active list.\nCannot be undone.">' + _enGoLabel() + '</button>' +
     '</div>';
   box.innerHTML = html;
+  _enAskSync(i);
   // No review yet: Ask for a review top right of the card, which goes to
   // the Reviews tab (user 2026-10-22).
   var ask = document.getElementById('enAsk-' + i);
@@ -151,12 +153,52 @@ function _enRenderCard(i, d) {
       'data-tip="Instant.\nOpens the Reviews tab.">Ask for a review</button>';
 }
 
+// ── Before archiving: 4 questions (2026-10-24) ──────────────────────────────
+// What the sheets can't tell: how they found you, why and how they left, and
+// whether they gave notice. Open boxes, nothing prefilled (user 2026-10-24).
+// All 4 required; Terminate stays dimmed until each has text. Saved to the
+// Lifetime & Review summary row, S..V.
+var EN_ASK = [
+  { k: 'found',  q: 'How they found you' },
+  { k: 'why',    q: 'Why they left' },
+  { k: 'how',    q: 'How they left' },
+  { k: 'notice', q: 'Notice given' }
+];
+
+// Answers per student name, kept while the tab is open (a card can close and reopen).
+function _enAns(i) {
+  var name = (_enState.roster || [])[i];
+  _enState.answers = _enState.answers || {};
+  return _enState.answers[name] || (_enState.answers[name] = {});
+}
+
+function _enAskHtml(i) {
+  var a = _enAns(i);
+  var h = '<div class="en-ask"><div class="en-ask-h">Before archiving</div><div class="en-ask-grid">';
+  EN_ASK.forEach(function (x) {
+    h += '<span class="inq-flabel">' + x.q + '</span>' +
+      '<input class="settings-input en-ask-in" value="' + _enEscHtml(a[x.k] || '').replace(/"/g, '&quot;') + '" ' +
+        'oninput="_enAns(' + i + ').' + x.k + '=this.value;_enAskSync(' + i + ')">';
+  });
+  return h + '</div></div>';
+}
+
+function _enAskDone(i) {
+  var a = _enAns(i);
+  return EN_ASK.every(function (x) { return !!String(a[x.k] || '').trim(); });
+}
+
+function _enAskSync(i) {
+  var go = document.getElementById('enGo-' + i);
+  if (go && !go.classList.contains('tv-busy')) go.disabled = !_enAskDone(i);
+}
+
 // ── Confirm (destructive) ────────────────────────────────────────────────────
 // Travel's Go live popup: Warning! / Upon activation:, an arrow per point,
 // both buttons red. Nothing runs until Terminate is pressed in it.
 function _enAskFinish(i) {
   var d = _enState.previews[(_enState.roster || [])[i]];
-  if (!d || !d.name) return;
+  if (!d || !d.name || !_enAskDone(i)) return;
   // The backend's exact step list (getEndingPreview willDelete), an arrow per
   // step; the dates line (↳) stays under its lessons line. It lives only here,
   // not on the page (user, 2026-10-21).
@@ -183,7 +225,9 @@ function _enConfirmFinish(i) {
   function reset() { if (btn) { btn.disabled = false; btn.classList.remove('tv-busy'); btn.classList.add('opens-window'); btn.innerHTML = _enGoLabel(); } }
   if (btn) { btn.disabled = true; btn.classList.add('tv-busy'); btn.classList.remove('opens-window'); btn.innerHTML = "<span class='rpm-loading'>Working</span>"; }   // Go live's spinner
   _enStatus(i, "<span class='rpm-loading is-inline'>Archiving then deleting</span>", 'var(--accent2)');
-  fetch(getScriptUrl() + '?action=finishStudent&confirm=1&name=' + encodeURIComponent(d.name))
+  var a = _enAns(i), q = '';
+  EN_ASK.map(function (x) { return x.k; }).forEach(function (k) { q += '&' + k + '=' + encodeURIComponent((a[k] || '').trim()); });
+  fetch(getScriptUrl() + '?action=finishStudent&confirm=1&name=' + encodeURIComponent(d.name) + q)
     .then(function (r) { return r.json(); })
     .then(function (res) {
       if (!res.success) { _enStatus(i, '⚠ ' + (res.message || 'Failed — nothing may have been deleted.'), 'var(--accent)'); reset(); return; }
