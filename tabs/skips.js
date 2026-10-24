@@ -219,10 +219,9 @@ function _skStudentCard(s) {
   var card = document.createElement('div');
   card.className = 'en-card sk-card';
 
-  var hasSkips = s.total > 0;
-
+  // Every card opens, so a student with no skips still shows Density (user 2026-10-24).
   var hdr = document.createElement('div');
-  hdr.className = 'en-card-head' + (hasSkips ? '' : ' sk-none');
+  hdr.className = 'en-card-head';
   hdr.innerHTML =
     "<span class='en-card-n'>" + _skEsc(s.name) + "</span>" +
     "<span class='en-card-r'>" +
@@ -231,8 +230,6 @@ function _skStudentCard(s) {
     "</span>";
   card.appendChild(hdr);
 
-  if (!hasSkips) return card;
-
   var body = document.createElement('div');
   body.className = 'en-card-body';
   body.style.display = 'none';
@@ -240,6 +237,13 @@ function _skStudentCard(s) {
   // row above already showed (the same trip) is not repeated.
   var groups = {};
   (s.skips || []).forEach(function(k) { (groups[k.who] = groups[k.who] || []).push(k); });
+  // Density first, above the skip lists (user 2026-10-24). Terminate's number,
+  // from its read-only preview (getEndingPreview), fetched the first time the
+  // card opens.
+  var dens = document.createElement('div');
+  dens.className = 'sk-group';
+  dens.innerHTML = "<div class='sk-group-h sk-hi'>Density</div>";
+  body.appendChild(dens);
   var order = ['Student', 'Teacher', 'Vacation'];
   Object.keys(groups).forEach(function(w) { if (order.indexOf(w) < 0) order.push(w); });
   order.forEach(function(w) {
@@ -251,17 +255,54 @@ function _skStudentCard(s) {
     // Every group heading amber, the totals' colour (user 2026-10-22).
     // Count first: "1 skip · Student", "5 skips · Vacation" (user 2026-10-23).
     grp.innerHTML = "<div class='sk-group-h sk-hi'>" + list.length + (list.length === 1 ? " skip" : " skips") + " · " + _skEsc(w) + "</div>";
+    // Vacation (my trips, never against them) folds away behind Show (user 2026-10-24).
+    var rows = grp;
+    if (w === 'Vacation') {
+      rows = document.createElement('div');
+      rows.style.display = 'none';
+      var more = document.createElement('button');
+      more.className = 'link-btn sk-more';   // the portal's plain button, like Log skip (user 2026-10-24)
+      more.textContent = 'Show';
+      more.onclick = function(e) {
+        e.stopPropagation();
+        var open = rows.style.display === 'none';
+        rows.style.display = open ? '' : 'none';
+        more.textContent = open ? 'Hide' : 'Show';
+      };
+      grp.firstChild.appendChild(more);
+      grp.appendChild(rows);
+      // Inside, one block per trip (its "Travel <from> → <to>" note), newest
+      // trip first; the trip is the block's heading, so rows carry no note.
+      var trips = [], byTrip = {};
+      list.forEach(function(k) {
+        var t = String(k.note || '');
+        if (!byTrip[t]) { byTrip[t] = []; trips.push(t); }
+        byTrip[t].push(k);
+      });
+      trips.forEach(function(t) {
+        var h = document.createElement('div');
+        h.className = 'sk-trip-h';
+        h.textContent = _skTripLabel(t) + ' · ' + byTrip[t].length + (byTrip[t].length === 1 ? ' lesson' : ' lessons');
+        rows.appendChild(h);
+        var box = document.createElement('div');
+        byTrip[t].forEach(function(k) { box.appendChild(_skRow(s, k, '')); });
+        rows.appendChild(box);
+      });
+      body.appendChild(grp);
+      return;
+    }
     var lastNote = null;
     list.forEach(function(k) {
       var note = k.note && k.note !== lastNote ? toSentenceCase(String(k.note)) : '';
       lastNote = k.note;
-      grp.appendChild(_skRow(s, k, note));
+      rows.appendChild(_skRow(s, k, note));
     });
     body.appendChild(grp);
   });
   card.appendChild(body);
 
   card._skToggle = function(open) {
+    if (open && !dens._loaded) { dens._loaded = true; _skLoadDensity(s.name, dens); }
     body.style.display = open ? 'block' : 'none';
     card.classList.toggle('open', open);
     hdr.querySelector('.sk-caret').textContent = open ? '▴' : '▾';
@@ -280,6 +321,36 @@ function _skStudentCard(s) {
   return card;
 }
 
+
+// "Travel 2026-07-12 → 2026-08-17" → "Trip Jul 12 → Aug 17, 2026". Any other
+// note shows as it is; none → "Trip".
+function _skTripLabel(note) {
+  var m = String(note).match(/(\d{4})-(\d{2})-(\d{2})\s*→\s*(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return note ? toSentenceCase(note) : 'Trip';
+  var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var a = mo[+m[2] - 1] + ' ' + (+m[3]) + (m[1] !== m[4] ? ', ' + m[1] : '');
+  return 'Trip ' + a + ' → ' + mo[+m[5] - 1] + ' ' + (+m[6]) + ', ' + m[4];
+}
+
+// "92%  11 of 12 lessons  since Jul 8, 2026": lessons had ÷ what their slot
+// should have given, teacher and vacation skips excused (RPM_Ending _enDensity).
+function _skLoadDensity(name, grp) {
+  var row = document.createElement('div');
+  row.className = 'sk-row';
+  row.innerHTML = "<span class='rpm-loading is-inline'>Gathering data</span>";
+  grp.appendChild(row);
+  fetch(getScriptUrl() + '?action=getEndingPreview&name=' + encodeURIComponent(name))
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var dn = d && d.success && d.snapshot && d.snapshot.density;
+      row.innerHTML = dn
+        ? "<span class='sk-date sk-hi'>" + dn.pct + "%</span>" +
+          "<span class='sk-when'>" + dn.had + " of " + dn.owed + " lessons</span>" +
+          "<span class='sk-note'>since Jul 8, 2026</span>"
+        : "<span class='sk-note'>" + (d && d.success ? 'Nothing to measure yet' : 'Could not load') + "</span>";
+    })
+    .catch(function() { row.innerHTML = "<span class='sk-note'>Could not load</span>"; });
+}
 
 // Head counts as plain text in Travel Plan's "Skipping 5 lessons" font (user 2026-10-22): "5 student · 1 teacher".
 function _skCounts(s) {
