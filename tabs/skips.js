@@ -11,6 +11,7 @@
 
 var _skData = null;      // last payload, so expand/collapse needs no refetch
 var _skFormOpen = false; // "Log skip" form visible
+var _skDensity = null;   // name lower → { pct, had, owed } | null, from getDensityAll (RPM_Density.js)
 
 function initSkipsTab() {
   var section = document.getElementById('skipsBody');
@@ -28,7 +29,9 @@ function initSkipsTab() {
         return;
       }
       _skData = data;
+      _skDensity = null;
       _skRender();
+      _skLoadDensity();
     })
     .catch(function() { section.innerHTML = '<div class="empty-state">Connection failed</div>'; });
 }
@@ -219,16 +222,21 @@ function _skStudentCard(s) {
   var card = document.createElement('div');
   card.className = 'en-card sk-card';
 
-  // Every card opens, so a student with no skips still shows Density (user 2026-10-24).
+  var hasSkips = s.total > 0;
+
   var hdr = document.createElement('div');
-  hdr.className = 'en-card-head';
+  hdr.className = 'en-card-head' + (hasSkips ? '' : ' sk-none');
+  // Density beside the name, a bare percentage (user 2026-10-24); it fills in
+  // once getDensityAll answers.
   hdr.innerHTML =
-    "<span class='en-card-n'>" + _skEsc(s.name) + "</span>" +
+    "<span class='en-card-n'>" + _skEsc(s.name) + _skDensitySpan(s.name) + "</span>" +
     "<span class='en-card-r'>" +
       "<span class='sk-counts" + (s.totalStudent || s.totalTeacher ? "" : " av-never") + "'>" + _skCounts(s) + "</span>" +
       "<span class='en-card-a sk-caret'>▾</span>" +
     "</span>";
   card.appendChild(hdr);
+
+  if (!hasSkips) return card;
 
   var body = document.createElement('div');
   body.className = 'en-card-body';
@@ -237,13 +245,6 @@ function _skStudentCard(s) {
   // row above already showed (the same trip) is not repeated.
   var groups = {};
   (s.skips || []).forEach(function(k) { (groups[k.who] = groups[k.who] || []).push(k); });
-  // Density first, above the skip lists (user 2026-10-24). Terminate's number,
-  // from its read-only preview (getEndingPreview), fetched the first time the
-  // card opens.
-  var dens = document.createElement('div');
-  dens.className = 'sk-group';
-  dens.innerHTML = "<div class='sk-group-h sk-hi'>Density</div>";
-  body.appendChild(dens);
   var order = ['Student', 'Teacher', 'Vacation'];
   Object.keys(groups).forEach(function(w) { if (order.indexOf(w) < 0) order.push(w); });
   order.forEach(function(w) {
@@ -302,7 +303,6 @@ function _skStudentCard(s) {
   card.appendChild(body);
 
   card._skToggle = function(open) {
-    if (open && !dens._loaded) { dens._loaded = true; _skLoadDensity(s.name, dens); }
     body.style.display = open ? 'block' : 'none';
     card.classList.toggle('open', open);
     hdr.querySelector('.sk-caret').textContent = open ? '▴' : '▾';
@@ -332,24 +332,26 @@ function _skTripLabel(note) {
   return 'Trip ' + a + ' → ' + mo[+m[5] - 1] + ' ' + (+m[6]) + ', ' + m[4];
 }
 
-// "92%  11 of 12 lessons  since Jul 8, 2026": lessons had ÷ what their slot
-// should have given, teacher and vacation skips excused (RPM_Ending _enDensity).
-function _skLoadDensity(name, grp) {
-  var row = document.createElement('div');
-  row.className = 'sk-row';
-  row.innerHTML = "<span class='rpm-loading is-inline'>Gathering data</span>";
-  grp.appendChild(row);
-  fetch(getScriptUrl() + '?action=getEndingPreview&name=' + encodeURIComponent(name))
+// Everyone's Density in one call (RPM_Density.js), then each name's % is
+// filled in place. Kept across re-renders (Log skip, delete) until the tab reloads.
+function _skLoadDensity() {
+  fetch(getScriptUrl() + '?action=getDensityAll')
     .then(function(r) { return r.json(); })
     .then(function(d) {
-      var dn = d && d.success && d.snapshot && d.snapshot.density;
-      row.innerHTML = dn
-        ? "<span class='sk-date sk-hi'>" + dn.pct + "%</span>" +
-          "<span class='sk-when'>" + dn.had + " of " + dn.owed + " lessons</span>" +
-          "<span class='sk-note'>since Jul 8, 2026</span>"
-        : "<span class='sk-note'>" + (d && d.success ? 'Nothing to measure yet' : 'Could not load') + "</span>";
+      if (!d || !d.success) return;
+      _skDensity = d.density || {};
+      document.querySelectorAll('#skipsBody [data-sk-dn]').forEach(function(el) {
+        el.outerHTML = _skDensitySpan(el.getAttribute('data-sk-dn'));
+      });
     })
-    .catch(function() { row.innerHTML = "<span class='sk-note'>Could not load</span>"; });
+    .catch(function() {});
+}
+
+function _skDensitySpan(name) {
+  var k = String(name).toLowerCase(), dn = _skDensity && _skDensity[k];
+  return "<span class='sk-dn' data-sk-dn='" + _skEsc(k) + "'" +
+    (dn ? " data-tip='" + dn.had + " of " + dn.owed + " lessons since Jul 8, 2026.\nTeacher and vacation skips don&#39;t count against them.'>" + dn.pct + "%" : ">") +
+    "</span>";
 }
 
 // Head counts as plain text in Travel Plan's "Skipping 5 lessons" font (user 2026-10-22): "5 student · 1 teacher".

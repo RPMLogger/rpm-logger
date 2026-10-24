@@ -532,6 +532,9 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .av-saving-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 50;
   font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text); }
 /* Skips tab: Availability's cards (2026-10-22) */
+.sk-card .en-card-head.sk-none { cursor: default; }
+.sk-card .en-card-head.sk-none .sk-caret { visibility: hidden; }   /* keeps the counts lined up with the cards that open */
+.sk-dn { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; color: rgba(217,164,65,0.9); margin-left: 12px; }   /* Density beside the name, the amber (user 2026-10-24) */
 .en-card.sk-card.open { border-color: var(--border); border-left-color: rgba(255,255,255,0.28); }   /* an open card keeps its closed look (user 2026-10-23) */
 .sk-counts { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }   /* Travel Plan's SKIPPING N LESSONS; 10.5px like the portal's other DM Mono values (user 2026-10-23; was 13px) */
 .f2-icon.sk-icon .win-icon { height: 34px; width: auto; }   /* the calendar + person icon, Availability's size (user 2026-10-23) */
