@@ -268,11 +268,12 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 }
 /* Today / Students / Calendar: regular portal buttons in a row */
 .home-top { display: flex; justify-content: center; gap: 10px; }
+.home-top .link-btn { color: rgba(255,255,255,0.72); border-color: rgba(255,255,255,0.22); }   /* a step brighter than a regular button (user, 2026-10-24) */
 .home-top .link-btn svg { width: 14px; height: 14px; }
 /* Student name box under them; the names drop down over the page */
 .home-search { position: relative; width: 240px; margin: 40px auto 0; }
-.home-mag { position: absolute; right: calc(100% + 10px); top: 50%; transform: translateY(-50%); color: var(--muted); }   /* beside the box, so the box stays centred */
-.home-search .rpm-field { text-align: center; }
+.home-mag { position: absolute; right: calc(100% + 10px); top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.6); }   /* beside the box, so the box stays centred */
+.home-search .rpm-field { text-align: center; border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.82); }
 .home-search .rpm-field:focus { outline: none; border-color: var(--muted); }
 .home-results {
   position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5;
