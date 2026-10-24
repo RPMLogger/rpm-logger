@@ -51,10 +51,11 @@ function _imRenderCards(noRead) {
     if (logged.indexOf(_imKey(n)) < 0) return null;   // not logged yet: no verdict
     return _imTodayMiss(n);
   };
+  // Three groups, each A–Z (user, 2026-10-24; today's were in lesson-time order):
+  // today's students, then a past lesson still open (red card), then everyone else.
+  var group = function (n) { return isToday(n) ? 0 : open(n) ? 1 : 2; };
   var names = _imRoster.slice().sort(function (a, b) {
-    var ta = today.indexOf(_imKey(a)), tb = today.indexOf(_imKey(b));
-    if (ta >= 0 || tb >= 0) return ta < 0 ? 1 : tb < 0 ? -1 : ta - tb;
-    return a.localeCompare(b);
+    return group(a) - group(b) || a.localeCompare(b);
   });
   body.innerHTML =
     '<div class="db-section">' +
@@ -71,7 +72,7 @@ function _imRenderCards(noRead) {
         // ✓ done, ☐ still to do, "· 2 open" when more lessons wait.
         var todo = miss && miss.length ? 1 : 0, all = o + todo;
         var first = past.length ? { day: past[0].date, miss: past[0].missing || [], hw: past[0].hwText } : todo ? { day: _tdYmd(), miss: miss } : null;
-        return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : '') + (miss && !miss.length && !o ? ' im-fin' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
+        return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-fin' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
           '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
           (first ? '<span class="im-steps">' + _imStepsHtml(first.day, first.miss, first.hw, n) + (all > 1 ? '<span class="im-step-more">· ' + all + ' open</span>' : '') + '</span>' : '') +
         '</div>';

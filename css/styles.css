@@ -2041,6 +2041,9 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-card { cursor: pointer; }
 /* Today's students on Import (2026-10-07): name in the Today tab's amber; the card keeps its blue edge. */
 .im-card.im-today .db-card-n { color: #d9a441; }
+/* A past lesson still open (user, 2026-10-24): red edge + name, the red buttons' red; sorted under today's. */
+.im-card.im-unlog, .im-card.im-unlog:hover:where(:not(:disabled)) { border-left-color: #ff5a4d; }
+.im-card.im-unlog .db-card-n { color: #ff5a4d; }
 /* Today's lesson logged (2026-10-07): green edge + name, like Finished. */
 .im-card.im-fin, .im-card.im-fin:hover:where(:not(:disabled)) { border-left-color: var(--green); }
 .im-card.im-fin .db-card-n { color: var(--green); }
