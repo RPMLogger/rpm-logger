@@ -466,7 +466,9 @@ body::before {
 
 /* ─── INQUIRIES ───────────────────────────────────────────────────────────── */
 .inq-new { margin-left: 8px; padding: 1px 6px; border-radius: 8px; background: var(--accent); color: #fff; font-size: 9px; letter-spacing: .5px; text-transform: uppercase; }
-.inq-badge { display: inline-block; background: var(--accent); color: white; font-size: 9px; border-radius: 10px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
+/* Tab alerts are a plain dot like Intake ▾ (user, 2026-10-24), no count shown. */
+.inq-badge { display: inline-block; width: 6px; height: 6px; padding: 0; margin-left: 5px; border-radius: 50%; background: var(--accent); font-size: 0; line-height: 0; overflow: hidden; vertical-align: middle; }
+.tab-btn.active .inq-badge { background: var(--text); }
 .inq-card  { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; position: relative; }
 .inq-card.unread { border-left: 3px solid var(--accent); }
 .inq-card.read   { border-left: 3px solid var(--border); opacity: 0.7; }
