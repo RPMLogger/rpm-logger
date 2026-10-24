@@ -214,6 +214,7 @@ body.sb-open .tabs { transform: none; }
 .nav-drop.sb-soon .nav-menu.open { display: flex; }
 
 /* Group order */
+.tabs > [data-tab=home]        { order: 0; }
 .tabs > [data-tab=today]       { order: 1; }
 .tabs > [data-tab=import]      { order: 2; }
 .tabs > [data-tab=payments]    { order: 3; }
@@ -258,6 +259,34 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
+
+/* ─── HOME: the opening page (2026-10-24) ─── */
+/* As tall as the screen under the header, the buttons and box in its middle */
+#tab-home.active {
+  display: flex; flex-direction: column; justify-content: center;
+  min-height: calc(100vh - 210px);
+}
+/* Today / Students / Calendar: regular portal buttons in a row */
+.home-top { display: flex; justify-content: center; gap: 10px; }
+.home-top .link-btn svg { width: 14px; height: 14px; }
+/* Student name box under them; the names drop down over the page */
+.home-search { position: relative; width: 240px; margin: 40px auto 0; }
+.home-mag { position: absolute; right: calc(100% + 10px); top: 50%; transform: translateY(-50%); color: var(--muted); }   /* beside the box, so the box stays centred */
+.home-search .rpm-field { text-align: center; }
+.home-search .rpm-field:focus { outline: none; border-color: var(--muted); }
+.home-results {
+  position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.home-results:not(:empty) {
+  padding: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.45);
+}
+.home-res {
+  padding: 6px 10px; border: none; border-radius: 4px; background: transparent; text-align: center;
+  color: var(--muted); font-family: Arial, Helvetica, sans-serif; font-size: 12px; cursor: pointer;
+}
+.home-res.hi { background: var(--surface2); color: var(--text); }
 
 /* ─── SHEET LINKS (Sheets tab) ────────────────────────────────────────────── */
 .sheet-link {

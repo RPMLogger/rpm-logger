@@ -207,7 +207,7 @@ var BARS_ICON =
 
 // Static buttons in index.html ask for an icon with data-icon; filled in once
 // at the end of this file (every icon defined by then), since the markup cannot
-// call JS. "archive", "reply", "back", "fwd", "out", "cash", "stats", "bars", "cost", "calendar".
+// call JS. "archive", "reply", "back", "fwd", "out", "cash", "stats", "bars", "cost", "calendar", "time", "students".
 function _rpmFillDataIcons() {
   var map = {
     archive: function () { return ARCHIVE_ICON; },
@@ -219,7 +219,9 @@ function _rpmFillDataIcons() {
     stats:   function () { return STATS_ICON.replace('class="stats-icon"', 'class="win-icon"'); },
     bars:    function () { return BARS_ICON.replace('class="stats-icon"', 'class="win-icon"'); },
     cost:    function () { return COST_ICON.replace(/class="[^"]*"/, 'class="win-icon"'); },
-    calendar: function () { return CALENDAR_ICON.replace('class="calendar-icon"', 'class="win-icon"'); }
+    calendar: function () { return CALENDAR_ICON.replace('class="calendar-icon"', 'class="win-icon"'); },
+    time:     function () { return TIME_ICON; },
+    students: function () { return STUDENTS_ICON.replace('class="students-icon"', 'class="win-icon"'); }
   };
   document.querySelectorAll("[data-icon]").forEach(function (el) {
     var f = map[el.getAttribute("data-icon")];
