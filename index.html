@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=912">
+  <link rel="stylesheet" href="css/styles.css?v=913">
 </head>
 <body>
 <div class="container">
@@ -243,14 +243,13 @@
   <!-- PAYMENTS -->
   <div class="tab-panel" id="tab-payments">
     <div id="payMainView">
-    <div class="settings-title"><span>Payments<span class="win-sub"> · Tracking</span></span></div>   <!-- the Terminate tab title look (2026-10-21) -->
-    <!-- Payment history: a small button at the very top that opens its own
-         window (2026-09-29). Audit payments beside it swaps the page to
-         Unpaid Students (2026-10-14), which only loads when opened. -->
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button id="btnPayHistory" class="link-btn opens-window" onclick="openPaymentHistory()" data-tip="Opens a window.&#10;Every logged payment, by month." data-tip-wrap>Payment history</button>
-      <button class="link-btn red" id="btnPayAudit" style="margin-left:auto" onclick="openPayAudit()" data-tip="Opens a page.&#10;Students who owe a payment." data-tip-wrap><span>Audit payments</span></button>
-    </div>
+    <!-- Payment history + Audit payments on the title line, right (2026-10-24; were a row under the icon). -->
+    <div class="settings-title"><span>Payments<span class="win-sub"> · Tracking</span></span>   <!-- the Terminate tab title look (2026-10-21) -->
+      <span class="pay-title-btns">
+        <button id="btnPayHistory" class="link-btn opens-window" onclick="openPaymentHistory()" data-tip="Opens a window.&#10;Every logged payment, by month." data-tip-wrap>Payment history</button>
+        <button class="link-btn red" id="btnPayAudit" onclick="openPayAudit()" data-tip="Opens a page.&#10;Students who owe a payment." data-tip-wrap><span>Audit payments</span></button>
+      </span></div>
+    <div class="pay-page-icon" data-icon="cost"></div>   <!-- om-98 calculator + coin under the title, like Today / Dashboard (2026-10-24) -->
     <div class="section-label" style="margin-top:28px;margin-bottom:26px">
       Incoming <span style="color:var(--blue)">Venmo &amp; Zelle</span>
     </div>
@@ -779,7 +778,7 @@
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
     <div id="secAlert"></div>
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">912</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">913</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -799,45 +798,45 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=912"></script>
-<script src="core/storage.js?v=912"></script>
-<script src="core/utils.js?v=912"></script>
-<script src="core/dialog.js?v=912"></script>
-<script src="core/api.js?v=912"></script>
-<script src="core/secalert.js?v=912"></script>
+<script src="core/state.js?v=913"></script>
+<script src="core/storage.js?v=913"></script>
+<script src="core/utils.js?v=913"></script>
+<script src="core/dialog.js?v=913"></script>
+<script src="core/api.js?v=913"></script>
+<script src="core/secalert.js?v=913"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=912"></script>
-<script src="tabs/lessons.js?v=912"></script>
-<script src="tabs/payments.js?v=912"></script>
-<script src="tabs/general.js?v=912"></script>
-<script src="tabs/financial.js?v=912"></script>
-<script src="tabs/inquiries.js?v=912"></script>
-<script src="tabs/inqarchive.js?v=912"></script>
-<script src="tabs/comms.js?v=912"></script>
-<script src="tabs/notes.js?v=912"></script>
-<script src="tabs/todo.js?v=912"></script>
-<script src="tabs/availability.js?v=912"></script>
-<script src="tabs/travel.js?v=912"></script>
-<script src="tabs/tripsummary.js?v=912"></script>
-<script src="tabs/triphistory.js?v=912"></script>
-<script src="tabs/skips.js?v=912"></script>
-<script src="tabs/student.js?v=912"></script>
-<script src="tabs/ctrl.js?v=912"></script>
-<script src="tabs/gbusiness.js?v=912"></script>
-<script src="tabs/dropbox.js?v=912"></script>
-<script src="tabs/import.js?v=912"></script>
-<script src="tabs/today.js?v=912"></script>
-<script src="tabs/trial.js?v=912"></script>
-<script src="tabs/ending.js?v=912"></script>
-<script src="tabs/reviews.js?v=912"></script>
-<script src="tabs/thisyear.js?v=912"></script>
-<script src="tabs/financial2.js?v=912"></script>
-<script src="tabs/sheets.js?v=912"></script>
-<script src="tabs/studentline.js?v=912"></script>
-<script src="tabs/calendar.js?v=912"></script>
-<script src="tabs/fixedcal.js?v=912"></script>
-<script src="tabs/help.js?v=912"></script>
+<script src="tabs/icons.js?v=913"></script>
+<script src="tabs/lessons.js?v=913"></script>
+<script src="tabs/payments.js?v=913"></script>
+<script src="tabs/general.js?v=913"></script>
+<script src="tabs/financial.js?v=913"></script>
+<script src="tabs/inquiries.js?v=913"></script>
+<script src="tabs/inqarchive.js?v=913"></script>
+<script src="tabs/comms.js?v=913"></script>
+<script src="tabs/notes.js?v=913"></script>
+<script src="tabs/todo.js?v=913"></script>
+<script src="tabs/availability.js?v=913"></script>
+<script src="tabs/travel.js?v=913"></script>
+<script src="tabs/tripsummary.js?v=913"></script>
+<script src="tabs/triphistory.js?v=913"></script>
+<script src="tabs/skips.js?v=913"></script>
+<script src="tabs/student.js?v=913"></script>
+<script src="tabs/ctrl.js?v=913"></script>
+<script src="tabs/gbusiness.js?v=913"></script>
+<script src="tabs/dropbox.js?v=913"></script>
+<script src="tabs/import.js?v=913"></script>
+<script src="tabs/today.js?v=913"></script>
+<script src="tabs/trial.js?v=913"></script>
+<script src="tabs/ending.js?v=913"></script>
+<script src="tabs/reviews.js?v=913"></script>
+<script src="tabs/thisyear.js?v=913"></script>
+<script src="tabs/financial2.js?v=913"></script>
+<script src="tabs/sheets.js?v=913"></script>
+<script src="tabs/studentline.js?v=913"></script>
+<script src="tabs/calendar.js?v=913"></script>
+<script src="tabs/fixedcal.js?v=913"></script>
+<script src="tabs/help.js?v=913"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
