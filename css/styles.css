@@ -46,7 +46,7 @@ body::before {
    shade darker (user, 2026-10-24; the lines that edged it were dropped) */
 body::after {
   content: ""; position: fixed; top: 0; bottom: 0; left: 50%; z-index: 0;   /* under the page, so windows and menus are never shaded */
-  width: 648px; transform: translateX(-50%);
+  width: 840px; transform: translateX(-50%);
   box-shadow: 0 0 0 100vw rgba(0,0,0,0.28);   /* the sides outside the lines a shade darker */
   pointer-events: none;
 }
@@ -63,7 +63,7 @@ body:has(#tab-calendar.active)::after, body:has(#tab-fixedcal.active)::after { d
 }
 /* the logo's band, from the top of the screen, a shade lighter (user, 2026-10-24) */
 .header::before {
-  content: ""; position: absolute; left: -24px; right: -24px; top: -64px; bottom: -36px; z-index: -1;
+  content: ""; position: absolute; left: -120px; right: -120px; top: -64px; bottom: -36px; z-index: -1;
   background: rgba(255,255,255,0.03);
 }
 @media (max-width: 700px) { .header::before { left: 0; right: 0; } }
