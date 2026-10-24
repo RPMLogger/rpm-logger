@@ -111,8 +111,10 @@ function dtArrow(dir) {
 
 // ─── THE DATE / TIME PICKER (2026-10-06) ─────────────────────────────────────
 // The portal's one picker; it replaced seven look-alikes. A date box, and a
-// time box beside it where the time matters. Each value sits in its own
-// border with a thin chevron above and below it, outside the border.
+// time box beside it where the time matters. Each box is Travel's Leaving on
+// look (user, 2026-10-24; chevrons were above and below, outside the border):
+// a frame with a label tab (DAY / TIME), the value, and ▲▼ stacked in a
+// short column at the right end.
 // The value is the control: click it (or, in a window, hover it) and it
 // lights; ↑↓ step the lit one, a day or 15 minutes; ←→ move between boxes.
 // Holding a chevron repeats. Nothing has to hold browser focus: one listener
@@ -130,6 +132,8 @@ function dtArrow(dir) {
 //   o.onChange(id)  after every step
 //   o.onEnter(id)   Enter, while this picker has the keys
 //   o.group         pickers in one group walk into each other with ←→
+//   o.label         the date box's tab (default Day; '' for none); o.timeLabel (Time)
+//   o.labCls        an extra class on the tabs (Travel's tv-in-label)
 // rpmDtpGet(id) → { date, time }. rpmDtpSet(id, date, time) sets and redraws.
 var _RPM_DTP_DAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 var _RPM_DTP_MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -158,6 +162,12 @@ function _dtpTimeLabel(hhmm) {
   return ((h % 12) || 12) + ':' + _dtpPad(t % 60) + (h < 12 ? ' AM' : ' PM');
 }
 
+// The tab at the box's left end: label, or Day / Time; '' leaves it off.
+function _dtpLab(label, part, cls) {
+  var t = label == null ? (part === 'Date' ? 'Day' : 'Time') : label;
+  return t ? '<span class="dtp-lab' + (cls ? ' ' + cls : '') + '">' + t + '</span>' : '';
+}
+
 function rpmDtpHtml(id, o) {
   o = o || {};
   var prev = _rpmDtp[id];
@@ -175,10 +185,10 @@ function rpmDtpHtml(id, o) {
     (o.noTime ? '' : '<input type="hidden" id="' + id + 'Time" value="' + (o.time || '') + '">') +
     parts.map(function (p, i) {
       var cls = 'dtp-val' + (p === 'Time' ? ' tm' : o.year ? ' yr' : '') + (on && i === lit ? ' on' : '');
-      return '<div class="dtp-box">' + chev(i, 1) +
-        '<div class="dtp-cell"><button type="button" class="' + cls + '" tabindex="-1" id="' + id + p + 'Lbl" data-dtp-i="' + i + '">' +
-          (p === 'Date' ? _dtpDateLabel(o.date, o.year) : _dtpTimeLabel(o.time)) + '</button></div>' +
-        chev(i, -1) + '</div>';
+      return '<div class="dtp-box"><div class="dtp-cell">' + _dtpLab(p === 'Date' ? o.label : o.timeLabel, p, o.labCls) +
+        '<button type="button" class="' + cls + '" tabindex="-1" id="' + id + p + 'Lbl" data-dtp-i="' + i + '">' +
+          (p === 'Date' ? _dtpDateLabel(o.date, o.year) : _dtpTimeLabel(o.time)) + '</button>' +
+        '<span class="dtp-chevs">' + chev(i, 1) + chev(i, -1) + '</span></div></div>';
     }).join('') + '</div>';
 }
 
@@ -186,12 +196,13 @@ function rpmDtpHtml(id, o) {
 // the picker under it (Reschedule's Move from). Dimmer, so it reads as fixed.
 function rpmDtpShowHtml(ymd, hhmmOrLabel, o) {
   o = o || {};
-  var box = function (txt, cls) {
-    return '<div class="dtp-box"><div class="dtp-cell"><span class="dtp-val ' + cls + '">' + txt + '</span></div></div>';
+  var box = function (txt, cls, part) {
+    return '<div class="dtp-box"><div class="dtp-cell">' + _dtpLab(part === 'Date' ? o.label : o.timeLabel, part) +
+      '<span class="dtp-val ' + cls + '">' + txt + '</span></div></div>';
   };
   var d = rpmDtpParse(ymd) ? _dtpDateLabel(ymd, o.year) : (o.dateLabel || '\u2014');
   var t = _dtpMins(hhmmOrLabel) !== null ? _dtpTimeLabel(hhmmOrLabel) : (hhmmOrLabel || '');
-  return '<div class="dtp dtp-ro">' + box(d, o.year ? 'yr' : '') + (t ? box(t, 'tm') : '') + '</div>';
+  return '<div class="dtp dtp-ro">' + box(d, o.year ? 'yr' : '', 'Date') + (t ? box(t, 'tm', 'Time') : '') + '</div>';
 }
 
 // The hidden inputs sit inside the picker, so a picker that is built but not

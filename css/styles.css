@@ -1409,39 +1409,53 @@ a:focus-visible,
 
 /* ─── DATE / TIME PICKER (rpmDtpHtml, core/utils.js, 2026-10-06) ──────────
    The portal's one picker. A date box, and a time box beside it where the
-   time matters. Each value sits in its own border; a thin chevron above and
-   below it, outside the border, says it moves. The value is the control:
-   click it (in a window, hover it) and it lights; ↑↓ step it, ←→ walk
-   between boxes. Used by: Book a trial (inquiry card, Manually, Trial tab
-   form), Pick a time, Reschedule, Payments cash date, Skips, the Home
-   student page's log date, the Audit Fix window, Travel. */
-.dtp { display: inline-flex; align-items: flex-start; gap: 10px; }
-.dtp-box { display: flex; flex-direction: column; align-items: center; }
+   time matters. Each box is Travel's Leaving on look (user, 2026-10-24; the
+   chevrons were above and below, outside a thin border): a 2px frame, a
+   washed DAY / TIME tab, the value, ▲▼ stacked in a short washed column at
+   the right end. The value is the control: click it (in a window, hover it)
+   and it lights; ↑↓ step it, ←→ walk between boxes. Used by: Book a trial
+   (inquiry card, Manually, Trial tab form), Pick a time, Reschedule,
+   Payments cash date, Skips, the student page's log date, the Audit Fix
+   window, Travel. */
+.dtp { display: inline-flex; align-items: center; gap: 10px; }
+.dtp-box { display: flex; }
+.dtp-cell {
+  display: flex; align-items: stretch; height: 40px; box-sizing: border-box;
+  border: 2px solid var(--border); border-radius: var(--radius-card); overflow: hidden;
+  background: var(--surface); padding: 0;
+}
+.dtp-lab {
+  flex: none; display: flex; align-items: center; justify-content: center; padding: 0 12px;
+  background: rgba(255,255,255,0.035); border-right: 1px solid var(--border);
+  font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+  color: rgba(255,255,255,0.24); white-space: nowrap;
+}
+.dtp-chevs {
+  flex: none; display: flex; flex-direction: column; justify-content: center;
+  border-left: 1px solid var(--border); background: rgba(255,255,255,0.035);
+}
 .dtp-chev {
-  background: transparent; border: none; padding: 6px 14px; line-height: 0;
-  cursor: pointer; color: var(--muted); transition: color .12s; touch-action: manipulation;
+  background: transparent; border: none; padding: 4px 12px; line-height: 0;
+  cursor: pointer; color: color-mix(in srgb, var(--muted) 55%, transparent); transition: color .12s; touch-action: manipulation;
 }
 .dtp-chev:hover:where(:not(:disabled)) { color: #fff; }
 .dtp-chev:focus { outline: none; }
 .dtp-chev .dt-ico { width: 11px; height: 6px; display: block; margin: 0 auto; fill: currentColor; }
-.dtp-cell {
-  border: 1px solid color-mix(in srgb, var(--muted) 70%, transparent);
-  border-radius: 7px; background: var(--surface2); padding: 4px 6px;
-}
 .dtp-val {
-  display: block; min-width: 90px; background: transparent; border: none; border-radius: 5px;
-  font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.8px; white-space: nowrap;
-  color: #fff; text-align: center; padding: 5px 2px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; min-width: 120px; box-sizing: border-box;
+  background: transparent; border: none; border-radius: 0;
+  font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.8px; white-space: nowrap; text-transform: uppercase;
+  color: var(--text); text-align: center; padding: 0 14px; cursor: pointer;
   transition: background .12s, color .12s;
 }
-.dtp-val.tm { min-width: 68px; }
-.dtp-val.yr { min-width: 130px; }
+.dtp-val.tm { min-width: 96px; }
+.dtp-val.yr { min-width: 156px; }
 .dtp-val:hover:where(:not(:disabled)) { color: #fff; }
 .dtp-val:focus { outline: none; }
-.dtp-val.on { color: #fff; background: color-mix(in srgb, #fff 12%, transparent); }
+.dtp-val.on { color: #fff; background: color-mix(in srgb, #fff 8%, transparent); }
 /* Read-only boxes (rpmDtpShowHtml): no chevrons, no hover, dimmer. */
 .dtp-ro .dtp-val, .dtp-ro .dtp-val:hover:where(:not(:disabled)) { cursor: default; color: rgba(255,255,255,0.38); }
-.dtp-ro .dtp-cell { border-color: color-mix(in srgb, var(--muted) 25%, transparent); background: transparent; }
+.dtp-ro .dtp-cell { border-color: color-mix(in srgb, var(--border) 60%, transparent); background: transparent; }
 
 /* Trial step windows: a two-way choice (Weekly / Biweekly) in the date and
    time pickers' grey box (2026-09-25, was amber pills), caps like the
@@ -3237,9 +3251,9 @@ th.f2-blk { background:none; }
 #travelCalMonths .tv-cal-day.is-travel span, #travelCalMonths .tv-cal-day.is-off span, #travelCalMonths .tv-cal-day.is-back span { background:var(--bg); }
 #travelBody .tv-dates .tv-date-off .dtp-cell, #travelBody .tv-dates .tv-date-back .dtp-cell { border-radius:var(--radius-card); overflow:hidden; }   /* Leaving on / Back on corners like the Dashboard's boxes (user 2026-10-23; were 7px) */
 #travelBody .tv-dates .tv-in-label { border-radius:0; }   /* the box's corner clips the tab */
-/* Leaving on / Back on ▲▼ in the box's right end, stacked in a short column split off by a line (user 2026-10-23). */
-#travelBody .tv-chevs { flex:none; display:flex; flex-direction:column; justify-content:center; border-left:1px solid var(--border); background:rgba(255,255,255,0.035); }
-#travelBody .tv-chevs .dtp-chev { padding:4px 12px; }
+/* Leaving on / Back on ▲▼ in the box's right end, stacked in a short column split off by a line (user 2026-10-23):
+   the shared picker's own .dtp-chevs since 2026-10-24. The date gives way to the box's width, not the ▲▼. */
+#travelBody .tv-dates .dtp-val { flex:1; min-width:0; }
 /* A Travel Plan section in its own box, like the Dashboard's (user 2026-10-23): 2px frame, title on a washed band, content under it. */
 #travelBody .tv-box { border:2px solid var(--border); border-radius:var(--radius-card); overflow:hidden; }
 #travelBody .tv-box > .tv-sub-head { margin:0; padding:12px 14px 10px; background:rgba(255,255,255,0.035); border-bottom:1px solid var(--border); }

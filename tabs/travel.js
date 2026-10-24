@@ -117,7 +117,7 @@ function _travelRenderDateSpinner(slotId, label, stateKey) {
   if (!wrap) return;
   var id = 'tv' + stateKey;
   wrap.innerHTML =
-    rpmDtpHtml(id, { date: _travelState[stateKey], noTime: true, year: true, min: 'today', group: 'travel', onChange: function() {
+    rpmDtpHtml(id, { date: _travelState[stateKey], noTime: true, year: true, min: 'today', group: 'travel', label: label, labCls: 'tv-in-label', onChange: function() {
       var s = _travelState, ymd = rpmDtpGet(id).date;
       s[stateKey] = ymd;
       // Leave pushed onto or past Return: Return goes along, a day after it (user, 2026-10-19; it stayed on today).
@@ -131,15 +131,9 @@ function _travelRenderDateSpinner(slotId, label, stateKey) {
       _travelRenderCal();
       _travelMarkStale();
     } });
-  // The label sits in the box, before the date (2026-10-18; was a row above it).
-  var cell = wrap.querySelector('.dtp-cell');
-  if (!cell) return;
-  cell.insertAdjacentHTML('afterbegin', "<span class='tv-in-label'>" + label + "</span>");   // no → after it (user, 2026-10-19)
-  // ▲▼ inside the frame, a short column at the right end (user, 2026-10-23; were over and under the date).
-  var col = document.createElement('span');
-  col.className = 'tv-chevs';
-  wrap.querySelectorAll('.dtp-chev').forEach(function (c) { col.appendChild(c); });
-  cell.appendChild(col);
+  // The label sits in the box, before the date (2026-10-18; was a row above it), and the
+  // ▲▼ in a short column at the right end (2026-10-23): the shared picker's own look
+  // since 2026-10-24 (label + labCls), so no more moving its parts here.
 }
 
 // The vacation dates moved: Set again, and the buffer starts over at none.
