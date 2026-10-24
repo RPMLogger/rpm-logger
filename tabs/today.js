@@ -55,12 +55,12 @@ function _tdRender() {
   if (!body) return;
   var list = todayStudents || [];
   var now = new Date();
-  var head = '<div class="settings-title"><span>Today<span class="win-sub"> · ' +
-    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()] + ', ' + MONTHS[now.getMonth()] + ' ' + now.getDate() + '</span></span>' +
-    '<button class="link-btn td-week-btn" onclick="_tdWeekOpen()">' + CALENDAR_ICON + '<span>Week</span></button></div>' +
-    '<div class="ld-icon td-icon">' + CALENDAR_ICON.replace('class="calendar-icon"', 'class="win-icon"') + '</div>';   // the Week window's calendar under the title, like Availability (user, 2026-10-23)
+  // Today's top part in a box like This Week's under it (user, 2026-10-24): title, calendar, count, list.
+  var head = '<div class="td-wk-box td-today-box"><div class="settings-title td-wk-title"><span>Today<span class="win-sub"> · ' +
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()] + ', ' + MONTHS[now.getMonth()] + ' ' + now.getDate() + '</span></span></div>' +   // no Week button: This Week is under it (user, 2026-10-24)
+    '<div class="td-wk-icon">' + CALENDAR_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>';   // the Week window's calendar under the title, like Availability (user, 2026-10-23)
   // A day off (2026-10-08): the resting figure over the line (om-82).
-  if (!list.length) { body.innerHTML = head + '<div class="empty-state td-rest">' + REST_ICON + '<div>No lessons today!</div></div>'; return; }
+  if (!list.length) { body.innerHTML = head + '<div class="empty-state td-rest">' + REST_ICON + '<div>No lessons today!</div></div></div>' + _tdWeekSection(); return; }
   list.forEach(function (s) { if (!_td.data[_imKey(s.name)]) _tdLoad(s.name); });
   // At the top (2026-10-06): how many, and a mini list of times + names; a
   // name jumps to its card.
@@ -70,11 +70,11 @@ function _tdRender() {
       // The name is the portal's plain link button; the open one stays lit (2026-10-09).
       return '<div class="td-mini-row' + (_td.sel === _imKey(s.name) ? ' td-on' : '') + '" id="tdMini' + i + '">' +
         '<span class="td-mini-t">' + _tdTime(s.eventDate) + '</span><button class="link-btn td-mini-b" onclick="_tdJump(' + i + ')">' + inqEsc(s.name) + '</button></div>';
-    }).join('') + '</div>' +
-    '<hr class="divider td-rule">';   // lines under the count and between the list and the card (2026-10-09)
-  body.innerHTML = head + mini + list.map(function (s, i) {
+    }).join('') + '</div></div>';   // the box ends after the list; the open card goes under it
+  // The open card is a window over the page (user, 2026-10-24); a click outside it closes it.
+  body.innerHTML = head + mini + '<div class="im-notes-back td-card-back' + (_td.sel ? ' td-show' : '') + '" id="tdCardBack" onclick="if (event.target === this) _tdClose()">' + list.map(function (s, i) {
     return '<div class="td-student' + (_td.sel === _imKey(s.name) ? ' td-open' : '') + '" id="tdCard' + i + '" style="--td-c:' + _tdColor(i) + '" data-key="' + _auEsc(_imKey(s.name)) + '">' + _tdStudentHtml(s) + '</div>';
-  }).join('');
+  }).join('') + '</div>' + _tdWeekSection();
   _imFixTips(body);
 }
 
@@ -87,15 +87,21 @@ function _tdJump(i) {
   _td.sel = _td.sel === key ? null : key;
   document.querySelectorAll('#todayBody .td-student').forEach(function (c) { c.classList.toggle('td-open', c.getAttribute('data-key') === _td.sel); });
   document.querySelectorAll('#todayBody .td-mini-row').forEach(function (r, j) { r.classList.toggle('td-on', j === i && !!_td.sel); });
+  var back = document.getElementById('tdCardBack');
+  if (back) back.classList.toggle('td-show', !!_td.sel);
 }
-function _tdToggle(i) { _tdJump(i); }
+function _tdClose() {
+  var el = document.querySelector('#todayBody .td-student.td-open');
+  if (el) _tdJump(parseInt(el.id.replace('tdCard', ''), 10));
+}
 
 function _tdStudentHtml(s) {
   // Name · Quick look (2026-10-06, was the lesson time), with a chevron: the
   // whole row opens and closes the card (2026-10-09).
   var d = _td.data[_imKey(s.name)] || {}, i = (todayStudents || []).indexOf(s);
-  var title = '<div class="settings-title im-title td-head" onclick="_tdToggle(' + i + ')"><span>' + inqEsc(s.name) +
-    '<span class="win-sub"> · Quick look</span></span><span class="td-chev">' + dtArrow(-1) + '</span></div>';
+  // A window since 2026-10-24: the ✕ closes it, like every window (was the chevron + the whole row).
+  var title = '<div class="settings-title im-title td-head"><span>' + inqEsc(s.name) +
+    '<span class="win-sub"> · Quick look</span></span><button class="settings-close" onclick="_tdClose()">✕</button></div>';
   var body = d.failed ? '<div class="empty-state">Could not read: ' + inqEsc(d.failed) + '</div>'
     : !d.lessons ? '<div class="empty-state rpm-loading">Loading</div>'
     : _imStudentHtml(s.name, d.lessons, d.hw, null, { noTitle: true, noNotes: true }) +
@@ -148,22 +154,25 @@ function _tdRefresh(name) {
   _tdLoad(name);
 }
 
-// ── Week window (2026-10-09; was its own Week tab) ──
+// ── This Week (2026-10-09 a window, was its own Week tab; 2026-10-24 a box under Today's, the Week button gone) ──
 // This week's lessons, Mon–Sun, read-only: one group per day (a day off: one line, a dash for its date), time + name like
 // the list at the top of Today. Every day looks the same (no dimming: Today is the tab for today).
-// The count under the icon in Today's heading, weekly · biweekly under it.
-function _tdWeekOpen() {
+function _tdWeekSection() {
+  var w = _tdWeekHtml();
+  return '<div class="td-wk-box"><div class="settings-title td-wk-title"><span>This Week<span class="win-sub"> · ' + w.sub + '</span></span></div>' +
+    '<div class="td-wk-icon">' + CALENDAR_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>' +   // the window's calendar under the title
+    w.body + '</div>';
+}
+function _tdWeekHtml() {
   var list = (typeof weekStudents !== 'undefined' && weekStudents) || [];
   var DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   var now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   var mon = new Date(today); mon.setDate(today.getDate() - (today.getDay() + 6) % 7);
   var sun = new Date(mon); sun.setDate(mon.getDate() + 6);
   function md(d) { return MONTHS[d.getMonth()] + ' ' + d.getDate(); }
-  var n = function (t) { return list.filter(function (s) { return s.calType === t; }).length; };
-  // How many, in Today's "3 students" heading; weekly · biweekly under it, trial only when there is one.
+  // How many, like Today's "3 students" (the weekly · biweekly line went with the window, 2026-10-24).
   var body = '<div class="db-cx-head im-sec-head td-wk-head"><label class="field-label db-cx-t">' + list.length + (list.length === 1 ? ' student' : ' students') + '</label></div>' +
-    '<div class="td-wk-count">' + n('weekly') + ' weekly · ' + n('biweekly') + ' biweekly' + (n('trial') ? ' · ' + n('trial') + ' trial' : '') + '</div>' +
-    '<hr class="divider td-wk-rule">';   // a line under the counts, like Today's under "3 students"
+    '<hr class="divider td-wk-rule">';
   // The calendar read isn't in yet: say so, don't claim an empty week.
   if (!window._weekFetchedDay) body = '<div class="empty-state rpm-loading">Loading</div>';
   else if (!list.length) body += '<div class="empty-state">No lessons this week</div>';
@@ -178,5 +187,5 @@ function _tdWeekOpen() {
         return '<div class="td-mini-row"><span class="td-mini-t">' + _tdTime(s.eventDate) + '</span><span class="td-wk-name">' + inqEsc(s.name) + '</span></div>';
       }).join('') + '</div>';
   });
-  _stWin('tdWeekWin', 'This Week', md(mon) + ' – ' + md(sun), CALENDAR_ICON, body);
+  return { body: body, sub: md(mon) + ' – ' + md(sun) };
 }

@@ -2168,18 +2168,17 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-none, .im-hw-row .im-s { font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.6; color: var(--muted); }   /* None / No HW sent: the HW drop area's "No new files" type (2026-10-06) */
 .im-none { padding: 0; }
 /* Today tab (2026-10-06): today's students one under the other, room between each. */
-#todayBody > .settings-title { margin-bottom: 10px; }   /* the calendar icon right under Today · date (2026-10-23; was 30px) */
-#todayBody > .td-icon { margin: 0 0 26px; color: var(--muted); }   /* then the room under it, like Availability */
-#todayBody > .td-icon .win-icon { height: 20px; }   /* as big as the Dropbox Overview folder (user, 2026-10-23; was 34px) */
-#tdWeekWin .win-icon { height: 20px; }   /* This Week's calendar, same size too (user, 2026-10-23; was 18px) */
-#todayBody > .settings-title .win-sub { color: rgba(255,255,255,0.3); }   /* the date a step darker than the names under it (2026-10-09) */
-/* Today's count + mini list (2026-10-06): time, then the name as a button. */
-#todayBody > .td-count { margin-top: 0; }
+#todayBody .td-today-box .td-wk-title .win-sub { color: rgba(255,255,255,0.3); }   /* the date a step darker than the names under it (2026-10-09) */
+/* Today's count + mini list (2026-10-06): time, then the name as a button; in the box since 2026-10-24. */
+#todayBody .td-today-box { margin-top: 0; }   /* still centred: .td-wk-box's auto sides */
+#todayBody .td-today-box .td-count { margin-top: 0; }
 .td-mini { margin-bottom: 34px; display: flex; flex-direction: column; gap: 6px; }
 #todayBody .td-mini { border: none; background: none; padding: 0; gap: 12px; }   /* a plain list, no box, rows spaced out (2026-10-09) */
-#todayBody .td-mini { margin-bottom: 28px; }
-#todayBody .td-rule { margin: 0 0 28px; }
+#todayBody .td-mini { margin-bottom: 0; }   /* the box's padding under the last name */
 #todayBody .td-rule-top { margin: 0 0 18px; }
+#todayBody .td-today-box .td-rest { padding: 10px 0 6px; }
+#todayBody .td-card-back:not(.td-show) { display: none; }   /* the open card as a window over the page (user, 2026-10-24) */
+#todayBody .td-card-back .td-student { margin: 0; width: min(600px, 94vw); max-height: 90vh; overflow: auto; box-sizing: border-box; }
 .td-mini-row { display: flex; align-items: center; gap: 14px; }
 .td-mini-t { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); min-width: 64px; }
 /* Each student's own colour on their card: the edge and the name. */
@@ -2201,16 +2200,12 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #todayBody .td-student:not(.td-open) { display: none; }
 /* Today's names are the portal's plain link buttons; the open one wears the hover look (2026-10-09). */
 .td-mini-row.td-on .td-mini-b { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
-#todayBody .td-head { cursor: pointer; user-select: none; margin: 0; padding: 18px 0; }
+#todayBody .td-head { margin: 0; padding: 18px 0; }
 #todayBody .td-body { display: none; padding-bottom: 22px; }
 #todayBody .td-open .td-body { display: block; }
 #todayBody .td-stamp { display: block; height: 28px; width: auto; margin: 0 auto; opacity: .38; transform: translateY(4px) rotate(-1deg); }   /* tilted up 1°, like a hand stamp; nudged down without moving History */
 #todayBody .td-stamp + .im-sec-head { margin-top: 10px; }   /* History close under the stamp */
 #todayBody .td-open .td-head { padding-bottom: 6px; }
-.td-chev { color: var(--muted); display: flex; transition: transform .15s, color .12s; }
-.td-chev .dt-ico { width: 12px; height: 7px; fill: currentColor; }
-#todayBody .td-head:hover:where(:not(:disabled)) .td-chev { color: #fff; }
-#todayBody .td-open .td-chev { transform: rotate(180deg); }
 /* Log lesson, small and grey, bottom left of the Today card (2026-10-11). */
 #todayBody .td-foot { margin-top: 18px; }
 /* Owes 2 blocks (quiet) / 3+ (red alert), under the name on Today (2026-10-12) */
@@ -2431,13 +2426,9 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .td-rest .rest-icon { height: 64px; width: auto; color: var(--muted); opacity: .7; }
 .au-good .rest-icon { height: 30px; }   /* Audit all-clear icon, the regular window-icon size (2026-10-13) */
 
-/* Today's Week button + Week window (2026-10-09; the Week tab's list, in the portal's window look). */
-.td-week-btn .calendar-icon { margin-right: 6px; }
-.st-win .td-wk-head { margin: 0 0 6px; }
-.td-wk-count { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.24); margin: 0 0 18px; text-transform: uppercase; }   /* the clock times' dark grey and caps, like PM (2026-10-10) */
+/* This Week's list (2026-10-09 the Week window; 2026-10-24 a box under Today's). */
 .td-wk-day { display: flex; flex-direction: column; gap: 9px; }
 .td-wk-day + .td-wk-day { margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--border); }
-.st-win .td-wk-day .field-label { margin-bottom: 2px; }
 .td-wk-date { color: var(--muted); }
 .td-wk-dn { display: inline-block; width: 78px; }   /* the time column + gap, so the date lines up with the names */
 /* Times and names in the Intake cards' label + value look (Date · Sep 23): DM Mono 10.5px, 24% / 50% white. */
@@ -2445,12 +2436,15 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .td-wk-name { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.5); }
 .td-wk-day .field-label { color: var(--accent); }   /* every day red, none dimmed */
 .td-wk-none { font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }   /* a day off: OPEN in the date's place, small, the date's grey */
-.st-win .td-wk-rule { margin: 0 0 12px; }
-.td-wk-day { gap: 0; }   /* Dashboard's row lines (user, 2026-10-23): the strong line under the day, a faint one under every lesson, none above the next day */
-.td-wk-day + .td-wk-day { margin-top: 18px; padding-top: 0; border-top: none; }
-.st-win .td-wk-day .field-label { margin-bottom: 0; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-.td-wk-day .td-mini-row { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-.td-wk-day .td-mini-row:last-child { border-bottom: none; }   /* nothing after a day's last lesson (user, 2026-10-23) */
+/* Today and This Week boxes (user, 2026-10-24): the old Week window's size and look, full length, centred on the page */
+.td-wk-box { margin: 34px auto 0; box-sizing: border-box; width: 100%; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }   /* the Week window's size and look (.st-win / .log-panel) */
+.td-wk-box .field-label { display: block; }
+.td-wk-title .win-sub { font-size: 15px; }   /* the dates smaller than THIS WEEK (user, 2026-10-24) */
+.td-wk-icon { margin: 4px 0 18px; }   /* _stWin's icon spacing */
+.td-wk-icon .win-icon { height: 20px; }
+.td-wk-box .td-wk-head { margin: 0 0 10px; }   /* the count → line → list spacing of Today's box (user, 2026-10-24) */
+.td-wk-box .td-wk-day .field-label { margin-bottom: 2px; }
+.td-wk-box .td-wk-rule { margin: 0 0 18px; }
 
 /* General tab in the This Week window's look (2026-10-10): the four gold cards
    become flat sections one under the other. Section names red like MON; labels
