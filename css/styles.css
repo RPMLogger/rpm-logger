@@ -339,7 +339,8 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Every loading state in the portal: the dot ring, then the word. Nothing
    else says "loading" anywhere, so the shape alone is enough to recognise. */
 .rpm-loading { display: flex; align-items: center; justify-content: center; gap: 9px; line-height: 1;
-  text-transform: uppercase; letter-spacing: 1.5px; }   /* LOADING, SAVING, GATHERING DATA: all caps everywhere (user, 2026-10-23) */
+  text-transform: uppercase; letter-spacing: 1.5px; font-size: 10px !important; }   /* LOADING, SAVING, GATHERING DATA: all caps everywhere (user, 2026-10-23); 10px, a bit smaller (user, 2026-10-24) */
+.rpm-loading:not(:empty)::after { content: "..."; margin-left: -8px; }   /* every waiting word ends in three dots (user, 2026-10-24); the margin undoes the ring's gap */
 .rpm-loading::before {
   content: ""; width: 16px; height: 16px; flex: none;
   background: url("../img/loading.png") center / contain no-repeat;

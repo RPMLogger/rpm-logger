@@ -534,7 +534,7 @@ function _travelPlanDim(on) {
   c.classList.toggle('tv-loading', !!on);
   // Everything dims, Review's button too, and "Gathering data…" sits mid-screen (user, 2026-10-23; the button had its own spinner).
   var msg = c.querySelector('.rpm-load-center');
-  if (on && !msg) c.insertAdjacentHTML('beforeend', "<div class='rpm-load-center rpm-keep'><span class='rpm-loading'>Gathering data…</span></div>");
+  if (on && !msg) c.insertAdjacentHTML('beforeend', "<div class='rpm-load-center rpm-keep'><span class='rpm-loading'>Gathering data</span></div>");
   else if (!on && msg) msg.remove();
 }
 

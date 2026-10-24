@@ -321,7 +321,7 @@ function _f2ExCall(action, q, btn, word, doneWord, onTab) {
     if (on && document.activeElement) document.activeElement.blur();   // a focused button would glow through the dim
     modal.classList.toggle('rpm-busy', on);
     var msg = modal.querySelector('.rpm-load-center');   // the portal's own mid-screen loading box
-    if (on && !msg) modal.insertAdjacentHTML('beforeend', '<div class="rpm-load-center rpm-keep"><span class="rpm-loading">' + word + '…</span></div>');
+    if (on && !msg) modal.insertAdjacentHTML('beforeend', '<div class="rpm-load-center rpm-keep"><span class="rpm-loading">' + word + '</span></div>');
     else if (!on && msg) msg.remove();
   };
   if (st) st.innerHTML = '';

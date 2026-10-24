@@ -87,7 +87,7 @@ function _gbOpen(i) {
     '<div id="gbMsgStatus"></div>' +
     '<iframe id="gbFrame" class="gb-frame" sandbox="allow-popups allow-popups-to-escape-sandbox"></iframe>';
   ov.classList.add("open");
-  rpmSetLoading(document.getElementById("gbMsgStatus"), "Opening…");
+  rpmSetLoading(document.getElementById("gbMsgStatus"), "Opening");
   fetch(getScriptUrl() + "?action=getGBusinessMessage&id=" + encodeURIComponent(e.id))
     .then(function(r) { return r.json(); })
     .then(function(data) {

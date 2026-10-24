@@ -462,7 +462,7 @@ function closePayAudit() {
 function loadIncomingPayments() {
   var url = getScriptUrl(); if (!url) return;
   var container = document.getElementById("incomingPayments");
-  container.innerHTML = "<div class='rpm-loading' style='color:var(--muted);font-size:11px'>Loading</div>";
+  container.innerHTML = "<div class='rpm-loading' style='color:var(--muted)'>Loading</div>";
 
   fetch(url + "?action=getIncomingPayments")
     .then(function(r) { return r.json(); })
@@ -601,7 +601,7 @@ function closePaymentHistory() {
 function loadPaymentHistory() {
   var url = getScriptUrl(); if (!url) return;
   var list = document.getElementById("payHistoryList");
-  list.innerHTML = "<div class='rpm-loading' style='color:var(--muted);font-size:11px'>Loading</div>";
+  list.innerHTML = "<div class='rpm-loading' style='color:var(--muted)'>Loading</div>";
 
   fetch(url + "?action=getPaymentHistory")
     .then(function(r) { return r.json(); })

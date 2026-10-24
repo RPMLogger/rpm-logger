@@ -472,7 +472,7 @@ function _dbCardOpenHtml(f) {
 // Who the folder is shared with, and the RPM-Counter email beside it when the
 // two differ. One sharing check covers every folder, so it runs once per load.
 function _dbEmailHtml(name) {
-  if (!_dbSharing) return '<span class="rpm-loading is-inline">checking…</span>';   // the portal's ring while Dropbox is read (2026-10-22)
+  if (!_dbSharing) return '<span class="rpm-loading is-inline">checking</span>';   // the portal's ring while Dropbox is read (2026-10-22)
   var r = _dbSharing[name];
   if (!r) return '—';
   var shared = (r.sharedWith || []).join(', ');
