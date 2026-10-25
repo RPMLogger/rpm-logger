@@ -445,7 +445,7 @@ function rpmBusy(root, btn, on, word) {
 var RPM_BUSY_WORDS = { log: 'Logging', save: 'Saving', set: 'Saving', send: 'Sending', remove: 'Removing', 'delete': 'Removing',
   move: 'Moving', skip: 'Skipping', book: 'Booking', upload: 'Uploading' };
 function rpmBusyWord(btn) {
-  var t = btn ? String(btn.textContent || '').trim() : '';
+  var t = btn ? String(btn.textContent || '').replace(/^＋\s*/, '').trim() : '';   // "＋ Log" is a Log button (2026-10-25)
   if (/(…|\.\.\.)$/.test(t)) return t.replace(/\s*(…|\.\.\.)$/, '');   // the button already says it: "Skipping…"
   return RPM_BUSY_WORDS[t.split(/\s+/)[0].toLowerCase()] || 'Saving';
 }

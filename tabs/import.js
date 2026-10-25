@@ -177,7 +177,7 @@ function _imLogWinOpen(student, idx, day, item, next) {
   w.querySelector('.st-win').classList.add('im-log-win');
   // Today's look (2026-10-11, from Today; everywhere since): grey, red only on the name and Reschedule.
   w.querySelector('.st-win').classList.add('td-look');
-  w.onclick = null;   // only ✕ closes it (user, 2026-10-17, like the Email window): an outside click lost Jiayi's Email window
+  w.onclick = null;   // only ✕ closes it (user, 2026-10-17): an outside click lost Jiayi's email
   w.querySelector('[data-close]').onclick = closeLogPanel;
   var panel = document.getElementById('logPanel');
   window._logPanelHome = { parent: panel.parentNode, next: panel.nextSibling, css: panel.style.cssText };
@@ -199,16 +199,93 @@ function _imLogWinOpen(student, idx, day, item, next) {
     var sb = w.querySelector('.im-sched-box'), sec = sb && sb.closest('.im-main-box');
     if (sec) { sec.style.display = 'none'; if (sec.previousElementSibling) sec.previousElementSibling.style.display = 'none'; }
   }
+  _imTeachWire();
+  _imMailWire(student, name, day);
   if (item && item.log) _imLogLock(item.logText || '');
   _imStepsRender();
+}
+// 3. Notes to teacher (2026-10-25): optional rows under HW, private. They go
+// into the same Students Import cell as the log, after "TEACHER:", and never
+// into the email.
+function _imTeachBox() { return _imQ('imTeachRows'); }
+function _imTeachWire() {
+  _imNoteWire('imTeach', null);
+  // 4. Notes to the student (2026-10-25): optional, only in the email's NOTES
+  // part (not the sheet's cell). Open till Send; kept in this browser per lesson.
+  var w = window._imWin, box = _imStuBox(), o = {};
+  try { o = JSON.parse(localStorage.getItem(_imRowsKey(w.name, w.day)) || '{}'); } catch (e) {}
+  if (box && o.notes && o.notes.length) {
+    box.innerHTML = o.notes.map(function (v, i) { return '<input type="text" class="rpm-field ll-row' + (i ? '' : ' active') + '" value="' + _auEsc(v) + '">'; }).join('');
+  }
+  _imNoteWire('imStu', function () { _imRowsPut('notes', llValues(box)); _imStepsRender(); });
+}
+function _imStuBox() { return _imQ('imStuRows'); }
+// One rows box with its own ＋ and mic (ids <pre>Rows / <pre>Add / <pre>Mic).
+function _imNoteWire(pre, onChange) {
+  var box = _imQ(pre + 'Rows');
+  if (!box) return;
+  llWire(box, function (i) { llRows(box).forEach(function (el, j) { el.classList.toggle('active', j === i); }); }, onChange, null);
+  llPlaceMic(box);
+  _imQ(pre + 'Add').onclick = function () { llAddRow(box); };
+  _imQ(pre + 'Mic').onclick = function () { _imDictate(this, box); };
+}
+function _imTeachText() {
+  var box = _imTeachBox(), rows = box ? llValues(box).filter(Boolean) : [];
+  return rows.length ? toSentenceCase(rows.join(', ')) : '';
+}
+function _imTeachLock(on) {
+  var box = _imTeachBox(), mic = _imQ('imTeachMic');
+  if (!box) return;
+  if (on) llLock(box); else { box.classList.remove('locked'); llRows(box).forEach(function (el) { el.readOnly = false; }); }
+  if (mic) mic.disabled = on;
+}
+// The log in the Lessons list: the teacher note dimmer, after the lesson (2026-10-25).
+function _imLogShow(t) {
+  var note = _imTeacherOf(t);
+  return inqEsc(_imNoTeacher(t)) + (note ? ' <span class="im-teach">TEACHER: ' + inqEsc(note) + '</span>' : '');
+}
+// A cell's log without its teacher note, and the note alone.
+function _imNoTeacher(t) { return String(t || '').replace(/\s*\bTEACHER:[\s\S]*$/, '').trim(); }
+function _imTeacherOf(t) { var m = String(t || '').match(/\bTEACHER:\s*([\s\S]*)$/); return m ? m[1].trim() : ''; }
+// Dictation into the box's active row, added after what's there (one box at a time).
+var _imDictRec = null;
+function _imDictStop() { if (_imDictRec) { var r = _imDictRec; _imDictRec = null; r.onend = null; r.abort(); } }
+function _imDictate(btn, box) {
+  if (!box || box.classList.contains('locked')) return;
+  var ta = box.querySelector('.ll-row.active') || llRows(box)[0];
+  if (_imDictRec) { var same = _imDictRec._btn === btn; _imDictRec.stop(); if (same) return; }
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { rpmFail('logPanelStatus', 'Speech not supported. Use Chrome.'); return; }
+  var r = _imDictRec = new SR(), base = ta.value.trim();
+  r._btn = btn;
+  r.lang = 'en-US'; r.continuous = true; r.interimResults = true;
+  r.onstart = function () { btn.innerHTML = MIC_STOP_ICON; btn.classList.add('rec'); playBeep(880, 100); };
+  r.onresult = function (ev) {
+    var fin = '', tmp = '';
+    for (var i = ev.resultIndex; i < ev.results.length; i++) {
+      if (ev.results[i].isFinal) fin += ev.results[i][0].transcript; else tmp += ev.results[i][0].transcript;
+    }
+    if (fin) base = (base + ' ' + fin).replace(/\s+/g, ' ').trim();
+    ta.value = (base + ' ' + tmp).replace(/\s+/g, ' ').trim();
+  };
+  r.onend = function () {
+    btn.innerHTML = MIC_ICON; btn.classList.remove('rec');
+    if (_imDictRec !== r) return;
+    _imDictRec = null;
+    playBeep(440, 80, 0.15);
+  };
+  r.start();
 }
 // Already logged (the sheet says so): its text in the row, locked, like right after Log.
 function _imLogLock(text) {
   if (!activeStudent) return;
   activeStudent.logged = true;
   var row = llRows(_logBox())[0];
-  if (row) row.value = text;
+  if (row) row.value = _imNoTeacher(text);
   llLock(_logBox());
+  var tb = _imTeachBox(), tr = tb && llRows(tb)[0];
+  if (tr) tr.value = _imTeacherOf(text);
+  _imTeachLock(true);
   var mic = document.getElementById('logMicBtn');
   if (mic) mic.disabled = true;
   var lb = document.getElementById('btnLog');
@@ -249,20 +326,11 @@ function _imQueue(name) {
   return q;
 }
 // Opens the first; after its Done the next one opens, till none are left.
-// Only the email left (2026-10-16): the Email window, no Log lesson window.
+// Only the email left: the Log window too, done steps dim, 4. Email open (2026-10-25).
 function _imRunQueue(q, onEach) {
   var x = q.shift();
   if (!x) return;
   var next = q.length ? function () { _imRunQueue(q, onEach); } : null;
-  var m = x.item && x.item.missing;
-  if (m && m.length === 1 && m[0] === 'Email') {
-    var mail = _imMailFromItem(x.student.name, x.item);
-    mail.next = next;
-    _imMailOpen(mail);
-    if (onEach) onEach(x);
-    if (window._imLogActive) mail.fromImport = true;
-    return;
-  }
   _imLogWinOpen(x.student, x.idx, x.date, x.item, next);
   if (onEach) onEach(x);
 }
@@ -329,19 +397,22 @@ function _imSchedSet(name, v, day) {
 }
 var _imSchedBusy = {};   // lesson key → a Schedule save still on its way
 function _imNoChangeToggle(name) { var d = _imCtx().day; _imSchedSet(name, _imSchedGet(name, d) === 'nochange' ? '' : 'nochange', d); }
+// Needed / Not needed (2026-10-25); again undoes it. A saved skip or move stays
+// Needed (it's in the calendar already); Reschedule stays open for another.
+function _imSchedPick(name, v) {
+  var w = window._imWin, d = _imCtx().day, cur = _imSchedGet(name, d);
+  if (!w) return;
+  if (cur === 'changed') return;   // a skip or move is saved: Needed it was
+  if (v === 'no') { w.schedNeed = false; _imSchedSet(name, cur === 'nochange' ? '' : 'nochange', d); return; }
+  w.schedNeed = !w.schedNeed;
+  if (w.schedNeed && cur === 'nochange') _imSchedSet(name, '', d);
+  else _imStepsRender();
+}
 
-// ── Email window (2026-10-16): the lesson recap email (RPM_LessonMsg.js) ──
-// When the Log lesson window's four steps are done it closes ("Logged ✓") and
-// this opens for the same lesson (from the Audit, or Students' Log lesson,
-// straight away when only the email is left). "Your Guitar Lesson Recap —
-// Oct 15": the short log and HW line sit on top for reference, and you dictate
-// Lesson notes and Things to practice as proper sentences (both required),
-// plus optional Notes ("bring your capo"; left out when empty). Materials come
-// from what was sent. Preview shows the email exactly as it will go
-// (previewLessonMessage); Send sends it, ticks Email in the Lesson Checklist,
-// keeps a Lesson Recaps row, and the lesson is Done. (No "No email" button,
-// user 2026-10-16; saveLessonMessage stays for later.) What's typed is kept in this
-// browser till it's sent, so a closed window loses nothing. Email only.
+// ── Email step (2026-10-16): the lesson recap email (RPM_LessonMsg.js) ──
+// "Your Guitar Lesson Recap — Oct 15". Since 2026-10-25 it's the Log lesson
+// window's last section (4. Email the student, _imMailWire): no Email window.
+// Send ticks Email in the Lesson Checklist and keeps a Lesson Recaps row.
 // Today's lesson, once logged: the steps still missing (Students cards + the student page).
 function _imTodayMiss(n) {
   var m = [];
@@ -374,8 +445,6 @@ function _imMsgKey(name, day) { return 'imMsg|' + _imKey(name) + '|' + (day || _
 // 'Sent', 'Not needed' or ''.
 function _imMsgGet(name, day) {
   day = day || _tdYmd();
-  var m = window._imMail;
-  if (m && m.state !== undefined && _imKey(m.name) === _imKey(name) && m.day === day) return m.state;
   var it = _ckItem(name, day);
   if (it) return it.msg || '';
   try { return localStorage.getItem(_imMsgKey(name, day)) || ''; } catch (e) { return ''; }
@@ -384,24 +453,9 @@ function _imMsgPut(name, day, v) {
   try { if (v) localStorage.setItem(_imMsgKey(name, day), v); else localStorage.removeItem(_imMsgKey(name, day)); } catch (e) {}
   var it = _ckItem(name, day);
   if (it) it.msg = v;
-  var m = window._imMail;
-  if (m && _imKey(m.name) === _imKey(name) && m.day === day) m.state = v;
 }
 // Still to send for this lesson (from Oct 16; trials and older lessons have none).
 function _imMailNeeded(name, day) { return day >= MSG_START && !_imMsgGet(name, day); }
-// The lesson, from the Log lesson window as it closes.
-function _imMailFromWin(w) {
-  var hw = logHw, sent = hw.choice === 'sent';
-  return { name: w.name, day: w.day,
-    log: toSentenceCase(llValues(_logBox()).filter(Boolean).join(', ')), hw: hw.text || '',
-    files: !!(sent && hw.filesOn && hw.files.length), links: sent ? hw.links.slice() : [], phone: !!(sent && hw.phone), none: hw.choice === 'none',
-    trial: w.trial || null, to: w.trial || '' };
-}
-// The lesson, from a Lesson checklist entry (Audit / Students' Log lesson).
-function _imMailFromItem(name, it) {
-  return { name: name, day: it.date, log: it.logText || '', hw: it.hwText || '',
-    files: !!(it.hwFiles && it.hwFiles.length), links: (it.hwLinks || []).slice(), phone: /Phone/.test(it.hw || ''), none: /None/.test(it.hw || '') };
-}
 // The Log window's boxes, one per row (2026-10-17): the sheet joins them with
 // commas, so "b7, root" typed in one box came back as two lines. Kept in this
 // browser at Log / HW time; used only while they still join to the saved text
@@ -420,170 +474,75 @@ function _imRowsFor(m, part, text) {
   var norm = function (t) { return String(t || '').replace(/\s+/g, ' ').trim().toLowerCase(); };
   return r && r.length && norm(r.join(', ')) === norm(text) ? r : text;
 }
-function _imMailDraftKey(m) { return 'imMail|' + _imKey(m.name) + '|' + m.day; }
-function _imMailDraft(m, d) {
-  try {
-    if (d === undefined) return JSON.parse(localStorage.getItem(_imMailDraftKey(m)) || '{}');
-    if (d) localStorage.setItem(_imMailDraftKey(m), JSON.stringify(d)); else localStorage.removeItem(_imMailDraftKey(m));
-  } catch (e) { return {}; }
-}
-function _imMailQ(id) { var w = document.getElementById('imMailWin'); return w ? w.querySelector('#' + id) : null; }
-// m: { name, day, log, hw, files, links, none, next?, fromImport? }
-function _imMailOpen(m) {
-  window._imMail = m;
-  var dr = _imMailDraft(m), esc = inqEsc;
-  // Rows like the Log window's (2026-10-16): Enter or ＋ adds one, each row is
-  // a sentence (it gets its full stop), rows join with spaces.
-  function field(id, title, ref, ph, val, cls) {
-    var rows = (Array.isArray(val) ? val : [val || '']).filter(function (v, i) { return v || !i; });
-    // The short log / HW rows as a small italic list under the title (2026-10-16).
-    return '<div class="im-mail-sec' + (cls || '') + '"><div class="im-mail-head"><label class="field-label">' + title.replace(/^((?:[A-Z]|\d+)\.)\s*/, '<span class="im-mail-n">$1</span>') + '</label>' +
-      // As a list (user, 2026-10-16): the log's comma-joined rows, one per line.
-      (ref !== null ? '<div class="im-mail-ref">' + (ref && ref.length ? '<ul>' + (Array.isArray(ref) ? ref : String(ref).split(/\s*,\s*/)).filter(Boolean).map(function (x) { return '<li class="im-copy"><span class="im-copy-t">' + esc(x) + '</span><button type="button" class="im-copy-b" data-tip="Instant.&#10;Copies this line.">' + COPY_ICON + '</button></li>'; }).join('') + '</ul>' : 'Nothing logged') + '</div>' : '') + '</div>' +
-      '<div class="ll-wrap"><div class="ll-rows" id="' + id + '">' + rows.map(function (v, i) {
-        return '<input type="text" class="rpm-field ll-row' + (i ? '' : ' active') + '"' + ' value="' + _auEsc(v) + '">';
-      }).join('') + '</div>' +
-      '<button type="button" class="link-btn tl-mic" data-mic="' + id + '" data-tip="Starts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
-      '<button type="button" class="ll-add" data-add="' + id + '" data-tip="Instant.&#10;Adds a row. Enter does too.&#10;Each row is a sentence.">' + llAddInner() + '</button></div>';
-  }
-  // Lesson notes and HW start filled with the Log window's rows, one row each (user, 2026-10-18),
-  // so no reference list above them; a draft already typed here wins.
-  function prefill(draft, ref) {
-    if (Array.isArray(draft) ? draft.some(Boolean) : draft) return draft;
-    return (Array.isArray(ref) ? ref : String(ref || '').split(/\s*,\s*/)).filter(Boolean);
-  }
-  // No Materials section (user, 2026-10-17): it fills itself from the Log window; the email still lists them (m.files, m.links).
-  var body =
-    // Bands (2026-10-16): the title row dark, then 1 and 3 lighter, 2 and 4 dark.
-    // Look (user, 2026-10-16): no To or Subject on show (To is the Counter
-    // email, the subject is fixed); four numbered red titles like the Log
-    // window's "1. Log"; the short log / HW line in italics above its box;
-    // Notes a small optional box; buttons amber.
-    // Under the icon the subject as a bigger white title, a line under it (user, 2026-10-16). No email on show, no hints in the boxes.
-    '<div class="im-mail">' +
-      '<input id="imMailTo" type="hidden" value="' + _auEsc(dr.to || m.to || '') + '">' +
-      // To and Subject back on show, read only, in This Week's row look (user, 2026-10-17).
-      '<div class="im-mail-to"><div class="td-mini-row"><span class="td-mini-t">To:</span><span class="td-wk-name" id="imMailToShow">' + esc(dr.to || m.to || '…') + '</span></div>' +
-        '<div class="td-mini-row"><span class="td-mini-t">Sbj:</span><span class="td-wk-name">Your ' + (m.trial ? 'Trial' : 'Guitar') + ' Lesson Recap — ' + _ckDay(m.day) + '</span></div></div>' +
-      '<hr class="divider im-mail-hr">' +
-      field('imMailLesson', 'A. Lesson notes', null, 'Dictate the lesson as sentences', prefill(dr.lesson, _imRowsFor(m, 'log', m.log)), ' im-mail-log im-mail-band') +
-      '<hr class="divider im-mail-hr">' +
-      field('imMailHw', 'B. HW', null, 'Dictate the practice as sentences', prefill(dr.hw, _imRowsFor(m, 'hw', m.hw)), ' im-mail-log') +
-      '<hr class="divider im-mail-hr">' +
-      field('imMailNotes', 'C. Notes <span class="im-mail-opt">(optional)</span>', null, 'Bring your capo next time…', dr.notes, ' im-mail-small im-mail-band') +
-      // No line before the buttons (user, 2026-10-17).
-      '<div class="im-mail-foot"><span class="ll-state" id="imMailStatus"></span>' +
-        '<button class="link-btn" id="imMailPrev">' + DETAILS_ICON + '<span>Preview</span></button>' +   // your magnifier (user, 2026-10-17)
-        '<button class="link-btn bright" id="imMailSend">' + SEND_ICON + '<span>Send</span></button></div>' +
-      '<iframe class="im-msg-frame" id="imMailFrame" title="The email" hidden></iframe>' +
-    '</div>';
-  // Back to the windows' title (user, 2026-10-17): "Tianyi Cao · Oct 16", the name red, the date grey.
-  var w = _stWin('imMailWin', esc(m.name), (m.trial ? 'Trial · ' : '') + _ckDay(m.day), RECAP_WIN_ICON, body);
-  w.querySelector('.st-win').classList.add('im-mail-win');
-  w.onclick = null;   // only ✕ closes it (user, 2026-10-16): a click outside lost a half-done email
-  w.querySelector('[data-close]').onclick = _imMailClose;
-  ['imMailLesson', 'imMailHw', 'imMailNotes'].forEach(function (id) {
-    var box = _imMailQ(id);
-    llWire(box, function (i) { llRows(box).forEach(function (el, j) { el.classList.toggle('active', j === i); }); }, _imMailKeep, null);
-    llPlaceMic(box);
-  });
-  w.querySelectorAll('[data-add]').forEach(function (b) { b.onclick = function () { llAddRow(_imMailQ(b.getAttribute('data-add'))); }; });
-  w.querySelectorAll('[data-mic]').forEach(function (b) { b.onclick = function () { _imMailMic(b); }; });
-  // A copy button at the end of each log / HW line (user, 2026-10-17): the line flashes amber.
-  w.querySelectorAll('.im-copy').forEach(function (li) {
-    li.querySelector('.im-copy-b').onclick = function () {
-      var t = li.querySelector('.im-copy-t').textContent;
-      (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).catch(function () {
-        var ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select();
-        try { document.execCommand('copy'); } catch (e) {} ta.remove();
-      });
-      li.classList.add('copied');
-      setTimeout(function () { li.classList.remove('copied'); }, 700);
-    };
-  });
-  _imMailQ('imMailPrev').onclick = _imMailPreview;
-  _imMailQ('imMailSend').onclick = _imMailSend;
-  // Their email (Counter) and whether it already went.
-  fetch(getScriptUrl() + '?action=getLessonMsgInfo&name=' + encodeURIComponent(m.name) + '&lessonDate=' + m.day + (m.trial ? '&trial=' + encodeURIComponent(m.trial) : ''))
+// ── 4. Email the student (2026-10-25; was its own Email window) ──
+// The Log window is the email: 1. Lesson and 2. HW are written to the
+// student, each row a sentence. Preview shows it here, Send sends what was
+// previewed once the steps above are done. 3. Notes to teacher never goes;
+// 4. Notes to the student goes under NOTES.
+function _imMailWire(student, name, day) {
+  var w = window._imWin, box = _imQ('imMailBox'), head = box && box.previousElementSibling;
+  if (!w || !box) return;
+  // From Oct 14 (MSG_START); a trial's recap is always asked for (2026-10-23). No HW question, no email.
+  w.mail = !!logHw && (student.trialEmail ? !_imMsgGet(name, day) : _imMailNeeded(name, day));
+  box.style.display = head.style.display = w.mail ? '' : 'none';
+  if (!w.mail) return;
+  w.mailTo = w.trial || '';
+  if (w.trial) _imQ('imMailNum').textContent = '3.';   // no 3. Schedule on a trial
+  _imQ('imMailSbj').textContent = 'Your ' + (w.trial ? 'Trial' : 'Guitar') + ' Lesson Recap — ' + _ckDay(day);
+  _imQ('imMailPrev').onclick = _imMailPreview;
+  _imQ('imMailSend').onclick = _imMailSend;
+  // Their email (the Counter, or the trial row) and whether it already went.
+  fetch(getScriptUrl() + '?action=getLessonMsgInfo&name=' + encodeURIComponent(name) + '&lessonDate=' + day + (w.trial ? '&trial=' + encodeURIComponent(w.trial) : ''))
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (window._imMail !== m || !d.success) return;
-      if (d.msg) m.state = d.msg;
-      var to = _imMailQ('imMailTo'), show = _imMailQ('imMailToShow');
-      if (to && !to.value) to.value = d.email || '';
-      if (show) show.textContent = (to && to.value) || (m.trial ? 'No email on the trial row' : 'No email in the Counter');
+      if (window._imWin !== w || !d.success) return;
+      if (d.email) w.mailTo = d.email;
+      if (d.msg) w.mailSent = true;
+      _imStepsRender();
     })
-    .catch(function () {});
-  // Start in the first empty box (To is hidden).
-  var first = ['imMailLesson', 'imMailHw', 'imMailNotes'].filter(function (id) { return !_imMailText(id); })[0];
-  if (first) llRows(_imMailQ(first))[0].focus();
+    .catch(function () {})
+    .then(function () {
+      var show = window._imWin === w && _imQ('imMailToShow');
+      if (show) show.textContent = w.mailTo || (w.trial ? 'No email on the trial row' : 'No email in the Counter');
+    });
 }
-// One box's rows as sentences: capital first letter, a full stop unless it
-// ends in . ! or ?, joined with spaces.
-function _imMailText(id) {
-  return llValues(_imMailQ(id)).filter(Boolean).map(function (t) {
+// Rows (or a comma-joined text) as sentences: capital first letter, a full
+// stop unless it ends in . ! or ?, joined with spaces.
+function _imMailSentences(rows) {
+  if (!Array.isArray(rows)) rows = String(rows || '').split(/\s*,\s*/);
+  return rows.filter(Boolean).map(function (t) {
     t = t.charAt(0).toUpperCase() + t.slice(1);
     return /[.!?]$/.test(t) ? t : t + '.';
   }).join(' ');
 }
-function _imMailKeep() {
-  var m = window._imMail;
-  if (!m) return;
-  _imMailDraft(m, { to: _imMailQ('imMailTo').value, lesson: llValues(_imMailQ('imMailLesson')), hw: llValues(_imMailQ('imMailHw')), notes: llValues(_imMailQ('imMailNotes')) });
-}
-function _imMailClose() {
-  _imMailMicStop();
-  var w = document.getElementById('imMailWin');
-  if (w) w.remove();
-  window._imMail = null;
-  _ckLoad(function () { _ckRedraw(); });
-}
-// Dictation into the box's active row (one box at a time), added after what's there.
-var _imMailRec = null;
-function _imMailMicStop() { if (_imMailRec) { var r = _imMailRec; _imMailRec = null; r.onend = null; r.abort(); } }
-function _imMailMic(btn) {
-  var box = _imMailQ(btn.getAttribute('data-mic'));
-  if (!box) return;
-  var ta = box.querySelector('.ll-row.active') || llRows(box)[0];
-  if (_imMailRec) { var same = _imMailRec._btn === btn; _imMailRec.stop(); if (same) return; }
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { rpmFail('imMailStatus', 'Speech not supported. Use Chrome.'); return; }
-  var r = _imMailRec = new SR(), base = ta.value.trim();
-  r._btn = btn;
-  r.lang = 'en-US'; r.continuous = true; r.interimResults = true;
-  r.onstart = function () { btn.innerHTML = MIC_STOP_ICON; btn.classList.add('rec'); playBeep(880, 100); };
-  r.onresult = function (ev) {
-    var fin = '', tmp = '';
-    for (var i = ev.resultIndex; i < ev.results.length; i++) {
-      if (ev.results[i].isFinal) fin += ev.results[i][0].transcript; else tmp += ev.results[i][0].transcript;
-    }
-    if (fin) base = (base + ' ' + fin).replace(/\s+/g, ' ').trim();
-    ta.value = (base + ' ' + tmp).replace(/\s+/g, ' ').trim();
-    _imMailKeep();
-  };
-  r.onend = function () {
-    btn.innerHTML = MIC_ICON; btn.classList.remove('rec');
-    if (_imMailRec !== r) return;
-    _imMailRec = null;
-    playBeep(440, 80, 0.15);
-  };
-  r.start();
+// The email, from the Log window as it stands. A lesson reopened from the
+// sheet has its log in one row: the rows kept in this browser split it again.
+function _imLogMail() {
+  var w = window._imWin, hw = logHw;
+  if (!w || !hw) return null;
+  var m = { name: w.name, day: w.day, trial: w.trial || '' }, sent = hw.choice === 'sent';
+  m.lesson = _imMailSentences(_imRowsFor(m, 'log', _imNoTeacher(llValues(_logBox()).filter(Boolean).join(', '))));
+  m.hw = _imMailSentences(_imRowsFor(m, 'hw', _imNoTeacher(_hwRowsJoin())));
+  m.notes = _imMailSentences(llValues(_imStuBox()));
+  m.files = !!(sent && hw.filesOn && hw.files.length);
+  m.links = sent ? hw.links.slice() : [];
+  m.phone = !!hw.phone;   // with Nothing to send too (2026-10-25)
+  return m;
 }
 // What previewLessonMessage / sendLessonMessage take.
 function _imMailParams(m) {
   return {
-    name: m.name, lessonDate: m.day,
-    lesson: _imMailText('imMailLesson'), hw: _imMailText('imMailHw'), notes: _imMailText('imMailNotes'),
+    name: m.name, lessonDate: m.day, lesson: m.lesson, hw: m.hw, notes: m.notes,
     links: m.links.map(function (l) { return l.kind + ': ' + l.url; }).join('\n'), files: m.files ? '1' : '0', phone: m.phone ? '1' : '0',
-    trial: m.trial || ''
+    trial: m.trial
   };
 }
 function _imMsgQuery(p) {
   return Object.keys(p).map(function (k) { return '&' + k + '=' + encodeURIComponent(p[k]); }).join('');
 }
 function _imMailCheck(p) {
-  if (!p.lesson) return 'Lesson notes are empty.';
-  if (!p.hw) return 'HW is empty.';
+  if (!p.lesson) return '1. Lesson is empty.';
+  if (!p.hw) return '2. HW is empty.';
   return '';
 }
 // The email in a white card, its own page so the portal's styles stay out.
@@ -595,38 +554,52 @@ function _imMsgShow(f, html) {
     'html,body{margin:0;background:#fff;color:#222;font:small/1.45 Arial,Helvetica,sans-serif}body{padding:18px 20px 20px}a{color:#1a0dab}' +
     '</style></head><body>' + String(html || '').replace(/cid:logo/g, logo) + '</body></html>';
 }
+// Preview and Send (_imStepsRender): Send waits for the steps above and a
+// Preview of exactly what would go.
+function _imMailRender(w, finished) {
+  var prev = _imQ('imMailPrev'), send = _imQ('imMailSend');
+  if (!w || !w.mail || !prev || !send) return;
+  var m = _imLogMail(), p = m && _imMailParams(m), off = !!(w.mailBusy || w.mailSent || !p || _imMailCheck(p));
+  var fresh = w.previewed === JSON.stringify(p);
+  prev.disabled = off;
+  send.disabled = off || !finished || !fresh;
+  // Changed since the Preview (more materials, a note): the old email goes, so it's clear to Preview again.
+  var f = _imQ('imMailFrame');
+  if (f && !f.hidden && !fresh && !w.mailBusy) f.hidden = true;
+}
 function _imMailBusy(btn, on) {
-  var m = window._imMail, root = document.querySelector('#imMailWin .im-mail');
-  if (m) m.busy = on;
+  var w = window._imWin;
+  if (w) w.mailBusy = on;
   // Everything dims, the pressed button too, and SENDING / LOADING sits in the middle of the window (user, 2026-10-21 / 2026-10-23).
-  rpmBusy(root, btn, on, btn && btn.id === 'imMailSend' ? 'Sending' : 'Loading');
-  if (btn) btn.disabled = on;
+  rpmBusy(document.querySelector('#imLogWin .im-do-card'), btn, on, btn && btn.id === 'imMailSend' ? 'Sending' : 'Loading');
+  if (!on) _imStepsRender();
 }
 function _imMailPreview() {
-  var m = window._imMail, btn = _imMailQ('imMailPrev');
-  if (!m || m.busy) return;
-  var p = _imMailParams(m), why = _imMailCheck(p);
-  _imMailQ('imMailStatus').innerHTML = '';
+  var w = window._imWin, btn = _imQ('imMailPrev');
+  if (!w || w.mailBusy) return;
+  var p = _imMailParams(_imLogMail()), why = _imMailCheck(p);
+  _imQ('imMailStatus').innerHTML = '';
   if (why) { rpmFail('imMailStatus', why); return; }
   _imMailBusy(btn, true);
   fetch(getScriptUrl() + '?action=previewLessonMessage' + _imMsgQuery(p))
     .then(function (r) { return r.json(); })
     .catch(function () { return { success: false, message: 'No answer from Google.' }; })
     .then(function (d) {
-      if (window._imMail !== m) return;
+      if (window._imWin !== w) return;
+      if (d.success) w.previewed = JSON.stringify(p);
       _imMailBusy(btn, false);
       if (!d.success) { rpmFail('imMailStatus', d.message || 'Preview not loaded.'); return; }
-      var f = _imMailQ('imMailFrame');
+      var f = _imQ('imMailFrame');
       _imMsgShow(f, d.html);
       setTimeout(function () { f.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
     });
 }
 function _imMailSend() {
-  var m = window._imMail, btn = _imMailQ('imMailSend');
-  if (!m || m.busy) return;
-  var p = _imMailParams(m), why = _imMailCheck(p), to = _imMailQ('imMailTo').value.trim();
-  _imMailQ('imMailStatus').innerHTML = '';
-  if (!why && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) why = 'No email for ' + m.name + (m.trial ? ' on the trial row.' : ' in the Counter (column D).');
+  var w = window._imWin, btn = _imQ('imMailSend');
+  if (!w || w.mailBusy || !btn || btn.disabled) return;
+  var p = _imMailParams(_imLogMail()), why = _imMailCheck(p), to = String(w.mailTo || '').trim();
+  _imQ('imMailStatus').innerHTML = '';
+  if (!why && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) why = 'No email for ' + w.name + (w.trial ? ' on the trial row.' : ' in the Counter (column D).');
   if (why) { rpmFail('imMailStatus', why); return; }
   _imMailBusy(btn, true);
   // GET, like every portal action (a POST lands in the Twilio webhook).
@@ -634,31 +607,15 @@ function _imMailSend() {
     .then(function (r) { return r.json(); })
     .catch(function () { return { success: false, message: 'No answer from Google.' }; })
     .then(function (d) {
-      if (d.success) { _imMsgPut(m.name, m.day, 'Sent'); _imMailDraft(m, null); }
-      if (d.success && m.trial && typeof _tlMarkEmail === 'function') _tlMarkEmail(m.trial, { recap: 'Sent' });   // the Trial card's Email step
-      if (window._imMail !== m) { if (!d.success) rpmToast('fail', 'Email not sent', m.name + ': ' + (d.message || '')); return; }
+      if (d.success) { w.mailSent = true; _imMsgPut(w.name, w.day, 'Sent'); }
+      if (d.success && w.trial && typeof _tlMarkEmail === 'function') _tlMarkEmail(w.trial, { recap: 'Sent' });   // the Trial card's Email step
+      if (window._imWin !== w) { if (!d.success) rpmToast('fail', 'Email not sent', w.name + ': ' + (d.message || '')); return; }
       _imMailBusy(btn, false);
       if (!d.success) { rpmFail('imMailStatus', d.message || 'Not sent.'); return; }
-      if (d.tickError) { rpmHalf('imMailStatus', 'Sent, not recorded', d.tickError + '. The email went out.'); setTimeout(function () { _imMailDone(m); }, 2500); return; }
-      _imMailDone(m);
+      // Done ✓, the window closes, then the student's next open lesson or back to the list.
+      if (d.tickError) { rpmHalf('imMailStatus', 'Sent, not recorded', d.tickError + '. The email went out.'); setTimeout(function () { if (window._imWin === w) _imDone(w.name); }, 2500); return; }
+      _imDone(w.name);
     });
-}
-// Done ✓, the window closes, then the student's next open lesson or back to the list.
-function _imMailDone(m) {
-  var card = document.querySelector('#imMailWin .im-mail');
-  if (card) {
-    card.classList.add('im-done');
-    var t = document.createElement('div');
-    t.className = 'im-done-msg';
-    t.textContent = 'Done ✓';
-    card.appendChild(t);
-  }
-  setTimeout(function () {
-    if (window._imMail !== m) return;
-    _imMailClose();
-    if (m.next) m.next();
-    else if (m.fromImport && _imOpen && _imKey(_imOpen) === _imKey(m.name)) _imClose();
-  }, 1400);
 }
 
 // ── Lesson checklist (2026-10-08): getChecklistAudit (RPM_Checklist.js) ──
@@ -717,16 +674,39 @@ function _imStepsRender() {
   var hwText = !!(hw && hw.textSaved);
   // Materials (2026-10-18): files / links / phone wait for Finish; Nothing to send is
   // its own answer; one already in the sheet counts.
-  var matOk = !!(hw && hw.choice && (hw.choice === 'none' || hw.saved || hw.matDone));
+  // Both picks required (2026-10-25): A. recorded or not, B. send or nothing.
+  var matIn = !!(hw && hw.choice && (hw.choice === 'none' || hw.saved || hw.matDone));
+  var matOk = !!(hw && hw.rec && matIn);
   var fb = _imQ('imMatFinishBtn');
   if (fb) {
-    fb.disabled = !(hw && hw.choice === 'sent' && !hw.loading && !hw.uploading && !matOk);
-    fb.textContent = matOk && hw.choice === 'sent' ? 'Finished ✓' : 'Finish';
+    fb.disabled = !(hw && hw.choice === 'sent' && !hw.loading && !hw.uploading && !matIn);
+    fb.textContent = matIn && hw.choice === 'sent' ? 'Finished ✓' : 'Finish';
   }
+  // C. Files, D. Video lesson link, E. Web link and Finish open once A. is answered and B. is Send (user, 2026-10-25).
+  var open = !!(hw && hw.rec && hw.pick === 'send');
+  Array.prototype.forEach.call(c.root.querySelectorAll('.im-mat-sec'), function (el) {
+    el.style.display = open ? '' : 'none';
+    if (el.previousElementSibling) el.previousElementSibling.style.display = open ? '' : 'none';
+  });
+  if (fb && fb.parentNode) fb.parentNode.style.display = open ? '' : 'none';
+  var mn = _imQ('imMatNone');
+  if (mn) mn.style.marginBottom = open ? '' : '0';
+  // 3. Schedule's picks; Reschedule shows with Needed.
+  var sRaw = _imSchedGet(name, c.day), sNeed = !!(window._imWin && window._imWin.schedNeed) || sRaw === 'changed';
+  var sy = _imQ('imSchedYes'), sn = _imQ('imSchedNo'), srs = _imQ('imSchedRs');
+  if (sy) sy.classList.toggle('done', sNeed);
+  if (sn) sn.classList.toggle('done', sRaw === 'nochange');
+  if (srs) srs.style.display = sNeed ? '' : 'none';
+  [['imRecYes', hw && hw.rec === 'yes'], ['imRecNo', hw && hw.rec === 'no'], ['imMatSend', hw && hw.pick === 'send'], ['imMatNo', hw && hw.pick === 'none']].forEach(function (x) {
+    var b = _imQ(x[0]);
+    if (!b) return;
+    b.classList.toggle('done', !!x[1]);
+    b.disabled = !hw || !!(hw.locked || hw.loading || hw.saving || (x[0] === 'imMatNo' || x[0] === 'imMatSend') && hw.uploading);
+  });
   var steps = [
     { label: 'Lesson log', cls: 'log', done: logged },
     { label: 'HW log', cls: 'hw', done: hwText },
-    { label: 'Materials sent', cls: 'mat', done: !!(hw && hw.choice) },
+    { label: 'Materials sent', cls: 'mat', done: matOk },
     { label: 'Schedule checked', cls: 'sched', done: !!sched }
   ];
   if (!hw) steps.splice(1, 2);   // no HW question for this lesson (before HW tracking)
@@ -748,7 +728,7 @@ function _imStepsRender() {
   dim('im-hw-dock-box', matOk);
   dim('im-sched-box', !!sched);
   // A finished section (2026-10-18): ✓ after its red title, its whole box dims.
-  var secs = c.root.querySelectorAll('.im-main-box'), secDone = [logged && (!hw || hwText), matOk, !!sched];
+  var secs = c.root.querySelectorAll('.im-main-box'), secDone = [logged && (!hw || hwText), matOk, !!sched, !!(window._imWin && window._imWin.mailSent)];
   Array.prototype.forEach.call(secs, function (box, i) {
     box.classList.toggle('im-sec-done', !!secDone[i]);
     if (box.previousElementSibling) box.previousElementSibling.classList.toggle('im-sec-done', !!secDone[i]);
@@ -765,8 +745,16 @@ function _imStepsRender() {
   if (fin) fin.innerHTML = (sending || waitUp) ? '<span class="rpm-loading">Logging</span>' : '';
   // All four ticked: they go to Google together.
   if (all && pending && !sending) { _imSend(w, hw); return; }
+  // 4. Email (2026-10-25): Send opens once the rest is saved; Send then does Done.
+  var mailLeft = !!(w && w.mail && !w.mailSent);
+  _imMailRender(w, finished);
+  if (finished && mailLeft && !w.mailScrolled && window._imActed === name) {
+    w.mailScrolled = true;
+    var mb = _imQ('imMailBox');
+    if (mb && mb.previousElementSibling) mb.previousElementSibling.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
   // Finished by something pressed here (not just reopened): Done, then back (2026-10-07).
-  if (finished && window._imActed === name) { window._imActed = null; _imDone(name); }
+  if (finished && !mailLeft && window._imActed === name) { window._imActed = null; _imDone(name); }
 }
 
 // ── One save at the end (2026-10-09) ──
@@ -780,6 +768,7 @@ function _imPendLog(student, params, action) {
   w.pendLog = { student: student, params: params, action: action };
   activeStudent.logged = true;
   llLock(_logBox());
+  _imTeachLock(true);
   var mic = document.getElementById('logMicBtn');
   if (mic) mic.disabled = true;
   var lb = document.getElementById('btnLog');
@@ -852,10 +841,11 @@ function _imSend(w, hw) {
           activeStudent.logged = false;
           var box = _logBox();
           if (box) { box.classList.remove('locked'); llRows(box).forEach(function (el) { el.readOnly = false; }); }
+          _imTeachLock(false);
           var mic = document.getElementById('logMicBtn');
           if (mic) mic.disabled = false;
           var lb = document.getElementById('btnLog');
-          if (lb) { lb.textContent = 'Log'; lb.className = 'link-btn bright'; lb.disabled = false; }
+          if (lb) { lb.textContent = '＋ Log'; lb.className = 'link-btn bright'; lb.disabled = false; }
           var ns = document.getElementById('btnNoShow');
           if (ns) ns.disabled = false;
         }
@@ -887,12 +877,8 @@ function _imSend(w, hw) {
       // Saved after the window closed: say so only if something didn't.
       if (why.length) rpmToast('fail', 'Not saved', w.name + ': ' + why.join(' '));
       if (_imOpen && _imKey(_imOpen) === _imKey(w.name) && typeof _imOpenStudent === 'function') _imOpenStudent(_imOpen);
-      // Closed before Done but everything saved, only the email left (2026-10-17): the Email window anyway.
-      _ckLoad(function () {
-        _ckRedraw();
-        var it = !why.length && _ckItem(w.name, w.day);
-        if (it && it.missing && it.missing.length === 1 && it.missing[0] === 'Email' && !window._imMail && !window._imWin) _imMailOpen(_imMailFromItem(w.name, it));
-      });
+      // Closed with the email still to send: their card shows "✕ Email", which reopens the Log window (2026-10-25).
+      _ckLoad(function () { _ckRedraw(); });
     }
   });
 }
@@ -910,24 +896,21 @@ function _imFlushOnClose() {
     if (window._imWin && e.target.closest('#imLogWin')) window._imActed = window._imWin.name;
   }, true);
 });
-// All done: the card dims, Done ✓, and back to the student list, where their card is green.
-// The email still to send (2026-10-16): "Logged ✓", then the Email window opens.
+// All done (the email sent, when there is one): the card dims, Done ✓, and
+// back to the student list, where their card is green.
 function _imDone(name) {
   var c = _imCtx(), card = c.root && c.root.querySelector('.im-do-card');
   if (!card) return;
-  // A trial's recap is always asked for (2026-10-23), whatever its date.
-  var w0 = window._imWin, mail = w0 && logHw && (w0.trial ? !_imMsgGet(name, c.day) : _imMailNeeded(name, c.day)) ? _imMailFromWin(w0) : null;
   card.classList.add('im-done');
   var msg = document.createElement('div');
   msg.className = 'im-done-msg';
-  msg.textContent = mail ? 'Logged ✓' : 'Done ✓';
+  msg.textContent = 'Done ✓';
   card.appendChild(msg);
   setTimeout(function () {
     var w = window._imWin;
     if (!w || w.name !== name) return;
     var next = w.next, fromImport = w.fromImport;
     closeLogPanel();   // the window closes
-    if (mail) { mail.next = next; mail.fromImport = fromImport; _imMailOpen(mail); return; }
     if (next) next();  // the student's next open lesson (2026-10-08)
     else if (fromImport && _imOpen && _imKey(_imOpen) === _imKey(name)) _imClose();   // the last one: back to the list, their card green
   }, 1400);
@@ -940,15 +923,19 @@ function _imMatFinish() {
   hw.matDone = true;
   _imStepsRender();
 }
-// Nothing to send (2026-10-06): no materials this lesson. Only while nothing
-// else is picked (2026-10-15); again undoes it.
-function _imNothingToSend() {
+// B. Practice materials (2026-10-25): Send or Nothing to send; again undoes it.
+// Nothing to send clears any links (files stay in Dropbox, just not sent);
+// Send waits for C–E and Finish. Adding a file or link picks Send by itself.
+function _imMatPick(v) {
   var hw = logHw;
-  if (!hw || hw.loading || hw.uploading || hw.saving || hw.choice === 'sent') return;
-  hw.choice = hw.choice === 'none' ? null : 'none';
-  _imHwLinkClear();
+  if (!hw || hw.loading || hw.uploading || hw.saving || hw.locked) return;
+  hw.pick = hw.pick === v ? null : v;
+  hw.matDone = false;
+  if (hw.pick === 'none') { hw.choice = 'none'; hw.links = []; hw.videoOnly = false; hw.filesOn = false; _imHwLinkClear(); }
+  else hw.choice = null;
   _imHwChanged();
 }
+function _imNothingToSend() { _imMatPick('none'); }   // the old button's onclick (index.html)
 // Send (2026-10-11 as Sent): the files in the zone go to them. Uploads don't
 // tick it, so more can go in first; again undoes it. Goes with links (2026-10-15).
 function _imHwSent() {
@@ -957,12 +944,13 @@ function _imHwSent() {
   hw.filesOn = !hw.filesOn;
   _imHwChanged();
 }
-// Recorded on their phone (2026-10-18): a materials answer of its own, with
-// files and links too; again undoes it.
-function _imHwPhone() {
+// A. Recorded on their phone? (2026-10-18 as a button; Yes / No since
+// 2026-10-25, required, and it goes with Nothing to send too.)
+function _imHwRec(v) {
   var hw = logHw;
-  if (!hw || hw.loading || hw.saving || hw.choice === 'none' || hw.locked) return;
-  hw.phone = !hw.phone;
+  if (!hw || hw.loading || hw.saving || hw.locked) return;
+  hw.rec = hw.rec === v ? null : v;
+  hw.phone = hw.rec === 'yes';
   _imHwChanged();
 }
 // Video lesson link / Web link (2026-10-15): paste, Add (or Enter) puts it on
@@ -1011,11 +999,10 @@ function _imHwOut() {
   // click to pick, dims while other materials are in) under Nothing to send; Browse and Open (the Dropbox logo) on the Files
   // title over the drop zone; the Video lesson link and Web link paste boxes
   // in theirs. No Send: files count once they're in (stays hidden in #logHwHead).
-  var nb = document.getElementById('logHwNothing'), files = document.getElementById('logHwFiles');
+  var files = document.getElementById('logHwFiles');
   var br = document.querySelector('.lh-folder-btn'), db = document.getElementById('logHwDbxBtn');
   if (db && !db.querySelector('svg')) db.insertAdjacentHTML('afterbegin', DBX_LOGO.replace('class="win-icon"', 'class="lh-dbx-ico"'));
-  var nt = _imQ('imMatNoneSlot'), ft = _imQ('imMatFilesTools');
-  if (nb && nt && nb.parentNode !== nt) nt.appendChild(nb);   // A., above B. Recorded on their phone
+  var ft = _imQ('imMatFilesTools');   // Nothing to send is B.'s own pick now (2026-10-25); the old button stays hidden in #logHwHead
   if (ft) [br, db].forEach(function (el) { if (el && el.parentNode !== ft) ft.appendChild(el); });
   var vs = document.getElementById('logHwVideo'), vd = _imQ('imMatVideo');
   if (vs && vd && vs.parentNode !== vd) vd.appendChild(vs);
@@ -1070,6 +1057,7 @@ function _imLift(body) {
 function _imUndock() { if (window._imDocked) closeLogPanel(); }
 // closeLogPanel (lessons.js) calls this: the Log lesson window goes with it.
 function _imLogClosed() {
+  _imDictStop();
   _imHwBack();
   if (!window._imDocked) return;
   window._imDocked = false;
@@ -1184,7 +1172,7 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
       // The newest lesson is marked (2026-10-07); the Today tab shows it brighter.
       return '<div class="im-row' + (l === items[items.length - 1] ? ' im-latest' : '') + '">' +
         '<span class="im-n">' + (k + 1) + '</span>' +
-        '<span class="im-s">' + (l.subject ? inqEsc(l.subject) : '<span style="color:var(--muted)">—</span>') + '</span>' +
+        '<span class="im-s">' + (l.subject ? _imLogShow(l.subject) : '<span style="color:var(--muted)">—</span>') + '</span>' +
         '<span class="im-d">' + inqEsc(l.date) + '</span>' +
       '</div>';
     }).join('');
@@ -1229,22 +1217,34 @@ function _imDoHtml(name, day) {
     // Each of the three sections sits in its own bordered box, its title above it, no dividers (2026-10-18).
     _imMainHead('1. Log the lesson and HW', '', '', 'im-main-log') +   // all red (2026-10-18)
     '<div class="im-main-box">' +
-      _imSub('A. Lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
-      _imSub('B. HW', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
+      _imSub('1. Lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
+      _imSub('2. HW', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
+      // Private (2026-10-25): saved after "TEACHER:" in the log's cell, never emailed.
+      _imSub('3. Notes to teacher <span class="im-mail-opt">(optional)</span>', '', ' im-teach-box',
+        '<div class="ll-wrap"><div class="ll-rows" id="imTeachRows"><input type="text" class="rpm-field ll-row active"></div>' +
+        '<button type="button" class="link-btn tl-mic" id="imTeachMic" data-tip="Starts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
+        '<button type="button" class="ll-add" id="imTeachAdd" data-tip="Instant.&#10;Adds a row. Enter does too.">' + llAddInner() + '</button>') +
+      // In the email only, under NOTES (2026-10-25): "Bring your capo next time."
+      _imSub('4. Notes to the student <span class="im-mail-opt">(optional)</span>', '', ' im-teach-box',
+        '<div class="ll-wrap"><div class="ll-rows" id="imStuRows"><input type="text" class="rpm-field ll-row active"></div>' +
+        '<button type="button" class="link-btn tl-mic" id="imStuMic" data-tip="Starts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
+        '<button type="button" class="ll-add" id="imStuAdd" data-tip="Instant.&#10;Adds a row. Enter does too.&#10;Each row is a sentence in the email.">' + llAddInner() + '</button>') +
     '</div>' +
-    _imMainHead('2. Send practice materials', '', '', 'im-main-mat') +   // all red (2026-10-18)
+    _imMainHead('2. Practice materials', '', '', 'im-main-mat') +   // all red (2026-10-18)
     '<div class="im-main-box">' +
     // The Log window's HW part (#logHw) is split over these (_imHwOut).
     '<div class="im-hw-dock-box">' +
-      // Nothing to send is one button on top, no title of its own; it dims once pressed (user, 2026-10-17).
-      // Recorded on their phone under it (2026-10-18): the student filmed the lesson; the email says so.
-      // Either one, pressed, dims and shows a ✓ inside.
-      // Lettered A and B like the parts under them (2026-10-18): Files C, Video D, Web link E.
+      // Two questions, both required (user, 2026-10-25): A. did they record it on
+      // their phone, B. am I sending anything. Any mix goes (recorded + nothing to
+      // send too). Each answer has the check circle; the picked one fills.
+      // Files C, Video D, Web link E are what B. Send sends.
       '<div id="imMatNone" class="im-mat-none">' +
-        '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">A.</label><span id="imMatNoneSlot"></span></div>' +
-        '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">B.</label>' +
-          '<button type="button" class="link-btn lh-phone-btn" id="logHwPhoneBtn" data-toggle onclick="_imHwPhone()" data-tip="They filmed the lesson on their phone.&#10;Goes with files and links. Press again to undo." data-tip-left>Recorded on their phone</button>' +
-        '</div>' +
+        '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">A.</label><span class="im-mat-q">Recorded on their phone?</span>' +
+          _imPickBtn('imRecYes', "_imHwRec('yes')", 'Yes', 'They filmed the lesson on their phone.&#10;The email says so.') +
+          _imPickBtn('imRecNo', "_imHwRec('no')", 'No', 'Nothing filmed.') + '</div>' +
+        '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">B.</label><span class="im-mat-q">Sending anything?</span>' +
+          _imPickBtn('imMatSend', "_imMatPick('send')", 'Send', 'Files, a video lesson link or a web link:&#10;C, D and E below. Finish when they are all in.') +
+          _imPickBtn('imMatNo', "_imMatPick('none')", 'Nothing to send', 'No materials this lesson.') + '</div>' +
       '</div>' +
       _imSub('C. Files', '<span id="imMatFilesTools"></span>', ' im-mat-sec', '<div id="imHwDock"></div>') +
       _imSub('D. Video lesson link', '', ' im-mat-sec', '<div id="imMatVideo"></div>') +
@@ -1253,17 +1253,40 @@ function _imDoHtml(name, day) {
     // Finish (2026-10-18): Materials waits for it, like Log for section 1.
     '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn" id="imMatFinishBtn" onclick="_imMatFinish()" disabled data-tip="All files and links are in.&#10;Till then Materials stays open." data-tip-left>Finish</button></div>' +
     '</div>' +
-    // Schedule: Reschedule and Not needed side by side (2026-10-06); a click
-    // ticks Schedule, again undoes it.
+    // Schedule (2026-10-25, like Practice materials): Needed / Not needed first.
+    // Not needed is the answer; Needed opens Reschedule, and the section is done
+    // only once a skip or move is saved.
     _imMainHead('3. Schedule adjustments') +   // all red, no grey subtitle (2026-10-18)
     '<div class="im-main-box">' +
     '<div class="db-panel im-list im-sched-box">' +
-      '<button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + n + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Reschedule</button>' +
-      '<button class="link-btn im-rs-btn im-nochange' + (_imSchedGet(name, day) === 'nochange' ? ' pressed' : '') + '" id="imNoChangeBtn" data-toggle onclick="_imNoChangeToggle(' + n + ')" data-tip="Nothing to move or skip.\nPress again to undo.">Not needed</button>' +
+      '<div class="im-mat-row im-sched-picks">' +
+        _imPickBtn('imSchedYes', '_imSchedPick(' + n + ', &quot;yes&quot;)', 'Needed', 'A lesson to skip or move:&#10;Reschedule opens under it.') +
+        _imPickBtn('imSchedNo', '_imSchedPick(' + n + ', &quot;no&quot;)', 'Not needed', 'Nothing to move or skip.') + '</div>' +
+      '<div id="imSchedRs" class="im-sched-rs" style="display:none"><button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + n + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Reschedule</button></div>' +
     '</div>' +
     '</div>' +
     // "Logging" spinner while the three go to Google; stays bright in the dimmed window (2026-10-21).
+    // The email (2026-10-25): 1. Lesson and 2. HW as written, plus the materials; Preview, then Send.
+    _imMainHead('<span id="imMailNum">4.</span> Email the student') +
+    '<div class="im-main-box im-mail-box" id="imMailBox">' +
+      '<div class="im-mail-to"><div class="td-mini-row"><span class="td-mini-t">To:</span><span class="td-wk-name" id="imMailToShow">…</span></div>' +
+        '<div class="td-mini-row"><span class="td-mini-t">Sbj:</span><span class="td-wk-name" id="imMailSbj"></span></div></div>' +
+      '<div class="im-log-foot im-log-foot-all im-mail-foot"><span class="ll-state" id="imMailStatus"></span>' +
+        '<button type="button" class="link-btn" id="imMailPrev" data-tip="Shows the email here, as it will go.&#10;Never your notes to teacher." data-tip-left>' + DETAILS_ICON + '<span>Preview</span></button>' +
+        '<button type="button" class="link-btn bright" id="imMailSend" disabled data-tip="Sends the email you previewed.&#10;Waits for the steps above and a Preview." data-tip-left>' + SEND_ICON + '<span>Send</span></button></div>' +
+      '<iframe class="im-msg-frame" id="imMailFrame" title="The email" hidden></iframe>' +
+    '</div>' +
     '<div id="imFinDone" class="im-saving rpm-load-center rpm-keep"></div>');   // in the middle of the window (user, 2026-10-21)
+}
+// One answer of a two-way pick, no box (user, 2026-10-25): a full circle, and
+// once picked the check (om-63's) sweeps out of it.
+var PICK_ICON = (function () {
+  var ck = PAID_CHECK_ICON.match(/<path d="[^"]*"\/>/)[0].replace('<path', '<path class="im-pick-ck"');
+  return '<svg class="im-pick-i" viewBox="0 0 907.5 885" width="14" height="14" fill="currentColor" aria-hidden="true">' +
+    '<circle cx="441" cy="442" r="395" fill="none" stroke="currentColor" stroke-width="80"/>' + ck + '</svg>';
+})();
+function _imPickBtn(id, onclick, label, tip) {
+  return '<button type="button" class="im-pick" id="' + id + '" onclick="' + onclick + '" data-tip="Instant.&#10;' + tip + '&#10;Press again to undo." data-tip-left data-tip-wrap>' + PICK_ICON + '<span>' + label + '</span></button>';
 }
 // A main section's title: red, with a grey subtitle like the window title's (none: all red).
 function _imMainHead(title, sub, right, cls) {

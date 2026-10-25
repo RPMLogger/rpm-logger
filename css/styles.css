@@ -2718,8 +2718,8 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-mail-ref, .im-mail-log .im-mail-ref { border-left: none; padding-left: 0; margin: 0 0 16px; color: color-mix(in srgb, var(--text) 45%, transparent); }
 .im-mail-matsec .im-mail-mat { color: var(--text); border-left: none; padding-left: 0; }
 .im-mail-mat a, .im-mail-matsec .im-mail-mat a { text-decoration: none; }
-#imMailWin #imMailPrev, #imMailWin #imMailSend { color: color-mix(in srgb, #d9a441 70%, var(--muted)); border-color: color-mix(in srgb, #d9a441 35%, transparent); background: color-mix(in srgb, #d9a441 4%, transparent); }
-#imMailWin #imMailPrev:hover:where(:not(:disabled)), #imMailWin #imMailSend:hover:where(:not(:disabled)) { color: #d9a441; border-color: color-mix(in srgb, #d9a441 60%, transparent); background: color-mix(in srgb, #d9a441 10%, transparent); }
+#imMailPrev, #imMailSend { color: color-mix(in srgb, #d9a441 70%, var(--muted)); border-color: color-mix(in srgb, #d9a441 35%, transparent); background: color-mix(in srgb, #d9a441 4%, transparent); }
+#imMailPrev:hover:where(:not(:disabled)), #imMailSend:hover:where(:not(:disabled)) { color: #d9a441; border-color: color-mix(in srgb, #d9a441 60%, transparent); background: color-mix(in srgb, #d9a441 10%, transparent); }
 .im-mail-matsec .im-mail-mat { color: color-mix(in srgb, var(--text) 62%, transparent); }   /* not so bright (user, 2026-10-16) */
 /* Email window titles in the Log window's "A. Lesson" look (user, 2026-10-16), not green / blue. */
 #imMailWin .im-mail-sec > .field-label { color: rgba(255,255,255,0.72); font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; font-weight: 400; text-transform: uppercase; }
@@ -2792,8 +2792,8 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #imMailWin .im-mail-to .td-wk-name { color: rgba(255,255,255,0.24); }   /* as dark as the log lines (user, 2026-10-17; amber tried, back to grey) */
 #imMailWin .im-mail-to, #imMailWin .im-mail-to .td-mini-t, #imMailWin .im-mail-to .td-wk-name, #imMailWin .im-mail-opt { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; }   /* To / Sbj and (optional) in the History list font (user, 2026-10-17) */
 /* Send green, Preview stays amber (user, 2026-10-17). */
-#imMailWin #imMailSend { color: color-mix(in srgb, var(--green) 70%, var(--muted)); border-color: color-mix(in srgb, var(--green) 35%, transparent); background: color-mix(in srgb, var(--green) 4%, transparent); }
-#imMailWin #imMailSend:hover:where(:not(:disabled)) { color: var(--green); border-color: color-mix(in srgb, var(--green) 60%, transparent); background: color-mix(in srgb, var(--green) 10%, transparent); }
+#imMailSend { color: color-mix(in srgb, var(--green) 70%, var(--muted)); border-color: color-mix(in srgb, var(--green) 35%, transparent); background: color-mix(in srgb, var(--green) 4%, transparent); }
+#imMailSend:hover:where(:not(:disabled)) { color: var(--green); border-color: color-mix(in srgb, var(--green) 60%, transparent); background: color-mix(in srgb, var(--green) 10%, transparent); }
 #imMailWin .im-mail-opt { color: rgba(255,255,255,0.24); }   /* (optional) as dark as the lines (user, 2026-10-17) */
 #imMailWin .im-mail-ref li::before, #imMailWin .im-mail-mat li::before { content: "– "; color: rgba(255,255,255,0.24); }   /* a dash, not a bullet (user, 2026-10-17) */
 /* Nothing to send + Recorded on their phone (2026-10-18): stacked on top of Materials;

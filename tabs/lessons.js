@@ -113,7 +113,7 @@ function openLogFresh(student, idx, opts) {
   resetRows();
   rpmBusy(panel, null, false);
   var lb = document.getElementById("btnLog");
-  lb.disabled = true; lb.textContent = "Log"; lb.className = "link-btn bright";
+  lb.disabled = true; lb.textContent = "＋ Log"; lb.className = "link-btn bright";
   var mic = document.getElementById("logMicBtn");
   if (mic) { mic.innerHTML = MIC_ICON; mic.classList.remove("rec"); mic.disabled = false; }
   _logState("");
@@ -243,7 +243,10 @@ function submitLog(noShow) {
   var parts = llValues(_logBox()).filter(function(v) { return v; });
   var subject = parts.length ? toSentenceCase(parts.join(", ")) : "";
   if (!subject) { addLog("lessonFeed", "Nothing to log!", "error"); return; }
-  if (typeof _imRowsPut === "function") _imRowsPut("log", parts.map(function(v, i) { return i ? v : toSentenceCase(v); }));   // each box its own line in the Email window
+  if (typeof _imRowsPut === "function") _imRowsPut("log", parts.map(function(v, i) { return i ? v : toSentenceCase(v); }));   // each box its own sentence in the email
+  // Notes to teacher (2026-10-25): in the same cell, after "TEACHER:"; never in the email.
+  var teach = window._imDocked && typeof _imTeachText === "function" ? _imTeachText() : "";
+  if (teach) subject += " TEACHER: " + teach;
 
   stopRecordingClean();
   setRecordingUI(false, activeStudent ? activeStudent.idx : undefined);
@@ -274,7 +277,7 @@ function submitLog(noShow) {
     params.hw = logHw.choice === "sent" && !logHw.filesOn && !logHw.links.length && !logHw.phone && logHw.videoOnly ? "video" : logHw.choice;
     params.hwFiles = logHw.choice === "sent" && logHw.filesOn ? logHw.files.map(function(f) { return f.path; }).join("\n") : "";
     params.hwLinks = logHw.choice === "sent" ? logHw.links.map(function(l) { return l.kind + ": " + l.url; }).join("\n") : "";
-    params.hwPhone = logHw.choice === "sent" && logHw.phone ? "1" : "";
+    params.hwPhone = logHw.phone ? "1" : "";
     params.hwText = logHw.text || "";
     logHw.locked = true; _logHwRender();
   }
@@ -284,7 +287,7 @@ function submitLog(noShow) {
   function fail(why) {
     rpmBusy(panel, btn, false);
     if (logHw) { logHw.locked = false; _logHwRender(); }
-    btn.textContent = "Log"; btn.disabled = false;
+    btn.textContent = "＋ Log"; btn.disabled = false;
     rpmFail("logPanelStatus", why);
   }
   fetch(q).then(function(r) { return r.json(); }).then(function(data) {
@@ -365,6 +368,7 @@ function setActiveRow(idx) {
 
 function onRowInput() {
   rowFinals = llValues(_logBox());
+  if (window._imDocked && typeof _imRowsPut === "function") _imRowsPut("log", rowFinals);   // the email's sentences, before Log too
   updateLogButton();
 }
 
@@ -445,7 +449,7 @@ function logHwOpen(student) {
   box.style.display = "";
   // mine: names of the files uploaded here this time (2026-10-07). Only those
   // (and a saved answer's files) list in the drop zone, not the rest of their Dropbox.
-  logHw = { name: student.name, date: date, files: [], mine: {}, choice: null, filesOn: false, links: [], text: "", loading: true, locked: false };
+  logHw = { name: student.name, date: date, files: [], mine: {}, choice: null, filesOn: false, links: [], text: "", loading: true, locked: false, rec: null, pick: null };
   if (typeof _imHwLinkClear === "function") _imHwLinkClear();
   _hwMicStop();
   _hwRowsReset();
@@ -593,18 +597,24 @@ function _logHwUploadNext(hw) {
 // before 2026-10-15 Sent / No HW / Video lesson) as the window's state:
 function _logHwRestore(hw, ex) {
   var m = String((ex && ex.hw) || "");
-  if (/^(None|No HW)$/.test(m)) { hw.choice = "none"; return; }
+  // A. and B. answered already (2026-10-25): "Phone" alone = recorded, nothing sent.
+  hw.phone = /Phone/.test(m);
+  hw.rec = hw.phone ? "yes" : "no";
+  if (/^(None|No HW|Phone)$/.test(m)) { hw.choice = "none"; hw.pick = "none"; return; }
+  hw.pick = "send";
   hw.links = ((ex && ex.links) || []).slice();
   hw.filesOn = /Files|Sent/.test(m) && hw.files.length > 0;
   hw.videoOnly = /Video/.test(m) && !hw.links.some(function(l) { return l.kind === "Video"; });
-  hw.phone = /Phone/.test(m);   // recorded on their phone (2026-10-18)
   _logHwRecalc(hw);
 }
 function _logHwRecalc(hw) {
   if (!hw || hw.choice === "none") return;
   // The Log lesson window has no Send (2026-10-15): files in the zone count.
   if (window._imDocked) hw.filesOn = hw.files.length > 0;
-  hw.choice = hw.filesOn || hw.links.length || hw.videoOnly || hw.phone ? "sent" : null;
+  // Recorded on their phone isn't a material any more (2026-10-25): it goes with either answer.
+  var some = hw.filesOn || hw.links.length || hw.videoOnly;
+  if (some && window._imDocked && !hw.pick) hw.pick = "send";   // a file or link in means Send
+  hw.choice = some && (!window._imDocked || hw.pick === "send") ? "sent" : null;
 }
 // The HW answer as query params; pre: "" for saveHw, "hw" for logLesson's names (hwFiles…).
 function _logHwQuery(hw, pre) {
@@ -614,7 +624,7 @@ function _logHwQuery(hw, pre) {
   var c = some && !files && !links && !hw.phone && hw.videoOnly ? "video" : hw.choice;
   function k(n) { return pre ? pre + n.charAt(0).toUpperCase() + n.slice(1) : n; }
   return "&hw=" + c + "&" + k("files") + "=" + encodeURIComponent(files) + "&" + k("links") + "=" + encodeURIComponent(links) +
-    "&" + k("phone") + "=" + (some && hw.phone ? "1" : "") + "&hwText=" + encodeURIComponent(hw.text || "");
+    "&" + k("phone") + "=" + (hw.phone ? "1" : "") + "&hwText=" + encodeURIComponent(hw.text || "");
 }
 
 // ── What HW (2026-10-15): the homework given, rows like the lesson log's ──

@@ -124,7 +124,7 @@ function openCashLogPanel(name, tab) {
   document.getElementById("cashNotes").value = "";
   document.getElementById("cashMsg").innerHTML = "";
   var btn = document.getElementById("btnCashLog");
-  btn.textContent = "Log"; btn.className = "link-btn bright";
+  btn.textContent = "＋ Log"; btn.className = "link-btn bright";
   btn.disabled = false;
 }
 
@@ -228,7 +228,7 @@ function submitCashLog() {
 
   var fail = function(why) {
     rpmBusy(modal, btn, false);
-    btn.textContent = "Log"; btn.disabled = false;
+    btn.textContent = "＋ Log"; btn.disabled = false;
     rpmFail("cashMsg", why, "right");
   };
   fetch(url + "?action=logPaymentNote&studentName=" + encodeURIComponent(tab) +

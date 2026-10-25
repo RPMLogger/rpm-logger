@@ -1201,7 +1201,7 @@ function _trStepClick(a, key) {
 // ── Log lesson (2026-10-23): the regular Log lesson window for the trial ──
 // Lesson + HW, then Materials (Files need the Dropbox folder: step 2); no
 // Schedule. Saves to the trial row (Lesson Log, HW Log, HW Sent) and HW
-// Tracking; when it's done the Trial Recap email window opens.
+// Tracking; then 3. Email the student sends the Trial Recap from the same window.
 function _trLogOpen(email) {
   var a = _trStageCache.filter(function (x) { return (x.email || '') === email; })[0];
   if (!a) return;
@@ -1222,31 +1222,10 @@ function _trLogOpen(email) {
   }
 }
 
-// ── Email (2026-10-23): the Trial Recap, in the regular Email window ──
-// Opens straight after Log lesson; this is for when that window was closed.
-// The materials come back from HW Tracking.
-function _trMailOpen(email) {
-  var a = _trStageCache.filter(function (x) { return (x.email || '') === email; })[0];
-  if (!a) return;
-  var s = a.lesson || {};
-  var day = /^\d{4}-\d{2}-\d{2}$/.test(String(a.trialDate || '')) ? a.trialDate : _tdYmd();
-  if (!_trFilled(s.whatWeDid) || !s.hwSent) { _trLogOpen(email); return; }   // Log lesson first
-  var m = { name: a.name, day: day, log: s.whatWeDid || '', hw: s.hwLog || '', files: false, links: [], phone: false, none: false,
-            trial: a.email, to: a.email };
-  fetch(getScriptUrl() + '?action=getHwLog&name=' + encodeURIComponent(a.name) + '&date=' + day)
-    .then(function (r) { return r.json(); })
-    .catch(function () { return {}; })
-    .then(function (d) {
-      var ex = d && d.success && d.rows && d.rows[0];
-      if (ex) {
-        m.files = !!(ex.files && ex.files.length);
-        m.links = (ex.links || []).slice();
-        m.phone = /Phone/.test(ex.hw || '');
-        m.none = /None/.test(ex.hw || '');
-      }
-      _imMailOpen(m);
-    });
-}
+// ── Email (2026-10-23): the Trial Recap ──
+// Its own step on the card; since 2026-10-25 it's 3. Email the student in the
+// Log lesson window (what's done already shows done there).
+function _trMailOpen(email) { _trLogOpen(email); }
 
 var _tl = null;   // { card, step, rec, busy }
 
@@ -1441,7 +1420,7 @@ function _tlLogHtml(a, s) {
     llAddHtml() +
     '<div class="ll-acts" style="margin-top:16px">' +
       '<span class="ll-state" id="tlWhatMsg" style="flex:1"></span>' +
-      '<button class="link-btn bright" id="tlLogBtn" data-tip="' + LL_LOG_TIP + '" data-tip-left onclick="_tlLogWhat()" disabled>Log</button>' +
+      '<button class="link-btn bright" id="tlLogBtn" data-tip="' + LL_LOG_TIP + '" data-tip-left onclick="_tlLogWhat()" disabled>＋ Log</button>' +
     '</div>';
 }
 
@@ -1546,7 +1525,7 @@ function _tlLogWhat() {
     if (!_tl || _tl.logged) return;
     _tl.logging = false;
     var b = document.getElementById('tlLogBtn');
-    if (b) { b.disabled = false; b.textContent = 'Log'; }
+    if (b) { b.disabled = false; b.textContent = '＋ Log'; }
   }, 8000);
 }
 
