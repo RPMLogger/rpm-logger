@@ -3245,9 +3245,10 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .en-rv-pick { margin-top: 0; }
 /* Reviews tab, Google (2026-10-22): the "left a review" emails, same card look. */
 .rv-g-title { margin: 48px 0 0; }
-.rv-g-title + #googleReviewsBody { margin-top: 20px; }
-.rv-g-stars { font-size: 14px; letter-spacing: 2px; color: #f5b83d; white-space: nowrap; }
-.rv-g-text { font-family: "DM Mono", monospace; font-size: 12px; line-height: 1.6; color: var(--text); margin-top: 12px; white-space: pre-line; }
+.rv-g-title + div { margin-top: 20px; }
+.rv-dim { color: var(--muted); }
+.rv-go { color: var(--green); }   /* Next ask: This week */
+.rv-ask:disabled { opacity: 0.4; cursor: not-allowed; }   /* one ask a week: every Ask / Nudge dims until Next ask */
 .st-win .en-tpl:first-child { margin-top: 0; }   /* Ask / Nudge window: first template right under the title */
 
 /* Google Business window (Mail Center, 2026-10-21): the email list uses
@@ -3453,3 +3454,31 @@ th.f2-blk { background:none; }
 /* The schedule's date cells brighter (user 2026-10-24; skip was 70% / 42%, lesson + resume 60% / 25%). */
 #travelBody .tv-rv-dcell .tv-c-skip { color:rgba(255,90,77,0.92); box-shadow:inset 0 0 0 1px rgba(255,90,77,0.6); }
 #travelBody .tv-rv-dcell .tv-c-before, #travelBody .tv-rv-dcell .tv-c-resume { color:rgba(240,237,232,0.88); box-shadow:inset 0 0 0 1px rgba(240,237,232,0.38); }
+/* 4. Email the student in the Log lesson window (2026-10-25; was the Email window): To / Sbj like the old window's, Preview + Send bottom right. */
+#imLogWin .im-mail-to { display: flex; flex-direction: column; gap: 4px; }
+#imLogWin .im-mail-to .td-mini-row { gap: 3px; }
+#imLogWin .im-mail-to, #imLogWin .im-mail-to .td-mini-t, #imLogWin .im-mail-to .td-wk-name { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; color: rgba(255,255,255,0.24); }
+#imLogWin .im-mail-to .td-mini-t { min-width: 0; width: 24px; }
+#imLogWin .im-mail-foot { justify-content: flex-end; gap: 8px; margin-top: 18px; }
+#imLogWin .im-mail-foot .ll-state { flex: 1; text-align: right; }
+#imLogWin .im-msg-frame { margin-top: 18px; }
+#imLogWin .im-mail-opt { font-family: Arial, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0; text-transform: none; color: var(--muted); margin-left: 4px; }
+.im-list.im-teach-box { background: transparent; border: none; border-radius: 0; padding: 0; }   /* like A. Lesson / B. HW, no panel of its own */
+#imLogWin .im-teach-box .link-btn.tl-mic { padding: 4px 2px; border-color: transparent; background: transparent; color: var(--muted); }
+#imLogWin .im-teach-box .link-btn.tl-mic:hover:where(:not(:disabled)) { color: var(--text); }
+#imLogWin .im-teach-box .link-btn.tl-mic svg { width: 14px; height: 14px; }
+#imLogWin .im-teach-box .link-btn.tl-mic.rec { color: var(--accent); }
+#imMailPrev:disabled, #imMailSend:disabled { opacity: .45; cursor: default; }   /* Send waits for the steps above and a Preview (2026-10-25) */
+/* 2. Send practice materials, A. and B. (2026-10-25): two required picks, each answer with the check circle (om-77), filled once picked. */
+#imLogWin .im-mat-none { display: flex; flex-direction: column; gap: 10px; }
+#imLogWin .im-mat-q { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: rgba(255,255,255,0.6); min-width: 168px; }
+#imLogWin .im-pick { display: inline-flex; align-items: center; gap: 7px; margin-right: 14px; padding: 2px 0; border: none; background: none; cursor: pointer;
+  font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: color-mix(in srgb, #ffffff 60%, var(--muted)); }   /* no box (user, 2026-10-25) */
+#imLogWin .im-pick:hover:where(:not(:disabled)) { color: #ffffff; }
+#imLogWin .im-pick .im-pick-i { flex: none; overflow: visible; }
+#imLogWin .im-pick .im-pick-ck { display: none; }
+#imLogWin .im-pick.done { color: var(--green); }
+#imLogWin .im-pick.done .im-pick-ck { display: inline; }
+#imLogWin .im-pick:disabled { opacity: .45; cursor: default; }
+.im-s .im-teach { color: color-mix(in srgb, #d9a441 55%, var(--muted)); }   /* the teacher note in the Lessons list, amber-grey (2026-10-25) */
+#imLogWin .im-sched-box { flex-direction: column; gap: 14px; }   /* Needed / Not needed, then Reschedule under it (2026-10-25) */

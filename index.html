@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=938">
+  <link rel="stylesheet" href="css/styles.css?v=939">
 </head>
 <body>
 <div class="container">
@@ -608,14 +608,15 @@
   </div>
 
   <!-- RATE DECISION -->
-  <!-- REVIEWS (2026-10-21, tabs/reviews.js): first section = Ended students,
-       the goodbye review follow-up after Terminate. Current students to come. -->
+  <!-- REVIEWS (tabs/reviews.js): Google count + this week's ask on top,
+       Current students to ask (2026-10-25), then Ended students (2026-10-21). -->
   <div class="tab-panel" id="tab-reviews">
-    <div class="settings-title"><span>Reviews<span class="win-sub"> · Ended students</span></span></div>
+    <div class="settings-title"><span>Reviews<span class="win-sub"> · Google</span></span></div>
+    <div id="rvSummaryBody"><div class="empty-state rpm-loading">Loading</div></div>
+    <div class="settings-title rv-g-title"><span>Reviews<span class="win-sub"> · Current students</span></span></div>
+    <div id="curReviewsBody"><div class="empty-state rpm-loading">Loading</div></div>
+    <div class="settings-title rv-g-title"><span>Reviews<span class="win-sub"> · Ended students</span></span></div>
     <div id="endReviewsBody"><div class="empty-state rpm-loading">Loading</div></div>
-    <!-- Google reviews (2026-10-22): the "left a review" emails since 2024, read from Gmail -->
-    <div class="settings-title rv-g-title"><span>Reviews<span class="win-sub"> · Google</span></span></div>
-    <div id="googleReviewsBody"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
   <!-- LIFETIME -->
@@ -702,7 +703,7 @@
   <!-- GEAR BUTTON -->
   <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:32px; padding-bottom:16px;">
     <div id="secAlert"></div>
-    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">938</span></span>
+    <span style="font-size:10px;color:var(--muted);letter-spacing:1px;font-family:'DM Mono',monospace;">build <span id="buildNo">939</span></span>
     <button class="gear-btn" onclick="openSettings()" data-tip="Opens a window.&#10;Settings.">⚙</button>
   </div>
 
@@ -722,46 +723,46 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=938"></script>
-<script src="core/storage.js?v=938"></script>
-<script src="core/utils.js?v=938"></script>
-<script src="core/dialog.js?v=938"></script>
-<script src="core/api.js?v=938"></script>
-<script src="core/secalert.js?v=938"></script>
+<script src="core/state.js?v=939"></script>
+<script src="core/storage.js?v=939"></script>
+<script src="core/utils.js?v=939"></script>
+<script src="core/dialog.js?v=939"></script>
+<script src="core/api.js?v=939"></script>
+<script src="core/secalert.js?v=939"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=938"></script>
-<script src="tabs/lessons.js?v=938"></script>
-<script src="tabs/payments.js?v=938"></script>
-<script src="tabs/general.js?v=938"></script>
-<script src="tabs/financial.js?v=938"></script>
-<script src="tabs/inquiries.js?v=938"></script>
-<script src="tabs/inqarchive.js?v=938"></script>
-<script src="tabs/comms.js?v=938"></script>
-<script src="tabs/notes.js?v=938"></script>
-<script src="tabs/todo.js?v=938"></script>
-<script src="tabs/availability.js?v=938"></script>
-<script src="tabs/travel.js?v=938"></script>
-<script src="tabs/tripsummary.js?v=938"></script>
-<script src="tabs/triphistory.js?v=938"></script>
-<script src="tabs/skips.js?v=938"></script>
-<script src="tabs/student.js?v=938"></script>
-<script src="tabs/ctrl.js?v=938"></script>
-<script src="tabs/gbusiness.js?v=938"></script>
-<script src="tabs/dropbox.js?v=938"></script>
-<script src="tabs/import.js?v=938"></script>
-<script src="tabs/today.js?v=938"></script>
-<script src="tabs/home.js?v=938"></script>
-<script src="tabs/trial.js?v=938"></script>
-<script src="tabs/ending.js?v=938"></script>
-<script src="tabs/reviews.js?v=938"></script>
-<script src="tabs/financial2.js?v=938"></script>
-<script src="tabs/sheets.js?v=938"></script>
-<script src="tabs/studentline.js?v=938"></script>
-<script src="tabs/calendar.js?v=938"></script>
-<script src="tabs/fixedcal.js?v=938"></script>
-<script src="tabs/help.js?v=938"></script>
-<script src="tabs/holidays.js?v=938"></script>
+<script src="tabs/icons.js?v=939"></script>
+<script src="tabs/lessons.js?v=939"></script>
+<script src="tabs/payments.js?v=939"></script>
+<script src="tabs/general.js?v=939"></script>
+<script src="tabs/financial.js?v=939"></script>
+<script src="tabs/inquiries.js?v=939"></script>
+<script src="tabs/inqarchive.js?v=939"></script>
+<script src="tabs/comms.js?v=939"></script>
+<script src="tabs/notes.js?v=939"></script>
+<script src="tabs/todo.js?v=939"></script>
+<script src="tabs/availability.js?v=939"></script>
+<script src="tabs/travel.js?v=939"></script>
+<script src="tabs/tripsummary.js?v=939"></script>
+<script src="tabs/triphistory.js?v=939"></script>
+<script src="tabs/skips.js?v=939"></script>
+<script src="tabs/student.js?v=939"></script>
+<script src="tabs/ctrl.js?v=939"></script>
+<script src="tabs/gbusiness.js?v=939"></script>
+<script src="tabs/dropbox.js?v=939"></script>
+<script src="tabs/import.js?v=939"></script>
+<script src="tabs/today.js?v=939"></script>
+<script src="tabs/home.js?v=939"></script>
+<script src="tabs/trial.js?v=939"></script>
+<script src="tabs/ending.js?v=939"></script>
+<script src="tabs/reviews.js?v=939"></script>
+<script src="tabs/financial2.js?v=939"></script>
+<script src="tabs/sheets.js?v=939"></script>
+<script src="tabs/studentline.js?v=939"></script>
+<script src="tabs/calendar.js?v=939"></script>
+<script src="tabs/fixedcal.js?v=939"></script>
+<script src="tabs/help.js?v=939"></script>
+<script src="tabs/holidays.js?v=939"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
