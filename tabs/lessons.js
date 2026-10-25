@@ -612,7 +612,8 @@ function _logHwRecalc(hw) {
   // The Log lesson window has no Send (2026-10-15): files in the zone count.
   if (window._imDocked) hw.filesOn = hw.files.length > 0;
   // Recorded on their phone isn't a material any more (2026-10-25): it goes with either answer.
-  var some = hw.filesOn || hw.links.length || hw.videoOnly;
+  // Gathered files ticked count too (2026-10-25); Finish moves them in.
+  var some = hw.filesOn || hw.links.length || hw.videoOnly || (hw.found || []).some(function(f) { return hw.foundOn && hw.foundOn[f.path]; });
   if (some && window._imDocked && !hw.pick) hw.pick = "send";   // a file or link in means Send
   hw.choice = some && (!window._imDocked || hw.pick === "send") ? "sent" : null;
 }

@@ -3482,3 +3482,12 @@ th.f2-blk { background:none; }
 #imLogWin .im-pick:disabled { opacity: .45; cursor: default; }
 .im-s .im-teach { color: color-mix(in srgb, #d9a441 55%, var(--muted)); }   /* the teacher note in the Lessons list, amber-grey (2026-10-25) */
 #imLogWin .im-sched-box { flex-direction: column; gap: 14px; }   /* Needed / Not needed, then Reschedule under it (2026-10-25) */
+/* Gather (2026-10-25): the files found in their Dropbox, under the drop zone, each with the check circle. */
+.lh-gather-btn { display: inline-flex; align-items: center; gap: 6px; }
+.lh-gather-btn svg { width: 12px; height: 12px; }
+#imLogWin .im-gather { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+#imLogWin .im-gather-t { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+#imLogWin .im-gather-none { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--muted); }
+#imLogWin .im-pick.im-gather-row { display: flex; width: 100%; margin: 0; text-align: left; font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; text-transform: none; }
+#imLogWin .im-gather-n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#imLogWin .im-gather-d { flex: none; color: var(--muted); font-size: 11px; }
