@@ -3557,3 +3557,11 @@ th.f2-blk { background:none; }
 #imLogWin .im-mat-box > .im-hw-dock-box > .im-sub-head:first-child { margin-top: 0; }   /* no gap above A. Files in its own box */
 #imLogWin .im-sub-head:has(> #imMatFilesTools) { flex-wrap: wrap; }
 #imLogWin .im-sub-head:has(> .im-link-yes) > #imMatFilesTools { flex-basis: 100%; margin: 12px 0 0; justify-content: flex-end; }   /* A. Files: Gather / Browse / Dropbox on their own line under the title, at the right (user, 2026-10-25) */
+/* Log window phrase pills (user, 2026-10-26): small grey pills under each rows
+   box, on the add icon's line (the negative bottom margin pulls the icon up beside them). */
+#imLogWin .im-pills { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0 -29px; padding-right: 36px; position: relative; z-index: 1; }
+#imLogWin .im-pill { font-family: "DM Mono", monospace; font-size: 10px; line-height: 1; letter-spacing: .2px; color: #8a8a8a; background: transparent;
+  border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; padding: 4px 8px; cursor: pointer; }
+#imLogWin .im-pill:hover:where(:not(:disabled)) { color: #ddd; border-color: rgba(255,255,255,0.4); }
+#imLogWin .ll-wrap:has(.ll-rows.locked) + .im-pills { opacity: .35; pointer-events: none; }   /* logged: nothing to add to */
+#imLogWin .im-case-hint { margin-left: 8px; }

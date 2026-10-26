@@ -202,6 +202,7 @@ function _imLogWinOpen(student, idx, day, item, next) {
     if (sec) { sec.style.display = 'none'; if (sec.previousElementSibling) sec.previousElementSibling.style.display = 'none'; }
   }
   _imTeachWire();
+  _imPillsWire();
   _imMailWire(student, name, day);
   if (item && item.log) _imLogLock(item.logText || '');
   _imStepsRender();
@@ -222,6 +223,41 @@ function _imTeachWire() {
   _imNoteWire('imStu', function () { _imRowsPut('notes', llValues(box)); _imStepsRender(); });
 }
 function _imStuBox() { return _imQ('imStuRows'); }
+// Phrase pills (user, 2026-10-26): the openings typed every lesson, one tap
+// each, under the rows on the add icon's line. A pill types into the last row:
+// capitalised only at the very start of the first row, lowercase after that,
+// with a comma before it when the row already has text (rows are joined with
+// commas when logged, so an empty later row needs none).
+var IM_PILLS = {
+  log:   ['Covered', 'Practiced', 'Looked at', 'Went over', 'Talked about'],
+  hw:    ['Go over', 'Practice', 'Play', 'Review'],
+  notes: ['Make sure']
+};
+function _imPillsWire() {
+  [[_logBox(), IM_PILLS.log], [_hwRowsBox(), IM_PILLS.hw], [_imTeachBox(), IM_PILLS.notes], [_imStuBox(), IM_PILLS.notes]].forEach(function (x) {
+    var box = x[0], wrap = box && box.closest('.ll-wrap');
+    if (!wrap || (wrap.nextElementSibling && wrap.nextElementSibling.classList.contains('im-pills'))) return;   // the Log and HW rows stay between windows
+    var d = document.createElement('div');
+    d.className = 'im-pills';
+    d.innerHTML = x[1].map(function (t) { return '<button type="button" class="im-pill">' + t + '</button>'; }).join('');
+    d.onmousedown = function (e) { e.preventDefault(); };   // the row keeps its cursor
+    d.onclick = function (e) { if (e.target.classList.contains('im-pill')) _imPillPut(box, e.target.textContent); };
+    wrap.after(d);
+  });
+}
+function _imPillPut(box, t) {
+  var rows = llRows(box), inp = rows[rows.length - 1];
+  if (!inp || box.classList.contains('locked') || inp.readOnly || inp.disabled) return;
+  var v = inp.value, pos = document.activeElement === inp && inp.selectionStart != null ? inp.selectionStart : v.length;
+  var before = v.slice(0, pos).replace(/\s+$/, ''), after = v.slice(pos).replace(/^\s+/, '');
+  var word = before || rows.length > 1 ? t.charAt(0).toLowerCase() + t.slice(1) : t;
+  var head = before ? before + (/,$/.test(before) ? ' ' : ', ') : '';
+  inp.value = head + word + ' ' + after;
+  inp.focus();
+  var p = (head + word + ' ').length;
+  inp.setSelectionRange(p, p);
+  inp.dispatchEvent(new Event('input', { bubbles: true }));
+}
 // One rows box with its own ＋ and mic (ids <pre>Rows / <pre>Add / <pre>Mic).
 function _imNoteWire(pre, onChange) {
   var box = _imQ(pre + 'Rows');
@@ -1325,7 +1361,8 @@ function _imDoHtml(name, day) {
     // Three sections (2026-10-15): Log (the lesson and the HW), Materials
     // (what goes to them: nothing, files, video lesson links, web links), Schedule.
     // Each of the three sections sits in its own bordered box, its title above it, no dividers (2026-10-18).
-    _imMainHead('1. Log the lesson and HW', '', '', 'im-main-log') +   // all red (2026-10-18)
+    // The typing reminder beside it (user, 2026-10-26), in the (optional) grey.
+    _imMainHead('1. Log the lesson and HW <span class="im-mail-opt im-case-hint">(Type sentence case, caps only on first line and song names)</span>', '', '', 'im-main-log') +   // all red (2026-10-18)
     '<div class="im-main-box">' +
       _imSub('1. Lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
       _imSub('2. HW', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
