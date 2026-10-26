@@ -474,7 +474,7 @@ function _inqOpenTemplate(decision, inq) {
       "<div id='inqModalStatus'></div>" +
       "<div style='display:flex;gap:8px;margin-top:20px'>" +
         (hasEmail
-          ? "<button class='db-mini-btn' onclick='_inqPreviewEmail()'>Preview</button>" +
+          ? "<button class='db-mini-btn' onclick='_inqPreviewEmail()' style='display:inline-flex;align-items:center;gap:7px'>" + DETAILS_ICON + "<span>Preview</span></button>" +
             "<button class='db-mini-btn strong' id='inqSendBtn' onclick='_inqSubmitTemplate(\"" + decision + "\",true)' " +
               "style='display:inline-flex;align-items:center;gap:7px'>" + SEND_ICON + "<span>Send</span></button>"
           : "<button class='db-mini-btn strong' id='inqSendBtn' onclick='_inqSubmitTemplate(\"" + decision + "\",false)'>" +

@@ -153,7 +153,7 @@ function _dbOpenFix() {
           '<textarea id="dbCreateBody-' + i + '" class="rpm-field" rows="3">' + _dbEsc(DB_EMAIL_MSG) + '</textarea>' +
           '<div style="margin-top:20px">' + _dbLbl('Attachments') + '</div>' +
           '<div class="tl-docs"><a class="tl-doc" href="' + DB_PDF_LINK + '" target="_blank" rel="noopener"><span>Dropbox Instructions - 2026.pdf</span>' + OPEN_OUT_ICON + '</a></div>' +
-          _dbActs('<button class="link-btn" onclick="_dbPreviewEmail(\'dbCreateBody-' + i + '\',\'dbPreview-' + i + '\')">Preview</button>' +
+          _dbActs('<button class="link-btn" onclick="_dbPreviewEmail(\'dbCreateBody-' + i + '\',\'dbPreview-' + i + '\')">' + DETAILS_ICON + '<span>Preview</span></button>' +
             '<button class="link-btn bright" onclick="_dbCreateFolder(\'' + _dbEsc(m.name) + '\',' + i + ',this)">' + ROW_ADD_ICON + '<span>Create &amp; share</span></button>') +
           '<div id="dbPreview-' + i + '"></div>' +
         '</div>';
@@ -202,7 +202,7 @@ function _dbOpenFix() {
           '<div style="margin-top:20px">' + _dbLbl('Attachments') + '</div>' +
           '<div class="tl-docs"><a class="tl-doc" href="' + DB_PDF_LINK + '" target="_blank" rel="noopener"><span>Dropbox Instructions - 2026.pdf</span>' + OPEN_OUT_ICON + '</a></div>' +
           _dbActs('<button class="link-btn" onclick="openDropboxLocalFolder(\'' + _dbEsc(n) + '\')"><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
-            '<button class="link-btn" onclick="_dbPreviewEmail(\'dbShareBody-' + k + '\',\'dbSharePreview-' + k + '\')">Preview</button>' +
+            '<button class="link-btn" onclick="_dbPreviewEmail(\'dbShareBody-' + k + '\',\'dbSharePreview-' + k + '\')">' + DETAILS_ICON + '<span>Preview</span></button>' +
             '<button class="link-btn bright" onclick="_dbShareFolder(\'' + _dbEsc(n) + '\',' + k + ',this)" ' +
               'data-tip="Instant.\nShares the folder with this email.\nDropbox emails them the invite, then the Instructions email follows." data-tip-wrap data-tip-left><span>Share</span></button>') +
           '<div id="dbSharePreview-' + k + '"></div>' +

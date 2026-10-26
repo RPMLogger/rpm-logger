@@ -480,7 +480,7 @@ function _trOpenEmail(email) {
       // Not green: green in this portal means done. The span holds the words:
       // _trSetLabel writes it for Sending and Sent, so the plane survives.
       _tlActs(
-        "<button class='link-btn' id='trFcPrevBtn' onclick='_trPreviewEmail()'>Preview</button>" +
+        "<button class='link-btn' id='trFcPrevBtn' onclick='_trPreviewEmail()'>" + DETAILS_ICON + "<span>Preview</span></button>" +
         "<button class='link-btn bright' id='trFcSendBtn' onclick='_trSendEmail()'>" + SEND_ICON + "<span>Send</span></button>") +
       "<div id='trFcPreview'></div>" +
       // The text half moved to its own window (Text on the card, 2026-09-27).
@@ -619,13 +619,9 @@ function _trRenderPreview(body, boxId) {
     .then(function (d) {
       if (!d.success) { rpmFail(box, d.message || "Could not render", "left"); return; }
       // The logo is a cid: attachment that only resolves inside the real
-      // email, so the preview draws a marker where it will sit. Dropping it
-      // entirely was tried and left you wondering every time whether the logo
-      // was still going out. Toned for the beige card, not the old white one.
-      var html = d.html.replace(/<img[^>]*cid:logo[^>]*>/i,
-        "<div style=\"width:64px;height:64px;border:1px dashed #9a978f;border-radius:8px;" +
-        "display:inline-flex;align-items:center;justify-content:center;" +
-        "font:9px/1.2 monospace;letter-spacing:1px;color:#6f6c65\">LOGO</div>");
+      // email; the preview shows the portal's own copy of it, like the Log
+      // window does (user, 2026-10-26; was a dashed LOGO box).
+      var html = d.html.replace(/cid:logo/g, new URL('img/email-logo.png', location.href).href);
       box.innerHTML =
         // 20 above and below the buttons, so they sit centred between the
         // box you typed in and the paper it becomes.
@@ -1741,7 +1737,7 @@ function _tlEmailHtml(which, list, sent, lockNote) {
     }).join('') + '</div>' +
     _tlMsg('tlMsg-' + which) +
     // A locked Send says why in its tooltip, not in a line beside it.
-    _tlActs('<button class="link-btn" onclick="_tlPreview(\'' + which + '\')">Preview</button>' +
+    _tlActs('<button class="link-btn" onclick="_tlPreview(\'' + which + '\')">' + DETAILS_ICON + '<span>Preview</span></button>' +
       '<button class="link-btn ' + (sent ? 'green' : 'bright') + '" id="tlSendBtn-' + which + '"' +
         (lockNote && !sent ? ' data-tip="' + lockNote + '" data-tip-wrap data-tip-left' : '') +
         (sent || lockNote ? ' disabled' : ' onclick="_tlSend(\'' + which + '\')"') + '>' +
@@ -1986,13 +1982,10 @@ function _tlPreview(which) {
 }
 
 // The email on a white card, the way a mail client shows it. The logo is a
-// cid: reference that only exists in the real email, so it becomes a box.
+// cid: reference that only exists in the real email, so the preview shows the
+// portal's own copy (user, 2026-10-26; was a dashed LOGO box).
 function _tlPreviewHtml(subject, html, to) {
-  // Same marker as the composer preview: you can see the logo is going.
-  var body = String(html || '').replace(/<img [^>]*cid:logo[^>]*>/,
-    '<div style="width:64px;height:64px;border:1px dashed #9a978f;border-radius:8px;' +
-    'display:inline-flex;align-items:center;justify-content:center;' +
-    'font:9px/1.2 monospace;letter-spacing:1px;color:#6f6c65">LOGO</div>');
+  var body = String(html || '').replace(/cid:logo/g, new URL('img/email-logo.png', location.href).href);
   // No To line (the window already says who). The subject sits inside the
   // white card, above the body, set apart by a rule (2026-09-26).
   return '<div style="margin-top:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden">' +
