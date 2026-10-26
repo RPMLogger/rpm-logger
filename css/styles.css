@@ -68,6 +68,9 @@ body:has(#tab-calendar.active)::after, body:has(#tab-fixedcal.active)::after { d
 }
 @media (max-width: 700px) { .header::before { left: 0; right: 0; } }
 .header img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+/* The build number on the header's right, opposite ☰ (user, 2026-10-26; was by the gear at the bottom). */
+.hdr-build { position: absolute; right: 0; top: 50%; transform: translateY(calc(-50% - 9px));   /* level with ☰'s middle */ font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; color: var(--muted); }
+@media (max-width: 700px) { .hdr-build { right: 12px; } }
 .header-title {
   font-family: "Bebas Neue", sans-serif; font-size: 28px;
   font-weight: 400; color: rgba(255,255,255,0.72); line-height: 1; letter-spacing: 3.1px;   /* as wide as GUITAR LESSONS PORTAL under it */   /* not red: the logo beside it is (user, 2026-10-24) */
@@ -2831,7 +2834,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-log-foot-all { justify-content: flex-end; margin-top: 28px; }
 #imLogWin .im-log-foot-all #btnLog:disabled { cursor: default; }
 #imLogWin .im-dim:hover:where(:not(:disabled)) { opacity: .35; }   /* dimmed stays dimmed on hover (user, 2026-10-18) */
-#imLogWin #logPanel > #logAddRow { display: inline-flex; margin: 10px 0 0; }   /* left under the log rows, like HW's (Log moved under HW, 2026-10-18) */
+#imLogWin #logPanel > #logAddRow { display: flex; width: fit-content; margin: 10px 0 0 auto; }   /* bottom right under the log rows, like the others (user, 2026-10-25; was left) */
 
 /* Travel Plan (2026-10-18): Leaving + Arriving pickers over a two-month
    calendar; each follows the other. Off = accent, back = green. */
