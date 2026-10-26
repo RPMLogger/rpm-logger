@@ -58,16 +58,15 @@ function _tdRender() {
   var now = new Date();
   // Today's top part in a box like This Week's under it (user, 2026-10-24): title, calendar, count, list.
   var head = '<div class="td-wk-box td-today-box"><div class="settings-title td-wk-title"><span>Today<span class="win-sub"> · ' +
-    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()] + ', ' + MONTHS[now.getMonth()] + ' ' + now.getDate() + '</span></span></div>' +   // no Week button: This Week is under it (user, 2026-10-24)
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()] + ', ' + MONTHS[now.getMonth()] + ' ' + now.getDate() + '</span></span>' +
+    '<button class="link-btn opens-window" onclick="_tdNsOpen()" data-tip="Instant.\nThe No show text, to copy\nand send from Messages.">No show</button></div>' +   // no Week button: This Week is under it (user, 2026-10-24); No show (portal button) top right opens the No show text window (user, 2026-10-26)
     '<div class="td-wk-icon">' + CALENDAR_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>';   // the Week window's calendar under the title, like Availability (user, 2026-10-23)
   // A day off (2026-10-08): the resting figure over the line (om-82).
   if (!list.length) { body.innerHTML = head + '<div class="empty-state td-rest">' + REST_ICON + '<div>No lessons today!</div></div></div>' + _tdWeekSection(); return; }
   list.forEach(function (s) { if (!_td.data[_imKey(s.name)]) _tdLoad(s.name); });
   // At the top (2026-10-06): how many, and a mini list of times + names; a
   // name jumps to its card.
-  // No show (user, 2026-10-26): on the count row's right, opens the No show text window.
-  var mini = '<div class="db-cx-head im-sec-head td-count"><label class="field-label db-cx-t">' + list.length + (list.length === 1 ? ' student' : ' students') + '</label>' +
-    '<button class="link-btn" onclick="_tdNsOpen()" data-tip="Instant.\nThe No show text, to copy\nand send from Messages.">No show</button></div>' +
+  var mini = '<div class="db-cx-head im-sec-head td-count"><label class="field-label db-cx-t">' + list.length + (list.length === 1 ? ' student' : ' students') + '</label></div>' +
     '<hr class="divider td-rule td-rule-top">' +
     '<div class="db-panel im-list td-mini">' + list.map(function (s, i) {
       // The name is the portal's plain link button; the open one stays lit (2026-10-09).
@@ -99,21 +98,58 @@ function _tdClose() {
 }
 
 // ── No show text (user, 2026-10-26) ─────────────────────────────────────────
-// For a student who can't make it, usually said before the lesson: a text
-// to copy and send from Messages. One sample for now, to be edited later; it
-// can be edited in place before Copy. Copy saves nothing.
+// For a student who can't make it, usually said before the lesson: texts to
+// copy and send from Messages. They live in "No Show Texts" (Counter sheet);
+// these three are the starting ones until it answers. An edit is kept only on
+// Save; Copy saves nothing, and closing drops an unsaved edit.
 var TD_NS_TEXTS = [
-  "Hi! Sorry you can't make it today. This could be a good time to review the older material and improve it, or just play anything you enjoy. Just doing that, you will still improve. Lesson policies are what keep the studio running, so thank you for understanding!"
+  "Hi! Sorry you can't make it today.",
+  "This could be a good time to review the older material and improve it, or just play anything you enjoy. Just doing that, you will still improve.",
+  "Lesson policies are what keep the studio running, so thank you for understanding!"
 ];
 function _tdNsOpen() {
-  // The Reviews tab's text template look: the blue bubble, editable, Copy on the right.
-  _stWin('tdNsWin', 'No show', 'Text', null, TD_NS_TEXTS.map(function (t, i) {
+  // The Reviews tab's text template look: the blue bubble, editable, Save + Copy on the right.
+  _stWin('tdNsWin', 'No show', 'Text', null, '<div id="tdNsList">' + _tdNsHtml() + '</div>');
+  fetch(getScriptUrl() + '?action=getNsTexts')
+    .then(function (x) { return x.json(); })
+    .then(function (res) {
+      if (!res || !res.success || !res.texts || !res.texts.length) return;
+      TD_NS_TEXTS = res.texts;
+      var box = document.getElementById('tdNsList');
+      if (box) box.innerHTML = _tdNsHtml();
+    })
+    .catch(function () {});   // the starting texts stay
+}
+function _tdNsHtml() {
+  return TD_NS_TEXTS.map(function (t, i) {
     return '<div class="en-tpl">' +
       '<div class="en-tpl-top"><span class="field-label">Text template ' + (i + 1) + '</span>' +
-        '<span class="en-tpl-btns"><button class="link-btn" id="tdNsCopy' + i + '" onclick="_tdNsCopy(' + i + ')" data-tip="Instant.\nCopies the text for Messages.\nSaves nothing.">' + COPY_ICON + '<span>Copy</span></button></span></div>' +
+        '<span class="en-tpl-btns">' +
+        '<button class="link-btn" id="tdNsSave' + i + '" onclick="_tdNsSave(' + i + ')" data-tip="Saves this text to\nNo Show Texts (Counter sheet).">Save</button>' +
+        '<button class="link-btn" id="tdNsCopy' + i + '" onclick="_tdNsCopy(' + i + ')" data-tip="Instant.\nCopies the text for Messages.\nSaves nothing.">' + COPY_ICON + '<span>Copy</span></button></span></div>' +
       '<div class="ts-thread tv-rv-thread rv-thread"><div id="tdNsText' + i + '" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only" spellcheck="false">' + inqEsc(t) + '</div></div>' +
     '</div>';
-  }).join(''));
+  }).join('');
+}
+function _tdNsSave(i) {
+  var el = document.getElementById('tdNsText' + i), btn = document.getElementById('tdNsSave' + i);
+  var win = document.querySelector('#tdNsWin .st-win');
+  if (!el || !btn) return;
+  var text = el.innerText.replace(/\n+$/, '');
+  rpmBusy(win, btn, true, 'Saving');
+  fetch(getScriptUrl() + '?action=saveNsText&i=' + i + '&text=' + encodeURIComponent(text))
+    .then(function (x) { return x.json(); })
+    .then(function (res) {
+      if (!res || !res.success) throw new Error(res && res.message || 'Not saved');
+      TD_NS_TEXTS[i] = text;
+      rpmBusy(win, btn, false);
+      btn.textContent = 'Saved';
+      setTimeout(function () { btn.textContent = 'Save'; }, 1600);
+    })
+    .catch(function (e) {
+      rpmBusy(win, btn, false);
+      rpmAlert({ title: 'Not saved', message: String(e && e.message || e) });
+    });
 }
 function _tdNsCopy(i) {
   var el = document.getElementById('tdNsText' + i), btn = document.getElementById('tdNsCopy' + i);
