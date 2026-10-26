@@ -193,6 +193,8 @@ function _imLogWinOpen(student, idx, day, item, next) {
       var hb = w.querySelector(sel), hh = hb && hb.previousElementSibling, hr = hh && hh.previousElementSibling;
       [hb, hh, hr && hr.tagName === 'HR' ? hr : null].forEach(function (el) { if (el) el.style.display = 'none'; });
     });
+    var ms = w.querySelector('.im-mat-split');   // 2. Practice materials, its question box sits outside the HW dock (2026-10-25)
+    if (ms) { ms.style.display = 'none'; if (ms.previousElementSibling) ms.previousElementSibling.style.display = 'none'; }
   }
   // A trial has no regular lessons to move yet (2026-10-23): no 3. Schedule adjustments.
   if (student.trialEmail) {
@@ -525,6 +527,7 @@ function _imLogMail() {
   m.hw = _imMailSentences(_imRowsFor(m, 'hw', _imNoTeacher(_hwRowsJoin())));
   m.notes = _imMailSentences(llValues(_imStuBox()));
   m.files = !!(sent && hw.filesOn && hw.files.length);
+  m.paths = m.files ? hw.files.map(function (f) { return f.path; }) : [];   // the email lists them as folders (2026-10-25)
   m.links = sent ? hw.links.slice() : [];
   m.phone = !!hw.phone;   // with Nothing to send too (2026-10-25)
   return m;
@@ -534,6 +537,7 @@ function _imMailParams(m) {
   return {
     name: m.name, lessonDate: m.day, lesson: m.lesson, hw: m.hw, notes: m.notes,
     links: m.links.map(function (l) { return l.kind + ': ' + l.url; }).join('\n'), files: m.files ? '1' : '0', phone: m.phone ? '1' : '0',
+    filePaths: (m.paths || []).slice(0, 80).join('\n'),
     trial: m.trial
   };
 }
@@ -548,11 +552,14 @@ function _imMailCheck(p) {
 // The email in a white card, its own page so the portal's styles stay out.
 function _imMsgShow(f, html) {
   var logo = new URL('img/email-logo.png', location.href).href;
+  var lnk = new URL('img/email-link.png', location.href).href;
+  var vid = new URL('img/email-video.png', location.href).href;
+  var dbx = new URL('img/email-dropbox.png', location.href).href;   // cid:dbx, the files line's Dropbox logo (2026-10-25)
   f.hidden = false;
   f.onload = function () { try { f.style.height = (f.contentDocument.documentElement.scrollHeight + 2) + 'px'; } catch (e) {} };
   f.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><style>' +
     'html,body{margin:0;background:#fff;color:#222;font:small/1.45 Arial,Helvetica,sans-serif}body{padding:18px 20px 20px}a{color:#1a0dab}' +
-    '</style></head><body>' + String(html || '').replace(/cid:logo/g, logo) + '</body></html>';
+    '</style></head><body>' + String(html || '').replace(/cid:logo/g, logo).replace(/cid:dbx/g, dbx).replace(/cid:lnk/g, lnk).replace(/cid:vid/g, vid) + '</body></html>';
 }
 // Preview and Send (_imStepsRender): Send waits for the steps above and a
 // Preview of exactly what would go.
@@ -682,18 +689,30 @@ function _imStepsRender() {
     fb.disabled = !(hw && hw.choice === 'sent' && !hw.loading && !hw.uploading && !hw.gathering && !matIn);
     fb.textContent = matIn && hw.choice === 'sent' ? 'Finished ✓' : 'Finish';
   }
-  // C. Files, D. Video lesson link, E. Web link and Finish open once A. is answered and B. is Send (user, 2026-10-25).
+  // The materials box (A. Files, B. Video lesson link, C. Web link, Finish) opens once 1. is answered and 2. is Send (user, 2026-10-25).
   var open = !!(hw && hw.rec && hw.pick === 'send');
   Array.prototype.forEach.call(c.root.querySelectorAll('.im-mat-sec'), function (el) {
-    el.style.display = open ? '' : 'none';
+    // D. and E.'s boxes only once their Yes is picked (or a link of that kind is in).
+    var kind = el.querySelector('#imMatVideo') ? 'Video' : el.querySelector('#imMatLink') ? 'Link' : el.querySelector('#imHwDock') ? 'Files' : null;
+    var on = !kind || _imLinkOn(hw, kind);
+    el.style.display = open && on ? '' : 'none';
     if (el.previousElementSibling) el.previousElementSibling.style.display = open ? '' : 'none';
+  });
+  var ft = _imQ('imMatFilesTools');
+  if (ft) ft.style.display = _imLinkOn(hw, 'Files') ? '' : 'none';
+  [['imFilesYes', 'Files'], ['imVidYes', 'Video'], ['imWebYes', 'Link']].forEach(function (x) {
+    var b = _imQ(x[0]);
+    if (!b) return;
+    b.classList.toggle('done', _imLinkOn(hw, x[1]));
+    b.disabled = !hw || !!(hw.locked || hw.loading || hw.saving);
   });
   if (fb && fb.parentNode) fb.parentNode.style.display = open ? '' : 'none';
   var gl = _imQ('imGatherList'), gb = _imQ('logHwGatherBtn');
   if (gl) gl.innerHTML = _imGatherHtml(hw);
   if (gb) gb.disabled = !hw || !!(hw.locked || hw.loading || hw.uploading || hw.noDbx || hw.gathering);
-  var mn = _imQ('imMatNone');
-  if (mn) mn.style.marginBottom = open ? '' : '0';
+  var mb = _imQ('imMatBox'), mn = _imQ('imMatNone');
+  if (mb) mb.style.display = open ? '' : 'none';
+  if (mn) mn.classList.toggle('im-dim', !!(hw && hw.rec && hw.pick));   // both answered: the questions box dims
   // 3. Schedule's picks; Reschedule shows with Needed.
   var sRaw = _imSchedGet(name, c.day), sNeed = !!(window._imWin && window._imWin.schedNeed) || sRaw === 'changed';
   var sy = _imQ('imSchedYes'), sn = _imQ('imSchedNo'), srs = _imQ('imSchedRs');
@@ -920,12 +939,12 @@ function _imDone(name) {
 }
 
 // Finish (2026-10-18): the files / links / phone are all in; till then Materials stays open.
-// Gathered files ticked (2026-10-25) move into the lesson's HW folder first
+// Gathered files (2026-10-25) move into the lesson's HW folder first
 // (gatherHwFiles, RPM_HwLog.js), then count as files put in here.
 function _imMatFinish() {
   var hw = logHw;
   if (!hw || hw.choice !== 'sent' || hw.loading || hw.uploading || hw.gathering) return;
-  var paths = (hw.found || []).filter(function (f) { return hw.foundOn[f.path]; }).map(function (f) { return f.path; });
+  var paths = (hw.found || []).map(function (f) { return f.path; });
   if (!paths.length) { hw.matDone = true; _imStepsRender(); return; }
   var card = document.querySelector('#imLogWin .im-do-card');
   hw.gathering = 'move';
@@ -945,13 +964,14 @@ function _imMatFinish() {
         if (!hw.files.some(function (f) { return f.path.toLowerCase() === p.toLowerCase(); })) hw.files.push({ name: nm, path: p });
         hw.mine[nm.toLowerCase()] = true;
       });
-      hw.found = null; hw.foundOn = {};
+      hw.found = null;
       if (!d.success) { rpmFail('logPanelStatus', d.message || 'Files not moved.'); _imHwChanged(); return; }
       hw.matDone = true;
       _imHwChanged();
     });
 }
-// Gather (2026-10-25): what's in their Dropbox on no HW yet, newest first, all ticked.
+// Gather (2026-10-25): what went into their Dropbox since the lesson day and is
+// on no HW yet; no ticks (user: put in that day means meant for it), Finish takes all.
 function _imGather() {
   var hw = logHw;
   if (!hw || hw.locked || hw.loading || hw.uploading || hw.noDbx || hw.gathering) return;   // after Browse uploads land, so they don't list twice
@@ -966,29 +986,21 @@ function _imGather() {
       hw.gathering = false;
       var have = {};
       hw.files.forEach(function (f) { have[f.path.toLowerCase()] = 1; });
-      hw.found = d.success ? (d.files || []).filter(function (f) { return !have[String(f.path).toLowerCase()]; }) : [];
-      hw.foundMsg = !d.success ? (d.message || "Couldn't read Dropbox.") : d.noFolder ? 'No Dropbox folder named ' + hw.name + '.' : 'Nothing new in their Dropbox.';
-      hw.foundOn = {};
-      hw.found.forEach(function (f) { hw.foundOn[f.path] = true; });
+      var k = hw.date.split('-'), since = new Date(+k[0], +k[1] - 1, +k[2]).getTime();   // the lesson day's midnight, here
+      hw.found = d.success ? (d.files || []).filter(function (f) {
+        return !have[String(f.path).toLowerCase()] && f.modified && new Date(f.modified).getTime() >= since;
+      }) : [];
+      hw.foundMsg = !d.success ? (d.message || "Couldn't read Dropbox.") : d.noFolder ? 'No Dropbox folder named ' + hw.name + '.' : 'Nothing new in their Dropbox since ' + _ckDay(hw.date) + '.';
       _imHwChanged();
     });
-}
-function _imGatherTick(i) {
-  var hw = logHw, f = hw && hw.found && hw.found[i];
-  if (!f || hw.locked || hw.gathering) return;
-  hw.foundOn[f.path] = !hw.foundOn[f.path];
-  _imHwChanged();
 }
 function _imGatherHtml(hw) {
   if (!hw || (!hw.found && hw.gathering !== 'look')) return '';
   if (hw.gathering === 'look') return '<div class="im-gather"><span class="rpm-loading">Looking in their Dropbox</span></div>';
-  var head = '<div class="im-gather-t">Found in their Dropbox</div>';
+  var head = '<div class="im-gather-t">Finish adds these to ' + inqEsc(lessonFolderName(hw.date)) + '</div>';   // the lesson's folder (user, 2026-10-25)
   if (!hw.found.length) return '<div class="im-gather">' + head + '<div class="im-gather-none">' + inqEsc(hw.foundMsg || '') + '</div></div>';
-  return '<div class="im-gather">' + head + hw.found.map(function (f, i) {
-    var t = f.modified ? new Date(f.modified) : null;
-    return '<button type="button" class="im-pick im-gather-row' + (hw.foundOn[f.path] ? ' done' : '') + '" onclick="_imGatherTick(' + i + ')"' + (hw.locked || hw.gathering ? ' disabled' : '') + '>' +
-      PICK_ICON + '<span class="im-gather-n">' + inqEsc(f.path) + '</span>' + (t && !isNaN(t) ? '<span class="im-gather-d">' + MONTHS[t.getMonth()] + ' ' + t.getDate() + '</span>' : '') + '</button>';
-  }).join('') + '</div>';
+  // The Dropbox tab's file list (user, 2026-10-25): folders in caps, files under them.
+  return '<div class="im-gather">' + head + '<div class="db-files db-files-in im-gather-files">' + _dbDetailsFilesHtml({ items: hw.found }) + '</div></div>';
 }
 // B. Practice materials (2026-10-25): Send or Nothing to send; again undoes it.
 // Nothing to send clears any links (files stay in Dropbox, just not sent);
@@ -998,7 +1010,7 @@ function _imMatPick(v) {
   if (!hw || hw.loading || hw.uploading || hw.saving || hw.locked) return;
   hw.pick = hw.pick === v ? null : v;
   hw.matDone = false;
-  if (hw.pick === 'none') { hw.choice = 'none'; hw.links = []; hw.videoOnly = false; hw.filesOn = false; hw.found = null; hw.foundOn = {}; _imHwLinkClear(); }
+  if (hw.pick === 'none') { hw.choice = 'none'; hw.links = []; hw.videoOnly = false; hw.filesOn = false; hw.found = null; hw.linkYes = {}; _imHwLinkClear(); }
   else hw.choice = null;
   _imHwChanged();
 }
@@ -1032,6 +1044,30 @@ function _imHwLinkAdd(kind) {
   if (kind === 'Video') hw.videoOnly = false;
   inp.value = '';
   _imHwChanged();
+}
+// A. / B. / C. circles (2026-10-25): open that box; again closes it and drops its files or links.
+function _imLinkOn(hw, kind) {
+  if (hw && kind === 'Files') return !!((hw.linkYes || {}).Files || hw.files.length || (hw.found && hw.found.length) || hw.uploading || hw.gathering);
+  return !!(hw && ((hw.linkYes || {})[kind] || hw.links.some(function (l) { return l.kind === kind; }) || (kind === 'Video' && hw.videoOnly)));
+}
+function _imLinkYes(kind) {
+  var hw = logHw;
+  if (!hw || hw.locked || hw.loading || hw.saving) return;
+  hw.linkYes = hw.linkYes || {};
+  var on = !_imLinkOn(hw, kind);
+  hw.linkYes[kind] = on;
+  if (!on && kind === 'Files') {
+    if (hw.uploading || hw.gathering) { hw.linkYes.Files = true; return; }
+    // Off: no files for this lesson (anything uploaded stays in their Dropbox).
+    hw.files = []; hw.mine = {}; hw.found = null; hw.filesOn = false;
+  } else if (!on) {
+    hw.links = hw.links.filter(function (l) { return l.kind !== kind; });
+    if (kind === 'Video') hw.videoOnly = false;
+    var inp = document.getElementById(kind === 'Video' ? 'logHwVideoInput' : 'logHwLinkInput');
+    if (inp) inp.value = '';
+  }
+  _imHwChanged();
+  if (on && kind !== 'Files') { var el = document.getElementById(kind === 'Video' ? 'logHwVideoInput' : 'logHwLinkInput'); if (el) el.focus(); }
 }
 function _imHwLinkClear() {
   ['logHwVideoInput', 'logHwLinkInput'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
@@ -1071,6 +1107,11 @@ function _imHwOut() {
   if (db && !db.querySelector('svg')) db.insertAdjacentHTML('afterbegin', DBX_LOGO.replace('class="win-icon"', 'class="lh-dbx-ico"'));
   var ft = _imQ('imMatFilesTools');   // Nothing to send is B.'s own pick now (2026-10-25); the old button stays hidden in #logHwHead
   if (ft) [br, db].forEach(function (el) { if (el && el.parentNode !== ft) ft.appendChild(el); });
+  // Add is the add-row icon, bigger, no box (user, 2026-10-25).
+  ['logHwVideoAddBtn', 'logHwLinkAddBtn'].forEach(function (id) {
+    var b = document.getElementById(id);
+    if (b && !b.classList.contains('im-link-add')) { b.classList.add('im-link-add'); b.innerHTML = ROW_ADD_ICON; b.setAttribute('aria-label', 'Add'); b.setAttribute('data-tip', 'Instant.\nAdds the link. Enter does too.'); b.setAttribute('data-tip-left', ''); }
+  });
   var vs = document.getElementById('logHwVideo'), vd = _imQ('imMatVideo');
   if (vs && vd && vs.parentNode !== vd) vd.appendChild(vs);
   var ls = document.getElementById('logHwLink'), ld = _imQ('imMatLink');
@@ -1298,28 +1339,33 @@ function _imDoHtml(name, day) {
         '<button type="button" class="ll-add" id="imStuAdd" data-tip="Instant.&#10;Adds a row. Enter does too.&#10;Each row is a sentence in the email.">' + llAddInner() + '</button>') +
     '</div>' +
     _imMainHead('2. Practice materials', '', '', 'im-main-mat') +   // all red (2026-10-18)
-    '<div class="im-main-box">' +
-    // The Log window's HW part (#logHw) is split over these (_imHwOut).
-    '<div class="im-hw-dock-box">' +
-      // Two questions, both required (user, 2026-10-25): A. did they record it on
-      // their phone, B. am I sending anything. Any mix goes (recorded + nothing to
-      // send too). Each answer has the check circle; the picked one fills.
-      // Files C, Video D, Web link E are what B. Send sends.
-      '<div id="imMatNone" class="im-mat-none">' +
-        '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">A.</label><span class="im-mat-q">Recorded on their phone?</span>' +
+    // Two boxes (user, 2026-10-25): the two required questions, numbered, dim once
+    // both are answered; then the materials (lettered, optional) in their own box,
+    // only with 2. Send.
+    '<div class="im-main-box im-mat-split">' +
+      // 1. did they record it on their phone, 2. am I sending anything. Any mix goes
+      // (recorded + nothing to send too). Each answer has the check circle.
+      '<div id="imMatNone" class="im-mat-none im-mat-qbox">' +
+        '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">1.</label><span class="im-mat-q">Recorded on their phone?</span>' +
           _imPickBtn('imRecYes', "_imHwRec('yes')", 'Yes', 'They filmed the lesson on their phone.&#10;The email says so.') +
           _imPickBtn('imRecNo', "_imHwRec('no')", 'No', 'Nothing filmed.') + '</div>' +
-        '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">B.</label><span class="im-mat-q">Sending anything?</span>' +
-          _imPickBtn('imMatSend', "_imMatPick('send')", 'Send', 'Files, a video lesson link or a web link:&#10;C, D and E below. Finish when they are all in.') +
+        '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">2.</label><span class="im-mat-q">Sending anything?</span>' +
+          _imPickBtn('imMatSend', "_imMatPick('send')", 'Send', 'Files, a video lesson link or a web link:&#10;A, B and C below. Finish when they are all in.') +
           _imPickBtn('imMatNo', "_imMatPick('none')", 'Nothing to send', 'No materials this lesson.') + '</div>' +
       '</div>' +
+      '<div class="im-mat-box" id="imMatBox">' +
+      // The Log window's HW part (#logHw) is split over these (_imHwOut).
+      '<div class="im-hw-dock-box">' +
       // Gather (2026-10-25): files put in their Dropbox by hand (Finder) show under the zone, ticked.
-      _imSub('C. Files', '<span id="imMatFilesTools"><button type="button" class="link-btn lh-gather-btn" id="logHwGatherBtn" onclick="_imGather()" data-tip="Instant.&#10;Lists the files in their Dropbox that are on no HW yet,&#10;e.g. put in with Finder. Tick the ones for this lesson;&#10;Finish moves them into this lesson\'s HW folder." data-tip-left data-tip-wrap>' + TRAY_IN_ICON + '<span>Gather</span></button></span>', ' im-mat-sec', '<div id="imHwDock"></div><div id="imGatherList"></div>') +
-      _imSub('D. Video lesson link', '', ' im-mat-sec', '<div id="imMatVideo"></div>') +
-      _imSub('E. Web link', '', ' im-mat-sec', '<div id="imMatLink"></div>') +
+      // A. opens with its circle too (user, 2026-10-25); its tools show with it.
+      _imSub('A. Files', '<span class="im-link-yes">' + _imPickBtn('imFilesYes', "_imLinkYes('Files')", '', 'Files to send: the drop zone,&#10;Gather, Browse and their Dropbox.') + '</span><span id="imMatFilesTools"><button type="button" class="link-btn lh-gather-btn" id="logHwGatherBtn" onclick="_imGather()" data-tip="Instant.&#10;Lists what you put in their Dropbox since the lesson day,&#10;e.g. with Finder, that\'s on no HW yet.&#10;Finish moves it all into this lesson\'s HW folder." data-tip-left data-tip-wrap>' + TRAY_IN_ICON + '<span>Gather</span></button></span>', ' im-mat-sec', '<div id="imHwDock"></div><div id="imGatherList"></div>') +
+      // B and C open with the circle after their title (user, 2026-10-25): no Yes / No words, unpicked is no.
+      _imSub('B. Video lesson link', '<span class="im-link-yes">' + _imPickBtn('imVidYes', "_imLinkYes('Video')", '', 'A video lesson link to send.&#10;Opens the box for it.') + '</span>', ' im-mat-sec', '<div id="imMatVideo"></div>') +
+      _imSub('C. Web link', '<span class="im-link-yes">' + _imPickBtn('imWebYes', "_imLinkYes('Link')", '', 'A web link to send.&#10;Opens the box for it.') + '</span>', ' im-mat-sec', '<div id="imMatLink"></div>') +
     '</div>' +
     // Finish (2026-10-18): Materials waits for it, like Log for section 1.
     '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn" id="imMatFinishBtn" onclick="_imMatFinish()" disabled data-tip="All files and links are in.&#10;Till then Materials stays open." data-tip-left>Finish</button></div>' +
+      '</div>' +
     '</div>' +
     // Schedule (2026-10-25, like Practice materials): Needed / Not needed first.
     // Not needed is the answer; Needed opens Reschedule, and the section is done

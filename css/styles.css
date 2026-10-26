@@ -3471,7 +3471,7 @@ th.f2-blk { background:none; }
 #imMailPrev:disabled, #imMailSend:disabled { opacity: .45; cursor: default; }   /* Send waits for the steps above and a Preview (2026-10-25) */
 /* 2. Send practice materials, A. and B. (2026-10-25): two required picks, each answer with the check circle (om-77), filled once picked. */
 #imLogWin .im-mat-none { display: flex; flex-direction: column; gap: 10px; }
-#imLogWin .im-mat-q { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: rgba(255,255,255,0.6); min-width: 168px; }
+#imLogWin .im-mat-q { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.72); min-width: 230px; }   /* caps like the window's other titles, "1. LESSON" (user, 2026-10-25) */
 #imLogWin .im-pick { display: inline-flex; align-items: center; gap: 7px; margin-right: 14px; padding: 2px 0; border: none; background: none; cursor: pointer;
   font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: color-mix(in srgb, #ffffff 60%, var(--muted)); }   /* no box (user, 2026-10-25) */
 #imLogWin .im-pick:hover:where(:not(:disabled)) { color: #ffffff; }
@@ -3482,12 +3482,29 @@ th.f2-blk { background:none; }
 #imLogWin .im-pick:disabled { opacity: .45; cursor: default; }
 .im-s .im-teach { color: color-mix(in srgb, #d9a441 55%, var(--muted)); }   /* the teacher note in the Lessons list, amber-grey (2026-10-25) */
 #imLogWin .im-sched-box { flex-direction: column; gap: 14px; }   /* Needed / Not needed, then Reschedule under it (2026-10-25) */
-/* Gather (2026-10-25): the files found in their Dropbox, under the drop zone, each with the check circle. */
+/* Gather (2026-10-25): the files found in their Dropbox, under the drop zone, in the Dropbox tab's list. */
 .lh-gather-btn { display: inline-flex; align-items: center; gap: 6px; }
 .lh-gather-btn svg { width: 12px; height: 12px; }
 #imLogWin .im-gather { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
 #imLogWin .im-gather-t { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
 #imLogWin .im-gather-none { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--muted); }
-#imLogWin .im-pick.im-gather-row { display: flex; width: 100%; margin: 0; text-align: left; font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; text-transform: none; }
-#imLogWin .im-gather-n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#imLogWin .im-gather-d { flex: none; color: var(--muted); font-size: 11px; }
+#imLogWin .im-gather-files { padding: 16px; border: 1.5px solid color-mix(in srgb, var(--blue) 28%, transparent); border-radius: 8px; background: rgb(15, 15, 15); }   /* the Dropbox tab's file list in a solid blue box, the drop zone's width (user, 2026-10-25) */
+#imLogWin .im-sub-head:has(> .im-link-yes) { justify-content: flex-start; gap: 18px; }   /* D. / E. with their Yes right after the title (2026-10-25) */
+#imLogWin #logHwVideoAddBtn.im-link-add, #imLogWin #logHwLinkAddBtn.im-link-add { border: none; background: none; padding: 0 2px; display: inline-flex; align-items: center; color: var(--muted); }   /* as dim as the notes' add icons */   /* the add-row icon for Add (2026-10-25) */
+#imLogWin .im-link-add svg, #imLogWin .ll-add svg { width: 16px; height: 17px; }   /* one size for every add icon in the Log window, between the two (user, 2026-10-25) */
+#imLogWin #logHwVideoAddBtn.im-link-add:not(:disabled):hover:where(:not(:disabled)), #imLogWin #logHwLinkAddBtn.im-link-add:not(:disabled):hover:where(:not(:disabled)) { color: var(--text); background: none; }
+#imLogWin .im-link-yes .im-pick { margin-right: 0; }
+#imLogWin .lh-link a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 10.5px; }   /* the Dropbox file list's grey, no underline (user, 2026-10-25) */
+#imLogWin .lh-link a:hover { color: rgba(255,255,255,0.82); }
+#imLogWin .lh-link-add { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }   /* D. / E. like the notes: the box full width, the add icon under it (user, 2026-10-25) */
+#imLogWin .lh-link-add > input { width: 100%; box-sizing: border-box; }
+#imLogWin .lh-link-add > .im-link-add { margin-top: 10px; padding: 2px 0; }
+#imLogWin .ll-add { display: flex; width: fit-content; margin-left: auto; }   /* every add icon under its box, bottom right (user, 2026-10-25) */
+#imLogWin .lh-link-add > .im-link-add { align-self: flex-end; }
+/* 2. Practice materials in two boxes (user, 2026-10-25): the numbered questions, then the lettered materials. */
+#imLogWin .im-main-box.im-mat-split { border: none; background: none; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+#imLogWin .im-mat-qbox, #imLogWin .im-mat-box { border: 1px solid rgb(42, 42, 42); border-radius: 10px; background: rgba(255, 255, 255, 0.035); padding: 24px 22px 26px; margin: 0; }
+#imLogWin .im-mat-qbox.im-dim:hover:where(:not(:disabled)) { opacity: .7; }   /* answered, still changeable */
+#imLogWin .im-mat-box > .im-hw-dock-box > .im-sub-head:first-child { margin-top: 0; }   /* no gap above A. Files in its own box */
+#imLogWin .im-sub-head:has(> #imMatFilesTools) { flex-wrap: wrap; }
+#imLogWin .im-sub-head:has(> .im-link-yes) > #imMatFilesTools { flex-basis: 100%; margin: 12px 0 0; justify-content: flex-end; }   /* A. Files: Gather / Browse / Dropbox on their own line under the title, at the right (user, 2026-10-25) */
