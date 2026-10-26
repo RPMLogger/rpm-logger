@@ -234,7 +234,8 @@ var IM_PILLS = {
   notes: ['Make sure']
 };
 function _imPillsWire() {
-  [[_logBox(), IM_PILLS.log], [_hwRowsBox(), IM_PILLS.hw], [_imTeachBox(), IM_PILLS.notes], [_imStuBox(), IM_PILLS.notes]].forEach(function (x) {
+  // None under Notes to teacher (user, 2026-10-26).
+  [[_logBox(), IM_PILLS.log], [_hwRowsBox(), IM_PILLS.hw], [_imStuBox(), IM_PILLS.notes]].forEach(function (x) {
     var box = x[0], wrap = box && box.closest('.ll-wrap');
     if (!wrap || (wrap.nextElementSibling && wrap.nextElementSibling.classList.contains('im-pills'))) return;   // the Log and HW rows stay between windows
     var d = document.createElement('div');
@@ -566,14 +567,14 @@ function _imLogMail() {
   m.files = !!(sent && hw.filesOn && hw.files.length);
   m.paths = m.files ? hw.files.map(function (f) { return f.path; }) : [];   // the email lists them as folders (2026-10-25)
   m.links = sent ? hw.links.slice() : [];
-  m.phone = !!hw.phone;   // with Nothing to send too (2026-10-25)
+  m.phone = hw.phone ? (hw.zoom ? 'zoom' : '1') : '';   // with Nothing to send too (2026-10-25); Zoom since 2026-10-26
   return m;
 }
 // What previewLessonMessage / sendLessonMessage take.
 function _imMailParams(m) {
   return {
     name: m.name, lessonDate: m.day, lesson: m.lesson, hw: m.hw, notes: m.notes,
-    links: m.links.map(function (l) { return l.kind + ': ' + l.url; }).join('\n'), files: m.files ? '1' : '0', phone: m.phone ? '1' : '0',
+    links: m.links.map(function (l) { return l.kind + ': ' + l.url; }).join('\n'), files: m.files ? '1' : '0', phone: m.phone || '0',
     filePaths: (m.paths || []).slice(0, 80).join('\n'),
     trial: m.trial
   };
@@ -756,7 +757,7 @@ function _imStepsRender() {
   if (sy) sy.classList.toggle('done', sNeed);
   if (sn) sn.classList.toggle('done', sRaw === 'nochange');
   if (srs) srs.style.display = sNeed ? '' : 'none';
-  [['imRecYes', hw && hw.rec === 'yes'], ['imRecNo', hw && hw.rec === 'no'], ['imMatSend', hw && hw.pick === 'send'], ['imMatNo', hw && hw.pick === 'none']].forEach(function (x) {
+  [['imRecPhone', hw && hw.rec === 'phone'], ['imRecZoom', hw && hw.rec === 'zoom'], ['imRecNo', hw && hw.rec === 'no'], ['imMatSend', hw && hw.pick === 'send'], ['imMatNo', hw && hw.pick === 'none']].forEach(function (x) {
     var b = _imQ(x[0]);
     if (!b) return;
     b.classList.toggle('done', !!x[1]);
@@ -1061,13 +1062,15 @@ function _imHwSent() {
   hw.filesOn = !hw.filesOn;
   _imHwChanged();
 }
-// A. Recorded on their phone? (2026-10-18 as a button; Yes / No since
-// 2026-10-25, required, and it goes with Nothing to send too.)
+// A. Recorded on their side? (2026-10-18 as a button; Yes / No since
+// 2026-10-25, required, and it goes with Nothing to send too; Phone / Zoom / No
+// since 2026-10-26.)
 function _imHwRec(v) {
   var hw = logHw;
   if (!hw || hw.loading || hw.saving || hw.locked) return;
   hw.rec = hw.rec === v ? null : v;
-  hw.phone = hw.rec === 'yes';
+  hw.phone = hw.rec === 'phone' || hw.rec === 'zoom';   // recorded, either way
+  hw.zoom = hw.rec === 'zoom';   // on Zoom, their side (2026-10-26)
   _imHwChanged();
 }
 // Video lesson link / Web link (2026-10-15): paste, Add (or Enter) puts it on
@@ -1385,8 +1388,9 @@ function _imDoHtml(name, day) {
       // 1. did they record it on their phone, 2. am I sending anything. Any mix goes
       // (recorded + nothing to send too). Each answer has the check circle.
       '<div id="imMatNone" class="im-mat-none im-mat-qbox">' +
-        '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">1.</label><span class="im-mat-q">Recorded on their phone?</span>' +
-          _imPickBtn('imRecYes', "_imHwRec('yes')", 'Yes', 'They filmed the lesson on their phone.&#10;The email says so.') +
+        '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">1.</label><span class="im-mat-q">Recorded on their side?</span>' +   // Phone / Zoom / No (user, 2026-10-26; was Yes / No)
+          _imPickBtn('imRecPhone', "_imHwRec('phone')", 'Phone', 'They filmed the lesson on their phone.&#10;The email says so.') +
+          _imPickBtn('imRecZoom', "_imHwRec('zoom')", 'Zoom', 'They recorded the lesson on Zoom, their side.&#10;The email says so.') +
           _imPickBtn('imRecNo', "_imHwRec('no')", 'No', 'Nothing filmed.') + '</div>' +
         '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">2.</label><span class="im-mat-q">Sending anything?</span>' +
           _imPickBtn('imMatSend', "_imMatPick('send')", 'Send', 'Files, a video lesson link or a web link:&#10;A, B and C below. Finish when they are all in.') +

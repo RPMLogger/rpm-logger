@@ -293,7 +293,7 @@ function submitLog(noShow) {
     params.hw = logHw.choice === "sent" && !logHw.filesOn && !logHw.links.length && !logHw.phone && logHw.videoOnly ? "video" : logHw.choice;
     params.hwFiles = logHw.choice === "sent" && logHw.filesOn ? logHw.files.map(function(f) { return f.path; }).join("\n") : "";
     params.hwLinks = logHw.choice === "sent" ? logHw.links.map(function(l) { return l.kind + ": " + l.url; }).join("\n") : "";
-    params.hwPhone = logHw.phone ? "1" : "";
+    params.hwPhone = logHw.phone ? (logHw.zoom ? "zoom" : "1") : "";   // recorded on their phone, or on Zoom (2026-10-26)
     params.hwText = logHw.text || "";
     logHw.locked = true; _logHwRender();
   }
@@ -614,9 +614,10 @@ function _logHwUploadNext(hw) {
 function _logHwRestore(hw, ex) {
   var m = String((ex && ex.hw) || "");
   // A. and B. answered already (2026-10-25): "Phone" alone = recorded, nothing sent.
-  hw.phone = /Phone/.test(m);
-  hw.rec = hw.phone ? "yes" : "no";
-  if (/^(None|No HW|Phone)$/.test(m)) { hw.choice = "none"; hw.pick = "none"; return; }
+  hw.zoom = /Zoom/.test(m);   // recorded on Zoom, their side (2026-10-26)
+  hw.phone = /Phone/.test(m) || hw.zoom;
+  hw.rec = hw.zoom ? "zoom" : hw.phone ? "phone" : "no";
+  if (/^(None|No HW|Phone|Zoom)$/.test(m)) { hw.choice = "none"; hw.pick = "none"; return; }
   hw.pick = "send";
   hw.links = ((ex && ex.links) || []).slice();
   hw.filesOn = /Files|Sent/.test(m) && hw.files.length > 0;
@@ -641,7 +642,7 @@ function _logHwQuery(hw, pre) {
   var c = some && !files && !links && !hw.phone && hw.videoOnly ? "video" : hw.choice;
   function k(n) { return pre ? pre + n.charAt(0).toUpperCase() + n.slice(1) : n; }
   return "&hw=" + c + "&" + k("files") + "=" + encodeURIComponent(files) + "&" + k("links") + "=" + encodeURIComponent(links) +
-    "&" + k("phone") + "=" + (hw.phone ? "1" : "") + "&hwText=" + encodeURIComponent(hw.text || "");
+    "&" + k("phone") + "=" + (hw.phone ? (hw.zoom ? "zoom" : "1") : "") + "&hwText=" + encodeURIComponent(hw.text || "");
 }
 
 // ── What HW (2026-10-15): the homework given, rows like the lesson log's ──
@@ -772,7 +773,7 @@ function logHwCheck() {
 function logHwPick(c) {
   if (!logHw || logHw.locked || logHw.loading) return;
   if (c === "sent" && !logHw.files.length) return;
-  if (c === "none") { logHw.choice = "none"; logHw.filesOn = false; logHw.links = []; logHw.videoOnly = false; logHw.phone = false; }
+  if (c === "none") { logHw.choice = "none"; logHw.filesOn = false; logHw.links = []; logHw.videoOnly = false; logHw.phone = false; logHw.zoom = false; }
   else { logHw.choice = null; logHw.filesOn = true; _logHwRecalc(logHw); }
   _logHwRender(); updateLogButton();
 }
