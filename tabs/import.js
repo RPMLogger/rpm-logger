@@ -72,8 +72,9 @@ function _imRenderCards(noRead) {
         // ✓ done, ☐ still to do, "· 2 open" when more lessons wait.
         var todo = miss && miss.length ? 1 : 0, all = o + todo;
         var first = past.length ? { day: past[0].date, miss: past[0].missing || [], hw: past[0].hwText } : todo ? { day: _tdYmd(), miss: miss } : null;
-        return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-fin' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
+        return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-donetoday' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
           '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
+          (miss && !miss.length && !o ? '<span class="im-logged"><span class="im-logged-t">LOGGED</span>' + PAID_CHECK_ICON.replace('width="13" height="13"', 'width="15" height="15"') + '</span>' : '') +   // the Auto-confirmed check (user, 2026-10-26)
           (first ? '<span class="im-steps">' + _imStepsHtml(first.day, first.miss, first.hw, n) + (all > 1 ? '<span class="im-step-more">· ' + all + ' open</span>' : '') + '</span>' : '') +
         '</div>';
       }).join('') +

@@ -2165,9 +2165,10 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-card.im-today, .im-card.im-today:hover:where(:not(:disabled)) { border-left-color: var(--accent2); }   /* the trial amber (user, 2026-10-26) */
 /* A past lesson still open (user, 2026-10-24): red edge; sorted under today's. */
 .im-card.im-unlog, .im-card.im-unlog:hover:where(:not(:disabled)) { border-left-color: var(--accent); }   /* the trial cards' red (user, 2026-10-26) */
-/* Today's lesson logged (2026-10-07): green edge + name, like Finished. */
-.im-card.im-fin, .im-card.im-fin:hover:where(:not(:disabled)) { border-left-color: var(--green); }
-.im-card.im-fin .db-card-n { color: var(--green); }
+/* Today's lesson logged (user, 2026-10-26; was green edge + name): stays amber like today's,
+   with LOGGED over the Payments Auto-confirmed green check on the right. */
+.im-logged { flex: none; display: inline-flex; flex-direction: column; align-items: center; gap: 5px; color: var(--green); }
+.im-logged-t { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: .12em; }
 /* Logged but a step left (2026-10-07): amber, small, on the card's right. */
 .im-miss { display: inline-flex; align-items: center; gap: 7px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #d9a441; flex: none; }
 .im-miss-i { flex: none; }
