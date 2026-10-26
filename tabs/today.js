@@ -65,7 +65,9 @@ function _tdRender() {
   list.forEach(function (s) { if (!_td.data[_imKey(s.name)]) _tdLoad(s.name); });
   // At the top (2026-10-06): how many, and a mini list of times + names; a
   // name jumps to its card.
-  var mini = '<div class="db-cx-head im-sec-head td-count"><label class="field-label db-cx-t">' + list.length + (list.length === 1 ? ' student' : ' students') + '</label></div>' +
+  // No show (user, 2026-10-26): on the count row's right, opens the No show text window.
+  var mini = '<div class="db-cx-head im-sec-head td-count"><label class="field-label db-cx-t">' + list.length + (list.length === 1 ? ' student' : ' students') + '</label>' +
+    '<button class="link-btn" onclick="_tdNsOpen()" data-tip="Instant.\nThe No show text, to copy\nand send from Messages.">No show</button></div>' +
     '<hr class="divider td-rule td-rule-top">' +
     '<div class="db-panel im-list td-mini">' + list.map(function (s, i) {
       // The name is the portal's plain link button; the open one stays lit (2026-10-09).
@@ -94,6 +96,37 @@ function _tdJump(i) {
 function _tdClose() {
   var el = document.querySelector('#todayBody .td-student.td-open');
   if (el) _tdJump(parseInt(el.id.replace('tdCard', ''), 10));
+}
+
+// ── No show text (user, 2026-10-26) ─────────────────────────────────────────
+// For a student who can't make it, usually said before the lesson: a text
+// to copy and send from Messages. One sample for now, to be edited later; it
+// can be edited in place before Copy. Copy saves nothing.
+var TD_NS_TEXTS = [
+  "Hi! Sorry you can't make it today. This could be a good time to review the older material and improve it, or just play anything you enjoy. Just doing that, you will still improve. Lesson policies are what keep the studio running, so thank you for understanding!"
+];
+function _tdNsOpen() {
+  // The Reviews tab's text template look: the blue bubble, editable, Copy on the right.
+  _stWin('tdNsWin', 'No show', 'Text', null, TD_NS_TEXTS.map(function (t, i) {
+    return '<div class="en-tpl">' +
+      '<div class="en-tpl-top"><span class="field-label">Text template ' + (i + 1) + '</span>' +
+        '<span class="en-tpl-btns"><button class="link-btn" id="tdNsCopy' + i + '" onclick="_tdNsCopy(' + i + ')" data-tip="Instant.\nCopies the text for Messages.\nSaves nothing.">' + COPY_ICON + '<span>Copy</span></button></span></div>' +
+      '<div class="ts-thread tv-rv-thread rv-thread"><div id="tdNsText' + i + '" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only" spellcheck="false">' + inqEsc(t) + '</div></div>' +
+    '</div>';
+  }).join(''));
+}
+function _tdNsCopy(i) {
+  var el = document.getElementById('tdNsText' + i), btn = document.getElementById('tdNsCopy' + i);
+  if (!el) return;
+  var text = el.innerText.replace(/\n+$/, '');
+  function flash(ok) {
+    var lbl = btn && btn.querySelector('span');
+    if (!lbl) return;
+    lbl.textContent = ok ? 'Copied' : 'Select & copy';
+    setTimeout(function () { lbl.textContent = 'Copy'; }, 1600);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { flash(true); }, function () { _rvCopyFallback(text, flash); });
+  else _rvCopyFallback(text, flash);
 }
 
 function _tdStudentHtml(s) {
