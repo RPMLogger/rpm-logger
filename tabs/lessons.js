@@ -225,12 +225,27 @@ function stopRecording() {
 // No show (2026-10-11): logs the lesson as "No show" (it counts and is paid)
 // and asks logLesson for a row in the Counter's No Show Logs (RPM_NoShow.js).
 // HW and Schedule stay open: HW or a video lesson can still go to them.
+// In the Log lesson window (user, 2026-10-26) it only fills the boxes, and the
+// rest is the usual process: Log, Practice materials, Schedule, Email. HW and
+// Notes to the student get the no-show lines when empty; HW sent instead is
+// picked and edited as on any lesson. The Log after it still counts it as a
+// no show (submitLog: the lesson text is "No show").
+var NS_HW   = "This could be a good time to review the older material and improve it, or just play anything you enjoy. Just doing that, you will still improve.";
+var NS_NOTE = "Lesson policies are what keep the studio running, so thank you for understanding!";
 function logNoShow() {
   var box = _logBox();
   if (!box || !activeStudent || activeStudent.logged || activeStudent.hwOnly) return;
   if (activeStudent.student && activeStudent.student.calType === "trial") return;
   llRows(box).forEach(function(el, i) { el.value = i ? "" : "No show"; });
-  submitLog(true);
+  if (!window._imDocked) { submitLog(true); return; }
+  function fill(rows, text) {
+    if (!rows || !rows.length || rows.some(function(el) { return el.value.trim(); })) return;   // never over what's typed
+    rows[0].value = text;
+    rows[0].dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  box.querySelector(".ll-row").dispatchEvent(new Event("input", { bubbles: true }));
+  if (!logHw || !logHw.textLocked) fill(llRows(_hwRowsBox()), NS_HW);
+  if (typeof _imStuBox === "function") fill(llRows(_imStuBox()), NS_NOTE);
 }
 
 function submitLog(noShow) {
@@ -257,7 +272,8 @@ function submitLog(noShow) {
   if (pe) trialPaid = pe.checked;
   var params = { studentName: student.name, subject: subject, trialPaid: trialPaid ? "1" : "0" };
   if (student.eventDate) params.lessonDate = student.eventDate;
-  if (noShow === true) params.noShow = "1";
+  // A No show from the Log lesson window is logged with the Log button (2026-10-26).
+  if (noShow === true || /^no show$/i.test(parts.join(", "))) params.noShow = "1";
   var action = student.calType === "trial" ? "logTrial" : "logLesson";
   // From the Trial card (2026-10-23): the trial row and HW Tracking, never a Students Import tab.
   if (student.trialEmail) { action = "logTrialLesson"; params.email = student.trialEmail; params.hwText = (logHw && logHw.text) || ""; }

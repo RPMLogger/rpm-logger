@@ -514,6 +514,7 @@ function _imMailSentences(rows) {
   if (!Array.isArray(rows)) rows = String(rows || '').split(/\s*,\s*/);
   return rows.filter(Boolean).map(function (t) {
     t = t.charAt(0).toUpperCase() + t.slice(1);
+    if (/^no show$/i.test(t)) return 'No show';   // no full stop, as in the log (user, 2026-10-26)
     return /[.!?]$/.test(t) ? t : t + '.';
   }).join(' ');
 }
@@ -798,8 +799,9 @@ function _imPendLog(student, params, action) {
   var ns = document.getElementById('btnNoShow');
   if (ns) ns.disabled = true;
   // Log is for the lesson and its HW together (2026-10-18): the HW rows tick and lock with it.
-  // A No show leaves HW open, as before.
-  if (logHw && !params.noShow) {
+  // A No show with nothing in HW leaves it open, as before; one with HW (the
+  // no-show line or HW of its own, 2026-10-26) locks it like any lesson.
+  if (logHw && (!params.noShow || _hwRowsJoin())) {
     _hwMicStop();
     logHwTextInput();
     if ((logHw.text || '') !== (logHw.textSaved || '')) { logHw.textSaved = logHw.text; if (logHw.choice) logHw.dirty = true; }
