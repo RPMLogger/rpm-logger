@@ -38,8 +38,8 @@ body {
 body::before {
   content: ""; position: fixed; inset: 0;
   background-image:
-    linear-gradient(rgba(232,70,58,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(232,70,58,0.03) 1px, transparent 1px);
+    linear-gradient(rgba(240,165,0,0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240,165,0,0.10) 1px, transparent 1px);   /* grid amber like the gear hover (was red), 0.03 → 0.10 (user, 2026-10-26) */
   background-size: 40px 40px; pointer-events: none;
 }
 /* The page column, a little wider than the content, with the sides outside it a
@@ -68,15 +68,25 @@ body:has(#tab-calendar.active)::after, body:has(#tab-fixedcal.active)::after { d
 }
 @media (max-width: 700px) { .header::before { left: 0; right: 0; } }
 .header img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
-/* Header right, balanced with ☰ on the left (user, 2026-10-26): the gear as
-   ☰ is, no box, its height, level with it, but its own dim grey; the build
-   number small under it. Settings and build were at the bottom of the page before. */
-.header .hdr-gear { position: absolute; right: 0; top: 50%; transform: translateY(calc(-50% - 9px)); width: 20px; height: 20px; text-align: center;
-  padding: 0; border: none; background: none; font-size: 32px; line-height: 20px; color: var(--muted); }   /* the gear's own dim grey, as it was (user, 2026-10-26) */
+/* Header right (user, 2026-10-26): the gear as ☰ is, no box, its height, its
+   own dim grey, up in the top right with the build number on its left; Home
+   below it, level with ☰. Settings and build were at the bottom of the page before. */
+.hdr-name { position: relative; }
+.hdr-top { position: absolute; right: 0; bottom: calc(100% + 10px); display: flex; align-items: center; gap: 10px; }   /* above MUSIC (user, 2026-10-26) */
+.header .hdr-gear { width: 16px; height: 16px; text-align: center;
+  padding: 0; border: none; background: none; font-size: 24px; line-height: 16px; color: var(--muted); }   /* the gear's own dim grey, as it was (user, 2026-10-26) */
 .header .hdr-gear:hover:where(:not(:disabled)) { border: none; color: var(--accent2); }
-.hdr-build { position: absolute; right: 10px; transform: translateX(50%); top: calc(50% + 7px);   /* centred under the gear (user, 2026-10-26) */
-  font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px; color: var(--muted); white-space: nowrap; }
-@media (max-width: 700px) { .header .hdr-gear { right: 12px; } .hdr-build { right: 22px; } }
+.hdr-build { font-family: "DM Mono", monospace; font-size: 7px; letter-spacing: .8px; color: var(--muted); white-space: nowrap; }
+/* Home on ☰'s line, opposite it (user, 2026-10-26): the user's om-122 house
+   (was om-121, a disc), the gear's dim grey; to get back quickly. */
+.header .hdr-home { position: absolute; right: 0; top: 50%; transform: translateY(calc(-50% - 9px)); width: 36px; height: 36px; padding: 0; cursor: pointer;
+  border-radius: 7px; background: color-mix(in srgb, #fff 4%, transparent); border: 1px solid rgba(255,255,255,0.10); transition: border-color .12s, background .12s; }   /* in a rounded square, the portal button's face (user, 2026-10-26) */
+.header .hdr-home-i { position: absolute; left: 8px; top: 8px; width: 18px; height: 18px; background: var(--muted);   /* a span, not ::before: data-tip owns ::before */
+ 
+  -webkit-mask: url('../img/home-icon.svg') center / contain no-repeat; mask: url('../img/home-icon.svg') center / contain no-repeat; }
+.header .hdr-home:hover { border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }   /* just brighter, not amber (user, 2026-10-26) */
+.header .hdr-home:hover .hdr-home-i { background: rgba(255,255,255,0.82); }
+@media (max-width: 700px) { .header .hdr-home { right: 12px; } }
 .header-title {
   font-family: "Bebas Neue", sans-serif; font-size: 28px;
   font-weight: 400; color: rgba(255,255,255,0.72); line-height: 1; letter-spacing: 3.1px;   /* as wide as GUITAR LESSONS PORTAL under it */   /* not red: the logo beside it is (user, 2026-10-24) */
@@ -267,15 +277,16 @@ body.sb-open .tabs { transform: none; }
    dot, the colour of RED PICK MUSIC and exactly as tall as its R. The ☰ character
    stays in the button for screen readers, hidden by font-size 0. */
 .sb-burger {
-  position: absolute; left: 0; top: 43px; z-index: 55; width: 24px; height: 20px;
-  padding: 0; background: none; border: none; font-size: 0; cursor: pointer;
-  color: rgba(255,255,255,0.72); transition: color 0.2s;
+  position: absolute; left: 0; top: 35px; z-index: 55; width: 36px; height: 36px;   /* in a rounded square like Home (user, 2026-10-26; was bare 24×20 at top 43px) */
+  padding: 0; font-size: 0; cursor: pointer; border-radius: 7px;
+  background: color-mix(in srgb, #fff 4%, transparent); border: 1px solid rgba(255,255,255,0.10);
+  color: var(--muted); transition: color .12s, border-color .12s, background .12s;
 }
 .sb-burger::before {   /* the top bar; its two shadows are the other two */
-  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2.5px; border-radius: 2px;
-  background: currentColor; box-shadow: 0 8.75px currentColor, 0 17.5px currentColor;
+  content: ""; position: absolute; left: 9px; right: 9px; top: 11px; height: 2px; border-radius: 2px;
+  background: currentColor; box-shadow: 0 6px currentColor, 0 12px currentColor;
 }
-.sb-burger:hover { color: var(--text); }
+.sb-burger:hover { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }   /* just brighter, like Home (user, 2026-10-26) */
 .sb-scrim {
   position: fixed; inset: 0; z-index: 59; background: rgba(0,0,0,0.5);
   opacity: 0; pointer-events: none; transition: opacity 0.22s;
