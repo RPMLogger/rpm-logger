@@ -290,20 +290,16 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
-/* Every tab in one bordered box like Today's (user, 2026-10-26). Home has no
-   box; Today, Students and To-Do make their own boxes; Calendar, Fixed schedule
+/* Every tab in one bordered box like Today's (user, 2026-10-26; Home too).
+   Today, Students and To-Do make their own boxes; Calendar, Fixed schedule
    and Financial are wider than the column, so they stay open. */
-.tab-panel.active:not(#tab-home):not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2) {
+.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2) {
   box-sizing: border-box; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
 }
 
 /* ─── HOME: the opening page (2026-10-24) ─── */
-/* As tall as the screen under the header, the buttons and box in its middle */
-#tab-home.active {
-  display: flex; flex-direction: column; justify-content: center;
-  min-height: calc(100vh - 250px);
-  margin-top: -62px;   /* Home skips the header's tab-menu room */
-}
+/* In the bordered box like every tab, under the header (user, 2026-10-26; was
+   screen-tall with the buttons and name box in its middle) */
 /* Today / Students / Calendar: regular portal buttons in a row */
 .home-top { display: flex; justify-content: center; gap: 10px; }
 .home-top .link-btn { color: rgba(255,255,255,0.72); border-color: rgba(255,255,255,0.22); }   /* a step brighter than a regular button (user, 2026-10-24) */
