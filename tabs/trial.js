@@ -370,7 +370,7 @@ function _trMsgRow(m, them) {
         inqEsc(who) +
         '<span style="font-size:10px;color:var(--muted)"> · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) + '</span>' +
       '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.5;color:rgba(255,255,255,.5);margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere">' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.5;color:var(--t-normal);margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere">' +
         inqEsc(m.text) +
       '</div>' +
     '</div></div>';
@@ -1121,7 +1121,7 @@ function _trStatusHtml(a) {
       'onclick="_tlOpen(\'' + _trEsc(a.email || '') + '\',\'status\')">Status: ' + v[0] + '</button>';
 }
 
-var _TR_CAPS = 'color:rgba(255,255,255,0.62);text-transform:uppercase;letter-spacing:1px;font-size:10px;padding:5px 9px';
+var _TR_CAPS = 'color:var(--t-text);text-transform:uppercase;letter-spacing:1px;font-size:10px;padding:5px 9px';
 
 // The step lists, at the top of the card: decision steps on the left, lesson
 // steps on the right. Every box looks the same; done just gets a check mark.
@@ -2643,7 +2643,7 @@ function _msRenderForm() {
     '<input class="settings-input" id="msRate" inputmode="decimal" value="' + _msAttr(rate) + '" oninput="_ms.rateEdited=true">' +
     '<div id="msRateHint" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin:-6px 0 10px"></div>' +
 
-    '<label style="display:block;font-family:\'DM Mono\',monospace;font-size:12px;color:rgba(255,255,255,0.82);margin:4px 0 16px">' +
+    '<label style="display:block;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--t-bright);margin:4px 0 16px">' +
       '<input type="checkbox" id="msText" checked> Send welcome text</label>' +
 
     '<div style="display:flex;justify-content:flex-end">' +

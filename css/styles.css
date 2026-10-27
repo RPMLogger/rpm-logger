@@ -5,10 +5,16 @@
   --surface: #1a1a1a;
   --surface2: #222;
   --accent:  #e8463a;
-  --accent2: #f0a500;
-  --green:   rgba(46,204,113,0.7);   /* 70% portal-wide, 2026-09-25 (was #2ecc71; Trial tab's strength) */
-  --blue:    #4a9eff;
-  --text:    #f0ede8;
+  --accent2: oklch(0.63 0.19 76);   /* amber at the red's lightness + strength; was #f0a500 (user, 2026-10-27: colours matched to the red in OKLCH) */
+  --green:   oklch(0.63 0.162 152);   /* red's lightness, a touch less chroma (read brighter at 0.19); was rgba(46,204,113,0.7) (user, 2026-10-27: colours matched to the red in OKLCH) */
+  --blue:    oklch(0.63 0.162 254);   /* as green; was #4a9eff (user, 2026-10-27: colours matched to the red in OKLCH) */
+  /* Text whites on four steps, set by role, warm cream like the old --text (hue 81); Normal = the red's lightness (user, 2026-10-27: whites on a ladder).
+     Faint: dates, hints · Normal: secondary values · Text: names, notes, labels · Bright: hover, the picked/now moment */
+  --t-faint:  oklch(0.43 0.006 81);   /* was white 0.24–0.35 */
+  --t-normal: oklch(0.63 0.006 81);   /* was white 0.38–0.6 */
+  --t-text:   oklch(0.80 0.006 81);   /* was white 0.62–0.75 */
+  --t-bright: oklch(0.88 0.006 81);   /* was white 0.82–0.9 */
+  --text:    var(--t-text);   /* was #f0ede8 (L 0.95): too much on Notes and the Students names (user, 2026-10-27: whites on a ladder) */
   --muted:   #7a7a7a;   /* style pass: was #555, which read as disabled */
   --border:  #2a2a2a;
   --forgot:  #c0392b;
@@ -22,7 +28,7 @@
   --radius-card: 10px;
   --radius-pill: 6px;
   --pad-card:    14px 16px;
-  --warn:        #d9a441;   /* attention: replaces #ffb400 / #ffa500 */
+  --warn:        var(--accent2);   /* one amber now: warn was amber's twin at matched lightness; was #d9a441 (user, 2026-10-27: colours matched to the red in OKLCH) */
   --focus:       var(--muted);   /* focus ring: grey, the composer's (was dimmed amber #7a5a18; standardised 2026-09-23) */
 }
 
@@ -38,8 +44,8 @@ body {
 body::before {
   content: ""; position: fixed; inset: 0;
   background-image:
-    linear-gradient(rgba(240,165,0,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(240,165,0,0.05) 1px, transparent 1px);   /* grid amber like the gear hover (was red), 0.03 → 0.05 (user, 2026-10-26) */
+    linear-gradient(color-mix(in srgb, var(--accent2) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--accent2) 5%, transparent) 1px, transparent 1px);   /* grid amber like the gear hover (was red), 0.03 → 0.05 (user, 2026-10-26) */
   background-size: 40px 40px; pointer-events: none;
 }
 /* No darker sides outside the page column any more (user, 2026-10-26; were
@@ -64,11 +70,14 @@ body::before {
    own dim grey, up in the top right with the build number on its left; Home
    below it, level with ☰. Settings and build were at the bottom of the page before. */
 .hdr-name { position: relative; }
-.hdr-top { position: absolute; right: 0; bottom: calc(100% + 10px); display: flex; align-items: center; gap: 10px; }   /* above MUSIC (user, 2026-10-26) */
+.hdr-top { position: absolute; right: 0; bottom: calc(100% + 10px); display: flex; align-items: center; gap: 5px; }   /* above MUSIC (user, 2026-10-26); gap 10 → 5, tighter (user, 2026-10-27) */
 .header .hdr-gear { width: 16px; height: 16px; text-align: center;
   padding: 0; border: none; background: none; font-size: 24px; line-height: 16px; color: var(--muted); }   /* the gear's own dim grey, as it was (user, 2026-10-26) */
 .header .hdr-gear:hover:where(:not(:disabled)) { border: none; color: var(--accent2); }
-.hdr-build { font-family: "DM Mono", monospace; font-size: 7px; letter-spacing: .8px; color: var(--muted); white-space: nowrap; }
+/* the user's om-123 gear (was the ⚙ character), masked like Home so it takes the colour (user, 2026-10-27) */
+.header .hdr-gear-i { display: block; width: 12px; height: 12px; margin: 2px; background: currentColor;   /* smaller than the ⚙ was, 16 → 12 (user, 2026-10-27) */   /* a span, not ::before: data-tip owns ::before */
+  -webkit-mask: url('../img/gear-icon.svg') center / contain no-repeat; mask: url('../img/gear-icon.svg') center / contain no-repeat; }
+.hdr-build { font-family: "DM Mono", monospace; font-size: 10px;   /* 7 → 10, "Build" and the number alike (user, 2026-10-27) */ letter-spacing: .2px;   /* .8 → .2, tighter (user, 2026-10-27) */ color: var(--muted); white-space: nowrap; }
 /* Home on ☰'s line, opposite it (user, 2026-10-26): the user's om-122 house
    (was om-121, a disc), the gear's dim grey; to get back quickly. */
 .header .hdr-home { position: absolute; right: 24px; top: 50%; transform: translateY(calc(-50% - 2px)); width: 36px; height: 36px; padding: 0; cursor: pointer;
@@ -81,7 +90,7 @@ body::before {
 @media (max-width: 700px) { .header .hdr-home { right: 12px; } }
 .header-title {
   font-family: "Bebas Neue", sans-serif; font-size: 28px;
-  font-weight: 400; color: rgba(255,255,255,0.72); line-height: 1; letter-spacing: 3.1px;   /* as wide as GUITAR LESSONS PORTAL under it */   /* not red: the logo beside it is (user, 2026-10-24) */
+  font-weight: 400; color: var(--t-text); line-height: 1; letter-spacing: 3.1px;   /* as wide as GUITAR LESSONS PORTAL under it */   /* not red: the logo beside it is (user, 2026-10-24) */
 }
 .header-sub {
   font-size: 9px; color: var(--muted); letter-spacing: 3px;
@@ -144,20 +153,20 @@ body::before {
    letter-spacing, at .72 - between Save (text) and what is typed in the box (.5). */
 .field-label {
   display: block; font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px;
-  color: rgba(255,255,255,.72); margin-bottom: 7px; line-height: 1.2;
+  color: var(--t-text); margin-bottom: 7px; line-height: 1.2;
 }
 /* Send Documents: what the email carries, one line each, each opening the
    document in a new tab. */
 .tl-docs { display: flex; flex-direction: column; gap: 4px; width: 240px; max-width: 100%; }  /* shorter, all one width */
 .tl-doc { display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: rgba(255,255,255,.5);
+  font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal);
   line-height: 1.6; text-decoration: none; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }  /* same height as .rpm-field */
 .tl-doc:hover:where(:not(:disabled)) { color: var(--text); border-color: var(--muted); }
 .tl-doc .open-out-icon { opacity: .6; flex: none; }
 .win-icon { flex: none; color: var(--muted); height: 20px; width: auto; }   /* 2026-10-02: 30 → 20, every window */
 /* A value shown under a field-label that cannot be edited: plain text in the
    field's own face, no box. */
-.field-text { font-family: Arial, sans-serif; font-size: 12px; color: rgba(255,255,255,0.5); padding: 2px 1px 0; }
+.field-text { font-family: Arial, sans-serif; font-size: 12px; color: var(--t-normal); padding: 2px 1px 0; }
 .settings-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
 .settings-input {
   width: 100%; background: var(--surface2); border: 1px solid var(--border);
@@ -180,10 +189,10 @@ body::before {
 .btn-settings-load.go   { border-color: var(--green); color: var(--green); }
 .btn-settings-load.blue { border-color: var(--blue);  color: var(--blue);  }
 .btn-settings-load.go:hover:not(:disabled) {
-  border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.10);
+  border-color: var(--green); color: var(--green); background: color-mix(in srgb, var(--green) 10%, transparent);
 }
 .btn-settings-load.blue:hover:not(:disabled) {
-  border-color: var(--blue); color: var(--blue); background: rgba(74,158,255,0.10);
+  border-color: var(--blue); color: var(--blue); background: color-mix(in srgb, var(--blue) 10%, transparent);
 }
 
 /* ─── TABS: SIDEBAR ──────────────────────────────────────────────────────── */
@@ -219,7 +228,7 @@ body.sb-open .tabs { transform: none; }
 .nav-toggle,
 .nav-toggle.active,
 .nav-toggle:hover:where(:not(:disabled)) {
-  pointer-events: none; background: none; color: rgba(255,255,255,0.24);
+  pointer-events: none; background: none; color: var(--t-faint);
   font-size: 9px; letter-spacing: 2px; padding: 18px 10px 6px;
 }
 .nav-toggle.has-new::after { display: none; }   /* the tabs under it carry their own dots */
@@ -228,7 +237,7 @@ body.sb-open .tabs { transform: none; }
 .tabs .sb-h { margin-top: 37px; position: relative; overflow: visible; }
 .tabs .sb-h::before {
   content: attr(data-h); position: absolute; left: 10px; top: -19px;
-  font-size: 9px; letter-spacing: 2px; color: rgba(255,255,255,0.24); pointer-events: none;
+  font-size: 9px; letter-spacing: 2px; color: var(--t-faint); pointer-events: none;
 }
 
 /* Coming Soon stays a flyout at the bottom */
@@ -278,7 +287,7 @@ body.sb-open .tabs { transform: none; }
   content: ""; position: absolute; left: 9px; right: 9px; top: 11px; height: 2px; border-radius: 2px;
   background: currentColor; box-shadow: 0 6px currentColor, 0 12px currentColor;
 }
-.sb-burger:hover { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }   /* just brighter, like Home (user, 2026-10-26) */
+.sb-burger:hover { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }   /* just brighter, like Home (user, 2026-10-26) */
 .sb-scrim {
   position: fixed; inset: 0; z-index: 59; background: rgba(0,0,0,0.5);
   opacity: 0; pointer-events: none; transition: opacity 0.22s;
@@ -303,12 +312,12 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 #tab-home.active { display: flex; flex-direction: column; justify-content: center; min-height: calc(100vh - 166px - 72px); }   /* down near the bottom of the screen, no scroll (its top is at 166px; 72px = the page's bottom padding + what sits under the panels), the buttons and name box in its middle (user, 2026-10-26) */
 /* Today / Students / Calendar: regular portal buttons in a row */
 .home-top { display: flex; justify-content: center; gap: 10px; }
-.home-top .link-btn { color: rgba(255,255,255,0.72); border-color: rgba(255,255,255,0.22); }   /* a step brighter than a regular button (user, 2026-10-24) */
+.home-top .link-btn { color: var(--t-text); border-color: rgba(255,255,255,0.22); }   /* a step brighter than a regular button (user, 2026-10-24) */
 .home-top .link-btn svg { width: 14px; height: 14px; }
 /* Student name box under them; the names drop down over the page */
 .home-search { position: relative; width: 240px; margin: 40px auto 0; }
-.home-mag { position: absolute; right: calc(100% + 10px); top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.6); }   /* beside the box, so the box stays centred */
-.home-search .rpm-field { text-align: center; border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.82); }
+.home-mag { position: absolute; right: calc(100% + 10px); top: 50%; transform: translateY(-50%); color: var(--t-normal); }   /* beside the box, so the box stays centred */
+.home-search .rpm-field { text-align: center; border-color: rgba(255,255,255,0.22); color: var(--t-bright); }
 .home-search .rpm-field:focus { outline: none; border-color: var(--muted); }
 .home-results {
   position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5;
@@ -384,7 +393,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 }
 .week-pill:hover:where(:not(:disabled)) { border-color: var(--accent); color: var(--text); }
 .week-pill.recording { border-color: var(--accent); color: var(--accent); background: rgba(232,70,58,0.08); }
-.week-pill.trial-pill { border-color: rgba(74,158,255,0.3); color: var(--blue); }
+.week-pill.trial-pill { border-color: color-mix(in srgb, var(--blue) 30%, transparent); color: var(--blue); }
 .week-pill.forgot { border-color: #444; color: #888; background: rgba(255,255,255,0.03); }
 .week-pill .pill-date { font-size: 9px; opacity: 0.6; margin-left: 2px; }
 
@@ -406,15 +415,15 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   cursor: pointer; transition: all 0.2s;
 }
 .refresh-btn:hover:where(:not(:disabled)) { border-color: var(--muted); color: var(--text); }
-.today-btn:hover:where(:not(:disabled)) { border-color: var(--accent2); background: rgba(240,165,0,0.05); }
-.today-btn.recording { border-color: var(--accent2); background: rgba(240,165,0,0.1); box-shadow: 0 0 20px rgba(240,165,0,0.15); }
-.today-btn.logged { border-color: var(--green); background: rgba(46,204,113,0.08); opacity: 0.5; pointer-events: none; }
+.today-btn:hover:where(:not(:disabled)) { border-color: var(--accent2); background: color-mix(in srgb, var(--accent2) 5%, transparent); }
+.today-btn.recording { border-color: var(--accent2); background: color-mix(in srgb, var(--accent2) 10%, transparent); box-shadow: 0 0 20px color-mix(in srgb, var(--accent2) 15%, transparent); }
+.today-btn.logged { border-color: var(--green); background: color-mix(in srgb, var(--green) 8%, transparent); opacity: 0.5; pointer-events: none; }
 .today-btn .mic-dot { position: absolute; top: 11px; right: 11px; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: all 0.2s; }
 .today-btn.recording .mic-dot { background: var(--accent); box-shadow: 0 0 6px var(--accent); animation: pulse 1s infinite; }
 .today-btn.logged .mic-dot { background: var(--green); }
 .btn-type { font-size: 9px; letter-spacing: 1px; padding: 2px 6px; border-radius: 2px; width: fit-content; font-family: "DM Mono", monospace; font-weight: 400; }
-.btn-type.trial   { background: rgba(74,158,255,0.15);  color: var(--blue);    }
-.btn-type.regular { background: rgba(240,165,0,0.12);   color: var(--accent2); }
+.btn-type.trial   { background: color-mix(in srgb, var(--blue) 15%, transparent);  color: var(--blue);    }
+.btn-type.regular { background: color-mix(in srgb, var(--accent2) 12%, transparent);   color: var(--accent2); }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
 /* ─── LOG PANEL ───────────────────────────────────────────────────────────── */
@@ -433,7 +442,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   background: var(--surface2); border: 1px solid var(--border); border-radius: 4px;
   cursor: pointer; font-size: 11px; color: var(--muted); transition: all 0.2s; user-select: none;
 }
-.trial-paid.checked { border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.08); }
+.trial-paid.checked { border-color: var(--green); color: var(--green); background: color-mix(in srgb, var(--green) 8%, transparent); }
 .trial-paid input { display: none; }
 .btn-log {
   flex: 1; padding: 11px; border: none; border-radius: 4px;
@@ -452,8 +461,8 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   background: var(--surface); color: var(--text); font-family: "DM Mono", monospace;
   font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s; text-align: left;
 }
-.pay-btn:hover:where(:not(:disabled))   { border-color: var(--green); background: rgba(46,204,113,0.05); }
-.pay-btn.active  { border-color: var(--green); background: rgba(46,204,113,0.1); }
+.pay-btn:hover:where(:not(:disabled))   { border-color: var(--green); background: color-mix(in srgb, var(--green) 5%, transparent); }
+.pay-btn.active  { border-color: var(--green); background: color-mix(in srgb, var(--green) 10%, transparent); }
 .pay-btn.logged  { border-color: var(--green); opacity: 0.6; }
 .pay-amount-row {
   display: flex; align-items: center; justify-content: space-between;
@@ -475,8 +484,8 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   background: var(--surface); color: var(--text); font-family: "Syne", sans-serif;
   font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: left; line-height: 1.3;
 }
-.past-student-btn:hover:where(:not(:disabled))      { border-color: var(--accent2); background: rgba(240,165,0,0.05); }
-.past-student-btn.active-past { border-color: var(--accent2); background: rgba(240,165,0,0.08); }
+.past-student-btn:hover:where(:not(:disabled))      { border-color: var(--accent2); background: color-mix(in srgb, var(--accent2) 5%, transparent); }
+.past-student-btn.active-past { border-color: var(--accent2); background: color-mix(in srgb, var(--accent2) 8%, transparent); }
 .past-header { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: none; }
 .past-header span { color: var(--accent2); }
 .past-lessons-list { display: flex; flex-direction: column; gap: 4px; }
@@ -520,8 +529,8 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .load-table  { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
 .load-row    { display: flex; align-items: center; justify-content: space-between; padding: 7px 14px; border-bottom: 1px solid var(--border); }
 .load-row:last-child { border-bottom: none; }
-.load-row.highlight  { background: rgba(240,165,0,0.06); }
-.load-row.income     { background: rgba(46,204,113,0.05); }
+.load-row.highlight  { background: color-mix(in srgb, var(--accent2) 6%, transparent); }
+.load-row.income     { background: color-mix(in srgb, var(--green) 5%, transparent); }
 .load-label  { font-size: 10px; color: var(--muted); letter-spacing: 1px; font-family: "DM Mono", monospace; }
 .load-value  { font-family: "DM Mono", monospace; font-size: 12px; font-weight: 500; color: var(--text); }
 .load-row.highlight .load-label { color: var(--accent2); }
@@ -529,7 +538,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .load-row.income .load-value    { color: var(--green); }
 /* Availability tab: Terminate's cards (2026-10-22) */
 #availabilityList { margin-top: 32px; }
-.en-card-a.av-never { color: rgba(255,255,255,0.24); }   /* never updated: the labels' grey */
+.en-card-a.av-never { color: var(--t-faint); }   /* never updated: the labels' grey */
 #availabilityList .en-card-r .en-card-a { text-transform: uppercase; }   /* the dates and Never in caps (user, 2026-10-23) */
 .av-field { margin-top: 2px; }
 .av-field .av-ta { padding-right: 40px; resize: none; }   /* room for the mic inside the box, like the Log lesson rows */
@@ -549,16 +558,16 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Skips tab: Availability's cards (2026-10-22) */
 .sk-card .en-card-head.sk-none { cursor: default; }
 .sk-card .en-card-head.sk-none .sk-caret { visibility: hidden; }   /* keeps the counts lined up with the cards that open */
-.sk-dn { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; color: rgba(217,164,65,0.9); margin-left: 12px; }   /* Density beside the name, the amber (user 2026-10-24) */
+.sk-dn { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; color: color-mix(in srgb, var(--accent2) 90%, transparent); margin-left: 12px; }   /* Density beside the name, the amber (user 2026-10-24) */
 .en-card.sk-card.open { border-color: var(--border); border-left-color: rgba(255,255,255,0.28); }   /* an open card keeps its closed look (user 2026-10-23) */
-.sk-counts { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }   /* Travel Plan's SKIPPING N LESSONS; 10.5px like the portal's other DM Mono values (user 2026-10-23; was 13px) */
+.sk-counts { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }   /* Travel Plan's SKIPPING N LESSONS; 10.5px like the portal's other DM Mono values (user 2026-10-23; was 13px) */
 .f2-icon.sk-icon .win-icon { height: 34px; width: auto; }   /* the calendar + person icon, Availability's size (user 2026-10-23) */
-.sk-hi { color: rgba(217,164,65,0.9); }   /* Financial 2's amber, a bit brighter (user 2026-10-22) */
-.sk-counts.av-never { color: rgba(255,255,255,0.24); }
+.sk-hi { color: color-mix(in srgb, var(--accent2) 90%, transparent); }   /* Financial 2's amber, a bit brighter (user 2026-10-22) */
+.sk-counts.av-never { color: var(--t-faint); }
 .sk-group { margin-top: 6px; }
 .sk-group + .sk-group { margin-top: 18px; }
 .sk-group-h { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-.sk-trip-h { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.38); padding: 12px 0 6px; border-bottom: 1px solid rgba(255,255,255,0.04); }   /* one trip's heading inside Vacation */
+.sk-trip-h { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-normal); padding: 12px 0 6px; border-bottom: 1px solid rgba(255,255,255,0.04); }   /* one trip's heading inside Vacation */
 .link-btn.sk-more { margin-left: 12px; padding: 2px 8px; font-size: 9.5px; vertical-align: middle; }   /* Vacation's Show / Hide, beside the amber heading */
 .sk-row { display: flex; align-items: baseline; gap: 14px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: "DM Mono", monospace; font-size: 12px; }
 .sk-row:last-child { border-bottom: none; }
@@ -657,7 +666,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
    Same tile, dimmer number, so the row has an obvious reading order. */
 .rpm-count.sub .rpm-count-n { color: var(--muted); }
 /* The total the others resolve to. */
-.rpm-count.lead { border-color: rgba(240,165,0,0.3); background: rgba(240,165,0,0.05); }
+.rpm-count.lead { border-color: color-mix(in srgb, var(--accent2) 30%, transparent); background: color-mix(in srgb, var(--accent2) 5%, transparent); }
 .rpm-count.lead .rpm-count-n { color: var(--warn); }
 .rpm-count.lead .rpm-count-l { color: var(--warn); opacity: 0.75; }
 
@@ -682,12 +691,12 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
             padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
             font-family: "DM Mono", monospace; }
 .iat-row:last-child { border-bottom: none; }
-.iat-l { font-size: 11px; color: rgba(255,255,255,0.62); }
+.iat-l { font-size: 11px; color: var(--t-text); }
 .iat-p { font-size: 10px; color: var(--muted); text-align: right; }
 .iat-n { font-size: 13px; color: var(--text); text-align: right; }
 .iat-row.top .iat-l { color: var(--text); }
 .iat-row.sub .iat-l { padding-left: 16px; color: var(--muted); }
-.iat-row.sub .iat-n { color: rgba(255,255,255,0.62); }
+.iat-row.sub .iat-n { color: var(--t-text); }
 /* Archive: under the page rule, the first year sits straight on it. */
 .divider.inq-sec-rule + .ia-year { margin-top: 0; }
 .inq-toplinks .inq-archive.top { margin: 0; }
@@ -709,17 +718,17 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   background: color-mix(in srgb, #fff 4%, transparent); border: 1px solid rgba(255,255,255,0.10); color: var(--muted);
   transition: color .12s, border-color .12s, background .12s;
 }
-.link-btn:hover:where(:not(:disabled))  { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
+.link-btn:hover:where(:not(:disabled))  { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 .link-btn:active { transform: translateY(1px); }
 /* After a click the button stays lit for a moment (core/dialog.js), so it is
    clear the press landed while a sheet opens in a new tab or a tab loads.
    Lit = its own hover look. */
-.link-btn.pressed { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
+.link-btn.pressed { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 /* Amber = the Maybe button's own #d9a441, so the two ambers match. */
 .link-btn.amber, .link-btn.lit
-                  { color: #d9a441; border-color: color-mix(in srgb, #d9a441 55%, transparent); background: color-mix(in srgb, #d9a441 6%, transparent); }
+                  { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 55%, transparent); background: color-mix(in srgb, var(--accent2) 6%, transparent); }
 .link-btn.amber:hover:where(:not(:disabled)), .link-btn.amber.pressed, .link-btn.lit:hover:where(:not(:disabled))
-                  { color: #d9a441; border-color: #d9a441; background: color-mix(in srgb, #d9a441 16%, transparent); }
+                  { color: var(--accent2); border-color: var(--accent2); background: color-mix(in srgb, var(--accent2) 16%, transparent); }
 /* Blue = Text on the Initiate card: a contact method, same weight as Email. */
 .link-btn.blue    { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 55%, transparent); background: color-mix(in srgb, var(--blue) 6%, transparent); }
 .link-btn.blue:hover:where(:not(:disabled)), .link-btn.blue.pressed
@@ -748,8 +757,8 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Amber, because it wants attention but nothing is wrong. Absent entirely
    when there is nothing to report: an empty warning strip is noise. */
 .inq-replies {
-  border: 1px solid rgba(240,165,0,0.35);
-  background: rgba(240,165,0,0.06);
+  border: 1px solid color-mix(in srgb, var(--accent2) 35%, transparent);
+  background: color-mix(in srgb, var(--accent2) 6%, transparent);
   border-radius: var(--radius-card);
   padding: 12px 14px;
   margin-bottom: 14px;
@@ -759,14 +768,14 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   letter-spacing: 1.5px; text-transform: uppercase;
   color: var(--warn); margin-bottom: 10px;
 }
-.inq-reply { padding: 8px 0; border-top: 1px solid rgba(240,165,0,0.18); }
+.inq-reply { padding: 8px 0; border-top: 1px solid color-mix(in srgb, var(--accent2) 18%, transparent); }
 .inq-reply:first-of-type { border-top: none; padding-top: 0; }
 .inq-reply-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .inq-reply-name { font-family: "Syne", sans-serif; font-size: 16px; color: var(--text); }
 .inq-reply-when { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); white-space: nowrap; }
 .inq-reply-text {
   font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.6;
-  color: rgba(255,255,255,0.5); margin: 5px 0 9px;
+  color: var(--t-normal); margin: 5px 0 9px;
 }
 .inq-reply-acts { display: flex; gap: 6px; justify-content: flex-end; }
 /* The Read link is a button in every way but the tag. */
@@ -794,17 +803,17 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Lesson Sync rows (user, 2026-09-28): normal case; the labels (Import,
    Counter) are the bright part, the lesson + date step back. The reverse of
    the usual card field. */
-.inq-flabel.au-caps { color: rgba(255,255,255,0.5); }
-.inq-fval.au-caps   { color: rgba(255,255,255,0.24); }
+.inq-flabel.au-caps { color: var(--t-normal); }
+.inq-fval.au-caps   { color: var(--t-faint); }
 /* Unlogged Lessons grid: the Counter's last two blocks (1234 1234) over the
    same slots in Import. Red = taught, not logged; outlined = the oldest,
    click to log it. */
 .au-grid { width: 100%; border-collapse: separate; border-spacing: 3px; table-layout: fixed;
   font-family: "DM Mono", monospace; font-size: 10px; }
-.au-grid th { font-weight: 400; color: rgba(255,255,255,0.3); padding: 0 0 4px; text-align: center; }
-.au-grid td { height: 26px; text-align: center; border-radius: 4px; color: rgba(255,255,255,0.62);
+.au-grid th { font-weight: 400; color: var(--t-faint); padding: 0 0 4px; text-align: center; }
+.au-grid td { height: 26px; text-align: center; border-radius: 4px; color: var(--t-text);
   background: color-mix(in srgb, #fff 4%, transparent); white-space: nowrap; }   /* no overflow:hidden: it clipped the cells' tooltips */
-.au-grid td.lbl { width: 62px; background: none; text-align: left; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; }
+.au-grid td.lbl { width: 62px; background: none; text-align: left; color: var(--t-normal); text-transform: uppercase; letter-spacing: 1px; }
 .au-grid .gap { width: 6px; background: none; }
 .au-grid td.empty { background: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06); }
 .au-grid td.miss { background: rgba(255,90,77,0.15); color: #ff5a4d; }
@@ -812,30 +821,30 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .au-grid td.miss.go:hover:where(:not(:disabled)) { background: rgba(255,90,77,0.26); }
 /* Not logged yet: blue (2026-10-08), so it isn't read as the payment emails' red unpaid box.
    Real mismatches (Import's date differs, calendar not counted) stay red. */
-.au-grid td.miss.unlog { background: rgba(74,158,255,0.15); color: var(--blue); }
-.au-grid td.miss.unlog.go { box-shadow: inset 0 0 0 1px rgba(74,158,255,0.6); }
-.au-grid td.miss.unlog.go:hover:where(:not(:disabled)) { background: rgba(74,158,255,0.26); }
+.au-grid td.miss.unlog { background: color-mix(in srgb, var(--blue) 15%, transparent); color: var(--blue); }
+.au-grid td.miss.unlog.go { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--blue) 60%, transparent); }
+.au-grid td.miss.unlog.go:hover:where(:not(:disabled)) { background: color-mix(in srgb, var(--blue) 26%, transparent); }
 /* ─── FIX WINDOW (Audit), the Trial window look (2026-09-28) ─────────────── */
 .fx-modal { max-width: 720px; width: 94%; max-height: 90vh; overflow-y: auto; overflow-x: hidden; }
 .fx-block { margin-bottom: 12px; }
-.fx-sub  { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin: 0 0 6px; }
+.fx-sub  { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); margin: 0 0 6px; }
 .fx-cells { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 .fx-cell { display: flex; align-items: center; gap: 4px; padding: 5px 6px 5px 8px; border-radius: 6px;
   border: 1px solid rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); font-family: "DM Mono", monospace; font-size: 11px; }
 .fx-cell.empty { border-style: dashed; background: transparent; }
-.fx-n { color: rgba(255,255,255,0.3); font-family: "DM Mono", monospace; font-size: 10px; min-width: 14px; flex: none; }
+.fx-n { color: var(--t-faint); font-family: "DM Mono", monospace; font-size: 10px; min-width: 14px; flex: none; }
 .fx-seg { background: transparent; border: none; color: var(--text); font-family: inherit; font-size: 11px; padding: 2px 4px; cursor: pointer; border-radius: 3px; outline: none; }
 .fx-seg:focus { background: rgba(255,255,255,0.10); }
-.fx-x { flex: none; background: none; border: none; color: rgba(255,255,255,0.3); font-size: 11px; cursor: pointer; padding: 2px 4px; border-radius: 3px; }
+.fx-x { flex: none; background: none; border: none; color: var(--t-faint); font-size: 11px; cursor: pointer; padding: 2px 4px; border-radius: 3px; }
 .fx-x:hover:where(:not(:disabled)) { color: var(--text); }
 .fx-x.armed { color: #ff5a4d; font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
 .fx-e { display: flex; align-items: center; gap: 10px; margin: 12px 0 0; }
-.fx-hint { font-family: "DM Mono", monospace; font-size: 10px; color: rgba(255,255,255,0.3); }
+.fx-hint { font-family: "DM Mono", monospace; font-size: 10px; color: var(--t-faint); }
 .fx-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
   font-family: "DM Mono", monospace; font-size: 11px; }
-.fx-d { color: rgba(255,255,255,0.5); width: 52px; flex: none; }
-.fx-s { flex: 1; color: rgba(255,255,255,0.62); }
-.fx-s em { color: rgba(255,255,255,0.3); }
+.fx-d { color: var(--t-normal); width: 52px; flex: none; }
+.fx-s { flex: 1; color: var(--t-text); }
+.fx-s em { color: var(--t-faint); }
 .fx-row .rpm-field.fx-subj { flex: 1; padding: 4px 8px; font-size: 11px; height: 26px; box-sizing: border-box; }
 .fx-acts { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 14px; }
 .fx-acts .fx-state { flex: 1; text-align: right; }
@@ -845,7 +854,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .dx-grid td.dx-c { cursor: pointer; }
 .dx-grid td.dx-c:hover:where(:not(:disabled)) { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25); }
 .dx-grid td.sel { box-shadow: inset 0 0 0 1px var(--text) !important; }
-.dx-grid td.warn { background: rgba(240,165,0,0.12); color: var(--accent2); }
+.dx-grid td.warn { background: color-mix(in srgb, var(--accent2) 12%, transparent); color: var(--accent2); }
 .dx-extra { margin-top: 10px; font-family: "DM Mono", monospace; font-size: 10.5px; color: #ff5a4d; }
 .dx-exchip { display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: 3px; background: rgba(255,90,77,0.15); cursor: pointer; }
 .dx-ed { margin-top: 14px; padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 3%, transparent); }
@@ -875,17 +884,17 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
    events the Counter doesn't have are listed under the grid. */
 .link-btn.red { color: #ff5a4d; border-color: color-mix(in srgb, #ff5a4d 55%, transparent); background: color-mix(in srgb, #ff5a4d 7%, transparent); }
 .link-btn.red:hover:where(:not(:disabled)) { color: #ff5a4d; border-color: #ff5a4d; background: color-mix(in srgb, #ff5a4d 16%, transparent); }
-.au-grid td.nocal { box-shadow: inset 0 0 0 1px rgba(240,165,0,0.7); color: var(--accent2); }
+.au-grid td.nocal { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent2) 70%, transparent); color: var(--accent2); }
 .au-calonly { display: flex; align-items: center; gap: 10px; font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--warn); }   /* amber: the "why"; title + Repair carry the red */
 .au-calonly .warn-icon { flex: none; }
 /* Details (nothing mismatched): one step brighter than a plain link-btn. */
-.link-btn.au-details { color: rgba(255,255,255,0.66); border-color: rgba(255,255,255,0.16); }
-.link-btn.au-details:hover:where(:not(:disabled)) { color: rgba(255,255,255,0.86); }
+.link-btn.au-details { color: var(--t-text); border-color: rgba(255,255,255,0.16); }
+.link-btn.au-details:hover:where(:not(:disabled)) { color: var(--t-bright); }
 .au-chip { display: inline-block; margin: 0 4px 6px 0; padding: 3px 8px; border-radius: 3px;
-  font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--accent2); background: rgba(240,165,0,0.14);
+  font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--accent2); background: color-mix(in srgb, var(--accent2) 14%, transparent);
   transition: opacity .3s; }
 .au-chip.go { cursor: pointer; }
-.au-chip.go:hover:where(:not(:disabled)) { background: rgba(240,165,0,0.24); }
+.au-chip.go:hover:where(:not(:disabled)) { background: color-mix(in srgb, var(--accent2) 24%, transparent); }
 .au-chip.wait { opacity: 0.4; cursor: default; }
 .au-chip .log-sheet-icon { vertical-align: -2px; margin-right: 6px; }
 
@@ -921,7 +930,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   color: var(--muted);
   transition: color .12s, border-color .12s, background .12s;
 }
-.tr-open-btn:hover:where(:not(:disabled)) { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
+.tr-open-btn:hover:where(:not(:disabled)) { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 /* .small: the quiet member of the family. A disclosure that only unfolds text
    already on the card, so the caret does the telling, not a colour. */
 .tr-open-btn.small {
@@ -930,7 +939,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   border-color: rgba(255,255,255,0.10);
   color: var(--muted);
 }
-.tr-open-btn.small:hover:where(:not(:disabled)) { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
+.tr-open-btn.small:hover:where(:not(:disabled)) { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 
 /* ─── TRIAL CARD · STEP BUTTONS ─────────────────────────────────────────────
    The portal's fifth kind of button: not an action and not a choice. Each one
@@ -944,7 +953,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .tr-step   { display: flex; align-items: center; gap: 9px; }
 /* The gutter reads the same whether or not the step is done: the list is one
    checklist, and fading the finished half made the card look half broken. */
-.tr-step-n { font-family: "DM Mono", monospace; font-size: 9px; color: rgba(255,255,255,0.55); width: 13px; text-align: right; flex: none; }
+.tr-step-n { font-family: "DM Mono", monospace; font-size: 9px; color: var(--t-normal); width: 13px; text-align: right; flex: none; }
 /* Every step wears the same face: full white on a lit border, done or not. A
    done step says so with its tick, nothing else. The greyed-out done state
    made a nearly finished card look disabled, which is the opposite of true.
@@ -1010,7 +1019,7 @@ input[type="checkbox"] {
           mask: var(--ck-ring) center / contain no-repeat;
 }
 input[type="checkbox"]:checked {
-  color: rgba(255,255,255,0.5);
+  color: var(--t-normal);
   -webkit-mask-image: var(--ck-on);
           mask-image: var(--ck-on);
 }
@@ -1028,13 +1037,13 @@ input[type="checkbox"]:checked {
    waiting are what the eye lands on; only pending steps keep the full face.
    Hover brings a done step back up, since it is still a door into its form. */
 .tr-step-b.done,
-.tr-step-b.lesson.done       { color: rgba(255,255,255,0.24); border-color: color-mix(in srgb, var(--muted) 22%, transparent); background: transparent; }
+.tr-step-b.lesson.done       { color: var(--t-faint); border-color: color-mix(in srgb, var(--muted) 22%, transparent); background: transparent; }
 .tr-step-b.done:hover:where(:not(:disabled)),
 .tr-step-b.lesson.done:hover:where(:not(:disabled)) { color: var(--accent2); border-color: var(--accent2); background: color-mix(in srgb, #fff 4%, transparent); }
 .tr-step-b.flat       { cursor: default; }
 /* A logged lesson is done, not reopened: step 8 keeps its tick and stops
    being a door, so hover leaves it where it rests. */
-.tr-step-b.flat.done:hover:where(:not(:disabled)) { color: rgba(255,255,255,0.24); border-color: color-mix(in srgb, var(--muted) 22%, transparent); background: transparent; }
+.tr-step-b.flat.done:hover:where(:not(:disabled)) { color: var(--t-faint); border-color: color-mix(in srgb, var(--muted) 22%, transparent); background: transparent; }
 
 /* ─── INQUIRY ARCHIVE ─────────────────────────────────────────────────────── */
 /* The same card, read-only, same red edge; no dimming, because an old
@@ -1050,8 +1059,8 @@ input[type="checkbox"]:checked {
   text-transform: uppercase; padding: 3px 8px; border-radius: var(--radius-pill);
   border: 1px solid var(--border); color: var(--muted);
 }
-.ia-chip.ia-yes     { color: var(--green); border-color: rgba(46,204,113,0.35); }
-.ia-chip.ia-maybe   { color: var(--warn);  border-color: rgba(217,164,65,0.35); }
+.ia-chip.ia-yes     { color: var(--green); border-color: color-mix(in srgb, var(--green) 35%, transparent); }
+.ia-chip.ia-maybe   { color: var(--warn);  border-color: color-mix(in srgb, var(--accent2) 35%, transparent); }
 .ia-chip.ia-no      { color: var(--accent); border-color: rgba(232,70,58,0.35); }
 .ia-chip.ia-open    { color: var(--text);  border-color: var(--border); }
 .inq-drow  { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -1096,17 +1105,14 @@ input[type="checkbox"]:checked {
 /* Trial tab: every green and yellow at the "Terms accepted" strength (70%).
    Full-strength green and amber read louder than anything on the card needs
    to be. Scoped to the tab panel, so its modals (appended to body) keep theirs. */
-#tab-trial {
-  --warn:    rgba(217,164,65,0.7);
-  --accent2: rgba(240,165,0,0.7);
-}
+/* (the 70% --warn/--accent2 override is gone: the matched amber everywhere (user, 2026-10-27: colours matched to the red in OKLCH)) */
 
 .fc-new { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
           color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
 .inq-name  { font-family: "Syne", sans-serif; font-size: 16px; font-weight: 400; color: var(--text); }
 .inq-fields { display: grid; grid-template-columns: auto 1fr; gap: 3px 16px; margin-top: 8px; font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.5; }
-.inq-flabel { color: rgba(255,255,255,0.24); white-space: nowrap; }
-.inq-fval   { color: rgba(255,255,255,0.5); }
+.inq-flabel { color: var(--t-faint); white-space: nowrap; }
+.inq-fval   { color: var(--t-normal); }
 .inq-acts  { display: flex; align-items: center; gap: 6px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
 /* A decision on its way to the backend (Yes / No reply): the card steps back
    and the pressed button says what is happening, so the click visibly landed. */
@@ -1118,15 +1124,15 @@ input[type="checkbox"]:checked {
    colour. Hover deepens the wash. */
 /* One step down 2026-09-24 (was 11px, 5px 12px), with .link-btn. */
 .inq-db    { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); color: var(--muted); cursor: pointer; transition: background .12s, color .12s, border-color .12s; }
-.inq-db:hover:where(:not(:disabled)) { background: var(--surface2); color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); }
+.inq-db:hover:where(:not(:disabled)) { background: var(--surface2); color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); }
 /* Decision buttons rest dim, with a neutral border: a row of them at the foot
    of a card should not outshout the card. The colour is there to tell them
    apart, not to shout; hover brings the one under the cursor to full strength. */
 .inq-db.yes   { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent);  background: color-mix(in srgb, var(--green) 6%, transparent); }
-.inq-db.maybe { color: #d9a441;     border-color: color-mix(in srgb, #d9a441 55%, transparent);       background: color-mix(in srgb, #d9a441 6%, transparent); }
+.inq-db.maybe { color: var(--accent2);     border-color: color-mix(in srgb, var(--accent2) 55%, transparent);       background: color-mix(in srgb, var(--accent2) 6%, transparent); }
 .inq-db.no    { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
 .inq-db.yes:hover:where(:not(:disabled))   { color: var(--green);  border-color: color-mix(in srgb, var(--green) 55%, transparent);  background: color-mix(in srgb, var(--green) 16%, transparent); }
-.inq-db.maybe:hover:where(:not(:disabled)) { color: #d9a441;       border-color: color-mix(in srgb, #d9a441 55%, transparent);       background: color-mix(in srgb, #d9a441 16%, transparent); }
+.inq-db.maybe:hover:where(:not(:disabled)) { color: var(--accent2);       border-color: color-mix(in srgb, var(--accent2) 55%, transparent);       background: color-mix(in srgb, var(--accent2) 16%, transparent); }
 .inq-db.no:hover:where(:not(:disabled))    { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
 
 /* The trial card's outcome pair sits one tick below the inquiry Yes / No it
@@ -1147,12 +1153,12 @@ input[type="checkbox"]:checked {
 /* ─── LOG FEED ────────────────────────────────────────────────────────────── */
 .log-feed  { display: flex; flex-direction: column; gap: 5px; margin-top: 12px; }
 .log-entry { padding: 8px 12px; border-radius: 4px; font-size: 11px; line-height: 1.4; border-left: 3px solid transparent; }
-.log-entry.success { background: rgba(46,204,113,0.08);  border-left-color: var(--green);   color: var(--green);   }
+.log-entry.success { background: color-mix(in srgb, var(--green) 8%, transparent);  border-left-color: var(--green);   color: var(--green);   }
 .log-entry.error   { background: rgba(232,70,58,0.08);   border-left-color: var(--accent);  color: var(--accent);  }
-.log-entry.info    { background: rgba(240,165,0,0.08);   border-left-color: var(--accent2); color: var(--accent2); }
+.log-entry.info    { background: color-mix(in srgb, var(--accent2) 8%, transparent);   border-left-color: var(--accent2); color: var(--accent2); }
 
 /* ─── LESSON BADGE ────────────────────────────────────────────────────────── */
-.today-btn .lesson-badge { font-size: 7px; font-family: "DM Mono", monospace; font-weight: 400; letter-spacing: 1px; margin-top: 2px; background: rgba(240,165,0,0.12); color: var(--accent2); padding: 2px 6px; border-radius: 2px; width: fit-content; }
+.today-btn .lesson-badge { font-size: 7px; font-family: "DM Mono", monospace; font-weight: 400; letter-spacing: 1px; margin-top: 2px; background: color-mix(in srgb, var(--accent2) 12%, transparent); color: var(--accent2); padding: 2px 6px; border-radius: 2px; width: fit-content; }
 .today-btn .lesson-badge.pay-time { background: rgba(232,70,58,0.12); color: var(--accent); }
 
 /* ─── INCOMING PAYMENTS ───────────────────────────────────────────────────── */
@@ -1177,8 +1183,8 @@ input[type="checkbox"]:checked {
   cursor: pointer; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
 }
 .incoming-confirm:hover:where(:not(:disabled)) { border-color: var(--green); background: color-mix(in srgb, var(--green) 24%, transparent); }
-.incoming-card .incoming-confirm { color: #d9a441; border-color: color-mix(in srgb, #d9a441 55%, transparent); background: color-mix(in srgb, #d9a441 6%, transparent); }
-.incoming-card .incoming-confirm:hover:where(:not(:disabled)) { border-color: #d9a441; background: color-mix(in srgb, #d9a441 16%, transparent); }
+.incoming-card .incoming-confirm { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 55%, transparent); background: color-mix(in srgb, var(--accent2) 6%, transparent); }
+.incoming-card .incoming-confirm:hover:where(:not(:disabled)) { border-color: var(--accent2); background: color-mix(in srgb, var(--accent2) 16%, transparent); }
 .incoming-dismiss {
   padding: 5px 10px; border: 1px solid var(--border); border-radius: 4px;
   background: transparent; color: var(--muted); font-family: "DM Mono", monospace;
@@ -1190,7 +1196,7 @@ input[type="checkbox"]:checked {
 .log-cash-btn { margin-top: 24px; }   /* 14 → 24px: air above Log cash (2026-09-29) */
 .incoming-confirm { min-width: 124px; justify-content: center; }   /* Confirm and Log cash one size */
 .log-cash-btn { color: var(--muted); border-color: rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); }   /* grey like Payment history (2026-09-29) */
-.log-cash-btn:hover:where(:not(:disabled)) { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
+.log-cash-btn:hover:where(:not(:disabled)) { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 .incoming-card .incoming-confirm { padding: 5px 10px; font-size: 9px; min-width: 0; }   /* card Confirm same size as Dismiss (2026-09-29) */
 .incoming-nomatch { font-size: 9px; color: var(--accent); letter-spacing: 1px; margin-top: 4px; }
 
@@ -1261,7 +1267,7 @@ input[type="checkbox"]:checked {
 .cash-dd { position: relative; width: 240px; max-width: 100%; }
 #cashDdBtn { display: flex; justify-content: space-between; align-items: center; gap: 8px;
   width: 100%; text-align: left; cursor: pointer; color: var(--muted); }
-.cash-dd-btn.picked { color: rgba(255,255,255,.62); }
+.cash-dd-btn.picked { color: var(--t-text); }
 .cash-dd-btn:hover:where(:not(:disabled)), .cash-dd.open .cash-dd-btn { color: var(--text); border-color: var(--muted); }
 .cash-dd-caret { line-height: 0; color: var(--muted); }
 .cash-dd-caret .tri-icon { width: 9px; height: 7px; transform: scaleY(-1); }
@@ -1272,7 +1278,7 @@ input[type="checkbox"]:checked {
   box-shadow: 0 8px 24px rgba(0,0,0,.5); scrollbar-width: thin; scrollbar-color: #333 transparent; }
 .cash-dd-opt { display: block; width: 100%; text-align: left; background: transparent; border: none;
   padding: 7px 12px; cursor: pointer; font-family: Arial, Helvetica, sans-serif; font-size: 11px;
-  color: rgba(255,255,255,.55); }
+  color: var(--t-normal); }
 .cash-dd-opt.hi { background: color-mix(in srgb, #fff 6%, transparent); color: #fff; }
 .cash-dd-opt.on { color: #fff; }
 
@@ -1301,15 +1307,15 @@ input[type="checkbox"]:checked {
    dates + methods in the label grey caps, names + amounts in the value grey. */
 .pay-history-modal .f2-wrap { border-color: var(--border); background: transparent; }
 .pay-history-modal .f2-wrap + .f2-wrap { margin-top: 22px; }
-.pay-history-modal .pay-history-month { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 14px 10px; background: rgba(255,255,255,0.035); border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.2; color: rgba(255,255,255,0.72); }
+.pay-history-modal .pay-history-month { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 14px 10px; background: rgba(255,255,255,0.035); border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.2; color: var(--t-text); }
 .pay-history-modal .pay-history-table { width: calc(100% - 28px); margin: 0 14px; font-size: 10.5px; }
-.pay-history-modal .pay-history-table td { padding: 8px 10px; border-left: none !important; border-top-color: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5); }   /* row lines only, no column lines */
+.pay-history-modal .pay-history-table td { padding: 8px 10px; border-left: none !important; border-top-color: rgba(255,255,255,0.04); color: var(--t-normal); }   /* row lines only, no column lines */
 .pay-history-modal .pay-history-table td:first-child { padding-left: 0; }
 .pay-history-modal .pay-history-table td:last-child { padding-right: 0; }
 .pay-history-table tr:first-child td { border-top: none; }
 .pay-history-modal .pay-history-table td.ph-date, .pay-history-modal .pay-history-table td.ph-name, .pay-history-modal .pay-history-table td.ph-method { text-align: left !important; }   /* beats Financial's centered cells */
 .pay-history-modal .pay-history-table td.ph-amt { text-align: right !important; width: 50px; }
-.pay-history-modal .pay-history-table td.ph-date, .pay-history-modal .pay-history-table td.ph-method { width: 50px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.24); }
+.pay-history-modal .pay-history-table td.ph-date, .pay-history-modal .pay-history-table td.ph-method { width: 50px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
 .pay-history-table td.ph-name { white-space: normal; }
 /* Notes pop up on hover over the name (user 2026-10-24; were tags). The box lets the tip out, so its
    header band rounds its own top corners; the tip opens rightward and sooner than button tips. */
@@ -1418,7 +1424,7 @@ input[type="checkbox"]:checked {
   border-radius: 8px; cursor: pointer; transition: all 0.2s; user-select: none;
 }
 .comms-responded-toggle:has(input:checked) {
-  border-color: var(--green); background: rgba(46,204,113,0.08);
+  border-color: var(--green); background: color-mix(in srgb, var(--green) 8%, transparent);
 }
 .comms-responded-toggle input { display: none; }
 .comms-responded-label {
@@ -1463,7 +1469,7 @@ input[type="checkbox"]:checked {
 .audit-date-row.logged { opacity: 0.35; pointer-events: none; }
 .audit-date-badge {
   font-family: "DM Mono", monospace; font-size: 10px; color: var(--accent2);
-  background: rgba(240,165,0,0.1); padding: 4px 8px; border-radius: 4px;
+  background: color-mix(in srgb, var(--accent2) 10%, transparent); padding: 4px 8px; border-radius: 4px;
   white-space: nowrap; min-width: 55px; text-align: center;
 }
 .audit-input {
@@ -1480,7 +1486,7 @@ input[type="checkbox"]:checked {
   font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
   cursor: pointer; transition: all 0.2s; white-space: nowrap;
 }
-.audit-log-btn:hover:where(:not(:disabled)) { background: rgba(46,204,113,0.1); }
+.audit-log-btn:hover:where(:not(:disabled)) { background: color-mix(in srgb, var(--green) 10%, transparent); }
 .audit-log-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* .inq-syncbar / .inq-sync removed Sep 2026 with the Sync button. */
@@ -1560,13 +1566,13 @@ a:focus-visible,
 .db-mini-btn.danger { border-color: var(--accent); color: var(--accent); }
 .db-mini-btn.blue   { border-color: var(--blue);   color: var(--blue);   }
 .db-mini-btn.go:hover:not(:disabled) {
-  border-color: var(--green); color: var(--green); background: rgba(46,204,113,0.10);
+  border-color: var(--green); color: var(--green); background: color-mix(in srgb, var(--green) 10%, transparent);
 }
 .db-mini-btn.danger:hover:not(:disabled) {
   border-color: var(--accent); color: var(--accent); background: rgba(232,70,58,0.10);
 }
 .db-mini-btn.blue:hover:not(:disabled) {
-  border-color: var(--blue); color: var(--blue); background: rgba(74,158,255,0.10);
+  border-color: var(--blue); color: var(--blue); background: color-mix(in srgb, var(--blue) 10%, transparent);
 }
 
 /* The unpicked half of a two-way choice (Weekly / Biweekly). Its border is
@@ -1603,7 +1609,7 @@ a:focus-visible,
   flex: none; display: flex; align-items: center; justify-content: center; padding: 0 12px;
   background: rgba(255,255,255,0.035); border-right: 1px solid var(--border);
   font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
-  color: rgba(255,255,255,0.24); white-space: nowrap;
+  color: var(--t-faint); white-space: nowrap;
 }
 .dtp-chevs {
   flex: none; display: flex; flex-direction: column; justify-content: center;
@@ -1629,7 +1635,7 @@ a:focus-visible,
 .dtp-val:focus { outline: none; }
 .dtp-val.on { color: #fff; background: color-mix(in srgb, #fff 8%, transparent); }
 /* Read-only boxes (rpmDtpShowHtml): no chevrons, no hover, dimmer. */
-.dtp-ro .dtp-val, .dtp-ro .dtp-val:hover:where(:not(:disabled)) { cursor: default; color: rgba(255,255,255,0.38); }
+.dtp-ro .dtp-val, .dtp-ro .dtp-val:hover:where(:not(:disabled)) { cursor: default; color: var(--t-normal); }
 .dtp-ro .dtp-cell { border-color: color-mix(in srgb, var(--border) 60%, transparent); background: transparent; }
 
 /* Trial step windows: a two-way choice (Weekly / Biweekly) in the date and
@@ -1643,7 +1649,7 @@ a:focus-visible,
 .tl-seg-opt {
   background: transparent; border: none; border-radius: 5px; cursor: pointer;
   font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
-  color: rgba(255,255,255,0.55); padding: 7px 10px; transition: background .12s, color .12s;
+  color: var(--t-normal); padding: 7px 10px; transition: background .12s, color .12s;
 }
 .tl-seg-opt:hover:where(:not(:disabled)) { color: #fff; }
 .tl-seg-opt:focus { outline: none; }
@@ -1666,7 +1672,7 @@ a:focus-visible,
 .tl-fail { display: inline-block; font-family: "DM Mono", monospace; font-size: 11px;   /* the Loading word's font */
   padding: 3px 8px; border-radius: 3px; color: #ff5a4d; background: rgba(255,90,77,0.15); }
 .tl-half { display: inline-block; font-family: "DM Mono", monospace; font-size: 11px;
-  padding: 3px 8px; border-radius: 3px; color: var(--accent2); background: rgba(240,165,0,0.14); }   /* half-success: amber */
+  padding: 3px 8px; border-radius: 3px; color: var(--accent2); background: color-mix(in srgb, var(--accent2) 14%, transparent); }   /* half-success: amber */
 /* A window (or card) while Google works: dimmed and untouchable, every button
    too; only the centre word (rpm-keep) stays bright (user, 2026-10-23). */
 .rpm-busy { pointer-events: none; }
@@ -1692,7 +1698,7 @@ a:focus-visible,
 .hol-views { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 22px; }   /* By type / Chronological, the lit one is the view shown */
 #tab-holidays .hol-sub { font-family: "Bebas Neue", sans-serif; font-size: 13px; letter-spacing: 1.5px; line-height: 1.2; color: var(--accent); padding: 16px 0 6px; border-bottom: 1px solid rgba(255,255,255,0.04); }   /* a group's heading inside its box (Very high impact, Fall …) */
 #tab-holidays .ld-row:has(+ .hol-sub) { border-bottom: none; }   /* no faint line right above a heading */
-#tab-holidays .hol-note { color: rgba(255,255,255,0.24); }   /* the note after the dot, the labels' dark grey */
+#tab-holidays .hol-note { color: var(--t-faint); }   /* the note after the dot, the labels' dark grey */
 #tab-holidays .hol-chrono .ld-row { grid-template-columns: 160px minmax(0, 1fr); }   /* the left column only holds a date */
 
 /* ─── TOOLTIP ─────────────────────────────────────────────────────────────── */
@@ -1709,7 +1715,7 @@ a:focus-visible,
   /* Lifted one step above the cards (2026-09-24): a lighter dark grey, a
      visible border and the portal's soft white, so it floats over a card
      instead of sinking into it. Still dark mode, never white on black. */
-  background: #262626; color: rgba(255,255,255,0.86);
+  background: #262626; color: var(--t-bright);
   border: 1px solid #3a3a3a; border-radius: 8px;
   padding: 7px 11px;
   /* Syne, not DM Mono: helper text about a field should not look like the
@@ -1734,10 +1740,10 @@ a:focus-visible,
    elsewhere blue, all at the Trial tab's 70%. No tag, no edge. */
 /* No tag: a grey edge, so every tip is the same card shape (2026-09-25). */
 [data-tip]::before                     { border-left: 3px solid rgba(122,122,122,0.7); }
-[data-tip^="Instant."]::before         { border-left: 3px solid rgba(46,204,113,0.7); }
+[data-tip^="Instant."]::before         { border-left: 3px solid color-mix(in srgb, var(--green) 70%, transparent); }
 [data-tip^="Asks first."]::before      { border-left: 3px solid rgba(232,70,58,0.7); }
-[data-tip^="Opens a window."]::before  { border-left: 3px solid rgba(217,164,65,0.7); }
-[data-tip^="Opens elsewhere."]::before { border-left: 3px solid rgba(74,158,255,0.7); }
+[data-tip^="Opens a window."]::before  { border-left: 3px solid color-mix(in srgb, var(--accent2) 70%, transparent); }
+[data-tip^="Opens elsewhere."]::before { border-left: 3px solid color-mix(in srgb, var(--blue) 70%, transparent); }
 /* Arriving: waits 2.2s (was 0.35s), so sweeping the mouse across buttons
    doesn't pop tips; resting on one does (2026-09-24). */
 [data-tip]:hover:where(:not(:disabled))::before,
@@ -1791,7 +1797,7 @@ a:focus-visible,
 /* Label above a field, the shape the Trial Info window uses. */
 .rpm-dlg-label {
   font-family: "DM Mono", monospace; font-size: 10.5px;
-  color: rgba(255,255,255,0.82);
+  color: var(--t-bright);
   text-transform: uppercase; letter-spacing: 1px;
   margin: 12px 0 4px;
 }
@@ -1802,14 +1808,14 @@ a:focus-visible,
   background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
   /* Same as the Trial Info window: a value you typed reads as data, not as a
      heading. var(--text) made every field shout next to the card behind it. */
-  padding: 9px 12px; color: rgba(255,255,255,0.5);
+  padding: 9px 12px; color: var(--t-normal);
   font-family: "DM Mono", monospace; font-size: 12px;
 }
 .rpm-dlg-input:focus { outline: none; border-color: var(--warn); }
 .rpm-dlg-textarea {
   width: 100%; box-sizing: border-box; margin-top: 8px;
   background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
-  padding: 10px 12px; color: rgba(255,255,255,0.5);
+  padding: 10px 12px; color: var(--t-normal);
   font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.7;
   resize: vertical; min-height: 150px;
 }
@@ -1856,8 +1862,8 @@ a:focus-visible,
   transition: background .12s, color .12s, border-color .12s;
 }
 .rpm-dlg-btn:hover:where(:not(:disabled)) { background: var(--surface2); color: var(--text); }
-.rpm-dlg-btn.go     { color: var(--green);  border-color: rgba(46,204,113,0.55); }
-.rpm-dlg-btn.go:hover:where(:not(:disabled))     { background: rgba(46,204,113,0.16); }
+.rpm-dlg-btn.go     { color: var(--green);  border-color: color-mix(in srgb, var(--green) 55%, transparent); }
+.rpm-dlg-btn.go:hover:where(:not(:disabled))     { background: color-mix(in srgb, var(--green) 16%, transparent); }
 .rpm-dlg-btn.danger { color: var(--accent); border-color: rgba(232,70,58,0.55); }
 .rpm-dlg-btn.danger:hover:where(:not(:disabled)) { background: rgba(232,70,58,0.16); }
 /* Same thin grey ring as every other button. The dialog still focuses Cancel
@@ -1935,7 +1941,7 @@ a:focus-visible,
 .transcript-box {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px; line-height: 1.6;
-  color: rgba(255,255,255,.5);
+  color: var(--t-normal);
 }
 /* Money keeps its size: it is a number you check at a glance, not prose. */
 .pay-amount-input { font-family: Arial, Helvetica, sans-serif; }
@@ -2004,7 +2010,7 @@ a:focus-visible,
 /* Card title in the window-title face (Bebas 20px, 2px tracking), grey. */
 .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--muted); margin-bottom: 22px; line-height: 1; }
 .ld-row { display: flex; align-items: baseline; justify-content: space-between; padding: 7px 0; }
-.ld-l { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.3px; color: rgba(255,255,255,0.5); }
+.ld-l { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.3px; color: var(--t-normal); }
 .ld-v { font-family: "DM Mono", monospace; font-size: 13px; color: var(--text); }
 .ld-row.lead .ld-l, .ld-row.lead .ld-v { color: var(--warn); }
 .ld-row.lead .ld-l { text-transform: uppercase; letter-spacing: 1px; }   /* the amber rows read in caps */
@@ -2027,7 +2033,7 @@ a:focus-visible,
 .ld-foot { display: flex; justify-content: flex-end; margin-top: auto; padding-top: 14px; }   /* Reset sits at the card foot */
 /* The picker: − value + in one grey box, the value on a darker well. */
 .ld-pick { display: inline-flex; align-items: stretch; padding: 2px; gap: 1px; border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); border-radius: 8px; background: var(--surface2); }
-.ld-pb { width: 22px; background: transparent; border: none; border-radius: 5px; color: rgba(255,255,255,0.55); font-family: "DM Mono", monospace; font-size: 13px; line-height: 1; cursor: pointer; transition: color .12s, background .12s; }
+.ld-pb { width: 22px; background: transparent; border: none; border-radius: 5px; color: var(--t-normal); font-family: "DM Mono", monospace; font-size: 13px; line-height: 1; cursor: pointer; transition: color .12s, background .12s; }
 .ld-pb:hover:where(:not(:disabled)) { color: #fff; background: color-mix(in srgb, #fff 8%, transparent); }
 .ld-pb:focus { outline: none; }
 .ld-pv { min-width: 42px; text-align: center; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.5px; color: var(--muted); padding: 4px 6px; border-radius: 5px; background: var(--bg); }
@@ -2046,9 +2052,9 @@ a:focus-visible,
    note at its right end. */
 .win-row { display: flex; align-items: center; justify-content: space-between; gap: 10px;
   box-sizing: border-box; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg);
-  font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: rgba(255,255,255,.5); line-height: 1.6; margin-bottom: 6px; }
+  font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); line-height: 1.6; margin-bottom: 6px; }
 .win-row .win-row-main { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.win-row .win-row-main b { font-weight: 400; color: rgba(255,255,255,.82); }
+.win-row .win-row-main b { font-weight: 400; color: var(--t-bright); }
 .win-row .win-row-side { flex: none; display: flex; align-items: center; gap: 8px; font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
 a.win-row, .win-row.opens { cursor: pointer; text-decoration: none; }
 a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disabled)) { border-color: var(--muted); color: var(--text); }
@@ -2059,7 +2065,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
    Blue = used, empty = free; hover splits used into yours / students'. */
 .db-bar { display: flex; height: 18px; border: 1px solid var(--border); border-radius: 4px;   /* slightly rounded (2026-10-22; 8px was too round); overflow clips the fill */ background: var(--bg); overflow: hidden; }
 .db-bar span { display: block; height: 100%; }
-.db-bar-used { background: #3d5f8f; }   /* muted steel blue: calmer than Dropbox's #0061fe and the portal's --blue */
+.db-bar-used { background: #3d5f8f; }   /* muted steel blue: calmer than Dropbox's #0061fe and the portal's --blue. Only for this bar; left out of any "change all colours" pass until the user adds it (user, 2026-10-27) */
 
 /* Folder audit (Dropbox Overview): a plain list in one field box, the Trial
    step box in front of each line (its mask comes from .tr-step-b::after).
@@ -2067,10 +2073,10 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
    line's tooltip: a mask would hide a tooltip drawn on the box itself. */
 .db-audit { box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg);
   display: flex; flex-direction: column; gap: 7px; }
-.db-check { display: flex; align-items: center; gap: 10px; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,.82); }
+.db-check { display: flex; align-items: center; gap: 10px; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: var(--t-bright); }
 .db-box { margin-left: 0; }
 .db-tip { display: inline-flex; padding: 3px; margin: -3px; cursor: help; }   /* holds the line's tooltip around its box */
-.db-check.on { color: rgba(255,255,255,.5); }
+.db-check.on { color: var(--t-normal); }
 .db-check.on .db-box { opacity: .8; }
 /* Folder audit in the Financial 2 Expenses table's look (user, 2026-10-23): the heavy grey frame, a line between rows, DM Mono. */
 .db-audit { padding: 0; gap: 0; border: 2px solid #3a3a3a; border-radius: var(--radius-card); width: fit-content; max-width: 100%; }   /* only as wide as its longest line (user, 2026-10-23) */
@@ -2111,7 +2117,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
   padding-right: 10px; }   /* ends under Recover's text, not its border */
 .db-dt-gap { margin-top: 30px; }   /* student page: even room between sections */
 .db-panel { box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface);   /* the Folder audit's box, the card's background */
-  font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.5; color: rgba(255,255,255,0.5); }
+  font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.5; color: var(--t-normal); }
 .db-files { padding: 16px 14px; }   /* even room top and bottom */
 .db-file { display: flex; align-items: center; gap: 11px; }   /* room after the folder/page icon */
 .db-file .db-bullet { flex: none; }
@@ -2160,7 +2166,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* A pick-one, not a checklist: the picked button stays full white with its
    tick, the other steps back (the reverse of .tr-step-b.done above). */
 .lh-hw-pick .tr-step-b.done, .lh-hw-pick .tr-step-b.done:hover:where(:not(:disabled)) { color: var(--text); border-color: color-mix(in srgb, var(--muted) 70%, transparent); background: color-mix(in srgb, #fff 4%, transparent); }
-.lh-hw-pick.picked .tr-step-b:not(.done) { color: rgba(255,255,255,0.24); border-color: color-mix(in srgb, var(--muted) 22%, transparent); background: transparent; }
+.lh-hw-pick.picked .tr-step-b:not(.done) { color: var(--t-faint); border-color: color-mix(in srgb, var(--muted) 22%, transparent); background: transparent; }
 .lh-hw-pick.picked .tr-step-b:not(.done):not(:disabled):hover:where(:not(:disabled)) { color: var(--accent2); border-color: var(--accent2); }
 #logHwFiles { background: var(--bg); }
 
@@ -2176,16 +2182,16 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-logged { flex: none; display: inline-flex; flex-direction: column; align-items: center; gap: 5px; color: var(--green); }
 .im-logged-t { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: .12em; }
 /* Logged but a step left (2026-10-07): amber, small, on the card's right. */
-.im-miss { display: inline-flex; align-items: center; gap: 7px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #d9a441; flex: none; }
+.im-miss { display: inline-flex; align-items: center; gap: 7px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent2); flex: none; }
 .im-miss-i { flex: none; }
 /* A lesson's steps on its Students card (2026-10-17): small buttons, grey = done, red = missing. */
 .im-steps { display: inline-flex; align-items: center; gap: 6px; flex: none; font-family: "DM Mono", monospace; font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; }
-.im-step { font: inherit; letter-spacing: inherit; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); color: rgba(255,255,255,0.3); background: transparent; line-height: 1.2; }
+.im-step { font: inherit; letter-spacing: inherit; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); color: var(--t-faint); background: transparent; line-height: 1.2; }
 .im-step.todo { cursor: pointer; color: #ff5a4d; border-color: color-mix(in srgb, #ff5a4d 55%, transparent); background: color-mix(in srgb, #ff5a4d 7%, transparent); }   /* the red buttons' red (.link-btn.red), user 2026-10-17 */
 .im-step.todo:hover:where(:not(:disabled)) { border-color: #ff5a4d; background: color-mix(in srgb, #ff5a4d 16%, transparent); }
 /* Not logged is amber, like Audit lessons: both mean "lessons to do" (user, 2026-10-17); a single missing step is red. */
-.im-step.todo.nolog { color: #d9a441; border-color: color-mix(in srgb, #d9a441 55%, transparent); background: color-mix(in srgb, #d9a441 6%, transparent); }
-.im-step.todo.nolog:hover:where(:not(:disabled)) { border-color: #d9a441; background: color-mix(in srgb, #d9a441 16%, transparent); }
+.im-step.todo.nolog { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 55%, transparent); background: color-mix(in srgb, var(--accent2) 6%, transparent); }
+.im-step.todo.nolog:hover:where(:not(:disabled)) { border-color: var(--accent2); background: color-mix(in srgb, var(--accent2) 16%, transparent); }
 .im-step-more { color: var(--muted); }
 .im-steps-page { font-size: 11px; }   /* on the student page, a touch bigger, next to the name (2026-10-17) */
 .im-steps-page .im-step { padding: 6px 12px; border-radius: 8px; }
@@ -2194,17 +2200,17 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-do-card.im-done > *:not(.im-done-msg) { opacity: .3; pointer-events: none; transition: opacity .2s; }
 .im-do-card.im-done .im-fin { visibility: hidden; }   /* DONE says it; no Finished ✓ beside it */
 .im-done-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-family: "Bebas Neue", sans-serif; font-size: 34px; letter-spacing: 3px; color: #2ecc71; }
+  font-family: "Bebas Neue", sans-serif; font-size: 34px; letter-spacing: 3px; color: var(--green); }
 .im-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 4px 0 18px; }
 .im-count { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
 .im-list { padding: 8px 14px 14px; }
 .im-year { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); padding: 14px 0 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
 .im-row { display: grid; grid-template-columns: 14px 1fr auto; gap: 14px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
 .im-row:last-child { border-bottom: none; }
-.im-n, .im-d { font-family: "DM Mono", monospace; font-size: 11px; color: rgba(255,255,255,0.24); }   /* Intake labels' brightness */
+.im-n, .im-d { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); }   /* Intake labels' brightness */
 .im-n { text-align: right; }
 .im-d { text-align: right; white-space: nowrap; min-width: 48px; }
-.im-s { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.5); }
+.im-s { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: var(--t-normal); }
 .im-s { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* one line each; the full text on hover (2026-10-04) */   /* Intake values' brightness (2026-10-04) */
 /* Import: blocks of 4 (2026-10-04) with a gap between, sort buttons above. */
 .im-sort { display: flex; gap: 8px; justify-content: flex-end; margin: -6px 0 12px; }
@@ -2213,18 +2219,18 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-block .im-row { border-bottom: none; padding: 4px 0; }
 .im-row.im-empty .im-n, .im-row.im-empty .im-d { opacity: .35; }
 /* The newest lesson a step brighter, your last log at a glance (Today 2026-10-07, Import too). */
-.im-row.im-latest .im-s { color: rgba(255,255,255,0.72); }
-.im-row.im-latest .im-n, .im-row.im-latest .im-d { color: rgba(255,255,255,0.4); }
+.im-row.im-latest .im-s { color: var(--t-text); }
+.im-row.im-latest .im-n, .im-row.im-latest .im-d { color: var(--t-normal); }
 .im-year + .im-block { border-top: none; margin-top: 0; }
 .im-title { margin: 0 0 28px; }   /* the student page's headline, above the buttons (2026-10-06, was inside the box) */
 /* Import student page buttons + Notes window (2026-10-05). */
 .im-title span { white-space: nowrap; }
 .im-data { margin-top: 0; font-size: 11px; }   /* Lessons card Data box: skips + reschedules (2026-10-12) */
-.im-data .inq-flabel { color: rgba(255,255,255,0.5); }
+.im-data .inq-flabel { color: var(--t-normal); }
 .im-data .inq-fval { color: var(--text); }
 .im-data .im-data-h { grid-column: 1 / -1; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }   /* STUDENT / TEACHER */
 .im-data .im-data-gap { margin-top: 14px; }
-.im-data .im-data-since { margin-left: 14px; color: rgba(255,255,255,0.24); }   /* "since Jun 23": where that log's counting starts */
+.im-data .im-data-since { margin-left: 14px; color: var(--t-faint); }   /* "since Jun 23": where that log's counting starts */
 .im-more { display: block; margin: 10px auto 0; }   /* Show all / Show less, bottom middle, opens the older blocks (2026-10-06) */
 /* Import Reschedule window (2026-10-06): Home's 8-week strips on this page. */
 .im-rs-strips { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
@@ -2232,7 +2238,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Pick on the 8-week view (user, 2026-10-26): the picked lesson white (selected) with ✕ (Skip) in its corner; the day it moves to green with a ✓. */
 .im-rs-strips button { position: relative; }
 .im-rs-strips .st-pick-sel { background: rgba(255,255,255,0.10) !important; border-color: rgba(255,255,255,0.55) !important; color: #fff !important; }
-.im-rs-strips .st-pick-sel div { color: rgba(255,255,255,0.9) !important; }
+.im-rs-strips .st-pick-sel div { color: var(--t-bright) !important; }
 .st-pick-x { position: absolute; top: -7px; right: -7px; width: 16px; height: 16px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.6);
   color: #fff; font-size: 9px; line-height: 14px; text-align: center; cursor: pointer; }
 .st-pick-x:hover { background: #fff; color: #111; }
@@ -2282,12 +2288,12 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #imMatNone .lh-none-btn { display: inline-flex; }
 #imMatNone .lh-none-btn:disabled { opacity: .35; cursor: default; }
 .im-mat-none { margin: 0 0 22px; }
-.lh-up-line { color: #d9a441; font-size: 11px; padding: 6px 0; }   /* the drop zone while files go up (2026-10-17) */
+.lh-up-line { color: var(--accent2); font-size: 11px; padding: 6px 0; }   /* the drop zone while files go up (2026-10-17) */
 #imMatNone .lh-none-btn.pressed { opacity: .4; }   /* pressed: dims, like a finished step (user, 2026-10-17) */
 /* Checklist as a status list (2026-10-06): circle + label, ticks itself; done lines fade. */
 .im-checks { display: flex; flex-direction: column; gap: 8px; }
 .im-check { display: flex; align-items: center; gap: 10px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--text); }
-.im-check.done { color: rgba(255,255,255,0.35); }
+.im-check.done { color: var(--t-faint); }
 .im-check-note { text-transform: none; letter-spacing: 0; color: var(--muted); }
 .im-check-note::before { content: "· "; }
 /* The Checklist's tick, the user's om-77.svg (2026-10-06): the circle alone
@@ -2302,14 +2308,14 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Checklist box, first in the doing card: its steps on one line (2026-10-07). */
 .im-steps-row .im-checks { flex-direction: row; flex-wrap: wrap; gap: 8px 28px; }
 .im-steps-row .im-check { color: var(--blue); }   /* to-do steps in the card's blue (2026-10-07); done ones stay dim */
-.im-steps-row .im-check.done { color: rgba(255,255,255,0.35); }
+.im-steps-row .im-check.done { color: var(--t-faint); }
 .im-fin { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; color: var(--green); }   /* Finished ✓ */
 .im-hw-row { border-bottom: none; padding: 4px 0; font-family: inherit; }   /* Last HW: one line like a lesson row (2026-10-06) */
 .im-hw-files { margin-top: 10px; }
 .im-none, .im-hw-row .im-s { font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.6; color: var(--muted); }   /* None / No HW sent: the HW drop area's "No new files" type (2026-10-06) */
 .im-none { padding: 0; }
 /* Today tab (2026-10-06): today's students one under the other, room between each. */
-#todayBody .td-today-box .td-wk-title .win-sub { color: rgba(255,255,255,0.3); }   /* the date a step darker than the names under it (2026-10-09) */
+#todayBody .td-today-box .td-wk-title .win-sub { color: var(--t-faint); }   /* the date a step darker than the names under it (2026-10-09) */
 /* Today's count + mini list (2026-10-06): time, then the name as a button; in the box since 2026-10-24. */
 #todayBody .td-today-box { margin-top: 0; }   /* still centred: .td-wk-box's auto sides */
 #importBody .im-box { margin-top: 0; }   /* Students in one box like Today's (user, 2026-10-26; three boxes were tried) */
@@ -2325,10 +2331,10 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .td-mini-row { display: flex; align-items: center; gap: 14px; }
 .td-mini-t { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); min-width: 64px; }
 /* Each student's own colour on their card: the edge and the name. */
-#todayBody .td-student { border-left-color: var(--td-c, #d9a441); }
-#todayBody .td-student .im-title > span { color: var(--td-c, #d9a441); }
+#todayBody .td-student { border-left-color: var(--td-c, var(--accent2)); }
+#todayBody .td-student .im-title > span { color: var(--td-c, var(--accent2)); }
 /* Each student is one card (2026-10-06), Today and Import: the Import cards' look, amber edge like the name. */
-.td-student { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid #d9a441; border-radius: 10px; padding: 22px 20px; }
+.td-student { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent2); border-radius: 10px; padding: 22px 20px; }
 .td-student + .td-student { margin-top: 48px; }   /* the main cards a bit further apart (2026-10-07, was 28px) */
 #importBody .td-student { border-left-color: #3d5f8f; }   /* Lessons: an opened student's card edge in the list cards' steel blue (2026-10-09, was amber) */
 /* Log lesson in the same steel blue as the card edge (2026-10-09). */
@@ -2342,7 +2348,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #todayBody .td-student { padding: 0 20px; }
 #todayBody .td-student:not(.td-open) { display: none; }
 /* Today's names are the portal's plain link buttons; the open one wears the hover look (2026-10-09). */
-.td-mini-row.td-on .td-mini-b { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
+.td-mini-row.td-on .td-mini-b { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 #todayBody .td-head { margin: 0; padding: 18px 0; }
 #todayBody .td-body { display: none; padding-bottom: 22px; }
 #todayBody .td-open .td-body { display: block; }
@@ -2352,7 +2358,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Log lesson, small and grey, bottom left of the Today card (2026-10-11). */
 #todayBody .td-foot { margin-top: 18px; }
 /* Owes 2 blocks (quiet) / 3+ (red alert), under the name on Today (2026-10-12) */
-#todayBody .td-owe { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: rgba(217,164,65,0.75); margin: -4px 0 12px; }   /* the portal amber: --warn is red inside Today */
+#todayBody .td-owe { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: color-mix(in srgb, var(--accent2) 75%, transparent); margin: -4px 0 12px; }   /* the portal amber: --warn is red inside Today */
 #todayBody .td-owe-alert { color: var(--accent); font-size: 11px; }
 /* Lessons card Payment note at 3+ blocks owed: red (2026-10-12) */
 .im-note-alert .im-note-h, #importBody .im-note-alert .im-note-h, .im-note-alert .im-note-t { color: var(--accent); }
@@ -2364,18 +2370,18 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-dbx-logo { width: 14px; height: 12px; flex: none; color: var(--blue); }
 .im-dbx { border: 1px solid rgba(91,157,255,0.4); border-radius: 8px; padding: 14px; margin-top: 10px; }   /* Dropbox list in the drop zone's blue (2026-10-07) */
 .td-student .im-title { margin-top: 0; }
-.td-student .im-title > span { color: #d9a441; }   /* student names in amber, Today + Import (2026-10-06) */
+.td-student .im-title > span { color: var(--accent2); }   /* student names in amber, Today + Import (2026-10-06) */
 .im-notes-back { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9998; display: flex; align-items: center; justify-content: center; padding: 16px; }
 .im-note + .im-note { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
 .im-note-h { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--warn); margin-bottom: 6px; }
-.im-note-t { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.5); white-space: pre-wrap; }
-.im-note-d { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.24); margin-top: 4px; }
+.im-note-t { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: var(--t-normal); white-space: pre-wrap; }
+.im-note-d { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); margin-top: 4px; }
 .im-note-a { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
 .im-note-a .link-btn { white-space: nowrap; flex: none; }
 /* Lesson / Reschedule / Skip windows (2026-10-05, student.js _stWin): the
    Log window's frame, floated over a dim backdrop. */
 .st-win { width: min(460px, 94vw); box-sizing: border-box; max-height: 90vh; overflow: auto; overflow-x: hidden; margin: 0; }
-.st-when { font-family: "DM Mono", monospace; font-size: 11px; color: rgba(255,255,255,0.5); margin: -6px 0 16px; }
+.st-when { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); margin: -6px 0 16px; }
 .st-when + .st-when { margin-top: -12px; }
 .st-when.st-from { margin: 0; }   /* Reschedule's Move from, under its title (2026-10-26) */
 .st-win .field-label { display: block; margin-bottom: 6px; }
@@ -2404,12 +2410,12 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .st-who .db-check:hover:where(:not(:disabled)) { color: #fff; }
 .st-who .db-check:focus { outline: none; }
 .st-who .db-check:focus-visible { color: #fff; }
-.st-who .db-check.on { color: rgba(255,255,255,.82); }   /* picked = lit, not dimmed like a passed audit line */
+.st-who .db-check.on { color: var(--t-bright); }   /* picked = lit, not dimmed like a passed audit line */
 /* Requested by in the picker's type (2026-10-05): DM Mono 10px like MON, OCT 12,
    normal case; dim until picked, like the picker's values. */
-.st-who .db-check { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.8px; color: rgba(255,255,255,0.55); }
+.st-who .db-check { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.8px; color: var(--t-normal); }
 .st-who .db-check.on { color: #fff; }
-.st-who .db-check, .st-who .db-check.on { color: rgba(255,255,255,0.55); }   /* the date's brightness; the tick shows the pick */
+.st-who .db-check, .st-who .db-check.on { color: var(--t-normal); }   /* the date's brightness; the tick shows the pick */
 .st-who .db-check:hover:where(:not(:disabled)) { color: #fff; }
 /* A little more air between the sections (2026-10-05). */
 .st-win .st-gap { margin-top: 26px; }
@@ -2422,12 +2428,12 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .db-card.db-card-still:hover:where(:not(:disabled)) { border-color: var(--border); border-left-color: #3d5f8f; }
 .db-card-still .db-card-a { color: #6d8fc0; }
 .db-files.db-files-in { padding: 10px 0 0; font-family: "DM Mono", monospace; font-size: 10.5px; }   /* the file list inside the student's card (2026-10-06) */
-.db-files-in .db-file { color: rgba(255,255,255,0.5); }   /* names at the card values' brightness */
-.db-files-in .db-file.db-dir { color: rgba(255,255,255,0.5); }
+.db-files-in .db-file { color: var(--t-normal); }   /* names at the card values' brightness */
+.db-files-in .db-file.db-dir { color: var(--t-normal); }
 /* HW sent - last in a student card (2026-10-07): no top gap, so None sits centred
    in its box, in the Notes values' type (Overdue): Arial 12px, half-white. */
 .td-student .db-files.db-files-in { padding-top: 0; }
-.td-student .db-files-in .im-none { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.5); }
+.td-student .db-files-in .im-none { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: var(--t-normal); }
 /* A student card opened with Files (2026-10-06): the card grows downward,
    a rule, then Info (email, since added, size, Open in Finder) and the files. */
 .db-card.db-card-open { flex-wrap: wrap; align-items: flex-start; }
@@ -2444,11 +2450,11 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .db-files-btn .db-bullet { width: 12px; height: 10px; }
 .db-ov-acts { display: flex; align-items: center; gap: 16px; }   /* All files + refresh, top right of Overview */
 .db-all-btn { height: 22px; box-sizing: border-box; text-transform: none; letter-spacing: 0; font-size: 10px; padding: 0 9px; }   /* the cards' Files button size */
-.db-all { padding: 0; font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.5); }   /* All files window */
+.db-all { padding: 0; font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); }   /* All files window */
 .db-all-folder + .db-all-folder { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }   /* a rule between folders */
 .db-all-folder > .db-dir { color: var(--text); }   /* the Dropbox folder's name a step brighter */
 .db-all-in { padding-left: 20px; margin-top: 4px; }   /* its files one step in */
-.db-all-empty { color: rgba(255,255,255,0.24); }
+.db-all-empty { color: var(--t-faint); }
 .db-card-still .db-card-a { color: var(--warn); }   /* ages and EMPTY in amber (2026-10-06, was light blue) */
 .db-finder { color: var(--blue); }   /* Open in Finder icon in blue, like Files (2026-10-06, was green) */
 
@@ -2489,7 +2495,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .lh-dbx-btn .lh-dbx-ico { width: 14px; height: 12px; }   /* Open: the Dropbox logo alone in its button */
 .im-hw-col { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-right: auto; }
 .lh-dbx-ico { width: 12px; height: 10px; flex: none; }   /* Open: the Dropbox logo before the word (2026-10-11) */
-.im-steps-row .im-check { color: #d9a441; }   /* to-do steps amber, done ones dim (2026-10-08; was blue, then white) */
+.im-steps-row .im-check { color: var(--accent2); }   /* to-do steps amber, done ones dim (2026-10-08; was blue, then white) */
 /* Log lesson, HW, Schedule without their boxes (2026-10-08): the card's own background, fields out to its sides. */
 .im-list.im-log-box, .im-list.im-hwtext-box, .im-list.im-hw-dock-box, .im-list.im-sched-box { background: transparent; border: none; border-radius: 0; padding: 0; }
 /* Under the log rows (2026-10-08): add-row left, Log right (Log was on the title row). */
@@ -2512,14 +2518,14 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Checklist colours (2026-10-08, was all amber): Lesson log green, HW blue, Schedule green; done ones stay dim. */
 .im-steps-row .im-check-log, .im-steps-row .im-check-sched { color: var(--green); }
 .im-steps-row .im-check-hw, .im-steps-row .im-check-mat { color: var(--blue); }
-.im-steps-row .im-check.done { color: rgba(255,255,255,0.35); }
+.im-steps-row .im-check.done { color: var(--t-faint); }
 /* More air under the icon and after the Schedule buttons (2026-10-08). */
 .im-win-card { margin-top: 24px; }   /* the window's icon row keeps _stWin's 18px; this adds the rest */
 .im-do-card .im-sched-box { margin-bottom: 26px; }
 /* Import's Log lesson when it isn't their lesson day (2026-10-08): grey, its tooltip says why. */
 .link-btn.im-log-off, .link-btn.im-log-off:hover:where(:not(:disabled)) { color: rgba(255,255,255,.18); border-color: rgba(122,122,122,.22); background: transparent; cursor: default; }
 .au-unlog-tag { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
-  padding: 2px 6px; border-radius: 2px; color: var(--blue); background: rgba(74,158,255,0.15); }   /* Venmo / Zelle badge shape (2026-10-08) */
+  padding: 2px 6px; border-radius: 2px; color: var(--blue); background: color-mix(in srgb, var(--blue) 15%, transparent); }   /* Venmo / Zelle badge shape (2026-10-08) */
 .au-unlog-row { margin-top: 8px; }
 /* Details window's Lessons in Import's look (2026-10-08); Not logged in the unlogged blue. */
 #auditFixContent .dx-lessons { margin-top: 10px; }
@@ -2528,11 +2534,11 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Details window like the Import card (2026-10-08): #222 outside, the boxes' #1a1a1a inside. */
 #auditFixContent { background: var(--surface2); }
 /* Details grid columns (2026-10-08): all three agree → dim; any difference → brighter. */
-#auditFixContent .dx-grid td.dx-same:not(.sel) { color: rgba(255,255,255,0.3); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
+#auditFixContent .dx-grid td.dx-same:not(.sel) { color: var(--t-faint); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
 #auditFixContent .dx-grid td.dx-diff:not(.miss):not(.nocal):not(.sel) { color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4); }
 /* Each row in its source's colour (2026-10-08): Calendar red, Counter amber, Import blue.
    Agreeing columns dim, differing ones full colour. Unlogged blue / mismatch red keep theirs. */
-#auditFixContent .dx-grid { --dx-cal: #ff5a4d; --dx-counter: #d9a441; --dx-imp: #4a9eff; }
+#auditFixContent .dx-grid { --dx-cal: #ff5a4d; --dx-counter: var(--accent2); --dx-imp: var(--blue); }
 #auditFixContent .dx-grid td.dx-l-calendar { color: color-mix(in srgb, var(--dx-cal) 75%, transparent); }
 #auditFixContent .dx-grid td.dx-l-counter  { color: color-mix(in srgb, var(--dx-counter) 75%, transparent); }
 #auditFixContent .dx-grid td.dx-l-import   { color: color-mix(in srgb, var(--dx-imp) 75%, transparent); }
@@ -2558,7 +2564,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Lesson Checklist cards (2026-10-08): each open lesson's date and what's left. */
 .au-ck-list { margin-top: 18px; display: flex; flex-direction: column; gap: 8px; }
 .au-ck-line { display: flex; align-items: center; gap: 14px; }
-.au-ck-d { font-family: "DM Mono", monospace; font-size: 11px; color: rgba(255,255,255,0.5); min-width: 52px; }
+.au-ck-d { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); min-width: 52px; }
 .au-ck-m { display: flex; gap: 6px; flex-wrap: wrap; }
 .au-ck-tag { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
   padding: 2px 6px; border-radius: 2px; color: var(--blue); background: color-mix(in srgb, var(--blue) 6%, transparent);
@@ -2576,8 +2582,8 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .td-wk-date { color: var(--muted); }
 .td-wk-dn { display: inline-block; width: 78px; }   /* the time column + gap, so the date lines up with the names */
 /* Times and names in the Intake cards' label + value look (Date · Sep 23): DM Mono 10.5px, 24% / 50% white. */
-.td-wk-day .td-mini-t { font-size: 10.5px; color: rgba(255,255,255,0.24); }
-.td-wk-name { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.5); }
+.td-wk-day .td-mini-t { font-size: 10.5px; color: var(--t-faint); }
+.td-wk-name { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); }
 .td-wk-day .field-label { color: var(--accent); }   /* every day red, none dimmed */
 .td-wk-none { font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }   /* a day off: OPEN in the date's place, small, the date's grey */
 /* Today and This Week boxes (user, 2026-10-24): the old Week window's size and look, full length, centred on the page */
@@ -2590,16 +2596,20 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .td-wk-box .td-wk-day .field-label { margin-bottom: 2px; }
 .td-wk-box .td-wk-rule { margin: 0 0 18px; }
 /* Today's holiday reminder (2026-10-24): the alert box as just text, no title or colour; the button is a .link-btn (today.js). */
-.rpm-dlg.td-hol-dlg .rpm-dlg-title { display: none; }
-.rpm-dlg.td-hol-dlg .rpm-dlg-head { justify-content: flex-end; }
+/* "Today is Oct 27" centred on the ✕'s line (user, 2026-10-27; there was no title before) */
+.rpm-dlg.td-hol-dlg .rpm-dlg-head { justify-content: flex-end; position: relative; }
+.rpm-dlg.td-hol-dlg .rpm-dlg-title { position: absolute; left: 0; right: 0; text-align: center; pointer-events: none;
+  font-family: "DM Mono", monospace; font-size: 14px; letter-spacing: 1px; color: var(--t-normal); text-transform: uppercase; }   /* all caps; the size and grey of "Halloween coming up" under it (user, 2026-10-27) */
 .rpm-dlg.td-hol-dlg .rpm-dlg-acts { justify-content: center; }   /* the button centred under the text (user 2026-10-24) */
-.rpm-dlg.td-hol-dlg .rpm-dlg-msg { color: rgba(255,255,255,0.5); text-align: center; font-size: 14px; }   /* the Dashboard values' grey; bigger than the alert's 11px (user 2026-10-24) */
+.rpm-dlg.td-hol-dlg .rpm-dlg-msg { color: var(--t-normal); text-align: center; font-size: 14px; margin-top: 21px; }   /* ~20px under TODAY IS, like the other gaps (user, 2026-10-27) */   /* the Dashboard values' grey; bigger than the alert's 11px (user 2026-10-24) */
 /* The date as a calendar page (user 2026-10-24): the calendar icon's grey line, month in the top band, the day big. */
 .td-hol-dlg .td-hol-one + .td-hol-one { margin-top: 22px; }
-.td-hol-dlg .td-hol-cal { width: 48px; margin: 0 auto 14px; border: 1.5px solid var(--muted); border-radius: 7px; overflow: hidden; text-align: center; }
-.td-hol-dlg .td-hol-mo { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); padding: 3px 0 2px; border-bottom: 1.5px solid var(--muted); }
-.td-hol-dlg .td-hol-dd { font-family: "Bebas Neue", sans-serif; font-size: 24px; line-height: 1; letter-spacing: 1px; color: rgba(255,255,255,0.5); padding: 6px 0 4px; }
-.td-hol-dlg .td-hol-l { margin-top: 4px; font-size: 11px; color: rgba(255,255,255,0.24); white-space: pre; }
+.td-hol-dlg .td-hol-cal { width: 38px; margin: 0 auto 20px;   /* 14 → 20, the gaps balanced (user, 2026-10-27) */ border: 1.5px solid var(--muted); border-radius: 7px; overflow: hidden; text-align: center; }
+.td-hol-dlg .td-hol-mo, .td-day-cal .td-hol-mo { font-family: "DM Mono", monospace; font-size: 7px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); padding: 2px 0 1px; border-bottom: 1.5px solid var(--muted); }
+.td-hol-dlg .td-hol-dd, .td-day-cal .td-hol-dd { font-family: "Bebas Neue", sans-serif; font-size: 19px; line-height: 1; letter-spacing: 1px; color: var(--t-normal); padding: 5px 0 3px; }   /* the page smaller: 48 → 38 wide (user, 2026-10-27) */
+/* Today's date page under the Today title, the holiday warning's (user, 2026-10-27; was the plain calendar icon) */
+.td-day-cal { width: 38px; margin: 4px 0 18px; border: 1.5px solid var(--muted); border-radius: 7px; overflow: hidden; text-align: center; }
+.td-hol-dlg .td-hol-l { margin-top: 4px; font-size: 11px; color: var(--t-faint); white-space: pre; }
 
 /* General tab in the This Week window's look (2026-10-10): the four gold cards
    become flat sections one under the other. Section names red like MON; labels
@@ -2611,23 +2621,23 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-card + .ld-card { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; color: var(--accent); margin-bottom: 10px; }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); align-items: center; gap: 0; padding: 4px 0; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-row .ld-l { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.24); }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-row .ld-v { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,0.5); text-align: left; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-row.lead .ld-v { color: rgba(255,255,255,0.85); }   /* the numbers that matter: brighter, not amber */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-vsub { color: rgba(255,255,255,0.24); margin: 0 10px 0 0; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-row .ld-l { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-row .ld-v { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); text-align: left; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-row.lead .ld-v { color: var(--t-bright); }   /* the numbers that matter: brighter, not amber */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-vsub { color: var(--t-faint); margin: 0 10px 0 0; }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-rule { border: none; margin: 6px 0; }   /* a small gap inside a section, the line is between sections */
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-sublabel { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 4px 0 2px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-note { margin: 6px 0 0; padding: 0; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.24); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-note { margin: 6px 0 0; padding: 0; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-row.pick { padding: 3px 0; }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-pick { justify-self: start; }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-foot { justify-content: flex-start; margin: 10px 0 0 170px; padding: 0; }   /* Reset under the values */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) #loadRatesCard .ld-row.lead .ld-v { color: rgba(255,255,255,0.5); }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) #estimatorTable .ld-row .ld-v { color: rgba(255,255,255,0.24); }   /* the Estimator's two incomes in the monthly prices' dark grey (2026-10-10) */   /* Estimator's Gregorian income and the Weekly/Biweekly rates the same grey as the rows around them (2026-10-10) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) #loadRatesCard .ld-row.lead .ld-v { color: var(--t-normal); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) #estimatorTable .ld-row .ld-v { color: var(--t-faint); }   /* the Estimator's two incomes in the monthly prices' dark grey (2026-10-10) */   /* Estimator's Gregorian income and the Weekly/Biweekly rates the same grey as the rows around them (2026-10-10) */
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-raise { margin-bottom: 6px; }   /* Last raise row at the top, a small gap before the prices */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-vmo { margin-left: 10px; color: rgba(255,255,255,0.24); }   /* the monthly after the price and a dash, the labels' dark grey */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-vmo { margin-left: 10px; color: var(--t-faint); }   /* the monthly after the price and a dash, the labels' dark grey */
 /* 2026-10-10: Raised on date, Weekly/Biweekly counts and Load's Gregorian income in the dark grey; Load's Total income bright. */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-raise .ld-v, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) #loadWeekly, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) #loadBiweekly, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) #loadGregorian { color: rgba(255,255,255,0.24); }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) #loadIncome { color: rgba(255,255,255,0.85); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-raise .ld-v, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) #loadWeekly, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) #loadBiweekly, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) #loadGregorian { color: var(--t-faint); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) #loadIncome { color: var(--t-bright); }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) > .ld-head { margin-bottom: 10px; }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) > .ld-icon { margin: 0 0 26px; }   /* the stats icon under the title, window style */
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-rule.ld-gap { margin: 18px 0; }   /* 2026 inquiries: the two rate groups further apart */
@@ -2636,11 +2646,11 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Skips card group look (user 2026-10-23): small caps heading with a line under it,
    faint lines between rows, no line between sections. */
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-card + .ld-card { border-top: none; padding-top: 0; margin-top: 28px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 0; color: rgba(255,255,255,.72); }   /* Folder audit's Bebas Neue and grey (user, 2026-10-23; was DM Mono 10px in Skips' amber) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 0; color: var(--t-text); }   /* Folder audit's Bebas Neue and grey (user, 2026-10-23; was DM Mono 10px in Skips' amber) */
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-row { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-row.pick { padding: 6px 0; }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-rule { display: none; }   /* the row lines already split them */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) #loadTable .ld-row .ld-v { color: rgba(255,255,255,0.24); }   /* Load's numbers all one grey and size; the headline at the top carries them (user 2026-10-23; was big Bebas, then amber) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) #loadTable .ld-row .ld-v { color: var(--t-faint); }   /* Load's numbers all one grey and size; the headline at the top carries them (user 2026-10-23; was big Bebas, then amber) */
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-title-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #rvSummaryBody, #rvCurSum) .ld-title-sum .ld-sum { font-size: 12px; letter-spacing: .5px; }   /* 24 STUDENTS · 17.5 NORMALIZED · $6,940 on Load's title line, right, the Skips tab's Total skips line (user 2026-10-23) */
 /* The Estimator's pickers a step smaller (2026-10-10). */
@@ -2673,13 +2683,13 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .st-win.td-look .im-steps-row .im-check:not(.done) .im-tick { display: none; }
 .st-win.td-look .im-steps-row .im-check.done { color: var(--muted); opacity: .4; }
 .st-win.td-look .im-fin { color: var(--text); }
-.st-win.td-look #logPanel .im-log-foot #btnLog { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: color-mix(in srgb, #fff 4%, transparent); }
+.st-win.td-look #logPanel .im-log-foot #btnLog { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: color-mix(in srgb, #fff 4%, transparent); }
 .st-win.td-look #logPanel .im-log-foot #btnLog:disabled { color: var(--muted); border-color: rgba(255,255,255,0.10); }
 .st-win.td-look #logPanel .im-log-foot #btnLog:not(:disabled):hover:where(:not(:disabled)) { background: var(--surface2); border-color: var(--muted); }
 .st-win.td-look #logHwFiles { border-color: rgba(255,255,255,0.14); }
 .st-win.td-look #logHwFiles:hover:where(:not(:disabled)), .st-win.td-look #logHwFiles.lh-drop-on { border-color: color-mix(in srgb, var(--muted) 70%, transparent); background: color-mix(in srgb, #fff 3%, transparent); }
 .st-win.td-look .link-btn.blue { color: var(--muted); border-color: rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); }
-.st-win.td-look .link-btn.blue:hover:where(:not(:disabled)) { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
+.st-win.td-look .link-btn.blue:hover:where(:not(:disabled)) { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 
 /* No show (2026-10-11): top right of the Log lesson box, in the Log lesson window only. */
 #btnNoShow { display: none; }
@@ -2687,7 +2697,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-sec-head > #btnNoShow:disabled, .im-sub-head > #btnNoShow:disabled { opacity: .4; cursor: default; }
 /* Payments Audit title (2026-10-14): Today's look, room above and under like #todayBody. */
 .pay-audit-title { margin: 36px 0 0; }   /* equal gaps: Back, title, stamp, cards (2026-10-14) */
-.pay-audit-title .win-sub { color: rgba(255,255,255,0.3); }
+.pay-audit-title .win-sub { color: var(--t-faint); }
 /* The AUDIT stamp: centred, faded and tilted like Today's PREVIEW stamp. */
 .pay-audit-stamp { display: block; height: 28px; width: auto; margin: 36px auto; opacity: .7; transform: rotate(-1deg); }
 
@@ -2759,11 +2769,11 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-mail-ref, .im-mail-log .im-mail-ref { border-left: none; padding-left: 0; margin: 0 0 16px; color: color-mix(in srgb, var(--text) 45%, transparent); }
 .im-mail-matsec .im-mail-mat { color: var(--text); border-left: none; padding-left: 0; }
 .im-mail-mat a, .im-mail-matsec .im-mail-mat a { text-decoration: none; }
-#imMailPrev, #imMailSend { color: color-mix(in srgb, #d9a441 70%, var(--muted)); border-color: color-mix(in srgb, #d9a441 35%, transparent); background: color-mix(in srgb, #d9a441 4%, transparent); }
-#imMailPrev:hover:where(:not(:disabled)), #imMailSend:hover:where(:not(:disabled)) { color: #d9a441; border-color: color-mix(in srgb, #d9a441 60%, transparent); background: color-mix(in srgb, #d9a441 10%, transparent); }
+#imMailPrev, #imMailSend { color: color-mix(in srgb, var(--accent2) 70%, var(--muted)); border-color: color-mix(in srgb, var(--accent2) 35%, transparent); background: color-mix(in srgb, var(--accent2) 4%, transparent); }
+#imMailPrev:hover:where(:not(:disabled)), #imMailSend:hover:where(:not(:disabled)) { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 60%, transparent); background: color-mix(in srgb, var(--accent2) 10%, transparent); }
 .im-mail-matsec .im-mail-mat { color: color-mix(in srgb, var(--text) 62%, transparent); }   /* not so bright (user, 2026-10-16) */
 /* Email window titles in the Log window's "A. Lesson" look (user, 2026-10-16), not green / blue. */
-#imMailWin .im-mail-sec > .field-label { color: rgba(255,255,255,0.72); font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; font-weight: 400; text-transform: uppercase; }
+#imMailWin .im-mail-sec > .field-label { color: var(--t-text); font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; font-weight: 400; text-transform: uppercase; }
 /* Numbered red titles, the Log window's "1. Log" look (user, 2026-10-16; replaces the grey ones above). */
 #imMailWin .im-mail-sec > .field-label { color: #e8463a; font-family: "Bebas Neue", sans-serif; font-size: 16px; letter-spacing: 1.5px; font-weight: 400; text-transform: none; }
 .st-win.im-mail-win .win-icon { height: 18px; width: auto; }   /* This Week's size (user, 2026-10-17; was 30px like Intake Compose) */
@@ -2818,25 +2828,25 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
    grey DM Mono names, no bullets, its row spacing. */
 #imMailWin .im-mail-sec > .field-label, #imMailWin .im-mail-head > .field-label { color: var(--muted); font-size: 14px; letter-spacing: 1.5px; }
 #imMailWin .im-mail-n { color: inherit; margin-right: 4px; }
-#imMailWin .im-mail-ref, #imMailWin .im-mail-mat, #imMailWin .im-mail-matsec .im-mail-mat { font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.4; color: rgba(255,255,255,0.24); }   /* the times' dark grey (user, 2026-10-17) */
+#imMailWin .im-mail-ref, #imMailWin .im-mail-mat, #imMailWin .im-mail-matsec .im-mail-mat { font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.4; color: var(--t-faint); }   /* the times' dark grey (user, 2026-10-17) */
 #imMailWin .im-mail-ref ul, #imMailWin .im-mail-mat ul { list-style: none; padding-left: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }   /* tighter than This Week's 9px (user, 2026-10-17) */
 #imMailWin .im-mail-ref li, #imMailWin .im-mail-mat li { margin: 0; }
 #imMailWin .im-copy { transition: color .2s; }
-#imMailWin .im-copy-b { background: none; border: none; padding: 0 0 0 8px; color: rgba(255,255,255,0.24); cursor: pointer; vertical-align: -2px; }
+#imMailWin .im-copy-b { background: none; border: none; padding: 0 0 0 8px; color: var(--t-faint); cursor: pointer; vertical-align: -2px; }
 #imMailWin .im-copy-b .copy-icon { width: 11px; height: 11px; }
-#imMailWin .im-copy-b:hover:where(:not(:disabled)) { color: rgba(255,255,255,0.6); }
-#imMailWin .im-copy.copied, #imMailWin .im-copy.copied .im-copy-b { color: #d9a441; }   /* copied: a short amber flash (2026-10-17) */
+#imMailWin .im-copy-b:hover:where(:not(:disabled)) { color: var(--t-normal); }
+#imMailWin .im-copy.copied, #imMailWin .im-copy.copied .im-copy-b { color: var(--accent2); }   /* copied: a short amber flash (2026-10-17) */
 #imMailWin .im-mail-head .im-mail-ref { margin: 12px 0 0; }
 #imMailWin .im-mail-to { display: flex; flex-direction: column; gap: 4px; margin: 0 0 22px; }
-#imMailWin .im-mail-to .td-mini-t { font-size: 10.5px; color: rgba(255,255,255,0.24); min-width: 0; width: 24px; }   /* "To:" / "Sbj:" as typed (user, 2026-10-17); just wide enough for "Sbj:" */
+#imMailWin .im-mail-to .td-mini-t { font-size: 10.5px; color: var(--t-faint); min-width: 0; width: 24px; }   /* "To:" / "Sbj:" as typed (user, 2026-10-17); just wide enough for "Sbj:" */
 #imMailWin .im-mail-to .td-mini-row { gap: 3px; }   /* tight after the colon (user, 2026-10-17) */
-#imMailWin .im-mail-to .td-wk-name { color: rgba(255,255,255,0.24); }   /* as dark as the log lines (user, 2026-10-17; amber tried, back to grey) */
+#imMailWin .im-mail-to .td-wk-name { color: var(--t-faint); }   /* as dark as the log lines (user, 2026-10-17; amber tried, back to grey) */
 #imMailWin .im-mail-to, #imMailWin .im-mail-to .td-mini-t, #imMailWin .im-mail-to .td-wk-name, #imMailWin .im-mail-opt { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; }   /* To / Sbj and (optional) in the History list font (user, 2026-10-17) */
 /* Send green, Preview stays amber (user, 2026-10-17). */
 #imMailSend { color: color-mix(in srgb, var(--green) 70%, var(--muted)); border-color: color-mix(in srgb, var(--green) 35%, transparent); background: color-mix(in srgb, var(--green) 4%, transparent); }
 #imMailSend:hover:where(:not(:disabled)) { color: var(--green); border-color: color-mix(in srgb, var(--green) 60%, transparent); background: color-mix(in srgb, var(--green) 10%, transparent); }
-#imMailWin .im-mail-opt { color: rgba(255,255,255,0.24); }   /* (optional) as dark as the lines (user, 2026-10-17) */
-#imMailWin .im-mail-ref li::before, #imMailWin .im-mail-mat li::before { content: "– "; color: rgba(255,255,255,0.24); }   /* a dash, not a bullet (user, 2026-10-17) */
+#imMailWin .im-mail-opt { color: var(--t-faint); }   /* (optional) as dark as the lines (user, 2026-10-17) */
+#imMailWin .im-mail-ref li::before, #imMailWin .im-mail-mat li::before { content: "– "; color: var(--t-faint); }   /* a dash, not a bullet (user, 2026-10-17) */
 /* Nothing to send + Recorded on their phone (2026-10-18): stacked on top of Materials;
    whichever is pressed dims and shows a ✓ inside. */
 #imMatNone { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
@@ -3078,7 +3088,6 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .ts-card { margin-bottom: 20px; }
 .ts-card.ts-card-ok { border-left-color: var(--green); }
 /* Trip Summary at Trial's strength (user, 2026-10-20): amber 70% like #tab-trial, green edge dimmed. */
-#tab-tripsummary { --warn: rgba(217,164,65,0.7); --accent2: rgba(240,165,0,0.7); }
 .ts-card.ts-card-ok { border-left-color: color-mix(in srgb, var(--green) 60%, transparent); }
 .ts-tag { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; border: 1px solid; border-radius: 4px; padding: 3px 8px; white-space: nowrap; }
 /* Trip Summary (user, 2026-10-20): tally + Archive on the Replies title line; every card the same size. */
@@ -3089,11 +3098,11 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .ts-thread-none { margin: auto; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: color-mix(in srgb, var(--muted) 60%, transparent); }
 .ts-bub { background: color-mix(in srgb, #3d5f8f 35%, #131313); border: 1px solid color-mix(in srgb, #3d5f8f 60%, transparent); color: var(--text); }   /* texts on a dim blue, the frames' blue (user, 2026-10-20) */
 /* Trip Summary cards: Thread / Text titles, more room between the two (user, 2026-10-20). */
-.ts-card .ts-lbl { display: block; color: rgba(255,255,255,.5); margin: 22px 0 10px; }
+.ts-card .ts-lbl { display: block; color: var(--t-normal); margin: 22px 0 10px; }
 .ts-card .ts-thread { margin-top: 0; }
 .ts-card .ts-lbl + textarea { margin-top: 0; }
 .ts-card > .ts-lbl { margin-top: 34px; }   /* THREAD further from the Skip line (user, 2026-10-20) */
-.ts-th-icon { margin-top: 34px; line-height: 0; color: rgba(255,255,255,.5); }   /* the phone over THREAD (user, 2026-10-20) */
+.ts-th-icon { margin-top: 34px; line-height: 0; color: var(--t-normal); }   /* the phone over THREAD (user, 2026-10-20) */
 .ts-lbl-icon { width: auto; height: 30px; }
 .ts-th-icon + .ts-lbl { margin-top: 14px; }
 .ts-thread { border: 1.5px dashed color-mix(in srgb, var(--blue) 28%, transparent); }   /* dashed dim blue like the review's text box (user, 2026-10-20) */
@@ -3120,14 +3129,13 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .ts-row-name { font-family: "Syne", sans-serif; font-size: 16px; color: var(--text); }
 .ts-row .ts-tag, .ts-card .ts-tag { display: inline-block; font-size: 10px; padding: 6px 11px; line-height: 1; letter-spacing: 1px; text-transform: uppercase;
           border: none; border-radius: 3px; font-family: "DM Mono", monospace; white-space: nowrap; }
-.ts-row, .ts-card { --warn: rgba(217,164,65,0.7); --accent2: rgba(240,165,0,0.7); }   /* Trial's 70% amber, also in the window (outside the tab) */
 .ts-card .link-btn:disabled { color: rgba(255,255,255,.18); border-color: rgba(122,122,122,.22); background: transparent; cursor: default; }
 .ts-win-card { margin: 0; }
 .ts-row .ts-tag { background: none !important; padding: 0; font-size: 11px; }   /* list: just the coloured word, like Terminate → (user, 2026-10-20) */
 /* List rows: a left edge in the status word's colour, at the cards' 42% strength (user, 2026-10-20). */
 .ts-row { border-left-width: 3px; }
 .ts-row.ts-row-ok    { border-left-color: color-mix(in srgb, var(--green) 60%, transparent); }
-.ts-row.ts-row-reply { border-left-color: color-mix(in srgb, #d9a441 42%, transparent); }
+.ts-row.ts-row-reply { border-left-color: color-mix(in srgb, var(--accent2) 42%, transparent); }
 .ts-row.ts-row-wait  { border-left-color: color-mix(in srgb, var(--muted) 42%, transparent); }
 .ts-trip-dates { text-transform: uppercase; }   /* 3 / 6 CONFIRMED (user, 2026-10-20) */
 .ts-steps { margin: 4px 0 22px; }   /* steps under CONFIRMATIONS, then the tally and the list (user, 2026-10-20) */
@@ -3172,8 +3180,8 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 }
 .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn svg { width: 16px; height: 15px; }
 .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn:not(.danger) { color: var(--muted); border-color: rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); }   /* Cancel = the plain grey link-btn (user, 2026-10-21) */
-.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn:not(.danger):hover:where(:not(:disabled)) { color: rgba(255,255,255,0.82); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
-.rpm-dlg-sub { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.5); margin-top: 6px; }   /* small grey line under a dialog title (2026-10-21) */
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn:not(.danger):hover:where(:not(:disabled)) { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
+.rpm-dlg-sub { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--t-normal); margin-top: 6px; }   /* small grey line under a dialog title (2026-10-21) */
 .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-sub + .rpm-dlg-msg { margin-top: 18px; }
 .rpm-dlg-ticon { margin-top: 16px; line-height: 0; color: var(--muted); }   /* a dialog's icon on its own line under the title, the window-icon grey (2026-10-21) */
 .rpm-dlg-ticon + .rpm-dlg-sub { margin-top: 14px; }
@@ -3205,7 +3213,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Before / Resume cells (and the Lesson key) grey instead of green; Skip stays red (user, 2026-10-21). */
 .tv-rv-dcell .tv-c-before, .tv-rv-dcell .tv-c-resume, .tv-rv-key .tv-c-before { color: rgba(240,237,232,0.6); box-shadow: inset 0 0 0 1px rgba(240,237,232,0.25); }
 .tv-rv-dcell .tv-c-resume { background: rgba(240,237,232,0.07) !important; }   /* Resume set apart by a grey wash (user, 2026-10-21) */
-.tv-rv-resume { text-align: right; margin-top: 12px; font-size: 13px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; }   /* RESUMING ON MON, DEC 8 AT 5:00 PM, like SKIPPING N LESSONS (user, 2026-10-21) */
+.tv-rv-resume { text-align: right; margin-top: 12px; font-size: 13px; color: var(--t-normal); text-transform: uppercase; letter-spacing: 1px; }   /* RESUMING ON MON, DEC 8 AT 5:00 PM, like SKIPPING N LESSONS (user, 2026-10-21) */
 .tv-rv-dates, .ts-thread.tv-rv-thread { border-color: var(--border); }   /* Dates and texts boxes: the usual grey edge, not blue (user, 2026-10-21) */
 .tv-rv-dates, .ts-thread.tv-rv-thread { border-style: solid; }   /* solid, not dashed (user, 2026-10-21) */
 .tv-rv-resume-d { text-transform: none; letter-spacing: 0.5px; }   /* RESUME ON: Sun, Dec 7 at 2:00 PM (user, 2026-10-21) */
@@ -3238,7 +3246,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .en-card-body .en-fields { margin-top: 2px; }
 .en-card-body .empty-state.rpm-loading { padding: 14px 0 6px; }
 .en-foot.en-card-foot { justify-content: space-between; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border); }   /* Travel's Go live row at the card's foot */
-.en-foot.en-card-foot .en-foot-note { font-size: 11px; color: rgba(255,255,255,.5); }
+.en-foot.en-card-foot .en-foot-note { font-size: 11px; color: var(--t-normal); }
 .en-foot.en-card-foot .en-go { font-size: 11px; padding: 8px 16px; gap: 8px; flex: none; }
 .en-card-body .en-status { margin: 16px 0 0; }
 .en-card-n { font-family: "Syne", sans-serif; font-size: 15px; line-height: 26px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -3267,11 +3275,11 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .en-fields { margin-top: 10px; }   /* stats card: the Inquiries field grid under the name */
 .en-fgap { grid-column: 1 / -1; height: 12px; }   /* a break in the stats grid (between the groups) */
 .en-fields .inq-fval.en-amber { color: var(--warn); }   /* Start Date, Lifetime, Density (user 2026-10-22) */
-.en-since { color: rgba(255,255,255,0.24); margin-left: 8px; }   /* Density's "(since Jul 8, 2026)": the labels' grey */
+.en-since { color: var(--t-faint); margin-left: 8px; }   /* Density's "(since Jul 8, 2026)": the labels' grey */
 /* Before archiving (2026-10-24): the 4 questions, label left, an open box
    right; Terminate stays dimmed until all 4 have text. */
 .en-ask { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border); }
-.en-ask-h { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 14px; }
+.en-ask-h { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-normal); margin-bottom: 14px; }
 .en-ask-grid { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; align-items: center; font-family: "DM Mono", monospace; font-size: 10.5px; }
 .en-ask-in { width: 100%; font-size: 12px; }
 .link-btn.red.en-go:disabled:not(.tv-busy) { opacity: .35; cursor: default; }   /* until all 4 are answered */
@@ -3280,7 +3288,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Reviews tab, Ended students (2026-10-21; was Terminate ▾ Reviews): the stats card look. */
 .en-rv-head { margin: 0 0 16px; padding: 0 22px 0 25px; }   /* lines up with the names (3px edge + 22px padding) */
 .en-rv { margin-bottom: 10px; }
-#tab-reviews .en-rv.asked { border-left-color: #d9a441; }   /* Reviews cards: grey stripe until asked, then the Today card's amber (user, 2026-10-26) */
+#tab-reviews .en-rv.asked { border-left-color: var(--accent2); }   /* Reviews cards: grey stripe until asked, then the Today card's amber (user, 2026-10-26) */
 .en-rv-acts { margin-top: 16px; }
 .en-rv-closed { margin-top: 24px; }
 .en-rv-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }   /* Reviews card: name left, Left a review / Remove top right */
@@ -3292,31 +3300,35 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .rv-go { color: var(--green); }   /* Next ask: This week */
 .rv-ask:disabled { opacity: 0.4; cursor: not-allowed; }   /* one ask a week: every Ask / Nudge dims until Next ask */
 .rv-sorts { justify-content: flex-end; padding-left: 0; margin: 10px 0 16px; }   /* Best to ask / Longest first / Momentum / Progress */
-.rv-sorts .link-btn { color: rgba(255,255,255,0.5); }   /* sort bar all white (user, 2026-10-26), the lit one boxed brighter instead of amber */
-.rv-sorts .link-btn.lit, .rv-sorts .link-btn.lit:hover:where(:not(:disabled)) { color: rgba(255,255,255,0.75); border-color: rgba(255,255,255,0.3); background: color-mix(in srgb, #fff 6%, transparent); }   /* dimmed a step (user, 2026-10-26) */
+.rv-sorts .link-btn { color: var(--t-normal); }   /* sort bar all white (user, 2026-10-26), the lit one boxed brighter instead of amber */
+.rv-sorts .link-btn.lit, .rv-sorts .link-btn.lit:hover:where(:not(:disabled)) { color: var(--t-text); border-color: rgba(255,255,255,0.3); background: color-mix(in srgb, #fff 6%, transparent); }   /* dimmed a step (user, 2026-10-26) */
 .rv-notes { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); align-items: center; }
 .rv-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .rv-tpl-foot { margin-top: 18px; }   /* the review window's blue iMessage, bottom right (2026-10-26) */
 .en-tpl-btns { display: inline-flex; gap: 8px; }   /* Copy + Email on each review template (2026-10-26) */
 /* Review text templates in the Travel Plan's text message look (2026-10-26) */
 .rv-thread { margin-top: 0; }
-.rv-bub { color: rgba(255,255,255,.72); outline: none; cursor: text; }
+.rv-bub { color: var(--t-text); outline: none; cursor: text; }
 .rv-bub:focus { color: var(--text); box-shadow: 0 0 0 1px color-mix(in srgb, var(--blue) 45%, transparent); }
-.rv-due { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #d9a441; margin-left: 8px; }   /* Nudge due: 10 days after a yes, no review (2026-10-26) */
+.rv-due { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent2); margin-left: 8px; }   /* Nudge due: 10 days after a yes, no review (2026-10-26) */
 .rv-yes { cursor: pointer; font-family: "DM Mono", monospace; font-size: inherit; color: inherit; }   /* the card values' face, not the tick-box line's */
-.rv-tpl-phone { font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,.5); margin: -6px 0 22px; }
-.st-win .en-tpl-top .field-label { color: rgba(255,255,255,.72); }   /* Text template N, the Travel Plan's 72% grey */
+.rv-tpl-phone { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); margin: -6px 0 22px; }
+.st-win .en-tpl-top .field-label { color: var(--t-text); }   /* Text template N, the Travel Plan's 72% grey */
 /* At the Trial colours' 70% strength, like --green (user, 2026-10-26: full blue too bright) */
-.rv-tpl-foot .link-btn.blue { --rvb: rgba(74,158,255,0.7); color: var(--rvb); border-color: color-mix(in srgb, var(--rvb) 55%, transparent); background: color-mix(in srgb, var(--rvb) 6%, transparent); }
+.rv-tpl-foot .link-btn.blue { --rvb: color-mix(in srgb, var(--blue) 70%, transparent); color: var(--rvb); border-color: color-mix(in srgb, var(--rvb) 55%, transparent); background: color-mix(in srgb, var(--rvb) 6%, transparent); }
 .rv-tpl-foot .link-btn.blue:hover:where(:not(:disabled)) { color: var(--rvb); border-color: var(--rvb); background: color-mix(in srgb, var(--rvb) 16%, transparent); }
 .rv-win { display: flex; align-items: center; gap: 10px; }
 .rv-win-in { flex: 1; min-width: 0; font-size: 12px; padding: 5px 8px; }
 /* 12-week plan pickers: Log cash's own dropdown (.cash-dd), a row's height. */
-.rv-dd { width: 260px; }
-.rv-dd-in { width: 100%; font-size: 11px; padding: 5px 10px; color: rgba(255,255,255,.62); }
+.rv-dd { width: 160px; }   /* fits a 25-character name, the longest is 22 (user, 2026-10-26; was 260px) */
+#rvSummaryBody .rv-plan .ld-row { padding: 6px 0; }   /* roomier rows than the other tables (user, 2026-10-26: 30px was too squeezed) */
+#rvSummaryBody .rv-plan .ld-row.rv-plan-gap { padding-bottom: 20px; margin-bottom: 14px; border-bottom-color: var(--border); }   /* every 4 weeks: a clearer line, 20px above and below it (14 + the next row's 6) */
+#rvSummaryBody .rv-plan .ld-title + .ld-row { padding-top: 16px; }   /* room under the title band, the same 16px as at the bottom (user, 2026-10-26) */
+#rvSummaryBody .rv-plan .ld-row:last-child { padding-bottom: 10px; }
+.rv-dd-in { width: 100%; font-size: 11px; padding: 5px 10px; line-height: 14px; color: var(--t-text); }   /* 26px tall (user, 2026-10-26; was 30, then 22) */
 .rv-dd .cash-dd-opt[hidden], .rv-dd .rv-dd-grp[hidden] { display: none; }   /* typing narrows the list */
-.rv-dd-grp { font-family: "DM Mono", monospace; font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.28); padding: 8px 12px 4px; }
-.rv-dd-where { float: right; color: rgba(255,255,255,0.28); }   /* already planned in another week */
+.rv-dd-grp { font-family: "DM Mono", monospace; font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); padding: 8px 12px 4px; }
+.rv-dd-where { float: right; color: var(--t-faint); }   /* already planned in another week */
 .rv-plan { overflow: visible !important; }   /* the open list may hang below the box */
 #rvSummaryBody .rv-plan .ld-title { border-radius: calc(var(--radius-card) - 2px) calc(var(--radius-card) - 2px) 0 0; }   /* so the band keeps the box's corners without overflow hidden */
 #rvCurSum { margin-top: -10px; }   /* Current students box: the same 22px gap as the boxes above it */
@@ -3325,15 +3337,15 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 
 /* Google Business window (Mail Center, 2026-10-21): the email list uses
    .win-row; unread rows are brighter, the opened email sits in a white frame. */
-.win-row.gb-unread { color: rgba(255,255,255,.82); }
+.win-row.gb-unread { color: var(--t-bright); }
 .gb-frame { display: block; width: 100%; height: 62vh; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
 .win-row .gb-new { flex: none; margin-left: auto; }   /* the Inquiries New tag, just left of the date (2026-10-21) */
 
 /* ─── Financial 2 (tabs/financial2.js): read-only copy of the Accountant sheet ─── */
-.f2-status { font-family:'DM Mono',monospace; font-size:10px; color:rgba(255,255,255,0.32); text-transform:uppercase; letter-spacing:.5px; }   /* dim note under the Income table (user 2026-10-22) */
+.f2-status { font-family:'DM Mono',monospace; font-size:10px; color:var(--t-faint); text-transform:uppercase; letter-spacing:.5px; }   /* dim note under the Income table (user 2026-10-22) */
 .f2-wrap { overflow-x:auto; border:2px solid #3a3a3a; border-radius:var(--radius-card); background:var(--surface); }
-.f2-table { width:100%; border-collapse:collapse; font-family:'DM Mono',monospace; font-size:10.5px; color:rgba(255,255,255,0.5); }   /* values = Reviews card .inq-fval, labels = .inq-flabel 0.24 (user 2026-10-22) */
-.f2-table th { font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:rgba(255,255,255,0.24); font-weight:400; text-align:right; padding:10px 5px 8px; border-bottom:1px solid var(--border); white-space:nowrap; }
+.f2-table { width:100%; border-collapse:collapse; font-family:'DM Mono',monospace; font-size:10.5px; color:var(--t-normal); }   /* values = Reviews card .inq-fval, labels = .inq-flabel 0.24 (user 2026-10-22) */
+.f2-table th { font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:var(--t-faint); font-weight:400; text-align:right; padding:10px 5px 8px; border-bottom:1px solid var(--border); white-space:nowrap; }
 .f2-table th span { text-transform:none; letter-spacing:0; }
 .f2-table th:first-child, .f2-table th:nth-child(2) { text-align:left; }
 .f2-table td { text-align:right; padding:6px 5px; white-space:nowrap; }
@@ -3359,10 +3371,10 @@ th.f2-blk { background:none; }
 .f2-head-row { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:16px; }
 .f2-head-row .f2-head { margin-bottom:0; }
 .f2-icon .win-icon { height:34px; }
-.f2-cur { font-family:'DM Mono',monospace; font-size:15px; text-transform:uppercase; letter-spacing:.5px; color:rgba(255,255,255,0.5); }   /* Current total: just the numbers, table font (user 2026-10-22) */
+.f2-cur { font-family:'DM Mono',monospace; font-size:15px; text-transform:uppercase; letter-spacing:.5px; color:var(--t-normal); }   /* Current total: just the numbers, table font (user 2026-10-22) */
 .f2-future td { opacity:.4; }
-.f2-net { color:rgba(217,164,65,0.7); }
-.f2-hi { color:rgba(217,164,65,0.7); }   /* St., Net, Av. St.: Trial's 70% amber (user 2026-10-22; was 50%) */
+.f2-net { color:color-mix(in srgb, var(--accent2) 70%, transparent); }
+.f2-hi { color:color-mix(in srgb, var(--accent2) 70%, transparent); }   /* St., Net, Av. St.: Trial's 70% amber (user 2026-10-22; was 50%) */
 /* Net in the Month number's font, 16px; St. + Av.S. stay DM Mono (user 2026-10-22) */
 .f2-table td.f2-net { font-family:'Bebas Neue',sans-serif; line-height:1; letter-spacing:.3px; }
 .f2-table td.f2-net { font-size:16px; }
@@ -3370,7 +3382,7 @@ th.f2-blk { background:none; }
 .f2-table col.f2-eq2 { width:63px; }   /* Monthly, Expense, Net, Gregorian: one width (user 2026-10-22) */
 .f2-table col.f2-nar { width:40px; }   /* Mo. (user 2026-10-22) */
 .f2-table col.f2-avs { width:40px; }   /* St. + Av. St.: one width (user 2026-10-22) */
-.f2-dash { color:rgba(255,255,255,0.24); font-family:'DM Mono',monospace; font-size:10.5px; }   /* 0 / blank in Income shows a dim 0 (user 2026-10-22) */
+.f2-dash { color:var(--t-faint); font-family:'DM Mono',monospace; font-size:10.5px; }   /* 0 / blank in Income shows a dim 0 (user 2026-10-22) */
 .f2-table:not(.f2-ex) { table-layout:fixed; }
 .f2-click { cursor:pointer; }   /* an Expenses row opens its Edit window */
 .f2-click:hover td { background:rgba(255,255,255,0.03); }
@@ -3378,7 +3390,7 @@ th.f2-blk { background:none; }
 .f2-note { margin:0 0 6px; }   /* how-to line under the INCOME title */
 .f2-lastrun { margin-bottom:24px; }
 .f2-badge { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px; text-transform:uppercase; padding:2px 6px; border-radius:2px;
-  color:var(--blue); background:rgba(74,158,255,0.15); }   /* Payments' Venmo / Zelle badge shape */
+  color:var(--blue); background:color-mix(in srgb, var(--blue) 15%, transparent); }   /* Payments' Venmo / Zelle badge shape */
 .f2-badge.bad { color:#ff5a4d; background:rgba(255,90,77,0.15); }   /* under the Expenses icon, over the table */
 .f2-ex-btns { display:flex; justify-content:space-between; align-items:center; margin-top:16px; }
 #f2ExModal.rpm-busy > *:not(.rpm-keep) { opacity:.15; }   /* dimmer than .4 so the centre text reads */
@@ -3387,29 +3399,29 @@ th.f2-blk { background:none; }
 .f2-radio { display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); cursor:pointer; }
 .f2-radio input { appearance:none; -webkit-appearance:none; margin:0; width:13px; height:13px; border:none; color:var(--muted); background:currentColor; cursor:pointer;
   -webkit-mask:var(--ck-ring) center / contain no-repeat; mask:var(--ck-ring) center / contain no-repeat; }
-.f2-radio input:checked { color:rgba(255,255,255,0.5); -webkit-mask-image:var(--ck-on); mask-image:var(--ck-on); }   /* grey circle → soft white circled check when picked (user 2026-10-24) */
-.f2-radio:has(input:checked) { color:rgba(255,255,255,0.5); }
+.f2-radio input:checked { color:var(--t-normal); -webkit-mask-image:var(--ck-on); mask-image:var(--ck-on); }   /* grey circle → soft white circled check when picked (user 2026-10-24) */
+.f2-radio:has(input:checked) { color:var(--t-normal); }
 .f2-table:not(.f2-ex) th, .f2-table:not(.f2-ex) td { text-align:center !important; vertical-align:middle; }   /* Income: all centered both ways (user 2026-10-22) */
 .f2-table:not(.f2-ex) th { padding:9px 5px; }
 .f2-ex td:first-child, .f2-ex th:first-child { text-align:left; }
 .f2-ex th:nth-child(2) { text-align:right; }   /* Paid on over its right-aligned values (the shared rule left-aligns header 2 for Income's Week) */
 .f2-ex td { padding:8px 10px; border-top:1px solid var(--border); }
-.f2-app span { display:block; font-size:10px; color:rgba(255,255,255,0.24); margin-top:2px; }
-.f2-ex .f2-sel td { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.82); }   /* the selected expense row (user 2026-10-22) */
+.f2-app span { display:block; font-size:10px; color:var(--t-faint); margin-top:2px; }
+.f2-ex .f2-sel td { background:rgba(255,255,255,0.06); color:var(--t-bright); }   /* the selected expense row (user 2026-10-22) */
 .f2-ex-acts { display:flex; gap:14px; }
-#f2ExEditPicked:not(:disabled), #f2ExRemovePicked:not(:disabled) { color:rgba(255,255,255,0.82); border-color:color-mix(in srgb, var(--muted) 55%, transparent); background:var(--surface2); }   /* lit once a row is selected (user 2026-10-22) */
+#f2ExEditPicked:not(:disabled), #f2ExRemovePicked:not(:disabled) { color:var(--t-bright); border-color:color-mix(in srgb, var(--muted) 55%, transparent); background:var(--surface2); }   /* lit once a row is selected (user 2026-10-22) */
 .f2-sheet-links { display:flex; gap:8px; letter-spacing:0; }   /* Income / Expenses sheet links, top right of the title */
 #tab-financial2 .link-btn:disabled { cursor:default; }   /* Edit / Remove look like Receipts in Gmail until a row is picked, then light up (user 2026-10-22) */
 /* Travel Plan Cost analysis in the Financial 2 Expenses table's look (user 2026-10-22): grey 2px frame, DM Mono,
    dim headers, 50% values right-aligned, faint inner lines. Scoped to #travelSumTable so Trip is live keeps its table. */
 #travelSumTable .tv-sum-card { border:2px solid #3a3a3a; border-radius:var(--radius-card); background:var(--surface); padding:0; overflow:hidden; }
-#travelSumTable .tv-sum-row { grid-template-columns:1.4fr 1fr 1fr 1.4fr; height:40px; padding:0; font-family:'DM Mono',monospace; font-size:10.5px; letter-spacing:0; color:rgba(255,255,255,0.5); border-top:1px solid var(--border); }
-#travelSumTable .tv-sum-row > span { padding:0 10px; justify-content:flex-end; text-align:right; font-size:10.5px; color:rgba(255,255,255,0.5); border-left:1px solid rgba(255,255,255,0.05); }
+#travelSumTable .tv-sum-row { grid-template-columns:1.4fr 1fr 1fr 1.4fr; height:40px; padding:0; font-family:'DM Mono',monospace; font-size:10.5px; letter-spacing:0; color:var(--t-normal); border-top:1px solid var(--border); }
+#travelSumTable .tv-sum-row > span { padding:0 10px; justify-content:flex-end; text-align:right; font-size:10.5px; color:var(--t-normal); border-left:1px solid rgba(255,255,255,0.05); }
 #travelSumTable .tv-sum-row > span.tv-sum-name { justify-content:flex-start; text-align:left; border-left:none; text-transform:uppercase; letter-spacing:.5px; }
 #travelSumTable .tv-sum-row.tv-sum-cols { height:34px; border-top:none; }
-#travelSumTable .tv-sum-row.tv-sum-cols > span { font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:rgba(255,255,255,0.24); }
-#travelSumTable .tv-sum-row.tv-sum-total > span:not(.tv-sum-name) { color:rgba(217,164,65,0.7); }   /* Total keeps its amber, Financial 2's 70% */
-#travelSumTable .tv-sum-none { color:rgba(255,255,255,0.24); }
+#travelSumTable .tv-sum-row.tv-sum-cols > span { font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:var(--t-faint); }
+#travelSumTable .tv-sum-row.tv-sum-total > span:not(.tv-sum-name) { color:color-mix(in srgb, var(--accent2) 70%, transparent); }   /* Total keeps its amber, Financial 2's 70% */
+#travelSumTable .tv-sum-none { color:var(--t-faint); }
 .tv-cal { background:none; border:none; border-radius:0; padding:0; }   /* no card round Travel Plan / Trip is live: straight on the page like Financial 2 (user 2026-10-23) */
 /* Travel Plan laid out like Financial 2 (user 2026-10-23): boxes full width, 20px section titles, 48px round the rules, 28px under the icons. */
 .tv-place, .tv-dates, #travelCalMonths, #travelSumTable, .tv-live-table { max-width:none; }
@@ -3484,8 +3496,8 @@ th.f2-blk { background:none; }
 #travelBody .tv-place-box .tv-place:focus { border:none; outline:none; }
 #travelBody .tv-box + .tv-box { margin-top:22px; }   /* no dividers between the boxes, the Dashboard's gap (user 2026-10-23) */
 /* White kept for titles (user 2026-10-23): box tabs grey like the Dashboard's row labels, dates + place like its values. */
-#travelBody .tv-dates .tv-in-label, #travelBody .tv-place-box .tv-in-label { color:rgba(255,255,255,0.24); }
-#travelBody .tv-dates .tv-date-off .dtp-val, #travelBody .tv-dates .tv-date-back .dtp-val, #travelBody .tv-place-box .tv-place { color:rgba(255,255,255,0.5); }
+#travelBody .tv-dates .tv-in-label, #travelBody .tv-place-box .tv-in-label { color:var(--t-faint); }
+#travelBody .tv-dates .tv-date-off .dtp-val, #travelBody .tv-dates .tv-date-back .dtp-val, #travelBody .tv-place-box .tv-place { color:var(--t-normal); }
 #travelBody .tv-buf-key b { background:none; padding-left:0; padding-right:0; }   /* key words plain, no tinted box (user 2026-10-23) */
 #travelSumTable .tv-sum-row > span:not(.tv-sum-name) { justify-content:center; text-align:center; }   /* Days / Lessons / Loss and their numbers centred (user 2026-10-23) */
 #travelBody .tv-dates .tv-date-off .dtp-val, #travelBody .tv-dates .tv-date-back .dtp-val { color:var(--text); }   /* the dates white, important like the ringed days (user 2026-10-23; were 50%) */
@@ -3519,7 +3531,7 @@ th.f2-blk { background:none; }
 #travelReviewBtn:disabled:not(.tv-busy) { color:var(--muted); border-color:rgba(255,255,255,0.10); background:color-mix(in srgb, #fff 4%, transparent); }
 #travelBody .tv-rv-resume { font-size:11px; }   /* smaller, like SKIPPING N LESSONS (user 2026-10-24; was 13px) */
 #travelBody .tv-rv-resume-d { display:block; margin-top:4px; }   /* RESUME ON: over the date, the date on its own line (user 2026-10-24) */
-#travelBody .tv-rv-bub { color:rgba(255,255,255,0.5); }   /* the bubble stays blue; its text the Dashboard's row-label grey (user 2026-10-24; was white) */
+#travelBody .tv-rv-bub { color:var(--t-normal); }   /* the bubble stays blue; its text the Dashboard's row-label grey (user 2026-10-24; was white) */
 #travelBody > .tv-rv-key { flex-direction:row; gap:20px; }   /* the key in one row under Go live (user 2026-10-24) */
 #travelBody .tv-rv-resume-d { text-transform:uppercase; letter-spacing:1px; }   /* SUN, NOV 15 in caps like RESUMING (user 2026-10-24) */
 #travelBody .tv-rv-resume-t { margin-top:2px; }
@@ -3529,7 +3541,7 @@ th.f2-blk { background:none; }
 /* 4. Email the student in the Log lesson window (2026-10-25; was the Email window): To / Sbj like the old window's, Preview + Send bottom right. */
 #imLogWin .im-mail-to { display: flex; flex-direction: column; gap: 4px; }
 #imLogWin .im-mail-to .td-mini-row { gap: 3px; }
-#imLogWin .im-mail-to, #imLogWin .im-mail-to .td-mini-t, #imLogWin .im-mail-to .td-wk-name { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; color: rgba(255,255,255,0.24); }
+#imLogWin .im-mail-to, #imLogWin .im-mail-to .td-mini-t, #imLogWin .im-mail-to .td-wk-name { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; color: var(--t-faint); }
 #imLogWin .im-mail-to .td-mini-t { min-width: 0; width: 24px; }
 #imLogWin .im-mail-foot { justify-content: flex-end; gap: 8px; margin-top: 18px; }
 #imLogWin .im-mail-foot .ll-state { flex: 1; text-align: right; }
@@ -3543,7 +3555,7 @@ th.f2-blk { background:none; }
 #imMailPrev:disabled, #imMailSend:disabled { opacity: .45; cursor: default; }   /* Send waits for the steps above and a Preview (2026-10-25) */
 /* 2. Send practice materials, A. and B. (2026-10-25): two required picks, each answer with the check circle (om-77), filled once picked. */
 #imLogWin .im-mat-none { display: flex; flex-direction: column; gap: 10px; }
-#imLogWin .im-mat-q { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.72); min-width: 230px; }   /* caps like the window's other titles, "1. LESSON" (user, 2026-10-25) */
+#imLogWin .im-mat-q { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-text); min-width: 230px; }   /* caps like the window's other titles, "1. LESSON" (user, 2026-10-25) */
 #imLogWin .im-pick { display: inline-flex; align-items: center; gap: 7px; margin-right: 14px; padding: 2px 0; border: none; background: none; cursor: pointer;
   font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: color-mix(in srgb, #ffffff 60%, var(--muted)); }   /* no box (user, 2026-10-25) */
 #imLogWin .im-pick:hover:where(:not(:disabled)) { color: #ffffff; }
@@ -3552,7 +3564,7 @@ th.f2-blk { background:none; }
 #imLogWin .im-pick.done { color: var(--green); }
 #imLogWin .im-pick.done .im-pick-ck { display: inline; }
 #imLogWin .im-pick:disabled { opacity: .45; cursor: default; }
-.im-s .im-teach { color: color-mix(in srgb, #d9a441 55%, var(--muted)); }   /* the teacher note in the Lessons list, amber-grey (2026-10-25) */
+.im-s .im-teach { color: color-mix(in srgb, var(--accent2) 55%, var(--muted)); }   /* the teacher note in the Lessons list, amber-grey (2026-10-25) */
 #imLogWin .im-sched-box { flex-direction: column; gap: 14px; }   /* Needed / Not needed, then Reschedule under it (2026-10-25) */
 /* Gather (2026-10-25): the files found in their Dropbox, under the drop zone, in the Dropbox tab's list. */
 .lh-gather-btn { display: inline-flex; align-items: center; gap: 6px; }
@@ -3566,8 +3578,8 @@ th.f2-blk { background:none; }
 #imLogWin .im-link-add svg, #imLogWin .ll-add svg { width: 16px; height: 17px; }   /* one size for every add icon in the Log window, between the two (user, 2026-10-25) */
 #imLogWin #logHwVideoAddBtn.im-link-add:not(:disabled):hover:where(:not(:disabled)), #imLogWin #logHwLinkAddBtn.im-link-add:not(:disabled):hover:where(:not(:disabled)) { color: var(--text); background: none; }
 #imLogWin .im-link-yes .im-pick { margin-right: 0; }
-#imLogWin .lh-link a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 10.5px; }   /* the Dropbox file list's grey, no underline (user, 2026-10-25) */
-#imLogWin .lh-link a:hover { color: rgba(255,255,255,0.82); }
+#imLogWin .lh-link a { color: var(--t-normal); text-decoration: none; font-size: 10.5px; }   /* the Dropbox file list's grey, no underline (user, 2026-10-25) */
+#imLogWin .lh-link a:hover { color: var(--t-bright); }
 #imLogWin .lh-link-add { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }   /* D. / E. like the notes: the box full width, the add icon under it (user, 2026-10-25) */
 #imLogWin .lh-link-add > input { width: 100%; box-sizing: border-box; }
 #imLogWin .lh-link-add > .im-link-add { margin-top: 10px; padding: 2px 0; }
@@ -3590,3 +3602,28 @@ th.f2-blk { background:none; }
 #imLogWin .ll-wrap:has(.ll-rows.locked) + .im-pills { opacity: .35; pointer-events: none; }   /* logged: nothing to add to */
 #imLogWin .im-main-log { flex-wrap: wrap; }
 #imLogWin .im-case-hint { flex-basis: 100%; margin: 6px 0 0; }   /* the typing reminder on its own line under the title (user, 2026-10-26) */
+/* To-Do tab in Today's box look (user, 2026-10-26): To-Do box + Completed box, rows like This Week's lines. */
+#todoContent > .tdo-box:first-child { margin-top: 0; }
+#todoContent .tdo-row { display: flex; align-items: flex-start; gap: 12px; padding: 9px 0; }
+#todoContent .tdo-row + .tdo-row { border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
+#todoContent .tdo-num { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); min-width: 20px; text-align: right; padding-top: 2px; }
+#todoContent .tdo-cb { appearance: none; -webkit-appearance: none; flex-shrink: 0; width: 15px; height: 15px; margin: 1px 0 0; border: 1.5px solid var(--muted); border-radius: 50%; cursor: pointer; position: relative; }
+#todoContent .tdo-cb:hover:where(:not(:disabled)) { border-color: var(--green); }
+#todoContent .tdo-cb:checked { border-color: color-mix(in srgb, var(--green) 60%, transparent); background: color-mix(in srgb, var(--green) 14%, transparent); }
+#todoContent .tdo-cb:checked::after { content: "✓"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--green); }
+#todoContent .tdo-text { flex: 1; font-size: 13px; line-height: 1.45; color: var(--t-normal); white-space: pre-wrap; word-break: break-word; }
+#todoContent .tdo-date { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); flex-shrink: 0; padding-top: 2px; white-space: nowrap; }
+#todoContent .tdo-del { padding: 0 2px 0 6px; font-size: 15px; line-height: 1; background: none; border: none; color: var(--muted); cursor: pointer; opacity: 0; }
+#todoContent .tdo-row:hover .tdo-del { opacity: 1; }
+#todoContent .tdo-del:hover { color: var(--accent); }
+#todoContent .tdo-done .tdo-text { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.2); }
+#todoContent .tdo-done .tdo-row { padding: 6px 0; }
+#todoContent .tdo-none { padding: 6px 0; }
+/* Notebook paper (user, 2026-10-26): every text line sits on a ruled line, wrapped lines too; the circle only on the first. */
+#todoContent .tdo-row { --tdo-lh: 30px; padding: 0; line-height: var(--tdo-lh); align-items: flex-start;
+  background: repeating-linear-gradient(to bottom, transparent 0 calc(var(--tdo-lh) - 1px), color-mix(in srgb, var(--border) 75%, transparent) calc(var(--tdo-lh) - 1px) var(--tdo-lh)); }
+#todoContent .tdo-row + .tdo-row { border-top: none; }
+#todoContent .tdo-done .tdo-row { padding: 0; --tdo-lh: 26px; }
+#todoContent .tdo-text, #todoContent .tdo-num, #todoContent .tdo-date { line-height: var(--tdo-lh); padding-top: 0; }
+#todoContent .tdo-cb { margin-top: calc((var(--tdo-lh) - 15px) / 2); }
+#todoContent .tdo-del { line-height: var(--tdo-lh); }

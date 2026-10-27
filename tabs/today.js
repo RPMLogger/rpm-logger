@@ -57,10 +57,9 @@ function _tdRender() {
   var list = todayStudents || [];
   var now = new Date();
   // Today's top part in a box like This Week's under it (user, 2026-10-24): title, calendar, count, list.
-  var head = '<div class="td-wk-box td-today-box"><div class="settings-title td-wk-title"><span>Today<span class="win-sub"> · ' +
-    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()] + ', ' + MONTHS[now.getMonth()] + ' ' + now.getDate() + '</span></span>' +
+  var head = '<div class="td-wk-box td-today-box"><div class="settings-title td-wk-title"><span>Today</span>' +   // no " · Tue, Oct 27": the date page under it says it (user, 2026-10-27)
     '<button class="link-btn opens-window" onclick="_tdNsOpen()" data-tip="Instant.\nThe No show text, to copy\nand send from Messages.">No show</button></div>' +   // no Week button: This Week is under it (user, 2026-10-24); No show (portal button) top right opens the No show text window (user, 2026-10-26)
-    '<div class="td-wk-icon">' + CALENDAR_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>';   // the Week window's calendar under the title, like Availability (user, 2026-10-23)
+    '<div class="td-day-cal"><div class="td-hol-mo">' + MONTHS[now.getMonth()] + '</div><div class="td-hol-dd">' + now.getDate() + '</div></div>';   // today's date page, the holiday warning's (user, 2026-10-27; was the plain calendar icon)
   // A day off (2026-10-08): the resting figure over the line (om-82).
   if (!list.length) { body.innerHTML = head + '<div class="empty-state td-rest">' + REST_ICON + '<div>No lessons today!</div></div></div>' + _tdWeekSection(); return; }
   list.forEach(function (s) { if (!_td.data[_imKey(s.name)]) _tdLoad(s.name); });
@@ -347,7 +346,8 @@ function _tdHolOpen(items) {
   }).join('');
   // A plain pop-up (the portal's alert box): no title, icon or colour; ✕, Escape or a click outside closes it
   // until tomorrow; the button silences these holidays for good (user, 2026-10-24).
-  rpmAlert({ title: '', message: ' ', confirmLabel: "Don't warn about it again", className: 'td-hol-dlg' })
+  // "Today is Oct 27" centred on the ✕'s line (user, 2026-10-27; there was no title before)
+  rpmAlert({ title: 'Today is ' + md(today), message: ' ', confirmLabel: "Don't warn about it again", className: 'td-hol-dlg' })
     .then(function (v) { if (v === undefined) _tdHolMute(items.map(function (x) { return x.e; })); });   // undefined = the button, null = ✕
   var box = document.querySelector('.rpm-dlg.td-hol-dlg');
   if (!box) return;

@@ -619,13 +619,13 @@ function _travelRenderReview() {
         "<div class='inq-name-line' style='margin-top:0'><span class='inq-name'>" + _escapeHtml(s.name) + "</span></div>" +
         "<div style='text-align:right;font-family:\"DM Mono\",monospace;line-height:1.4'>" +
           // Just the count, no money, in the old first line's font (user, 2026-10-20; was "2 × $95 = $190" over "2 LESSONS").
-          "<div style='font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px'>Skipping<br>" + s.lessonCount + " lesson" + (s.lessonCount === 1 ? '' : 's') + "</div>" +   // SKIPPING: over the count (user, 2026-10-24)
+          "<div style='font-size:11px;color:var(--t-normal);text-transform:uppercase;letter-spacing:1px'>Skipping<br>" + s.lessonCount + " lesson" + (s.lessonCount === 1 ? '' : 's') + "</div>" +   // SKIPPING: over the count (user, 2026-10-24)
         "</div>" +
       "</div>" +
       // Two sections per card, 1. Dates then 2. Text message: Bebas like the red title, in grey (user, 2026-10-20).
       // Today's calendar icon over Schedule (user, 2026-10-24; was the om-102 grid, under the title).
       "<div class='ts-th-icon' style='margin:22px 0 10px'>" + CALENDAR_ICON.replace(/class="[^"]*"/, 'class="ts-lbl-icon tv-rv-cal-icon"') + "</div>" +
-      "<label class='field-label' style='color:rgba(255,255,255,.72);margin:0 0 18px'>Schedule</label>" +   // no number (user, 2026-10-24); (user, 2026-10-21; was Dates)
+      "<label class='field-label' style='color:var(--t-text);margin:0 0 18px'>Schedule</label>" +   // no number (user, 2026-10-24); (user, 2026-10-21; was Dates)
       // One row of date cells, left to right, like the Counter grid on Payments Audit (user, 2026-10-20; was Before / Skip / Resume lines).
       "<div class='tv-rv-dates'>" +
         // Each group stays together, so a wrap moves the whole group (user, 2026-10-21).
@@ -645,7 +645,7 @@ function _travelRenderReview() {
       // The header above the box, not inside it (user, 2026-10-20).
       // The hand-and-phone over 2. Text message (user, 2026-10-24; was under it).
       "<div class='ts-th-icon' style='margin:40px 0 10px'>" + PHONE_ICON.replace('class="win-icon"', 'class="ts-lbl-icon"') + "</div>" +
-      "<label class='field-label' style='color:rgba(255,255,255,.72);margin:0 0 6px'>Text message</label>" +   // no number; 72% like the Dashboard's titles (user, 2026-10-24)
+      "<label class='field-label' style='color:var(--t-text);margin:0 0 6px'>Text message</label>" +   // no number; 72% like the Dashboard's titles (user, 2026-10-24)
       // The number it goes to, under the title, then the text (user, 2026-10-21; taken out and put back 2026-10-24).
       "<div style='margin-bottom:18px;font-family:\"DM Mono\",monospace;font-size:10.5px;color:" + (s.phone ? "rgba(255,255,255,.5)" : "#ff6b6b") + "'>" +
         (s.phone ? _escapeHtml(s.phone) : '⚠ No number on file — will NOT be texted') + "</div>" +

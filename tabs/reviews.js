@@ -280,7 +280,7 @@ function _rvAskTag(a) {
 // Yelp's count, updated by hand (11 on 2026-10-25).
 var RV_YELP_COUNT = 11;
 // The next rate raise, typed in by hand (user, 2026-10-26).
-var RV_NEXT_RAISE = 'February 2027';
+var RV_NEXT_RAISE = 'Feb 2027';   // short month, like the other dates (user, 2026-10-26)
 
 // "30 · 5.0 ★" from a SerpApi count, else the fallback number.
 function _rvCount(x, fallback) {
@@ -390,7 +390,8 @@ function _rvPlanHtml() {
     '<div class="ld-title ld-title-sum"><span>Next 12 weeks</span><span class="f2-cur ld-sum">Type students to plan</span></div>' +
     weeks.map(function (w, i) {
       var sel = plan[w.iso] || '';
-      return '<div class="ld-row' + (i === 0 ? ' lead' : '') + '"><span class="ld-l">' + w.label + (i === 0 ? ' · This week' : '') + '</span>' +
+      // A break after every 4 weeks, so the months read at a glance (user, 2026-10-26).
+      return '<div class="ld-row' + (i === 0 ? ' lead' : '') + (i % 4 === 3 && i < weeks.length - 1 ? ' rv-plan-gap' : '') + '"><span class="ld-l">' + w.label + (i === 0 ? ' · This week' : '') + '</span>' +
         // A type-in field (user, 2026-10-25: no arrow); the list under it narrows as you type.
         '<span class="ld-v"><div class="cash-dd rv-dd" id="rvDd' + i + '" data-iso="' + w.iso + '">' +
           '<input class="rpm-field rv-dd-in' + (sel ? ' picked' : '') + '" value="' + _rvEscAttr(sel) + '" autocomplete="off" ' +

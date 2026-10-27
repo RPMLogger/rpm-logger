@@ -139,7 +139,7 @@ var _ST_RESULT_BASE =
   'width:100%;padding:4px 9px;background:var(--panel);color:var(--accent2);' +
   'border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:inherit;font-size:9px;text-align:left';
 var _ST_RESULT_HI =
-  'width:100%;padding:4px 9px;background:rgba(240,165,0,0.12);color:var(--accent2);' +
+  'width:100%;padding:4px 9px;background:color-mix(in srgb, var(--accent2) 12%, transparent);color:var(--accent2);' +
   'border:1px solid var(--accent2);border-radius:4px;cursor:pointer;font-family:inherit;font-size:9px;text-align:left';
 
 // Paint the highlight onto whichever result index is currently selected.
@@ -380,8 +380,8 @@ function _stRenderDetail() {
   //  · Off-day (late-log / correcting) → a date stepper that starts at today and
   //    steps ±1 day (▲/▼ buttons or keyboard Up/Down), plus a Log button that
   //    records for the chosen date.
-  var _stLogGreen = 'width:100%;padding:10px;font-size:13px;background:rgba(46,204,113,0.12);' +
-    'color:var(--green);border:1px solid rgba(46,204,113,0.4);border-radius:6px;cursor:pointer;letter-spacing:0.3px';
+  var _stLogGreen = 'width:100%;padding:10px;font-size:13px;background:color-mix(in srgb, var(--green) 12%, transparent);' +
+    'color:var(--green);border:1px solid color-mix(in srgb, var(--green) 40%, transparent);border-radius:6px;cursor:pointer;letter-spacing:0.3px';
 
   if (d.isLessonToday && d.loggedToday) {
     // Today's lesson is already in Import → a done bar instead of a live log
@@ -389,16 +389,16 @@ function _stRenderDetail() {
     // detail and lands here automatically, flipping the button to this state.
     var doneBar = document.createElement('div');
     doneBar.textContent = "✓ Lesson Logged";
-    doneBar.style.cssText = 'width:100%;padding:10px;font-size:13px;background:rgba(46,204,113,0.12);' +
-      'color:var(--green);border:1px solid rgba(46,204,113,0.4);border-radius:6px;text-align:center;' +
+    doneBar.style.cssText = 'width:100%;padding:10px;font-size:13px;background:color-mix(in srgb, var(--green) 12%, transparent);' +
+      'color:var(--green);border:1px solid color-mix(in srgb, var(--green) 40%, transparent);border-radius:6px;text-align:center;' +
       'letter-spacing:0.3px;margin-bottom:18px;box-sizing:border-box';
     section.appendChild(doneBar);
   } else if (d.isLessonToday) {
     // Lesson day → yellow box, matching the yellow "Today" line up top.
     var logBtn = document.createElement('button');
     logBtn.textContent = "📊 Log Today's Lesson";
-    logBtn.style.cssText = 'width:100%;padding:10px;font-size:13px;background:rgba(240,165,0,0.14);' +
-      'color:var(--accent2);border:1px solid rgba(240,165,0,0.5);border-radius:6px;cursor:pointer;' +
+    logBtn.style.cssText = 'width:100%;padding:10px;font-size:13px;background:color-mix(in srgb, var(--accent2) 14%, transparent);' +
+      'color:var(--accent2);border:1px solid color-mix(in srgb, var(--accent2) 50%, transparent);border-radius:6px;cursor:pointer;' +
       'letter-spacing:0.3px;margin-bottom:18px';
     logBtn.onclick = function() { _stLogLessonFor(d.name, _stToday()); };
     section.appendChild(logBtn);
@@ -559,7 +559,7 @@ function _stRenderAudit(data) {
   var verdict = document.createElement('div');
   verdict.style.cssText = 'padding:10px 12px;border-radius:6px;margin-bottom:10px;font-size:13px;font-weight:600;border:1px solid ' +
     (hasProblem ? 'rgba(255,180,0,0.5);background:rgba(255,180,0,0.10);color:#ffb400'
-                : 'rgba(46,204,113,0.5);background:rgba(46,204,113,0.10);color:var(--green)');
+                : 'color-mix(in srgb, var(--green) 50%, transparent);background:color-mix(in srgb, var(--green) 10%, transparent);color:var(--green)');
   verdict.textContent = hasProblem ? ('⚠ Needs attention — ' + problems.join(' · ')) : '✓ Looks good — nothing to fix';
   section.appendChild(verdict);
 

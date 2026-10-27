@@ -269,7 +269,7 @@ function _fcInjectStyle() {
     ".fc-blk.clash{outline:1px solid var(--accent)}" +
     ".fc-blk .w{color:#ffb400;font-size:10px}" +
     ".fc-blk .og{font-size:9px;color:#ffb400;letter-spacing:.3px}" +
-    ".fc-open{flex:1;min-width:0;border:1px dashed rgba(46,204,113,.55);border-radius:4px;color:var(--green);font-size:10px;display:flex;align-items:center;justify-content:center;letter-spacing:.3px}" +
+    ".fc-open{flex:1;min-width:0;border:1px dashed color-mix(in srgb, var(--green) 55%, transparent);border-radius:4px;color:var(--green);font-size:10px;display:flex;align-items:center;justify-content:center;letter-spacing:.3px}" +
     ".fc-notes{margin-top:12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);padding:8px 12px;font-size:12px;line-height:1.7}" +
     ".fc-notes-h{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}" +
     ".fc-notes span{color:var(--muted);font-size:11px}";

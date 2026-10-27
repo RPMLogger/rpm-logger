@@ -478,7 +478,7 @@ function _dbEmailHtml(name) {
   var shared = (r.sharedWith || []).join(', ');
   var html = inqEsc(shared || 'Not shared');
   if (r.expected && r.expected.toLowerCase() !== (shared || '').toLowerCase())
-    html += '<br><span style="color:rgba(255,255,255,0.24)">RPM-Counter: ' + inqEsc(r.expected) + '</span>';
+    html += '<br><span style="color:var(--t-faint)">RPM-Counter: ' + inqEsc(r.expected) + '</span>';
   return html;
 }
 function _dbCardEmail(name) {
@@ -513,7 +513,7 @@ function _dbDetailsFilesHtml(f) {
     return '<span class="db-file"' + (indent ? ' style="padding-left:' + (20 * indent) + 'px"' : '') + '>' + DB_BULLET_PAGE +
       '<span>' + inqEsc(it.name) + '</span>' +
       (it.bytes == null ? '' :   // HW log lines: names only (the file may be gone)
-        '<span style="color:rgba(255,255,255,0.24)">' + _dbSize(it.bytes) + (age == null ? '' : ' · ' + _dbAgeText(age)) + '</span>') + '</span>';
+        '<span style="color:var(--t-faint)">' + _dbSize(it.bytes) + (age == null ? '' : ' · ' + _dbAgeText(age)) + '</span>') + '</span>';
   }
   // Group by the top folder a file sits in (usually "HW - OCT 4"), in
   // order of each folder's newest file; inside it, the lesson's own folders
@@ -574,7 +574,7 @@ function _dbStudentsHtml() {
     : _dbRow('None');
   // No window frame (2026-10-02), like every section on this tab: the
   // window's title and header, then the cards straight on the page.
-  return '<div class="db-section">' + _dbTitle('Students') + header + cards + '</div>';
+  return '<div class="db-section">' + _dbTitle('Student folders') + header + cards + '</div>';
 }
 
 function _dbKey(n) { return String(n || '').trim().toLowerCase().replace(/\s+/g, ' '); }

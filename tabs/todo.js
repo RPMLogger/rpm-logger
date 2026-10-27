@@ -13,8 +13,12 @@ function initTodoTab() {
   var section = document.getElementById("todoContent");
   if (!section) return;
   if (section.dataset.built !== "1") {
+    // In Today's box look (user, 2026-10-26): a To-Do box (title, + New top right, icon, count, list) and a Completed box under it.
     section.innerHTML =
-      '<div id="todoPanel" style="display:none;border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px;background:var(--panel)">' +
+      '<div class="td-wk-box tdo-box"><div class="settings-title td-wk-title"><span>To-Do</span>' +
+        '<button id="todoAddBtn" class="link-btn red opens-window" data-tip="Instant.\nOpens the New To-Do rows.">+ New</button></div>' +
+        '<div class="td-wk-icon">' + CHECKLIST_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>' +
+      '<div id="todoPanel" style="display:none;border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:22px;background:var(--panel)">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
           '<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">New To-Dos</div>' +
           '<div style="display:flex;align-items:center;gap:10px">' +
@@ -30,12 +34,9 @@ function initTodoTab() {
           '<button id="todoLog" style="flex:1;padding:8px;font-size:13px;background:rgba(180,40,40,0.25);color:#ff6b6b;border:1px solid rgba(180,40,40,0.5);border-radius:4px;cursor:pointer;letter-spacing:0.5px">LOG IT →</button>' +
         '</div>' +
       '</div>' +
-      '<div id="todoActive"></div>' +
-      '<div id="todoDoneWrap" style="margin-top:18px"></div>' +
-      '<div class="log-feed" id="todoFeed"></div>' +
-      '<div style="margin-top:14px;display:flex;justify-content:center">' +
-        '<button id="todoAddBtn" style="padding:10px 18px;font-size:13px;background:rgba(180,40,40,0.18);color:#ff6b6b;border:1px solid rgba(180,40,40,0.45);border-radius:6px;cursor:pointer;letter-spacing:0.5px">+ New To-Do</button>' +
-      '</div>';
+      '<div id="todoActive"></div></div>' +
+      '<div id="todoDoneWrap"></div>' +
+      '<div class="log-feed" id="todoFeed"></div>';
     section.dataset.built = "1";
 
     for (var r = 0; r < 3; r++) {
@@ -239,7 +240,7 @@ function _todoSubmitAll() {
   var parts = [];
   for (var r = 0; r < 3; r++) {
     var v = document.getElementById("todoRowInput-" + r).value.trim();
-    if (v) parts.push(v);
+    if (v) parts.push(toSentenceCase(v));   // saved in sentence case (user, 2026-10-26)
   }
   var task = parts.join(" - ");
   if (!task) return;
@@ -296,63 +297,67 @@ function _renderTodos() {
   var active = _todoCache.filter(function(t) { return !t.done; });
   var done   = _todoCache.filter(function(t) { return  t.done; });
 
+  // Count → line → list, like Today's "3 students".
   var act = document.getElementById("todoActive");
-  act.innerHTML = "";
+  act.innerHTML = '<div class="db-cx-head im-sec-head td-wk-head"><label class="field-label db-cx-t">' + active.length + ' open</label></div>' +
+    '<hr class="divider td-wk-rule">';
   if (!active.length) {
-    act.innerHTML = '<div class="empty-state" style="padding:12px">None</div>';
+    act.insertAdjacentHTML("beforeend", '<div class="empty-state tdo-none">Nothing to do</div>');
   } else {
     active.forEach(function(t, i) { act.appendChild(_todoListRow(t, i + 1)); });
   }
 
+  // Completed: its own box under, title + Clear all top right, rows dimmed.
   var doneWrap = document.getElementById("todoDoneWrap");
   doneWrap.innerHTML = "";
   if (done.length) {
-    var header = document.createElement("div");
-    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;padding-top:10px;border-top:1px solid var(--border)";
-    header.innerHTML = "<span>Completed (" + done.length + ")</span>";
+    var box = document.createElement("div");
+    box.className = "td-wk-box tdo-box tdo-done";
+    box.innerHTML = '<div class="settings-title td-wk-title"><span>Completed<span class="win-sub"> · ' + done.length + '</span></span></div>' +
+      '<hr class="divider td-wk-rule">';
     var clearBtn = document.createElement("button");
+    clearBtn.className = "link-btn";
     clearBtn.textContent = "Clear all";
-    clearBtn.style.cssText = "padding:3px 10px;font-size:10px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:3px;cursor:pointer";
     clearBtn.onclick = function() {
       rpmConfirm({ title: "Delete all completed tasks?", confirmLabel: "Delete all", danger: true })
         .then(function (ok) { if (ok) _todoClearCompleted(clearBtn); });
     };
-    header.appendChild(clearBtn);
-    doneWrap.appendChild(header);
-    done.forEach(function(t, i) { doneWrap.appendChild(_todoListRow(t, i + 1)); });
+    box.firstChild.appendChild(clearBtn);
+    done.forEach(function(t, i) { box.appendChild(_todoListRow(t, i + 1)); });
+    doneWrap.appendChild(box);
   }
 }
 
 function _todoListRow(t, num) {
   var row = document.createElement("div");
-  row.style.cssText = "display:flex;align-items:flex-start;gap:8px;padding:6px 4px;border-bottom:1px dashed rgba(255,255,255,0.05)";
+  row.className = "tdo-row" + (t.done ? " tdo-row-done" : "");
 
   var numEl = document.createElement("div");
-  numEl.style.cssText = "font-size:11px;color:var(--muted);min-width:22px;flex-shrink:0;text-align:right";
+  numEl.className = "tdo-num";
   numEl.textContent = (num || "") + ".";
   row.appendChild(numEl);
 
   var cb = document.createElement("input");
   cb.type = "checkbox";
+  cb.className = "tdo-cb";
   cb.checked = !!t.done;
-  cb.style.cssText = "margin-top:3px;flex-shrink:0;cursor:pointer";
   cb.onchange = function() { _todoToggle(t.row, cb.checked, cb); };
   row.appendChild(cb);
 
   var text = document.createElement("div");
-  text.style.cssText = "flex:1;font-size:12px;color:" + (t.done ? "var(--muted)" : "var(--text)") + ";text-decoration:" + (t.done ? "line-through" : "none") + ";white-space:pre-wrap;word-break:break-word";
-  text.textContent = t.task;
+  text.className = "tdo-text";
+  text.textContent = toSentenceCase(t.task);   // older ones shown in sentence case too
   row.appendChild(text);
 
   var meta = document.createElement("div");
-  meta.style.cssText = "font-size:10px;color:var(--muted);flex-shrink:0;text-align:right;min-width:120px";
+  meta.className = "tdo-date";
   meta.textContent = t.done ? (t.completed || "") : (t.created || "");
   row.appendChild(meta);
 
   var del = document.createElement("button");
+  del.className = "tdo-del";
   del.textContent = "×";
   del.title = "Delete";
-  del.style.cssText = "padding:0 8px;font-size:14px;background:transparent;color:var(--muted);border:none;cursor:pointer;flex-shrink:0";
   del.onclick = function() {
     rpmConfirm({ title: "Delete this task?", confirmLabel: "Delete", danger: true })
       .then(function (ok) { if (ok) _todoDelete(t.row); });

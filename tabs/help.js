@@ -16,11 +16,11 @@ function initHelpTab(tab) {
       "#helpDataBody > .settings-title{margin-bottom:10px}" +
       ".help-icon{margin:0 0 18px}.help-icon .win-icon{height:34px}" +
       "#helpWin .win-icon{height:24px}" +   // the window icon a step up from 20 (user 2026-10-23)
-      ".help-lead{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.24);margin-bottom:14px}" +
+      ".help-lead{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--t-faint);margin-bottom:14px}" +
       ".help-btns{display:flex;gap:8px;flex-wrap:wrap}" +
       ".help-box{border:2px solid var(--border);border-radius:var(--radius-card);padding:4px 14px;margin-bottom:22px}" +
       ".help-box:last-child{margin-bottom:0}" +
-      ".help-i{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:10.5px;line-height:1.5;color:rgba(255,255,255,0.5)}" +
+      ".help-i{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:10.5px;line-height:1.5;color:var(--t-normal)}" +
       ".help-i:last-child{border-bottom:0}";
     document.head.appendChild(st);
   }
