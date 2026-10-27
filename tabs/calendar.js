@@ -260,6 +260,15 @@ function _calOpenActions(ev, to) {
   var p = ev.date.split('-');
   var lesson = { date: ev.date, dateLabel: _calDayLabel(new Date(+p[0], +p[1] - 1, +p[2])), time: _calFmt(ev.startMin),
                  id: ev.id, stamp: ev.startMs };   // id + stamp → backend acts on this exact event
+  // A click (no drag) opens the Change appointment window (user, 2026-10-27), the
+  // Log window's 8 weeks with this lesson picked: ✕ skips it, a green day's ✓ moves it.
+  // A drag, or a lesson outside those 8 weeks, keeps the Skip / Reschedule chooser.
+  var today = _stToday(), last = _stMondayOf(today); last = new Date(last.getFullYear(), last.getMonth(), last.getDate() + 56);
+  var d0 = new Date(+p[0], +p[1] - 1, +p[2]);
+  if (!to && d0 >= today && d0 < last && typeof _imReschedule === 'function') {
+    _imReschedule(ev.title, { pre: ev.date, onDone: function() { _calLoad(); } });
+    return;
+  }
   _stOpenLessonActions(ev.title, lesson, {
     fromCalendar: true,
     to: to,

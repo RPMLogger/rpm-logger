@@ -1418,13 +1418,13 @@ function _imDoHtml(name, day) {
     // Schedule (2026-10-25, like Practice materials): Needed / Not needed first.
     // Not needed is the answer; Needed opens Reschedule, and the section is done
     // only once a skip or move is saved.
-    _imMainHead('3. Schedule adjustments') +   // all red, no grey subtitle (2026-10-18)
+    _imMainHead('3. Change appointment') +   // all red, no grey subtitle (2026-10-18); was Schedule adjustments (user, 2026-10-27: it skips or moves)
     '<div class="im-main-box">' +
     '<div class="db-panel im-list im-sched-box">' +
       '<div class="im-mat-row im-sched-picks">' +
         _imPickBtn('imSchedYes', '_imSchedPick(' + n + ', &quot;yes&quot;)', 'Needed', 'A lesson to skip or move:&#10;Reschedule opens under it.') +
         _imPickBtn('imSchedNo', '_imSchedPick(' + n + ', &quot;no&quot;)', 'Not needed', 'Nothing to move or skip.') + '</div>' +
-      '<div id="imSchedRs" class="im-sched-rs" style="display:none"><button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + n + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Reschedule</button></div>' +
+      '<div id="imSchedRs" class="im-sched-rs" style="display:none"><button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + n + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Change appointment</button></div>' +
     '</div>' +
     '</div>' +
     // "Logging" spinner while the three go to Google; stays bright in the dimmed window (2026-10-21).
@@ -1609,18 +1609,20 @@ function _imRedraw() {
 // Reschedule opens on this page (2026-10-06, was a jump to Home): a window
 // with their next 8 weeks, Home's strips. A red day → Skip / Reschedule
 // (student.js windows); when one saves, the strips refresh in place.
-function _imReschedule(name) {
-  var w = _stWin('imRsWin', inqEsc(name), 'Reschedule', CALENDAR_ICON,
+// o (the Calendar tab, 2026-10-27): pre = the clicked lesson's day, picked already;
+// onDone replaces the Log window's Schedule tick.
+function _imReschedule(name, o) {
+  var w = _stWin('imRsWin', inqEsc(name), 'Change appointment', CALENDAR_ICON,   // skip or move (user, 2026-10-27; was Reschedule)
     // The hint under the weeks (2026-10-06).
     "<label class='field-label'>Next 8 weeks</label><div id='imRsBody'><div class='empty-state rpm-loading'>Loading</div></div>" +
     // No "No change" button here (2026-10-08): close it and press Not needed instead.
     "<div class='im-rs-hint'>Tap a lesson to pick it.</div>");
   w.querySelector('.st-win').classList.add('im-rs-win');
   _stPickSel = null;   // a fresh pick each time (student.js)
-  _imRsLoad(name);
+  _imRsLoad(name, o || {});
 }
 
-function _imRsLoad(name) {
+function _imRsLoad(name, o) {
   var url = getScriptUrl(); if (!url) return;
   fetch(url + '?action=getStudentLessons&name=' + encodeURIComponent(name))
     .then(function (r) { return r.json(); })
@@ -1633,7 +1635,7 @@ function _imRsLoad(name) {
       data.lessons.forEach(function (l) { byDate[l.date] = l; });
       var today = _stToday(), monday = _stMondayOf(today);
       // Saved (user, 2026-10-19): "Rescheduled ✓" (or Skipped ✓) a moment, then the window goes, back to the Log window.
-      var opts = { pick: true, onDone: function (d, what) { _imSchedSet(name, 'changed'); _imRsDone(what || 'Rescheduled'); } };   // pick: × / ✓ on the days (2026-10-26)
+      var opts = { pick: true, onDone: function (d, what) { if (o.onDone) o.onDone(d, what); else _imSchedSet(name, 'changed'); _imRsDone(what || 'Rescheduled'); } };   // pick: × / ✓ on the days (2026-10-26)
       box.innerHTML = '';
       var strips = document.createElement('div');
       strips.className = 'im-rs-strips';
@@ -1641,6 +1643,9 @@ function _imRsLoad(name) {
         strips.appendChild(_stBuildWeekStrip(new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + k * 7), byDate, today, data.student || name, opts));
       }
       box.appendChild(strips);
+      // From the Calendar tab: the clicked lesson comes up picked (2026-10-27).
+      var pre = o.pre && strips.querySelector('button[data-ymd="' + o.pre + '"][data-has="1"]');
+      if (pre) pre.click();
     })
     .catch(function () {
       var box = document.getElementById('imRsBody');
