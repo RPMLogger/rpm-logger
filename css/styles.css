@@ -2223,6 +2223,19 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Import Reschedule window (2026-10-06): Home's 8-week strips on this page. */
 .im-rs-strips { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
 .im-rs-hint { font-size: 11px; color: var(--muted); text-align: center; margin-top: 12px; }
+/* Pick on the 8-week view (user, 2026-10-26): the picked lesson white (selected) with ✕ (Skip) in its corner; the day it moves to green with a ✓. */
+.im-rs-strips button { position: relative; }
+.im-rs-strips .st-pick-sel { background: rgba(255,255,255,0.10) !important; border-color: rgba(255,255,255,0.55) !important; color: #fff !important; }
+.im-rs-strips .st-pick-sel div { color: rgba(255,255,255,0.9) !important; }
+.st-pick-x { position: absolute; top: -7px; right: -7px; width: 16px; height: 16px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.6);
+  color: #fff; font-size: 9px; line-height: 14px; text-align: center; cursor: pointer; }
+.st-pick-x:hover { background: #fff; color: #111; }
+.im-rs-strips .st-pick-to { background: color-mix(in srgb, var(--green) 22%, transparent) !important; border-color: var(--green) !important; color: var(--green) !important; cursor: pointer; }
+.im-rs-strips .st-pick-to div { color: var(--green) !important; }
+.st-pick-ok { position: absolute; top: -7px; right: -7px; width: 16px; height: 16px; border-radius: 50%; background: #1a1a1a; border: 1px solid var(--green);
+  color: var(--green); font-size: 9px; line-height: 14px; text-align: center; cursor: pointer; }
+.st-pick-ok:hover { background: var(--green); color: #111; }
+.im-rs-strips button[data-past="0"][data-has="0"] { cursor: pointer; }
 .im-list-head { margin: 10px 0 4px; }   /* LESSONS LOG heading inside the box, sort toggle on its right (2026-10-06) */
 .im-list-head .field-label { margin: 0; }
 .im-notes-in { padding: 10px 0 4px; }   /* Notes box lines (2026-10-06) */
@@ -2356,6 +2369,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .st-win { width: min(460px, 94vw); box-sizing: border-box; max-height: 90vh; overflow: auto; overflow-x: hidden; margin: 0; }
 .st-when { font-family: "DM Mono", monospace; font-size: 11px; color: rgba(255,255,255,0.5); margin: -6px 0 16px; }
 .st-when + .st-when { margin-top: -12px; }
+.st-when.st-from { margin: 0; }   /* Reschedule's Move from, under its title (2026-10-26) */
 .st-win .field-label { display: block; margin-bottom: 6px; }
 .st-win .rpm-field { box-sizing: border-box; }
 /* Lesson / Reschedule / Skip spacing: room between the sections. */
@@ -3561,8 +3575,10 @@ th.f2-blk { background:none; }
 /* Log window phrase pills (user, 2026-10-26): small grey pills under each rows
    box, on the add icon's line (the negative bottom margin pulls the icon up beside them). */
 #imLogWin .im-pills { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0 -29px; padding-right: 36px; position: relative; z-index: 1; }
-#imLogWin .im-pill { font-family: "DM Mono", monospace; font-size: 10px; line-height: 1; letter-spacing: .2px; color: #8a8a8a; background: transparent;
+.st-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin: 12px 0 0; }   /* Skip / Reschedule reason pills (user, 2026-10-26) */
+#imLogWin .im-pill, .st-reasons .im-pill { font-family: "DM Mono", monospace; font-size: 10px; line-height: 1; letter-spacing: .2px; color: #8a8a8a; background: transparent;
   border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; padding: 4px 8px; cursor: pointer; }
-#imLogWin .im-pill:hover:where(:not(:disabled)) { color: #ddd; border-color: rgba(255,255,255,0.4); }
+#imLogWin .im-pill:hover:where(:not(:disabled)), .st-reasons .im-pill:hover:where(:not(:disabled)), .st-reasons .im-pill.on { color: #ddd; border-color: rgba(255,255,255,0.4); }
 #imLogWin .ll-wrap:has(.ll-rows.locked) + .im-pills { opacity: .35; pointer-events: none; }   /* logged: nothing to add to */
-#imLogWin .im-case-hint { margin-left: 8px; }
+#imLogWin .im-main-log { flex-wrap: wrap; }
+#imLogWin .im-case-hint { flex-basis: 100%; margin: 6px 0 0; }   /* the typing reminder on its own line under the title (user, 2026-10-26) */

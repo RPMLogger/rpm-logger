@@ -1365,8 +1365,8 @@ function _imDoHtml(name, day) {
     // Three sections (2026-10-15): Log (the lesson and the HW), Materials
     // (what goes to them: nothing, files, video lesson links, web links), Schedule.
     // Each of the three sections sits in its own bordered box, its title above it, no dividers (2026-10-18).
-    // The typing reminder beside it (user, 2026-10-26), in the (optional) grey.
-    _imMainHead('1. Log the lesson and HW <span class="im-mail-opt im-case-hint">(Type sentence case, caps only on first line and song names)</span>', '', '', 'im-main-log') +   // all red (2026-10-18)
+    // The typing reminder on its own line under it (user, 2026-10-26), in the (optional) grey.
+    _imMainHead('1. Log the lesson and HW', '', '<span class="im-mail-opt im-case-hint">(Sentence case, caps only on first line and song names, no end punctuation)</span>', 'im-main-log') +   // all red (2026-10-18)
     '<div class="im-main-box">' +
       _imSub('1. Lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
       _imSub('2. HW', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
@@ -1610,8 +1610,9 @@ function _imReschedule(name) {
     // The hint under the weeks (2026-10-06).
     "<label class='field-label'>Next 8 weeks</label><div id='imRsBody'><div class='empty-state rpm-loading'>Loading</div></div>" +
     // No "No change" button here (2026-10-08): close it and press Not needed instead.
-    "<div class='im-rs-hint'>Click to reschedule or skip.</div>");
+    "<div class='im-rs-hint'>Tap a lesson to pick it.</div>");
   w.querySelector('.st-win').classList.add('im-rs-win');
+  _stPickSel = null;   // a fresh pick each time (student.js)
   _imRsLoad(name);
 }
 
@@ -1628,7 +1629,7 @@ function _imRsLoad(name) {
       data.lessons.forEach(function (l) { byDate[l.date] = l; });
       var today = _stToday(), monday = _stMondayOf(today);
       // Saved (user, 2026-10-19): "Rescheduled ✓" (or Skipped ✓) a moment, then the window goes, back to the Log window.
-      var opts = { onDone: function (d, what) { _imSchedSet(name, 'changed'); _imRsDone(what || 'Rescheduled'); } };
+      var opts = { pick: true, onDone: function (d, what) { _imSchedSet(name, 'changed'); _imRsDone(what || 'Rescheduled'); } };   // pick: × / ✓ on the days (2026-10-26)
       box.innerHTML = '';
       var strips = document.createElement('div');
       strips.className = 'im-rs-strips';

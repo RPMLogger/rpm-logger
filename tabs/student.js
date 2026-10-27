@@ -740,9 +740,11 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
         "<div style='" + topStyle + "'>" + topLabel + "</div>" +
         "<div style='font-size:15px;font-weight:700;line-height:1.3'>" + d.getDate() + "</div>" +
         "<div style='font-size:9px;line-height:1.2;color:var(--accent);opacity:0.85'>" + lesson.time + "</div>";
-      (function(l) {
-        cell.onclick = function() { _stOpenLessonActions(studentName, l, opts); };
-      })(lesson);
+      (function(l, c) {
+        // The 8-week view picks on the calendar itself (user, 2026-10-26): no Lesson window.
+        cell.onclick = opts && opts.pick ? function() { _stPickLesson(c, studentName, l, opts); }
+          : function() { _stOpenLessonActions(studentName, l, opts); };
+      })(lesson, cell);
     } else {
       cell.style.cssText +=
         'background:transparent;color:' + (isPast ? 'rgba(180,180,180,0.2)' : 'rgba(180,180,180,0.4)') + ';cursor:default';
@@ -750,6 +752,8 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
         "<div style='" + topStyle + "'>" + topLabel + "</div>" +
         "<div style='font-size:13px;line-height:1.3'>" + d.getDate() + "</div>" +
         "<div style='font-size:9px;line-height:1.2'>&nbsp;</div>";
+      // With a lesson picked, any later day is where it moves to (user, 2026-10-26).
+      if (opts && opts.pick && !isPast) (function(c, y) { c.onclick = function() { _stPickDay(c, y); }; })(cell, ymd);
     }
     row.appendChild(cell);
   }
@@ -757,10 +761,82 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
 }
 
 
+// ─── PICK ON THE 8-WEEK VIEW (user, 2026-10-26) ─────────────────────────────
+// Tap a red lesson day: it lights up (white) with an ✕ on it; ✕ opens Skip.
+// Tapping other days marks them green with a ✓, one at a time; that ✓
+// opens Reschedule with the day as Move to.
+// The same lesson again lets it go. One lesson at a time.
+var _stPickSel = null;   // { cell, lesson, name, opts, to }
+function _stPickHint(t) { var h = document.querySelector('#imRsWin .im-rs-hint'); if (h) h.textContent = t; }
+function _stPickClear() {
+  var s = _stPickSel;
+  if (s) {
+    s.cell.classList.remove('st-pick-sel');
+    var x = s.cell.querySelector('.st-pick-x'); if (x) x.remove();
+    if (s.to) { s.to.classList.remove('st-pick-to'); var o = s.to.querySelector('.st-pick-ok'); if (o) o.remove(); }
+  }
+  _stPickSel = null;
+  _stPickHint('Tap a lesson to pick it.');
+}
+function _stPickLesson(cell, name, lesson, opts) {
+  var same = _stPickSel && _stPickSel.cell === cell;
+  _stPickClear();
+  if (same) return;
+  _stPickSel = { cell: cell, lesson: lesson, name: name, opts: opts, to: null };
+  cell.classList.add('st-pick-sel');
+  var x = document.createElement('span');
+  x.className = 'st-pick-x';
+  x.textContent = '✕';
+  x.title = 'Skip this lesson';
+  x.onclick = function(e) { e.stopPropagation(); var s = _stPickSel; if (s) _stOpenSkipModal(s.name, s.lesson, s.opts); };
+  cell.appendChild(x);
+  _stPickHint('Tap ✕ to skip it, or tap the day to move it to.');
+}
+function _stPickDay(cell, ymd) {
+  var s = _stPickSel;
+  if (!s || cell === s.cell) return;
+  // Try as many days as you like (user, 2026-10-26): the last one tapped is green with a ✓; the ✓ opens Reschedule.
+  if (s.to) { s.to.classList.remove('st-pick-to'); var o = s.to.querySelector('.st-pick-ok'); if (o) o.remove(); }
+  s.to = cell;
+  cell.classList.add('st-pick-to');
+  var ok = document.createElement('span');
+  ok.className = 'st-pick-ok';
+  ok.textContent = '✓';
+  ok.title = 'Move it to this day';
+  ok.onclick = function(e) { e.stopPropagation(); var t = _stPickSel; if (t) _stOpenTimeConfirm(t.name, t.lesson, ymd, t.opts); };
+  cell.appendChild(ok);
+  _stPickHint('Tap ✓ to move it to that day, or tap another day.');
+}
+
 // ─── SKIP MODAL (reused from former Skips tab pattern) ──────────────────────
 
 // opts (optional, used by the Calendar tab): onDone(data) / onFail(msg) replace
 // the Home-strip refresh + feed log.
+// Reason pills (user, 2026-10-26): under the Reason box in the Skip and
+// Reschedule windows, the Log window's pill look. One tap fills Reason; another
+// pill swaps it, or joins it after text typed by hand.
+var ST_REASONS = ['Away', 'Vacation', 'Gig', 'Personal', 'Not stated', 'Work'];
+function _stReasonPills(id) {
+  return "<div class='st-reasons' id='" + id + "'>" + ST_REASONS.map(function(r) {
+    return "<button type='button' class='im-pill'>" + r + "</button>";
+  }).join('') + "</div>";
+}
+function _stWireReasons(w, id, inputId) {
+  var box = w.querySelector('#' + id), inp = w.querySelector('#' + inputId);
+  if (!box || !inp) return;
+  function mark() {
+    Array.prototype.forEach.call(box.children, function(b) { b.classList.toggle('on', inp.value.split(/\s*,\s*/).indexOf(b.textContent) >= 0); });
+  }
+  box.onclick = function(e) {
+    var b = e.target.closest('.im-pill');
+    if (!b) return;
+    var v = inp.value.trim();
+    inp.value = !v || ST_REASONS.indexOf(v) >= 0 ? b.textContent : v + ', ' + b.textContent;
+    mark();
+  };
+  inp.addEventListener('input', mark);
+}
+
 function _stOpenSkipModal(studentName, lesson, opts) {
   opts = opts || {};
   var who = 'Student';
@@ -768,10 +844,11 @@ function _stOpenSkipModal(studentName, lesson, opts) {
     "<div class='st-when'>" + _stDayLabel(lesson) + " · " + lesson.time + "</div>" +
     "<label class='field-label'>Requested by</label>" + _stWhoSeg('stSkipWho', who) +
     "<label class='field-label st-gap'>Reason (optional)</label>" +
-    "<input id='stSkipNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" +
+    "<input id='stSkipNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" + _stReasonPills('stSkipReasons') +
     "<div class='ll-acts st-foot'><span class='ll-state' id='stSkipState' style='flex:1'></span>" +
       "<button class='link-btn bright' id='stSkipConfirm' data-tip='Removes this one lesson from the calendar\nand logs it to Skip Logs.' data-tip-left>Confirm skip</button></div>");
   _stWireWho(w, 'stSkipWho', function(v) { who = v; });
+  _stWireReasons(w, 'stSkipReasons', 'stSkipNote');
 
   document.getElementById('stSkipConfirm').onclick = function() {
     var btn = this, panel = w.querySelector('.st-win');
@@ -840,16 +917,19 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
   var w = _stWin('stTimeModal', studentName, 'Reschedule', CALENDAR_ICON,
     // Move from: the lesson as it is; Move to: the picker (2026-10-06).
     "<label class='field-label'>Move from</label>" +
-    // The same boxes as the picker, without chevrons, so the two compare at a glance.
-    rpmDtpShowHtml(lesson.date, lesson.time, { dateLabel: lesson.dateLabel }) +
+    // Plain text, the Skip window's line: it's fixed, not a picker (user, 2026-10-26; was the picker's boxes).
+    "<div class='st-when st-from'>" + _stDayLabel(lesson) + " · " + lesson.time + "</div>" +
     "<label class='field-label st-gap'>Move to</label>" +
-    rpmDtpHtml('stRs', { date: newYmd, time: _stPad2(Math.floor(mins / 60)) + ':' + _stPad2(mins % 60), min: 'today', keys: true }) +
+    // Picked on the 8-week view: the day is written in, only the time moves (user, 2026-10-26).
+    // The Calendar tab keeps its day arrows (a tap there has no day picked yet).
+    rpmDtpHtml('stRs', { date: newYmd, time: _stPad2(Math.floor(mins / 60)) + ':' + _stPad2(mins % 60), min: 'today', keys: true, fixedDate: !!opts.pick }) +
     "<label class='field-label st-gap'>Requested by</label>" + _stWhoSeg('stRsWho', who) +
     "<label class='field-label st-gap'>Reason (optional)</label>" +
-    "<input id='stRsNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" +
+    "<input id='stRsNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" + _stReasonPills('stRsReasons') +
     "<div class='ll-acts st-foot'><span class='ll-state' id='stRsState' style='flex:1'></span>" +
       "<button class='link-btn bright' id='stTimeConfirm' data-tip='Moves only this lesson in Google Calendar\nand logs it to Reschedule Logs.' data-tip-left>Confirm move</button></div>");
   _stWireWho(w, 'stRsWho', function(v) { who = v; });
+  _stWireReasons(w, 'stRsReasons', 'stRsNote');
 
   document.getElementById('stTimeConfirm').onclick = function() {
     var btn = this, panel = w.querySelector('.st-win');

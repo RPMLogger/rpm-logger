@@ -172,7 +172,7 @@ function rpmDtpHtml(id, o) {
   o = o || {};
   var prev = _rpmDtp[id];
   var parts = o.noTime ? ['Date'] : ['Date', 'Time'];
-  var lit = Math.min(prev ? prev.lit : 0, parts.length - 1);
+  var lit = o.fixedDate ? 1 : Math.min(prev ? prev.lit : 0, parts.length - 1);   // fixedDate: the day is set, only the time moves (2026-10-26)
   _rpmDtp[id] = { o: o, lit: lit };
   if (o.keys) _rpmDtpActive = id;
   var on = _rpmDtpActive === id;
@@ -186,9 +186,9 @@ function rpmDtpHtml(id, o) {
     parts.map(function (p, i) {
       var cls = 'dtp-val' + (p === 'Time' ? ' tm' : o.year ? ' yr' : '') + (on && i === lit ? ' on' : '');
       return '<div class="dtp-box"><div class="dtp-cell">' + _dtpLab(p === 'Date' ? o.label : o.timeLabel, p, o.labCls) +
-        '<button type="button" class="' + cls + '" tabindex="-1" id="' + id + p + 'Lbl" data-dtp-i="' + i + '">' +
+        '<button type="button" class="' + cls + '" tabindex="-1" id="' + id + p + 'Lbl" data-dtp-i="' + i + '"' + (o.fixedDate && p === 'Date' ? ' disabled' : '') + '>' +
           (p === 'Date' ? _dtpDateLabel(o.date, o.year) : _dtpTimeLabel(o.time)) + '</button>' +
-        '<span class="dtp-chevs">' + chev(i, 1) + chev(i, -1) + '</span></div></div>';
+        (o.fixedDate && p === 'Date' ? '' : '<span class="dtp-chevs">' + chev(i, 1) + chev(i, -1) + '</span>') + '</div></div>';
     }).join('') + '</div>';
 }
 
@@ -238,6 +238,7 @@ function _rpmDtpStep(id, i, dir) {
   var r = _rpmDtp[id], root = _dtpRoot(id);
   if (!r || !root || root.closest('.rpm-busy, .tb-busy')) return;
   var o = r.o, v = rpmDtpGet(id, root);
+  if (i === 0 && o.fixedDate) return;
   if (i === 0) {
     var today = new Date(); today.setHours(0, 0, 0, 0);
     var d = rpmDtpParse(v.date);
@@ -350,6 +351,7 @@ function _rpmDtpLetGo() {
     } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
       e.preventDefault();
       var to = r.lit + (e.key === 'ArrowRight' ? 1 : -1);
+      if (to === 0 && r.o.fixedDate) return;
       if (to >= 0 && to < n) { _rpmDtpLight(id, to); return; }
       if (!r.o.group) return;
       var all = Array.prototype.slice.call(document.querySelectorAll('[data-dtp-group="' + r.o.group + '"]'));
