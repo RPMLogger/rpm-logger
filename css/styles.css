@@ -300,6 +300,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* ─── HOME: the opening page (2026-10-24) ─── */
 /* In the bordered box like every tab, under the header (user, 2026-10-26; was
    screen-tall with the buttons and name box in its middle) */
+#tab-home.active { display: flex; flex-direction: column; justify-content: center; min-height: calc(100vh - 166px - 72px); }   /* down near the bottom of the screen, no scroll (its top is at 166px; 72px = the page's bottom padding + what sits under the panels), the buttons and name box in its middle (user, 2026-10-26) */
 /* Today / Students / Calendar: regular portal buttons in a row */
 .home-top { display: flex; justify-content: center; gap: 10px; }
 .home-top .link-btn { color: rgba(255,255,255,0.72); border-color: rgba(255,255,255,0.22); }   /* a step brighter than a regular button (user, 2026-10-24) */
