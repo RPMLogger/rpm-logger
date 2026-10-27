@@ -57,8 +57,22 @@ function _imRenderCards(noRead) {
   var names = _imRoster.slice().sort(function (a, b) {
     return group(a) - group(b) || a.localeCompare(b);
   });
+  // One box like Today's (user, 2026-10-26; three boxes were tried): the title,
+  // today's students (amber), then everyone else (blue; red past-open first).
+  var card = function (n) {
+    var miss = missing(n), o = open(n), past = _ckPast(n);
+    // The oldest open lesson's steps (user, 2026-10-17; was "1 lesson open"):
+    // ✓ done, ☐ still to do, "· 2 open" when more lessons wait.
+    var todo = miss && miss.length ? 1 : 0, all = o + todo;
+    var first = past.length ? { day: past[0].date, miss: past[0].missing || [], hw: past[0].hwText } : todo ? { day: _tdYmd(), miss: miss } : null;
+    return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-donetoday' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
+      '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
+      (miss && !miss.length && !o ? '<span class="im-logged"><span class="im-logged-t">LOGGED</span>' + PAID_CHECK_ICON.replace('width="13" height="13"', 'width="15" height="15"') + '</span>' : '') +   // the Auto-confirmed check (user, 2026-10-26)
+      (first ? '<span class="im-steps">' + _imStepsHtml(first.day, first.miss, first.hw, n) + (all > 1 ? '<span class="im-step-more">· ' + all + ' open</span>' : '') + '</span>' : '') +
+    '</div>';
+  };
   body.innerHTML =
-    '<div class="db-section">' +
+    '<div class="db-section td-wk-box im-box">' +
       // Audit lessons red on the title line, right (user, 2026-10-23; was amber, level with "24 students").
       '<div class="settings-title"><span>Students</span>' +   // no count (user, 2026-10-24; was "· 24 students" grey beside the title)   // was "Import", then "Lesson Log" (2026-10-09), then "Lessons" (renamed Students 2026-10-13)
         '<button class="link-btn red" onclick="openLessonAudit()" data-tip="Opens a page.\nLessons missing a log, HW, materials,\nschedule or email." data-tip-wrap>' + DETAILS_ICON + '<span>Audit lessons</span></button></div>' +
@@ -66,18 +80,7 @@ function _imRenderCards(noRead) {
       // The student page's box-title style (2026-10-06): one heading look on this tab.
       // Audit lessons (2026-10-14): red, right, level with "24 students", like Audit
       // payments; opens the old Logs page (Unlogged Lessons + Lesson Checklist) here.
-      names.map(function (n) {
-        var miss = missing(n), o = open(n), past = _ckPast(n);
-        // The oldest open lesson's steps (user, 2026-10-17; was "1 lesson open"):
-        // ✓ done, ☐ still to do, "· 2 open" when more lessons wait.
-        var todo = miss && miss.length ? 1 : 0, all = o + todo;
-        var first = past.length ? { day: past[0].date, miss: past[0].missing || [], hw: past[0].hwText } : todo ? { day: _tdYmd(), miss: miss } : null;
-        return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-donetoday' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
-          '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
-          (miss && !miss.length && !o ? '<span class="im-logged"><span class="im-logged-t">LOGGED</span>' + PAID_CHECK_ICON.replace('width="13" height="13"', 'width="15" height="15"') + '</span>' : '') +   // the Auto-confirmed check (user, 2026-10-26)
-          (first ? '<span class="im-steps">' + _imStepsHtml(first.day, first.miss, first.hw, n) + (all > 1 ? '<span class="im-step-more">· ' + all + ' open</span>' : '') + '</span>' : '') +
-        '</div>';
-      }).join('') +
+      names.map(card).join('') +
     '</div>';
 }
 
@@ -476,8 +479,9 @@ function _imStepsHtml(day, miss, hwText, name, onlyMissing) {
   // Nothing done yet: one "Not logged" button, not a row of them (user, 2026-10-17).
   if (steps.every(function (s) { return miss.indexOf(s) >= 0; })) return red('Not logged', _ckDay(day) + ' not logged.', false);   // no ✕ on this one (user, 2026-10-17)
   return steps.map(function (s) {
-    return miss.indexOf(s) >= 0 ? red(s, s + ' missing for ' + _ckDay(day) + '.')
-                                : onlyMissing ? '' : '<span class="im-step">✓ ' + s + '</span>';   // a plain check / x in front (user, 2026-10-17)
+    var label = s === 'Email' ? 'Recap' : s;   // the Email step reads "Recap" (user, 2026-10-26); the sheet still says Email
+    return miss.indexOf(s) >= 0 ? red(label, label + ' missing for ' + _ckDay(day) + '.')
+                                : onlyMissing ? '' : '<span class="im-step">✓ ' + label + '</span>';   // a plain check / x in front (user, 2026-10-17)
   }).join('');
 }
 var MSG_START = '2026-10-14';   // Email is a required step from here (CHECK_MSG_START in RPM_Checklist.js; Oct 16 → Oct 14, user 2026-10-17)

@@ -38,36 +38,28 @@ body {
 body::before {
   content: ""; position: fixed; inset: 0;
   background-image:
-    linear-gradient(rgba(240,165,0,0.10) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(240,165,0,0.10) 1px, transparent 1px);   /* grid amber like the gear hover (was red), 0.03 → 0.10 (user, 2026-10-26) */
+    linear-gradient(rgba(240,165,0,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240,165,0,0.05) 1px, transparent 1px);   /* grid amber like the gear hover (was red), 0.03 → 0.05 (user, 2026-10-26) */
   background-size: 40px 40px; pointer-events: none;
 }
-/* The page column, a little wider than the content, with the sides outside it a
-   shade darker (user, 2026-10-24; the lines that edged it were dropped) */
-body::after {
-  content: ""; position: fixed; top: 0; bottom: 0; left: 50%; z-index: 0;   /* under the page, so windows and menus are never shaded */
-  width: 840px; transform: translateX(-50%);
-  box-shadow: 0 0 0 100vw rgba(0,0,0,0.28);   /* the sides outside the lines a shade darker */
-  pointer-events: none;
-}
-/* not on the two week grids, which are wider than the column */
-body:has(#tab-calendar.active)::after, body:has(#tab-fixedcal.active)::after { display: none; }
-@media (max-width: 700px) { body::after { display: none; } }
+/* No darker sides outside the page column any more (user, 2026-10-26; were
+   shaded from 2026-10-24): the grid runs edge to edge. */
 
 .container { width: 100%; max-width: 600px; position: relative; z-index: 1; }
 
 /* ─── HEADER ──────────────────────────────────────────────────────────────── */
 .header {
   display: flex; align-items: center; justify-content: center;
-  gap: 14px; margin: 40px 0 70px; position: relative;   /* logo lower, room under it where the tab menu was (user, 2026-10-24) */
+  gap: 14px; margin: 40px 0 58px; position: relative;   /* logo lower; 58 = the box's 24 under it + the 34px gap between Today's boxes (user, 2026-10-26; was 70) */
 }
-/* the logo's band, from the top of the screen, a shade lighter (user, 2026-10-24) */
+/* the logo in a box like Today's, the content's width (user, 2026-10-26; was a
+   full-width band from the top of the screen, a shade lighter, 2026-10-24) */
 .header::before {
-  content: ""; position: absolute; left: -120px; right: -120px; top: -64px; bottom: -36px; z-index: -1;
-  background: rgba(255,255,255,0.03);
+  content: ""; position: absolute; left: 0; right: 0; top: -40px; bottom: -24px; z-index: -1;
+  background: #141414; border: 1px solid var(--border); border-radius: 10px;   /* a step darker than the boxes under it (user, 2026-10-26) */
 }
 @media (max-width: 700px) { .header::before { left: 0; right: 0; } }
-.header img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+.header img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; position: relative; top: -8px; }   /* a bit bigger (was 36) and lifted to the box's middle, level with ☰ and Home (user, 2026-10-26) */
 /* Header right (user, 2026-10-26): the gear as ☰ is, no box, its height, its
    own dim grey, up in the top right with the build number on its left; Home
    below it, level with ☰. Settings and build were at the bottom of the page before. */
@@ -79,7 +71,7 @@ body:has(#tab-calendar.active)::after, body:has(#tab-fixedcal.active)::after { d
 .hdr-build { font-family: "DM Mono", monospace; font-size: 7px; letter-spacing: .8px; color: var(--muted); white-space: nowrap; }
 /* Home on ☰'s line, opposite it (user, 2026-10-26): the user's om-122 house
    (was om-121, a disc), the gear's dim grey; to get back quickly. */
-.header .hdr-home { position: absolute; right: 0; top: 50%; transform: translateY(calc(-50% - 9px)); width: 36px; height: 36px; padding: 0; cursor: pointer;
+.header .hdr-home { position: absolute; right: 24px; top: 50%; transform: translateY(calc(-50% - 2px)); width: 36px; height: 36px; padding: 0; cursor: pointer;
   border-radius: 7px; background: color-mix(in srgb, #fff 4%, transparent); border: 1px solid rgba(255,255,255,0.10); transition: border-color .12s, background .12s; }   /* in a rounded square, the portal button's face (user, 2026-10-26) */
 .header .hdr-home-i { position: absolute; left: 8px; top: 8px; width: 18px; height: 18px; background: var(--muted);   /* a span, not ::before: data-tip owns ::before */
  
@@ -277,7 +269,7 @@ body.sb-open .tabs { transform: none; }
    dot, the colour of RED PICK MUSIC and exactly as tall as its R. The ☰ character
    stays in the button for screen readers, hidden by font-size 0. */
 .sb-burger {
-  position: absolute; left: 0; top: 35px; z-index: 55; width: 36px; height: 36px;   /* in a rounded square like Home (user, 2026-10-26; was bare 24×20 at top 43px) */
+  position: absolute; left: 24px; top: 42px; z-index: 55; width: 36px; height: 36px;   /* inside the logo box's 24px padding (2026-10-26); in a rounded square like Home (user, 2026-10-26; was bare 24×20 at top 43px) */
   padding: 0; font-size: 0; cursor: pointer; border-radius: 7px;
   background: color-mix(in srgb, #fff 4%, transparent); border: 1px solid rgba(255,255,255,0.10);
   color: var(--muted); transition: color .12s, border-color .12s, background .12s;
@@ -298,6 +290,12 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
+/* Every tab in one bordered box like Today's (user, 2026-10-26). Home has no
+   box; Today, Students and To-Do make their own boxes; Calendar, Fixed schedule
+   and Financial are wider than the column, so they stay open. */
+.tab-panel.active:not(#tab-home):not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2) {
+  box-sizing: border-box; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+}
 
 /* ─── HOME: the opening page (2026-10-24) ─── */
 /* As tall as the screen under the header, the buttons and box in its middle */
@@ -2173,7 +2171,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
    Number · date · what we covered, one line each, under year headings. */
 .im-card { cursor: pointer; }
 /* 2026-10-26 (user): the colour is only on the card's side edge; the name stays white. */
-.im-card.im-today, .im-card.im-today:hover:where(:not(:disabled)) { border-left-color: var(--accent2); }   /* the trial amber (user, 2026-10-26) */
+.im-card.im-today, .im-card.im-today:hover:where(:not(:disabled)) { border-left-color: #8f743d; }   /* amber at the Dropbox blue edge's brightness (#3d5f8f), was full --accent2 (user, 2026-10-26) */
 /* A past lesson still open (user, 2026-10-24): red edge; sorted under today's. */
 .im-card.im-unlog, .im-card.im-unlog:hover:where(:not(:disabled)) { border-left-color: var(--accent); }   /* the trial cards' red (user, 2026-10-26) */
 /* Today's lesson logged (user, 2026-10-26; was green edge + name): stays amber like today's,
@@ -2317,6 +2315,8 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #todayBody .td-today-box .td-wk-title .win-sub { color: rgba(255,255,255,0.3); }   /* the date a step darker than the names under it (2026-10-09) */
 /* Today's count + mini list (2026-10-06): time, then the name as a button; in the box since 2026-10-24. */
 #todayBody .td-today-box { margin-top: 0; }   /* still centred: .td-wk-box's auto sides */
+#importBody .im-box { margin-top: 0; }   /* Students in one box like Today's (user, 2026-10-26; three boxes were tried) */
+#importBody .im-box > .im-card:last-child { margin-bottom: 0; }   /* even 24px top and bottom */   /* Students in one box like Today's (user, 2026-10-26) */
 #todayBody .td-today-box .td-count { margin-top: 0; }
 .td-mini { margin-bottom: 34px; display: flex; flex-direction: column; gap: 6px; }
 #todayBody .td-mini { border: none; background: none; padding: 0; gap: 12px; }   /* a plain list, no box, rows spaced out (2026-10-09) */
