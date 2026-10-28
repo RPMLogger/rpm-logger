@@ -1624,32 +1624,47 @@ function _imReschedule(name, o) {
 
 function _imRsLoad(name, o) {
   var url = getScriptUrl(); if (!url) return;
+  // Saved (user, 2026-10-19): "Rescheduled ✓" (or Skipped ✓) a moment, then the window goes, back to the Log window.
+  var opts = { pick: true, onDone: function (d, what) { if (o.onDone) o.onDone(d, what); else _imSchedSet(name, 'changed'); _imRsDone(what || 'Rescheduled'); } };   // pick: × / ✓ on the days (2026-10-26)
+  function draw(byDate, weeks, student) {
+    var box = document.getElementById('imRsBody');
+    var today = _stToday(), monday = _stMondayOf(today);
+    box.innerHTML = '';
+    var strips = document.createElement('div');
+    strips.className = 'im-rs-strips';
+    for (var k = 0; k < weeks; k++) {
+      strips.appendChild(_stBuildWeekStrip(new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + k * 7), byDate, today, student, opts));
+    }
+    box.appendChild(strips);
+    // From the Calendar tab: the clicked lesson comes up picked (2026-10-27).
+    var pre = o.pre && strips.querySelector('button[data-ymd="' + o.pre + '"][data-has="1"]');
+    if (pre) pre.click();
+  }
+  // From the Calendar tab the weeks show at once with the clicked lesson picked,
+  // dimmed with LOADING until the other lessons come in (user, 2026-10-28).
+  if (o.pre && o.time) {
+    var first = {}; first[o.pre] = { date: o.pre, time: o.time };
+    draw(first, 8, name);
+    rpmBusy(document.getElementById('imRsBody'), null, true, 'Loading');
+  }
   fetch(url + '?action=getStudentLessons&name=' + encodeURIComponent(name))
     .then(function (r) { return r.json(); })
     .then(function (data) {
       var box = document.getElementById('imRsBody');
       if (!box) return;   // window closed meanwhile
+      rpmBusy(box, null, false);
       if (!data.success) { box.innerHTML = '<div class="empty-state">Error: ' + inqEsc(data.message || 'unknown') + '</div>'; return; }
       if (!data.lessons || !data.lessons.length) { box.innerHTML = '<div class="empty-state">No lessons on the calendar</div>'; return; }
       var byDate = {};
       data.lessons.forEach(function (l) { byDate[l.date] = l; });
-      var today = _stToday(), monday = _stMondayOf(today);
-      // Saved (user, 2026-10-19): "Rescheduled ✓" (or Skipped ✓) a moment, then the window goes, back to the Log window.
-      var opts = { pick: true, onDone: function (d, what) { if (o.onDone) o.onDone(d, what); else _imSchedSet(name, 'changed'); _imRsDone(what || 'Rescheduled'); } };   // pick: × / ✓ on the days (2026-10-26)
-      box.innerHTML = '';
-      var strips = document.createElement('div');
-      strips.className = 'im-rs-strips';
-      for (var k = 0; k < (data.weeks || 8); k++) {
-        strips.appendChild(_stBuildWeekStrip(new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + k * 7), byDate, today, data.student || name, opts));
-      }
-      box.appendChild(strips);
-      // From the Calendar tab: the clicked lesson comes up picked (2026-10-27).
-      var pre = o.pre && strips.querySelector('button[data-ymd="' + o.pre + '"][data-has="1"]');
-      if (pre) pre.click();
+      _stPickSel = null;   // the early pick's cells are gone
+      draw(byDate, data.weeks || 8, data.student || name);
     })
     .catch(function () {
       var box = document.getElementById('imRsBody');
-      if (box) box.innerHTML = '<div class="empty-state">No answer from Google.</div>';
+      if (!box) return;
+      rpmBusy(box, null, false);
+      box.innerHTML = '<div class="empty-state">No answer from Google.</div>';
     });
 }
 

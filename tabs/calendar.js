@@ -266,7 +266,7 @@ function _calOpenActions(ev, to) {
   var today = _stToday(), last = _stMondayOf(today); last = new Date(last.getFullYear(), last.getMonth(), last.getDate() + 56);
   var d0 = new Date(+p[0], +p[1] - 1, +p[2]);
   if (!to && d0 >= today && d0 < last && typeof _imReschedule === 'function') {
-    _imReschedule(ev.title, { pre: ev.date, onDone: function() { _calLoad(); } });
+    _imReschedule(ev.title, { pre: ev.date, time: lesson.time, onDone: function() { _calLoad(); } });
     return;
   }
   _stOpenLessonActions(ev.title, lesson, {

@@ -2245,7 +2245,9 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-more { display: block; margin: 10px auto 0; }   /* Show all / Show less, bottom middle, opens the older blocks (2026-10-06) */
 /* Import Reschedule window (2026-10-06): Home's 8-week strips on this page. */
 .im-rs-strips { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-.im-rs-hint { font-size: 11px; color: var(--muted); text-align: center; margin-top: 12px; }
+.im-rs-hint { font-size: 11px; color: var(--muted); text-align: left; margin-top: 24px; }   /* left (user, 2026-10-28; was centred); more room under the weeks (was 12px) */
+.im-rs-how { margin: 0; padding-left: 16px; list-style: disc; }
+.im-rs-how li + li { margin-top: 1.5em; }   /* one empty line between them */
 /* Pick on the 8-week view (user, 2026-10-26): the picked lesson white (selected) with ✕ (Skip) in its corner; the day it moves to green with a ✓. */
 .im-rs-strips button { position: relative; }
 .im-rs-strips .st-pick-sel { background: rgba(255,255,255,0.10) !important; border-color: rgba(255,255,255,0.55) !important; color: #fff !important; }
@@ -2399,7 +2401,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .st-big { font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: .8px; text-transform: uppercase; color: rgba(255,255,255,0.72); }
 .st-to .dtp > .dtp-box:first-of-type { display: none; }   /* the day's box: the day sits in the time box instead */
 /* Change appointment's small windows (Reschedule, Skip): quiet labels, the picker tabs' small grey caps, so the dates lead (user, 2026-10-27; were Bebas titles). */
-#stTimeModal .field-label, #stSkipModal .field-label { font-family: "DM Mono", monospace; font-size: 11.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--t-faint); }
+#stTimeModal .field-label, #stSkipModal .field-label, #imRsWin .field-label { font-family: "DM Mono", monospace; font-size: 11.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--t-faint); }
 #stTimeModal .field-label.st-gap, #stSkipModal .field-label.st-gap { margin-top: 34px; }   /* more room between the parts, all even (user, 2026-10-27) */
 /* Move from ↓ Move to (user, 2026-10-27): opened up, an arrow centred between the dates, then a bigger gap before the rest. */
 .st-move-arrow { display: flex; gap: 10px; margin: 24px 0 22px; color: var(--t-faint); }
@@ -3640,7 +3642,7 @@ th.f2-blk { background:none; }
 /* Log window phrase pills (user, 2026-10-26): small grey pills under each rows
    box, on the add icon's line (the negative bottom margin pulls the icon up beside them). */
 #imLogWin .im-pills { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0 -29px; padding-right: 36px; position: relative; z-index: 1; }
-.st-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin: 12px 0 0; justify-content: space-between; }   /* spread edge to edge (user, 2026-10-27) */   /* Skip / Reschedule reason pills (user, 2026-10-26) */
+.st-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin: 12px 0 0; justify-content: flex-start; }   /* left-aligned (user, 2026-10-28; was spread edge to edge) */   /* Skip / Reschedule reason pills (user, 2026-10-26) */
 #imLogWin .im-pill, .st-reasons .im-pill { font-family: "DM Mono", monospace; font-size: 10px; line-height: 1; letter-spacing: .2px; color: #8a8a8a; background: transparent;
   border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; padding: 4px 8px; cursor: pointer; }
 #imLogWin .im-pill:hover:where(:not(:disabled)), .st-reasons .im-pill:hover:where(:not(:disabled)), .st-reasons .im-pill.on { color: #ddd; border-color: rgba(255,255,255,0.4); }

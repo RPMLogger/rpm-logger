@@ -724,7 +724,7 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
       ? ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()]
       : dayName.toUpperCase();
     var topStyle = 'font-size:9px;line-height:1;letter-spacing:0.5px'
-      + (isFirst ? ';color:var(--accent);font-weight:700' : '');
+      + (isFirst ? ';color:var(--accent2)' : '');   // amber, not the lessons' red; not bold (user, 2026-10-28)
 
     var cell = document.createElement('button');
     cell.style.cssText = 'flex:1;padding:6px 4px;border-radius:4px;font-family:inherit;border:1px solid transparent;';
@@ -750,7 +750,7 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
         'background:transparent;color:' + (isPast ? 'rgba(180,180,180,0.2)' : 'rgba(180,180,180,0.4)') + ';cursor:default';
       cell.innerHTML =
         "<div style='" + topStyle + "'>" + topLabel + "</div>" +
-        "<div style='font-size:13px;line-height:1.3'>" + d.getDate() + "</div>" +
+        "<div style='font-size:13px;line-height:1.3" + (isFirst ? ";color:var(--accent2)" : '') + "'>" + d.getDate() + "</div>" +   // the 1st's number amber too
         "<div style='font-size:9px;line-height:1.2'>&nbsp;</div>";
       // With a lesson picked, any later day is where it moves to (user, 2026-10-26).
       if (opts && opts.pick && !isPast) (function(c, y) { c.onclick = function() { _stPickDay(c, y); }; })(cell, ymd);
@@ -768,6 +768,8 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
 // The same lesson again lets it go. One lesson at a time.
 var _stPickSel = null;   // { cell, lesson, name, opts, to }
 function _stPickHint(t) { var h = document.querySelector('#imRsWin .im-rs-hint'); if (h) h.textContent = t; }
+// With a lesson picked, the two moves spelled out (user, 2026-10-28).
+var ST_PICK_HOW = "<ul class='im-rs-how'><li><b>SKIP:</b> tap ✕ on the day</li><li><b>RESCHEDULE:</b> click the day you want to reschedule, tap ✓, then pick the time</li></ul>";   // bullets, a line apart (user, 2026-10-28)
 function _stPickClear() {
   var s = _stPickSel;
   if (s) {
@@ -790,12 +792,13 @@ function _stPickLesson(cell, name, lesson, opts) {
   x.title = 'Skip this lesson';
   x.onclick = function(e) { e.stopPropagation(); var s = _stPickSel; if (s) _stOpenSkipModal(s.name, s.lesson, s.opts); };
   cell.appendChild(x);
-  _stPickHint('Tap ✕ to skip it, or tap the day to move it to.');
+  var h = document.querySelector('#imRsWin .im-rs-hint'); if (h) h.innerHTML = ST_PICK_HOW;
 }
 function _stPickDay(cell, ymd) {
   var s = _stPickSel;
   if (!s || cell === s.cell) return;
   // Try as many days as you like (user, 2026-10-26): the last one tapped is green with a ✓; the ✓ opens Reschedule.
+  // The ✓ step is back (user, 2026-10-28, after a day straight to Reschedule).
   if (s.to) { s.to.classList.remove('st-pick-to'); var o = s.to.querySelector('.st-pick-ok'); if (o) o.remove(); }
   s.to = cell;
   cell.classList.add('st-pick-to');
@@ -805,7 +808,6 @@ function _stPickDay(cell, ymd) {
   ok.title = 'Move it to this day';
   ok.onclick = function(e) { e.stopPropagation(); var t = _stPickSel; if (t) _stOpenTimeConfirm(t.name, t.lesson, ymd, t.opts); };
   cell.appendChild(ok);
-  _stPickHint('Tap ✓ to move it to that day, or tap another day.');
 }
 
 // ─── SKIP MODAL (reused from former Skips tab pattern) ──────────────────────
@@ -921,6 +923,7 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
   var w = _stWin('stTimeModal', studentName, 'Reschedule', CALENDAR_ICON,
     // Move from: the lesson as it is; Move to: the picker (2026-10-06).
     // The two dates and the arrow in one centred, bordered box (user, 2026-10-27).
+    "<label class='field-label'>Move the lesson</label>" +   // above the box, like Next 8 weeks (user, 2026-10-28)
     "<div class='st-move-group'><div class='st-move-inner'>" +
     "<label class='field-label'>From</label>" +   // just From / To (user, 2026-10-27; were Move from / Move to)
     // Plain text, the Skip window's line: it's fixed, not a picker (user, 2026-10-26; was the picker's boxes).
