@@ -221,6 +221,12 @@ body.sb-open .tabs { transform: none; }
 .tab-btn:hover:where(:not(:disabled)) { color: var(--text); background: var(--surface2); }
 .tab-btn.active { background: var(--accent); color: var(--text); }
 .tabs .inq-badge { margin-left: auto; }   /* alert dots at the right end of the row */
+/* Right-aligned, scrollbar on the left (user, 2026-10-27): rtl moves the scrollbar,
+   the children go back to ltr; the alert dot sits just left of its name. */
+.tabs { direction: rtl; }
+.tabs > * { direction: ltr; }
+.tabs .tab-btn { justify-content: flex-end; text-align: right; }
+.tabs .inq-badge { order: -1; margin-left: 0; margin-right: 10px; }
 
 /* A dropdown is an open section: the toggle is its heading, the tabs sit under it */
 .nav-drop { display: flex; flex-direction: column; }
@@ -236,7 +242,7 @@ body.sb-open .tabs { transform: none; }
 /* Headings for the loose tabs: drawn above the first tab of the group */
 .tabs .sb-h { margin-top: 37px; position: relative; overflow: visible; }
 .tabs .sb-h::before {
-  content: attr(data-h); position: absolute; left: 10px; top: -19px;
+  content: attr(data-h); position: absolute; right: 10px; top: -19px;
   font-size: 9px; letter-spacing: 2px; color: var(--t-faint); pointer-events: none;
 }
 
@@ -2449,6 +2455,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .st-who .db-check.on { color: #fff; }
 .st-who .db-check, .st-who .db-check.on { color: var(--t-normal); }   /* the date's brightness; the tick shows the pick */
 .st-who .db-check:hover:where(:not(:disabled)) { color: #fff; }
+#stTimeModal .st-who, #stSkipModal .st-who { flex-direction: column; align-items: flex-start; gap: 12px; }   /* Student, then Teacher under it, a list (user, 2026-10-27) */
 /* A little more air between the sections (2026-10-05). */
 .st-win .st-gap { margin-top: 26px; }
 .st-win .field-label { margin-bottom: 11px; }
