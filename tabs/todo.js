@@ -16,8 +16,7 @@ function initTodoTab() {
     // In Today's box look (user, 2026-10-26): a To-Do box (title, + New top right, icon, count, list) and a Completed box under it.
     section.innerHTML =
       '<div class="td-wk-box tdo-box"><div class="settings-title td-wk-title"><span>To-Do</span>' +
-        '<span class="tdo-title-btns"><button id="todoZoomBtn" class="link-btn" data-tip="Instant.\nMagnifier: hold the pointer on a to-do\nfor half a second to see it bigger.">' + DETAILS_ICON + '</button>' +
-        '<button id="todoAddBtn" class="link-btn amber opens-window" data-tip="Instant.\nOpens the New To-Do rows.">+ New</button></span></div>' +
+        '<span class="tdo-title-btns"><button id="todoAddBtn" class="link-btn amber opens-window" data-tip="Instant.\nOpens the New To-Do rows.">+ New</button></span></div>' +
         '<div class="td-wk-icon">' + PEN_ICON + '</div>' +   // the pen (om-127, user 2026-10-28; the checklist moved to Completed)
       '<div id="todoPanel" style="display:none;border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:22px;background:var(--panel)">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
@@ -72,8 +71,6 @@ function initTodoTab() {
     document.getElementById("todoLog").onclick = _todoSubmitAll;
     document.getElementById("todoAddBtn").onclick = _todoOpenPanel;
     document.getElementById("todoClose").onclick = _todoClosePanel;
-    document.getElementById("todoZoomBtn").onclick = _todoZoomToggle;
-    _todoZoomWire(section);
     _todoSetActive(0);
   }
   _loadTodos();
@@ -433,44 +430,14 @@ function _todoClearCompleted(btn) {
   });
 }
 
-// ─── MAGNIFIER (user, 2026-10-28) ──────────────────────────────────────────
-// The magnifier button turns the pointer into a magnifying glass; resting it on
-// a to-do for half a second pops that to-do up bigger in a bubble over its row.
-// Leaving the bubble closes it; the button again turns the magnifier off.
-var TDO_ZOOM_MS   = 500;    // half a second (user, 2026-10-28; was 2, then 1)
-var _todoZoomOn   = false;
-var _todoZoomTimer = null;
-
-function _todoZoomToggle() {
-  _todoZoomOn = !_todoZoomOn;
-  document.getElementById("todoZoomBtn").classList.toggle("pressed", _todoZoomOn);
-  document.getElementById("todoContent").classList.toggle("tdo-zoom-on", _todoZoomOn);
-  if (!_todoZoomOn) { clearTimeout(_todoZoomTimer); _todoZoomClose(); }
-}
-
-function _todoZoomWire(section) {
-  section.addEventListener("mouseover", function(e) {
-    if (!_todoZoomOn || document.getElementById("tdoZoomBubble")) return;
-    var row = e.target.closest && e.target.closest(".tdo-row");
-    if (!row || row === section._zoomRow) return;
-    section._zoomRow = row;
-    clearTimeout(_todoZoomTimer);
-    _todoZoomTimer = setTimeout(function() { _todoZoomOpen(row); }, TDO_ZOOM_MS);
-  });
-  section.addEventListener("mouseout", function(e) {
-    var row = section._zoomRow;
-    if (row && !row.contains(e.relatedTarget)) { clearTimeout(_todoZoomTimer); section._zoomRow = null; }
-  });
-}
-
-function _todoZoomOpen(row) {
-  _todoZoomClose();
+// ─── MAGNIFIER BUBBLE (user, 2026-10-28) ───────────────────────────────────
+// The header magnifier (core/magnifier.js) shows a to-do in this bubble: the
+// row's own handwriting and grey, plus an amber Completed button on open ones.
+function _todoZoomBubble(row) {
   var text = row.querySelector(".tdo-text");
-  if (!text) return;
-  var r = row.getBoundingClientRect();
+  if (!text) return null;
   var b = document.createElement("div");
-  b.id = "tdoZoomBubble";
-  b.className = "tdo-zoom-bubble" + (row.classList.contains("tdo-row-done") ? " tdo-zoom-done" : "");
+  b.className = "mag-bubble tdo-zoom-bubble" + (row.classList.contains("tdo-row-done") ? " tdo-zoom-done" : "");
   var big = document.createElement("div");
   big.textContent = text.textContent;
   b.appendChild(big);
@@ -485,21 +452,7 @@ function _todoZoomOpen(row) {
     foot.appendChild(done);
     b.appendChild(foot);
   }
-  document.body.appendChild(b);
-  // Centred on the row, kept inside the window.
-  var w = Math.min(560, window.innerWidth - 32);
-  b.style.width = w + "px";
-  var left = Math.max(16, Math.min(r.left + r.width / 2 - w / 2, window.innerWidth - w - 16));
-  var top = r.top + r.height / 2 - b.offsetHeight / 2;
-  top = Math.max(16, Math.min(top, window.innerHeight - b.offsetHeight - 16));
-  b.style.left = left + "px";
-  b.style.top = top + "px";
-  b.addEventListener("mouseleave", _todoZoomClose);
-  // If the bubble opened away from the pointer (kept inside the window), the first move outside it closes it.
-  document.addEventListener("mousemove", function away(e) {
-    if (!document.body.contains(b)) { document.removeEventListener("mousemove", away); return; }
-    if (!b.contains(e.target) && !b._busy) { document.removeEventListener("mousemove", away); _todoZoomClose(); }
-  });
+  return b;
 }
 
 function _todoZoomDone(row, bubble, btn) {
@@ -510,18 +463,10 @@ function _todoZoomDone(row, bubble, btn) {
     bubble._busy = false;
     rpmBusy(bubble, btn, false);
     if (data && data.success) {
-      _todoZoomClose();
+      magClose();
       _loadTodos();
     } else {
       addLog("todoFeed", "❌ " + (data && data.message ? data.message : "Toggle failed"), "error");
     }
   });
-}
-
-function _todoZoomClose() {
-  var b = document.getElementById("tdoZoomBubble");
-  if (b && b._busy) return;
-  if (b) b.remove();
-  var sec = document.getElementById("todoContent");
-  if (sec) sec._zoomRow = null;
 }
