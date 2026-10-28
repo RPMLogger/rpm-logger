@@ -43,11 +43,9 @@ body {
 
 body::before {
   content: ""; position: fixed; inset: 0;
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--accent2) 15%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--accent2) 15%, transparent) 1px, transparent 1px);   /* grid amber like the gear hover (was red), 0.03 → 0.05 (user, 2026-10-26) → 15% (user, 2026-10-28) */
-  background-size: 40px 40px; pointer-events: none;
-}
+  background: url(../img/bg-om.jpg) center / cover no-repeat;
+  opacity: 0.05; pointer-events: none;
+}   /* the user's halftone pattern, faint (user, 2026-10-28; was the amber grid, 1px lines every 40px at 15%) */
 /* No darker sides outside the page column any more (user, 2026-10-26; were
    shaded from 2026-10-24): the grid runs edge to edge. */
 
