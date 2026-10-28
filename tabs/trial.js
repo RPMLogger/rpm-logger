@@ -16,12 +16,16 @@ function initTrialTab() {
   body.innerHTML =
     // 12px on top of the label's own 16, so the first card doesn't hug the title.
     // Padding, not margin: a margin would collapse into the label's.
+    '<div class="tr-av-bar"><button class="link-btn bright opens-window" onclick="_trAvOpen()" ' +
+      'data-tip="Opens a window.\nThis week and next on the teaching grid.\nPick a name, then the times to offer them.\nOffers last 3 days." data-tip-wrap data-tip-left>' +
+      CALENDAR_ICON + '<span>Available times</span></button></div>' +
     '<div id="trAccepted" style="padding-top:12px"><div class="empty-state rpm-loading">Loading</div></div>' +
     '<div id="trBookArea" style="display:none">' +
       '<hr class="divider" style="margin:22px 0 16px">' +
       _trManualFormHtml() + '<div id="trStatus"></div>' +
     '</div>' +
     '';
+  _trAvStyle();
   _trLoadAccepted();
   _trLoadRate();
 }
@@ -64,6 +68,7 @@ function _trLoadAccepted() {
       }
       box.innerHTML = d.accepted.map(_trAcceptedCard).join('');
       _trLoadThreads();
+      _trLoadOffers();
     })
     .catch(function () { box.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
 }
@@ -81,6 +86,7 @@ function _trAcceptedCard(a) {
         '<span class="fc-newmsg" id="fcnm-' + emailToId(a.email || "") + '"></span></div>' +
       '<div class="inq-fields">' + inqCardFieldsHtml(a) + '</div>' +
       '<div class="fc-thread" id="fcth-' + emailToId(a.email || "") + '"></div>' +
+      '<div class="tr-offer" id="fcof-' + emailToId(a.email || "") + '"></div>' +
       '<div class="inq-acts">' +
         // Send-back sits bottom left, away from Email/Book, so it is never the
         // button your hand is already on. Link-button face (.link-btn, like
@@ -450,6 +456,10 @@ function _trOpenEmail(email) {
   var first = (a.name || "").split(" ")[0];
   var head  = _trDraftHead(first);
   var body  = head + _trDraftTail();
+  // The times picked for them in Available times go on the blank line under
+  // the question, in date order (user, 2026-10-28).
+  var offered = _trOffersFor(email).map(function (o) { return _trOfferLabel(o); });
+  if (offered.length) body = body.replace(_TR_OFFER_Q + "\n\n\n", _TR_OFFER_Q + "\n\n" + offered.join("\n") + "\n");
 
   var overlay = document.createElement("div");
   overlay.id = "trFcModal";
@@ -502,6 +512,313 @@ function _trOpenEmail(email) {
 function _trCloseEmail() {
   var m = document.getElementById("trFcModal");
   if (m) m.remove();
+}
+
+// ── Available times: offering trial times before the email ─────────────────
+// (user, 2026-10-28) The button at the top of the Initiate tab opens two weeks
+// of the teaching grid as small squares, with everyone in Initiate as name
+// buttons above it. Pick a name, then the squares to offer them: Compose writes
+// those times into their draft, and their card lists them, each one opening
+// Book with that date and time. The same time can go to several people; he
+// decides who gets it when the replies come. Offers lapse after 3 days
+// (RPM_Offers.gs, "Offered Times" tab in the Inquiries sheet).
+//
+// A square is open when it is a teaching-grid slot (FC_GRID, fixedcal.js) that
+// nobody holds as their regular slot (getFixedCalendar, pencilled trials
+// included) and nothing is on the calendar then (getCalendarWeek). Dashed =
+// the free half of a biweekly slot: biweekly only.
+var _trOffers   = [];     // [{ email, name, date, time, until }] from getOffers
+var _trAvEvents = null;   // calendar events, this week and next, for "taken"
+var _trAvState  = null;   // { cells, mon, who } while the window is open
+var _TR_OFFER_Q = "Can you make any of these times for a trial lesson?";
+var _TR_AV_ROWS = [630, 690, 750, 810, 870, 930, 990, 1050, 1110, 1170, 1230];
+
+function _trYmd(d) { return d.getFullYear() + "-" + _trPad(d.getMonth() + 1) + "-" + _trPad(d.getDate()); }
+function _trMinOf(hhmm) { var p = hhmm.split(":"); return +p[0] * 60 + +p[1]; }
+function _trHhmm(m) { return _trPad(Math.floor(m / 60)) + ":" + _trPad(m % 60); }
+function _trShortTime(m) { var h = Math.floor(m / 60); return ((h % 12) || 12) + ":" + _trPad(m % 60); }
+
+// "Thu Oct 29, 6:30 pm": the shape _trParseOfferedTimes reads back.
+function _trOfferLabel(o) {
+  var p = o.date.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2]), m = _trMinOf(o.time), h = Math.floor(m / 60);
+  return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()] + " " +
+         ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()] + " " +
+         d.getDate() + ", " + _trShortTime(m) + (h < 12 ? " am" : " pm");
+}
+
+// Only people still in Initiate count; once booked they have left the tab.
+function _trOffersFor(email) {
+  email = (email || "").toLowerCase();
+  return _trOffers.filter(function (o) { return o.email === email; })
+                  .sort(function (x, y) { return (x.date + x.time) < (y.date + y.time) ? -1 : 1; });
+}
+function _trOffersLive() {
+  var ems = {};
+  _trAcceptedCache.forEach(function (a) { ems[(a.email || "").toLowerCase()] = true; });
+  return _trOffers.filter(function (o) { return ems[o.email]; });
+}
+
+// Something on the calendar at that date and hour.
+function _trAvBusy(date, m) {
+  var hit = null;
+  (_trAvEvents || []).some(function (e) {
+    if (e.date === date && e.startMin < m + 60 && e.endMin > m) { hit = e; return true; }
+    return false;
+  });
+  return hit;
+}
+
+function _trLoadOffers() {
+  var url = getScriptUrl();
+  if (!url) return;
+  fetch(url + "?action=getOffers")
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (d && d.success) { _trOffers = d.offers || []; _trPaintOfferLines(); _trLoadAvEvents(); } })
+    .catch(function () {});
+}
+
+function _trAvWeeks() {
+  var today = new Date(); today.setHours(0, 0, 0, 0);
+  var mon = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (today.getDay() + 6) % 7);
+  return { today: today, mon: mon };
+}
+
+function _trLoadAvEvents(done) {
+  var url = getScriptUrl();
+  if (!url) return;
+  var w = _trAvWeeks();
+  Promise.all([0, 7].map(function (n) {
+    var d = new Date(w.mon.getFullYear(), w.mon.getMonth(), w.mon.getDate() + n);
+    return fetch(url + "?action=getCalendarWeek&weekStart=" + _trYmd(d)).then(function (r) { return r.json(); });
+  })).then(function (res) {
+    if (!res.every(function (d) { return d && d.success; })) throw 0;
+    _trAvEvents = [].concat.apply([], res.map(function (d) { return d.events || []; }));
+    _trPaintOfferLines();
+    if (done) done(true);
+  }).catch(function () { if (done) done(false); });
+}
+
+// ── On the card: what they were offered ─────────────────────────────────────
+function _trPaintOfferLines() {
+  _trAcceptedCache.forEach(function (a) {
+    var box = document.getElementById("fcof-" + emailToId(a.email || ""));
+    if (!box) return;
+    var list = _trOffersFor(a.email);
+    if (!list.length) { box.innerHTML = ""; return; }
+    box.innerHTML =
+      "<div class='tr-offer-h'>Offered · until " + inqEsc(_trOfferUntil(list)) + "</div>" +
+      "<div class='tr-offer-row'>" + list.map(function (o) {
+        var lbl = _trOfferLabel(o);
+        var ev  = _trAvBusy(o.date, _trMinOf(o.time));
+        if (ev) return "<span class='tr-offer-chip taken' data-tip=\"" + _msAttr("Taken.\n" + (ev.title || "") + " is on the calendar then.") + "\">" + inqEsc(lbl) + "</span>";
+        return "<button class='tr-offer-chip' onclick=\"_trBookOffered('" + _trEsc(a.email) + "','" + o.date + "','" + o.time + "')\" " +
+                 "data-tip=\"Opens Book with this date and time.\">" + inqEsc(lbl) + "</button>";
+      }).join("") + "</div>";
+  });
+}
+
+function _trOfferUntil(list) {
+  var u = list.map(function (o) { return o.until || ""; }).sort().pop() || "";
+  var p = u.split("-");
+  if (p.length !== 3) return "";
+  var d = new Date(+p[0], +p[1] - 1, +p[2]);
+  return ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()] + " " + d.getDate();
+}
+
+function _trBookOffered(email, date, time) {
+  var a = _trFindAccepted(email);
+  if (!a) return;
+  _trBookAccepted(a.name, a.email);
+  _trPickSlot(date, time, "tb");
+}
+
+// ── The window ──────────────────────────────────────────────────────────────
+function _trAvOpen() {
+  var url = getScriptUrl();
+  if (!url) return;
+  var first = _trAcceptedCache[0];
+  _trAvState = { who: first ? (first.email || "").toLowerCase() : "" };
+
+  var ov = document.createElement("div");
+  ov.id = "trAvModal";
+  ov.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;" +
+                     "align-items:center;justify-content:center;padding:18px;overflow:auto";
+  ov.innerHTML =
+    "<div id='trAvWin' style='background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:600px;width:100%;padding:28px;box-sizing:border-box;max-height:92vh;overflow:auto'>" +
+      "<div class='settings-title'><span>Available times</span>" +
+        "<button class='settings-close' onclick='_trAvClose()'>✕</button></div>" +
+      "<div style='margin:4px 0 18px'>" + _tlCalIcon() + "</div>" +
+      "<div id='trAvBody' style='min-height:200px'></div>" +
+    "</div>";
+  ov.addEventListener("click", function (ev) { if (ev.target === ov) _trAvClose(); });
+  document.body.appendChild(ov);
+  rpmBusy(document.getElementById("trAvWin"), null, true, "Loading");
+
+  // Fresh every time it opens: the calendar moves between emails.
+  var fixed = fetch(url + "?action=getFixedCalendar").then(function (r) { return r.json(); });
+  var offers = fetch(url + "?action=getOffers").then(function (r) { return r.json(); }).catch(function () { return null; });
+  var events = new Promise(function (res) { _trLoadAvEvents(res); });
+  Promise.all([fixed, offers, events]).then(function (r) {
+    var win = document.getElementById("trAvWin");
+    if (!win) return;
+    rpmBusy(win, null, false);
+    if (!r[0] || !r[0].success || !r[2]) { rpmFail(document.getElementById("trAvBody"), "Could not read the calendar", "left"); return; }
+    if (r[1] && r[1].success) _trOffers = r[1].offers || [];
+    _trAvState.cells = _fcCells(r[0].students || [], r[0].pencilled || []);
+    _trAvPaint();
+  }).catch(function () {
+    var win = document.getElementById("trAvWin");
+    if (win) { rpmBusy(win, null, false); rpmFail(document.getElementById("trAvBody"), "Could not read the calendar", "left"); }
+  });
+}
+
+// Styles live here, not in styles.css, like fixedcal.js's: one place for the feature.
+function _trAvStyle() {
+  if (document.getElementById("trAvStyle")) return;
+  var el = document.createElement("style");
+  el.id = "trAvStyle";
+  el.textContent =
+    ".tr-av-bar{display:flex;justify-content:flex-end;padding-top:12px}" +
+    ".tr-av-names{display:flex;flex-wrap:wrap;gap:6px}" +
+    ".tr-av-name{font-family:'DM Mono',monospace;font-size:11px;padding:5px 10px;border-radius:6px;cursor:pointer;" +
+      "background:transparent;color:var(--muted);border:1px solid var(--border)}" +
+    ".tr-av-name:hover:where(:not(.on)){color:var(--text)}" +
+    ".tr-av-name.on{color:var(--t-bright,#fff);border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.08)}" +
+    ".tr-av-name .n{margin-left:6px;color:var(--accent2)}" +
+    ".tr-av-key{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}" +
+    ".tr-av-key .k{display:inline-block;width:12px;height:10px;border-radius:2px;margin-left:8px}" +
+    ".tr-av-key .k:first-child{margin-left:0}" +
+    ".tr-av-key .k.open{border:1px solid rgba(180,180,180,.45)}" +
+    ".tr-av-key .k.bi{border:1px dashed rgba(180,180,180,.6)}" +
+    ".tr-av-key .k.off{border:1px solid var(--accent2);background:color-mix(in srgb,var(--accent2) 22%,transparent)}" +
+    ".tr-av-key .k.me{border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.14)}" +
+    ".tr-av-grid{display:grid;grid-template-columns:38px repeat(7,1fr);gap:3px;font-family:'DM Mono',monospace;" +
+      "background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:6px}" +
+    ".tr-av-day{text-align:center;font-size:9px;letter-spacing:.5px;color:var(--muted);padding-bottom:3px}" +
+    ".tr-av-day b{display:block;font-size:13px;font-weight:700;color:var(--text)}" +
+    ".tr-av-day.past,.tr-av-day.past b{color:rgba(180,180,180,.25)}" +
+    ".tr-av-time{font-size:9px;color:var(--muted);text-align:right;padding-right:4px;line-height:22px}" +
+    ".tr-av-sq{height:22px;border-radius:3px;font-family:inherit;font-size:9px;line-height:20px;text-align:center;" +
+      "overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 2px;box-sizing:border-box;border:1px solid transparent}" +
+    ".tr-av-sq.off{background:rgba(255,255,255,.015)}" +
+    ".tr-av-sq.past{background:transparent}" +
+    ".tr-av-sq.taken{background:rgba(255,255,255,.06);color:rgba(180,180,180,.45)}" +
+    ".tr-av-sq.open{background:transparent;border-color:rgba(180,180,180,.45);color:var(--text);cursor:pointer}" +
+    ".tr-av-sq.open.bi{border-style:dashed;border-color:rgba(180,180,180,.6)}" +
+    ".tr-av-sq.open:hover{border-color:var(--text)}" +
+    ".tr-av-sq.offered{border-color:var(--accent2);color:var(--accent2);background:color-mix(in srgb,var(--accent2) 18%,transparent)}" +
+    ".tr-av-sq.mine{border-color:rgba(255,255,255,.75);color:#fff;background:rgba(255,255,255,.14)}" +
+    ".tr-offer:empty{display:none}" +
+    ".tr-offer{margin:12px 0 2px}" +
+    ".tr-offer-h{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}" +
+    ".tr-offer-row{display:flex;flex-wrap:wrap;gap:6px}" +
+    ".tr-offer-chip{font-family:'DM Mono',monospace;font-size:11px;padding:4px 9px;border-radius:5px;background:transparent;" +
+      "color:var(--accent2);border:1px solid color-mix(in srgb,var(--accent2) 60%,transparent);cursor:pointer}" +
+    ".tr-offer-chip:hover:where(:not(.taken)){background:color-mix(in srgb,var(--accent2) 15%,transparent)}" +
+    ".tr-offer-chip.taken{color:var(--muted);border-color:var(--border);text-decoration:line-through;cursor:default}";
+  document.head.appendChild(el);
+}
+
+function _trAvClose() {
+  var m = document.getElementById("trAvModal");
+  if (m) m.remove();
+  _trAvState = null;
+  _trPaintOfferLines();
+}
+
+function _trAvPick(email) { if (_trAvState) { _trAvState.who = email; _trAvPaint(); } }
+
+function _trAvPaint() {
+  var body = document.getElementById("trAvBody");
+  if (!body || !_trAvState) return;
+  var st = _trAvState, w = _trAvWeeks(), live = _trOffersLive();
+  var anchorA = new Date(2026, 8, 14);   // Week A Monday, as RPM_FixedCal.gs
+  var DAYS = ["MON","TUE","WED","THU","FRI","SAT","SUN"];
+  var whoName = "";
+
+  var names = _trAcceptedCache.map(function (a) {
+    var em = (a.email || "").toLowerCase(), on = em === st.who;
+    if (on) whoName = (a.name || "").split(" ")[0];
+    var n = _trOffersFor(em).length;
+    return "<button class='tr-av-name" + (on ? " on" : "") + "' onclick=\"_trAvPick('" + _trEsc(em) + "')\">" +
+             inqEsc(a.name || em) + (n ? "<span class='n'>" + n + "</span>" : "") + "</button>";
+  }).join("");
+
+  var html =
+    "<label class='field-label'>Offer to</label>" +
+    "<div class='tr-av-names'>" + (names || "<span style='color:var(--muted)'>Nobody in Initiate</span>") + "</div>" +
+    "<div class='tr-av-key'><i class='k open'></i>Open <i class='k bi'></i>Biweekly only <i class='k off'></i>Offered " +
+      "<i class='k me'></i>" + (whoName ? inqEsc(whoName) + "’s" : "Picked") + "</div>";
+
+  ["This week", "Next week"].forEach(function (title, k) {
+    var mon = new Date(w.mon.getFullYear(), w.mon.getMonth(), w.mon.getDate() + k * 7);
+    var wk  = (Math.round((mon - anchorA) / 604800000) % 2 + 2) % 2 === 0 ? "A" : "B";
+    html += "<label class='field-label' style='margin-top:18px'>" + title + "</label><div class='tr-av-grid'><div></div>";
+    for (var i = 0; i < 7; i++) {
+      var dd = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + i);
+      html += "<div class='tr-av-day" + (dd <= w.today ? " past" : "") + "'>" + DAYS[i] + "<b>" + dd.getDate() + "</b></div>";
+    }
+    _TR_AV_ROWS.forEach(function (m) {
+      html += "<div class='tr-av-time'>" + _trShortTime(m) + "</div>";
+      for (var i = 0; i < 7; i++) {
+        var day = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + i);
+        html += _trAvSquare(day, i, m, wk, st, live, w.today);
+      }
+    });
+    html += "</div>";
+  });
+  body.innerHTML = html;
+}
+
+function _trAvSquare(day, dIdx, m, wk, st, live, today) {
+  var date = _trYmd(day), inGrid = (FC_GRID[dIdx] || []).indexOf(m) !== -1;
+  var ev = _trAvBusy(date, m);
+  var c  = st.cells[dIdx + "|" + m];
+  var holder = c && (c.weekly[0] || c[wk][0]);
+  var first = function (t) { return inqEsc(String(t || "").split(" ")[0]); };
+
+  if (day <= today) return "<div class='tr-av-sq past'></div>";
+  if (ev)     return "<div class='tr-av-sq taken' data-tip=\"" + _msAttr(ev.title || "") + "\">" + first(ev.title) + "</div>";
+  if (!inGrid) return "<div class='tr-av-sq off'></div>";
+  if (holder) return "<div class='tr-av-sq taken' data-tip=\"" + _msAttr(holder.name + (holder.pencil ? ", pencilled" : "")) + "\">" + first(holder.name) + "</div>";
+
+  var bi = !!c;   // the other half of a biweekly pair is taken
+  var here = live.filter(function (o) { return o.date === date && o.time === _trHhmm(m); });
+  var mine = here.some(function (o) { return o.email === st.who; });
+  var others = here.filter(function (o) { return o.email !== st.who; });
+  var tip = (bi ? "Biweekly only, opposite " + (c.A[0] || c.B[0]).name + "." : "Open, weekly or biweekly.") +
+            (here.length ? "\nOffered to " + here.map(function (o) { return o.name; }).join(", ") + "." : "") +
+            (st.who ? (mine ? "\nClick to take it back." : "\nClick to offer.") : "");
+  // Yours: a tick, plus how many others have it too. Someone else's: their name.
+  var label = mine ? "\u2713" + (others.length ? " +" + others.length : "")
+                   : (others.length ? first(others[0].name) + (others.length > 1 ? " +" + (others.length - 1) : "") : "");
+  return "<button class='tr-av-sq open" + (bi ? " bi" : "") + (others.length ? " offered" : "") + (mine ? " mine" : "") + "' " +
+           "data-tip=\"" + _msAttr(tip) + "\" onclick=\"_trAvToggle('" + date + "','" + _trHhmm(m) + "')\">" + label + "</button>";
+}
+
+// Saves at once; the square changes first and changes back if Google says no.
+function _trAvToggle(date, time) {
+  var st = _trAvState, url = getScriptUrl();
+  if (!st || !st.who || !url) return;
+  var a = _trFindAccepted(st.who) || {};
+  var idx = -1;
+  _trOffers.forEach(function (o, i) { if (o.email === st.who && o.date === date && o.time === time) idx = i; });
+  var on = idx === -1, removed = null;
+  if (on) {
+    var u = new Date(); u.setDate(u.getDate() + 3);
+    _trOffers.push({ email: st.who, name: a.name || st.who, date: date, time: time, until: _trYmd(u) });
+  } else removed = _trOffers.splice(idx, 1)[0];
+  _trAvPaint();
+  fetch(url + "?action=setOffer&email=" + encodeURIComponent(st.who) + "&name=" + encodeURIComponent(a.name || "") +
+        "&date=" + date + "&time=" + time + "&on=" + (on ? 1 : 0))
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (!d.success) throw d.message || ""; })
+    .catch(function (msg) {
+      if (on) _trOffers = _trOffers.filter(function (o) { return !(o.email === st.who && o.date === date && o.time === time); });
+      else if (removed) _trOffers.push(removed);
+      _trAvPaint();
+      rpmToast("fail", "Unsuccessful", typeof msg === "string" && msg ? msg : "could not reach Google");
+    });
 }
 
 // ── The Text window ─────────────────────────────────────────────────────────
