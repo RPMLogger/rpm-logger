@@ -2384,6 +2384,38 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .st-when { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); margin: -6px 0 16px; }
 .st-when + .st-when { margin-top: -12px; }
 .st-when.st-from { margin: 0; }   /* Reschedule's Move from, under its title (2026-10-26) */
+/* Move from / Move to's days (user, 2026-10-27): the picker's caps font, bigger, the first thing seen. */
+.st-big { font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: .8px; text-transform: uppercase; color: rgba(255,255,255,0.72); }
+.st-to .dtp > .dtp-box:first-of-type { display: none; }   /* the day's box: the day sits in the time box instead */
+/* Change appointment's small windows (Reschedule, Skip): quiet labels, the picker tabs' small grey caps, so the dates lead (user, 2026-10-27; were Bebas titles). */
+#stTimeModal .field-label, #stSkipModal .field-label { font-family: "DM Mono", monospace; font-size: 11.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--t-faint); }
+#stTimeModal .field-label.st-gap, #stSkipModal .field-label.st-gap { margin-top: 34px; }   /* more room between the parts, all even (user, 2026-10-27) */
+/* Move from ↓ Move to (user, 2026-10-27): opened up, an arrow centred between the dates, then a bigger gap before the rest. */
+.st-move-arrow { display: flex; gap: 10px; margin: 24px 0 22px; color: var(--t-faint); }
+.st-move-arrow > span { display: flex; justify-content: center; }
+.st-move-arrow .st-move-ico { width: 11px; height: 22px; display: block; }   /* om-126 (user, 2026-10-27) */
+#stTimeModal .field-label.st-to-lab { margin-top: 0; }
+/* The dates' box (user, 2026-10-27): centred, bordered, the labels centred too. */
+.st-move-group { display: flex; flex-direction: column; align-items: center; padding: 22px 18px 24px; border: 1px solid var(--border); border-radius: var(--radius-card); background: rgba(0,0,0,0.3); }   /* border and a darker fill (user, 2026-10-27: tried without, kept) */
+#stTimeModal .st-move-group .field-label { margin: 0 0 11px; text-align: left; font-size: 12px; }   /* MOVE FROM / MOVE TO the dates' size (user, 2026-10-27) */
+/* Day | time: a thin divider instead of the dot (user, 2026-10-27). */
+#stTimeModal .st-move-group + .field-label.st-gap { margin-top: 60px; }
+#stTimeModal .st-foot, #stSkipModal .st-foot { margin-top: 56px; }   /* more room above Confirm (user, 2026-10-27) */
+/* Date and time each in their own box, the picker's border and height (user, 2026-10-27). */
+.st-from, .st-to { display: flex; gap: 10px; }
+.st-box { display: flex; align-items: center; height: 40px; box-sizing: border-box; padding: 0 18px; white-space: nowrap;
+  border: 2px solid var(--border); border-radius: var(--radius-card); background: var(--surface); }
+#stTimeModal .st-move-group .st-from { margin: 0; }
+#stTimeModal .st-from .st-box, #stTimeModal .st-to .st-to-day { background: rgba(255,255,255,0.06); }   /* a light wash on what is fixed: Move from and the picked day; the time you set stays dark (user, 2026-10-27) */
+/* Labels all the way left; the dates centred, the time arrows hanging off the right (user, 2026-10-27). */
+/* Each label on its date row (user, 2026-10-27): label | date | time, the arrow under the dates. */
+.st-move-inner { display: grid; grid-template-columns: auto auto; column-gap: 24px; align-items: center; justify-content: start; align-self: stretch; }   /* left-aligned in its box (user, 2026-10-27) */
+#stTimeModal .st-move-group .field-label { margin: 0; justify-self: start; white-space: nowrap; }
+#stTimeModal .st-move-group .st-move-arrow { grid-column: 2; justify-self: start; }
+.st-to .dtp-val.tm { min-width: 0; padding: 0 18px; font-size: 12px; color: rgba(255,255,255,0.72); }   /* the time right after the day, same font */
+.st-to .dtp-val.tm.on { background: none; color: rgba(255,255,255,0.72); }
+#stTimeModal .st-from .st-box, #stTimeModal .st-to .st-to-day { color: var(--text); }   /* the dates white, a size smaller (user, 2026-10-27; amber tried first) */
+#stTimeModal .st-to .dtp-val.tm, #stTimeModal .st-to .dtp-val.tm.on { color: var(--accent2); }   /* Move to's time amber: the one thing to set here (user, 2026-10-27) */
 .st-win .field-label { display: block; margin-bottom: 6px; }
 .st-win .rpm-field { box-sizing: border-box; }
 /* Lesson / Reschedule / Skip spacing: room between the sections. */
@@ -3595,7 +3627,7 @@ th.f2-blk { background:none; }
 /* Log window phrase pills (user, 2026-10-26): small grey pills under each rows
    box, on the add icon's line (the negative bottom margin pulls the icon up beside them). */
 #imLogWin .im-pills { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0 -29px; padding-right: 36px; position: relative; z-index: 1; }
-.st-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin: 12px 0 0; }   /* Skip / Reschedule reason pills (user, 2026-10-26) */
+.st-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin: 12px 0 0; justify-content: space-between; }   /* spread edge to edge (user, 2026-10-27) */   /* Skip / Reschedule reason pills (user, 2026-10-26) */
 #imLogWin .im-pill, .st-reasons .im-pill { font-family: "DM Mono", monospace; font-size: 10px; line-height: 1; letter-spacing: .2px; color: #8a8a8a; background: transparent;
   border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; padding: 4px 8px; cursor: pointer; }
 #imLogWin .im-pill:hover:where(:not(:disabled)), .st-reasons .im-pill:hover:where(:not(:disabled)), .st-reasons .im-pill.on { color: #ddd; border-color: rgba(255,255,255,0.4); }

@@ -815,6 +815,8 @@ function _stPickDay(cell, ymd) {
 // Reason pills (user, 2026-10-26): under the Reason box in the Skip and
 // Reschedule windows, the Log window's pill look. One tap fills Reason; another
 // pill swaps it, or joins it after text typed by hand.
+// The down arrow between Move from and Move to (om-126.svg, user, 2026-10-27; replaced om-125), black fill stripped.
+var ST_MOVE_ARROW = '<svg class="st-move-ico" viewBox="0 0 605.25 1209.75" aria-hidden="true"><path fill="currentColor" d="M 301.875 0.628906 C 281.046875 0.628906 264.140625 17.546875 264.140625 38.386719 L 264.140625 992.746094 L 56.449219 874.035156 C 40.050781 864.621094 19.21875 868.851562 7.75 883.902344 C 2.566406 890.699219 0 898.753906 0 906.808594 C 0 916.476562 3.722656 926.191406 11.019531 933.492188 L 275.160156 1197.796875 C 289.902344 1212.546875 313.800781 1212.546875 328.542969 1197.796875 L 592.683594 933.492188 C 606.117188 920.101562 607.476562 898.90625 596.003906 883.855469 C 584.53125 868.800781 563.703125 864.574219 547.300781 873.988281 L 339.609375 992.746094 L 339.609375 38.386719 C 339.609375 17.546875 322.707031 0.628906 301.875 0.628906 Z M 301.875 0.628906 "/></svg>';
 var ST_REASONS = ['Away', 'Vacation', 'Gig', 'Personal', 'Not stated', 'Work'];
 function _stReasonPills(id) {
   return "<div class='st-reasons' id='" + id + "'>" + ST_REASONS.map(function(r) {
@@ -916,18 +918,33 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
   var who = 'Student';
   var w = _stWin('stTimeModal', studentName, 'Reschedule', CALENDAR_ICON,
     // Move from: the lesson as it is; Move to: the picker (2026-10-06).
-    "<label class='field-label'>Move from</label>" +
+    // The two dates and the arrow in one centred, bordered box (user, 2026-10-27).
+    "<div class='st-move-group'><div class='st-move-inner'>" +
+    "<label class='field-label'>From</label>" +   // just From / To (user, 2026-10-27; were Move from / Move to)
     // Plain text, the Skip window's line: it's fixed, not a picker (user, 2026-10-26; was the picker's boxes).
-    "<div class='st-when st-from'>" + _stDayLabel(lesson) + " · " + lesson.time + "</div>" +
-    "<label class='field-label st-gap'>Move to</label>" +
+    // In the picker's caps and bigger, the first thing seen (user, 2026-10-27).
+    // A thin divider between the day and the time, not a dot (user, 2026-10-27).
+    // Date and time in their own boxes (user, 2026-10-27; were one box with a divider).
+    "<div class='st-from'><span class='st-big st-box'>" + _stDayLabel(lesson) + "</span><span class='st-big st-box'>" + lesson.time + "</span></div>" +
+    // A down arrow between the two, centred on the dates (user, 2026-10-27).
+    // Two arrows, one under the date and one under the time (user, 2026-10-27).
+    "<div class='st-move-arrow'><span>" + ST_MOVE_ARROW + "</span><span>" + ST_MOVE_ARROW + "</span></div>" +
+    "<label class='field-label st-gap st-to-lab'>To</label>" +
     // Picked on the 8-week view: the day is written in, only the time moves (user, 2026-10-26).
     // The Calendar tab keeps its day arrows (a tap there has no day picked yet).
-    rpmDtpHtml('stRs', { date: newYmd, time: _stPad2(Math.floor(mins / 60)) + ':' + _stPad2(mins % 60), min: 'today', keys: true, fixedDate: !!opts.pick }) +
+    // Picked: one box like Move from, "TUE, NOV 3 · 5:30 PM", the arrows at its end (user, 2026-10-27).
+    (opts.pick ? "<div class='st-to'><span class='st-big st-box st-to-day'>" + _dtpDateLabel(newYmd) + "</span>" : '') +
+    rpmDtpHtml('stRs', { date: newYmd, time: _stPad2(Math.floor(mins / 60)) + ':' + _stPad2(mins % 60), min: 'today', keys: true, fixedDate: !!opts.pick, timeLabel: opts.pick ? '' : undefined }) +   // no TIME tab beside the day (user, 2026-10-27)
+    (opts.pick ? '</div>' : '') +
+    "</div></div>" +
     "<label class='field-label st-gap'>Requested by</label>" + _stWhoSeg('stRsWho', who) +
     "<label class='field-label st-gap'>Reason (optional)</label>" +
     "<input id='stRsNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" + _stReasonPills('stRsReasons') +
     "<div class='ll-acts st-foot'><span class='ll-state' id='stRsState' style='flex:1'></span>" +
       "<button class='link-btn bright' id='stTimeConfirm' data-tip='Moves only this lesson in Google Calendar\nand logs it to Reschedule Logs.' data-tip-left>Confirm move</button></div>");
+  // Each arrow centred under its From box (date, time).
+  var fb = w.querySelectorAll('.st-move-group .st-from .st-box'), as = w.querySelectorAll('.st-move-arrow > span');
+  for (var ai = 0; ai < as.length && ai < fb.length; ai++) as[ai].style.width = fb[ai].offsetWidth + 'px';
   _stWireWho(w, 'stRsWho', function(v) { who = v; });
   _stWireReasons(w, 'stRsReasons', 'stRsNote');
 
