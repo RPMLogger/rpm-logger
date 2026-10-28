@@ -3648,42 +3648,43 @@ th.f2-blk { background:none; }
 #imLogWin .ll-wrap:has(.ll-rows.locked) + .im-pills { opacity: .35; pointer-events: none; }   /* logged: nothing to add to */
 #imLogWin .im-main-log { flex-wrap: wrap; }
 #imLogWin .im-case-hint { flex-basis: 100%; margin: 6px 0 0; }   /* the typing reminder on its own line under the title (user, 2026-10-26) */
-/* To-Do tab in Today's box look (user, 2026-10-26): To-Do box + Completed box, rows like This Week's lines. */
-#todoContent > .tdo-box:first-child { margin-top: 0; }
-#todoContent .tdo-row { display: flex; align-items: flex-start; gap: 12px; padding: 9px 0; }
-#todoContent .tdo-row + .tdo-row { border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
-#todoContent .tdo-num { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); min-width: 20px; text-align: right; padding-top: 2px; }
-#todoContent .tdo-cb { appearance: none; -webkit-appearance: none; flex-shrink: 0; width: 15px; height: 15px; margin: 1px 0 0; border: 1.5px solid var(--muted); border-radius: 50%; cursor: pointer; position: relative; }
-#todoContent .tdo-cb:hover:where(:not(:disabled)) { border-color: var(--green); }
-#todoContent .tdo-cb:checked { border-color: color-mix(in srgb, var(--green) 60%, transparent); background: color-mix(in srgb, var(--green) 14%, transparent); }
-#todoContent .tdo-cb:checked::after { content: "✓"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--green); }
-#todoContent .tdo-text { flex: 1; font-size: 13px; line-height: 1.45; color: var(--t-normal); white-space: pre-wrap; word-break: break-word; }
-#todoContent .tdo-date { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); flex-shrink: 0; padding-top: 2px; white-space: nowrap; }
-#todoContent .tdo-del { padding: 0 2px 0 6px; font-size: 15px; line-height: 1; background: none; border: none; color: var(--muted); cursor: pointer; opacity: 0; }
-#todoContent .tdo-row:hover .tdo-del { opacity: 1; }
-#todoContent .tdo-del:hover { color: var(--accent); }
-#todoContent .tdo-done .tdo-text { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.2); }
-#todoContent .tdo-done .tdo-row { padding: 6px 0; }
-#todoContent .tdo-none { padding: 6px 0; }
+/* To-Do tab in Today's box look (user, 2026-10-26): To-Do box + Completed box, rows like This Week's lines.
+   Notes shares it (user, 2026-10-28): same box and notebook rows, no circles. */
+:is(#todoContent, #notesContent) > .tdo-box:first-child { margin-top: 0; }
+:is(#todoContent, #notesContent) .tdo-row { display: flex; align-items: flex-start; gap: 12px; padding: 9px 0; }
+:is(#todoContent, #notesContent) .tdo-row + .tdo-row { border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
+:is(#todoContent, #notesContent) .tdo-num { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); min-width: 20px; text-align: right; padding-top: 2px; }
+:is(#todoContent, #notesContent) .tdo-cb { appearance: none; -webkit-appearance: none; flex-shrink: 0; width: 15px; height: 15px; margin: 1px 0 0; border: 1.5px solid var(--muted); border-radius: 50%; cursor: pointer; position: relative; }
+:is(#todoContent, #notesContent) .tdo-cb:hover:where(:not(:disabled)) { border-color: var(--green); }
+:is(#todoContent, #notesContent) .tdo-cb:checked { border-color: color-mix(in srgb, var(--green) 60%, transparent); background: color-mix(in srgb, var(--green) 14%, transparent); }
+:is(#todoContent, #notesContent) .tdo-cb:checked::after { content: "✓"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--green); }
+:is(#todoContent, #notesContent) .tdo-text { flex: 1; font-size: 13px; line-height: 1.45; color: var(--t-normal); white-space: pre-wrap; word-break: break-word; }
+:is(#todoContent, #notesContent) .tdo-date { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); flex-shrink: 0; padding-top: 2px; white-space: nowrap; }
+:is(#todoContent, #notesContent) .tdo-del { padding: 0 2px 0 6px; font-size: 15px; line-height: 1; background: none; border: none; color: var(--muted); cursor: pointer; opacity: 0; }
+:is(#todoContent, #notesContent) .tdo-row:hover .tdo-del { opacity: 1; }
+:is(#todoContent, #notesContent) .tdo-del:hover { color: var(--accent); }
+:is(#todoContent, #notesContent) .tdo-done .tdo-text { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.2); }
+:is(#todoContent, #notesContent) .tdo-done .tdo-row { padding: 6px 0; }
+:is(#todoContent, #notesContent) .tdo-none { padding: 6px 0; }
 /* Notebook paper (user, 2026-10-26): every text line sits on a ruled line, wrapped lines too; the circle only on the first. */
-#todoContent .tdo-row { --tdo-lh: 30px; padding: 0; line-height: var(--tdo-lh); align-items: flex-start;
+:is(#todoContent, #notesContent) .tdo-row { --tdo-lh: 30px; padding: 0; line-height: var(--tdo-lh); align-items: flex-start;
   background: repeating-linear-gradient(to bottom, transparent 0 calc(var(--tdo-lh) - 1px), color-mix(in srgb, var(--border) 75%, transparent) calc(var(--tdo-lh) - 1px) var(--tdo-lh)); }
-#todoContent .tdo-row + .tdo-row { border-top: none; }
-#todoContent .tdo-done .tdo-row { padding: 0; --tdo-lh: 26px; }
-#todoContent .tdo-text, #todoContent .tdo-num, #todoContent .tdo-date { line-height: var(--tdo-lh); padding-top: 0; }
-#todoContent .tdo-cb { margin-top: calc((var(--tdo-lh) - 15px) / 2); }
-#todoContent .tdo-del { line-height: var(--tdo-lh); }
-#todoContent .td-wk-icon .win-icon { height: 34px; }   /* the tab-top icons' size (user, 2026-10-28; was 20px like Today) */
-#todoContent .tdo-text { font-family: "Caveat", cursive; font-size: 18px; letter-spacing: 0.2px; }   /* handwriting on the notebook lines (user, 2026-10-28) */
-#todoContent .tdo-done .tdo-text { color: rgba(255,255,255,0.26); text-decoration-color: rgba(255,255,255,0.14); }   /* completed a step darker (user, 2026-10-28) */
+:is(#todoContent, #notesContent) .tdo-row + .tdo-row { border-top: none; }
+:is(#todoContent, #notesContent) .tdo-done .tdo-row { padding: 0; --tdo-lh: 26px; }
+:is(#todoContent, #notesContent) .tdo-text, :is(#todoContent, #notesContent) .tdo-num, :is(#todoContent, #notesContent) .tdo-date { line-height: var(--tdo-lh); padding-top: 0; }
+:is(#todoContent, #notesContent) .tdo-cb { margin-top: calc((var(--tdo-lh) - 15px) / 2); }
+:is(#todoContent, #notesContent) .tdo-del { line-height: var(--tdo-lh); }
+:is(#todoContent, #notesContent) .td-wk-icon .win-icon { height: 34px; }   /* the tab-top icons' size (user, 2026-10-28; was 20px like Today) */
+#todoContent > .tdo-box:first-child .td-wk-icon .win-icon { height: 38px; }   /* om-131 is narrower + finer: as wide as Completed's icon at 38 (user, 2026-10-28) */
+:is(#todoContent, #notesContent) .tdo-text { font-family: "Caveat", cursive; font-size: 18px; letter-spacing: 0.2px; }   /* handwriting on the notebook lines (user, 2026-10-28) */
+:is(#todoContent, #notesContent) .tdo-done .tdo-text { color: rgba(255,255,255,0.26); text-decoration-color: rgba(255,255,255,0.14); }   /* completed a step darker (user, 2026-10-28) */
 /* To-Do magnifier (user, 2026-10-28): magnifying-glass pointer, a half-second rest pops the to-do up bigger. */
-#todoContent .tdo-title-btns { display: flex; align-items: center; gap: 8px; }
+:is(#todoContent, #notesContent) .tdo-title-btns { display: flex; align-items: center; gap: 8px; }
 /* Magnifier pointer on every tab while the header magnifier is on (core/magnifier.js). */
 body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8' stroke='%23000' stroke-width='5'/%3E%3Cline x1='18' y1='18' x2='28' y2='28' stroke='%23000' stroke-width='7'/%3E%3Ccircle cx='12' cy='12' r='8' stroke='%23fff' stroke-width='2.5'/%3E%3Cline x1='18' y1='18' x2='28' y2='28' stroke='%23fff' stroke-width='4'/%3E%3C/g%3E%3C/svg%3E") 12 12, zoom-in; }
 .mag-bubble { position: fixed; z-index: 9000; box-sizing: border-box; max-height: calc(100vh - 32px); overflow-y: auto; padding: 18px 22px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--muted) 55%, transparent); border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); line-height: 1.35; white-space: pre-wrap; word-break: break-word; }   /* font + grey come from the text it shows */
 .tdo-zoom-bubble { font-family: "Caveat", cursive; font-size: 30px; line-height: 1.3; color: var(--t-normal); }   /* the rows' own grey, never brighter than the text it zooms (user, 2026-10-28; was white 0.6) */
-.tdo-zoom-bubble.tdo-zoom-done { color: rgba(255,255,255,0.26); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.14); }   /* the rows' own greys (user, 2026-10-28) */
 .tdo-zoom-bubble .tdo-zoom-foot { display: flex; justify-content: flex-end; margin-top: 16px; font-family: "DM Mono", monospace; }   /* amber Completed under the big text (user, 2026-10-28) */
-#todoContent .tdo-done-hidden .td-wk-icon { margin-bottom: 0; }   /* folded: the box ends under the icon */
-#todoContent .tdo-row { --tdo-lh: 36px; }   /* lines opened up (user, 2026-10-28; was 30) */
-#todoContent .tdo-done .tdo-row { --tdo-lh: 30px; }   /* was 26 */
+:is(#todoContent, #notesContent) .tdo-done-hidden .td-wk-icon { margin-bottom: 0; }   /* folded: the box ends under the icon */
+:is(#todoContent, #notesContent) .tdo-row { --tdo-lh: 36px; }   /* lines opened up (user, 2026-10-28; was 30) */
+:is(#todoContent, #notesContent) .tdo-done .tdo-row { --tdo-lh: 30px; }   /* was 26 */

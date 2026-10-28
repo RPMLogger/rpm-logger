@@ -12,8 +12,12 @@ function initNotesTab() {
   var section = document.getElementById("notesContent");
   if (!section) return;
   if (section.dataset.built !== "1") {
+    // In To-Do's look (user, 2026-10-28): a Notes box (title, + New top right, the pen, the notebook list).
     section.innerHTML =
-      '<div id="notesPanel" style="display:none;border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px;background:var(--panel)">' +
+      '<div class="td-wk-box tdo-box"><div class="settings-title td-wk-title"><span>Notes</span>' +
+        '<span class="tdo-title-btns"><button id="notesAddBtn" class="link-btn amber opens-window" data-tip="Instant.\nOpens the New Note rows.">+ New</button></span></div>' +
+        '<div class="td-wk-icon">' + PEN_ICON + '</div>' +   // the pen (om-127; To-Do's until it got om-129, user 2026-10-28)
+      '<div id="notesPanel" style="display:none;border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:22px;background:var(--panel)">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
           '<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">New Note</div>' +
           '<div style="display:flex;align-items:center;gap:10px">' +
@@ -29,11 +33,8 @@ function initNotesTab() {
           '<button id="notesLog" style="flex:1;padding:8px;font-size:13px;background:rgba(180,40,40,0.25);color:#ff6b6b;border:1px solid rgba(180,40,40,0.5);border-radius:4px;cursor:pointer;letter-spacing:0.5px">LOG IT →</button>' +
         '</div>' +
       '</div>' +
-      '<div id="notesList"></div>' +
-      '<div class="log-feed" id="notesFeed"></div>' +
-      '<div style="margin-top:14px;display:flex;justify-content:center">' +
-        '<button id="notesAddBtn" style="padding:10px 18px;font-size:13px;background:rgba(180,40,40,0.18);color:#ff6b6b;border:1px solid rgba(180,40,40,0.45);border-radius:6px;cursor:pointer;letter-spacing:0.5px">+ New Note</button>' +
-      '</div>';
+      '<div id="notesList"></div></div>' +
+      '<div class="log-feed" id="notesFeed"></div>';
     section.dataset.built = "1";
 
     for (var r = 0; r < 3; r++) {
@@ -221,7 +222,7 @@ function _notesSubmit() {
   var parts = [];
   for (var r = 0; r < 3; r++) {
     var v = document.getElementById("notesRowInput-" + r).value.trim();
-    if (v) parts.push(v);
+    if (v) parts.push(toSentenceCase(v));   // saved in sentence case, like To-Do (user, 2026-10-28)
   }
   var note = parts.join(" - ");
   if (!note) return;
@@ -278,7 +279,7 @@ function _renderNotes() {
   var section = document.getElementById("notesList");
   section.innerHTML = "";
   if (!_notesCache.length) {
-    section.innerHTML = '<div class="empty-state" style="padding:12px">None</div>';
+    section.innerHTML = '<div class="empty-state tdo-none">No notes</div>';
     return;
   }
   // Newest first
@@ -288,27 +289,27 @@ function _renderNotes() {
 
 function _notesListRow(n, num) {
   var row = document.createElement("div");
-  row.style.cssText = "display:flex;align-items:flex-start;gap:8px;padding:6px 4px;border-bottom:1px solid var(--border)";
+  row.className = "tdo-row";   // To-Do's notebook row, without the circle
 
   var numEl = document.createElement("div");
-  numEl.style.cssText = "font-size:11px;color:var(--muted);min-width:22px;flex-shrink:0;text-align:right";
+  numEl.className = "tdo-num";
   numEl.textContent = (num || "") + ".";
   row.appendChild(numEl);
 
   var text = document.createElement("div");
-  text.style.cssText = "flex:1;font-size:12px;color:var(--text);white-space:pre-wrap;word-break:break-word";
-  text.textContent = n.text;
+  text.className = "tdo-text";
+  text.textContent = toSentenceCase(n.text);   // older ones shown in sentence case too
   row.appendChild(text);
 
   var meta = document.createElement("div");
-  meta.style.cssText = "font-size:10px;color:var(--muted);flex-shrink:0;text-align:right;min-width:80px";
+  meta.className = "tdo-date";
   meta.textContent = n.created || "";
   row.appendChild(meta);
 
   var del = document.createElement("button");
-  del.innerHTML = TRASH_ICON;
+  del.className = "tdo-del";
+  del.textContent = "×";
   del.title = "Delete";
-  del.className = "note-del";
   del.onclick = function() {
     rpmConfirm({ title: "Delete this note?", confirmLabel: "Delete", icon: TRASH_ICON, danger: true })
       .then(function (ok) { if (ok) _notesDelete(n.row); });

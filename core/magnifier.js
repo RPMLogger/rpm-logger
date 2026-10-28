@@ -20,8 +20,9 @@ function magToggle() {
 // The nearest block of text under the pointer; null when it's short or a control.
 function _magPick(el) {
   if (!el || !el.closest || el.closest(".header, #magBubble")) return null;
+  // Notebook rows pop up whatever their length: To-Do's in its own bubble, Notes' as plain text.
   var row = el.closest(".tdo-row");
-  if (row) return row;
+  if (row) return row.closest("#todoContent") ? row : row.querySelector(".tdo-text");
   for (; el && el !== document.body; el = el.parentElement) {
     if (/^(BUTTON|INPUT|TEXTAREA|SELECT|A|LABEL)$/.test(el.tagName)) return null;
     if (getComputedStyle(el).display === "inline") continue;

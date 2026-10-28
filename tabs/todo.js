@@ -17,7 +17,7 @@ function initTodoTab() {
     section.innerHTML =
       '<div class="td-wk-box tdo-box"><div class="settings-title td-wk-title"><span>To-Do</span>' +
         '<span class="tdo-title-btns"><button id="todoAddBtn" class="link-btn amber opens-window" data-tip="Instant.\nOpens the New To-Do rows.">+ New</button></span></div>' +
-        '<div class="td-wk-icon">' + PEN_ICON + '</div>' +   // the pen (om-127, user 2026-10-28; the checklist moved to Completed)
+        '<div class="td-wk-icon">' + TODO_ICON + '</div>' +   // the checklist + pencil (om-131, user 2026-10-28; was om-129; the pen moved to Notes, the checklist to Completed)
       '<div id="todoPanel" style="display:none;border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:22px;background:var(--panel)">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
           '<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">New To-Dos</div>' +
@@ -437,7 +437,7 @@ function _todoZoomBubble(row) {
   var text = row.querySelector(".tdo-text");
   if (!text) return null;
   var b = document.createElement("div");
-  b.className = "mag-bubble tdo-zoom-bubble" + (row.classList.contains("tdo-row-done") ? " tdo-zoom-done" : "");
+  b.className = "mag-bubble tdo-zoom-bubble";   // completed ones too: open-row grey, no strike, to read them (user, 2026-10-28)
   var big = document.createElement("div");
   big.textContent = text.textContent;
   b.appendChild(big);
