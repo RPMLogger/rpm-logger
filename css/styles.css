@@ -43,9 +43,11 @@ body {
 
 body::before {
   content: ""; position: fixed; inset: 0;
-  background: url(../img/bg-om.jpg) center / cover no-repeat;
-  opacity: 0.05; pointer-events: none;
-}   /* the user's halftone pattern, faint (user, 2026-10-28; was the amber grid, 1px lines every 40px at 15%) */
+  background:
+    radial-gradient(ellipse 80% 60% at 60% 45%, color-mix(in srgb, var(--accent2) 30%, transparent), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 15% 85%, color-mix(in srgb, oklch(0.45 0.12 70) 22%, transparent), transparent 70%);
+  pointer-events: none;
+}   /* a soft gold glow, the user's gold square faded into the dark (user, 2026-10-28; was the halftone pattern, before that the amber grid) */
 /* No darker sides outside the page column any more (user, 2026-10-26; were
    shaded from 2026-10-24): the grid runs edge to edge. */
 
