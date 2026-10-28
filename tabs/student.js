@@ -767,9 +767,15 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
 // opens Reschedule with the day as Move to.
 // The same lesson again lets it go. One lesson at a time.
 var _stPickSel = null;   // { cell, lesson, name, opts, to }
-function _stPickHint(t) { var h = document.querySelector('#imRsWin .im-rs-hint'); if (h) h.textContent = t; }
-// With a lesson picked, the two moves spelled out (user, 2026-10-28).
-var ST_PICK_HOW = "<ul class='im-rs-how'><li><b>SKIP:</b> tap ✕ on the day</li><li><b>RESCHEDULE:</b> click the day you want to reschedule, tap ✓, then pick the time</li></ul>";   // bullets, a line apart (user, 2026-10-28)
+// The steps under the weeks (user, 2026-10-28). From the Calendar tab the lesson is
+// picked already, so it starts at Skip; from the Log window step 1 is picking it.
+function _stHowSteps(from) {
+  return "<div class='im-rs-sec'><div class='im-rs-h'>SKIP</div><ol start='" + from + "'><li>Tap ✕ on the day</li></ol></div>" +
+    "<div class='im-rs-sec'><div class='im-rs-h'>RESCHEDULE</div><ol start='" + from + "'><li>Click the day you want to move it to</li><li>Tap ✓</li><li>Pick the time</li></ol></div>";
+}
+var ST_HOW_PICKED = _stHowSteps(1);
+var ST_HOW_PICK   = "<div class='im-rs-sec'><div class='im-rs-cap'>To make a change</div><ol><li>Click on a lesson (red) to change</li></ol></div>" + _stHowSteps(2);
+function _stPickHint(html) { var h = document.querySelector('#imRsWin .im-rs-hint'); if (h) h.innerHTML = html; }
 function _stPickClear() {
   var s = _stPickSel;
   if (s) {
@@ -778,12 +784,11 @@ function _stPickClear() {
     if (s.to) { s.to.classList.remove('st-pick-to'); var o = s.to.querySelector('.st-pick-ok'); if (o) o.remove(); }
   }
   _stPickSel = null;
-  _stPickHint('Tap a lesson to pick it.');
 }
 function _stPickLesson(cell, name, lesson, opts) {
   var same = _stPickSel && _stPickSel.cell === cell;
   _stPickClear();
-  if (same) return;
+  if (same) { _stPickHint(ST_HOW_PICK); return; }   // let go: picking a lesson is step 1 again
   _stPickSel = { cell: cell, lesson: lesson, name: name, opts: opts, to: null };
   cell.classList.add('st-pick-sel');
   var x = document.createElement('span');
@@ -792,7 +797,6 @@ function _stPickLesson(cell, name, lesson, opts) {
   x.title = 'Skip this lesson';
   x.onclick = function(e) { e.stopPropagation(); var s = _stPickSel; if (s) _stOpenSkipModal(s.name, s.lesson, s.opts); };
   cell.appendChild(x);
-  var h = document.querySelector('#imRsWin .im-rs-hint'); if (h) h.innerHTML = ST_PICK_HOW;
 }
 function _stPickDay(cell, ymd) {
   var s = _stPickSel;

@@ -1616,7 +1616,7 @@ function _imReschedule(name, o) {
     // The hint under the weeks (2026-10-06).
     "<label class='field-label'>Next 8 weeks</label><div id='imRsBody'><div class='empty-state rpm-loading'>Loading</div></div>" +
     // No "No change" button here (2026-10-08): close it and press Not needed instead.
-    "<div class='im-rs-hint'>Tap a lesson to pick it.</div>");
+    "<div class='im-rs-hint'>" + (o && o.pre ? ST_HOW_PICKED : ST_HOW_PICK) + "</div>");   // the steps (student.js, 2026-10-28)
   w.querySelector('.st-win').classList.add('im-rs-win');
   _stPickSel = null;   // a fresh pick each time (student.js)
   _imRsLoad(name, o || {});

@@ -2253,8 +2253,12 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Import Reschedule window (2026-10-06): Home's 8-week strips on this page. */
 .im-rs-strips { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
 .im-rs-hint { font-size: 11px; color: var(--muted); text-align: left; margin-top: 24px; }   /* left (user, 2026-10-28; was centred); more room under the weeks (was 12px) */
-.im-rs-how { margin: 0; padding-left: 16px; list-style: disc; }
-.im-rs-how li + li { margin-top: 1.5em; }   /* one empty line between them */
+/* The steps (user, 2026-10-28): SKIP / RESCHEDULE headings, numbered steps under each, a line apart. */
+.im-rs-hint { line-height: 1.55; }
+.im-rs-hint ol { margin: 2px 0 0; padding-left: 22px; }
+.im-rs-sec + .im-rs-sec { margin-top: 1.5em; }
+.im-rs-h { font-weight: 700; letter-spacing: .3px; }
+.im-rs-cap { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--t-faint); margin-bottom: 10px; }   /* To make a change: the labels' font */
 /* Pick on the 8-week view (user, 2026-10-26): the picked lesson white (selected) with ✕ (Skip) in its corner; the day it moves to green with a ✓. */
 .im-rs-strips button { position: relative; }
 .im-rs-strips .st-pick-sel { background: rgba(255,255,255,0.10) !important; border-color: rgba(255,255,255,0.55) !important; color: #fff !important; }
