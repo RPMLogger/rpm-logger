@@ -311,6 +311,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2) {
   box-sizing: border-box; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
 }
+#tab-payments.tab-panel.active { background: #141414; }   /* Payments only: the logo box's shade, so its cards show (user, 2026-10-27) */
 
 /* ─── HOME: the opening page (2026-10-24) ─── */
 /* In the bordered box like every tab, under the header (user, 2026-10-26; was
@@ -1173,6 +1174,10 @@ input[type="checkbox"]:checked {
   padding: 11px 14px; margin-bottom: 4px;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
+/* Payments: narrower cards (user, 2026-10-27; tried rows with divider lines first) */
+#tab-payments .incoming-card { max-width: 480px; margin-left: auto; margin-right: auto;
+  border-radius: 10px; border-left: 3px solid #8f743d; padding: 12px 14px; margin-bottom: 8px; }   /* the portal card (Students / Dropbox): 10px corners, 3px edge; amber = waits for Confirm, the Today card's amber */
+#tab-payments #autoConfirmed .incoming-card { border-left-color: color-mix(in srgb, var(--green) 42%, transparent); }   /* done: dimmed green, the AUTO tick's colour */
 .incoming-name { font-family: "Syne", sans-serif; font-size: 13px; margin-bottom: 10px; }   /* 5 → 10px: name and payment line apart (2026-09-29) */
 .incoming-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .incoming-method { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; font-family: "DM Mono", monospace; }
