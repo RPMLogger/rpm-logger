@@ -44,8 +44,8 @@ body {
 body::before {
   content: ""; position: fixed; inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 60% 45%, color-mix(in srgb, var(--accent2) 25%, transparent), transparent 70%),
-    radial-gradient(ellipse 60% 50% at 15% 85%, color-mix(in srgb, oklch(0.45 0.12 70) 18%, transparent), transparent 70%);
+    radial-gradient(ellipse 80% 60% at 60% 45%, color-mix(in srgb, var(--accent2) 21%, transparent), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 15% 85%, color-mix(in srgb, oklch(0.45 0.12 70) 15%, transparent), transparent 70%);
   pointer-events: none;
 }   /* a soft gold glow, the user's gold square faded into the dark (user, 2026-10-28; was the halftone pattern, before that the amber grid) */
 /* No darker sides outside the page column any more (user, 2026-10-26; were
