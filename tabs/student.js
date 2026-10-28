@@ -794,7 +794,7 @@ function _stPickLesson(cell, name, lesson, opts) {
   var x = document.createElement('span');
   x.className = 'st-pick-x';
   x.textContent = '✕';
-  x.title = 'Skip this lesson';
+  x.dataset.tip = 'Skip this lesson';
   x.onclick = function(e) { e.stopPropagation(); var s = _stPickSel; if (s) _stOpenSkipModal(s.name, s.lesson, s.opts); };
   cell.appendChild(x);
 }
@@ -809,7 +809,7 @@ function _stPickDay(cell, ymd) {
   var ok = document.createElement('span');
   ok.className = 'st-pick-ok';
   ok.textContent = '✓';
-  ok.title = 'Move it to this day';
+  ok.dataset.tip = 'Move it to this day, then pick the time';   // the portal's rounded tip, not the browser's (user, 2026-10-28)
   ok.onclick = function(e) { e.stopPropagation(); var t = _stPickSel; if (t) _stOpenTimeConfirm(t.name, t.lesson, ymd, t.opts); };
   cell.appendChild(ok);
 }
