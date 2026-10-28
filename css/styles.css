@@ -3671,3 +3671,6 @@ th.f2-blk { background:none; }
 #todoContent .tdo-text, #todoContent .tdo-num, #todoContent .tdo-date { line-height: var(--tdo-lh); padding-top: 0; }
 #todoContent .tdo-cb { margin-top: calc((var(--tdo-lh) - 15px) / 2); }
 #todoContent .tdo-del { line-height: var(--tdo-lh); }
+#todoContent .td-wk-icon .win-icon { height: 34px; }   /* the tab-top icons' size (user, 2026-10-28; was 20px like Today) */
+#todoContent .tdo-text { font-family: "Caveat", cursive; font-size: 18px; letter-spacing: 0.2px; }   /* handwriting on the notebook lines (user, 2026-10-28) */
+#todoContent .tdo-done .tdo-text { color: rgba(255,255,255,0.26); text-decoration-color: rgba(255,255,255,0.14); }   /* completed a step darker (user, 2026-10-28) */
