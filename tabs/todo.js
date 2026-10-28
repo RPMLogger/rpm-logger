@@ -16,8 +16,9 @@ function initTodoTab() {
     // In Today's box look (user, 2026-10-26): a To-Do box (title, + New top right, icon, count, list) and a Completed box under it.
     section.innerHTML =
       '<div class="td-wk-box tdo-box"><div class="settings-title td-wk-title"><span>To-Do</span>' +
-        '<button id="todoAddBtn" class="link-btn red opens-window" data-tip="Instant.\nOpens the New To-Do rows.">+ New</button></div>' +
-        '<div class="td-wk-icon">' + CHECKLIST_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>' +
+        '<span class="tdo-title-btns"><button id="todoZoomBtn" class="link-btn" data-tip="Instant.\nMagnifier: hold the pointer on a to-do\nfor half a second to see it bigger.">' + DETAILS_ICON + '</button>' +
+        '<button id="todoAddBtn" class="link-btn amber opens-window" data-tip="Instant.\nOpens the New To-Do rows.">+ New</button></span></div>' +
+        '<div class="td-wk-icon">' + PEN_ICON + '</div>' +   // the pen (om-127, user 2026-10-28; the checklist moved to Completed)
       '<div id="todoPanel" style="display:none;border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:22px;background:var(--panel)">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
           '<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">New To-Dos</div>' +
@@ -71,6 +72,8 @@ function initTodoTab() {
     document.getElementById("todoLog").onclick = _todoSubmitAll;
     document.getElementById("todoAddBtn").onclick = _todoOpenPanel;
     document.getElementById("todoClose").onclick = _todoClosePanel;
+    document.getElementById("todoZoomBtn").onclick = _todoZoomToggle;
+    _todoZoomWire(section);
     _todoSetActive(0);
   }
   _loadTodos();
@@ -297,10 +300,9 @@ function _renderTodos() {
   var active = _todoCache.filter(function(t) { return !t.done; });
   var done   = _todoCache.filter(function(t) { return  t.done; });
 
-  // Count → line → list, like Today's "3 students".
+  // Straight into the list: no "5 open" count or line (user, 2026-10-28).
   var act = document.getElementById("todoActive");
-  act.innerHTML = '<div class="db-cx-head im-sec-head td-wk-head"><label class="field-label db-cx-t">' + active.length + ' open</label></div>' +
-    '<hr class="divider td-wk-rule">';
+  act.innerHTML = "";
   if (!active.length) {
     act.insertAdjacentHTML("beforeend", '<div class="empty-state tdo-none">Nothing to do</div>');
   } else {
@@ -313,8 +315,9 @@ function _renderTodos() {
   if (done.length) {
     var box = document.createElement("div");
     box.className = "td-wk-box tdo-box tdo-done";
-    box.innerHTML = '<div class="settings-title td-wk-title"><span>Completed<span class="win-sub"> · ' + done.length + '</span></span></div>' +
-      '<hr class="divider td-wk-rule">';
+    box.innerHTML = '<div class="settings-title td-wk-title"><span>Completed</span></div>' +   // no "· 17" count (user, 2026-10-28)
+      '<div class="td-wk-icon">' + CHECKLIST_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>' +   // was the To-Do box's (user, 2026-10-28); no line under it, like To-Do
+      '';
     var clearBtn = document.createElement("button");
     clearBtn.className = "link-btn";
     clearBtn.textContent = "Clear all";
@@ -322,8 +325,31 @@ function _renderTodos() {
       rpmConfirm({ title: "Delete all completed tasks?", confirmLabel: "Delete all", danger: true })
         .then(function (ok) { if (ok) _todoClearCompleted(clearBtn); });
     };
-    box.firstChild.appendChild(clearBtn);
-    done.forEach(function(t, i) { box.appendChild(_todoListRow(t, i + 1)); });
+    // Show / Hide beside Clear all: folds the list away; the choice is remembered (user, 2026-10-28).
+    var hidden = false;
+    try { hidden = localStorage.getItem("todoDoneHidden") === "1"; } catch (e) {}
+    var showBtn = document.createElement("button");
+    showBtn.className = "link-btn";
+    var btns = document.createElement("span");
+    btns.className = "tdo-title-btns";
+    btns.appendChild(showBtn);
+    btns.appendChild(clearBtn);
+    box.firstChild.appendChild(btns);
+    var list = document.createElement("div");
+    list.className = "tdo-done-list";
+    done.forEach(function(t, i) { list.appendChild(_todoListRow(t, i + 1)); });
+    box.appendChild(list);
+    function paint() {
+      list.style.display = hidden ? "none" : "";
+      box.classList.toggle("tdo-done-hidden", hidden);
+      showBtn.textContent = hidden ? "Show" : "Hide";
+    }
+    showBtn.onclick = function() {
+      hidden = !hidden;
+      try { localStorage.setItem("todoDoneHidden", hidden ? "1" : "0"); } catch (e) {}
+      paint();
+    };
+    paint();
     doneWrap.appendChild(box);
   }
 }
@@ -331,6 +357,7 @@ function _renderTodos() {
 function _todoListRow(t, num) {
   var row = document.createElement("div");
   row.className = "tdo-row" + (t.done ? " tdo-row-done" : "");
+  row.dataset.row = t.row;   // the sheet row, for the magnifier's Completed button
 
   var numEl = document.createElement("div");
   numEl.className = "tdo-num";
@@ -404,4 +431,97 @@ function _todoClearCompleted(btn) {
       addLog("todoFeed", "❌ " + (data && data.message ? data.message : "Clear failed"), "error");
     }
   });
+}
+
+// ─── MAGNIFIER (user, 2026-10-28) ──────────────────────────────────────────
+// The magnifier button turns the pointer into a magnifying glass; resting it on
+// a to-do for half a second pops that to-do up bigger in a bubble over its row.
+// Leaving the bubble closes it; the button again turns the magnifier off.
+var TDO_ZOOM_MS   = 500;    // half a second (user, 2026-10-28; was 2, then 1)
+var _todoZoomOn   = false;
+var _todoZoomTimer = null;
+
+function _todoZoomToggle() {
+  _todoZoomOn = !_todoZoomOn;
+  document.getElementById("todoZoomBtn").classList.toggle("pressed", _todoZoomOn);
+  document.getElementById("todoContent").classList.toggle("tdo-zoom-on", _todoZoomOn);
+  if (!_todoZoomOn) { clearTimeout(_todoZoomTimer); _todoZoomClose(); }
+}
+
+function _todoZoomWire(section) {
+  section.addEventListener("mouseover", function(e) {
+    if (!_todoZoomOn || document.getElementById("tdoZoomBubble")) return;
+    var row = e.target.closest && e.target.closest(".tdo-row");
+    if (!row || row === section._zoomRow) return;
+    section._zoomRow = row;
+    clearTimeout(_todoZoomTimer);
+    _todoZoomTimer = setTimeout(function() { _todoZoomOpen(row); }, TDO_ZOOM_MS);
+  });
+  section.addEventListener("mouseout", function(e) {
+    var row = section._zoomRow;
+    if (row && !row.contains(e.relatedTarget)) { clearTimeout(_todoZoomTimer); section._zoomRow = null; }
+  });
+}
+
+function _todoZoomOpen(row) {
+  _todoZoomClose();
+  var text = row.querySelector(".tdo-text");
+  if (!text) return;
+  var r = row.getBoundingClientRect();
+  var b = document.createElement("div");
+  b.id = "tdoZoomBubble";
+  b.className = "tdo-zoom-bubble" + (row.classList.contains("tdo-row-done") ? " tdo-zoom-done" : "");
+  var big = document.createElement("div");
+  big.textContent = text.textContent;
+  b.appendChild(big);
+  // An open to-do gets an amber Completed button at the bottom: ticks it like the circle (user, 2026-10-28).
+  if (!row.classList.contains("tdo-row-done")) {
+    var foot = document.createElement("div");
+    foot.className = "tdo-zoom-foot";
+    var done = document.createElement("button");
+    done.className = "link-btn amber";
+    done.textContent = "Completed";
+    done.onclick = function() { _todoZoomDone(row, b, done); };
+    foot.appendChild(done);
+    b.appendChild(foot);
+  }
+  document.body.appendChild(b);
+  // Centred on the row, kept inside the window.
+  var w = Math.min(560, window.innerWidth - 32);
+  b.style.width = w + "px";
+  var left = Math.max(16, Math.min(r.left + r.width / 2 - w / 2, window.innerWidth - w - 16));
+  var top = r.top + r.height / 2 - b.offsetHeight / 2;
+  top = Math.max(16, Math.min(top, window.innerHeight - b.offsetHeight - 16));
+  b.style.left = left + "px";
+  b.style.top = top + "px";
+  b.addEventListener("mouseleave", _todoZoomClose);
+  // If the bubble opened away from the pointer (kept inside the window), the first move outside it closes it.
+  document.addEventListener("mousemove", function away(e) {
+    if (!document.body.contains(b)) { document.removeEventListener("mousemove", away); return; }
+    if (!b.contains(e.target) && !b._busy) { document.removeEventListener("mousemove", away); _todoZoomClose(); }
+  });
+}
+
+function _todoZoomDone(row, bubble, btn) {
+  var url = getScriptUrl(); if (!url) return;
+  bubble._busy = true;   // stays open while it saves, even if the pointer leaves
+  rpmBusy(bubble, btn, true);
+  callScript(url, "toggleTodo", { row: row.dataset.row, done: "true" }, function(data) {
+    bubble._busy = false;
+    rpmBusy(bubble, btn, false);
+    if (data && data.success) {
+      _todoZoomClose();
+      _loadTodos();
+    } else {
+      addLog("todoFeed", "❌ " + (data && data.message ? data.message : "Toggle failed"), "error");
+    }
+  });
+}
+
+function _todoZoomClose() {
+  var b = document.getElementById("tdoZoomBubble");
+  if (b && b._busy) return;
+  if (b) b.remove();
+  var sec = document.getElementById("todoContent");
+  if (sec) sec._zoomRow = null;
 }

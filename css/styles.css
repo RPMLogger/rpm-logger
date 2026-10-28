@@ -3674,3 +3674,13 @@ th.f2-blk { background:none; }
 #todoContent .td-wk-icon .win-icon { height: 34px; }   /* the tab-top icons' size (user, 2026-10-28; was 20px like Today) */
 #todoContent .tdo-text { font-family: "Caveat", cursive; font-size: 18px; letter-spacing: 0.2px; }   /* handwriting on the notebook lines (user, 2026-10-28) */
 #todoContent .tdo-done .tdo-text { color: rgba(255,255,255,0.26); text-decoration-color: rgba(255,255,255,0.14); }   /* completed a step darker (user, 2026-10-28) */
+/* To-Do magnifier (user, 2026-10-28): magnifying-glass pointer, a half-second rest pops the to-do up bigger. */
+#todoContent .tdo-title-btns { display: flex; align-items: center; gap: 8px; }
+#todoContent .tdo-title-btns #todoZoomBtn .btn-icon { width: 13px; height: 13px; display: block; }
+#todoContent.tdo-zoom-on, #todoContent.tdo-zoom-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8' stroke='%23000' stroke-width='5'/%3E%3Cline x1='18' y1='18' x2='28' y2='28' stroke='%23000' stroke-width='7'/%3E%3Ccircle cx='12' cy='12' r='8' stroke='%23fff' stroke-width='2.5'/%3E%3Cline x1='18' y1='18' x2='28' y2='28' stroke='%23fff' stroke-width='4'/%3E%3C/g%3E%3C/svg%3E") 12 12, zoom-in; }
+.tdo-zoom-bubble { position: fixed; z-index: 9000; box-sizing: border-box; padding: 18px 22px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--muted) 55%, transparent); border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); font-family: "Caveat", cursive; font-size: 30px; line-height: 1.3; color: rgba(255,255,255,0.6); white-space: pre-wrap; word-break: break-word; }
+.tdo-zoom-bubble.tdo-zoom-done { color: rgba(255,255,255,0.26); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.14); }   /* the rows' own greys (user, 2026-10-28) */
+.tdo-zoom-bubble .tdo-zoom-foot { display: flex; justify-content: flex-end; margin-top: 16px; font-family: "DM Mono", monospace; }   /* amber Completed under the big text (user, 2026-10-28) */
+#todoContent .tdo-done-hidden .td-wk-icon { margin-bottom: 0; }   /* folded: the box ends under the icon */
+#todoContent .tdo-row { --tdo-lh: 36px; }   /* lines opened up (user, 2026-10-28; was 30) */
+#todoContent .tdo-done .tdo-row { --tdo-lh: 30px; }   /* was 26 */
