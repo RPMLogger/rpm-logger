@@ -311,7 +311,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2) {
   box-sizing: border-box; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
 }
-#tab-payments.tab-panel.active { background: #141414; }   /* Payments only: the logo box's shade, so its cards show (user, 2026-10-27) */
+.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2)#tab-payments { background: #141414; }   /* Payments only: the logo box's shade, so its cards show (user, 2026-10-27); the rule above's :not(#id)s outweigh a plain #tab-payments */
 
 /* ─── HOME: the opening page (2026-10-24) ─── */
 /* In the bordered box like every tab, under the header (user, 2026-10-26; was
