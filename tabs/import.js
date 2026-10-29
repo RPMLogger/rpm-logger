@@ -1613,10 +1613,27 @@ function _imRedraw() {
 // onDone replaces the Log window's Schedule tick.
 function _imReschedule(name, o) {
   var w = _stWin('imRsWin', inqEsc(name), 'Change appointment', CALENDAR_ICON,   // skip or move (user, 2026-10-27; was Reschedule)
-    // The hint under the weeks (2026-10-06).
-    "<label class='field-label'>Next 8 weeks</label><div id='imRsBody'><div class='empty-state rpm-loading'>Loading</div></div>" +
+    // The steps first, the weeks under them (user, 2026-10-29; were under the weeks).
+    "<div class='im-rs-hint im-rs-hint-top'>" + (o && o.pre ? ST_HOW_PICKED : ST_HOW_PICK) + "</div>" +   // the steps (student.js, 2026-10-28)
+    "<label class='field-label im-rs-weeks-l'>Next 8 weeks</label><div id='imRsBody'><div class='empty-state rpm-loading'>Loading</div></div>" +
+    // What the ✓ set (user, 2026-10-29): a bordered box under the weeks, blank until then; _rpmTpStyle() styles it.
     // No "No change" button here (2026-10-08): close it and press Not needed instead.
-    "<div class='im-rs-hint'>" + (o && o.pre ? ST_HOW_PICKED : ST_HOW_PICK) + "</div>");   // the steps (student.js, 2026-10-28)
+    "<div class='im-rs-moved-h'>Moving to</div><div class='im-rs-moved' id='imRsMoved'></div>" +   // the title over the box, in line with SKIP (user, 2026-10-29)
+    // The rest of a reschedule right here (user, 2026-10-29: no window on top): a line, then
+    // Requested by, Reason and Confirm move, the Reschedule window's look; dimmed until the ✓.
+    "<div class='im-rs-confirm st-off' id='imRsConfirm'>" +   // no line above (user, 2026-10-29)
+      "<label class='field-label st-gap'>Requested by</label>" + _stWhoSeg('imRsWho', 'Student') +
+      "<label class='field-label st-gap'>Reason (optional)</label>" +
+      "<input id='imRsNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" + _stReasonPills('imRsReasons') +
+      "<div class='ll-acts st-foot'><span class='ll-state' id='imRsState' style='flex:1'></span>" +
+        "<button class='link-btn bright' id='imRsConfirmBtn' onclick='_stPickConfirm(this)' data-tip='Moves only this lesson in Google Calendar\nand logs it to Reschedule Logs.' data-tip-left>Confirm move</button></div></div>");
+  _stWireWho(w, 'imRsWho', function(v) { _stPickWho = v; });
+  _stWireReasons(w, 'imRsReasons', 'imRsNote');
+  _stPickWho = 'Student';
+  _rpmTpStyle();
+  // Undo on the icon's line, top right (user, 2026-10-29): one step back at a time.
+  var ic = w.querySelector('.win-icon');
+  if (ic) { ic.parentNode.classList.add('im-rs-iconrow'); ic.parentNode.insertAdjacentHTML('beforeend', "<button class='link-btn im-rs-undo' id='imRsUndo' disabled onclick='_stPickUndo()' data-tip='Takes back the last step on the weeks.' data-tip-left>Undo</button>"); }
   w.querySelector('.st-win').classList.add('im-rs-win');
   _stPickSel = null;   // a fresh pick each time (student.js)
   _imRsLoad(name, o || {});
