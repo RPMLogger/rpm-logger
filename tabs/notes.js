@@ -349,7 +349,7 @@ function _notesListRow(n, num) {
 
   var meta = document.createElement("div");
   meta.className = "tdo-date";
-  meta.textContent = (n.removed || n.created || "");
+  meta.textContent = _tdoDate(n.removed || n.created);
   row.appendChild(meta);
 
   // × moves the note to Removed at once (user, 2026-10-28; was a delete with a confirm);

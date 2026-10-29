@@ -377,7 +377,7 @@ function _todoListRow(t, num) {
 
   var meta = document.createElement("div");
   meta.className = "tdo-date";
-  meta.textContent = t.done ? (t.completed || "") : (t.created || "");
+  meta.textContent = _tdoDate(t.done ? t.completed : t.created);
   row.appendChild(meta);
 
   var del = document.createElement("button");
@@ -471,4 +471,10 @@ function _todoZoomDone(row, bubble, btn) {
       addLog("todoFeed", "❌ " + (data && data.message ? data.message : "Toggle failed"), "error");
     }
   });
+}
+
+// The sheet shows dates as "Jun /20"; the portal writes "Jun 20" (user, 2026-10-28).
+// Used by To-Do and Notes.
+function _tdoDate(s) {
+  return (s || "").replace(/^([A-Za-z]{3})\s*\/\s*(\d{1,2})$/, "$1 $2");
 }

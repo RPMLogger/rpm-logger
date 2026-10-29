@@ -3688,3 +3688,7 @@ body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http:
 :is(#todoContent, #notesContent) .tdo-done-hidden .td-wk-icon { margin-bottom: 0; }   /* folded: the box ends under the icon */
 :is(#todoContent, #notesContent) .tdo-row { --tdo-lh: 36px; }   /* lines opened up (user, 2026-10-28; was 30) */
 :is(#todoContent, #notesContent) .tdo-done .tdo-row { --tdo-lh: 30px; }   /* was 26 */
+:is(#todoContent, #notesContent) .tdo-row { background-repeat: no-repeat; background-position: 26px 0; background-size: calc(100% - 26px - 75px) 100%; }   /* ruled lines only from the circle to the date, not under the number or date (user, 2026-10-28) */
+#todoContent .tdo-cb { order: -1; width: 11px; height: 11px; border-width: 1.2px; margin-top: calc((var(--tdo-lh) - 11px) / 2); }   /* circle left of the number, smaller (user, 2026-10-28; was 15px) */
+#todoContent .tdo-cb:checked::after { font-size: 7px; }
+#todoContent .tdo-row { background-position: 55px 0; background-size: calc(100% - 55px - 75px) 100%; }   /* so the lines start at the text */
