@@ -5,6 +5,7 @@
 // are joined with " - " into one to-do.
 
 var _todoCache    = [];
+var _todoDoneShown = false;   // Completed opens hidden each time the tab opens (user, 2026-10-29)
 
 function initTodoTab() {
   var section = document.getElementById("todoContent");
@@ -23,6 +24,7 @@ function initTodoTab() {
       _tdoEntryOpen({ title: "New to-do", icon: TODO_ICON, action: "addTodo", key: "task", tip: "Saves the to-do.", onSaved: _loadTodos });
     };
   }
+  _todoDoneShown = false;
   // First open: the rolling LOADING in the middle of the box until the list arrives (user, 2026-10-28).
   if (!_todoCache.length) document.getElementById("todoActive").innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   _loadTodos();
@@ -182,9 +184,8 @@ function _renderTodos() {
       rpmConfirm({ title: "Delete all completed tasks?", confirmLabel: "Delete all", danger: true })
         .then(function (ok) { if (ok) _todoClearCompleted(clearBtn); });
     };
-    // Show / Hide beside Clear all: folds the list away; the choice is remembered (user, 2026-10-28).
-    var hidden = false;
-    try { hidden = localStorage.getItem("todoDoneHidden") === "1"; } catch (e) {}
+    // Show / Hide beside Clear all: folds the list away (user, 2026-10-28); hidden again next time the tab opens (2026-10-29).
+    var hidden = !_todoDoneShown;
     var showBtn = document.createElement("button");
     showBtn.className = "link-btn";
     var btns = document.createElement("span");
@@ -203,7 +204,7 @@ function _renderTodos() {
     }
     showBtn.onclick = function() {
       hidden = !hidden;
-      try { localStorage.setItem("todoDoneHidden", hidden ? "1" : "0"); } catch (e) {}
+      _todoDoneShown = !hidden;
       paint();
     };
     paint();

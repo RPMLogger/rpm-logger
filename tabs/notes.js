@@ -4,6 +4,7 @@
 // Rows are joined with " - " into one note.
 
 var _notesCache = [];
+var _notesRemovedShown = false;   // Removed opens hidden each time the tab opens (user, 2026-10-29)
 
 function initNotesTab() {
   var section = document.getElementById("notesContent");
@@ -22,6 +23,7 @@ function initNotesTab() {
       _tdoEntryOpen({ title: "New note", icon: PEN_ICON, action: "addNote", key: "note", tip: "Saves the note.", onSaved: _loadNotes });
     };
   }
+  _notesRemovedShown = false;
   // First open: the rolling LOADING in the middle of the box until the list arrives (user, 2026-10-28).
   if (!_notesCache.length) document.getElementById("notesList").innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   _loadNotes();
@@ -74,8 +76,7 @@ function _renderNotes() {
     rpmConfirm({ title: "Delete all removed notes?", confirmLabel: "Delete all", icon: TRASH_ICON, danger: true })
       .then(function (ok) { if (ok) _notesClearRemoved(clearBtn); });
   };
-  var hidden = false;
-  try { hidden = localStorage.getItem("notesRemovedHidden") === "1"; } catch (e) {}
+  var hidden = !_notesRemovedShown;
   var showBtn = document.createElement("button");
   showBtn.className = "link-btn";
   var btns = document.createElement("span");
@@ -94,7 +95,7 @@ function _renderNotes() {
   }
   showBtn.onclick = function() {
     hidden = !hidden;
-    try { localStorage.setItem("notesRemovedHidden", hidden ? "1" : "0"); } catch (e) {}
+    _notesRemovedShown = !hidden;
     paint();
   };
   paint();
