@@ -5,7 +5,8 @@
 // are joined with " - " into one to-do.
 
 var _todoCache    = [];
-var _todoDoneShown = false;   // Completed opens hidden each time the tab opens (user, 2026-10-29)
+var _todoDoneShown = false;
+var _todoDragOn    = false;   // Drag mode (user, 2026-10-29): off each time the tab opens   // Completed opens hidden each time the tab opens (user, 2026-10-29)
 
 function initTodoTab() {
   var section = document.getElementById("todoContent");
@@ -16,15 +17,18 @@ function initTodoTab() {
       '<div class="td-wk-box tdo-box"><div class="settings-title td-wk-title"><span>To-Do</span>' +
         '<span class="tdo-title-btns"><button id="todoAddBtn" class="link-btn amber opens-window" data-tip="Opens a window.\nNew to-do.">+ New</button></span></div>' +
         '<div class="td-wk-icon">' + TODO_ICON + '</div>' +   // the checklist + pencil (om-131, user 2026-10-28; was om-129; the pen moved to Notes, the checklist to Completed)
-      '<div id="todoActive"></div></div>' +
+      '<div id="todoActive"></div>' +
+      '<div class="tdo-foot"><button id="todoDragBtn" class="link-btn" data-tip="Instant.\nDrag mode: drag the to-dos into a new order.\nPress again to finish." data-tip-left>Drag</button></div></div>' +
       '<div id="todoDoneWrap"></div>' +
       '<div class="log-feed" id="todoFeed"></div>';
     section.dataset.built = "1";
+    document.getElementById("todoDragBtn").onclick = function() { _todoDragOn = !_todoDragOn; _renderTodos(); };
     document.getElementById("todoAddBtn").onclick = function() {
       _tdoEntryOpen({ title: "New to-do", icon: TODO_ICON, action: "addTodo", key: "task", tip: "Saves the to-do.", onSaved: _loadTodos });
     };
   }
   _todoDoneShown = false;
+  _todoDragOn = false;
   // First open: the rolling LOADING in the middle of the box until the list arrives (user, 2026-10-28).
   if (!_todoCache.length) document.getElementById("todoActive").innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   _loadTodos();
@@ -162,10 +166,11 @@ function _renderTodos() {
   // Straight into the list: no "5 open" count or line (user, 2026-10-28).
   var act = document.getElementById("todoActive");
   act.innerHTML = "";
+  _tdoDragMode(act, "todoDragBtn", _todoDragOn, active.length);
   if (!active.length) {
     act.insertAdjacentHTML("beforeend", '<div class="empty-state tdo-none">Nothing to do</div>');
   } else {
-    active.forEach(function(t, i) { act.appendChild(_todoListRow(t, i + 1)); });
+    active.forEach(function(t, i) { act.appendChild(_todoListRow(t, i + 1, active, i)); });
   }
 
   // Completed: its own box under, title + Clear all top right, rows dimmed.
@@ -179,7 +184,7 @@ function _renderTodos() {
       '';
     var clearBtn = document.createElement("button");
     clearBtn.className = "link-btn";
-    clearBtn.textContent = "Clear all";
+    clearBtn.innerHTML = TRASH_ICON + "<span>Clear all</span>";   // trash icon (user, 2026-10-29)
     clearBtn.onclick = function() {
       rpmConfirm({ title: "Delete all completed tasks?", confirmLabel: "Delete all", danger: true })
         .then(function (ok) { if (ok) _todoClearCompleted(clearBtn); });
@@ -191,11 +196,15 @@ function _renderTodos() {
     var btns = document.createElement("span");
     btns.className = "tdo-title-btns";
     btns.appendChild(showBtn);
-    btns.appendChild(clearBtn);
     box.firstChild.appendChild(btns);
     var list = document.createElement("div");
     list.className = "tdo-done-list";
     done.forEach(function(t, i) { list.appendChild(_todoListRow(t, i + 1)); });
+    // Show at the top; Clear all inside what Show opens, at the bottom where To-Do's Drag is (user, 2026-10-29).
+    var foot = document.createElement("div");
+    foot.className = "tdo-foot";
+    foot.appendChild(clearBtn);
+    list.appendChild(foot);
     box.appendChild(list);
     function paint() {
       list.style.display = hidden ? "none" : "";
@@ -212,7 +221,7 @@ function _renderTodos() {
   }
 }
 
-function _todoListRow(t, num) {
+function _todoListRow(t, num, list, i) {
   var row = document.createElement("div");
   row.className = "tdo-row" + (t.done ? " tdo-row-done" : "");
   row.dataset.row = t.row;   // the sheet row, for the magnifier's Completed button
@@ -238,6 +247,7 @@ function _todoListRow(t, num) {
   meta.className = "tdo-date";
   meta.textContent = _tdoDate(t.done ? t.completed : t.created);
   row.appendChild(meta);
+  if (list && _todoDragOn) _tdoDraggable(row, list, i, "reorderTodos", _renderTodos);
 
   var del = document.createElement("button");
   del.className = "tdo-del";
@@ -281,7 +291,7 @@ function _todoClearCompleted(btn) {
   var url = getScriptUrl(); if (!url) return;
   btn.disabled = true; btn.textContent = "...";
   callScript(url, "clearCompletedTodos", {}, function(data) {
-    btn.disabled = false; btn.textContent = "Clear all";
+    btn.disabled = false; btn.innerHTML = TRASH_ICON + "<span>Clear all</span>";
     if (data && data.success) {
       addLog("todoFeed", "✓ Cleared " + (data.deleted || 0) + " completed tasks", "success");
       _loadTodos();
@@ -334,6 +344,76 @@ function _todoZoomDone(row, bubble, btn) {
 
 // The sheet shows dates as "Jun /20"; the portal writes "Jun 20" (user, 2026-10-28).
 // Used by To-Do and Notes.
+// Drag mode (user, 2026-10-29): the white Drag button under the list turns it on and
+// off; while on, the button fills white and the circles and ×s rest so a grab
+// can't tick or remove anything (no hint line, user 2026-10-29).
+function _tdoDragMode(list, btnId, on, count) {
+  var btn = document.getElementById(btnId);
+  if (btn) { btn.classList.toggle("on", on); btn.hidden = count < 2 && !on; }
+  list.classList.toggle("tdo-drag-on", on);
+}
+
+// Drag to reorder (user, 2026-10-29; was ▲ / ▼): an open row is grabbed and
+// dropped above or below another; the list shows the new order at once and
+// saves it in one call after (the sheet rows' contents rewritten in that
+// order), saves one at a time in order. list is the rows as shown, i this
+// one's place.
+var _tdoDrag = null;      // { list, i, action, render } while a row is dragged
+var _tdoMoveQ = Promise.resolve();
+function _tdoDraggable(row, list, i, action, render) {
+  row.draggable = true;
+  row.classList.add("tdo-drag");
+  row.addEventListener("dragstart", function(e) {
+    _tdoDrag = { list: list, i: i, action: action, render: render };
+    e.dataTransfer.effectAllowed = "move";
+    try { e.dataTransfer.setData("text/plain", ""); } catch (x) {}
+    setTimeout(function() { row.classList.add("tdo-dragging"); }, 0);
+  });
+  row.addEventListener("dragend", function() {
+    _tdoDrag = null;
+    document.querySelectorAll(".tdo-dragging, .tdo-drop-before, .tdo-drop-after").forEach(function(el) {
+      el.classList.remove("tdo-dragging", "tdo-drop-before", "tdo-drop-after");
+    });
+  });
+  row.addEventListener("dragover", function(e) {
+    if (!_tdoDrag || _tdoDrag.list !== list) return;
+    e.preventDefault();
+    var r = row.getBoundingClientRect(), after = e.clientY > r.top + r.height / 2;
+    row.classList.toggle("tdo-drop-before", !after);
+    row.classList.toggle("tdo-drop-after", after);
+  });
+  row.addEventListener("dragleave", function() { row.classList.remove("tdo-drop-before", "tdo-drop-after"); });
+  row.addEventListener("drop", function(e) {
+    if (!_tdoDrag || _tdoDrag.list !== list) return;
+    e.preventDefault();
+    var from = _tdoDrag.i, to = i + (row.classList.contains("tdo-drop-after") ? 1 : 0);
+    if (to > from) to--;
+    if (to !== from) _tdoReorder(list, from, to, action, render);
+  });
+}
+function _tdoReorder(list, from, to, action, render) {
+  var slots = list.map(function(t) { return t.row; });
+  var order = list.slice();
+  order.splice(to, 0, order.splice(from, 1)[0]);
+  var fromRows = order.map(function(t) { return t.row; });
+  // Contents move into the slots; each item keeps its sheet row.
+  var contents = order.map(function(t) { var c = {}; for (var k in t) if (k !== "row") c[k] = t[k]; return c; });
+  list.forEach(function(t, k) { for (var f in contents[k]) t[f] = contents[k][f]; });
+  render();
+  var url = getScriptUrl(); if (!url) return;
+  _tdoMoveQ = _tdoMoveQ.then(function() {
+    return new Promise(function(done) {
+      callScript(url, action, { rows: slots.join(","), from: fromRows.join(",") }, function(data) {
+        if (!(data && data.success)) {   // the list goes back to what the sheet has
+          rpmToast("fail", "Unsuccessful", data && data.message ? data.message : "Move not saved");
+          (action === "reorderTodos" ? _loadTodos : _loadNotes)();
+        }
+        done();
+      });
+    });
+  });
+}
+
 function _tdoDate(s) {
   return (s || "").replace(/^([A-Za-z]{3})\s*\/\s*(\d{1,2})$/, "$1 $2");
 }

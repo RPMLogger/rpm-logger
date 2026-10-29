@@ -4,7 +4,8 @@
 // Rows are joined with " - " into one note.
 
 var _notesCache = [];
-var _notesRemovedShown = false;   // Removed opens hidden each time the tab opens (user, 2026-10-29)
+var _notesRemovedShown = false;
+var _notesDragOn = false;   // Drag mode (user, 2026-10-29): off each time the tab opens   // Removed opens hidden each time the tab opens (user, 2026-10-29)
 
 function initNotesTab() {
   var section = document.getElementById("notesContent");
@@ -15,15 +16,18 @@ function initNotesTab() {
       '<div class="td-wk-box tdo-box"><div class="settings-title td-wk-title"><span>Notes</span>' +
         '<span class="tdo-title-btns"><button id="notesAddBtn" class="link-btn amber opens-window" data-tip="Opens a window.\nNew note.">+ New</button></span></div>' +
         '<div class="td-wk-icon">' + PEN_ICON + '</div>' +   // the pen (om-127; To-Do's until it got om-129, user 2026-10-28)
-      '<div id="notesList"></div></div>' +
+      '<div id="notesList"></div>' +
+      '<div class="tdo-foot"><button id="notesDragBtn" class="link-btn" data-tip="Instant.\nDrag mode: drag the notes into a new order.\nPress again to finish." data-tip-left>Drag</button></div></div>' +
       '<div id="notesRemovedWrap"></div>' +
       '<div class="log-feed" id="notesFeed"></div>';
     section.dataset.built = "1";
+    document.getElementById("notesDragBtn").onclick = function() { _notesDragOn = !_notesDragOn; _renderNotes(); };
     document.getElementById("notesAddBtn").onclick = function() {
       _tdoEntryOpen({ title: "New note", icon: PEN_ICON, action: "addNote", key: "note", tip: "Saves the note.", onSaved: _loadNotes });
     };
   }
   _notesRemovedShown = false;
+  _notesDragOn = false;
   // First open: the rolling LOADING in the middle of the box until the list arrives (user, 2026-10-28).
   if (!_notesCache.length) document.getElementById("notesList").innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   _loadNotes();
@@ -53,11 +57,13 @@ function _renderNotes() {
   var removed = _notesCache.filter(function(n) { return  n.removed; });
   var section = document.getElementById("notesList");
   section.innerHTML = "";
+  _tdoDragMode(section, "notesDragBtn", _notesDragOn, open.length);
   if (!open.length) {
     section.innerHTML = '<div class="empty-state tdo-none">No notes</div>';
   } else {
     // Newest first
-    open.slice().reverse().forEach(function(n, i) { section.appendChild(_notesListRow(n, i + 1)); });
+    var shown = open.slice().reverse();
+    shown.forEach(function(n, i) { section.appendChild(_notesListRow(n, i + 1, shown, i)); });
   }
 
   // Removed (user, 2026-10-28): × moves a note here, like To-Do's Completed box;
@@ -71,7 +77,7 @@ function _renderNotes() {
     '<div class="td-wk-icon">' + TRASH_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>';
   var clearBtn = document.createElement("button");
   clearBtn.className = "link-btn";
-  clearBtn.textContent = "Clear all";
+  clearBtn.innerHTML = TRASH_ICON + "<span>Clear all</span>";   // trash icon (user, 2026-10-29)
   clearBtn.onclick = function() {
     rpmConfirm({ title: "Delete all removed notes?", confirmLabel: "Delete all", icon: TRASH_ICON, danger: true })
       .then(function (ok) { if (ok) _notesClearRemoved(clearBtn); });
@@ -82,11 +88,15 @@ function _renderNotes() {
   var btns = document.createElement("span");
   btns.className = "tdo-title-btns";
   btns.appendChild(showBtn);
-  btns.appendChild(clearBtn);
   box.firstChild.appendChild(btns);
   var list = document.createElement("div");
   list.className = "tdo-done-list";
   removed.slice().reverse().forEach(function(n, i) { list.appendChild(_notesListRow(n, i + 1)); });
+  // Show at the top; Clear all inside what Show opens, at the bottom where Notes' Drag is (user, 2026-10-29).
+  var foot = document.createElement("div");
+  foot.className = "tdo-foot";
+  foot.appendChild(clearBtn);
+  list.appendChild(foot);
   box.appendChild(list);
   function paint() {
     list.style.display = hidden ? "none" : "";
@@ -102,7 +112,7 @@ function _renderNotes() {
   wrap.appendChild(box);
 }
 
-function _notesListRow(n, num) {
+function _notesListRow(n, num, list, i) {
   var row = document.createElement("div");
   row.className = "tdo-row";   // To-Do's notebook row, without the circle
 
@@ -120,6 +130,7 @@ function _notesListRow(n, num) {
   meta.className = "tdo-date";
   meta.textContent = _tdoDate(n.removed || n.created);
   row.appendChild(meta);
+  if (list && _notesDragOn) _tdoDraggable(row, list, i, "reorderNotes", _renderNotes);
 
   // × moves the note to Removed at once (user, 2026-10-28; was a delete with a confirm);
   // on a removed note it's ↩, putting it back.
@@ -150,7 +161,7 @@ function _notesClearRemoved(btn) {
   var url = getScriptUrl(); if (!url) return;
   btn.disabled = true; btn.textContent = "...";
   callScript(url, "clearRemovedNotes", {}, function(data) {
-    btn.disabled = false; btn.textContent = "Clear all";
+    btn.disabled = false; btn.innerHTML = TRASH_ICON + "<span>Clear all</span>";
     if (data && data.success) {
       _loadNotes();
     } else {

@@ -92,8 +92,8 @@ body::before {
    pointer into a magnifying glass on every tab (core/magnifier.js); amber while on. */
 .header .hdr-mag { right: 68px; }
 .header .hdr-mag-i { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 L21 21'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 L21 21'/%3E%3C/svg%3E"); }
-.header .hdr-mag.on { border-color: color-mix(in srgb, var(--accent2) 60%, transparent); background: color-mix(in srgb, var(--accent2) 12%, transparent); }
-.header .hdr-mag.on .hdr-mag-i { background: var(--accent2); }
+.header .hdr-mag.on { border-color: var(--muted); background: var(--muted); }   /* toggle on: grey inverse, like every toggle (user, 2026-10-29; was amber) */
+.header .hdr-mag.on .hdr-mag-i { background: var(--bg, #111); }
 @media (max-width: 700px) { .header .hdr-mag { right: 56px; } }
 .header-title {
   font-family: "Bebas Neue", sans-serif; font-size: 28px;
@@ -3700,3 +3700,18 @@ body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http:
 #tdoEntryWin .link-btn.tl-mic svg { width: 14px; height: 14px; }
 #tdoEntryWin .link-btn.tl-mic.rec { color: var(--accent); }
 #tdoEntryWin input:focus-visible { outline-color: var(--muted); }
+/* Drag to reorder To-Do and Notes rows (user, 2026-10-29): the grabbed row dims, a line marks where it lands. */
+:is(#todoContent, #notesContent) .tdo-row.tdo-drag { cursor: grab; }
+:is(#todoContent, #notesContent) .tdo-foot { display: flex; justify-content: flex-end; margin-top: 54px; }   /* Drag a line and a half under the list (user, 2026-10-29; 36 too little, 72 too much) */
+:is(#todoContent, #notesContent) .tdo-foot .link-btn.on { color: var(--bg, #111); background: var(--muted); border-color: var(--muted); }   /* Drag mode on: the grey button inverted (user, 2026-10-29) */
+:is(#todoContent, #notesContent) .tdo-foot:has(.link-btn[hidden]) { display: none; }
+:is(#todoContent, #notesContent) .tdo-drag-on .tdo-cb, :is(#todoContent, #notesContent) .tdo-drag-on .tdo-del { pointer-events: none; }
+:is(#todoContent, #notesContent) .tdo-drag-on .tdo-del { visibility: hidden; }
+:is(#todoContent, #notesContent) .tdo-row.tdo-dragging { opacity: .35; }
+:is(#todoContent, #notesContent) .tdo-row.tdo-drop-before { box-shadow: inset 0 2px 0 var(--accent2); }
+:is(#todoContent, #notesContent) .tdo-row.tdo-drop-after { box-shadow: inset 0 -2px 0 var(--accent2); }
+/* Toggles, one look (user, 2026-10-29): on = the grey button inverted, like Drag. The Log window's
+   Nothing to send / Send / D. phone / No change; the header magnifier above. !important over the
+   Log window's own button colours. */
+:is(#logHwNothing, #logHwSentBtn, #logHwPhoneBtn, #imNoChangeBtn).pressed { color: var(--bg, #111) !important; background: var(--muted) !important; border-color: var(--muted) !important; }
+:is(#todoContent, #notesContent) .tdo-box:not(.tdo-done) > .td-wk-icon { margin-bottom: 24px; }   /* a bit more room between the icon and row 1 (user, 2026-10-29; was 18) */
