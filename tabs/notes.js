@@ -34,6 +34,7 @@ function initNotesTab() {
         '</div>' +
       '</div>' +
       '<div id="notesList"></div></div>' +
+      '<div id="notesRemovedWrap"></div>' +
       '<div class="log-feed" id="notesFeed"></div>';
     section.dataset.built = "1";
 
@@ -276,15 +277,58 @@ function _loadNotes() {
 }
 
 function _renderNotes() {
+  var open    = _notesCache.filter(function(n) { return !n.removed; });
+  var removed = _notesCache.filter(function(n) { return  n.removed; });
   var section = document.getElementById("notesList");
   section.innerHTML = "";
-  if (!_notesCache.length) {
+  if (!open.length) {
     section.innerHTML = '<div class="empty-state tdo-none">No notes</div>';
-    return;
+  } else {
+    // Newest first
+    open.slice().reverse().forEach(function(n, i) { section.appendChild(_notesListRow(n, i + 1)); });
   }
-  // Newest first
-  var sorted = _notesCache.slice().reverse();
-  sorted.forEach(function(n, i) { section.appendChild(_notesListRow(n, i + 1)); });
+
+  // Removed (user, 2026-10-28): × moves a note here, like To-Do's Completed box;
+  // Show / Hide + Clear all top right, rows dimmed and struck, ↩ puts one back.
+  var wrap = document.getElementById("notesRemovedWrap");
+  wrap.innerHTML = "";
+  if (!removed.length) return;
+  var box = document.createElement("div");
+  box.className = "td-wk-box tdo-box tdo-done";
+  box.innerHTML = '<div class="settings-title td-wk-title"><span>Removed</span></div>' +
+    '<div class="td-wk-icon">' + TRASH_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>';
+  var clearBtn = document.createElement("button");
+  clearBtn.className = "link-btn";
+  clearBtn.textContent = "Clear all";
+  clearBtn.onclick = function() {
+    rpmConfirm({ title: "Delete all removed notes?", confirmLabel: "Delete all", icon: TRASH_ICON, danger: true })
+      .then(function (ok) { if (ok) _notesClearRemoved(clearBtn); });
+  };
+  var hidden = false;
+  try { hidden = localStorage.getItem("notesRemovedHidden") === "1"; } catch (e) {}
+  var showBtn = document.createElement("button");
+  showBtn.className = "link-btn";
+  var btns = document.createElement("span");
+  btns.className = "tdo-title-btns";
+  btns.appendChild(showBtn);
+  btns.appendChild(clearBtn);
+  box.firstChild.appendChild(btns);
+  var list = document.createElement("div");
+  list.className = "tdo-done-list";
+  removed.slice().reverse().forEach(function(n, i) { list.appendChild(_notesListRow(n, i + 1)); });
+  box.appendChild(list);
+  function paint() {
+    list.style.display = hidden ? "none" : "";
+    box.classList.toggle("tdo-done-hidden", hidden);
+    showBtn.textContent = hidden ? "Show" : "Hide";
+  }
+  showBtn.onclick = function() {
+    hidden = !hidden;
+    try { localStorage.setItem("notesRemovedHidden", hidden ? "1" : "0"); } catch (e) {}
+    paint();
+  };
+  paint();
+  wrap.appendChild(box);
 }
 
 function _notesListRow(n, num) {
@@ -303,29 +347,43 @@ function _notesListRow(n, num) {
 
   var meta = document.createElement("div");
   meta.className = "tdo-date";
-  meta.textContent = n.created || "";
+  meta.textContent = (n.removed || n.created || "");
   row.appendChild(meta);
 
+  // × moves the note to Removed at once (user, 2026-10-28; was a delete with a confirm);
+  // on a removed note it's ↩, putting it back.
   var del = document.createElement("button");
   del.className = "tdo-del";
-  del.textContent = "×";
-  del.title = "Delete";
-  del.onclick = function() {
-    rpmConfirm({ title: "Delete this note?", confirmLabel: "Delete", icon: TRASH_ICON, danger: true })
-      .then(function (ok) { if (ok) _notesDelete(n.row); });
-  };
+  del.textContent = n.removed ? "↩" : "×";
+  del.title = n.removed ? "Put back" : "Remove";
+  del.onclick = function() { _notesRemove(n.row, !n.removed, del); };
   row.appendChild(del);
 
   return row;
 }
 
-function _notesDelete(row) {
+function _notesRemove(row, removed, btn) {
   var url = getScriptUrl(); if (!url) return;
-  callScript(url, "deleteNote", { row: row }, function(data) {
+  btn.disabled = true;
+  callScript(url, "removeNote", { row: row, done: removed ? "true" : "false" }, function(data) {
+    btn.disabled = false;
     if (data && data.success) {
       _loadNotes();
     } else {
-      addLog("notesFeed", "❌ " + (data && data.message ? data.message : "Delete failed"), "error");
+      addLog("notesFeed", "❌ " + (data && data.message ? data.message : "Remove failed"), "error");
+    }
+  });
+}
+
+function _notesClearRemoved(btn) {
+  var url = getScriptUrl(); if (!url) return;
+  btn.disabled = true; btn.textContent = "...";
+  callScript(url, "clearRemovedNotes", {}, function(data) {
+    btn.disabled = false; btn.textContent = "Clear all";
+    if (data && data.success) {
+      _loadNotes();
+    } else {
+      addLog("notesFeed", "❌ " + (data && data.message ? data.message : "Clear failed"), "error");
     }
   });
 }
