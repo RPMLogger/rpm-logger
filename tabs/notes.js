@@ -69,6 +69,8 @@ function initNotesTab() {
     document.getElementById("notesClose").onclick = _notesClosePanel;
     _notesSetActive(0);
   }
+  // First open: the rolling LOADING in the middle of the box until the list arrives (user, 2026-10-28).
+  if (!_notesCache.length) document.getElementById("notesList").innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   _loadNotes();
 }
 

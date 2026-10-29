@@ -73,6 +73,8 @@ function initTodoTab() {
     document.getElementById("todoClose").onclick = _todoClosePanel;
     _todoSetActive(0);
   }
+  // First open: the rolling LOADING in the middle of the box until the list arrives (user, 2026-10-28).
+  if (!_todoCache.length) document.getElementById("todoActive").innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   _loadTodos();
 }
 
