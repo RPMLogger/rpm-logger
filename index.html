@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=985">
+  <link rel="stylesheet" href="css/styles.css?v=986">
 </head>
 <body>
 <div class="container">
@@ -15,7 +15,7 @@
     <img src="img/portal-logo.png" alt="Red Pick Music">
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">985</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">986</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -82,6 +82,7 @@
       <div class="nav-menu">
         <button class="tab-btn nav-item" data-tab="calendar" onclick="switchTab('calendar')">Calendar</button>
         <button class="tab-btn nav-item" data-tab="fixedcal" onclick="switchTab('fixedcal')">Fixed schedule</button>
+        <button class="tab-btn nav-item" data-tab="slotchange" onclick="switchTab('slotchange')">Slot change</button>   <!-- 2026-10-28: tabs/slotchange.js -->
       </div>
     </div>
     <button class="tab-btn" data-tab="import" onclick="switchTab('import')">Students</button>
@@ -364,6 +365,12 @@
   <div class="tab-panel" id="tab-fixedcal">
     <div class="section-label">Fixed schedule</div>
     <div id="fcBody"></div>
+  </div>
+
+  <!-- SLOT CHANGE (2026-10-28): mute a student, change their slot in Google Calendar, check it, send the email -->
+  <div class="tab-panel" id="tab-slotchange">
+    <div class="section-label">Slot change</div>
+    <div id="slcBody"></div>
   </div>
 
 
@@ -730,47 +737,48 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=985"></script>
-<script src="core/storage.js?v=985"></script>
-<script src="core/utils.js?v=985"></script>
-<script src="core/dialog.js?v=985"></script>
-<script src="core/api.js?v=985"></script>
-<script src="core/secalert.js?v=985"></script>
-<script src="core/magnifier.js?v=985"></script>
+<script src="core/state.js?v=986"></script>
+<script src="core/storage.js?v=986"></script>
+<script src="core/utils.js?v=986"></script>
+<script src="core/dialog.js?v=986"></script>
+<script src="core/api.js?v=986"></script>
+<script src="core/secalert.js?v=986"></script>
+<script src="core/magnifier.js?v=986"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=985"></script>
-<script src="tabs/lessons.js?v=985"></script>
-<script src="tabs/payments.js?v=985"></script>
-<script src="tabs/general.js?v=985"></script>
-<script src="tabs/financial.js?v=985"></script>
-<script src="tabs/inquiries.js?v=985"></script>
-<script src="tabs/inqarchive.js?v=985"></script>
-<script src="tabs/comms.js?v=985"></script>
-<script src="tabs/notes.js?v=985"></script>
-<script src="tabs/todo.js?v=985"></script>
-<script src="tabs/availability.js?v=985"></script>
-<script src="tabs/travel.js?v=985"></script>
-<script src="tabs/tripsummary.js?v=985"></script>
-<script src="tabs/triphistory.js?v=985"></script>
-<script src="tabs/skips.js?v=985"></script>
-<script src="tabs/student.js?v=985"></script>
-<script src="tabs/ctrl.js?v=985"></script>
-<script src="tabs/gbusiness.js?v=985"></script>
-<script src="tabs/dropbox.js?v=985"></script>
-<script src="tabs/import.js?v=985"></script>
-<script src="tabs/today.js?v=985"></script>
-<script src="tabs/home.js?v=985"></script>
-<script src="tabs/trial.js?v=985"></script>
-<script src="tabs/ending.js?v=985"></script>
-<script src="tabs/reviews.js?v=985"></script>
-<script src="tabs/financial2.js?v=985"></script>
-<script src="tabs/sheets.js?v=985"></script>
-<script src="tabs/studentline.js?v=985"></script>
-<script src="tabs/calendar.js?v=985"></script>
-<script src="tabs/fixedcal.js?v=985"></script>
-<script src="tabs/help.js?v=985"></script>
-<script src="tabs/holidays.js?v=985"></script>
+<script src="tabs/icons.js?v=986"></script>
+<script src="tabs/lessons.js?v=986"></script>
+<script src="tabs/payments.js?v=986"></script>
+<script src="tabs/general.js?v=986"></script>
+<script src="tabs/financial.js?v=986"></script>
+<script src="tabs/inquiries.js?v=986"></script>
+<script src="tabs/inqarchive.js?v=986"></script>
+<script src="tabs/comms.js?v=986"></script>
+<script src="tabs/notes.js?v=986"></script>
+<script src="tabs/todo.js?v=986"></script>
+<script src="tabs/availability.js?v=986"></script>
+<script src="tabs/travel.js?v=986"></script>
+<script src="tabs/tripsummary.js?v=986"></script>
+<script src="tabs/triphistory.js?v=986"></script>
+<script src="tabs/skips.js?v=986"></script>
+<script src="tabs/student.js?v=986"></script>
+<script src="tabs/ctrl.js?v=986"></script>
+<script src="tabs/gbusiness.js?v=986"></script>
+<script src="tabs/dropbox.js?v=986"></script>
+<script src="tabs/import.js?v=986"></script>
+<script src="tabs/today.js?v=986"></script>
+<script src="tabs/home.js?v=986"></script>
+<script src="tabs/trial.js?v=986"></script>
+<script src="tabs/ending.js?v=986"></script>
+<script src="tabs/reviews.js?v=986"></script>
+<script src="tabs/financial2.js?v=986"></script>
+<script src="tabs/sheets.js?v=986"></script>
+<script src="tabs/studentline.js?v=986"></script>
+<script src="tabs/calendar.js?v=986"></script>
+<script src="tabs/fixedcal.js?v=986"></script>
+<script src="tabs/slotchange.js?v=986"></script>
+<script src="tabs/help.js?v=986"></script>
+<script src="tabs/holidays.js?v=986"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -830,7 +838,7 @@
     // tab button is removed. The #tab-lessons panel div still lives in the DOM
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
-    var tabs = ["student","payments","general","financial2","inquiries","availability","notes","todo","travel","tripsummary","triphistory","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","reviews","lifetime","concert","sheets","skips","studentline","calendar","fixedcal","inqarchive","trialanalysis","comms","helpdata","import","today","home"];
+    var tabs = ["student","payments","general","financial2","inquiries","availability","notes","todo","travel","tripsummary","triphistory","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","reviews","lifetime","concert","sheets","skips","studentline","calendar","fixedcal","slotchange","inqarchive","trialanalysis","comms","helpdata","import","today","home"];
     tabs.forEach(function(t) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       var btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
@@ -868,6 +876,7 @@
     if (tab === "studentline") initStudentLineTab();
     if (tab === "calendar") initCalendarTab();
     if (tab === "fixedcal") initFixedCalTab();
+    if (tab === "slotchange") initSlotChangeTab();
     if (tab === "inqarchive") initInqArchiveTab();
     if (tab === "trialanalysis") initTrialAnalysisTab();
   }
