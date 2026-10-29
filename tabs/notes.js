@@ -1,12 +1,9 @@
 // ─── TABS / NOTES.JS ────────────────────────────────────────────────────────
-// Personal running notes. Same 3-row mic recording pattern as To-Do, joined
-// with " - " into one note on submit.
+// Personal running notes. + New opens the New note window, To-Do's
+// (_tdoEntryOpen, tabs/todo.js): the Log lesson window's look (user, 2026-10-29).
+// Rows are joined with " - " into one note.
 
-var _notesCache  = [];
-var _notesActive = 0;
-var _notesFinals = ["", "", ""];
-var _notesRec    = null;
-var _notesIsRec  = false;
+var _notesCache = [];
 
 function initNotesTab() {
   var section = document.getElementById("notesContent");
@@ -15,248 +12,19 @@ function initNotesTab() {
     // In To-Do's look (user, 2026-10-28): a Notes box (title, + New top right, the pen, the notebook list).
     section.innerHTML =
       '<div class="td-wk-box tdo-box"><div class="settings-title td-wk-title"><span>Notes</span>' +
-        '<span class="tdo-title-btns"><button id="notesAddBtn" class="link-btn amber opens-window" data-tip="Instant.\nOpens the New Note rows.">+ New</button></span></div>' +
+        '<span class="tdo-title-btns"><button id="notesAddBtn" class="link-btn amber opens-window" data-tip="Opens a window.\nNew note.">+ New</button></span></div>' +
         '<div class="td-wk-icon">' + PEN_ICON + '</div>' +   // the pen (om-127; To-Do's until it got om-129, user 2026-10-28)
-      '<div id="notesPanel" style="display:none;border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:22px;background:var(--panel)">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
-          '<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">New Note</div>' +
-          '<div style="display:flex;align-items:center;gap:10px">' +
-            '<div id="notesStatus" style="font-size:11px;color:var(--muted)">tap row to record</div>' +
-            '<button id="notesClose" data-tip="Closes Notes." style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1;padding:0 2px">✕</button>' +
-          '</div>' +
-        '</div>' +
-        _notesRowHtml(0, "Tap to start recording...") +
-        _notesRowHtml(1, "Row 2 — tap to continue here") +
-        _notesRowHtml(2, "Row 3 — tap to continue here") +
-        '<div style="display:flex;gap:8px;margin-top:8px">' +
-          '<button id="notesMic" data-tip="Starts or stops dictation.\nReplaces highlighted text if any." style="padding:6px 12px;font-size:14px;background:transparent;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text)">' + MIC_ICON + '</button>' +
-          '<button id="notesLog" style="flex:1;padding:8px;font-size:13px;background:rgba(180,40,40,0.25);color:#ff6b6b;border:1px solid rgba(180,40,40,0.5);border-radius:4px;cursor:pointer;letter-spacing:0.5px">LOG IT →</button>' +
-        '</div>' +
-      '</div>' +
       '<div id="notesList"></div></div>' +
       '<div id="notesRemovedWrap"></div>' +
       '<div class="log-feed" id="notesFeed"></div>';
     section.dataset.built = "1";
-
-    for (var r = 0; r < 3; r++) {
-      (function(idx) {
-        var input = document.getElementById("notesRowInput-" + idx);
-        var wrap  = document.getElementById("notesRow-" + idx);
-        var rowClickHandler = function() {
-          var prevActive = _notesActive;
-          var wasRec = _notesIsRec;
-          _notesSetActive(idx);
-          if (wasRec && idx !== prevActive) {
-            if (_notesRec) { _notesRec._suppressed = true; _notesRec.stop(); }
-            _notesIsRec = false;
-            _notesStartRec();
-          } else if (!_notesIsRec) {
-            _notesStartRec();
-          }
-        };
-        wrap.onclick = rowClickHandler;
-        input.addEventListener("focus", rowClickHandler);
-        input.addEventListener("input", function() {
-          _notesFinals[idx] = input.value;
-          _notesUpdateLogBtn();
-        });
-      })(r);
-    }
-
-    document.getElementById("notesMic").onclick = _notesToggleMic;
-    document.getElementById("notesLog").onclick = _notesSubmit;
-    document.getElementById("notesAddBtn").onclick = _notesOpenPanel;
-    document.getElementById("notesClose").onclick = _notesClosePanel;
-    _notesSetActive(0);
+    document.getElementById("notesAddBtn").onclick = function() {
+      _tdoEntryOpen({ title: "New note", icon: PEN_ICON, action: "addNote", key: "note", tip: "Saves the note.", onSaved: _loadNotes });
+    };
   }
   // First open: the rolling LOADING in the middle of the box until the list arrives (user, 2026-10-28).
   if (!_notesCache.length) document.getElementById("notesList").innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   _loadNotes();
-}
-
-function _notesOpenPanel() {
-  var p = document.getElementById("notesPanel");
-  var b = document.getElementById("notesAddBtn");
-  if (p) p.style.display = "block";
-  if (b) b.style.display = "none";
-  var inp = document.getElementById("notesRowInput-0");
-  if (inp) inp.focus();
-}
-
-function _notesClosePanel() {
-  if (_notesIsRec && _notesRec) { _notesRec._suppressed = true; _notesRec.stop(); _notesIsRec = false; }
-  _notesResetRows();
-  _notesResetMicStyle();
-  document.getElementById("notesStatus").textContent = "tap row to record";
-  var p = document.getElementById("notesPanel");
-  var b = document.getElementById("notesAddBtn");
-  if (p) p.style.display = "none";
-  if (b) b.style.display = "";
-}
-
-function _notesRowHtml(idx, placeholder) {
-  return '<div id="notesRow-' + idx + '" style="display:flex;align-items:stretch;border:1px solid var(--border);border-left:3px solid transparent;border-radius:4px;margin:4px 0;cursor:pointer">' +
-    '<input id="notesRowInput-' + idx + '" type="text" placeholder="' + placeholder + '" style="flex:1;padding:8px 10px;background:transparent;color:var(--text);border:none;font-size:12px;font-family:inherit;outline:none">' +
-    '</div>';
-}
-
-function _notesSetActive(idx) {
-  if (idx === _notesActive) { _notesApplyActiveStyle(); return; }
-  var oldInp = document.getElementById("notesRowInput-" + _notesActive);
-  if (oldInp) _notesFinals[_notesActive] = oldInp.value;
-  _notesActive = idx;
-  _notesApplyActiveStyle();
-}
-
-function _notesApplyActiveStyle() {
-  for (var r = 0; r < 3; r++) {
-    var row = document.getElementById("notesRow-" + r);
-    if (!row) continue;
-    if (r === _notesActive) {
-      row.style.borderLeftColor = _notesIsRec ? "#ff5050" : "var(--green)";
-      row.style.background = _notesIsRec ? "rgba(255,80,80,0.05)" : "rgba(0,200,100,0.04)";
-    } else {
-      row.style.borderLeftColor = "transparent";
-      row.style.background = "transparent";
-    }
-  }
-}
-
-function _notesResetMicStyle() {
-  var mic = document.getElementById("notesMic");
-  if (!mic) return;
-  mic.innerHTML = MIC_ICON;
-  mic.style.background = "transparent";
-  mic.style.borderColor = "var(--border)";
-  mic.style.color = "var(--text)";
-}
-
-function _notesStartRec() {
-  if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
-    addLog("notesFeed", "Speech recognition not supported (use Chrome)", "error");
-    return;
-  }
-  if (_notesRec) { try { _notesRec._suppressed = true; _notesRec.stop(); } catch (e) {} }
-  var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
-  var rec = new Rec();
-  rec.lang = "en-US"; rec.continuous = true; rec.interimResults = true;
-  rec._suppressed = false;
-
-  var activeInput = document.getElementById("notesRowInput-" + _notesActive);
-  var selStart = activeInput ? activeInput.selectionStart : 0;
-  var selEnd   = activeInput ? activeInput.selectionEnd   : 0;
-  var hasSelection = activeInput && (selStart !== selEnd);
-  var beforeSel = hasSelection ? activeInput.value.substring(0, selStart) : "";
-  var afterSel  = hasSelection ? activeInput.value.substring(selEnd) : "";
-  rec._spliced = "";
-
-  rec.onstart = function() {
-    _notesIsRec = true;
-    document.getElementById("notesStatus").innerHTML = '<span style="color:#ff5050">● RECORDING...</span>';
-    var mic = document.getElementById("notesMic");
-    mic.innerHTML = MIC_STOP_ICON;
-    mic.style.background = "rgba(255,80,80,0.2)";
-    mic.style.borderColor = "rgba(255,80,80,0.5)";
-    mic.style.color = "#ff5050";
-    _notesApplyActiveStyle();
-  };
-  rec.onresult = function(ev) {
-    var newFinal = "", interim = "";
-    for (var i = ev.resultIndex; i < ev.results.length; i++) {
-      if (ev.results[i].isFinal) newFinal += ev.results[i][0].transcript;
-      else interim += ev.results[i][0].transcript;
-    }
-    var inp = document.getElementById("notesRowInput-" + _notesActive);
-    if (!inp) return;
-    if (hasSelection) {
-      if (newFinal) rec._spliced = (rec._spliced + " " + newFinal).replace(/\s+/g, " ").trim();
-      var middle = (rec._spliced + " " + interim).replace(/\s+/g, " ").trim();
-      inp.value = (beforeSel + (beforeSel && middle ? " " : "") + middle + (afterSel && middle ? " " : "") + afterSel).replace(/\s+/g, " ").trimRight();
-      _notesFinals[_notesActive] = inp.value;
-    } else {
-      if (newFinal) _notesFinals[_notesActive] = (_notesFinals[_notesActive] + " " + newFinal).replace(/\s+/g, " ").trim();
-      inp.value = (_notesFinals[_notesActive] + " " + interim).replace(/\s+/g, " ").trim();
-    }
-    _notesUpdateLogBtn();
-  };
-  rec.onend = function() {
-    if (rec._suppressed) return;
-    _notesIsRec = false;
-    document.getElementById("notesStatus").textContent = "tap a row to record";
-    _notesResetMicStyle();
-    _notesApplyActiveStyle();
-  };
-  rec.onerror = function(e) {
-    if (e.error === "no-speech") return;
-    _notesIsRec = false;
-    _notesResetMicStyle();
-    _notesApplyActiveStyle();
-  };
-  _notesRec = rec;
-  rec.start();
-}
-
-function _notesToggleMic() {
-  if (_notesIsRec) {
-    if (_notesRec) { _notesRec._suppressed = true; _notesRec.stop(); }
-    _notesIsRec = false;
-    document.getElementById("notesStatus").textContent = "tap a row to record";
-    _notesResetMicStyle();
-    _notesApplyActiveStyle();
-  } else {
-    _notesStartRec();
-  }
-}
-
-function _notesUpdateLogBtn() {
-  var any = false;
-  for (var r = 0; r < 3; r++) {
-    var inp = document.getElementById("notesRowInput-" + r);
-    if (inp && inp.value.trim()) { any = true; break; }
-  }
-  document.getElementById("notesLog").disabled = !any;
-  document.getElementById("notesLog").style.opacity = any ? "1" : "0.5";
-}
-
-function _notesSubmit() {
-  var url = getScriptUrl(); if (!url) return;
-  if (_notesIsRec && _notesRec) { _notesRec._suppressed = true; _notesRec.stop(); _notesIsRec = false; }
-
-  var parts = [];
-  for (var r = 0; r < 3; r++) {
-    var v = document.getElementById("notesRowInput-" + r).value.trim();
-    if (v) parts.push(toSentenceCase(v));   // saved in sentence case, like To-Do (user, 2026-10-28)
-  }
-  var note = parts.join(" - ");
-  if (!note) return;
-
-  var btn = document.getElementById("notesLog");
-  var orig = btn.textContent;
-  var panel = document.getElementById("notesPanel");
-  btn.textContent = "Logging…"; btn.disabled = true;
-  rpmBusy(panel, btn, true);
-
-  callScript(url, "addNote", { note: note }, function(data) {
-    rpmBusy(panel, btn, false);
-    btn.textContent = orig; btn.disabled = false;
-    if (data && data.success) {
-      _notesClosePanel();
-      _loadNotes();
-    } else {
-      addLog("notesFeed", "❌ " + (data && data.message ? data.message : "Add failed"), "error");
-    }
-  });
-}
-
-function _notesResetRows() {
-  _notesFinals = ["", "", ""];
-  for (var r = 0; r < 3; r++) {
-    var inp = document.getElementById("notesRowInput-" + r);
-    if (inp) inp.value = "";
-  }
-  _notesActive = 0;
-  _notesApplyActiveStyle();
-  _notesUpdateLogBtn();
 }
 
 // ─── LIST RENDERING ────────────────────────────────────────────────────────
