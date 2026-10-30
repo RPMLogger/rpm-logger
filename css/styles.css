@@ -2212,13 +2212,13 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
    the space between sections does the frame's job. */
 .db-section { margin: 8px 0 44px; }
 .db-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer;
-  background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3d5f8f; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--blue); border-radius: 10px;
   padding: 12px 14px; margin-bottom: 8px; }
 /* Header over the cards: 24 STUDENTS starts where the names start (3px edge
    + 14px padding); SINCE ADDED starts where Recover starts. */
 .db-cards-head { display: flex; align-items: baseline; justify-content: space-between; padding: 0 16px 0 0; }   /* 24 STUDENTS flush left, like FOLDER AUDIT (user, 2026-10-23; was 17px in) */
 .db-cards-head .field-label + .field-label {   /* SINCE ADDED only; 24 STUDENTS takes the plain Folder audit label (user, 2026-10-23) */ font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0; color: var(--muted); text-transform: uppercase; }   /* 24 STUDENTS / SINCE ADDED in capitals (2026-10-06) */
-.db-card:hover:where(:not(:disabled)) { border-color: var(--muted); border-left-color: #3d5f8f; }
+.db-card:hover:where(:not(:disabled)) { border-color: var(--muted); border-left-color: var(--blue); }
 .db-card-l { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 /* Two lines that line up across the card: name ↔ Recover (both 26px tall),
    size ↔ age (same mono 12px). */
@@ -2577,7 +2577,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Student folder cards (2026-10-06): not clickable themselves, the age in
    the edge's steel blue, lightened a step so it reads on the dark card. */
 .db-card.db-card-still { cursor: default; }
-.db-card.db-card-still:hover:where(:not(:disabled)) { border-color: var(--border); border-left-color: #3d5f8f; }
+.db-card.db-card-still:hover:where(:not(:disabled)) { border-color: var(--border); border-left-color: var(--blue); }
 .db-card-still .db-card-a { color: #6d8fc0; }
 .db-files.db-files-in { padding: 10px 0 0; font-family: "DM Mono", monospace; font-size: 10.5px; }   /* the file list inside the student's card (2026-10-06) */
 .db-files-in .db-file { color: var(--t-normal); }   /* names at the card values' brightness */
@@ -3142,7 +3142,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Cost analysis: one card like the Students tab's, a line per row (user, 2026-10-19; was a table, then a card per row).
    Name left, Days / Lessons / Revenue loss right; buffers smaller and dimmer, Total amber. */
 #travelSumTable { margin-top: 0; }
-.tv-sum-card { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid #3d5f8f; border-radius: 10px; padding: 2px 14px; }
+.tv-sum-card { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--blue); border-radius: 10px; padding: 2px 14px; }
 .tv-sum-row { display: grid; grid-template-columns: 1fr 70px 80px 120px; align-items: center; padding: 11px 0; font-size: 13px; color: rgba(240,237,232,0.72); letter-spacing: 0.5px; }
 .tv-sum-row + .tv-sum-row { border-top: 1px solid var(--border); }
 .tv-sum-row > span:not(.tv-sum-name) { text-align: right; }
@@ -3157,7 +3157,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #travelSumTable + .tv-cal-head { margin-top: 28px; }
 .tv-sum-card { padding: 0; }
 .tv-sum-row, .tv-sum-row.tv-sum-cols, .tv-sum-row.tv-sum-buf { height: 40px; padding: 0 14px; }   /* lines run the card's full width */   /* every row the same height (user, 2026-10-19); buffers keep their smaller numbers */
-.tv-sum-card { background: transparent; border: 1px solid #3d5f8f; }   /* no card fill, a steel-blue frame all round (user, 2026-10-19) */
+.tv-sum-card { background: transparent; border: 1px solid var(--blue); }   /* no card fill, a steel-blue frame all round (user, 2026-10-19) */
 /* Column lines too (user, 2026-10-19): each cell runs the row's height, a line before each number column */
 .tv-sum-row, .tv-sum-row.tv-sum-cols, .tv-sum-row.tv-sum-buf { padding: 0; align-items: stretch; grid-template-columns: 1fr 80px 90px 130px; }
 .tv-sum-row > span { display: flex; align-items: center; padding: 0 14px; }
@@ -3166,8 +3166,8 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .tv-sum-card { border-color: color-mix(in srgb, var(--warn) 55%, transparent); }   /* amber frame, like Calculate / Review's border (user, 2026-10-19; was steel blue) */
 .tv-dates .dtp-cell { border-color: color-mix(in srgb, var(--warn) 55%, transparent); }   /* Leaving on / Back on boxes amber, like Calculate (user, 2026-10-19; were grey) */
 /* The coloured frames, dim (user, 2026-10-19): date boxes + Cost analysis blue; calendar back to its grey */
-.tv-sum-card { border-color: color-mix(in srgb, #3d5f8f 60%, transparent); }   /* Cost analysis dim blue like the date boxes (user, 2026-10-19; was amber, then red) */
-.tv-dates .dtp-cell { border-color: color-mix(in srgb, #3d5f8f 60%, transparent); }   /* date boxes blue (user, 2026-10-19) */
+.tv-sum-card { border-color: color-mix(in srgb, var(--blue) 60%, transparent); }   /* Cost analysis dim blue like the date boxes (user, 2026-10-19; was amber, then red) */
+.tv-dates .dtp-cell { border-color: color-mix(in srgb, var(--blue) 60%, transparent); }   /* date boxes blue (user, 2026-10-19) */
 .tv-dates-foot { justify-content: flex-end; }   /* Calculate bottom right, like Review; both red again (user, 2026-10-19) */
 .tv-sum-row > span:not(.tv-sum-name) { justify-content: center; text-align: center; }   /* Days / Lessons / Revenue loss centred, headers and numbers (user, 2026-10-19) */
 .tv-sum-name, .tv-sum-row.tv-sum-buf .tv-sum-name { color: rgba(240,237,232,0.72); }   /* row names in the months' / dates' white (user, 2026-10-20) */
@@ -3187,7 +3187,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .tv-dates-foot { gap: 8px; }   /* Reset beside Calculate (user, 2026-10-20) */
 .tv-sum-row, .tv-sum-row.tv-sum-cols, .tv-sum-row.tv-sum-buf { grid-template-columns: repeat(4, 1fr); }   /* four equal columns (user, 2026-10-20) */
 .tv-sum-row > span { padding: 0 10px; }
-.tv-sum-row + .tv-sum-row, .tv-sum-row > span:not(.tv-sum-name) { border-color: color-mix(in srgb, #3d5f8f 60%, transparent); }   /* inner lines the frame's dim blue (user, 2026-10-20) */
+.tv-sum-row + .tv-sum-row, .tv-sum-row > span:not(.tv-sum-name) { border-color: color-mix(in srgb, var(--blue) 60%, transparent); }   /* inner lines the frame's dim blue (user, 2026-10-20) */
 #travelSumTable + .tv-cal-head { margin-top: 44px; }   /* more room before Review (user, 2026-10-20; was 28px) */
 .tv-sum-row.tv-sum-cols { color: rgba(240,237,232,0.72); }   /* Days / Lessons / Revenue loss in the row names' white (user, 2026-10-20) */
 .tv-dates { max-width: 480px; margin-left: auto; margin-right: auto; }   /* as wide as the Cost analysis table, centred; fits a Dec → Jan date with its year (user, 2026-10-20) */
@@ -3219,9 +3219,9 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #travelCalMonths .tv-cal-day.is-travel span, #travelCalMonths .tv-cal-day.is-off span, #travelCalMonths .tv-cal-day.is-back span { background: #131313; }   /* rings still stop the band, on the new dark */
 #travelCalMonths .tv-band { background: color-mix(in srgb, #f0ede8 7%, #131313); }
 /* Set vacation place (user, 2026-10-20): first section, one entry box, dark and framed like the date boxes, as wide as the table. */
-.tv-place { display: block; box-sizing: border-box; width: 100%; max-width: 480px; margin: 0 auto 30px; padding: 11px 14px; background: #131313; border: 2px solid color-mix(in srgb, #3d5f8f 60%, transparent); border-radius: 7px; color: var(--text); font-family: inherit; font-size: 13px; letter-spacing: 0.5px; outline: none; }
+.tv-place { display: block; box-sizing: border-box; width: 100%; max-width: 480px; margin: 0 auto 30px; padding: 11px 14px; background: #131313; border: 2px solid color-mix(in srgb, var(--blue) 60%, transparent); border-radius: 7px; color: var(--text); font-family: inherit; font-size: 13px; letter-spacing: 0.5px; outline: none; }
 .tv-place::placeholder { color: var(--muted); }
-.tv-place:focus { border-color: color-mix(in srgb, #3d5f8f 100%, transparent); }
+.tv-place:focus { border-color: color-mix(in srgb, var(--blue) 100%, transparent); }
 .tv-place, .tv-dates .dtp-cell { height: 40px; box-sizing: border-box; }   /* place box and Leaving on / Back on as tall as a Cost analysis row (user, 2026-10-20) */
 .tv-place { padding-top: 0; padding-bottom: 0; }
 .tv-dates .tv-date-off .dtp-val, .tv-dates .tv-date-back .dtp-val { padding-top: 0; padding-bottom: 0; display: flex; align-items: center; justify-content: center; }
@@ -3249,7 +3249,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .ts-thread { height: 132px; overflow-y: auto; box-sizing: border-box; margin-top: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px;
              background: #131313; border: 1px solid var(--border); border-radius: 8px; }
 .ts-thread-none { margin: auto; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: color-mix(in srgb, var(--muted) 60%, transparent); }
-.ts-bub { background: color-mix(in srgb, #3d5f8f 35%, #131313); border: 1px solid color-mix(in srgb, #3d5f8f 60%, transparent); color: var(--text); }   /* texts on a dim blue, the frames' blue (user, 2026-10-20) */
+.ts-bub { background: color-mix(in srgb, var(--blue) 35%, #131313); border: 1px solid color-mix(in srgb, var(--blue) 60%, transparent); color: var(--text); }   /* texts on a dim blue, the frames' blue (user, 2026-10-20) */
 /* Trip Summary cards: Thread / Text titles, more room between the two (user, 2026-10-20). */
 .ts-card .ts-lbl { display: block; color: var(--t-normal); margin: 22px 0 10px; }
 .ts-card .ts-thread { margin-top: 0; }
@@ -3261,7 +3261,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .ts-thread { border: 1.5px dashed color-mix(in srgb, var(--blue) 28%, transparent); }   /* dashed dim blue like the review's text box (user, 2026-10-20) */
 .ts-bub.ts-bub-in { background: color-mix(in srgb, var(--muted) 22%, #131313); border-color: color-mix(in srgb, var(--muted) 30%, transparent); }   /* their texts grey, yours blue (user, 2026-10-20) */
 .ts-bub.ts-bub-in { background: color-mix(in srgb, var(--muted) 38%, #131313); border-color: color-mix(in srgb, var(--muted) 45%, transparent); }   /* lighter grey (user, 2026-10-20; was 22%) */
-.ts-bub { border-color: color-mix(in srgb, #3d5f8f 35%, #131313); }   /* borders the bubble's own fill, no outline (user, 2026-10-20) */
+.ts-bub { border-color: color-mix(in srgb, var(--blue) 35%, #131313); }   /* borders the bubble's own fill, no outline (user, 2026-10-20) */
 .ts-bub.ts-bub-in { border-color: color-mix(in srgb, var(--muted) 38%, #131313); }
 .ts-stamp { align-self: center; font-size: 9px; color: var(--muted); margin: 4px 0 2px; }   /* "Sun, Nov 1 at 10:02 AM" over the texts, like Messages (user, 2026-10-20) */
 .ts-card .ts-tag { display: inline-block; font-size: 10px; padding: 6px 11px; line-height: 1; }   /* bigger, centred on the name (user, 2026-10-20) */
