@@ -316,9 +316,8 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
    Today, Students, To-Do and Notes make their own boxes; Calendar, Fixed schedule
    and Financial are wider than the column, so they stay open. */
 .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2) {
-  box-sizing: border-box; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  box-sizing: border-box; padding: 24px; background: #141414; border: 1px solid var(--border); border-radius: 10px;   /* every tab in Payments' darker shade (user, 2026-10-29) */
 }
-.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):is(#tab-payments, #tab-triphistory, #tab-reviews) { background: #141414; }   /* Payments + Trip History + Reviews (2026-10-29): the logo box's shade, so its cards show (user, 2026-10-27); the rule above's :not(#id)s outweigh a plain #tab-payments */
 
 /* ─── HOME: the opening page (2026-10-24) ─── */
 /* In the bordered box like every tab, under the header (user, 2026-10-26; was
