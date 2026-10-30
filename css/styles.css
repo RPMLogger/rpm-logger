@@ -269,6 +269,7 @@ body.sb-open .tabs { transform: none; }
 .tabs > [data-tab=today]       { order: 1; }
 .tabs > [data-tab=import]      { order: 2; }
 .tabs > [data-tab=payments]    { order: 3; }
+.tabs > [data-tab=audit]       { order: 3; }   /* after Payments (same order, DOM order breaks the tie) */
 .tabs > [data-tab=dropbox]     { order: 4; }
 .tabs > [data-tab=general]     { order: 5; }
 .tabs > .sb-cal                { order: 10; }
@@ -328,6 +329,10 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .home-top { display: flex; justify-content: center; gap: 10px; }
 .home-top .link-btn { color: var(--t-text); border-color: rgba(255,255,255,0.22); }   /* a step brighter than a regular button (user, 2026-10-24) */
 .home-top .link-btn svg { width: 14px; height: 14px; }
+/* AUDIT (2026-10-30, user): opens like Home, Audit lessons + Audit payments red in the middle */
+#tab-audit.active:has(#auMenuView:not([style*="none"])) { display: flex; flex-direction: column; justify-content: center; min-height: calc(100vh - 166px - 72px); }
+.au-top { display: flex; justify-content: center; gap: 10px; }
+.au-top .link-btn svg { width: 14px; height: 14px; }
 /* Student name box under them; the names drop down over the page */
 .home-search { position: relative; width: 240px; margin: 40px auto 0; }
 .home-mag { position: absolute; right: calc(100% + 10px); top: 50%; transform: translateY(-50%); color: var(--t-normal); }   /* beside the box, so the box stays centred */

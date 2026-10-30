@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=1016">
+  <link rel="stylesheet" href="css/styles.css?v=1017">
 </head>
 <body>
 <div class="container">
@@ -15,7 +15,7 @@
     <img src="img/portal-logo.png" alt="Red Pick Music">
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1016</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1017</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -88,6 +88,9 @@
     <button class="tab-btn" data-tab="import" onclick="switchTab('import')">Students</button>
     <!-- Payments its own tab, second (2026-10-14, was in the Audit menu). -->
     <button class="tab-btn" data-tab="payments" onclick="switchTab('payments')">Payments</button>
+    <!-- Audit (2026-10-30, user): its own tab again, opens like Home with two red
+         buttons, Audit lessons and Audit payments; Students and Payments link here. -->
+    <button class="tab-btn" data-tab="audit" onclick="switchTab('audit')">Audit</button>
     <!-- No Audit menu (2026-10-14): Payments is its own tab with Audit payments,
          Logs moved into Students as Audit lessons. -->
     <div class="nav-drop sb-intake">
@@ -158,12 +161,23 @@
     <div id="imMainView">
     <div id="importBody"><div class="empty-state rpm-loading">Loading</div></div>
     </div>
+  </div>
+
+  <!-- AUDIT (2026-10-30, user): opens like Home, two red buttons in the middle;
+       each swaps the tab to its page (the pages were in Students and Payments), Back returns. -->
+  <div class="tab-panel" id="tab-audit">
+    <div id="auMenuView" class="au-menu">
+      <div class="au-top">
+        <button class="link-btn red" id="btnAuLessons" onclick="openLessonAudit()" data-tip="Opens a page.&#10;Lessons missing a log, HW, materials,&#10;schedule or email." data-tip-wrap><span>Audit lessons</span></button>
+        <button class="link-btn red" id="btnAuPayments" onclick="openPayAudit()" data-tip="Opens a page.&#10;Students who owe a payment." data-tip-wrap><span>Audit payments</span></button>
+      </div>
+    </div>
     <!-- Lessons Audit (2026-10-14): the old Audit ▾ Logs tab, now a page of
          Students opened by Audit lessons, same look as Payments Audit. -->
     <div id="imAuditView" style="display:none">
       <!-- Back on the left, the links out of the portal on the right. -->
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
-        <button class="link-btn" onclick="closeLessonAudit()" data-tip="Instant.&#10;Back to the students." id="btnLessonAuditBack"><span>Back to students</span></button>
+        <button class="link-btn" onclick="closeLessonAudit()" data-tip="Instant.&#10;Back to audit." id="btnLessonAuditBack"><span>Back to audit</span></button>
         <!-- Links out of the portal (2026-09-27): dim link button, words, then the
              out arrow. Same look on every link that leaves the portal. -->
         <div class="out-links" style="margin:0">
@@ -182,6 +196,19 @@
       <div id="auditCkSection"><div class="empty-state rpm-loading">Loading</div></div>
 
       <div class="log-feed" id="auditFeed"></div>
+    </div>
+    <!-- Who owes, moved here from the Audit tab (2026-09-28) so every money
+         question lives in one tab. Its own page since 2026-10-14: Audit
+         payments opens it, Back returns. Cards drawn by ctrl.js renderUnpaidCards;
+         confirming happens only in Incoming. -->
+    <div id="payAuditView" style="display:none">
+      <button class="link-btn" onclick="closePayAudit()" data-tip="Instant.&#10;Back to audit." id="btnPayAuditBack"><span>Back to audit</span></button>
+      <!-- Today's title look (2026-10-14): red "Payments Audit · Unpaid" with
+           the grey part after the dot; the AUDIT stamp centred under it, like
+           Today's PREVIEW stamp (user's image). -->
+      <div class="settings-title pay-audit-title"><span>Payments Audit<span class="win-sub"> · Unpaid</span></span></div>
+      <img class="pay-audit-stamp" src="img/audit-stamp.png" alt="">
+      <div id="auditUnpaidSection"><div class="empty-state rpm-loading">Loading</div></div>
     </div>
   </div>
 
@@ -277,7 +304,7 @@
       <span class="pay-title-btns">
         <button id="btnPayers" class="link-btn opens-window" onclick="openPayers()" data-tip="Opens a window.&#10;Who may pay for each student." data-tip-wrap>Payers</button>
         <button id="btnPayHistory" class="link-btn opens-window" onclick="openPaymentHistory()" data-tip="Opens a window.&#10;Every logged payment, by month." data-tip-wrap>Payment history</button>
-        <button class="link-btn red" id="btnPayAudit" onclick="openPayAudit()" data-tip="Opens a page.&#10;Students who owe a payment." data-tip-wrap><span>Audit payments</span></button>
+        <button class="link-btn red" id="btnPayAudit" onclick="switchTab('audit')" data-tip="Opens a tab.&#10;Audit lessons and Audit payments." data-tip-wrap><span>Audit</span></button>
       </span></div>
     <div class="pay-page-icon" data-icon="cost"></div>   <!-- om-98 calculator + coin under the title, like Today / Dashboard (2026-10-24) -->
     <div class="section-label" style="margin-top:28px;margin-bottom:26px">
@@ -288,19 +315,6 @@
     <!-- Cash payment: a Log cash button under Incoming, amber like the cards'
          Confirm, no icon (2026-09-29), in place of the full-width bar. -->
     <button class="incoming-confirm log-cash-btn" onclick="openManualEntryModal()" data-tip="Opens a window.&#10;Logs a cash payment." data-tip-wrap>＋ Log cash →</button>
-    </div>
-    <!-- Who owes, moved here from the Audit tab (2026-09-28) so every money
-         question lives in one tab. Its own page since 2026-10-14: Audit
-         payments opens it, Back returns. Cards drawn by ctrl.js renderUnpaidCards;
-         confirming happens only in Incoming. -->
-    <div id="payAuditView" style="display:none">
-      <button class="link-btn" onclick="closePayAudit()" data-tip="Instant.&#10;Back to payments." id="btnPayAuditBack"><span>Back to payments</span></button>
-      <!-- Today's title look (2026-10-14): red "Payments Audit · Unpaid" with
-           the grey part after the dot; the AUDIT stamp centred under it, like
-           Today's PREVIEW stamp (user's image). -->
-      <div class="settings-title pay-audit-title"><span>Payments Audit<span class="win-sub"> · Unpaid</span></span></div>
-      <img class="pay-audit-stamp" src="img/audit-stamp.png" alt="">
-      <div id="auditUnpaidSection"><div class="empty-state rpm-loading">Loading</div></div>
     </div>
   </div>
 
@@ -773,48 +787,48 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=1016"></script>
-<script src="core/storage.js?v=1016"></script>
-<script src="core/utils.js?v=1016"></script>
-<script src="core/dialog.js?v=1016"></script>
-<script src="core/api.js?v=1016"></script>
-<script src="core/secalert.js?v=1016"></script>
-<script src="core/magnifier.js?v=1016"></script>
+<script src="core/state.js?v=1017"></script>
+<script src="core/storage.js?v=1017"></script>
+<script src="core/utils.js?v=1017"></script>
+<script src="core/dialog.js?v=1017"></script>
+<script src="core/api.js?v=1017"></script>
+<script src="core/secalert.js?v=1017"></script>
+<script src="core/magnifier.js?v=1017"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=1016"></script>
-<script src="tabs/lessons.js?v=1016"></script>
-<script src="tabs/payments.js?v=1016"></script>
-<script src="tabs/general.js?v=1016"></script>
-<script src="tabs/financial.js?v=1016"></script>
-<script src="tabs/inquiries.js?v=1016"></script>
-<script src="tabs/inqarchive.js?v=1016"></script>
-<script src="tabs/comms.js?v=1016"></script>
-<script src="tabs/notes.js?v=1016"></script>
-<script src="tabs/todo.js?v=1016"></script>
-<script src="tabs/availability.js?v=1016"></script>
-<script src="tabs/travel.js?v=1016"></script>
-<script src="tabs/tripsummary.js?v=1016"></script>
-<script src="tabs/triphistory.js?v=1016"></script>
-<script src="tabs/skips.js?v=1016"></script>
-<script src="tabs/student.js?v=1016"></script>
-<script src="tabs/ctrl.js?v=1016"></script>
-<script src="tabs/gbusiness.js?v=1016"></script>
-<script src="tabs/dropbox.js?v=1016"></script>
-<script src="tabs/import.js?v=1016"></script>
-<script src="tabs/today.js?v=1016"></script>
-<script src="tabs/home.js?v=1016"></script>
-<script src="tabs/trial.js?v=1016"></script>
-<script src="tabs/ending.js?v=1016"></script>
-<script src="tabs/reviews.js?v=1016"></script>
-<script src="tabs/financial2.js?v=1016"></script>
-<script src="tabs/sheets.js?v=1016"></script>
-<script src="tabs/studentline.js?v=1016"></script>
-<script src="tabs/calendar.js?v=1016"></script>
-<script src="tabs/fixedcal.js?v=1016"></script>
-<script src="tabs/slotchange.js?v=1016"></script>
-<script src="tabs/help.js?v=1016"></script>
-<script src="tabs/holidays.js?v=1016"></script>
+<script src="tabs/icons.js?v=1017"></script>
+<script src="tabs/lessons.js?v=1017"></script>
+<script src="tabs/payments.js?v=1017"></script>
+<script src="tabs/general.js?v=1017"></script>
+<script src="tabs/financial.js?v=1017"></script>
+<script src="tabs/inquiries.js?v=1017"></script>
+<script src="tabs/inqarchive.js?v=1017"></script>
+<script src="tabs/comms.js?v=1017"></script>
+<script src="tabs/notes.js?v=1017"></script>
+<script src="tabs/todo.js?v=1017"></script>
+<script src="tabs/availability.js?v=1017"></script>
+<script src="tabs/travel.js?v=1017"></script>
+<script src="tabs/tripsummary.js?v=1017"></script>
+<script src="tabs/triphistory.js?v=1017"></script>
+<script src="tabs/skips.js?v=1017"></script>
+<script src="tabs/student.js?v=1017"></script>
+<script src="tabs/ctrl.js?v=1017"></script>
+<script src="tabs/gbusiness.js?v=1017"></script>
+<script src="tabs/dropbox.js?v=1017"></script>
+<script src="tabs/import.js?v=1017"></script>
+<script src="tabs/today.js?v=1017"></script>
+<script src="tabs/home.js?v=1017"></script>
+<script src="tabs/trial.js?v=1017"></script>
+<script src="tabs/ending.js?v=1017"></script>
+<script src="tabs/reviews.js?v=1017"></script>
+<script src="tabs/financial2.js?v=1017"></script>
+<script src="tabs/sheets.js?v=1017"></script>
+<script src="tabs/studentline.js?v=1017"></script>
+<script src="tabs/calendar.js?v=1017"></script>
+<script src="tabs/fixedcal.js?v=1017"></script>
+<script src="tabs/slotchange.js?v=1017"></script>
+<script src="tabs/help.js?v=1017"></script>
+<script src="tabs/holidays.js?v=1017"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -874,7 +888,7 @@
     // tab button is removed. The #tab-lessons panel div still lives in the DOM
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
-    var tabs = ["student","payments","general","financial2","inquiries","availability","notes","todo","travel","tripsummary","triphistory","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","reviews","lifetime","concert","sheets","skips","studentline","calendar","fixedcal","slotchange","inqarchive","trialanalysis","comms","helpdata","import","today","home"];
+    var tabs = ["student","payments","general","financial2","inquiries","availability","notes","todo","travel","tripsummary","triphistory","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","reviews","lifetime","concert","sheets","skips","studentline","calendar","fixedcal","slotchange","inqarchive","trialanalysis","comms","helpdata","import","today","home","audit"];
     tabs.forEach(function(t) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       var btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
@@ -887,12 +901,13 @@
       d.querySelector(".nav-toggle").classList.toggle("active", !!menu.querySelector('.tab-btn[data-tab="' + tab + '"]'));
     });
     if (tab === "student") initStudentTab();
-    if (tab === "import") { closeLessonAudit(); initImportTab(); }
+    if (tab === "import") initImportTab();
+    if (tab === "audit") { closeLessonAudit(); closePayAudit(); }
     if (tab === "today") initTodayTab();
     if (tab === "home") initHomeTab();
     if (tab === "helpdata") initHelpTab(tab);
     if (tab === "holidays") initHolidaysTab();
-    if (tab === "payments") { closePayAudit(); loadIncomingPayments(); }
+    if (tab === "payments") loadIncomingPayments();
     if (tab === "travel") initTravelTab();
     if (tab === "tripsummary") initTripSummaryTab();
     if (tab === "triphistory") initTripHistoryTab();

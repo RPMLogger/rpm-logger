@@ -76,7 +76,7 @@ function _imRenderCards(noRead) {
     '<div class="db-section td-wk-box im-box">' +
       // Audit lessons red on the title line, right (user, 2026-10-23; was amber, level with "24 students").
       '<div class="settings-title im-title-row"><span class="im-title-stack"><span>Students</span><span class="st-page-icon">' + ANALYSIS_ICON + '</span></span>' +   // no count (user, 2026-10-24; was "· 24 students" grey beside the title)   // was "Import", then "Lesson Log" (2026-10-09), then "Lessons" (renamed Students 2026-10-13)
-        '<button class="link-btn red" onclick="openLessonAudit()" data-tip="Opens a page.\nLessons missing a log, HW, materials,\nschedule or email." data-tip-wrap>' + DETAILS_ICON + '<span>Audit lessons</span></button></div>' +   // om-120 sits centred under the title, inside it (user, 2026-10-30; was its own line, left-aligned)
+        '<button class="link-btn red" onclick="switchTab(\'audit\')" data-tip="Opens a tab.\nAudit lessons and Audit payments." data-tip-wrap>' + DETAILS_ICON + '<span>Audit</span></button></div>' +   // om-120 sits centred under the title, inside it (user, 2026-10-30; was its own line, left-aligned)
       // The student page's box-title style (2026-10-06): one heading look on this tab.
       // Audit lessons (2026-10-14): red, right, level with "24 students", like Audit
       // payments; opens the old Logs page (Unlogged Lessons + Lesson Checklist) here.

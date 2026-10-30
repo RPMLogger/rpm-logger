@@ -3,10 +3,11 @@
 // Read-only — reports discrepancies + format warnings, no fix actions.
 
 // ─── LESSONS AUDIT PAGE (2026-10-14) ─────────────────────────────────────────
-// The old Audit ▾ Logs tab now lives in Students: Audit lessons swaps the
-// Students page to it (and runs the audit), Back returns. Like Payments Audit.
+// Lives in the Audit tab (2026-10-30; was in Students): Audit lessons swaps the
+// tab to it (and runs the audit), Back returns to the two buttons. Like Payments Audit.
 function openLessonAudit() {
-  document.getElementById("imMainView").style.display = "none";
+  if (!document.getElementById("tab-audit").classList.contains("active")) switchTab("audit");
+  document.getElementById("auMenuView").style.display = "none";
   document.getElementById("imAuditView").style.display = "";
   var back = document.getElementById("btnLessonAuditBack");
   if (back && !back.querySelector("svg")) back.insertAdjacentHTML("afterbegin", ARROW_ICON);
@@ -15,7 +16,7 @@ function openLessonAudit() {
 }
 function closeLessonAudit() {
   document.getElementById("imAuditView").style.display = "none";
-  document.getElementById("imMainView").style.display = "";
+  document.getElementById("auMenuView").style.display = "";
 }
 
 function initAuditTab() {

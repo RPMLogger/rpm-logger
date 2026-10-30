@@ -462,10 +462,10 @@ function submitIncomingWithNote(note, logBtn) {
 
 // ─── AUDIT PAYMENTS PAGE (2026-10-14) ────────────────────────────────────────
 // Unpaid Students used to load under Incoming every time the tab opened (~20s).
-// Now Audit payments swaps the page to it and only then asks Google; Back
-// returns to Incoming. Opening the Payments tab always lands on Incoming.
+// Now Audit payments swaps the page to it and only then asks Google. Lives in
+// the Audit tab (2026-10-30; was in Payments): Back returns to the two buttons.
 function openPayAudit() {
-  document.getElementById("payMainView").style.display = "none";
+  document.getElementById("auMenuView").style.display = "none";
   document.getElementById("payAuditView").style.display = "";
   var back = document.getElementById("btnPayAuditBack");
   if (back && !back.querySelector("svg")) back.insertAdjacentHTML("afterbegin", ARROW_ICON);  window.scrollTo(0, 0);
@@ -473,14 +473,16 @@ function openPayAudit() {
   if (!url) { document.getElementById("auditUnpaidSection").innerHTML = '<div class="empty-state">No script URL set</div>'; return; }
   _runAudit3(url);
 }
-// The magnifier (Details icon) on the button, as soon as the page is up.
+// The magnifier (Details icon) on the Audit buttons, as soon as the page is up.
 document.addEventListener("DOMContentLoaded", function () {
-  var b = document.getElementById("btnPayAudit");
-  if (b && !b.querySelector("svg")) b.insertAdjacentHTML("afterbegin", DETAILS_ICON);
+  ["btnPayAudit", "btnAuLessons", "btnAuPayments"].forEach(function (id) {
+    var b = document.getElementById(id);
+    if (b && !b.querySelector("svg")) b.insertAdjacentHTML("afterbegin", DETAILS_ICON);
+  });
 });
 function closePayAudit() {
   document.getElementById("payAuditView").style.display = "none";
-  document.getElementById("payMainView").style.display = "";
+  document.getElementById("auMenuView").style.display = "";
 }
 
 // ─── INCOMING PAYMENTS (Venmo / Zelle) ───────────────────────────────────────
