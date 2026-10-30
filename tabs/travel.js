@@ -726,7 +726,14 @@ function _travelDateCell(label, d, cls) {
 
 function _travelExecute() {
   var url = getScriptUrl(); if (!url) return;
-  callScript(url, 'executeTravel', _travelTestArgs({ start: _travelState.firstOff, end: _travelState.firstBack, location: _travelState.location || '' }), function(data) {
+  // The Cost analysis rows go along, so Trip History keeps vacation / pre / post buffer days + loss (user, 2026-10-29).
+  var sum = _travelState.sum || {}, args = { start: _travelState.firstOff, end: _travelState.firstBack, location: _travelState.location || '',
+                                             leaving: _travelState.leaving, backOn: _travelState.arriving };
+  [['vac', sum.trip], ['pre', sum.pre], ['post', sum.post]].forEach(function (p) {
+    var v = p[1];
+    if (v && typeof v === 'object' && !v.err) { args[p[0] + 'Days'] = v.d; args[p[0] + 'Lessons'] = v.n; args[p[0] + 'Loss'] = v.rev || 0; }
+  });
+  callScript(url, 'executeTravel', _travelTestArgs(args), function(data) {
     if (data && data.success) {
       var noPhone = (data.noPhone && data.noPhone.length) ? ' · ⚠ no phone: ' + data.noPhone.join(', ') : '';
       var failed  = data.textsFailed ? ' · ' + data.textsFailed + ' failed' : '';

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=992">
+  <link rel="stylesheet" href="css/styles.css?v=993">
 </head>
 <body>
 <div class="container">
@@ -15,7 +15,7 @@
     <img src="img/portal-logo.png" alt="Red Pick Music">
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">992</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">993</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -502,8 +502,10 @@
   </div>
 
   <!-- TRIP HISTORY -->
+  <!-- 2026-10-29: the Dashboard's look (user): red title, om-140 map + pins icon, a box per trip; css shares #tab-general's rules. -->
   <div class="tab-panel" id="tab-triphistory">
-    <div class="section-label">Trip History</div>
+    <div class="settings-title ld-head"><span>Trip History</span></div>
+    <div class="ld-icon" data-icon="trip"></div>
     <div id="triphistoryBody"><div class="empty-state rpm-loading">Loading</div></div>
     <div class="log-feed" id="triphistoryFeed"></div>
   </div>
@@ -736,48 +738,48 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=992"></script>
-<script src="core/storage.js?v=992"></script>
-<script src="core/utils.js?v=992"></script>
-<script src="core/dialog.js?v=992"></script>
-<script src="core/api.js?v=992"></script>
-<script src="core/secalert.js?v=992"></script>
-<script src="core/magnifier.js?v=992"></script>
+<script src="core/state.js?v=993"></script>
+<script src="core/storage.js?v=993"></script>
+<script src="core/utils.js?v=993"></script>
+<script src="core/dialog.js?v=993"></script>
+<script src="core/api.js?v=993"></script>
+<script src="core/secalert.js?v=993"></script>
+<script src="core/magnifier.js?v=993"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=992"></script>
-<script src="tabs/lessons.js?v=992"></script>
-<script src="tabs/payments.js?v=992"></script>
-<script src="tabs/general.js?v=992"></script>
-<script src="tabs/financial.js?v=992"></script>
-<script src="tabs/inquiries.js?v=992"></script>
-<script src="tabs/inqarchive.js?v=992"></script>
-<script src="tabs/comms.js?v=992"></script>
-<script src="tabs/notes.js?v=992"></script>
-<script src="tabs/todo.js?v=992"></script>
-<script src="tabs/availability.js?v=992"></script>
-<script src="tabs/travel.js?v=992"></script>
-<script src="tabs/tripsummary.js?v=992"></script>
-<script src="tabs/triphistory.js?v=992"></script>
-<script src="tabs/skips.js?v=992"></script>
-<script src="tabs/student.js?v=992"></script>
-<script src="tabs/ctrl.js?v=992"></script>
-<script src="tabs/gbusiness.js?v=992"></script>
-<script src="tabs/dropbox.js?v=992"></script>
-<script src="tabs/import.js?v=992"></script>
-<script src="tabs/today.js?v=992"></script>
-<script src="tabs/home.js?v=992"></script>
-<script src="tabs/trial.js?v=992"></script>
-<script src="tabs/ending.js?v=992"></script>
-<script src="tabs/reviews.js?v=992"></script>
-<script src="tabs/financial2.js?v=992"></script>
-<script src="tabs/sheets.js?v=992"></script>
-<script src="tabs/studentline.js?v=992"></script>
-<script src="tabs/calendar.js?v=992"></script>
-<script src="tabs/fixedcal.js?v=992"></script>
-<script src="tabs/slotchange.js?v=992"></script>
-<script src="tabs/help.js?v=992"></script>
-<script src="tabs/holidays.js?v=992"></script>
+<script src="tabs/icons.js?v=993"></script>
+<script src="tabs/lessons.js?v=993"></script>
+<script src="tabs/payments.js?v=993"></script>
+<script src="tabs/general.js?v=993"></script>
+<script src="tabs/financial.js?v=993"></script>
+<script src="tabs/inquiries.js?v=993"></script>
+<script src="tabs/inqarchive.js?v=993"></script>
+<script src="tabs/comms.js?v=993"></script>
+<script src="tabs/notes.js?v=993"></script>
+<script src="tabs/todo.js?v=993"></script>
+<script src="tabs/availability.js?v=993"></script>
+<script src="tabs/travel.js?v=993"></script>
+<script src="tabs/tripsummary.js?v=993"></script>
+<script src="tabs/triphistory.js?v=993"></script>
+<script src="tabs/skips.js?v=993"></script>
+<script src="tabs/student.js?v=993"></script>
+<script src="tabs/ctrl.js?v=993"></script>
+<script src="tabs/gbusiness.js?v=993"></script>
+<script src="tabs/dropbox.js?v=993"></script>
+<script src="tabs/import.js?v=993"></script>
+<script src="tabs/today.js?v=993"></script>
+<script src="tabs/home.js?v=993"></script>
+<script src="tabs/trial.js?v=993"></script>
+<script src="tabs/ending.js?v=993"></script>
+<script src="tabs/reviews.js?v=993"></script>
+<script src="tabs/financial2.js?v=993"></script>
+<script src="tabs/sheets.js?v=993"></script>
+<script src="tabs/studentline.js?v=993"></script>
+<script src="tabs/calendar.js?v=993"></script>
+<script src="tabs/fixedcal.js?v=993"></script>
+<script src="tabs/slotchange.js?v=993"></script>
+<script src="tabs/help.js?v=993"></script>
+<script src="tabs/holidays.js?v=993"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
