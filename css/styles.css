@@ -3677,7 +3677,8 @@ th.f2-blk { background:none; }
 /* Students: om-112 icon under the red title, like Today / Dashboard (user 2026-10-23). */
 #importBody .im-title-row { align-items:flex-start; margin-bottom:40px; }   /* 40px air above the cards (user, 2026-10-26) */
 #importBody .im-audit-link { color: var(--t-text); border-color: rgba(255,255,255,0.22); }   /* white like the Home buttons, no glass: just a link (user, 2026-10-30; was red with a magnifier) */
-#importBody .im-title-stack { display:inline-flex; flex-direction:column; align-items:center; gap:10px; }   /* icon centred under STUDENTS (user, 2026-10-30) */
+#importBody .im-title-stack { display:inline-flex; flex-direction:column; align-items:flex-start; gap:10px; }   /* icon left under the title, indented a bit (user, 2026-10-30; was centred) */
+#importBody .im-title-stack .st-page-icon { margin-left:8px; }
 #importBody .st-page-icon { color:var(--muted); line-height:0; }
 #importBody .st-page-icon .win-icon { height:24px; width:auto; }
 /* Payments: om-98 calculator + coin under the title, like Today / Dashboard (user 2026-10-24). */
