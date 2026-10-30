@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=1040">
+  <link rel="stylesheet" href="css/styles.css?v=1041">
 </head>
 <body>
 <div class="container">
@@ -15,7 +15,7 @@
     <img src="img/portal-logo.png" alt="Red Pick Music">
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1040</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1041</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -577,20 +577,29 @@
   <!-- COMMS — the Twilio line: texts + voicemails from anyone who is not a
        known student (those are routed to Student Line at intake). -->
   <div class="tab-panel" id="tab-comms">
-    <div class="section-label">Comms &middot; texts &amp; voicemails on your Twilio line</div>
-    <div class="comms-summary">
-      <span class="comms-stat"><span class="comms-icon">&#128172;</span><span class="comms-count" id="commsSmsCount">0</span><span class="comms-label">texts</span></span>
-      <span class="comms-stat"><span class="comms-icon">&#128222;</span><span class="comms-count" id="commsVoicemailCount">0</span><span class="comms-label">voicemails</span></span>
-      <span class="comms-open" id="commsOpen" style="display:none"><span class="comms-open-count" id="commsOpenCount">0</span> unanswered</span>
+    <div id="commsBody">
+    <!-- Today tab's box look (2026-10-30): title, filters, count → line → list. -->
+    <div class="td-wk-box cm-box">
+      <div class="settings-title td-wk-title"><span>Comms<span class="win-sub"> &middot; Twilio line</span></span>
+        <button class="link-btn" id="commsEditToggle" onclick="commsToggleEdit()">Edit</button></div>
+      <div class="cm-filters">
+        <button class="link-btn cm-f" data-filter="all" onclick="setCommsFilter('all')">All</button>
+        <button class="link-btn cm-f" data-filter="unresponded" onclick="setCommsFilter('unresponded')">Unanswered <span class="cm-n" id="commsOpenCount">0</span></button>
+        <button class="link-btn cm-f" data-filter="sms" onclick="setCommsFilter('sms')">Texts <span class="cm-n" id="commsSmsCount">0</span></button>
+        <button class="link-btn cm-f" data-filter="voicemail" onclick="setCommsFilter('voicemail')">Voicemails <span class="cm-n" id="commsVoicemailCount">0</span></button>
+        <button class="link-btn cm-f cm-f-scam" data-filter="scam" onclick="setCommsFilter('scam')">Scam <span class="cm-n" id="commsScamCount">0</span></button>
+      </div>
+      <div class="db-cx-head im-sec-head td-count cm-count-row" id="commsEditBar">
+        <label class="field-label db-cx-t" id="commsListLabel">&nbsp;</label>
+        <span class="cm-edit-tools">
+          <button class="link-btn" id="commsSelectAll" onclick="commsToggleSelectAll()">Select all</button>
+          <button class="link-btn cm-del" id="commsDeleteBtn" onclick="commsDeleteSelected()" disabled>Delete</button>
+        </span>
+      </div>
+      <hr class="divider td-rule td-rule-top">
+      <div id="commsInbox"><div class="empty-state rpm-loading">Loading</div></div>
     </div>
-    <div class="comms-filter">
-      <button class="comms-filter-btn active" data-filter="all" onclick="setCommsFilter('all')">All</button>
-      <button class="comms-filter-btn" data-filter="sms" onclick="setCommsFilter('sms')">Text</button>
-      <button class="comms-filter-btn" data-filter="voicemail" onclick="setCommsFilter('voicemail')">Voicemail</button>
-      <button class="comms-filter-btn" data-filter="unresponded" onclick="setCommsFilter('unresponded')">Unanswered</button>
-      <button class="comms-filter-btn" data-filter="scam" onclick="setCommsFilter('scam')">Scam <span id="commsScamCount">0</span></button>
     </div>
-    <div id="commsInbox"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
   <!-- STUDENT LINE -->
@@ -750,27 +759,19 @@
 
   </div>
 
-  <!-- COMMS DETAIL OVERLAY -->
-  <div class="comms-detail-overlay" id="commsDetailOverlay">
-    <div class="comms-detail-panel">
-      <div class="comms-detail-header">
-        <button class="comms-detail-back" onclick="closeCommsDetail()">← BACK</button>
-        <span class="comms-detail-source" id="commsDetailSource"></span>
+  <!-- COMMS MESSAGE WINDOW (Today's card-window look, 2026-10-30) -->
+  <div class="im-notes-back cm-win-back" id="commsDetailOverlay" onclick="if (event.target === this) closeCommsDetail()">
+    <div class="td-student cm-win">
+      <div class="settings-title im-title"><span><span id="commsDetailFrom"></span><span class="win-sub" id="commsDetailSource"></span></span>
+        <button class="settings-close" onclick="closeCommsDetail()">✕</button></div>
+      <label class="field-label cm-win-time" id="commsDetailTime"></label>
+      <div class="cm-win-text" id="commsDetailBody"></div>
+      <div class="cm-win-audio" id="commsDetailAudio" style="display:none"><audio id="commsAudioPlayer" controls></audio></div>
+      <div id="commsDetailTranscript" style="display:none">
+        <label class="field-label">Transcript</label>
+        <div class="cm-win-text" id="commsTranscriptText"></div>
       </div>
-      <div class="comms-detail-from" id="commsDetailFrom"></div>
-      <div class="comms-detail-time" id="commsDetailTime"></div>
-      <div class="comms-detail-body" id="commsDetailBody"></div>
-      <div class="comms-detail-audio" id="commsDetailAudio" style="display:none">
-        <audio id="commsAudioPlayer" controls></audio>
-      </div>
-      <div class="comms-detail-transcript" id="commsDetailTranscript" style="display:none">
-        <div class="comms-transcript-label">Transcript</div>
-        <div class="comms-transcript-text" id="commsTranscriptText"></div>
-      </div>
-      <label class="comms-responded-toggle" onclick="toggleCommsResponded()">
-        <input type="checkbox" id="commsRespondedCheck">
-        <span class="comms-responded-label">Responded</span>
-      </label>
+      <div class="cm-win-foot"><button class="link-btn" id="commsRespondedBtn" onclick="toggleCommsResponded()">Mark answered</button></div>
     </div>
   </div>
 
@@ -795,48 +796,48 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=1040"></script>
-<script src="core/storage.js?v=1040"></script>
-<script src="core/utils.js?v=1040"></script>
-<script src="core/dialog.js?v=1040"></script>
-<script src="core/api.js?v=1040"></script>
-<script src="core/secalert.js?v=1040"></script>
-<script src="core/magnifier.js?v=1040"></script>
+<script src="core/state.js?v=1041"></script>
+<script src="core/storage.js?v=1041"></script>
+<script src="core/utils.js?v=1041"></script>
+<script src="core/dialog.js?v=1041"></script>
+<script src="core/api.js?v=1041"></script>
+<script src="core/secalert.js?v=1041"></script>
+<script src="core/magnifier.js?v=1041"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=1040"></script>
-<script src="tabs/lessons.js?v=1040"></script>
-<script src="tabs/payments.js?v=1040"></script>
-<script src="tabs/general.js?v=1040"></script>
-<script src="tabs/financial.js?v=1040"></script>
-<script src="tabs/inquiries.js?v=1040"></script>
-<script src="tabs/inqarchive.js?v=1040"></script>
-<script src="tabs/comms.js?v=1040"></script>
-<script src="tabs/notes.js?v=1040"></script>
-<script src="tabs/todo.js?v=1040"></script>
-<script src="tabs/availability.js?v=1040"></script>
-<script src="tabs/travel.js?v=1040"></script>
-<script src="tabs/tripsummary.js?v=1040"></script>
-<script src="tabs/triphistory.js?v=1040"></script>
-<script src="tabs/skips.js?v=1040"></script>
-<script src="tabs/student.js?v=1040"></script>
-<script src="tabs/ctrl.js?v=1040"></script>
-<script src="tabs/gbusiness.js?v=1040"></script>
-<script src="tabs/dropbox.js?v=1040"></script>
-<script src="tabs/import.js?v=1040"></script>
-<script src="tabs/today.js?v=1040"></script>
-<script src="tabs/home.js?v=1040"></script>
-<script src="tabs/trial.js?v=1040"></script>
-<script src="tabs/ending.js?v=1040"></script>
-<script src="tabs/reviews.js?v=1040"></script>
-<script src="tabs/financial2.js?v=1040"></script>
-<script src="tabs/sheets.js?v=1040"></script>
-<script src="tabs/studentline.js?v=1040"></script>
-<script src="tabs/calendar.js?v=1040"></script>
-<script src="tabs/fixedcal.js?v=1040"></script>
-<script src="tabs/slotchange.js?v=1040"></script>
-<script src="tabs/help.js?v=1040"></script>
-<script src="tabs/holidays.js?v=1040"></script>
+<script src="tabs/icons.js?v=1041"></script>
+<script src="tabs/lessons.js?v=1041"></script>
+<script src="tabs/payments.js?v=1041"></script>
+<script src="tabs/general.js?v=1041"></script>
+<script src="tabs/financial.js?v=1041"></script>
+<script src="tabs/inquiries.js?v=1041"></script>
+<script src="tabs/inqarchive.js?v=1041"></script>
+<script src="tabs/comms.js?v=1041"></script>
+<script src="tabs/notes.js?v=1041"></script>
+<script src="tabs/todo.js?v=1041"></script>
+<script src="tabs/availability.js?v=1041"></script>
+<script src="tabs/travel.js?v=1041"></script>
+<script src="tabs/tripsummary.js?v=1041"></script>
+<script src="tabs/triphistory.js?v=1041"></script>
+<script src="tabs/skips.js?v=1041"></script>
+<script src="tabs/student.js?v=1041"></script>
+<script src="tabs/ctrl.js?v=1041"></script>
+<script src="tabs/gbusiness.js?v=1041"></script>
+<script src="tabs/dropbox.js?v=1041"></script>
+<script src="tabs/import.js?v=1041"></script>
+<script src="tabs/today.js?v=1041"></script>
+<script src="tabs/home.js?v=1041"></script>
+<script src="tabs/trial.js?v=1041"></script>
+<script src="tabs/ending.js?v=1041"></script>
+<script src="tabs/reviews.js?v=1041"></script>
+<script src="tabs/financial2.js?v=1041"></script>
+<script src="tabs/sheets.js?v=1041"></script>
+<script src="tabs/studentline.js?v=1041"></script>
+<script src="tabs/calendar.js?v=1041"></script>
+<script src="tabs/fixedcal.js?v=1041"></script>
+<script src="tabs/slotchange.js?v=1041"></script>
+<script src="tabs/help.js?v=1041"></script>
+<script src="tabs/holidays.js?v=1041"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
