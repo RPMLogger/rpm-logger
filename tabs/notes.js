@@ -59,7 +59,7 @@ function _renderNotes() {
   section.innerHTML = "";
   _tdoDragMode(section, "notesDragBtn", _notesDragOn, open.length);
   if (!open.length) {
-    section.innerHTML = '<div class="empty-state tdo-none">No notes</div>';
+    section.innerHTML = '<div class="empty-state tdo-none rpm-loading">None</div>';
   } else {
     // Newest first
     var shown = open.slice().reverse();
