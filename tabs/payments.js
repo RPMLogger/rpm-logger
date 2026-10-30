@@ -527,7 +527,7 @@ function loadIncomingPayments() {
                 ? "<div class='incoming-nomatch' style='color:var(--accent2)'>Trial payment \u00b7 " + p.trial.name + " (recorded from the Trial tab)</div>"
                 : (p.matched ? "" : "<div class='incoming-nomatch'>\u26a0 Name not matched in student sheets</div>")) +
             "</div>" +
-            "<div style='display:flex;flex-direction:column;gap:6px;flex-shrink:0'>" +
+            "<div style='display:flex;gap:6px;flex-shrink:0'>" +
               "<button class='incoming-confirm'" + (isTrial ? " disabled data-tip='Trial payment.\nRecorded from the Trial tab.' style='opacity:.35;cursor:not-allowed'" : "") + ">Confirm \u2192</button>" +
               "<button class='incoming-dismiss'>Dismiss</button>" +
             "</div>" +
