@@ -587,7 +587,7 @@ function _imMailSentences(rows) {
   return rows.filter(Boolean).map(function (t) {
     t = t.charAt(0).toUpperCase() + t.slice(1);
     if (/^no show$/i.test(t)) return 'No show';   // no full stop, as in the log (user, 2026-10-26)
-    return /[.!?]$/.test(t) ? t : t + '.';
+    return /[.!?]$|- RPM$/.test(t) ? t : t + '.';   // a signed line ("- RPM") gets no full stop
   }).join(' ');
 }
 // The email, from the Log window as it stands. A lesson reopened from the

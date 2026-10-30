@@ -230,8 +230,8 @@ function stopRecording() {
 // Notes to the student get the no-show lines when empty; HW sent instead is
 // picked and edited as on any lesson. The Log after it still counts it as a
 // no show (submitLog: the lesson text is "No show").
-var NS_HW   = "This could be a good time to review the older material and improve it, or just play anything you enjoy. Just doing that, you will still improve.";
-var NS_NOTE = "Lesson policies are what keep the studio running, so thank you for understanding!";
+var NS_HW   = "If you want more material or a video lesson, let me know, otherwise this would be a good time to review the older material and improve it, or just play anything you enjoy. Just by doing that, you will still improve.";
+var NS_NOTE = "Lesson policies are what keep the studio running, so thank you for understanding! - RPM";   // signed (user, 2026-10-30)
 function logNoShow() {
   var box = _logBox();
   if (!box || !activeStudent || activeStudent.logged || activeStudent.hwOnly) return;
