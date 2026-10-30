@@ -318,7 +318,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2) {
   box-sizing: border-box; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
 }
-.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):is(#tab-payments, #tab-triphistory) { background: #141414; }   /* Payments + Trip History (2026-10-29): the logo box's shade, so its cards show (user, 2026-10-27); the rule above's :not(#id)s outweigh a plain #tab-payments */
+.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):is(#tab-payments, #tab-triphistory, #tab-reviews) { background: #141414; }   /* Payments + Trip History + Reviews (2026-10-29): the logo box's shade, so its cards show (user, 2026-10-27); the rule above's :not(#id)s outweigh a plain #tab-payments */
 
 /* ─── HOME: the opening page (2026-10-24) ─── */
 /* In the bordered box like every tab, under the header (user, 2026-10-26; was
@@ -2813,6 +2813,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #tab-trialanalysis > .ld-icon .win-icon { height: 34px; margin-left: -3px; }   /* om-109 bars: bigger, its axis pulled flush with the title (user 2026-10-23) */
 #tab-reviews > .ld-icon { margin: 0 0 26px; }   /* Reviews: om-118 bars under Dashboard, om-120 under Students analysis (user, 2026-10-26) */
 #tab-reviews > .ld-icon .win-icon { height: 34px; width: auto; margin-left: -3px; }
+#tab-reviews > .settings-title:not(.rv-g-title) + .ld-icon { margin-bottom: 44px; }   /* more room between the bars icon and Review count, the boxes' own 44px (user, 2026-10-29) */
 #tab-reviews > .rv-g-title + .ld-icon { margin-top: 16px; }   /* the same gap under Students analysis as under Dashboard */
 #tab-reviews > .rv-g-title + .ld-icon .win-icon { height: 28px; margin-left: 0; }   /* om-120 is wide, a step smaller */
 #rvCurSum .ld-cards { margin-bottom: 0; }   /* the divider below carries the gap */
@@ -3474,6 +3475,13 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .rv-dd .cash-dd-opt[hidden], .rv-dd .rv-dd-grp[hidden] { display: none; }   /* typing narrows the list */
 .rv-dd-grp { font-family: "DM Mono", monospace; font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); padding: 8px 12px 4px; }
 .rv-dd-where { float: right; color: var(--t-faint); }   /* already planned in another week */
+#rvSummaryBody .rv-plan .ld-row .ld-l { text-align: center; }   /* the week dates centred in their column (user, 2026-10-29) */
+#rvSummaryBody .rv-sec { margin: 0 0 26px; }   /* at the panel's left edge like Payments' Incoming label, the boxes indented under it (user, 2026-10-29) */
+#rvSummaryBody .ld-card + .ld-card { margin-top: 44px; }   /* more space between the boxes (user, 2026-10-29; was 22px) */
+#rvSummaryBody .ld-cards { margin-bottom: 44px; }   /* and before Current students */
+:is(#rvSummaryBody, #rvCurSum) .ld-card { max-width: 480px; margin-left: auto; margin-right: auto; background: var(--surface); border-left: 3px solid color-mix(in srgb, var(--green) 42%, transparent); }   /* the green 3px edge of Payments' done cards (user, 2026-10-29) */
+/* the Dashboard boxes narrower than the 760px column, centred, filled like Payments' cards on the panel's darker #141414 (user, 2026-10-29); label column + the longest "date - name" row fit */
+:is(#rvSummaryBody, #rvCurSum) .ld-title > span:first-child { font-family: Syne, sans-serif; font-size: 13px; font-weight: 400; letter-spacing: normal; text-transform: none; }   /* box headers in the payment cards' name font, Syne 13px (user, 2026-10-29; was Bebas caps) */
 .rv-plan { overflow: visible !important; }   /* the open list may hang below the box */
 #rvSummaryBody .rv-plan .ld-title { border-radius: calc(var(--radius-card) - 2px) calc(var(--radius-card) - 2px) 0 0; }   /* so the band keeps the box's corners without overflow hidden */
 #rvCurSum { margin-top: -10px; }   /* Current students box: the same 22px gap as the boxes above it */

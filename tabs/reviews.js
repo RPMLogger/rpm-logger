@@ -294,6 +294,9 @@ function _rvRenderSummary() {
   var row = function (l, v, cls) { return '<div class="ld-row' + (cls || '') + '"><span class="ld-l">' + l + '</span><span class="ld-v">' + v + '</span></div>'; };
   document.getElementById('rvSummaryBody').innerHTML =
     '<div class="ld-cards">' +
+      // Payments' "Incoming Venmo & Zelle" label over the first box, top left
+      // (user, 2026-10-29): grey word, blue word.
+      '<div class="section-label rv-sec">Analytics <span style="color:var(--blue)">General</span></div>' +
       // Review count (user, 2026-10-26): Google + Yelp from SerpApi every
       // Monday (counts); until its first check, the email count and Yelp's 11.
       '<div class="inq-dcard ld-card"><div class="ld-title ld-title-sum"><span>Review count</span>' +
