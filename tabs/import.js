@@ -44,7 +44,14 @@ function _imRenderCards(noRead) {
   // Today's lesson logged (2026-10-07): green when Schedule and HW are done too,
   // else the amber card says what's missing; clicking it reopens it to edit.
   var logged = (todayStudents || []).filter(function (s) { return s.alreadyLogged; }).map(function (s) { return _imKey(s.name); });
-  if (!noRead && !_ck.loaded && !_ck.busy) _ckLoad(function () { var p = document.getElementById('tab-import'); if (_imRoster && !_imOpen && p && p.classList.contains('active')) _imRenderCards(true); });
+  // Loading until the checklist is in too, so the cards draw once, already in their
+  // groups (user, 2026-10-30; they drew first, then Not logged jumped up amber).
+  // _ckLoad calls _imAfterCk when it ends, whoever started it; a failed read draws anyway.
+  if (!_ck.loaded && !_imCkFail) {
+    body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+    if (!_ck.busy) _ckLoad();
+    return;
+  }
   // Missed lessons still open (2026-10-08, Lesson checklist): "2 open".
   var open = function (n) { return _ckPast(n).length; };
   var missing = function (n) {
@@ -694,8 +701,16 @@ function _ckLoad(then) {
       (d.audit || []).forEach(function (a) { by[_imKey(a.name)] = a.lessons; });
       _ck = { byName: by, loaded: true, busy: false, start: d.start || '', audit: d.audit || [] };
       if (then) then(null);
+      _imAfterCk(false);
     })
-    .catch(function (e) { _ck.busy = false; if (then) then(e && e.message || 'No answer from Google.'); });
+    .catch(function (e) { _ck.busy = false; if (then) then(e && e.message || 'No answer from Google.'); _imAfterCk(true); });
+}
+// The Students list waits on the checklist (2026-10-30): draw it once it's in.
+var _imCkFail = false;
+function _imAfterCk(failed) {
+  _imCkFail = failed;
+  var p = document.getElementById('tab-import');
+  if (_imRoster && !_imOpen && p && p.classList.contains('active')) _imRenderCards(true);
 }
 // Past lessons still open (before today; today's comes from the calendar).
 function _ckPast(name) {
