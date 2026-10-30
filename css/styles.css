@@ -3673,8 +3673,6 @@ th.f2-blk { background:none; }
 #payMainView > .settings-title:has(+ .pay-page-icon) { margin-bottom:10px; }
 #payMainView > .pay-page-icon { margin:0 0 26px; color:var(--muted); line-height:0; }
 #payMainView > .pay-page-icon .win-icon { height:24px; width:auto; }
-#payAddModal .pay-page-icon { color:var(--muted); line-height:0; }   /* Add contact popup wears the same icon */
-#payAddModal .pay-page-icon .win-icon { height:24px; width:auto; }
 #payMainView > .settings-title .pay-title-btns { display:flex; gap:8px; }   /* Payment history + Audit payments top right (user 2026-10-24) */
 /* A plane beside Leaving on (taking off) and Back on (landing), on the box's right (user 2026-10-24; was over it, then left). */
 #travelBody .tv-dates { display:grid; grid-template-columns:calc(50% - 8px) auto; justify-content:start; align-items:center; column-gap:14px; row-gap:16px; }

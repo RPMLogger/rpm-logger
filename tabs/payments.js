@@ -716,6 +716,7 @@ function payerStudentList() {
 function openAddContact(payment, done) {
   var modal = document.getElementById("payAddModal");
   payAddPick = null;
+  document.getElementById("payAddIcon").innerHTML = PAY_ICON;
   // The name alone: pressing Confirm means you have already read the card.
   document.getElementById("payAddWho").innerHTML =
     "<span class='pa-name'>" + inqEsc(payment.name) + "</span>";
