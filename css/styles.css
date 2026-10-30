@@ -45,15 +45,17 @@ body {
 body::before {
   content: ""; position: fixed; inset: 0;
   background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E"),   /* faint grain on top so the glow fades smoothly, no rings (user, 2026-10-30) */
-    radial-gradient(ellipse 80% 60% at 45% 45%, color-mix(in srgb, var(--accent2) 16%, transparent), transparent 70%),
+    radial-gradient(ellipse 80% 60% at 45% 45%, color-mix(in srgb, var(--accent2) 12%, transparent), transparent 70%),
     radial-gradient(ellipse 60% 50% at 5% 85%, color-mix(in srgb, oklch(0.45 0.12 70) 11%, transparent), transparent 70%);
   pointer-events: none;
 }   /* a soft gold glow, the user's gold square faded into the dark (user, 2026-10-28; was the halftone pattern, before that the amber grid) */
 /* small dots repeated over the page background, faint (user, 2026-10-30; the user's
    Canva pebbles, then one big halftone cloud tried first) */
 body::after { content: ""; position: fixed; inset: 0; pointer-events: none;
-  background: radial-gradient(circle, rgb(255 240 215 / 0.07) 1px, transparent 1.6px) 0 0 / 7px 7px; }
+  background: radial-gradient(circle, rgb(255 240 215 / 0.07) 1px, transparent 1.6px) 0 0 / 7px 7px;
+  display: none; }   /* off for now under the diamond plate; the user: dots are workable, maybe stronger (2026-10-30) */
+/* the user's diamond plate as the page background, tiled, darkened to 7%, under the gold glow (user, 2026-10-30; tweed amp photo tried first) */
+body { background: linear-gradient(rgb(15 15 15 / 0.93), rgb(15 15 15 / 0.93)), url("../img/bg-plate.jpg") 0 0 / 380px, var(--bg); }
 /* a faint paper grain inside the student cards; body-prefixed so the cards' own background: shorthand keeps it (user, 2026-10-30) */
 body #importBody .im-card, body #tab-payments .incoming-card { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* a bit of the cards' paper grain on the big boxes, logo box included (user, 2026-10-30; was on the page background) */
@@ -67,12 +69,12 @@ body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-
 /* ─── HEADER ──────────────────────────────────────────────────────────────── */
 .header {
   display: flex; align-items: center; justify-content: center;
-  gap: 14px; margin: 40px 0 58px; position: relative;   /* logo lower; 58 = the box's 24 under it + the 34px gap between Today's boxes (user, 2026-10-26; was 70) */
+  gap: 14px; margin: 52px 0 70px; position: relative;   /* 12px more room above and below inside the logo box (user, 2026-10-30; was 40 / 58) */   /* logo lower; 58 = the box's 24 under it + the 34px gap between Today's boxes (user, 2026-10-26; was 70) */
 }
 /* the logo in a box like Today's, the content's width (user, 2026-10-26; was a
    full-width band from the top of the screen, a shade lighter, 2026-10-24) */
 .header::before {
-  content: ""; position: absolute; left: 0; right: 0; top: -40px; bottom: -24px; z-index: -1;
+  content: ""; position: absolute; left: 0; right: 0; top: -52px; bottom: -36px; z-index: -1;   /* 24px taller, content unchanged (user, 2026-10-30; was -40 / -24) */
   background: var(--box); border: 1px solid var(--border); border-radius: 10px;   /* a step darker than the boxes under it (user, 2026-10-26) */
 }
 @media (max-width: 700px) { .header::before { left: 0; right: 0; } }
@@ -303,7 +305,7 @@ body.sb-open .tabs { transform: none; }
    dot, the colour of RED PICK MUSIC and exactly as tall as its R. The ☰ character
    stays in the button for screen readers, hidden by font-size 0. */
 .sb-burger {
-  position: absolute; left: 24px; top: 42px; z-index: 55; width: 36px; height: 36px;   /* inside the logo box's 24px padding (2026-10-26); in a rounded square like Home (user, 2026-10-26; was bare 24×20 at top 43px) */
+  position: absolute; left: 24px; top: 54px; z-index: 55; width: 36px; height: 36px;   /* 54 = 42 + the logo box's extra 12px (user, 2026-10-30) */   /* inside the logo box's 24px padding (2026-10-26); in a rounded square like Home (user, 2026-10-26; was bare 24×20 at top 43px) */
   padding: 0; font-size: 0; cursor: pointer; border-radius: 7px;
   background: color-mix(in srgb, #fff 4%, transparent); border: 1px solid rgba(255,255,255,0.10);
   color: var(--muted); transition: color .12s, border-color .12s, background .12s;
