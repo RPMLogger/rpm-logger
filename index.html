@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=1037">
+  <link rel="stylesheet" href="css/styles.css?v=1038">
 </head>
 <body>
 <div class="container">
@@ -15,7 +15,7 @@
     <img src="img/portal-logo.png" alt="Red Pick Music">
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1037</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1038</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -302,8 +302,6 @@
     <!-- Payment history + Audit payments on the title line, right (2026-10-24; were a row under the icon). -->
     <div class="settings-title"><span>Payments<span class="win-sub"> · Tracking</span></span>   <!-- the Terminate tab title look (2026-10-21) -->
       <span class="pay-title-btns">
-        <button id="btnPayers" class="link-btn opens-window" onclick="openPayers()" data-tip="Opens a window.&#10;Who may pay for each student." data-tip-wrap>Payers</button>
-        <button id="btnPayHistory" class="link-btn opens-window" onclick="openPaymentHistory()" data-tip="Opens a window.&#10;Every logged payment, by month." data-tip-wrap>Payment history</button>
         <button class="link-btn red" id="btnPayAudit" onclick="switchTab('audit')" data-tip="Opens a tab.&#10;Audit lessons and Audit payments." data-tip-wrap><span>Audit</span></button>
       </span></div>
     <div class="pay-page-icon" data-icon="pay"></div>   <!-- the $ in a ring under the title (user, 2026-10-30; was the om-98 calculator + coin from 2026-10-24) -->
@@ -314,7 +312,16 @@
     <div class="log-feed" id="paymentFeed"></div>
     <!-- Cash payment: a Log cash button under Incoming, amber like the cards'
          Confirm, no icon (2026-09-29), in place of the full-width bar. -->
+    <!-- A Log cash header like Auto-confirmed, the button under it from the cards' left edge;
+         Contacts (was Payers) + Payment history bottom right on its line (user, 2026-10-30; were top right beside Audit). -->
+    <div class="section-label" style="margin-top:56px;margin-bottom:26px">Log cash</div>
+    <div class="pay-foot">
     <button class="incoming-confirm log-cash-btn" onclick="openManualEntryModal()" data-tip="Opens a window.&#10;Logs a cash payment." data-tip-wrap>＋ Log cash →</button>
+      <span class="pay-foot-btns">
+        <button id="btnPayers" class="link-btn opens-window" onclick="openPayers()" data-tip="Opens a window.&#10;Who may pay for each student." data-tip-wrap>Contacts</button>
+        <button id="btnPayHistory" class="link-btn opens-window" onclick="openPaymentHistory()" data-tip="Opens a window.&#10;Every logged payment, by month." data-tip-wrap>Payment history</button>
+      </span>
+    </div>
     </div>
   </div>
 
@@ -788,48 +795,48 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=1037"></script>
-<script src="core/storage.js?v=1037"></script>
-<script src="core/utils.js?v=1037"></script>
-<script src="core/dialog.js?v=1037"></script>
-<script src="core/api.js?v=1037"></script>
-<script src="core/secalert.js?v=1037"></script>
-<script src="core/magnifier.js?v=1037"></script>
+<script src="core/state.js?v=1038"></script>
+<script src="core/storage.js?v=1038"></script>
+<script src="core/utils.js?v=1038"></script>
+<script src="core/dialog.js?v=1038"></script>
+<script src="core/api.js?v=1038"></script>
+<script src="core/secalert.js?v=1038"></script>
+<script src="core/magnifier.js?v=1038"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=1037"></script>
-<script src="tabs/lessons.js?v=1037"></script>
-<script src="tabs/payments.js?v=1037"></script>
-<script src="tabs/general.js?v=1037"></script>
-<script src="tabs/financial.js?v=1037"></script>
-<script src="tabs/inquiries.js?v=1037"></script>
-<script src="tabs/inqarchive.js?v=1037"></script>
-<script src="tabs/comms.js?v=1037"></script>
-<script src="tabs/notes.js?v=1037"></script>
-<script src="tabs/todo.js?v=1037"></script>
-<script src="tabs/availability.js?v=1037"></script>
-<script src="tabs/travel.js?v=1037"></script>
-<script src="tabs/tripsummary.js?v=1037"></script>
-<script src="tabs/triphistory.js?v=1037"></script>
-<script src="tabs/skips.js?v=1037"></script>
-<script src="tabs/student.js?v=1037"></script>
-<script src="tabs/ctrl.js?v=1037"></script>
-<script src="tabs/gbusiness.js?v=1037"></script>
-<script src="tabs/dropbox.js?v=1037"></script>
-<script src="tabs/import.js?v=1037"></script>
-<script src="tabs/today.js?v=1037"></script>
-<script src="tabs/home.js?v=1037"></script>
-<script src="tabs/trial.js?v=1037"></script>
-<script src="tabs/ending.js?v=1037"></script>
-<script src="tabs/reviews.js?v=1037"></script>
-<script src="tabs/financial2.js?v=1037"></script>
-<script src="tabs/sheets.js?v=1037"></script>
-<script src="tabs/studentline.js?v=1037"></script>
-<script src="tabs/calendar.js?v=1037"></script>
-<script src="tabs/fixedcal.js?v=1037"></script>
-<script src="tabs/slotchange.js?v=1037"></script>
-<script src="tabs/help.js?v=1037"></script>
-<script src="tabs/holidays.js?v=1037"></script>
+<script src="tabs/icons.js?v=1038"></script>
+<script src="tabs/lessons.js?v=1038"></script>
+<script src="tabs/payments.js?v=1038"></script>
+<script src="tabs/general.js?v=1038"></script>
+<script src="tabs/financial.js?v=1038"></script>
+<script src="tabs/inquiries.js?v=1038"></script>
+<script src="tabs/inqarchive.js?v=1038"></script>
+<script src="tabs/comms.js?v=1038"></script>
+<script src="tabs/notes.js?v=1038"></script>
+<script src="tabs/todo.js?v=1038"></script>
+<script src="tabs/availability.js?v=1038"></script>
+<script src="tabs/travel.js?v=1038"></script>
+<script src="tabs/tripsummary.js?v=1038"></script>
+<script src="tabs/triphistory.js?v=1038"></script>
+<script src="tabs/skips.js?v=1038"></script>
+<script src="tabs/student.js?v=1038"></script>
+<script src="tabs/ctrl.js?v=1038"></script>
+<script src="tabs/gbusiness.js?v=1038"></script>
+<script src="tabs/dropbox.js?v=1038"></script>
+<script src="tabs/import.js?v=1038"></script>
+<script src="tabs/today.js?v=1038"></script>
+<script src="tabs/home.js?v=1038"></script>
+<script src="tabs/trial.js?v=1038"></script>
+<script src="tabs/ending.js?v=1038"></script>
+<script src="tabs/reviews.js?v=1038"></script>
+<script src="tabs/financial2.js?v=1038"></script>
+<script src="tabs/sheets.js?v=1038"></script>
+<script src="tabs/studentline.js?v=1038"></script>
+<script src="tabs/calendar.js?v=1038"></script>
+<script src="tabs/fixedcal.js?v=1038"></script>
+<script src="tabs/slotchange.js?v=1038"></script>
+<script src="tabs/help.js?v=1038"></script>
+<script src="tabs/holidays.js?v=1038"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
