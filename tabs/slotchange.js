@@ -9,16 +9,16 @@
 //   2 Set the time under the weeks, Confirm: the Warning! box, then the
 //     change (applySlotChange: mute till the midnight relabel, new series, old
 //     one ended from the picked lesson's week on); the weeks reload after
-//   3 Email, in a window after the change: "Your Recurring Slot Has Changed", editable, then Send (keeps a
-//     Counter "Slot Changes" row; the Secretary no longer sends this one)
+//   3 Email: "Your Recurring Slot Has Changed" goes on its own with the change
+//     (2026-10-30, the Secretary's format; keeps a Counter "Slot Changes" row)
 // One lesson a week: no start day in a week they already had their lesson.
-// Backend RPM_SlotChange.gs: getSlotChange, applySlotChange, checkSlotChange,
-// previewSlotChange, sendSlotChange; getStudentLessons for the weeks.
+// Backend RPM_SlotChange.gs: getSlotChange, applySlotChange, checkSlotChange;
+// getStudentLessons for the weeks.
 
 var SLC_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 var SLC_ANCHOR_A = new Date(2026, 8, 14);   // a Week A Monday, as RPM_FixedCal.gs
 
-var _slc = { data: null, name: '', type: 'weekly', time: '', lessons: null, cutDay: '', pickDay: '', date: '', warn: null, muted: false, applied: null, check: null, mail: null, sent: '' };
+var _slc = { data: null, name: '', type: 'weekly', time: '', lessons: null, cutDay: '', pickDay: '', date: '', warn: null, muted: false, applied: null, check: null };
 
 function initSlotChangeTab() {
   _slcInjectStyle();
@@ -79,7 +79,6 @@ function _slcOld() {
 // Anything changed above a step clears what came after it.
 function _slcReset(from) {
   if (from <= 2) _slc.check = null;
-  if (from <= 4) { _slc.mail = null; _slc.sent = ''; }
 }
 
 // Change on a card opens the Slot change window (user, 2026-10-29): the
@@ -220,7 +219,7 @@ function _slcTpPick(v) {
 // Confirm: straight to the Warning! box (Terminate's and the Travel Plan's,
 // user 2026-10-29: no window in between), then the change for real: mute,
 // new series, old one ended, the check. The weeks reload from Google
-// Calendar; a window shows what was done, then Email.
+// Calendar; a window shows what was done (the email went on its own).
 function _slcConfirmAsk() {
   var n = _slcNew();
   if (!n) return;
@@ -231,6 +230,7 @@ function _slcConfirmAsk() {
     message: '→ ' + first + ' is muted for the rest of today: no Secretary activity until the midnight relabel.\n\n' +
       '→ New ' + (_slc.type === 'biweekly' ? 'biweekly' : 'weekly') + ' series from ' + _slcDateLbl(_slc.date) + ' at ' + _slcTimeLbl(n.startMin) + '.\n\n' +
       '→ The old series ends' + (lastOld ? ': ' + first + "'s last lesson on it is " + _slcDateLbl(lastOld) : '') + '.\n\n' +
+      '→ ' + first + ' gets the "Your Recurring Slot Has Changed" email.\n\n' +
       '→ This cannot be undone.',
     confirmLabel: 'Change slot',
     icon: WARN_ICON,
@@ -243,7 +243,9 @@ function _slcConfirm() {
   var panel = document.querySelector('#slcModal .st-win'), btn = document.getElementById('slcConfirmBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Changing…'; }
   rpmBusy(panel, btn, true, 'Changing');
-  _slcCall('?action=applySlotChange' + _slcParams())
+  var old = _slcOld();   // for the Slot Changes row
+  _slcCall('?action=applySlotChange' + _slcParams() +
+           (old ? '&oldType=' + old.type + '&oldDay=' + old.dayIdx + '&oldTime=' + old.startMin : ''))
     .then(function(d) {
       rpmBusy(panel, btn, false);
       if (!d.success) { if (btn) { btn.disabled = false; btn.textContent = 'Confirm'; } rpmFail('slcConfirmMsg', d.message || 'Failed', 'left'); return; }
@@ -258,7 +260,7 @@ function _slcConfirm() {
     .catch(function() { rpmBusy(panel, btn, false); if (btn) { btn.disabled = false; btn.textContent = 'Confirm'; } rpmFail('slcConfirmMsg', 'Connection failed', 'left'); });
 }
 
-// After the change: a window with what was done (✓ / ✗), then Email.
+// After the change: a window with what was done (✓ / ✗).
 function _slcOpenDone() {
   _stWin('stTimeModal', inqEsc(_slc.name), 'Slot change', CALENDAR_ICON, "<div id='slcCBody'></div>");
   _slcPaintDone();
@@ -392,28 +394,16 @@ function _slcWinHtml() {
         " data-tip='Opens the Warning! box.\nThen the lessons change in Google Calendar.' data-tip-left>Confirm</button></div>");
 }
 
-// The window after the change: what it did (✓ / ✗, and any check that
-// failed), then Email.
+// The window after the change: what it did (✓ / ✗, the Email line too, and
+// any check that failed).
 function _slcPaintDone() {
-  var box = document.getElementById('slcCBody'), ap = _slc.applied, ck = _slc.check, m = _slc.mail;
+  var box = document.getElementById('slcCBody'), ap = _slc.applied, ck = _slc.check;
   if (!box || !ap) return;
   var bad = ck ? ck.checks.filter(function(c) { return !c.ok; }) : [];
   box.innerHTML = "<label class='field-label'>Changed</label>" +
     (ap.steps || []).map(function(x) { return '<div class="slc-ck ' + (x.ok ? 'ok' : 'no') + '"><span>' + (x.ok ? '✓' : '✗') + '</span>' + inqEsc(x.label + ': ' + x.text) + '</div>'; }).join('') +
     bad.map(function(c) { return '<div class="slc-ck no"><span>✗</span>' + inqEsc(c.text) + '</div>'; }).join('') +
-    (ap.checkError ? '<div class="slc-err">' + inqEsc(ap.checkError) + '</div>' : '') +
-    "<label class='field-label st-gap'>Email</label>" +
-    (_slc.sent
-      ? _slcFields([['Sent', inqEsc(_slc.sent)]])
-      : m
-      ? '<div class="slc-line"><span class="slc-lab">To</span><input class="rpm-field" id="slcTo" value="' + _auEsc(m.to || '') + '"></div>' +
-        '<div class="slc-line"><span class="slc-lab">Subject</span><input class="rpm-field" id="slcSubj" value="' + _auEsc(m.subject) + '"></div>' +
-        '<textarea class="rpm-field slc-bodytxt" id="slcText" rows="13">' + inqEsc(m.body) + '</textarea>' +
-        '<div class="slc-note">Signature and logo are added when it is sent.</div>' +
-        "<div class='ll-acts st-foot'><span class='ll-state' id='slcSendMsg' style='flex:1'></span><button class='link-btn' onclick='_slcPreview(this)'>Rewrite</button>" +
-          "<button class='link-btn bright' id='slcSendBtn' onclick='_slcSend(this)'>" + (bad.length ? 'Send anyway' : 'Send') + "</button></div>"
-      : '<div class="slc-note">Writes "Your Recurring Slot Has Changed" for you to read and edit before it goes.</div>' +
-        "<div class='ll-acts st-foot'><span class='ll-state' id='slcPrevMsg' style='flex:1'></span><button class='link-btn' id='slcPrevBtn' onclick='_slcPreview(this)'>Write email</button></div>");
+    (ap.checkError ? '<div class="slc-err">' + inqEsc(ap.checkError) + '</div>' : '');
 }
 
 // Their last lesson on the old slot: the last one on the weeks before the
@@ -476,43 +466,6 @@ function _slcParams() {
 }
 function _slcBusy(btn, on) { rpmBusy(btn.closest('.st-win'), btn, on); }
 
-function _slcPreview(btn) {
-  var old = _slcOld();
-  _slcBusy(btn, true);
-  _slcCall('?action=previewSlotChange' + _slcParams() +
-           (old ? '&oldType=' + old.type + '&oldDay=' + old.dayIdx + '&oldTime=' + old.startMin : ''))
-    .then(function(d) {
-      _slcBusy(btn, false);
-      if (!d.success) { rpmFail(_slc.mail ? 'slcSendMsg' : 'slcPrevMsg', d.message || 'Failed', 'left'); return; }
-      _slc.mail = d;
-      _slcRender();
-    })
-    .catch(function() { _slcBusy(btn, false); rpmFail(_slc.mail ? 'slcSendMsg' : 'slcPrevMsg', 'Connection failed', 'left'); });
-}
-
-function _slcSend(btn) {
-  var m = _slc.mail;
-  m.to = document.getElementById('slcTo').value.trim();
-  m.subject = document.getElementById('slcSubj').value.trim();
-  m.body = document.getElementById('slcText').value;
-  _slcBusy(btn, true);
-  _slcCall('?action=sendSlotChange&name=' + encodeURIComponent(_slc.name) + '&to=' + encodeURIComponent(m.to) +
-           '&subject=' + encodeURIComponent(m.subject) + '&body=' + encodeURIComponent(m.body) +
-           '&cal=' + encodeURIComponent(m.cal || '') + '&oldSlot=' + encodeURIComponent(m.oldSlot || '') +
-           '&newSlot=' + encodeURIComponent(m.newSlot || '') + '&starting=' + encodeURIComponent(m.starting || ''))
-    .then(function(d) {
-      _slcBusy(btn, false);
-      if (!d.success) { rpmFail('slcSendMsg', d.message || 'Failed', 'left'); return; }
-      _slc.sent = m.to;
-      if (!d.tickError) {
-        _slc.data.recent.unshift({ name: _slc.name, cal: m.cal, oldSlot: m.oldSlot, newSlot: m.newSlot, starting: m.starting });
-      }
-      _slcRender();
-      if (d.tickError) rpmToast('half', 'Sent, not recorded', d.tickError);
-    })
-    .catch(function() { _slcBusy(btn, false); rpmFail('slcSendMsg', 'Connection failed', 'left'); });
-}
-
 function _slcInjectStyle() {
   if (document.getElementById('slcStyle')) return;
   var st = document.createElement('style');
@@ -552,16 +505,11 @@ function _slcInjectStyle() {
     ".slc-done{margin-top:20px}" +
     ".slc-off{opacity:.45}" +
     ".slc-off button,.slc-off a,.slc-off .dtp{pointer-events:none}" +
-    ".slc-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}" +
-    ".slc-line .rpm-field{flex:1 1 260px;width:auto}" +
-    ".slc-lab{font-family:'DM Mono',monospace;font-size:11px;color:var(--t-normal);min-width:64px}" +
-    ".slc-note{font-family:'DM Mono',monospace;font-size:11px;line-height:1.6;color:var(--muted);margin:10px 0}" +
     ".slc-acts{display:flex;align-items:center;gap:8px;margin-top:12px}" +
     ".slc-ck{display:flex;gap:10px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.5;padding:4px 0;color:var(--text)}" +
     ".slc-ck span{flex:none;width:12px}" +
     ".slc-ck.ok span{color:var(--green)}" +
     ".slc-ck.no{color:#ff5a4d}" +
-    ".slc-bodytxt{margin-bottom:6px;width:100%}" +
     ".slc-alert{margin-top:14px;line-height:1.6}" +
     ".slc-err{font-family:'DM Mono',monospace;font-size:11px;color:#ff5a4d}";
   document.head.appendChild(st);
