@@ -50,6 +50,10 @@ function renderCommsInbox() {
   if (!inbox) return;
   updateCommsBadge();
   var filtered = commsMessages.filter(function(m) {
+    // Scams (Google listing robocall, flagged by the backend) only show under
+    // their own Scam filter: never in All / Text / Voicemail / Unanswered.
+    if (commsFilter === "scam") return m.scam;
+    if (m.scam) return false;
     if (commsFilter === "sms") return m.source === "sms";
     if (commsFilter === "voicemail") return m.source === "voicemail";
     if (commsFilter === "unresponded") return !m.responded;
@@ -91,7 +95,8 @@ function renderCommsInbox() {
 // Unanswered count → nav badge + the "unanswered" chip on the summary strip.
 // Driven by the loaded messages, so it stays right after a Responded toggle.
 function updateCommsBadge() {
-  var open = commsMessages.filter(function (m) { return !m.responded; }).length;
+  var real = commsMessages.filter(function (m) { return !m.scam; });
+  var open = real.filter(function (m) { return !m.responded; }).length;
   var badge = document.getElementById("commsNavBadge");
   if (badge) {
     badge.textContent = open;
@@ -103,9 +108,11 @@ function updateCommsBadge() {
     chip.style.display = open > 0 ? "" : "none";
   }
   var sms = 0, vm = 0;
-  commsMessages.forEach(function (m) {
+  real.forEach(function (m) {
     if (m.source === "voicemail") vm++; else sms++;
   });
+  var scamEl = document.getElementById("commsScamCount");
+  if (scamEl) scamEl.textContent = commsMessages.length - real.length;
   var smsEl = document.getElementById("commsSmsCount");
   var vmEl  = document.getElementById("commsVoicemailCount");
   if (smsEl) smsEl.textContent = sms;
