@@ -553,6 +553,7 @@ function _imMailWire(student, name, day) {
   _imQ('imMailSbj').textContent = 'Your ' + (w.trial ? 'Trial' : 'Guitar') + ' Lesson Recap — ' + _ckDay(day);
   _imQ('imMailPrev').onclick = _imMailPreview;
   _imQ('imMailSend').onclick = _imMailSend;
+  _imQ('imMailX').onclick = function () { w.mailClosed = true; _imQ('imMailFrame').hidden = true; _imStepsRender(); };
   // Their email (the Counter, or the trial row) and whether it already went.
   fetch(getScriptUrl() + '?action=getLessonMsgInfo&name=' + encodeURIComponent(name) + '&lessonDate=' + day + (w.trial ? '&trial=' + encodeURIComponent(w.trial) : ''))
     .then(function (r) { return r.json(); })
@@ -623,17 +624,24 @@ function _imMsgShow(f, html) {
     '</style></head><body>' + String(html || '').replace(/cid:logo/g, logo).replace(/cid:dbx/g, dbx).replace(/cid:lnk/g, lnk).replace(/cid:vid/g, vid) + '</body></html>';
 }
 // Preview and Send (_imStepsRender): Send waits for the steps above and a
-// Preview of exactly what would go.
+// Preview of exactly what would go. Once the steps above are done the preview
+// opens by itself (user, 2026-10-30), with ✕ and Send under it; after ✕ only
+// the Preview button opens it again.
 function _imMailRender(w, finished) {
-  var prev = _imQ('imMailPrev'), send = _imQ('imMailSend');
+  var prev = _imQ('imMailPrev'), send = _imQ('imMailSend'), after = _imQ('imMailAfter');
   if (!w || !w.mail || !prev || !send) return;
   var m = _imLogMail(), p = m && _imMailParams(m), off = !!(w.mailBusy || w.mailSent || !p || _imMailCheck(p));
-  var fresh = w.previewed === JSON.stringify(p);
+  var key = JSON.stringify(p), fresh = w.previewed === key;
   prev.disabled = off;
   send.disabled = off || !finished || !fresh;
   // Changed since the Preview (more materials, a note): the old email goes, so it's clear to Preview again.
   var f = _imQ('imMailFrame');
   if (f && !f.hidden && !fresh && !w.mailBusy) f.hidden = true;
+  var shown = !!(f && !f.hidden);
+  prev.style.display = shown ? 'none' : '';
+  if (after) after.style.display = shown ? '' : 'none';
+  // Tried once per version of the email, so a failed preview doesn't loop.
+  if (finished && !off && !shown && !w.mailClosed && w.autoPrev !== key) { w.autoPrev = key; setTimeout(_imMailPreview, 0); }
 }
 function _imMailBusy(btn, on) {
   var w = window._imWin;
@@ -645,6 +653,7 @@ function _imMailBusy(btn, on) {
 function _imMailPreview() {
   var w = window._imWin, btn = _imQ('imMailPrev');
   if (!w || w.mailBusy) return;
+  w.mailClosed = false;
   var p = _imMailParams(_imLogMail()), why = _imMailCheck(p);
   _imQ('imMailStatus').innerHTML = '';
   if (why) { rpmFail('imMailStatus', why); return; }
@@ -659,6 +668,7 @@ function _imMailPreview() {
       if (!d.success) { rpmFail('imMailStatus', d.message || 'Preview not loaded.'); return; }
       var f = _imQ('imMailFrame');
       _imMsgShow(f, d.html);
+      _imStepsRender();   // Preview hides, ✕ / Send show under the email
       setTimeout(function () { f.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
     });
 }
@@ -1471,9 +1481,12 @@ function _imDoHtml(name, day) {
       '<div class="im-mail-to"><div class="td-mini-row"><span class="td-mini-t">To:</span><span class="td-wk-name" id="imMailToShow">…</span></div>' +
         '<div class="td-mini-row"><span class="td-mini-t">Sbj:</span><span class="td-wk-name" id="imMailSbj"></span></div></div>' +
       '<div class="im-log-foot im-log-foot-all im-mail-foot"><span class="ll-state" id="imMailStatus"></span>' +
-        '<button type="button" class="link-btn" id="imMailPrev" data-tip="Shows the email here, as it will go.&#10;Never your notes to teacher." data-tip-left>' + DETAILS_ICON + '<span>Preview</span></button>' +
-        '<button type="button" class="link-btn bright" id="imMailSend" disabled data-tip="Sends the email you previewed.&#10;Waits for the steps above and a Preview." data-tip-left>' + SEND_ICON + '<span>Send</span></button></div>' +
+        '<button type="button" class="link-btn" id="imMailPrev" data-tip="Shows the email here, as it will go.&#10;Never your notes to teacher." data-tip-left>' + DETAILS_ICON + '<span>Preview</span></button></div>' +
       '<iframe class="im-msg-frame" id="imMailFrame" title="The email" hidden></iframe>' +
+      // Under the email (user, 2026-10-30): ✕ closes it (nothing is reset), Send sends it.
+      '<div class="im-log-foot im-log-foot-all im-mail-foot" id="imMailAfter" style="display:none;margin-top:14px">' +
+        '<button type="button" class="link-btn" id="imMailX" data-tip="Closes the email.&#10;Nothing is reset; Preview opens it again." data-tip-left>✕</button>' +
+        '<button type="button" class="link-btn bright" id="imMailSend" disabled data-tip="Sends this email.&#10;Waits for the steps above." data-tip-left>' + SEND_ICON + '<span>Send</span></button></div>' +
     '</div>' +
     '<div id="imFinDone" class="im-saving rpm-load-center rpm-keep"></div>');   // in the middle of the window (user, 2026-10-21)
 }
