@@ -1313,7 +1313,7 @@ input[type="checkbox"]:checked {
 /* Add contact sits on a line of its own across the top of the card, above the
    name, with the payment under it (user, 2026-10-29). */
 .incoming-card.has-addc { flex-direction: column; align-items: stretch; gap: 0; }
-.incoming-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.incoming-main { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; }   /* flex:1 = fills the card, so Confirm/Dismiss sit right (2026-10-30) */
 .incoming-addc-row { padding-bottom: 10px; margin-bottom: 11px; border-bottom: 1px solid var(--border); }
 /* The Dismiss button's size, the blue of a thing that opens rather than acts. */
 .incoming-addc {
