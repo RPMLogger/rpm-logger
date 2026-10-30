@@ -3822,3 +3822,7 @@ body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http:
    Log window's own button colours. */
 :is(#logHwNothing, #logHwSentBtn, #logHwPhoneBtn, #imNoChangeBtn).pressed { color: var(--bg, #111) !important; background: var(--muted) !important; border-color: var(--muted) !important; }
 :is(#todoContent, #notesContent) .tdo-box:not(.tdo-done) > .td-wk-icon { margin-bottom: 24px; }   /* a bit more room between the icon and row 1 (user, 2026-10-29; was 18) */
+/* Dashboard boxes in Payments' card look: #1a1a1a fill, 1px #2a2a2a frame on the #141414 panel (user, 2026-10-30; were unfilled 2px frames) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory) .ld-card,
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory) .ld-card + .ld-card,
+#travelBody .tv-box, #travelBody .tv-sum-card, #travelBody #travelCalMonths { background-color: var(--surface); border: 1px solid var(--border); }
