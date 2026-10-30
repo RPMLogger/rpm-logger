@@ -228,6 +228,7 @@ function _rpmFillDataIcons() {
     fwd:     function () { return ARROW_ICON.replace('class="arrow-icon"', 'class="arrow-icon fwd"'); },
     out:     function () { return OPEN_OUT_ICON; },
     cash:    function () { return CASH_ICON; },
+    pay:     function () { return PAY_ICON; },
     stats:   function () { return STATS_ICON.replace('class="stats-icon"', 'class="win-icon"'); },
     bars:    function () { return BARS_ICON.replace('class="stats-icon"', 'class="win-icon"'); },
     cost:    function () { return COST_ICON.replace(/class="[^"]*"/, 'class="win-icon"'); },

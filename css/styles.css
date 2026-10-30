@@ -52,7 +52,7 @@ body::before {
   pointer-events: none;
 }   /* a soft gold glow, the user's gold square faded into the dark (user, 2026-10-28; was the halftone pattern, before that the amber grid) */
 /* a faint paper grain inside the student cards; body-prefixed so the cards' own background: shorthand keeps it (user, 2026-10-30) */
-body #importBody .im-card { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
+body #importBody .im-card, body #tab-payments .incoming-card { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* the same paper grain on the logo box at the top (user, 2026-10-30) */
 body .header::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* No darker sides outside the page column any more (user, 2026-10-26; were
@@ -1195,6 +1195,11 @@ input[type="checkbox"]:checked {
 /* Payments: narrower cards (user, 2026-10-27; tried rows with divider lines first) */
 #tab-payments .incoming-card { max-width: 480px; margin-left: auto; margin-right: auto;
   border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; background: #141414; }   /* 10px corners, one even border all round (coloured left edge removed, user 2026-10-30); darker, closer to the page (2026-10-30) */
+/* Payments cards + indent in the Students tab look (user, 2026-10-30): 600px centred, 22px 16px, #121212 under the
+   paper grain, #353535 frame with a 3px #424242 left edge, 10px apart; section labels 22px in. */
+#tab-payments .incoming-card { max-width: 600px; padding: 22px 16px; margin-bottom: 10px; background-color: #121212;
+  border: 1px solid #353535; border-left: 3px solid #424242; }
+#tab-payments .section-label { padding-left: 22px; }
 .incoming-name { font-family: "Syne", sans-serif; font-size: 13px; margin-bottom: 10px; }   /* 5 → 10px: name and payment line apart (2026-09-29) */
 .incoming-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .incoming-method { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; font-family: "DM Mono", monospace; }
