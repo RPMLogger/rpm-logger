@@ -45,17 +45,20 @@ function _calLoad(statusMsg) {
   }
 
   _calSample = false;
-  _calSetStatus('Loading', true);
+  var calBody = document.getElementById('calBody');
+  _calSetStatus('');
+  rpmBusy(calBody, null, true, 'Loading');   // dim the week + centred LOADING (user, 2026-10-28)
   fetch(url + '?action=getCalendarWeek&weekStart=' + _calYmd(mon))
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (token !== _calLoadToken) return;
+      rpmBusy(calBody, null, false);
       if (!data.success) { _calSetStatus(data.message ? 'Error: ' + data.message : 'Calendar backend not deployed yet'); return; }
       _calEvents = data.events || [];
       _calRenderEvents();
       _calSetStatus(statusMsg || (_calEvents.length + ' lessons'));
     })
-    .catch(function() { if (token === _calLoadToken) _calSetStatus('Connection failed'); });
+    .catch(function() { if (token === _calLoadToken) { rpmBusy(calBody, null, false); _calSetStatus('Connection failed'); } });
 }
 
 
