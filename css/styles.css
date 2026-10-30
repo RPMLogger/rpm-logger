@@ -46,8 +46,7 @@ body::before {
   background:
     radial-gradient(ellipse 80% 60% at 45% 45%, color-mix(in srgb, var(--accent2) 16%, transparent), transparent 70%),
     radial-gradient(ellipse 60% 50% at 5% 85%, color-mix(in srgb, oklch(0.45 0.12 70) 11%, transparent), transparent 70%),
-    linear-gradient(color-mix(in srgb, var(--bg) 86%, transparent), color-mix(in srgb, var(--bg) 86%, transparent)),
-    url("../img/brick.webp") center / cover no-repeat;   /* PREVIEW 2026-10-29: white brick wall under a dark tint, behind the glow */
+    url("../img/texture.jpg") center / cover no-repeat;   /* PREVIEW 2026-10-29: Canva grunge texture, pre-darkened to #0a–#28, under the glow */
   pointer-events: none;
 }   /* a soft gold glow, the user's gold square faded into the dark (user, 2026-10-28; was the halftone pattern, before that the amber grid) */
 /* No darker sides outside the page column any more (user, 2026-10-26; were
@@ -318,7 +317,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
    Today, Students, To-Do and Notes make their own boxes; Calendar, Fixed schedule
    and Financial are wider than the column, so they stay open. */
 .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2) {
-  box-sizing: border-box; padding: 24px; background: #141414; border: 1px solid var(--border); border-radius: 10px;   /* every tab in Payments' darker shade (user, 2026-10-29) */
+  box-sizing: border-box; padding: 24px; background: #141414 url("../img/texture-box.jpg") center / cover no-repeat; border: 1px solid var(--border); border-radius: 10px;   /* every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
 
 /* ─── HOME: the opening page (2026-10-24) ─── */
