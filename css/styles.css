@@ -3839,5 +3839,5 @@ body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http:
 /* Students list cards in Payments' card look (user, 2026-10-30): 480px centred, #141414, 10px corners,
    one even border all round (no coloured left edge; the TODAY / Not logged chips carry the state), 8px top and bottom. */
 #importBody .im-card, #importBody .im-card.im-today, #importBody .im-card.im-unlog { max-width: 480px; margin-left: auto; margin-right: auto;
-  padding-top: 8px; padding-bottom: 8px; background: #141414; border-radius: 10px; border: 1px solid var(--border); }
+  padding-top: 8px; padding-bottom: 8px; background: #1c1c1c; border-radius: 10px;   /* a bit lighter, was #141414 (user, 2026-10-30) */ border: 1px solid var(--border); }
 #importBody .im-card:hover:where(:not(:disabled)) { border-color: var(--muted); }
