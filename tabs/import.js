@@ -88,7 +88,7 @@ function _imRenderCards(noRead) {
       // Audit lessons (2026-10-14): red, right, level with "24 students", like Audit
       // payments; opens the old Logs page (Unlogged Lessons + Lesson Checklist) here.
       // A heading over each group, the Sheets tab's "Finances" look (user, 2026-10-30).
-      ['Today', 'Not logged', 'Others'].map(function (h, g) {
+      ['Today', 'Not logged', 'A–Z'].map(function (h, g) {
         var in_g = names.filter(function (n) { return group(n) === g; });
         return in_g.length ? '<div class="section-label im-group-h">' + h + '</div>' + in_g.map(card).join('') : '';
       }).join('') +
