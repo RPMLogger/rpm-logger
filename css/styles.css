@@ -1,9 +1,9 @@
 /* ─── RED PICK MUSIC — LESSON PORTAL ───────────────────────────────────────── */
 
 :root {
-  --bg:      #0f0f0f;
+  --bg:      #0a0a0a;   /* darker page background (user, 2026-10-30; was #0f0f0f) */
   --surface: #1a1a1a;
-  --box:     rgb(20 20 20 / 0.8);   /* #141414 at 80%, the gold glow bleeds through a little (user, 2026-10-30) — the one big-box shade: header, every tab's box, Today / Students / To-Do / Notes boxes (user, 2026-10-30) */
+  --box:     rgb(16 16 16 / 0.8);   /* #101010 at 80% (was #141414; darker to offset the boxes' grain, user 2026-10-30), the gold glow bleeds through a little (user, 2026-10-30) — the one big-box shade: header, every tab's box, Today / Students / To-Do / Notes boxes (user, 2026-10-30) */
   --surface2: #222;
   --accent:  #e8463a;
   --accent2: oklch(0.63 0.19 76);   /* amber at the red's lightness + strength; was #f0a500 (user, 2026-10-27: colours matched to the red in OKLCH) */
@@ -46,15 +46,15 @@ body::before {
   content: ""; position: fixed; inset: 0;
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E"),   /* faint grain on top so the glow fades smoothly, no rings (user, 2026-10-30) */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"),   /* the cards' paper grain, a bit over half its strength (user, 2026-10-30; was a third) */
     radial-gradient(ellipse 80% 60% at 45% 45%, color-mix(in srgb, var(--accent2) 10%, transparent), transparent 70%),
     radial-gradient(ellipse 60% 50% at 5% 85%, color-mix(in srgb, oklch(0.45 0.12 70) 11%, transparent), transparent 70%);
   pointer-events: none;
 }   /* a soft gold glow, the user's gold square faded into the dark (user, 2026-10-28; was the halftone pattern, before that the amber grid) */
 /* a faint paper grain inside the student cards; body-prefixed so the cards' own background: shorthand keeps it (user, 2026-10-30) */
 body #importBody .im-card, body #tab-payments .incoming-card { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
-/* the same paper grain on the logo box at the top (user, 2026-10-30) */
-body .header::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
+/* a bit of the cards' paper grain on the big boxes, logo box included (user, 2026-10-30; was on the page background) */
+body .header::before, body .td-wk-box,
+body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* No darker sides outside the page column any more (user, 2026-10-26; were
    shaded from 2026-10-24): the grid runs edge to edge. */
 
