@@ -264,11 +264,20 @@ function openIncomingNotePanel(payment, cardEl, onDone) {
   document.querySelectorAll(".incoming-note-panel").forEach(function(p) { p.remove(); });
   stopIncomingMic();
 
-  activeIncomingPayment = { payment: payment, cardEl: cardEl, onDone: onDone || null };
+  // tab / student: whose lesson this pays for — their own name, a contact on
+  // their card, or the student picked in the Add contact popup (2026-10-29).
+  activeIncomingPayment = {
+    payment: payment, cardEl: cardEl, onDone: onDone || null,
+    tab: payment.matchedTab || "",
+    student: payment.student || studentNameForTab(payment.matchedTab)
+  };
 
   var panel = document.createElement("div");
   panel.className = "incoming-note-panel";
   panel.innerHTML =
+    (activeIncomingPayment.student
+      ? "<div class='inp-for'>Paying for <b>" + inqEsc(activeIncomingPayment.student) + "</b></div>"
+      : "<div class='inp-for inp-for-none'>No student picked — this logs to the Payments sheet only</div>") +
     "<div class='inp-row'>" +
       "<textarea class='inp-textarea' placeholder='Note (optional)...' rows='2'></textarea>" +
       "<button class='inp-mic' data-tip='Starts or stops dictation.'>" + MIC_ICON + "</button>" +
@@ -307,6 +316,13 @@ function openIncomingNotePanel(payment, cardEl, onDone) {
 
   cardEl.parentNode.insertBefore(panel, cardEl.nextSibling);
   textarea.focus();
+}
+
+// The student full name behind a tab, for the "Paying for" line.
+function studentNameForTab(tab) {
+  if (!tab) return "";
+  var hit = payerStudentList().filter(function(s) { return s.tab === tab; })[0];
+  return hit ? hit.name : "";
 }
 
 function startIncomingMic(textarea, micBtn) {
@@ -378,8 +394,17 @@ function submitIncomingWithNote(note, logBtn) {
   var cardEl   = act.cardEl;
   var panel    = cardEl.nextSibling;
   var stateEl  = panel && panel.querySelector ? panel.querySelector(".inp-state") : null;
-  var fullNote = note ? payment.amount + " - " + note : payment.amount;
-  var wrote    = payment._wrote || (payment._wrote = { log: false, box: !payment.matchedTab });
+  // The student picked in "Paying for" wins over the card's own match: it is
+  // the one whose Paid box gets ticked.
+  var tab      = act.tab || payment.matchedTab || "";
+  var samePerson = act.student &&
+    act.student.replace(/\s+/g, " ").trim().toLowerCase() === payment.name.replace(/\s+/g, " ").trim().toLowerCase();
+  // Someone else paying: say whose lesson it is, since the row carries the
+  // payer's name (that is how Incoming knows the payment is dealt with).
+  var noteFull = [(act.student && !samePerson) ? "For " + act.student : "", note].filter(Boolean).join(" · ");
+  var fullNote = noteFull ? payment.amount + " - " + noteFull : payment.amount;
+  var wrote    = payment._wrote || (payment._wrote = { log: false, box: !tab });
+
 
   function call(action, params) {
     var q = url + "?action=" + action;
@@ -396,10 +421,10 @@ function submitIncomingWithNote(note, logBtn) {
   var jobs = [];
   jobs.push(wrote.log ? Promise.resolve({ ok: true }) : call("logPayment", {
     date: payment.date, studentName: payment.name,
-    method: payment.method, amount: payment.amount, notes: note
+    method: payment.method, amount: payment.amount, notes: noteFull
   }));
   jobs.push(wrote.box ? Promise.resolve({ ok: true }) : call("logPaymentNote", {
-    studentName: payment.matchedTab, paymentDate: payment.date, note: fullNote
+    studentName: tab, paymentDate: payment.date, note: fullNote
   }));
 
   Promise.all(jobs).then(function(res) {
@@ -409,7 +434,7 @@ function submitIncomingWithNote(note, logBtn) {
 
     if (wrote.log && wrote.box) {
       var label = shortDate(payment.date) + " · " + payment.name + " · " + payment.amount + " · " + payment.method +
-        (payment.matched ? "" : " (RPM only — no sheet match)");
+        (tab ? "" : " (RPM only — no sheet match)");
       addLog("paymentFeed", "✓ " + label, "success");
       if (panel && panel.classList && panel.classList.contains("incoming-note-panel")) panel.remove();
       cardEl.remove();
@@ -485,22 +510,44 @@ function loadIncomingPayments() {
         var isTrial = !!p.trial;
         var card = document.createElement("div");
         card.className = "incoming-card";
+        // A name nobody owns gets its own button (2026-10-29), on a line of its
+        // own above the name: you work out whose it is, pick the student, and
+        // it is theirs from then on. Confirm stays what it was.
+        var canAdd = !isTrial && p.matchHow !== "own" && p.matchHow !== "contact";
+        if (canAdd) card.classList.add("has-addc");
         card.innerHTML =
-          "<div class='incoming-left'>" +
-            "<div class='incoming-name'>" + p.name + "</div>" +
-            "<div class='incoming-meta'>" +
-              "<span class='incoming-method " + p.method.toLowerCase() + "'>" + p.method + "</span>" +
-              "<span class='incoming-amount'>" + p.amount + "</span>" +
-              "<span class='incoming-date'>" + shortDate(p.date) + "</span>" +
+          (canAdd ? "<div class='incoming-addc-row'><button class='incoming-addc' " +
+            "data-tip='Opens a window.&#10;Puts this name on a student.' data-tip-wrap>Add contact</button></div>" : "") +
+          "<div class='incoming-main'>" +
+            "<div class='incoming-left'>" +
+              "<div class='incoming-name'>" + p.name + "</div>" +
+              "<div class='incoming-meta'>" +
+                "<span class='incoming-method " + p.method.toLowerCase() + "'>" + p.method + "</span>" +
+                "<span class='incoming-amount'>" + p.amount + "</span>" +
+                "<span class='incoming-date'>" + shortDate(p.date) + "</span>" +
+              "</div>" +
+              (isTrial
+                ? "<div class='incoming-nomatch' style='color:var(--accent2)'>Trial payment \u00b7 " + p.trial.name + " (recorded from the Trial tab)</div>"
+                : (p.matched ? "" : "<div class='incoming-nomatch'>\u26a0 Name not matched in student sheets</div>")) +
             "</div>" +
-            (isTrial
-              ? "<div class='incoming-nomatch' style='color:var(--accent2)'>Trial payment · " + p.trial.name + " (recorded from the Trial tab)</div>"
-              : (p.matched ? "" : "<div class='incoming-nomatch'>⚠ Name not matched in student sheets</div>")) +
-          "</div>" +
-          "<div style='display:flex;flex-direction:column;gap:6px;flex-shrink:0'>" +
-            "<button class='incoming-confirm'" + (isTrial ? " disabled data-tip='Trial payment.\nRecorded from the Trial tab.' style='opacity:.35;cursor:not-allowed'" : "") + ">Confirm →</button>" +
-            "<button class='incoming-dismiss'>Dismiss</button>" +
+            "<div style='display:flex;flex-direction:column;gap:6px;flex-shrink:0'>" +
+              "<button class='incoming-confirm'" + (isTrial ? " disabled data-tip='Trial payment.\nRecorded from the Trial tab.' style='opacity:.35;cursor:not-allowed'" : "") + ">Confirm \u2192</button>" +
+              "<button class='incoming-dismiss'>Dismiss</button>" +
+            "</div>" +
           "</div>";
+
+        var addc = card.querySelector(".incoming-addc");
+        if (addc) addc.addEventListener("click", function() {
+          openAddContact(p, function(tab, student) {
+            // Theirs now: the card matches, and Confirm ticks their box.
+            p.matchedTab = tab; p.student = student; p.matchHow = "contact";
+            card.classList.remove("has-addc");
+            var row = card.querySelector(".incoming-addc-row");
+            if (row) row.remove();
+            var warn = card.querySelector(".incoming-nomatch");
+            if (warn) warn.remove();
+          });
+        });
 
         if (!isTrial) card.querySelector(".incoming-confirm").addEventListener("click", function() {
           openIncomingNotePanel(p, card);
@@ -583,6 +630,199 @@ function checkEmptyIncoming() {
     var tabBtn = document.querySelector(".tab-btn[onclick*=\"payments\"]");
     if (tabBtn) tabBtn.innerHTML = "Payments";
   }
+}
+
+// ─── PAYMENT CONTACTS (2026-10-29) ───────────────────────────────────────────
+// Who may pay for each student. Their own name is built in; every other payer
+// — a husband, a parent, the short name Venmo prints — is a row on the Payers
+// tab of the Payments sheet. Nothing is added in this window: a name you don't
+// know turns up on an Incoming card, you work out whose it is, and Confirm asks
+// you to put it on that student's card. Here you only look, and remove.
+// Auto-confirm accepts a payment from anyone on a student's card; the rest of
+// its rules (one block, exactly 4 x their rate) don't change.
+var payersLoaded = false;
+var payersData   = null;   // the cards as last read, for the Add contact popup
+
+function openPayers() {
+  document.getElementById("payersIcon").innerHTML = PAY_ICON;
+  document.getElementById("payersModal").style.display = "flex";
+  if (!payersLoaded) loadPayers();
+}
+
+function closePayers() {
+  document.getElementById("payersModal").style.display = "none";
+}
+
+function loadPayers() {
+  var url = getScriptUrl(); if (!url) return;
+  var list = document.getElementById("payersList");
+  list.innerHTML = "<div class='rpm-loading' style='color:var(--muted)'>Loading</div>";
+  fetch(url + "?action=getPayers")
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      payersLoaded = true;
+      if (!data.success || !data.students || !data.students.length) {
+        list.innerHTML = "<div style='color:var(--muted);font-size:11px'>" +
+          (data && data.message ? inqEsc(data.message) : "None") + "</div>";
+        return;
+      }
+      payersData = data.students;
+      list.innerHTML = "";
+      var grid = document.createElement("div");
+      grid.className = "payer-grid";
+      data.students.forEach(function(s) { grid.appendChild(payerCard(s)); });
+      list.appendChild(grid);
+    })
+    .catch(function() { list.innerHTML = "<div style='color:var(--muted);font-size:11px'>Could not load</div>"; });
+}
+
+// One small card per student: their own name, then everyone else who pays for
+// them. ✕ forgets an added name; the own name has none.
+function payerCard(s) {
+  var card = document.createElement("div");
+  card.className = "payer-card";
+  var names = s.payers.map(function(p) {
+    if (p.own) return "<div class='payer-row'><span class='payer-name'>" + inqEsc(p.name) + "</span></div>";
+    return "<div class='payer-row'><span class='payer-name added'>" + inqEsc(p.name) + "</span>" +
+      "<button class='payer-del' data-name='" + inqEsc(p.name) +
+      "' data-tip='Forgets this name.&#10;Their payments go back to manual.'>✕</button></div>";
+  }).join("");
+
+  card.innerHTML = "<div class='payer-card-head'>" + inqEsc(s.name) + "</div>" +
+    "<div class='payer-names'>" + names + "</div><div class='payer-state'></div>";
+
+  var state = card.querySelector(".payer-state");
+  card.querySelectorAll(".payer-del").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      rpmBusy(card, btn, true);
+      payerCall("removePayer", { tab: s.tab, name: btn.getAttribute("data-name") }, function(res) {
+        rpmBusy(card, btn, false);
+        if (!res.ok) { rpmFail(state, res.why); return; }
+        loadPayers();
+      });
+    });
+  });
+  return card;
+}
+
+// ─── ADD CONTACT POPUP (2026-10-29) ──────────────────────────────────────────
+// Add contact on an Incoming card opens this: you have worked out whose the
+// name is, so put it on their card. The student box is the portal's picker
+// (the Travel look the date and time boxes wear), its list the same drop.
+// From then on the name is theirs and the next payment confirms itself.
+var payAddPick = null;   // { tab, name } picked in the popup
+
+function payerStudentList() {
+  return allStudentData.map(function(s) {
+    var name = typeof s === "string" ? s : (s.name || s.tab);
+    var tab  = (typeof s === "object" && s.tab) ? s.tab : name;
+    return { name: name, tab: tab };
+  }).filter(function(s) { return !/^--/.test(s.name); });
+}
+
+// done(tab, studentName) once you have picked, or null if you skipped.
+function openAddContact(payment, done) {
+  var modal = document.getElementById("payAddModal");
+  payAddPick = null;
+  // The name alone: pressing Confirm means you have already read the card.
+  document.getElementById("payAddWho").innerHTML =
+    "<span class='pa-name'>" + inqEsc(payment.name) + "</span>";
+  document.getElementById("payAddPick").innerHTML =
+    "<div class='dtp'><div class='dtp-box'><div class='dtp-cell'>" +
+      "<span class='dtp-lab'>Student</span>" +
+      "<button type='button' class='dtp-val pa-val' id='payAddVal'>—</button>" +
+      "<span class='dtp-chevs dtp-dropchev'><button type='button' class='dtp-drop' id='payAddDrop' aria-label='Pick a student'>" +
+        dtArrow(-1) + "</button></span>" +
+    "</div></div></div>";
+  document.getElementById("payAddState").innerHTML = "";
+  payAddSetBtns();
+
+  var open = function() { payAddDropOpen(); };
+  document.getElementById("payAddVal").onclick = open;
+  document.getElementById("payAddDrop").onclick = open;
+
+  document.getElementById("payAddSave").onclick = function() { payAddFinish(payment, done); };
+  modal.dataset.done = "";
+  modal._done = done;
+  modal.style.display = "flex";
+}
+
+// ✕ or a click outside drops the whole Confirm: nothing is logged, the card
+// stays on Incoming.
+function closeAddContact() {
+  var modal = document.getElementById("payAddModal");
+  modal.style.display = "none";
+  modal._done = null;
+  payAddDropClose();
+}
+
+// Nothing to add until a student is picked.
+function payAddSetBtns() {
+  document.getElementById("payAddSave").disabled = !payAddPick;
+}
+
+function payAddDropClose() {
+  var l = document.getElementById("payAddList");
+  if (l) l.remove();
+}
+
+function payAddDropOpen() {
+  payAddDropClose();
+  var cell = document.getElementById("payAddVal").closest(".dtp-cell");
+  var list = document.createElement("div");
+  list.id = "payAddList";
+  list.innerHTML = payerStudentList().map(function(s) {
+    return "<button type='button' class='" + (payAddPick && payAddPick.tab === s.tab ? "on" : "") +
+      "' data-tab='" + inqEsc(s.tab) + "' data-name='" + inqEsc(s.name) + "'>" + inqEsc(s.name) + "</button>";
+  }).join("");
+  document.body.appendChild(list);
+  var b = cell.getBoundingClientRect();
+  list.style.minWidth = b.width + "px";
+  var below = window.innerHeight - b.bottom - 6;
+  list.style.left = Math.max(8, Math.min(b.left, window.innerWidth - list.offsetWidth - 8)) + "px";
+  list.style.top = (below >= list.offsetHeight || below >= b.top ? b.bottom + 6 : b.top - 6 - list.offsetHeight) + "px";
+  var on = list.querySelector(".on");
+  if (on) list.scrollTop = on.offsetTop - list.clientHeight / 2 + on.offsetHeight / 2;
+  list.addEventListener("click", function(e) {
+    var o = e.target.closest("button");
+    if (!o) return;
+    payAddPick = { tab: o.getAttribute("data-tab"), name: o.getAttribute("data-name") };
+    document.getElementById("payAddVal").textContent = payAddPick.name;
+    payAddDropClose();
+    payAddSetBtns();
+  });
+}
+
+function payAddFinish(payment, done) {
+  if (!payAddPick) return;
+  var pick = payAddPick;
+  var modal = document.getElementById("payAddModal");
+  var state = document.getElementById("payAddState");
+  var btn = document.getElementById("payAddSave");
+
+  function out() {
+    modal._done = null;
+    modal.style.display = "none";
+    done(pick.tab, pick.name);
+  }
+
+  rpmBusy(modal.querySelector(".settings-modal"), btn, true);
+  payerCall("addPayer", { tab: pick.tab, name: payment.name, method: payment.method }, function(res) {
+    rpmBusy(modal.querySelector(".settings-modal"), btn, false);
+    if (!res.ok) { rpmFail(state, res.why); return; }
+    payersLoaded = false;
+    addLog("paymentFeed", "✓ " + payment.name + " → " + pick.name + " · payment contact added", "success");
+    out();
+  });
+}
+
+function payerCall(action, params, done) {
+  var url = getScriptUrl(); if (!url) { done({ ok: false, why: "No script URL." }); return; }
+  var q = url + "?action=" + action;
+  for (var k in params) q += "&" + k + "=" + encodeURIComponent(params[k]);
+  fetch(q).then(function(r) { return r.json(); })
+    .then(function(d) { done({ ok: !!(d && d.success), why: (d && d.message) || "" }); })
+    .catch(function() { done({ ok: false, why: "No answer from Google." }); });
 }
 
 // ─── PAYMENT HISTORY ─────────────────────────────────────────────────────────

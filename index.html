@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=993">
+  <link rel="stylesheet" href="css/styles.css?v=994">
 </head>
 <body>
 <div class="container">
@@ -15,7 +15,7 @@
     <img src="img/portal-logo.png" alt="Red Pick Music">
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">993</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">994</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -275,6 +275,7 @@
     <!-- Payment history + Audit payments on the title line, right (2026-10-24; were a row under the icon). -->
     <div class="settings-title"><span>Payments<span class="win-sub"> · Tracking</span></span>   <!-- the Terminate tab title look (2026-10-21) -->
       <span class="pay-title-btns">
+        <button id="btnPayers" class="link-btn opens-window" onclick="openPayers()" data-tip="Opens a window.&#10;Who may pay for each student." data-tip-wrap>Payers</button>
         <button id="btnPayHistory" class="link-btn opens-window" onclick="openPaymentHistory()" data-tip="Opens a window.&#10;Every logged payment, by month." data-tip-wrap>Payment history</button>
         <button class="link-btn red" id="btnPayAudit" onclick="openPayAudit()" data-tip="Opens a page.&#10;Students who owe a payment." data-tip-wrap><span>Audit payments</span></button>
       </span></div>
@@ -313,6 +314,39 @@
       </div>
       <div id="payHistoryIcon" style="margin:4px 0 18px"></div>
       <div id="payHistoryList"></div>
+    </div>
+  </div>
+
+  <!-- PAYMENT CONTACTS WINDOW (2026-10-29): a small card per student — their
+       own name, then everyone else who pays for them. Auto-confirm reads these
+       cards; names are added from a payment, not here. -->
+  <div class="settings-overlay" id="payersModal" onclick="if (event.target === this) closePayers()">
+    <div class="settings-modal fx-modal pay-history-modal">
+      <div class="settings-title">
+        <span>Payments<span style="color:var(--muted);font-weight:400"> · Contacts</span></span>
+        <button class="settings-close" onclick="closePayers()">✕</button>
+      </div>
+      <div id="payersIcon" style="margin:4px 0 10px"></div>
+      <div class="payers-intro">Anyone on a student’s card can pay for them and the payment confirms itself. A new name is added from the payment it came in on.</div>
+      <div id="payersList"></div>
+    </div>
+  </div>
+
+  <!-- ADD CONTACT (2026-10-29): Confirm on a name nobody owns asks whose it is.
+       The student box is the portal's picker, the Travel look. -->
+  <div class="settings-overlay" id="payAddModal" onclick="if (event.target === this) closeAddContact()">
+    <div class="settings-modal pay-add-modal">
+      <div class="settings-title">
+        <span>Payments<span style="color:var(--muted);font-weight:400"> · Add contact</span></span>
+        <button class="settings-close" onclick="closeAddContact()">✕</button>
+      </div>
+      <div class="pa-who" id="payAddWho"></div>
+      <div class="pa-label">Add this name to</div>
+      <div id="payAddPick"></div>
+      <div class="pa-acts">
+        <span class="pa-state" id="payAddState"></span>
+        <button class="inp-log btn-log pa-save" id="payAddSave">Add contact</button>
+      </div>
     </div>
   </div>
 
@@ -738,48 +772,48 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=993"></script>
-<script src="core/storage.js?v=993"></script>
-<script src="core/utils.js?v=993"></script>
-<script src="core/dialog.js?v=993"></script>
-<script src="core/api.js?v=993"></script>
-<script src="core/secalert.js?v=993"></script>
-<script src="core/magnifier.js?v=993"></script>
+<script src="core/state.js?v=994"></script>
+<script src="core/storage.js?v=994"></script>
+<script src="core/utils.js?v=994"></script>
+<script src="core/dialog.js?v=994"></script>
+<script src="core/api.js?v=994"></script>
+<script src="core/secalert.js?v=994"></script>
+<script src="core/magnifier.js?v=994"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=993"></script>
-<script src="tabs/lessons.js?v=993"></script>
-<script src="tabs/payments.js?v=993"></script>
-<script src="tabs/general.js?v=993"></script>
-<script src="tabs/financial.js?v=993"></script>
-<script src="tabs/inquiries.js?v=993"></script>
-<script src="tabs/inqarchive.js?v=993"></script>
-<script src="tabs/comms.js?v=993"></script>
-<script src="tabs/notes.js?v=993"></script>
-<script src="tabs/todo.js?v=993"></script>
-<script src="tabs/availability.js?v=993"></script>
-<script src="tabs/travel.js?v=993"></script>
-<script src="tabs/tripsummary.js?v=993"></script>
-<script src="tabs/triphistory.js?v=993"></script>
-<script src="tabs/skips.js?v=993"></script>
-<script src="tabs/student.js?v=993"></script>
-<script src="tabs/ctrl.js?v=993"></script>
-<script src="tabs/gbusiness.js?v=993"></script>
-<script src="tabs/dropbox.js?v=993"></script>
-<script src="tabs/import.js?v=993"></script>
-<script src="tabs/today.js?v=993"></script>
-<script src="tabs/home.js?v=993"></script>
-<script src="tabs/trial.js?v=993"></script>
-<script src="tabs/ending.js?v=993"></script>
-<script src="tabs/reviews.js?v=993"></script>
-<script src="tabs/financial2.js?v=993"></script>
-<script src="tabs/sheets.js?v=993"></script>
-<script src="tabs/studentline.js?v=993"></script>
-<script src="tabs/calendar.js?v=993"></script>
-<script src="tabs/fixedcal.js?v=993"></script>
-<script src="tabs/slotchange.js?v=993"></script>
-<script src="tabs/help.js?v=993"></script>
-<script src="tabs/holidays.js?v=993"></script>
+<script src="tabs/icons.js?v=994"></script>
+<script src="tabs/lessons.js?v=994"></script>
+<script src="tabs/payments.js?v=994"></script>
+<script src="tabs/general.js?v=994"></script>
+<script src="tabs/financial.js?v=994"></script>
+<script src="tabs/inquiries.js?v=994"></script>
+<script src="tabs/inqarchive.js?v=994"></script>
+<script src="tabs/comms.js?v=994"></script>
+<script src="tabs/notes.js?v=994"></script>
+<script src="tabs/todo.js?v=994"></script>
+<script src="tabs/availability.js?v=994"></script>
+<script src="tabs/travel.js?v=994"></script>
+<script src="tabs/tripsummary.js?v=994"></script>
+<script src="tabs/triphistory.js?v=994"></script>
+<script src="tabs/skips.js?v=994"></script>
+<script src="tabs/student.js?v=994"></script>
+<script src="tabs/ctrl.js?v=994"></script>
+<script src="tabs/gbusiness.js?v=994"></script>
+<script src="tabs/dropbox.js?v=994"></script>
+<script src="tabs/import.js?v=994"></script>
+<script src="tabs/today.js?v=994"></script>
+<script src="tabs/home.js?v=994"></script>
+<script src="tabs/trial.js?v=994"></script>
+<script src="tabs/ending.js?v=994"></script>
+<script src="tabs/reviews.js?v=994"></script>
+<script src="tabs/financial2.js?v=994"></script>
+<script src="tabs/sheets.js?v=994"></script>
+<script src="tabs/studentline.js?v=994"></script>
+<script src="tabs/calendar.js?v=994"></script>
+<script src="tabs/fixedcal.js?v=994"></script>
+<script src="tabs/slotchange.js?v=994"></script>
+<script src="tabs/help.js?v=994"></script>
+<script src="tabs/holidays.js?v=994"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>

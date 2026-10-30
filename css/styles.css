@@ -51,7 +51,7 @@ body::before {
 /* No darker sides outside the page column any more (user, 2026-10-26; were
    shaded from 2026-10-24): the grid runs edge to edge. */
 
-.container { width: 100%; max-width: 600px; position: relative; z-index: 1; }
+.container { width: 100%; max-width: 760px; position: relative; z-index: 1; }   /* wider column (user, 2026-10-27; was 600) */
 
 /* ─── HEADER ──────────────────────────────────────────────────────────────── */
 .header {
@@ -1263,6 +1263,82 @@ input[type="checkbox"]:checked {
 }
 .inp-cancel:hover:where(:not(:disabled)) { border-color: var(--accent); color: var(--accent); }
 
+/* "Paying for" line on the note panel (2026-10-29): who the payment is for,
+   as settled on the card or in the Add contact popup. */
+.inp-for { font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: var(--muted);
+  margin-bottom: 10px; letter-spacing: .3px; }
+.inp-for b { color: var(--t-text); font-weight: 400; }
+.inp-for-none { color: var(--accent); }
+
+/* ─── PAYMENT CONTACTS WINDOW (2026-10-29) ────────────────────────────────── */
+.payers-intro { font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: var(--muted);
+  line-height: 1.6; margin-bottom: 18px; max-width: 520px; }
+.payer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.payer-card {
+  border: 1px solid var(--border); border-radius: var(--radius-card);
+  background: var(--surface); padding: 12px 12px 10px;
+}
+.payer-card-head {
+  font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1px;
+  color: var(--t-bright); line-height: 1; margin-bottom: 10px;
+}
+.payer-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
+.payer-name { flex: 1; font-family: "DM Mono", monospace; font-size: 10px;
+  color: var(--t-normal); letter-spacing: .4px; }
+/* An added name reads as the extra it is; their own name is the plain one. */
+.payer-name.added { color: var(--t-text); }
+.payer-del { background: none; border: none; color: transparent; cursor: pointer;
+  font-size: 10px; padding: 0 2px; line-height: 1; transition: color .2s; }
+.payer-card:hover .payer-del { color: var(--muted); }
+.payer-del:hover:where(:not(:disabled)) { color: var(--accent); }
+.payer-state { font-size: 9px; color: var(--muted); }
+
+/* ─── ADD CONTACT POPUP (2026-10-29) ──────────────────────────────────────── */
+/* The picker's drop chevron is styled from JS when a date or time list opens
+   (core/utils.js); the student picker here is drawn before that ever happens,
+   so the same rules live in the stylesheet too. */
+.dtp-dropchev { justify-content: center; }
+.dtp-drop { display: flex; align-items: center; justify-content: center; height: 100%;
+  padding: 0 10px; border: none; background: none; color: var(--muted); cursor: pointer; }
+.dtp-drop:hover:where(:not(:disabled)) { color: #fff; }
+.dtp-drop:focus { outline: none; }
+.dtp-drop .dt-ico { width: 11px; height: 6px; display: block; fill: currentColor; }
+.pay-add-modal { max-width: 440px; width: 94%; overflow: visible; }
+.pa-who { margin: 2px 0 20px; }
+.pa-name { font-family: "DM Mono", monospace; font-size: 15px; color: var(--t-bright); letter-spacing: .5px; }
+/* The label wears the buttons' own type, not the windows' Bebas field label. */
+.pa-label { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 9px; }
+.pa-acts { display: flex; align-items: center; gap: 10px; margin-top: 22px; }
+/* Add contact sits on a line of its own across the top of the card, above the
+   name, with the payment under it (user, 2026-10-29). */
+.incoming-card.has-addc { flex-direction: column; align-items: stretch; gap: 0; }
+.incoming-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.incoming-addc-row { padding-bottom: 10px; margin-bottom: 11px; border-bottom: 1px solid var(--border); }
+/* The Dismiss button's size, the blue of a thing that opens rather than acts. */
+.incoming-addc {
+  padding: 5px 10px; background: none; border: 1px solid var(--border);
+  border-radius: 4px; color: var(--muted); font-family: "DM Mono", monospace;
+  font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.incoming-addc:hover:where(:not(:disabled)) { border-color: var(--accent2); color: var(--accent2); }
+.pa-state { flex: 1; font-size: 9px; color: var(--muted); }
+.pa-save { flex: none; padding: 9px 16px; }
+#payAddList {
+  position: fixed; z-index: 100000; max-height: 240px; overflow: auto; padding: 4px;
+  box-sizing: border-box; background: var(--surface); border: 1px solid var(--muted);
+  border-radius: var(--radius-card); box-shadow: 0 8px 28px rgba(0,0,0,.6);
+}
+#payAddList button {
+  display: block; width: 100%; text-align: left; padding: 6px 12px; border: none;
+  border-radius: 6px; background: transparent; color: var(--t-normal);
+  font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: .8px;
+  text-transform: uppercase; cursor: pointer; white-space: nowrap;
+}
+#payAddList button:hover { background: rgba(255,255,255,0.08); color: #fff; }
+#payAddList button.on { color: #fff; background: rgba(255,255,255,0.06); }
+
 /* ─── MANUAL ENTRY BUTTON ─────────────────────────────────────────────────── */
 .btn-manual-entry {
   display: block; width: 100%; padding: 12px;
@@ -1719,6 +1795,29 @@ a:focus-visible,
 #tab-holidays .hol-note { color: var(--t-faint); }   /* the note after the dot, the labels' dark grey */
 #tab-holidays .hol-chrono .ld-row { grid-template-columns: 160px minmax(0, 1fr); }   /* the left column only holds a date */
 
+/* ─── TRIP HISTORY ───────────────────────────────────────────────────── */
+/* 2026-10-29: in the Dashboard's look (shares the :is(#tab-general …) rules below). */
+#tab-triphistory.tab-panel > .ld-icon .win-icon { height: 34px; width: auto; margin-left: 0; }   /* om-140 map + pins, the 34px of Holidays / Trial Analysis / Reviews (user 2026-10-29) */
+/* A trip's line (user 2026-10-29): place · dates · days · loss · Show, the Dashboard's row look. */
+#tab-triphistory .th-line { display: grid; grid-template-columns: minmax(0, 1fr) 130px 130px 100px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); }
+#tab-triphistory .th-line.th-head { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--t-faint); padding: 10px 0 8px; }   /* the column names, the first row in the box: Slot change's "To change the slot" font (.im-rs-cap), user 2026-10-29 */
+#tab-triphistory .ld-card > .ld-title { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2.5px; text-align: left; color: var(--green); }   /* green (user 2026-10-29; blue tried); the band: the header row's earlier font, left (user 2026-10-29; was centred) */
+#tab-triphistory .ld-card > .th-line:last-child, #tab-triphistory .th-trip:has(+ .th-det[hidden]) { border-bottom: 0; }
+/* Show's rows (user 2026-10-29; was a table inside the box): the same columns, a thicker line under the trip's row as their header. */
+#tab-triphistory .th-det[hidden] { display: none; }
+#tab-triphistory .th-trip:has(+ .th-det:not([hidden])) { border-bottom: 2px solid var(--border); }
+#tab-triphistory .th-det > .th-line:last-child { border-bottom: 0; }
+#tab-triphistory .th-line .th-place { letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
+#tab-triphistory .th-line:not(.th-head) { text-transform: uppercase; letter-spacing: 1px; }   /* JUL 12 → AUG 16 · 36 DAYS OFF · $6,650 LOST in capitals (user 2026-10-29) */
+#tab-triphistory .th-yr { color: var(--t-faint); }   /* / 2026 after the dates, darker (user 2026-10-29) */
+#tab-triphistory .th-show { justify-self: end; padding: 2px 10px; }
+#tab-triphistory .th-line > :nth-child(n+2) { text-align: right; justify-self: end; }   /* days off, lost, Show / tag to the right (user 2026-10-29; centred tried) */
+#tab-triphistory .th-tag { justify-self: end; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }   /* Vacation / Pre buffer / Post buffer at the right end of Show's rows */
+#tab-triphistory .th-year { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; text-transform: uppercase; color: var(--t-text); margin: 0 0 32px; }   /* 2026 TRIPS over the year's boxes */
+#tab-triphistory .ld-card + .th-year { margin-top: 40px; }   /* a bigger gap before the next year */
+#tab-triphistory .ld-cards > .ld-card + .ld-card { margin-top: 56px; }   /* more room between the trip boxes (user 2026-10-29) */
+#tab-triphistory .ld-cards { padding-bottom: 32px; }   /* and after the last one */
+
 /* ─── TOOLTIP ─────────────────────────────────────────────────────────────── */
 /* data-tip instead of title: the native title tooltip is drawn by the browser
    (grey, light, ~1s delay, dies on re-render and cannot be styled). This one
@@ -1795,29 +1894,6 @@ a:focus-visible,
   color: var(--text); line-height: 1.2;
 }
 .rpm-dlg-head { align-items: center; }
-/* ─── TRIP HISTORY ───────────────────────────────────────────────────── */
-/* 2026-10-29: in the Dashboard's look (shares the :is(#tab-general …) rules below). */
-#tab-triphistory.tab-panel > .ld-icon .win-icon { height: 34px; width: auto; margin-left: 0; }   /* om-140 map + pins, the 34px of Holidays / Trial Analysis / Reviews (user 2026-10-29) */
-/* A trip's line (user 2026-10-29): place · dates · days · loss · Show, the Dashboard's row look. */
-#tab-triphistory .th-line { display: grid; grid-template-columns: minmax(0, 1fr) 130px 130px 100px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); }
-#tab-triphistory .th-line.th-head { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--t-faint); padding: 10px 0 8px; }   /* the column names, the first row in the box: Slot change's "To change the slot" font (.im-rs-cap), user 2026-10-29 */
-#tab-triphistory .ld-card > .ld-title { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2.5px; text-align: left; color: var(--green); }   /* green (user 2026-10-29; blue tried); the band: the header row's earlier font, left (user 2026-10-29; was centred) */
-#tab-triphistory .ld-card > .th-line:last-child, #tab-triphistory .th-trip:has(+ .th-det[hidden]) { border-bottom: 0; }
-/* Show's rows (user 2026-10-29; was a table inside the box): the same columns, a thicker line under the trip's row as their header. */
-#tab-triphistory .th-det[hidden] { display: none; }
-#tab-triphistory .th-trip:has(+ .th-det:not([hidden])) { border-bottom: 2px solid var(--border); }
-#tab-triphistory .th-det > .th-line:last-child { border-bottom: 0; }
-#tab-triphistory .th-line .th-place { letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
-#tab-triphistory .th-line:not(.th-head) { text-transform: uppercase; letter-spacing: 1px; }   /* JUL 12 → AUG 16 · 36 DAYS OFF · $6,650 LOST in capitals (user 2026-10-29) */
-#tab-triphistory .th-yr { color: var(--t-faint); }   /* / 2026 after the dates, darker (user 2026-10-29) */
-#tab-triphistory .th-show { justify-self: end; padding: 2px 10px; }
-#tab-triphistory .th-line > :nth-child(n+2) { text-align: right; justify-self: end; }   /* days off, lost, Show / tag to the right (user 2026-10-29; centred tried) */
-#tab-triphistory .th-tag { justify-self: end; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }   /* Vacation / Pre buffer / Post buffer at the right end of Show's rows */
-#tab-triphistory .th-year { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; text-transform: uppercase; color: var(--t-text); margin: 0 0 32px; }   /* 2026 TRIPS over the year's boxes */
-#tab-triphistory .ld-card + .th-year { margin-top: 40px; }   /* a bigger gap before the next year */
-#tab-triphistory .ld-cards > .ld-card + .ld-card { margin-top: 56px; }   /* more room between the trip boxes (user 2026-10-29) */
-#tab-triphistory .ld-cards { padding-bottom: 32px; }   /* and after the last one */
-
 .rpm-dlg-x { flex-shrink: 0; }
 .rpm-dlg-msg {
   font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.7;
