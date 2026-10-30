@@ -46,6 +46,7 @@ body {
 body::before {
   content: ""; position: fixed; inset: 0;
   background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E"),   /* faint grain on top so the glow fades smoothly, no rings (user, 2026-10-30) */
     radial-gradient(ellipse 80% 60% at 45% 45%, color-mix(in srgb, var(--accent2) 16%, transparent), transparent 70%),
     radial-gradient(ellipse 60% 50% at 5% 85%, color-mix(in srgb, oklch(0.45 0.12 70) 11%, transparent), transparent 70%);
   pointer-events: none;
