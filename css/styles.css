@@ -3481,6 +3481,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 :is(#rvSummaryBody, #rvCurSum) .ld-card { max-width: 480px; margin-left: auto; margin-right: auto; background: var(--surface); border-left: 3px solid color-mix(in srgb, var(--green) 42%, transparent); }   /* the green 3px edge of Payments' done cards (user, 2026-10-29) */
 /* the Dashboard boxes narrower than the 760px column, centred, filled like Payments' cards on the panel's darker #141414 (user, 2026-10-29); label column + the longest "date - name" row fit */
 :is(#rvSummaryBody, #rvCurSum) .ld-title > span:first-child { font-family: Syne, sans-serif; font-size: 13px; font-weight: 400; letter-spacing: normal; text-transform: none; }   /* box headers in the payment cards' name font, Syne 13px (user, 2026-10-29; was Bebas caps) */
+#curReviewsBody .en-scard { border-left-color: var(--warn); }   /* the student cards' edge the Ask for a review button's amber (user, 2026-10-29; Payments' duller #8f743d tried) */
 .rv-plan { overflow: visible !important; }   /* the open list may hang below the box */
 #rvSummaryBody .rv-plan .ld-title { border-radius: calc(var(--radius-card) - 2px) calc(var(--radius-card) - 2px) 0 0; }   /* so the band keeps the box's corners without overflow hidden */
 #rvCurSum { margin-top: -10px; }   /* Current students box: the same 22px gap as the boxes above it */
