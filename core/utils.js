@@ -113,10 +113,10 @@ function dtArrow(dir) {
 // The portal's one picker; it replaced seven look-alikes. A date box, and a
 // time box beside it where the time matters. Each box is Travel's Leaving on
 // look (user, 2026-10-24; chevrons were above and below, outside the border):
-// a frame with a label tab (DAY / TIME), the value, and ▲▼ stacked in a
-// short column at the right end.
-// The value is the control: click it (or, in a window, hover it) and it
-// lights; ↑↓ step the lit one, a day or 15 minutes; ←→ move between boxes.
+// a frame with a label tab (DAY / TIME), the value, and a ▼ at the right end.
+// The value is the control: click it and its dropdown opens (user, 2026-10-29;
+// was ▲▼); in a window, hovering lights it. ↑↓ still step the lit one, a day
+// or 30 minutes; ←→ move between boxes.
 // Holding a chevron repeats. Nothing has to hold browser focus: one listener
 // reads the keys for the picker you last touched, or for a window's picker as
 // soon as the window opens (o.keys).
@@ -134,6 +134,7 @@ function dtArrow(dir) {
 //   o.group         pickers in one group walk into each other with ←→
 //   o.label         the date box's tab (default Day; '' for none); o.timeLabel (Time)
 //   o.labCls        an extra class on the tabs (Travel's tv-in-label)
+//   o.step          15 for quarter hours (Book a trial only); default 30
 // rpmDtpGet(id) → { date, time }. rpmDtpSet(id, date, time) sets and redraws.
 var _RPM_DTP_DAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 var _RPM_DTP_MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -188,7 +189,8 @@ function rpmDtpHtml(id, o) {
       return '<div class="dtp-box"><div class="dtp-cell">' + _dtpLab(p === 'Date' ? o.label : o.timeLabel, p, o.labCls) +
         '<button type="button" class="' + cls + '" tabindex="-1" id="' + id + p + 'Lbl" data-dtp-i="' + i + '"' + (o.fixedDate && p === 'Date' ? ' disabled' : '') + '>' +
           (p === 'Date' ? _dtpDateLabel(o.date, o.year) : _dtpTimeLabel(o.time)) + '</button>' +
-        (o.fixedDate && p === 'Date' ? '' : '<span class="dtp-chevs">' + chev(i, 1) + chev(i, -1) + '</span>') + '</div></div>';
+        (o.fixedDate && p === 'Date' ? '' :
+          '<span class="dtp-chevs dtp-dropchev"><button type="button" class="dtp-drop" tabindex="-1" data-dtp-i="' + i + '" aria-label="Pick a ' + (p === 'Date' ? 'day' : 'time') + '">' + dtArrow(-1) + '</button></span>') + '</div></div>';
     }).join('') + '</div>';
 }
 
@@ -254,10 +256,10 @@ function _rpmDtpStep(id, i, dir) {
     }
     rpmDtpSet(id, rpmDtpYmd(d), null, root);
   } else {
-    // 15-minute steps; an odd time snaps to the quarter. Stays inside the day.
-    var t = _dtpMins(v.time);
-    t = t === null ? 17 * 60 : Math.round(t / 15) * 15 + dir * 15;
-    t = Math.max(0, Math.min(23 * 60 + 45, t));
+    // Half-hour steps (o.step 15: Book a trial only, user 2026-10-29); an odd time snaps. Stays inside the day.
+    var step = _dtpStep(o), t = _dtpMins(v.time);
+    t = t === null ? 17 * 60 : Math.round(t / step) * step + dir * step;
+    t = Math.max(0, Math.min(24 * 60 - step, t));
     rpmDtpSet(id, null, _dtpPad(Math.floor(t / 60)) + ':' + _dtpPad(t % 60), root);
   }
   if (typeof o.onChange === 'function') o.onChange(id);
@@ -284,6 +286,78 @@ function _rpmDtpLight(id, i, take) {
 function _rpmDtpLetGo() {
   _rpmDtpActive = null;
   document.querySelectorAll('.dtp-val.on').forEach(function (el) { el.classList.remove('on'); });
+}
+
+// Both boxes are dropdowns, the Calendar reschedule's list (user, 2026-10-29;
+// were ▲▼): days (Tue, Oct 20 / Wed, Oct 21 …) and times every half hour,
+// 8 AM to 10 PM (o.step 15: Book a trial). The list hangs on <body>, so a
+// window's overflow can't cut it off.
+function _dtpStep(o) { return o && o.step === 15 ? 15 : 30; }
+
+function _rpmDtpDropClose() {
+  var l = document.getElementById('dtpDropList');
+  if (l) l.remove();
+}
+
+function _rpmDtpDropOpen(id, i) {
+  var r = _rpmDtp[id], root = _dtpRoot(id), part = i ? 'Time' : 'Date';
+  if (!r || !root || root.closest('.rpm-busy, .tb-busy')) return;
+  var cell = root.querySelector('#' + id + part + 'Lbl');
+  cell = cell && cell.closest('.dtp-cell');
+  if (!cell) return;
+  _rpmDtpDropClose();
+  if (!document.getElementById('dtpDropStyle')) {
+    var st = document.createElement('style');
+    st.id = 'dtpDropStyle';
+    st.textContent =
+      ".dtp-dropchev{justify-content:center}" +
+      ".dtp-drop{display:flex;align-items:center;justify-content:center;height:100%;padding:0 4px;border:none;background:none;color:var(--muted);cursor:pointer}" +
+      ".dtp-drop:hover:where(:not(:disabled)){color:#fff}.dtp-drop:focus{outline:none}" +
+      ".dtp-drop .dt-ico{width:11px;height:6px;display:block;fill:currentColor}" +
+      "#dtpDropList{position:fixed;z-index:100000;max-height:220px;overflow:auto;padding:4px;box-sizing:border-box;background:var(--surface);" +
+        "border:1px solid var(--muted);border-radius:var(--radius-card);box-shadow:0 8px 28px rgba(0,0,0,.6)}" +
+      "#dtpDropList button{display:block;width:100%;text-align:left;padding:6px 12px;border:none;border-radius:6px;background:transparent;color:var(--t-normal);" +
+        "font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;white-space:nowrap}" +
+      "#dtpDropList button:hover{background:rgba(255,255,255,0.08);color:#fff}" +
+      "#dtpDropList button.on{color:#fff;background:rgba(255,255,255,0.06)}";
+    document.head.appendChild(st);
+  }
+  var v = rpmDtpGet(id, root), vals = [];
+  if (i) {
+    var step = _dtpStep(r.o);
+    for (var m = 8 * 60; m <= 22 * 60; m += step) vals.push(_dtpPad(Math.floor(m / 60)) + ':' + _dtpPad(m % 60));
+  } else {
+    // Days: two months either side of today; from today on where the past is shut
+    // (o.min), up to a year ahead for Travel.
+    var t0 = new Date(); t0.setHours(0, 0, 0, 0);
+    var from = r.o.min ? 0 : -60, to = r.o.year ? 365 : r.o.min ? 120 : 60;
+    for (var k = from; k <= to; k++) vals.push(rpmDtpYmd(new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + k)));
+  }
+  var cur = i ? v.time : v.date;
+  if (cur && vals.indexOf(cur) === -1) { vals.push(cur); vals.sort(); }   // an odd value already set stays in the list
+  var list = document.createElement('div');
+  list.id = 'dtpDropList';
+  list.innerHTML = vals.map(function (x) {
+    return '<button type="button" tabindex="-1" class="' + (x === cur ? 'on' : '') + '" data-v="' + x + '">' +
+      (i ? _dtpTimeLabel(x) : _dtpDateLabel(x, r.o.year)) + '</button>';
+  }).join('');
+  document.body.appendChild(list);
+  var b = cell.getBoundingClientRect();
+  list.style.minWidth = b.width + 'px';
+  var below = window.innerHeight - b.bottom - 6;
+  list.style.left = Math.max(8, Math.min(b.left, window.innerWidth - list.offsetWidth - 8)) + 'px';
+  list.style.top = (below >= list.offsetHeight || below >= b.top ? b.bottom + 6 : b.top - 6 - list.offsetHeight) + 'px';
+  var on = list.querySelector('.on');
+  if (on) list.scrollTop = on.offsetTop - list.clientHeight / 2 + on.offsetHeight / 2;
+  list.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); });
+  list.addEventListener('click', function (e) {
+    var o = e.target.closest('button');
+    if (!o) return;
+    _rpmDtpDropClose();
+    if (o.getAttribute('data-v') === cur) return;
+    if (i) rpmDtpSet(id, null, o.getAttribute('data-v')); else rpmDtpSet(id, o.getAttribute('data-v'), null);
+    if (typeof r.o.onChange === 'function') r.o.onChange(id);
+  });
 }
 
 (function () {
@@ -317,10 +391,19 @@ function _rpmDtpLetGo() {
   window.addEventListener('blur', stopHold);
 
   document.addEventListener('click', function (e) {
-    var v = e.target.closest && e.target.closest('.dtp-val');
-    if (!v) return;
-    _rpmDtpLight(v.closest('.dtp').getAttribute('data-dtp'), +v.getAttribute('data-dtp-i'), true);
+    var v = e.target.closest && (e.target.closest('.dtp-val') || e.target.closest('.dtp-drop'));
+    var wasOpen = !!document.getElementById('dtpDropList');
+    _rpmDtpDropClose();
+    if (!v || v.disabled) return;
+    var id = v.closest('.dtp').getAttribute('data-dtp'), i = +v.getAttribute('data-dtp-i');
+    _rpmDtpLight(id, i, true);
+    // The box, or its ▼: the list (a second click closes it). Read-only boxes have none.
+    if (!wasOpen && !v.closest('.dtp-ro')) _rpmDtpDropOpen(id, i);
   });
+  window.addEventListener('resize', _rpmDtpDropClose);
+  document.addEventListener('scroll', function (e) {
+    if (!(e.target && e.target.id === 'dtpDropList')) _rpmDtpDropClose();
+  }, true);
 
   // In a window, the mouse lights a box just by moving onto it. Only a mouse
   // that actually moved counts: a redraw under a still mouse is not a choice.
@@ -338,6 +421,7 @@ function _rpmDtpLetGo() {
   // and can claim the key.
   window.addEventListener('keydown', function (e) {
     if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+    _rpmDtpDropClose();
     var id = _rpmDtpActive, r = id && _rpmDtp[id];
     if (!r) return;
     var root = _dtpRoot(id);

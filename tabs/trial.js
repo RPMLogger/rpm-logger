@@ -1232,7 +1232,7 @@ function _trDtDefault() {
 function _trDtHtml(p) {
   var def = _trDtDefault();
   return rpmDtpHtml(p, {
-    date: def.date, time: def.time, keys: p === 'tb' || p === 'ts',
+    date: def.date, time: def.time, keys: p === 'tb' || p === 'ts', step: 15,   // the only picker on quarter hours (user, 2026-10-29)
     onChange: function () { if (p === 'tb') _trBookWinPaint(); },
     onEnter: p === 'tb' ? function () {
       var bk = document.getElementById('tbBookBtn');
