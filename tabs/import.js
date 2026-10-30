@@ -81,7 +81,9 @@ function _imRenderCards(noRead) {
       '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
       (miss && !miss.length && !o ? '<span class="im-logged"><span class="im-logged-t">LOGGED</span>' + PAID_CHECK_ICON.replace('width="13" height="13"', 'width="15" height="15"') + '</span>' : '') +   // the Auto-confirmed check (user, 2026-10-26)
       (isToday(n) && !(miss && !miss.length && !o) ? '<span class="im-steps"><span class="im-step im-today-tag">Today</span></span>' : '') +   // green TODAY sign on today's cards (user, 2026-10-30)
-      (first ? '<span class="im-steps">' + _imStepsHtml(first.day, first.miss, first.hw, n) + (all > 1 ? '<span class="im-step-more">· ' + all + ' open</span>' : '') + '</span>' : '') +
+      // Not logged group: one "+ Log" button only (user, 2026-10-30; was the step row + "· 2 open").
+      (!isToday(n) && o ? '<span class="im-steps"><button class="im-step todo nolog opens-window" onclick="event.stopPropagation(); _imLogOpen(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a window.\nLog ' + _auEsc(_ckDay(past[0].date)) + '.">+ Log</button></span>' : '') +
+      (first && !(!isToday(n) && o) ? '<span class="im-steps">' + _imStepsHtml(first.day, first.miss, first.hw, n) + (all > 1 ? '<span class="im-step-more">· ' + all + ' open</span>' : '') + '</span>' : '') +
     '</div>';
   };
   body.innerHTML =
