@@ -7,6 +7,7 @@
 
 var _imRoster = null;   // names from the Counter, A–Z
 var _imOpen = null;     // name of the open student, or null on the cards
+var _imAnim = false;    // true until the first draw after opening the tab: cards come in one by one
 // Where the student page draws (2026-10-06): 'import' (this tab, with Back)
 // or 'today' (the Today tab, tabs/today.js, under its row of today's students).
 var _imIn = 'import';
@@ -18,6 +19,7 @@ function initImportTab() {
   if (window._weekFetchedDay && window._weekFetchedDay !== _tdYmd()) { var wu = getScriptUrl(); if (wu) fetchWeekStudents(wu); }
   // Always the student list when you come to the tab (2026-10-08, was the last student opened).
   _imOpen = null; _imLast = null;
+  _imAnim = true;   // the next draw brings the cards in one by one
   if (_imRoster) { _imRenderCards(); return; }
   var body = document.getElementById('importBody');
   body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
@@ -47,11 +49,14 @@ function _imRenderCards(noRead) {
   // Loading until the checklist is in too, so the cards draw once, already in their
   // groups (user, 2026-10-30; they drew first, then Not logged jumped up amber).
   // _ckLoad calls _imAfterCk when it ends, whoever started it; a failed read draws anyway.
-  if (!_ck.loaded && !_imCkFail) {
-    body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  // The last checklist saved in this browser draws them at once (2026-10-30, the read takes ~12s).
+  if (!_ck.loaded) {
     if (!_ck.busy) _ckLoad();
-    return;
+    if (!_ckFromCache() && !_imCkFail) { body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>'; return; }
   }
+  // Cards come in one by one on the first draw after opening the tab, not on the quiet redraws (user, 2026-10-30).
+  var anim = _imAnim, step = 0; _imAnim = false;
+  var inStyle = function () { return anim ? ' style="--i:' + (step++) + '"' : ''; };
   // Missed lessons still open (2026-10-08, Lesson checklist): "2 open".
   var open = function (n) { return _ckPast(n).length; };
   var missing = function (n) {
@@ -72,7 +77,7 @@ function _imRenderCards(noRead) {
     // ✓ done, ☐ still to do, "· 2 open" when more lessons wait.
     var todo = miss && miss.length ? 1 : 0, all = o + todo;
     var first = past.length ? { day: past[0].date, miss: past[0].missing || [], hw: past[0].hwText } : todo ? { day: _tdYmd(), miss: miss } : null;
-    return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-donetoday' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
+    return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-donetoday' : '') + '"' + inStyle() + ' onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
       '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
       (miss && !miss.length && !o ? '<span class="im-logged"><span class="im-logged-t">LOGGED</span>' + PAID_CHECK_ICON.replace('width="13" height="13"', 'width="15" height="15"') + '</span>' : '') +   // the Auto-confirmed check (user, 2026-10-26)
       (isToday(n) && !(miss && !miss.length && !o) ? '<span class="im-steps"><span class="im-step im-today-tag">Today</span></span>' : '') +   // green TODAY sign on today's cards (user, 2026-10-30)
@@ -80,7 +85,7 @@ function _imRenderCards(noRead) {
     '</div>';
   };
   body.innerHTML =
-    '<div class="db-section td-wk-box im-box">' +
+    '<div class="db-section td-wk-box im-box' + (anim ? ' im-stagger' : '') + '">' +
       // Audit lessons red on the title line, right (user, 2026-10-23; was amber, level with "24 students").
       '<div class="settings-title im-title-row"><span class="im-title-stack"><span>Students<span class="win-sub"> · Lessons</span></span><span class="st-page-icon">' + ANALYSIS_ICON + '</span></span>' +   // no count (user, 2026-10-24; was "· 24 students" grey beside the title)   // was "Import", then "Lesson Log" (2026-10-09), then "Lessons" (renamed Students 2026-10-13)
         '<button class="link-btn im-audit-link" onclick="switchTab(\'audit\')" data-tip="Opens a tab.\nAudit lessons and Audit payments." data-tip-wrap><span>Audit</span></button></div>' +   // white, no glass: just a link, level with STUDENTS (user, 2026-10-30)   // om-120 sits centred under the title, inside it (user, 2026-10-30; was its own line, left-aligned)
@@ -90,7 +95,7 @@ function _imRenderCards(noRead) {
       // A heading over each group, the Sheets tab's "Finances" look (user, 2026-10-30).
       ['Today', 'Not logged', 'A–Z'].map(function (h, g) {
         var in_g = names.filter(function (n) { return group(n) === g; });
-        return in_g.length ? '<div class="section-label im-group-h">' + h + '</div>' + in_g.map(card).join('') : '';
+        return in_g.length ? '<div class="section-label im-group-h"' + inStyle() + '>' + h + '</div>' + in_g.map(card).join('') : '';
       }).join('') +
     '</div>';
 }
@@ -700,17 +705,28 @@ function _ckLoad(then) {
       var by = {};
       (d.audit || []).forEach(function (a) { by[_imKey(a.name)] = a.lessons; });
       _ck = { byName: by, loaded: true, busy: false, start: d.start || '', audit: d.audit || [] };
+      if (!window._ckStart) try { localStorage.setItem('rpmCkCache', JSON.stringify({ byName: by, start: _ck.start, audit: _ck.audit })); } catch (e) {}
       if (then) then(null);
       _imAfterCk(false);
     })
     .catch(function (e) { _ck.busy = false; if (then) then(e && e.message || 'No answer from Google.'); _imAfterCk(true); });
 }
 // The Students list waits on the checklist (2026-10-30): draw it once it's in.
+// The read takes ~12s, so the last one is kept in this browser (rpmCkCache): the
+// cards draw from it at once and redraw quietly when the fresh one lands.
 var _imCkFail = false;
 function _imAfterCk(failed) {
   _imCkFail = failed;
   var p = document.getElementById('tab-import');
   if (_imRoster && !_imOpen && p && p.classList.contains('active')) _imRenderCards(true);
+}
+function _ckFromCache() {
+  if (_ck.loaded || _ck.cached) return !!_ck.cached || _ck.loaded;
+  try {
+    var c = JSON.parse(localStorage.getItem('rpmCkCache') || 'null');
+    if (c && c.byName) { _ck.byName = c.byName; _ck.start = c.start || ''; _ck.audit = c.audit || []; _ck.cached = true; }
+  } catch (e) {}
+  return !!_ck.cached;
 }
 // Past lessons still open (before today; today's comes from the calendar).
 function _ckPast(name) {

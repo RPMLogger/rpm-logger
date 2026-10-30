@@ -3858,3 +3858,6 @@ body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http:
   border: 1px solid #353535; border-left: 3px solid #424242; }   /* the left edge a step lighter, almost a shadow (user, 2026-10-30); sides #2a2a2a, #383838, #2e2e2e tried */
 #importBody .im-card:hover:where(:not(:disabled)) { background-color: #181818; border-color: #353535; border-left-color: #424242; }   /* one grey left edge for Today, Not logged and Others (user, 2026-10-30; were green / amber / blue) */
 #importBody .im-card .db-card-n { font-family: "Bebas Neue", sans-serif; font-size: 22px; letter-spacing: 1px; line-height: 1.05; }
+/* Students cards come in one by one on opening the tab (user, 2026-10-30): each fades up 6px, 30ms after the one before (tabs/import.js sets --i). */
+#importBody .im-stagger > .im-card, #importBody .im-stagger > .im-group-h { animation: imCardIn .28s ease-out both; animation-delay: calc(var(--i, 0) * 30ms); }
+@keyframes imCardIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
