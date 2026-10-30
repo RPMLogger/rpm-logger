@@ -3,6 +3,7 @@
 :root {
   --bg:      #0f0f0f;
   --surface: #1a1a1a;
+  --box:     #141414;   /* the one big-box shade: header, every tab's box, Today / Students / To-Do / Notes boxes (user, 2026-10-30) */
   --surface2: #222;
   --accent:  #e8463a;
   --accent2: oklch(0.63 0.19 76);   /* amber at the red's lightness + strength; was #f0a500 (user, 2026-10-27: colours matched to the red in OKLCH) */
@@ -62,7 +63,7 @@ body::before {
    full-width band from the top of the screen, a shade lighter, 2026-10-24) */
 .header::before {
   content: ""; position: absolute; left: 0; right: 0; top: -40px; bottom: -24px; z-index: -1;
-  background: #141414; border: 1px solid var(--border); border-radius: 10px;   /* a step darker than the boxes under it (user, 2026-10-26) */
+  background: var(--box); border: 1px solid var(--border); border-radius: 10px;   /* a step darker than the boxes under it (user, 2026-10-26) */
 }
 @media (max-width: 700px) { .header::before { left: 0; right: 0; } }
 .header img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; position: relative; top: -8px; }   /* a bit bigger (was 36) and lifted to the box's middle, level with ☰ and Home (user, 2026-10-26) */
@@ -316,7 +317,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
    Today, Students, To-Do and Notes make their own boxes; Calendar, Fixed schedule
    and Financial are wider than the column, so they stay open. */
 .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2) {
-  box-sizing: border-box; padding: 24px; background: #141414; border: 1px solid var(--border); border-radius: 10px;   /* every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
+  box-sizing: border-box; padding: 24px; background: var(--box); border: 1px solid var(--border); border-radius: 10px;   /* every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
 
 /* ─── HOME: the opening page (2026-10-24) ─── */
@@ -2739,7 +2740,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .td-wk-day .field-label { color: var(--accent); }   /* every day red, none dimmed */
 .td-wk-none { font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }   /* a day off: OPEN in the date's place, small, the date's grey */
 /* Today and This Week boxes (user, 2026-10-24): the old Week window's size and look, full length, centred on the page */
-.td-wk-box { margin: 34px auto 0; box-sizing: border-box; width: 100%; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }   /* the Week window's size and look (.st-win / .log-panel) */
+.td-wk-box { margin: 34px auto 0; box-sizing: border-box; width: 100%; padding: 24px; background: var(--box); border: 1px solid var(--border); border-radius: 10px; }   /* the Week window's size and look (.st-win / .log-panel) */
 .td-wk-box .field-label { display: block; }
 .td-wk-title .win-sub { font-size: 15px; }   /* the dates smaller than THIS WEEK (user, 2026-10-24) */
 .td-wk-icon { margin: 4px 0 18px; }   /* _stWin's icon spacing */
