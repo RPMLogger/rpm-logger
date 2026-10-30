@@ -9,6 +9,8 @@ var commsFilter = "all";
 var commsDetail = null;
 var commsPollTimer = null;
 var COMMS_POLL_INTERVAL = 30000;
+var commsEditing = false;     // Edit mode: cards tick instead of opening
+var commsSelected = {};       // sheet row → true
 
 // ── Entry point (called from switchTab) ─────────────────────────────────────
 function initCommsTab() {
@@ -60,40 +62,53 @@ function renderCommsInbox() {
     return true;
   });
 
+  inbox.classList.toggle("comms-editing", commsEditing);
+  commsShown = filtered;
+  updateCommsSelection();
+  var label = document.getElementById("commsListLabel");
+  if (label) label.textContent = filtered.length + (filtered.length === 1 ? " message" : " messages");
+
   if (!filtered.length) {
-    var label = "None";   // the filter above already says which list this is
-    inbox.innerHTML = '<div class="empty-state">' + label + '</div>';
+    inbox.innerHTML = '<div class="cm-none">None</div>';
     return;
   }
 
+  // One block per day, newest first, like This Week's day list.
   inbox.innerHTML = "";
+  var day = null, block = null;
   filtered.forEach(function(msg) {
-    var card = document.createElement("div");
-    card.className = "comms-card" + (msg.responded ? " responded" : " unresponded");
-    card.onclick = function() { openCommsDetail(msg); };
-
-    var icon = msg.source === "voicemail" ? "📞" : "💬";
+    var d = new Date(msg.timestamp), key = d.toDateString();
+    if (key !== day) {
+      day = key;
+      block = document.createElement("div");
+      block.className = "cm-day";
+      block.innerHTML = '<label class="field-label">' + commsDayLabel(d) + '</label>';
+      inbox.appendChild(block);
+    }
+    var row = document.createElement("div");
+    row.className = "cm-row" + (msg.responded ? " cm-done" : "") + (commsSelected[msg.row] ? " selected" : "");
+    row.onclick = function() {
+      if (!commsEditing) { openCommsDetail(msg); return; }
+      if (commsSelected[msg.row]) delete commsSelected[msg.row]; else commsSelected[msg.row] = true;
+      row.classList.toggle("selected", !!commsSelected[msg.row]);
+      updateCommsSelection();
+    };
     var display = msg.fromName || commsFormatPhone(msg.fromNumber) || "Unknown";
     var preview = msg.source === "voicemail"
-      ? (msg.transcript && msg.transcript !== "(transcribing…)" ? msg.transcript : "Voicemail — tap to listen")
+      ? (msg.transcript && msg.transcript !== "(transcribing…)" && msg.transcript !== "(no transcript)" ? msg.transcript : "Voicemail, no transcript")
       : (msg.body || "—");
-    var time = commsFormatTime(msg.timestamp);
-
-    card.innerHTML =
-      '<div class="comms-responded-dot"></div>' +
-      '<div class="comms-card-top">' +
-        '<span class="comms-source">' + icon + '</span>' +
-        '<span class="comms-from">' + commsEscape(display) + '</span>' +
-        '<span class="comms-time">' + time + '</span>' +
-      '</div>' +
-      '<div class="comms-preview">' + commsEscape(commsTruncate(preview, 80)) + '</div>';
-
-    inbox.appendChild(card);
+    row.innerHTML =
+      '<span class="cm-check"></span>' +
+      '<span class="td-mini-t">' + commsClock(d) + '</span>' +
+      '<span class="cm-ico">' + (msg.source === "voicemail" ? "📞" : "💬") + '</span>' +
+      '<span class="cm-name">' + commsEscape(display) + '</span>' +
+      '<span class="cm-prev">' + commsEscape(preview) + '</span>';
+    block.appendChild(row);
   });
 }
 
-// Unanswered count → nav badge + the "unanswered" chip on the summary strip.
-// Driven by the loaded messages, so it stays right after a Responded toggle.
+// Counts on the filter buttons + the nav badge. Driven by the loaded
+// messages, so they stay right after an Answered toggle or a delete.
 function updateCommsBadge() {
   var real = commsMessages.filter(function (m) { return !m.scam; });
   var open = real.filter(function (m) { return !m.responded; }).length;
@@ -102,38 +117,84 @@ function updateCommsBadge() {
     badge.textContent = open;
     badge.style.display = open > 0 ? "" : "none";
   }
-  var chip = document.getElementById("commsOpen"), n = document.getElementById("commsOpenCount");
-  if (chip && n) {
-    n.textContent = open;
-    chip.style.display = open > 0 ? "" : "none";
-  }
   var sms = 0, vm = 0;
   real.forEach(function (m) {
     if (m.source === "voicemail") vm++; else sms++;
   });
-  var scamEl = document.getElementById("commsScamCount");
-  if (scamEl) scamEl.textContent = commsMessages.length - real.length;
-  var smsEl = document.getElementById("commsSmsCount");
-  var vmEl  = document.getElementById("commsVoicemailCount");
-  if (smsEl) smsEl.textContent = sms;
-  if (vmEl)  vmEl.textContent  = vm;
+  var set = function (id, n) { var el = document.getElementById(id); if (el) el.textContent = n; };
+  set("commsOpenCount", open);
+  set("commsSmsCount", sms);
+  set("commsVoicemailCount", vm);
+  set("commsScamCount", commsMessages.length - real.length);
+}
+
+// ── Edit mode: select + delete ──────────────────────────────────────────────
+var commsShown = [];   // the rows on screen now (Select all ticks only these)
+
+function commsToggleEdit() {
+  commsEditing = !commsEditing;
+  commsSelected = {};
+  document.getElementById("commsEditBar").classList.toggle("editing", commsEditing);
+  document.getElementById("commsEditToggle").textContent = commsEditing ? "Done" : "Edit";
+  if (commsEditing) stopCommsPolling(); else startCommsPolling();   // no reshuffle under a half-made selection
+  renderCommsInbox();
+}
+
+function commsToggleSelectAll() {
+  var all = commsShown.length && commsShown.every(function (m) { return commsSelected[m.row]; });
+  commsSelected = {};
+  if (!all) commsShown.forEach(function (m) { commsSelected[m.row] = true; });
+  renderCommsInbox();
+}
+
+function updateCommsSelection() {
+  var n = Object.keys(commsSelected).length;
+  var del = document.getElementById("commsDeleteBtn"), all = document.getElementById("commsSelectAll");
+  if (del) { del.disabled = !n; del.textContent = n ? "Delete " + n : "Delete"; }
+  if (all) all.textContent = commsShown.length && commsShown.every(function (m) { return commsSelected[m.row]; })
+    ? "Select none" : "Select all";
+}
+
+function commsDeleteSelected() {
+  var rows = Object.keys(commsSelected);
+  if (!rows.length) return;
+  rpmConfirm({
+    title: "Delete " + rows.length + " message" + (rows.length === 1 ? "" : "s") + "?",
+    message: "They leave Comms and move to the Deleted tab in the RPM Comms sheet.",
+    confirmLabel: "Delete",
+    danger: true
+  }).then(function (ok) {
+    if (!ok) return;
+    var box = document.querySelector("#commsBody .cm-box"), btn = document.getElementById("commsDeleteBtn");
+    rpmBusy(box, btn, true, "Deleting");
+    fetch(getScriptUrl() + "?action=deleteCommsRows&rows=" + rows.join(","))
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        rpmBusy(box, btn, false);
+        if (!res.success) { rpmAlert({ title: "Not deleted", message: res.message || "Something went wrong." }); return; }
+        commsMessages = commsMessages.filter(function (m) { return !commsSelected[m.row]; });
+        commsToggleEdit();       // back to normal; reloads from the sheet with fresh row numbers
+        loadCommsInbox();
+      })
+      .catch(function () {
+        rpmBusy(box, btn, false);
+        rpmAlert({ title: "Not deleted", message: "Couldn't reach the sheet." });
+      });
+  });
 }
 
 function setCommsFilter(filter) {
   commsFilter = filter;
-  document.querySelectorAll(".comms-filter-btn").forEach(function(btn) {
-    btn.classList.toggle("active", btn.dataset.filter === filter);
+  document.querySelectorAll("#commsBody .cm-f").forEach(function(btn) {
+    btn.classList.toggle("cm-on", btn.dataset.filter === filter);
   });
   renderCommsInbox();
 }
 
 function openCommsDetail(msg) {
   commsDetail = msg;
-  var icon = msg.source === "voicemail" ? "📞 Voicemail" : "💬 Text";
-  var display = msg.fromName || commsFormatPhone(msg.fromNumber) || "Unknown";
-
-  document.getElementById("commsDetailSource").textContent = icon;
-  document.getElementById("commsDetailFrom").textContent = display;
+  document.getElementById("commsDetailFrom").textContent = msg.fromName || commsFormatPhone(msg.fromNumber) || "Unknown";
+  document.getElementById("commsDetailSource").textContent = msg.source === "voicemail" ? " · Voicemail" : " · Text";
   document.getElementById("commsDetailTime").textContent = commsFormatTimeFull(msg.timestamp);
 
   var bodyEl = document.getElementById("commsDetailBody");
@@ -150,7 +211,7 @@ function openCommsDetail(msg) {
     }
     transcriptSection.style.display = "block";
     document.getElementById("commsTranscriptText").textContent =
-      (msg.transcript && msg.transcript !== "(transcribing…)") ? msg.transcript : (msg.transcript || "Transcript not available");
+      (msg.transcript && msg.transcript !== "(transcribing…)") ? msg.transcript : "Not available";
   } else {
     bodyEl.style.display = "block";
     bodyEl.textContent = msg.body || "—";
@@ -158,8 +219,13 @@ function openCommsDetail(msg) {
     transcriptSection.style.display = "none";
   }
 
-  document.getElementById("commsRespondedCheck").checked = msg.responded;
+  commsPaintResponded();
   document.getElementById("commsDetailOverlay").classList.add("open");
+}
+
+function commsPaintResponded() {
+  var b = document.getElementById("commsRespondedBtn");
+  if (b && commsDetail) b.textContent = commsDetail.responded ? "Answered ✓" : "Mark answered";
 }
 
 // Twilio recording URLs need Basic Auth, so we can't point <audio> at them
@@ -190,22 +256,40 @@ function closeCommsDetail() {
   document.getElementById("commsDetailOverlay").classList.remove("open");
   var player = document.getElementById("commsAudioPlayer");
   player.pause();
-  player.src = "";
+  player.removeAttribute("src");
   commsDetail = null;
 }
 
 function toggleCommsResponded() {
   if (!commsDetail) return;
-  var checked = document.getElementById("commsRespondedCheck").checked;
-  commsDetail.responded = checked;
+  commsDetail.responded = !commsDetail.responded;
+  commsPaintResponded();
 
   var url = getScriptUrl();
   if (url) {
-    fetch(url + "?action=markCommsResponded&row=" + commsDetail.row + "&responded=" + checked)
+    fetch(url + "?action=markCommsResponded&row=" + commsDetail.row + "&responded=" + commsDetail.responded)
       .then(function(r) { return r.json(); })
       .catch(function() {});
   }
   renderCommsInbox();
+}
+
+// "Today" / "Yesterday" / "Thu, Oct 30" (+ year when not this year).
+function commsDayLabel(d) {
+  var t = new Date(); t.setHours(0, 0, 0, 0);
+  var x = new Date(d); x.setHours(0, 0, 0, 0);
+  var diff = Math.round((t - x) / 86400000);
+  if (diff === 0) return "Today";
+  if (diff === 1) return "Yesterday";
+  var days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return days[d.getDay()] + ", " + months[d.getMonth()] + " " + d.getDate() +
+    (d.getFullYear() !== t.getFullYear() ? ", " + d.getFullYear() : "");
+}
+
+function commsClock(d) {
+  var h = d.getHours(), ampm = h >= 12 ? "PM" : "AM";
+  return (h % 12 || 12) + ":" + String(d.getMinutes()).padStart(2, "0") + " " + ampm;
 }
 
 function commsFormatPhone(num) {
@@ -218,18 +302,6 @@ function commsFormatPhone(num) {
   return num;
 }
 
-function commsFormatTime(ts) {
-  if (!ts) return "";
-  var d = new Date(ts);
-  var now = new Date();
-  var diff = now - d;
-  if (diff < 60000) return "now";
-  if (diff < 3600000) return Math.floor(diff / 60000) + "m";
-  if (diff < 86400000) return Math.floor(diff / 3600000) + "h";
-  var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  return months[d.getMonth()] + " " + d.getDate();
-}
-
 function commsFormatTimeFull(ts) {
   if (!ts) return "";
   var d = new Date(ts);
@@ -240,11 +312,6 @@ function commsFormatTimeFull(ts) {
   h = h % 12 || 12;
   var min = String(d.getMinutes()).padStart(2, "0");
   return days[d.getDay()] + ", " + months[d.getMonth()] + " " + d.getDate() + " at " + h + ":" + min + " " + ampm;
-}
-
-function commsTruncate(str, len) {
-  if (!str) return "";
-  return str.length > len ? str.substring(0, len) + "…" : str;
 }
 
 function commsEscape(str) {

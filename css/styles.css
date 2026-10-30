@@ -1514,6 +1514,43 @@ input[type="checkbox"]:checked {
 }
 .comms-card.responded .comms-responded-dot { display: block; }
 
+/* Comms in the Today tab's look (user, 2026-10-30): one box, link-button
+   filters, day headings in red like This Week, one line per message. */
+#commsBody .cm-box { margin-top: 0; }
+.cm-filters { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 20px; }
+.cm-f.cm-on { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
+.cm-n { color: var(--t-faint); }
+.cm-f.cm-on .cm-n { color: var(--accent2); }
+.cm-count-row { display: flex; align-items: center; justify-content: space-between; min-height: 24px; }
+.cm-edit-tools { display: none; gap: 6px; }
+.cm-count-row.editing .cm-edit-tools { display: flex; }
+.cm-del { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.cm-del:hover:where(:not(:disabled)) { color: var(--text); background: var(--accent); border-color: var(--accent); }
+.cm-del:disabled, .cm-del:disabled:hover { opacity: .35; cursor: default; }
+.cm-day + .cm-day { margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--border); }
+.cm-day > .field-label { color: var(--accent); margin-bottom: 6px; }
+.cm-row { display: flex; align-items: center; gap: 14px; padding: 6px 8px; margin: 0 -8px; border-radius: 6px; cursor: pointer; }
+.cm-row:hover { background: var(--surface2); }
+.cm-row .td-mini-t { font-size: 10.5px; color: var(--t-faint); min-width: 64px; }
+.cm-ico { font-size: 12px; width: 16px; text-align: center; flex: none; }
+.cm-name { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--accent2); flex: none; width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cm-prev { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cm-row.cm-done .cm-name { color: var(--t-normal); }   /* answered: the name loses its amber */
+.cm-row.cm-done .cm-prev { color: var(--t-faint); }
+.cm-check { display: none; width: 12px; height: 12px; border: 1px solid var(--muted); border-radius: 3px; flex: none; position: relative; }
+.comms-editing .cm-check { display: inline-block; }
+.cm-row.selected { background: var(--surface2); }
+.cm-row.selected .cm-check { background: var(--accent); border-color: var(--accent); }
+.cm-row.selected .cm-check::after { content: ""; position: absolute; left: 3px; top: 0; width: 3px; height: 7px; border: solid var(--text); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.cm-none { font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }
+.cm-win-back:not(.open) { display: none; }
+.cm-win { width: min(600px, 94vw); max-height: 90vh; overflow: auto; box-sizing: border-box; background: var(--box); border-left: 1px solid var(--border); }   /* just bordered like the box, no card edge (user, 2026-10-30) */
+.cm-win .field-label { display: block; margin: 0 0 8px; }
+.cm-win-time { color: var(--t-faint); }
+.cm-win-text { font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.6; color: var(--t-normal); white-space: pre-wrap; margin-bottom: 18px; }
+.cm-win-audio audio { width: 100%; margin-bottom: 18px; color-scheme: dark; }   /* the browser's dark player, not the white one */
+.cm-win-foot { display: flex; justify-content: flex-start; }
+
 /* ─── COMMS DETAIL OVERLAY ──────────────────────────────────────────────── */
 .comms-detail-overlay {
   display: none; position: fixed; inset: 0; z-index: 50;
