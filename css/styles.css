@@ -3,7 +3,7 @@
 :root {
   --bg:      #0f0f0f;
   --surface: #1a1a1a;
-  --box:     #141414;   /* the one big-box shade: header, every tab's box, Today / Students / To-Do / Notes boxes (user, 2026-10-30) */
+  --box:     rgb(20 20 20 / 0.8);   /* #141414 at 80%, the gold glow bleeds through a little (user, 2026-10-30) — the one big-box shade: header, every tab's box, Today / Students / To-Do / Notes boxes (user, 2026-10-30) */
   --surface2: #222;
   --accent:  #e8463a;
   --accent2: oklch(0.63 0.19 76);   /* amber at the red's lightness + strength; was #f0a500 (user, 2026-10-27: colours matched to the red in OKLCH) */
