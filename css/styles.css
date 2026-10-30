@@ -1187,7 +1187,7 @@ input[type="checkbox"]:checked {
 .incoming-name { font-family: "Syne", sans-serif; font-size: 13px; margin-bottom: 10px; }   /* 5 → 10px: name and payment line apart (2026-09-29) */
 .incoming-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .incoming-method { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; font-family: "DM Mono", monospace; }
-.incoming-method.venmo { background: rgba(0,130,200,0.15); color: #0082c8; }
+.incoming-method.venmo { background: color-mix(in srgb, var(--blue) 15%, transparent); color: var(--blue); }   /* the portal's blue, was #0082c8 (user, 2026-10-30) */
 .incoming-method.zelle { background: rgba(110,45,200,0.15); color: #6e2dc8; }
 .incoming-amount { font-family: "DM Mono", monospace; font-size: 12px; color: var(--green); }
 .incoming-date { font-size: 10px; color: var(--muted); }
@@ -2454,12 +2454,12 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Each student is one card (2026-10-06), Today and Import: the Import cards' look, amber edge like the name. */
 .td-student { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent2); border-radius: 10px; padding: 22px 20px; }
 .td-student + .td-student { margin-top: 48px; }   /* the main cards a bit further apart (2026-10-07, was 28px) */
-#importBody .td-student { border-left-color: #3d5f8f; }   /* Lessons: an opened student's card edge in the list cards' steel blue (2026-10-09, was amber) */
+#importBody .td-student { border-left-color: var(--blue); }   /* Lessons: an opened student's card edge in the portal's blue (user, 2026-10-30; was steel blue #3d5f8f, before that amber) */
 /* Log lesson in the same steel blue as the card edge (2026-10-09). */
-#importBody .im-title .link-btn.blue { color: #6f93c6; border-color: color-mix(in srgb, #3d5f8f 80%, transparent); background: color-mix(in srgb, #3d5f8f 12%, transparent); }
-#importBody .im-title .link-btn.blue:hover:where(:not(:disabled)), #importBody .im-title .link-btn.blue.pressed { color: #8aa9d6; border-color: #3d5f8f; background: color-mix(in srgb, #3d5f8f 26%, transparent); }
+#importBody .im-title .link-btn.blue { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 40%, transparent); background: color-mix(in srgb, var(--blue) 7%, transparent); }   /* was steel blue #6f93c6 (user, 2026-10-30) */
+#importBody .im-title .link-btn.blue:hover:where(:not(:disabled)), #importBody .im-title .link-btn.blue.pressed { color: var(--blue); border-color: var(--blue); background: color-mix(in srgb, var(--blue) 14%, transparent); }
 /* The name and the notes' headings (PAYMENT…) in the button's blue (2026-10-09, were amber). */
-#importBody .td-student .im-title > span, #importBody .im-note-h { color: #6f93c6; }
+#importBody .td-student .im-title > span, #importBody .im-note-h { color: var(--blue); }   /* was steel blue #6f93c6 (user, 2026-10-30) */
 /* Today is red, no amber (2026-10-09): sets it apart from the other tabs. */
 #todayBody { --warn: var(--accent); --accent2: var(--accent); }
 /* Today shows one card at a time (2026-10-09): picked from the names at the top. */
