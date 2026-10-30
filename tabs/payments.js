@@ -510,14 +510,11 @@ function loadIncomingPayments() {
         var isTrial = !!p.trial;
         var card = document.createElement("div");
         card.className = "incoming-card";
-        // A name nobody owns gets its own button (2026-10-29), on a line of its
-        // own above the name: you work out whose it is, pick the student, and
-        // it is theirs from then on. Confirm stays what it was.
+        // A name nobody owns: Confirm first opens Add contact (2026-10-30, was
+        // its own button above the name): pick the student, the name is theirs
+        // from then on, then the usual note + Log.
         var canAdd = !isTrial && p.matchHow !== "own" && p.matchHow !== "contact";
-        if (canAdd) card.classList.add("has-addc");
         card.innerHTML =
-          (canAdd ? "<div class='incoming-addc-row'><button class='incoming-addc' " +
-            "data-tip='Opens a window.&#10;Puts this name on a student.' data-tip-wrap>Add contact</button></div>" : "") +
           "<div class='incoming-main'>" +
             "<div class='incoming-left'>" +
               "<div class='incoming-name'>" + p.name + "</div>" +
@@ -536,21 +533,16 @@ function loadIncomingPayments() {
             "</div>" +
           "</div>";
 
-        var addc = card.querySelector(".incoming-addc");
-        if (addc) addc.addEventListener("click", function() {
+        if (!isTrial) card.querySelector(".incoming-confirm").addEventListener("click", function() {
+          if (!canAdd) { openIncomingNotePanel(p, card); return; }
           openAddContact(p, function(tab, student) {
-            // Theirs now: the card matches, and Confirm ticks their box.
+            // Theirs now: the card matches, and Log ticks their box.
             p.matchedTab = tab; p.student = student; p.matchHow = "contact";
-            card.classList.remove("has-addc");
-            var row = card.querySelector(".incoming-addc-row");
-            if (row) row.remove();
+            canAdd = false;
             var warn = card.querySelector(".incoming-nomatch");
             if (warn) warn.remove();
+            openIncomingNotePanel(p, card);
           });
-        });
-
-        if (!isTrial) card.querySelector(".incoming-confirm").addEventListener("click", function() {
-          openIncomingNotePanel(p, card);
         });
         card.querySelector(".incoming-dismiss").addEventListener("click", function() {
           dismissIncoming(card, p);

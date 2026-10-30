@@ -1182,7 +1182,7 @@ input[type="checkbox"]:checked {
 }
 /* Payments: narrower cards (user, 2026-10-27; tried rows with divider lines first) */
 #tab-payments .incoming-card { max-width: 480px; margin-left: auto; margin-right: auto;
-  border-radius: 10px; border-left: 3px solid #8f743d; padding: 12px 14px; margin-bottom: 8px; }   /* the portal card (Students / Dropbox): 10px corners, 3px edge; amber = waits for Confirm, the Today card's amber */
+  border-radius: 10px; border-left: 3px solid var(--accent2); padding: 12px 14px; margin-bottom: 8px; }   /* the portal card (Students / Dropbox): 10px corners, 3px edge; amber = waits for Confirm, the Confirm button's colour (2026-10-30) */
 #tab-payments #autoConfirmed .incoming-card { border-left-color: color-mix(in srgb, var(--green) 42%, transparent); }   /* done: dimmed green, the AUTO tick's colour */
 .incoming-name { font-family: "Syne", sans-serif; font-size: 13px; margin-bottom: 10px; }   /* 5 → 10px: name and payment line apart (2026-09-29) */
 .incoming-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -1323,7 +1323,15 @@ input[type="checkbox"]:checked {
 }
 .incoming-addc:hover:where(:not(:disabled)) { border-color: var(--accent2); color: var(--accent2); }
 .pa-state { flex: 1; font-size: 9px; color: var(--muted); }
-.pa-save { flex: none; padding: 9px 16px; }
+/* plain grey outline, the Dismiss look (user, 2026-10-30; was the green Log button) */
+.pa-save {
+  flex: none; padding: 9px 16px; border: 1px solid var(--border); border-radius: 4px;
+  background: transparent; color: var(--muted); font-family: "DM Mono", monospace;
+  font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.pa-save:hover:where(:not(:disabled)) { border-color: var(--text); color: var(--text); }
+.pa-save:disabled { opacity: 0.4; cursor: not-allowed; }
 #payAddList {
   position: fixed; z-index: 100000; max-height: 240px; overflow: auto; padding: 4px;
   box-sizing: border-box; background: var(--surface); border: 1px solid var(--muted);
@@ -3665,6 +3673,8 @@ th.f2-blk { background:none; }
 #payMainView > .settings-title:has(+ .pay-page-icon) { margin-bottom:10px; }
 #payMainView > .pay-page-icon { margin:0 0 26px; color:var(--muted); line-height:0; }
 #payMainView > .pay-page-icon .win-icon { height:24px; width:auto; }
+#payAddModal .pay-page-icon { color:var(--muted); line-height:0; }   /* Add contact popup wears the same icon */
+#payAddModal .pay-page-icon .win-icon { height:24px; width:auto; }
 #payMainView > .settings-title .pay-title-btns { display:flex; gap:8px; }   /* Payment history + Audit payments top right (user 2026-10-24) */
 /* A plane beside Leaving on (taking off) and Back on (landing), on the box's right (user 2026-10-24; was over it, then left). */
 #travelBody .tv-dates { display:grid; grid-template-columns:calc(50% - 8px) auto; justify-content:start; align-items:center; column-gap:14px; row-gap:16px; }
