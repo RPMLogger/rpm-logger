@@ -68,15 +68,15 @@ function _imRenderCards(noRead) {
     return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-donetoday' : '') + '" onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
       '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
       (miss && !miss.length && !o ? '<span class="im-logged"><span class="im-logged-t">LOGGED</span>' + PAID_CHECK_ICON.replace('width="13" height="13"', 'width="15" height="15"') + '</span>' : '') +   // the Auto-confirmed check (user, 2026-10-26)
+      (isToday(n) && !(miss && !miss.length && !o) ? '<span class="im-steps"><span class="im-step im-today-tag">Today</span></span>' : '') +   // green TODAY sign on today's cards (user, 2026-10-30)
       (first ? '<span class="im-steps">' + _imStepsHtml(first.day, first.miss, first.hw, n) + (all > 1 ? '<span class="im-step-more">· ' + all + ' open</span>' : '') + '</span>' : '') +
     '</div>';
   };
   body.innerHTML =
     '<div class="db-section td-wk-box im-box">' +
       // Audit lessons red on the title line, right (user, 2026-10-23; was amber, level with "24 students").
-      '<div class="settings-title"><span>Students</span>' +   // no count (user, 2026-10-24; was "· 24 students" grey beside the title)   // was "Import", then "Lesson Log" (2026-10-09), then "Lessons" (renamed Students 2026-10-13)
-        '<button class="link-btn red" onclick="openLessonAudit()" data-tip="Opens a page.\nLessons missing a log, HW, materials,\nschedule or email." data-tip-wrap>' + DETAILS_ICON + '<span>Audit lessons</span></button></div>' +
-      '<div class="st-page-icon">' + ANALYSIS_ICON + '</div>' +   // om-120 under the title (user, 2026-10-26; was om-112)
+      '<div class="settings-title im-title-row"><span class="im-title-stack"><span>Students</span><span class="st-page-icon">' + ANALYSIS_ICON + '</span></span>' +   // no count (user, 2026-10-24; was "· 24 students" grey beside the title)   // was "Import", then "Lesson Log" (2026-10-09), then "Lessons" (renamed Students 2026-10-13)
+        '<button class="link-btn red" onclick="openLessonAudit()" data-tip="Opens a page.\nLessons missing a log, HW, materials,\nschedule or email." data-tip-wrap>' + DETAILS_ICON + '<span>Audit lessons</span></button></div>' +   // om-120 sits centred under the title, inside it (user, 2026-10-30; was its own line, left-aligned)
       // The student page's box-title style (2026-10-06): one heading look on this tab.
       // Audit lessons (2026-10-14): red, right, level with "24 students", like Audit
       // payments; opens the old Logs page (Unlogged Lessons + Lesson Checklist) here.

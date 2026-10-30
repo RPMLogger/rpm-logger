@@ -2305,6 +2305,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-step.todo.nolog { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 55%, transparent); background: color-mix(in srgb, var(--accent2) 6%, transparent); }
 .im-step.todo.nolog:hover:where(:not(:disabled)) { border-color: var(--accent2); background: color-mix(in srgb, var(--accent2) 16%, transparent); }
 .im-step-more { color: var(--muted); }
+.im-step.im-today-tag { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 7%, transparent); }   /* today's cards: a green TODAY sign in the step-chip shape, not a button (user, 2026-10-30) */
 .im-steps-page { font-size: 11px; }   /* on the student page, a touch bigger, next to the name (2026-10-17) */
 .im-steps-page .im-step { padding: 6px 12px; border-radius: 8px; }
 /* All steps done: the doing card dims and says Done ✓ before going back to the list. */
@@ -3666,8 +3667,9 @@ th.f2-blk { background:none; }
 #travelBody .tv-place-box .tv-place { color:var(--text); }   /* the typed place white like the dates (user 2026-10-23) */
 #travelBody .tv-rv-key { font-size:10px; }   /* Lesson / Skip / Resume as big as the plan page's key (user 2026-10-23; were 8px) */
 /* Students: om-112 icon under the red title, like Today / Dashboard (user 2026-10-23). */
-#importBody .settings-title:has(+ .st-page-icon) { margin-bottom:10px; }
-#importBody .st-page-icon { margin:0 0 40px; color:var(--muted); line-height:0; }   /* 26 → 40px: more air above the cards (user, 2026-10-26) */
+#importBody .im-title-row { align-items:flex-start; margin-bottom:40px; }   /* 40px air above the cards (user, 2026-10-26) */
+#importBody .im-title-stack { display:inline-flex; flex-direction:column; align-items:center; gap:10px; }   /* icon centred under STUDENTS (user, 2026-10-30) */
+#importBody .st-page-icon { color:var(--muted); line-height:0; }
 #importBody .st-page-icon .win-icon { height:24px; width:auto; }
 /* Payments: om-98 calculator + coin under the title, like Today / Dashboard (user 2026-10-24). */
 #payMainView > .settings-title:has(+ .pay-page-icon) { margin-bottom:10px; }
@@ -3834,3 +3836,8 @@ body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http:
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory) .ld-card,
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory) .ld-card + .ld-card,
 #travelBody .tv-box, #travelBody .tv-sum-card, #travelBody #travelCalMonths { background-color: var(--surface); border: 1px solid var(--border); }
+/* Students list cards in Payments' card look (user, 2026-10-30): 480px centred, #141414, 10px corners,
+   one even border all round (no coloured left edge; the TODAY / Not logged chips carry the state), 8px top and bottom. */
+#importBody .im-card, #importBody .im-card.im-today, #importBody .im-card.im-unlog { max-width: 480px; margin-left: auto; margin-right: auto;
+  padding-top: 8px; padding-bottom: 8px; background: #141414; border-radius: 10px; border: 1px solid var(--border); }
+#importBody .im-card:hover:where(:not(:disabled)) { border-color: var(--muted); }
