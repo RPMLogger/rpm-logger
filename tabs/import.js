@@ -75,12 +75,16 @@ function _imRenderCards(noRead) {
   body.innerHTML =
     '<div class="db-section td-wk-box im-box">' +
       // Audit lessons red on the title line, right (user, 2026-10-23; was amber, level with "24 students").
-      '<div class="settings-title im-title-row"><span class="im-title-stack"><span>Students</span><span class="st-page-icon">' + ANALYSIS_ICON + '</span></span>' +   // no count (user, 2026-10-24; was "· 24 students" grey beside the title)   // was "Import", then "Lesson Log" (2026-10-09), then "Lessons" (renamed Students 2026-10-13)
-        '<button class="link-btn red" onclick="switchTab(\'audit\')" data-tip="Opens a tab.\nAudit lessons and Audit payments." data-tip-wrap>' + DETAILS_ICON + '<span>Audit</span></button></div>' +   // om-120 sits centred under the title, inside it (user, 2026-10-30; was its own line, left-aligned)
+      '<div class="settings-title im-title-row"><span class="im-title-stack"><span>Students<span class="win-sub"> · Lessons</span></span><span class="st-page-icon">' + ANALYSIS_ICON + '</span></span>' +   // no count (user, 2026-10-24; was "· 24 students" grey beside the title)   // was "Import", then "Lesson Log" (2026-10-09), then "Lessons" (renamed Students 2026-10-13)
+        '<button class="link-btn im-audit-link" onclick="switchTab(\'audit\')" data-tip="Opens a tab.\nAudit lessons and Audit payments." data-tip-wrap><span>Audit</span></button></div>' +   // white, no glass: just a link, level with STUDENTS (user, 2026-10-30)   // om-120 sits centred under the title, inside it (user, 2026-10-30; was its own line, left-aligned)
       // The student page's box-title style (2026-10-06): one heading look on this tab.
       // Audit lessons (2026-10-14): red, right, level with "24 students", like Audit
       // payments; opens the old Logs page (Unlogged Lessons + Lesson Checklist) here.
-      names.map(card).join('') +
+      // A heading over each group, the Sheets tab's "Finances" look (user, 2026-10-30).
+      ['Today', 'Not logged', 'Others'].map(function (h, g) {
+        var in_g = names.filter(function (n) { return group(n) === g; });
+        return in_g.length ? '<div class="section-label im-group-h">' + h + '</div>' + in_g.map(card).join('') : '';
+      }).join('') +
     '</div>';
 }
 

@@ -3676,6 +3676,7 @@ th.f2-blk { background:none; }
 #travelBody .tv-rv-key { font-size:10px; }   /* Lesson / Skip / Resume as big as the plan page's key (user 2026-10-23; were 8px) */
 /* Students: om-112 icon under the red title, like Today / Dashboard (user 2026-10-23). */
 #importBody .im-title-row { align-items:flex-start; margin-bottom:40px; }   /* 40px air above the cards (user, 2026-10-26) */
+#importBody .im-audit-link { color: var(--t-text); border-color: rgba(255,255,255,0.22); }   /* white like the Home buttons, no glass: just a link (user, 2026-10-30; was red with a magnifier) */
 #importBody .im-title-stack { display:inline-flex; flex-direction:column; align-items:center; gap:10px; }   /* icon centred under STUDENTS (user, 2026-10-30) */
 #importBody .st-page-icon { color:var(--muted); line-height:0; }
 #importBody .st-page-icon .win-icon { height:24px; width:auto; }
@@ -3844,8 +3845,16 @@ body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http:
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory) .ld-card,
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory) .ld-card + .ld-card,
 #travelBody .tv-box, #travelBody .tv-sum-card, #travelBody #travelCalMonths { background-color: var(--surface); border: 1px solid var(--border); }
-/* Students list cards in Payments' card look (user, 2026-10-30): 480px centred, #141414, 10px corners,
-   one even border all round (no coloured left edge; the TODAY / Not logged chips carry the state), 8px top and bottom. */
-#importBody .im-card, #importBody .im-card.im-today, #importBody .im-card.im-unlog { max-width: 480px; margin-left: auto; margin-right: auto;
-  padding-top: 8px; padding-bottom: 8px; background: #1c1c1c; border-radius: 10px;   /* a bit lighter, was #141414 (user, 2026-10-30) */ border: 1px solid var(--border); }
-#importBody .im-card:hover:where(:not(:disabled)) { border-color: var(--muted); }
+/* Students list cards in the Sheets tab's card look (.sheet-link, user, 2026-10-30): full width, Income card's ~70px height,
+   #222 fill, 10px corners, 10px apart, 3px left edge by group - Today green, Not logged amber, Others blue - names in Bebas Neue,
+   a "Finances"-style heading over each group (tabs/import.js). */
+#importBody .im-group-h + .im-card { margin-top: 0; }
+#importBody .im-card + .im-group-h { margin-top: 22px; }
+#importBody .im-card, #importBody .im-card.im-today, #importBody .im-card.im-unlog { max-width: none; margin: 0 0 10px;
+  padding: 22px 16px; background: var(--surface2); border-radius: 10px;
+  border: 1px solid var(--border); border-left: 3px solid var(--blue); }
+#importBody .im-card:hover:where(:not(:disabled)) { background: #1c1c1c; border-color: var(--border); }
+#importBody .im-card.im-today, #importBody .im-card.im-today:hover:where(:not(:disabled)) { border-left-color: var(--green); }
+#importBody .im-card.im-unlog, #importBody .im-card.im-unlog:hover:where(:not(:disabled)) { border-left-color: #e0975a; }
+#importBody .im-card:hover:where(:not(:disabled)):not(.im-today):not(.im-unlog) { border-left-color: var(--blue); }
+#importBody .im-card .db-card-n { font-family: "Bebas Neue", sans-serif; font-size: 22px; letter-spacing: 1px; line-height: 1.05; }
