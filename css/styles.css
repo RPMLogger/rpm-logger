@@ -1183,7 +1183,7 @@ input[type="checkbox"]:checked {
 }
 /* Payments: narrower cards (user, 2026-10-27; tried rows with divider lines first) */
 #tab-payments .incoming-card { max-width: 480px; margin-left: auto; margin-right: auto;
-  border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }   /* 10px corners, one even border all round (coloured left edge removed, user 2026-10-30) */
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; background: #141414; }   /* 10px corners, one even border all round (coloured left edge removed, user 2026-10-30); darker, closer to the page (2026-10-30) */
 .incoming-name { font-family: "Syne", sans-serif; font-size: 13px; margin-bottom: 10px; }   /* 5 → 10px: name and payment line apart (2026-09-29) */
 .incoming-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .incoming-method { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; font-family: "DM Mono", monospace; }
