@@ -272,7 +272,7 @@ function _slcRender() {
   if (!body || !_slc.data) return;
   var d = _slc.data;
   body.innerHTML = '<div class="db-section">' + _slcTitle('Students') +
-    '<div class="db-cards-head"><label class="field-label">' + d.students.length + ' students</label></div>' +
+    // No "24 students" header row (user, 2026-10-31).
     d.students.map(function(x, i) { return _slcStudentCard(x, i); }).join('') + '</div>' + _slcRecentHtml();
   var win = document.getElementById('slcWin');
   if (win && _slc.name) {
@@ -407,12 +407,17 @@ function _slcWinHtml() {
 
 // The window after the change: what it did (✓ / ✗, the Email line too, and
 // any check that failed).
+var SLC_DONE_LBL = { 'Muted': 'Secretary muted', 'New series': 'Created new series', 'Old series': 'Deleted old series', 'Email': 'Email sent' };
 function _slcPaintDone() {
   var box = document.getElementById('slcCBody'), ap = _slc.applied, ck = _slc.check;
   if (!box || !ap) return;
   var bad = ck ? ck.checks.filter(function(c) { return !c.ok; }) : [];
-  box.innerHTML = "<label class='field-label'>Changed</label>" +
-    (ap.steps || []).map(function(x) { return '<div class="slc-ck ' + (x.ok ? 'ok' : 'no') + '"><span>' + (x.ok ? '✓' : '✗') + '</span>' + inqEsc(x.label + ': ' + x.text) + '</div>'; }).join('') +
+  box.innerHTML = "<label class='field-label'>Confirmed</label>" +
+    // Done steps in a few words; a failed one keeps the backend's reason (user, 2026-10-31).
+    (ap.steps || []).map(function(x) {
+      var t = x.ok ? (SLC_DONE_LBL[x.label] || x.label) : x.label + ': ' + x.text;
+      return '<div class="slc-ck ' + (x.ok ? 'ok' : 'no') + '"><span>' + (x.ok ? '✓' : '✗') + '</span>' + inqEsc(t) + '</div>';
+    }).join('') +
     bad.map(function(c) { return '<div class="slc-ck no"><span>✗</span>' + inqEsc(c.text) + '</div>'; }).join('') +
     (ap.checkError ? '<div class="slc-err">' + inqEsc(ap.checkError) + '</div>' : '');
 }
@@ -533,7 +538,7 @@ function _slcInjectStyle() {
     ".slc-off{opacity:.45}" +
     ".slc-off button,.slc-off a,.slc-off .dtp{pointer-events:none}" +
     ".slc-acts{display:flex;align-items:center;gap:8px;margin-top:12px}" +
-    ".slc-ck{display:flex;gap:10px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.5;padding:4px 0;color:var(--text)}" +
+    ".slc-ck{display:flex;gap:10px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.5;padding:4px 0;color:rgba(215,215,215,0.75)}" +   // Sat 31's grey, not white (user, 2026-10-31)
     ".slc-ck span{flex:none;width:12px}" +
     ".slc-ck.ok span{color:var(--green)}" +
     ".slc-ck.no{color:#ff5a4d}" +
