@@ -113,7 +113,7 @@ function openLogFresh(student, idx, opts) {
   resetRows();
   rpmBusy(panel, null, false);
   var lb = document.getElementById("btnLog");
-  lb.disabled = true; lb.textContent = "＋ Log"; lb.className = "link-btn bright";
+  lb.disabled = true; lb.textContent = "＋ Log"; lb.className = "link-btn amber";
   var mic = document.getElementById("logMicBtn");
   if (mic) { mic.innerHTML = MIC_ICON; mic.classList.remove("rec"); mic.disabled = false; }
   _logState("");

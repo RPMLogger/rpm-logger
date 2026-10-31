@@ -917,13 +917,7 @@ function _imPagesRender(w, done, hasHw) {
     el.style.display = +el.getAttribute('data-pg') === w.page ? '' : 'none';
   });
   if (w.page === 4) _imMailFill(w);
-  // A page can be opened once every page before it is done.
-  var open = function (i) { return list.slice(0, i).every(function (p) { return done[p]; }); };
-  dots.innerHTML = list.map(function (p, i) {
-    var shown = i + 1;   // a trial's pages read 1 2 3
-    return '<button type="button" class="link-btn' + (p === w.page ? ' bright' : '') + '" style="min-width:36px;justify-content:center"' +
-      (open(i) && p !== w.page ? ' onclick="_imPageTo(' + p + ')"' : ' disabled') + '>' + shown + (done[p] ? ' ✓' : '') + '</button>';
-  }).join('');
+  // No step buttons on top (user, 2026-10-30): the section titles are numbered already; Back goes back.
   var back = _imQ('imPgBack'), next = _imQ('imPgNext'), busy = !!(w.sending || w.mailBusy);
   if (back) { back.style.visibility = at > 0 ? '' : 'hidden'; back.disabled = busy; }
   if (next) { next.style.display = at < list.length - 1 ? '' : 'none'; next.disabled = busy || !done[w.page]; }
@@ -1034,7 +1028,7 @@ function _imSend(w, hw) {
           var mic = document.getElementById('logMicBtn');
           if (mic) mic.disabled = false;
           var lb = document.getElementById('btnLog');
-          if (lb) { lb.textContent = '＋ Log'; lb.className = 'link-btn bright'; lb.disabled = false; }
+          if (lb) { lb.textContent = '＋ Log'; lb.className = 'link-btn amber'; lb.disabled = false; }
           var ns = document.getElementById('btnNoShow');
           if (ns) ns.disabled = false;
         }
@@ -1490,8 +1484,8 @@ function _imDoHtml(name, day) {
   var n = _auEsc(JSON.stringify(name));
   return (
     // Pages (user, 2026-10-30): one section at a time, the window turns to the
-    // next on Next (_imPagesRender). The numbers on top jump back to a page.
-    '<div class="im-pg-dots" id="imPgDots" style="display:flex;gap:8px;margin:0 0 18px"></div>' +
+    // next on Next (_imPagesRender). #imPgDots is only where a turn scrolls to.
+    '<div id="imPgDots"></div>' +
     // Three sections (2026-10-15): Log (the lesson and the HW), Materials
     // (what goes to them: nothing, files, video lesson links, web links), Schedule.
     // Each of the three sections sits in its own bordered box, its title above it, no dividers (2026-10-18).
