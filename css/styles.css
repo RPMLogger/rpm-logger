@@ -1238,14 +1238,15 @@ input[type="checkbox"]:checked {
 .incoming-confirm .inc-icon { vertical-align: -1px; margin-right: 6px; }
 .log-cash-btn { margin-top: 24px; }   /* 14 → 24px: air above Log cash (2026-09-29) */
 #tab-payments .pay-foot { display:flex; justify-content:space-between; align-items:center; }   /* buttons right on the panel edge like Audit (user, 2026-10-30) */   /* Log cash left, Payers + Payment history right (user, 2026-10-30) */
-#tab-payments .pay-foot .log-cash-btn { margin:0 0 0 max(0px, calc((100% - 600px) / 2)); min-width:0; padding:4px 10px; font-size:10px; letter-spacing:1px; border-radius:7px; }   /* starts at the cards' left edge; small, Payers' size (user, 2026-10-30) */
-#tab-payments .pay-foot .log-cash-btn { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 6%, transparent); }   /* green (user, 2026-10-30) */
-#tab-payments .pay-foot .log-cash-btn:hover:where(:not(:disabled)) { color: var(--green); border-color: var(--green); background: color-mix(in srgb, var(--green) 16%, transparent); }
+#tab-payments .pay-foot > button:first-child { margin:0; min-width:0; padding:4px 10px; font-size:10px; letter-spacing:1px; border-radius:7px; }   /* starts at the cards' left edge; small, Payers' size (user, 2026-10-30) */
+#tab-payments .log-cash-btn { margin-top:0; color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 6%, transparent); }   /* green (user, 2026-10-30) */
+#tab-payments .log-cash-btn:hover:where(:not(:disabled)) { color: var(--green); border-color: var(--green); background: color-mix(in srgb, var(--green) 16%, transparent); }
 /* Every Payments button in the regular portal button's size and shape (.link-btn: 10px, 4px 10px, 7px corners, 1px frame);
    Audit, Log cash, Contacts, Payment history, Confirm, Dismiss (user, 2026-10-30) */
 #tab-payments :is(.link-btn, .log-cash-btn, .incoming-confirm, .incoming-dismiss) { font-size:10px; letter-spacing:1px; line-height:normal;
   padding:4px 10px; border-radius:7px; border-width:1px; min-width:0; box-sizing:border-box; height:23px; display:inline-flex; align-items:center; }
 #tab-payments .pay-foot-btns { display:flex; gap:8px; margin-top:44px; }   /* about two lines under Log cash, so the panel runs longer (user, 2026-10-30) */
+#tab-payments .pay-foot { margin-top:36px; }   /* Audit row under the cards, no header (user, 2026-10-30) */
 #tab-payments .pay-foot { align-items:flex-start !important; }
 .incoming-confirm { min-width: 124px; justify-content: center; }   /* Confirm and Log cash one size */
 .log-cash-btn { color: var(--muted); border-color: rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); }   /* grey like Payment history (2026-09-29) */
