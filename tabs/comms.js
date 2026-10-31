@@ -14,6 +14,7 @@ var commsSelected = {};       // sheet row → true
 
 // ── Entry point (called from switchTab) ─────────────────────────────────────
 function initCommsTab() {
+  commsEnsureExtras();
   setCommsFilter(commsFilter);   // paint the filter row to match the live filter
   loadCommsInbox();
 }
@@ -54,8 +55,10 @@ function renderCommsInbox() {
   var filtered = commsMessages.filter(function(m) {
     // Scams (Google listing robocall, flagged by the backend) only show under
     // their own Scam filter: never in All / Text / Voicemail / Unanswered.
+    if (m.source === "out") return false;   // my replies live in the conversation, not the list
     if (commsFilter === "scam") return m.scam;
     if (m.scam) return false;
+    if (commsFilter === "students") return !!m.student;
     if (commsFilter === "sms") return m.source === "sms";
     if (commsFilter === "voicemail") return m.source === "voicemail";
     if (commsFilter === "unresponded") return !m.responded;
@@ -110,7 +113,7 @@ function renderCommsInbox() {
 // Counts on the filter buttons + the nav badge. Driven by the loaded
 // messages, so they stay right after an Answered toggle or a delete.
 function updateCommsBadge() {
-  var real = commsMessages.filter(function (m) { return !m.scam; });
+  var real = commsMessages.filter(function (m) { return !m.scam && m.source !== "out"; });
   var open = real.filter(function (m) { return !m.responded; }).length;
   var badge = document.getElementById("commsNavBadge");
   if (badge) {
@@ -125,7 +128,8 @@ function updateCommsBadge() {
   set("commsOpenCount", open);
   set("commsSmsCount", sms);
   set("commsVoicemailCount", vm);
-  set("commsScamCount", commsMessages.length - real.length);
+  set("commsScamCount", commsMessages.filter(function (m) { return m.scam; }).length);
+  set("commsStudentCount", real.filter(function (m) { return m.student; }).length);
 }
 
 // ── Edit mode: select + delete ──────────────────────────────────────────────
@@ -191,36 +195,99 @@ function setCommsFilter(filter) {
   renderCommsInbox();
 }
 
+// The window is the whole conversation with that number (their texts, voicemails
+// and my replies, oldest first) with a reply box under it (2026-10-31).
 function openCommsDetail(msg) {
   commsDetail = msg;
+  commsEnsureExtras();
   document.getElementById("commsDetailFrom").textContent = msg.fromName || commsFormatPhone(msg.fromNumber) || "Unknown";
-  document.getElementById("commsDetailSource").textContent = msg.source === "voicemail" ? " · Voicemail" : " · Text";
-  document.getElementById("commsDetailTime").textContent = commsFormatTimeFull(msg.timestamp);
+  document.getElementById("commsDetailSource").textContent = msg.student ? " · Student" : (msg.fromName ? " · " + commsFormatPhone(msg.fromNumber) : "");
 
-  var bodyEl = document.getElementById("commsDetailBody");
   var audioSection = document.getElementById("commsDetailAudio");
-  var transcriptSection = document.getElementById("commsDetailTranscript");
-
-  if (msg.source === "voicemail") {
-    bodyEl.style.display = "none";
-    if (msg.audioUrl) {
-      audioSection.style.display = "block";
-      loadCommsAudio(msg.audioUrl);
-    } else {
-      audioSection.style.display = "none";
-    }
-    transcriptSection.style.display = "block";
-    document.getElementById("commsTranscriptText").textContent =
-      (msg.transcript && msg.transcript !== "(transcribing…)") ? msg.transcript : "Not available";
+  if (msg.source === "voicemail" && msg.audioUrl) {
+    audioSection.style.display = "block";
+    loadCommsAudio(msg.audioUrl);
   } else {
-    bodyEl.style.display = "block";
-    bodyEl.textContent = msg.body || "—";
     audioSection.style.display = "none";
-    transcriptSection.style.display = "none";
   }
-
+  renderCommsThread();
+  var box = document.getElementById("cmReply");
+  box.value = "";
   commsPaintResponded();
   document.getElementById("commsDetailOverlay").classList.add("open");
+  box.focus();
+}
+
+function commsKey(num) {
+  var d = String(num || "").replace(/\D/g, "");
+  return d.length > 10 ? d.slice(-10) : d;
+}
+
+function renderCommsThread() {
+  var el = document.getElementById("cmThread");
+  if (!el || !commsDetail) return;
+  var key = commsKey(commsDetail.fromNumber);
+  var thread = commsMessages.filter(function (m) { return key && commsKey(m.fromNumber) === key; })
+    .sort(function (a, b) { return new Date(a.timestamp) - new Date(b.timestamp); });
+  if (!thread.length) thread = [commsDetail];
+  el.innerHTML = thread.map(function (m) {
+    var d = new Date(m.timestamp);
+    var text = m.source === "voicemail"
+      ? "📞 Voicemail" + (m.transcript && m.transcript !== "(transcribing…)" && m.transcript !== "(no transcript)" ? ": " + m.transcript : ", no transcript")
+      : (m.body || "—");
+    return '<div class="cm-msg ' + (m.source === "out" ? "out" : "in") + '">' +
+      '<div class="cm-msg-t">' + commsEscape(text) + '</div>' +
+      '<div class="cm-msg-d">' + commsDayLabel(d) + ", " + commsClock(d) + '</div></div>';
+  }).join("");
+  el.scrollTop = el.scrollHeight;
+}
+
+// Bits added from here rather than index.html (a parallel session's commit
+// sweeps index.html): the Students filter and the window's thread + reply box.
+function commsEnsureExtras() {
+  if (!document.querySelector('#commsBody .cm-f[data-filter="students"]')) {
+    var after = document.querySelector('#commsBody .cm-f[data-filter="unresponded"]');
+    if (after) after.insertAdjacentHTML("afterend",
+      '<button class="link-btn cm-f" data-filter="students" onclick="setCommsFilter(\'students\')">Students <span class="cm-n" id="commsStudentCount">0</span></button>');
+  }
+  if (!document.getElementById("cmThread")) {
+    ["commsDetailTime", "commsDetailBody", "commsDetailTranscript"].forEach(function (id) {
+      var x = document.getElementById(id); if (x) x.style.display = "none";
+    });
+    var foot = document.querySelector("#commsDetailOverlay .cm-win-foot");
+    if (foot) {
+      foot.insertAdjacentHTML("beforebegin",
+        '<div class="cm-thread" id="cmThread"></div>' +
+        '<textarea class="cm-reply" id="cmReply" rows="3" placeholder="Reply from the RPM number…" ' +
+          'onkeydown="if ((event.metaKey || event.ctrlKey) && event.key === \'Enter\') commsSendReply()"></textarea>');
+      foot.insertAdjacentHTML("beforeend", '<button class="link-btn cm-send" id="cmSendBtn" onclick="commsSendReply()">Send</button>');
+    }
+  }
+}
+
+function commsSendReply() {
+  if (!commsDetail) return;
+  var box = document.getElementById("cmReply"), body = box.value.trim();
+  if (!body) { box.focus(); return; }
+  var win = document.querySelector("#commsDetailOverlay .cm-win"), btn = document.getElementById("cmSendBtn");
+  var to = commsDetail.fromNumber, key = commsKey(to);
+  rpmBusy(win, btn, true, "Sending");
+  fetch(getScriptUrl() + "?action=sendCommsReply&to=" + encodeURIComponent(to) + "&body=" + encodeURIComponent(body))
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      rpmBusy(win, btn, false);
+      if (!res.success) { rpmAlert({ title: "Not sent", message: res.message || "Something went wrong." }); return; }
+      commsMessages.push({ row: 0, timestamp: new Date().toISOString(), source: "out", fromNumber: to, body: body, responded: true });
+      commsMessages.forEach(function (m) { if (commsKey(m.fromNumber) === key) m.responded = true; });
+      box.value = "";
+      renderCommsThread();
+      commsPaintResponded();
+      renderCommsInbox();
+    })
+    .catch(function () {
+      rpmBusy(win, btn, false);
+      rpmAlert({ title: "Not sent", message: "Couldn't reach the server." });
+    });
 }
 
 function commsPaintResponded() {

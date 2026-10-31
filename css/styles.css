@@ -1553,13 +1553,24 @@ input[type="checkbox"]:checked {
 .cm-row.selected .cm-check::after { content: ""; position: absolute; left: 3px; top: 0; width: 3px; height: 7px; border: solid var(--text); border-width: 0 2px 2px 0; transform: rotate(45deg); }
 .cm-none { font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }
 .cm-win-back:not(.open) { display: none; }
-.cm-win { width: min(600px, 94vw); max-height: 90vh; overflow: auto; box-sizing: border-box; background: var(--box); border-left: 1px solid var(--border); }   /* just bordered like the box, no card edge (user, 2026-10-30) */
+.td-student.cm-win { width: min(600px, 94vw); max-height: 90vh; overflow: auto; box-sizing: border-box; background: var(--box); border-left: 1px solid var(--border); }   /* just bordered like the box, no card edge (user, 2026-10-30) */
 .cm-win .field-label { display: block; margin: 0 0 8px; }
 .cm-win-time { color: var(--t-faint); }
+.td-student.cm-win .im-title > span { color: var(--t-normal); }   /* the number in the window not amber either */
 .cm-win-text { font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.6; color: var(--t-normal); white-space: pre-wrap; margin-bottom: 18px; }
 .cm-win-audio audio { width: 100%; margin-bottom: 18px; color-scheme: dark; }   /* the browser's dark player, not the white one */
-.cm-win-foot { display: flex; justify-content: flex-start; }
-.td-student.cm-win .im-title > span { color: var(--t-normal); }   /* the number in the window not amber either */
+.cm-win-foot { display: flex; justify-content: space-between; align-items: center; }
+/* The conversation (2026-10-31): theirs grey on the left, mine blue on the right — Trip Summary's bubbles (user), a reply box under it. */
+.cm-thread { display: flex; flex-direction: column; gap: 10px; max-height: 46vh; overflow-y: auto; margin: 4px 0 16px; padding-right: 4px; }
+.cm-msg { max-width: 78%; padding: 9px 12px; border-radius: 10px; background: color-mix(in srgb, var(--muted) 38%, #131313); border: 1px solid color-mix(in srgb, var(--muted) 38%, #131313); }
+.cm-msg.in { align-self: flex-start; border-bottom-left-radius: 3px; }
+.cm-msg.out { align-self: flex-end; border-bottom-right-radius: 3px; background: color-mix(in srgb, var(--blue) 35%, #131313); border-color: color-mix(in srgb, var(--blue) 35%, #131313); }
+.cm-msg-t { font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+.cm-msg-d { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: .5px; color: color-mix(in srgb, var(--text) 55%, transparent); margin-top: 4px; }
+.cm-msg.out .cm-msg-d { text-align: right; }
+.cm-reply { width: 100%; box-sizing: border-box; resize: vertical; margin-bottom: 12px; padding: 10px 12px; border-radius: 8px;
+  background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; }
+.cm-reply:focus-visible { outline: 1px solid var(--muted); outline-offset: 0; }
 
 /* ─── COMMS DETAIL OVERLAY ──────────────────────────────────────────────── */
 .comms-detail-overlay {
