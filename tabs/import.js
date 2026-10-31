@@ -258,7 +258,7 @@ function _imStuBox() { return _imQ('imStuRows'); }
 // with a comma before it when the row already has text (rows are joined with
 // commas when logged, so an empty later row needs none).
 var IM_PILLS = {
-  log:   ['Covered', 'Practiced', 'Looked at', 'Went over', 'Talked about', 'We played', 'Started', 'Introduced'],   // last three: user, 2026-10-30
+  log:   ['Covered', 'Practiced', 'Looked at', 'Went over', 'Talked about', 'We played', 'Started', 'Introduced', 'Improved', 'Reviewed'],   // last five: user, 2026-10-30
   hw:    ['Go over', 'Practice', 'Play', 'Review', 'Speed up'],
   notes: ['Make sure']
 };
@@ -651,6 +651,8 @@ function _imMsgShow(f, html) {
   f.onload = function () { try { f.style.height = (f.contentDocument.documentElement.scrollHeight + 2) + 'px'; } catch (e) {} };
   f.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><style>' +
     'html,body{margin:0;background:#fff;color:#222;font:small/1.45 Arial,Helvetica,sans-serif}body{padding:18px 20px 20px}a{color:#1a0dab}' +
+    // Preview only (user, 2026-10-30): white paper with a faint grain (no cream); the real email stays plain.
+    'html,body{background-color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'160\' height=\'160\'%3E%3Cfilter id=\'p\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3CfeColorMatrix values=\'0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.09 0\'/%3E%3C/filter%3E%3Crect width=\'160\' height=\'160\' filter=\'url(%23p)\'/%3E%3C/svg%3E")}' +
     '</style></head><body>' + String(html || '').replace(/cid:logo/g, logo).replace(/cid:dbx/g, dbx).replace(/cid:lnk/g, lnk).replace(/cid:vid/g, vid) + '</body></html>';
 }
 // Preview and Send (_imStepsRender): Send waits for the steps before it, not
@@ -1511,7 +1513,7 @@ function _imDoHtml(name, day) {
     _imMainHead('1. Log the lesson and HW', '', '<span class="im-mail-opt im-case-hint">Use sentence case, caps only on first line and song names, no end punctuation</span>', 'im-main-log') +   // all red (2026-10-18)
     '<div class="im-main-box">' +
       _imSub('Log lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
-      _imSub('Log HW', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
+      _imSub('Log homework', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
       // Private (2026-10-25): saved after "TEACHER:" in the log's cell, never emailed.
       _imSub('Notes to teacher (optional)', '', ' im-teach-box',
         '<div class="ll-wrap"><div class="ll-rows" id="imTeachRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
