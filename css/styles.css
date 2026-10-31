@@ -3959,8 +3959,8 @@ html body .header::before {
 }
 html body .header::after {   /* handle on top, two feet under */
   content: ""; position: absolute; left: 0; right: 0; top: -93px; bottom: -90px; z-index: -2; pointer-events: none;
-  /* Handle = two end caps on the body with a thick strap bowed up between them, like a real amp's (user's drawing, 2026-10-31; was a thin arc) */
-  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27220%27 height=%2728%27%3E%3Cpath d=%27M44 15 Q110 1 176 15%27 fill=%27none%27 stroke=%27%232c2c2c%27 stroke-width=%278%27/%3E%3Cpath d=%27M44 15 Q110 1 176 15%27 fill=%27none%27 stroke=%27%231e1e1e%27 stroke-width=%276%27/%3E%3Crect x=%271%27 y=%278%27 width=%2748%27 height=%2726%27 rx=%276%27 fill=%27%231e1e1e%27 stroke=%27%232c2c2c%27/%3E%3Crect x=%27171%27 y=%278%27 width=%2748%27 height=%2726%27 rx=%276%27 fill=%27%231e1e1e%27 stroke=%27%232c2c2c%27/%3E%3C/svg%3E") center top -5px / 220px 28px no-repeat,
+  /* Handle from the user's second drawing (2026-10-31): low flat end caps with a small step, a long strap bowed up between, thick in the middle and thin at the ends */
+  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27276%27 height=%2722%27%3E%3Cg fill=%27%231e1e1e%27 stroke=%27%232c2c2c%27%3E%3Cpath d=%27M50 15.5 Q141 -3 226 15.5 L226 18.5 Q141 6 50 18.5 Z%27/%3E%3Crect x=%2712.5%27 y=%2716.5%27 width=%2736%27 height=%278%27 rx=%271.5%27/%3E%3Crect x=%27227.5%27 y=%2716.5%27 width=%2736%27 height=%278%27 rx=%271.5%27/%3E%3Crect x=%2746.5%27 y=%2713.5%27 width=%275%27 height=%2710%27 rx=%271%27/%3E%3Crect x=%27224.5%27 y=%2713.5%27 width=%275%27 height=%2710%27 rx=%271%27/%3E%3C/g%3E%3C/svg%3E") center top -1px / 276px 22px no-repeat,
     url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Crect width=%2734%27 height=%278%27 rx=%271%27 fill=%27%232a2a2a%27/%3E%3C/svg%3E") left 34px bottom / 34px 8px no-repeat,
     url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Crect width=%2734%27 height=%278%27 rx=%271%27 fill=%27%232a2a2a%27/%3E%3C/svg%3E") right 34px bottom / 34px 8px no-repeat;
 }
@@ -4045,11 +4045,12 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 #importBody .td-student .im-year { display: none; }   /* no year line in History (user, 2026-10-31) */
 #importBody .td-student .im-list > .im-more { margin: 10px 0 0 auto; }   /* Show all bottom right of the box (user, 2026-10-31; was centred) */
 #importBody .td-student .im-hw-row { grid-template-columns: 1fr auto; column-gap: 16px; align-items: baseline; }   /* no number column: sentence, then the date */
-#importBody .td-student .im-hw-row .im-hw-text { flex: 1; min-width: 0; margin: 0; white-space: normal; }   /* the HW sentence wraps; the date sits on its first line (user, 2026-10-31) */
+#importBody .td-student .im-hw-row .im-hw-text { flex: 1; min-width: 0; margin: 0; white-space: normal; color: var(--t-normal); }   /* the HW sentence wraps; the date sits on its first line; History's colour (user, 2026-10-31) */
 #importBody .td-student .im-hw-count { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); margin: 4px 0 6px; }
 /* Student page split into boxes (user, 2026-10-31): no big outer box; the name line on the page, then Notes, History, HW sent, Data each a box like Today's */
 #importBody .td-student.im-split { background: none; border: none; box-shadow: none; padding: 0; }
 #importBody .td-student.im-split > .im-title { padding: 0 24px; margin-bottom: 24px; }
+#importBody .td-student .im-hw-mat { margin: 18px 0 8px; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; }   /* "Material sent", a small header like the box titles (user, 2026-10-31; was "24 files") */
 #importBody .im-split > .im-sec-box { background: var(--box); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-top: 24px; }
 #importBody .im-split > .im-sec-box > .im-sec-head { margin: 0 0 14px; }
 #importBody .im-split > .im-sec-box > .im-sec-head:last-child { margin-bottom: 0; }
@@ -4060,12 +4061,17 @@ body #importBody .im-split > .im-sec-box > .db-panel.im-list { background-color:
 /* The student page's top card: name + Log lesson, the Students list card's look (user, 2026-10-31) */
 #importBody .im-split > .im-head-card { max-width: 600px; margin: 0 auto; padding: 22px 16px; background-color: #121212; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
   border: 1px solid #353535; border-left: 3px solid #424242; border-radius: 10px; }
-#importBody .im-split > .im-head-card > .im-title { padding: 0; margin: 0; align-items: center; }
-#importBody .im-split > .im-head-card > .im-title > span { font-size: 22px; letter-spacing: 1px; line-height: 1.05; }
+#importBody .im-split > .im-head-card .im-title { padding: 0; margin: 0; align-items: center; }
+#importBody .im-split > .im-head-card .im-title > span { font-size: 22px; letter-spacing: 1px; line-height: 1.05; }
 /* the top card matches the boxes under it: their width, fill and frame; Back in it, left of the name (user, 2026-10-31) */
 body #importBody .im-split > .im-head-card { max-width: none; background: var(--box); border: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; gap: 18px; }
-#importBody .im-split > .im-head-card > .im-title { flex: 1; }
-#importBody .im-split > .im-head-card > .im-head-acts { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }   /* Log lesson, Back under it (user, 2026-10-31) */
+#importBody .im-split > .im-head-card > .im-head-main { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }   /* the name (user, 2026-10-31) */
+/* the whole top card in the Students-list card look (user, 2026-10-31) */
+body #importBody .im-split > .im-head-card { background: var(--box); border: 1px solid #353535; border-radius: 10px; }   /* no lighter left edge (user, 2026-10-31) */   /* fill the same as the boxes under it (user, 2026-10-31) */
+/* The top card and History joined into one (user, 2026-10-31): no gap, square inner corners, one line between; History takes the card's frame so the edges run on */
+body #importBody .im-split > .im-head-card { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border: 1px solid #353535; border-top: none; border-top-left-radius: 0; border-top-right-radius: 0; }
+#importBody .im-split > .im-head-card > .im-head-acts { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }   /* Log lesson on the right (user, 2026-10-31) */
 #importBody .td-student.im-split { margin-top: 0; }
 #importBody .im-split .im-row.im-latest .im-s, #importBody .im-split .im-row.im-latest .im-n, #importBody .im-split .im-row.im-latest .im-d { color: inherit; }   /* the newest lesson no brighter than the rest (user, 2026-10-31) */
 #importBody .im-split .im-row.im-latest .im-n, #importBody .im-split .im-row.im-latest .im-d { color: var(--t-faint); }

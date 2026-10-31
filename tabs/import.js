@@ -180,7 +180,7 @@ function _imRenderStudent(name, lessons) {
   var body = _imBodyEl();
   if (!body) return;
   _imLift(body);
-  body.innerHTML = _imStudentHtml(name, lessons, _imHw, _imDetail, { back: true, card: true, log: true, data: true });
+  body.innerHTML = _imStudentHtml(name, lessons, _imHw, _imDetail, { card: true, log: true, data: true });   // no Back: the Students knob does the same (user, 2026-10-31)
   // Notes, History, HW sent and Data each in their own box, its heading inside (user, 2026-10-31; were one big box).
   var st = body.querySelector('.td-student');
   if (st) {
@@ -199,19 +199,32 @@ function _imRenderStudent(name, lessons) {
       var card = document.createElement('div');
       card.className = 'im-head-card';
       st.insertBefore(card, t);
-      // Name on the left; Log lesson and Back under it stacked on the right (user, 2026-10-31; Back was left of the name).
-      var back = body.firstElementChild && body.firstElementChild.querySelector('button[onclick^="_imClose"]');
-      card.appendChild(t);
+      // The name on the left, Log lesson on the right (user, 2026-10-31; Back removed, the Students knob does the same).
+      var main = document.createElement('div');
+      main.className = 'im-head-main';
+      main.appendChild(t);
+      card.appendChild(main);
       var acts = document.createElement('div');
       acts.className = 'im-head-acts';
       [].slice.call(t.children, 1).forEach(function (el) { acts.appendChild(el); });
-      if (back) { back.parentNode.remove(); back.classList.add('im-head-back'); acts.appendChild(back); }
       card.appendChild(acts);
     }
     var notes = [].filter.call(st.querySelectorAll(':scope > .im-sec-box'), function (b) { return /^notes$/i.test((b.querySelector('.db-cx-t') || {}).textContent || ''); })[0];
     if (notes) notes.remove();   // no Notes box on the Students page (user, 2026-10-31; was moved last)
     // No Data box either: skips and reschedules live on the Skip and reschedule count tab (user, 2026-10-31).
     [].forEach.call(st.querySelectorAll(':scope > .im-sec-box'), function (b) { if (/^data$/i.test((b.querySelector('.db-cx-t') || {}).textContent || '')) b.remove(); });
+    // Material sent in its own box under Last homework (user, 2026-10-31): everything after the header moves, Hide / Show more too.
+    var mat = st.querySelector(':scope > .im-sec-box .im-hw-mat');
+    if (mat) {
+      var hwBox = mat.closest('.im-sec-box'), matBox = document.createElement('div');
+      var head = hwBox.querySelector('.im-sec-head').cloneNode(true), list = hwBox.querySelector('.im-list').cloneNode(false), files = mat.parentNode.cloneNode(false);
+      head.querySelector('.db-cx-t').textContent = 'Material sent';
+      matBox.className = 'im-sec-box';
+      while (mat.nextSibling) files.appendChild(mat.nextSibling);
+      mat.remove();
+      list.appendChild(files); matBox.appendChild(head); matBox.appendChild(list);
+      hwBox.parentNode.insertBefore(matBox, hwBox.nextSibling);
+    }
   }
   _imFixTips(body);
   if (!_ck.loaded && !_ck.busy) _ckLoad(function () { if (_imOpen === name && _imLast) _imRenderStudent(name, _imLast.lessons); });
@@ -1506,7 +1519,7 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
     (o.card ? '<div class="td-student">' : '') +
     // Today draws its own name row (the card's open/close bar, 2026-10-09).
     (o.noTitle ? '' : '<div class="settings-title im-title"><span>' + inqEsc(name) + (o.sub ? '<span class="win-sub"> · ' + inqEsc(o.sub) + '</span>' : '') + '</span>' +
-      (o.log ? _imLogBtnHtml(name) : '') +
+      (o.log ? _imLogBtnHtml(name, { label: '＋ Log' }) : '') +   // just "＋ Log" on the student page (user, 2026-10-31)
       '</div>') +
     // Each box's small title sits above it, outside its border (2026-10-06).
     // Notes first (2026-10-06): what to mention, before anything else.
@@ -1514,7 +1527,7 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
     (o.noNotes ? '' : _imSec('Notes', '', '', '<div class="im-notes-in">' + _imNotesBoxHtml(detail, name) + '</div>')) +
     _imSec('History', '<button class="link-btn im-sort-btn" onclick="_imToggleSort()" data-tip="Flips the list.">' + (_imNewestFirst() ? 'Newest' : 'Oldest') + '</button>',
       '', items.length ? html + more : 'No lessons logged yet') +
-    _imSec('HW sent - last', '', '', '<div class="db-files db-files-in">' + _imLastHwHtml(hw, name) + '</div>') +
+    _imSec('Last homework', '', '', '<div class="db-files db-files-in">' + _imLastHwHtml(hw, name) + '</div>') +
     (o.data ? _imDataHtml(name) : '') +
     // Log lesson, always open, its HW the Dropbox drop area; Checklist, the
     // Trial card's to-do look: done when Schedule, HW and Lesson log are ticked.
@@ -1726,7 +1739,8 @@ function _imLastHwHtml(hw, name) {
     out = '<div class="im-row im-hw-row">' +
         (r.text ? '<span class="im-hw-text">' + inqEsc(r.text) + '</span>' : '<span class="im-s">' + cnt + '</span>') +
         '<span class="im-d">' + MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10) + '</span></div>' +
-      (r.text && cnt ? '<div class="im-hw-count">' + cnt + '</div>' : '') +
+      // A "Material sent" header over the folders in place of the file count (user, 2026-10-31).
+      (r.text && n ? '<div class="im-hw-count im-hw-mat">Material sent</div>' : '') +
       (r.links || []).map(function (l) {
         return '<div class="im-hw-link"><span>' + (l.kind === 'Video' ? 'Video lesson' : 'Link') + '</span>' +
           '<a href="' + inqEsc(l.url) + '" target="_blank" rel="noopener">' + inqEsc(l.url) + '</a></div>';
