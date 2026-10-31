@@ -4064,6 +4064,7 @@ body #importBody .im-split > .im-sec-box > .db-panel.im-list { background-color:
 /* the top card matches the boxes under it: their width, fill and frame; Back in it, left of the name (user, 2026-10-31) */
 body #importBody .im-split > .im-head-card { max-width: none; background: var(--box); border: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; gap: 18px; }
 #importBody .im-split > .im-head-card > .im-title { flex: 1; }
+#importBody .im-split > .im-head-card > .im-head-acts { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }   /* Log lesson, Back under it (user, 2026-10-31) */
 #importBody .td-student.im-split { margin-top: 0; }
 #importBody .im-split .im-row.im-latest .im-s, #importBody .im-split .im-row.im-latest .im-n, #importBody .im-split .im-row.im-latest .im-d { color: inherit; }   /* the newest lesson no brighter than the rest (user, 2026-10-31) */
 #importBody .im-split .im-row.im-latest .im-n, #importBody .im-split .im-row.im-latest .im-d { color: var(--t-faint); }

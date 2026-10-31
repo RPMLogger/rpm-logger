@@ -199,10 +199,14 @@ function _imRenderStudent(name, lessons) {
       var card = document.createElement('div');
       card.className = 'im-head-card';
       st.insertBefore(card, t);
-      // Back inside the card, before the name (user, 2026-10-31; was on its own line above).
+      // Name on the left; Log lesson and Back under it stacked on the right (user, 2026-10-31; Back was left of the name).
       var back = body.firstElementChild && body.firstElementChild.querySelector('button[onclick^="_imClose"]');
-      if (back) { back.parentNode.remove(); back.classList.add('im-head-back'); card.appendChild(back); }
       card.appendChild(t);
+      var acts = document.createElement('div');
+      acts.className = 'im-head-acts';
+      [].slice.call(t.children, 1).forEach(function (el) { acts.appendChild(el); });
+      if (back) { back.parentNode.remove(); back.classList.add('im-head-back'); acts.appendChild(back); }
+      card.appendChild(acts);
     }
     var notes = [].filter.call(st.querySelectorAll(':scope > .im-sec-box'), function (b) { return /^notes$/i.test((b.querySelector('.db-cx-t') || {}).textContent || ''); })[0];
     if (notes) notes.remove();   // no Notes box on the Students page (user, 2026-10-31; was moved last)
