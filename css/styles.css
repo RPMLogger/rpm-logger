@@ -3958,7 +3958,8 @@ html body .header::before {
 }
 html body .header::after {   /* handle on top, two feet under */
   content: ""; position: absolute; left: 0; right: 0; top: -93px; bottom: -90px; z-index: -2; pointer-events: none;
-  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27140%27 height=%2718%27%3E%3Cpath d=%27M4 18 Q8 2 70 2 Q132 2 136 18%27 fill=%27none%27 stroke=%27%231a1a1a%27 stroke-width=%274%27/%3E%3C/svg%3E") center top / 140px 18px no-repeat,
+  /* Handle = two end caps on the body with a thick strap bowed up between them, like a real amp's (user's drawing, 2026-10-31; was a thin arc) */
+  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27220%27 height=%2728%27%3E%3Cpath d=%27M44 15 Q110 1 176 15%27 fill=%27none%27 stroke=%27%232c2c2c%27 stroke-width=%278%27/%3E%3Cpath d=%27M44 15 Q110 1 176 15%27 fill=%27none%27 stroke=%27%231e1e1e%27 stroke-width=%276%27/%3E%3Crect x=%271%27 y=%278%27 width=%2748%27 height=%2726%27 rx=%276%27 fill=%27%231e1e1e%27 stroke=%27%232c2c2c%27/%3E%3Crect x=%27171%27 y=%278%27 width=%2748%27 height=%2726%27 rx=%276%27 fill=%27%231e1e1e%27 stroke=%27%232c2c2c%27/%3E%3C/svg%3E") center top -5px / 220px 28px no-repeat,
     url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Crect width=%2734%27 height=%278%27 rx=%271%27 fill=%27%232a2a2a%27/%3E%3C/svg%3E") left 34px bottom / 34px 8px no-repeat,
     url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Crect width=%2734%27 height=%278%27 rx=%271%27 fill=%27%232a2a2a%27/%3E%3C/svg%3E") right 34px bottom / 34px 8px no-repeat;
 }
