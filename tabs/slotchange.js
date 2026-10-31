@@ -333,7 +333,7 @@ function _slcDrawWeeks(box) {
     if (has && ymd > tday && !(kind && _slc.cutDay && ymd !== _slc.cutDay)) { c.onclick = function() { _slcCutClick(ymd); }; c.style.cursor = 'pointer'; }
     if (kind && (!has || ymd !== _slc.cutDay)) { c.onclick = function() { _slcDayClick(ymd); }; c.style.cursor = 'pointer'; }
     if (cut && has && ymd >= cut && ymd > tday) c.classList.add('slc-gone');
-    if (ymd === _slc.cutDay) c.classList.add('slc-cut');
+    if (ymd === _slc.cutDay && !(n && _slc.date === ymd)) c.classList.add('slc-cut');   // same-day change: just the new red lesson (user, 2026-10-31)
     // The old lessons just fade (user, 2026-10-29): no ✕, no line. They aren't
     // cancelled for the student, each one is replaced by a new one.
     // Once W or B has placed the series, the old lessons it replaces are plain
@@ -376,7 +376,7 @@ function _slcDrawWeeks(box) {
     }
   });
   // One arrow, the first week only: the lesson picked to the first new lesson (user, 2026-10-29).
-  if (n && _slc.cutDay) {
+  if (n && _slc.cutDay && _slc.date !== _slc.cutDay) {   // no arrow on a same-day change
     var fromC = strips.querySelector('button[data-ymd="' + _slc.cutDay + '"]'), toC = strips.querySelector('button[data-ymd="' + _slc.date + '"]');
     if (fromC && toC) _stArrowBetween(strips, fromC, toC);
   }
