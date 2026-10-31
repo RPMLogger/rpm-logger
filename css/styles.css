@@ -58,9 +58,9 @@ body::after { content: ""; position: fixed; inset: 0; pointer-events: none;
    drawn in code so every diamond is even (the image tile had brighter patches and seams; was ../img/bg-plate.jpg 0 0 / 380px under 93% dark) */
 body { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cg fill='%23fff' fill-opacity='0.04'%3E%3Cpath d='M1 15 Q10 10 15 1 Q6 6 1 15Z'/%3E%3Cpath d='M15.5 15.5 Q24.5 20.5 29.5 29.5 Q20.5 24.5 15.5 15.5Z'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 30px, var(--bg); }
 /* a faint paper grain inside the student cards; body-prefixed so the cards' own background: shorthand keeps it (user, 2026-10-30) */
-body #importBody .im-card, body #tab-payments .incoming-card { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
+body #importBody .im-card, body #tab-payments .incoming-card, body #importBody .td-student .db-panel.im-list { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* a bit of the cards' paper grain on the big boxes, logo box included (user, 2026-10-30; was on the page background) */
-body .header::before, body .td-wk-box,
+body .header::before, body .td-wk-box, body #importBody .td-student,
 body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* No darker sides outside the page column any more (user, 2026-10-26; were
    shaded from 2026-10-24): the grid runs edge to edge. */
@@ -3986,3 +3986,13 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 #imLogWin .settings-title > span:first-child .win-sub { color: var(--accent); }
 #imLogWin .im-main-head:not(.im-main-log) { display: none; }   /* pages 2–4: the page's name is in the window title (user, 2026-10-30) */
 #imLogWin .im-mat-qbox { gap: 26px; margin-top: 14px; }   /* the two questions spread out (user, 2026-10-30) */
+/* A student's page in the Students tab's shades (user, 2026-10-31): the card = the big box (#101010 + grain), its Notes / History panels = the list cards (#121212 + grain, #353535 frame). Was #222 card, #1a1a1a panels. */
+#importBody .td-student { background-color: var(--box); }
+#importBody .td-student .db-panel.im-list { background-color: #121212; border-color: #353535; }
+/* Student page in the Students tab's look (user, 2026-10-31): the name in the old section-heading look (Bebas, --t-text, not blue);
+   NOTES / HISTORY / HW SENT in the spaced-caps .section-label look; the frame = the list cards' #353535 with the 3px #424242 left edge. */
+#importBody .td-student .im-title > span { color: var(--t-text); }
+#importBody .td-student .im-sec-head .db-cx-t { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+#importBody .td-student { border: 1px solid #353535; border-left: 3px solid #424242; }
+#importBody .td-student .db-panel.im-list { border-color: transparent; }   /* inner panels: fill only, no frame; only the outside card has a border (user, 2026-10-31; no fill at all tried, harder on the eye) */
+#importBody .td-student .im-year { border-bottom: 0.5px solid #3a3a3a; }   /* the line under the year: a hairline, a step lighter (user, 2026-10-31; was 1px #2a2a2a) */
