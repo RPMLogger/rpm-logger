@@ -52,7 +52,7 @@ function _tdoEntryOpen(o) {
         '<button class="settings-close" onclick="_tdoEntryClose()">✕</button></div>' +
       '<div style="margin:4px 0 18px">' + o.icon + '</div>' +
       '<div class="ll-wrap">' +
-        '<div class="ll-rows" id="tdoEntryRows"><input type="text" class="rpm-field ll-row active"></div>' +
+        '<div class="ll-rows" id="tdoEntryRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
         '<button class="link-btn tl-mic" id="tdoEntryMic" data-tip="Starts or stops dictation." data-tip-left onclick="_tdoToggleMic()">' + MIC_ICON + '</button>' +
       '</div>' +
       llAddHtml() +

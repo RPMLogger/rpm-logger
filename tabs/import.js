@@ -199,10 +199,10 @@ function _imLogWinOpen(student, idx, day, item, next) {
   if (window._logPanelHome || window._imDocked) closeLogPanel();
   var name = student.name;
   day = day || _tdYmd();
-  // The date in the title when it isn't today's lesson (2026-10-08).
-  var part = 'Log Lesson' + (day !== _tdYmd() ? ' · ' + _ckDay(day) : '');
+  // No date in the title (user, 2026-10-30; was the date when not today's, 2026-10-08).
+  var part = 'Log Lesson and HW';
   if (student.trialEmail) part = 'Trial · ' + _ckDay(day);   // from the Trial card (2026-10-23)
-  var w = _stWin('imLogWin', inqEsc(name), part, CHECKLIST_ICON, '<div class="im-do-card im-win-card">' + _imDoHtml(name, day) + '</div>');
+  var w = _stWin('imLogWin', inqEsc(name), part, LOG_ICON, '<div class="im-do-card im-win-card">' + _imDoHtml(name, day) + '</div>');
   w.querySelector('.st-win').classList.add('im-log-win');
   // Today's look (2026-10-11, from Today; everywhere since): grey, red only on the name and Reschedule.
   w.querySelector('.st-win').classList.add('td-look');
@@ -247,7 +247,7 @@ function _imTeachWire() {
   var w = window._imWin, box = _imStuBox(), o = {};
   try { o = JSON.parse(localStorage.getItem(_imRowsKey(w.name, w.day)) || '{}'); } catch (e) {}
   if (box && o.notes && o.notes.length) {
-    box.innerHTML = o.notes.map(function (v, i) { return '<input type="text" class="rpm-field ll-row' + (i ? '' : ' active') + '" value="' + _auEsc(v) + '">'; }).join('');
+    box.innerHTML = o.notes.map(function (v, i) { return '<textarea rows="1" class="rpm-field ll-row' + (i ? '' : ' active') + '">' + _auEsc(v) + '</textarea>'; }).join('');
   }
   _imNoteWire('imStu', function () { _imRowsPut('notes', llValues(box)); _imStepsRender(); });
 }
@@ -912,7 +912,25 @@ function _imPagesRender(w, done, hasHw) {
   if (!w.page || list.indexOf(w.page) < 0) {
     w.page = list.filter(function (p) { return !done[p]; })[0] || list[list.length - 1];
   }
+  // A page turns to the next by itself once it's done (user, 2026-10-30): only when it
+  // was open and not done, so going Back to a finished page stays put; Next is for that.
+  w.pgOpen = w.pgOpen || {};
+  var nx = list[list.indexOf(w.page) + 1];
+  if (!done[w.page]) w.pgOpen[w.page] = true;
+  else if (w.pgOpen[w.page] && nx) {
+    w.pgOpen[w.page] = false;
+    var from = w.page;
+    var turn = function () {
+      if (window._imWin !== w || w.page !== from) return;
+      if (w.sending) return setTimeout(turn, 300);   // waits out a save
+      _imPageTo(nx);
+    };
+    setTimeout(turn, 350);   // a beat to see the tick
+  }
   var at = list.indexOf(w.page);
+  // The page's name in the window title, red (user, 2026-10-30): no heading on the page.
+  var sub = c.root.querySelector('.settings-title .win-sub');
+  if (sub) sub.textContent = ' · ' + ({ 1: 'Log Lesson and HW', 2: 'Practice Materials', 3: 'Change Appointment', 4: 'Email the Student' })[w.page];
   Array.prototype.forEach.call(c.root.querySelectorAll('.im-page'), function (el) {
     el.style.display = +el.getAttribute('data-pg') === w.page ? '' : 'none';
   });
@@ -1279,10 +1297,8 @@ function _imHwOut() {
   if (vs && vd && vs.parentNode !== vd) vd.appendChild(vs);
   var ls = document.getElementById('logHwLink'), ld = _imQ('imMatLink');
   if (ls && ld && ls.parentNode !== ld) ld.appendChild(ls);
-  // No show on the Log lesson title row, top right (2026-10-11).
-  var ns = document.getElementById('btnNoShow'), lbox = _imQ('imLogDock');
-  var lhead = lbox && lbox.parentNode && lbox.parentNode.previousElementSibling;
-  if (ns && lhead && ns.parentNode !== lhead) lhead.appendChild(ns);
+  // No show bottom left, on Log's line (user, 2026-10-30; was the Log lesson title row, top right, 2026-10-11).
+  var ns = document.getElementById('btnNoShow');
   // Log at the bottom of 1. Log the lesson and HW, under HW (2026-10-18; was under the
   // log rows): one button for both. The add-row stays under the log rows.
   var acts = document.getElementById('logActions'), dock = _imQ('imLogDock');
@@ -1291,6 +1307,7 @@ function _imHwOut() {
     var foot = sec.querySelector(':scope > .im-log-foot');
     if (!foot) { foot = document.createElement('div'); foot.className = 'im-log-foot im-log-foot-all'; sec.appendChild(foot); }
     if (acts.parentNode !== foot) foot.appendChild(acts);
+    if (ns && foot.firstChild !== ns) foot.insertBefore(ns, foot.firstChild);
   }
 }
 function _imHwBack() {
@@ -1491,18 +1508,18 @@ function _imDoHtml(name, day) {
     // Each of the three sections sits in its own bordered box, its title above it, no dividers (2026-10-18).
     // The typing reminder on its own line under it (user, 2026-10-26), in the (optional) grey.
     '<div class="im-page" data-pg="1">' +
-    _imMainHead('1. Log the lesson and HW', '', '<span class="im-mail-opt im-case-hint">(Sentence case, caps only on first line and song names, no end punctuation)</span>', 'im-main-log') +   // all red (2026-10-18)
+    _imMainHead('1. Log the lesson and HW', '', '<span class="im-mail-opt im-case-hint">Use sentence case, caps only on first line and song names, no end punctuation</span>', 'im-main-log') +   // all red (2026-10-18)
     '<div class="im-main-box">' +
-      _imSub('1. Lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
-      _imSub('2. HW', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
+      _imSub('Log lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
+      _imSub('Log HW', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
       // Private (2026-10-25): saved after "TEACHER:" in the log's cell, never emailed.
-      _imSub('3. Notes to teacher <span class="im-mail-opt">(optional)</span>', '', ' im-teach-box',
-        '<div class="ll-wrap"><div class="ll-rows" id="imTeachRows"><input type="text" class="rpm-field ll-row active"></div>' +
+      _imSub('Notes to teacher (optional)', '', ' im-teach-box',
+        '<div class="ll-wrap"><div class="ll-rows" id="imTeachRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
         '<button type="button" class="link-btn tl-mic" id="imTeachMic" data-tip="Starts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
         '<button type="button" class="ll-add" id="imTeachAdd" data-tip="Instant.&#10;Adds a row. Enter does too.">' + llAddInner() + '</button>') +
       // In the email only, under NOTES (2026-10-25): "Bring your capo next time."
-      _imSub('4. Notes to the student <span class="im-mail-opt">(optional)</span>', '', ' im-teach-box',
-        '<div class="ll-wrap"><div class="ll-rows" id="imStuRows"><input type="text" class="rpm-field ll-row active"></div>' +
+      _imSub('Notes to the student (optional)', '', ' im-teach-box',
+        '<div class="ll-wrap"><div class="ll-rows" id="imStuRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
         '<button type="button" class="link-btn tl-mic" id="imStuMic" data-tip="Starts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
         '<button type="button" class="ll-add" id="imStuAdd" data-tip="Instant.&#10;Adds a row. Enter does too.&#10;Each row is a sentence in the email.">' + llAddInner() + '</button>') +
     '</div>' +

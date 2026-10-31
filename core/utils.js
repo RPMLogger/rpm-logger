@@ -566,7 +566,15 @@ function rpmToast(kind, text, why) {
 // onFocus(index) / onChange() so each window keeps its own mic and Log state.
 var LL_ADD_TIP = 'Instant.\nAdds a row. Enter does too.\nEach row becomes one part of the log.\nRows are joined with commas when you log.';
 var LL_LOG_TIP = 'Saves the lesson log.\n⌘ Enter does too.';
-function llRowHtml() { return '<input type="text" class="rpm-field ll-row">'; }
+// A row is a one-line textarea that grows a line when the text runs past the end
+// (user, 2026-10-30; was an input that scrolled sideways). Enter still adds a row.
+function llRowHtml() { return '<textarea rows="1" class="rpm-field ll-row"></textarea>'; }
+function llFit(box) {
+  llRows(box).forEach(function (el) {
+    if (el.tagName !== 'TEXTAREA' || !el.offsetParent) return;
+    el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px';
+  });
+}
 function llAddInner() { return (typeof ROW_ADD_ICON === 'string' ? ROW_ADD_ICON : '＋'); }
 function llAddHtml() {
   return '<button type="button" class="ll-add" data-tip="' + LL_ADD_TIP + '" ' +
@@ -576,6 +584,7 @@ function llPlaceMic(box) {
   if (!box || !box.parentNode) return;
   var mic = box.parentNode.querySelector('.tl-mic');
   var row = box.querySelector('.ll-row.active') || llRows(box)[0];
+  llFit(box);
   if (!mic || !row) return;
   mic.style.top = (row.offsetTop + (row.offsetHeight - mic.offsetHeight) / 2) + 'px';
 }
@@ -592,7 +601,12 @@ function llWire(box, onFocus, onChange, onSubmit) {
     if (i >= 0 && box._llFocus) box._llFocus(i);
     llPlaceMic(box);
   });
-  box.addEventListener('input', function () { if (box._llChange) box._llChange(); });
+  box.addEventListener('input', function (ev) {
+    var el = ev.target;
+    if (el.tagName === 'TEXTAREA' && /\n/.test(el.value)) el.value = el.value.replace(/\s*\n\s*/g, ' ');   // a paste stays one row
+    llPlaceMic(box);
+    if (box._llChange) box._llChange();
+  });
   box.addEventListener('keydown', function (ev) {
     var el = ev.target, rows = llRows(box), i = rows.indexOf(el);
     if (i < 0 || el.readOnly || ev.isComposing) return;

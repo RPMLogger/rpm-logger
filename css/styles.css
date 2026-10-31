@@ -584,7 +584,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 #tab-availability > .ld-icon .win-icon { height: 34px; }
 /* Saving: the whole page steps back, Save too; the ring says Saving in the middle of the screen (user 2026-10-22) */
 #tab-availability.av-saving { pointer-events: none; cursor: progress; }
-#tab-availability.av-saving > :not(.av-saving-msg) { filter: brightness(.35); transition: filter .15s; }
+#tab-availability.av-saving > :not(.av-saving-msg) { opacity: .35; transition: opacity .15s; }
 .av-saving-msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 50;
   font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text); }
 /* Skips tab: Availability's cards (2026-10-22) */
@@ -1150,7 +1150,7 @@ input[type="checkbox"]:checked {
    and the pressed button says what is happening, so the click visibly landed. */
 /* Working (Yes / No reply / Scam): fade well below a read card (0.62) so
    the wait is obvious. */
-.inq-dcard.inq-busy { filter: brightness(.5); transition: filter .15s; }   /* 0.3 → 0.4 → 0.5, 2026-09-24: less dim */
+.inq-dcard.inq-busy { opacity: 0.5; transition: opacity .15s; }   /* 0.3 → 0.4 → 0.5, 2026-09-24: less dim */
 .inq-dcard.inq-busy .inq-db { cursor: default; }
 /* Decision buttons: uppercase, full colour, each on a faint wash of that same
    colour. Hover deepens the wash. */
@@ -1850,7 +1850,7 @@ a:focus-visible,
 /* A window (or card) while Google works: dimmed and untouchable, every button
    too; only the centre word (rpm-keep) stays bright (user, 2026-10-23). */
 .rpm-busy { pointer-events: none; }
-.rpm-busy > *:not(.rpm-keep) { filter: brightness(.22); transition: filter .15s; }   /* darkened, not see-through (user, 2026-10-30) */
+.rpm-busy > *:not(.rpm-keep) { opacity: .15; transition: opacity .15s; }   /* see-through again (user, 2026-10-30: darkening looked bad) */
 .rpm-toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 10000; max-width: 88vw;
   display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border);
   border-radius: 10px; padding: 10px 14px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
@@ -2920,8 +2920,8 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 
 /* No show (2026-10-11): top right of the Log lesson box, in the Log lesson window only. */
 #btnNoShow { display: none; }
-.im-sec-head > #btnNoShow:not([hidden]), .im-sub-head > #btnNoShow:not([hidden]) { display: inline-flex; }
-.im-sec-head > #btnNoShow:disabled, .im-sub-head > #btnNoShow:disabled { opacity: .4; cursor: default; }
+.im-sec-head > #btnNoShow:not([hidden]), :is(.im-sub-head, .im-log-foot-all) > #btnNoShow:not([hidden]) { display: inline-flex; }
+.im-sec-head > #btnNoShow:disabled, :is(.im-sub-head, .im-log-foot-all) > #btnNoShow:disabled { opacity: .4; cursor: default; }
 /* Payments Audit title (2026-10-14): Today's look, room above and under like #todayBody. */
 .pay-audit-title { margin: 36px 0 0; }   /* equal gaps: Back, title, stamp, cards (2026-10-14) */
 .pay-audit-title .win-sub { color: var(--t-faint); }
@@ -2931,9 +2931,9 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Section colours in the Log lesson window (2026-10-15): 1. Log's buttons green,
    2. Materials' blue (the Checklist's old step colours); Schedule keeps its red
    Reschedule. Ids beat the window's grey .td-look. */
-#imLogWin #logPanel .im-log-foot #btnLog, #imLogWin .im-sub-head > #btnNoShow { color: color-mix(in srgb, var(--green) 60%, var(--muted)); border-color: color-mix(in srgb, var(--green) 28%, transparent); background: color-mix(in srgb, var(--green) 3%, transparent); }   /* dim 2026-10-15: colour mixed with grey, faint border */
-#imLogWin #logPanel .im-log-foot #btnLog:not(:disabled):hover:where(:not(:disabled)), #imLogWin .im-sub-head > #btnNoShow:not(:disabled):hover:where(:not(:disabled)) { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 9%, transparent); }
-#imLogWin #logPanel .im-log-foot #btnLog:disabled, #imLogWin .im-log-foot-all #btnLog:disabled, #imLogWin #imMatFinishBtn:disabled, #imLogWin .im-sub-head > #btnNoShow:disabled { opacity: .45; }
+#imLogWin #logPanel .im-log-foot #btnLog, #imLogWin :is(.im-sub-head, .im-log-foot-all) > #btnNoShow { color: color-mix(in srgb, var(--green) 60%, var(--muted)); border-color: color-mix(in srgb, var(--green) 28%, transparent); background: color-mix(in srgb, var(--green) 3%, transparent); }   /* dim 2026-10-15: colour mixed with grey, faint border */
+#imLogWin #logPanel .im-log-foot #btnLog:not(:disabled):hover:where(:not(:disabled)), #imLogWin :is(.im-sub-head, .im-log-foot-all) > #btnNoShow:not(:disabled):hover:where(:not(:disabled)) { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 9%, transparent); }
+#imLogWin #logPanel .im-log-foot #btnLog:disabled, #imLogWin .im-log-foot-all #btnLog:disabled, #imLogWin #imMatFinishBtn:disabled, #imLogWin :is(.im-sub-head, .im-log-foot-all) > #btnNoShow:disabled { opacity: .45; }
 #imLogWin #imMatFilesTools .link-btn { color: color-mix(in srgb, var(--blue) 60%, var(--muted)); border-color: color-mix(in srgb, var(--blue) 28%, transparent); background: color-mix(in srgb, var(--blue) 3%, transparent); }   /* dim 2026-10-15 */
 #imLogWin #imMatFilesTools .link-btn:not(:disabled):hover:where(:not(:disabled)) { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 55%, transparent); background: color-mix(in srgb, var(--blue) 9%, transparent); }
 #imLogWin .im-hw-dock-box .link-btn:disabled { opacity: .45; }   /* Yes and Add stay grey (2026-10-15); Browse + Open blue */
@@ -3087,8 +3087,8 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #imLogWin .im-main-box > .im-sched-box { margin-top: 0; margin-bottom: 0; }
 .im-mat-row { display: flex; align-items: center; gap: 12px; }   /* A. / B. before the Materials buttons (2026-10-18) */
 .im-mat-row > .im-sub-t { margin: 0; min-width: 18px; }
-#imLogWin #imMatNone .link-btn, #imLogWin #logHwVideoAddBtn, #imLogWin #logHwLinkAddBtn, #imLogWin #logPanel .im-log-foot #btnLog, #imLogWin .im-log-foot-all #btnLog, #imLogWin #imMatFinishBtn, #imLogWin .im-sub-head > #btnNoShow { color: color-mix(in srgb, #ffffff 60%, var(--muted)); border-color: color-mix(in srgb, #ffffff 25%, transparent); background: color-mix(in srgb, #ffffff 5%, transparent); }   /* A./B., Add, Log and No show faint white, not the box's grey (2026-10-18) */
-#imLogWin #imMatNone .link-btn:not(:disabled):hover:where(:not(:disabled)), #imLogWin #logHwVideoAddBtn:not(:disabled):hover:where(:not(:disabled)), #imLogWin #logHwLinkAddBtn:not(:disabled):hover:where(:not(:disabled)), #imLogWin #logPanel .im-log-foot #btnLog:not(:disabled):hover:where(:not(:disabled)), #imLogWin .im-log-foot-all #btnLog:not(:disabled):hover:where(:not(:disabled)), #imLogWin #imMatFinishBtn:not(:disabled):hover:where(:not(:disabled)), #imLogWin .im-sub-head > #btnNoShow:not(:disabled):hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 50%, transparent); background: color-mix(in srgb, #ffffff 10%, transparent); }
+#imLogWin #imMatNone .link-btn, #imLogWin #logHwVideoAddBtn, #imLogWin #logHwLinkAddBtn, #imLogWin #logPanel .im-log-foot #btnLog, #imLogWin .im-log-foot-all #btnLog, #imLogWin #imMatFinishBtn, #imLogWin :is(.im-sub-head, .im-log-foot-all) > #btnNoShow { color: color-mix(in srgb, #ffffff 60%, var(--muted)); border-color: color-mix(in srgb, #ffffff 25%, transparent); background: color-mix(in srgb, #ffffff 5%, transparent); }   /* A./B., Add, Log and No show faint white, not the box's grey (2026-10-18) */
+#imLogWin #imMatNone .link-btn:not(:disabled):hover:where(:not(:disabled)), #imLogWin #logHwVideoAddBtn:not(:disabled):hover:where(:not(:disabled)), #imLogWin #logHwLinkAddBtn:not(:disabled):hover:where(:not(:disabled)), #imLogWin #logPanel .im-log-foot #btnLog:not(:disabled):hover:where(:not(:disabled)), #imLogWin .im-log-foot-all #btnLog:not(:disabled):hover:where(:not(:disabled)), #imLogWin #imMatFinishBtn:not(:disabled):hover:where(:not(:disabled)), #imLogWin :is(.im-sub-head, .im-log-foot-all) > #btnNoShow:not(:disabled):hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 50%, transparent); background: color-mix(in srgb, #ffffff 10%, transparent); }
 /* Log amber (user, 2026-10-30), the Students cards' "+ Log"; Logged ✓ keeps its own look */
 #imLogWin #logPanel .im-log-foot #btnLog:not(.green), #imLogWin .im-log-foot-all #btnLog:not(.green) { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 55%, transparent); background: color-mix(in srgb, var(--accent2) 6%, transparent); }
 #imLogWin #logPanel .im-log-foot #btnLog:not(.green):not(:disabled):hover, #imLogWin .im-log-foot-all #btnLog:not(.green):not(:disabled):hover { color: var(--accent2); border-color: var(--accent2); background: color-mix(in srgb, var(--accent2) 16%, transparent); }
@@ -3514,7 +3514,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .en-ask-in { width: 100%; font-size: 12px; }
 .link-btn.red.en-go:disabled:not(.tv-busy) { opacity: .35; cursor: default; }   /* until all 4 are answered */
 /* Review texts loading: the plan steps back, only the button's spinner stays bright (user, 2026-10-21). */
-.tv-cal.tv-loading > *:not(#travelCalHead) { filter: brightness(.35); pointer-events: none; transition: filter .15s; }
+.tv-cal.tv-loading > *:not(#travelCalHead) { opacity: 0.35; pointer-events: none; transition: opacity .15s; }
 /* Reviews tab, Ended students (2026-10-21; was Terminate ▾ Reviews): the stats card look. */
 .en-rv-head { margin: 0 0 16px; padding: 0 22px 0 25px; }   /* lines up with the names (3px edge + 22px padding) */
 .en-rv { margin-bottom: 10px; }
@@ -3631,7 +3631,7 @@ th.f2-blk { background:none; }
   color:var(--blue); background:color-mix(in srgb, var(--blue) 15%, transparent); }   /* Payments' Venmo / Zelle badge shape */
 .f2-badge.bad { color:#ff5a4d; background:rgba(255,90,77,0.15); }   /* under the Expenses icon, over the table */
 .f2-ex-btns { display:flex; justify-content:space-between; align-items:center; margin-top:16px; }
-#f2ExModal.rpm-busy > *:not(.rpm-keep) { filter: brightness(.22); }   /* dimmer than .4 so the centre text reads */
+#f2ExModal.rpm-busy > *:not(.rpm-keep) { opacity:.15; }   /* dimmer than .4 so the centre text reads */
 #f2ExModal .rpm-load-center, #fin2Body .rpm-load-center { background:none; border:none; box-shadow:none; }   /* just the ring + text, no box (user 2026-10-22) */
 .f2-bill { display:flex; gap:22px; margin:2px 0 14px; }   /* Billed: Monthly / Yearly radios */
 .f2-radio { display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); cursor:pointer; }
@@ -3683,7 +3683,7 @@ th.f2-blk { background:none; }
 #travelBody .tv-place { margin-bottom:0; }
 #travelSumTable + .tv-cal-head { margin-top:32px; }
 #travelBody .tv-buf-top { margin-bottom:24px; }   /* steps + key → calendar, tightened (user 2026-10-23; was 44px) */
-#travelBody .tv-cal.tv-loading > *:not(.rpm-keep) { filter:brightness(.22); pointer-events:none; transition:filter .15s; }   /* Review loading: the whole plan dims, its button too (user 2026-10-23; Review's row stayed bright) */
+#travelBody .tv-cal.tv-loading > *:not(.rpm-keep) { opacity:.15; pointer-events:none; transition:opacity .15s; }   /* Review loading: the whole plan dims, its button too (user 2026-10-23; Review's row stayed bright) */
 #travelBody .rpm-load-center { background:none; border:none; box-shadow:none; }   /* just the ring + text, like Financial 2 */
 /* Travel Plan in the Today / Dropbox look (user 2026-10-23): one red title with Reset on its line, one icon, white section titles. */
 #travelBody .tv-page-title { margin-bottom:10px; }
@@ -3827,9 +3827,12 @@ th.f2-blk { background:none; }
 #imLogWin .ll-add { display: flex; width: fit-content; margin-left: auto; }   /* every add icon under its box, bottom right (user, 2026-10-25) */
 #imLogWin .lh-link-add > .im-link-add { align-self: flex-end; }
 /* 2. Practice materials in two boxes (user, 2026-10-25): the numbered questions, then the lettered materials. */
-#imLogWin .im-main-box.im-mat-split { border: none; background: none; padding: 0; display: flex; flex-direction: column; gap: 14px; }
-#imLogWin .im-mat-qbox, #imLogWin .im-mat-box { border: 1px solid rgb(42, 42, 42); border-radius: 10px; background: rgba(255, 255, 255, 0.035); padding: 24px 22px 26px; margin: 0; }
+#imLogWin .im-main-box.im-mat-split { border: none; background: none; padding: 0; display: flex; flex-direction: column; gap: 28px; }   /* 14 → 28px once the boxes went (user, 2026-10-30) */
+#imLogWin .im-main-box { border: none; background: none; padding: 0; }   /* one page at a time now, so no box inside the window (user, 2026-10-30) */
+#imLogWin .im-mat-qbox, #imLogWin .im-mat-box { border: none; background: none; padding: 0; margin: 0; }   /* no box inside the window (user, 2026-10-30) */
 #imLogWin .im-mat-qbox.im-dim:hover:where(:not(:disabled)) { opacity: .7; }   /* answered, still changeable */
+#imLogWin .im-main-box.im-sec-done, #imLogWin .im-main-head.im-sec-done, #imLogWin .im-dim, #imLogWin .im-dim:hover:where(:not(:disabled)) { opacity: 1; }   /* pages: a done page stays bright, the ✓ says done (user, 2026-10-30) */
+#imLogWin#imLogWin .im-sec-done :is(button, input, textarea):disabled { opacity: 1; }   /* chips, No show, mic: the page looks as it did at the start (user, 2026-10-30) */
 #imLogWin .im-mat-box > .im-hw-dock-box > .im-sub-head:first-child { margin-top: 0; }   /* no gap above A. Files in its own box */
 #imLogWin .im-sub-head:has(> #imMatFilesTools) { flex-wrap: wrap; }
 #imLogWin .im-sub-head:has(> .im-link-yes) > #imMatFilesTools { flex-basis: 100%; margin: 12px 0 0; justify-content: flex-end; }   /* A. Files: Gather / Browse / Dropbox on their own line under the title, at the right (user, 2026-10-25) */
@@ -3840,7 +3843,7 @@ th.f2-blk { background:none; }
 #imLogWin .im-pill, .st-reasons .im-pill { font-family: "DM Mono", monospace; font-size: 10px; line-height: 1; letter-spacing: .2px; color: #8a8a8a; background: transparent;
   border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; padding: 4px 8px; cursor: pointer; }
 #imLogWin .im-pill:hover:where(:not(:disabled)), .st-reasons .im-pill:hover:where(:not(:disabled)), .st-reasons .im-pill.on { color: #ddd; border-color: rgba(255,255,255,0.4); }
-#imLogWin .ll-wrap:has(.ll-rows.locked) + .im-pills { opacity: .35; pointer-events: none; }   /* logged: nothing to add to */
+#imLogWin .ll-wrap:has(.ll-rows.locked) + .im-pills { pointer-events: none; }   /* logged: nothing to add to; not dimmed (user, 2026-10-30) */
 #imLogWin .im-main-log { flex-wrap: wrap; }
 #imLogWin .im-case-hint { flex-basis: 100%; margin: 6px 0 0; }   /* the typing reminder on its own line under the title (user, 2026-10-26) */
 /* To-Do tab in Today's box look (user, 2026-10-26): To-Do box + Completed box, rows like This Week's lines.
@@ -3958,3 +3961,27 @@ html body .header .hdr-home-i { left: 5px; top: 5px; width: 14px; height: 14px; 
 /* the tab box under the head gets the amp's border: dark body ring around a dark rounded line (user, 2026-10-30) */
 html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms) {
   margin-left: 4px; margin-right: 4px; border-color: #2c2c2c; box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }
+/* Page 1 has no heading: the window title says Log Lesson and HW (user, 2026-10-30); the case hint stays */
+#imLogWin .im-main-log .im-main-t { display: none; }
+/* Page 1 labels in the Reason (optional) look, no 1234 (user, 2026-10-30) */
+#imLogWin .im-log-wrap .im-sub-t, #imLogWin .im-main-log ~ .im-main-box .im-sub-t { font-family: "DM Mono", monospace; font-size: 11.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--t-faint); }
+#imLogWin .im-main-head.im-main-log { margin-top: 16px; margin-bottom: 52px; }   /* room between the hint and LOG LESSON (user, 2026-10-30) */
+#imLogWin .im-pills .im-pill { color: #5e5e5e; border-color: rgba(255,255,255,0.09); }   /* keyword chips darker (user, 2026-10-30); hover still lights them */
+#imLogWin .im-pills .im-pill:hover:where(:not(:disabled)) { color: #ddd; border-color: rgba(255,255,255,0.4); }
+#imLogWin .ll-add { color: #5e5e5e; }   /* add-row button as dark as the chips (user, 2026-10-30) */
+#imLogWin .ll-add:hover:where(:not(:disabled)) { color: #ddd; }
+#imLogWin .im-main-box > .im-log-foot-all:has(> #btnNoShow) { display: flex; align-items: center; }
+#imLogWin .im-log-foot-all > #btnNoShow { margin-right: auto; }   /* No show bottom left, Log right (user, 2026-10-30) */
+/* + always the same gap under its box, however many lines of chips (user, 2026-10-30): chips left, + right, side by side */
+#imLogWin :has(> .im-pills) { display: flow-root; }
+#imLogWin .im-pills { float: left; width: calc(100% - 40px); margin: 8px 0 0; padding-right: 0; }
+#imLogWin .im-pills + .ll-add { float: right; }
+#imLogWin#imLogWin .ll-wrap ~ .ll-add { margin-top: 8px; }
+textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: border-box; line-height: 1.45; }   /* one line that grows a line when the text runs on (user, 2026-10-30) */
+#imLogWin .im-pills .im-pill { border-radius: 6px; }   /* chips less rounded (user, 2026-10-30) */
+#imLogWin#imLogWin .im-log-foot-all > #btnNoShow { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 55%, transparent); background: color-mix(in srgb, var(--blue) 6%, transparent); }   /* No show blue (user, 2026-10-30) */
+#imLogWin#imLogWin .im-log-foot-all > #btnNoShow:hover:where(:not(:disabled)) { color: var(--blue); border-color: var(--blue); background: color-mix(in srgb, var(--blue) 16%, transparent); }
+#imLogWin .settings-title > span:first-child { color: var(--t-text); }   /* name in the Students cards' white, Log Lesson and HW red (user, 2026-10-30) */
+#imLogWin .settings-title > span:first-child .win-sub { color: var(--accent); }
+#imLogWin .im-main-head:not(.im-main-log) { display: none; }   /* pages 2–4: the page's name is in the window title (user, 2026-10-30) */
+#imLogWin .im-mat-qbox { gap: 26px; margin-top: 14px; }   /* the two questions spread out (user, 2026-10-30) */

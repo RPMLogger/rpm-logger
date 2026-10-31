@@ -1727,7 +1727,7 @@ function _tlLogHtml(a, s) {
     // The mic sits inside the right end of the row you are in (llPlaceMic),
     // where most apps put it.
     '<div class="ll-wrap">' +
-      '<div class="ll-rows" id="tlRows"><input type="text" class="rpm-field ll-row active"></div>' +
+      '<div class="ll-rows" id="tlRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
       '<button class="link-btn tl-mic" id="tlMicBtn" data-tip="Starts or stops dictation." data-tip-left onclick="_tlMic()">' + MIC_ICON + '</button>' +
     '</div>' +
     llAddHtml() +
