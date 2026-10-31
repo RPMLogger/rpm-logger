@@ -2404,10 +2404,10 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-block { padding: 4px 0; }
 .im-block + .im-block { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 10px; }
 .im-block .im-row { border-bottom: none; padding: 4px 0; }
-.im-row.im-empty .im-n, .im-row.im-empty .im-d { opacity: .35; }
+.im-row.im-empty .im-d { opacity: .35; }   /* the numbers stay full: 1–4 one colour (user, 2026-10-31) */
 /* The newest lesson a step brighter, your last log at a glance (Today 2026-10-07, Import too). */
 .im-row.im-latest .im-s { color: var(--t-text); }
-.im-row.im-latest .im-n, .im-row.im-latest .im-d { color: var(--t-normal); }
+.im-row.im-latest .im-d { color: var(--t-normal); }
 .im-year + .im-block { border-top: none; margin-top: 0; }
 .im-title { margin: 0 0 28px; }   /* the student page's headline, above the buttons (2026-10-06, was inside the box) */
 /* Import student page buttons + Notes window (2026-10-05). */
