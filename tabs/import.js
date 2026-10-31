@@ -87,10 +87,10 @@ function _imRenderCards(noRead) {
     '</div>';
   };
   // Three boxes like Today's (user, 2026-10-30; was one box, group headings inside):
-  // Today, Not logged, A–Z, each titled in Today's red. The first one drawn carries
+  // Today, Not logged, Students (was A–Z, user 2026-10-31), each titled in Today's red. The first one drawn carries
   // the ID-card icon under its title and Audit top right.
   var firstBox = true;
-  body.innerHTML = ['Today', 'Not logged', 'A–Z'].map(function (h, g) {
+  body.innerHTML = ['Today', 'Not logged', 'Students'].map(function (h, g) {
     var in_g = names.filter(function (n) { return group(n) === g; });
     if (!in_g.length) return '';
     var top = firstBox; firstBox = false;
