@@ -3958,8 +3958,8 @@ html body .sb-burger::before { left: 6px; right: 6px; top: 7px; box-shadow: 0 5p
 html body .header .hdr-home { top: 78px; transform: none; right: 22px; width: 26px; height: 26px; border-radius: 6px; }
 html body .header .hdr-mag { right: 54px; }
 html body .header .hdr-home-i { left: 5px; top: 5px; width: 14px; height: 14px; }
-/* the tab box under the head gets the amp's border: dark body ring around a dark rounded line (user, 2026-10-30) */
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms) {
+/* Home and Audit get the amp's border under the head: dark body ring around a dark rounded line; every other tab keeps its plain box (user, 2026-10-30) */
+html body #tab-home.active, html body #tab-audit.active {
   margin-left: 4px; margin-right: 4px; border-color: #2c2c2c; box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }
 /* the Students boxes (Today, Not logged, A–Z) get the same amp border (user, 2026-10-30) */
 html body #importBody .im-box { margin-left: 4px; margin-right: 4px; width: calc(100% - 8px); border-color: #2c2c2c; box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }
