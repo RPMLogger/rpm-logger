@@ -4006,3 +4006,12 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 #importBody .td-student { margin-top: 20px; }   /* more room above the student page (user, 2026-10-31) */
 #importBody .td-student > .im-title { align-items: flex-end; }   /* Log lesson right, its bottom level with the name's bottom (user, 2026-10-31) */
 #importBody .td-student { padding-top: 40px; }   /* more room above the name inside the box (user, 2026-10-31; was 22) */
+/* Student page inside, in line with the rest of the portal (user, 2026-10-31):
+   DM Mono instead of Arial, 10px corners, 11px small text, warm greys, 22px name like the Students cards */
+#importBody .td-student .im-s, #importBody .td-student .im-hw-text, #importBody .td-student .im-teach { font-family: "DM Mono", monospace; font-size: 11px; }
+#importBody .td-student .db-panel.im-list { border-radius: 10px; font-size: 11px; }
+#importBody .td-student .im-year, #importBody .td-student .im-data-h { font-size: 11px; }
+#importBody .td-student .im-sec-head .field-label, #importBody .td-student .im-year, #importBody .td-student .im-data-h, #importBody .td-student .im-none { color: var(--t-normal); }
+#importBody .td-student > .im-title > span { font-size: 22px; letter-spacing: 1px; }
+#importBody .td-student .db-file { font-size: 11px; }
+#importBody .td-student .im-hw-row .im-s { color: var(--t-normal); }
