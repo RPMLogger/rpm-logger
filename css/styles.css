@@ -3961,8 +3961,6 @@ html body .header .hdr-home-i { left: 5px; top: 5px; width: 14px; height: 14px; 
 /* Home and Audit get the amp's border under the head: dark body ring around a dark rounded line; every other tab keeps its plain box (user, 2026-10-30) */
 html body #tab-home.active, html body #tab-audit.active {
   margin-left: 4px; margin-right: 4px; border-color: #2c2c2c; box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }
-/* the Students boxes (Today, Not logged, A–Z) get the same amp border (user, 2026-10-30) */
-html body #importBody .im-box { margin-left: 4px; margin-right: 4px; width: calc(100% - 8px); border-color: #2c2c2c; box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }
 /* Page 1 has no heading: the window title says Log Lesson and HW (user, 2026-10-30); the case hint stays */
 #imLogWin .im-main-log .im-main-t { display: none; }
 /* Page 1 labels in the Reason (optional) look, no 1234 (user, 2026-10-30) */
