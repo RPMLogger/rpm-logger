@@ -330,8 +330,10 @@ function _slcDrawWeeks(box) {
     c.onclick = null;
     c.style.cursor = 'default';
     if (_slc.applied) return;
-    if (has && ymd > tday) { c.onclick = function() { _slcCutClick(ymd); }; c.style.cursor = 'pointer'; }
-    if (!has && kind) { c.onclick = function() { _slcDayClick(ymd); }; c.style.cursor = 'pointer'; }
+    // An old lesson in the new-day weeks is the new day too (user, 2026-10-31:
+    // Fri 6 → Fri 13 biweekly; the 13th's old lesson goes with the cut).
+    if (has && ymd > tday && !(kind && _slc.cutDay && ymd !== _slc.cutDay)) { c.onclick = function() { _slcCutClick(ymd); }; c.style.cursor = 'pointer'; }
+    if (kind && (!has || ymd !== _slc.cutDay)) { c.onclick = function() { _slcDayClick(ymd); }; c.style.cursor = 'pointer'; }
     if (cut && has && ymd >= cut && ymd > tday) c.classList.add('slc-gone');
     if (ymd === _slc.cutDay) c.classList.add('slc-cut');
     // The old lessons just fade (user, 2026-10-29): no ✕, no line. They aren't
