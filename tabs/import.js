@@ -139,10 +139,9 @@ function _imOpenStudent(name) {
   _imOpen = name;
   _imHw = null;
   _imDetail = null;
-  // Same student drawn again (after a log): Data stays open, its numbers read again.
-  var keepData = _imData.name === name && _imData.open;
+  // Data opens shown in its box, read every time; Hide / Show still fold it (user, 2026-10-31; was folded behind Show).
   _imData = { open: false, name: name, d: null };
-  if (keepData) _imDataToggle();
+  _imDataToggle();
   _imLoadHw(name);
   _imLoadDetail(name);
   var body = document.getElementById('importBody');
@@ -1642,7 +1641,7 @@ function _imDataHtml(name) {
       grp('Teacher') + row('Skips', k.teacher + since(d.skipsSince)) + row('Reschedules', r.teacher + since(d.reschedSince)) + row('Vacation', k.vacation + since(d.skipsSince)) +
     '</div>';
   }
-  return _imSec('Data', btn, '', inner);
+  return _imSec('Data', btn, '', inner);   // opens shown; Hide folds it (user, 2026-10-31)
 }
 
 function _imDataToggle() {

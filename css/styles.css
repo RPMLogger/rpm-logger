@@ -3996,3 +3996,13 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 #importBody .td-student { border: 1px solid #353535; border-left: 3px solid #424242; }
 #importBody .td-student .db-panel.im-list { border-color: transparent; }   /* inner panels: fill only, no frame; only the outside card has a border (user, 2026-10-31; no fill at all tried, harder on the eye) */
 #importBody .td-student .im-year { border-bottom: 0.5px solid #3a3a3a; }   /* the line under the year: a hairline, a step lighter (user, 2026-10-31; was 1px #2a2a2a) */
+#importBody .td-student .db-panel.im-list { border-color: #353535; }   /* inner panels framed again, now that they're narrower (user, 2026-10-31; were frameless earlier today) */
+#importBody .td-student { border-left: 1px solid #353535; }   /* no 3px card edge on the tall student page (user, 2026-10-31) */
+#importBody .td-student > .im-sec-head, #importBody .td-student > .im-list { margin-left: 16px; margin-right: 16px; }   /* sections a bit in from the name (user, 2026-10-31) */
+#importBody .td-student > .im-list { margin-left: 32px; margin-right: 32px; }   /* boxes a bit further in than their headings (user, 2026-10-31) */
+#importBody .td-student > .im-list + .im-sec-head { margin-top: 52px; }   /* more air between sections (user, 2026-10-31; was 34) */
+#importBody .td-student > .im-sec-head { margin-bottom: 14px; }
+#importBody .td-student > .im-sec-head { margin-right: 32px; }   /* Newest, Hide line up with the boxes' right edge (user, 2026-10-31) */
+#importBody .td-student { margin-top: 20px; }   /* more room above the student page (user, 2026-10-31) */
+#importBody .td-student > .im-title { align-items: flex-end; }   /* Log lesson right, its bottom level with the name's bottom (user, 2026-10-31) */
+#importBody .td-student { padding-top: 40px; }   /* more room above the name inside the box (user, 2026-10-31; was 22) */
