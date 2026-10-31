@@ -142,14 +142,12 @@ function _slcCutClick(ymd) {
   _slcReset(2);
   _slcRender();
 }
-// 2. The new day: in the dimmed lesson's week, tomorrow on (one lesson a
-// week); the week after too, for biweekly only (a move to the other week).
+// 2. The new day: the dimmed lesson's week or any later one, tomorrow on,
+// W or B (user, 2026-10-31: a vacation first, the new slot when they're
+// back). The old lessons go from the dimmed week, so one lesson a week holds.
 function _slcNewDayKind(ymd) {
   if (!_slc.cutDay || ymd <= _slcToday()) return '';
-  var mon = _slcMonday(_slc.cutDay);
-  if (ymd >= mon && ymd < _slcAddDays(mon, 7)) return 'WB';
-  if (ymd >= _slcAddDays(mon, 7) && ymd < _slcAddDays(mon, 14)) return 'B';
-  return '';
+  return ymd >= _slcMonday(_slc.cutDay) ? 'WB' : '';
 }
 function _slcDayClick(ymd) {
   if (_slc.applied || !_slcNewDayKind(ymd)) return;
@@ -338,6 +336,14 @@ function _slcDrawWeeks(box) {
     if (ymd === _slc.cutDay) c.classList.add('slc-cut');
     // The old lessons just fade (user, 2026-10-29): no ✕, no line. They aren't
     // cancelled for the student, each one is replaced by a new one.
+    // Once W or B has placed the series, the old lessons it replaces are plain
+    // days: no dim red left (user, 2026-10-31). The picked one keeps its grey.
+    if (n && !isNew[ymd] && ymd !== _slc.cutDay && c.classList.contains('slc-gone')) {
+      c.classList.remove('slc-gone');
+      c.style.background = 'transparent'; c.style.border = '1px solid transparent'; c.style.color = 'rgba(180,180,180,0.4)';
+      var dn = c.children[1]; if (dn) { dn.style.fontSize = '13px'; dn.style.fontWeight = ''; }
+      var dt = c.children[2]; if (dt) dt.innerHTML = '&nbsp;';
+    }
     if (isNew[ymd]) {   // drawn as a real lesson cell (student.js's look)
       c.classList.remove('slc-gone');
       c.classList.add('slc-new');
@@ -351,8 +357,8 @@ function _slcDrawWeeks(box) {
     if (ymd === _slc.pickDay && !n) {
       if (!n) { var tt = c.children[2]; if (tt) tt.textContent = _slcTimeLbl(_dtpMins(_slc.time)); }
       var ck = document.createElement('span');
-      ck.className = 'st-pick-clock';
-      ck.innerHTML = ST_CLOCK_ICON;
+      ck.className = 'st-pick-clock slc-time-tab';   // a "time" tab on the top edge, not the clock icon (user, 2026-10-31)
+      ck.textContent = 'time';
       ck.dataset.tip = 'Pick the time';
       ck.onclick = function(e) { e.stopPropagation(); _slcClockOpen(c); };
       c.appendChild(ck);
@@ -383,12 +389,15 @@ function _slcWinHtml() {
   // Change appointment's order (user, 2026-10-29): the steps first, then the weeks;
   // the time is the clock on the new day, no Time row.
   return (_slc.applied ? '' : "<div class='im-rs-hint im-rs-hint-top'><div class='im-rs-sec'><div class='im-rs-cap'>To change the slot</div><ol>" +
-      "<li>Click the lesson (red) to change</li><li>Click the new day</li><li>Pick the time on its clock (bottom left corner)</li><li>Tap W (weekly) or B (biweekly)</li></ol></div></div>") +
+      "<li>Click the lesson (red) to change</li><li>Click the new day</li><li>Click <span class='slc-time-chip'>time</span></li><li>Tap <span class='slc-wb-chip'>W</span> (weekly) or <span class='slc-wb-chip'>B</span> (biweekly)</li></ol></div></div>") +
     "<label class='field-label slc-weeks-l'>Next 8 weeks</label><div id='slcWeeks'></div>" +
     // What W / B set, in Change appointment's Moving to look (user, 2026-10-29): blank until then.
     (_slc.applied ? '' : "<div class='im-rs-moved-h'>Switching to</div><div class='im-rs-moved' id='slcSwitch'>" +
       (n ? "<span>" + (_slc.type === 'biweekly' ? 'Biweekly' : 'Weekly') + ' · ' + SLC_DAYS[n.dayIdx] + ' ' + _slcTimeLbl(n.startMin) +
-           (n.week ? ' · Week ' + n.week : '') + ' · starting ' + _slcDateLbl(_slc.date) + "</span>" : '') + "</div>") +
+           (n.week ? " · <b class='slc-wk'>Week " + n.week + '</b>' : '') + "</span>" : '<span>–</span>') + "</div>" +   // "–" until W or B (user, 2026-10-31)
+      // The start in its own box (user, 2026-10-31).
+      "<div class='im-rs-moved-h'>Starting from</div><div class='im-rs-moved' id='slcStart'>" +
+      (n ? '<span>' + _slcDateLbl(_slc.date) + '</span>' : '<span>–</span>') + "</div>") +
     (_slc.applied ? '' :
       // Confirm always at the end, dimmed until W or B is tapped (user, 2026-10-29).
       "<div class='ll-acts st-foot'><span class='ll-state' id='slcConfirmMsg' style='flex:1'></span>" +
@@ -498,10 +507,26 @@ function _slcInjectStyle() {
     // The lesson picked to change: border and text one dim grey (user, 2026-10-29), Change appointment's picked lesson.
     "#slcWeeks .slc-cut{opacity:1;background:rgba(255,255,255,0.04) !important;border-color:rgba(255,255,255,0.3) !important}" +
     "#slcWeeks .slc-cut div{color:rgba(255,255,255,0.3) !important}" +
-    ".slc-wb{position:absolute;top:-7px;width:16px;height:16px;border-radius:50%;background:#1a1a1a;border:1px solid var(--green);color:var(--green);" +
+    ".slc-wb{position:absolute;bottom:-7px;width:16px;height:16px;border-radius:50%;background:#1a1a1a;border:1px solid var(--green);color:var(--green);" +
       "font-family:'DM Mono',monospace;font-size:9px;line-height:14px;text-align:center;cursor:pointer;box-sizing:border-box}" +
     ".slc-wb:hover{background:var(--green);color:#111}" +
     ".slc-wb-W{left:-7px}.slc-wb-B{right:-7px}" +
+    // Time first: clock top left, W / B along the bottom (user, 2026-10-31).
+    "#slcWeeks .st-pick-clock{top:-7px;bottom:auto}" +
+    "#slcWeeks .slc-time-tab{top:-8px;left:6px;width:auto;height:15px;padding:0 6px;border-radius:4px;border:1px solid #8a8a8a;background:#8a8a8a;color:#1a1a1a;" +   // grey, inverted (user, 2026-10-31)
+      "font-family:'DM Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.04em;line-height:13px;box-sizing:border-box}" +
+    // The same look in the steps, so it reads as the button to click (user, 2026-10-31).
+    "#slcModal .im-rs-hint li{margin:5px 0}" +
+    "#slcModal .st-tpop{border-color:#8a8a8a}" +
+    "#slcModal .st-foot{margin-top:28px}" +   // room above Confirm (user, 2026-10-31)
+    "#slcSwitch,#slcSwitch span,#slcStart,#slcStart span{color:rgba(215,215,215,0.75) !important}" +
+    "#slcSwitch .slc-wk{font-weight:inherit;color:#7a7a7a}" +   // Week A darker, the steps' grey (user, 2026-10-31)
+    "#slcSwitch,#slcStart{border:none;background:none;padding:0 0 0 14px;min-height:0;align-items:flex-start}" +   // plain text, left, no box (user, 2026-10-31)   // Sat 31's grey, not white (user, 2026-10-31)   // the time list's border grey, like the time tab (user, 2026-10-31)   // room for the icons in the steps (user, 2026-10-31)
+    ".slc-wb-chip{display:inline-block;width:16px;height:16px;border-radius:50%;border:1px solid var(--green);color:var(--green);box-sizing:border-box;" +
+      "font-family:'DM Mono',monospace;font-size:9px;line-height:14px;text-align:center;vertical-align:1px;opacity:.5}" +   // dim in the steps (user, 2026-10-31)
+    ".slc-time-chip{display:inline-block;padding:0 6px;border-radius:4px;border:1px solid #8a8a8a;background:#8a8a8a;color:#1a1a1a;" +
+      "font-family:'DM Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.04em;line-height:13px;vertical-align:1px}" +
+    "#slcWeeks .slc-time-tab:hover{background:#bbb;border-color:#bbb;color:#111}" +
     ".slc-repeats{font-family:'DM Mono',monospace;font-size:11px;color:var(--t-normal);margin-top:14px}" +
     ".slc-warnbox{min-height:20px;margin-top:14px;font-size:11px}" +   // room kept, so the window doesn't grow
     ".slc-done{margin-top:20px}" +
