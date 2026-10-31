@@ -57,6 +57,9 @@ function _skRender() {
     "<div class='f2-cur' style='margin-bottom:8px;font-size:12px;text-align:right'>Total skips · " +   // smaller than Financial 2's 15px (user 2026-10-23)
       "<span class='f2-hi sk-hi'>" + (totals.student || 0) + " student</span> · " +
       "<span class='f2-hi sk-hi'>" + (totals.teacher || 0) + " teacher</span> · " +
+      // Reschedules on the same line (user, 2026-10-31).
+      "Reschedules · <span class='f2-hi sk-hi'>" + (totals.reschedStudent || 0) + " student</span> · " +
+      "<span class='f2-hi sk-hi'>" + (totals.reschedTeacher || 0) + " teacher</span> · " +
       "Since Jun 2026</div>" +
     "<div style='border-top:1px solid var(--border);margin-bottom:12px'></div>";   // the line under Total skips, the cards close under it (user 2026-10-23; was 24px)
   var btns = document.createElement('span');
@@ -222,7 +225,7 @@ function _skStudentCard(s) {
   var card = document.createElement('div');
   card.className = 'en-card sk-card';
 
-  var hasSkips = s.total > 0;
+  var hasSkips = s.total > 0 || (s.resched || []).length > 0;   // reschedules open the card too (2026-10-31)
 
   var hdr = document.createElement('div');
   hdr.className = 'en-card-head' + (hasSkips ? '' : ' sk-none');
@@ -231,7 +234,7 @@ function _skStudentCard(s) {
   hdr.innerHTML =
     "<span class='en-card-n'>" + _skEsc(s.name) + _skDensitySpan(s.name) + "</span>" +
     "<span class='en-card-r'>" +
-      "<span class='sk-counts" + (s.totalStudent || s.totalTeacher ? "" : " av-never") + "'>" + _skCounts(s) + "</span>" +
+      "<span class='sk-counts" + (s.totalStudent || s.totalTeacher || (s.resched || []).length ? "" : " av-never") + "'>" + _skCounts(s) + "</span>" +
       "<span class='en-card-a sk-caret'>▾</span>" +
     "</span>";
   card.appendChild(hdr);
@@ -300,6 +303,17 @@ function _skStudentCard(s) {
     });
     body.appendChild(grp);
   });
+  // Reschedules after the skips (user, 2026-10-31; were only in the Students page's Data box):
+  // "2 reschedules · Student", each row the lesson it moved and where to, with the reason.
+  ['Student', 'Teacher'].forEach(function(w) {
+    var list = (s.resched || []).filter(function(r) { return r.who === w; });
+    if (!list.length) return;
+    var grp = document.createElement('div');
+    grp.className = 'sk-group';
+    grp.innerHTML = "<div class='sk-group-h sk-hi'>" + list.length + (list.length === 1 ? " reschedule" : " reschedules") + " · " + w + "</div>";
+    list.forEach(function(r) { grp.appendChild(_skReschRow(r)); });
+    body.appendChild(grp);
+  });
   card.appendChild(body);
 
   card._skToggle = function(open) {
@@ -359,6 +373,8 @@ function _skCounts(s) {
   var parts = [];
   if (s.totalStudent)  parts.push(s.totalStudent + ' student');
   if (s.totalTeacher)  parts.push(s.totalTeacher + ' teacher');
+  var rn = (s.resched || []).length;
+  if (rn) parts.push(rn + (rn === 1 ? ' reschedule' : ' reschedules'));
   // Vacation skips only show inside the card (user 2026-10-22: least important).
   // No student/teacher skips: just a dash (user 2026-10-22). Vacation-only
   // cards still open.
@@ -404,6 +420,19 @@ function _skRow(s, k, note) {
         });
     }
   };
+  return row;
+}
+
+// One reschedule (2026-10-31): the lesson's date, day + time, → where it went, the reason. Read only.
+function _skReschRow(r) {
+  var year = String(new Date().getFullYear()), strip = new RegExp('\\s' + year + '$');
+  var row = document.createElement('div');
+  row.className = 'sk-row';
+  row.innerHTML =
+    "<span class='sk-date'>" + _skEsc(String(r.date || '').replace(strip, '')) + "</span>" +
+    "<span class='sk-when'>" + _skEsc(r.day || '') + "</span>" +
+    "<span class='sk-note'>→ " + _skEsc(String(r.toDate || '').replace(strip, '')) + (r.toDay ? ' · ' + _skEsc(r.toDay) : '') +
+      (r.note ? ' · ' + _skEsc(toSentenceCase(String(r.note))) : '') + "</span>";
   return row;
 }
 

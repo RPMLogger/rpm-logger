@@ -139,9 +139,8 @@ function _imOpenStudent(name) {
   _imOpen = name;
   _imHw = null;
   _imDetail = null;
-  // Data opens shown in its box, read every time; Hide / Show still fold it (user, 2026-10-31; was folded behind Show).
+  // No Data box on the Students page now (user, 2026-10-31): nothing to read.
   _imData = { open: false, name: name, d: null };
-  _imDataToggle();
   _imLoadHw(name);
   _imLoadDetail(name);
   var body = document.getElementById('importBody');
@@ -182,6 +181,34 @@ function _imRenderStudent(name, lessons) {
   if (!body) return;
   _imLift(body);
   body.innerHTML = _imStudentHtml(name, lessons, _imHw, _imDetail, { back: true, card: true, log: true, data: true });
+  // Notes, History, HW sent and Data each in their own box, its heading inside (user, 2026-10-31; were one big box).
+  var st = body.querySelector('.td-student');
+  if (st) {
+    st.classList.add('im-split');
+    st.querySelectorAll(':scope > .im-sec-head').forEach(function (h) {
+      var box = document.createElement('div');
+      box.className = 'im-sec-box';
+      h.parentNode.insertBefore(box, h);
+      var next = h.nextElementSibling;
+      box.appendChild(h);
+      if (next && next.classList.contains('im-list')) box.appendChild(next);
+    });
+    // The name + Log lesson in a small card like the Students list's (user, 2026-10-31).
+    var t = st.querySelector(':scope > .im-title');
+    if (t) {
+      var card = document.createElement('div');
+      card.className = 'im-head-card';
+      st.insertBefore(card, t);
+      // Back inside the card, before the name (user, 2026-10-31; was on its own line above).
+      var back = body.firstElementChild && body.firstElementChild.querySelector('button[onclick^="_imClose"]');
+      if (back) { back.parentNode.remove(); back.classList.add('im-head-back'); card.appendChild(back); }
+      card.appendChild(t);
+    }
+    var notes = [].filter.call(st.querySelectorAll(':scope > .im-sec-box'), function (b) { return /^notes$/i.test((b.querySelector('.db-cx-t') || {}).textContent || ''); })[0];
+    if (notes) notes.remove();   // no Notes box on the Students page (user, 2026-10-31; was moved last)
+    // No Data box either: skips and reschedules live on the Skip and reschedule count tab (user, 2026-10-31).
+    [].forEach.call(st.querySelectorAll(':scope > .im-sec-box'), function (b) { if (/^data$/i.test((b.querySelector('.db-cx-t') || {}).textContent || '')) b.remove(); });
+  }
   _imFixTips(body);
   if (!_ck.loaded && !_ck.busy) _ckLoad(function () { if (_imOpen === name && _imLast) _imRenderStudent(name, _imLast.lessons); });
 }
@@ -1689,16 +1716,18 @@ function _imLastHwHtml(hw, name) {
   else {
     var hide = !!_imHwHide[k], n = (r.files || []).length;
     var p = String(r.date).split('-');
+    // The HW sentence first with the date on its line; no lesson number; the file count under it
+    // (user, 2026-10-31; was "3 · 22 files · Oct 30" above the sentence).
+    var cnt = n ? n + (n === 1 ? ' file' : ' files') : '';
     out = '<div class="im-row im-hw-row">' +
-        '<span class="im-n">' + (r.lesson || '') + '</span>' +
-        '<span class="im-s">' + (n ? n + (n === 1 ? ' file' : ' files') : '') + '</span>' +
+        (r.text ? '<span class="im-hw-text">' + inqEsc(r.text) + '</span>' : '<span class="im-s">' + cnt + '</span>') +
         '<span class="im-d">' + MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10) + '</span></div>' +
-      (r.text ? '<div class="im-hw-text">' + inqEsc(r.text) + '</div>' : '') +
+      (r.text && cnt ? '<div class="im-hw-count">' + cnt + '</div>' : '') +
       (r.links || []).map(function (l) {
         return '<div class="im-hw-link"><span>' + (l.kind === 'Video' ? 'Video lesson' : 'Link') + '</span>' +
           '<a href="' + inqEsc(l.url) + '" target="_blank" rel="noopener">' + inqEsc(l.url) + '</a></div>';
       }).join('') +
-      (hide || !n ? '' : '<div class="im-hw-files">' + _dbDetailsFilesHtml({ items: r.files.map(function (x) { return { name: x.split('/').pop(), path: x }; }) }) + '</div>');
+      (hide || !n ? '' : '<div class="im-hw-files">' + _dbDetailsFilesHtml({ foldersOnly: true, items: r.files.map(function (x) { return { name: x.split('/').pop(), path: x }; }) }) + '</div>');
   }
   // Show more (2026-10-07): under the last HW, everything in their Dropbox
   // folder now (the daily clean-up keeps it to ~15 days). Read only on press.

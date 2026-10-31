@@ -543,6 +543,9 @@ function _dbDetailsFilesHtml(f) {
     // small gap between subfolders (2026-10-06).
     var subs = g.subs.slice().sort(function (a, b) { return (a ? 1 : 0) - (b ? 1 : 0) || byName(a, b); });
     return '<span class="db-group">' + head(g.top, false) + subs.map(function (sub, i) {
+      // Just the lesson folders, not what's in them (Students HW sent, user 2026-10-31); a click opens / closes its files.
+      if (sub && f.foldersOnly) return head(sub, true, false).replace('class="db-file db-dir"', 'class="db-file db-dir db-dir-toggle" onclick="var n=this.nextElementSibling;n.hidden=!n.hidden;this.classList.toggle(\'db-dir-open\')"') +
+        '<span class="db-dir-files" hidden>' + sorted(g.bySub[sub]).map(function (it) { return line(it, 2); }).join('') + '</span>';
       return (sub ? head(sub, true, i > 0) : '') + sorted(g.bySub[sub]).map(function (it) { return line(it, sub ? 2 : 1); }).join('');
     }).join('') + '</span>';
   }).join('');

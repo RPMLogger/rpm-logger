@@ -4031,3 +4031,32 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 #importBody .td-student .db-file { font-size: 11px; }
 #importBody .td-student .im-hw-row .im-s { color: var(--t-normal); }
 #importBody .td-student .im-year { display: none; }   /* no year line in History (user, 2026-10-31) */
+#importBody .td-student .im-list > .im-more { margin: 10px 0 0 auto; }   /* Show all bottom right of the box (user, 2026-10-31; was centred) */
+#importBody .td-student .im-hw-row { grid-template-columns: 1fr auto; column-gap: 16px; align-items: baseline; }   /* no number column: sentence, then the date */
+#importBody .td-student .im-hw-row .im-hw-text { flex: 1; min-width: 0; margin: 0; white-space: normal; }   /* the HW sentence wraps; the date sits on its first line (user, 2026-10-31) */
+#importBody .td-student .im-hw-count { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); margin: 4px 0 6px; }
+/* Student page split into boxes (user, 2026-10-31): no big outer box; the name line on the page, then Notes, History, HW sent, Data each a box like Today's */
+#importBody .td-student.im-split { background: none; border: none; box-shadow: none; padding: 0; }
+#importBody .td-student.im-split > .im-title { padding: 0 24px; margin-bottom: 24px; }
+#importBody .im-split > .im-sec-box { background: var(--box); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-top: 24px; }
+#importBody .im-split > .im-sec-box > .im-sec-head { margin: 0 0 14px; }
+#importBody .im-split > .im-sec-box > .im-sec-head:last-child { margin-bottom: 0; }
+#importBody .im-split > .im-sec-box > .im-list { margin: 0 16px; }
+#importBody .im-split > .im-sec-box > .im-list { margin: 0; padding: 0; border: none; background: none; }   /* no inner frame: the box is the frame (user, 2026-10-31) */
+body #importBody .im-split > .im-sec-box > .db-panel.im-list { background-color: transparent; background-image: none; border-color: transparent; }
+#importBody .im-split > .im-sec-box > .im-list { padding-left: 16px; }   /* texts a bit in from the heading (user, 2026-10-31) */
+/* The student page's top card: name + Log lesson, the Students list card's look (user, 2026-10-31) */
+#importBody .im-split > .im-head-card { max-width: 600px; margin: 0 auto; padding: 22px 16px; background-color: #121212; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
+  border: 1px solid #353535; border-left: 3px solid #424242; border-radius: 10px; }
+#importBody .im-split > .im-head-card > .im-title { padding: 0; margin: 0; align-items: center; }
+#importBody .im-split > .im-head-card > .im-title > span { font-size: 22px; letter-spacing: 1px; line-height: 1.05; }
+/* the top card matches the boxes under it: their width, fill and frame; Back in it, left of the name (user, 2026-10-31) */
+body #importBody .im-split > .im-head-card { max-width: none; background: var(--box); border: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; gap: 18px; }
+#importBody .im-split > .im-head-card > .im-title { flex: 1; }
+#importBody .td-student.im-split { margin-top: 0; }
+#importBody .im-split .im-row.im-latest .im-s, #importBody .im-split .im-row.im-latest .im-n, #importBody .im-split .im-row.im-latest .im-d { color: inherit; }   /* the newest lesson no brighter than the rest (user, 2026-10-31) */
+#importBody .im-split .im-row.im-latest .im-n, #importBody .im-split .im-row.im-latest .im-d { color: var(--t-faint); }
+.db-dir-toggle { cursor: pointer; }   /* HW sent lesson folders open / close their files (user, 2026-10-31) */
+.db-dir-toggle:hover:where(:not(:disabled)) { color: var(--t-bright); }
+.db-dir-files { display: contents; }
+.db-dir-files[hidden] { display: none; }
