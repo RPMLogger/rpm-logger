@@ -4015,3 +4015,4 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 #importBody .td-student > .im-title > span { font-size: 22px; letter-spacing: 1px; }
 #importBody .td-student .db-file { font-size: 11px; }
 #importBody .td-student .im-hw-row .im-s { color: var(--t-normal); }
+#importBody .td-student .im-year { display: none; }   /* no year line in History (user, 2026-10-31) */
