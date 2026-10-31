@@ -3935,30 +3935,45 @@ body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http:
 
 /* ─── AMP HEAD (2026-10-30, user's idea): the logo box is a minimal amp head, flat like
    the user's icon: dark body, a dark rounded inner line, the box background inside, a control strip holding ☰ (left),
-   6 darker knobs under RED PICK MUSIC, edge to edge, Magnifier and Home (right), a handle on top and two feet. Drawn in code. Delete this block to undo. */
-html body .header { margin: 92px 0 107px; }   /* 20px more room above the handle (user, 2026-10-30); feet 6px above the tab box's amp edge (user, 2026-10-30); the head's control strip + feet; 20px more room inside top and bottom (user, 2026-10-30) */
+   6 knob buttons (the most-used tabs, labelled) centred in the strip, edge to edge, Magnifier and Home (right), a handle on top and two feet. Drawn in code. Delete this block to undo. */
+html body .header { margin: 97px 0 107px; }   /* 20px more room above the handle (user, 2026-10-30); feet 6px above the tab box's amp edge (user, 2026-10-30); the head's control strip + feet; 20px more room inside top and bottom (user, 2026-10-30) */
 html body .header::before {
-  left: 4px; right: 4px; top: -62px; bottom: -72px; border: 1px solid #2c2c2c; border-radius: 10px;   /* the inner line: dark and rounded like the outer edge (user, 2026-10-30) */
+  left: 4px; right: 4px; top: -67px; bottom: -72px; border: 1px solid #2c2c2c; border-radius: 10px;   /* the inner line: dark and rounded like the outer edge (user, 2026-10-30) */
   box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c;   /* the amp body around it, its outer edge rounded too */
   background:
-    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27174%27 height=%2728%27%3E%3Ccircle cx=%279.0%27 cy=%2714%27 r=%279%27 fill=%27%23333333%27/%3E%3Cline x1=%279.0%27 y1=%2714%27 x2=%279.0%27 y2=%276%27 stroke=%27%23141414%27 stroke-width=%272%27 stroke-linecap=%27round%27/%3E%3Ccircle cx=%2740.2%27 cy=%2714%27 r=%279%27 fill=%27%23333333%27/%3E%3Cline x1=%2740.2%27 y1=%2714%27 x2=%2740.2%27 y2=%276%27 stroke=%27%23141414%27 stroke-width=%272%27 stroke-linecap=%27round%27/%3E%3Ccircle cx=%2771.4%27 cy=%2714%27 r=%279%27 fill=%27%23333333%27/%3E%3Cline x1=%2771.4%27 y1=%2714%27 x2=%2771.4%27 y2=%276%27 stroke=%27%23141414%27 stroke-width=%272%27 stroke-linecap=%27round%27/%3E%3Ccircle cx=%27102.6%27 cy=%2714%27 r=%279%27 fill=%27%23333333%27/%3E%3Cline x1=%27102.6%27 y1=%2714%27 x2=%27102.6%27 y2=%276%27 stroke=%27%23141414%27 stroke-width=%272%27 stroke-linecap=%27round%27/%3E%3Ccircle cx=%27133.8%27 cy=%2714%27 r=%279%27 fill=%27%23333333%27/%3E%3Cline x1=%27133.8%27 y1=%2714%27 x2=%27133.8%27 y2=%276%27 stroke=%27%23141414%27 stroke-width=%272%27 stroke-linecap=%27round%27/%3E%3Ccircle cx=%27165.0%27 cy=%2714%27 r=%279%27 fill=%27%23333333%27/%3E%3Cline x1=%27165.0%27 y1=%2714%27 x2=%27165.0%27 y2=%276%27 stroke=%27%23141414%27 stroke-width=%272%27 stroke-linecap=%27round%27/%3E%3C/svg%3E") calc(50% + 27px) calc(100% - 10px) / 174px 28px no-repeat padding-box,
-    linear-gradient(#2c2c2c, #2c2c2c) left bottom 48px / 100% 1px no-repeat padding-box,
-    linear-gradient(#151515, #151515) left bottom / 100% 48px no-repeat padding-box,
+    linear-gradient(#2c2c2c, #2c2c2c) left bottom 53px / 100% 1px no-repeat padding-box,   /* line 5px higher: as much room above the buttons as under (user, 2026-10-31) */
+    linear-gradient(#151515, #151515) left bottom / 100% 53px no-repeat padding-box,
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E") padding-box,
     var(--box) padding-box;
 }
 html body .header::after {   /* handle on top, two feet under */
-  content: ""; position: absolute; left: 0; right: 0; top: -88px; bottom: -90px; z-index: -2; pointer-events: none;
+  content: ""; position: absolute; left: 0; right: 0; top: -93px; bottom: -90px; z-index: -2; pointer-events: none;
   background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27140%27 height=%2718%27%3E%3Cpath d=%27M4 18 Q8 2 70 2 Q132 2 136 18%27 fill=%27none%27 stroke=%27%231a1a1a%27 stroke-width=%274%27/%3E%3C/svg%3E") center top / 140px 18px no-repeat,
     url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Crect width=%2734%27 height=%278%27 rx=%271%27 fill=%27%232a2a2a%27/%3E%3C/svg%3E") left 34px bottom / 34px 8px no-repeat,
     url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Crect width=%2734%27 height=%278%27 rx=%271%27 fill=%27%232a2a2a%27/%3E%3C/svg%3E") right 34px bottom / 34px 8px no-repeat;
 }
 /* ☰, Magnifier and Home sit in the control strip, 26px buttons; strip 34 → 48 tall (user, 2026-10-30) */
-html body .sb-burger { left: 22px; top: 170px; width: 26px; height: 26px; border-radius: 6px; }
+html body .sb-burger { left: 23.5px; top: 171.5px; width: 26px; height: 26px; border-radius: 6px; }   /* ☰'s top bar level with the knobs' pointer tops (user, 2026-10-31) */
 html body .sb-burger::before { left: 6px; right: 6px; top: 7px; box-shadow: 0 5px currentColor, 0 10px currentColor; }
-html body .header .hdr-home { top: 78px; transform: none; right: 22px; width: 26px; height: 26px; border-radius: 6px; }
-html body .header .hdr-mag { right: 54px; }
+html body .header .hdr-home { top: 74.5px; transform: none; right: 23.5px; width: 26px; height: 26px; border-radius: 6px; }
+html body .header .hdr-mag { right: 58.5px; }
 html body .header .hdr-home-i { left: 5px; top: 5px; width: 14px; height: 14px; }
+/* The six knobs are buttons to the most-used tabs, a tiny grey caps label under each like a real amp;
+   the open tab's knob is turned up (user, 2026-10-31). The row centred in the strip; the EQ icon tried and dropped. */
+html body .header .amp-knobs { position: absolute; left: calc(50% - 17.5px); top: 77px;   /* centred between ☰ and the Magnifier (user, 2026-10-31) */   /* knob + label as one, its middle level with ☰ / Home (user, 2026-10-31) */ transform: translateX(-50%); display: flex; }
+html body .header .amp-knob { width: 52px; padding: 0; border: none; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+html body .header .amp-knob-k { position: relative; box-sizing: border-box; width: 18px; height: 18px; border-radius: 50%; background: color-mix(in srgb, #fff 4%, transparent); border: 1px solid rgba(255,255,255,0.10); transition: border-color .12s, background .12s; }   /* the ☰ / Home button face (user, 2026-10-31) */
+html body .header .amp-knob-k::after { content: ""; position: absolute; left: 7px; top: 2px; width: 2px; height: 6px; border-radius: 1px; background: var(--muted); transform-origin: 1px 6px; transition: transform .2s; }   /* pointer in the icons' grey */
+html body .header .amp-knob-l { font-family: "DM Mono", monospace; font-size: 7px; letter-spacing: .6px; text-transform: uppercase; color: #5e5e5e; line-height: 1; white-space: nowrap; transition: color .12s; }
+html body .header .amp-knob:hover .amp-knob-k { border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
+html body .header .amp-knob:hover .amp-knob-k::after { background: rgba(255,255,255,0.82); }
+html body .header .amp-knob:hover .amp-knob-l { color: #9a9a9a; }
+body:has(#tab-today.active) .amp-knob[data-k=today] .amp-knob-k::after, body:has(#tab-import.active) .amp-knob[data-k=import] .amp-knob-k::after,
+body:has(#tab-calendar.active) .amp-knob[data-k=calendar] .amp-knob-k::after, body:has(#tab-audit.active) .amp-knob[data-k=audit] .amp-knob-k::after,
+body:has(#tab-payments.active) .amp-knob[data-k=payments] .amp-knob-k::after, body:has(#tab-todo.active) .amp-knob[data-k=todo] .amp-knob-k::after { transform: rotate(90deg); }
+body:has(#tab-today.active) .amp-knob[data-k=today] .amp-knob-l, body:has(#tab-import.active) .amp-knob[data-k=import] .amp-knob-l,
+body:has(#tab-calendar.active) .amp-knob[data-k=calendar] .amp-knob-l, body:has(#tab-audit.active) .amp-knob[data-k=audit] .amp-knob-l,
+body:has(#tab-payments.active) .amp-knob[data-k=payments] .amp-knob-l, body:has(#tab-todo.active) .amp-knob[data-k=todo] .amp-knob-l { color: #9a9a9a; }
 /* Home and Audit get the amp's border under the head: dark body ring around a dark rounded line; every other tab keeps its plain box (user, 2026-10-30) */
 html body #tab-home.active, html body #tab-audit.active {
   margin-left: 4px; margin-right: 4px; border-color: #2c2c2c; box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }

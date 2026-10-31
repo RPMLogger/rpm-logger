@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=1060">
+  <link rel="stylesheet" href="css/styles.css?v=1061">
 </head>
 <body>
 <div class="container">
@@ -15,12 +15,14 @@
     <img src="img/portal-logo.png" alt="Red Pick Music">
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1060</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1061</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
     <!-- Home opposite ☰, to get back quickly (user, 2026-10-26; om-122) -->
     <!-- Magnifier left of Home (user, 2026-10-28): rest the pointer on longer text to see it bigger; core/magnifier.js -->
+    <!-- the amp's knobs = the six most-used tabs, a tiny label under each like a real amp (user, 2026-10-31) -->
+    <div class="amp-knobs"><button class="amp-knob" data-k="today" onclick="switchTab('today')" aria-label="Today"><span class="amp-knob-k"></span><span class="amp-knob-l">Today</span></button><button class="amp-knob" data-k="import" onclick="switchTab('import')" aria-label="Students"><span class="amp-knob-k"></span><span class="amp-knob-l">Students</span></button><button class="amp-knob" data-k="calendar" onclick="switchTab('calendar')" aria-label="Calendar"><span class="amp-knob-k"></span><span class="amp-knob-l">Calendar</span></button><button class="amp-knob" data-k="audit" onclick="switchTab('audit')" aria-label="Audit"><span class="amp-knob-k"></span><span class="amp-knob-l">Audit</span></button><button class="amp-knob" data-k="payments" onclick="switchTab('payments')" aria-label="Payments"><span class="amp-knob-k"></span><span class="amp-knob-l">Payments</span></button><button class="amp-knob" data-k="todo" onclick="switchTab('todo')" aria-label="To-Do"><span class="amp-knob-k"></span><span class="amp-knob-l">To-Do</span></button></div>
     <button class="hdr-home hdr-mag" id="hdrMag" onclick="magToggle()" aria-label="Magnifier" data-tip="Instant.&#10;Magnifier: rest the pointer on longer text&#10;for half a second to see it bigger."><span class="hdr-home-i hdr-mag-i"></span></button>
     <button class="hdr-home" onclick="switchTab('home')" aria-label="Home" data-tip="Instant.&#10;Back to Home."><span class="hdr-home-i"></span></button>
   </div>
@@ -797,48 +799,48 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=1060"></script>
-<script src="core/storage.js?v=1060"></script>
-<script src="core/utils.js?v=1060"></script>
-<script src="core/dialog.js?v=1060"></script>
-<script src="core/api.js?v=1060"></script>
-<script src="core/secalert.js?v=1060"></script>
-<script src="core/magnifier.js?v=1060"></script>
+<script src="core/state.js?v=1061"></script>
+<script src="core/storage.js?v=1061"></script>
+<script src="core/utils.js?v=1061"></script>
+<script src="core/dialog.js?v=1061"></script>
+<script src="core/api.js?v=1061"></script>
+<script src="core/secalert.js?v=1061"></script>
+<script src="core/magnifier.js?v=1061"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=1060"></script>
-<script src="tabs/lessons.js?v=1060"></script>
-<script src="tabs/payments.js?v=1060"></script>
-<script src="tabs/general.js?v=1060"></script>
-<script src="tabs/financial.js?v=1060"></script>
-<script src="tabs/inquiries.js?v=1060"></script>
-<script src="tabs/inqarchive.js?v=1060"></script>
-<script src="tabs/comms.js?v=1060"></script>
-<script src="tabs/notes.js?v=1060"></script>
-<script src="tabs/todo.js?v=1060"></script>
-<script src="tabs/availability.js?v=1060"></script>
-<script src="tabs/travel.js?v=1060"></script>
-<script src="tabs/tripsummary.js?v=1060"></script>
-<script src="tabs/triphistory.js?v=1060"></script>
-<script src="tabs/skips.js?v=1060"></script>
-<script src="tabs/student.js?v=1060"></script>
-<script src="tabs/ctrl.js?v=1060"></script>
-<script src="tabs/gbusiness.js?v=1060"></script>
-<script src="tabs/dropbox.js?v=1060"></script>
-<script src="tabs/import.js?v=1060"></script>
-<script src="tabs/today.js?v=1060"></script>
-<script src="tabs/home.js?v=1060"></script>
-<script src="tabs/trial.js?v=1060"></script>
-<script src="tabs/ending.js?v=1060"></script>
-<script src="tabs/reviews.js?v=1060"></script>
-<script src="tabs/financial2.js?v=1060"></script>
-<script src="tabs/sheets.js?v=1060"></script>
-<script src="tabs/studentline.js?v=1060"></script>
-<script src="tabs/calendar.js?v=1060"></script>
-<script src="tabs/fixedcal.js?v=1060"></script>
-<script src="tabs/slotchange.js?v=1060"></script>
-<script src="tabs/help.js?v=1060"></script>
-<script src="tabs/holidays.js?v=1060"></script>
+<script src="tabs/icons.js?v=1061"></script>
+<script src="tabs/lessons.js?v=1061"></script>
+<script src="tabs/payments.js?v=1061"></script>
+<script src="tabs/general.js?v=1061"></script>
+<script src="tabs/financial.js?v=1061"></script>
+<script src="tabs/inquiries.js?v=1061"></script>
+<script src="tabs/inqarchive.js?v=1061"></script>
+<script src="tabs/comms.js?v=1061"></script>
+<script src="tabs/notes.js?v=1061"></script>
+<script src="tabs/todo.js?v=1061"></script>
+<script src="tabs/availability.js?v=1061"></script>
+<script src="tabs/travel.js?v=1061"></script>
+<script src="tabs/tripsummary.js?v=1061"></script>
+<script src="tabs/triphistory.js?v=1061"></script>
+<script src="tabs/skips.js?v=1061"></script>
+<script src="tabs/student.js?v=1061"></script>
+<script src="tabs/ctrl.js?v=1061"></script>
+<script src="tabs/gbusiness.js?v=1061"></script>
+<script src="tabs/dropbox.js?v=1061"></script>
+<script src="tabs/import.js?v=1061"></script>
+<script src="tabs/today.js?v=1061"></script>
+<script src="tabs/home.js?v=1061"></script>
+<script src="tabs/trial.js?v=1061"></script>
+<script src="tabs/ending.js?v=1061"></script>
+<script src="tabs/reviews.js?v=1061"></script>
+<script src="tabs/financial2.js?v=1061"></script>
+<script src="tabs/sheets.js?v=1061"></script>
+<script src="tabs/studentline.js?v=1061"></script>
+<script src="tabs/calendar.js?v=1061"></script>
+<script src="tabs/fixedcal.js?v=1061"></script>
+<script src="tabs/slotchange.js?v=1061"></script>
+<script src="tabs/help.js?v=1061"></script>
+<script src="tabs/holidays.js?v=1061"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
