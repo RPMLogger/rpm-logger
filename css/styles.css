@@ -2510,8 +2510,8 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #todayBody .td-today-box .td-wk-title .win-sub { color: var(--t-faint); }   /* the date a step darker than the names under it (2026-10-09) */
 /* Today's count + mini list (2026-10-06): time, then the name as a button; in the box since 2026-10-24. */
 #todayBody .td-today-box { margin-top: 0; }   /* still centred: .td-wk-box's auto sides */
-#importBody .im-box { margin-top: 0; }   /* Students in one box like Today's (user, 2026-10-26; three boxes were tried) */
-#importBody .im-box > .im-card:last-child { margin-bottom: 0; }   /* even 24px top and bottom */   /* Students in one box like Today's (user, 2026-10-26) */
+#importBody .im-box:first-child { margin-top: 0; }   /* three boxes like Today's: Today, Not logged, A–Z (user, 2026-10-30; one box from 2026-10-26) */
+#importBody .im-box > .im-card:last-child { margin-bottom: 20px; }   /* more room under the last card (user, 2026-10-30; was 0) */   /* even 24px top and bottom */   /* Students in one box like Today's (user, 2026-10-26) */
 #todayBody .td-today-box .td-count { margin-top: 0; }
 .td-mini { margin-bottom: 34px; display: flex; flex-direction: column; gap: 6px; }
 #todayBody .td-mini { border: none; background: none; padding: 0; gap: 12px; }   /* a plain list, no box, rows spaced out (2026-10-09) */
@@ -3929,7 +3929,7 @@ body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http:
 #importBody .im-card:hover:where(:not(:disabled)) { background-color: #181818; border-color: #353535; border-left-color: #424242; }   /* one grey left edge for Today, Not logged and Others (user, 2026-10-30; were green / amber / blue) */
 #importBody .im-card .db-card-n { font-family: "Bebas Neue", sans-serif; font-size: 22px; letter-spacing: 1px; line-height: 1.05; }
 /* Students cards come in one by one on opening the tab (user, 2026-10-30): each fades up 6px, 30ms after the one before (tabs/import.js sets --i). */
-#importBody .im-stagger > .im-card, #importBody .im-stagger > .im-group-h { animation: imCardIn .28s ease-out both; animation-delay: calc(var(--i, 0) * 30ms); }
+#importBody .im-stagger > .im-card, #importBody .im-stagger > .im-title-row { animation: imCardIn .28s ease-out both; animation-delay: calc(var(--i, 0) * 30ms); }
 @keyframes imCardIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 /* ─── AMP HEAD (2026-10-30, user's idea): the logo box is a minimal amp head, flat like
@@ -3961,6 +3961,8 @@ html body .header .hdr-home-i { left: 5px; top: 5px; width: 14px; height: 14px; 
 /* the tab box under the head gets the amp's border: dark body ring around a dark rounded line (user, 2026-10-30) */
 html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms) {
   margin-left: 4px; margin-right: 4px; border-color: #2c2c2c; box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }
+/* the Students boxes (Today, Not logged, A–Z) get the same amp border (user, 2026-10-30) */
+html body #importBody .im-box { margin-left: 4px; margin-right: 4px; width: calc(100% - 8px); border-color: #2c2c2c; box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }
 /* Page 1 has no heading: the window title says Log Lesson and HW (user, 2026-10-30); the case hint stays */
 #imLogWin .im-main-log .im-main-t { display: none; }
 /* Page 1 labels in the Reason (optional) look, no 1234 (user, 2026-10-30) */

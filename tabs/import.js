@@ -86,20 +86,20 @@ function _imRenderCards(noRead) {
       (first && !(!isToday(n) && o) ? '<span class="im-steps">' + _imStepsHtml(first.day, first.miss, first.hw, n) + (all > 1 ? '<span class="im-step-more">· ' + all + ' open</span>' : '') + '</span>' : '') +
     '</div>';
   };
-  body.innerHTML =
-    '<div class="db-section td-wk-box im-box' + (anim ? ' im-stagger' : '') + '">' +
-      // Audit lessons red on the title line, right (user, 2026-10-23; was amber, level with "24 students").
-      '<div class="settings-title im-title-row"><span class="im-title-stack"><span>Students<span class="win-sub"> · Lessons</span></span><span class="st-page-icon">' + ANALYSIS_ICON + '</span></span>' +   // no count (user, 2026-10-24; was "· 24 students" grey beside the title)   // was "Import", then "Lesson Log" (2026-10-09), then "Lessons" (renamed Students 2026-10-13)
-        '<button class="link-btn im-audit-link" onclick="switchTab(\'audit\')" data-tip="Opens a tab.\nAudit lessons and Audit payments." data-tip-wrap><span>Audit</span></button></div>' +   // white, no glass: just a link, level with STUDENTS (user, 2026-10-30)   // om-120 sits centred under the title, inside it (user, 2026-10-30; was its own line, left-aligned)
-      // The student page's box-title style (2026-10-06): one heading look on this tab.
-      // Audit lessons (2026-10-14): red, right, level with "24 students", like Audit
-      // payments; opens the old Logs page (Unlogged Lessons + Lesson Checklist) here.
-      // A heading over each group, the Sheets tab's "Finances" look (user, 2026-10-30).
-      ['Today', 'Not logged', 'A–Z'].map(function (h, g) {
-        var in_g = names.filter(function (n) { return group(n) === g; });
-        return in_g.length ? '<div class="section-label im-group-h"' + inStyle() + '>' + h + '</div>' + in_g.map(card).join('') : '';
-      }).join('') +
+  // Three boxes like Today's (user, 2026-10-30; was one box, group headings inside):
+  // Today, Not logged, A–Z, each titled in Today's red. The first one drawn carries
+  // the ID-card icon under its title and Audit top right.
+  var firstBox = true;
+  body.innerHTML = ['Today', 'Not logged', 'A–Z'].map(function (h, g) {
+    var in_g = names.filter(function (n) { return group(n) === g; });
+    if (!in_g.length) return '';
+    var top = firstBox; firstBox = false;
+    return '<div class="db-section td-wk-box im-box' + (anim ? ' im-stagger' : '') + '">' +
+      '<div class="settings-title td-wk-title im-title-row"' + inStyle() + '><span class="im-title-stack"><span>' + h + '</span>' + (top ? '<span class="st-page-icon">' + ANALYSIS_ICON + '</span>' : '') + '</span>' +
+        (top ? '<button class="link-btn im-audit-link" onclick="switchTab(\'audit\')" data-tip="Opens a tab.\nAudit lessons and Audit payments." data-tip-wrap><span>Audit</span></button>' : '') + '</div>' +   // white, no glass: just a link (user, 2026-10-30)
+      in_g.map(card).join('') +
     '</div>';
+  }).join('');
   if (_ck.busy) _imListBusy(true);   // drawn from the browser's copy: still Refreshing
 }
 // The list dims with REFRESHING in the middle while the checklist is read
