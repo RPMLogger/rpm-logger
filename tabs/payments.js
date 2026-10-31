@@ -473,9 +473,10 @@ function openPayAudit() {
   if (!url) { document.getElementById("auditUnpaidSection").innerHTML = '<div class="empty-state">No script URL set</div>'; return; }
   _runAudit3(url);
 }
-// The magnifier (Details icon) on the Audit buttons, as soon as the page is up.
+// The magnifier (Details icon) on the Audit buttons, as soon as the page is up
+// (the Audit tab's two tiles have the user's own icons instead, 2026-10-31).
 document.addEventListener("DOMContentLoaded", function () {
-  ["btnPayAudit", "btnAuLessons", "btnAuPayments"].forEach(function (id) {
+  ["btnPayAudit"].forEach(function (id) {
     var b = document.getElementById(id);
     if (b && !b.querySelector("svg")) b.insertAdjacentHTML("afterbegin", DETAILS_ICON);
   });

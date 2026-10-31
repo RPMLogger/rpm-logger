@@ -344,12 +344,15 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .home-top .link-btn svg { width: 14px; height: 14px; }
 /* AUDIT (2026-10-30, user): opens like Home, Audit lessons + Audit payments red in the middle */
 #tab-audit.active:has(#auMenuView:not([style*="none"])) { display: flex; flex-direction: column; min-height: 380px; }   /* shorter window (user, 2026-10-30; was the full screen height) */
-#tab-audit .au-menu { flex: 1; display: flex; flex-direction: column; }   /* Audit title + icon at the top like other tabs; buttons stay in the middle of what's left */
+#tab-audit .au-menu { flex: 1; display: flex; flex-direction: column; }   /* no title (user, 2026-10-31); the tiles sit in the middle */
 #tab-audit .au-menu .au-top { margin: auto 0; }
+.au-icon { display: block; width: 54px; height: 54px; background: currentColor;   /* the user's stacked pages (om-9) on the Audit lessons tile, in place of the magnifier (2026-10-31) */
+  -webkit-mask: url('../img/audit-lessons-icon.svg') center / contain no-repeat; mask: url('../img/audit-lessons-icon.svg') center / contain no-repeat; }
+.au-icon.pay { -webkit-mask-image: url('../img/audit-payments-icon.svg'); mask-image: url('../img/audit-payments-icon.svg'); }   /* the user's $ in a ring (om-8, 2026-10-31) */
 .au-top { display: flex; justify-content: center; gap: 10px; }
 .au-top { gap: 14px; }
 .au-top .link-btn { color: var(--t-text); border-color: rgba(255,255,255,0.22);   /* white, like Home's buttons (user, 2026-10-30; were red) */
-  flex-direction: column; justify-content: center; gap: 10px; width: 160px; height: 100px; font-size: 13px; border-radius: 10px; }   /* tiles, 2/3 of the first big size (user, 2026-10-30) */
+  flex-direction: column; justify-content: center; gap: 12px; width: 180px; height: 130px; font-size: 13px; border-radius: 10px; }   /* tiles, 2/3 of the first big size (user, 2026-10-30) */
 .au-top .link-btn svg { width: 27px; height: 27px; }   /* the magnifier inside each tile (user, 2026-10-30) */
 /* Student name box under them; the names drop down over the page */
 .home-search { position: relative; width: 240px; margin: 40px auto 0; }
