@@ -61,7 +61,7 @@ body { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/
 body #importBody .im-card, body #tab-payments .incoming-card, body #importBody .td-student .db-panel.im-list { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* a bit of the cards' paper grain on the big boxes, logo box included (user, 2026-10-30; was on the page background) */
 body .header::before, body .td-wk-box, body #importBody .td-student,
-body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
+body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* No darker sides outside the page column any more (user, 2026-10-26; were
    shaded from 2026-10-24): the grid runs edge to edge. */
 
@@ -328,9 +328,9 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 /* Every tab in one bordered box like Today's (user, 2026-10-26; Home too).
-   Today, Students, To-Do and Notes make their own boxes; Calendar, Fixed schedule
+   Today, Students, To-Do, Notes and Comms make their own boxes; Calendar, Fixed schedule
    and Financial are wider than the column, so they stay open. */
-.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2) {
+.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms) {
   box-sizing: border-box; padding: 24px; background: var(--box); border: 1px solid var(--border); border-radius: 10px;   /* every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
 
@@ -1542,11 +1542,11 @@ input[type="checkbox"]:checked {
 .cm-row:hover { background: var(--surface2); }
 .cm-row .td-mini-t { font-size: 10.5px; color: var(--t-faint); min-width: 64px; }
 .cm-ico { font-size: 12px; width: 16px; text-align: center; flex: none; }
-.cm-name { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--accent2); flex: none; width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cm-prev { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cm-row.cm-done .cm-name { color: var(--t-normal); }   /* answered: the name loses its amber */
-.cm-row.cm-done .cm-prev { color: var(--t-faint); }
-.cm-check { display: none; width: 12px; height: 12px; border: 1px solid var(--muted); border-radius: 3px; flex: none; position: relative; }
+.cm-name { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); flex: none; width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cm-prev { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* This Week's colours (user, 2026-10-30): times + messages faint, numbers normal; answered = all faint */
+.cm-row.cm-done .cm-name { color: var(--t-faint); }
+.cm-check { display: none; width: 12px; height: 12px; border: 1px solid var(--muted); border-radius: 3px; flex: none; position: relative; order: 1; }   /* tick box at the right end of the row (user, 2026-10-31) */
 .comms-editing .cm-check { display: inline-block; }
 .cm-row.selected { background: var(--surface2); }
 .cm-row.selected .cm-check { background: var(--accent); border-color: var(--accent); }
@@ -1559,6 +1559,7 @@ input[type="checkbox"]:checked {
 .cm-win-text { font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.6; color: var(--t-normal); white-space: pre-wrap; margin-bottom: 18px; }
 .cm-win-audio audio { width: 100%; margin-bottom: 18px; color-scheme: dark; }   /* the browser's dark player, not the white one */
 .cm-win-foot { display: flex; justify-content: flex-start; }
+.td-student.cm-win .im-title > span { color: var(--t-normal); }   /* the number in the window not amber either */
 
 /* ─── COMMS DETAIL OVERLAY ──────────────────────────────────────────────── */
 .comms-detail-overlay {
