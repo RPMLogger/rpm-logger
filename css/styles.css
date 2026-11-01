@@ -3774,6 +3774,8 @@ th.f2-blk { background:none; }
 #importBody .st-page-icon .win-icon { height:24px; width:auto; }
 /* Payments: om-98 calculator + coin under the title, like Today / Dashboard (user 2026-10-24). */
 #payMainView > .settings-title:has(+ .pay-page-icon) { margin-bottom:10px; }
+#importBody .im-title-row { position:relative; }
+#importBody .im-hero { position:absolute; left:50%; bottom:-41px; height:80px; transform:translateX(-50%); pointer-events:none; }   /* guitar + amp on the first card's top edge (user, 2026-10-31) */
 #payMainView > .pay-page-icon { margin:0 0 26px; color:var(--muted); line-height:0; }
 #payMainView > .pay-page-icon .win-icon { height:24px; width:auto; }
 #payMainView > .settings-title .pay-title-btns { display:flex; gap:8px; }   /* Payment history + Audit payments top right (user 2026-10-24) */
