@@ -4105,16 +4105,13 @@ body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 #slcBody .slc-scard .db-card-n { font-family: "Bebas Neue", sans-serif; font-size: 22px; letter-spacing: 1px; line-height: 1.05; }
 
-/* Comms in two columns (user, 2026-11-01): Students 60% left, Others 40% right. */
-#commsBody .cm-cols { display: grid; grid-template-columns: 3fr 2fr; gap: 0; margin-top: 8px; }
-#commsBody .cm-col { min-width: 0; }
-#commsBody .cm-col-stu { padding-right: 28px; border-right: 1px solid var(--border); }
-#commsBody .cm-col-oth { padding-left: 28px; }
-#commsBody .cm-col-t { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--t-bright); margin-bottom: 14px; }
-#commsBody .cm-col-oth .cm-filters { justify-content: flex-start; }
-#commsBody .cm-col-oth .cm-row { gap: 10px; }
-#commsBody .cm-col-oth .td-mini-t { min-width: 50px; }
-#commsBody .cm-col-oth .cm-name { width: 96px; }
+/* Comms (user, 2026-11-01): Students fill the page; Others is a window behind a button. */
+#commsBody .cm-stu { margin-top: 8px; }
+#commsBody .cm-col-t { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--t-bright); margin-bottom: 14px;
+  display: flex; align-items: center; justify-content: flex-end; }   /* just New text, right */
+#commsBody .td-wk-title .cm-oth-btn { margin-left: auto; margin-right: 8px; }
+.cm-oth-acts { display: flex; align-items: center; gap: 10px; }
+.cm-oth-win .cm-filters { justify-content: flex-start; margin-top: 4px; }
 .cm-srow .cm-name { width: 140px; }
 .cm-srow .cm-when { min-width: 0; text-align: right; flex: none; }
 .cm-dot { width: 6px; height: 6px; border-radius: 50%; flex: none; background: transparent; }
@@ -4127,3 +4124,56 @@ body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border
 .hdr-zoom { position:absolute; left:20px; top:-36px; display:flex; gap:6px; z-index:2; }   /* zoom test buttons, top left of the amp (user, 2026-11-01) */
 .hdr-zoom button { font-family:'DM Mono', monospace; font-size:10px; letter-spacing:1px; color:var(--t-faint); background:none; border:1px solid #353535; border-radius:6px; padding:3px 7px; cursor:pointer; }
 .hdr-zoom button:hover, .hdr-zoom button.on { color:var(--text); border-color:#555; }
+/* Students column like the Messages app (user, 2026-11-01): conversations newest first. */
+.cm-new { position: relative; font-family: "DM Mono", monospace; letter-spacing: 0; }
+.cm-new .link-btn { display: inline-flex; align-items: center; gap: 6px; }
+.cm-new-list { position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; width: 240px; max-height: 320px; overflow-y: auto;
+  background: #161616; border: 1px solid var(--border); border-radius: 6px; padding: 4px 0; box-shadow: 0 8px 24px rgba(0,0,0,0.5); scrollbar-width: thin; scrollbar-color: #333 transparent; }
+.cm-new-opt { display: block; width: 100%; text-align: left; background: transparent; border: none; padding: 7px 12px; font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); cursor: pointer; }
+.cm-new-opt:hover { background: rgba(255,255,255,0.05); color: var(--t-bright); }
+.cm-conv { display: flex; align-items: center; gap: 10px; padding: 10px 8px; margin: 0 -8px; border-radius: 6px; cursor: pointer; }
+.cm-conv + .cm-conv { border-top: 1px solid var(--border); border-radius: 0; }
+.cm-conv:hover { background: var(--surface2); }
+.cm-ava { width: 34px; height: 34px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--muted) 35%, #131313); color: var(--t-bright); font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; }
+.cm-conv-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.cm-conv-top { display: flex; justify-content: space-between; gap: 10px; }
+.cm-conv-name { font-family: "DM Mono", monospace; font-size: 12px; color: var(--t-normal); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cm-conv-when { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); flex: none; }
+.cm-conv-prev { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); line-height: 1.45;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cm-conv.cm-wait .cm-dot { background: var(--accent); }
+.cm-conv.cm-wait .cm-conv-name { color: var(--t-bright); }
+.cm-conv.cm-wait .cm-conv-prev { color: var(--t-normal); }
+/* Students = the Messages app's setup (user, 2026-11-01): list left, conversation right. */
+.cm-msgr { display: grid; grid-template-columns: minmax(260px, 34%) 1fr; height: 72vh; min-height: 420px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.cm-msgr-list { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--border); background: color-mix(in srgb, var(--box) 85%, #000); }
+.cm-search { margin: 12px 12px 6px; padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface2); color: var(--text);
+  font-family: "DM Mono", monospace; font-size: 11px; }
+.cm-search:focus-visible { outline: 1px solid var(--muted); outline-offset: 0; }
+#commsStuList { flex: 1; overflow-y: auto; padding: 4px 8px 8px; scrollbar-width: thin; scrollbar-color: #333 transparent; }
+#commsStuList .cm-conv { margin: 0; padding: 9px 8px; border-radius: 8px; }
+#commsStuList .cm-conv + .cm-conv { border-top: none; border-radius: 8px; }
+.cm-conv.cm-sel, .cm-conv.cm-sel:hover { background: color-mix(in srgb, var(--muted) 45%, #131313); }   /* grey (user, 2026-11-01; tried red, green) */
+.cm-conv.cm-sel .cm-conv-name, .cm-conv.cm-sel .cm-conv-when, .cm-conv.cm-sel .cm-conv-prev { color: #fff; }
+.cm-conv.cm-sel .cm-ava { background: rgba(255,255,255,0.22); }
+.cm-conv.cm-sel .cm-dot { background: transparent; }
+.cm-list-empty, .cm-thread-empty { padding: 16px 8px; text-transform: none; letter-spacing: 0; }
+.cm-msgr-conv { display: flex; flex-direction: column; min-height: 0; }
+.cm-msgr-head { display: flex; justify-content: space-between; align-items: center; height: 36px; box-sizing: border-box; padding: 0 18px; border-bottom: 1px solid var(--border); }
+.cm-to { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); }
+#cmPaneTo { color: var(--t-bright); margin-left: 4px; }
+.cm-pane-thread { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; scrollbar-width: thin; scrollbar-color: #333 transparent; }
+.cm-stamp { align-self: center; font-family: "DM Mono", monospace; font-size: 9.5px; letter-spacing: .5px; color: var(--t-faint); margin: 10px 0 4px; }
+.cm-msg { border-radius: 16px; }
+.cm-msg.in { border-bottom-left-radius: 4px; }
+.cm-msg.out { border-bottom-right-radius: 4px; }
+.cm-msgr-input { display: flex; align-items: flex-end; gap: 10px; padding: 12px 18px; border-top: 1px solid var(--border); }
+.cm-msgr-input .cm-reply { margin: 0; flex: 1; resize: none; border-radius: 16px; padding: 8px 14px; min-height: 0; field-sizing: content; max-height: 140px; }
+.cm-list-top { display: flex; justify-content: flex-end; align-items: center; height: 36px; box-sizing: border-box; padding: 0 12px; margin-bottom: 4px; }   /* same height as the To: bar (user, 2026-11-01) */
+.cm-search-wrap { position: relative; display: block; margin: 0 12px 8px; color: var(--t-faint); }
+.cm-search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.cm-search-wrap .cm-search { margin: 0; width: 100%; box-sizing: border-box; padding-left: 30px; }
+.cm-compose { background: none; border: none; padding: 4px; color: var(--t-faint); cursor: pointer; line-height: 0; border-radius: 6px; }
+.cm-compose:hover { color: var(--t-bright); background: var(--surface2); }
+.cm-list-top .cm-new-list { left: auto; right: 0; }
