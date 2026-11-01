@@ -191,7 +191,7 @@ function renderCommsStudents() {
       prev = rx ? "Reacted " + rx.emoji + " to your message"
         : m.source === "voicemail"
         ? "Voicemail" + (m.transcript && m.transcript !== "(transcribing…)" && m.transcript !== "(no transcript)" ? ": " + m.transcript : "")
-        : (m.source === "out" ? "You: " : "") + (commsImageOf(m) && !String(m.body || "").trim() ? "📷 Picture" : commsText(m));
+        : (m.source === "out" ? "You: " : "") + (commsImageOf(m) && !String(m.body || "").trim() ? "📷 Picture" : commsFileOf(m) && !String(m.body || "").trim() ? "📄 " + commsFileOf(m).name : commsText(m));
       when = day === "Today" ? commsClock(d) : day === "Yesterday" ? day : day.replace(/^\w+, /, "");
     }
     var ini = p.name.split(/\s+/).map(function (w) { return w.charAt(0); }).join("").slice(0, 2).toUpperCase();
@@ -239,6 +239,7 @@ var commsPaneImage = null;
 // Shrink big screenshots before sending (picture messages top out around 5 MB
 // and carriers squeeze them further): longest side 1600 px, JPEG.
 function commsPickImage(file) {
+  if (file && file.type === "application/pdf") { commsPickPdf(file); return; }
   if (!file || !/^image\//.test(file.type)) return;
   var reader = new FileReader();
   reader.onload = function () {
@@ -260,10 +261,39 @@ function commsPickImage(file) {
   reader.readAsDataURL(file);
 }
 
+// A PDF goes as a link (user, 2026-11-01): saved to Drive, the text carries
+// "name.pdf: <link>". Up to 20 MB (the upload has to fit one request).
+function commsPickPdf(file) {
+  if (file.size > 20 * 1024 * 1024) { rpmAlert({ title: "Too big", message: "PDFs up to 20 MB. Share bigger ones with a Dropbox link." }); return; }
+  var reader = new FileReader();
+  reader.onload = function () {
+    commsPaneImage = { pdf: true, b64: String(reader.result).split(",")[1], mime: "application/pdf", name: file.name || "file.pdf", size: file.size };
+    commsPaintChip();
+    var box = document.getElementById("cmPaneReply"); if (box) box.focus();
+  };
+  reader.readAsDataURL(file);
+}
+
+function commsSizeLabel(n) {
+  return n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
+}
+
+// A PDF I texted: "file|name|link" in the row. { name, link } or null.
+function commsFileOf(m) {
+  var x = String(m.audioUrl || "").match(/^file\|([^|]*)\|(.*)$/);
+  return x ? { name: x[1], link: x[2] } : null;
+}
+
+function commsFileCard(f) {
+  var inner = '<span class="cm-file-ico">PDF</span><span class="cm-file-name">' + commsEscape(f.name) + '</span>';
+  return f.link ? '<a class="cm-file" href="' + commsEscape(f.link) + '" target="_blank" rel="noopener">' + inner + '</a>'
+                : '<span class="cm-file">' + inner + '</span>';
+}
+
 function commsPasteImage(e) {
   var items = (e.clipboardData && e.clipboardData.items) || [];
   for (var i = 0; i < items.length; i++) {
-    if (items[i].kind === "file" && /^image\//.test(items[i].type)) { e.preventDefault(); commsPickImage(items[i].getAsFile()); return; }
+    if (items[i].kind === "file" && (/^image\//.test(items[i].type) || items[i].type === "application/pdf")) { e.preventDefault(); commsPickImage(items[i].getAsFile()); return; }
   }
 }
 
@@ -271,7 +301,9 @@ function commsPaintChip() {
   var chip = document.getElementById("cmPaneChip");
   if (!chip) return;
   chip.hidden = !commsPaneImage;
-  chip.innerHTML = commsPaneImage ? '<img src="' + commsPaneImage.dataUrl + '" alt=""><button title="Remove" onclick="commsPaneImage = null; commsPaintChip()">✕</button>' : "";
+  chip.innerHTML = !commsPaneImage ? "" :
+    (commsPaneImage.pdf ? commsFileCard({ name: commsPaneImage.name + " · " + commsSizeLabel(commsPaneImage.size) }) : '<img src="' + commsPaneImage.dataUrl + '" alt="">') +
+    '<button title="Remove" onclick="commsPaneImage = null; commsPaintChip()">✕</button>';
 }
 
 // Drop a picture anywhere on the conversation side.
@@ -297,7 +329,8 @@ function commsPaneSend() {
   var body = box.value.trim(), pic = commsPaneImage;
   if (!body && !pic) { box.focus(); return; }
   var to = d.fromNumber, key = commsKey(to);
-  var msg = { row: 0, timestamp: new Date().toISOString(), source: "out", fromNumber: to, audioUrl: pic ? pic.dataUrl : "",
+  var msg = { row: 0, timestamp: new Date().toISOString(), source: "out", fromNumber: to,
+    audioUrl: pic ? (pic.pdf ? "file|" + pic.name + "|" : pic.dataUrl) : "",
     fromName: d.fromName || "", student: d.student || "", body: body, responded: true, _pending: true };
   commsMessages.push(msg);
   box.value = "";
@@ -305,7 +338,7 @@ function commsPaneSend() {
   if (btn) btn.disabled = true;
   commsPaintPane(true);
   var req = pic
-    ? fetch(getScriptUrl(), { method: "post", body: JSON.stringify({ action: "sendCommsImage", to: to, body: body, filename: pic.name, mime: pic.mime, dataB64: pic.b64 }) })
+    ? fetch(getScriptUrl(), { method: "post", body: JSON.stringify({ action: pic.pdf ? "sendCommsFile" : "sendCommsImage", to: to, body: body, filename: pic.name, mime: pic.mime, dataB64: pic.b64 }) })
     : fetch(getScriptUrl() + "?action=sendCommsReply&to=" + encodeURIComponent(to) + "&body=" + encodeURIComponent(body));
   req.then(function (r) { return r.json(); })
     .then(function (res) {
@@ -313,6 +346,7 @@ function commsPaneSend() {
       delete msg._pending;
       msg.status = "sent";
       if (res.image) msg.audioUrl = res.image;
+      if (res.file) msg.audioUrl = res.file;
       commsMessages.forEach(function (m) { if (commsKey(m.fromNumber) === key) m.responded = true; });
       commsPaneDetail = Object.assign({}, d, { blank: false });
     })
@@ -525,7 +559,8 @@ function commsImageOf(m) {
   var u = String(m.audioUrl || "");
   if (/^data:image\//.test(u)) return { src: u, full: u };
   var x = u.match(/drive\.google\.com\/thumbnail\?id=([\w-]+)/);
-  return x ? { src: u, full: "https://drive.google.com/file/d/" + x[1] + "/view" } : null;
+  // Straight to Google's image host (the thumbnail link is a redirect that sometimes came back blank).
+  return x ? { src: "https://lh3.googleusercontent.com/d/" + x[1] + "=w1000", full: "https://drive.google.com/file/d/" + x[1] + "/view" } : null;
 }
 
 // Links in a text are clickable, like in Messages (user, 2026-11-01).
@@ -575,9 +610,10 @@ function commsThreadHtml(detail) {
     if (m._reaction) return stamp + '<div class="cm-react-note">' + m._reaction.emoji + " to " +
       (m._reaction.media ? commsEscape(m._reaction.quote) : "“" + commsEscape(m._reaction.quote) + "”") + '</div>';
     var t = tags.get(m);
-    var img = commsImageOf(m), txt = img && !String(m.body || "").trim() ? "" : commsText(m);
-    return stamp + '<div class="cm-msg ' + (m.source === "out" ? "out" : "in") + (t ? " cm-has-tag" : "") + (img ? " cm-has-img" : "") + '">' +
-      (img ? '<a href="' + commsEscape(img.full) + '" target="_blank" rel="noopener"><img class="cm-img" src="' + commsEscape(img.src) + '" alt="Picture"></a>' : "") +
+    var img = commsImageOf(m), file = commsFileOf(m), txt = (img || file) && !String(m.body || "").trim() ? "" : commsText(m);
+    return stamp + '<div class="cm-msg ' + (m.source === "out" ? "out" : "in") + (t ? " cm-has-tag" : "") + (img || file ? " cm-has-img" : "") + '">' +
+      (img ? '<a href="' + commsEscape(img.full) + '" target="_blank" rel="noopener"><img class="cm-img" src="' + commsEscape(img.src) + '" alt="Picture" referrerpolicy="no-referrer"></a>' : "") +
+      (file ? commsFileCard(file) : "") +
       (txt ? '<div class="cm-msg-t">' + commsLinkify(commsEscape(txt)) + '</div>' : "") +
       (t ? '<span class="cm-tag">' + t.join("") + '</span>' : "") +
       '</div>' +
@@ -636,8 +672,8 @@ function commsEnsureExtras() {
             '<div class="cm-attach-chip" id="cmPaneChip" hidden></div>' +
             '<div class="cm-msgr-input">' +
               // Screenshots (user, 2026-11-01): +, paste (⌘V) or drop a picture on the conversation.
-              '<button class="cm-attach" title="Add a picture" aria-label="Add a picture" onclick="document.getElementById(\'cmPaneFile\').click()">+</button>' +
-              '<input type="file" id="cmPaneFile" accept="image/*" hidden onchange="commsPickImage(this.files[0]); this.value=\'\'">' +
+              '<button class="cm-attach" title="Add a picture or PDF" aria-label="Add a picture or PDF" onclick="document.getElementById(\'cmPaneFile\').click()">+</button>' +
+              '<input type="file" id="cmPaneFile" accept="image/*,application/pdf" hidden onchange="commsPickImage(this.files[0]); this.value=\'\'">' +
               '<textarea class="cm-reply" id="cmPaneReply" rows="1" placeholder="Text message · RPM number" ' +
               'onpaste="commsPasteImage(event)" ' +
               'onkeydown="if (event.key === \'Enter\' && !event.shiftKey) { event.preventDefault(); commsPaneSend(); }"></textarea>' +
