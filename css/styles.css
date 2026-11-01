@@ -38,7 +38,7 @@
 body {
   background: var(--bg); color: var(--text);
   font-family: "DM Mono", monospace;
-  min-height: 100vh; display: flex; flex-direction: column;
+  min-height: calc(var(--vh) * 100); display: flex; flex-direction: column;
   align-items: center; padding: 24px 16px;
 }
 
@@ -136,7 +136,7 @@ body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-
 .settings-modal {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 10px; padding: 24px; width: 90%; max-width: 440px;
-  max-height: 85vh; overflow-y: auto;
+  max-height: calc(var(--vh) * 85); overflow-y: auto;
 }
 .settings-title {
   font-family: "Bebas Neue", sans-serif; font-size: 20px;
@@ -337,7 +337,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* ─── HOME: the opening page (2026-10-24) ─── */
 /* In the bordered box like every tab, under the header (user, 2026-10-26; was
    screen-tall with the buttons and name box in its middle) */
-#tab-home.active { display: flex; flex-direction: column; justify-content: center; min-height: calc(100vh - 272px - 72px); }   /* down near the bottom of the screen, no scroll (its top is at 272px under the amp head, was 166px before it grew — user, 2026-11-01; 72px = the page's bottom padding + what sits under the panels), the buttons and name box in its middle (user, 2026-10-26) */
+#tab-home.active { display: flex; flex-direction: column; justify-content: center; min-height: calc(calc(var(--vh) * 100) - 272px - 72px); }   /* down near the bottom of the screen, no scroll (its top is at 272px under the amp head, was 166px before it grew — user, 2026-11-01; 72px = the page's bottom padding + what sits under the panels), the buttons and name box in its middle (user, 2026-10-26) */
 /* Today / Students / Calendar: regular portal buttons in a row */
 .home-top { display: flex; justify-content: center; gap: 10px; }
 .home-top .link-btn { color: var(--t-text); border-color: rgba(255,255,255,0.22); }   /* a step brighter than a regular button (user, 2026-10-24) */
@@ -865,7 +865,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .au-grid td.miss.unlog.go { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--blue) 60%, transparent); }
 .au-grid td.miss.unlog.go:hover:where(:not(:disabled)) { background: color-mix(in srgb, var(--blue) 26%, transparent); }
 /* ─── FIX WINDOW (Audit), the Trial window look (2026-09-28) ─────────────── */
-.fx-modal { max-width: 720px; width: 94%; max-height: 90vh; overflow-y: auto; overflow-x: hidden; }
+.fx-modal { max-width: 720px; width: 94%; max-height: calc(var(--vh) * 90); overflow-y: auto; overflow-x: hidden; }
 .fx-block { margin-bottom: 12px; }
 .fx-sub  { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); margin: 0 0 6px; }
 .fx-cells { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
@@ -1558,7 +1558,7 @@ input[type="checkbox"]:checked {
 .cm-line-no { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; color: var(--muted); margin: -14px 0 22px; }   /* the RPM number under the Comms title, same grey as "Twilio" */
 .cm-none { font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }
 .cm-win-back:not(.open) { display: none; }
-.td-student.cm-win { width: min(600px, 94vw); max-height: 90vh; overflow: auto; box-sizing: border-box; background: var(--box); border-left: 1px solid var(--border); }   /* just bordered like the box, no card edge (user, 2026-10-30) */
+.td-student.cm-win { width: min(600px, 94vw); max-height: calc(var(--vh) * 90); overflow: auto; box-sizing: border-box; background: var(--box); border-left: 1px solid var(--border); }   /* just bordered like the box, no card edge (user, 2026-10-30) */
 .cm-win .field-label { display: block; margin: 0 0 8px; }
 .cm-win-time { color: var(--t-faint); }
 .td-student.cm-win .im-title > span { color: var(--t-normal); }   /* the number in the window not amber either */
@@ -1566,7 +1566,7 @@ input[type="checkbox"]:checked {
 .cm-win-audio audio { width: 100%; margin-bottom: 18px; color-scheme: dark; }   /* the browser's dark player, not the white one */
 .cm-win-foot { display: flex; justify-content: space-between; align-items: center; }
 /* The conversation (2026-10-31): theirs grey on the left, mine blue on the right — Trip Summary's bubbles (user), a reply box under it. */
-.cm-thread { display: flex; flex-direction: column; gap: 10px; max-height: 46vh; overflow-y: auto; margin: 4px 0 16px; padding-right: 4px; }
+.cm-thread { display: flex; flex-direction: column; gap: 10px; max-height: calc(var(--vh) * 46); overflow-y: auto; margin: 4px 0 16px; padding-right: 4px; }
 .cm-msg { max-width: 78%; padding: 9px 12px; border-radius: 10px; background: color-mix(in srgb, var(--muted) 38%, #131313); border: 1px solid color-mix(in srgb, var(--muted) 38%, #131313); }
 .cm-msg.in { align-self: flex-start; border-bottom-left-radius: 3px; }
 .cm-msg.out { align-self: flex-end; border-bottom-right-radius: 3px; background: color-mix(in srgb, var(--blue) 35%, #131313); border-color: color-mix(in srgb, var(--blue) 35%, #131313); }
@@ -2547,7 +2547,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #todayBody .td-rule-top { margin: 0 0 18px; }
 #todayBody .td-today-box .td-rest { padding: 10px 0 6px; }
 #todayBody .td-card-back:not(.td-show) { display: none; }   /* the open card as a window over the page (user, 2026-10-24) */
-#todayBody .td-card-back .td-student { margin: 0; width: min(600px, 94vw); max-height: 90vh; overflow: auto; box-sizing: border-box; }
+#todayBody .td-card-back .td-student { margin: 0; width: min(600px, 94vw); max-height: calc(var(--vh) * 90); overflow: auto; box-sizing: border-box; }
 .td-mini-row { display: flex; align-items: center; gap: 14px; }
 .td-mini-t { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); min-width: 64px; }
 /* Each student's own colour on their card: the edge and the name. */
@@ -2600,7 +2600,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-note-a .link-btn { white-space: nowrap; flex: none; }
 /* Lesson / Reschedule / Skip windows (2026-10-05, student.js _stWin): the
    Log window's frame, floated over a dim backdrop. */
-.st-win { width: min(460px, 94vw); box-sizing: border-box; max-height: 90vh; overflow: auto; overflow-x: hidden; margin: 0; }
+.st-win { width: min(460px, 94vw); box-sizing: border-box; max-height: calc(var(--vh) * 90); overflow: auto; overflow-x: hidden; margin: 0; }
 .st-when { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); margin: -6px 0 16px; }
 .st-when + .st-when { margin-top: -12px; }
 .st-when.st-from { margin: 0; }   /* Reschedule's Move from, under its title (2026-10-26) */
@@ -3604,7 +3604,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Google Business window (Mail Center, 2026-10-21): the email list uses
    .win-row; unread rows are brighter, the opened email sits in a white frame. */
 .win-row.gb-unread { color: var(--t-bright); }
-.gb-frame { display: block; width: 100%; height: 62vh; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+.gb-frame { display: block; width: 100%; height: calc(var(--vh) * 62); border: 1px solid var(--border); border-radius: 8px; background: #fff; }
 .win-row .gb-new { flex: none; margin-left: auto; }   /* the Inquiries New tag, just left of the date (2026-10-21) */
 
 /* ─── Financial 2 (tabs/financial2.js): read-only copy of the Accountant sheet ─── */
@@ -3910,7 +3910,7 @@ th.f2-blk { background:none; }
 :is(#todoContent, #notesContent) .tdo-title-btns { display: flex; align-items: center; gap: 8px; }
 /* Magnifier pointer on every tab while the header magnifier is on (core/magnifier.js). */
 body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8' stroke='%23000' stroke-width='5'/%3E%3Cline x1='18' y1='18' x2='28' y2='28' stroke='%23000' stroke-width='7'/%3E%3Ccircle cx='12' cy='12' r='8' stroke='%23fff' stroke-width='2.5'/%3E%3Cline x1='18' y1='18' x2='28' y2='28' stroke='%23fff' stroke-width='4'/%3E%3C/g%3E%3C/svg%3E") 12 12, zoom-in; }
-.mag-bubble { position: fixed; z-index: 9000; box-sizing: border-box; max-height: calc(100vh - 32px); overflow-y: auto; padding: 18px 22px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--muted) 55%, transparent); border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); line-height: 1.35; white-space: pre-wrap; word-break: break-word; }   /* font + grey come from the text it shows */
+.mag-bubble { position: fixed; z-index: 9000; box-sizing: border-box; max-height: calc(calc(var(--vh) * 100) - 32px); overflow-y: auto; padding: 18px 22px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--muted) 55%, transparent); border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); line-height: 1.35; white-space: pre-wrap; word-break: break-word; }   /* font + grey come from the text it shows */
 .tdo-zoom-bubble { font-family: "Caveat", cursive; font-size: 30px; line-height: 1.3; color: var(--t-normal); }   /* the rows' own grey, never brighter than the text it zooms (user, 2026-10-28; was white 0.6) */
 .tdo-zoom-bubble .tdo-zoom-foot { display: flex; justify-content: flex-end; margin-top: 16px; font-family: "DM Mono", monospace; }   /* amber Completed under the big text (user, 2026-10-28) */
 :is(#todoContent, #notesContent) .tdo-done-hidden .td-wk-icon { margin-bottom: 0; }   /* folded: the box ends under the icon */
@@ -4146,7 +4146,7 @@ body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border
 .cm-conv.cm-wait .cm-conv-name { color: var(--t-bright); }
 .cm-conv.cm-wait .cm-conv-prev { color: var(--t-normal); }
 /* Students = the Messages app's setup (user, 2026-11-01): list left, conversation right. */
-.cm-msgr { display: grid; grid-template-columns: minmax(260px, 34%) 1fr; height: calc(100vh - 416px - 97px); min-height: 420px;   /* fills to the screen bottom, no scroll (user, 2026-11-01; was 72vh) */ border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.cm-msgr { display: grid; grid-template-columns: minmax(260px, 34%) 1fr; height: calc(calc(var(--vh) * 100) - 416px - 97px); min-height: 420px;   /* fills to the screen bottom, no scroll (user, 2026-11-01; was 72vh) */ border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
 .cm-msgr-list { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--border); background: color-mix(in srgb, var(--box) 85%, #000); }
 .cm-search { margin: 12px 12px 6px; padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface2); color: var(--text);
   font-family: "DM Mono", monospace; font-size: 11px; }
@@ -4220,3 +4220,4 @@ body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border
 .cm-msgr-conv.cm-drop { outline: 2px dashed var(--muted); outline-offset: -8px; }
 .cm-msg-t a { color: inherit; text-decoration: underline; text-underline-offset: 2px; word-break: break-all; }
 #tab-home .home-hero { display:block; height:110px; opacity:.55; margin:0 auto 36px; pointer-events:none; }   /* amp + guitar icon above the Home buttons (user, 2026-11-01) */
+:root { --vh: 1vh; }   /* one screen-height %; the 150%/200% zoom buttons set it to the real screen so pages don't grow with the zoom (user, 2026-11-01) */
