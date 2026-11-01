@@ -404,9 +404,21 @@ function commsSendReply() {
     });
 }
 
+// "Mark answered" shows only while that person has texts waiting for me
+// (user, 2026-11-01): nothing to mark on a first text or an answered thread.
+function commsOpenInThread() {
+  if (!commsDetail) return [];
+  var key = commsKey(commsDetail.fromNumber);
+  return commsMessages.filter(function (m) {
+    return key && commsKey(m.fromNumber) === key && m.source !== "out" && !m.responded && m.row;
+  });
+}
+
 function commsPaintResponded() {
   var b = document.getElementById("commsRespondedBtn");
-  if (b && commsDetail) b.textContent = commsDetail.responded ? "Answered ✓" : "Mark answered";
+  if (!b) return;
+  b.textContent = "Mark answered";
+  b.style.display = commsOpenInThread().length ? "" : "none";
 }
 
 // Twilio recording URLs need Basic Auth, so we can't point <audio> at them
@@ -442,16 +454,13 @@ function closeCommsDetail() {
 }
 
 function toggleCommsResponded() {
-  if (!commsDetail) return;
-  commsDetail.responded = !commsDetail.responded;
+  var open = commsOpenInThread(), url = getScriptUrl();
+  open.forEach(function (m) {
+    m.responded = true;
+    if (url) fetch(url + "?action=markCommsResponded&row=" + m.row + "&responded=true").catch(function () {});
+  });
+  if (commsDetail) commsDetail.responded = true;
   commsPaintResponded();
-
-  var url = getScriptUrl();
-  if (url) {
-    fetch(url + "?action=markCommsResponded&row=" + commsDetail.row + "&responded=" + commsDetail.responded)
-      .then(function(r) { return r.json(); })
-      .catch(function() {});
-  }
   renderCommsInbox();
 }
 
