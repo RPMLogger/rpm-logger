@@ -4219,3 +4219,4 @@ body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border
 .cm-img { display: block; max-width: 260px; max-height: 320px; border-radius: 12px; }
 .cm-msgr-conv.cm-drop { outline: 2px dashed var(--muted); outline-offset: -8px; }
 .cm-msg-t a { color: inherit; text-decoration: underline; text-underline-offset: 2px; word-break: break-all; }
+#tab-home .home-hero { display:block; height:140px; margin:0 auto 36px; pointer-events:none; }   /* amp + guitar icon above the Home buttons (user, 2026-11-01) */
