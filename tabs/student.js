@@ -876,6 +876,7 @@ function _rpmTpStyle() {
     ".im-rs-strips .st-pick-sel{background:rgba(255,255,255,0.04) !important;border-color:rgba(255,255,255,0.3) !important}" +
     ".im-rs-strips .st-pick-sel div{color:rgba(255,255,255,0.4) !important}" +
     ".im-rs-strips .st-pick-x{color:rgba(255,255,255,0.85)}" +
+    ".im-rs-strips .st-pick-sel.st-pick-same div:nth-child(3){color:var(--green) !important}" +   // same day: the new time green till the ✓ (2026-10-31)
     ".st-pick-ok .st-check-ico{width:16px;height:16px;display:block}" +
     ".im-rs-strips .st-pick-ok{color:rgba(255,255,255,0.85)}" +   // white (user, 2026-10-29; the clock stays green)
     ".im-rs-strips .st-pick-ok:hover{background:#1a1a1a;color:var(--green)}" +
@@ -916,7 +917,7 @@ var _stPickSel = null;   // { cell, lesson, name, opts, to }
 // picked already, so it starts at Skip; from the Log window step 1 is picking it.
 function _stHowSteps(from) {
   return "<div class='im-rs-sec'><div class='im-rs-h'>SKIP</div><ol start='" + from + "'><li>Tap ✕ on the day</li><li>Who asked, then Confirm skip</li></ol></div>" +
-    "<div class='im-rs-sec'><div class='im-rs-h'>RESCHEDULE</div><ol start='" + from + "'><li>Click the day you want to move it to</li><li>Pick the time on its clock (bottom left corner)</li><li>Tap ✓ when it's right</li><li>Who asked, then Confirm move</li></ol></div>";
+    "<div class='im-rs-sec'><div class='im-rs-h'>RESCHEDULE</div><ol start='" + from + "'><li>Click the day you want to move it to (same day: the lesson's own clock)</li><li>Pick the time on its clock (bottom left corner)</li><li>Tap ✓ when it's right</li><li>Who asked, then Confirm move</li></ol></div>";
 }
 var ST_HOW_PICKED = _stHowSteps(1);
 var ST_HOW_PICK   = "<div class='im-rs-sec'><div class='im-rs-cap'>To make a change</div><ol><li>Click on a lesson (red) to change</li></ol></div>" + _stHowSteps(2);
@@ -960,6 +961,7 @@ function _stClockOpen(cell) {
     var o = e.target.closest('.rpm-tp-opt');
     if (!o) return;
     _stClockClose();
+    if (cell === s.cell) { s.time = o.dataset.v; _stPickSameDay(); return; }   // the lesson's own clock: same day, new time
     if (o.dataset.v !== s.time) { s.time = o.dataset.v; _stPickTimeShown(); }
   };
   setTimeout(function() { document.addEventListener('click', _stClockClose); }, 0);
@@ -976,7 +978,7 @@ function _stPickArrow() {
   var old = document.querySelector('.st-pick-arrow');
   if (old) old.remove();
   var s = _stPickSel, wrap = s && s.to && s.cell.closest('.im-rs-strips');
-  if (!wrap) return;
+  if (!wrap || s.to === s.cell) return;   // same day: nowhere to point
   _stArrowBetween(wrap, s.cell, s.to);
 }
 // The arrow itself, from one day to another on the same strips (Slot change uses it too).
@@ -1006,6 +1008,15 @@ function _stArrowBetween(wrap, from, to) {
 // The day moved to shows the lesson's time on it (2026-10-29), back to blank when let go.
 function _stPickToClear(s) {
   if (!s || !s.to) return;
+  if (s.to === s.cell) {   // same day: back to the lesson's own time, ✕ back in place of the ✓
+    s.cell.classList.remove('st-pick-same', 'st-pick-to', 'st-pick-done');
+    var so = s.cell.querySelector('.st-pick-ok'); if (so) so.remove();
+    var sx = s.cell.querySelector('.st-pick-x'); if (sx) sx.style.display = '';
+    var st = s.cell.children[2]; if (st) st.textContent = s.lesson.time;
+    s.time = _stHhmm(s.lesson.time);
+    s.to = null;
+    return;
+  }
   s.to.classList.remove('st-pick-to', 'st-pick-done');
   var o = s.to.querySelector('.st-pick-ok'); if (o) o.remove();
   var ck = s.to.querySelector('.st-pick-clock'); if (ck) ck.remove();
@@ -1097,6 +1108,7 @@ function _stPickDecide() {
   if (!s || !s.to || !mv) return;
   s.done = { ymd: s.to.dataset.ymd, time: s.time };
   mv.innerHTML = "<span>" + _dtpDateLabel(s.done.ymd) + ' · ' + _rpmTpLbl(_rpmTpMins(s.time)) + "</span>";   // the date; MOVING TO is the title over the box (user, 2026-10-29)
+  if (s.to === s.cell) s.to.classList.add('st-pick-to');   // same day: it turns red with its new time
   s.to.classList.add('st-pick-done');   // decided: the day turns into a red lesson (user, 2026-10-29)
   var wrap = s.cell.closest('.im-rs-strips'); if (wrap) wrap.classList.add('st-decided');   // and the ✕ / clock / ✓ go: just "moved from here to here"
   _stPickArrow();
@@ -1113,7 +1125,11 @@ function _stPickMovedClear() {
   }
   var ar = document.querySelector('.st-pick-arrow'); if (ar) ar.remove();
   document.querySelectorAll('.im-rs-strips.st-decided').forEach(function(w) { w.classList.remove('st-decided'); });
-  if (_stPickSel) { _stPickSel.done = null; if (_stPickSel.to) _stPickSel.to.classList.remove('st-pick-done'); }
+  if (_stPickSel) {
+    _stPickSel.done = null;
+    if (_stPickSel.to) _stPickSel.to.classList.remove('st-pick-done');
+    if (_stPickSel.to === _stPickSel.cell) _stPickSel.cell.classList.remove('st-pick-to');
+  }
   _stPickButtons();
 }
 function _stPickClear() {
@@ -1121,8 +1137,9 @@ function _stPickClear() {
   var s = _stPickSel;
   if (s) {
     s.cell.classList.remove('st-pick-sel');
-    var x = s.cell.querySelector('.st-pick-x'); if (x) x.remove();
     _stPickToClear(s);
+    var x = s.cell.querySelector('.st-pick-x'); if (x) x.remove();
+    var lc = s.cell.querySelector('.st-pick-clock'); if (lc) lc.remove();
   }
   _stPickSel = null;
   _stPickButtons();
@@ -1146,6 +1163,42 @@ function _stPickLesson(cell, name, lesson, opts) {
     _stOpenSkipModal(s.name, s.lesson, s.opts);
   };
   cell.appendChild(x);
+  // Change appointment: the lesson's own clock moves it to another time the same day (user, 2026-10-31).
+  if (document.getElementById('imRsMoved')) {
+    var ck = document.createElement('span');
+    ck.className = 'st-pick-clock';
+    ck.innerHTML = ST_CLOCK_ICON;
+    ck.dataset.tip = 'Same day, another time';
+    ck.onclick = function(e) {
+      e.stopPropagation();
+      var s = _stPickSel;
+      if (!s || s.skip) return;
+      if (s.to !== cell) { _stPickToClear(s); _stPickMovedClear(); s.time = _stHhmm(lesson.time); }   // another day was picked: let it go
+      _stClockOpen(cell);
+    };
+    cell.appendChild(ck);
+  }
+}
+// Same day, new time (user, 2026-10-31): the new time on the lesson, the ✕ makes room for the ✓.
+// Picking the lesson's own time again lets it go.
+function _stPickSameDay() {
+  var s = _stPickSel;
+  if (!s) return;
+  _stPickMovedClear();
+  if (s.time === _stHhmm(s.lesson.time)) { _stPickToClear(s); _stPickButtons(); return; }
+  s.to = s.cell;
+  s.cell.classList.add('st-pick-same');
+  var t = s.cell.children[2]; if (t) t.textContent = _rpmTpLbl(_rpmTpMins(s.time));
+  var x = s.cell.querySelector('.st-pick-x'); if (x) x.style.display = 'none';
+  if (!s.cell.querySelector('.st-pick-ok')) {
+    var dn = document.createElement('span');
+    dn.className = 'st-pick-ok';
+    dn.innerHTML = ST_CHECK_ICON;
+    dn.dataset.tip = 'This is the time';
+    dn.onclick = function(e) { e.stopPropagation(); _stPickDecide(); };
+    s.cell.appendChild(dn);
+  }
+  _stPickButtons();
 }
 function _stPickDay(cell, ymd) {
   var s = _stPickSel;
