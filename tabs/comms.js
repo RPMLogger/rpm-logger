@@ -5,6 +5,9 @@
 // Inquiries, which left it invisible once the counts bar was removed there.
 
 var commsMessages = [];
+// Comms page icon under the number: hand holding a phone (user, om-12, 2026-11-01; was om-11 phone in a circle).
+var COMMS_TEXT_ICON = '<svg class="win-icon" viewBox="0 0 858 907.5" aria-hidden="true"><path fill="currentColor" d="M 451 748.2 L 287.5 780.2 C 280 781.6 275.1 788.9 276.6 796.5 C 277.9 803.1 283.7 807.7 290.2 807.7 C 291.1 807.7 291.9 807.6 292.8 807.4 L 456.3 775.4 C 463.8 774 468.8 766.7 467.3 759.2 C 465.8 751.6 458.5 746.7 451 748.2 Z M 451 748.2"/><path fill="currentColor" d="M 853.8 770.2 C 850.5 739.9 834.5 712.4 809.7 694.8 L 721.6 631.9 C 722 570.9 702.9 527 664.7 501.4 C 663.8 500.5 662.8 499.7 661.6 499 L 533.4 428.1 L 469 66.7 C 465.4 46.3 454 28.5 436.9 16.6 C 419.9 4.8 399.2 0.2 378.8 3.9 L 95.6 55.1 C 53.6 62.6 25.5 103 33 145.1 L 70.7 356.6 L 52.5 355.2 C 27.4 353.5 5.6 372.5 3.9 397.6 L 1.9 427.3 C 0.2 452.3 19.1 474.1 44.1 475.8 L 92.6 479.5 L 93.3 483 C 86.2 484.7 79.7 488.1 74.1 492.9 C 64.9 500.9 59.4 512 58.6 524.2 L 56.6 553.9 C 55.2 573 66 590.2 82.2 598 C 78.4 604.2 76.1 611.3 75.6 618.8 L 73.5 648.6 C 72.2 667.8 83.1 685.1 99.5 692.9 C 95.6 699.2 93.2 706.4 92.6 714.1 L 90.6 743.8 C 88.9 768.8 107.9 790.6 133.1 792.4 L 148.6 793.2 L 150.5 804.3 C 154.2 824.7 165.6 842.5 182.6 854.4 C 195.8 863.5 211.1 868.3 226.8 868.3 C 231.4 868.3 236.1 867.9 240.7 867 L 444.3 830.3 C 444.8 830.4 445.2 830.5 445.7 830.5 L 566.2 845.4 L 614.2 878.2 C 641.4 896.7 673.5 906.5 706.1 906.5 C 712.4 906.5 718.8 906.2 725.1 905.4 C 764.1 900.8 800.2 882.3 826.6 853.2 C 847.1 830.7 857 800.4 853.8 770.2 Z M 46.1 448.2 C 36.3 447.5 28.9 439 29.6 429.2 L 31.6 399.5 C 32.3 389.7 40.8 382.3 50.5 382.9 L 75.8 384.9 L 87.6 451.3 Z M 84.2 555.8 L 86.3 526.1 C 86.6 521.3 88.8 517 92.3 513.9 C 95.9 510.7 100.5 509.2 105.2 509.5 L 165.5 513.7 C 175.3 514.3 182.7 522.9 182 532.6 L 180 562.4 C 179.3 572.1 170.8 579.6 161 578.9 L 100.8 574.7 C 91 574.1 83.6 565.6 84.2 555.8 Z M 101.2 650.5 L 103.3 620.8 C 103.6 616 105.7 611.7 109.3 608.6 C 112.9 605.4 117.5 603.9 122.2 604.2 L 168.4 607.4 C 173.1 607.7 177.5 609.9 180.6 613.5 C 183.7 617.1 185.2 621.6 184.9 626.4 L 182.9 656.1 C 182.2 665.9 173.7 673.3 163.9 672.6 L 117.7 669.4 C 108 668.8 100.6 660.2 101.2 650.5 Z M 118.3 745.7 L 120.3 716 C 120.7 711.2 122.8 706.9 126.4 703.8 C 129.7 700.9 133.7 699.4 138.1 699.4 C 138.6 699.4 139 699.4 139.4 699.4 L 161.4 700.7 C 171.2 701.4 178.6 709.9 177.9 719.7 L 175.9 749.4 C 175.2 759.2 166.7 766.6 157 765.9 C 156.9 765.9 156.8 765.9 156.8 765.9 L 134.8 764.6 C 125 764 117.6 755.5 118.3 745.7 Z M 235.8 839.7 C 222.7 842.1 209.4 839.2 198.5 831.6 C 187.5 823.9 180.2 812.5 177.9 799.4 L 176.2 790 C 191.3 783.4 202.4 768.9 203.6 751.3 L 205.6 721.6 C 206.5 709.3 202.4 697.9 195 689.2 C 203.8 681.5 209.7 670.5 210.6 658 L 212.6 628.3 C 213.4 616.1 209.5 604.4 201.5 595.2 C 200.1 593.6 198.5 592 196.9 590.6 C 203 583.5 207 574.4 207.7 564.3 L 209.7 534.5 C 211.4 509.5 192.4 487.7 167.4 486 L 121.4 482.8 L 60.3 140.2 C 55.5 113.2 73.6 87.3 100.6 82.4 L 101.1 82.3 L 111.7 98.6 C 121.3 113.5 138.9 121.1 156.4 118 L 343.3 84.4 C 360.8 81.3 374.6 68 378.5 50.7 L 382.8 31.4 L 383.8 31.3 C 396.9 28.9 410.1 31.8 421.1 39.4 C 432 47 439.3 58.5 441.7 71.6 L 503.3 417.4 C 495.8 416.3 488.1 416.4 480.6 417.6 L 369.5 435.4 C 359.5 437 351 443.1 346.2 452 C 341.3 461 341 471.4 345.1 480.7 L 352 495.9 C 364.2 523.1 393.3 539.4 422.8 535.5 L 458.3 530.8 C 460.7 530.5 463.2 531.3 464.9 533.1 L 537.3 607.8 L 559.2 730.8 C 564 757.8 546 783.7 519 788.6 Z M 806.1 834.5 C 784.2 858.6 754.2 874 721.9 877.8 C 689.5 881.6 656.8 873.6 629.9 855.2 L 579.1 820.5 C 577.2 819.3 575.1 818.5 572.9 818.2 L 533.9 813.4 C 570.3 801.7 593.4 764.5 586.5 725.9 L 570.3 635.1 C 573.6 634.9 576.8 633.7 579.3 631.2 C 584.8 625.9 584.9 617.1 579.6 611.6 L 560.2 591.6 C 560.2 591.6 560.2 591.6 560.2 591.6 L 484.8 513.8 C 477 505.7 465.7 501.8 454.6 503.3 L 419.2 507.9 C 401.7 510.3 384.5 500.6 377.3 484.6 L 370.4 469.3 C 369.6 467.5 370.2 466 370.6 465.2 C 371 464.5 372 463.2 373.9 462.8 L 485 445 C 493.7 443.6 502.6 444.6 510.8 447.8 C 513.2 450.6 516.6 452.3 520.2 452.5 L 645.6 521.9 C 646.2 522.4 646.7 522.8 647.3 523.2 C 680.3 544.2 695.5 581.9 693.8 638.5 C 693.6 643.1 695.8 647.5 699.6 650.2 L 793.6 717.4 C 811.9 730.4 823.8 750.8 826.2 773.1 C 828.5 795.5 821.2 817.9 806.1 834.5 Z M 806.1 834.5"/></svg>';
+var commsStudents = [];       // every roster student {name, number}: Students lists them even before they write
 var commsFilter = "all";
 var commsDetail = null;
 var commsPollTimer = null;
@@ -33,7 +36,11 @@ function loadCommsInbox() {
         commsMessages = (data.messages || []).filter(function (m) {
           return m.timestamp && !isNaN(new Date(m.timestamp).getTime());
         });
+        commsStudents = data.students || [];
         renderCommsInbox();
+        // An open conversation picks up new texts on the 30-second poll too.
+        var win = document.getElementById("commsDetailOverlay");
+        if (commsDetail && win && win.classList.contains("open")) renderCommsThread();
       }
     })
     .catch(function() {});
@@ -55,7 +62,9 @@ function renderCommsInbox() {
   var filtered = commsMessages.filter(function(m) {
     // Scams (Google listing robocall, flagged by the backend) only show under
     // their own Scam filter: never in All / Text / Voicemail / Unanswered.
-    if (m.source === "out") return false;   // my replies live in the conversation, not the list
+    // My replies live in the conversation, not the list, except under Students,
+    // where a student I texted first (no answer yet) still needs a line.
+    if (m.source === "out") return commsFilter === "students" && !!m.student;
     if (commsFilter === "scam") return m.scam;
     if (m.scam) return false;
     if (commsFilter === "students") return !!m.student;
@@ -69,18 +78,27 @@ function renderCommsInbox() {
   commsShown = filtered;
   updateCommsSelection();
   var label = document.getElementById("commsListLabel");
-  if (label) label.textContent = filtered.length + (filtered.length === 1 ? " message" : " messages");
-
-  if (!filtered.length) {
+  if (!filtered.length && !(commsFilter === "students" && commsStudents.length)) {
+    if (label) label.textContent = "0 conversations";
     inbox.innerHTML = '<div class="cm-none">None</div>';
     return;
   }
 
-  // One block per day, newest first, like This Week's day list.
+  // One line per person (2026-10-31): their newest message, newest person
+  // first, in day blocks like This Week. Clicking opens the conversation.
+  var people = [], byKey = {};
+  filtered.slice().sort(function (a, b) { return new Date(b.timestamp) - new Date(a.timestamp); })
+    .forEach(function (m) {
+      var k = commsKey(m.fromNumber) || ("row" + m.row);
+      if (!byKey[k]) { byKey[k] = { latest: m, msgs: [] }; people.push(byKey[k]); }
+      byKey[k].msgs.push(m);
+    });
+  if (label) label.textContent = people.length + (people.length === 1 ? " conversation" : " conversations");
+
   inbox.innerHTML = "";
   var day = null, block = null;
-  filtered.forEach(function(msg) {
-    var d = new Date(msg.timestamp), key = d.toDateString();
+  people.forEach(function(p) {
+    var msg = p.latest, d = new Date(msg.timestamp), key = d.toDateString();
     if (key !== day) {
       day = key;
       block = document.createElement("div");
@@ -88,24 +106,54 @@ function renderCommsInbox() {
       block.innerHTML = '<label class="field-label">' + commsDayLabel(d) + '</label>';
       inbox.appendChild(block);
     }
+    var open = p.msgs.some(function (m) { return !m.responded; });
+    var picked = function () { return p.msgs.every(function (m) { return commsSelected[m.row]; }); };
     var row = document.createElement("div");
-    row.className = "cm-row" + (msg.responded ? " cm-done" : "") + (commsSelected[msg.row] ? " selected" : "");
+    row.className = "cm-row" + (open ? "" : " cm-done") + (picked() ? " selected" : "");
     row.onclick = function() {
       if (!commsEditing) { openCommsDetail(msg); return; }
-      if (commsSelected[msg.row]) delete commsSelected[msg.row]; else commsSelected[msg.row] = true;
-      row.classList.toggle("selected", !!commsSelected[msg.row]);
+      var on = !picked();
+      p.msgs.forEach(function (m) { if (on) commsSelected[m.row] = true; else delete commsSelected[m.row]; });
+      row.classList.toggle("selected", on);
       updateCommsSelection();
     };
     var display = msg.fromName || commsFormatPhone(msg.fromNumber) || "Unknown";
     var preview = msg.source === "voicemail"
       ? (msg.transcript && msg.transcript !== "(transcribing…)" && msg.transcript !== "(no transcript)" ? msg.transcript : "Voicemail, no transcript")
-      : (msg.body || "—");
+      : (msg.source === "out" ? "You: " : "") + (msg.body || "—");
     row.innerHTML =
       '<span class="cm-check"></span>' +
       '<span class="td-mini-t">' + commsClock(d) + '</span>' +
       '<span class="cm-ico">' + (msg.source === "voicemail" ? "📞" : "💬") + '</span>' +
       '<span class="cm-name">' + commsEscape(display) + '</span>' +
-      '<span class="cm-prev">' + commsEscape(preview) + '</span>';
+      '<span class="cm-prev">' + commsEscape(preview) + '</span>' +
+      (p.msgs.length > 1 ? '<span class="cm-cnt">' + p.msgs.length + '</span>' : '');
+    block.appendChild(row);
+  });
+
+  // Students: then every roster student with no messages yet, A–Z, dimmed.
+  // Clicking one opens an empty conversation to send the first text.
+  if (commsFilter !== "students") return;
+  var quiet = commsStudents.filter(function (s) { return !byKey[commsKey(s.number)]; })
+    .sort(function (a, b) { return a.name.localeCompare(b.name); });
+  if (!quiet.length) return;
+  if (label) label.textContent = people.length + (people.length === 1 ? " conversation" : " conversations") +
+    " · " + quiet.length + " not yet";
+  block = document.createElement("div");
+  block.className = "cm-day";
+  block.innerHTML = '<label class="field-label">No messages yet</label>';
+  inbox.appendChild(block);
+  quiet.forEach(function (s) {
+    var row = document.createElement("div");
+    row.className = "cm-row cm-done cm-blank";
+    row.onclick = function () {
+      if (commsEditing) return;
+      openCommsDetail({ row: 0, source: "sms", fromNumber: s.number, fromName: s.name, student: s.name, responded: true, blank: true });
+    };
+    row.innerHTML =
+      '<span class="td-mini-t"></span><span class="cm-ico"></span>' +
+      '<span class="cm-name">' + commsEscape(s.name) + '</span>' +
+      '<span class="cm-prev">' + commsEscape(commsFormatPhone(s.number)) + '</span>';
     block.appendChild(row);
   });
 }
@@ -229,6 +277,10 @@ function renderCommsThread() {
   var key = commsKey(commsDetail.fromNumber);
   var thread = commsMessages.filter(function (m) { return key && commsKey(m.fromNumber) === key; })
     .sort(function (a, b) { return new Date(a.timestamp) - new Date(b.timestamp); });
+  if (!thread.length && commsDetail.blank) {
+    el.innerHTML = '<div class="cm-none">No messages yet. Your first text goes from the RPM number.</div>';
+    return;
+  }
   if (!thread.length) thread = [commsDetail];
   el.innerHTML = thread.map(function (m) {
     var d = new Date(m.timestamp);
@@ -245,8 +297,19 @@ function renderCommsThread() {
 // Bits added from here rather than index.html (a parallel session's commit
 // sweeps index.html): the Students filter and the window's thread + reply box.
 function commsEnsureExtras() {
+  // Title reads "Comms · Twilio", without "line" (user, 2026-11-01).
+  var sub = document.querySelector("#commsBody .td-wk-title .win-sub");
+  if (sub) sub.textContent = " \u00b7 Twilio";
+  // Unanswered sits last in the filter row (user, 2026-10-31).
+  var unans = document.querySelector('#commsBody .cm-f[data-filter="unresponded"]');
+  if (unans && unans.nextElementSibling) unans.parentNode.appendChild(unans);
+  if (!document.getElementById("cmLineNo")) {
+    var filters = document.querySelector("#commsBody .cm-filters");
+    if (filters) filters.insertAdjacentHTML("beforebegin",
+      '<div class="cm-line-no" id="cmLineNo">(201) 904-4937</div><div class="cm-page-icon">' + COMMS_TEXT_ICON + '</div>');
+  }
   if (!document.querySelector('#commsBody .cm-f[data-filter="students"]')) {
-    var after = document.querySelector('#commsBody .cm-f[data-filter="unresponded"]');
+    var after = document.querySelector('#commsBody .cm-f[data-filter="all"]');
     if (after) after.insertAdjacentHTML("afterend",
       '<button class="link-btn cm-f" data-filter="students" onclick="setCommsFilter(\'students\')">Students <span class="cm-n" id="commsStudentCount">0</span></button>');
   }
@@ -277,7 +340,8 @@ function commsSendReply() {
     .then(function (res) {
       rpmBusy(win, btn, false);
       if (!res.success) { rpmAlert({ title: "Not sent", message: res.message || "Something went wrong." }); return; }
-      commsMessages.push({ row: 0, timestamp: new Date().toISOString(), source: "out", fromNumber: to, body: body, responded: true });
+      commsMessages.push({ row: 0, timestamp: new Date().toISOString(), source: "out", fromNumber: to,
+        fromName: commsDetail.fromName || "", student: commsDetail.student || "", body: body, responded: true });
       commsMessages.forEach(function (m) { if (commsKey(m.fromNumber) === key) m.responded = true; });
       box.value = "";
       renderCommsThread();

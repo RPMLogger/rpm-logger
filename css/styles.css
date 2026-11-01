@@ -1527,6 +1527,7 @@ input[type="checkbox"]:checked {
    filters, day headings in red like This Week, one line per message. */
 #commsBody .cm-box { margin-top: 0; }
 .cm-filters { display: flex; flex-wrap: wrap; gap: 6px; margin: -4px 0 20px; }
+.cm-filters { justify-content: center; }   /* natural-width buttons, centred in the box (user, 2026-11-01; was stretched full width) */
 .cm-f.cm-on { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 .cm-n { color: var(--t-faint); }
 .cm-f.cm-on .cm-n { color: var(--accent2); }
@@ -1542,6 +1543,8 @@ input[type="checkbox"]:checked {
 .cm-row:hover { background: var(--surface2); }
 .cm-row .td-mini-t { font-size: 10.5px; color: var(--t-faint); min-width: 64px; }
 .cm-ico { font-size: 12px; width: 16px; text-align: center; flex: none; }
+.cm-page-icon { margin: 0 0 16px 8px; color: var(--muted); line-height: 0; }   /* hand-and-phone icon under the number, like Payments (user, 2026-11-01) */
+.cm-page-icon .win-icon { height: 40px; width: auto; }
 .cm-name { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); flex: none; width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cm-prev { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* This Week's colours (user, 2026-10-30): times + messages faint, numbers normal; answered = all faint */
@@ -1551,6 +1554,8 @@ input[type="checkbox"]:checked {
 .cm-row.selected { background: var(--surface2); }
 .cm-row.selected .cm-check { background: var(--accent); border-color: var(--accent); }
 .cm-row.selected .cm-check::after { content: ""; position: absolute; left: 3px; top: 0; width: 3px; height: 7px; border: solid var(--text); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.cm-cnt { font-family: "DM Mono", monospace; font-size: 10px; color: var(--t-faint); flex: none; }   /* how many messages in that conversation */
+.cm-line-no { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; color: var(--muted); margin: -14px 0 22px; }   /* the RPM number under the Comms title, same grey as "Twilio" */
 .cm-none { font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }
 .cm-win-back:not(.open) { display: none; }
 .td-student.cm-win { width: min(600px, 94vw); max-height: 90vh; overflow: auto; box-sizing: border-box; background: var(--box); border-left: 1px solid var(--border); }   /* just bordered like the box, no card edge (user, 2026-10-30) */
