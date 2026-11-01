@@ -62,12 +62,10 @@ function renderCommsInbox() {
   var filtered = commsMessages.filter(function(m) {
     // Scams (Google listing robocall, flagged by the backend) only show under
     // their own Scam filter: never in All / Text / Voicemail / Unanswered.
-    // My replies live in the conversation, not the list, except under Students,
-    // where a student I texted first (no answer yet) still needs a line.
-    if (m.source === "out") return commsFilter === "students" && !!m.student;
+    if (m.source === "out") return false;   // my replies live in the conversation, not the list
+    if (m.student) return false;            // students have their own column (2026-11-01)
     if (commsFilter === "scam") return m.scam;
     if (m.scam) return false;
-    if (commsFilter === "students") return !!m.student;
     if (commsFilter === "sms") return m.source === "sms";
     if (commsFilter === "voicemail") return m.source === "voicemail";
     if (commsFilter === "unresponded") return !m.responded;
@@ -78,7 +76,8 @@ function renderCommsInbox() {
   commsShown = filtered;
   updateCommsSelection();
   var label = document.getElementById("commsListLabel");
-  if (!filtered.length && !(commsFilter === "students" && commsStudents.length)) {
+  renderCommsStudents();
+  if (!filtered.length) {
     if (label) label.textContent = "0 conversations";
     inbox.innerHTML = '<div class="cm-none">None</div>';
     return;
@@ -130,32 +129,67 @@ function renderCommsInbox() {
       (p.msgs.length > 1 ? '<span class="cm-cnt">' + p.msgs.length + '</span>' : '');
     block.appendChild(row);
   });
+}
 
-  // Students: then every roster student with no messages yet, A–Z, dimmed.
-  // Clicking one opens an empty conversation to send the first text.
-  if (commsFilter !== "students") return;
-  var quiet = commsStudents.filter(function (s) { return !byKey[commsKey(s.number)]; })
-    .sort(function (a, b) { return a.name.localeCompare(b.name); });
-  if (!quiet.length) return;
-  if (label) label.textContent = people.length + (people.length === 1 ? " conversation" : " conversations") +
-    " · " + quiet.length + " not yet";
-  block = document.createElement("div");
-  block.className = "cm-day";
-  block.innerHTML = '<label class="field-label">No messages yet</label>';
-  inbox.appendChild(block);
-  quiet.forEach(function (s) {
-    var row = document.createElement("div");
-    row.className = "cm-row cm-done cm-blank";
-    row.onclick = function () {
-      if (commsEditing) return;
-      openCommsDetail({ row: 0, source: "sms", fromNumber: s.number, fromName: s.name, student: s.name, responded: true, blank: true });
-    };
-    row.innerHTML =
-      '<span class="td-mini-t"></span><span class="cm-ico"></span>' +
-      '<span class="cm-name">' + commsEscape(s.name) + '</span>' +
-      '<span class="cm-prev">' + commsEscape(commsFormatPhone(s.number)) + '</span>';
-    block.appendChild(row);
+// Students column (2026-11-01): every roster student. Waiting for my reply
+// first (red dot, newest first), then the rest A–Z with their last message or
+// "No messages yet". Clicking one opens the conversation.
+function renderCommsStudents() {
+  var list = document.getElementById("commsStuList");
+  if (!list) return;
+  var byKey = {};
+  commsStudents.forEach(function (s) {
+    byKey[commsKey(s.number)] = { name: s.name, number: s.number, msgs: [] };
   });
+  commsMessages.forEach(function (m) {
+    if (!m.student || m.scam) return;
+    var k = commsKey(m.fromNumber);
+    if (!byKey[k]) byKey[k] = { name: m.student, number: m.fromNumber, msgs: [] };
+    byKey[k].msgs.push(m);
+  });
+  var all = Object.keys(byKey).map(function (k) {
+    var p = byKey[k];
+    p.msgs.sort(function (a, b) { return new Date(b.timestamp) - new Date(a.timestamp); });
+    p.latest = p.msgs[0] || null;
+    p.waiting = p.msgs.some(function (m) { return m.source !== "out" && !m.responded; });
+    return p;
+  });
+  var waiting = all.filter(function (p) { return p.waiting; })
+    .sort(function (a, b) { return new Date(b.latest.timestamp) - new Date(a.latest.timestamp); });
+  var rest = all.filter(function (p) { return !p.waiting; })
+    .sort(function (a, b) { return a.name.localeCompare(b.name); });
+
+  var lbl = document.getElementById("commsStuLabel");
+  if (lbl) lbl.textContent = waiting.length ? waiting.length + " waiting" : "None waiting";   // no student total (user, 2026-11-01)
+
+  list.innerHTML = "";
+  var block = function (title, people) {
+    if (!people.length) return;
+    var b = document.createElement("div");
+    b.className = "cm-day";
+    b.innerHTML = '<label class="field-label">' + title + '</label>';
+    people.forEach(function (p) {
+      var m = p.latest, row = document.createElement("div");
+      row.className = "cm-row cm-srow" + (p.waiting ? " cm-wait" : " cm-done") + (m ? "" : " cm-blank");
+      row.onclick = function () {
+        openCommsDetail(m || { row: 0, source: "sms", fromNumber: p.number, fromName: p.name, student: p.name, responded: true, blank: true });
+      };
+      var prev = !m ? "No messages yet"
+        : m.source === "voicemail" ? "Voicemail" + (m.transcript && m.transcript !== "(transcribing…)" && m.transcript !== "(no transcript)" ? ": " + m.transcript : "")
+        : (m.source === "out" ? "You: " : "") + (m.body || "—");
+      var when = "";
+      if (m) { var d = new Date(m.timestamp); when = commsDayLabel(d) === "Today" ? commsClock(d) : commsDayLabel(d).replace(/^\w+, /, ""); }
+      row.innerHTML =
+        '<span class="cm-dot"></span>' +
+        '<span class="cm-name">' + commsEscape(p.name) + '</span>' +
+        '<span class="cm-prev">' + commsEscape(prev) + '</span>' +
+        '<span class="td-mini-t cm-when">' + when + '</span>';
+      b.appendChild(row);
+    });
+    list.appendChild(b);
+  };
+  block("Waiting for you", waiting);
+  block(waiting.length ? "Everyone else" : "All students", rest);
 }
 
 // Counts on the filter buttons + the nav badge. Driven by the loaded
@@ -168,16 +202,17 @@ function updateCommsBadge() {
     badge.textContent = open;
     badge.style.display = open > 0 ? "" : "none";
   }
+  // The filter counts are for the Others column; the nav badge above counts everyone.
+  var others = real.filter(function (m) { return !m.student; });
   var sms = 0, vm = 0;
-  real.forEach(function (m) {
+  others.forEach(function (m) {
     if (m.source === "voicemail") vm++; else sms++;
   });
   var set = function (id, n) { var el = document.getElementById(id); if (el) el.textContent = n; };
-  set("commsOpenCount", open);
+  set("commsOpenCount", others.filter(function (m) { return !m.responded; }).length);
   set("commsSmsCount", sms);
   set("commsVoicemailCount", vm);
   set("commsScamCount", commsMessages.filter(function (m) { return m.scam; }).length);
-  set("commsStudentCount", real.filter(function (m) { return m.student; }).length);
 }
 
 // ── Edit mode: select + delete ──────────────────────────────────────────────
@@ -308,11 +343,26 @@ function commsEnsureExtras() {
     if (filters) filters.insertAdjacentHTML("beforebegin",
       '<div class="cm-line-no" id="cmLineNo">(201) 904-4937</div><div class="cm-page-icon">' + COMMS_TEXT_ICON + '</div>');
   }
-  if (!document.querySelector('#commsBody .cm-f[data-filter="students"]')) {
-    var after = document.querySelector('#commsBody .cm-f[data-filter="all"]');
-    if (after) after.insertAdjacentHTML("afterend",
-      '<button class="link-btn cm-f" data-filter="students" onclick="setCommsFilter(\'students\')">Students <span class="cm-n" id="commsStudentCount">0</span></button>');
+  // Two columns (user, 2026-11-01): Students on the left (the real page),
+  // Others on the right (unknown numbers, applicants, voicemails, scams) with
+  // the filters, count and list moved into it.
+  if (!document.getElementById("commsStuList")) {
+    var box = document.querySelector("#commsBody .cm-box"), inbox = document.getElementById("commsInbox");
+    if (box && inbox) {
+      var cols = document.createElement("div");
+      cols.className = "cm-cols";
+      cols.innerHTML =
+        '<div class="cm-col cm-col-stu"><div class="cm-col-t">Students</div>' +
+          '<div class="db-cx-head im-sec-head td-count cm-count-row"><label class="field-label db-cx-t" id="commsStuLabel">&nbsp;</label></div>' +
+          '<hr class="divider td-rule td-rule-top"><div id="commsStuList"></div></div>' +
+        '<div class="cm-col cm-col-oth"><div class="cm-col-t">Others</div></div>';
+      var oth = cols.lastChild;
+      [box.querySelector(".cm-filters"), document.getElementById("commsEditBar"),
+       box.querySelector("hr.td-rule-top"), inbox].forEach(function (n) { if (n) oth.appendChild(n); });
+      box.appendChild(cols);
+    }
   }
+  if (commsFilter === "students") commsFilter = "all";
   if (!document.getElementById("cmThread")) {
     ["commsDetailTime", "commsDetailBody", "commsDetailTranscript"].forEach(function (id) {
       var x = document.getElementById(id); if (x) x.style.display = "none";
