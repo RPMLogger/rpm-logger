@@ -4177,3 +4177,45 @@ body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border
 .cm-compose { background: none; border: none; padding: 4px; color: var(--t-faint); cursor: pointer; line-height: 0; border-radius: 6px; }
 .cm-compose:hover { color: var(--t-bright); background: var(--surface2); }
 .cm-list-top .cm-new-list { left: auto; right: 0; }
+/* Reactions + sending (user, 2026-11-01) */
+.cm-msg { position: relative; }
+.cm-msg.cm-has-tag { margin-top: 10px; }
+.cm-tag { position: absolute; top: -11px; font-size: 12px; line-height: 1; padding: 4px 6px; border-radius: 12px;
+  background: color-mix(in srgb, var(--muted) 45%, #131313); border: 2px solid var(--box); }
+.cm-msg.out .cm-tag { left: -10px; }
+.cm-msg.in .cm-tag { right: -10px; }
+.cm-react-note { align-self: center; font-family: "DM Mono", monospace; font-size: 10px; color: var(--t-faint); max-width: 80%; text-align: center; }
+.cm-sending { align-self: flex-end; font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; font-size: 11px; font-weight: 600; color: var(--muted); margin: -1px 2px 0; }   /* Messages' "Delivered" grey (user, 2026-11-01) */
+.cm-msg.out:has(+ .cm-pend) { opacity: .6; }   /* only while sending, not under "Delivered" */
+.cm-sending.cm-fail { color: var(--accent); }
+/* Student Phone Line in Apple's system font (SF Pro on a Mac) like Messages (user, 2026-11-01).
+   Only inside the two panes; the page title, number and Others stay in the portal fonts. */
+.cm-msgr, .cm-msgr .cm-conv-name, .cm-msgr .cm-conv-prev, .cm-msgr .cm-conv-when, .cm-msgr .cm-ava,
+.cm-msgr .cm-search, .cm-msgr .cm-to, .cm-msgr .cm-msg-t, .cm-msgr .cm-stamp, .cm-msgr .cm-react-note,
+.cm-msgr .cm-reply, .cm-msgr .cm-none, .cm-msgr .cm-new-opt, .cm-msgr .cm-sending {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; letter-spacing: 0; }
+.cm-msgr .cm-conv-name { font-size: 13px; font-weight: 600; }
+.cm-msgr .cm-conv-prev { font-size: 11.5px; line-height: 1.35; }
+.cm-msgr .cm-conv-when { font-size: 11.5px; }
+.cm-msgr .cm-ava { font-size: 13px; font-weight: 600; }
+.cm-msgr .cm-search { font-size: 13px; }
+.cm-msgr .cm-to { font-size: 13px; }
+.cm-msgr #cmPaneTo { font-weight: 600; }
+.cm-msgr .cm-msg-t { font-size: 14.5px; line-height: 1.35; }   /* measured from the user's Messages screenshot */
+.cm-msgr .cm-stamp { font-size: 11px; font-weight: 500; letter-spacing: 0; }
+.cm-msgr .cm-react-note { font-size: 11.5px; }
+.cm-msgr .cm-reply { font-size: 14.5px; }
+.cm-msgr .cm-new-opt { font-size: 13px; }
+.cm-msgr .cm-none { font-size: 12.5px; text-transform: none; }
+/* Pictures (user, 2026-11-01): + / paste / drop a screenshot, shown in the bubble. */
+.cm-attach { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface2); color: var(--t-normal);
+  font-size: 17px; line-height: 1; cursor: pointer; margin-bottom: 3px; }
+.cm-attach:hover { color: var(--t-bright); }
+.cm-attach-chip { position: relative; align-self: flex-start; margin: 10px 18px -2px 56px; }
+.cm-attach-chip img { display: block; max-height: 110px; max-width: 220px; border-radius: 10px; border: 1px solid var(--border); }
+.cm-attach-chip button { position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; border-radius: 50%; border: none; background: #333; color: #fff; font-size: 10px; cursor: pointer; }
+.cm-msg.cm-has-img { padding: 4px; }
+.cm-msg.cm-has-img .cm-msg-t { padding: 6px 8px 4px; }
+.cm-img { display: block; max-width: 260px; max-height: 320px; border-radius: 12px; }
+.cm-msgr-conv.cm-drop { outline: 2px dashed var(--muted); outline-offset: -8px; }
+.cm-msg-t a { color: inherit; text-decoration: underline; text-underline-offset: 2px; word-break: break-all; }

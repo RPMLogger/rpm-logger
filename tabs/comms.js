@@ -152,7 +152,7 @@ function commsStudentPeople() {
     var p = byKey[k];
     p.msgs.sort(function (a, b) { return new Date(b.timestamp) - new Date(a.timestamp); });
     p.latest = p.msgs[0];
-    p.waiting = p.msgs.some(function (m) { return m.source !== "out" && !m.responded; });
+    p.waiting = p.msgs.some(function (m) { return m.source !== "out" && !m.responded && !commsReaction(m); });   // a 👍 needs no answer
     return p;
   }).sort(function (a, b) { return new Date(b.latest.timestamp) - new Date(a.latest.timestamp); });
 }
@@ -187,9 +187,11 @@ function renderCommsStudents() {
     var prev = "No messages yet", when = "";
     if (m) {
       var d = new Date(m.timestamp), day = commsDayLabel(d);
-      prev = m.source === "voicemail"
+      var rx = commsReaction(m);
+      prev = rx ? "Reacted " + rx.emoji + " to your message"
+        : m.source === "voicemail"
         ? "Voicemail" + (m.transcript && m.transcript !== "(transcribing…)" && m.transcript !== "(no transcript)" ? ": " + m.transcript : "")
-        : (m.source === "out" ? "You: " : "") + (m.body || "—");
+        : (m.source === "out" ? "You: " : "") + (commsImageOf(m) && !String(m.body || "").trim() ? "📷 Picture" : commsText(m));
       when = day === "Today" ? commsClock(d) : day === "Yesterday" ? day : day.replace(/^\w+, /, "");
     }
     var ini = p.name.split(/\s+/).map(function (w) { return w.charAt(0); }).join("").slice(0, 2).toUpperCase();
@@ -217,6 +219,7 @@ function commsPaneOpen(detail) {
 // The right pane. jump = scroll to the newest bubble (on open / send, not on
 // every 30-second refresh while I may be reading higher up).
 function commsPaintPane(jump) {
+  commsWireDrop();
   var to = document.getElementById("cmPaneTo"), th = document.getElementById("cmPaneThread");
   var mark = document.getElementById("cmPaneMark"), input = document.querySelector(".cm-msgr-input");
   if (!to || !th) return;
@@ -230,11 +233,97 @@ function commsPaintPane(jump) {
   if (jump || atBottom) th.scrollTop = th.scrollHeight;
 }
 
+// A picture waiting to go with the next text: { dataUrl, b64, mime, name }.
+var commsPaneImage = null;
+
+// Shrink big screenshots before sending (picture messages top out around 5 MB
+// and carriers squeeze them further): longest side 1600 px, JPEG.
+function commsPickImage(file) {
+  if (!file || !/^image\//.test(file.type)) return;
+  var reader = new FileReader();
+  reader.onload = function () {
+    var im = new Image();
+    im.onload = function () {
+      var scale = Math.min(1, 1600 / Math.max(im.width, im.height));
+      var c = document.createElement("canvas");
+      c.width = Math.round(im.width * scale); c.height = Math.round(im.height * scale);
+      var g = c.getContext("2d");
+      g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);   // transparent PNGs get a white page, not black
+      g.drawImage(im, 0, 0, c.width, c.height);
+      var dataUrl = c.toDataURL("image/jpeg", 0.86);
+      commsPaneImage = { dataUrl: dataUrl, b64: dataUrl.split(",")[1], mime: "image/jpeg", name: (file.name || "screenshot").replace(/\.\w+$/, "") + ".jpg" };
+      commsPaintChip();
+      var box = document.getElementById("cmPaneReply"); if (box) box.focus();
+    };
+    im.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function commsPasteImage(e) {
+  var items = (e.clipboardData && e.clipboardData.items) || [];
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].kind === "file" && /^image\//.test(items[i].type)) { e.preventDefault(); commsPickImage(items[i].getAsFile()); return; }
+  }
+}
+
+function commsPaintChip() {
+  var chip = document.getElementById("cmPaneChip");
+  if (!chip) return;
+  chip.hidden = !commsPaneImage;
+  chip.innerHTML = commsPaneImage ? '<img src="' + commsPaneImage.dataUrl + '" alt=""><button title="Remove" onclick="commsPaneImage = null; commsPaintChip()">✕</button>' : "";
+}
+
+// Drop a picture anywhere on the conversation side.
+function commsWireDrop() {
+  var conv = document.querySelector(".cm-msgr-conv");
+  if (!conv || conv._drop) return;
+  conv._drop = true;
+  conv.addEventListener("dragover", function (e) { if (commsPaneDetail) { e.preventDefault(); conv.classList.add("cm-drop"); } });
+  conv.addEventListener("dragleave", function (e) { if (!conv.contains(e.relatedTarget)) conv.classList.remove("cm-drop"); });
+  conv.addEventListener("drop", function (e) {
+    conv.classList.remove("cm-drop");
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) { e.preventDefault(); commsPickImage(f); }
+  });
+}
+
+// Sending from the pane (user, 2026-11-01): no dimmed overlay; the bubble
+// appears at once with a small "Sending…" under it, like Messages. A picture
+// goes as a POST (too big for a link), the same way Dropbox uploads do.
 function commsPaneSend() {
-  if (!commsPaneDetail) return;
-  commsSendTo(commsPaneDetail, document.getElementById("cmPaneReply"), document.getElementById("cmPaneSend"),
-    document.querySelector(".cm-msgr-conv"), function () {
-      commsPaneDetail = Object.assign({}, commsPaneDetail, { blank: false });
+  var d = commsPaneDetail, box = document.getElementById("cmPaneReply"), btn = document.getElementById("cmPaneSend");
+  if (!d || !box) return;
+  var body = box.value.trim(), pic = commsPaneImage;
+  if (!body && !pic) { box.focus(); return; }
+  var to = d.fromNumber, key = commsKey(to);
+  var msg = { row: 0, timestamp: new Date().toISOString(), source: "out", fromNumber: to, audioUrl: pic ? pic.dataUrl : "",
+    fromName: d.fromName || "", student: d.student || "", body: body, responded: true, _pending: true };
+  commsMessages.push(msg);
+  box.value = "";
+  commsPaneImage = null; commsPaintChip();
+  if (btn) btn.disabled = true;
+  commsPaintPane(true);
+  var req = pic
+    ? fetch(getScriptUrl(), { method: "post", body: JSON.stringify({ action: "sendCommsImage", to: to, body: body, filename: pic.name, mime: pic.mime, dataB64: pic.b64 }) })
+    : fetch(getScriptUrl() + "?action=sendCommsReply&to=" + encodeURIComponent(to) + "&body=" + encodeURIComponent(body));
+  req.then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (!res.success) throw new Error(res.message || "Something went wrong.");
+      delete msg._pending;
+      msg.status = "sent";
+      if (res.image) msg.audioUrl = res.image;
+      commsMessages.forEach(function (m) { if (commsKey(m.fromNumber) === key) m.responded = true; });
+      commsPaneDetail = Object.assign({}, d, { blank: false });
+    })
+    .catch(function (err) {
+      commsMessages.splice(commsMessages.indexOf(msg), 1);
+      if (!box.value) box.value = body;   // nothing typed is lost
+      if (pic && !commsPaneImage) { commsPaneImage = pic; commsPaintChip(); }
+      rpmAlert({ title: "Not sent", message: err && err.message && err.message !== "Failed to fetch" ? err.message : "Couldn't reach the server." });
+    })
+    .then(function () {
+      if (btn) btn.disabled = false;
       renderCommsInbox();
       commsPaintPane(true);
     });
@@ -288,7 +377,7 @@ document.addEventListener("click", function (e) {
 // messages, so they stay right after an Answered toggle or a delete.
 function updateCommsBadge() {
   var real = commsMessages.filter(function (m) { return !m.scam && m.source !== "out"; });
-  var open = real.filter(function (m) { return !m.responded; }).length;
+  var open = real.filter(function (m) { return !m.responded && !commsReaction(m); }).length;   // a 👍 needs no answer
   var badge = document.getElementById("commsNavBadge");
   if (badge) {
     badge.textContent = open;
@@ -399,6 +488,58 @@ function commsKey(num) {
   return d.length > 10 ? d.slice(-10) : d;
 }
 
+// A tapback sent as a text (user, 2026-11-01). iPhone: Liked “…” / Loved /
+// Laughed at / Emphasized / Questioned / Disliked, or Reacted 😂 to “…”;
+// Android: 👍 to “…”. Returns { emoji, quote } or null.
+var COMMS_TAPBACKS = { "liked": "👍", "loved": "❤️", "disliked": "👎", "laughed at": "😂", "emphasized": "‼️", "questioned": "❓" };
+function commsReaction(m) {
+  if (!m || m.source !== "sms") return null;
+  var b = String(m.body || "").trim(), x;
+  if ((x = b.match(/^(Liked|Loved|Disliked|Laughed at|Emphasized|Questioned)\s+[“"]([\s\S]+)[”"]$/i)))
+    return { emoji: COMMS_TAPBACKS[x[1].toLowerCase()], quote: x[2] };
+  if ((x = b.match(/^(?:Reacted\s+)?(\S{1,8})\s+to\s+[“"]([\s\S]+)[”"]$/i)) && !/[a-z0-9]/i.test(x[1]))
+    return { emoji: x[1], quote: x[2] };
+  // iPhone on a picture: Reacted 😂 to an image / Liked an image (nothing to quote).
+  if ((x = b.match(/^Reacted\s+(\S{1,8})\s+to\s+(an? (?:image|photo|video|attachment|audio message))$/i)))
+    return { emoji: x[1], quote: x[2], media: true };
+  if ((x = b.match(/^(Liked|Loved|Disliked|Laughed at|Emphasized|Questioned)\s+(an? (?:image|photo|video|attachment|audio message))$/i)))
+    return { emoji: COMMS_TAPBACKS[x[1].toLowerCase()], quote: x[2], media: true };
+  return null;
+}
+
+// "Delivered" / "Not delivered" / "Sent" under one of my texts. Plain SMS has
+// no read receipts; Twilio only knows whether it reached the phone.
+function commsDeliveryHtml(m, isLast) {
+  if (m.source !== "out") return "";
+  var st = String(m.status || "");
+  if (st === "undelivered" || st === "failed") return '<div class="cm-sending cm-fail">Not delivered</div>';
+  if (!isLast) return "";
+  if (st === "delivered" || st === "read") return '<div class="cm-sending">Delivered</div>';
+  if (st === "unknown") return "";
+  return '<div class="cm-sending">Sent</div>';
+}
+
+// A picture I texted: the Drive thumbnail saved in the row (or, while it is
+// still sending, the local copy). { src, full } or null.
+function commsImageOf(m) {
+  var u = String(m.audioUrl || "");
+  if (/^data:image\//.test(u)) return { src: u, full: u };
+  var x = u.match(/drive\.google\.com\/thumbnail\?id=([\w-]+)/);
+  return x ? { src: u, full: "https://drive.google.com/file/d/" + x[1] + "/view" } : null;
+}
+
+// Links in a text are clickable, like in Messages (user, 2026-11-01).
+function commsLinkify(html) {
+  return html.replace(/\b(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+}
+
+// What a message says on screen; old rows still read "Sent a audio clip".
+function commsText(m) {
+  if (m.source === "voicemail")
+    return "📞 Voicemail" + (m.transcript && m.transcript !== "(transcribing…)" && m.transcript !== "(no transcript)" ? ": " + m.transcript : ", no transcript");
+  return String(m.body || "—").replace(/^📎 Sent a (?=[aeiou])/i, "📎 Sent an ");
+}
+
 // The conversation as bubbles, oldest first, Messages style (user, 2026-11-01):
 // a centred day + time over the first bubble and after any gap of an hour.
 function commsThreadHtml(detail) {
@@ -407,16 +548,40 @@ function commsThreadHtml(detail) {
     .sort(function (a, b) { return new Date(a.timestamp) - new Date(b.timestamp); });
   if (!thread.length && detail.blank) return '<div class="cm-none cm-thread-empty">No messages yet. Your first text goes from the RPM number.</div>';
   if (!thread.length) thread = [detail];
+  // Reactions become a small tag on the bubble they quote, not a bubble of their own.
+  var tags = new Map(), loose = [];
+  thread.forEach(function (m, i) {
+    var r = commsReaction(m);
+    if (!r) return;
+    var q = r.quote.replace(/…$/, "").trim(), hit = null;
+    for (var j = i - 1; j >= 0 && !hit; j--) {
+      var b = String(thread[j].body || "").trim();
+      if (r.media) { if (commsImageOf(thread[j])) hit = thread[j]; continue; }   // the latest picture before it
+      if (!commsReaction(thread[j]) && b && (b === q || b.indexOf(q) === 0)) hit = thread[j];
+    }
+    if (hit) { var t = tags.get(hit) || []; t.push(r.emoji); tags.set(hit, t); } else loose.push(m);
+    m._reaction = r;
+  });
+  // Delivery under my newest text, like Messages; "Not delivered" stays under
+  // any text that failed (user, 2026-11-01).
+  var lastOut = null;
+  thread.forEach(function (m) { if (m.source === "out" && !m._pending) lastOut = m; });
   var last = 0;
   return thread.map(function (m) {
+    if (m._reaction && loose.indexOf(m) < 0) return "";
     var d = new Date(m.timestamp), stamp = "";
     if (d - last > 3600000) stamp = '<div class="cm-stamp">' + commsDayLabel(d) + " " + commsClock(d) + '</div>';
     last = d;
-    var text = m.source === "voicemail"
-      ? "📞 Voicemail" + (m.transcript && m.transcript !== "(transcribing…)" && m.transcript !== "(no transcript)" ? ": " + m.transcript : ", no transcript")
-      : (m.body || "—");
-    return stamp + '<div class="cm-msg ' + (m.source === "out" ? "out" : "in") + '">' +
-      '<div class="cm-msg-t">' + commsEscape(text) + '</div></div>';
+    if (m._reaction) return stamp + '<div class="cm-react-note">' + m._reaction.emoji + " to " +
+      (m._reaction.media ? commsEscape(m._reaction.quote) : "“" + commsEscape(m._reaction.quote) + "”") + '</div>';
+    var t = tags.get(m);
+    var img = commsImageOf(m), txt = img && !String(m.body || "").trim() ? "" : commsText(m);
+    return stamp + '<div class="cm-msg ' + (m.source === "out" ? "out" : "in") + (t ? " cm-has-tag" : "") + (img ? " cm-has-img" : "") + '">' +
+      (img ? '<a href="' + commsEscape(img.full) + '" target="_blank" rel="noopener"><img class="cm-img" src="' + commsEscape(img.src) + '" alt="Picture"></a>' : "") +
+      (txt ? '<div class="cm-msg-t">' + commsLinkify(commsEscape(txt)) + '</div>' : "") +
+      (t ? '<span class="cm-tag">' + t.join("") + '</span>' : "") +
+      '</div>' +
+      (m._pending ? '<div class="cm-sending cm-pend">Sending…</div>' : commsDeliveryHtml(m, m === lastOut));
   }).join("");
 }
 
@@ -468,7 +633,13 @@ function commsEnsureExtras() {
             '<div class="cm-msgr-head"><span class="cm-to">To: <span id="cmPaneTo"></span></span>' +
               '<button class="link-btn" id="cmPaneMark" onclick="commsPaneMark()" style="display:none">Mark answered</button></div>' +
             '<div class="cm-pane-thread" id="cmPaneThread"></div>' +
-            '<div class="cm-msgr-input"><textarea class="cm-reply" id="cmPaneReply" rows="1" placeholder="Text message · RPM number" ' +
+            '<div class="cm-attach-chip" id="cmPaneChip" hidden></div>' +
+            '<div class="cm-msgr-input">' +
+              // Screenshots (user, 2026-11-01): +, paste (⌘V) or drop a picture on the conversation.
+              '<button class="cm-attach" title="Add a picture" aria-label="Add a picture" onclick="document.getElementById(\'cmPaneFile\').click()">+</button>' +
+              '<input type="file" id="cmPaneFile" accept="image/*" hidden onchange="commsPickImage(this.files[0]); this.value=\'\'">' +
+              '<textarea class="cm-reply" id="cmPaneReply" rows="1" placeholder="Text message · RPM number" ' +
+              'onpaste="commsPasteImage(event)" ' +
               'onkeydown="if (event.key === \'Enter\' && !event.shiftKey) { event.preventDefault(); commsPaneSend(); }"></textarea>' +
               '<button class="link-btn cm-send" id="cmPaneSend" onclick="commsPaneSend()">Send</button></div>' +
           '</div></div>';
@@ -546,7 +717,7 @@ function commsOpenInThread(detail) {
   if (!detail) return [];
   var key = commsKey(detail.fromNumber);
   return commsMessages.filter(function (m) {
-    return key && commsKey(m.fromNumber) === key && m.source !== "out" && !m.responded && m.row;
+    return key && commsKey(m.fromNumber) === key && m.source !== "out" && !m.responded && m.row && !commsReaction(m);
   });
 }
 
