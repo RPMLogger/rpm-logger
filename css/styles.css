@@ -337,7 +337,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* ─── HOME: the opening page (2026-10-24) ─── */
 /* In the bordered box like every tab, under the header (user, 2026-10-26; was
    screen-tall with the buttons and name box in its middle) */
-#tab-home.active { display: flex; flex-direction: column; justify-content: center; min-height: calc(100vh - 166px - 72px); }   /* down near the bottom of the screen, no scroll (its top is at 166px; 72px = the page's bottom padding + what sits under the panels), the buttons and name box in its middle (user, 2026-10-26) */
+#tab-home.active { display: flex; flex-direction: column; justify-content: center; min-height: calc(100vh - 272px - 72px); }   /* down near the bottom of the screen, no scroll (its top is at 272px under the amp head, was 166px before it grew — user, 2026-11-01; 72px = the page's bottom padding + what sits under the panels), the buttons and name box in its middle (user, 2026-10-26) */
 /* Today / Students / Calendar: regular portal buttons in a row */
 .home-top { display: flex; justify-content: center; gap: 10px; }
 .home-top .link-btn { color: var(--t-text); border-color: rgba(255,255,255,0.22); }   /* a step brighter than a regular button (user, 2026-10-24) */
@@ -4146,7 +4146,7 @@ body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border
 .cm-conv.cm-wait .cm-conv-name { color: var(--t-bright); }
 .cm-conv.cm-wait .cm-conv-prev { color: var(--t-normal); }
 /* Students = the Messages app's setup (user, 2026-11-01): list left, conversation right. */
-.cm-msgr { display: grid; grid-template-columns: minmax(260px, 34%) 1fr; height: 72vh; min-height: 420px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.cm-msgr { display: grid; grid-template-columns: minmax(260px, 34%) 1fr; height: calc(100vh - 416px - 97px); min-height: 420px;   /* fills to the screen bottom, no scroll (user, 2026-11-01; was 72vh) */ border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
 .cm-msgr-list { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--border); background: color-mix(in srgb, var(--box) 85%, #000); }
 .cm-search { margin: 12px 12px 6px; padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface2); color: var(--text);
   font-family: "DM Mono", monospace; font-size: 11px; }
@@ -4219,4 +4219,4 @@ body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border
 .cm-img { display: block; max-width: 260px; max-height: 320px; border-radius: 12px; }
 .cm-msgr-conv.cm-drop { outline: 2px dashed var(--muted); outline-offset: -8px; }
 .cm-msg-t a { color: inherit; text-decoration: underline; text-underline-offset: 2px; word-break: break-all; }
-#tab-home .home-hero { display:block; height:140px; margin:0 auto 36px; pointer-events:none; }   /* amp + guitar icon above the Home buttons (user, 2026-11-01) */
+#tab-home .home-hero { display:block; height:110px; opacity:.55; margin:0 auto 36px; pointer-events:none; }   /* amp + guitar icon above the Home buttons (user, 2026-11-01) */
