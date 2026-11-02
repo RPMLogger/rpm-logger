@@ -4254,3 +4254,6 @@ a.cm-file:hover { background: rgba(255,255,255,0.14); }
 .win-mag:hover:where(:not(:disabled)) { border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 .win-mag.on { border-color: var(--muted); background: var(--muted); }
 .win-mag.on .hdr-mag-i { background: var(--bg, #111); }
+/* Today and This Week boxes, and Today's name buttons, lifted like the All window's (user, 2026-11-01) */
+#todayBody .td-wk-box { box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
+#todayBody .td-mini-b { background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
