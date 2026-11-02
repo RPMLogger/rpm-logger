@@ -545,12 +545,13 @@ function commsReaction(m) {
 // no read receipts; Twilio only knows whether it reached the phone.
 function commsDeliveryHtml(m, isLast) {
   if (m.source !== "out") return "";
-  var st = String(m.status || "");
-  if (st === "undelivered" || st === "failed") return '<div class="cm-sending cm-fail">Not delivered</div>';
-  if (!isLast) return "";
-  if (st === "delivered" || st === "read") return '<div class="cm-sending">Delivered</div>';
-  if (st === "unknown") return "";
-  return '<div class="cm-sending">Sent</div>';
+  // The line's own answer to a file a student texted (user, 2026-11-01), not something I typed.
+  var auto = m.audioUrl === "auto" ? "Auto-reply" : "";
+  var st = String(m.status || ""), word = "";
+  if (st === "undelivered" || st === "failed") return '<div class="cm-sending cm-fail">' + (auto ? auto + " · " : "") + 'Not delivered</div>';
+  if (isLast) word = st === "delivered" || st === "read" ? "Delivered" : st === "unknown" ? "" : "Sent";
+  var line = [auto, word].filter(Boolean).join(" · ");
+  return line ? '<div class="cm-sending">' + line + '</div>' : "";
 }
 
 // A picture I texted: the Drive thumbnail saved in the row (or, while it is
@@ -572,7 +573,7 @@ function commsLinkify(html) {
 function commsText(m) {
   if (m.source === "voicemail")
     return "📞 Voicemail" + (m.transcript && m.transcript !== "(transcribing…)" && m.transcript !== "(no transcript)" ? ": " + m.transcript : ", no transcript");
-  return String(m.body || "—").replace(/^📎 Sent a (?=[aeiou])/i, "📎 Sent an ");
+  return String(m.body || "—").replace(/^📎 Sent a (?=[aeiou])/im, "📎 Sent an ").replace(/ \(ask for a Dropbox link\)/g, "");   // old rows
 }
 
 // The conversation as bubbles, oldest first, Messages style (user, 2026-11-01):
