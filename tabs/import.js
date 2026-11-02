@@ -859,16 +859,16 @@ function _imStepsRender() {
   Array.prototype.forEach.call(c.root.querySelectorAll('.im-mat-sec'), function (el) {
     // D. and E.'s boxes only once their Yes is picked (or a link of that kind is in).
     var kind = el.querySelector('#imMatVideo') ? 'Video' : el.querySelector('#imMatLink') ? 'Link' : el.querySelector('#imHwDock') ? 'Files' : null;
-    var on = !kind || _imLinkOn(hw, kind);
+    // Files open with Send; the two link boxes with Add links? Yes (user, 2026-11-02).
+    var on = !kind || kind === 'Files' || _imLinkOn(hw, kind);
     el.style.display = open && on ? '' : 'none';
-    if (el.previousElementSibling) el.previousElementSibling.style.display = open ? '' : 'none';
+    if (el.previousElementSibling) el.previousElementSibling.style.display = open && on ? '' : 'none';
   });
-  var ft = _imQ('imMatFilesTools');
-  if (ft) ft.style.display = _imLinkOn(hw, 'Files') ? '' : 'none';
-  [['imFilesYes', 'Files'], ['imVidYes', 'Video'], ['imWebYes', 'Link']].forEach(function (x) {
+  var linksYes = !!(hw && (hw.linksQ === 'yes' || hw.links.length || hw.videoOnly));
+  [['imLinksYes', linksYes], ['imLinksNo', hw && hw.linksQ === 'no' && !linksYes]].forEach(function (x) {
     var b = _imQ(x[0]);
     if (!b) return;
-    b.classList.toggle('done', _imLinkOn(hw, x[1]));
+    b.classList.toggle('done', !!x[1]);
     b.disabled = !hw || !!(hw.locked || hw.loading || hw.saving);
   });
   if (fb && fb.parentNode) fb.parentNode.style.display = open ? '' : 'none';
@@ -1240,6 +1240,7 @@ function _imMatPick(v) {
   hw.matDone = false;
   if (hw.pick === 'none') { hw.choice = 'none'; hw.links = []; hw.videoOnly = false; hw.filesOn = false; hw.found = null; hw.linkYes = {}; _imHwLinkClear(); }
   else hw.choice = null;
+  if (hw.pick !== 'send') hw.linksQ = null;
   _imHwChanged();
 }
 function _imNothingToSend() { _imMatPick('none'); }   // the old button's onclick (index.html)
@@ -1302,6 +1303,19 @@ function _imLinkYes(kind) {
   }
   _imHwChanged();
   if (on && kind !== 'Files') { var el = document.getElementById(kind === 'Video' ? 'logHwVideoInput' : 'logHwLinkInput'); if (el) el.focus(); }
+}
+// Add links? (user, 2026-11-02; were B. and C.'s own circles): Yes opens the
+// Video lesson link and Web link boxes, No closes them and drops their links.
+function _imLinksQ(v) {
+  var hw = logHw;
+  if (!hw || hw.locked || hw.loading || hw.saving) return;
+  var yes = hw.linksQ === 'yes' || hw.links.length || hw.videoOnly;
+  hw.linksQ = (v === 'yes' ? yes : hw.linksQ === 'no') ? null : v;
+  hw.linkYes = hw.linkYes || {};
+  hw.linkYes.Video = hw.linkYes.Link = hw.linksQ === 'yes';
+  if (hw.linksQ !== 'yes') { hw.links = []; hw.videoOnly = false; _imHwLinkClear(); }
+  _imHwChanged();
+  if (hw.linksQ === 'yes') { var el = document.getElementById('logHwVideoInput'); if (el) el.focus(); }
 }
 function _imHwLinkClear() {
   ['logHwVideoInput', 'logHwLinkInput'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
@@ -1601,10 +1615,13 @@ function _imDoHtml(name, day) {
       '<div class="im-hw-dock-box">' +
       // Gather (2026-10-25): files put in their Dropbox by hand (Finder) show under the zone, ticked.
       // A. opens with its circle too (user, 2026-10-25); its tools show with it.
-      _imSub('A. Files', '<span class="im-link-yes">' + _imPickBtn('imFilesYes', "_imLinkYes('Files')", '', 'Files to send: the drop zone,&#10;Gather, Browse and their Dropbox.') + '</span><span id="imMatFilesTools"><button type="button" class="link-btn lh-gather-btn" id="logHwGatherBtn" onclick="_imGather()" data-tip="Instant.&#10;Lists what you put in their Dropbox since the lesson day,&#10;e.g. with Finder, that\'s on no HW yet.&#10;Finish moves it all into this lesson\'s HW folder." data-tip-left data-tip-wrap>' + TRAY_IN_ICON + '<span>Gather</span></button></span>', ' im-mat-sec', '<div id="imHwDock"></div><div id="imGatherList"></div>') +
-      // B and C open with the circle after their title (user, 2026-10-25): no Yes / No words, unpicked is no.
-      _imSub('B. Video lesson link', '<span class="im-link-yes">' + _imPickBtn('imVidYes', "_imLinkYes('Video')", '', 'A video lesson link to send.&#10;Opens the box for it.') + '</span>', ' im-mat-sec', '<div id="imMatVideo"></div>') +
-      _imSub('C. Web link', '<span class="im-link-yes">' + _imPickBtn('imWebYes', "_imLinkYes('Link')", '', 'A web link to send.&#10;Opens the box for it.') + '</span>', ' im-mat-sec', '<div id="imMatLink"></div>') +
+      _imSub('A. Files', '<span id="imMatFilesTools"><button type="button" class="link-btn lh-gather-btn" id="logHwGatherBtn" onclick="_imGather()" data-tip="Instant.&#10;Lists what you put in their Dropbox since the lesson day,&#10;e.g. with Finder, that\'s on no HW yet.&#10;Finish moves it all into this lesson\'s HW folder." data-tip-left data-tip-wrap>' + TRAY_IN_ICON + '<span>Gather</span></button></span>', ' im-mat-sec', '<div id="imHwDock"></div><div id="imGatherList"></div>') +
+      // Add links? Yes / No (user, 2026-11-02): Yes opens B and C.
+      '<div class="db-cx-head im-sub-head im-links-q"><label class="field-label db-cx-t im-sub-t">Add links?</label><span>' +
+        _imPickBtn('imLinksYes', "_imLinksQ('yes')", 'Yes', 'A video lesson link or a web link.&#10;Opens the boxes for them.') +
+        _imPickBtn('imLinksNo', "_imLinksQ('no')", 'No', 'No links this lesson.') + '</span></div>' +
+      _imSub('B. Video lesson link', '', ' im-mat-sec', '<div id="imMatVideo"></div>') +
+      _imSub('C. Web link', '', ' im-mat-sec', '<div id="imMatLink"></div>') +
     '</div>' +
     // Finish (2026-10-18): Materials waits for it, like Log for section 1.
     '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn" id="imMatFinishBtn" onclick="_imMatFinish()" disabled data-tip="All files and links are in.&#10;Till then Materials stays open." data-tip-left>Finish</button></div>' +
