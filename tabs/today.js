@@ -58,7 +58,8 @@ function _tdRender() {
   var now = new Date();
   // Today's top part in a box like This Week's under it (user, 2026-10-24): title, calendar, count, list.
   var head = '<div class="td-wk-box td-today-box"><div class="settings-title td-wk-title"><span>Today</span>' +   // no " · Tue, Oct 27": the date page under it says it (user, 2026-10-27)
-    '<button class="link-btn opens-window" onclick="_tdNsOpen()" data-tip="Instant.\nThe No show text, to copy\nand send from Messages.">No show</button></div>' +   // no Week button: This Week is under it (user, 2026-10-24); No show (portal button) top right opens the No show text window (user, 2026-10-26)
+    '<span class="td-top-btns"><button class="link-btn opens-window" onclick="_tdAllOpen()" data-tip="Opens a window.\nToday\'s students: last lesson,\nlast HW and its folders.">All</button>' +   // All, left of No show (user, 2026-11-01)
+    '<button class="link-btn opens-window" onclick="_tdNsOpen()" data-tip="Instant.\nThe No show text, to copy\nand send from Messages.">No show</button></span></div>' +   // no Week button: This Week is under it (user, 2026-10-24); No show (portal button) top right opens the No show text window (user, 2026-10-26)
     '<img class="td-hero" src="img/guitarist.svg" alt="">' +   // guitarist figure (user, 2026-11-01)
     '<div class="td-day-cal"><div class="td-hol-mo">' + MONTHS[now.getMonth()] + '</div><div class="td-hol-dd">' + now.getDate() + '</div></div>';   // today's date page, the holiday warning's (user, 2026-10-27; was the plain calendar icon)
   // A day off (2026-10-08): the resting figure over the line (om-82).
@@ -95,6 +96,107 @@ function _tdJump(i) {
 function _tdClose() {
   var el = document.querySelector('#todayBody .td-student.td-open');
   if (el) _tdJump(parseInt(el.id.replace('tdCard', ''), 10));
+}
+
+// ── All (user, 2026-11-01) ──────────────────────────────────────────────────
+// Today's students in one window, at a glance (user, 2026-11-01; was every student): last lesson, last HW and its
+// folder names only. One read of HW Tracking (getHwLog, no filter = every row)
+// and each student's last lesson (getPastLessons count=1; was the last 4, user 2026-11-01), six at a time so
+// Google isn't hit by all of them at once. Boxes fill in as answers come.
+// A name opens that student's lesson log on the Students tab.
+var _tdAll = null;   // { lessons: key → [..] | 'fail', hw: key → row, hwIn }
+
+function _tdAllOpen() {
+  var w = _stWin('tdAllWin', 'Today', 'Last lesson and HW', null, '<div id="tdAllBody"><div class="empty-state rpm-loading">Loading</div></div>');
+  w.querySelector('.st-win').classList.add('td-all-win');
+  // The magnifier on the window too (user, 2026-11-01): the header's is under the window's dark.
+  w.querySelector('.settings-close').insertAdjacentHTML('beforebegin', '<button class="win-mag' + (_magOn ? ' on' : '') + '" data-mag onclick="magToggle()" aria-label="Magnifier" data-tip="Instant.\nMagnifier: rest the pointer on longer text\nfor half a second to see it bigger." data-tip-left><span class="hdr-mag-i"></span></button>');
+  var url = getScriptUrl(), all = _tdAll = { lessons: {}, hw: {}, hwIn: false };
+  function go() {
+    if (_tdAll !== all) return;
+    _tdAllRender();
+    fetch(url + '?action=getHwLog')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        // Rows come newest first: the first with HW text, files or links is the last HW.
+        (d.success ? d.rows || [] : []).forEach(function (x) {
+          var k = _imKey(x.student);
+          if (all.hw[k] || !(x.text || (x.files || []).length || (x.links || []).length)) return;
+          all.hw[k] = x;
+        });
+      })
+      .catch(function () {})
+      .then(function () { all.hwIn = true; if (_tdAll === all) _tdAllRender(); });
+    var queue = _tdAllNames();
+    function next() {
+      var n = queue.shift();
+      if (!n || _tdAll !== all || !document.getElementById('tdAllWin')) return;
+      fetch(url + '?action=getPastLessons&count=1&studentName=' + encodeURIComponent(n))
+        .then(function (r) { return r.json(); })
+        .then(function (d) { all.lessons[_imKey(n)] = d.success ? d.lessons || [] : 'fail'; })
+        .catch(function () { all.lessons[_imKey(n)] = 'fail'; })
+        .then(function () { if (_tdAll === all) { _tdAllRender(); next(); } });
+    }
+    for (var i = 0; i < 6; i++) next();
+  }
+  go();
+}
+// Today's students, in lesson-time order.
+function _tdAllNames() { return (todayStudents || []).map(function (s) { return s.name; }); }
+
+// Folder names only, never files (user, 2026-11-01): "HW - OCT 30", then the
+// folders inside it, in the Students page's folder look (_dbDetailsFilesHtml).
+function _tdAllFolders(paths) {
+  var tops = [], subs = {};
+  paths.forEach(function (x) {
+    var p = String(x).split('/'); p.pop();   // the file's name off
+    if (!p.length) return;
+    if (!subs[p[0]]) { subs[p[0]] = []; tops.push(p[0]); }
+    if (p[1] && subs[p[0]].indexOf(p[1]) < 0) subs[p[0]].push(p[1]);
+  });
+  var head = function (n, sub) { return '<span class="db-file db-dir"' + (sub ? ' style="padding-left:20px"' : '') + '>' + DB_FOLDER_GLYPH + '<span style="text-transform:uppercase">' + inqEsc(n) + '</span></span>'; };
+  return tops.map(function (t) {
+    return '<span class="db-group">' + head(t) + subs[t].sort(function (a, b) { return a.localeCompare(b, undefined, { numeric: true }); }).map(function (n) { return head(n, true); }).join('') + '</span>';
+  }).join('');
+}
+
+function _tdAllPick(name) {
+  var w = document.getElementById('tdAllWin');
+  if (w) w.remove();
+  switchTab('import');
+  _imOpenStudent(name);
+}
+
+function _tdAllRender() {
+  var box = document.getElementById('tdAllBody');
+  if (!box || !_tdAll) return;
+  var a = _tdAll, wait = '<div class="im-none rpm-loading is-inline">Loading</div>';
+  var day = function (ymd) { var p = String(ymd).split('-'); return MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10); };
+  box.innerHTML = !_tdAllNames().length ? '<div class="empty-state">No lessons today!</div>' : _tdAllNames().map(function (n) {
+    var k = _imKey(n), ls = a.lessons[k], hw = a.hw[k];
+    // One box per student (user, 2026-11-01): Lesson, then HW (no line between, user); one date top right
+    // (the HW's own date only when it's another day); titles in the field-label font.
+    var l = ls && ls !== 'fail' && ls[0];
+    var lm = l && String(l.date || '').replace(/\//g, '').trim().match(/^([A-Za-z]{3})\s*(\d{1,2})$/);
+    var lDay = l ? (lm ? lm[1] + ' ' + parseInt(lm[2], 10) : l.date || '') : '';
+    var t = l ? _imNoTeacher(l.subject) : '';
+    var lesson = ls === undefined ? wait : ls === 'fail' ? '<div class="im-none">Could not read</div>' : !l ? '<div class="im-none">None</div>' :
+      '<div class="td-all-txt">' + (t ? inqEsc(t) : '—') + '</div>';
+    var files = hw && (hw.files || []).length, hDay = hw ? day(hw.date) : '';
+    var hwHtml = !a.hwIn ? wait : !hw ? '<div class="im-none">None</div>' :
+      (hw.text ? '<div class="td-all-txt">' + inqEsc(hw.text) + '</div>' : '') +
+      (hw.links || []).map(function (x) { return '<div class="im-hw-link"><span>' + (x.kind === 'Video' ? 'Video lesson' : 'Link') + '</span><a href="' + inqEsc(x.url) + '" target="_blank" rel="noopener">' + inqEsc(x.url) + '</a></div>'; }).join('') +
+      (files ? '<div class="im-hw-files">' + _tdAllFolders(hw.files) + '</div>' : '');
+    var head = function (label, d) { return '<div class="td-all-h"><span class="td-all-lbl">' + label + '</span>' + (d ? '<span class="im-d">' + inqEsc(d) + '</span>' : '') + '</div>'; };
+    // The name as Today's name button over the box.
+    return '<div class="td-all-one">' +
+      '<button class="link-btn td-mini-b td-all-name" onclick="_tdAllPick(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a tab.\nEvery lesson logged for ' + _auEsc(n) + '.">' + inqEsc(n) + '</button>' +
+      '<div class="db-panel td-all-box">' +
+        head('Lesson', lDay) + lesson +
+        head('HW', hDay && hDay !== lDay ? hDay : '') + hwHtml +
+      '</div>' +
+    '</div>';
+  }).join('');   // no line between students, just room (user, 2026-11-01)
 }
 
 // ── No show text (user, 2026-10-26) ─────────────────────────────────────────

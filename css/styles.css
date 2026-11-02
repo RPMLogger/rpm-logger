@@ -3910,7 +3910,7 @@ th.f2-blk { background:none; }
 :is(#todoContent, #notesContent) .tdo-title-btns { display: flex; align-items: center; gap: 8px; }
 /* Magnifier pointer on every tab while the header magnifier is on (core/magnifier.js). */
 body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8' stroke='%23000' stroke-width='5'/%3E%3Cline x1='18' y1='18' x2='28' y2='28' stroke='%23000' stroke-width='7'/%3E%3Ccircle cx='12' cy='12' r='8' stroke='%23fff' stroke-width='2.5'/%3E%3Cline x1='18' y1='18' x2='28' y2='28' stroke='%23fff' stroke-width='4'/%3E%3C/g%3E%3C/svg%3E") 12 12, zoom-in; }
-.mag-bubble { position: fixed; z-index: 9000; box-sizing: border-box; max-height: calc(calc(var(--vh) * 100) - 32px); overflow-y: auto; padding: 18px 22px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--muted) 55%, transparent); border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); line-height: 1.35; white-space: pre-wrap; word-break: break-word; }   /* font + grey come from the text it shows */
+.mag-bubble { position: fixed; z-index: 10000; box-sizing: border-box; max-height: calc(calc(var(--vh) * 100) - 32px); overflow-y: auto; padding: 18px 22px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--muted) 55%, transparent); border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); line-height: 1.35; white-space: pre-wrap; word-break: break-word; }   /* font + grey come from the text it shows */
 .tdo-zoom-bubble { font-family: "Caveat", cursive; font-size: 30px; line-height: 1.3; color: var(--t-normal); }   /* the rows' own grey, never brighter than the text it zooms (user, 2026-10-28; was white 0.6) */
 .tdo-zoom-bubble .tdo-zoom-foot { display: flex; justify-content: flex-end; margin-top: 16px; font-family: "DM Mono", monospace; }   /* amber Completed under the big text (user, 2026-10-28) */
 :is(#todoContent, #notesContent) .tdo-done-hidden .td-wk-icon { margin-bottom: 0; }   /* folded: the box ends under the icon */
@@ -4229,3 +4229,28 @@ a.cm-file:hover { background: rgba(255,255,255,0.14); }
 .cm-attach-chip .cm-file { background: var(--surface2); border: 1px solid var(--border); }
 #todayBody .td-today-box { position:relative; }
 #todayBody .td-hero { position:absolute; right:32%; top:109px; height:34px; opacity:.55; pointer-events:none; }   /* guitarist figure in the Today box, feet on the "N students" line (user, 2026-11-01) */
+
+/* Today's All window (user, 2026-11-01): today's students in one column, one box each:
+   Lesson, then HW; the titles in the field-label font, one date top right */
+.td-top-btns { display: flex; gap: 8px; }
+.st-win.td-all-win { width: min(620px, 94vw); }
+.td-all-name { margin-bottom: 12px; background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }   /* lifted like the boxes (user, 2026-11-01) */
+.td-all-box { padding: 16px 18px; background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }   /* lifted off the window (user, 2026-11-01) */
+.td-all-h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.td-all-lbl { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--t-faint); }
+.td-all-txt { font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--t-normal); }   /* softer (user, 2026-11-01) */
+.td-all-box .im-hw-files { margin-top: 8px; }
+.td-all-box .im-hw-files .db-file { color: var(--t-faint); opacity: .8; }   /* folder lines softer still (user, 2026-11-01) */
+.td-all-box .td-all-h ~ .td-all-h { margin-top: 18px; }   /* room above HW, no line (user, 2026-11-01) */
+#tdAllBody { margin-top: 24px; }   /* room under the window title (user, 2026-11-01) */
+.td-all-one + .td-all-one { margin-top: 64px; }   /* no line between students (user, 2026-11-01) */
+/* The window's own magnifier, left of ✕: the header's look, smaller */
+.td-all-win .settings-title { gap: 10px; }
+.td-all-win .settings-title > span:first-child { margin-right: auto; }
+.win-mag { position: relative; width: 26px; height: 26px; padding: 0; border: 1px solid var(--border); border-radius: 6px; background: transparent; cursor: pointer; }
+.win-mag .hdr-mag-i { position: absolute; left: 5px; top: 5px; width: 14px; height: 14px; background: var(--muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 L21 21'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 L21 21'/%3E%3C/svg%3E") center / contain no-repeat; }
+.win-mag:hover:where(:not(:disabled)) { border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
+.win-mag.on { border-color: var(--muted); background: var(--muted); }
+.win-mag.on .hdr-mag-i { background: var(--bg, #111); }

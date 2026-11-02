@@ -14,6 +14,7 @@ function magToggle() {
   _magOn = !_magOn;
   document.body.classList.toggle("mag-on", _magOn);
   document.getElementById("hdrMag").classList.toggle("on", _magOn);
+  document.querySelectorAll("[data-mag]").forEach(function(b) { b.classList.toggle("on", _magOn); });   // a window's own magnifier (Today's All, 2026-11-01)
   if (!_magOn) { clearTimeout(_magTimer); magClose(); }
 }
 
