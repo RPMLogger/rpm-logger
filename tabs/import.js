@@ -278,6 +278,7 @@ function _imLogWinOpen(student, idx, day, item, next) {
   _imPillsWire();
   _imMailWire(student, name, day);
   if (item && item.log) _imLogLock(item.logText || '');
+  if (typeof ltStart === 'function') ltStart(name, day, student.trialEmail);   // silent log timer (tabs/logtimer.js)
   _imStepsRender();
 }
 // 3. Notes to teacher (2026-10-25): optional rows under HW, private. They go
@@ -757,7 +758,7 @@ function _imMailSend() {
     .then(function (r) { return r.json(); })
     .catch(function () { return { success: false, message: 'No answer from Google.' }; })
     .then(function (d) {
-      if (d.success) { w.mailSent = true; _imMsgPut(w.name, w.day, 'Sent'); }
+      if (d.success) { w.mailSent = true; _imMsgPut(w.name, w.day, 'Sent'); if (typeof ltFinish === 'function') ltFinish(w.name, w.day); }
       if (d.success && w.trial && typeof _tlMarkEmail === 'function') _tlMarkEmail(w.trial, { recap: 'Sent' });   // the Trial card's Email step
       if (window._imWin !== w) { if (!d.success) rpmToast('fail', 'Email not sent', w.name + ': ' + (d.message || '')); return; }
       _imMailBusy(btn, false);
@@ -984,6 +985,7 @@ function _imPagesRender(w, done, hasHw) {
     el.style.display = +el.getAttribute('data-pg') === w.page ? '' : 'none';
   });
   if (w.page === 4) _imMailFill(w);
+  if (typeof ltPage === 'function') ltPage(w.page);
   // No step buttons on top (user, 2026-10-30): the section titles are numbered already; Back goes back.
   var back = _imQ('imPgBack'), next = _imQ('imPgNext'), busy = !!(w.sending || w.mailBusy);
   if (back) { back.style.visibility = at > 0 ? '' : 'hidden'; back.disabled = busy; }
@@ -1412,6 +1414,7 @@ function _imLift(body) {
 function _imUndock() { if (window._imDocked) closeLogPanel(); }
 // closeLogPanel (lessons.js) calls this: the Log lesson window goes with it.
 function _imLogClosed() {
+  if (typeof ltStop === 'function') ltStop();
   _imDictStop();
   _imHwBack();
   if (!window._imDocked) return;
