@@ -302,7 +302,7 @@ function _imStuBox() { return _imQ('imStuRows'); }
 // is its own line in the log). Always capitalised, a row's first word.
 var IM_PILLS = {
   log:   ['Covered', 'Practiced', 'Looked at', 'Went over', 'Talked about', 'We played', 'Started', 'Introduced', 'Improved', 'Reviewed'],   // last five: user, 2026-10-30
-  hw:    ['Go over', 'Practice', 'Play', 'Review', 'Speed up', 'Try to'],   // Try to: user, 2026-10-31
+  hw:    ['Go over', 'Practice', 'Play', 'Review', 'Speed up', 'Try to', 'Look at'],   // Try to: user, 2026-10-31 · Look at: user, 2026-11-02
   notes: ['Make sure']
 };
 function _imPillsWire() {
@@ -847,7 +847,7 @@ function _imStepsRender() {
   // its own answer; one already in the sheet counts.
   // Both picks required (2026-10-25): A. recorded or not, B. send or nothing.
   var matIn = !!(hw && hw.choice && (hw.choice === 'none' || hw.saved || hw.matDone));
-  var matOk = !!(hw && hw.rec && matIn);
+  var matOk = !!(hw && _imRecDone(hw) && matIn);
   var fb = _imQ('imMatFinishBtn');
   if (fb) {
     fb.disabled = !(hw && hw.choice === 'sent' && !hw.loading && !hw.uploading && !hw.gathering && !matIn);
@@ -877,14 +877,16 @@ function _imStepsRender() {
   if (gb) gb.disabled = !hw || !!(hw.locked || hw.loading || hw.uploading || hw.noDbx || hw.gathering);
   var mb = _imQ('imMatBox'), mn = _imQ('imMatNone');
   if (mb) mb.style.display = open ? '' : 'none';
-  if (mn) mn.classList.toggle('im-dim', !!(hw && hw.rec && hw.pick));   // both answered: the questions box dims
+  if (mn) mn.classList.toggle('im-dim', !!(hw && _imRecDone(hw) && hw.pick));   // both answered: the questions box dims
   // 3. Schedule's picks; Reschedule shows with Needed.
   var sRaw = _imSchedGet(name, c.day), sNeed = !!(window._imWin && window._imWin.schedNeed) || sRaw === 'changed';
   var sy = _imQ('imSchedYes'), sn = _imQ('imSchedNo'), srs = _imQ('imSchedRs');
   if (sy) sy.classList.toggle('done', sNeed);
   if (sn) sn.classList.toggle('done', sRaw === 'nochange');
   if (srs) srs.style.display = sNeed ? '' : 'none';
-  [['imRecPhone', hw && hw.rec === 'phone'], ['imRecZoom', hw && hw.rec === 'zoom'], ['imRecNo', hw && hw.rec === 'no'], ['imMatSend', hw && hw.pick === 'send'], ['imMatNo', hw && hw.pick === 'none']].forEach(function (x) {
+  var recYes = !!(hw && (hw.rec === 'yes' || hw.rec === 'phone' || hw.rec === 'zoom')), rw = _imQ('imRecHow');
+  if (rw) rw.style.display = recYes ? '' : 'none';   // Phone / Zoom only after Yes (user, 2026-11-02)
+  [['imRecYes', recYes], ['imRecPhone', hw && hw.rec === 'phone'], ['imRecZoom', hw && hw.rec === 'zoom'], ['imRecNo', hw && hw.rec === 'no'], ['imMatSend', hw && hw.pick === 'send'], ['imMatNo', hw && hw.pick === 'none']].forEach(function (x) {
     var b = _imQ(x[0]);
     if (!b) return;
     b.classList.toggle('done', !!x[1]);
@@ -1251,11 +1253,15 @@ function _imHwSent() {
 }
 // A. Recorded on their side? (2026-10-18 as a button; Yes / No since
 // 2026-10-25, required, and it goes with Nothing to send too; Phone / Zoom / No
-// since 2026-10-26.)
+// since 2026-10-26; Yes / No again 2026-11-02, Yes opens Phone / Zoom.)
+// hw.rec: 'yes' = Yes pressed, Phone / Zoom not picked yet (not answered).
+function _imRecDone(hw) { return !!hw.rec && hw.rec !== 'yes'; }
 function _imHwRec(v) {
   var hw = logHw;
   if (!hw || hw.loading || hw.saving || hw.locked) return;
-  hw.rec = hw.rec === v ? null : v;
+  if (v === 'yes') hw.rec = hw.rec && hw.rec !== 'no' ? null : 'yes';   // Yes again undoes Phone / Zoom too
+  else if (v === 'no') hw.rec = hw.rec === 'no' ? null : 'no';
+  else hw.rec = hw.rec === v ? 'yes' : v;   // Phone / Zoom again: back to just Yes
   hw.phone = hw.rec === 'phone' || hw.rec === 'zoom';   // recorded, either way
   hw.zoom = hw.rec === 'zoom';   // on Zoom, their side (2026-10-26)
   _imHwChanged();
@@ -1581,9 +1587,11 @@ function _imDoHtml(name, day) {
       // (recorded + nothing to send too). Each answer has the check circle.
       '<div id="imMatNone" class="im-mat-none im-mat-qbox">' +
         '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">1.</label><span class="im-mat-q">Recorded on their side?</span>' +   // Phone / Zoom / No (user, 2026-10-26; was Yes / No)
+          _imPickBtn('imRecYes', "_imHwRec('yes')", 'Yes', 'They recorded the lesson.&#10;Then pick Phone or Zoom.') +
+          _imPickBtn('imRecNo', "_imHwRec('no')", 'No', 'Nothing filmed.') +
+          '<span id="imRecHow" class="im-rec-how" style="display:none">' +
           _imPickBtn('imRecPhone', "_imHwRec('phone')", 'Phone', 'They filmed the lesson on their phone.&#10;The email says so.') +
-          _imPickBtn('imRecZoom', "_imHwRec('zoom')", 'Zoom', 'They recorded the lesson on Zoom, their side.&#10;The email says so.') +
-          _imPickBtn('imRecNo', "_imHwRec('no')", 'No', 'Nothing filmed.') + '</div>' +
+          _imPickBtn('imRecZoom', "_imHwRec('zoom')", 'Zoom', 'They recorded the lesson on Zoom, their side.&#10;The email says so.') + '</span></div>' +
         '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">2.</label><span class="im-mat-q">Sending anything?</span>' +
           _imPickBtn('imMatSend', "_imMatPick('send')", 'Send', 'Files, a video lesson link or a web link:&#10;A, B and C below. Finish when they are all in.') +
           _imPickBtn('imMatNo', "_imMatPick('none')", 'Nothing to send', 'No materials this lesson.') + '</div>' +
