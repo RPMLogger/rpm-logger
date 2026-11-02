@@ -303,7 +303,7 @@ function _imStuBox() { return _imQ('imStuRows'); }
 // commas when logged, so an empty later row needs none).
 var IM_PILLS = {
   log:   ['Covered', 'Practiced', 'Looked at', 'Went over', 'Talked about', 'We played', 'Started', 'Introduced', 'Improved', 'Reviewed'],   // last five: user, 2026-10-30
-  hw:    ['Go over', 'Practice', 'Play', 'Review', 'Speed up'],
+  hw:    ['Go over', 'Practice', 'Play', 'Review', 'Speed up', 'Try to'],   // Try to: user, 2026-10-31
   notes: ['Make sure']
 };
 function _imPillsWire() {
@@ -626,12 +626,18 @@ function _imMailWire(student, name, day) {
 }
 // Rows (or a comma-joined text) as sentences: capital first letter, a full
 // stop unless it ends in . ! or ?, joined with spaces.
+// One item a line, Title Case, no full stops (user, 2026-11-02; were sentences).
 function _imMailSentences(rows) {
-  if (!Array.isArray(rows)) rows = String(rows || '').split(/\s*,\s*/);
-  return rows.filter(Boolean).map(function (t) {
+  var whole = Array.isArray(rows) ? rows.join(', ') : String(rows || '');
+  if (typeof NS_HW === 'string' && whole.trim() === NS_HW.trim()) return whole.trim();   // No show's HW stays a sentence
+  if (!Array.isArray(rows)) rows = whole.split(/\s*,\s*/);
+  return rows.map(toLogLine).filter(Boolean).join('\n');
+}
+// Notes to the student stay sentences: first letter up, a full stop unless signed.
+function _imMailNotes(rows) {
+  return (rows || []).filter(Boolean).map(function (t) {
     t = t.charAt(0).toUpperCase() + t.slice(1);
-    if (/^no show$/i.test(t)) return 'No show';   // no full stop, as in the log (user, 2026-10-26)
-    return /[.!?]$|- RPM$/.test(t) ? t : t + '.';   // a signed line ("- RPM") gets no full stop
+    return /[.!?]$|- RPM$/.test(t) ? t : t + '.';
   }).join(' ');
 }
 // The email, from the Log window as it stands. A lesson reopened from the
@@ -642,7 +648,7 @@ function _imLogMail(fromLog) {
   var m = { name: w.name, day: w.day, trial: w.trial || '' }, sent = hw.choice === 'sent';
   m.lesson = _imMailSentences(_imRowsFor(m, 'log', _imNoTeacher(llValues(_logBox()).filter(Boolean).join(', '))));
   m.hw = _imMailSentences(_imRowsFor(m, 'hw', _imNoTeacher(_hwRowsJoin())));
-  m.notes = _imMailSentences(llValues(_imStuBox()));
+  m.notes = _imMailNotes(llValues(_imStuBox()));
   m.files = !!(sent && hw.filesOn && hw.files.length);
   m.paths = m.files ? hw.files.map(function (f) { return f.path; }) : [];   // the email lists them as folders (2026-10-25)
   m.links = sent ? hw.links.slice() : [];
@@ -1554,7 +1560,7 @@ function _imDoHtml(name, day) {
     // Each of the three sections sits in its own bordered box, its title above it, no dividers (2026-10-18).
     // The typing reminder on its own line under it (user, 2026-10-26), in the (optional) grey.
     '<div class="im-page" data-pg="1">' +
-    _imMainHead('1. Log the lesson and HW', '', '<span class="im-mail-opt im-case-hint">Use sentence case, caps only on first line and song names, no end punctuation</span>', 'im-main-log') +   // all red (2026-10-18)
+    _imMainHead('1. Log the lesson and HW', '', '<span class="im-mail-opt im-case-hint">One item per row, each word capitalised, no end punctuation</span>', 'im-main-log') +   // all red (2026-10-18)
     '<div class="im-main-box">' +
       _imSub('Log lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
       _imSub('Log homework', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +

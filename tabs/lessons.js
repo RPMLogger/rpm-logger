@@ -253,12 +253,12 @@ function submitLog(noShow) {
   if (activeStudent && activeStudent.hwOnly) { logHwSaveOnly(); return; }
   if (logHw && !logHw.choice && !window._imDocked) return;   // the docked box asks HW in Finish logging
 
-  // Rows join with commas into one sentence (2026-10-06, was " - "): only the
-  // first letter capitalised.
-  var parts = llValues(_logBox()).filter(function(v) { return v; });
-  var subject = parts.length ? toSentenceCase(parts.join(", ")) : "";
+  // Rows join with commas (2026-10-06, was " - "), each row one Title Case item
+  // (user, 2026-11-02; was one sentence): lists show them a line each.
+  var parts = llValues(_logBox()).map(toLogLine).filter(function(v) { return v; });
+  var subject = parts.join(", ");
   if (!subject) { addLog("lessonFeed", "Nothing to log!", "error"); return; }
-  if (typeof _imRowsPut === "function") _imRowsPut("log", parts.map(function(v, i) { return i ? v : toSentenceCase(v); }));   // each box its own sentence in the email
+  if (typeof _imRowsPut === "function") _imRowsPut("log", parts);   // each box its own line in the email
   // Notes to teacher (2026-10-25): in the same cell, after "TEACHER:"; never in the email.
   var teach = window._imDocked && typeof _imTeachText === "function" ? _imTeachText() : "";
   if (teach) subject += " TEACHER: " + teach;
@@ -415,6 +415,23 @@ function resetRows() {
   llReset(box);
   rowFinals = [""];
   activeRow = 0;
+}
+
+// One log item (user, 2026-11-02: notes, not sentences): Title Case, the small
+// words lower inside, a word typed in capitals (CAGED) kept, no end punctuation.
+// A long typed-out sentence (No show's HW) is left as written.
+var LOG_SMALL = ["a","an","and","as","at","but","by","for","in","nor","of","on","or","the","to","up","yet","so","if","off","per","via","with","from","into"];
+function toLogLine(str) {
+  var t = String(str || "").replace(/\s+/g, " ").trim();
+  if (!t || /^no show$/i.test(t)) return t ? "No show" : "";
+  if (typeof NS_HW === "string" && t === NS_HW.trim()) return t;
+  t = t.replace(/[.!?;:]+$/, "");
+  var words = t.split(" ");
+  return words.map(function(w, i) {
+    if (/^i$/i.test(w)) return "I";
+    if (i && i < words.length - 1 && LOG_SMALL.indexOf(w.toLowerCase()) >= 0 && w !== w.toUpperCase()) return w.toLowerCase();
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  }).join(" ");
 }
 
 // Sentence case for lesson logs (2026-10-05, was Title Case): the first
@@ -651,7 +668,7 @@ function _logHwQuery(hw, pre) {
 // the materials answer. A change, once you leave the rows, after that answer
 // was ticked or saved counts as a new answer, so it saves again.
 function _hwRowsBox() { return document.getElementById("logHwRows"); }
-function _hwRowsJoin() { return llValues(_hwRowsBox()).filter(Boolean).join(", "); }
+function _hwRowsJoin() { return llValues(_hwRowsBox()).map(toLogLine).filter(Boolean).join(", "); }   // Title Case items (user, 2026-11-02)
 function _hwRowsReset() {
   var box = _hwRowsBox();
   if (!box) return;
