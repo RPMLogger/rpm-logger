@@ -70,9 +70,9 @@ function _tdRender() {
   var mini = '<div class="db-cx-head im-sec-head td-count"><label class="field-label db-cx-t">' + list.length + (list.length === 1 ? ' student' : ' students') + '</label></div>' +
     '<hr class="divider td-rule td-rule-top">' +
     '<div class="db-panel im-list td-mini">' + list.map(function (s, i) {
-      // The name is the portal's plain link button; the open one stays lit (2026-10-09).
+      // The name in the portal's link-button look, a plain tag since 2026-11-01 (was a button opening its card, 2026-10-09).
       return '<div class="td-mini-row' + (_td.sel === _imKey(s.name) ? ' td-on' : '') + '" id="tdMini' + i + '">' +
-        '<span class="td-mini-t">' + _tdTime(s.eventDate) + '</span><button class="link-btn td-mini-b" onclick="_tdJump(' + i + ')">' + inqEsc(s.name) + '</button></div>';
+        '<span class="td-mini-t">' + _tdTime(s.eventDate) + '</span><span class="link-btn td-mini-b td-mini-tag">' + inqEsc(s.name) + '</span></div>';   // a plain name tag, not a button (user, 2026-11-01): All shows their lesson and HW
     }).join('') + '</div></div>';   // the box ends after the list; the open card goes under it
   // The open card is a window over the page (user, 2026-10-24); a click outside it closes it.
   body.innerHTML = head + mini + '<div class="im-notes-back td-card-back' + (_td.sel ? ' td-show' : '') + '" id="tdCardBack" onclick="if (event.target === this) _tdClose()">' + list.map(function (s, i) {
@@ -188,10 +188,11 @@ function _tdAllRender() {
       (hw.links || []).map(function (x) { return '<div class="im-hw-link"><span>' + (x.kind === 'Video' ? 'Video lesson' : 'Link') + '</span><a href="' + inqEsc(x.url) + '" target="_blank" rel="noopener">' + inqEsc(x.url) + '</a></div>'; }).join('') +
       (files ? '<div class="im-hw-files">' + _tdAllFolders(hw.files) + '</div>' : '');
     var head = function (label, d) { return '<div class="td-all-h"><span class="td-all-lbl">' + label + '</span>' + (d ? '<span class="im-d">' + inqEsc(d) + '</span>' : '') + '</div>'; };
-    // The name as Today's name button over the box.
+    // The name as Today's name button (user, 2026-11-01: kept over a title), opening their
+    // lesson log; the other windows' darker box with the grey edge under it (No show's).
     return '<div class="td-all-one">' +
       '<button class="link-btn td-mini-b td-all-name" onclick="_tdAllPick(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a tab.\nEvery lesson logged for ' + _auEsc(n) + '.">' + inqEsc(n) + '</button>' +
-      '<div class="db-panel td-all-box">' +
+      '<div class="ts-thread tv-rv-thread rv-thread td-all-box">' +
         head('Lesson', lDay) + lesson +
         head('HW', hDay && hDay !== lDay ? hDay : '') + hwHtml +
       '</div>' +
