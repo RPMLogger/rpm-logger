@@ -4228,7 +4228,7 @@ a.cm-file:hover { background: rgba(255,255,255,0.14); }
 .cm-file-name { font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .cm-attach-chip .cm-file { background: var(--surface2); border: 1px solid var(--border); }
 #todayBody .td-today-box { position:relative; }
-#todayBody .td-hero { position:absolute; right:32%; top:101px; height:42px; opacity:.55; filter:drop-shadow(0 3px 4px rgba(0,0,0,.7)); pointer-events:none; }   /* orange amp head in the Today box, bottom on the "N students" line (user, 2026-11-01; was the guitarist figure) */
+#todayBody .td-hero { position:absolute; right:32%; top:89px; height:54px; opacity:.55; filter:drop-shadow(0 3px 4px rgba(0,0,0,.7)); pointer-events:none; }   /* orange amp head in the Today box, bottom on the "N students" line (user, 2026-11-01; was the guitarist figure) */
 
 /* Today's All window (user, 2026-11-01): today's students in one column, one box each:
    Lesson, then HW; the titles in the field-label font, one date top right */
