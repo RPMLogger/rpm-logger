@@ -77,7 +77,7 @@ function _imRenderCards(noRead) {
     // ✓ done, ☐ still to do, "· 2 open" when more lessons wait.
     var todo = miss && miss.length ? 1 : 0, all = o + todo;
     var first = past.length ? { day: past[0].date, miss: past[0].missing || [], hw: past[0].hwText } : todo ? { day: _tdYmd(), miss: miss } : null;
-    return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-donetoday' : '') + '"' + inStyle() + ' onclick="_imOpenStudent(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Instant.\nEvery lesson logged for ' + _auEsc(n) + '.">' +
+    return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-donetoday' : '') + '"' + inStyle() + ' onclick="_imOpenFirst(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a window.\nTheir last lesson and HW first;\nclose it for every lesson logged.">' +
       '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
       (miss && !miss.length && !o ? '<span class="im-logged"><span class="im-logged-t">LOGGED</span>' + PAID_CHECK_ICON.replace('width="13" height="13"', 'width="15" height="15"') + '</span>' : '') +   // the Auto-confirmed check (user, 2026-10-26)
       (isToday(n) && !(miss && !miss.length && !o) ? '<span class="im-steps"><span class="im-step im-today-tag">Today</span></span>' : '') +   // green TODAY sign on today's cards (user, 2026-10-30)
@@ -131,6 +131,32 @@ function _imHwTodayLoad() {
       var p = document.getElementById('tab-import');
       if (_imRoster && !_imOpen && p && p.classList.contains('active')) _imRenderCards(true);
     });
+}
+
+// A card on the list (user, 2026-11-02): the student page, and over it a window with
+// their last lesson and HW (the Today tab's All look, _tdAllOneHtml); closing it shows the page.
+function _imOpenFirst(name) {
+  _imOpenStudent(name);
+  var w = _stWin('imLastWin', inqEsc(name), 'Last lesson and HW', null, '<div id="imLastBody"></div>');
+  w.querySelector('.st-win').classList.add('td-all-win');
+  var st = { ls: undefined, hw: null, hwIn: false };
+  var draw = function () {
+    var b = document.getElementById('imLastBody');
+    if (b) b.innerHTML = _tdAllOneHtml(name, st.ls, st.hw, st.hwIn, { noName: true });
+  };
+  draw();
+  var url = getScriptUrl();
+  fetch(url + '?action=getPastLessons&count=1&studentName=' + encodeURIComponent(name))
+    .then(function (r) { return r.json(); })
+    .then(function (d) { st.ls = d.success ? d.lessons || [] : 'fail'; })
+    .catch(function () { st.ls = 'fail'; })
+    .then(draw);
+  // Newest first: the first row with HW text, files or links is the last HW.
+  fetch(url + '?action=getHwLog&name=' + encodeURIComponent(name))
+    .then(function (r) { return r.json(); })
+    .then(function (d) { st.hw = (d.success ? d.rows || [] : []).filter(function (x) { return x.text || (x.files || []).length || (x.links || []).length; })[0] || null; })
+    .catch(function () {})
+    .then(function () { st.hwIn = true; draw(); });
 }
 
 function _imOpenStudent(name) {

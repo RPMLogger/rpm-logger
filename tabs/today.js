@@ -183,31 +183,41 @@ function _tdAllRender() {
   var a = _tdAll, wait = '<div class="im-none rpm-loading is-inline">Loading</div>';
   var day = function (ymd) { var p = String(ymd).split('-'); return MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10); };
   box.innerHTML = !_tdAllNames().length ? '<div class="empty-state">No lessons today!</div>' : _tdAllNames().map(function (n) {
-    var k = _imKey(n), ls = a.lessons[k], hw = a.hw[k];
-    // One box per student (user, 2026-11-01): Lesson, then HW (no line between, user); one date top right
-    // (the HW's own date only when it's another day); titles in the field-label font.
-    var l = ls && ls !== 'fail' && ls[0];
-    var lm = l && String(l.date || '').replace(/\//g, '').trim().match(/^([A-Za-z]{3})\s*(\d{1,2})$/);
-    var lDay = l ? (lm ? lm[1] + ' ' + parseInt(lm[2], 10) : l.date || '') : '';
-    var t = l ? _imNoTeacher(l.subject) : '';
-    var lesson = ls === undefined ? wait : ls === 'fail' ? '<div class="im-none">Could not read</div>' : !l ? '<div class="im-none">None</div>' :
-      '<div class="td-all-txt">' + (t ? _tdAllLines(t) : '—') + '</div>';
-    var files = hw && (hw.files || []).length, hDay = hw ? day(hw.date) : '';
-    var hwHtml = !a.hwIn ? wait : !hw ? '<div class="im-none">None</div>' :
-      (hw.text ? '<div class="td-all-txt">' + _tdAllLines(hw.text) + '</div>' : '') +
-      (hw.links || []).map(function (x) { return '<div class="im-hw-link"><span>' + (x.kind === 'Video' ? 'Video lesson' : 'Link') + '</span><a href="' + inqEsc(x.url) + '" target="_blank" rel="noopener">' + inqEsc(x.url) + '</a></div>'; }).join('') +
-      (files ? _tdAllFolders(hw.files) : '');
-    var head = function (label, d) { return '<div class="td-all-h"><span class="td-all-lbl">' + label + '</span>' + (d ? '<span class="im-d">' + inqEsc(d) + '</span>' : '') + '</div>'; };
-    // The name as Today's name button (user, 2026-11-01: kept over a title), opening their
-    // lesson log; the other windows' darker box with the grey edge under it (No show's).
-    return '<div class="td-all-one">' +
-      '<button class="link-btn td-mini-b td-all-name" onclick="_tdAllPick(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a tab.\nEvery lesson logged for ' + _auEsc(n) + '.">' + inqEsc(n) + '</button>' +
-      '<div class="ts-thread tv-rv-thread rv-thread td-all-box">' +
-        head('Lesson', lDay) + lesson +
-        head('HW given', hDay && hDay !== lDay ? hDay : '') + hwHtml +
-      '</div>' +
-    '</div>';
+    var k = _imKey(n);
+    return _tdAllOneHtml(n, a.lessons[k], a.hw[k], a.hwIn);
   }).join('');   // no line between students, just room (user, 2026-11-01)
+}
+
+// One student's box: ls = their lessons (newest first), undefined while loading, or 'fail';
+// hw = their last HW row; hwIn = the HW read is done. o.noName: no name button (the
+// Lessons tab's first look, 2026-11-02, has the name in its title).
+function _tdAllOneHtml(n, ls, hw, hwIn, o) {
+  o = o || {};
+  var a = { hwIn: hwIn }, wait = '<div class="im-none rpm-loading is-inline">Loading</div>';
+  var day = function (ymd) { var p = String(ymd).split('-'); return MONTHS[parseInt(p[1], 10) - 1] + ' ' + parseInt(p[2], 10); };
+  // One box per student (user, 2026-11-01): Lesson, then HW (no line between, user); one date top right
+  // (the HW's own date only when it's another day); titles in the field-label font.
+  var l = ls && ls !== 'fail' && ls[0];
+  var lm = l && String(l.date || '').replace(/\//g, '').trim().match(/^([A-Za-z]{3})\s*(\d{1,2})$/);
+  var lDay = l ? (lm ? lm[1] + ' ' + parseInt(lm[2], 10) : l.date || '') : '';
+  var t = l ? _imNoTeacher(l.subject) : '';
+  var lesson = ls === undefined ? wait : ls === 'fail' ? '<div class="im-none">Could not read</div>' : !l ? '<div class="im-none">None</div>' :
+    '<div class="td-all-txt">' + (t ? _tdAllLines(t) : '—') + '</div>';
+  var files = hw && (hw.files || []).length, hDay = hw ? day(hw.date) : '';
+  var hwHtml = !a.hwIn ? wait : !hw ? '<div class="im-none">None</div>' :
+    (hw.text ? '<div class="td-all-txt">' + _tdAllLines(hw.text) + '</div>' : '') +
+    (hw.links || []).map(function (x) { return '<div class="im-hw-link"><span>' + (x.kind === 'Video' ? 'Video lesson' : 'Link') + '</span><a href="' + inqEsc(x.url) + '" target="_blank" rel="noopener">' + inqEsc(x.url) + '</a></div>'; }).join('') +
+    (files ? _tdAllFolders(hw.files) : '');
+  var head = function (label, d) { return '<div class="td-all-h"><span class="td-all-lbl">' + label + '</span>' + (d ? '<span class="im-d">' + inqEsc(d) + '</span>' : '') + '</div>'; };
+  // The name as Today's name button (user, 2026-11-01: kept over a title), opening their
+  // lesson log; the other windows' darker box with the grey edge under it (No show's).
+  return '<div class="td-all-one">' +
+    (o.noName ? '' : '<button class="link-btn td-mini-b td-all-name" onclick="_tdAllPick(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a tab.\nEvery lesson logged for ' + _auEsc(n) + '.">' + inqEsc(n) + '</button>') +
+    '<div class="ts-thread tv-rv-thread rv-thread td-all-box">' +
+      head('Lesson', lDay) + lesson +
+      head('HW given', hDay && hDay !== lDay ? hDay : '') + hwHtml +
+    '</div>' +
+  '</div>';
 }
 
 // ── No show text (user, 2026-10-26) ─────────────────────────────────────────
