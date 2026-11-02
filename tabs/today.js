@@ -60,7 +60,7 @@ function _tdRender() {
   var head = '<div class="td-wk-box td-today-box"><div class="settings-title td-wk-title"><span>Today</span>' +   // no " · Tue, Oct 27": the date page under it says it (user, 2026-10-27)
     '<span class="td-top-btns"><button class="link-btn opens-window" onclick="_tdAllOpen()" data-tip="Opens a window.\nToday\'s students: last lesson,\nlast HW and its folders.">All</button>' +   // All, left of No show (user, 2026-11-01)
     '<button class="link-btn opens-window" onclick="_tdNsOpen()" data-tip="Instant.\nThe No show text, to copy\nand send from Messages.">No show</button></span></div>' +   // no Week button: This Week is under it (user, 2026-10-24); No show (portal button) top right opens the No show text window (user, 2026-10-26)
-    '<img class="td-hero" src="img/amp-head.svg" alt="">' +   // orange amp head (user, 2026-11-01; was the guitarist figure)
+    '<img class="td-hero" src="img/amp-combo.svg" alt="">' +   // red combo amp (user, 2026-11-02; was the orange amp head)
     '<div class="td-day-cal"><div class="td-hol-mo">' + MONTHS[now.getMonth()] + '</div><div class="td-hol-dd">' + now.getDate() + '</div></div>';   // today's date page, the holiday warning's (user, 2026-10-27; was the plain calendar icon)
   // A day off (2026-10-08): the resting figure over the line (om-82).
   if (!list.length) { body.innerHTML = head + '<div class="empty-state td-rest">' + REST_ICON + '<div>No lessons today!</div></div></div>' + _tdWeekSection(); return; }
