@@ -160,6 +160,12 @@ function _tdAllFolders(paths) {
   }).join('');
 }
 
+// One line per comma part, each starting with a capital (user, 2026-11-02).
+function _tdAllLines(t) {
+  return String(t).split(',').map(function (x) { return x.trim(); }).filter(Boolean)
+    .map(function (x) { return '<div>' + inqEsc(x.charAt(0).toUpperCase() + x.slice(1)) + '</div>'; }).join('');
+}
+
 function _tdAllPick(name) {
   var w = document.getElementById('tdAllWin');
   if (w) w.remove();
@@ -181,10 +187,10 @@ function _tdAllRender() {
     var lDay = l ? (lm ? lm[1] + ' ' + parseInt(lm[2], 10) : l.date || '') : '';
     var t = l ? _imNoTeacher(l.subject) : '';
     var lesson = ls === undefined ? wait : ls === 'fail' ? '<div class="im-none">Could not read</div>' : !l ? '<div class="im-none">None</div>' :
-      '<div class="td-all-txt">' + (t ? inqEsc(t) : '—') + '</div>';
+      '<div class="td-all-txt">' + (t ? _tdAllLines(t) : '—') + '</div>';
     var files = hw && (hw.files || []).length, hDay = hw ? day(hw.date) : '';
     var hwHtml = !a.hwIn ? wait : !hw ? '<div class="im-none">None</div>' :
-      (hw.text ? '<div class="td-all-txt">' + inqEsc(hw.text) + '</div>' : '') +
+      (hw.text ? '<div class="td-all-txt">' + _tdAllLines(hw.text) + '</div>' : '') +
       (hw.links || []).map(function (x) { return '<div class="im-hw-link"><span>' + (x.kind === 'Video' ? 'Video lesson' : 'Link') + '</span><a href="' + inqEsc(x.url) + '" target="_blank" rel="noopener">' + inqEsc(x.url) + '</a></div>'; }).join('') +
       (files ? '<div class="im-hw-files">' + _tdAllFolders(hw.files) + '</div>' : '');
     var head = function (label, d) { return '<div class="td-all-h"><span class="td-all-lbl">' + label + '</span>' + (d ? '<span class="im-d">' + inqEsc(d) + '</span>' : '') + '</div>'; };
