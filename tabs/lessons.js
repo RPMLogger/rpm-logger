@@ -417,21 +417,16 @@ function resetRows() {
   activeRow = 0;
 }
 
-// One log item (user, 2026-11-02: notes, not sentences): Title Case, the small
-// words lower inside, a word typed in capitals (CAGED) kept, no end punctuation.
+// One log item (user, 2026-11-02: notes, not sentences): the row's first letter
+// capitalised, the rest as typed (a lone "i" made "I"), no end punctuation.
 // A long typed-out sentence (No show's HW) is left as written.
-var LOG_SMALL = ["a","an","and","as","at","but","by","for","in","nor","of","on","or","the","to","up","yet","so","if","off","per","via","with","from","into"];
 function toLogLine(str) {
   var t = String(str || "").replace(/\s+/g, " ").trim();
   if (!t || /^no show$/i.test(t)) return t ? "No show" : "";
   if (typeof NS_HW === "string" && t === NS_HW.trim()) return t;
   t = t.replace(/[.!?;:]+$/, "");
-  var words = t.split(" ");
-  return words.map(function(w, i) {
-    if (/^i$/i.test(w)) return "I";
-    if (i && i < words.length - 1 && LOG_SMALL.indexOf(w.toLowerCase()) >= 0 && w !== w.toUpperCase()) return w.toLowerCase();
-    return w.charAt(0).toUpperCase() + w.slice(1);
-  }).join(" ");
+  t = t.replace(/(^|\s)i(?=\s|$|')/g, "$1I");   // only the row's start goes up (user, 2026-11-02; was every word)
+  return t.charAt(0).toUpperCase() + t.slice(1);
 }
 
 // Sentence case for lesson logs (2026-10-05, was Title Case): the first

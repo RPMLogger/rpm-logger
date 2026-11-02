@@ -1560,7 +1560,7 @@ function _imDoHtml(name, day) {
     // Each of the three sections sits in its own bordered box, its title above it, no dividers (2026-10-18).
     // The typing reminder on its own line under it (user, 2026-10-26), in the (optional) grey.
     '<div class="im-page" data-pg="1">' +
-    _imMainHead('1. Log the lesson and HW', '', '<span class="im-mail-opt im-case-hint">One item per row, each word capitalised, no end punctuation</span>', 'im-main-log') +   // all red (2026-10-18)
+    _imMainHead('1. Log the lesson and HW', '', '<span class="im-mail-opt im-case-hint">One item per row, capital first letter, no end punctuation</span>', 'im-main-log') +   // all red (2026-10-18)
     '<div class="im-main-box">' +
       _imSub('Log lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
       _imSub('Log homework', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
