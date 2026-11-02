@@ -149,18 +149,18 @@ function _tdAllNames() { return (todayStudents || []).map(function (s) { return 
 function _tdAllFolders(paths) {
   // Under a Material sent title, the lesson folders inside the top "HW - OCT 25" folder,
   // one under another, not indented (user, 2026-11-02); files straight in the top
-  // folder (no lesson folders) show the top folder instead.
-  var tops = [], subs = [];
+  // folder (no lesson folders) show nothing, no title either (user, 2026-11-02).
+  var subs = [];
   paths.forEach(function (x) {
     var p = String(x).split('/'); p.pop();   // the file's name off
     if (!p.length) return;
-    if (tops.indexOf(p[0]) < 0) tops.push(p[0]);
     if (p[1] && subs.indexOf(p[1]) < 0) subs.push(p[1]);
   });
-  var list = subs.length ? subs.sort(function (a, b) { return a.localeCompare(b, undefined, { numeric: true }); }) : tops;
-  return '<span class="db-group">' + list.map(function (n) {
+  if (!subs.length) return '';
+  var list = subs.sort(function (a, b) { return a.localeCompare(b, undefined, { numeric: true }); });
+  return '<div class="td-all-h td-all-mat"><span class="td-all-lbl">Material sent</span></div><div class="im-hw-files"><span class="db-group">' + list.map(function (n) {
     return '<span class="db-file db-dir">' + DB_FOLDER_GLYPH + '<span style="text-transform:uppercase">' + inqEsc(n) + '</span></span>';
-  }).join('') + '</span>';
+  }).join('') + '</span></div>';
 }
 
 // One line per comma part, each starting with a capital (user, 2026-11-02).
@@ -195,7 +195,7 @@ function _tdAllRender() {
     var hwHtml = !a.hwIn ? wait : !hw ? '<div class="im-none">None</div>' :
       (hw.text ? '<div class="td-all-txt">' + _tdAllLines(hw.text) + '</div>' : '') +
       (hw.links || []).map(function (x) { return '<div class="im-hw-link"><span>' + (x.kind === 'Video' ? 'Video lesson' : 'Link') + '</span><a href="' + inqEsc(x.url) + '" target="_blank" rel="noopener">' + inqEsc(x.url) + '</a></div>'; }).join('') +
-      (files ? '<div class="td-all-h td-all-mat"><span class="td-all-lbl">Material sent</span></div><div class="im-hw-files">' + _tdAllFolders(hw.files) + '</div>' : '');
+      (files ? _tdAllFolders(hw.files) : '');
     var head = function (label, d) { return '<div class="td-all-h"><span class="td-all-lbl">' + label + '</span>' + (d ? '<span class="im-d">' + inqEsc(d) + '</span>' : '') + '</div>'; };
     // The name as Today's name button (user, 2026-11-01: kept over a title), opening their
     // lesson log; the other windows' darker box with the grey edge under it (No show's).
