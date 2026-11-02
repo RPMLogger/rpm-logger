@@ -45,17 +45,105 @@ function _ltmYmd(ms) {
 }
 
 // The box (tabs/import.js puts it last on the student page).
+// Gauges (user, 2026-11-02, cockpit-panel pictures): Chat | Lesson | Total dials,
+// then three small meters for the chat before, the pauses and the chat after.
 function ltmBoxHtml(name) {
   var cell = function (cls, v) { return '<span class="' + cls + '" data-v="' + v + '"></span>'; };
   setTimeout(_ltmTick, 0);   // the numbers, once the box is on the page
   return '<div class="im-sec-box ltm-box" data-ltm-box="' + _auEsc(name) + '">' +
     '<div class="db-cx-head im-sec-head"><label class="field-label db-cx-t">Lesson timer</label><span class="ltm-btns">' + _ltmBtns(name) + '</span></div>' +
     '<div class="ltm-grid">' +
-      ['Chat', 'Lesson', 'Total'].map(function (h) { return '<span class="ltm-h">' + h + '</span>'; }).join('') +
-      cell('ltm-v', 'chat') + cell('ltm-v', 'teach') + cell('ltm-v', 'total') +
+      _ltmDial('chat', 'Chat', 20, 1, 5, false) +
+      _ltmDial('teach', 'Lesson', 60, 1, 5, true) +
+      _ltmDial('total', 'Total', 80, 2, 10, false) +
+    '</div>' +
+    '<div class="ltm-meters">' + _ltmMeter('before', 'Chat before') + _ltmMeter('pause', 'Pauses') + _ltmMeter('after', 'Chat after') + '</div>' +
+    '<div class="ltm-panel">' + _ltmKnob('Tone', -60) + _ltmKnob('Drive', 35) +
+      '<span class="ltm-fbtns"><span class="ltm-fbtn">Off</span><span class="ltm-fbtn">0 dB</span><span class="ltm-fbtn ltm-fbtn-on">Auto</span></span>' +
+      _ltmKnob('Mix', 0) + _ltmKnob('Output', -25) + '</div>' +
+    '<div class="ltm-grid">' +
       ['Start', '', 'End'].map(function (h) { return '<span class="ltm-h ltm-h2">' + h + '</span>'; }).join('') +
       cell('ltm-t', 'start') + cell('ltm-t ltm-lbl', 'lbl') + cell('ltm-t', 'end') +
     '</div></div>';
+}
+
+// Studio-rack look (user, 2026-11-02, Logic compressor pictures): dark brushed
+// plate, backlit silver face with black ink, glass shine, metal screws; the time
+// sits on a small dark display under each meter. Gradients are shared by id.
+function _ltmDefs() {
+  return '<defs>' +
+    '<linearGradient id="ltmg-plate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c2c2c"/><stop offset=".5" stop-color="#1e1e1e"/><stop offset="1" stop-color="#151515"/></linearGradient>' +
+    '<radialGradient id="ltmg-face" cx=".5" cy=".42" r=".65"><stop offset="0" stop-color="#d6d6d1"/><stop offset=".7" stop-color="#b9bab5"/><stop offset="1" stop-color="#8d8e8a"/></radialGradient>' +
+    '<linearGradient id="ltmg-glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>' +
+    '<radialGradient id="ltmg-screw" cx=".35" cy=".35" r=".8"><stop offset="0" stop-color="#9a9a9a"/><stop offset="1" stop-color="#3a3a3a"/></radialGradient>' +
+    '<radialGradient id="ltmg-hub" cx=".35" cy=".35" r=".8"><stop offset="0" stop-color="#777"/><stop offset="1" stop-color="#111"/></radialGradient>' +
+    '<radialGradient id="ltmg-knob" cx=".38" cy=".3" r=".85"><stop offset="0" stop-color="#e8e8e8"/><stop offset=".45" stop-color="#a5a5a5"/><stop offset="1" stop-color="#4a4a4a"/></radialGradient>' +
+    '<clipPath id="ltmg-mclip"><rect x="12" y="10" width="116" height="66" rx="3"/></clipPath>' +
+  '</defs>';
+}
+function _ltmScrew(x, y) {
+  return '<g class="ltm-screw"><circle cx="' + x + '" cy="' + y + '" r="5"/><path d="M' + (x - 3) + ' ' + (y - 3) + 'l6 6"/></g>';
+}
+
+// A round gauge, 0..max minutes. full = clock face (0 at the top, one turn),
+// otherwise a 270° sweep like an airspeed dial. The hand turns in _ltmTick.
+function _ltmDial(f, label, max, minor, major, full) {
+  var a0 = full ? 0 : -135, sw = full ? 360 : 270, o = [_ltmDefs()];
+  var pt = function (deg, r) { var a = (deg - 90) * Math.PI / 180; return [(100 + r * Math.cos(a)).toFixed(1), (100 + r * Math.sin(a)).toFixed(1)]; };
+  o.push('<rect class="ltm-plate" x="2" y="2" width="196" height="196" rx="10"/>');
+  o.push(_ltmScrew(16, 16) + _ltmScrew(184, 16) + _ltmScrew(16, 184) + _ltmScrew(184, 184));
+  o.push('<circle class="ltm-bezel" cx="100" cy="100" r="90"/><circle class="ltm-face" cx="100" cy="100" r="85"/>');
+  if (full) {   // 50–60 band: the lesson is over its 50 minutes
+    var p1 = pt(a0 + 50 / max * sw, 81), p2 = pt(a0 + sw, 81);
+    o.push('<path class="ltm-band" d="M' + p1[0] + ' ' + p1[1] + ' A81 81 0 0 1 ' + p2[0] + ' ' + p2[1] + '"/>');
+  }
+  for (var v = 0; v <= max; v += minor) {
+    if (full && v === max) break;
+    var big = v % major === 0, d = a0 + v / max * sw, q1 = pt(d, 78), q2 = pt(d, big ? 68 : 73);
+    o.push('<line class="ltm-tick' + (big ? ' ltm-tick-big' : '') + '" x1="' + q1[0] + '" y1="' + q1[1] + '" x2="' + q2[0] + '" y2="' + q2[1] + '"/>');
+    if (big && v % (major * (full ? 2 : 1)) === 0) {
+      var n = pt(d, 56);
+      o.push('<text class="ltm-num" x="' + n[0] + '" y="' + n[1] + '">' + v + '</text>');
+    }
+  }
+  o.push('<text class="ltm-name" x="100" y="' + (full ? 74 : 72) + '">' + label.toUpperCase() + '</text>');
+  o.push('<text class="ltm-name ltm-unit" x="100" y="' + (full ? 134 : 140) + '">MINUTES</text>');
+  o.push('<g class="ltm-hand" data-hand="' + f + '" data-max="' + max + '" data-a0="' + a0 + '" data-sw="' + sw + '" transform="rotate(' + a0 + ' 100 100)">' +
+    '<path d="M100 26 L101.6 100 L100 118 L98.4 100 Z"/><circle cx="100" cy="100" r="7"/></g>');
+  o.push('<ellipse class="ltm-glass" cx="100" cy="62" rx="70" ry="44"/>');
+  return '<div class="ltm-dial" data-dial="' + f + '"><svg viewBox="0 0 200 200">' + o.join('') + '</svg>' +
+    '<span class="ltm-lcd" data-v="' + f + '"></span></div>';
+}
+
+// Decoration only (user, 2026-11-02): a fake knob and fake buttons, like the
+// controls on a studio compressor. They don't do anything.
+function _ltmKnob(label, deg) {
+  var o = [_ltmDefs()];
+  for (var i = 0; i <= 10; i++) {
+    var a = (-135 + i * 27 - 90) * Math.PI / 180;
+    o.push('<circle class="ltm-kdot" cx="' + (35 + 30 * Math.cos(a)).toFixed(1) + '" cy="' + (35 + 30 * Math.sin(a)).toFixed(1) + '" r="1.3"/>');
+  }
+  o.push('<circle class="ltm-krim" cx="35" cy="37" r="22"/><circle class="ltm-kcap" cx="35" cy="35" r="20"/>');
+  o.push('<line class="ltm-kline" x1="35" y1="35" x2="35" y2="19" transform="rotate(' + deg + ' 35 35)"/>');
+  return '<span class="ltm-knob"><span class="ltm-h">' + label + '</span><svg viewBox="0 0 70 70">' + o.join('') + '</svg></span>';
+}
+
+// A small VU-style meter, 0–10 minutes; the needle's pivot hides under the window edge.
+function _ltmMeter(f, label) {
+  var o = [_ltmDefs()], pt = function (deg, r) { var a = (deg - 90) * Math.PI / 180; return [(70 + r * Math.cos(a)).toFixed(1), (96 + r * Math.sin(a)).toFixed(1)]; };
+  o.push('<rect class="ltm-plate" x="2" y="2" width="136" height="88" rx="6"/>');
+  o.push('<rect class="ltm-bezel" x="9" y="7" width="122" height="72" rx="4"/><rect class="ltm-face" x="12" y="10" width="116" height="66" rx="3"/>');
+  for (var v = 0; v <= 10; v++) {
+    var d = -50 + v * 10, q1 = pt(d, 72), q2 = pt(d, v % 5 ? 67 : 63);
+    o.push('<line class="ltm-tick' + (v % 5 ? '' : ' ltm-tick-big') + '" x1="' + q1[0] + '" y1="' + q1[1] + '" x2="' + q2[0] + '" y2="' + q2[1] + '"/>');
+    if (v % 5 === 0) { var n = pt(d, 56); o.push('<text class="ltm-num ltm-num-s" x="' + n[0] + '" y="' + n[1] + '">' + v + '</text>'); }
+  }
+  o.push('<text class="ltm-name ltm-unit" x="70" y="68">MIN</text>');
+  o.push('<g clip-path="url(#ltmg-mclip)"><g class="ltm-hand" data-hand="' + f + '" data-max="10" data-a0="-50" data-sw="100" transform="rotate(-50 70 96)">' +
+    '<path d="M70 22 L71 96 L69 96 Z"/></g></g>');
+  o.push('<rect class="ltm-glass" x="12" y="10" width="116" height="30" rx="3"/>');
+  o.push(_ltmScrew(6, 84) + _ltmScrew(134, 84));
+  return '<div class="ltm-meter"><svg viewBox="0 0 140 92">' + o.join('') + '</svg><span class="ltm-lcd ltm-lcd-s" data-v="' + f + '"></span><span class="ltm-h">' + label + '</span></div>';
 }
 
 function _ltmBtns(name) {
@@ -86,13 +174,22 @@ function _ltmTick() {
       !run ? (v.failed ? 'NOT SAVED' : 'Saved') :
       st === 'before' ? 'Chat before' : st === 'pause' ? 'Paused' : st === 'after' ? 'Chat after' :
       teach >= LTM_LEN ? '+' + _ltmClock(teach - LTM_LEN) + ' over' : 'Teaching';
+    var mins = { chat: chat / 60, teach: teach / 60, total: (chat + teach) / 60,
+                 before: s ? s.before / 60 : 0, pause: s ? s.pause / 60 : 0, after: s ? s.after / 60 : 0 };
+    b.querySelectorAll('[data-hand]').forEach(function (h) {
+      var max = +h.dataset.max, sw = +h.dataset.sw, m = mins[h.dataset.hand];
+      if (sw < 360) m = Math.min(m, max * 1.04);   // pegs just past the end, like a real gauge
+      var c = h.closest('svg').viewBox.baseVal.width === 200 ? '100 100' : '70 96';
+      h.setAttribute('transform', 'rotate(' + (+h.dataset.a0 + m / max * sw).toFixed(2) + ' ' + c + ')');
+    });
     var out = { chat: _ltmClock(chat), teach: _ltmClock(teach), total: _ltmClock(chat + teach),
+                before: _ltmClock(mins.before * 60), pause: _ltmClock(mins.pause * 60), after: _ltmClock(mins.after * 60),
                 start: v ? _ltmTime(v.marks[0].at) : '–', end: v && v.left ? _ltmTime(v.left) : '–', lbl: lbl };
     b.classList.toggle('ltm-box-idle', !v);
     b.querySelectorAll('[data-v]').forEach(function (el) {
       var f = el.dataset.v;
       el.textContent = out[f];
-      if (f === 'teach') el.classList.toggle('ltm-warn', !!v);   // always amber, no colour change at 50 (user, 2026-11-02)
+      if (f === 'teach') el.closest('.ltm-dial').classList.toggle('ltm-warn', !!v);   // always amber, no colour change at 50 (user, 2026-11-02)
       if (f === 'lbl') el.classList.toggle('ltm-fail', !run && !!v && !!v.failed);
     });
   });
