@@ -297,10 +297,9 @@ function _imTeachWire() {
 }
 function _imStuBox() { return _imQ('imStuRows'); }
 // Phrase pills (user, 2026-10-26): the openings typed every lesson, one tap
-// each, under the rows on the add icon's line. A pill types into the last row:
-// capitalised only at the very start of the first row, lowercase after that,
-// with a comma before it when the row already has text (rows are joined with
-// commas when logged, so an empty later row needs none).
+// each, under the rows on the add icon's line. A pill fills the last row when
+// it is empty; otherwise it opens a new row under it (user, 2026-11-02: each row
+// is its own line in the log). Always capitalised, a row's first word.
 var IM_PILLS = {
   log:   ['Covered', 'Practiced', 'Looked at', 'Went over', 'Talked about', 'We played', 'Started', 'Introduced', 'Improved', 'Reviewed'],   // last five: user, 2026-10-30
   hw:    ['Go over', 'Practice', 'Play', 'Review', 'Speed up', 'Try to'],   // Try to: user, 2026-10-31
@@ -322,14 +321,10 @@ function _imPillsWire() {
 function _imPillPut(box, t) {
   var rows = llRows(box), inp = rows[rows.length - 1];
   if (!inp || box.classList.contains('locked') || inp.readOnly || inp.disabled) return;
-  var v = inp.value, pos = document.activeElement === inp && inp.selectionStart != null ? inp.selectionStart : v.length;
-  var before = v.slice(0, pos).replace(/\s+$/, ''), after = v.slice(pos).replace(/^\s+/, '');
-  var word = before || rows.length > 1 ? t.charAt(0).toLowerCase() + t.slice(1) : t;
-  var head = before ? before + (/,$/.test(before) ? ' ' : ', ') : '';
-  inp.value = head + word + ' ' + after;
+  if (inp.value.trim()) { llAddRow(box); rows = llRows(box); inp = rows[rows.length - 1]; }
+  inp.value = t.charAt(0).toUpperCase() + t.slice(1) + ' ';
   inp.focus();
-  var p = (head + word + ' ').length;
-  inp.setSelectionRange(p, p);
+  inp.setSelectionRange(inp.value.length, inp.value.length);
   inp.dispatchEvent(new Event('input', { bubbles: true }));
 }
 // One rows box with its own ＋ and mic (ids <pre>Rows / <pre>Add / <pre>Mic).
