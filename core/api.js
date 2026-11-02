@@ -45,7 +45,7 @@ function loadData() {
   fetchStudentLoad(url);
   fetchInquiries(url);
   fetchCommsSummary(url);
-  if (typeof fetchGBusinessUnread === "function") fetchGBusinessUnread();
+  if (typeof fetchEmailsUnread === "function") fetchEmailsUnread();
   if (typeof fetchStudentLineBadge === "function") fetchStudentLineBadge();
 }
 function fetchWeekStudents(url) {

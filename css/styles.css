@@ -3607,6 +3607,20 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .gb-frame { display: block; width: 100%; height: calc(var(--vh) * 62); border: 1px solid var(--border); border-radius: 8px; background: #fff; }
 .win-row .gb-new { flex: none; margin-left: auto; }   /* the Inquiries New tag, just left of the date (2026-10-21) */
 
+/* Emails tab (2026-11-02, tabs/emails.js): the G Business list look, in four
+   sections with a clickable heading each; student emails grouped under names. */
+.em-sec + .em-sec { margin-top: 28px; }
+.em-sec-head { display: flex; align-items: baseline; gap: 10px; width: 100%; padding: 0; background: none; border: 0; cursor: pointer; text-align: left; }
+.em-sec-head .section-label { margin-bottom: 10px; }
+.em-sec-head:hover .section-label { color: var(--text); }
+.em-sec-count { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
+.em-sec-arrow { margin-left: auto; font-size: 11px; color: var(--muted); }
+.em-who { margin: 14px 0 6px; font-size: 12px; color: var(--t-bright); }
+.em-who:first-child { margin-top: 0; }
+.win-row .em-sub { color: var(--muted); }
+.gb-frame.em-frame-short { height: calc(var(--vh) * 40); margin-bottom: 12px; }
+.em-foot { display: flex; justify-content: flex-end; }
+
 /* ─── Financial 2 (tabs/financial2.js): read-only copy of the Accountant sheet ─── */
 .f2-status { font-family:'DM Mono',monospace; font-size:10px; color:var(--t-faint); text-transform:uppercase; letter-spacing:.5px; }   /* dim note under the Income table (user 2026-10-22) */
 .f2-wrap { overflow-x:auto; border:2px solid #3a3a3a; border-radius:var(--radius-card); background:var(--surface); }

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=1106">
+  <link rel="stylesheet" href="css/styles.css?v=1107">
 </head>
 <body>
 <div class="container">
@@ -17,7 +17,7 @@
     <div class="hdr-zoom"><button onclick="rpmZoom(1.5)" data-z="1.5">150%</button><button onclick="rpmZoom(2)" data-z="2">200%</button></div>
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1106</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1107</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -113,7 +113,7 @@
     <button class="tab-btn" data-tab="ending" onclick="switchTab('ending')">Terminate</button>
     <button class="tab-btn sb-h" data-h="MESSAGES" data-tab="comms" onclick="switchTab('comms')">Comms<span class="inq-badge" id="commsNavBadge" style="display:none"></span></button>
     <button class="tab-btn" data-tab="studentline" onclick="switchTab('studentline')">Student Line<span class="inq-badge" id="slNavBadge" style="display:none"></span></button>
-    <button class="tab-btn" data-tab="gbusiness" onclick="switchTab('gbusiness')">G Business<span class="inq-badge" id="gbNavBadge" style="display:none"></span></button>   <!-- was Mail Center (2026-10-21): the G-Business email list, tabs/gbusiness.js -->
+    <button class="tab-btn" data-tab="emails" onclick="switchTab('emails')">Emails<span class="inq-badge" id="emNavBadge" style="display:none"></span></button>   <!-- 2026-11-02: the Gmail inbox in sections (Students, Google Business, Subscriptions, Everything else), tabs/emails.js; replaced the G Business tab -->
     <div class="nav-drop sb-soon">
       <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Coming Soon ▾</button>
       <div class="nav-menu">
@@ -666,10 +666,10 @@
     <div class="empty-state">Coming soon</div>
   </div>
 
-  <!-- GOOGLE BUSINESS -->
-  <div class="tab-panel" id="tab-gbusiness">
-    <div class="settings-title"><span>G Business<span class="win-sub"> · Since Jan 1</span></span></div>
-    <div id="gbBody"><div class="empty-state rpm-loading">Loading</div></div>
+  <!-- EMAILS -->
+  <div class="tab-panel" id="tab-emails">
+    <div class="settings-title"><span>Emails<span class="win-sub"> · redpickmusic@gmail.com</span></span></div>
+    <div id="emBody"><div class="empty-state rpm-loading">Loading</div></div>
   </div>
 
   <!-- TAX -->
@@ -801,48 +801,48 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=1106"></script>
-<script src="core/storage.js?v=1106"></script>
-<script src="core/utils.js?v=1106"></script>
-<script src="core/dialog.js?v=1106"></script>
-<script src="core/api.js?v=1106"></script>
-<script src="core/secalert.js?v=1106"></script>
-<script src="core/magnifier.js?v=1106"></script>
+<script src="core/state.js?v=1107"></script>
+<script src="core/storage.js?v=1107"></script>
+<script src="core/utils.js?v=1107"></script>
+<script src="core/dialog.js?v=1107"></script>
+<script src="core/api.js?v=1107"></script>
+<script src="core/secalert.js?v=1107"></script>
+<script src="core/magnifier.js?v=1107"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=1106"></script>
-<script src="tabs/lessons.js?v=1106"></script>
-<script src="tabs/payments.js?v=1106"></script>
-<script src="tabs/general.js?v=1106"></script>
-<script src="tabs/financial.js?v=1106"></script>
-<script src="tabs/inquiries.js?v=1106"></script>
-<script src="tabs/inqarchive.js?v=1106"></script>
-<script src="tabs/comms.js?v=1106"></script>
-<script src="tabs/notes.js?v=1106"></script>
-<script src="tabs/todo.js?v=1106"></script>
-<script src="tabs/availability.js?v=1106"></script>
-<script src="tabs/travel.js?v=1106"></script>
-<script src="tabs/tripsummary.js?v=1106"></script>
-<script src="tabs/triphistory.js?v=1106"></script>
-<script src="tabs/skips.js?v=1106"></script>
-<script src="tabs/student.js?v=1106"></script>
-<script src="tabs/ctrl.js?v=1106"></script>
-<script src="tabs/gbusiness.js?v=1106"></script>
-<script src="tabs/dropbox.js?v=1106"></script>
-<script src="tabs/import.js?v=1106"></script>
-<script src="tabs/today.js?v=1106"></script>
-<script src="tabs/home.js?v=1106"></script>
-<script src="tabs/trial.js?v=1106"></script>
-<script src="tabs/ending.js?v=1106"></script>
-<script src="tabs/reviews.js?v=1106"></script>
-<script src="tabs/financial2.js?v=1106"></script>
-<script src="tabs/sheets.js?v=1106"></script>
-<script src="tabs/studentline.js?v=1106"></script>
-<script src="tabs/calendar.js?v=1106"></script>
-<script src="tabs/fixedcal.js?v=1106"></script>
-<script src="tabs/slotchange.js?v=1106"></script>
-<script src="tabs/help.js?v=1106"></script>
-<script src="tabs/holidays.js?v=1106"></script>
+<script src="tabs/icons.js?v=1107"></script>
+<script src="tabs/lessons.js?v=1107"></script>
+<script src="tabs/payments.js?v=1107"></script>
+<script src="tabs/general.js?v=1107"></script>
+<script src="tabs/financial.js?v=1107"></script>
+<script src="tabs/inquiries.js?v=1107"></script>
+<script src="tabs/inqarchive.js?v=1107"></script>
+<script src="tabs/comms.js?v=1107"></script>
+<script src="tabs/notes.js?v=1107"></script>
+<script src="tabs/todo.js?v=1107"></script>
+<script src="tabs/availability.js?v=1107"></script>
+<script src="tabs/travel.js?v=1107"></script>
+<script src="tabs/tripsummary.js?v=1107"></script>
+<script src="tabs/triphistory.js?v=1107"></script>
+<script src="tabs/skips.js?v=1107"></script>
+<script src="tabs/student.js?v=1107"></script>
+<script src="tabs/ctrl.js?v=1107"></script>
+<script src="tabs/emails.js?v=1107"></script>
+<script src="tabs/dropbox.js?v=1107"></script>
+<script src="tabs/import.js?v=1107"></script>
+<script src="tabs/today.js?v=1107"></script>
+<script src="tabs/home.js?v=1107"></script>
+<script src="tabs/trial.js?v=1107"></script>
+<script src="tabs/ending.js?v=1107"></script>
+<script src="tabs/reviews.js?v=1107"></script>
+<script src="tabs/financial2.js?v=1107"></script>
+<script src="tabs/sheets.js?v=1107"></script>
+<script src="tabs/studentline.js?v=1107"></script>
+<script src="tabs/calendar.js?v=1107"></script>
+<script src="tabs/fixedcal.js?v=1107"></script>
+<script src="tabs/slotchange.js?v=1107"></script>
+<script src="tabs/help.js?v=1107"></script>
+<script src="tabs/holidays.js?v=1107"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -903,7 +903,7 @@
     // tab button is removed. The #tab-lessons panel div still lives in the DOM
     // because it hosts the log panel that the Home + Audit tabs borrow (float)
     // when they log a lesson; it's just no longer a reachable tab.
-    var tabs = ["student","payments","general","financial2","inquiries","availability","notes","todo","travel","tripsummary","triphistory","dropbox","initiate","trial","ending","holidays","zoom","video","gbusiness","tax","eoy","recs","reviews","lifetime","concert","sheets","skips","studentline","calendar","fixedcal","slotchange","inqarchive","trialanalysis","comms","helpdata","import","today","home","audit"];
+    var tabs = ["student","payments","general","financial2","inquiries","availability","notes","todo","travel","tripsummary","triphistory","dropbox","initiate","trial","ending","holidays","zoom","video","emails","tax","eoy","recs","reviews","lifetime","concert","sheets","skips","studentline","calendar","fixedcal","slotchange","inqarchive","trialanalysis","comms","helpdata","import","today","home","audit"];
     tabs.forEach(function(t) {
       document.getElementById("tab-" + t).classList.toggle("active", t === tab);
       var btn = document.querySelector('.tab-btn[data-tab="' + t + '"]');
@@ -930,7 +930,7 @@
     if (tab === "availability") initAvailabilityTab();
     if (tab === "todo") initTodoTab();
     if (tab === "notes") initNotesTab();
-    if (tab === "gbusiness") initGBusinessTab();
+    if (tab === "emails") initEmailsTab();
     if (tab === "dropbox") initDropboxTab();
     if (tab === "initiate") initTrialTab();
     if (tab === "trial") initTrialStageTab();
