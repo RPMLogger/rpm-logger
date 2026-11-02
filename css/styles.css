@@ -84,7 +84,7 @@ body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-
    own dim grey, up in the top right with the build number on its left; Home
    below it, level with ☰. Settings and build were at the bottom of the page before. */
 .hdr-name { position: relative; }
-.hdr-top { position: absolute; right: 0; bottom: calc(100% + 10px); display: flex; align-items: center; gap: 5px; }   /* above MUSIC (user, 2026-10-26); gap 10 → 5, tighter (user, 2026-10-27) */
+.hdr-top { position: absolute; right: 0; bottom: calc(100% + 3px);   /* closer to MUSIC (user, 2026-11-02; was 10px) */ display: flex; align-items: center; gap: 5px; }   /* above MUSIC (user, 2026-10-26); gap 10 → 5, tighter (user, 2026-10-27) */
 .header .hdr-gear { width: 16px; height: 16px; text-align: center;
   padding: 0; border: none; background: none; font-size: 24px; line-height: 16px; color: var(--muted); }   /* the gear's own dim grey, as it was (user, 2026-10-26) */
 .header .hdr-gear:hover:where(:not(:disabled)) { border: none; color: var(--accent2); }
