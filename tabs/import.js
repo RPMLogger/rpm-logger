@@ -235,6 +235,18 @@ function _imRenderStudent(name, lessons) {
       acts.className = 'im-head-acts';
       [].slice.call(t.children, 1).forEach(function (el) { acts.appendChild(el); });
       card.appendChild(acts);
+      // Goals bottom left of the History box, on Show all's row (user, 2026-11-02).
+      var gl = acts.querySelector('.gl-btn');
+      var hist = [].filter.call(st.querySelectorAll(':scope > .im-sec-box'), function (b) { return /^history$/i.test((b.querySelector('.db-cx-t') || {}).textContent || ''); })[0];
+      var list = hist && hist.querySelector('.im-list');
+      if (gl && list) {
+        var foot = document.createElement('div');
+        foot.className = 'im-hist-foot';
+        foot.appendChild(gl);
+        var more = list.querySelector(':scope > .im-more');
+        if (more) foot.appendChild(more);
+        list.appendChild(foot);
+      }
     }
     var notes = [].filter.call(st.querySelectorAll(':scope > .im-sec-box'), function (b) { return /^notes$/i.test((b.querySelector('.db-cx-t') || {}).textContent || ''); })[0];
     if (notes) notes.remove();   // no Notes box on the Students page (user, 2026-10-31; was moved last)
@@ -252,6 +264,7 @@ function _imRenderStudent(name, lessons) {
       list.appendChild(files); matBox.appendChild(head); matBox.appendChild(list);
       hwBox.parentNode.insertBefore(matBox, hwBox.nextSibling);
     }
+    if (typeof ltmBoxHtml === 'function') st.insertAdjacentHTML('beforeend', ltmBoxHtml(name));   // Chat / Lesson / Total at the bottom (tabs/lessontimer.js, 2026-11-02)
   }
   _imFixTips(body);
   if (!_ck.loaded && !_ck.busy) _ckLoad(function () { if (_imOpen === name && _imLast) _imRenderStudent(name, _imLast.lessons); });

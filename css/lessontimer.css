@@ -1,0 +1,15 @@
+/* ─── LESSON TIMER (2026-11-02): the box at the bottom of the student page, tabs/lessontimer.js ─── */
+.ltm-box .im-sec-head .ltm-btns { margin-left: auto; display: flex; gap: 14px; }
+.ltm-btn.ltm-main { color: var(--t-normal); }
+.ltm-grid { display: grid; grid-template-columns: repeat(3, 1fr); row-gap: 6px; text-align: center; }
+.ltm-h { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); letter-spacing: .5px; text-transform: uppercase; }
+.ltm-h2 { margin-top: 14px; }
+.ltm-v { font-family: "DM Mono", monospace; font-size: 22px; color: var(--t-normal); font-variant-numeric: tabular-nums; }
+.ltm-t { font-family: "DM Mono", monospace; font-size: 13px; color: var(--t-normal); }
+.ltm-t.ltm-lbl { font-size: 11px; color: var(--t-faint); align-self: center; }
+.ltm-box .ltm-warn { color: var(--warn); }
+.ltm-box .ltm-over, .ltm-box .ltm-fail { color: var(--accent); }
+.ltm-box-idle .ltm-v, .ltm-box-idle .ltm-t { color: var(--muted); }
+/* Goals bottom left of the History box, Show all on the right (user, 2026-11-02) */
+#importBody .td-student .im-hist-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+#importBody .td-student .im-hist-foot > .im-more { margin: 0; }

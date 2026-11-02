@@ -48,7 +48,7 @@ function glBtnHtml(name) {
   if (!_glDue && !_glDueBusy) glDueLoad();
   var due = _glDue && _glDue[_glKey(name)];
   return '<button class="link-btn gl-btn opens-window' + (due ? ' gl-due' : '') + '" data-gl="' + _auEsc(name) + '" onclick="glOpen(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Opens a window.\n' +
-    (due ? 'Check-in due: ' + (due.checked ? 'last one ' : 'started ') + due.since + ' days ago.' : 'Goals and the 3-month check-ins.') + '" data-tip-left data-tip-wrap>Goal</button>';
+    (due ? 'Check-in due: ' + (due.checked ? 'last one ' : 'started ') + due.since + ' days ago.' : 'Goals and the 3-month check-ins.') + '" data-tip-wrap>Goals</button>';
 }
 function _glPaintBtns() {
   document.querySelectorAll('.gl-btn[data-gl]').forEach(function (b) { b.classList.toggle('gl-due', !!(_glDue && _glDue[_glKey(b.dataset.gl)])); });
