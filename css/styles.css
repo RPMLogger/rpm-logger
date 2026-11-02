@@ -4276,3 +4276,9 @@ a.cm-file:hover { background: rgba(255,255,255,0.14); }
 #todayBody .td-wk-box { box-shadow: none; }   /* Today page: shadows on buttons only (user, 2026-11-02) */
 #todayBody .td-today-box ~ .td-wk-box { margin-top: 16px; }   /* This Week closer under Today (user, 2026-11-02; was 34px) */
 html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px 4px rgba(0,0,0,.6)); }   /* logo + name + build: a soft shadow (user, 2026-11-02) */
+/* Log page titles in the Email page's look (user, 2026-11-02): Bebas, light; "(optional)" small and faint like there */
+#imLogWin .im-main-log ~ .im-main-box .im-sub-t { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; text-transform: none; color: oklch(0.8 0.006 81); }
+#imLogWin .im-main-log ~ .im-main-box .im-sub-t .im-mail-opt { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; color: var(--t-faint); }
+/* Keyword chips a step brighter (user, 2026-11-02; were #5e5e5e on .09) */
+#imLogWin .im-pills .im-pill { color: #7c7c7c; border-color: rgba(255,255,255,0.15); }
+#imLogWin .im-pills .im-pill:hover:where(:not(:disabled)) { color: #ddd; border-color: rgba(255,255,255,0.4); }

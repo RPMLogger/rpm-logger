@@ -345,6 +345,9 @@ var IM_PILLS = {
   hw:    ['Go over', 'Practice', 'Play', 'Review', 'Speed up', 'Try to', 'Look at'],   // Try to: user, 2026-10-31 · Look at: user, 2026-11-02
   notes: ['Make sure']
 };
+// Terms (user, 2026-11-02): a second line of chips under Log lesson and HW. They
+// don't start a row and aren't capitalised: typed in where the cursor is.
+var IM_TERMS = ['ii–V–i', 'ii–V–I', 'maj', 'min', '7th', 'sus4', 'sus2', 'aug', 'dim', 'thirds'];
 function _imPillsWire() {
   // None under Notes to teacher (user, 2026-10-26).
   [[_logBox(), IM_PILLS.log], [_hwRowsBox(), IM_PILLS.hw], [_imStuBox(), IM_PILLS.notes]].forEach(function (x) {
@@ -352,9 +355,14 @@ function _imPillsWire() {
     if (!wrap || (wrap.nextElementSibling && wrap.nextElementSibling.classList.contains('im-pills'))) return;   // the Log and HW rows stay between windows
     var d = document.createElement('div');
     d.className = 'im-pills';
-    d.innerHTML = x[1].map(function (t) { return '<button type="button" class="im-pill">' + t + '</button>'; }).join('');
+    var terms = x[1] === IM_PILLS.notes ? [] : IM_TERMS;
+    d.innerHTML = x[1].map(function (t) { return '<button type="button" class="im-pill">' + t + '</button>'; }).join('') +
+      (terms.length ? '<span style="flex-basis:100%;height:0"></span>' + terms.map(function (t) { return '<button type="button" class="im-pill im-term">' + t + '</button>'; }).join('') : '');
     d.onmousedown = function (e) { e.preventDefault(); };   // the row keeps its cursor
-    d.onclick = function (e) { if (e.target.classList.contains('im-pill')) _imPillPut(box, e.target.textContent); };
+    d.onclick = function (e) {
+      if (!e.target.classList.contains('im-pill')) return;
+      if (e.target.classList.contains('im-term')) _imTermPut(box, e.target.textContent); else _imPillPut(box, e.target.textContent);
+    };
     wrap.after(d);
   });
 }
@@ -365,6 +373,21 @@ function _imPillPut(box, t) {
   inp.value = t.charAt(0).toUpperCase() + t.slice(1) + ' ';
   inp.focus();
   inp.setSelectionRange(inp.value.length, inp.value.length);
+  inp.dispatchEvent(new Event('input', { bubbles: true }));
+}
+// A term goes in at the cursor of the row being typed in (else the last row), spaced from its neighbours.
+function _imTermPut(box, t) {
+  var rows = llRows(box), ae = document.activeElement;
+  var inp = rows.indexOf(ae) >= 0 ? ae : rows.filter(function (r) { return r.classList.contains('active'); })[0] || rows[rows.length - 1];
+  if (!inp || box.classList.contains('locked') || inp.readOnly || inp.disabled) return;
+  var v = inp.value, pos = document.activeElement === inp && inp.selectionStart != null ? inp.selectionStart : v.length;
+  var before = v.slice(0, pos), after = v.slice(pos);
+  var head = before && !/\s$/.test(before) ? before + ' ' : before;
+  if (!head && !/–/.test(t)) t = t.charAt(0).toUpperCase() + t.slice(1);   // a row's first word still gets its capital (not ii–V–i)
+  inp.value = head + t + (after && /^\s/.test(after) ? '' : ' ') + after;
+  inp.focus();
+  var p = (head + t + ' ').length;
+  inp.setSelectionRange(p, p);
   inp.dispatchEvent(new Event('input', { bubbles: true }));
 }
 // One rows box with its own ＋ and mic (ids <pre>Rows / <pre>Add / <pre>Mic).
@@ -1623,12 +1646,12 @@ function _imDoHtml(name, day) {
       _imSub('Log lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
       _imSub('Log homework', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
       // Private (2026-10-25): saved after "TEACHER:" in the log's cell, never emailed.
-      _imSub('Notes to teacher (optional)', '', ' im-teach-box',
+      _imSub('Notes to teacher <span class="im-mail-opt">(optional)</span>', '', ' im-teach-box',
         '<div class="ll-wrap"><div class="ll-rows" id="imTeachRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
         '<button type="button" class="link-btn tl-mic" id="imTeachMic" data-tip="Starts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
         '<button type="button" class="ll-add" id="imTeachAdd" data-tip="Instant.&#10;Adds a row. Enter does too.">' + llAddInner() + '</button>') +
       // In the email only, under NOTES (2026-10-25): "Bring your capo next time."
-      _imSub('Notes to the student (optional)', '', ' im-teach-box',
+      _imSub('Notes to the student <span class="im-mail-opt">(optional)</span>', '', ' im-teach-box',
         '<div class="ll-wrap"><div class="ll-rows" id="imStuRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
         '<button type="button" class="link-btn tl-mic" id="imStuMic" data-tip="Starts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
         '<button type="button" class="ll-add" id="imStuAdd" data-tip="Instant.&#10;Adds a row. Enter does too.&#10;Each row is a sentence in the email.">' + llAddInner() + '</button>') +
