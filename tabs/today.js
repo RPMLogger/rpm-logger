@@ -147,17 +147,20 @@ function _tdAllNames() { return (todayStudents || []).map(function (s) { return 
 // Folder names only, never files (user, 2026-11-01): "HW - OCT 30", then the
 // folders inside it, in the Students page's folder look (_dbDetailsFilesHtml).
 function _tdAllFolders(paths) {
-  var tops = [], subs = {};
+  // Under a Material sent title, the lesson folders inside the top "HW - OCT 25" folder,
+  // one under another, not indented (user, 2026-11-02); files straight in the top
+  // folder (no lesson folders) show the top folder instead.
+  var tops = [], subs = [];
   paths.forEach(function (x) {
     var p = String(x).split('/'); p.pop();   // the file's name off
     if (!p.length) return;
-    if (!subs[p[0]]) { subs[p[0]] = []; tops.push(p[0]); }
-    if (p[1] && subs[p[0]].indexOf(p[1]) < 0) subs[p[0]].push(p[1]);
+    if (tops.indexOf(p[0]) < 0) tops.push(p[0]);
+    if (p[1] && subs.indexOf(p[1]) < 0) subs.push(p[1]);
   });
-  var head = function (n, sub) { return '<span class="db-file db-dir"' + (sub ? ' style="padding-left:20px"' : '') + '>' + DB_FOLDER_GLYPH + '<span style="text-transform:uppercase">' + inqEsc(n) + '</span></span>'; };
-  return tops.map(function (t) {
-    return '<span class="db-group">' + head(t) + subs[t].sort(function (a, b) { return a.localeCompare(b, undefined, { numeric: true }); }).map(function (n) { return head(n, true); }).join('') + '</span>';
-  }).join('');
+  var list = subs.length ? subs.sort(function (a, b) { return a.localeCompare(b, undefined, { numeric: true }); }) : tops;
+  return '<span class="db-group">' + list.map(function (n) {
+    return '<span class="db-file db-dir">' + DB_FOLDER_GLYPH + '<span style="text-transform:uppercase">' + inqEsc(n) + '</span></span>';
+  }).join('') + '</span>';
 }
 
 // One line per comma part, each starting with a capital (user, 2026-11-02).
@@ -192,7 +195,7 @@ function _tdAllRender() {
     var hwHtml = !a.hwIn ? wait : !hw ? '<div class="im-none">None</div>' :
       (hw.text ? '<div class="td-all-txt">' + _tdAllLines(hw.text) + '</div>' : '') +
       (hw.links || []).map(function (x) { return '<div class="im-hw-link"><span>' + (x.kind === 'Video' ? 'Video lesson' : 'Link') + '</span><a href="' + inqEsc(x.url) + '" target="_blank" rel="noopener">' + inqEsc(x.url) + '</a></div>'; }).join('') +
-      (files ? '<div class="im-hw-files">' + _tdAllFolders(hw.files) + '</div>' : '');
+      (files ? '<div class="td-all-h td-all-mat"><span class="td-all-lbl">Material sent</span></div><div class="im-hw-files">' + _tdAllFolders(hw.files) + '</div>' : '');
     var head = function (label, d) { return '<div class="td-all-h"><span class="td-all-lbl">' + label + '</span>' + (d ? '<span class="im-d">' + inqEsc(d) + '</span>' : '') + '</div>'; };
     // The name as Today's name button (user, 2026-11-01: kept over a title), opening their
     // lesson log; the other windows' darker box with the grey edge under it (No show's).
@@ -200,7 +203,7 @@ function _tdAllRender() {
       '<button class="link-btn td-mini-b td-all-name" onclick="_tdAllPick(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a tab.\nEvery lesson logged for ' + _auEsc(n) + '.">' + inqEsc(n) + '</button>' +
       '<div class="ts-thread tv-rv-thread rv-thread td-all-box">' +
         head('Lesson', lDay) + lesson +
-        head('HW', hDay && hDay !== lDay ? hDay : '') + hwHtml +
+        head('HW given', hDay && hDay !== lDay ? hDay : '') + hwHtml +
       '</div>' +
     '</div>';
   }).join('');   // no line between students, just room (user, 2026-11-01)
