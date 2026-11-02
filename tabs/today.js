@@ -28,6 +28,7 @@ function initTodayTab() {
   if (!window._weekFetchedDay) { body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>'; return; }
   _tdRender();
   _tdHolCheck();   // the holiday reminder window, once a day
+  if (typeof glDueCheck === 'function') glDueCheck();   // Goal check-ins due, once a day (tabs/goals.js)
 }
 
 // fetchWeekStudents (core/api.js) calls this once today's students are in.

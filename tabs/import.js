@@ -1527,6 +1527,7 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
     // Today draws its own name row (the card's open/close bar, 2026-10-09).
     (o.noTitle ? '' : '<div class="settings-title im-title"><span>' + inqEsc(name) + (o.sub ? '<span class="win-sub"> · ' + inqEsc(o.sub) + '</span>' : '') + '</span>' +
       (o.log ? _imLogBtnHtml(name, { label: '＋ Log' }) : '') +   // just "＋ Log" on the student page (user, 2026-10-31)
+      (o.log && typeof glBtnHtml === 'function' ? glBtnHtml(name) : '') +   // Goal window, red when a 3-month check-in is due (tabs/goals.js, 2026-11-02)
       '</div>') +
     // Each box's small title sits above it, outside its border (2026-10-06).
     // Notes first (2026-10-06): what to mention, before anything else.

@@ -1,0 +1,20 @@
+/* ─── GOALS (2026-11-02): the Goal button + window, tabs/goals.js ─── */
+.gl-btn.gl-due { color: var(--accent); border-color: var(--accent); }
+.st-win.gl-win { width: min(560px, 92vw); max-height: 86vh; overflow-y: auto; }
+.gl-win .gl-head { margin-top: 22px; gap: 12px; }
+.gl-win .gl-head .gl-add { margin-left: auto; }
+.gl-next { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); }
+.gl-next-due { color: var(--accent); }
+.gl-none { color: var(--t-faint); font-size: 12px; }
+.gl-card { margin-bottom: 12px; }
+.gl-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.gl-date { font-family: "DM Mono", monospace; font-size: 11px; color: var(--warn); letter-spacing: .5px; }
+.gl-q { display: block; font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); margin-top: 10px; }
+.gl-a { color: var(--t-normal); font-size: 13px; line-height: 1.45; white-space: pre-wrap; margin-top: 3px; }
+.gl-a-empty { color: var(--muted); }
+.gl-field { width: 100%; box-sizing: border-box; margin-top: 4px; resize: none; overflow: hidden; min-height: 38px; }
+.gl-acts { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+.gl-due-dlg .rpm-dlg-msg { text-align: center; margin-top: 18px; }
+.gl-due-dlg .gl-due-name { margin-top: 10px; }
+.gl-due-dlg .gl-due-sub { font-size: 11px; color: var(--t-faint); margin-top: 3px; }
+.gl-due-dlg .rpm-dlg-acts { justify-content: center; }
