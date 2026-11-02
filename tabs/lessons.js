@@ -600,6 +600,7 @@ function logHwUpload(fileList) {
 function _logHwUploadNext(hw) {
   var files = hw.queue.shift(), list = document.getElementById("logHwFiles");
   hw.uploading = true; hw.upMsg = "Uploading"; _logHwRender(); updateLogButton();
+  if (typeof ltUpStart === "function") ltUpStart();   // the log timer's upload column
   uploadFilesToDropbox(hw.name, files, {
     day: hw.date,   // the folder is the lesson's day, not the upload day
     onProgress: function(name, i, total) {
@@ -608,10 +609,11 @@ function _logHwUploadNext(hw) {
       if (logHw === hw && list) _logHwRender();
     },
     onDone: function(ok, fail, total) {
-      if (logHw !== hw) { hw.uploading = false; return; }
+      if (logHw !== hw) { hw.uploading = false; if (typeof ltUpEnd === "function") ltUpEnd(); return; }
       if (fail) addLog("lessonFeed", "⚠ " + fail + " of " + total + " file(s) didn't upload to " + hw.name + "'s Dropbox", "warn");
       if (hw.queue.length) { _logHwUploadNext(hw); return; }
       hw.uploading = false;
+      if (typeof ltUpEnd === "function") ltUpEnd();
       hw.upMsg = "Checking Dropbox";   // till the new list is in, not "Drag files" again
       logHwCheck();   // the new files list
     }

@@ -6,6 +6,8 @@
 // 2 Materials, 3 Schedule, 4 Email). A lesson closed half done keeps its time
 // in this browser (localStorage logTimes) and adds to it when reopened. When
 // the email is sent the row goes to "Log Times" (saveLogTime, RPM_LogTimes.js).
+// Uploads (user, 2026-11-02) get their own column: from the first file going up
+// to the last one done, clock time; while one runs the page time doesn't idle out.
 
 var LT_IDLE = 3 * 60 * 1000;
 var _lt = null;   // { key, name, day, trial, page, segStart, lastAct }
@@ -16,7 +18,7 @@ function _ltPut(all) { try { localStorage.setItem('logTimes', JSON.stringify(all
 // Adds the running stretch to the current page; stops at the last activity + 3 min.
 function _ltFlush() {
   if (!_lt || !_lt.segStart) return;
-  var end = Math.min(Date.now(), _lt.lastAct + LT_IDLE), ms = Math.max(0, end - _lt.segStart);
+  var end = _lt.upAt ? Date.now() : Math.min(Date.now(), _lt.lastAct + LT_IDLE), ms = Math.max(0, end - _lt.segStart);
   _lt.segStart = document.hidden ? null : Date.now();
   if (!ms) return;
   var all = _ltAll(), r = all[_lt.key] || (all[_lt.key] = { name: _lt.name, day: _lt.day, trial: _lt.trial, at: Date.now(), ms: {}, sittings: 0 });
@@ -43,11 +45,22 @@ function ltPage(p) {
   _lt.page = p;
 }
 
-function ltStop() { _ltFlush(); _lt = null; }
+function ltStop() { ltUpEnd(); _ltFlush(); _lt = null; }
+
+// Files uploading to Dropbox (lessons.js _logHwUploadNext): start once, end when the queue is empty.
+function ltUpStart() { if (_lt && !_lt.upAt) _lt.upAt = Date.now(); }
+function ltUpEnd() {
+  if (!_lt || !_lt.upAt) return;
+  _ltFlush();   // the page time up to now, uploading counted as busy
+  var all = _ltAll(), r = all[_lt.key];
+  if (r) { r.up = (r.up || 0) + (Date.now() - _lt.upAt); _ltPut(all); }
+  _lt.upAt = null;
+  _lt.lastAct = Date.now();
+}
 
 // The recap email went out: the lesson's row goes to Log Times.
 function ltFinish(name, day) {
-  if (_lt && _lt.key === name + '|' + day) { _ltFlush(); _lt = null; }   // done: the window closing adds nothing more
+  if (_lt && _lt.key === name + '|' + day) { ltUpEnd(); _ltFlush(); _lt = null; }   // done: the window closing adds nothing more
   var key = name + '|' + day, all = _ltAll(), r = all[key];
   if (!r) return;
   delete all[key];
@@ -56,7 +69,7 @@ function ltFinish(name, day) {
   var total = s(1) + s(2) + s(3) + s(4);
   if (!total) return;
   var q = '&name=' + encodeURIComponent(name) + '&day=' + day + '&total=' + total + '&p1=' + s(1) + '&p2=' + s(2) + '&p3=' + s(3) + '&p4=' + s(4) +
-          '&sittings=' + (r.sittings || 1) + (r.trial ? '&trial=1' : '');
+          '&up=' + Math.round((r.up || 0) / 1000) + '&sittings=' + (r.sittings || 1) + (r.trial ? '&trial=1' : '');
   var url = getScriptUrl();
   if (url) fetch(url + '?action=saveLogTime' + q).catch(function () {});   // silent: a lost row is not worth a warning
 }
