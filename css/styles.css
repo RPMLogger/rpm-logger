@@ -4119,8 +4119,6 @@ body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border
 .cm-srow.cm-wait .cm-name { color: var(--t-bright); }
 .cm-srow.cm-blank .cm-prev { color: var(--muted); font-style: italic; }
 
-#todayBody .td-today-box { position:relative; }
-#todayBody .td-hero { position:absolute; right:32%; top:63px; height:80px; opacity:.55; pointer-events:none; }   /* line-drawn amp + guitar, right side, bottom on the "4 students" line (user, 2026-11-01) */
 .hdr-zoom { position:absolute; left:20px; top:-36px; display:flex; gap:6px; z-index:2; }   /* zoom test buttons, top left of the amp (user, 2026-11-01) */
 .hdr-zoom button { font-family:'DM Mono', monospace; font-size:10px; letter-spacing:1px; color:var(--t-faint); background:none; border:1px solid #353535; border-radius:6px; padding:3px 7px; cursor:pointer; }
 .hdr-zoom button:hover, .hdr-zoom button.on { color:var(--text); border-color:#555; }
