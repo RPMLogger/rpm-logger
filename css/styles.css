@@ -4041,8 +4041,8 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 #imLogWin .im-pills .im-pill { border-radius: 6px; }   /* chips less rounded (user, 2026-10-30) */
 #imLogWin#imLogWin .im-log-foot-all > #btnNoShow { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 55%, transparent); background: color-mix(in srgb, var(--blue) 6%, transparent); }   /* No show blue (user, 2026-10-30) */
 #imLogWin#imLogWin .im-log-foot-all > #btnNoShow:hover:where(:not(:disabled)) { color: var(--blue); border-color: var(--blue); background: color-mix(in srgb, var(--blue) 16%, transparent); }
-#imLogWin .settings-title > span:first-child { color: var(--t-text); }   /* name in the Students cards' white, Log Lesson and HW red (user, 2026-10-30) */
-#imLogWin .settings-title > span:first-child .win-sub { color: var(--accent); }
+#imLogWin .settings-title > span:first-child { color: var(--accent); }   /* name red, page grey, like the other windows (user, 2026-11-02; was name white, page red, 2026-10-30) */
+#imLogWin .settings-title > span:first-child .win-sub { color: var(--muted); }
 #imLogWin .im-main-head:not(.im-main-log) { display: none; }   /* pages 2–4: the page's name is in the window title (user, 2026-10-30) */
 #imLogWin .im-mat-qbox { gap: 26px; margin-top: 14px; }   /* the two questions spread out (user, 2026-10-30) */
 /* A student's page in the Students tab's shades (user, 2026-10-31): the card = the big box (#101010 + grain), its Notes / History panels = the list cards (#121212 + grain, #353535 frame). Was #222 card, #1a1a1a panels. */
@@ -4276,9 +4276,73 @@ a.cm-file:hover { background: rgba(255,255,255,0.14); }
 #todayBody .td-wk-box { box-shadow: none; }   /* Today page: shadows on buttons only (user, 2026-11-02) */
 #todayBody .td-today-box ~ .td-wk-box { margin-top: 16px; }   /* This Week closer under Today (user, 2026-11-02; was 34px) */
 html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px 4px rgba(0,0,0,.6)); }   /* logo + name + build: a soft shadow (user, 2026-11-02) */
-/* Log page titles in the Email page's look (user, 2026-11-02): Bebas, light; "(optional)" small and faint like there */
-#imLogWin .im-main-log ~ .im-main-box .im-sub-t { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; text-transform: none; color: oklch(0.8 0.006 81); }
 #imLogWin .im-main-log ~ .im-main-box .im-sub-t .im-mail-opt { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; color: var(--t-faint); }
 /* Keyword chips a step brighter (user, 2026-11-02; were #5e5e5e on .09) */
 #imLogWin .im-pills .im-pill { color: #7c7c7c; border-color: rgba(255,255,255,0.15); }
 #imLogWin .im-pills .im-pill:hover:where(:not(:disabled)) { color: #ddd; border-color: rgba(255,255,255,0.4); }
+/* Materials as three pages (user, 2026-11-02): one question per page */
+#imLogWin .im-mat-qbox { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
+#imLogWin #imLinksBox { margin-top: 4px; }
+#imLogWin #imLinksFinishBtn { color: color-mix(in srgb, #ffffff 60%, var(--muted)); border-color: color-mix(in srgb, #ffffff 25%, transparent); background: color-mix(in srgb, #ffffff 5%, transparent); }   /* the Files Finish's look */
+#imLogWin #imLinksFinishBtn:not(:disabled):hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 50%, transparent); background: color-mix(in srgb, #ffffff 10%, transparent); }
+#imLogWin .im-rec-btn { margin-right: 8px; min-width: 72px; justify-content: center; color: color-mix(in srgb, #ffffff 60%, var(--muted)); border-color: color-mix(in srgb, #ffffff 25%, transparent); background: color-mix(in srgb, #ffffff 5%, transparent); }   /* Phone / Zoom as buttons (user, 2026-11-02) */
+#imLogWin .im-rec-btn:hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 50%, transparent); }
+#imLogWin #imMatNone .im-rec-btn.done, #imLogWin #imMatNone .im-rec-btn.done:hover:where(:not(:disabled)) { color: #111111; background: #e8e8e8; border-color: #e8e8e8; }   /* picked = inverted (user, 2026-11-02) */
+/* Log page: boxes left, one Terms column right (user, 2026-11-02); the window wider on that page only */
+.st-win.im-log-win.im-log-wide { width: min(880px, 96vw); }
+#imLogWin .im-log-cols { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 32px; align-items: start; }
+#imLogWin .im-terms-col { align-self: stretch; padding-left: 0; }
+#imLogWin .im-terms-grp + .im-terms-grp { margin-top: 16px; }
+#imLogWin .im-terms-h { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--t-faint); margin-bottom: 8px; }
+#imLogWin .im-terms-col .im-pills { float: none; width: auto; margin: 0; }
+/* Phrase buttons as plain words (user, 2026-11-02): no chip, lit on hover */
+#imLogWin .im-pills.im-words { gap: 0; row-gap: 4px; align-items: baseline; }
+#imLogWin .im-pills.im-words .im-pill { border: none; background: none; padding: 2px 0; border-radius: 0; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }   /* caps; the titles' old grey, swapped (user, 2026-11-02) */
+#imLogWin .im-pills.im-words .im-pill:hover:where(:not(:disabled)) { color: #ffffff; background: none; }
+#imLogWin .im-word-sep { font-family: "DM Mono", monospace; font-size: 10px; color: color-mix(in srgb, var(--t-faint) 60%, transparent); margin: 0 8px; }   /* a dash between the words (user, 2026-11-02; was a comma) */
+/* Titles on every Log window page in the spread-out DM Mono (user, 2026-11-02; Bebas tried and dropped) */
+#imLogWin .im-main-box .im-sub-t, #imLogWin .im-main-log ~ .im-main-box .im-sub-t, #imLogWin #imMailBox .field-label { font-family: "DM Mono", monospace; font-size: 11.5px; letter-spacing: 2.5px; text-transform: uppercase; color: #7c7c7c; }   /* the words' old grey, swapped (user, 2026-11-02) */
+#imLogWin #imMailBox .field-label .im-mail-opt { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--t-faint); }
+#imLogWin #imTermsCol { align-self: stretch; display: flex; }
+#imLogWin #imTermsCol > .im-terms-col { flex: 1; }
+/* The line between boxes and Terms runs the whole window, top to bottom (user, 2026-11-02): drawn on the
+   window itself (scrolls with it), 250px from the right = 24 padding + 210 column + half the 32 gap */
+.st-win.im-log-win.im-log-wide { background-image: linear-gradient(to right, transparent calc(100% - 250px), color-mix(in srgb, #ffffff 11%, transparent) calc(100% - 250px), color-mix(in srgb, #ffffff 11%, transparent) calc(100% - 249px), rgba(0,0,0,.22) calc(100% - 249px)); background-attachment: local; }   /* the Terms side a bit darker (user, 2026-11-02) */
+/* Shortcuts at the top of its column (user, 2026-11-02): pinned to the card's top right; the grid keeps its 210px slot */
+.st-win.im-log-wide .im-do-card { position: relative; }
+.st-win.im-log-wide #imTermsCol { position: absolute; top: -128px; bottom: -24px; right: 0; width: 210px; display: flex; flex-direction: column; justify-content: center; }   /* Shortcuts centred in the column, top to bottom of the window (user, 2026-11-02) */
+.st-win.im-log-wide .im-do-card .im-log-foot-all { margin-right: 242px; }   /* + Log and Next in the left column too */
+.st-win.im-log-wide > .settings-title { margin-right: 242px; }   /* the ✕ in the left column, next to the line (user, 2026-11-02) */
+#imLogWin .st-win.im-log-wide #imTermsCol > .im-terms-col { flex: none; }
+/* No show under the hint, above LOG LESSON, dim grey (user, 2026-11-02; was blue, bottom left) */
+#imLogWin .im-ns-slot { margin: -36px 0 26px; }
+#imLogWin .im-ns-slot > #btnNoShow:not([hidden]) { display: inline-flex; color: #6e6e6e; border-color: color-mix(in srgb, #ffffff 15%, transparent); background: none; }
+#imLogWin .im-ns-slot > #btnNoShow:not(:disabled):hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 40%, transparent); }
+#imLogWin .im-ns-slot > #btnNoShow:disabled { opacity: .45; }
+.st-win.im-log-wide .im-do-card .im-pg-nav { position: absolute; top: 14px; right: 242px; margin: 0; }   /* Next top right, level with No show (user, 2026-11-02) */
+#imLogWin .st-win.im-log-wide #imPgNext { color: #6e6e6e; border-color: color-mix(in srgb, #ffffff 15%, transparent); background: none; }   /* rarely used: No show's dim (user, 2026-11-02) */
+#imLogWin .st-win.im-log-wide #imPgNext:not(:disabled):hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 40%, transparent); }
+/* Shortcuts groups open and close on their name (user, 2026-11-02) */
+#imLogWin .im-terms-h { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; padding: 4px 0; cursor: pointer; text-align: left; }
+#imLogWin .im-terms-h:hover { color: #ffffff; }
+#imLogWin .im-terms-car { font-size: 9px; transition: transform .15s; }
+#imLogWin .im-terms-grp.open .im-terms-car { transform: rotate(180deg); }
+#imLogWin .im-terms-grp:not(.open) > .im-terms { display: none; }
+#imLogWin .im-terms-grp + .im-terms-grp { margin-top: 6px; }
+#imLogWin .im-terms-grp.open > .im-terms { margin: 4px 0 8px; }
+#imLogWin .im-case-hint { font-size: 12px; }   /* the hint at the other notes' 12px (user, 2026-11-02; was 11) */
+#imLogWin .im-done-msg { color: color-mix(in srgb, var(--green) 55%, var(--muted)); opacity: .75; }   /* Done ✓ fainter (user, 2026-11-02) */
+#imLogWin .im-pick.done { color: color-mix(in srgb, var(--green) 60%, var(--muted)); }   /* picked circles a dimmer green (user, 2026-11-02) */
+/* Email page in the recap email's own setup and wording, dark (user, 2026-11-02) */
+#imLogWin .im-mail-dark { margin-top: 20px; font: 13px/1.5 Arial, Helvetica, sans-serif; color: var(--t-normal); }
+#imLogWin .im-mail-dark p { margin: 0 0 14px; }
+#imLogWin .im-mail-dark strong { color: #d8d8d8; }
+#imLogWin .im-mail-dark hr { border: none !important; border-top: 1px solid color-mix(in srgb, #ffffff 10%, transparent) !important; margin: 22px 0 !important; }
+#imLogWin .im-mail-dark .im-ml-h { margin: 18px 0 4px; font-size: 11px; font-weight: 700; letter-spacing: .3px; color: #bdbdbd; }
+#imLogWin .im-mail-dark [style*="background"] { background: color-mix(in srgb, #ffffff 3%, transparent) !important; border-color: color-mix(in srgb, #ffffff 9%, transparent) !important; }
+#imLogWin .im-mail-dark [style*="color:#555"], #imLogWin .im-mail-dark [style*="color:#666"] { color: var(--t-faint) !important; }
+#imLogWin .im-mail-dark a { color: #7aa3dd !important; }
+#imLogWin .im-mail-dark textarea.im-ml-box { display: block; width: 100%; box-sizing: border-box; margin: 0 0 14px; padding: 10px 14px; border: 1px solid color-mix(in srgb, #ffffff 9%, transparent); border-radius: 6px; background: color-mix(in srgb, #ffffff 3%, transparent); color: var(--t-normal); font: 12px/1.55 Arial, Helvetica, sans-serif; resize: none; overflow: hidden; }
+#imLogWin .im-mail-dark textarea.im-ml-box:focus { outline: none; border-color: color-mix(in srgb, #ffffff 28%, transparent); }
+#imLogWin .im-mail-dark img[alt="Red Pick Music"] { opacity: .85; }
+#imLogWin #imMailPrev { display: none; }   /* the page is the preview now */

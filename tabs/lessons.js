@@ -631,14 +631,28 @@ function _logHwRestore(hw, ex) {
   hw.zoom = /Zoom/.test(m);   // recorded on Zoom, their side (2026-10-26)
   hw.phone = /Phone/.test(m) || hw.zoom;
   hw.rec = hw.zoom ? "zoom" : hw.phone ? "phone" : "no";
-  if (/^(None|No HW|Phone|Zoom)$/.test(m)) { hw.choice = "none"; hw.pick = "none"; return; }
+  if (/^(None|No HW|Phone|Zoom)$/.test(m)) { hw.choice = "none"; hw.pick = "none"; hw.linksQ = "no"; return; }
   hw.pick = "send";
   hw.links = ((ex && ex.links) || []).slice();
   hw.filesOn = /Files|Sent/.test(m) && hw.files.length > 0;
   hw.videoOnly = /Video/.test(m) && !hw.links.some(function(l) { return l.kind === "Video"; });
+  // The Log window's Links and Files pages (2026-11-02) open answered, as saved.
+  hw.linksQ = hw.links.length || hw.videoOnly ? "yes" : "no";
+  hw.linksDone = true;
+  if (hw.filesOn) hw.matDone = true; else hw.pick = "none";
   _logHwRecalc(hw);
 }
 function _logHwRecalc(hw) {
+  // The Log lesson window (2026-11-02): links and files are separate pages. Sent when
+  // any link, or files with Send; None once Nothing to send has no links with it.
+  if (hw && window._imDocked) {
+    hw.filesOn = hw.pick !== "none" && hw.files.length > 0;
+    var fl = hw.filesOn || (hw.pick !== "none" && (hw.found || []).length > 0), ln = hw.links.length || hw.videoOnly;
+    if (fl && !hw.pick) hw.pick = "send";
+    if (ln && !hw.linksQ) hw.linksQ = "yes";
+    hw.choice = (fl && hw.pick === "send") || ln ? "sent" : hw.pick === "none" ? "none" : null;
+    return;
+  }
   if (!hw || hw.choice === "none") return;
   // The Log lesson window has no Send (2026-10-15): files in the zone count.
   if (window._imDocked) hw.filesOn = hw.files.length > 0;

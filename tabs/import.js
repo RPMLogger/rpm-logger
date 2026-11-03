@@ -283,7 +283,7 @@ function _imLogWinOpen(student, idx, day, item, next) {
   var name = student.name;
   day = day || _tdYmd();
   // No date in the title (user, 2026-10-30; was the date when not today's, 2026-10-08).
-  var part = 'Log Lesson and HW';
+  var part = 'Log Lesson & Homework';
   if (student.trialEmail) part = 'Trial · ' + _ckDay(day);   // from the Trial card (2026-10-23)
   var w = _stWin('imLogWin', inqEsc(name), part, LOG_ICON, '<div class="im-do-card im-win-card">' + _imDoHtml(name, day) + '</div>');
   w.querySelector('.st-win').classList.add('im-log-win');
@@ -315,6 +315,7 @@ function _imLogWinOpen(student, idx, day, item, next) {
   }
   _imTeachWire();
   _imPillsWire();
+  _imTermsWire();
   _imMailWire(student, name, day);
   if (item && item.log) _imLogLock(item.logText || '');
   if (typeof ltStart === 'function') ltStart(name, day, student.trialEmail);   // silent log timer (tabs/logtimer.js)
@@ -345,24 +346,66 @@ var IM_PILLS = {
   hw:    ['Go over', 'Practice', 'Play', 'Review', 'Speed up', 'Try to', 'Look at'],   // Try to: user, 2026-10-31 · Look at: user, 2026-11-02
   notes: ['Make sure']
 };
-// Terms (user, 2026-11-02): a second line of chips under Log lesson and HW. They
-// don't start a row and aren't capitalised: typed in where the cursor is.
-var IM_TERMS = ['ii–V–i', 'ii–V–I', 'maj', 'min', '7th', 'sus4', 'sus2', 'aug', 'dim', 'thirds'];
+// Terms (user, 2026-11-02): one Terms column right of the Log page's boxes (was a
+// line of chips under each). They don't start a row and aren't capitalised: typed
+// in where the cursor is, in whichever box was typed in last. Add more to a group here.
+var IM_TERMS = [
+  ['Progressions', ['ii–V–i', 'ii–V–I', 'I–vi', 'I–IV–V', 'i–iv–v', 'i–iv–V', 'i–vi–ii–V7', 'I–V7', 'i–V7']],
+  ['Keys',         ['C', 'G', 'D', 'A', 'E', 'B', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F'].map(function (k) { return 'key of ' + k; })],   // round the circle of fifths (user, 2026-11-02)
+  ['Chords',       ['maj', 'min', '7th', 'sus4', 'sus2', 'aug', 'dim']],
+  ['Sevenths',     ['maj7', '7', 'min7', 'min(maj7)', 'maj7#5', 'maj7b5', '7#5', '7b5', 'm7b5', 'dim7']],   // user, 2026-11-02
+  ['Extensions',   ['m9', 'maj9', '9', '7b9', '7#9', '9b13', '13', '7sus4', 'm11']],   // user, 2026-11-02
+  ['Intervals',    ['seconds', 'thirds', 'fourths', 'fifths', 'sixths', 'sevenths']],   // seconds to sevenths (user, 2026-11-02)
+  ['Modes',        ['Ionian', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian', 'Locrian']],   // user, 2026-11-02
+  ['Strings',      ['1st string', '2nd string', '3rd string', '4th string', '5th string', '6th string']],   // user, 2026-11-02
+  ['Fingers',      ['1st finger', '2nd finger', '3rd finger', '4th finger']],   // user, 2026-11-02
+  ['Techniques',   ['hammer-on', 'pull-off', 'strumming']]
+];
+var _imTermRow = null;   // the last row typed in on the Log page
+document.addEventListener('focusin', function (e) {
+  if (e.target.classList && e.target.classList.contains('ll-row') && e.target.closest('#imLogWin')) _imTermRow = e.target;
+});
+// Each group opens and closes on its name (user, 2026-11-02: the list got long); which
+// are open is kept in this browser (imTermsOpen), all closed at first.
+function _imTermsOpen() { try { return JSON.parse(localStorage.getItem('imTermsOpen') || '{}'); } catch (e) { return {}; } }
+function _imTermsColHtml() {
+  var open = _imTermsOpen();
+  return '<div class="im-terms-col"><div class="db-cx-head im-sub-head"><label class="field-label db-cx-t im-sub-t">Shortcuts</label></div>' +
+    IM_TERMS.map(function (g) {
+      var on = !!open[g[0]];
+      return '<div class="im-terms-grp' + (on ? ' open' : '') + '"><button type="button" class="im-terms-h" data-grp="' + g[0] + '">' + g[0] + '<span class="im-terms-car">▾</span></button><div class="im-pills im-terms">' +
+        g[1].map(function (t) { return '<button type="button" class="im-pill im-term">' + t + '</button>'; }).join('') + '</div></div>';
+    }).join('') + '</div>';
+}
+function _imTermsWire() {
+  var col = _imQ('imTermsCol');
+  if (!col) return;
+  col.innerHTML = _imTermsColHtml();
+  col.onmousedown = function (e) { e.preventDefault(); };   // the row keeps its cursor
+  col.onclick = function (e) {
+    var h = e.target.closest && e.target.closest('.im-terms-h');
+    if (h) {
+      var grp = h.parentNode, open = _imTermsOpen();
+      grp.classList.toggle('open');
+      open[h.dataset.grp] = grp.classList.contains('open');
+      try { localStorage.setItem('imTermsOpen', JSON.stringify(open)); } catch (x) {}
+      return;
+    }
+    if (!e.target.classList.contains('im-term')) return;
+    var row = _imTermRow && document.contains(_imTermRow) ? _imTermRow : null;
+    _imTermPut(row ? row.closest('.ll-rows') : _logBox(), e.target.textContent);
+  };
+}
 function _imPillsWire() {
   // None under Notes to teacher (user, 2026-10-26).
   [[_logBox(), IM_PILLS.log], [_hwRowsBox(), IM_PILLS.hw], [_imStuBox(), IM_PILLS.notes]].forEach(function (x) {
     var box = x[0], wrap = box && box.closest('.ll-wrap');
     if (!wrap || (wrap.nextElementSibling && wrap.nextElementSibling.classList.contains('im-pills'))) return;   // the Log and HW rows stay between windows
     var d = document.createElement('div');
-    d.className = 'im-pills';
-    var terms = x[1] === IM_PILLS.notes ? [] : IM_TERMS;
-    d.innerHTML = x[1].map(function (t) { return '<button type="button" class="im-pill">' + t + '</button>'; }).join('') +
-      (terms.length ? '<span style="flex-basis:100%;height:0"></span>' + terms.map(function (t) { return '<button type="button" class="im-pill im-term">' + t + '</button>'; }).join('') : '');
+    d.className = 'im-pills im-words';   // plain words with dashes between, lit on hover (user, 2026-11-02; were chips)
+    d.innerHTML = x[1].map(function (t) { return '<button type="button" class="im-pill">' + t + '</button>'; }).join('<span class="im-word-sep">–</span>');
     d.onmousedown = function (e) { e.preventDefault(); };   // the row keeps its cursor
-    d.onclick = function (e) {
-      if (!e.target.classList.contains('im-pill')) return;
-      if (e.target.classList.contains('im-term')) _imTermPut(box, e.target.textContent); else _imPillPut(box, e.target.textContent);
-    };
+    d.onclick = function (e) { if (e.target.classList.contains('im-pill')) _imPillPut(box, e.target.textContent); };
     wrap.after(d);
   });
 }
@@ -665,7 +708,7 @@ function _imMailWire(student, name, day) {
   _imQ('imMailRedo').onclick = function () { _imMailFill(w, true); };
   // An edit hides an open preview: it no longer shows what would go.
   ['imMailLesson', 'imMailHw', 'imMailNotes'].forEach(function (id) {
-    _imQ(id).oninput = function () { _imQ('imMailFrame').hidden = true; _imStepsRender(); };
+    _imQ(id).oninput = function () { _imQ('imMailFrame').hidden = true; _imMlGrow(this); _imStepsRender(); };
   });
   // Their email (the Counter, or the trial row) and whether it already went.
   fetch(getScriptUrl() + '?action=getLessonMsgInfo&name=' + encodeURIComponent(name) + '&lessonDate=' + day + (w.trial ? '&trial=' + encodeURIComponent(w.trial) : ''))
@@ -721,6 +764,7 @@ function _imLogMail(fromLog) {
 }
 // The email page's boxes from the log (on first reaching the page, and Start over).
 function _imMailFill(w, force) {
+  if (w && w.mailFilled && !force) { _imMailDarkLoad(w, _imLogMail(true)); return; }   // materials changed on a page before: read again
   if (!w || (w.mailFilled && !force)) return;
   var m = _imLogMail(true);
   if (!m) return;
@@ -730,7 +774,43 @@ function _imMailFill(w, force) {
   w.mailFilled = true;
   _imQ('imMailFrame').hidden = true;
   _imQ('imMailStatus').innerHTML = '';
+  ['imMailLesson', 'imMailHw', 'imMailNotes'].forEach(function (id) { _imMlGrow(_imQ(id)); });
+  _imMailDarkLoad(w, m);
   _imStepsRender();
+}
+function _imMlGrow(t) { if (t) { t.style.height = 'auto'; t.style.height = (t.scrollHeight + 2) + 'px'; } }
+// The rest of the email (greeting, materials, next lesson, signature) from previewLessonMessage,
+// split round the three parts typed here. Placeholders stand in for them in the read.
+function _imMailDarkLoad(w, m) {
+  if (!m) return;
+  var p = _imMailParams(m);
+  p.lesson = 'x'; p.hw = 'x'; p.notes = '';
+  var key = JSON.stringify(p);
+  if (w.mailDarkKey === key) return;   // same materials: nothing to read
+  w.mailDarkKey = key;
+  var top = _imQ('imMailTop'), mat = _imQ('imMailMat'), end = _imQ('imMailEnd');
+  if (mat) mat.innerHTML = '<div class="im-none rpm-loading is-inline">Loading</div>';
+  fetch(getScriptUrl() + '?action=previewLessonMessage' + _imMsgQuery(p))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (window._imWin !== w || !d.success) throw new Error();
+      var img = function (h) {
+        return h.replace(/cid:logo/g, 'img/email-logo.png').replace(/cid:dbx/g, 'img/email-dropbox.png').replace(/cid:lnk/g, 'img/email-link.png').replace(/cid:vid/g, 'img/email-video.png');
+      };
+      var box = document.createElement('div');
+      box.innerHTML = img(String(d.html || ''));
+      var root = box.firstElementChild && box.firstElementChild.children.length ? box.firstElementChild : box;
+      var kids = [].slice.call(root.children), hrs = [], matAt = -1;
+      kids.forEach(function (el, i) {
+        if (el.tagName === 'HR') hrs.push(i);
+        if (/^\s*MATERIALS\s*$/.test(el.textContent) && el.tagName === 'P') matAt = i;
+      });
+      var html = function (a, b) { return kids.slice(a, b).filter(function (el) { return el.tagName === 'HR' || !/^\s*$/.test(el.textContent) || el.querySelector('img'); }).map(function (el) { return el.outerHTML; }).join(''); };
+      if (top) top.innerHTML = html(0, hrs[0]);
+      if (mat) mat.innerHTML = matAt >= 0 ? html(matAt, hrs[hrs.length - 1]) : '';
+      if (end) end.innerHTML = html(hrs[hrs.length - 1], kids.length);
+    })
+    .catch(function () { w.mailDarkKey = null; if (mat && window._imWin === w) mat.innerHTML = ''; });
 }
 // What previewLessonMessage / sendLessonMessage take.
 function _imMailParams(m) {
@@ -906,49 +986,48 @@ function _imStepsRender() {
   // The card's order (2026-10-15): Lesson log, HW log (the HW rows, required),
   // Materials sent (was "HW"), Schedule checked; green, green, blue, red.
   var hwText = !!(hw && hw.textSaved);
-  // Materials (2026-10-18): files / links / phone wait for Finish; Nothing to send is
-  // its own answer; one already in the sheet counts.
-  // Both picks required (2026-10-25): A. recorded or not, B. send or nothing.
-  var matIn = !!(hw && hw.choice && (hw.choice === 'none' || hw.saved || hw.matDone));
-  var matOk = !!(hw && _imRecDone(hw) && matIn);
+  // Materials, three pages since 2026-11-02 (user): 2 Recorded? · 5 Include links? (Finish) ·
+  // 6 Sending files? (Finish). Each is its own answer; one already in the sheet counts.
+  var linksYes = !!(hw && (hw.linksQ === 'yes' || hw.links.length || hw.videoOnly));
+  var recDone = !!(hw && _imRecDone(hw));
+  var linksDone = !!(hw && ((hw.linksQ === 'no' && !linksYes) || (linksYes && hw.linksDone)));
+  var filesDone = !!(hw && (hw.pick === 'none' || (hw.pick === 'send' && hw.matDone)));
+  var matIn = !!(hw && hw.choice && linksDone && filesDone);
+  var matOk = recDone && matIn;
+  // Files page: the box (drop zone, Gather, Browse, Finish) opens on Send.
+  var open = !!(hw && hw.pick === 'send');
   var fb = _imQ('imMatFinishBtn');
   if (fb) {
-    fb.disabled = !(hw && hw.choice === 'sent' && !hw.loading && !hw.uploading && !hw.gathering && !matIn);
-    fb.textContent = matIn && hw.choice === 'sent' ? 'Finished ✓' : 'Finish';
+    fb.disabled = !(hw && open && hw.choice === 'sent' && (hw.files.length || (hw.found || []).length) && !hw.loading && !hw.uploading && !hw.gathering && !hw.matDone);
+    fb.textContent = hw && hw.matDone ? 'Finished ✓' : 'Finish';
   }
-  // The materials box (A. Files, B. Video lesson link, C. Web link, Finish) opens on Send (user, 2026-10-30;
-  // was once 1. is answered too). 1. is still needed for the step to be done (matOk).
-  var open = !!(hw && hw.pick === 'send');
-  Array.prototype.forEach.call(c.root.querySelectorAll('.im-mat-sec'), function (el) {
-    // D. and E.'s boxes only once their Yes is picked (or a link of that kind is in).
-    var kind = el.querySelector('#imMatVideo') ? 'Video' : el.querySelector('#imMatLink') ? 'Link' : el.querySelector('#imHwDock') ? 'Files' : null;
-    // Files open with Send; the two link boxes with Add links? Yes (user, 2026-11-02).
-    var on = !kind || kind === 'Files' || _imLinkOn(hw, kind);
-    el.style.display = open && on ? '' : 'none';
-    if (el.previousElementSibling) el.previousElementSibling.style.display = open && on ? '' : 'none';
-  });
-  var linksYes = !!(hw && (hw.linksQ === 'yes' || hw.links.length || hw.videoOnly));
+  var mb = _imQ('imMatBox');
+  if (mb) mb.style.display = open ? '' : 'none';
+  // Links page: Yes opens the two lines and their Finish.
+  var lbx = _imQ('imLinksBox'), lfb = _imQ('imLinksFinishBtn');
+  if (lbx) lbx.style.display = linksYes ? '' : 'none';
+  if (lfb) {
+    lfb.disabled = !(hw && linksYes && !hw.locked && !hw.linksDone);   // a link still typed in its line counts: Finish adds it
+    lfb.textContent = hw && hw.linksDone ? 'Finished ✓' : 'Finish';
+  }
   [['imLinksYes', linksYes], ['imLinksNo', hw && hw.linksQ === 'no' && !linksYes]].forEach(function (x) {
     var b = _imQ(x[0]);
     if (!b) return;
     b.classList.toggle('done', !!x[1]);
     b.disabled = !hw || !!(hw.locked || hw.loading || hw.saving);
   });
-  if (fb && fb.parentNode) fb.parentNode.style.display = open ? '' : 'none';
   var gl = _imQ('imGatherList'), gb = _imQ('logHwGatherBtn');
   if (gl) gl.innerHTML = _imGatherHtml(hw);
   if (gb) gb.disabled = !hw || !!(hw.locked || hw.loading || hw.uploading || hw.noDbx || hw.gathering);
-  var mb = _imQ('imMatBox'), mn = _imQ('imMatNone');
-  if (mb) mb.style.display = open ? '' : 'none';
-  if (mn) mn.classList.toggle('im-dim', !!(hw && _imRecDone(hw) && hw.pick));   // both answered: the questions box dims
   // 3. Schedule's picks; Reschedule shows with Needed.
   var sRaw = _imSchedGet(name, c.day), sNeed = !!(window._imWin && window._imWin.schedNeed) || sRaw === 'changed';
   var sy = _imQ('imSchedYes'), sn = _imQ('imSchedNo'), srs = _imQ('imSchedRs');
   if (sy) sy.classList.toggle('done', sNeed);
   if (sn) sn.classList.toggle('done', sRaw === 'nochange');
   if (srs) srs.style.display = sNeed ? '' : 'none';
+  // Recorded: Yes opens Phone / Zoom on the line under it (user, 2026-11-02).
   var recYes = !!(hw && (hw.rec === 'yes' || hw.rec === 'phone' || hw.rec === 'zoom')), rw = _imQ('imRecHow');
-  if (rw) rw.style.display = recYes ? '' : 'none';   // Phone / Zoom only after Yes (user, 2026-11-02)
+  if (rw) rw.style.display = recYes ? '' : 'none';
   [['imRecYes', recYes], ['imRecPhone', hw && hw.rec === 'phone'], ['imRecZoom', hw && hw.rec === 'zoom'], ['imRecNo', hw && hw.rec === 'no'], ['imMatSend', hw && hw.pick === 'send'], ['imMatNo', hw && hw.pick === 'none']].forEach(function (x) {
     var b = _imQ(x[0]);
     if (!b) return;
@@ -980,10 +1059,11 @@ function _imStepsRender() {
   dim('im-hw-dock-box', matOk);
   dim('im-sched-box', !!sched);
   // A finished section (2026-10-18): ✓ after its red title, its whole box dims.
-  var secs = c.root.querySelectorAll('.im-main-box'), secDone = [logged && (!hw || hwText), matOk, !!sched, !!(window._imWin && window._imWin.mailSent)];
-  Array.prototype.forEach.call(secs, function (box, i) {
-    box.classList.toggle('im-sec-done', !!secDone[i]);
-    if (box.previousElementSibling) box.previousElementSibling.classList.toggle('im-sec-done', !!secDone[i]);
+  var pgDone = { 1: logged && (!hw || hwText), 2: recDone, 5: linksDone, 6: filesDone, 3: !!sched, 4: !!(window._imWin && window._imWin.mailSent) };
+  Array.prototype.forEach.call(c.root.querySelectorAll('.im-main-box'), function (box) {
+    var pg = box.closest('.im-page'), d = !!(pg && pgDone[pg.getAttribute('data-pg')]);
+    box.classList.toggle('im-sec-done', d);
+    if (box.previousElementSibling) box.previousElementSibling.classList.toggle('im-sec-done', d);
   });
   var w = window._imWin;
   var all = logged && !!sched && (!hw || (hwText && matOk && !hw.loading && !hw.uploading));
@@ -1000,7 +1080,7 @@ function _imStepsRender() {
   // 4. Email (2026-10-25): Send opens once the rest is saved; Send then does Done.
   var mailLeft = !!(w && w.mail && !w.mailSent);
   _imMailRender(w, finished);
-  _imPagesRender(w, { 1: logged && (!hw || hwText), 2: matOk, 3: !!sched, 4: !!(w && w.mailSent) }, !!hw);
+  _imPagesRender(w, pgDone, !!hw);
   // Finished by something pressed here (not just reopened): Done, then back (2026-10-07).
   if (finished && !mailLeft && window._imActed === name) { window._imActed = null; _imDone(name); }
 }
@@ -1011,8 +1091,9 @@ function _imStepsRender() {
 // email to send, no 4). Next waits till the page is done, saves it (_imSend,
 // as closing does) and turns to the next; Back and the numbers on top go back.
 function _imPageList(w, hasHw) {
-  return [1, 2, 3, 4].filter(function (p) {
-    return (p !== 2 || hasHw) && (p !== 3 || !w.trial) && (p !== 4 || w.mail);
+  // Materials is three pages (2, 5, 6) since 2026-11-02; the ids stay numbers, the order is this list's.
+  return [1, 2, 5, 6, 3, 4].filter(function (p) {
+    return ([2, 5, 6].indexOf(p) < 0 || hasHw) && (p !== 3 || !w.trial) && (p !== 4 || w.mail);
   });
 }
 function _imPagesRender(w, done, hasHw) {
@@ -1024,30 +1105,21 @@ function _imPagesRender(w, done, hasHw) {
   if (!w.page || list.indexOf(w.page) < 0) {
     w.page = list.filter(function (p) { return !done[p]; })[0] || list[list.length - 1];
   }
-  // A page turns to the next by itself once it's done (user, 2026-10-30): only when it
-  // was open and not done, so going Back to a finished page stays put; Next is for that.
-  w.pgOpen = w.pgOpen || {};
-  var nx = list[list.indexOf(w.page) + 1];
-  if (!done[w.page]) w.pgOpen[w.page] = true;
-  else if (w.pgOpen[w.page] && nx) {
-    w.pgOpen[w.page] = false;
-    var from = w.page;
-    var turn = function () {
-      if (window._imWin !== w || w.page !== from) return;
-      if (w.sending) return setTimeout(turn, 300);   // waits out a save
-      _imPageTo(nx);
-    };
-    setTimeout(turn, 350);   // a beat to see the tick
-  }
+  // No turning by itself (user, 2026-11-02; it did since 2026-10-30): a done page waits for Next.
   var at = list.indexOf(w.page);
   // The page's name in the window title, red (user, 2026-10-30): no heading on the page.
   var sub = c.root.querySelector('.settings-title .win-sub');
-  if (sub) sub.textContent = ' · ' + ({ 1: 'Log Lesson and HW', 2: 'Practice Materials', 3: 'Change Appointment', 4: 'Email the Student' })[w.page];
+  if (sub) sub.textContent = ' · ' + ({ 1: 'Log Lesson & Homework', 2: 'Recorded on Their Side', 5: 'Links', 6: 'Practice Materials', 3: 'Change Appointment', 4: 'Email the Student' })[w.page];
   Array.prototype.forEach.call(c.root.querySelectorAll('.im-page'), function (el) {
     el.style.display = +el.getAttribute('data-pg') === w.page ? '' : 'none';
   });
-  if (w.page === 4) _imMailFill(w);
-  if (typeof ltPage === 'function') ltPage(w.page);
+  if (w.page === 4) {
+    _imMailFill(w);
+    ['imMailLesson', 'imMailHw', 'imMailNotes'].forEach(function (id) { _imMlGrow(_imQ(id)); });   // sized once the page shows (hidden it measures wrong)
+  }
+  var sw = c.root.querySelector('.st-win');
+  if (sw) sw.classList.toggle('im-log-wide', w.page === 1);   // the Log page has the Terms column (2026-11-02)
+  if (typeof ltPage === 'function') ltPage(w.page === 5 || w.page === 6 ? 2 : w.page);   // the timer keeps Materials as one
   // No step buttons on top (user, 2026-10-30): the section titles are numbered already; Back goes back.
   var back = _imQ('imPgBack'), next = _imQ('imPgNext'), busy = !!(w.sending || w.mailBusy);
   if (back) { back.style.visibility = at > 0 ? '' : 'hidden'; back.disabled = busy; }
@@ -1294,17 +1366,16 @@ function _imGatherHtml(hw) {
   // The Dropbox tab's file list (user, 2026-10-25): folders in caps, files under them.
   return '<div class="im-gather">' + head + '<div class="db-files db-files-in im-gather-files">' + _dbDetailsFilesHtml({ items: hw.found }) + '</div></div>';
 }
-// B. Practice materials (2026-10-25): Send or Nothing to send; again undoes it.
-// Nothing to send clears any links (files stay in Dropbox, just not sent);
-// Send waits for C–E and Finish. Adding a file or link picks Send by itself.
+// Sending files? (2026-10-25; files only since 2026-11-02, links have their own page):
+// Send or Nothing to send; again undoes it. Nothing to send drops the files from
+// this lesson (they stay in Dropbox), links stay. Send waits for Finish.
 function _imMatPick(v) {
   var hw = logHw;
   if (!hw || hw.loading || hw.uploading || hw.saving || hw.locked) return;
   hw.pick = hw.pick === v ? null : v;
   hw.matDone = false;
-  if (hw.pick === 'none') { hw.choice = 'none'; hw.links = []; hw.videoOnly = false; hw.filesOn = false; hw.found = null; hw.linkYes = {}; _imHwLinkClear(); }
-  else hw.choice = null;
-  if (hw.pick !== 'send') hw.linksQ = null;
+  if (hw.pick === 'none') { hw.filesOn = false; hw.found = null; }
+  hw.choice = null;
   _imHwChanged();
 }
 function _imNothingToSend() { _imMatPick('none'); }   // the old button's onclick (index.html)
@@ -1335,12 +1406,13 @@ function _imHwRec(v) {
 // that list, × takes it off. Any number, with files too.
 function _imHwLinkAdd(kind) {
   var hw = logHw, inp = document.getElementById(kind === 'Video' ? 'logHwVideoInput' : 'logHwLinkInput');
-  if (!hw || !inp || hw.choice === 'none' || hw.locked) return;
+  if (!hw || !inp || hw.locked) return;
   var url = inp.value.trim();
   if (!url) return;
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
   hw.links.push({ kind: kind === 'Video' ? 'Video' : 'Link', url: url });
   if (kind === 'Video') hw.videoOnly = false;
+  hw.linksDone = false;
   inp.value = '';
   _imHwChanged();
 }
@@ -1378,8 +1450,22 @@ function _imLinksQ(v) {
   hw.linkYes = hw.linkYes || {};
   hw.linkYes.Video = hw.linkYes.Link = hw.linksQ === 'yes';
   if (hw.linksQ !== 'yes') { hw.links = []; hw.videoOnly = false; _imHwLinkClear(); }
+  hw.linksDone = false;
+  hw.choice = null;
   _imHwChanged();
   if (hw.linksQ === 'yes') { var el = document.getElementById('logHwVideoInput'); if (el) el.focus(); }
+}
+// Links Finish: anything still typed in a line goes in first, then the page is done.
+function _imLinksFinish() {
+  var hw = logHw;
+  if (!hw || hw.locked) return;
+  ['Video', 'Link'].forEach(function (k) {
+    var inp = document.getElementById(k === 'Video' ? 'logHwVideoInput' : 'logHwLinkInput');
+    if (inp && inp.value.trim()) _imHwLinkAdd(k);
+  });
+  if (!hw.links.length && !hw.videoOnly) return;
+  hw.linksDone = true;
+  _imHwChanged();
 }
 function _imHwLinkClear() {
   ['logHwVideoInput', 'logHwLinkInput'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
@@ -1388,6 +1474,7 @@ function _imHwLinkDel(i) {
   var hw = logHw;
   if (!hw || hw.locked) return;
   hw.links.splice(i, 1);
+  hw.linksDone = false;
   _imHwChanged();
 }
 // Ticks only (2026-10-09): it saves with Log and Schedule (_imSend).
@@ -1438,8 +1525,10 @@ function _imHwOut() {
     var foot = sec.querySelector(':scope > .im-log-foot');
     if (!foot) { foot = document.createElement('div'); foot.className = 'im-log-foot im-log-foot-all'; sec.appendChild(foot); }
     if (acts.parentNode !== foot) foot.appendChild(acts);
-    if (ns && foot.firstChild !== ns) foot.insertBefore(ns, foot.firstChild);
   }
+  // No show under the hint, above LOG LESSON, dim (user, 2026-11-02; was bottom left, on Log's line).
+  var nsSlot = _imQ('imNsSlot');
+  if (ns && nsSlot && ns.parentNode !== nsSlot) nsSlot.appendChild(ns);
 }
 function _imHwBack() {
   var hw = document.getElementById('logHw'), panel = document.getElementById('logPanel'), acts = document.getElementById('logActions');
@@ -1642,7 +1731,8 @@ function _imDoHtml(name, day) {
     // The typing reminder on its own line under it (user, 2026-10-26), in the (optional) grey.
     '<div class="im-page" data-pg="1">' +
     _imMainHead('1. Log the lesson and HW', '', '<span class="im-mail-opt im-case-hint">One item per row, capital first letter, no end punctuation</span>', 'im-main-log') +   // all red (2026-10-18)
-    '<div class="im-main-box">' +
+    '<div class="im-ns-slot" id="imNsSlot"></div>' +   // No show under the hint, above LOG LESSON (user, 2026-11-02)
+    '<div class="im-main-box"><div class="im-log-cols"><div class="im-log-left">' +   // the boxes left, Terms right (user, 2026-11-02)
       _imSub('Log lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
       _imSub('Log homework', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
       // Private (2026-10-25): saved after "TEACHER:" in the log's cell, never emailed.
@@ -1655,41 +1745,49 @@ function _imDoHtml(name, day) {
         '<div class="ll-wrap"><div class="ll-rows" id="imStuRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
         '<button type="button" class="link-btn tl-mic" id="imStuMic" data-tip="Starts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
         '<button type="button" class="ll-add" id="imStuAdd" data-tip="Instant.&#10;Adds a row. Enter does too.&#10;Each row is a sentence in the email.">' + llAddInner() + '</button>') +
+    '</div><div id="imTermsCol"></div></div>' +
     '</div>' +
     '</div><div class="im-page" data-pg="2">' +
-    _imMainHead('2. Practice materials', '', '', 'im-main-mat') +   // all red (2026-10-18)
-    // Two boxes (user, 2026-10-25): the two required questions, numbered, dim once
-    // both are answered; then the materials (lettered, optional) in their own box,
-    // only with 2. Send.
-    '<div class="im-main-box im-mat-split">' +
-      // 1. did they record it on their phone, 2. am I sending anything. Any mix goes
-      // (recorded + nothing to send too). Each answer has the check circle.
-      '<div id="imMatNone" class="im-mat-none im-mat-qbox">' +
-        '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">1.</label><span class="im-mat-q">Recorded on their side?</span>' +   // Phone / Zoom / No (user, 2026-10-26; was Yes / No)
-          _imPickBtn('imRecYes', "_imHwRec('yes')", 'Yes', 'They recorded the lesson.&#10;Then pick Phone or Zoom.') +
-          _imPickBtn('imRecNo', "_imHwRec('no')", 'No', 'Nothing filmed.') +
-          '<span id="imRecHow" class="im-rec-how" style="display:none">' +
-          _imPickBtn('imRecPhone', "_imHwRec('phone')", 'Phone', 'They filmed the lesson on their phone.&#10;The email says so.') +
-          _imPickBtn('imRecZoom', "_imHwRec('zoom')", 'Zoom', 'They recorded the lesson on Zoom, their side.&#10;The email says so.') + '</span></div>' +
-        '<div class="im-mat-row"><label class="field-label db-cx-t im-sub-t">2.</label><span class="im-mat-q">Sending anything?</span>' +
-          _imPickBtn('imMatSend', "_imMatPick('send')", 'Send', 'Files, a video lesson link or a web link:&#10;A, B and C below. Finish when they are all in.') +
-          _imPickBtn('imMatNo', "_imMatPick('none')", 'Nothing to send', 'No materials this lesson.') + '</div>' +
+    // Materials as three pages (user, 2026-11-02): Recorded, Links, Files, one question each.
+    _imMainHead('Recorded on their side', '', '', 'im-main-mat') +
+    '<div class="im-main-box im-mat-split"><div id="imMatNone" class="im-mat-none im-mat-qbox">' +
+      '<div class="im-mat-row"><span class="im-mat-q">Recorded on their side?</span>' +
+        _imPickBtn('imRecYes', "_imHwRec('yes')", 'Yes', 'They recorded the lesson:&#10;Phone or Zoom opens under it.') +
+        _imPickBtn('imRecNo', "_imHwRec('no')", 'No', 'Nothing filmed.') + '</div>' +
+      // Yes opens Phone / Zoom on the line under it (user, 2026-11-02), like Include links.
+      '<div class="im-mat-row" id="imRecHow" style="display:none"><span class="im-mat-q">How?</span>' +
+        // Two buttons, not circles (user, 2026-11-02: circles under circles looked the same).
+        '<button type="button" class="link-btn im-rec-btn" id="imRecPhone" onclick="_imHwRec(\'phone\')" data-tip="Instant.&#10;They filmed the lesson on their phone.&#10;The email says so." data-tip-left>Phone</button>' +
+        '<button type="button" class="link-btn im-rec-btn" id="imRecZoom" onclick="_imHwRec(\'zoom\')" data-tip="Instant.&#10;They recorded the lesson on Zoom, their side.&#10;The email says so." data-tip-left>Zoom</button>' + '</div>' +
+    '</div></div>' +
+    '</div><div class="im-page" data-pg="5">' +
+    _imMainHead('Links', '', '', 'im-main-mat') +
+    '<div class="im-main-box im-mat-split"><div class="im-mat-qbox">' +
+      '<div class="im-mat-row"><span class="im-mat-q">Include links?</span>' +
+        _imPickBtn('imLinksYes', "_imLinksQ('yes')", 'Yes', 'A video lesson link or a web link.&#10;Opens the lines for them.') +
+        _imPickBtn('imLinksNo', "_imLinksQ('no')", 'No', 'No links this lesson.') + '</div>' +
+      '</div>' +
+      '<div class="im-mat-box" id="imLinksBox">' +
+        _imSub('Video lesson link', '', ' im-mat-sec', '<div id="imMatVideo"></div>') +
+        _imSub('Web link', '', ' im-mat-sec', '<div id="imMatLink"></div>') +
+        '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn" id="imLinksFinishBtn" onclick="_imLinksFinish()" disabled data-tip="All links are in." data-tip-left>Finish</button></div>' +
+      '</div>' +
+    '</div>' +
+    '</div><div class="im-page" data-pg="6">' +
+    _imMainHead('Practice materials', '', '', 'im-main-mat') +
+    '<div class="im-main-box im-mat-split"><div class="im-mat-qbox">' +
+      '<div class="im-mat-row"><span class="im-mat-q">Sending files?</span>' +
+        _imPickBtn('imMatSend', "_imMatPick('send')", 'Yes', 'Files to their Dropbox:&#10;drop them in, then Finish.') +   // Yes / No (user, 2026-11-02; was Send / Nothing to send)
+        _imPickBtn('imMatNo', "_imMatPick('none')", 'No', 'No files this lesson.') + '</div>' +
       '</div>' +
       '<div class="im-mat-box" id="imMatBox">' +
       // The Log window's HW part (#logHw) is split over these (_imHwOut).
       '<div class="im-hw-dock-box">' +
       // Gather (2026-10-25): files put in their Dropbox by hand (Finder) show under the zone, ticked.
-      // A. opens with its circle too (user, 2026-10-25); its tools show with it.
-      _imSub('A. Files', '<span id="imMatFilesTools"><button type="button" class="link-btn lh-gather-btn" id="logHwGatherBtn" onclick="_imGather()" data-tip="Instant.&#10;Lists what you put in their Dropbox since the lesson day,&#10;e.g. with Finder, that\'s on no HW yet.&#10;Finish moves it all into this lesson\'s HW folder." data-tip-left data-tip-wrap>' + TRAY_IN_ICON + '<span>Gather</span></button></span>', ' im-mat-sec', '<div id="imHwDock"></div><div id="imGatherList"></div>') +
-      // Add links? Yes / No (user, 2026-11-02): Yes opens B and C.
-      '<div class="db-cx-head im-sub-head im-links-q"><label class="field-label db-cx-t im-sub-t">Add links?</label><span>' +
-        _imPickBtn('imLinksYes', "_imLinksQ('yes')", 'Yes', 'A video lesson link or a web link.&#10;Opens the boxes for them.') +
-        _imPickBtn('imLinksNo', "_imLinksQ('no')", 'No', 'No links this lesson.') + '</span></div>' +
-      _imSub('B. Video lesson link', '', ' im-mat-sec', '<div id="imMatVideo"></div>') +
-      _imSub('C. Web link', '', ' im-mat-sec', '<div id="imMatLink"></div>') +
+      _imSub('Files', '<span id="imMatFilesTools"><button type="button" class="link-btn lh-gather-btn" id="logHwGatherBtn" onclick="_imGather()" data-tip="Instant.&#10;Lists what you put in their Dropbox since the lesson day,&#10;e.g. with Finder, that\'s on no HW yet.&#10;Finish moves it all into this lesson\'s HW folder." data-tip-left data-tip-wrap>' + TRAY_IN_ICON + '<span>Gather</span></button></span>', ' im-mat-sec', '<div id="imHwDock"></div><div id="imGatherList"></div>') +
     '</div>' +
-    // Finish (2026-10-18): Materials waits for it, like Log for section 1.
-    '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn" id="imMatFinishBtn" onclick="_imMatFinish()" disabled data-tip="All files and links are in.&#10;Till then Materials stays open." data-tip-left>Finish</button></div>' +
+    // Finish (2026-10-18): the files wait for it.
+    '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn" id="imMatFinishBtn" onclick="_imMatFinish()" disabled data-tip="All files are in." data-tip-left>Finish</button></div>' +
       '</div>' +
     '</div>' +
     '</div><div class="im-page" data-pg="3">' +
@@ -1714,9 +1812,16 @@ function _imDoHtml(name, day) {
     '<div class="im-main-box im-mail-box" id="imMailBox">' +
       '<div class="im-mail-to"><div class="td-mini-row"><span class="td-mini-t">To:</span><span class="td-wk-name" id="imMailToShow">…</span></div>' +
         '<div class="td-mini-row"><span class="td-mini-t">Sbj:</span><span class="td-wk-name" id="imMailSbj"></span></div></div>' +
-      '<div style="margin:18px 0 14px"><label class="field-label" for="imMailLesson">Lesson notes</label><textarea id="imMailLesson" rows="4" class="rpm-field"></textarea></div>' +
-      '<div style="margin-bottom:14px"><label class="field-label" for="imMailHw">Things to practice</label><textarea id="imMailHw" rows="3" class="rpm-field"></textarea></div>' +
-      '<div style="margin-bottom:6px"><label class="field-label" for="imMailNotes">Notes <span class="im-mail-opt">(optional)</span></label><textarea id="imMailNotes" rows="2" class="rpm-field"></textarea></div>' +
+      // The email's own setup and wording, dark (user, 2026-11-02): the greeting, materials and
+      // sign-off come from previewLessonMessage; the three parts are typed in right where they go.
+      '<div class="im-mail-dark" id="imMailDark">' +
+        '<div id="imMailTop"><p>Hi …</p></div><hr>' +
+        '<p class="im-ml-h"><label for="imMailLesson">LESSON NOTES</label></p><textarea id="imMailLesson" rows="2" class="im-ml-box"></textarea>' +
+        '<p class="im-ml-h"><label for="imMailHw">THINGS TO PRACTICE</label></p><textarea id="imMailHw" rows="2" class="im-ml-box"></textarea>' +
+        '<div id="imMailMat"></div>' +
+        '<p class="im-ml-h"><label for="imMailNotes">NOTES</label> <span class="im-mail-opt">(optional, left out when empty)</span></p><textarea id="imMailNotes" rows="1" class="im-ml-box"></textarea>' +
+        '<div id="imMailEnd"></div>' +
+      '</div>' +
       '<div class="im-log-foot im-log-foot-all im-mail-foot"><span class="ll-state" id="imMailStatus"></span>' +
         '<button type="button" class="link-btn" id="imMailRedo" data-tip="Instant.&#10;Throws away your edits:&#10;the email is written from the log again." data-tip-left>Start over</button>' +
         '<button type="button" class="link-btn" id="imMailPrev" data-tip="Shows the email here, as it will go.&#10;Press again to hide it." data-tip-left>' + DETAILS_ICON + '<span>Preview</span></button>' +
