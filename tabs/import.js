@@ -96,7 +96,6 @@ function _imRenderCards(noRead) {
     var top = firstBox; firstBox = false;
     return '<div class="db-section td-wk-box im-box' + (anim ? ' im-stagger' : '') + '">' +
       '<div class="settings-title td-wk-title im-title-row"' + inStyle() + '><span class="im-title-stack"><span>' + h + '</span>' + (top ? '<span class="st-page-icon">' + ANALYSIS_ICON + '</span>' : '') + '</span>' +
-        (top ? '<img class="im-hero" src="img/acoustic-stand.svg" alt="">' : '') +   // acoustic guitar, case + music stand in the top box (user, 2026-11-01; was the colour amp on the Students box)
         (top ? '<button class="link-btn im-audit-link" onclick="switchTab(\'audit\')" data-tip="Opens a tab.\nAudit lessons and Audit payments." data-tip-wrap><span>Audit</span></button>' : '') + '</div>' +   // white, no glass: just a link (user, 2026-10-30)
       in_g.map(card).join('') +
     '</div>';
