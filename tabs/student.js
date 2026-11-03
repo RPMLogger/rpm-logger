@@ -705,7 +705,8 @@ function _stRenderCalendar() {
   section.appendChild(hint);
 }
 
-var ST_TODAY_MARK = "<span style='font-size:14px;line-height:9px'>⟶</span>";   // under today's date, the long arrow (user, 2026-10-29)
+// Under today's date, a long arrow with a head you can see (user, 2026-11-02; was the ⟶ glyph, its head too small)
+var ST_TODAY_MARK = "<svg width='18' height='9' viewBox='0 0 18 9' fill='none' stroke='currentColor' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' style='display:block;margin:1px auto 0'><path d='M1 4.5H16.5M12.5 1L16.5 4.5L12.5 8'/></svg>";
 
 // opts (optional, Import's Reschedule window): passed on to the lesson chooser.
 function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
@@ -722,11 +723,11 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
     // On the 1st of a month, show the month abbreviation instead of the
     // weekday so the start of each month is visible at a glance.
     var isFirst = d.getDate() === 1;
-    var topLabel = isFirst
-      ? ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()]
+    var topLabel = isFirst   // the month in a tiny border (user, 2026-11-02; a faint circle tried)
+      ? "<span style='display:inline-block;padding:1px 4px;margin-top:-3px;font-size:10.5px;border:1px solid rgba(215,215,215,0.45);border-radius:3px'>" + ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()] + "</span>"
       : dayName.toUpperCase();
     var topStyle = 'font-size:9px;line-height:1;letter-spacing:0.5px'
-      + (isFirst ? ';color:var(--blue)' : '');   // blue, not the lessons' red; not bold (user, 2026-10-29; was amber)
+      + (isFirst ? ';font-weight:500;color:rgba(215,215,215,0.8)' : '');   // grey but bold (user, 2026-11-02; was blue, before that amber). DM Mono stops at 500, so a step lighter too
 
     var cell = document.createElement('button');
     cell.style.cssText = 'flex:1;padding:6px 4px;border-radius:4px;font-family:inherit;border:1px solid transparent;';
@@ -740,9 +741,10 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
         'border:1px solid rgba(232,70,58,0.5);cursor:pointer';
       cell.innerHTML =
         "<div style='" + topStyle + "'>" + topLabel + "</div>" +
-        "<div style='font-size:15px;font-weight:700;line-height:1.3" + (isFirst ? ";color:var(--blue)" : '') + "'>" + d.getDate() + "</div>" +   // the 1st's number blue on a lesson too (user, 2026-10-29)
+        "<div style='font-size:15px;font-weight:700;line-height:1.3'>" + d.getDate() + "</div>" +
         "<div style='font-size:9px;line-height:1.2;color:var(--accent);opacity:0.85'>" + lesson.time + "</div>";
-      (function(l, c) {
+      if (opts && opts.view) cell.style.cursor = 'default';   // the Calendar tab's student view: look only (2026-11-02)
+      else (function(l, c) {
         // The 8-week view picks on the calendar itself (user, 2026-10-26): no Lesson window.
         cell.onclick = opts && opts.pick ? function() { _stPickLesson(c, studentName, l, opts); }
           : function() { _stOpenLessonActions(studentName, l, opts); };
@@ -753,7 +755,7 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
         'background:rgba(232,70,58,0.18);color:var(--accent);border:1px solid rgba(232,70,58,0.5);opacity:.35;cursor:default';
       cell.innerHTML =
         "<div style='" + topStyle + "'>" + topLabel + "</div>" +
-        "<div style='font-size:15px;font-weight:700;line-height:1.3" + (isFirst ? ";color:var(--blue)" : '') + "'>" + d.getDate() + "</div>" +   // the 1st's number blue on a lesson too (user, 2026-10-29)
+        "<div style='font-size:15px;font-weight:700;line-height:1.3'>" + d.getDate() + "</div>" +
         "<div style='font-size:9px;line-height:1.2;color:var(--accent);opacity:0.85'>" + lesson.time + "</div>";
     } else {
       var isToday = ymd === _stYmd(today);   // a step brighter than the other days (user, 2026-10-29)
@@ -761,7 +763,7 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
         'background:transparent;color:' + (isPast ? 'rgba(180,180,180,0.2)' : isToday ? 'rgba(215,215,215,0.75)' : 'rgba(180,180,180,0.4)') + ';cursor:default';
       cell.innerHTML =
         "<div style='" + topStyle + "'>" + topLabel + "</div>" +
-        "<div style='font-size:13px;line-height:1.3" + (isFirst ? ";color:var(--blue)" : '') + "'>" + d.getDate() + "</div>" +   // the 1st's number blue too
+        "<div style='font-size:" + (isFirst ? "15px;font-weight:500;color:rgba(215,215,215,0.8)" : isToday ? '15px' : '13px') + ";line-height:1.3'>" + d.getDate() + "</div>" +   // the 1st's number too; today's bigger as well (user, 2026-11-02)
         "<div style='font-size:9px;line-height:1.2'>" + (isToday ? ST_TODAY_MARK : '&nbsp;') + "</div>";   // → under today: the future starts here (user, 2026-10-29)
       if (isToday) cell.dataset.today = '1';
       // With a lesson picked, any later day is where it moves to (user, 2026-10-26).

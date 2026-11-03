@@ -61,6 +61,7 @@ body { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/
 body #importBody .im-card, body #tab-payments .incoming-card, body #importBody .td-student .db-panel.im-list { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* a bit of the cards' paper grain on the big boxes, logo box included (user, 2026-10-30; was on the page background) */
 body .header::before, body .td-wk-box, body #importBody .td-student,
+body #tab-calendar .cal-wrap, body #tab-calendar .cal-bar,   /* the Calendar's cab and bar too (user, 2026-11-02) */
 body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* No darker sides outside the page column any more (user, 2026-10-26; were
    shaded from 2026-10-24): the grid runs edge to edge. */
@@ -1803,7 +1804,7 @@ a:focus-visible,
 .dtp-box { display: flex; }
 .dtp-cell {
   display: flex; align-items: stretch; height: 40px; box-sizing: border-box;
-  border: 2px solid var(--border); border-radius: var(--radius-card); overflow: hidden;
+  border: 1px solid var(--border); border-radius: 6px; overflow: hidden;   /* the Schedule window switch's border (user, 2026-11-02; was 2px, 10px) */
   background: var(--surface); padding: 0;
 }
 .dtp-lab {
