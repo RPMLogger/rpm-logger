@@ -4141,9 +4141,6 @@ body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border
 .cm-srow.cm-wait .cm-name { color: var(--t-bright); }
 .cm-srow.cm-blank .cm-prev { color: var(--muted); font-style: italic; }
 
-.hdr-zoom { position:absolute; left:20px; top:-36px; display:flex; gap:6px; z-index:2; }   /* zoom test buttons, top left of the amp (user, 2026-11-01) */
-.hdr-zoom button { font-family:'DM Mono', monospace; font-size:10px; letter-spacing:1px; color:var(--t-faint); background:none; border:1px solid #353535; border-radius:6px; padding:3px 7px; cursor:pointer; }
-.hdr-zoom button:hover, .hdr-zoom button.on { color:var(--text); border-color:#555; }
 /* Students column like the Messages app (user, 2026-11-01): conversations newest first. */
 .cm-new { position: relative; font-family: "DM Mono", monospace; letter-spacing: 0; }
 .cm-new .link-btn { display: inline-flex; align-items: center; gap: 6px; }
