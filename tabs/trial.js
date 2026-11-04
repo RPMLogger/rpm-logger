@@ -1095,7 +1095,7 @@ function _trBookAccepted(name, email) {
   var def = _trDtDefault();
   document.getElementById('tbModal').innerHTML =
     '<div class="settings-title"><span>' + inqEsc(name || '') +
-      '<span style="color:var(--muted);font-weight:400"> · Book a trial</span></span>' +
+      '<span class="win-sub"> · Book a trial</span></span>' +
       '<button class="settings-close" onclick="_trBookWinClose()">✕</button></div>' +
     '<input type="hidden" id="tbFirst" value="' + _trEsc(first) + '">' +
     '<input type="hidden" id="tbLast" value="' + _trEsc(last) + '">' +
@@ -1644,7 +1644,7 @@ function _tlTitle() {
   var step = _trSteps(a).filter(function (x) { return x.key === _tl.step; })[0] ||
              (_tl.step === 'status' ? { label: 'Status' } : null);
   return '<div class="settings-title"><span>' + inqEsc(a.name || '') +
-      (step ? '<span style="color:var(--muted);font-weight:400"> · ' + step.label + '</span>' : '') +
+      (step ? '<span class="win-sub"> · ' + step.label + '</span>' : '') +
       '</span><button class="settings-close" onclick="_tlClose()">✕</button></div>';
 }
 
@@ -2592,7 +2592,7 @@ function _tsShowBook() {
   }
   document.getElementById('tsModal').innerHTML =
     '<div class="settings-title"><span>Book a trial' +
-      '<span style="color:var(--muted);font-weight:400"> · Manually</span></span>' +
+      '<span class="win-sub"> · Manually</span></span>' +
       '<button class="settings-close" onclick="_tsClose()">✕</button></div>' +
     _tlCalIcon() +
     '<div style="display:flex;gap:12px">' + inp('tsFirst', 'First') + inp('tsLast', 'Last') + '</div>' +
@@ -2772,7 +2772,7 @@ function _trThreadWin(id) {
   }
   document.getElementById('thModal').innerHTML =
     '<div class="settings-title"><span>' + inqEsc(a.name || email) +
-      '<span style="color:var(--muted);font-weight:400"> · Thread</span></span>' +
+      '<span class="win-sub"> · Thread</span></span>' +
       '<button class="settings-close" onclick="_trThreadWinClose()">✕</button></div>' +
     '<div style="margin:4px 0 18px">' + THREAD_WIN_ICON + '</div>' +
     _trBounceRow(t) +
@@ -2882,7 +2882,7 @@ function _msOpen(email) {
     _msOverlay();
     document.getElementById('msModal').innerHTML =
       '<div class="settings-title"><span>' + inqEsc(a.name || '') +
-        '<span style="color:var(--muted);font-weight:400"> · Not ready yet</span></span>' +
+        '<span class="win-sub"> · Not ready yet</span></span>' +
         '<button class="settings-close" onclick="_msClose()">✕</button></div>' +
       (rows ? '<div class="pt-sum" style="margin:0 0 10px"><span class="pt-freq">Missing steps</span></div>' +
               '<div class="tr-col" style="margin-bottom:16px">' + rows + '</div>' : '') +
@@ -2982,7 +2982,7 @@ function _msRenderForm() {
     // Same title as every window (NAME · what it does), and the ready
     // counterpart of MISSING STEPS in the summary caps, grey (2026-09-26).
     '<div class="settings-title"><span>' + inqEsc(_ms.name) +
-      '<span style="color:var(--muted);font-weight:400"> · Confirm student</span></span>' +
+      '<span class="win-sub"> · Confirm student</span></span>' +
       '<button class="settings-close" id="msX" onclick="_msClose()">✕</button></div>' +
     '<div class="pt-sum" style="margin:0 0 12px">All steps done</div>' +
     '<div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 0;margin-bottom:16px">' +
@@ -3118,7 +3118,7 @@ function _msMake() {
       if (!warns) { _msClose(); return; }
       // Half-success: done, but some steps need a look. Say which.
       document.getElementById('msModal').innerHTML =
-        '<div class="settings-title"><span>' + inqEsc(_ms.name) + '<span style="color:var(--muted);font-weight:400"> · Confirm student</span></span>' +
+        '<div class="settings-title"><span>' + inqEsc(_ms.name) + '<span class="win-sub"> · Confirm student</span></span>' +
           '<button class="settings-close" onclick="_msClose()">✕</button></div>' +
         '<div id="msHalf"></div>' +
         '<div style="margin-top:12px">' + _msSteps(d.steps) + '</div>';

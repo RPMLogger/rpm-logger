@@ -2263,7 +2263,7 @@ a:focus-visible,
    field-labels over dark boxes, dim .link-btn actions bottom right. */
 .win-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
   padding: 28px; margin-bottom: 18px; box-sizing: border-box; }
-.settings-title .win-sub { color: var(--muted); font-weight: 400; }   /* in a window or not */
+.settings-title .win-sub { color: var(--muted); font-weight: 400; font-size: 15px; }   /* in a window or not; 15px like This Week's dates, portal-wide (user, 2026-11-04) */
 .win-icon-row { margin: 4px 0 18px; }   /* the Text window's own icon spacing */
 .win-gap { margin-top: 22px; }   /* panels and pop-up windows alike */
 /* A read-only line in the field's own box, optionally with a button or a
@@ -4285,6 +4285,7 @@ a.cm-file:hover { background: rgba(255,255,255,0.14); }
 #todayBody .td-mini-b { background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
 #todayBody .td-day-cal { box-shadow: 0 3px 10px rgba(0,0,0,0.25); }   /* the date page, lifted like the name tags (user, 2026-11-04) */
 #todayBody .td-hero { filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6)); }   /* the amp too, a shadow under its shape (user, 2026-11-04) */
+#todayBody .td-wk-icon .win-icon { height: 42px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6)); }   /* This Week's calendar as tall as Today's date page (user, 2026-11-04; was 20px); the amp's shadow */
 .link-btn.td-mini-tag { pointer-events: none; cursor: default; }   /* Today's names: tags, nothing to press (user, 2026-11-01) */
 #todayBody .td-wk-box { box-shadow: none; }   /* Today page: shadows on buttons only (user, 2026-11-02) */
 #todayBody .td-today-box ~ .td-wk-box { margin-top: 16px; }   /* This Week closer under Today (user, 2026-11-02; was 34px) */

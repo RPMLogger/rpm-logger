@@ -235,7 +235,7 @@ function _dbOpenFix() {
                           'align-items:center;justify-content:center;padding:18px;overflow:auto';
   overlay.innerHTML =
     '<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:460px;width:100%;padding:28px;box-sizing:border-box;max-height:92vh;overflow:auto">' +
-      '<div class="settings-title"><span>Fix<span style="color:var(--muted);font-weight:400"> · ' + title + '</span></span>' +
+      '<div class="settings-title"><span>Fix<span class="win-sub"> · ' + title + '</span></span>' +
         '<button class="settings-close" onclick="_dbCloseFix()">✕</button></div>' +
       '<div class="win-icon-row">' + FIX_WIN_ICON + '</div>' +
       html +

@@ -234,7 +234,7 @@ function _auPayDetails(i) {
     ov.id = "auPayOverlay"; ov.className = "settings-overlay";
     ov.onclick = function(e) { if (e.target === ov) ov.style.display = "none"; };
     ov.innerHTML = '<div class="settings-modal fx-modal au-pay-modal" onclick="event.stopPropagation()">' +
-      '<div class="settings-title"><span><span id="auPayTitle"></span><span style="color:var(--muted);font-weight:400"> · Details</span></span>' +
+      '<div class="settings-title"><span><span id="auPayTitle"></span><span class="win-sub"> · Details</span></span>' +
       '<button class="settings-close" onclick="document.getElementById(\'auPayOverlay\').style.display=\'none\'">✕</button></div>' +
       '<div id="auPayBody"></div></div>';
     document.body.appendChild(ov);
