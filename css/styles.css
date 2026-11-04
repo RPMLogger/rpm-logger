@@ -4090,6 +4090,7 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 #importBody .im-split > .im-sec-box > .im-sec-head { margin: 0 0 14px; }
 #importBody .im-split > .im-sec-box > .im-sec-head:last-child { margin-bottom: 0; }
 #importBody .im-split > .im-sec-box > .im-list { margin: 0 16px; }
+#importBody .im-split > .im-sec-box:has(.im-sort-btn) { background: #151515; border-color: #2c2c2c; }   /* History box = the knob strip's flat look, no grain (user, 2026-11-04) */
 #importBody .im-split > .im-sec-box > .im-list { margin: 0; padding: 0; border: none; background: none; }   /* no inner frame: the box is the frame (user, 2026-10-31) */
 body #importBody .im-split > .im-sec-box > .db-panel.im-list { background-color: transparent; background-image: none; border-color: transparent; }
 #importBody .im-split > .im-sec-box > .im-list { padding-left: 16px; }   /* texts a bit in from the heading (user, 2026-10-31) */
