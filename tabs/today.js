@@ -107,7 +107,7 @@ function _tdClose() {
 var _tdAll = null;   // { lessons: key → [..] | 'fail', hw: key → row, hwIn }
 
 function _tdAllOpen() {
-  var w = _stWin('tdAllWin', 'Today', 'Last lesson and HW', null, '<div id="tdAllBody"><div class="empty-state rpm-loading">Loading</div></div>');
+  var w = _stWin('tdAllWin', 'Today', 'Last lesson & HW', null, '<div id="tdAllBody"><div class="empty-state rpm-loading">Loading</div></div>');
   w.querySelector('.st-win').classList.add('td-all-win');
   // The magnifier on the window too (user, 2026-11-01): the header's is under the window's dark.
   w.querySelector('.settings-close').insertAdjacentHTML('beforebegin', '<button class="win-mag' + (_magOn ? ' on' : '') + '" data-mag onclick="magToggle()" aria-label="Magnifier" data-tip="Instant.\nMagnifier: rest the pointer on longer text\nfor half a second to see it bigger." data-tip-left><span class="hdr-mag-i"></span></button>');

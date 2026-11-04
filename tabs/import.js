@@ -136,7 +136,7 @@ function _imHwTodayLoad() {
 // their last lesson and HW (the Today tab's All look, _tdAllOneHtml); closing it shows the page.
 function _imOpenFirst(name) {
   _imOpenStudent(name);
-  var w = _stWin('imLastWin', inqEsc(name), 'Last lesson and HW', null, '<div id="imLastBody"></div>');
+  var w = _stWin('imLastWin', inqEsc(name), 'Last lesson & HW', null, '<div id="imLastBody"></div>');
   w.querySelector('.st-win').classList.add('td-all-win');
   var st = { ls: undefined, hw: null, hwIn: false };
   var draw = function () {

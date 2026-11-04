@@ -578,7 +578,7 @@ function _travelRenderReview() {
   // A red title like the plan screen's sections, the phone (om-99) under it (user, 2026-10-20).
   hdr.innerHTML =
     "<div class='tv-cal' style='background:none;border:0;padding:0;margin:0;flex:1'>" +
-      "<div class='db-cx-head im-sec-head im-main-head tv-sec-head'><label class='field-label db-cx-t im-main-t'>Dates and texts</label></div>" +
+      "<div class='db-cx-head im-sec-head im-main-head tv-sec-head'><label class='field-label db-cx-t im-main-t'>Dates & texts</label></div>" +
       "<div class='tv-sec-icon tv-icon-top'>" + PHONE_ICON.replace('class="win-icon"', 'class="win-icon" style="height:42px;width:auto"') + "</div>" +
       // Steps left, the date cells' key right, like Set buffer's (user, 2026-10-20; the cells had labels on top).
       "<div class='tv-buf-top tv-rv-top'>" +   // key under the steps (user, 2026-10-21; was on the right)

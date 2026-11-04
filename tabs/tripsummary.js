@@ -118,7 +118,7 @@ function _tsActiveCard(trip) {
   steps.innerHTML =
     // Two steps, the first with dashed sub-lines (user, 2026-10-20).
     "<span><i>1.</i>Check confirmations</span>" +
-    "<span class='ts-sub'><i>-</i>Auto, manual and awaiting</span>" +
+    "<span class='ts-sub'><i>-</i>Auto, manual & awaiting</span>" +
     "<span class='ts-sub'><i>-</i>Needs reply: answer in the Text back box</span>" +
     "<span class='ts-sub'><i>-</i>No answer yet: Nudge to text them again</span>" +
     "<span><i>2.</i>When all are confirmed, archive the trip</span>";
