@@ -310,7 +310,8 @@ function _calRenderShell(mon) {
   // The bar as a rack unit (user, 2026-11-03; the mock is _rack-samples.html "Base"): two real
   // controls, the week (‹ ›, the display = back to this week) and STUDENTS ▾; GOOGLE / ANALYZE
   // switches; the VU needle and the L / R bars show how full the week is (CAL_FULL lessons = full).
-  var html =
+  // Under the week grid (user, 2026-11-04; was above it).
+  var bar =
     "<div class='cal-bar cr'>" +
       "<span class='cr-bolt' style='left:8px;top:10px'></span><span class='cr-bolt' style='left:8px;bottom:10px'></span>" +
       "<span class='cr-bolt' style='right:8px;top:10px'></span><span class='cr-bolt' style='right:8px;bottom:10px'></span>" +
@@ -343,7 +344,8 @@ function _calRenderShell(mon) {
           "<span class='wk'><i></i>Weekly</span><span class='bi'><i></i>Biweekly</span><span class='tr'><i></i>Trial</span>" +
         "</span>" +
       "</div>" +
-    "</div>" +
+    "</div>";
+  var html =
     "<div class='cal-status' id='calStatus'></div>" +
     "<div class='cal-wrap'><div class='cal-inner'>" +
       // the days row: no screws (user, 2026-11-03)
@@ -367,7 +369,7 @@ function _calRenderShell(mon) {
   for (var l = CAL_DAY_START + 30; l < CAL_DAY_END; l += 30) {
     html += "<div class='cal-line" + (l % 60 === 0 ? '' : ' half') + "' style='top:" + ((l - CAL_DAY_START) / 60 * CAL_HOUR_PX) + "px'></div>";
   }
-  html += "</div></div></div>";   // no bottom panel, no right column (user, 2026-11-03)
+  html += "</div></div></div>" + bar;   // no bottom panel, no right column (user, 2026-11-03)
   body.innerHTML = html;
 }
 
@@ -635,7 +637,7 @@ function _calInjectStyle() {
     "#calBody,#calGoogle{width:min(1200px,calc(100vw - 40px));position:relative;left:50%;transform:translateX(-50%)}" +
     // ── The rack (user, 2026-11-03): the amp head's frame, handles, screws, two 64px rows ──
     // a rack unit, not an amp: one thin border; its edges line up with the cab's outer ring (user, 2026-11-03)
-    ".cal-bar.cr{position:relative;box-sizing:border-box;margin:-11px 0 12px;border:1px solid #2c2c2c;border-radius:6px;background-color:var(--box)}" +
+    ".cal-bar.cr{position:relative;box-sizing:border-box;margin:12px 0 0;border:1px solid #2c2c2c;border-radius:6px;background-color:var(--box)}" +
     ".cr-row{display:flex;align-items:center;gap:10px;height:64px;padding:0 40px}.cr-row+.cr-row{border-top:1px solid #2c2c2c}" +
     ".cr-sp{flex:1}.cr-pair{display:inline-flex;gap:10px}" +
     ".cr-bolt{position:absolute;width:15px;height:15px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#6a6a6a,#2b2b2b 55%,#111 80%);box-shadow:0 1px 2px #000,inset 0 0 0 1px #0a0a0a}" +
@@ -661,7 +663,7 @@ function _calInjectStyle() {
     ".cr-count{min-width:40px;height:26px;padding:0 10px;display:flex;align-items:center;justify-content:center;border-radius:2px;background:#1b1006;border:1px solid #000;box-shadow:inset 0 2px 5px rgba(0,0,0,.9);" +
       "font:500 10px 'DM Mono',monospace;letter-spacing:1.5px;color:oklch(.72 .14 70);text-shadow:0 0 5px oklch(.63 .19 60 / .4)}" +
     ".cr-dd{position:relative}.cr-ddlab{cursor:pointer;user-select:none}.cr-ddlab:hover,.cr-dd.open .cr-ddlab{color:var(--t-text)}" +
-    ".cr-ddpanel{display:none;position:absolute;top:calc(100% + 10px);left:-10px;z-index:20;width:210px;padding:6px;border-radius:8px;background:#121212;border:1px solid #333;box-shadow:0 8px 20px rgba(0,0,0,.6)}" +
+    ".cr-ddpanel{display:none;position:absolute;bottom:calc(100% + 10px);left:-10px;z-index:20;width:210px;padding:6px;border-radius:8px;background:#121212;border:1px solid #333;box-shadow:0 8px 20px rgba(0,0,0,.6)}" +
     ".cr-dd.open .cr-ddpanel{display:block}.cr-ddpanel .rpm-field{width:100%;font-size:12px;margin-bottom:4px}" +
     ".cr-ddpanel .cash-dd-list{position:static;display:block;max-height:280px;border:none;box-shadow:none;padding:0;background:transparent}" +
     ".cr-lr{height:26px;width:80px;padding:0 6px;display:grid;grid-template-columns:7px 1fr;align-content:center;gap:3px 4px;align-items:center;border-radius:3px;background:#0a0c0a;border:1px solid #222;box-shadow:inset 0 2px 6px rgba(0,0,0,.8)}" +
@@ -670,7 +672,7 @@ function _calInjectStyle() {
     ".cr-legend{display:flex;flex-direction:column;gap:3px}.cr-legend span{display:inline-flex;align-items:center;gap:5px;font:8px 'DM Mono',monospace;letter-spacing:1.2px;text-transform:uppercase;color:#6e6e6e}" +
     ".cr-legend i{width:6px;height:6px;border-radius:50%;opacity:.85}" +
     ".cr-legend .wk i{background:" + CAL_COLORS.weekly + ";box-shadow:0 0 4px " + CAL_COLORS.weekly + "}.cr-legend .bi i{background:" + CAL_COLORS.biweekly + ";box-shadow:0 0 4px " + CAL_COLORS.biweekly + "}.cr-legend .tr i{background:" + CAL_COLORS.trial + ";box-shadow:0 0 4px " + CAL_COLORS.trial + "}" +
-    ".cal-status{min-height:0;margin:-12px auto 10px;text-align:center;font-size:11px;color:var(--t-faint)}.cal-status:empty{display:none}" +
+    ".cal-status{min-height:0;margin:0 auto 10px;text-align:center;font-size:11px;color:var(--t-faint)}.cal-status:empty{display:none}" +
     ".cal-btn{padding:6px 10px;white-space:nowrap;font-size:12px;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:inherit}" +
     ".cal-btn:hover:where(:not(:disabled)){border-color:#555}" +
     ".cal-sv-acts{position:absolute;top:24px;right:0;display:flex;flex-direction:column;align-items:flex-end;gap:10px}" +
