@@ -61,7 +61,7 @@ body { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/
 body #importBody .im-card, body #tab-payments .incoming-card, body #importBody .td-student .db-panel.im-list { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* a bit of the cards' paper grain on the big boxes, logo box included (user, 2026-10-30; was on the page background) */
 body .header::before, body .td-wk-box, body #importBody .td-student,
-body #tab-calendar .cal-wrap, body #tab-calendar .cal-bar,   /* the Calendar's cab and bar too (user, 2026-11-02) */
+body #tab-calendar .cal-inner, body #tab-calendar .cal-bar,   /* the Calendar's cab and bar too (user, 2026-11-02) */
 body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* No darker sides outside the page column any more (user, 2026-10-26; were
    shaded from 2026-10-24): the grid runs edge to edge. */
@@ -92,7 +92,7 @@ body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-
 /* the user's om-123 gear (was the ⚙ character), masked like Home so it takes the colour (user, 2026-10-27) */
 .header .hdr-gear-i { display: block; width: 12px; height: 12px; margin: 2px; background: currentColor;   /* smaller than the ⚙ was, 16 → 12 (user, 2026-10-27) */   /* a span, not ::before: data-tip owns ::before */
   -webkit-mask: url('../img/gear-icon.svg') center / contain no-repeat; mask: url('../img/gear-icon.svg') center / contain no-repeat; }
-.hdr-build { font-family: "DM Mono", monospace; font-size: 12px;   /* 10 → 12 (user, 2026-11-02); 7 → 10, "Build" and the number alike (user, 2026-10-27) */ letter-spacing: .2px;   /* .8 → .2, tighter (user, 2026-10-27) */ color: var(--muted); white-space: nowrap; }
+.hdr-build { font-family: "DM Mono", monospace; font-size: 10px;   /* 12 → 10, smaller (user, 2026-11-04); 10 → 12 (user, 2026-11-02); 7 → 10, "Build" and the number alike (user, 2026-10-27) */ letter-spacing: .2px;   /* .8 → .2, tighter (user, 2026-10-27) */ color: var(--muted); white-space: nowrap; }
 /* Home on ☰'s line, opposite it (user, 2026-10-26): the user's om-122 house
    (was om-121, a disc), the gear's dim grey; to get back quickly. */
 .header .hdr-home { position: absolute; right: 24px; top: 50%; transform: translateY(calc(-50% - 2px)); width: 36px; height: 36px; padding: 0; cursor: pointer;

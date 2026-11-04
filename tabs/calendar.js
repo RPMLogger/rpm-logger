@@ -1,6 +1,6 @@
 // ─── TABS / CALENDAR.JS ─────────────────────────────────────────────────────
 // Own week grid over the three RPM calendars (Weekly / Biweekly / Trial).
-// Mon–Sun columns, 9:30 AM – 9:30 PM rows. Drag a lesson to a new day/hour,
+// Mon–Sun columns, 10:30 AM – 9:30 PM rows. Drag a lesson to a new day/hour,
 // or click it → Home's Reschedule / Skip popups from tabs/student.js
 // (2026-10-05: a drag used to move straight through moveCalendarEvent_ with
 // no log; now it goes through Reschedule, so Reschedule Logs records who
@@ -10,8 +10,8 @@
 // With no script URL (localhost preview) it shows sample lessons; drags there
 // don't save anywhere. The plain Google embed lives behind "Google view".
 
-var CAL_DAY_START = 9 * 60 + 30;   // 9:30 AM, minutes from midnight
-var CAL_DAY_END   = 21 * 60 + 30;  // 9:30 PM
+var CAL_DAY_START = 10 * 60 + 30;   // 10:30 AM: the header line is the 10:30 line, the hours run on the half hour like the lessons (user, 2026-11-04; was 10 / 9:30)
+var CAL_DAY_END   = 21 * 60 + 30;  // 9:30 PM: the bottom line is the 9:30 line, so an 8:30 lesson fits (user, 2026-11-04)
 var CAL_HOUR_PX   = 52;
 var CAL_SNAP      = 15;            // drag snaps to 15 minutes
 // Our own colours, matched to the red: oklch(0.63 0.19 <hue>), only the hue changes (user, 2026-11-02;
@@ -346,6 +346,7 @@ function _calRenderShell(mon) {
       "</div>" +
     "</div>";
   var html =
+    bar +   // the rack back above the week (user, 2026-11-04; was under it)
     "<div class='cal-status' id='calStatus'></div>" +
     "<div class='cal-wrap'><div class='cal-inner'>" +
       // the days row: no screws (user, 2026-11-03)
@@ -357,19 +358,19 @@ function _calRenderShell(mon) {
   }
   html += "</div><div class='cal-body' id='calGridBody' style='height:" + totalPx + "px'><div class='cal-gutter'>";
 
-  // Hour labels on the full hours (10 AM … 9 PM); grid starts at 9:30
+  // Hour labels on the half hours (10:30 AM … 9:30 PM), like the lessons; the grid starts at 10:30, on the header line
   for (var m = CAL_DAY_START; m <= CAL_DAY_END; m += 30) {
     var top = (m - CAL_DAY_START) / 60 * CAL_HOUR_PX;
-    if (m % 60 === 0) html += "<div class='cal-hr' style='top:" + top + "px'>" + _calHourLabel(m) + "</div>";
+    if (m % 60 === 30) html += "<div class='cal-hr' style='top:" + top + "px'>" + _calHourLabel(m) + "</div>";
   }
   html += "</div>";
   for (var c = 0; c < 7; c++) {
     html += "<div class='cal-col" + (_calYmd(_calAddDays(mon, c)) === today ? ' today' : '') + "' data-day='" + c + "'></div>";
   }
   for (var l = CAL_DAY_START + 30; l < CAL_DAY_END; l += 30) {
-    html += "<div class='cal-line" + (l % 60 === 0 ? '' : ' half') + "' style='top:" + ((l - CAL_DAY_START) / 60 * CAL_HOUR_PX) + "px'></div>";
+    html += "<div class='cal-line" + (l % 60 === 30 ? '' : ' half') + "' style='top:" + ((l - CAL_DAY_START) / 60 * CAL_HOUR_PX) + "px'></div>";
   }
-  html += "</div></div></div>" + bar;   // no bottom panel, no right column (user, 2026-11-03)
+  html += "</div></div></div>";   // no bottom panel, no right column (user, 2026-11-03)
   body.innerHTML = html;
 }
 
@@ -387,7 +388,7 @@ function _calRenderEvents() {
     if (!col) return;
     var s = Math.max(ev.startMin, CAL_DAY_START);
     var e = Math.min(ev.endMin, CAL_DAY_END);
-    if (e <= s) return; // entirely outside 9:30–9:30
+    if (e <= s) return; // entirely outside 10:30–9:30
 
     var color = CAL_COLORS[ev.calType] || '#777';
     var el = document.createElement('div');
@@ -402,7 +403,7 @@ function _calRenderEvents() {
       el.style.right = 'auto';
     }
     // Solid, not see-through, one even fill, no left bar (user, 2026-11-02): a dark mix of the colour.
-    el.style.background = 'color-mix(in oklab, ' + color + ' ' + (ev.past ? 12 : 24) + '%, #1a1a1a)';
+    el.style.backgroundColor = 'color-mix(in oklab, ' + color + ' 24%, #1a1a1a)';   // colour only: the shading comes from .cal-ev
     el.title = ev.title + ' · ' + _calFmt(ev.startMin) + (ev.past ? ' · past, locked' : ' · click: skip / reschedule · drag: move');
     el.innerHTML = "<div class='n'>" + _calEsc(ev.title) + "</div><div class='t'>" + _calFmt(ev.startMin) + "</div>";
     el._ev = ev;
@@ -488,8 +489,15 @@ function _calDragPaint(d) {
     if (i === rs.length - 1 && d.cx >= rs[i].right) dayIdx = i;
   }
   var dur   = d.ev.endMin - d.ev.startMin;
-  var delta = Math.round(((d.cy - d.y) / CAL_HOUR_PX * 60) / CAL_SNAP) * CAL_SNAP;
-  var start = Math.min(Math.max(d.ev.startMin + delta, CAL_DAY_START), CAL_DAY_END - dur);
+  var raw = d.ev.startMin + (d.cy - d.y) / CAL_HOUR_PX * 60, start;
+  if (d.ev.recurring) {
+    // Regular lessons land only on half past, an hour at a time; trials keep 15-minute steps (user, 2026-11-04)
+    start = Math.round((raw - 30) / 60) * 60 + 30;
+    start = Math.min(Math.max(start, Math.ceil((CAL_DAY_START - 30) / 60) * 60 + 30), Math.floor((CAL_DAY_END - dur - 30) / 60) * 60 + 30);
+  } else {
+    start = d.ev.startMin + Math.round((raw - d.ev.startMin) / CAL_SNAP) * CAL_SNAP;
+    start = Math.min(Math.max(start, CAL_DAY_START), CAL_DAY_END - dur);
+  }
   var dx = rs[dayIdx].left - rs[d.ev.dayIdx].left;
   var dy = ((start - CAL_DAY_START) / 60 * CAL_HOUR_PX) - d.top0;
   d.el.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
@@ -598,7 +606,7 @@ function _calFmt(min) {
   var h = Math.floor(min / 60), m = min % 60;
   return ((h % 12) || 12) + ':' + _calPad(m) + ' ' + (h < 12 ? 'AM' : 'PM');
 }
-function _calHourLabel(min) { var h = min / 60; return ((h % 12) || 12) + (h < 12 ? ' AM' : ' PM'); }
+function _calHourLabel(min) { var h = Math.floor(min / 60), m = min % 60; return ((h % 12) || 12) + (m ? ':' + (m < 10 ? '0' : '') + m : '') + (h < 12 ? ' AM' : ' PM'); }
 function _calEsc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -637,7 +645,7 @@ function _calInjectStyle() {
     "#calBody,#calGoogle{width:min(1200px,calc(100vw - 40px));position:relative;left:50%;transform:translateX(-50%)}" +
     // ── The rack (user, 2026-11-03): the amp head's frame, handles, screws, two 64px rows ──
     // a rack unit, not an amp: one thin border; its edges line up with the cab's outer ring (user, 2026-11-03)
-    ".cal-bar.cr{position:relative;box-sizing:border-box;margin:12px 0 0;border:1px solid #2c2c2c;border-radius:6px;background-color:var(--box)}" +
+    ".cal-bar.cr{position:relative;box-sizing:border-box;margin:0 0 12px;border:1px solid #2c2c2c;border-radius:6px;background-color:var(--box)}" +
     ".cr-row{display:flex;align-items:center;gap:10px;height:64px;padding:0 40px}.cr-row+.cr-row{border-top:1px solid #2c2c2c}" +
     ".cr-sp{flex:1}.cr-pair{display:inline-flex;gap:10px}" +
     ".cr-bolt{position:absolute;width:15px;height:15px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#6a6a6a,#2b2b2b 55%,#111 80%);box-shadow:0 1px 2px #000,inset 0 0 0 1px #0a0a0a}" +
@@ -690,33 +698,47 @@ function _calInjectStyle() {
     // A speaker cab under the amp head (user, 2026-11-02): the head's frame, a dark rounded inner line
     // inside a 4px body ring with its own rounded edge (styles.css .header::before).
     "#calBody.rpm-busy>.cal-wrap{opacity:0}#calBody.rpm-busy>.cal-bar{opacity:1}" +   // loading: the rack stays, the week fades out   // loading: just LOADING, no ghost of the week under it (user, 2026-11-02)
-    ".cal-wrap{border:1px solid #2c2c2c;border-radius:6px;margin:0;background:var(--box);overflow-x:auto}" +   // the rack's thin border, not the amp's double ring (user, 2026-11-03)
+    ".cal-wrap{margin:0;overflow-x:auto}.cal-inner{border:1px solid #2c2c2c;border-radius:6px;background-color:var(--box);position:relative}" +   // Google's lines (user, 2026-11-04): header + hour lines fade out on the right, day lines only a short tick in the header, nothing past the frame
+    ".cal-head{overflow:visible}.cal-head::after{content:'';position:absolute;left:60px;right:0;bottom:0;height:1px;background:linear-gradient(to right,#2c2c2c calc(100% - 80px),transparent);pointer-events:none}" +
+    ".cal-head::before{content:'';position:absolute;left:72px;height:22px;bottom:0;border-left:1px solid #2c2c2c;pointer-events:none;z-index:1}" +   // the hours' line: a short tick above the header line; the body's own line carries it down
+    "" +   // the rack's thin border, not the amp's double ring (user, 2026-11-03)
     // Two backgrounds (user, 2026-11-02): the days row and the hours column lighter (#1c1c1c), the
     // lessons inside a plain darker #101010 (no grain, which lifted it to the frame's shade); a #2c2c2c line between.
-    ".cal-inner{min-width:720px}" +
+    ".cal-inner{min-width:700px}" +
     // A neutral grain (grey specks, no cream) whose lift (~8 steps, measured) is taken off the base, so
     // the average stays #1c1c1c / #101010: texture without changing the colour (user, 2026-11-02).
     ".cal-head{position:relative;background:transparent}.cal-head-ear{position:relative}" +   // days row + hours on the rack's own surface (the box shade + its grain, from .cal-wrap) (user, 2026-11-03)
-    ".cal-body{background:linear-gradient(to right,transparent 44px,#2c2c2c 44px,#2c2c2c 45px,#101010 45px)}" +   // the inside plain #101010; the frame lines 1px like the rack's (user, 2026-11-03)
-    ".cal-head,.cal-body{display:grid;grid-template-columns:44px repeat(7,1fr)}" +
-    ".cal-head>div{padding:12px 4px;white-space:nowrap;text-align:center;font-size:10px;color:var(--muted);letter-spacing:1px;border-bottom:1px solid #2c2c2c}" +
-    ".cal-head>div.today{color:var(--t-text)}" +   // today in the lesson names' white among the greys (user, 2026-11-02; was red)
-    ".cal-head b{display:inline;font-size:inherit;color:inherit;font-weight:inherit;letter-spacing:inherit;margin-left:4px}" +   // the hours grey, on the day name line (user, 2026-11-03)
-    ".cal-head>div.today b{color:var(--t-text)}" +
-    ".cal-body{position:relative;margin:0;box-sizing:content-box;border-bottom:8px solid transparent}" +
-    ".cal-gutter{position:relative;margin-bottom:-8px}" +   // down over the body's 8px foot, so the grain runs to the bottom
-    ".cal-hr{position:absolute;right:8px;font-size:9px;color:var(--muted);transform:translateY(-50%);white-space:nowrap}" +
+    ".cal-body{background:linear-gradient(to right,transparent 72px,#2c2c2c 72px,#2c2c2c 73px,transparent 73px) padding-box}" +   // the inside plain #101010; the frame lines 1px like the rack's (user, 2026-11-03)
+    ".cal-head,.cal-body{display:grid;grid-template-columns:72px repeat(7,1fr)}" +   // a roomier hours column for 10:30 AM (user, 2026-11-04; was 60, 44px)
+    "" +
+    ".cal-head>div{padding:12px 4px;white-space:nowrap;text-align:center;font-size:10px;color:var(--muted);letter-spacing:1px}" +
+    // One colour inside the frame; the day lines run up past the header and down past the grid, the hour lines a bit into the hours column, like Google's (user, 2026-11-04)
+    ".cal-head>div{position:relative}.cal-head>div:nth-child(n+3)::before{content:'';position:absolute;left:0;bottom:0;height:22px;border-left:1px solid var(--border)}" +
+    "" +
+    ".cal-head b{display:block;height:22px;line-height:22px;font-size:inherit;color:inherit;font-weight:inherit;letter-spacing:inherit;margin:3px 0 0}" +   // the date under the day name, like Google's (user, 2026-11-04; was on the same line)
+    ".cal-body{position:relative;margin:0;box-sizing:content-box;border-bottom:62px solid transparent}" +   // the space under the 9:30 PM line = the header's height above the 10 AM line (user, 2026-11-04)
+    "" +
+    // The bottom like the header (user, 2026-11-04): a line that fades in on the left and out on the right, the day lines run 22px past it and stop
+    ".cal-body::after{content:'';position:absolute;left:60px;right:0;top:100%;height:1px;background:linear-gradient(to right,#2c2c2c calc(100% - 80px),transparent);pointer-events:none}" +
+    ".cal-body::before{content:'';position:absolute;left:72px;top:100%;height:22px;border-left:1px solid #2c2c2c;pointer-events:none}" +
+    ".cal-col+.cal-col::after{content:'';position:absolute;left:-1px;top:100%;height:22px;border-left:1px solid var(--border);pointer-events:none}" +
+    ".cal-gutter{position:relative}" +
+    ".cal-hr{position:absolute;right:16px;font-size:9px;color:var(--muted);transform:translateY(-50%);white-space:nowrap}" +
     ".cal-col{position:relative;border-left:1px solid var(--border)}" +
-    ".cal-col.today{background:rgba(255,255,255,0.01)}" +   // a faint grey, not red: the red read brown against the brown page (user, 2026-11-02)
-    ".cal-line{position:absolute;left:44px;right:0;border-top:1px solid var(--border);pointer-events:none}" +
-    ".cal-line.half{border-top:1px dashed rgba(255,255,255,0.045)}" +
-    ".cal-ev{position:absolute;left:3px;right:3px;z-index:2;border-radius:4px;padding:3px 8px;font-size:11px;line-height:1.25;overflow:hidden;cursor:grab;user-select:none;touch-action:none;color:var(--t-text)}" +
+    // today: only the green name + round date badge, no column wash (user, 2026-11-04)
+    ".cal-head>div.today{color:oklch(.72 .08 145)}" +
+    ".cal-head>div.today b{width:22px;height:22px;line-height:22px;margin:3px auto 0;border-radius:50%;background:oklch(.72 .08 145);color:#0a0c0a;letter-spacing:0;font-weight:600}" +
+    ".cal-line{position:absolute;left:60px;right:24px;height:1px;background:var(--border);pointer-events:none}" +   // the hour lines stop short of the frame, no fade; only the header line fades (user, 2026-11-04)
+    "" +
+    ".cal-line.half{height:0;background:none;border-top:1px dashed rgba(255,255,255,0.045);right:24px}" +
+    // Lesson cards made like the GOOGLE / ANALYZE buttons: a top-lit gradient over the colour, a thin dark edge, a light top line, a black under-shadow (user, 2026-11-04)
+    ".cal-ev{position:absolute;left:3px;right:3px;z-index:2;border-radius:4px;padding:3px 8px;box-sizing:border-box;border:1px solid #111;background-image:linear-gradient(rgba(255,255,255,.07),rgba(0,0,0,.22));box-shadow:0 1px 0 #000,inset 0 1px 0 rgba(255,255,255,.12);font-size:11px;line-height:1.25;overflow:hidden;cursor:grab;user-select:none;touch-action:none;color:var(--t-text)}" +
     ".cal-ev .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}" +
-    ".cal-ev .t{font-size:9px;color:var(--t-normal);margin-top:1px}.cal-ev.past .t{color:inherit}" +
-    ".cal-ev.past{color:var(--t-faint);cursor:default}" +
+    ".cal-ev .t{font-size:9px;color:var(--t-normal);margin-top:1px}" +
+    ".cal-ev.past{cursor:default}" +   // past lessons look the same as the rest, just locked (user, 2026-11-04; were dimmed)
     ".cal-ev.dragging{cursor:grabbing;z-index:6;will-change:transform;box-shadow:0 6px 18px rgba(0,0,0,.6);outline:1px solid rgba(255,255,255,.25)}" +
-    ".cal-now{position:absolute;left:0;right:0;z-index:4;border-top:2px solid var(--t-faint);pointer-events:none}" +
-    ".cal-now:before{content:'';position:absolute;left:-4px;top:-5px;width:8px;height:8px;border-radius:50%;background:var(--t-faint)}" +   // the now line grey, not red (user, 2026-11-02)
+    ".cal-now{position:absolute;left:0;right:0;z-index:4;height:4px;margin-top:-2px;border-radius:2px;background:linear-gradient(#3a3a3a,#232323);box-shadow:0 1px 0 #000,inset 0 1px 0 rgba(255,255,255,.12);pointer-events:none}" +
+    ".cal-now:before{content:'';position:absolute;left:-5px;top:-3px;width:10px;height:10px;border-radius:50%;background:linear-gradient(#3a3a3a,#232323);box-shadow:0 1px 0 #000,inset 0 1px 0 rgba(255,255,255,.12)}" +   // the now line made like the GOOGLE button: its grey gradient, top highlight, dark under-shadow (user, 2026-11-04; was a flat --t-faint)
     ".cal-modal{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}" +
     ".cal-modal-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px;width:100%;max-width:360px}" +
     ".cal-modal-title{font-size:14px;margin-bottom:12px}" +
