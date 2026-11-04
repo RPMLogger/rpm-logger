@@ -762,6 +762,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 }
 .link-btn:hover:where(:not(:disabled))  { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 .link-btn:active { transform: translateY(1px); }
+.link-btn:where(:not(:disabled, .pressed, .win-mag)) { box-shadow: 0 3px 10px rgba(0,0,0,0.25); }   /* every button casts the Today name buttons' shadow; dimmed ones and lit ones stay flat (user, 2026-11-04) */
 /* After a click the button stays lit for a moment (core/dialog.js), so it is
    clear the press landed while a sheet opens in a new tab or a tab loads.
    Lit = its own hover look. */
@@ -3603,6 +3604,10 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .rv-plan { overflow: visible !important; }   /* the open list may hang below the box */
 #rvSummaryBody .rv-plan .ld-title { border-radius: calc(var(--radius-card) - 2px) calc(var(--radius-card) - 2px) 0 0; }   /* so the band keeps the box's corners without overflow hidden */
 #rvCurSum { margin-top: -10px; }   /* Current students box: the same 22px gap as the boxes above it */
+#tdNsWin .en-tpl-top .field-label { font-family: "DM Mono", monospace; font-size: 11.5px; letter-spacing: 4.5px; text-transform: uppercase; color: #7c7c7c; margin-bottom: 0; line-height: 1; }   /* spread-out caps like the Log window's labels (user, 2026-11-04) */
+#tdNsWin .en-tpl-foot { display: flex; justify-content: flex-end; margin-top: 12px; }   /* Save + Copy under the text box (user, 2026-11-04) */
+#tdNsWin .win-icon { height: 40px; width: auto; }   /* the hand-and-phone icon, like the Comms tab (user, 2026-11-04) */
+#tdNsWin .st-win .en-tpl:first-child { margin-top: 28px; }   /* room under the title (user, 2026-11-04) */
 .st-win .en-tpl:first-child { margin-top: 0; }   /* Ask / Nudge window: first template right under the title */
 .st-win .en-tpl + .en-tpl { margin-top: 36px; }   /* more room between templates (user, 2026-10-26; was 18px) */
 

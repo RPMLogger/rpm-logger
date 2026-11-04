@@ -231,7 +231,7 @@ var TD_NS_TEXTS = [
 ];
 function _tdNsOpen() {
   // The Reviews tab's text template look: the blue bubble, editable, Save + Copy on the right.
-  _stWin('tdNsWin', 'No show', 'Text', null, '<div id="tdNsList">' + _tdNsHtml() + '</div>');
+  _stWin('tdNsWin', 'Text templates', 'No show', COMMS_TEXT_ICON, '<div id="tdNsList">' + _tdNsHtml() + '</div>');
   fetch(getScriptUrl() + '?action=getNsTexts')
     .then(function (x) { return x.json(); })
     .then(function (res) {
@@ -245,11 +245,11 @@ function _tdNsOpen() {
 function _tdNsHtml() {
   return TD_NS_TEXTS.map(function (t, i) {
     return '<div class="en-tpl">' +
-      '<div class="en-tpl-top"><span class="field-label">Text template ' + (i + 1) + '</span>' +
-        '<span class="en-tpl-btns">' +
+      '<div class="en-tpl-top"><span class="field-label">Template ' + (i + 1) + '</span></div>' +
+      '<div class="ts-thread tv-rv-thread rv-thread"><div id="tdNsText' + i + '" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only" spellcheck="false">' + inqEsc(t) + '</div></div>' +
+      '<div class="en-tpl-foot"><span class="en-tpl-btns">' +
         '<button class="link-btn" id="tdNsSave' + i + '" onclick="_tdNsSave(' + i + ')" data-tip="Saves this text to\nNo Show Texts (Counter sheet).">Save</button>' +
         '<button class="link-btn" id="tdNsCopy' + i + '" onclick="_tdNsCopy(' + i + ')" data-tip="Instant.\nCopies the text for Messages.\nSaves nothing.">' + COPY_ICON + '<span>Copy</span></button></span></div>' +
-      '<div class="ts-thread tv-rv-thread rv-thread"><div id="tdNsText' + i + '" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only" spellcheck="false">' + inqEsc(t) + '</div></div>' +
     '</div>';
   }).join('');
 }
