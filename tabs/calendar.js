@@ -346,15 +346,13 @@ function _calRenderShell(mon) {
     "</div>" +
     "<div class='cal-status' id='calStatus'></div>" +
     "<div class='cal-wrap'><div class='cal-inner'>" +
-      // the days row as a rack panel: screws at both ends (user, 2026-11-03)
-      "<div class='cal-head'><div class='cal-head-ear'><span class='cr-bolt' style='left:9px;top:9px'></span><span class='cr-bolt' style='left:9px;bottom:9px'></span></div>" +
-      "<span class='cr-bolt' style='right:9px;top:9px'></span><span class='cr-bolt' style='right:9px;bottom:9px'></span>";
+      // the days row: no screws (user, 2026-11-03)
+      "<div class='cal-head'><div></div>";
 
   for (var d = 0; d < 7; d++) {
     var day = _calAddDays(mon, d);
     html += "<div class='" + (_calYmd(day) === today ? 'today' : '') + "'>" + CAL_DAYS[d].toUpperCase() + "<b>" + day.getDate() + "</b></div>";
   }
-  html += "<div></div>";   // over the empty right column
   html += "</div><div class='cal-body' id='calGridBody' style='height:" + totalPx + "px'><div class='cal-gutter'>";
 
   // Hour labels on the full hours (10 AM … 9 PM); grid starts at 9:30
@@ -366,15 +364,10 @@ function _calRenderShell(mon) {
   for (var c = 0; c < 7; c++) {
     html += "<div class='cal-col" + (_calYmd(_calAddDays(mon, c)) === today ? ' today' : '') + "' data-day='" + c + "'></div>";
   }
-  html += "<div></div>";   // an empty right column, the hours column's twin (user, 2026-11-03)
   for (var l = CAL_DAY_START + 30; l < CAL_DAY_END; l += 30) {
     html += "<div class='cal-line" + (l % 60 === 0 ? '' : ' half') + "' style='top:" + ((l - CAL_DAY_START) / 60 * CAL_HOUR_PX) + "px'></div>";
   }
-  html += "</div>" +
-    // an empty rack panel closing the bottom, the days row's twin (user, 2026-11-03)
-    "<div class='cal-foot'><div class='cal-head-ear'><span class='cr-bolt' style='left:9px;top:9px'></span><span class='cr-bolt' style='left:9px;bottom:9px'></span></div>" +
-    "<span class='cr-bolt' style='right:9px;top:9px'></span><span class='cr-bolt' style='right:9px;bottom:9px'></span></div>" +
-    "</div></div>";
+  html += "</div></div></div>";   // no bottom panel, no right column (user, 2026-11-03)
   body.innerHTML = html;
 }
 
@@ -701,19 +694,19 @@ function _calInjectStyle() {
     ".cal-inner{min-width:720px}" +
     // A neutral grain (grey specks, no cream) whose lift (~8 steps, measured) is taken off the base, so
     // the average stays #1c1c1c / #101010: texture without changing the colour (user, 2026-11-02).
-    ".cal-foot{position:relative;display:grid;grid-template-columns:58px 1fr;height:56px;border-top:2px solid #2c2c2c}.cal-head{position:relative;background:transparent}.cal-head-ear{position:relative}" +   // days row + hours on the rack's own surface (the box shade + its grain, from .cal-wrap) (user, 2026-11-03)
-    ".cal-body{background:linear-gradient(to right,transparent 58px,#2c2c2c 58px,#2c2c2c 60px,#101010 60px,#101010 calc(100% - 60px),#2c2c2c calc(100% - 60px),#2c2c2c calc(100% - 58px),transparent calc(100% - 58px))}" +   // the inside plain #101010; the frame lines 2px (user, 2026-11-03)
-    ".cal-head,.cal-body{display:grid;grid-template-columns:58px repeat(7,1fr) 58px}" +
-    ".cal-head>div{padding:8px 4px;text-align:center;font-size:10px;color:var(--muted);letter-spacing:1px;border-bottom:2px solid #2c2c2c}" +
+    ".cal-head{position:relative;background:transparent}.cal-head-ear{position:relative}" +   // days row + hours on the rack's own surface (the box shade + its grain, from .cal-wrap) (user, 2026-11-03)
+    ".cal-body{background:linear-gradient(to right,transparent 44px,#2c2c2c 44px,#2c2c2c 45px,#101010 45px)}" +   // the inside plain #101010; the frame lines 1px like the rack's (user, 2026-11-03)
+    ".cal-head,.cal-body{display:grid;grid-template-columns:44px repeat(7,1fr)}" +
+    ".cal-head>div{padding:12px 4px;white-space:nowrap;text-align:center;font-size:10px;color:var(--muted);letter-spacing:1px;border-bottom:1px solid #2c2c2c}" +
     ".cal-head>div.today{color:var(--t-text)}" +   // today in the lesson names' white among the greys (user, 2026-11-02; was red)
-    ".cal-head b{display:block;font-size:17px;color:var(--muted);font-weight:500;letter-spacing:0;margin-top:2px}" +   // the hours' grey, not bright (user, 2026-11-02)
+    ".cal-head b{display:inline;font-size:inherit;color:inherit;font-weight:inherit;letter-spacing:inherit;margin-left:4px}" +   // the hours grey, on the day name line (user, 2026-11-03)
     ".cal-head>div.today b{color:var(--t-text)}" +
     ".cal-body{position:relative;margin:0;box-sizing:content-box;border-bottom:8px solid transparent}" +
     ".cal-gutter{position:relative;margin-bottom:-8px}" +   // down over the body's 8px foot, so the grain runs to the bottom
     ".cal-hr{position:absolute;right:8px;font-size:9px;color:var(--muted);transform:translateY(-50%);white-space:nowrap}" +
     ".cal-col{position:relative;border-left:1px solid var(--border)}" +
     ".cal-col.today{background:rgba(255,255,255,0.01)}" +   // a faint grey, not red: the red read brown against the brown page (user, 2026-11-02)
-    ".cal-line{position:absolute;left:58px;right:58px;border-top:1px solid var(--border);pointer-events:none}" +
+    ".cal-line{position:absolute;left:44px;right:0;border-top:1px solid var(--border);pointer-events:none}" +
     ".cal-line.half{border-top:1px dashed rgba(255,255,255,0.045)}" +
     ".cal-ev{position:absolute;left:3px;right:3px;z-index:2;border-radius:4px;padding:3px 8px;font-size:11px;line-height:1.25;overflow:hidden;cursor:grab;user-select:none;touch-action:none;color:var(--t-text)}" +
     ".cal-ev .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}" +
