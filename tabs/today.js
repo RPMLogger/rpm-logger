@@ -59,7 +59,7 @@ function _tdRender() {
   // Today's top part in a box like This Week's under it (user, 2026-10-24): title, calendar, count, list.
   var head = '<div class="td-wk-box td-today-box"><div class="settings-title td-wk-title"><span>Today</span>' +   // no " · Tue, Oct 27": the date page under it says it (user, 2026-10-27)
     '<span class="td-top-btns"><button class="link-btn opens-window" onclick="_tdAllOpen()" data-tip="Opens a window.\nToday\'s students: last lesson,\nlast HW and its folders.">All</button>' +   // All, left of No show (user, 2026-11-01)
-    '<button class="link-btn opens-window" onclick="_tdNsOpen()" data-tip="Instant.\nThe No show text, to copy\nand send from Messages.">No show</button></span></div>' +   // no Week button: This Week is under it (user, 2026-10-24); No show (portal button) top right opens the No show text window (user, 2026-10-26)
+    '<button class="link-btn opens-window" onclick="_tdZmOpen()" data-tip="Opens a window.\nPick a student: the Zoom instructions\ntext, to copy and send from Messages.">Zoom</button><button class="link-btn opens-window" onclick="_tdNsOpen()" data-tip="Instant.\nThe No show text, to copy\nand send from Messages.">No show</button></span></div>' +   // no Week button: This Week is under it (user, 2026-10-24); No show (portal button) top right opens the No show text window (user, 2026-10-26)
     '<img class="td-hero" src="img/amp-combo.svg" alt="">' +   // red combo amp (user, 2026-11-02; guitar + amp tried 2026-11-03, amp alone kept)
     '<div class="td-day-cal"><div class="td-hol-mo">' + MONTHS[now.getMonth()] + '</div><div class="td-hol-dd">' + now.getDate() + '</div></div>';   // today's date page, the holiday warning's (user, 2026-10-27; was the plain calendar icon)
   // A day off (2026-10-08): the resting figure over the line (om-82).
@@ -275,6 +275,75 @@ function _tdNsSave(i) {
 }
 function _tdNsCopy(i) {
   var el = document.getElementById('tdNsText' + i), btn = document.getElementById('tdNsCopy' + i);
+  if (!el) return;
+  var text = el.innerText.replace(/\n+$/, '');
+  function flash(ok) {
+    var lbl = btn && btn.querySelector('span');
+    if (!lbl) return;
+    lbl.textContent = ok ? 'Copied' : 'Select & copy';
+    setTimeout(function () { lbl.textContent = 'Copy'; }, 1600);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { flash(true); }, function () { _rvCopyFallback(text, flash); });
+  else _rvCopyFallback(text, flash);
+}
+
+// ── Zoom lesson text (user, 2026-11-04) ─────────────────────────────────────
+// Pick a student, get the Zoom instructions text (PDF link, big screen, audio,
+// the lesson room link, see you, wait up to 5 minutes) to copy into Messages.
+// Today's students are chips; anyone else is typed in. Edit freely; nothing is saved.
+var ZM_PDF = 'https://github.com/RPMLogger/rpm-logger/blob/main/Zoom%20Instructions%20-%202026.pdf';
+var ZM_LINK = 'https://us02web.zoom.us/j/3404335872';
+var _zmName = '', _zmTime = '';
+function _tdZmOpen() {
+  _zmName = ''; _zmTime = '';
+  var chips = (todayStudents || []).map(function (s, i) {
+    return '<button class="link-btn" data-zi="' + i + '" onclick="_tdZmPick(' + i + ')">' + inqEsc(s.name) + '</button>';
+  }).join('');
+  var w = _stWin('tdZmWin', 'Text templates', 'Zoom lesson', COMMS_TEXT_ICON,
+    (chips ? '<div class="field-label">Today</div><div class="td-zm-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px">' + chips + '</div>' : '') +
+    '<div class="field-label">Another student</div>' +
+    '<input id="tdZmOther" list="tdZmRoster" class="en-tpl-ta" style="margin:6px 0 14px;width:100%" placeholder="Type a name" autocomplete="off" oninput="_tdZmOther(this.value)">' +
+    '<datalist id="tdZmRoster">' + (_imRoster || []).map(function (n) { return '<option value="' + inqEsc(typeof n === 'string' ? n : n.name || '') + '">'; }).join('') + '</datalist>' +
+    '<div id="tdZmOut"></div>');
+  if (!_imRoster) {
+    fetch(getScriptUrl() + '?action=getStudentRoster').then(function (r) { return r.json(); }).then(function (d) {
+      if (!d.success) return;
+      _imRoster = d.students || [];
+      var dl = document.getElementById('tdZmRoster');
+      if (dl) dl.innerHTML = _imRoster.map(function (n) { return '<option value="' + inqEsc(typeof n === 'string' ? n : n.name || '') + '">'; }).join('');
+    }).catch(function () {});
+  }
+  return w;
+}
+function _tdZmPick(i) {
+  var s = (todayStudents || [])[i]; if (!s) return;
+  _zmName = s.name; _zmTime = _tdTime(s.eventDate);
+  document.querySelectorAll('#tdZmWin [data-zi]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-zi') == i); });
+  var o = document.getElementById('tdZmOther'); if (o) o.value = '';
+  _tdZmShow();
+}
+function _tdZmOther(v) {
+  document.querySelectorAll('#tdZmWin [data-zi]').forEach(function (b) { b.classList.remove('on'); });
+  _zmName = String(v || '').trim(); _zmTime = '';
+  _tdZmShow();
+}
+function _tdZmText() {
+  var first = _zmName.split(/\s+/)[0];
+  return 'Hi ' + first + '! Here are your Zoom lesson instructions: ' + ZM_PDF + '\n\n' +
+    'The most important things: please use a big screen (laptop, desktop or tablet, not a phone) and have your audio settings prepared as in the PDF.\n\n' +
+    'Zoom link: ' + ZM_LINK + '\n\n' +
+    'See you ' + (_zmTime ? 'at ' + _zmTime : 'soon') + '! Please wait up to 5 minutes, in case I am not finished with the previous lesson.';
+}
+function _tdZmShow() {
+  var out = document.getElementById('tdZmOut');
+  if (!out) return;
+  if (!_zmName) { out.innerHTML = ''; return; }
+  out.innerHTML = '<div class="en-tpl">' +
+    '<div class="ts-thread tv-rv-thread rv-thread"><div id="tdZmText" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only" spellcheck="false" style="white-space:pre-wrap">' + inqEsc(_tdZmText()) + '</div></div>' +
+    '<div class="en-tpl-foot"><span class="en-tpl-btns"><button class="link-btn" id="tdZmCopy" onclick="_tdZmCopy()" data-tip="Instant.\nCopies the text for Messages.">' + COPY_ICON + '<span>Copy</span></button></span></div></div>';
+}
+function _tdZmCopy() {
+  var el = document.getElementById('tdZmText'), btn = document.getElementById('tdZmCopy');
   if (!el) return;
   var text = el.innerText.replace(/\n+$/, '');
   function flash(ok) {
