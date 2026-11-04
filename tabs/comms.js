@@ -40,6 +40,8 @@ function loadCommsInbox() {
           return m.timestamp && !isNaN(new Date(m.timestamp).getTime());
         });
         commsStudents = data.students || [];
+        var msgr = document.querySelector(".cm-msgr");
+        if (msgr) msgr.classList.remove("cm-loading");
         renderCommsInbox();
         // An open conversation picks up new texts on the 30-second poll too.
         var win = document.getElementById("commsDetailOverlay");
@@ -184,6 +186,7 @@ function renderCommsStudents() {
     row.onclick = function () {
       commsPaneOpen(m || { row: 0, source: "sms", fromNumber: p.number, fromName: p.name, student: p.name, responded: true, blank: true });
     };
+    if (m) row.oncontextmenu = function (e) { e.preventDefault(); commsConvMenu(e, p); };
     var prev = "No messages yet", when = "";
     if (m) {
       var d = new Date(m.timestamp), day = commsDayLabel(d);
@@ -206,6 +209,64 @@ function renderCommsStudents() {
     list.appendChild(row);
   });
   commsPaintPane(false);
+}
+
+// Right-click a conversation, like Messages (user, 2026-11-04): Mark answered
+// (while they wait) and Delete, which moves all its rows to the Deleted tab.
+function commsConvMenu(e, p) {
+  commsCloseConvMenu();
+  var menu = document.createElement("div");
+  menu.className = "cm-new-list cm-ctx";
+  menu.id = "cmCtx";
+  menu.innerHTML = (p.waiting ? '<button type="button" class="cm-new-opt" data-a="mark">Mark answered</button>' : "") +
+    '<button type="button" class="cm-new-opt cm-ctx-del" data-a="del">Delete…</button>';
+  menu.style.left = e.clientX + "px";
+  menu.style.top = e.clientY + "px";
+  document.body.appendChild(menu);
+  menu.onclick = function (ev) {
+    var a = ev.target.getAttribute("data-a");
+    commsCloseConvMenu();
+    if (a === "mark") { var keep = commsPaneDetail; commsPaneDetail = p.latest; commsPaneMark(); commsPaneDetail = keep; renderCommsStudents(); }
+    if (a === "del") commsDeleteConv(p);
+  };
+}
+function commsCloseConvMenu() { var m = document.getElementById("cmCtx"); if (m) m.remove(); }
+document.addEventListener("click", function (e) { if (!e.target.closest("#cmCtx")) commsCloseConvMenu(); });
+document.addEventListener("scroll", commsCloseConvMenu, true);
+
+function commsDeleteConv(p) {
+  var rows = p.msgs.map(function (m) { return m.row; }).filter(function (r) { return r >= 2; });
+  if (!rows.length) return;
+  // The Warning! box, like Terminate's and Slot change's (user, 2026-11-04).
+  rpmConfirm({
+    title: "Warning!",
+    subtitle: "Upon activation:",
+    message: "→ The conversation with " + p.name + " is deleted: all " + rows.length + " message" + (rows.length === 1 ? "" : "s") + ".\n\n" +
+      "→ They move to the Deleted tab in the RPM Comms sheet.\n\n" +
+      "→ " + p.name.split(" ")[0] + " stays on the list for New text and Search.",
+    confirmLabel: "Delete",
+    icon: WARN_ICON,
+    danger: true,
+    className: "tv-golive-dlg"
+  }).then(function (ok) {
+    if (!ok) return;
+    var box = document.querySelector(".cm-msgr");
+    rpmBusy(box, null, true, "Deleting");
+    fetch(getScriptUrl() + "?action=deleteCommsRows&rows=" + rows.join(","))
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        rpmBusy(box, null, false);
+        if (!res.success) { rpmAlert({ title: "Not deleted", message: res.message || "Something went wrong." }); return; }
+        commsMessages = commsMessages.filter(function (m) { return rows.indexOf(m.row) < 0; });
+        if (commsPaneDetail && commsKey(commsPaneDetail.fromNumber) === p.key) commsPaneDetail = null;
+        renderCommsInbox();
+        loadCommsInbox();   // fresh row numbers from the sheet
+      })
+      .catch(function () {
+        rpmBusy(box, null, false);
+        rpmAlert({ title: "Not deleted", message: "Couldn't reach the sheet." });
+      });
+  });
 }
 
 function commsPaneOpen(detail) {
@@ -712,7 +773,8 @@ function commsEnsureExtras() {
       var stu = document.createElement("div");
       stu.className = "cm-stu";
       stu.innerHTML =
-        '<div class="cm-msgr">' +
+        // Hidden until the first load lands, so it never says "No conversations" while loading (user, 2026-11-04).
+        '<div class="cm-msgr cm-loading">' +
           // Top of the list like Messages (user, 2026-11-01): the compose button
           // (New text) alone at the right, then a full-width search with a magnifier.
           '<div class="cm-msgr-list"><div class="cm-list-top">' +

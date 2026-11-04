@@ -4242,6 +4242,11 @@ body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border
 .cm-msg.cm-has-img { padding: 4px; }
 .cm-msg.cm-has-img .cm-msg-t { padding: 6px 8px 4px; }
 .cm-img { display: block; max-width: 260px; max-height: 320px; border-radius: 12px; }
+/* Right-click menu on a conversation (user, 2026-11-04), in the New text dropdown's look. */
+.cm-ctx { position: fixed; right: auto; width: 170px; z-index: 1000; }
+.cm-ctx .cm-ctx-del { color: var(--accent); }
+.cm-msgr.cm-loading { visibility: hidden; }   /* nothing, not "No conversations", until the first load (user, 2026-11-04) */
+/* A student's photo (user, 2026-11-03): grey box while it loads, click = full size. */
 img.cm-img[data-media] { cursor: zoom-in; }
 img.cm-img[data-media] + img.cm-img { margin-top: 4px; }
 .cm-img-wait { width: 200px; height: 150px; background: rgba(255,255,255,0.06); color: var(--muted); font-size: 11px; cursor: default; }
