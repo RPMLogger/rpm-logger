@@ -90,12 +90,12 @@ function _imRenderCards(noRead) {
   // Today, Not logged, Students (was A–Z, user 2026-10-31), each titled in Today's red. The first one drawn carries
   // the ID-card icon under its title and Audit top right.
   var firstBox = true;
-  body.innerHTML = ['Today', 'Not logged', 'Students'].map(function (h, g) {
+  body.innerHTML = ['Today', 'Not logged', 'General'].map(function (h, g) {
     var in_g = names.filter(function (n) { return group(n) === g; });
     if (!in_g.length) return '';
     var top = firstBox; firstBox = false;
     return '<div class="db-section td-wk-box im-box' + (anim ? ' im-stagger' : '') + '">' +
-      '<div class="settings-title td-wk-title im-title-row"' + inStyle() + '><span class="im-title-stack"><span>' + h + '</span>' + (top ? '<span class="st-page-icon">' + ANALYSIS_ICON + '</span>' : '') + '</span>' +
+      '<div class="settings-title td-wk-title im-title-row"' + inStyle() + '><span class="im-title-stack"><span>Lessons<span class="win-sub"> · ' + h + '</span></span>' + (top ? '<span class="st-page-icon">' + ANALYSIS_ICON + '</span>' : '') + '</span>' +
         (top ? '<button class="link-btn im-audit-link" onclick="switchTab(\'audit\')" data-tip="Opens a tab.\nAudit lessons and Audit payments." data-tip-wrap><span>Audit</span></button>' : '') + '</div>' +   // white, no glass: just a link (user, 2026-10-30)
       in_g.map(card).join('') +
     '</div>';
@@ -1729,7 +1729,7 @@ function _imDoHtml(name, day) {
     // Each of the three sections sits in its own bordered box, its title above it, no dividers (2026-10-18).
     // The typing reminder on its own line under it (user, 2026-10-26), in the (optional) grey.
     '<div class="im-page" data-pg="1">' +
-    _imMainHead('1. Log the lesson and HW', '', '<span class="im-mail-opt im-case-hint">One item per row, capital first letter, no end punctuation</span>', 'im-main-log') +   // all red (2026-10-18)
+    _imMainHead('1. Log the lesson and HW', '', '<span class="im-mail-opt im-case-hint">One item per row, no commas, capital first letter, no end punctuation</span>', 'im-main-log') +   // all red (2026-10-18)
     '<div class="im-ns-slot" id="imNsSlot"></div>' +   // No show under the hint, above LOG LESSON (user, 2026-11-02)
     '<div class="im-main-box"><div class="im-log-cols"><div class="im-log-left">' +   // the boxes left, Terms right (user, 2026-11-02)
       _imSub('Log lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +

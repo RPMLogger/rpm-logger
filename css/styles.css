@@ -4013,6 +4013,7 @@ html body .header .amp-knob-l { font-family: "DM Mono", monospace; font-size: 7p
 html body .header .amp-knob:hover .amp-knob-k { border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 html body .header .amp-knob:hover .amp-knob-k::after { background: rgba(255,255,255,0.82); }
 html body .header .amp-knob:hover .amp-knob-l { color: #9a9a9a; }
+html body .header .amp-knob:focus, html body .header .amp-knob:focus-visible { outline: none; }   /* no focus square around a knob (user, 2026-11-04) */
 body:has(#tab-today.active) .amp-knob[data-k=today] .amp-knob-k::after, body:has(#tab-import.active) .amp-knob[data-k=import] .amp-knob-k::after,
 body:has(#tab-calendar.active) .amp-knob[data-k=calendar] .amp-knob-k::after, body:has(#tab-audit.active) .amp-knob[data-k=audit] .amp-knob-k::after,
 body:has(#tab-payments.active) .amp-knob[data-k=payments] .amp-knob-k::after, body:has(#tab-todo.active) .amp-knob[data-k=todo] .amp-knob-k::after, body:has(#tab-comms.active) .amp-knob[data-k=comms] .amp-knob-k::after { transform: rotate(90deg); }
@@ -4235,7 +4236,7 @@ body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border
 .cm-img { display: block; max-width: 260px; max-height: 320px; border-radius: 12px; }
 .cm-msgr-conv.cm-drop { outline: 2px dashed var(--muted); outline-offset: -8px; }
 .cm-msg-t a { color: inherit; text-decoration: underline; text-underline-offset: 2px; word-break: break-all; }
-#tab-home .home-hero { display:block; height:110px; opacity:.55; margin:0 auto 36px; pointer-events:none; }   /* amp + guitar icon above the Home buttons (user, 2026-11-01) */
+#tab-home .home-hero { display:block; height:110px; opacity:.55; margin:18px auto 18px; pointer-events:none; }   /* amp + guitar icon above the Home buttons (user, 2026-11-01) */
 :root { --vh: 1vh; }   /* one screen-height %; the 150%/200% zoom buttons set it to the real screen so pages don't grow with the zoom (user, 2026-11-01) */
 /* PDFs go as a link, shown as a file card (user, 2026-11-01). */
 .cm-file { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 8px; border-radius: 12px; background: rgba(255,255,255,0.08);
