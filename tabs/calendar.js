@@ -210,6 +210,44 @@ function _calSvLoad() {
 
 // ── Data ────────────────────────────────────────────────────────────────────
 
+// ── The other calendars (user, 2026-11-04) ─────────────────────────────────
+// Lessons (weekly / biweekly / trial) come with the week; the rest are fetched
+// only when their button is lit, read only (no drag, no click).
+var CAL_OTHER = ['birthdays', 'doctors', 'personal', 'gigs', 'holidays'];
+var CAL_OTHER_COLORS = { birthdays: 'oklch(0.63 0.04 80)', doctors: 'oklch(0.63 0.19 220)', personal: 'oklch(0.63 0.06 70)', gigs: 'oklch(0.63 0.19 300)', holidays: 'oklch(0.63 0.05 80)' };
+var _calOther = [];   // events of the lit other calendars, this week
+var _calShowState = null;
+function _calShowMap() {
+  if (!_calShowState) {
+    try { _calShowState = JSON.parse(localStorage.getItem('rpmCalShow') || 'null'); } catch (e) {}
+    if (!_calShowState) _calShowState = { weekly: true, biweekly: true, trial: true };
+  }
+  return _calShowState;
+}
+function _calShown(k) { return !!_calShowMap()[k]; }
+function _calToggleCal(k) {
+  var m = _calShowMap(); m[k] = !m[k];
+  try { localStorage.setItem('rpmCalShow', JSON.stringify(m)); } catch (e) {}
+  var b = document.querySelector(".cal-cals [data-cal='" + k + "']"); if (b) b.classList.toggle('lit', m[k]);
+  if (CAL_OTHER.indexOf(k) >= 0 && m[k]) _calLoadOther(_calMonday(_calWeekOffset), _calLoadToken);
+  else { if (CAL_OTHER.indexOf(k) >= 0) _calOther = _calOther.filter(function(e) { return e.calType !== k; }); _calRenderEvents(); }
+}
+function _calLoadOther(mon, token) {
+  var url  = (document.getElementById('scriptUrl').value || '').trim();
+  var want = CAL_OTHER.filter(_calShown);
+  if (!url || !want.length) { _calOther = []; _calRenderEvents(); return; }
+  fetch(url + '?action=getOtherCalendarsWeek&weekStart=' + _calYmd(mon) + '&cals=' + want.join(','))
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (token !== _calLoadToken) return;
+      if (!d.success) { _calSetStatus(d.message ? 'Other calendars: ' + d.message : 'Other calendars: backend not deployed yet'); return; }
+      _calOther = d.events || [];
+      _calRenderEvents();
+      if (d.missing && d.missing.length) _calSetStatus('Not found in Google: ' + d.missing.join(', '));
+    })
+    .catch(function() {});
+}
+
 function _calLoad(statusMsg) {
   var mon   = _calMonday(_calWeekOffset);
   var url   = (document.getElementById('scriptUrl').value || '').trim();
@@ -220,7 +258,7 @@ function _calLoad(statusMsg) {
     _calSample = true;
     _calEvents = _calSampleEvents(mon);
     _calRenderEvents();
-    _calMeters(_calEvents.length, _calEvents.length);
+    _calMeters(_calEvents.length);
     _calSetStatus('Sample lessons · no data connected');
     return;
   }
@@ -238,12 +276,8 @@ function _calLoad(statusMsg) {
       _calEvents = data.events || [];
       _calRenderEvents();
       _calSetStatus(statusMsg || '');
-      _calMeters(_calEvents.length, null);
-      // the week after, for the R bar
-      fetch(url + '?action=getCalendarWeek&weekStart=' + _calYmd(_calAddDays(mon, 7)))
-        .then(function(r) { return r.json(); })
-        .then(function(d) { if (token === _calLoadToken && d.success) _calMeters(null, (d.events || []).length); })
-        .catch(function() {});
+      _calMeters(_calEvents.length);
+      _calLoadOther(mon, token);
     })
     .catch(function() { if (token === _calLoadToken) { rpmBusy(calBody, null, false); _calSetStatus('Connection failed'); } });
 }
@@ -288,14 +322,19 @@ function _calVuSvg(frac) {
     "<title>" + (frac == null ? 'This week' : Math.round(frac * CAL_FULL) + ' of ' + CAL_FULL + ' lessons') + "</title></svg>";
 }
 
-// Count + meters: L and the VU = the shown week, R = the week after (read once per load).
-function _calMeters(n, nNext) {
+// Count + meters: the VU = the shown week; W / B = this week's weekly vs biweekly lessons,
+// each as its share of the two together (user, 2026-11-04; were L = this week, R = next week).
+function _calMeters(n) {
   var c = document.getElementById('calCount'); if (c && n != null) c.textContent = n;
   var vu = document.getElementById('calVu'); if (vu && n != null) vu.innerHTML = _calVuSvg(_calFull(n));
-  [['calMeterL', n], ['calMeterR', nNext]].forEach(function(m) {
+  var w = 0, b = 0;
+  (_calEvents || []).forEach(function(e) { if (e.calType === 'weekly') w++; else if (e.calType === 'biweekly') b++; });
+  var tot = w + b;
+  [['calMeterL', w], ['calMeterR', b]].forEach(function(m) {
     var el = document.getElementById(m[0]);
-    if (el && m[1] != null) el.style.setProperty('--v', Math.min(100, Math.round(_calFull(m[1]) * 100)) + '%');
+    if (el) el.style.setProperty('--v', (tot ? Math.round(m[1] / tot * 100) : 0) + '%');
   });
+  var lr = document.querySelector('.cr-lr'); if (lr) lr.setAttribute('data-tip', 'W = weekly ' + w + ', B = biweekly ' + b + ' this week.');
 }
 
 // ── Rendering ───────────────────────────────────────────────────────────────
@@ -320,7 +359,10 @@ function _calRenderShell(mon) {
         // the knob at the very left, then the grille, then the lesson count (user, 2026-11-03)
         CAL_KNOB +
         "<span class='cr-vents'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>" +
-        "<span class='cr-cap'>Lessons</span><span class='cr-count' id='calCount'>–</span>" +
+        "<span class='cr-pair'>" +
+          "<span class='cr-col'><button class='cr-pb" + (_calGoogleOpen() ? " lit" : "") + "' id='calGoogleBtn' onclick='_calToggleGoogle()' data-tip='Google Calendar\'s own view under the grid.'></button><span class='cr-cap'>Google</span></span>" +
+          "<span class='cr-col'><button class='cr-pb' id='calAnalyzeBtn' data-tip='Coming soon: this week\'s and next week\'s suggested fixes.'></button><span class='cr-cap'>Analyze</span></span>" +
+        "</span>" +
         "<span class='cr-sp'></span>" +   // even gaps between the five groups (user, 2026-11-03)
         "<button class='cr-btn' onclick='_calShift(-1)' aria-label='Previous week'>‹</button>" +
         "<div class='cr-lcd" + (_calWeekOffset ? " back" : "") + "'" + (_calWeekOffset ? " onclick='_calShift(0)' data-tip='Back to this week.'" : "") + ">" + _calWeekLabel(mon, sun) + "</div>" +
@@ -332,12 +374,9 @@ function _calRenderShell(mon) {
           "<span class='cr-ddpanel'><input class='rpm-field' id='calPickIn' placeholder='Type to find…' autocomplete='off' oninput='_calPickHi=0;_calPickRender()' onkeydown='_calPickKey(event)'>" +
           "<span class='cash-dd-list' id='calPickList' hidden></span></span>" +
         "</span>" +
-        "<span class='cr-lr' data-tip='L = this week, R = next week: lessons out of " + CAL_FULL + ".'><b>L</b><i id='calMeterL'></i><b>R</b><i id='calMeterR'></i></span>" +
+        "<span class='cr-lr' data-tip='W = weekly, B = biweekly this week.'><b>W</b><i id='calMeterL'></i><b>B</b><i id='calMeterR'></i></span>" +
         "<span class='cr-sp'></span>" +
-        "<span class='cr-pair'>" +
-          "<span class='cr-col'><button class='cr-pb" + (_calGoogleOpen() ? " lit" : "") + "' id='calGoogleBtn' onclick='_calToggleGoogle()' data-tip='Google Calendar\'s own view under the grid.'></button><span class='cr-cap'>Google</span></span>" +
-          "<span class='cr-col'><button class='cr-pb' id='calAnalyzeBtn' data-tip='Coming soon: this week\'s and next week\'s suggested fixes.'></button><span class='cr-cap'>Analyze</span></span>" +
-        "</span>" +
+        "<span class='cr-cap'>Lessons</span><span class='cr-count' id='calCount'>–</span>" +
         "<span class='cr-sp'></span>" +
         "<span id='calVu'>" + _calVuSvg(null) + "</span>" +
         "<span class='cr-legend'>" +
@@ -347,8 +386,31 @@ function _calRenderShell(mon) {
     "</div>";
   var html =
     bar +   // the rack back above the week (user, 2026-11-04; was under it)
+    // A second rack unit under it (user, 2026-11-04): fake knobs + jack, then the calendar buttons
+    "<div class='cal-bar cr cal-bar2'>" +
+      "<span class='cr-bolt' style='left:8px;top:10px'></span><span class='cr-bolt' style='left:8px;bottom:10px'></span>" +
+      "<span class='cr-bolt' style='right:8px;top:10px'></span><span class='cr-bolt' style='right:8px;bottom:10px'></span>" +
+      // One button per Google calendar (user, 2026-11-04): lit = shown on the week. Lessons on by default, the rest off; remembered on this computer.
+      "<div class='cr-row cal-cals'>" +
+        // the calendar buttons squeezed together, the input jack at the far right (user, 2026-11-04; fake knobs removed)
+        "<span class='cr-sp'></span><span class='cr-pair cal-cal-btns'>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' onclick='_calToggleCal(\"birthdays\")'></button><span class='cr-cap'>Birthdays</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('doctors') ? " lit" : "") + "' data-cal='doctors' onclick='_calToggleCal(\"doctors\")'></button><span class='cr-cap'>Doctors</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('personal') ? " lit" : "") + "' data-cal='personal' onclick='_calToggleCal(\"personal\")'></button><span class='cr-cap'>Personal</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('biweekly') ? " lit" : "") + "' data-cal='biweekly' onclick='_calToggleCal(\"biweekly\")'></button><span class='cr-cap'>Biweekly</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('gigs') ? " lit" : "") + "' data-cal='gigs' onclick='_calToggleCal(\"gigs\")'></button><span class='cr-cap'>Gigs</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('trial') ? " lit" : "") + "' data-cal='trial' onclick='_calToggleCal(\"trial\")'></button><span class='cr-cap'>Trial</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('weekly') ? " lit" : "") + "' data-cal='weekly' onclick='_calToggleCal(\"weekly\")'></button><span class='cr-cap'>Weekly</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('holidays') ? " lit" : "") + "' data-cal='holidays' onclick='_calToggleCal(\"holidays\")'></button><span class='cr-cap'>Holidays</span></span>" +
+        "</span>" +
+        "<span class='cr-col'><span class='cr-jack'></span><span class='cr-cap'>Input</span></span>" +
+        "</div>" +
+    "</div>" +
     "<div class='cal-status' id='calStatus'></div>" +
     "<div class='cal-wrap'><div class='cal-inner'>" +
+      // four screws like the rack's (user, 2026-11-04)
+      "<span class='cr-bolt' style='left:8px;top:10px'></span><span class='cr-bolt' style='left:8px;bottom:10px'></span>" +
+      "<span class='cr-bolt' style='right:8px;top:10px'></span><span class='cr-bolt' style='right:8px;bottom:10px'></span>" +
       // the days row: no screws (user, 2026-11-03)
       "<div class='cal-head'><div></div>";
 
@@ -385,7 +447,7 @@ function _calRenderEvents() {
 
   _calEvents.forEach(function(ev) {
     var col = cols[ev.dayIdx];
-    if (!col) return;
+    if (!col || !_calShown(ev.calType)) return;   // its rack button is off
     var s = Math.max(ev.startMin, CAL_DAY_START);
     var e = Math.min(ev.endMin, CAL_DAY_END);
     if (e <= s) return; // entirely outside 10:30–9:30
@@ -408,6 +470,31 @@ function _calRenderEvents() {
     el.innerHTML = "<div class='n'>" + _calEsc(ev.title) + "</div><div class='t'>" + _calFmt(ev.startMin) + "</div>";
     el._ev = ev;
     if (!ev.past) el.addEventListener('pointerdown', _calDragStart);
+    col.appendChild(el);
+  });
+
+  // The other calendars: all-day ones as slim strips at the top of the day, timed ones as read-only cards
+  var stack = {};
+  _calOther.forEach(function(ev) {
+    var col = cols[ev.dayIdx];
+    if (!col || !_calShown(ev.calType)) return;
+    var color = CAL_OTHER_COLORS[ev.calType] || '#777';
+    var el = document.createElement('div');
+    el.style.backgroundColor = 'color-mix(in oklab, ' + color + ' 30%, #1a1a1a)';
+    el.title = ev.title + (ev.allDay ? ' · all day' : ' · ' + _calFmt(ev.startMin));
+    if (ev.allDay) {
+      var n = stack[ev.dayIdx] = (stack[ev.dayIdx] || 0) + 1;
+      el.className = 'cal-ev cal-ext cal-allday';
+      el.style.top = (2 + (n - 1) * 18) + 'px';
+      el.innerHTML = "<div class='n'>" + _calEsc(ev.title) + "</div>";
+    } else {
+      var s = Math.max(ev.startMin, CAL_DAY_START), e = Math.min(ev.endMin, CAL_DAY_END);
+      if (e <= s) return;
+      el.className = 'cal-ev cal-ext';
+      el.style.top    = ((s - CAL_DAY_START) / 60 * CAL_HOUR_PX) + 'px';
+      el.style.height = Math.max(((e - s) / 60 * CAL_HOUR_PX) - 2, 16) + 'px';
+      el.innerHTML = "<div class='n'>" + _calEsc(ev.title) + "</div><div class='t'>" + _calFmt(ev.startMin) + "</div>";
+    }
     col.appendChild(el);
   });
 
@@ -645,7 +732,8 @@ function _calInjectStyle() {
     "#calBody,#calGoogle{width:min(1200px,calc(100vw - 40px));position:relative;left:50%;transform:translateX(-50%)}" +
     // ── The rack (user, 2026-11-03): the amp head's frame, handles, screws, two 64px rows ──
     // a rack unit, not an amp: one thin border; its edges line up with the cab's outer ring (user, 2026-11-03)
-    ".cal-bar.cr{position:relative;box-sizing:border-box;margin:0 0 12px;border:1px solid #2c2c2c;border-radius:6px;background-color:var(--box)}" +
+    ".cal-bar.cr{position:relative;box-sizing:border-box;margin:-5px 0 12px;border:1px solid #2c2c2c;border-radius:6px;background-color:var(--box)}" +   // 12px under the amp's feet, the same as above the week (user, 2026-11-04)
+    "" +
     ".cr-row{display:flex;align-items:center;gap:10px;height:64px;padding:0 40px}.cr-row+.cr-row{border-top:1px solid #2c2c2c}" +
     ".cr-sp{flex:1}.cr-pair{display:inline-flex;gap:10px}" +
     ".cr-bolt{position:absolute;width:15px;height:15px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#6a6a6a,#2b2b2b 55%,#111 80%);box-shadow:0 1px 2px #000,inset 0 0 0 1px #0a0a0a}" +
@@ -697,6 +785,11 @@ function _calInjectStyle() {
     ".cal-btn-go{background:var(--accent);border-color:var(--accent);color:#fff}" +
     // A speaker cab under the amp head (user, 2026-11-02): the head's frame, a dark rounded inner line
     // inside a 4px body ring with its own rounded edge (styles.css .header::before).
+    ".cal-ext{cursor:default;z-index:1}.cal-allday{height:16px;padding:1px 6px;font-size:9px;z-index:3}.cal-allday .n{line-height:14px}" +   // other calendars: read only; all-day strips over the top of the day
+    ".cal-bar2.cr{margin-top:0}.cal-cals{gap:18px}.cal-cal-btns{gap:12px}" +
+    ".cr-jack{position:relative;display:block;width:30px;height:26px;margin:2px 0;filter:drop-shadow(0 2px 2px #000)}" +   // the modular synth's jack: a hexagon nut round a chrome ring and a black socket (user, 2026-11-04)
+    ".cr-jack:before{content:'';position:absolute;inset:0;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:linear-gradient(160deg,#8a8a8a,#4a4a4a 45%,#2a2a2a 80%,#1e1e1e)}" +
+    ".cr-jack:after{content:'';position:absolute;left:5px;top:3px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#000 0 6px,#111 6.5px,#9a9a9a 8px,#e0e0e0 9px,#7a7a7a 10px);box-shadow:inset 0 1px 2px rgba(0,0,0,.6)}" +
     "#calBody.rpm-busy>.cal-wrap{opacity:0}#calBody.rpm-busy>.cal-bar{opacity:1}" +   // loading: the rack stays, the week fades out   // loading: just LOADING, no ghost of the week under it (user, 2026-11-02)
     ".cal-wrap{margin:0;overflow-x:auto}.cal-inner{border:1px solid #2c2c2c;border-radius:6px;background-color:var(--box);position:relative}" +   // Google's lines (user, 2026-11-04): header + hour lines fade out on the right, day lines only a short tick in the header, nothing past the frame
     ".cal-head{overflow:visible}.cal-head::after{content:'';position:absolute;left:60px;right:0;bottom:0;height:1px;background:linear-gradient(to right,#2c2c2c calc(100% - 80px),transparent);pointer-events:none}" +
