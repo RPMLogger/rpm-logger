@@ -4,8 +4,8 @@
 // their tab's GOALS / INTERESTS), then a check-in every 3 months, the same five
 // questions each time, newest first. Kept in "Goal Check-ins" (Counter sheet,
 // RPM_Goals.js). Due 90 days after the last check-in, or after their start
-// date when there is none: the Goal button turns red and the Today tab pops up
-// the list once a day.
+// date when there is none: the Goal button turns red and reads "Update goals"
+// (the Today pop-up was removed, user 2026-11-03).
 
 var GL_QS = [
   ['goals',   'Goals for the next 3 months'],
@@ -48,10 +48,14 @@ function glBtnHtml(name) {
   if (!_glDue && !_glDueBusy) glDueLoad();
   var due = _glDue && _glDue[_glKey(name)];
   return '<button class="link-btn gl-btn opens-window' + (due ? ' gl-due' : '') + '" data-gl="' + _auEsc(name) + '" onclick="glOpen(' + _auEsc(JSON.stringify(name)) + ')" data-tip="Opens a window.\n' +
-    (due ? 'Check-in due: ' + (due.checked ? 'last one ' : 'started ') + due.since + ' days ago.' : 'Goals and the 3-month check-ins.') + '" data-tip-wrap>Goals</button>';
+    (due ? 'Check-in due: ' + (due.checked ? 'last one ' : 'started ') + due.since + ' days ago.' : 'Goals and the 3-month check-ins.') + '" data-tip-wrap>' + (due ? 'Update goals' : 'Goals') + '</button>';   // lit + "Update goals" when due; no Today pop-up (user, 2026-11-03)
 }
 function _glPaintBtns() {
-  document.querySelectorAll('.gl-btn[data-gl]').forEach(function (b) { b.classList.toggle('gl-due', !!(_glDue && _glDue[_glKey(b.dataset.gl)])); });
+  document.querySelectorAll('.gl-btn[data-gl]').forEach(function (b) {
+    var due = !!(_glDue && _glDue[_glKey(b.dataset.gl)]);
+    b.classList.toggle('gl-due', due);
+    b.textContent = due ? 'Update goals' : 'Goals';
+  });
 }
 
 // ── The window ──
@@ -167,30 +171,3 @@ function _glSave(btn) {
   });
 }
 
-// ── Today tab reminder: once a day, who is due (like the holiday pop-up) ──
-var _glTodayDay = null;
-function glDueCheck() {
-  var day = _tdYmd();
-  if (_glTodayDay === day) return;
-  _glTodayDay = day;
-  try { if (localStorage.getItem('glDueShown') === day) return; } catch (e) {}
-  glDueLoad(function () {
-    if (_tdYmd() !== day || !_glDue) return;
-    var due = Object.keys(_glDue).map(function (k) { return _glDue[k]; }).sort(function (a, b) { return a.name.localeCompare(b.name); });
-    if (!due.length) return;
-    if (document.querySelector('.rpm-dlg')) { _glTodayDay = null; setTimeout(glDueCheck, 1500); return; }   // the holiday pop-up first
-    try { localStorage.setItem('glDueShown', day); } catch (e) {}
-    rpmAlert({ title: 'Goal check-ins due', message: ' ', confirmLabel: 'OK', className: 'gl-due-dlg' });
-    var box = document.querySelector('.rpm-dlg.gl-due-dlg');
-    if (!box) return;
-    box.querySelector('.rpm-dlg-msg').innerHTML = due.map(function (x) {
-      return '<button class="link-btn gl-due-name" data-n="' + _auEsc(x.name) + '">' + inqEsc(x.name) + '</button>' +
-        '<div class="gl-due-sub">' + (x.checked ? 'Last check-in ' : 'Started ') + x.since + ' days ago</div>';
-    }).join('');
-    box.querySelectorAll('.gl-due-name').forEach(function (b) {
-      b.onclick = function () { var c = box.querySelector('.rpm-dlg-btn'); if (c) c.click(); glOpen(b.dataset.n); };
-    });
-    var ok = box.querySelector('.rpm-dlg-btn');
-    if (ok) { ok.className = 'link-btn'; ok.blur(); }
-  });
-}

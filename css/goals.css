@@ -14,7 +14,3 @@
 .gl-a-empty { color: var(--muted); }
 .gl-field { width: 100%; box-sizing: border-box; margin-top: 4px; resize: none; overflow: hidden; min-height: 38px; }
 .gl-acts { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
-.gl-due-dlg .rpm-dlg-msg { text-align: center; margin-top: 18px; }
-.gl-due-dlg .gl-due-name { margin-top: 10px; }
-.gl-due-dlg .gl-due-sub { font-size: 11px; color: var(--t-faint); margin-top: 3px; }
-.gl-due-dlg .rpm-dlg-acts { justify-content: center; }

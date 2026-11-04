@@ -24,6 +24,12 @@ function _magPick(el) {
   // Notebook rows pop up whatever their length: To-Do's in its own bubble, Notes' as plain text.
   var row = el.closest(".tdo-row");
   if (row) return row.closest("#todoContent") ? row : row.querySelector(".tdo-text");
+  // Today's All window: a lesson or HW is one short line per comma, so the whole block pops up (user, 2026-11-03).
+  var blk = el.closest(".td-all-txt");
+  if (blk) return blk;
+  // The Today box on the Today tab: a time + name row is short, so it pops up whatever its length (user, 2026-11-03).
+  var tdRow = el.closest(".td-today-box .td-mini-row");
+  if (tdRow) return tdRow;
   for (; el && el !== document.body; el = el.parentElement) {
     if (/^(BUTTON|INPUT|TEXTAREA|SELECT|A|LABEL)$/.test(el.tagName)) return null;
     if (getComputedStyle(el).display === "inline") continue;
