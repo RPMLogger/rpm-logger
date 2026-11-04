@@ -346,7 +346,9 @@ function _calRenderShell(mon) {
     "</div>" +
     "<div class='cal-status' id='calStatus'></div>" +
     "<div class='cal-wrap'><div class='cal-inner'>" +
-      "<div class='cal-head'><div></div>";
+      // the days row as a rack panel: screws at both ends (user, 2026-11-03)
+      "<div class='cal-head'><div class='cal-head-ear'><span class='cr-bolt' style='left:9px;top:9px'></span><span class='cr-bolt' style='left:9px;bottom:9px'></span></div>" +
+      "<span class='cr-bolt' style='right:9px;top:9px'></span><span class='cr-bolt' style='right:9px;bottom:9px'></span>";
 
   for (var d = 0; d < 7; d++) {
     var day = _calAddDays(mon, d);
@@ -366,7 +368,11 @@ function _calRenderShell(mon) {
   for (var l = CAL_DAY_START + 30; l < CAL_DAY_END; l += 30) {
     html += "<div class='cal-line" + (l % 60 === 0 ? '' : ' half') + "' style='top:" + ((l - CAL_DAY_START) / 60 * CAL_HOUR_PX) + "px'></div>";
   }
-  html += "</div></div></div>";
+  html += "</div>" +
+    // an empty rack panel closing the bottom, the days row's twin (user, 2026-11-03)
+    "<div class='cal-foot'><div class='cal-head-ear'><span class='cr-bolt' style='left:9px;top:9px'></span><span class='cr-bolt' style='left:9px;bottom:9px'></span></div>" +
+    "<span class='cr-bolt' style='right:9px;top:9px'></span><span class='cr-bolt' style='right:9px;bottom:9px'></span></div>" +
+    "</div></div>";
   body.innerHTML = html;
 }
 
@@ -634,7 +640,7 @@ function _calInjectStyle() {
     "#calBody,#calGoogle{width:min(1200px,calc(100vw - 40px));position:relative;left:50%;transform:translateX(-50%)}" +
     // ── The rack (user, 2026-11-03): the amp head's frame, handles, screws, two 64px rows ──
     // a rack unit, not an amp: one thin border; its edges line up with the cab's outer ring (user, 2026-11-03)
-    ".cal-bar.cr{position:relative;box-sizing:border-box;margin:-11px 0 17px;border:1px solid #2c2c2c;border-radius:6px;background-color:var(--box)}" +
+    ".cal-bar.cr{position:relative;box-sizing:border-box;margin:-11px 0 12px;border:1px solid #2c2c2c;border-radius:6px;background-color:var(--box)}" +
     ".cr-row{display:flex;align-items:center;gap:10px;height:64px;padding:0 40px}.cr-row+.cr-row{border-top:1px solid #2c2c2c}" +
     ".cr-sp{flex:1}.cr-pair{display:inline-flex;gap:10px}" +
     ".cr-bolt{position:absolute;width:15px;height:15px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#6a6a6a,#2b2b2b 55%,#111 80%);box-shadow:0 1px 2px #000,inset 0 0 0 1px #0a0a0a}" +
@@ -687,13 +693,13 @@ function _calInjectStyle() {
     // A speaker cab under the amp head (user, 2026-11-02): the head's frame, a dark rounded inner line
     // inside a 4px body ring with its own rounded edge (styles.css .header::before).
     "#calBody.rpm-busy>.cal-wrap{opacity:0}#calBody.rpm-busy>.cal-bar{opacity:1}" +   // loading: the rack stays, the week fades out   // loading: just LOADING, no ghost of the week under it (user, 2026-11-02)
-    ".cal-wrap{border:1px solid #2c2c2c;border-radius:10px;box-shadow:0 0 0 4px #1e1e1e,0 0 0 5px #2c2c2c;margin:0 5px;background:var(--box);overflow-x:auto}" +
+    ".cal-wrap{border:1px solid #2c2c2c;border-radius:6px;margin:0;background:var(--box);overflow-x:auto}" +   // the rack's thin border, not the amp's double ring (user, 2026-11-03)
     // Two backgrounds (user, 2026-11-02): the days row and the hours column lighter (#1c1c1c), the
     // lessons inside a plain darker #101010 (no grain, which lifted it to the frame's shade); a #2c2c2c line between.
     ".cal-inner{min-width:720px}" +
     // A neutral grain (grey specks, no cream) whose lift (~8 steps, measured) is taken off the base, so
     // the average stays #1c1c1c / #101010: texture without changing the colour (user, 2026-11-02).
-    ".cal-head{background:transparent}" +   // days row + hours on the rack's own surface (the box shade + its grain, from .cal-wrap) (user, 2026-11-03)
+    ".cal-foot{position:relative;display:grid;grid-template-columns:58px 1fr;height:56px;border-top:2px solid #2c2c2c}.cal-head{position:relative;background:transparent}.cal-head-ear{position:relative}" +   // days row + hours on the rack's own surface (the box shade + its grain, from .cal-wrap) (user, 2026-11-03)
     ".cal-body{background:linear-gradient(to right,transparent 58px,#2c2c2c 58px,#2c2c2c 60px,#101010 60px)}" +   // the inside plain #101010; the frame lines 2px (user, 2026-11-03)
     ".cal-head,.cal-body{display:grid;grid-template-columns:58px repeat(7,1fr)}" +
     ".cal-head>div{padding:8px 4px;text-align:center;font-size:10px;color:var(--muted);letter-spacing:1px;border-bottom:2px solid #2c2c2c}" +
