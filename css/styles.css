@@ -4072,6 +4072,8 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 #importBody .td-student .db-panel.im-list { border-radius: 10px; font-size: 11px; }
 #importBody .td-student .im-year, #importBody .td-student .im-data-h { font-size: 11px; }
 #importBody .td-student .im-sec-head .field-label, #importBody .td-student .im-year, #importBody .td-student .im-data-h, #importBody .td-student .im-none { color: var(--t-normal); }
+/* History + Last homework in the To-do page's handwriting (user, 2026-11-04) */
+#importBody .td-student .im-block .im-s, #importBody .td-student .im-block .im-teach, #importBody .td-student .im-hw-text { font-family: "Caveat", cursive; font-size: 18px; line-height: 1.3; letter-spacing: 0.2px; }
 #importBody .td-student > .im-title > span { font-size: 22px; letter-spacing: 1px; }
 #importBody .td-student .db-file { font-size: 11px; }
 #importBody .td-student .im-hw-row .im-s { color: var(--t-normal); }
