@@ -4016,6 +4016,9 @@ html body .header .amp-knob-l { font-family: "DM Mono", monospace; font-size: 7p
 html body .header .amp-knob:hover .amp-knob-k { border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 html body .header .amp-knob:hover .amp-knob-k::after { background: rgba(255,255,255,0.82); }
 html body .header .amp-knob:hover .amp-knob-l { color: #9a9a9a; }
+/* Shadow on the strip's buttons like the Today tab's name buttons (user, 2026-11-04) */
+html body .sb-burger, html body .header .hdr-home, html body .header .hdr-mag, html body .header .amp-knob-k { background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
+html body .header .hdr-mag.on { background: var(--muted); }
 html body .header .amp-knob:focus, html body .header .amp-knob:focus-visible { outline: none; }   /* no focus square around a knob (user, 2026-11-04) */
 body:has(#tab-today.active) .amp-knob[data-k=today] .amp-knob-k::after, body:has(#tab-import.active) .amp-knob[data-k=import] .amp-knob-k::after,
 body:has(#tab-calendar.active) .amp-knob[data-k=calendar] .amp-knob-k::after, body:has(#tab-audit.active) .amp-knob[data-k=audit] .amp-knob-k::after,
