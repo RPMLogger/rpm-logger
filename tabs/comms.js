@@ -230,7 +230,8 @@ function commsPaintPane(jump) {
   if (!d) { th.innerHTML = '<div class="cm-none cm-thread-empty">Pick a conversation, or start one with New text.</div>'; return; }
   var atBottom = th.scrollHeight - th.scrollTop - th.clientHeight < 40;
   th.innerHTML = commsThreadHtml(d);
-  if (jump || atBottom) th.scrollTop = th.scrollHeight;
+  if (jump || atBottom) commsStickBottom(th);
+  commsLoadPhotos(th);
 }
 
 // A picture waiting to go with the next text: { dataUrl, b64, mime, name }.
@@ -564,6 +565,55 @@ function commsImageOf(m) {
   return x ? { src: "https://lh3.googleusercontent.com/d/" + x[1] + "=w1000", full: "https://drive.google.com/file/d/" + x[1] + "/view" } : null;
 }
 
+// Photos a student texted (user, 2026-11-03): F holds "media|<Twilio URL>" per
+// photo; each is fetched once through getCommsMedia and kept here for the visit.
+var commsPhotoCache = {};   // Twilio URL → data URI, or "loading" / "fail"
+function commsInPhotos(m) {
+  if (m.source === "out") return [];
+  return String(m.audioUrl || "").split("\n").filter(function (l) { return l.indexOf("media|") === 0; })
+    .map(function (l) { return l.slice(6); });
+}
+function commsPhotoHtml(u) {
+  var d = commsPhotoCache[u], ok = d && d !== "loading" && d !== "fail";
+  return '<img class="cm-img' + (ok ? "" : " cm-img-wait") + '" data-media="' + commsEscape(u) + '"' +
+    (ok ? ' src="' + d + '"' : "") + ' alt="' + (d === "fail" ? "Photo didn't load" : "Photo") + '" onclick="commsOpenPhoto(this)">';
+}
+function commsLoadPhotos(root) {
+  var url = getScriptUrl();
+  if (!url || !root) return;
+  root.querySelectorAll("img[data-media]").forEach(function (im) {
+    var u = im.getAttribute("data-media");
+    if (commsPhotoCache[u]) return;
+    commsPhotoCache[u] = "loading";
+    fetch(url + "?action=getCommsMedia&url=" + encodeURIComponent(u))
+      .then(function (r) { return r.json(); })
+      .then(function (res) { commsPhotoCache[u] = res.success && res.dataUri ? res.dataUri : "fail"; })
+      .catch(function () { commsPhotoCache[u] = "fail"; })
+      .then(function () {
+        document.querySelectorAll("img[data-media]").forEach(function (el) {
+          if (el.getAttribute("data-media") !== u) return;
+          var sc = el.closest("#cmPaneThread, #cmThread");
+          var atBottom = sc && sc.scrollHeight - sc.scrollTop - sc.clientHeight < 40;
+          el.outerHTML = commsPhotoHtml(u);
+          if (atBottom) sc.scrollTop = sc.scrollHeight;
+        });
+      });
+  });
+}
+// Scroll to the newest bubble, again once each picture has its real height.
+function commsStickBottom(el) {
+  el.scrollTop = el.scrollHeight;
+  el.querySelectorAll("img").forEach(function (im) {
+    if (!im.complete) im.addEventListener("load", function () { el.scrollTop = el.scrollHeight; }, { once: true });
+  });
+}
+// Full size in a new tab (a data: link can't be opened directly).
+function commsOpenPhoto(im) {
+  var d = commsPhotoCache[im.getAttribute("data-media")];
+  if (!d || d.indexOf("data:") !== 0) return;
+  fetch(d).then(function (r) { return r.blob(); }).then(function (b) { window.open(URL.createObjectURL(b), "_blank"); });
+}
+
 // Links in a text are clickable, like in Messages (user, 2026-11-01).
 function commsLinkify(html) {
   return html.replace(/\b(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
@@ -612,8 +662,12 @@ function commsThreadHtml(detail) {
       (m._reaction.media ? commsEscape(m._reaction.quote) : "“" + commsEscape(m._reaction.quote) + "”") + '</div>';
     var t = tags.get(m);
     var img = commsImageOf(m), file = commsFileOf(m), txt = (img || file) && !String(m.body || "").trim() ? "" : commsText(m);
-    return stamp + '<div class="cm-msg ' + (m.source === "out" ? "out" : "in") + (t ? " cm-has-tag" : "") + (img || file ? " cm-has-img" : "") + '">' +
+    var photos = commsInPhotos(m);
+    // Their photo shows itself, so the "📎 Sent a photo" line goes; any words stay.
+    if (photos.length) txt = /^📎 Sent (a photo|\d+ attachments \(photo\))$/m.test(txt) ? txt.replace(/\n?📎 Sent .*$/m, "").trim() : txt;
+    return stamp + '<div class="cm-msg ' + (m.source === "out" ? "out" : "in") + (t ? " cm-has-tag" : "") + (img || file || photos.length ? " cm-has-img" : "") + '">' +
       (img ? '<a href="' + commsEscape(img.full) + '" target="_blank" rel="noopener"><img class="cm-img" src="' + commsEscape(img.src) + '" alt="Picture" referrerpolicy="no-referrer"></a>' : "") +
+      photos.map(commsPhotoHtml).join("") +
       (file ? commsFileCard(file) : "") +
       (txt ? '<div class="cm-msg-t">' + commsLinkify(commsEscape(txt)) + '</div>' : "") +
       (t ? '<span class="cm-tag">' + t.join("") + '</span>' : "") +
@@ -626,7 +680,8 @@ function renderCommsThread() {
   var el = document.getElementById("cmThread");
   if (!el || !commsDetail) return;
   el.innerHTML = commsThreadHtml(commsDetail);
-  el.scrollTop = el.scrollHeight;
+  commsStickBottom(el);
+  commsLoadPhotos(el);
 }
 
 // Bits added from here rather than index.html (a parallel session's commit

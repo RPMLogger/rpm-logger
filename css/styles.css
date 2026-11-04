@@ -4234,6 +4234,9 @@ body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border
 .cm-msg.cm-has-img { padding: 4px; }
 .cm-msg.cm-has-img .cm-msg-t { padding: 6px 8px 4px; }
 .cm-img { display: block; max-width: 260px; max-height: 320px; border-radius: 12px; }
+img.cm-img[data-media] { cursor: zoom-in; }
+img.cm-img[data-media] + img.cm-img { margin-top: 4px; }
+.cm-img-wait { width: 200px; height: 150px; background: rgba(255,255,255,0.06); color: var(--muted); font-size: 11px; cursor: default; }
 .cm-msgr-conv.cm-drop { outline: 2px dashed var(--muted); outline-offset: -8px; }
 .cm-msg-t a { color: inherit; text-decoration: underline; text-underline-offset: 2px; word-break: break-all; }
 #tab-home .home-hero { display:block; height:110px; opacity:.55; margin:18px auto 18px; pointer-events:none; }   /* amp + guitar icon above the Home buttons (user, 2026-11-01) */
