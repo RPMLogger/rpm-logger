@@ -2838,7 +2838,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* This Week's list (2026-10-09 the Week window; 2026-10-24 a box under Today's). */
 .td-wk-day { display: flex; flex-direction: column; gap: 9px; }
 .td-wk-day + .td-wk-day { margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--border); }
-.td-wk-date { color: var(--muted); }
+.td-wk-date { color: var(--muted); font-size: 10.5px; }   /* 75% of the day, like a window title's date (15 of 20px) (user, 2026-11-04) */
 .td-wk-dn { display: inline-block; width: 78px; }   /* the time column + gap, so the date lines up with the names */
 /* Times and names in the Intake cards' label + value look (Date · Sep 23): DM Mono 10.5px, 24% / 50% white. */
 .td-wk-day .td-mini-t { font-size: 10.5px; color: var(--t-faint); }
