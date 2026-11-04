@@ -731,8 +731,8 @@ function _calInjectStyle() {
     ".cal-line{position:absolute;left:60px;right:24px;height:1px;background:var(--border);pointer-events:none}" +   // the hour lines stop short of the frame, no fade; only the header line fades (user, 2026-11-04)
     "" +
     ".cal-line.half{height:0;background:none;border-top:1px dashed rgba(255,255,255,0.045);right:24px}" +
-    // Lesson cards made like the GOOGLE / ANALYZE buttons: a top-lit gradient over the colour, a thin dark edge, a light top line, a black under-shadow (user, 2026-11-04)
-    ".cal-ev{position:absolute;left:3px;right:3px;z-index:2;border-radius:4px;padding:3px 8px;box-sizing:border-box;border:1px solid #111;background-image:linear-gradient(rgba(255,255,255,.07),rgba(0,0,0,.22));box-shadow:0 1px 0 #000,inset 0 1px 0 rgba(255,255,255,.12);font-size:11px;line-height:1.25;overflow:hidden;cursor:grab;user-select:none;touch-action:none;color:var(--t-text)}" +
+    // Lesson cards made like the GOOGLE / ANALYZE buttons: a top-lit gradient over the colour, a thin dark edge, a light top line, a black under-shadow (user, 2026-11-04); about half as strong (user, 2026-11-04)
+    ".cal-ev{position:absolute;left:3px;right:3px;z-index:2;border-radius:4px;padding:3px 8px;box-sizing:border-box;border:1px solid rgba(0,0,0,.45);background-image:linear-gradient(rgba(255,255,255,.04),rgba(0,0,0,.12));box-shadow:0 1px 0 rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.07);font-size:11px;line-height:1.25;overflow:hidden;cursor:grab;user-select:none;touch-action:none;color:var(--t-text)}" +
     ".cal-ev .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}" +
     ".cal-ev .t{font-size:9px;color:var(--t-normal);margin-top:1px}" +
     ".cal-ev.past{cursor:default}" +   // past lessons look the same as the rest, just locked (user, 2026-11-04; were dimmed)
