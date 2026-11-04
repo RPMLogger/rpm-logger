@@ -1151,6 +1151,9 @@ input[type="checkbox"]:checked {
 
 .fc-new { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
           color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+.fc-mark-read { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+          background: none; border: none; padding: 2px 4px; margin-left: 10px; color: var(--t-faint); cursor: pointer; }   /* quiet, beside the flag (user, 2026-10-31) */
+.fc-mark-read:hover { color: var(--text); }
 .inq-name  { font-family: "Syne", sans-serif; font-size: 16px; font-weight: 400; color: var(--text); }
 .inq-fields { display: grid; grid-template-columns: auto 1fr; gap: 3px 16px; margin-top: 8px; font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.5; }
 .inq-flabel { color: var(--t-faint); white-space: nowrap; }

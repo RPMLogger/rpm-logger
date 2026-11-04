@@ -268,11 +268,47 @@ function _trPickSlot(date, time, p) {
 // you cannot see from a closed card — they wrote back and you have not answered.
 // Shown only when the LAST message in the thread is theirs, so it clears itself
 // the moment you reply.
+//
+// Mark read (user, 2026-10-31) clears it for a message he is not going to
+// answer. It remembers WHICH message (its date, time and the thread length),
+// so the flag comes back on its own if they write again. Kept in this
+// browser's localStorage only.
+var _TR_READ_KEY = 'rpmMarkedRead';
+
+function _trReadMarks() {
+  try { return JSON.parse(localStorage.getItem(_TR_READ_KEY) || '{}') || {}; }
+  catch (e) { return {}; }
+}
+
+function _trLastMsgKey(t) {
+  var m = t && t.messages && t.messages[t.messages.length - 1];
+  return m ? (t.count + '|' + m.date + '|' + m.time) : '';
+}
+
+// Their turn AND not marked read: the one test the flag and the badge share.
+function _trNeedsReply(email, t) {
+  if (!t || !t.theirTurn) return false;
+  var mark = _trReadMarks()[(email || '').toLowerCase()];
+  return !mark || mark !== _trLastMsgKey(t);
+}
+
+function _trMarkRead(email) {
+  var t = _trThreadCache && _trThreadCache[email];
+  if (!t) return;
+  var marks = _trReadMarks();
+  marks[email.toLowerCase()] = _trLastMsgKey(t);
+  try { localStorage.setItem(_TR_READ_KEY, JSON.stringify(marks)); } catch (e) {}
+  _trPaintNewMsg(email, t);
+  _trSetInitiateBadge(_trThreadCache);
+}
+
 function _trPaintNewMsg(email, t) {
   var el = document.getElementById('fcnm-' + emailToId(email || ''));
   if (!el) return;
-  el.innerHTML = (t && t.theirTurn)
-    ? '<span class="fc-new">\u25cf New message</span>'
+  el.innerHTML = _trNeedsReply(email, t)
+    ? '<span class="fc-new">\u25cf New message</span>' +
+      '<button class="fc-mark-read" onclick="_trMarkRead(\'' + _trEsc(email) + '\')" ' +
+        'data-tip="Clears the flag.\nNothing is sent.\nComes back if they write again." data-tip-wrap>Mark read</button>'
     : '';
 }
 
@@ -288,7 +324,7 @@ function _trSetInitiateBadge(threads) {
   var n = 0;
   Object.keys(threads || {}).forEach(function (em) {
     var t = threads[em];
-    if (t && t.stage === 'initiate' && t.theirTurn) n++;
+    if (t && t.stage === 'initiate' && _trNeedsReply(em, t)) n++;
   });
   if (n > 0) { el.textContent = n; el.style.display = 'inline-block'; }
   else       { el.style.display = 'none'; }
@@ -678,7 +714,9 @@ function _trAvStyle() {
   var el = document.createElement("style");
   el.id = "trAvStyle";
   el.textContent =
-    ".tr-av-bar{display:flex;justify-content:flex-end;padding-top:12px}" +
+    // Up on the tab title's line, right edge (user, 2026-10-31): -35px lifts the
+    // 35px button from 16px under the 14.5px label to centred on it.
+    ".tr-av-bar{display:flex;justify-content:flex-end;margin-top:-35px;margin-bottom:12px}" +
     ".tr-av-names{display:flex;flex-wrap:wrap;gap:6px}" +
     ".tr-av-name{font-family:'DM Mono',monospace;font-size:11px;padding:5px 10px;border-radius:6px;cursor:pointer;" +
       "background:transparent;color:var(--muted);border:1px solid var(--border)}" +
