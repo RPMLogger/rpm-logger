@@ -4283,6 +4283,8 @@ a.cm-file:hover { background: rgba(255,255,255,0.14); }
 /* Today and This Week boxes, and Today's name buttons, lifted like the All window's (user, 2026-11-01) */
 #todayBody .td-wk-box { box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
 #todayBody .td-mini-b { background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
+#todayBody .td-day-cal { box-shadow: 0 3px 10px rgba(0,0,0,0.25); }   /* the date page, lifted like the name tags (user, 2026-11-04) */
+#todayBody .td-hero { filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6)); }   /* the amp too, a shadow under its shape (user, 2026-11-04) */
 .link-btn.td-mini-tag { pointer-events: none; cursor: default; }   /* Today's names: tags, nothing to press (user, 2026-11-01) */
 #todayBody .td-wk-box { box-shadow: none; }   /* Today page: shadows on buttons only (user, 2026-11-02) */
 #todayBody .td-today-box ~ .td-wk-box { margin-top: 16px; }   /* This Week closer under Today (user, 2026-11-02; was 34px) */
