@@ -11,6 +11,7 @@ var COMMS_COMPOSE_ICON = '<svg viewBox="0 0 24 24" width="17" height="17" fill="
   '<path d="M12 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/><path d="M18.4 2.6a2 2 0 0 1 2.8 2.8L12 14.6 8.5 15.5l.9-3.5z"/></svg>';
 var COMMS_SEARCH_ICON = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg>';
 var commsStudents = [];       // every roster student {name, number}: Students lists them even before they write
+var commsArchived = [];       // students' archived texts (the Deleted tab): Search finds them under "Archived"
 var commsFilter = "all";
 var commsDetail = null;
 var commsPollTimer = null;
@@ -40,6 +41,7 @@ function loadCommsInbox() {
           return m.timestamp && !isNaN(new Date(m.timestamp).getTime());
         });
         commsStudents = data.students || [];
+        commsArchived = data.archived || [];
         var msgr = document.querySelector(".cm-msgr");
         if (msgr) msgr.classList.remove("cm-loading");
         renderCommsInbox();
@@ -142,9 +144,9 @@ function renderCommsInbox() {
 // with bubbles and a text box. New text reaches any roster student.
 var commsPaneDetail = null;   // whose conversation the right pane shows
 
-function commsStudentPeople() {
+function commsStudentPeople(archived) {
   var byKey = {};
-  commsMessages.forEach(function (m) {
+  (archived ? commsArchived : commsMessages).forEach(function (m) {
     if (!m.student || m.scam) return;
     var k = commsKey(m.fromNumber);
     if (!byKey[k]) byKey[k] = { key: k, name: m.student, number: m.fromNumber, msgs: [] };
@@ -178,15 +180,25 @@ function renderCommsStudents() {
       shown.push({ key: k, name: s.name, number: s.number, msgs: [], latest: null, waiting: false });
   });
 
-  var openKey = commsPaneDetail ? commsKey(commsPaneDetail.fromNumber) : "";
+  // Archived conversations only come up in a search, in their own section below.
+  var arch = q ? commsStudentPeople(true).filter(function (p) {
+    return p.name.toLowerCase().indexOf(q) >= 0 ||
+      p.msgs.some(function (m) { return String(m.body || m.transcript || "").toLowerCase().indexOf(q) >= 0; });
+  }) : [];
+  arch.forEach(function (p) { p.archived = true; });
+  if (arch.length) shown = shown.concat([{ header: "Archived" }], arch);
+
+  var openKey = commsPaneDetail ? commsKey(commsPaneDetail.fromNumber) : "", openArch = !!(commsPaneDetail && commsPaneDetail.archived);
   list.innerHTML = shown.length ? "" : '<div class="cm-none cm-list-empty">' + (q ? "No match" : "No conversations yet. Start one with New text.") + '</div>';
   shown.forEach(function (p) {
+    if (p.header) { list.insertAdjacentHTML("beforeend", '<div class="field-label cm-arch-h">' + p.header + '</div>'); return; }
     var m = p.latest, row = document.createElement("div");
-    row.className = "cm-conv" + (p.waiting ? " cm-wait" : "") + (p.key === openKey ? " cm-sel" : "");
+    row.className = "cm-conv" + (p.waiting ? " cm-wait" : "") + (p.archived ? " cm-arch" : "") +
+      (p.key === openKey && !!p.archived === openArch ? " cm-sel" : "");
     row.onclick = function () {
       commsPaneOpen(m || { row: 0, source: "sms", fromNumber: p.number, fromName: p.name, student: p.name, responded: true, blank: true });
     };
-    if (m) row.oncontextmenu = function (e) { e.preventDefault(); commsConvMenu(e, p); };
+    if (m && !p.archived) row.oncontextmenu = function (e) { e.preventDefault(); commsConvMenu(e, p); };
     var prev = "No messages yet", when = "";
     if (m) {
       var d = new Date(m.timestamp), day = commsDayLabel(d);
@@ -219,12 +231,12 @@ function commsConvMenu(e, p) {
   menu.className = "cm-new-list cm-ctx";
   menu.id = "cmCtx";
   menu.innerHTML = (p.waiting ? '<button type="button" class="cm-new-opt" data-a="mark">Mark answered</button>' : "") +
-    '<button type="button" class="cm-new-opt cm-ctx-del" data-a="del">Delete…</button>';
+    '<button type="button" class="cm-new-opt cm-ctx-del" data-a="del">Archive</button>';   // no "…": the portal turns a trailing … into loading dots
   menu.style.left = e.clientX + "px";
   menu.style.top = e.clientY + "px";
   document.body.appendChild(menu);
   menu.onclick = function (ev) {
-    var a = ev.target.getAttribute("data-a");
+    var b = ev.target.closest("[data-a]"), a = b && b.getAttribute("data-a");
     commsCloseConvMenu();
     if (a === "mark") { var keep = commsPaneDetail; commsPaneDetail = p.latest; commsPaneMark(); commsPaneDetail = keep; renderCommsStudents(); }
     if (a === "del") commsDeleteConv(p);
@@ -233,6 +245,7 @@ function commsConvMenu(e, p) {
 function commsCloseConvMenu() { var m = document.getElementById("cmCtx"); if (m) m.remove(); }
 document.addEventListener("click", function (e) { if (!e.target.closest("#cmCtx")) commsCloseConvMenu(); });
 document.addEventListener("scroll", commsCloseConvMenu, true);
+document.addEventListener("keydown", function (e) { if (e.key === "Escape") commsCloseConvMenu(); });
 
 function commsDeleteConv(p) {
   var rows = p.msgs.map(function (m) { return m.row; }).filter(function (r) { return r >= 2; });
@@ -241,22 +254,22 @@ function commsDeleteConv(p) {
   rpmConfirm({
     title: "Warning!",
     subtitle: "Upon activation:",
-    message: "→ The conversation with " + p.name + " is deleted: all " + rows.length + " message" + (rows.length === 1 ? "" : "s") + ".\n\n" +
-      "→ They move to the Deleted tab in the RPM Comms sheet.\n\n" +
-      "→ " + p.name.split(" ")[0] + " stays on the list for New text and Search.",
-    confirmLabel: "Delete",
+    message: "→ The conversation with " + p.name + " is archived: all " + rows.length + " message" + (rows.length === 1 ? "" : "s") + ".\n\n" +
+      "→ It leaves the list. Search still finds it, under Archived.\n\n" +
+      "→ A new text from " + p.name.split(" ")[0] + " starts a fresh conversation.",
+    confirmLabel: "Archive",
     icon: WARN_ICON,
     danger: true,
     className: "tv-golive-dlg"
   }).then(function (ok) {
     if (!ok) return;
     var box = document.querySelector(".cm-msgr");
-    rpmBusy(box, null, true, "Deleting");
+    rpmBusy(box, null, true, "Archiving");
     fetch(getScriptUrl() + "?action=deleteCommsRows&rows=" + rows.join(","))
       .then(function (r) { return r.json(); })
       .then(function (res) {
         rpmBusy(box, null, false);
-        if (!res.success) { rpmAlert({ title: "Not deleted", message: res.message || "Something went wrong." }); return; }
+        if (!res.success) { rpmAlert({ title: "Not archived", message: res.message || "Something went wrong." }); return; }
         commsMessages = commsMessages.filter(function (m) { return rows.indexOf(m.row) < 0; });
         if (commsPaneDetail && commsKey(commsPaneDetail.fromNumber) === p.key) commsPaneDetail = null;
         renderCommsInbox();
@@ -264,7 +277,7 @@ function commsDeleteConv(p) {
       })
       .catch(function () {
         rpmBusy(box, null, false);
-        rpmAlert({ title: "Not deleted", message: "Couldn't reach the sheet." });
+        rpmAlert({ title: "Not archived", message: "Couldn't reach the sheet." });
       });
   });
 }
@@ -286,8 +299,10 @@ function commsPaintPane(jump) {
   if (!to || !th) return;
   var d = commsPaneDetail;
   to.textContent = d ? (d.student || d.fromName || commsFormatPhone(d.fromNumber)) : "";
-  if (input) input.style.visibility = d ? "" : "hidden";
-  if (mark) mark.style.display = d && commsOpenInThread(d).length ? "" : "none";
+  // An archived conversation is read-only: no text box, no Mark answered.
+  if (input) input.style.visibility = d && !d.archived ? "" : "hidden";
+  if (mark) mark.style.display = d && !d.archived && commsOpenInThread(d).length ? "" : "none";
+  if (d && d.archived) to.textContent += " · Archived";
   if (!d) { th.innerHTML = '<div class="cm-none cm-thread-empty">Pick a conversation, or start one with New text.</div>'; return; }
   var atBottom = th.scrollHeight - th.scrollTop - th.clientHeight < 40;
   th.innerHTML = commsThreadHtml(d);
@@ -691,7 +706,7 @@ function commsText(m) {
 // a centred day + time over the first bubble and after any gap of an hour.
 function commsThreadHtml(detail) {
   var key = commsKey(detail.fromNumber);
-  var thread = commsMessages.filter(function (m) { return key && commsKey(m.fromNumber) === key; })
+  var thread = (detail.archived ? commsArchived : commsMessages).filter(function (m) { return key && commsKey(m.fromNumber) === key; })
     .sort(function (a, b) { return new Date(a.timestamp) - new Date(b.timestamp); });
   if (!thread.length && detail.blank) return '<div class="cm-none cm-thread-empty">No messages yet. Your first text goes from the RPM number.</div>';
   if (!thread.length) thread = [detail];
