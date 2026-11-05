@@ -302,6 +302,7 @@ function commsPaintPane(jump) {
   // An archived conversation is read-only: no text box, no Mark answered.
   if (input) input.style.visibility = d && !d.archived ? "" : "hidden";
   if (mark) mark.style.display = d && !d.archived && commsOpenInThread(d).length ? "" : "none";
+  var tpl = document.getElementById("cmTplWrap"); if (tpl) tpl.style.display = d && !d.archived ? "" : "none";
   if (d && d.archived) to.textContent += " · Archived";
   if (!d) { th.innerHTML = '<div class="cm-none cm-thread-empty">Pick a conversation, or start one with New text.</div>'; return; }
   var atBottom = th.scrollHeight - th.scrollTop - th.clientHeight < 40;
@@ -800,7 +801,9 @@ function commsEnsureExtras() {
             '<div id="commsStuList"></div></div>' +
           '<div class="cm-msgr-conv">' +
             '<div class="cm-msgr-head"><span class="cm-to">To: <span id="cmPaneTo"></span></span>' +
-              '<button class="link-btn" id="cmPaneMark" onclick="commsPaneMark()" style="display:none">Mark answered</button></div>' +
+              '<span class="cm-head-acts"><span class="tt-menu" id="cmTplWrap"><button class="link-btn" onclick="_ttMenu(event)" data-tip="Text templates: Zoom lesson,\nNo show, Optional schedule.">Templates ▾</button>' +   // text templates live here (user, 2026-11-05; was its own tab)
+              '<span class="cash-dd-list" id="cmTplList" hidden></span></span>' +
+              '<button class="link-btn" id="cmPaneMark" onclick="commsPaneMark()" style="display:none">Mark answered</button></span></div>' +
             '<div class="cm-pane-thread" id="cmPaneThread"></div>' +
             '<div class="cm-attach-chip" id="cmPaneChip" hidden></div>' +
             '<div class="cm-msgr-input">' +

@@ -3562,6 +3562,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #tdNsWin .en-tpl-top .field-label { font-family: "DM Mono", monospace; font-size: 11.5px; letter-spacing: 4.5px; text-transform: uppercase; color: #7c7c7c; margin-bottom: 0; line-height: 1; }   /* spread-out caps like the Log window's labels (user, 2026-11-04) */
 #tdNsWin .en-tpl-foot { display: flex; justify-content: flex-end; margin-top: 12px; }   /* Save + Copy under the text box (user, 2026-11-04) */
 #tdNsWin .win-icon { height: 40px; width: auto; }   /* the hand-and-phone icon, like the Comms tab (user, 2026-11-04) */
+#tdZmWin .win-icon { height: 26px; width: auto; }   /* the text icon a bit bigger (user, 2026-11-05; was 18px) */
 #tdNsWin .st-win .en-tpl:first-child { margin-top: 28px; }   /* room under the title (user, 2026-11-04) */
 .st-win .en-tpl:first-child { margin-top: 0; }   /* Ask / Nudge window: first template right under the title */
 .st-win .en-tpl + .en-tpl { margin-top: 36px; }   /* more room between templates (user, 2026-10-26; was 18px) */
@@ -4444,3 +4445,13 @@ html body #tab-audit.tab-panel.active:has(#auMenuView:not([style*="none"])) { mi
 /* Home button right of ☰ (user, 2026-11-05; was top right); the magnifier takes its corner */
 html body .header .hdr-home:not(.hdr-mag) { left: 57.5px; right: auto; }
 html body .header .hdr-mag { right: 23.5px; }
+
+/* Text templates (2026-11-05): Templates ▾ in the Comms conversation head, Openings at the window's bottom */
+.cm-head-acts { display: flex; align-items: center; gap: 8px; }
+.tt-menu { position: relative; }
+.tt-menu .cash-dd-list { left: auto; right: 0; width: 190px; }
+.tt-bottom { margin-top: 14px; }
+.tt-open { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 12px; }
+.tt-open-row { display: flex; align-items: center; gap: 6px; }
+.tt-open-row select { width: auto; padding: 6px 8px; }
+.tt-x { padding: 4px 8px; }

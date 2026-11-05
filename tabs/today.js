@@ -62,7 +62,7 @@ function _tdRender() {
   // Today's top part in a box like This Week's under it (user, 2026-10-24): title, calendar, count, list.
   var head = '<div class="td-wk-box td-today-box">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>Today</span>' +   // no " · Tue, Oct 27": the date page under it says it (user, 2026-10-27)
     '<span class="td-top-btns"><button class="link-btn opens-window" onclick="_tdAllOpen()" data-tip="Opens a window.\nToday\'s students: last lesson,\nlast HW and its folders.">All</button>' +   // All, left of No show (user, 2026-11-01)
-    '<button class="link-btn opens-window" onclick="_tdZmOpen()" data-tip="Opens a window.\nPick a student: the Zoom instructions\ntext, to copy and send from Messages.">Zoom</button><button class="link-btn opens-window" onclick="_tdNsOpen()" data-tip="Instant.\nThe No show text, to copy\nand send from Messages.">No show</button></span></div>' +   // no Week button: This Week is under it (user, 2026-10-24); No show (portal button) top right opens the No show text window (user, 2026-10-26)
+    '</span></div>' +   // Zoom + No show moved to the Text templates tab (user, 2026-11-05)
     '<img class="td-hero" src="img/amp-combo.svg" alt="">' +   // red combo amp (user, 2026-11-02; guitar + amp tried 2026-11-03, amp alone kept)
     '<div class="td-day-cal"><div class="td-hol-mo">' + MONTHS[now.getMonth()] + '</div><div class="td-hol-dd">' + now.getDate() + '</div></div>';   // today's date page, the holiday warning's (user, 2026-10-27; was the plain calendar icon)
   // A day off (2026-10-08): the resting figure over the line (om-82).
@@ -237,8 +237,9 @@ var TD_NS_TEXTS = [
   "Lesson policies are what keep the studio running, so thank you for understanding!"
 ];
 function _tdNsOpen() {
-  // The Reviews tab's text template look: the blue bubble, editable, Save + Copy on the right.
-  _stWin('tdNsWin', 'Text templates', 'No show', COMMS_TEXT_ICON, '<div id="tdNsList">' + _tdNsHtml() + '</div>');
+  // The Reviews tab's text template look: the blue bubble, editable, Save + Use on the right.
+  _tdNsName = _ttWho().name;   // the open Comms conversation's student (2026-11-05): their first name goes in the "Hi!"
+  _stWin('tdNsWin', 'No show', 'Text templates', COMMS_TEXT_ICON, _ttToHtml() + '<div id="tdNsList">' + _tdNsHtml() + '</div>');
   fetch(getScriptUrl() + '?action=getNsTexts')
     .then(function (x) { return x.json(); })
     .then(function (res) {
@@ -249,14 +250,20 @@ function _tdNsOpen() {
     })
     .catch(function () {});   // the starting texts stay
 }
+var _tdNsName = '';
+function _tdNsNamed(t) {   // "Hi!" -> "Hi Siena!" once a student is picked; Save takes the name back out
+  var f = _tdNsName.split(/\s+/)[0];
+  return f ? t.replace(/^(Hi|Hey|Hello)([!,])/i, '$1 ' + f + '$2') : t;
+}
 function _tdNsHtml() {
   return TD_NS_TEXTS.map(function (t, i) {
+    t = _tdNsNamed(t);
     return '<div class="en-tpl">' +
       '<div class="en-tpl-top"><span class="field-label">Template ' + (i + 1) + '</span></div>' +
       '<div class="ts-thread tv-rv-thread rv-thread"><div id="tdNsText' + i + '" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only" spellcheck="false">' + inqEsc(t) + '</div></div>' +
       '<div class="en-tpl-foot"><span class="en-tpl-btns">' +
         '<button class="link-btn" id="tdNsSave' + i + '" onclick="_tdNsSave(' + i + ')" data-tip="Saves this text to\nNo Show Texts (Counter sheet).">Save</button>' +
-        '<button class="link-btn" id="tdNsCopy' + i + '" onclick="_tdNsCopy(' + i + ')" data-tip="Instant.\nCopies the text for Messages.\nSaves nothing.">' + COPY_ICON + '<span>Copy</span></button></span></div>' +
+        _ttUseBtn('tdNsText' + i) + '</span></div>' +   // Use: into the Comms text box (was Copy for Messages, 2026-11-05)
     '</div>';
   }).join('');
 }
@@ -265,6 +272,8 @@ function _tdNsSave(i) {
   var win = document.querySelector('#tdNsWin .st-win');
   if (!el || !btn) return;
   var text = el.innerText.replace(/\n+$/, '');
+  var f = _tdNsName.split(/\s+/)[0];
+  if (f) text = text.replace(new RegExp('^(Hi|Hey|Hello) ' + f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([!,])', 'i'), '$1$2');   // saved without the picked name
   rpmBusy(win, btn, true, 'Saving');
   fetch(getScriptUrl() + '?action=saveNsText&i=' + i + '&text=' + encodeURIComponent(text))
     .then(function (x) { return x.json(); })
@@ -280,87 +289,37 @@ function _tdNsSave(i) {
       rpmAlert({ title: 'Not saved', message: String(e && e.message || e) });
     });
 }
-function _tdNsCopy(i) {
-  var el = document.getElementById('tdNsText' + i), btn = document.getElementById('tdNsCopy' + i);
-  if (!el) return;
-  var text = el.innerText.replace(/\n+$/, '');
-  function flash(ok) {
-    var lbl = btn && btn.querySelector('span');
-    if (!lbl) return;
-    lbl.textContent = ok ? 'Copied' : 'Select & copy';
-    setTimeout(function () { lbl.textContent = 'Copy'; }, 1600);
-  }
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { flash(true); }, function () { _rvCopyFallback(text, flash); });
-  else _rvCopyFallback(text, flash);
-}
 
 // ── Zoom lesson text (user, 2026-11-04) ─────────────────────────────────────
 // Pick a student, get the Zoom instructions text (PDF link, big screen, audio,
 // the lesson room link, see you, wait up to 5 minutes) to copy into Messages.
-// Today's students are chips; anyone else is typed in. Edit freely; nothing is saved.
+// Opened from Comms ▸ Templates for the open conversation's student (2026-11-05). Edit freely; nothing is saved.
 var ZM_PDF = 'https://github.com/RPMLogger/rpm-logger/blob/main/Zoom%20Instructions%20-%202026.pdf';
 var ZM_LINK = 'https://us02web.zoom.us/j/3404335872';
 var _zmName = '', _zmTime = '';
 function _tdZmOpen() {
-  _zmName = ''; _zmTime = '';
-  var chips = (todayStudents || []).map(function (s, i) {
-    return '<button class="link-btn" data-zi="' + i + '" onclick="_tdZmPick(' + i + ')">' + inqEsc(s.name) + '</button>';
-  }).join('');
-  var w = _stWin('tdZmWin', 'Text templates', 'Zoom lesson', COMMS_TEXT_ICON,
-    (chips ? '<div class="field-label">Today</div><div class="td-zm-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px">' + chips + '</div>' : '') +
-    '<div class="field-label">Another student</div>' +
-    '<input id="tdZmOther" list="tdZmRoster" class="en-tpl-ta" style="margin:6px 0 14px;width:100%" placeholder="Type a name" autocomplete="off" oninput="_tdZmOther(this.value)">' +
-    '<datalist id="tdZmRoster">' + (_imRoster || []).map(function (n) { return '<option value="' + inqEsc(typeof n === 'string' ? n : n.name || '') + '">'; }).join('') + '</datalist>' +
-    '<div id="tdZmOut"></div>');
-  if (!_imRoster) {
-    fetch(getScriptUrl() + '?action=getStudentRoster').then(function (r) { return r.json(); }).then(function (d) {
-      if (!d.success) return;
-      _imRoster = d.students || [];
-      var dl = document.getElementById('tdZmRoster');
-      if (dl) dl.innerHTML = _imRoster.map(function (n) { return '<option value="' + inqEsc(typeof n === 'string' ? n : n.name || '') + '">'; }).join('');
-    }).catch(function () {});
-  }
+  var w0 = _ttWho(); _zmName = w0.name; _zmTime = w0.time;   // the open Comms conversation's student (2026-11-05)
+  var w = _stWin('tdZmWin', 'Zoom lesson', 'Text templates', COMMS_TEXT_ICON, _ttToHtml() + '<div id="tdZmOut"></div>');
+  _tdZmShow();
   return w;
 }
-function _tdZmPick(i) {
-  var s = (todayStudents || [])[i]; if (!s) return;
-  _zmName = s.name; _zmTime = _tdTime(s.eventDate);
-  document.querySelectorAll('#tdZmWin [data-zi]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-zi') == i); });
-  var o = document.getElementById('tdZmOther'); if (o) o.value = '';
-  _tdZmShow();
-}
-function _tdZmOther(v) {
-  document.querySelectorAll('#tdZmWin [data-zi]').forEach(function (b) { b.classList.remove('on'); });
-  _zmName = String(v || '').trim(); _zmTime = '';
-  _tdZmShow();
-}
-function _tdZmText() {
+function _tdZmText() {   // the user's wording (2026-11-05)
   var first = _zmName.split(/\s+/)[0];
-  return 'Hi ' + first + '! Here are your Zoom lesson instructions: ' + ZM_PDF + '\n\n' +
-    'The most important things: please use a big screen (laptop, desktop or tablet, not a phone) and have your audio settings prepared as in the PDF.\n\n' +
+  return 'Hi' + (first ? ' ' + first : '') + '!\n\n' +
+    'Please check this quick guide for audio and video settings:\n\n' + ZM_PDF + '\n\n' +
+    'The most important things:\n\n' +
+    '• Please use a larger screen (laptop, desktop, or tablet—not a phone).\n' +
+    '• Please make sure your audio settings are configured as shown in the PDF.\n\n' +
     'Zoom link: ' + ZM_LINK + '\n\n' +
-    'See you ' + (_zmTime ? 'at ' + _zmTime : 'soon') + '! Please wait up to 5 minutes, in case I am not finished with the previous lesson.';
+    'See you ' + (_zmTime ? 'at ' + _zmTime : 'soon') + '!\n\n' +
+    '(Please allow up to 5 minutes in case I\'m still finishing up with my previous lesson.)';
 }
 function _tdZmShow() {
   var out = document.getElementById('tdZmOut');
   if (!out) return;
-  if (!_zmName) { out.innerHTML = ''; return; }
   out.innerHTML = '<div class="en-tpl">' +
     '<div class="ts-thread tv-rv-thread rv-thread"><div id="tdZmText" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only" spellcheck="false" style="white-space:pre-wrap">' + inqEsc(_tdZmText()) + '</div></div>' +
-    '<div class="en-tpl-foot"><span class="en-tpl-btns"><button class="link-btn" id="tdZmCopy" onclick="_tdZmCopy()" data-tip="Instant.\nCopies the text for Messages.">' + COPY_ICON + '<span>Copy</span></button></span></div></div>';
-}
-function _tdZmCopy() {
-  var el = document.getElementById('tdZmText'), btn = document.getElementById('tdZmCopy');
-  if (!el) return;
-  var text = el.innerText.replace(/\n+$/, '');
-  function flash(ok) {
-    var lbl = btn && btn.querySelector('span');
-    if (!lbl) return;
-    lbl.textContent = ok ? 'Copied' : 'Select & copy';
-    setTimeout(function () { lbl.textContent = 'Copy'; }, 1600);
-  }
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { flash(true); }, function () { _rvCopyFallback(text, flash); });
-  else _rvCopyFallback(text, flash);
+    '<div class="en-tpl-foot"><span class="en-tpl-btns">' + _ttUseBtn('tdZmText') + '</span></div></div>';
 }
 
 function _tdStudentHtml(s) {
