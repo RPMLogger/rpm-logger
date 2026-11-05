@@ -4381,7 +4381,9 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 .tab-panel.active.rpm-fill-chain, .rpm-fill-chain { display: flex; flex-direction: column; flex: 1 0 auto; }
 .rpm-fill { flex: 1 0 auto; }
 /* four screws on the Today + This Week boxes, the Calendar's (user, 2026-11-04) */
-#todayBody .td-wk-box { position: relative; }
+#todayBody .td-wk-box, #importBody .im-box, #tab-payments.tab-panel, #todoContent .tdo-box, #notesContent .tdo-box, #commsBody .cm-box { position: relative; padding: 36px 40px; }
+#tab-payments.tab-panel.active { padding: 36px 40px !important; }   /* beats the panel rule's long :not() chain */   /* room between the screws and the titles (user, 2026-11-04; was 24px) */
+#todayBody .td-hero { top: 97px; }   /* follows the 12px more padding on top */
 .td-bolt { position: absolute; width: 15px; height: 15px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #6a6a6a, #2b2b2b 55%, #111 80%); box-shadow: 0 1px 2px #000, inset 0 0 0 1px #0a0a0a; pointer-events: none; }
 .td-bolt:before, .td-bolt:after { content: ''; position: absolute; left: 3px; right: 3px; top: 6.5px; height: 2px; background: #111; border-radius: 1px; }
 .td-bolt:after { transform: rotate(90deg); }

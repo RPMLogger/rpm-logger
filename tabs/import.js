@@ -94,7 +94,7 @@ function _imRenderCards(noRead) {
     var in_g = names.filter(function (n) { return group(n) === g; });
     if (!in_g.length) return '';
     var top = firstBox; firstBox = false;
-    return '<div class="db-section td-wk-box im-box' + (anim ? ' im-stagger' : '') + '">' +
+    return '<div class="db-section td-wk-box im-box' + (anim ? ' im-stagger' : '') + '">' + TD_BOLTS +   // the Today tab's four screws (user, 2026-11-04)
       '<div class="settings-title td-wk-title im-title-row"' + inStyle() + '><span class="im-title-stack"><span>Lessons<span class="win-sub"> · ' + h + '</span></span>' + (top ? '<span class="st-page-icon">' + ANALYSIS_ICON + '</span>' : '') + '</span>' +
         (top ? '<button class="link-btn im-audit-link" onclick="switchTab(\'audit\')" data-tip="Opens a tab.\nAudit lessons and Audit payments." data-tip-wrap><span>Audit</span></button>' : '') + '</div>' +   // white, no glass: just a link (user, 2026-10-30)
       in_g.map(card).join('') +

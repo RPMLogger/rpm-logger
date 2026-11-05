@@ -14,7 +14,7 @@ function initTodoTab() {
   if (section.dataset.built !== "1") {
     // In Today's box look (user, 2026-10-26): a To-Do box (title, + New top right, icon, count, list) and a Completed box under it.
     section.innerHTML =
-      '<div class="td-wk-box tdo-box"><div class="settings-title td-wk-title"><span>To-Do</span>' +
+      '<div class="td-wk-box tdo-box">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>To-Do</span>' +
         '<span class="tdo-title-btns"><button id="todoAddBtn" class="link-btn amber opens-window" data-tip="Opens a window.\nNew to-do.">+ New</button></span></div>' +
         '<div class="td-wk-icon">' + TODO_ICON + '</div>' +   // the checklist + pencil (om-131, user 2026-10-28; was om-129; the pen moved to Notes, the checklist to Completed)
       '<div id="todoActive"></div>' +
@@ -179,7 +179,7 @@ function _renderTodos() {
   if (done.length) {
     var box = document.createElement("div");
     box.className = "td-wk-box tdo-box tdo-done";
-    box.innerHTML = '<div class="settings-title td-wk-title"><span>Completed</span></div>' +   // no "· 17" count (user, 2026-10-28)
+    box.innerHTML = TD_BOLTS + '<div class="settings-title td-wk-title"><span>Completed</span></div>' +   // no "· 17" count (user, 2026-10-28)
       '<div class="td-wk-icon">' + CHECKLIST_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>' +   // was the To-Do box's (user, 2026-10-28); no line under it, like To-Do
       '';
     var clearBtn = document.createElement("button");
@@ -196,7 +196,7 @@ function _renderTodos() {
     var btns = document.createElement("span");
     btns.className = "tdo-title-btns";
     btns.appendChild(showBtn);
-    box.firstChild.appendChild(btns);
+    box.querySelector(".td-wk-title").appendChild(btns);
     var list = document.createElement("div");
     list.className = "tdo-done-list";
     done.forEach(function(t, i) { list.appendChild(_todoListRow(t, i + 1)); });

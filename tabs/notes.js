@@ -13,7 +13,7 @@ function initNotesTab() {
   if (section.dataset.built !== "1") {
     // In To-Do's look (user, 2026-10-28): a Notes box (title, + New top right, the pen, the notebook list).
     section.innerHTML =
-      '<div class="td-wk-box tdo-box"><div class="settings-title td-wk-title"><span>Notes</span>' +
+      '<div class="td-wk-box tdo-box">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>Notes</span>' +
         '<span class="tdo-title-btns"><button id="notesAddBtn" class="link-btn amber opens-window" data-tip="Opens a window.\nNew note.">+ New</button></span></div>' +
         '<div class="td-wk-icon">' + PEN_ICON + '</div>' +   // the pen (om-127; To-Do's until it got om-129, user 2026-10-28)
       '<div id="notesList"></div>' +
@@ -73,7 +73,7 @@ function _renderNotes() {
   if (!removed.length) return;
   var box = document.createElement("div");
   box.className = "td-wk-box tdo-box tdo-done";
-  box.innerHTML = '<div class="settings-title td-wk-title"><span>Removed</span></div>' +
+  box.innerHTML = TD_BOLTS + '<div class="settings-title td-wk-title"><span>Removed</span></div>' +
     '<div class="td-wk-icon">' + TRASH_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>';
   var clearBtn = document.createElement("button");
   clearBtn.className = "link-btn";
@@ -88,7 +88,7 @@ function _renderNotes() {
   var btns = document.createElement("span");
   btns.className = "tdo-title-btns";
   btns.appendChild(showBtn);
-  box.firstChild.appendChild(btns);
+  box.querySelector(".td-wk-title").appendChild(btns);
   var list = document.createElement("div");
   list.className = "tdo-done-list";
   removed.slice().reverse().forEach(function(n, i) { list.appendChild(_notesListRow(n, i + 1)); });
