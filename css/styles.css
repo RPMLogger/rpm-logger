@@ -4258,7 +4258,7 @@ a.cm-file:hover { background: rgba(255,255,255,0.14); }
 #todayBody .td-mini-b { background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
 #todayBody .td-day-cal { box-shadow: 0 3px 10px rgba(0,0,0,0.25); }   /* the date page, lifted like the name tags (user, 2026-11-04) */
 #todayBody .td-hero { filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6)); }   /* the amp too, a shadow under its shape (user, 2026-11-04) */
-#todayBody .td-wk-icon .win-icon { height: 42px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6)); }   /* This Week's calendar as tall as Today's date page (user, 2026-11-04; was 20px); the amp's shadow */
+#todayBody .td-wk-icon .win-icon { display: block; width: 38px; height: auto; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6)); }   /* This Week's calendar as wide as Today's date page (user, 2026-11-05; was 42px tall, 2026-11-04); block: no inline gap under it, so icon → count matches Today's; the amp's shadow */
 .link-btn.td-mini-tag { pointer-events: none; cursor: default; }   /* Today's names: tags, nothing to press (user, 2026-11-01) */
 #todayBody .td-wk-box { box-shadow: none; }   /* Today page: shadows on buttons only (user, 2026-11-02) */
 #todayBody .td-today-box ~ .td-wk-box { margin-top: 16px; }   /* This Week closer under Today (user, 2026-11-02; was 34px) */
@@ -4386,3 +4386,5 @@ html body #tab-audit.active:has(#auMenuView:not([style*="none"])) { position: re
 #tab-home .hm-spk .au-cap { width: 150px; height: 150px; margin: -75px 0 0 -75px; }
 #tab-home > :not(.hm-spk) { position: relative; z-index: 1; }
 #tab-audit .au-cap, #tab-audit .au-speaker:hover .au-cap { color: var(--accent2); }   /* amber icons (user, 2026-11-05) */
+#todayBody :is(.td-count, .td-wk-head) .field-label { letter-spacing: 2px; }   /* "2 students" / "16 students" spread like the titles (user, 2026-11-05; was 1.5px) */
+#todayBody .td-today-box .td-count .field-label { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--t-faint); }   /* trying the All window's LESSON / HW GIVEN look (.td-all-lbl) on "2 students" (user, 2026-11-05) */
