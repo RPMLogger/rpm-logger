@@ -4398,6 +4398,7 @@ html body #tab-audit.active:has(#auMenuView:not([style*="none"])) { position: re
 #tab-audit .au-speaker:hover .au-cap::before { opacity: 0.6; }
 #tab-audit .au-ish { position: relative; }
 /* the plates = Today's name tags (user, 2026-11-05) */
+#tab-audit .au-spk { width: 330px; height: 330px; }   /* bigger, like a 2x12 cab's (user, 2026-11-05; was 260) */
 #tab-audit .au-plate { padding: 4px 10px; border-radius: 7px; font-size: 10px; letter-spacing: 1px; line-height: 15px; color: #7a7a7a;
   background: #1e1e1e; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
 #tab-audit .au-cap .au-icon { width: 92px; height: 92px; }   /* the icon's ring = the cap's edge, joined to the cone (user, 2026-11-05; was 44, 28, 40) */
@@ -4408,7 +4409,7 @@ html body #tab-audit.active:has(#auMenuView:not([style*="none"])) { position: re
   box-shadow: 0 0 0 1px #050505, 0 0 0 4px #1d1d1d, 0 0 0 5px #050505, inset 0 0 0 1px #262626, inset 0 0 26px rgba(0,0,0,0.9); }
 #tab-home .hm-spk .au-cap { width: 32%; height: 32%; margin: -16% 0 0 -16%; }   /* speaker fills the box like a real cab: 80% of its height (user, 2026-11-05; was 460px) */
 #tab-home > :not(.hm-spk) { position: relative; z-index: 1; }
-#tab-audit .au-cap { color: #1f1f1f; } #tab-audit .au-speaker:hover .au-cap { color: #cfcfcf; }   /* dim grey, light grey on hover (user, 2026-11-05; were #1f1f1f / #fff, amber before) */
+#tab-audit .au-cap { color: #1f1f1f; } #tab-audit .au-speaker:hover .au-cap { color: #8a8a8a; }   /* dim grey, light grey on hover (user, 2026-11-05; were #1f1f1f / #fff, amber before) */
 #todayBody :is(.td-count, .td-wk-head) .field-label { letter-spacing: 2px; }   /* "2 students" / "16 students" spread like the titles (user, 2026-11-05; was 1.5px) */
 /* Saved background (user, 2026-11-05): the Home speaker at 4%, ready for any window/page.
    Use: put <span class="au-spk spk-bg" aria-hidden="true"><span class="au-cap"></span></span> first inside a box with position: relative,
