@@ -791,6 +791,7 @@ function commsEnsureExtras() {
       stu.innerHTML =
         // Hidden until the first load lands, so it never says "No conversations" while loading (user, 2026-11-04).
         '<div class="cm-msgr cm-loading">' +
+          '<div class="rpm-loading cm-wait">Loading</div>' +   // the ring + LOADING... until the first load (user, 2026-11-05)
           // Top of the list like Messages (user, 2026-11-01): the compose button
           // (New text) alone at the right, then a full-width search with a magnifier.
           '<div class="cm-msgr-list"><div class="cm-list-top">' +

@@ -7,11 +7,10 @@
 // Backend: RPM_Announce.js (getAnnouncements / sendAnnouncement / nudgeAnnouncement).
 
 var ANN_DEFAULT_TEXT =
-  "IMPORTANT: ALL LESSON TEXTING IS MOVING HERE\n\n" +
+  "IMPORTANT: ALL LESSON TEXTING IS MOVING HERE\n\nPLEASE REPLY Y TO CONFIRM.\n\n" +
   "Hi [Student]!\n\n" +
   "As my email said, this RPM Notifications number is now our official texting line for anything lesson-related.\n\n" +
   "Photos are fine here, but videos and PDFs don't come through. Please send me a link, or put them in your Dropbox lesson folder and let me know.\n\n" +
-  "Please reply Y to confirm.\n\n" +
   "Thanks!\nBilgehan";
 var ANN_NUDGE_TEXT = "Hi [Student]! Quick follow-up on my text above. Please reply Y to confirm. Thanks!";
 
@@ -111,7 +110,7 @@ function annRenderList() {
   document.getElementById("annTitle").textContent = "Announcements";
   document.getElementById("annNewBtn").style.display = "";
   var list = (annData && annData.announcements) || [];
-  if (!list.length) { body.innerHTML = '<div class="empty-state">None yet. Press New announcement to text all students.</div>'; return; }
+  if (!list.length) { body.innerHTML = '<div class="empty-state">None</div>'; return; }
   var open = annOpenId || list[0].id;
   body.innerHTML = "";
   list.forEach(function (a) { body.appendChild(a.id === open ? annCard(a) : annPastRow(a)); });
