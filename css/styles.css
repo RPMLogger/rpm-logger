@@ -1268,57 +1268,12 @@ input[type="checkbox"]:checked {
 .incoming-card .incoming-confirm { padding: 5px 10px; font-size: 9px; min-width: 0; }   /* card Confirm same size as Dismiss (2026-09-29) */
 .incoming-nomatch { font-size: 9px; color: var(--accent); letter-spacing: 1px; margin-top: 4px; }
 
-/* ─── INCOMING NOTE PANEL ─────────────────────────────────────────────────── */
-.incoming-note-panel {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-top: none; border-radius: 0 0 8px 8px;
-  padding: 10px 12px 12px; margin-bottom: 8px;
-}
-.inp-row {
-  display: flex; gap: 8px; align-items: flex-start;
-}
-.inp-textarea {
-  flex: 1; background: var(--surface); border: 1px solid var(--border);
-  border-radius: 6px; color: var(--text); font-family: "DM Mono", monospace;
-  font-size: 12px; padding: 8px 10px; resize: none; outline: none;
-  line-height: 1.5; box-sizing: border-box; transition: border-color 0.2s;
-}
-.inp-textarea:focus { border-color: var(--muted); }
-.inp-textarea::placeholder { color: var(--muted); font-style: italic; }
-.inp-mic {
-  padding: 8px 10px; background: none; border: 1px solid var(--border);
-  border-radius: 6px; color: var(--muted); font-size: 15px;
-  cursor: pointer; transition: all 0.2s; flex-shrink: 0; line-height: 1;
-}
-.inp-mic:hover:where(:not(:disabled)) { border-color: var(--accent2); }
-.inp-mic.recording {
-  border-color: var(--accent); color: var(--accent);
-  background: rgba(232,70,58,0.08); animation: pulse 1s infinite;
-}
-.inp-actions {
-  display: flex; gap: 8px; margin-top: 8px; align-items: center;
-}
-.inp-log {
-  flex: 1; padding: 9px; border: none; border-radius: 4px;
-  background: var(--green); color: #000; font-family: "DM Mono", monospace;
-  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
-  cursor: pointer; transition: all 0.2s; font-weight: 600;
-}
-.inp-log:hover:where(:not(:disabled)) { background: #27ae60; }
-.inp-log:disabled { opacity: 0.4; cursor: not-allowed; }
-.inp-cancel {
-  padding: 9px 14px; background: none; border: 1px solid var(--border);
-  border-radius: 4px; color: var(--muted); font-family: "DM Mono", monospace;
-  font-size: 10px; letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
-}
-.inp-cancel:hover:where(:not(:disabled)) { border-color: var(--accent); color: var(--accent); }
-
-/* "Paying for" line on the note panel (2026-10-29): who the payment is for,
-   as settled on the card or in the Add contact popup. */
-.inp-for { font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: var(--muted);
-  margin-bottom: 10px; letter-spacing: .3px; }
-.inp-for b { color: var(--t-text); font-weight: 400; }
-.inp-for-none { color: var(--accent); }
+/* Confirm logs right from the card; Add contact + Log from its window
+   (2026-11-05). Done = green "Logged ✓" for a second, then the card goes. */
+.incoming-confirm.logged, .pa-save.logged,
+.incoming-confirm.logged:disabled, .pa-save.logged:disabled {
+  color: var(--green); border-color: color-mix(in srgb, var(--green) 70%, transparent);
+  background: color-mix(in srgb, var(--green) 12%, transparent); opacity: 1; }
 
 /* ─── PAYMENT CONTACTS WINDOW (2026-10-29) ────────────────────────────────── */
 .payers-intro { font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: var(--muted);

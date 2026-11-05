@@ -252,129 +252,16 @@ function submitCashLog() {
   });
 }
 
-// ─── INCOMING NOTE PANEL (text + mic + log) ───────────────────────────────────
-var activeIncomingPayment = null;
-var incomingRecognition   = null;
-var incomingRecording     = false;
-
-// onDone (optional): called after both writes land, e.g. the Audit tab
-// re-checking who is still unpaid.
-function openIncomingNotePanel(payment, cardEl, onDone) {
-  // Close any other open note panel first
-  document.querySelectorAll(".incoming-note-panel").forEach(function(p) { p.remove(); });
-  stopIncomingMic();
-
-  // tab / student: whose lesson this pays for — their own name, a contact on
-  // their card, or the student picked in the Add contact popup (2026-10-29).
-  activeIncomingPayment = {
-    payment: payment, cardEl: cardEl, onDone: onDone || null,
-    tab: payment.matchedTab || "",
-    student: payment.student || studentNameForTab(payment.matchedTab)
-  };
-
-  var panel = document.createElement("div");
-  panel.className = "incoming-note-panel";
-  panel.innerHTML =
-    (activeIncomingPayment.student
-      ? "<div class='inp-for'>Paying for <b>" + inqEsc(activeIncomingPayment.student) + "</b></div>"
-      : "<div class='inp-for inp-for-none'>No student picked — this logs to the Payments sheet only</div>") +
-    "<div class='inp-row'>" +
-      "<textarea class='inp-textarea' placeholder='Note (optional)...' rows='2'></textarea>" +
-      "<button class='inp-mic' data-tip='Starts or stops dictation.'>" + MIC_ICON + "</button>" +
-    "</div>" +
-    "<div class='inp-actions'>" +
-      "<span class='inp-state' style='flex:1'></span>" +
-      "<button class='inp-log btn-log'>＋ Log →</button>" +
-      "<button class='inp-cancel'>✕</button>" +
-    "</div>";
-
-  var textarea  = panel.querySelector(".inp-textarea");
-  var micBtn    = panel.querySelector(".inp-mic");
-  var logBtn    = panel.querySelector(".inp-log");
-  var cancelBtn = panel.querySelector(".inp-cancel");
-
-  micBtn.addEventListener("click", function() {
-    if (incomingRecording) {
-      stopIncomingMic();
-      micBtn.innerHTML = MIC_ICON;
-      micBtn.classList.remove("recording");
-    } else {
-      startIncomingMic(textarea, micBtn);
-    }
-  });
-
-  logBtn.addEventListener("click", function() {
-    stopIncomingMic();
-    submitIncomingWithNote(textarea.value.trim(), logBtn);
-  });
-
-  cancelBtn.addEventListener("click", function() {
-    stopIncomingMic();
-    panel.remove();
-    activeIncomingPayment = null;
-  });
-
-  cardEl.parentNode.insertBefore(panel, cardEl.nextSibling);
-  textarea.focus();
-}
-
+// ─── CONFIRM = LOG (2026-11-05) ──────────────────────────────────────────────
+// No note window any more (user, 2026-11-05: the note strip, then a Confirm
+// payment window, were one step too many). A known name: Confirm logs right
+// from the card. A new name: Add contact's button is "Add contact + Log",
+// one window does both.
 // The student full name behind a tab, for the "Paying for" line.
 function studentNameForTab(tab) {
   if (!tab) return "";
   var hit = payerStudentList().filter(function(s) { return s.tab === tab; })[0];
   return hit ? hit.name : "";
-}
-
-function startIncomingMic(textarea, micBtn) {
-  if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
-    addLog("paymentFeed", "Speech not supported. Use Chrome.", "error");
-    return;
-  }
-  incomingRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  incomingRecognition.lang = "en-US";
-  incomingRecognition.continuous = true;
-  incomingRecognition.interimResults = true;
-  incomingRecognition._finalText = "";
-  incomingRecognition._suppressed = false;
-
-  incomingRecognition.onstart = function() {
-    incomingRecording = true;
-    micBtn.innerHTML = MIC_STOP_ICON;
-    micBtn.classList.add("recording");
-  };
-
-  incomingRecognition.onresult = function(event) {
-    var interim = "";
-    for (var i = event.resultIndex; i < event.results.length; i++) {
-      if (event.results[i].isFinal) incomingRecognition._finalText += event.results[i][0].transcript;
-      else interim += event.results[i][0].transcript;
-    }
-    textarea.value = (incomingRecognition._finalText + interim).trim();
-  };
-
-  incomingRecognition.onend = function() {
-    if (incomingRecognition._suppressed) return;
-    incomingRecording = false;
-    micBtn.innerHTML = MIC_ICON;
-    micBtn.classList.remove("recording");
-  };
-
-  incomingRecognition.onerror = function(e) {
-    if (e.error === "no-speech") return;
-    incomingRecording = false;
-    micBtn.innerHTML = MIC_ICON;
-    micBtn.classList.remove("recording");
-  };
-
-  incomingRecognition.start();
-}
-
-function stopIncomingMic() {
-  if (incomingRecognition) {
-    incomingRecognition._suppressed = true;
-    incomingRecognition.stop();
-  }
-  incomingRecording = false;
 }
 
 // Two writes: the RPM Payments log and the student's Students Import box.
@@ -385,26 +272,22 @@ function stopIncomingMic() {
 //                 again redoes ONLY that one, so the Payments log never gets
 //                 the same payment twice.
 // What already landed is remembered on the payment itself (payment._wrote).
-function submitIncomingWithNote(note, logBtn) {
+// ui: { root (dims while saving), btn (Logging… → Logged ✓), state (badge
+// spot; none = a toast), idle (the button's own text), student (who it pays
+// for), done (after Logged ✓ has shown a second) }.
+function logIncomingPayment(payment, ui) {
   var url = getScriptUrl(); if (!url) return;
-  if (!activeIncomingPayment) return;
-
-  var act      = activeIncomingPayment;
-  var payment  = act.payment;
-  var cardEl   = act.cardEl;
-  var panel    = cardEl.nextSibling;
-  var stateEl  = panel && panel.querySelector ? panel.querySelector(".inp-state") : null;
-  // The student picked in "Paying for" wins over the card's own match: it is
-  // the one whose Paid box gets ticked.
-  var tab      = act.tab || payment.matchedTab || "";
-  var samePerson = act.student &&
-    act.student.replace(/\s+/g, " ").trim().toLowerCase() === payment.name.replace(/\s+/g, " ").trim().toLowerCase();
+  var btn = ui.btn;
+  if (btn.disabled) return;
+  var tab     = payment.matchedTab || "";
+  var student = payment.student || studentNameForTab(tab);
+  var samePerson = student &&
+    student.replace(/\s+/g, " ").trim().toLowerCase() === payment.name.replace(/\s+/g, " ").trim().toLowerCase();
   // Someone else paying: say whose lesson it is, since the row carries the
   // payer's name (that is how Incoming knows the payment is dealt with).
-  var noteFull = [(act.student && !samePerson) ? "For " + act.student : "", note].filter(Boolean).join(" · ");
+  var noteFull = (student && !samePerson) ? "For " + student : "";
   var fullNote = noteFull ? payment.amount + " - " + noteFull : payment.amount;
   var wrote    = payment._wrote || (payment._wrote = { log: false, box: !tab });
-
 
   function call(action, params) {
     var q = url + "?action=" + action;
@@ -413,49 +296,45 @@ function submitIncomingWithNote(note, logBtn) {
       .then(function(d) { return { ok: !!(d && d.success), why: (d && d.message) || "" }; })
       .catch(function() { return { ok: false, why: "No answer from Google." }; });
   }
+  function badge(kind, text, why) {
+    if (ui.state) { if (kind === "fail") rpmFail(ui.state, why); else rpmHalf(ui.state, text, why); }
+    else rpmToast(kind, kind === "fail" ? "Unsuccessful" : text, why);
+  }
 
-  if (stateEl) stateEl.innerHTML = "";
-  logBtn.textContent = "Logging…"; logBtn.disabled = true;
-  if (panel && panel.classList) rpmBusy(panel, logBtn, true);
+  if (ui.state) ui.state.innerHTML = "";
+  btn.textContent = "Logging…"; btn.disabled = true;
+  rpmBusy(ui.root, btn, true);
 
-  var jobs = [];
-  jobs.push(wrote.log ? Promise.resolve({ ok: true }) : call("logPayment", {
-    date: payment.date, studentName: payment.name,
-    method: payment.method, amount: payment.amount, notes: noteFull
-  }));
-  jobs.push(wrote.box ? Promise.resolve({ ok: true }) : call("logPaymentNote", {
-    studentName: tab, paymentDate: payment.date, note: fullNote
-  }));
-
-  Promise.all(jobs).then(function(res) {
-    if (panel && panel.classList) rpmBusy(panel, logBtn, false);
+  Promise.all([
+    wrote.log ? Promise.resolve({ ok: true }) : call("logPayment", {
+      date: payment.date, studentName: payment.name,
+      method: payment.method, amount: payment.amount, notes: noteFull
+    }),
+    wrote.box ? Promise.resolve({ ok: true }) : call("logPaymentNote", {
+      studentName: tab, paymentDate: payment.date, note: fullNote
+    })
+  ]).then(function(res) {
+    rpmBusy(ui.root, btn, false);
     if (res[0].ok) wrote.log = true;
     if (res[1].ok) wrote.box = true;
 
     if (wrote.log && wrote.box) {
-      var label = shortDate(payment.date) + " · " + payment.name + " · " + payment.amount + " · " + payment.method +
-        (tab ? "" : " (RPM only — no sheet match)");
-      addLog("paymentFeed", "✓ " + label, "success");
-      if (panel && panel.classList && panel.classList.contains("incoming-note-panel")) panel.remove();
-      cardEl.remove();
-      activeIncomingPayment = null;
-      checkEmptyIncoming();
+      addLog("paymentFeed", "✓ " + shortDate(payment.date) + " · " + payment.name + " · " + payment.amount + " · " + payment.method +
+        (tab ? "" : " (RPM only — no sheet match)"), "success");
       payHistoryLoaded = false;
-      if (act.onDone) act.onDone();
-      // Unpaid Students is its own page now (Audit payments) and reloads
-      // every time it opens, so nothing to refresh here.
+      btn.textContent = "Logged ✓"; btn.classList.add("logged");
+      setTimeout(function() { if (ui.done) ui.done(); }, 1000);
       return;
     }
-
-    logBtn.textContent = "＋ Log →"; logBtn.disabled = false;
+    btn.textContent = ui.idle; btn.disabled = false;
     if (!wrote.log && !wrote.box) {
-      rpmFail(stateEl, [res[0].why, res[1].why].filter(Boolean).join(" · "));
+      badge("fail", "", [res[0].why, res[1].why].filter(Boolean).join(" · "));
     } else if (!wrote.box) {
-      rpmHalf(stateEl, "Sheet box not ticked", "The payment is in the RPM Payments log.\nTicking the Students Import box failed: " +
-        (res[1].why || "no reason given") + "\nLog again ticks only the box.");
+      badge("half", "Sheet box not ticked", "The payment is in the RPM Payments log.\nTicking the Students Import box failed: " +
+        (res[1].why || "no reason given") + "\nConfirm again ticks only the box.");
     } else {
-      rpmHalf(stateEl, "Not in Payments log", "The Students Import box is ticked.\nWriting the RPM Payments log failed: " +
-        (res[0].why || "no reason given") + "\nLog again writes only the log.");
+      badge("half", "Not in Payments log", "The Students Import box is ticked.\nWriting the RPM Payments log failed: " +
+        (res[0].why || "no reason given") + "\nConfirm again writes only the log.");
     }
   });
 }
@@ -536,16 +415,22 @@ function loadIncomingPayments() {
             "</div>" +
           "</div>";
 
+        // Card gone: Logged ✓ has shown its second.
+        var gone = function() { card.remove(); checkEmptyIncoming(); };
         if (!isTrial) card.querySelector(".incoming-confirm").addEventListener("click", function() {
-          if (!canAdd) { openIncomingNotePanel(p, card); return; }
+          var btn = this;
+          if (!canAdd) {
+            logIncomingPayment(p, { root: card, btn: btn, idle: "Confirm \u2192", done: gone });
+            return;
+          }
+          // Add contact + Log: the window adds the contact, then logs, then closes.
           openAddContact(p, function(tab, student) {
             // Theirs now: the card matches, and Log ticks their box.
             p.matchedTab = tab; p.student = student; p.matchHow = "contact";
             canAdd = false;
             var warn = card.querySelector(".incoming-nomatch");
             if (warn) warn.remove();
-            openIncomingNotePanel(p, card);
-          });
+          }, gone);
         });
         card.querySelector(".incoming-dismiss").addEventListener("click", function() {
           dismissIncoming(card, p);
@@ -716,7 +601,7 @@ function payerStudentList() {
 }
 
 // done(tab, studentName) once you have picked, or null if you skipped.
-function openAddContact(payment, done) {
+function openAddContact(payment, done, gone) {
   var modal = document.getElementById("payAddModal");
   payAddPick = null;
   document.getElementById("payAddIcon").innerHTML = PAY_ICON;
@@ -737,7 +622,9 @@ function openAddContact(payment, done) {
   document.getElementById("payAddVal").onclick = open;
   document.getElementById("payAddDrop").onclick = open;
 
-  document.getElementById("payAddSave").onclick = function() { payAddFinish(payment, done); };
+  var save = document.getElementById("payAddSave");
+  save.textContent = "Add contact + Log"; save.classList.remove("logged");
+  save.onclick = function() { payAddFinish(payment, done, gone); };
   modal.dataset.done = "";
   modal._done = done;
   modal.style.display = "flex";
@@ -789,26 +676,36 @@ function payAddDropOpen() {
   });
 }
 
-function payAddFinish(payment, done) {
+// Add contact + Log (2026-11-05): adds the contact, then logs the payment in
+// the same window, Logged ✓, closes, the card goes. If the contact lands but
+// the log fails, the window stays and the button turns "＋ Log": pressing it
+// again only logs (the contact is already in).
+function payAddFinish(payment, done, gone) {
   if (!payAddPick) return;
   var pick = payAddPick;
   var modal = document.getElementById("payAddModal");
+  var box = modal.querySelector(".settings-modal");
   var state = document.getElementById("payAddState");
   var btn = document.getElementById("payAddSave");
 
-  function out() {
-    modal._done = null;
-    modal.style.display = "none";
-    done(pick.tab, pick.name);
+  function logIt() {
+    logIncomingPayment(payment, { root: box, btn: btn, state: state, idle: "＋ Log", done: function() {
+      modal._done = null;
+      modal.style.display = "none";
+      if (gone) gone();
+    } });
   }
 
-  rpmBusy(modal.querySelector(".settings-modal"), btn, true);
+  state.innerHTML = "";
+  rpmBusy(box, btn, true);
   payerCall("addPayer", { tab: pick.tab, name: payment.name, method: payment.method }, function(res) {
-    rpmBusy(modal.querySelector(".settings-modal"), btn, false);
+    rpmBusy(box, btn, false);
     if (!res.ok) { rpmFail(state, res.why); return; }
     payersLoaded = false;
     addLog("paymentFeed", "✓ " + payment.name + " → " + pick.name + " · payment contact added", "success");
-    out();
+    done(pick.tab, pick.name);          // the card is theirs now
+    btn.onclick = logIt;                // a retry only logs
+    logIt();
   });
 }
 
