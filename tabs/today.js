@@ -107,13 +107,17 @@ function _tdClose() {
 // and each student's last lesson (getPastLessons count=1; was the last 4, user 2026-11-01), six at a time so
 // Google isn't hit by all of them at once. Boxes fill in as answers come.
 // A name opens that student's lesson log on the Students tab.
+// The magnifier on a window too (user, 2026-11-01): the header's is under the window's dark.
+// Today's All and the Lessons tab's Last lesson & HW window (user, 2026-11-04).
+function _tdMagBtn(w) {
+  w.querySelector('.settings-close').insertAdjacentHTML('beforebegin', '<button class="win-mag' + (_magOn ? ' on' : '') + '" data-mag onclick="magToggle()" aria-label="Magnifier" data-tip="Instant.\nMagnifier: rest the pointer on longer text\nfor half a second to see it bigger." data-tip-left><span class="hdr-mag-i"></span></button>');
+}
 var _tdAll = null;   // { lessons: key → [..] | 'fail', hw: key → row, hwIn }
 
 function _tdAllOpen() {
   var w = _stWin('tdAllWin', 'Today', 'Last lesson & HW', null, '<div id="tdAllBody"><div class="empty-state rpm-loading">Loading</div></div>');
   w.querySelector('.st-win').classList.add('td-all-win');
-  // The magnifier on the window too (user, 2026-11-01): the header's is under the window's dark.
-  w.querySelector('.settings-close').insertAdjacentHTML('beforebegin', '<button class="win-mag' + (_magOn ? ' on' : '') + '" data-mag onclick="magToggle()" aria-label="Magnifier" data-tip="Instant.\nMagnifier: rest the pointer on longer text\nfor half a second to see it bigger." data-tip-left><span class="hdr-mag-i"></span></button>');
+  _tdMagBtn(w);
   var url = getScriptUrl(), all = _tdAll = { lessons: {}, hw: {}, hwIn: false };
   function go() {
     if (_tdAll !== all) return;

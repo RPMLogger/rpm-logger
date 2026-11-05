@@ -138,6 +138,7 @@ function _imOpenFirst(name) {
   _imOpenStudent(name);
   var w = _stWin('imLastWin', inqEsc(name), 'Last lesson & HW', null, '<div id="imLastBody"></div>');
   w.querySelector('.st-win').classList.add('td-all-win');
+  _tdMagBtn(w);   // the magnifier, like Today's All window (user, 2026-11-04)
   var st = { ls: undefined, hw: null, hwIn: false };
   var draw = function () {
     var b = document.getElementById('imLastBody');
