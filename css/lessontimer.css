@@ -11,5 +11,10 @@
 .ltm-box .ltm-over, .ltm-box .ltm-fail { color: var(--accent); }
 .ltm-box-idle .ltm-v, .ltm-box-idle .ltm-t { color: var(--muted); }
 /* Goals bottom left of the History box, Show all on the right (user, 2026-11-02) */
-#importBody .td-student .im-hist-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+#importBody .td-student .im-hist-foot { display: flex; align-items: center; justify-content: center; margin-top: 44px; }   /* Show all alone, centred, more room under the last lesson (user, 2026-11-05; was 10px) */
+#importBody .im-goals-box .im-sec-head { margin-bottom: 0; }
+#importBody .im-goals-box .im-goals-f { margin-top: 18px; padding-left: 16px; font-size: 11.5px; gap: 8px 22px; }   /* trial info under the Goals plate's heading (user, 2026-11-05) */
+#importBody .im-goals-box .im-goals-body:empty { display: none; }
+#importBody .im-goals-box .gl-none { margin-top: 18px; padding-left: 16px; }
+#importBody .im-split .im-row.im-empty .im-s { color: var(--t-faint); font-family: inherit; }   /* the empty lessons' dash as dim as their numbers (user, 2026-11-05) */
 #importBody .td-student .im-hist-foot > .im-more { margin: 0; }

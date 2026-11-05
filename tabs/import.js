@@ -239,14 +239,15 @@ function _imRenderStudent(name, lessons) {
       var gl = acts.querySelector('.gl-btn');
       var hist = [].filter.call(st.querySelectorAll(':scope > .im-sec-box'), function (b) { return /^history$/i.test((b.querySelector('.db-cx-t') || {}).textContent || ''); })[0];
       var list = hist && hist.querySelector('.im-list');
-      if (gl && list) {
+      // Show all alone, centred under History (user, 2026-11-05); Goals moved to its own plate at the bottom.
+      var more = list && list.querySelector(':scope > .im-more');
+      if (more) {
         var foot = document.createElement('div');
         foot.className = 'im-hist-foot';
-        foot.appendChild(gl);
-        var more = list.querySelector(':scope > .im-more');
-        if (more) foot.appendChild(more);
+        foot.appendChild(more);
         list.appendChild(foot);
       }
+      if (gl) gl.remove();
     }
     var notes = [].filter.call(st.querySelectorAll(':scope > .im-sec-box'), function (b) { return /^notes$/i.test((b.querySelector('.db-cx-t') || {}).textContent || ''); })[0];
     if (notes) notes.remove();   // no Notes box on the Students page (user, 2026-10-31; was moved last)
@@ -264,7 +265,17 @@ function _imRenderStudent(name, lessons) {
       list.appendChild(files); matBox.appendChild(head); matBox.appendChild(list);
       hwBox.parentNode.insertBefore(matBox, hwBox.nextSibling);
     }
-    if (typeof ltmBoxHtml === 'function') st.insertAdjacentHTML('beforeend', ltmBoxHtml(name));   // Chat / Lesson / Total at the bottom (tabs/lessontimer.js, 2026-11-02)
+    if (typeof glBtnHtml === 'function') st.insertAdjacentHTML('beforeend', _imGoalsBoxHtml(name));   // Goals plate above the timer (user, 2026-11-05)
+    if (typeof ltmBoxHtml === 'function') st.insertAdjacentHTML('beforeend', ltmBoxHtml(name));   // Chat / Lesson / Total at the very bottom (tabs/lessontimer.js, 2026-11-02; under Goals, user 2026-11-05)
+    // Screws on every plate, Today's (user, 2026-11-05). The name card + History read as one plate: two on top, two at the bottom.
+    var hc = st.querySelector(':scope > .im-head-card');
+    [].forEach.call(st.querySelectorAll(':scope > :is(.im-head-card, .im-sec-box)'), function (b) {
+      var joinTop = b === hc && hc.nextElementSibling && hc.nextElementSibling.classList.contains('im-sec-box');
+      var joinBot = hc && b === hc.nextElementSibling;
+      b.insertAdjacentHTML('beforeend', joinTop ? TD_BOLTS.split('</span>').filter(function (s, i) { return s && (i === 0 || i === 2); }).map(function (s) { return s + '</span>'; }).join('')
+        : joinBot ? TD_BOLTS.split('</span>').filter(function (s, i) { return s && (i === 1 || i === 3); }).map(function (s) { return s + '</span>'; }).join('')
+        : TD_BOLTS);
+    });
   }
   _imFixTips(body);
   if (!_ck.loaded && !_ck.busy) _ckLoad(function () { if (_imOpen === name && _imLast) _imRenderStudent(name, _imLast.lessons); });
@@ -1590,6 +1601,44 @@ function _ckRedraw() {
 
 // One box of the card: its title (and anything on the title's right) above
 // the border, the content inside it (2026-10-06).
+// ── Goals plate (user, 2026-11-05): last on the student page, Goals / Update goals top right.
+// Shows what we know from their trial (inquiry Level + Interests, their tab's Goals / Interests)
+// and the newest check-in's goals; empty when there is none. One getGoals read per student.
+var _imGoals = {};   // key → getGoals answer
+function _imGoalsBoxHtml(name) {
+  var k = _imKey(name);
+  if (!_imGoals[k]) {
+    _imGoals[k] = { busy: true };
+    fetch(getScriptUrl() + '?action=getGoals&name=' + encodeURIComponent(name))
+      .then(function (r) { return r.json(); })
+      .then(function (d) { _imGoals[k] = d.success ? d : { fail: true }; })
+      .catch(function () { _imGoals[k] = { fail: true }; })
+      .then(function () {
+        var b = document.querySelector('#importBody .im-goals-box[data-gl-box="' + k + '"] .im-goals-body');
+        if (b) b.innerHTML = _imGoalsBody(_imGoals[k]);
+      });
+  }
+  return '<div class="im-sec-box im-goals-box" data-gl-box="' + _auEsc(k) + '">' +
+    '<div class="db-cx-head im-sec-head"><label class="field-label db-cx-t">Goals</label>' + glBtnHtml(name) + '</div>' +
+    '<div class="im-goals-body">' + _imGoalsBody(_imGoals[k]) + '</div></div>';
+}
+function _imGoalsBody(d) {
+  if (!d || d.busy) return '<div class="gl-none">Loading…</div>';
+  if (d.fail) return '<div class="gl-none">Couldn\'t load goals.</div>';
+  var inq = d.inquiry || {}, pr = d.profile || {}, last = (d.checkins || [])[0] || {};
+  var same = function (a, b) { return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase(); };
+  var interests = inq.interests || pr.interests;
+  var f = [
+    ['Level',     inq.level],
+    ['Interests', interests],
+    ['Styles',    inq.interests && pr.interests && !same(pr.interests, inq.interests) ? pr.interests : ''],
+    ['Goals',     same(pr.goals, interests) ? '' : pr.goals],
+    ['Latest',    last.goals ? last.goals + (last.date ? ' (' + _glDay(last.date) + ')' : '') : '']
+  ].filter(function (x) { return x[1] && String(x[1]).trim(); });
+  if (!f.length) return '';   // nothing for this student: the plate stays empty (user, 2026-11-05)
+  return '<div class="inq-fields im-goals-f">' + f.map(function (x) { return '<span class="inq-flabel">' + x[0] + '</span><span class="inq-fval">' + inqEsc(x[1]) + '</span>'; }).join('') + '</div>';
+}
+
 function _imSec(title, right, cls, inner) {
   return '<div class="db-cx-head im-sec-head"><label class="field-label db-cx-t">' + title + '</label>' + (right || '') + '</div>' +
     '<div class="db-panel im-list' + (cls || '') + '">' + inner + '</div>';
@@ -1677,7 +1726,7 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
       var l = b[k];
       // 1-4, the lesson, and the date on the right (2026-10-04). No HW
       // column: Last HW under the list covers it (user's call).
-      if (!l) return '<div class="im-row im-empty"><span class="im-n">' + (k + 1) + '</span><span class="im-s"></span><span class="im-d">—</span></div>';
+      if (!l) return '<div class="im-row im-empty"><span class="im-n">' + (k + 1) + '</span><span class="im-s">—</span><span class="im-d"></span></div>';   // the dash where the lesson goes (user, 2026-11-05; was on the date side)
       // The newest lesson is marked (2026-10-07); the Today tab shows it brighter.
       return '<div class="im-row' + (l === items[items.length - 1] ? ' im-latest' : '') + '">' +
         '<span class="im-n">' + (k + 1) + '</span>' +

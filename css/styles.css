@@ -4083,6 +4083,11 @@ body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border
 #importBody .td-student.im-split { margin-top: 0; }
 #importBody .im-split .im-row.im-latest .im-s, #importBody .im-split .im-row.im-latest .im-n, #importBody .im-split .im-row.im-latest .im-d { color: inherit; }   /* the newest lesson no brighter than the rest (user, 2026-10-31) */
 #importBody .im-split .im-row.im-latest .im-n, #importBody .im-split .im-row.im-latest .im-d { color: var(--t-faint); }
+/* Student page plates (user, 2026-11-05): all the History box's colour, the thin 1px border of Today's boxes (no amp ring), four screws each */
+html body #importBody .im-split > :is(.im-sec-box, .im-head-card) { position: relative; background: #151515; border: 1px solid var(--border); box-shadow: none; clip-path: none; padding: 36px 40px; }
+html body #importBody .im-split > .im-head-card + .im-sec-box { border-top: none; }
+html body #importBody .im-split > .im-sec-box { margin-top: 24px; }
+html body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; }
 .db-dir-toggle { cursor: pointer; }   /* HW sent lesson folders open / close their files (user, 2026-10-31) */
 .db-dir-toggle:hover:where(:not(:disabled)) { color: var(--t-bright); }
 .db-dir-files { display: contents; }
