@@ -1373,7 +1373,7 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
     // Day and time both picked on the weeks (user, 2026-10-29): two fixed boxes, like From.
     (opts.fixedTime ? "<div class='st-to'><span class='st-big st-box st-to-day'>" + _dtpDateLabel(newYmd) + "</span><span class='st-big st-box st-to-day'>" + _rpmTpLbl(_rpmTpMins(opts.fixedTime)) + "</span></div>" :
     (opts.pick ? "<div class='st-to'><span class='st-big st-box st-to-day'>" + _dtpDateLabel(newYmd) + "</span>" : '') +
-    rpmDtpHtml('stRs', { date: newYmd, time: _stPad2(Math.floor(mins / 60)) + ':' + _stPad2(mins % 60), min: 'today', keys: true, fixedDate: !!opts.pick, timeLabel: opts.pick ? '' : undefined }) +   // no TIME tab beside the day (user, 2026-10-27)
+    rpmDtpHtml('stRs', { date: newYmd, time: _stPad2(Math.floor(mins / 60)) + ':' + _stPad2(mins % 60), min: 'today', keys: true, fixedDate: !!opts.pick, label: '', timeLabel: '' }) +   // no DAY / TIME tabs, like From: with them the row ran past the window (user, 2026-11-05)
     (opts.pick ? '</div>' : '')) +
     "</div></div>" +
     "<label class='field-label st-gap'>Requested by</label>" + _stWhoSeg('stRsWho', who) +

@@ -24,7 +24,7 @@ function initTodoTab() {
     section.dataset.built = "1";
     document.getElementById("todoDragBtn").onclick = function() { _todoDragOn = !_todoDragOn; _renderTodos(); };
     document.getElementById("todoAddBtn").onclick = function() {
-      _tdoEntryOpen({ title: "New to-do", icon: TODO_ICON, action: "addTodo", key: "task", tip: "Saves the to-do.", onSaved: _loadTodos });
+      _tdoEntryOpen({ title: "To do - new", icon: TODO_ICON, action: "addTodo", key: "task", tip: "Saves the to-do.", onSaved: _loadTodos });
     };
   }
   _todoDoneShown = false;
@@ -58,7 +58,7 @@ function _tdoEntryOpen(o) {
       llAddHtml() +
       '<div class="ll-acts" style="margin-top:16px">' +
         '<span class="ll-state" id="tdoEntryStatus" style="flex:1"></span>' +
-        '<button class="link-btn bright" id="tdoEntryLog" data-tip="' + o.tip + '\n⌘ Enter does too." data-tip-left disabled>＋ Log</button>' +
+        '<button class="link-btn bright" id="tdoEntryLog" data-tip="' + o.tip + '\n⌘ Enter does too." data-tip-left disabled>＋ Add</button>' +
       '</div>' +
     '</div>';
   document.body.appendChild(back);
