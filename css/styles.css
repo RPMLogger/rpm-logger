@@ -4387,3 +4387,28 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 .td-bolt { position: absolute; width: 15px; height: 15px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #6a6a6a, #2b2b2b 55%, #111 80%); box-shadow: 0 1px 2px #000, inset 0 0 0 1px #0a0a0a; pointer-events: none; }
 .td-bolt:before, .td-bolt:after { content: ''; position: absolute; left: 3px; right: 3px; top: 6.5px; height: 2px; background: #111; border-radius: 1px; }
 .td-bolt:after { transform: rotate(90deg); }
+/* ── Audit = a speaker cab (user, 2026-11-05): the page is the grille, each audit a speaker, its name on a plate ── */
+html body #tab-audit.active:has(#auMenuView:not([style*="none"])) { position: relative; min-height: 560px;
+  background: radial-gradient(circle, #232323 1.5px, transparent 1.9px) 0 0 / 7px 7px, #121212 !important; }
+#tab-audit .au-top { gap: 64px; }
+#tab-audit .au-top .link-btn.au-speaker { width: auto; height: auto; padding: 0; gap: 18px; border: 0; border-radius: 0; background: none; box-shadow: none; transform: none; }
+#tab-audit .au-top .link-btn.au-speaker:hover { background: none; border: 0; box-shadow: none; }
+.au-spk { position: relative; display: block; width: 260px; height: 260px; border-radius: 50%; box-sizing: border-box;
+  border: 16px solid #191919;   /* the surround */
+  background:
+    radial-gradient(circle, transparent 1.6px, #141414 2px) 0 0 / 7px 7px,   /* the mesh: holes show the cone */
+    radial-gradient(circle, #4a4a4a 0 22%, #2b2b2b 36%, #555 52%, #3a3a3a 70%, #1d1d1d 100%);   /* the cone, lit in rings */
+  box-shadow: 0 0 0 1px #050505, 0 0 0 4px #222, 0 0 0 5px #050505, 0 10px 24px rgba(0,0,0,0.65), inset 0 0 0 1px #2e2e2e, inset 0 0 26px rgba(0,0,0,0.9);
+  transition: filter .15s; }
+.au-cap { position: absolute; left: 50%; top: 50%; width: 92px; height: 92px; margin: -46px 0 0 -46px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 40% 35%, #333, #1a1a1a 60%, #0e0e0e); box-shadow: 0 4px 10px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px #050505;
+  color: #bdbdbd; transition: transform .1s, color .15s; }
+.au-cap .au-icon { width: 40px; height: 40px; }
+.au-plate { display: inline-block; padding: 8px 18px; border-radius: 4px; font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 2.5px; text-transform: uppercase; color: #bdbdbd;
+  background: linear-gradient(#2b2b2b, #1b1b1b); border: 1px solid #3a3a3a; box-shadow: 0 3px 8px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06); transition: color .15s; }
+#tab-audit .au-speaker:hover .au-spk { filter: brightness(1.25); }
+#tab-audit .au-speaker:hover .au-cap, #tab-audit .au-speaker:hover .au-plate { color: #fff; }
+#tab-audit .au-speaker:active .au-cap { transform: scale(0.95); }
+.au-sb { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #8a8a8a, #3a3a3a 55%, #151515 85%); box-shadow: 0 1px 1px #000; }   /* small screws on the surround */
+.au-sb.t { top: -12.5px; left: calc(50% - 4.5px); } .au-sb.b { bottom: -12.5px; left: calc(50% - 4.5px); }
+.au-sb.l { left: -12.5px; top: calc(50% - 4.5px); } .au-sb.r { right: -12.5px; top: calc(50% - 4.5px); }
