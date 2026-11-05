@@ -173,7 +173,7 @@ function _tdAllFolders(paths) {
 // One line per comma part, each starting with a capital (user, 2026-11-02).
 function _tdAllLines(t) {
   return String(t).split(',').map(function (x) { return x.trim(); }).filter(Boolean)
-    .map(function (x) { return '<div>' + inqEsc(x.charAt(0).toUpperCase() + x.slice(1)) + '</div>'; }).join('');
+    .map(function (x) { return '<div class="td-all-li">' + inqEsc(x.charAt(0).toUpperCase() + x.slice(1)) + '</div>'; }).join('');   // each line with a dash in front (user, 2026-11-05)
 }
 
 function _tdAllPick(name) {
