@@ -214,7 +214,7 @@ function _tdAllOneHtml(n, ls, hw, hwIn, o) {
     (hw.text ? '<div class="td-all-txt">' + _tdAllLines(hw.text) + '</div>' : '') +
     (hw.links || []).map(function (x) { return '<div class="im-hw-link"><span>' + (x.kind === 'Video' ? 'Video lesson' : 'Link') + '</span><a href="' + inqEsc(x.url) + '" target="_blank" rel="noopener">' + inqEsc(x.url) + '</a></div>'; }).join('') +
     (files ? _tdAllFolders(hw.files) : '');
-  var head = function (label, d) { return '<div class="td-all-h"><span class="td-all-lbl">' + label + '</span>' + (d ? '<span class="im-d">' + inqEsc(d) + '</span>' : '') + '</div>'; };
+  var head = function (label, d) { return '<div class="td-all-h"><span class="td-all-lbl">' + label + (d ? ' - ' + inqEsc(d) : '') + '</span></div>'; };   // the date beside the label, "LESSON - OCT 22" (user, 2026-11-05; was on the right)
   // The name as Today's name button (user, 2026-11-01: kept over a title), opening their
   // lesson log; the other windows' darker box with the grey edge under it (No show's).
   return '<div class="td-all-one">' +
