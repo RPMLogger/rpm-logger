@@ -4462,3 +4462,27 @@ html body .header .hdr-mag { right: 23.5px; }
 .tt-open-row { display: flex; align-items: center; gap: 6px; }
 .tt-open-row select { width: auto; padding: 6px 8px; }
 .tt-x { padding: 4px 8px; }
+
+/* Announcements (user, 2026-11-05): one text to all students + who confirmed, in Trip Summary's look. */
+#commsBody .td-wk-title .cm-ann-btn { margin-left: auto; margin-right: 8px; }
+#commsBody .td-wk-title .cm-ann-btn + .cm-oth-btn { margin-left: 0; }
+.ann-win { width: min(640px, 94vw); }
+.ann-acts { display: flex; gap: 10px; margin: 0 0 14px; }
+.ann-textbox { font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; line-height: 1.55; color: var(--t-normal); white-space: pre-wrap;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; }
+.ann-row-l { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ann-row-sub { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 380px; }
+.ts-row.ann-row-bad { border-left-color: color-mix(in srgb, #ff5a4d 50%, transparent); }
+.ann-past { display: flex; align-items: center; gap: 14px; padding: 11px 16px; margin-top: 18px; border: 1px dashed var(--border); border-radius: 10px; cursor: pointer; font-size: 12px; color: var(--muted); }
+.ann-past:hover { border-color: color-mix(in srgb, var(--muted) 45%, transparent); }
+.ann-past-when { white-space: nowrap; }
+.ann-past-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--t-normal); }
+.ann-past-n { white-space: nowrap; }
+.ann-text { width: 100%; box-sizing: border-box; min-height: 330px; resize: vertical; }
+.ann-cost { font-size: 11px; color: var(--muted); margin: 8px 0 26px; line-height: 1.6; }
+.ann-bad { color: #ff5a4d; }
+.ann-to-head { display: flex; align-items: center; justify-content: space-between; }
+.ann-to-acts { display: flex; gap: 8px; }
+.ann-to { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 18px; margin-bottom: 26px; }
+.ann-to .db-check { cursor: pointer; }
+.ann-foot { display: flex; justify-content: space-between; align-items: center; }
