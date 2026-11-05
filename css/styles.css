@@ -4103,6 +4103,11 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 #importBody .im-split > .im-sec-box > .im-sec-head:last-child { margin-bottom: 0; }
 #importBody .im-split > .im-sec-box > .im-list { margin: 0 16px; }
 #importBody .im-split > .im-sec-box:has(.im-sort-btn) { background: #151515; border-color: #2c2c2c; }   /* History box = the knob strip's flat look, no grain (user, 2026-11-04) */
+/* Every student-page box in the amp head's look (user, 2026-11-05): flat #151515, dark inner line, 4px amp body + outer edge around it */
+body #importBody .im-split > :is(.im-sec-box, .im-head-card) { background: #151515; border-color: #2c2c2c; box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }
+body #importBody .im-split > .im-sec-box { margin-top: 34px; }   /* room for the rings between boxes */
+body #importBody .im-split > .im-head-card:has(+ .im-sec-box) { clip-path: inset(-5px -5px 0 -5px); }   /* top card + History read as one box: no ring across the seam */
+body #importBody .im-split > .im-head-card + .im-sec-box { border-color: #2c2c2c; clip-path: inset(0 -5px -5px -5px); }
 #importBody .im-split > .im-sec-box > .im-list { margin: 0; padding: 0; border: none; background: none; }   /* no inner frame: the box is the frame (user, 2026-10-31) */
 body #importBody .im-split > .im-sec-box > .db-panel.im-list { background-color: transparent; background-image: none; border-color: transparent; }
 #importBody .im-split > .im-sec-box > .im-list { padding-left: 16px; }   /* texts a bit in from the heading (user, 2026-10-31) */
