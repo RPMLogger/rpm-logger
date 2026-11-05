@@ -4388,8 +4388,7 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 .td-bolt:before, .td-bolt:after { content: ''; position: absolute; left: 3px; right: 3px; top: 6.5px; height: 2px; background: #111; border-radius: 1px; }
 .td-bolt:after { transform: rotate(90deg); }
 /* ── Audit = a speaker cab (user, 2026-11-05): the page is the grille, each audit a speaker, its name on a plate ── */
-html body #tab-audit.active:has(#auMenuView:not([style*="none"])) { position: relative; min-height: 560px;
-  background: radial-gradient(circle, #232323 1.5px, transparent 1.9px) 0 0 / 7px 7px, #121212 !important; }
+html body #tab-audit.active:has(#auMenuView:not([style*="none"])) { position: relative; min-height: 560px; }   /* no grille: the portal's plain box (user, 2026-11-05) */
 #tab-audit .au-top { gap: 64px; }
 #tab-audit .au-top .link-btn.au-speaker { width: auto; height: auto; padding: 0; gap: 18px; border: 0; border-radius: 0; background: none; box-shadow: none; transform: none; }
 #tab-audit .au-top .link-btn.au-speaker:hover { background: none; border: 0; box-shadow: none; }
@@ -4412,3 +4411,11 @@ html body #tab-audit.active:has(#auMenuView:not([style*="none"])) { position: re
 .au-sb { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #8a8a8a, #3a3a3a 55%, #151515 85%); box-shadow: 0 1px 1px #000; }   /* small screws on the surround */
 .au-sb.t { top: -12.5px; left: calc(50% - 4.5px); } .au-sb.b { bottom: -12.5px; left: calc(50% - 4.5px); }
 .au-sb.l { left: -12.5px; top: calc(50% - 4.5px); } .au-sb.r { right: -12.5px; top: calc(50% - 4.5px); }
+/* the speakers sit back, as if behind the cloth: faint until hovered (user, 2026-11-05) */
+#tab-audit .au-spk { opacity: 0.38; box-shadow: 0 0 0 1px #050505, 0 0 0 4px #1d1d1d, 0 0 0 5px #050505, inset 0 0 0 1px #262626, inset 0 0 26px rgba(0,0,0,0.9); transition: opacity .2s, filter .2s; }
+#tab-audit .au-speaker:hover .au-spk { opacity: 0.85; filter: none; }
+/* the plates = Today's name tags (user, 2026-11-05) */
+#tab-audit .au-plate { padding: 4px 10px; border-radius: 7px; font-size: 10px; letter-spacing: 1px; line-height: 15px; color: #7a7a7a;
+  background: #1e1e1e; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
+#tab-audit .au-cap .au-icon { width: 28px; height: 28px; }   /* smaller (user, 2026-11-05; was 40) */
+#tab-audit .au-ish { display: block; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.85)); }   /* a shadow under the icon (user, 2026-11-05) */
