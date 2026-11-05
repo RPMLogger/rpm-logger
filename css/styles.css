@@ -4396,6 +4396,13 @@ html body #tab-audit.active:has(#auMenuView:not([style*="none"])) { position: re
   background: radial-gradient(circle at 40% 35%, #333, #1a1a1a 60%, #0e0e0e); box-shadow: 0 4px 10px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px #050505;
   opacity: 0.13; transition: opacity .2s; }
 #tab-audit .au-speaker:hover .au-cap::before { opacity: 0.6; }
+/* metal dust cap glinting through the cloth, like a real cab's (user, 2026-11-05): silver dome, soft glint top-left, cloth mesh over it */
+#tab-audit .au-cap::before { background:
+    radial-gradient(circle, transparent 1.6px, rgba(10,10,10,0.55) 2px) 0 0 / 7px 7px,
+    radial-gradient(ellipse 60% 50% at 42% 32%, rgba(255,255,255,0.95), rgba(255,255,255,0) 70%),
+    radial-gradient(circle at 45% 40%, #cfcfcf 0%, #8c8c8c 35%, #4a4a4a 65%, #1c1c1c 100%);
+  box-shadow: 0 0 18px 4px rgba(200,200,200,0.12), 0 0 0 1px #050505; filter: blur(0.4px); opacity: 0.16; }
+#tab-audit .au-speaker:hover .au-cap::before { opacity: 0.55; }
 #tab-audit .au-ish { position: relative; }
 /* the plates = Today's name tags (user, 2026-11-05) */
 #tab-audit .au-spk { width: 330px; height: 330px; }   /* bigger, like a 2x12 cab's (user, 2026-11-05; was 260) */
