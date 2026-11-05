@@ -4489,3 +4489,5 @@ html body .header .hdr-mag { right: 23.5px; }
 .ann-to { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 18px; margin-bottom: 26px; }
 .ann-to .db-check { cursor: pointer; }
 .ann-foot { display: flex; justify-content: space-between; align-items: center; }
+/* History: the empty-row dash smaller and a bit in; handwriting stays 18px (user, 2026-11-05) */
+#importBody .td-student .im-block .im-row.im-empty .im-s { font-size: 13px; padding-left: 8px; }
