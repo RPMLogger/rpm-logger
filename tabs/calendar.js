@@ -248,6 +248,105 @@ function _calLoadOther(mon, token) {
     .catch(function() {});
 }
 
+// ── New one-off event (user, 2026-11-04) ───────────────────────────────────
+// Personal / Doctors / Gigs only: the lesson calendars keep their own flows
+// (Book trial, Slot change, Reschedule) since Secretary, income and the Counter read them.
+var _calNeCal = 'personal';
+var CAL_NE_LABEL = { personal: 'Personal', doctors: 'Doctors', gigs: 'Gigs' };
+// Right-click on a calendar button: New event, only where the portal may write
+function _calCalMenu(e, k) {
+  e.preventDefault();
+  if (typeof commsCloseConvMenu === 'function') commsCloseConvMenu();
+  var ok = !!CAL_NE_LABEL[k];
+  var menu = document.createElement('div');
+  menu.className = 'cm-new-list cm-ctx'; menu.id = 'cmCtx';
+  menu.innerHTML = "<button type='button' class='cm-new-opt'" + (ok ? '' : ' disabled') + ">New event</button>" +
+    (ok ? '' : "<div class='cal-ctx-note'>" + (k === 'birthdays' || k === 'holidays' ? 'Google fills this one' : 'Lessons use Book / Slot change') + "</div>");
+  menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
+  document.body.appendChild(menu);
+  menu.onclick = function(ev) { if (ok && ev.target.closest('.cm-new-opt')) { menu.remove(); _calNewEvent(k); } };
+}
+function _calNewEvent(cal) {
+  if (cal) _calNeCal = cal;
+  var mon = _calMonday(_calWeekOffset), today = new Date();
+  var day = _calWeekOffset === 0 ? today : mon;
+  var ymd = _calYmd(day);
+  var w = _stWin('calNeWin', CAL_NE_LABEL[_calNeCal], 'New event', CALENDAR_ICON,
+    "<div class='cal-ne'>" +
+      rpmDtpHtml('calNeD', { date: ymd, noTime: true, label: 'Day' }) +   // the day first, above the title (user, 2026-11-05)
+      "<div class='field-label'>Title</div><input class='rpm-field' id='calNeTitle' autocomplete='off'>" +
+      "<div class='st-who' id='calNeAll'><span class='db-check' role='checkbox' tabindex='0'><i class='db-box'></i>All day</span></div>" +
+      // Times as a grid of 15-minute chips, 8:30 AM – 9:30 PM (user, 2026-11-05): press one and drag,
+      // or click the start then the end. Rows are hours, so a drag down picks whole hours.
+      "<div id='calNeTimes'><div class='field-label'>Time <span id='calNeRange'></span></div><div class='cal-ne-slots' id='calNeSlots'>" + _calNeSlotsHtml() + "</div>" +
+      "</div>" +
+      "<div class='cal-ne-msg' id='calNeMsg'></div>" +
+      "<div class='cal-ne-btns'><button class='link-btn' onclick='_calNeSave()'>Save</button></div>" +
+    "</div>");
+  w.querySelector('.st-win').classList.add('cal-ne-win');
+  var all = w.querySelector('#calNeAll .db-check');
+  all.onclick = function() {
+    all.classList.toggle('on');
+    document.getElementById('calNeTimes').style.display = all.classList.contains('on') ? 'none' : '';
+  };
+  _calNeA = 12 * 60; _calNeB = 12 * 60 + 45; _calNeWireSlots();
+  setTimeout(function() { var t = document.getElementById('calNeTitle'); if (t) t.focus(); }, 0);
+}
+var _calNeA = 12 * 60, _calNeB = 12 * 60 + 45;   // first and last chip picked (minutes)
+function _calNeHm(m) { return Math.floor(m / 60) + ':' + ('0' + (m % 60)).slice(-2); }
+function _calNeSlotsHtml() {
+  var h = '';
+  for (var m = 8 * 60 + 30; m < 21 * 60 + 30; m += 15) h += "<button type='button' class='cal-ne-slot' data-m='" + m + "'>" + _calFmt(m).replace(/ (AM|PM)$/, (m % 60 === 30 ? ' $1' : '')) + "</button>";
+  return h;
+}
+function _calNePaint() {
+  document.querySelectorAll('#calNeSlots .cal-ne-slot').forEach(function(b) { var m = +b.dataset.m; b.classList.toggle('on', m >= _calNeA && m <= _calNeB); });
+  var r = document.getElementById('calNeRange'); if (r) r.textContent = '· ' + _calFmt(_calNeA) + ' – ' + _calFmt(_calNeB + 15);
+}
+function _calNeWireSlots() {
+  var box = document.getElementById('calNeSlots'); if (!box) return;
+  var drag = null;
+  box.onpointerdown = function(e) {
+    var b = e.target.closest('.cal-ne-slot'); if (!b) return;
+    e.preventDefault();
+    var m = +b.dataset.m;
+    if (_calNeA === _calNeB && m > _calNeA) { _calNeB = m; drag = null; }   // second click = the end
+    else { _calNeA = _calNeB = m; drag = m; }
+    _calNePaint();
+  };
+  box.onpointerover = function(e) {
+    if (drag == null || !e.buttons) return;
+    var b = e.target.closest('.cal-ne-slot'); if (!b) return;
+    var m = +b.dataset.m;
+    _calNeA = Math.min(drag, m); _calNeB = Math.max(drag, m); _calNePaint();
+  };
+  document.addEventListener('pointerup', function() { drag = null; }, { once: true });
+  box.onpointerup = function() { drag = null; };
+  _calNePaint();
+}
+function _calNeSave() {
+  var w = document.getElementById('calNeWin'); if (!w) return;
+  var url = (document.getElementById('scriptUrl').value || '').trim();
+  var msg = document.getElementById('calNeMsg');
+  var title = document.getElementById('calNeTitle').value.trim();
+  var s = { date: rpmDtpGet('calNeD').date, time: _calNeHm(_calNeA) }, e = { time: _calNeHm(_calNeB + 15) };
+  var allDay = w.querySelector('#calNeAll .db-check').classList.contains('on');
+  if (!title) { msg.textContent = 'Add a title.'; return; }
+  if (!allDay && (_dtpMins(e.time) || 0) <= (_dtpMins(s.time) || 0)) { msg.textContent = 'End must be after start.'; return; }
+  if (!url) { msg.textContent = 'No data connected.'; return; }
+  msg.textContent = '';
+  var box = w.querySelector('.st-win');
+  rpmBusy(box, null, true, 'Saving');
+  var q = '?action=createOtherEvent&cal=' + _calNeCal + '&title=' + encodeURIComponent(title) + '&date=' + s.date +
+          (allDay ? '&allDay=1' : '&start=' + s.time + '&end=' + e.time);
+  fetch(url + q).then(function(r) { return r.json(); }).then(function(d) {
+    rpmBusy(box, null, false);
+    if (!d.success) { msg.textContent = d.message || 'Could not save.'; return; }
+    w.remove();
+    var m = _calShowMap(); if (!m[_calNeCal]) _calToggleCal(_calNeCal); else _calLoadOther(_calMonday(_calWeekOffset), _calLoadToken);
+  }).catch(function() { rpmBusy(box, null, false); msg.textContent = 'Connection failed.'; });
+}
+
 function _calLoad(statusMsg) {
   var mon   = _calMonday(_calWeekOffset);
   var url   = (document.getElementById('scriptUrl').value || '').trim();
@@ -390,20 +489,22 @@ function _calRenderShell(mon) {
     "<div class='cal-bar cr cal-bar2'>" +
       "<span class='cr-bolt' style='left:8px;top:10px'></span><span class='cr-bolt' style='left:8px;bottom:10px'></span>" +
       "<span class='cr-bolt' style='right:8px;top:10px'></span><span class='cr-bolt' style='right:8px;bottom:10px'></span>" +
+      // One button per Google calendar (user, 2026-11-04): lit = shown on the week. Right-click = New event on that calendar (user, 2026-11-05; was a switch). Lessons on by default, the rest off; remembered on this computer.
       // One button per Google calendar (user, 2026-11-04): lit = shown on the week. Lessons on by default, the rest off; remembered on this computer.
       "<div class='cr-row cal-cals'>" +
-        // the calendar buttons squeezed together, the input jack at the far right (user, 2026-11-04; fake knobs removed)
+        CAL_KNOB + CAL_KNOB +   // two knobs and a grille in place of the input jack (user, 2026-11-05)
+        "<span class='cr-vents'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>" +
+        // the New event switch and the input jack on the left, the calendar buttons squeezed together on the right (user, 2026-11-04; fake knobs removed)
         "<span class='cr-sp'></span><span class='cr-pair cal-cal-btns'>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' onclick='_calToggleCal(\"birthdays\")'></button><span class='cr-cap'>Birthdays</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('doctors') ? " lit" : "") + "' data-cal='doctors' onclick='_calToggleCal(\"doctors\")'></button><span class='cr-cap'>Doctors</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('personal') ? " lit" : "") + "' data-cal='personal' onclick='_calToggleCal(\"personal\")'></button><span class='cr-cap'>Personal</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('biweekly') ? " lit" : "") + "' data-cal='biweekly' onclick='_calToggleCal(\"biweekly\")'></button><span class='cr-cap'>Biweekly</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('gigs') ? " lit" : "") + "' data-cal='gigs' onclick='_calToggleCal(\"gigs\")'></button><span class='cr-cap'>Gigs</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('trial') ? " lit" : "") + "' data-cal='trial' onclick='_calToggleCal(\"trial\")'></button><span class='cr-cap'>Trial</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('weekly') ? " lit" : "") + "' data-cal='weekly' onclick='_calToggleCal(\"weekly\")'></button><span class='cr-cap'>Weekly</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('holidays') ? " lit" : "") + "' data-cal='holidays' onclick='_calToggleCal(\"holidays\")'></button><span class='cr-cap'>Holidays</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"birthdays\")'></button><span class='cr-cap'>Birthdays</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('doctors') ? " lit" : "") + "' data-cal='doctors' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"doctors\")'></button><span class='cr-cap'>Doctors</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('personal') ? " lit" : "") + "' data-cal='personal' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"personal\")'></button><span class='cr-cap'>Personal</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('biweekly') ? " lit" : "") + "' data-cal='biweekly' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"biweekly\")'></button><span class='cr-cap'>Biweekly</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('gigs') ? " lit" : "") + "' data-cal='gigs' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"gigs\")'></button><span class='cr-cap'>Gigs</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('trial') ? " lit" : "") + "' data-cal='trial' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"trial\")'></button><span class='cr-cap'>Trial</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('weekly') ? " lit" : "") + "' data-cal='weekly' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"weekly\")'></button><span class='cr-cap'>Weekly</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('holidays') ? " lit" : "") + "' data-cal='holidays' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"holidays\")'></button><span class='cr-cap'>Holidays</span></span>" +
         "</span>" +
-        "<span class='cr-col'><span class='cr-jack'></span><span class='cr-cap'>Input</span></span>" +
         "</div>" +
     "</div>" +
     "<div class='cal-status' id='calStatus'></div>" +
@@ -785,6 +886,9 @@ function _calInjectStyle() {
     ".cal-btn-go{background:var(--accent);border-color:var(--accent);color:#fff}" +
     // A speaker cab under the amp head (user, 2026-11-02): the head's frame, a dark rounded inner line
     // inside a 4px body ring with its own rounded edge (styles.css .header::before).
+    ".cal-ctx-note{padding:4px 12px 8px;font-size:10px;color:var(--muted)}.cm-ctx .cm-new-opt:disabled{opacity:.35;cursor:default}" +
+    ".cal-ne-win{max-width:520px}.cal-ne-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;user-select:none;touch-action:none}.cal-ne-slot{height:26px;border:1px solid #2c2c2c;border-radius:4px;background:#151515;color:var(--t-faint);font:11px 'DM Mono',monospace;cursor:pointer;padding:0}.cal-ne-slot:hover:where(:not(:disabled)){border-color:#555;color:var(--t-text)}.cal-ne-slot.on{background:color-mix(in oklab,oklch(.72 .08 145) 28%,#151515);border-color:oklch(.72 .08 145 / .6);color:var(--t-text)}#calNeRange{letter-spacing:1px;text-transform:none;color:var(--t-normal);margin-left:6px}.cal-ne .field-label{font-family:'DM Mono',monospace;font-size:11.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--t-faint)}.cal-ne #calNeTimes{align-items:flex-start}.cal-ne .field-label{margin:28px 0 10px}.cal-ne .st-who{display:flex;gap:18px;margin:14px 0 0}.cal-ne #calNeTimes{margin-top:0}" +
+    ".cal-ne-msg{min-height:16px;margin-top:10px;font-size:11px;color:var(--accent)}.cal-ne-btns{display:flex;justify-content:flex-end;margin-top:24px}" +
     ".cal-ext{cursor:default;z-index:1}.cal-allday{height:16px;padding:1px 6px;font-size:9px;z-index:3}.cal-allday .n{line-height:14px}" +   // other calendars: read only; all-day strips over the top of the day
     ".cal-bar2.cr{margin-top:0}.cal-cals{gap:18px}.cal-cal-btns{gap:12px}" +
     ".cr-jack{position:relative;display:block;width:30px;height:26px;margin:2px 0;filter:drop-shadow(0 2px 2px #000)}" +   // the modular synth's jack: a hexagon nut round a chrome ring and a black socket (user, 2026-11-04)
