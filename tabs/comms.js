@@ -302,7 +302,6 @@ function commsPaintPane(jump) {
   // An archived conversation is read-only: no text box, no Mark answered.
   if (input) input.style.visibility = d && !d.archived ? "" : "hidden";
   if (mark) mark.style.display = d && !d.archived && commsOpenInThread(d).length ? "" : "none";
-  var tpl = document.getElementById("cmTplWrap"); if (tpl) tpl.style.display = d && !d.archived ? "" : "none";
   if (d && d.archived) to.textContent += " · Archived";
   if (!d) { th.innerHTML = '<div class="cm-none cm-thread-empty">Pick a conversation, or start one with New text.</div>'; return; }
   var atBottom = th.scrollHeight - th.scrollTop - th.clientHeight < 40;
@@ -504,6 +503,7 @@ function updateCommsBadge() {
   var set = function (id, n) { var el = document.getElementById(id); if (el) el.textContent = n; };
   set("commsOpenCount", others.filter(function (m) { return !m.responded; }).length);
   set("commsOthersCount", others.filter(function (m) { return !m.responded; }).length);
+  var ob = document.getElementById("commsOthersBtn"); if (ob) ob.classList.toggle("lit", others.some(function (m) { return !m.responded; }));   // the rack button lights while one waits
   set("commsSmsCount", sms);
   set("commsVoicemailCount", vm);
   set("commsScamCount", commsMessages.filter(function (m) { return m.scam; }).length);
@@ -801,9 +801,7 @@ function commsEnsureExtras() {
             '<div id="commsStuList"></div></div>' +
           '<div class="cm-msgr-conv">' +
             '<div class="cm-msgr-head"><span class="cm-to">To: <span id="cmPaneTo"></span></span>' +
-              '<span class="cm-head-acts"><span class="tt-menu" id="cmTplWrap"><button class="link-btn" onclick="_ttMenu(event)" data-tip="Text templates: Zoom lesson,\nNo show, Optional schedule.">Templates ▾</button>' +   // text templates live here (user, 2026-11-05; was its own tab)
-              '<span class="cash-dd-list" id="cmTplList" hidden></span></span>' +
-              '<button class="link-btn" id="cmPaneMark" onclick="commsPaneMark()" style="display:none">Mark answered</button></span></div>' +
+              '<button class="link-btn" id="cmPaneMark" onclick="commsPaneMark()" style="display:none">Mark answered</button></div>' +
             '<div class="cm-pane-thread" id="cmPaneThread"></div>' +
             '<div class="cm-attach-chip" id="cmPaneChip" hidden></div>' +
             '<div class="cm-msgr-input">' +
@@ -827,9 +825,27 @@ function commsEnsureExtras() {
       acts.insertAdjacentHTML("beforeend", '<button class="settings-close" onclick="commsShowOthers(false)">✕</button>');
       [box.querySelector(".cm-filters"), document.getElementById("commsEditBar"),
        box.querySelector("hr.td-rule-top"), inbox].forEach(function (n) { if (n) body.appendChild(n); });
-      box.querySelector(".td-wk-title").appendChild(Object.assign(document.createElement("button"), {
-        className: "link-btn cm-oth-btn", id: "commsOthersBtn", onclick: function () { commsShowOthers(true); },
-        innerHTML: 'Others <span class="cm-n" id="commsOthersCount">0</span>' }));
+      // A rack above the box (user, 2026-11-05), the Calendar's rack unit: two knobs + grille on the
+      // left, the buttons on the right: Templates (menu: Zoom lesson, No show, Optional schedule),
+      // Announcements (tabs/announce.js, when loaded), Others (lit while one is unanswered).
+      if (typeof _calInjectStyle === "function") _calInjectStyle();
+      var col = function (id, cap, click, tip, extra) {
+        return "<span class='cr-col" + (extra ? " tt-menu" : "") + "'" + (extra ? " id='cmTplWrap'" : "") + "><button class='cr-pb' id='" + id + "' onclick='" + click + "' data-tip='" + tip + "'></button>" +
+          "<span class='cr-cap'>" + cap + "</span>" + (extra || "") + "</span>";
+      };
+      var rack = document.createElement("div");
+      rack.className = "cal-bar cr cm-rack";
+      rack.innerHTML =
+        "<span class='cr-bolt' style='left:8px;top:10px'></span><span class='cr-bolt' style='left:8px;bottom:10px'></span>" +
+        "<span class='cr-bolt' style='right:8px;top:10px'></span><span class='cr-bolt' style='right:8px;bottom:10px'></span>" +
+        "<div class='cr-row'>" + (typeof CAL_KNOB === "string" ? CAL_KNOB + CAL_KNOB : "") +
+          "<span class='cr-vents'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>" +
+          "<span class='cr-sp'></span><span class='cr-pair'>" +
+            col("cmTplBtn", "Templates", "_ttMenu(event)", "Text templates: Zoom lesson,&#10;No show, Optional schedule.", "<span class='cash-dd-list' id='cmTplList' hidden></span>") +
+            (typeof annOpen === "function" ? col("commsAnnBtn", "Announcements", "annOpen()", "Opens a window.&#10;Text all students at once, see who confirmed.") : "") +
+            col("commsOthersBtn", "Others <span id='commsOthersCount'>0</span>", "commsShowOthers(true)", "Opens a window.&#10;Unknown numbers, applicants,&#10;voicemails, scams.") +
+          "</span></div>";
+      box.parentNode.insertBefore(rack, box);
       box.appendChild(stu);
       detail.parentNode.insertBefore(win, detail);   // the conversation window opens on top of it
     }

@@ -238,8 +238,10 @@ var TD_NS_TEXTS = [
 ];
 function _tdNsOpen() {
   // The Reviews tab's text template look: the blue bubble, editable, Save + Use on the right.
-  _tdNsName = _ttWho().name;   // the open Comms conversation's student (2026-11-05): their first name goes in the "Hi!"
-  _stWin('tdNsWin', 'No show', 'Text templates', COMMS_TEXT_ICON, _ttToHtml() + '<div id="tdNsList">' + _tdNsHtml() + '</div>');
+  _tdNsName = '';
+  _stWin('tdNsWin', 'No show', 'Text templates', COMMS_TEXT_ICON,
+    _ttPickHtml('ns', function (n) { _tdNsName = n; var b = document.getElementById('tdNsList'); if (b) b.innerHTML = _tdNsHtml(); }) +   // student picker (2026-11-05): "Hi Student!" until picked
+    '<div id="tdNsList">' + _tdNsHtml() + '</div>');
   fetch(getScriptUrl() + '?action=getNsTexts')
     .then(function (x) { return x.json(); })
     .then(function (res) {
@@ -251,9 +253,8 @@ function _tdNsOpen() {
     .catch(function () {});   // the starting texts stay
 }
 var _tdNsName = '';
-function _tdNsNamed(t) {   // "Hi!" -> "Hi Siena!" once a student is picked; Save takes the name back out
-  var f = _tdNsName.split(/\s+/)[0];
-  return f ? t.replace(/^(Hi|Hey|Hello)([!,])/i, '$1 ' + f + '$2') : t;
+function _tdNsNamed(t) {   // "Hi!" -> "Hi Student!", "Hi Siena!" once picked; Save takes the name back out
+  return t.replace(/^(Hi|Hey|Hello)([!,])/i, '$1 ' + _ttFirst(_tdNsName) + '$2');
 }
 function _tdNsHtml() {
   return TD_NS_TEXTS.map(function (t, i) {
@@ -263,7 +264,7 @@ function _tdNsHtml() {
       '<div class="ts-thread tv-rv-thread rv-thread"><div id="tdNsText' + i + '" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only" spellcheck="false">' + inqEsc(t) + '</div></div>' +
       '<div class="en-tpl-foot"><span class="en-tpl-btns">' +
         '<button class="link-btn" id="tdNsSave' + i + '" onclick="_tdNsSave(' + i + ')" data-tip="Saves this text to\nNo Show Texts (Counter sheet).">Save</button>' +
-        _ttUseBtn('tdNsText' + i) + '</span></div>' +   // Use: into the Comms text box (was Copy for Messages, 2026-11-05)
+        _ttUseBtn('tdNsText' + i, 'ns') + '</span></div>' +   // Use: into the Comms text box (was Copy for Messages, 2026-11-05)
     '</div>';
   }).join('');
 }
@@ -272,8 +273,8 @@ function _tdNsSave(i) {
   var win = document.querySelector('#tdNsWin .st-win');
   if (!el || !btn) return;
   var text = el.innerText.replace(/\n+$/, '');
-  var f = _tdNsName.split(/\s+/)[0];
-  if (f) text = text.replace(new RegExp('^(Hi|Hey|Hello) ' + f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([!,])', 'i'), '$1$2');   // saved without the picked name
+  var f = _ttFirst(_tdNsName);
+  text = text.replace(new RegExp('^(Hi|Hey|Hello) ' + f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([!,])', 'i'), '$1$2');   // saved without the picked name
   rpmBusy(win, btn, true, 'Saving');
   fetch(getScriptUrl() + '?action=saveNsText&i=' + i + '&text=' + encodeURIComponent(text))
     .then(function (x) { return x.json(); })
@@ -293,19 +294,20 @@ function _tdNsSave(i) {
 // ── Zoom lesson text (user, 2026-11-04) ─────────────────────────────────────
 // Pick a student, get the Zoom instructions text (PDF link, big screen, audio,
 // the lesson room link, see you, wait up to 5 minutes) to copy into Messages.
-// Opened from Comms ▸ Templates for the open conversation's student (2026-11-05). Edit freely; nothing is saved.
+// Opened from Comms ▸ Templates; pick the student in the window (2026-11-05). Edit freely; nothing is saved.
 var ZM_PDF = 'https://github.com/RPMLogger/rpm-logger/blob/main/Zoom%20Instructions%20-%202026.pdf';
 var ZM_LINK = 'https://us02web.zoom.us/j/3404335872';
 var _zmName = '', _zmTime = '';
 function _tdZmOpen() {
-  var w0 = _ttWho(); _zmName = w0.name; _zmTime = w0.time;   // the open Comms conversation's student (2026-11-05)
-  var w = _stWin('tdZmWin', 'Zoom lesson', 'Text templates', COMMS_TEXT_ICON, _ttToHtml() + '<div id="tdZmOut"></div>');
+  _zmName = ''; _zmTime = '';
+  var w = _stWin('tdZmWin', 'Zoom lesson', 'Text templates', COMMS_TEXT_ICON,
+    _ttPickHtml('zm', function (n, t) { _zmName = n; _zmTime = t; _tdZmShow(); }) + '<div id="tdZmOut"></div>');   // student picker (2026-11-05): "Hi Student!" until picked
   _tdZmShow();
   return w;
 }
 function _tdZmText() {   // the user's wording (2026-11-05)
-  var first = _zmName.split(/\s+/)[0];
-  return 'Hi' + (first ? ' ' + first : '') + '!\n\n' +
+  var first = _ttFirst(_zmName);
+  return 'Hi ' + first + '!\n\n' +
     'Please check this quick guide for audio and video settings:\n\n' + ZM_PDF + '\n\n' +
     'The most important things:\n\n' +
     '• Please use a larger screen (laptop, desktop, or tablet—not a phone).\n' +
@@ -319,7 +321,7 @@ function _tdZmShow() {
   if (!out) return;
   out.innerHTML = '<div class="en-tpl">' +
     '<div class="ts-thread tv-rv-thread rv-thread"><div id="tdZmText" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only" spellcheck="false" style="white-space:pre-wrap">' + inqEsc(_tdZmText()) + '</div></div>' +
-    '<div class="en-tpl-foot"><span class="en-tpl-btns">' + _ttUseBtn('tdZmText') + '</span></div></div>';
+    '<div class="en-tpl-foot"><span class="en-tpl-btns">' + _ttUseBtn('tdZmText', 'zm') + '</span></div></div>';
 }
 
 function _tdStudentHtml(s) {

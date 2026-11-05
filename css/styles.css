@@ -4447,9 +4447,16 @@ html body .header .hdr-home:not(.hdr-mag) { left: 57.5px; right: auto; }
 html body .header .hdr-mag { right: 23.5px; }
 
 /* Text templates (2026-11-05): Templates ▾ in the Comms conversation head, Openings at the window's bottom */
-.cm-head-acts { display: flex; align-items: center; gap: 8px; }
+.tt-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 18px; }
+.tt-pick .link-btn.on { color: #fff; border-color: rgba(255,255,255,0.45); }   /* the picked student */
+.tt-other { position: relative; }
+.tt-other-panel { position: absolute; top: calc(100% + 4px); left: 0; z-index: 30; width: 220px; display: flex; flex-direction: column; }
+.tt-other-panel[hidden] { display: none; }
+.tt-other-panel .rpm-field { width: 100%; }
+.tt-other-panel .cash-dd-list { position: static; max-height: 240px; overflow-y: auto; margin-top: 4px; }
 .tt-menu { position: relative; }
-.tt-menu .cash-dd-list { left: auto; right: 0; width: 190px; }
+.tt-menu .cash-dd-list { left: 50%; right: auto; transform: translateX(-50%); width: 190px; top: calc(100% + 6px); }   /* under the rack's Templates button */
+.cm-rack { margin: 0 0 14px !important; z-index: 30; }   /* the rack above the Comms box (user, 2026-11-05) */
 .tt-bottom { margin-top: 14px; }
 .tt-open { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 12px; }
 .tt-open-row { display: flex; align-items: center; gap: 6px; }
