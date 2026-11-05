@@ -4117,7 +4117,7 @@ body #importBody .im-split > .im-head-card { max-width: none; background: var(--
 /* the whole top card in the Students-list card look (user, 2026-10-31) */
 body #importBody .im-split > .im-head-card { background: var(--box); border: 1px solid #353535; border-radius: 10px; }   /* no lighter left edge (user, 2026-10-31) */   /* fill the same as the boxes under it (user, 2026-10-31) */
 /* The top card and History joined into one (user, 2026-10-31): no gap, square inner corners, one line between; History takes the card's frame so the edges run on */
-body #importBody .im-split > .im-head-card { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+body #importBody .im-split > .im-head-card { border-bottom-left-radius: 0; border-bottom-right-radius: 0; margin-left: 0; margin-right: 0; }   /* full width again: the fill-to-Home's-height flex column shrank it with margin auto (user, 2026-11-04) */
 body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border: 1px solid #353535; border-top: none; border-top-left-radius: 0; border-top-right-radius: 0; }
 #importBody .im-split > .im-head-card > .im-head-acts { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }   /* Log lesson on the right (user, 2026-10-31) */
 #importBody .td-student.im-split { margin-top: 0; }
