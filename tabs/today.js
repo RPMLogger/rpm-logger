@@ -1,3 +1,6 @@
+// four screws like the Calendar's (user, 2026-11-04)
+var TD_BOLTS = '<span class="td-bolt" style="left:8px;top:10px"></span><span class="td-bolt" style="left:8px;bottom:10px"></span>' +
+  '<span class="td-bolt" style="right:8px;top:10px"></span><span class="td-bolt" style="right:8px;bottom:10px"></span>';
 // ─── TABS / TODAY.JS ────────────────────────────────────────────────────────
 // Today (2026-10-06): a glance at the day. Today's students in lesson order,
 // one under the other: name · Quick look, then their Lessons log and Last HW
@@ -57,7 +60,7 @@ function _tdRender() {
   var list = todayStudents || [];
   var now = new Date();
   // Today's top part in a box like This Week's under it (user, 2026-10-24): title, calendar, count, list.
-  var head = '<div class="td-wk-box td-today-box"><div class="settings-title td-wk-title"><span>Today</span>' +   // no " · Tue, Oct 27": the date page under it says it (user, 2026-10-27)
+  var head = '<div class="td-wk-box td-today-box">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>Today</span>' +   // no " · Tue, Oct 27": the date page under it says it (user, 2026-10-27)
     '<span class="td-top-btns"><button class="link-btn opens-window" onclick="_tdAllOpen()" data-tip="Opens a window.\nToday\'s students: last lesson,\nlast HW and its folders.">All</button>' +   // All, left of No show (user, 2026-11-01)
     '<button class="link-btn opens-window" onclick="_tdZmOpen()" data-tip="Opens a window.\nPick a student: the Zoom instructions\ntext, to copy and send from Messages.">Zoom</button><button class="link-btn opens-window" onclick="_tdNsOpen()" data-tip="Instant.\nThe No show text, to copy\nand send from Messages.">No show</button></span></div>' +   // no Week button: This Week is under it (user, 2026-10-24); No show (portal button) top right opens the No show text window (user, 2026-10-26)
     '<img class="td-hero" src="img/amp-combo.svg" alt="">' +   // red combo amp (user, 2026-11-02; guitar + amp tried 2026-11-03, amp alone kept)
@@ -420,7 +423,7 @@ function _tdRefresh(name) {
 // the list at the top of Today. Every day looks the same (no dimming: Today is the tab for today).
 function _tdWeekSection() {
   var w = _tdWeekHtml();
-  return '<div class="td-wk-box"><div class="settings-title td-wk-title"><span>This Week<span class="win-sub"> · ' + w.sub + '</span></span></div>' +
+  return '<div class="td-wk-box">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>This Week<span class="win-sub"> · ' + w.sub + '</span></span></div>' +
     '<div class="td-wk-icon">' + CALENDAR_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>' +   // the window's calendar under the title
     w.body + '</div>';
 }
