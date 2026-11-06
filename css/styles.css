@@ -4531,7 +4531,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
    Notes, Comms), the Lessons student page plates, rack strips (.rpm-rack).
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --rpm-box-bg: #0d0d0d;   /* + paper grain READS as the nav strip #151515 (grain adds ~8: measured). Box darker than the cards (#101010+grain reads ~#181818) (user, 2026-11-06; #151515+grain read lighter than the cards = swapped; point-a = build 1206 had #101010 + grain with #161616 cards) */
+  --rpm-box-bg: #111111;   /* + paper grain, two steps above the nav strip (user, 2026-11-06: up 2 steps from #0d0d0d (#0f0f0f tried), which read as the nav strip #151515; grain adds ~8: measured). Box darker than the cards (#101010+grain reads ~#181818) (user, 2026-11-06; #151515+grain read lighter than the cards = swapped; point-a = build 1206 had #101010 + grain with #161616 cards) */
   --rpm-box-grain: var(--rpm-grain);
   --rpm-box-border: 1px solid var(--border);
   --rpm-box-radius: 10px;
@@ -4568,7 +4568,7 @@ html body #importBody .im-split > .im-head-card + .im-sec-box { border-top: none
    (#_a#_b never matches: it only lifts the rule above the tabs' own card rules.) ═══ */
 :root {
   --rpm-plate: #171717;   /* the page under the diamond plate (was --bg #0f0f0f) */
-  --rpm-card-bg: var(--box);   /* #101010 + grain = the header's logo panel (user, 2026-11-06; point-a had #161616) */
+  --rpm-card-bg: #141414;   /* + grain, lighter than the box (user, 2026-11-06: up 2 steps from #101010 (#121212 tried) = the header logo panel; point-a had #161616) */
   --rpm-card-grain: var(--rpm-grain);
 }
 html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-card, .en-scard, .db-card, #_a#_b) {
