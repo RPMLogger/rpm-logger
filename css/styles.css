@@ -4575,6 +4575,10 @@ html body #importBody .im-split > .im-head-card + .im-sec-box { border-top: none
 html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-card, .en-scard, .db-card, #_a#_b) {
   background-color: var(--rpm-card-bg); background-image: var(--rpm-card-grain); box-shadow: var(--rpm-card-lift);
 }
+/* the student's name on every card: one font (user, 2026-11-06: Syne 16; Lessons/Payments/Slot change were Bebas 22, Terminate/Skips/Availability/Dropbox Syne 15) */
+html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-card, .en-scard, .db-card, #_a#_b) :is(.db-card-n, .incoming-name, .en-card-n, .inq-name) {
+  font-family: "Syne", sans-serif; font-size: 16px; letter-spacing: normal; line-height: 26px;
+}
 
 /* ═══ BOX EXCEPTIONS — one line per box the user wants different. Set a variable on the tab, e.g.
    #tab-inquiries { --rpm-box-border: 1px solid red; }   Ask "what are the exceptions" → this list. ═══ */
