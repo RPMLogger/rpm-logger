@@ -52,8 +52,8 @@ body::before {
 /* small dots repeated over the page background, faint (user, 2026-10-30; the user's
    Canva pebbles, then one big halftone cloud tried first) */
 body::after { content: ""; position: fixed; inset: 0; pointer-events: none;
-  background: radial-gradient(circle, rgb(255 240 215 / 0.07) 1px, transparent 1.6px) 0 0 / 7px 7px;
-  }   /* back on over a fainter diamond plate (user, 2026-10-30) */
+  background: radial-gradient(circle, rgb(255 240 215 / 0.04) 1px, transparent 1.6px) 0 0 / 7px 7px;
+  }   /* back on over a fainter diamond plate (user, 2026-10-30); fainter 0.07 → 0.04, page less busy (user, 2026-11-06) */
 /* the user's diamond plate on the page background, under the gold glow (user, 2026-10-30; tweed amp photo tried first);
    drawn in code so every diamond is even (the image tile had brighter patches and seams; was ../img/bg-plate.jpg 0 0 / 380px under 93% dark) */
 body { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cg fill='%23fff' fill-opacity='0.07'%3E%3Cpath d='M1 15 Q10 10 15 1 Q6 6 1 15Z'/%3E%3Cpath d='M15.5 15.5 Q24.5 20.5 29.5 29.5 Q20.5 24.5 15.5 15.5Z'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 30px, var(--rpm-plate); }
@@ -3958,9 +3958,9 @@ html body .header::before {
 html body .header::after {   /* handle on top, two feet under */
   content: ""; position: absolute; left: 0; right: 0; top: -93px; bottom: -90px; z-index: -2; pointer-events: none;
   /* Handle from the user's second drawing (2026-10-31): low flat end caps with a small step, a long strap bowed up between, thick in the middle and thin at the ends */
-  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27276%27 height=%2722%27%3E%3Cg fill=%27%230b0b0b%27 stroke=%27%232c2c2c%27%3E%3Cpath d=%27M50 15.5 Q141 -3 226 15.5 L226 18.5 Q141 6 50 18.5 Z%27/%3E%3Crect x=%2712.5%27 y=%2716.5%27 width=%2736%27 height=%278%27 rx=%271.5%27/%3E%3Crect x=%27227.5%27 y=%2716.5%27 width=%2736%27 height=%278%27 rx=%271.5%27/%3E%3Crect x=%2746.5%27 y=%2713.5%27 width=%275%27 height=%2710%27 rx=%271%27/%3E%3Crect x=%27224.5%27 y=%2713.5%27 width=%275%27 height=%2710%27 rx=%271%27/%3E%3C/g%3E%3C/svg%3E") center top -1px / 276px 22px no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Crect width=%2734%27 height=%278%27 rx=%271%27 fill=%27%230b0b0b%27 stroke=%27%232c2c2c%27/%3E%3C/svg%3E") left 34px bottom / 34px 8px no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Crect width=%2734%27 height=%278%27 rx=%271%27 fill=%27%230b0b0b%27 stroke=%27%232c2c2c%27/%3E%3C/svg%3E") right 34px bottom / 34px 8px no-repeat;
+  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27276%27 height=%2722%27%3E%3Cg fill=%27%231e1e1e%27 stroke=%27%232c2c2c%27%3E%3Cpath d=%27M50 15.5 Q141 -3 226 15.5 L226 18.5 Q141 6 50 18.5 Z%27/%3E%3Crect x=%2712.5%27 y=%2716.5%27 width=%2736%27 height=%278%27 rx=%271.5%27/%3E%3Crect x=%27227.5%27 y=%2716.5%27 width=%2736%27 height=%278%27 rx=%271.5%27/%3E%3Crect x=%2746.5%27 y=%2713.5%27 width=%275%27 height=%2710%27 rx=%271%27/%3E%3Crect x=%27224.5%27 y=%2713.5%27 width=%275%27 height=%2710%27 rx=%271%27/%3E%3C/g%3E%3C/svg%3E") center top -1px / 276px 22px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2713%27%3E%3Cpath d=%27M0 0H34L30.5 10.5Q29.8 13 27 13H7Q4.2 13 3.5 10.5Z%27 fill=%27%231a1a1a%27 stroke=%27%232c2c2c%27/%3E%3C/svg%3E") left 50px bottom / 34px 13px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2713%27%3E%3Cpath d=%27M0 0H34L30.5 10.5Q29.8 13 27 13H7Q4.2 13 3.5 10.5Z%27 fill=%27%231a1a1a%27 stroke=%27%232c2c2c%27/%3E%3C/svg%3E") right 50px bottom / 34px 13px no-repeat;
 }
 /* ☰, Magnifier and Home sit in the control strip, 26px buttons; strip 34 → 48 tall (user, 2026-10-30) */
 html body .sb-burger { left: 23.5px; top: 171.5px; width: 26px; height: 26px; border-radius: 6px; }   /* ☰'s top bar level with the knobs' pointer tops (user, 2026-10-31) */
@@ -4536,7 +4536,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
   --rpm-box-border: 1px solid var(--border);
   --rpm-box-radius: 10px;
   --rpm-box-pad: 36px 40px;
-  --rpm-box-ring: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c;   /* the amp's ring: lighter grey between the two lines */
+  --rpm-box-ring: 0 0 0 2px #1e1e1e, 0 0 0 3px #2c2c2c;   /* screwed metal plates: the amp's double line, half as thick (user, 2026-11-06) */
   --rpm-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
 html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms),
@@ -4577,7 +4577,7 @@ html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-c
 
 /* ═══ BOX EXCEPTIONS — one line per box the user wants different. Set a variable on the tab, e.g.
    #tab-inquiries { --rpm-box-border: 1px solid red; }   Ask "what are the exceptions" → this list. ═══ */
-/* (none yet) */
+#tab-home, #tab-audit { --rpm-box-ring: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }   /* amps, not plates: the header's thick amp ring (user, 2026-11-06) */
 /* Every None / nothing-found line: ALL CAPS, in the middle of its row (user, 2026-11-06) */
 :is(.empty-state, .inq-empty, .im-none, .cm-none, .inq-resp-none, .gl-none, .db-all-empty, .rpm-none) { text-transform: uppercase; letter-spacing: 2px; text-align: center; }
 .db-all-empty { display: block; }
