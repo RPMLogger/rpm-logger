@@ -4469,9 +4469,14 @@ html body .header .hdr-mag { right: 23.5px; }
 #commsBody .td-wk-title .cm-ann-btn { margin-left: auto; margin-right: 8px; }
 #commsBody .td-wk-title .cm-ann-btn + .cm-oth-btn { margin-left: 0; }
 .ann-win { width: min(640px, 94vw); }
+.td-student.cm-win.ann-win { padding-left: 28px; padding-right: 28px; }   /* more room from the sides (user, 2026-11-06; was 20px like Comms windows) */
+.ann-win .im-sec-head .db-cx-t { color: var(--t-text); }   /* Bebas stays, grey instead of red (user, 2026-11-06) */
+.ann-win :is(.tv-sec-note, .tv-steps span, .ann-cost, .ann-others-t, .ann-past, .ann-row-sub, .ts-trip-dates) { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; }   /* all Arial, easier on the eye (user, 2026-11-06; was DM Mono); headings stay Bebas */
+.ann-win div.ann-cost { font-size: 11px; text-align: right; margin-bottom: 46px; }   /* a footnote under the bubble, smaller than the steps (user, 2026-11-06) */
+.rpm-dlg-confirm.tv-golive-dlg.ann-send-dlg .rpm-dlg-body .rpm-dlg-msg { line-height: 2.4; }   /* more room between the points (user, 2026-11-06; Travel's Go live keeps 1.8) */
 .td-student.cm-win.ann-win .im-title > span#annTitle { color: var(--accent); }   /* red name, grey part, like No show · Text templates (user, 2026-11-05) */
-.ann-win-icon { margin: 4px 0 18px; line-height: 0; }
-.ann-win-icon .win-icon { width: auto; height: 40px; color: var(--muted); }   /* No show window's size */
+.ann-win-icon { margin: -12px 0 26px 4px; line-height: 0; }   /* closer to the title, more room before DRAFT (user, 2026-11-06) */
+.ann-win-icon .win-icon { width: auto; height: 32px; color: var(--muted); }   /* the megaphone is wide: 32px, not No show's 40 (user, 2026-11-06) */
 .ann-acts { display: flex; gap: 10px; margin: 0 0 14px; }
 .ann-textbox { font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; line-height: 1.55; color: var(--t-normal); white-space: pre-wrap;
   background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; }
@@ -4487,7 +4492,7 @@ html body .header .hdr-mag { right: 23.5px; }
 /* The text box in the Show text look (user, 2026-11-05: "I like these colors very much", maybe the Lessons windows later). */
 /* The text bubble under the box, Travel's look (user, 2026-11-05). */
 .ann-prev-icon { margin: 0 0 10px; }
-.ann-draft-icon { margin: 4px 0 12px; }   /* the notepad under DRAFT (user, 2026-11-05) */
+.ann-draft-icon { margin: 4px 0 20px; }   /* more room between the icon and its note (user, 2026-11-06; was 12px) */
 .ann-prev-t { color: var(--t-text); margin: 0 0 6px; }
 .ann-prev-who { margin-bottom: 18px; font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,.5); }
 .ann-prev { margin-bottom: 30px; }
@@ -4497,13 +4502,32 @@ textarea.cm-reply.ann-text { background: var(--surface2); color: var(--t-normal)
 textarea.cm-reply.ann-text:focus-visible { outline: none; }
 /* [Student] lit amber in the draft (user, 2026-11-05): the grey box is drawn by the layer behind, the textarea is see-through on top. */
 .ann-hl-wrap { position: relative; border-radius: 10px; background: var(--surface2); }
+/* Greeting picker + the draft as my blue bubble (user, 2026-11-06): one box, no Preview. */
+.ann-greet { display: flex; gap: 26px; margin: 30px 0 20px; }   /* more room under the steps (user, 2026-11-06) */
+.ann-greet .db-check { cursor: pointer; color: var(--muted); }
+.ann-greet .db-check.on { color: var(--t-normal); }
+.ann-greet .ann-mark, .ann-greet-line .ann-mark { color: inherit; }
+.ann-greet .ann-mark { padding: 2px 6px; margin: 0 2px; border-radius: 4px; }   /* a wider highlight on NAME (user, 2026-11-06) */
+.ann-thread { margin: 0; min-height: 132px; }
+#annBody .ann-thread { border-style: dashed; }   /* the text frame dashed (user, 2026-11-06) */
+.ann-thread .ann-bub { padding: 0; min-width: 200px; max-width: 85%; color: var(--t-normal); font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; }
+.ann-bub .ann-hl-wrap { background: transparent; border-radius: 10px; }
+/* The mirror under the text sets the bubble's size; the textarea lies on top of it, same font and padding, so it grows with it. */
+.ann-bub .ann-hl { position: static; inset: auto; padding: 0 14px 10px; border: 0; min-height: 1.55em; }
+.ann-bub .ann-hl-wrap textarea.cm-reply.ann-text { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; margin: 0; padding: 0 14px 10px;
+  border: 0; resize: none; overflow: hidden; background: transparent; font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; line-height: 1.55; color: var(--t-normal); }
+.ann-bub .ann-hl-wrap textarea.cm-reply.ann-text::placeholder { color: color-mix(in srgb, var(--t-normal) 60%, transparent); }
+.ann-bub .ann-greet-line:not([hidden]) + .ann-hl-wrap textarea.cm-reply.ann-text, .ann-bub .ann-greet-line:not([hidden]) + .ann-hl-wrap .ann-hl { padding-top: 19px; }   /* a blank line under the greeting, as sent */
+.ann-bub .ann-greet-line[hidden] + .ann-hl-wrap textarea.cm-reply.ann-text, .ann-bub .ann-greet-line[hidden] + .ann-hl-wrap .ann-hl { padding-top: 10px; }
+.ann-greet-line { font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; line-height: 1.55; color: var(--t-normal); padding: 10px 14px 0; white-space: nowrap; }
+.ann-thread + .ann-cost { margin-top: 14px; }
 .ann-hl-wrap textarea.cm-reply.ann-text { position: relative; z-index: 1; background: transparent; display: block; margin: 0; }
 .ann-hl { position: absolute; inset: 0; box-sizing: border-box; padding: 12px 14px; border: 1px solid transparent; overflow: hidden; pointer-events: none;
   font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: break-word; color: transparent; }
 .ann-hl mark, .ann-mark { background: rgba(255,255,255,0.13); color: transparent; border-radius: 3px; }   /* grey, not amber (user, 2026-11-05) */
 .ann-mark { color: var(--t-normal); padding: 0 2px; }   /* no light edge while typing (user, 2026-11-05) */
 .ann-cost { font-size: 11px; color: var(--muted); margin: 4px 0 34px; line-height: 1.6; }
-.ann-name-note { font-size: 11px; color: var(--muted); margin: 22px 0 0; line-height: 1.6; }   /* the [Student] line under the box (user, 2026-11-05) */
+.ann-name-note { font-size: 11px; color: var(--muted); margin: 30px 0 0; line-height: 1.6; }   /* the [Student] line under the box (user, 2026-11-05) */
 .ann-bad { color: #ff5a4d; }
 .ann-to-head { display: flex; align-items: center; justify-content: space-between; }
 .ann-to-acts { display: flex; gap: 8px; }
