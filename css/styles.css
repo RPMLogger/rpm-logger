@@ -3958,9 +3958,9 @@ html body .header::before {
 html body .header::after {   /* handle on top, two feet under */
   content: ""; position: absolute; left: 0; right: 0; top: -93px; bottom: -90px; z-index: -2; pointer-events: none;
   /* Handle from the user's second drawing (2026-10-31): low flat end caps with a small step, a long strap bowed up between, thick in the middle and thin at the ends */
-  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27276%27 height=%2722%27%3E%3Cg fill=%27%231e1e1e%27 stroke=%27%232c2c2c%27%3E%3Cpath d=%27M50 15.5 Q141 -3 226 15.5 L226 18.5 Q141 6 50 18.5 Z%27/%3E%3Crect x=%2712.5%27 y=%2716.5%27 width=%2736%27 height=%278%27 rx=%271.5%27/%3E%3Crect x=%27227.5%27 y=%2716.5%27 width=%2736%27 height=%278%27 rx=%271.5%27/%3E%3Crect x=%2746.5%27 y=%2713.5%27 width=%275%27 height=%2710%27 rx=%271%27/%3E%3Crect x=%27224.5%27 y=%2713.5%27 width=%275%27 height=%2710%27 rx=%271%27/%3E%3C/g%3E%3C/svg%3E") center top -1px / 276px 22px no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Crect width=%2734%27 height=%278%27 rx=%271%27 fill=%27%232a2a2a%27/%3E%3C/svg%3E") left 34px bottom / 34px 8px no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Crect width=%2734%27 height=%278%27 rx=%271%27 fill=%27%232a2a2a%27/%3E%3C/svg%3E") right 34px bottom / 34px 8px no-repeat;
+  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27276%27 height=%2722%27%3E%3Cg fill=%27%230b0b0b%27 stroke=%27%232c2c2c%27%3E%3Cpath d=%27M50 15.5 Q141 -3 226 15.5 L226 18.5 Q141 6 50 18.5 Z%27/%3E%3Crect x=%2712.5%27 y=%2716.5%27 width=%2736%27 height=%278%27 rx=%271.5%27/%3E%3Crect x=%27227.5%27 y=%2716.5%27 width=%2736%27 height=%278%27 rx=%271.5%27/%3E%3Crect x=%2746.5%27 y=%2713.5%27 width=%275%27 height=%2710%27 rx=%271%27/%3E%3Crect x=%27224.5%27 y=%2713.5%27 width=%275%27 height=%2710%27 rx=%271%27/%3E%3C/g%3E%3C/svg%3E") center top -1px / 276px 22px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Crect width=%2734%27 height=%278%27 rx=%271%27 fill=%27%230b0b0b%27 stroke=%27%232c2c2c%27/%3E%3C/svg%3E") left 34px bottom / 34px 8px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Crect width=%2734%27 height=%278%27 rx=%271%27 fill=%27%230b0b0b%27 stroke=%27%232c2c2c%27/%3E%3C/svg%3E") right 34px bottom / 34px 8px no-repeat;
 }
 /* ☰, Magnifier and Home sit in the control strip, 26px buttons; strip 34 → 48 tall (user, 2026-10-30) */
 html body .sb-burger { left: 23.5px; top: 171.5px; width: 26px; height: 26px; border-radius: 6px; }   /* ☰'s top bar level with the knobs' pointer tops (user, 2026-10-31) */
@@ -4263,13 +4263,12 @@ a.cm-file:hover { background: rgba(255,255,255,0.14); }
 .win-mag.on { border-color: var(--muted); background: var(--muted); }
 .win-mag.on .hdr-mag-i { background: var(--bg, #111); }
 /* Today and This Week boxes, and Today's name buttons, lifted like the All window's (user, 2026-11-01) */
-#todayBody .td-wk-box { box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
 #todayBody .td-mini-b { background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
 #todayBody .td-day-cal { box-shadow: 0 3px 10px rgba(0,0,0,0.25); }   /* the date page, lifted like the name tags (user, 2026-11-04) */
 #todayBody .td-hero { filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6)); }   /* the amp too, a shadow under its shape (user, 2026-11-04) */
 #todayBody .td-wk-icon .win-icon { display: block; width: 38px; height: auto; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6)); }   /* This Week's calendar as wide as Today's date page (user, 2026-11-05; was 42px tall, 2026-11-04); block: no inline gap under it, so icon → count matches Today's; the amp's shadow */
 .link-btn.td-mini-tag { pointer-events: none; cursor: default; }   /* Today's names: tags, nothing to press (user, 2026-11-01) */
-#todayBody .td-wk-box { box-shadow: none; }   /* Today page: shadows on buttons only (user, 2026-11-02) */
+/* (Today's boxes: the ring comes from THE BOX, 2026-11-06) */
 #todayBody .td-today-box ~ .td-wk-box { margin-top: 16px; }   /* This Week closer under Today (user, 2026-11-02; was 34px) */
 html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px 4px rgba(0,0,0,.6)); }   /* logo + name + build: a soft shadow (user, 2026-11-02) */
 #imLogWin .im-main-log ~ .im-main-box .im-sub-t .im-mail-opt { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; color: var(--t-faint); }
@@ -4537,6 +4536,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
   --rpm-box-border: 1px solid var(--border);
   --rpm-box-radius: 10px;
   --rpm-box-pad: 36px 40px;
+  --rpm-box-ring: 0 0 0 4px #0b0b0b, 0 0 0 5px #2c2c2c;
   --rpm-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
 html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms),
@@ -4546,7 +4546,16 @@ html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
   position: relative; box-sizing: border-box;
   background-color: var(--rpm-box-bg); background-image: var(--rpm-box-grain);
   border: var(--rpm-box-border); border-radius: var(--rpm-box-radius); padding: var(--rpm-box-pad);
+  box-shadow: var(--rpm-box-ring);   /* Home's double border: dark amp-body ring + outer line (user, 2026-11-06) */
 }
+/* the ring sits 5px outside: every box 4px in from the column, like Home and the header */
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms),
+html body #importBody .im-split > :is(.im-sec-box, .im-head-card) { margin-left: 4px; margin-right: 4px; }
+html body .td-wk-box { width: calc(100% - 8px); }
+html body .cr.rpm-rack { margin-left: 4px !important; margin-right: 4px !important; }
+/* name card + History: one plate, so one ring round both */
+html body #importBody .im-split > .im-head-card:has(+ .im-sec-box) { clip-path: inset(-6px -6px 0 -6px); }
+html body #importBody .im-split > .im-head-card + .im-sec-box { clip-path: inset(0 -6px -6px -6px); }
 /* a rack strip (class rpm-rack, Comms first; user 2026-11-06): the box look, its own knob row sets the height (shape, not look).
    The Calendar's racks are NOT rpm-rack: the Calendar keeps its own look. */
 html body .cr.rpm-rack { --rpm-box-pad: 0; }
