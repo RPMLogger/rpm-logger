@@ -4571,10 +4571,18 @@ html body #importBody .im-split > .im-head-card + .im-sec-box { border-top: none
   --rpm-card-bg: #1c1c1c;   /* FLAT, no grain: smooth plate on the grained box, the same lightness #141414+grain had (user, 2026-11-06: option "1 + 4"; #141414+grain before) */
   --rpm-card-grain: none;
   --rpm-card-lift: inset 0 1px 0 rgba(255,255,255,0.06), 0 3px 8px rgba(0,0,0,0.55);   /* lifted: faint light line on top, soft shadow under (user, 2026-11-06) */
+  --rpm-card-w-small: 460px;   /* TWO CARD SIZES (user, 2026-11-06): small = name cards, centred; they stay small when opened (grow down only) */
 }
 html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-card, .en-scard, .db-card, #_a#_b) {
   background-color: var(--rpm-card-bg); background-image: var(--rpm-card-grain); box-shadow: var(--rpm-card-lift);
 }
+/* small cards: Lessons, Payments, Slot change, Terminate, Skips, Availability, Dropbox. Wide (the whole box): Inquiries, Initiate, Trial, Reviews */
+html body .container :is(.im-card, .incoming-card, .slc-scard, .en-card, .db-card, #_a#_b) { max-width: var(--rpm-card-w-small); margin-left: auto; margin-right: auto; }
+html body .container :is(.inq-dcard, .en-scard, #_a#_b) { max-width: none; }
+#tab-dropbox .db-cards-head { max-width: var(--rpm-card-w-small); margin-left: auto; margin-right: auto; }   /* 24 STUDENTS / SINCE ADDED line up with the small cards */
+.en-foot.en-card-foot { flex-wrap: wrap; row-gap: 14px; }   /* small open card: the note on its own line above the button, button right */
+.en-foot.en-card-foot .en-foot-note { flex-basis: 100%; }
+.en-foot.en-card-foot .en-go { margin-left: auto; }
 /* the student's name on every card: one font (user, 2026-11-06: Syne 16; Lessons/Payments/Slot change were Bebas 22, Terminate/Skips/Availability/Dropbox Syne 15) */
 html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-card, .en-scard, .db-card, #_a#_b) :is(.db-card-n, .incoming-name, .en-card-n, .inq-name) {
   font-family: "Syne", sans-serif; font-size: 16px; letter-spacing: normal; line-height: 26px;
