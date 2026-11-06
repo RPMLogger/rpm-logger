@@ -843,7 +843,8 @@ function commsEnsureExtras() {
           "<span class='cr-vents'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>" +
           "<span class='cr-sp'></span><span class='cr-pair'>" +
             col("cmTplBtn", "Templates", "_ttMenu(event)", "Text templates: Zoom lesson,&#10;No show, Optional schedule.", "<span class='cash-dd-list' id='cmTplList' hidden></span>") +
-            (typeof annOpen === "function" ? col("commsAnnBtn", "Announcements", "annOpen()", "Opens a window.&#10;Text all students at once, see who confirmed.") : "") +
+            (typeof annOpen === "function" ? col("commsAnnBtn", "Announcements", "annOpen()", "Opens a window.&#10;Text all students at once.") : "") +
+            (typeof annOpenConf === "function" ? col("commsAnnConfBtn", "Confirmations", "annOpenConf()", "Opens a window.&#10;Who confirmed an announcement, Nudge the rest.") : "") +
             col("commsOthersBtn", "Others <span id='commsOthersCount'>0</span>", "commsShowOthers(true)", "Opens a window.&#10;Unknown numbers, applicants,&#10;voicemails, scams.") +
           "</span></div>";
       box.parentNode.insertBefore(rack, box);

@@ -64,9 +64,8 @@ function annWin() {
   w.id = "annOverlay";
   w.onclick = function (e) { if (e.target === w) annClose(); };
   w.innerHTML = '<div class="td-student cm-win ann-win"><div class="settings-title im-title"><span id="annTitle">Announcements</span>' +
-    '<span class="cm-oth-acts"><button class="link-btn" id="annConfBtn" onclick="annOpenId = null; annRenderList()">Confirmations</button>' +
-    '<button class="link-btn" id="annNewBtn" onclick="annCompose()">Send text</button>' +
-    '<button class="settings-close" onclick="annClose()">✕</button></span></div>' +
+    // No page switch in the title: the rack has its own Announcements and Confirmations buttons (user, 2026-11-06).
+    '<span class="cm-oth-acts"><button class="settings-close" onclick="annClose()">✕</button></span></div>' +
     // The portal's window top (user, 2026-11-05): red name · grey part (No show's look); no icon under it.
     '<div id="annBody"></div></div>';
   document.body.appendChild(w);
@@ -86,11 +85,15 @@ function annOpen() {
   annData = null;   // fresh roster + table each time; LOADING until it lands
   annLoad();
 }
-// The title row shows the button for the other page.
-function annHeadBtns(onList) {
-  document.getElementById("annNewBtn").style.display = onList ? "" : "none";
-  document.getElementById("annConfBtn").style.display = onList ? "none" : "";
+// Confirmations button on the rack: the same window, straight on the table (user, 2026-11-06).
+function annOpenConf() {
+  annWin().classList.add("open");
+  annView = "list";
+  annOpenId = null;
+  annData = null;
+  annLoad();
 }
+function annHeadBtns() {}   // the title row used to switch pages; the rack does it now
 
 function annLoad() {
   var body = document.getElementById("annBody"), url = getScriptUrl();
