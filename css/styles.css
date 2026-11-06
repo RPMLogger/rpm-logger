@@ -56,7 +56,7 @@ body::after { content: ""; position: fixed; inset: 0; pointer-events: none;
   }   /* back on over a fainter diamond plate (user, 2026-10-30) */
 /* the user's diamond plate on the page background, under the gold glow (user, 2026-10-30; tweed amp photo tried first);
    drawn in code so every diamond is even (the image tile had brighter patches and seams; was ../img/bg-plate.jpg 0 0 / 380px under 93% dark) */
-body { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cg fill='%23fff' fill-opacity='0.07'%3E%3Cpath d='M1 15 Q10 10 15 1 Q6 6 1 15Z'/%3E%3Cpath d='M15.5 15.5 Q24.5 20.5 29.5 29.5 Q20.5 24.5 15.5 15.5Z'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 30px, var(--bg); }
+body { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cg fill='%23fff' fill-opacity='0.07'%3E%3Cpath d='M1 15 Q10 10 15 1 Q6 6 1 15Z'/%3E%3Cpath d='M15.5 15.5 Q24.5 20.5 29.5 29.5 Q20.5 24.5 15.5 15.5Z'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 30px, var(--rpm-plate); }
 /* a faint paper grain inside the student cards; body-prefixed so the cards' own background: shorthand keeps it (user, 2026-10-30) */
 body #importBody .im-card, body #tab-payments .incoming-card, body #importBody .td-student .db-panel.im-list { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* a bit of the cards' paper grain on the big boxes, logo box included (user, 2026-10-30; was on the page background) */
@@ -952,7 +952,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .out-ico .open-out-icon { width: 11px; height: 11px; }
 
 /* ─── Inquiries: decision cards (clean) ─────────────────────────────────── */
-.inq-dcard { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; padding: 20px 22px; margin-bottom: 10px; }
+.inq-dcard { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); border-radius: 10px; padding: 20px 22px; margin-bottom: 10px; }
 /* Red edge on every student card, whatever tab or status (Inquiries, Initiate,
    Trial, Archive). Status colours on the edge were tried and dropped. */
 .inq-dcard.read   { opacity: 0.62; }
@@ -4532,7 +4532,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
    Notes, Comms), the Lessons student page plates, rack strips (.rpm-rack).
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --rpm-box-bg: var(--box);
+  --rpm-box-bg: #0b0b0b;   /* the dark tray, like the header's nav strip (user, 2026-11-06; was var(--box) #101010) */
   --rpm-box-border: 1px solid var(--border);
   --rpm-box-radius: 10px;
   --rpm-box-pad: 36px 40px;
@@ -4552,6 +4552,18 @@ html body .cr.rpm-rack { --rpm-box-pad: 0; }
 /* the student page's name card + History join into one plate (shape, not look) */
 html body #importBody .im-split > .im-head-card:has(+ .im-sec-box) { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
 html body #importBody .im-split > .im-head-card + .im-sec-box { border-top: none; border-top-left-radius: 0; border-top-right-radius: 0; }
+
+/* ═══ THE CARD (user, 2026-11-06): plate (mid) → box (darkest tray) → card (lightest, grained),
+   like the header: lighter logo panel over the darker nav strip. Every card inside a box takes this fill.
+   (#_a#_b never matches: it only lifts the rule above the tabs' own card rules.) ═══ */
+:root {
+  --rpm-plate: #171717;   /* the page under the diamond plate (was --bg #0f0f0f) */
+  --rpm-card-bg: #1c1c1c;
+  --rpm-card-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-card, .en-scard, .db-card, #_a#_b) {
+  background-color: var(--rpm-card-bg); background-image: var(--rpm-card-grain);
+}
 
 /* ═══ BOX EXCEPTIONS — one line per box the user wants different. Set a variable on the tab, e.g.
    #tab-inquiries { --rpm-box-border: 1px solid red; }   Ask "what are the exceptions" → this list. ═══ */
