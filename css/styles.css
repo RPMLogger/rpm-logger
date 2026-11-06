@@ -60,9 +60,9 @@ body { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/
 /* a faint paper grain inside the student cards; body-prefixed so the cards' own background: shorthand keeps it (user, 2026-10-30) */
 body #importBody .im-card, body #tab-payments .incoming-card, body #importBody .td-student .db-panel.im-list { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* a bit of the cards' paper grain on the big boxes, logo box included (user, 2026-10-30; was on the page background) */
-body .header::before, body .td-wk-box, body #importBody .td-student,
-body #tab-calendar .cal-inner, body #tab-calendar .cal-bar,   /* the Calendar's cab and bar too (user, 2026-11-02) */
-body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
+body .header::before, body #importBody .td-student,
+body #tab-calendar .cal-inner, body #tab-calendar .cal-bar   /* the Calendar's cab and bar too (user, 2026-11-02); the tab boxes get theirs from THE BOX at the end of this file (2026-11-06) */
+{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* No darker sides outside the page column any more (user, 2026-10-26; were
    shaded from 2026-10-24): the grid runs edge to edge. */
 
@@ -332,7 +332,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
    Today, Students, To-Do, Notes and Comms make their own boxes; Calendar, Fixed schedule
    and Financial are wider than the column, so they stay open. */
 .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms) {
-  box-sizing: border-box; padding: 24px; background: var(--box); border: 1px solid var(--border); border-radius: 10px;   /* every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
+  box-sizing: border-box;   /* background, border, corners, padding, grain, screws: THE BOX at the end of this file (2026-11-06) */   /* was: every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
 
 /* ─── HOME: the opening page (2026-10-24) ─── */
@@ -2802,7 +2802,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .td-wk-day .field-label { color: var(--accent); }   /* every day red, none dimmed */
 .td-wk-none { font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }   /* a day off: OPEN in the date's place, small, the date's grey */
 /* Today and This Week boxes (user, 2026-10-24): the old Week window's size and look, full length, centred on the page */
-.td-wk-box { margin: 34px auto 0; box-sizing: border-box; width: 100%; padding: 24px; background: var(--box); border: 1px solid var(--border); border-radius: 10px; }   /* the Week window's size and look (.st-win / .log-panel) */
+.td-wk-box { margin: 34px auto 0; box-sizing: border-box; width: 100%; }   /* look: THE BOX (2026-11-06) */   /* the Week window's size and look (.st-win / .log-panel) */
 .td-wk-box .field-label { display: block; }
 .td-wk-title .win-sub { font-size: 15px; }   /* the dates smaller than THIS WEEK (user, 2026-10-24) */
 .td-wk-icon { margin: 4px 0 18px; }   /* _stWin's icon spacing */
@@ -4054,16 +4054,13 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 #importBody .td-student.im-split { background: none; border: none; box-shadow: none; padding: 0; }
 #importBody .td-student.im-split > .im-title { padding: 0 24px; margin-bottom: 24px; }
 #importBody .td-student .im-hw-mat { margin: 18px 0 8px; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; }   /* "Material sent", a small header like the box titles (user, 2026-10-31; was "24 files") */
-#importBody .im-split > .im-sec-box { background: var(--box); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-top: 24px; }
+#importBody .im-split > .im-sec-box { margin-top: 24px; }   /* look: THE BOX (2026-11-06) */
 #importBody .im-split > .im-sec-box > .im-sec-head { margin: 0 0 14px; }
 #importBody .im-split > .im-sec-box > .im-sec-head:last-child { margin-bottom: 0; }
 #importBody .im-split > .im-sec-box > .im-list { margin: 0 16px; }
-#importBody .im-split > .im-sec-box:has(.im-sort-btn) { background: #151515; border-color: #2c2c2c; }   /* History box = the knob strip's flat look, no grain (user, 2026-11-04) */
 /* Every student-page box in the amp head's look (user, 2026-11-05): flat #151515, dark inner line, 4px amp body + outer edge around it */
-body #importBody .im-split > :is(.im-sec-box, .im-head-card) { background: #151515; border-color: #2c2c2c; box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }
 body #importBody .im-split > .im-sec-box { margin-top: 34px; }   /* room for the rings between boxes */
 body #importBody .im-split > .im-head-card:has(+ .im-sec-box) { clip-path: inset(-5px -5px 0 -5px); }   /* top card + History read as one box: no ring across the seam */
-body #importBody .im-split > .im-head-card + .im-sec-box { border-color: #2c2c2c; clip-path: inset(0 -5px -5px -5px); }
 #importBody .im-split > .im-sec-box > .im-list { margin: 0; padding: 0; border: none; background: none; }   /* no inner frame: the box is the frame (user, 2026-10-31) */
 body #importBody .im-split > .im-sec-box > .db-panel.im-list { background-color: transparent; background-image: none; border-color: transparent; }
 #importBody .im-split > .im-sec-box > .im-list { padding-left: 16px; }   /* texts a bit in from the heading (user, 2026-10-31) */
@@ -4073,19 +4070,18 @@ body #importBody .im-split > .im-sec-box > .db-panel.im-list { background-color:
 #importBody .im-split > .im-head-card .im-title { padding: 0; margin: 0; align-items: center; }
 #importBody .im-split > .im-head-card .im-title > span { font-size: 22px; letter-spacing: 1px; line-height: 1.05; }
 /* the top card matches the boxes under it: their width, fill and frame; Back in it, left of the name (user, 2026-10-31) */
-body #importBody .im-split > .im-head-card { max-width: none; background: var(--box); border: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; gap: 18px; }
+body #importBody .im-split > .im-head-card { max-width: none; display: flex; align-items: center; gap: 18px; }
 #importBody .im-split > .im-head-card > .im-head-main { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }   /* the name (user, 2026-10-31) */
 /* the whole top card in the Students-list card look (user, 2026-10-31) */
-body #importBody .im-split > .im-head-card { background: var(--box); border: 1px solid #353535; border-radius: 10px; }   /* no lighter left edge (user, 2026-10-31) */   /* fill the same as the boxes under it (user, 2026-10-31) */
 /* The top card and History joined into one (user, 2026-10-31): no gap, square inner corners, one line between; History takes the card's frame so the edges run on */
 body #importBody .im-split > .im-head-card { border-bottom-left-radius: 0; border-bottom-right-radius: 0; margin-left: 0; margin-right: 0; }   /* full width again: the fill-to-Home's-height flex column shrank it with margin auto (user, 2026-11-04) */
-body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border: 1px solid #353535; border-top: none; border-top-left-radius: 0; border-top-right-radius: 0; }
+body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; border-top: none; border-top-left-radius: 0; border-top-right-radius: 0; }
 #importBody .im-split > .im-head-card > .im-head-acts { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }   /* Log lesson on the right (user, 2026-10-31) */
 #importBody .td-student.im-split { margin-top: 0; }
 #importBody .im-split .im-row.im-latest .im-s, #importBody .im-split .im-row.im-latest .im-n, #importBody .im-split .im-row.im-latest .im-d { color: inherit; }   /* the newest lesson no brighter than the rest (user, 2026-10-31) */
 #importBody .im-split .im-row.im-latest .im-n, #importBody .im-split .im-row.im-latest .im-d { color: var(--t-faint); }
 /* Student page plates (user, 2026-11-05): all the History box's colour, the thin 1px border of Today's boxes (no amp ring), four screws each */
-html body #importBody .im-split > :is(.im-sec-box, .im-head-card) { position: relative; background: #151515; border: 1px solid var(--border); box-shadow: none; clip-path: none; padding: 36px 40px; }
+html body #importBody .im-split > :is(.im-sec-box, .im-head-card) { box-shadow: none; clip-path: none; }   /* look: THE BOX (2026-11-06) */
 html body #importBody .im-split > .im-head-card + .im-sec-box { border-top: none; }
 html body #importBody .im-split > .im-sec-box { margin-top: 24px; }
 html body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; }
@@ -4353,8 +4349,7 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 .tab-panel.active.rpm-fill-chain, .rpm-fill-chain { display: flex; flex-direction: column; flex: 1 0 auto; }
 .rpm-fill { flex: 1 0 auto; }
 /* four screws on the Today + This Week boxes, the Calendar's (user, 2026-11-04) */
-#todayBody .td-wk-box, #importBody .im-box, #tab-payments.tab-panel, #todoContent .tdo-box, #notesContent .tdo-box, #commsBody .cm-box { position: relative; padding: 36px 40px; }
-#tab-payments.tab-panel.active { padding: 36px 40px !important; }   /* beats the panel rule's long :not() chain */   /* room between the screws and the titles (user, 2026-11-04; was 24px) */
+/* (screw boxes' 36px 40px padding now in THE BOX, 2026-11-06) */
 #todayBody .td-hero { top: 97px; }   /* follows the 12px more padding on top */
 .td-bolt { position: absolute; width: 15px; height: 15px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #6a6a6a, #2b2b2b 55%, #111 80%); box-shadow: 0 1px 2px #000, inset 0 0 0 1px #0a0a0a; pointer-events: none; }
 .td-bolt:before, .td-bolt:after { content: ''; position: absolute; left: 3px; right: 3px; top: 6.5px; height: 2px; background: #111; border-radius: 1px; }
@@ -4522,3 +4517,34 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
 .ann-others .ann-past { margin-top: 8px; }
 /* History: the empty-row dash smaller and a bit in; handwriting stays 18px (user, 2026-11-05) */
 #importBody .td-student .im-block .im-row.im-empty .im-s { font-size: 13px; padding-left: 8px; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE BOX (user, 2026-11-06): ONE look for every big box in the portal —
+   background, border, corners, padding, paper grain. The four screws are the
+   .td-bolt spans (tabs/today.js TD_BOLTS; rpmBoxBolts in index.html adds them
+   to the tab boxes). Change a value here and every box follows.
+   Boxes: every tab's own box (all tabs but Calendar, Fixed schedule, Financial,
+   which stay open), the .td-wk-box boxes (Today, This Week, Lessons, To-Do,
+   Notes, Comms), the Lessons student page plates.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  --rpm-box-bg: var(--box);
+  --rpm-box-border: 1px solid var(--border);
+  --rpm-box-radius: 10px;
+  --rpm-box-pad: 36px 40px;
+  --rpm-box-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms),
+html body .td-wk-box,
+html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
+  position: relative; box-sizing: border-box;
+  background-color: var(--rpm-box-bg); background-image: var(--rpm-box-grain);
+  border: var(--rpm-box-border); border-radius: var(--rpm-box-radius); padding: var(--rpm-box-pad);
+}
+/* the student page's name card + History join into one plate (shape, not look) */
+html body #importBody .im-split > .im-head-card:has(+ .im-sec-box) { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+html body #importBody .im-split > .im-head-card + .im-sec-box { border-top: none; border-top-left-radius: 0; border-top-right-radius: 0; }
+
+/* ═══ BOX EXCEPTIONS — one line per box the user wants different. Set a variable on the tab, e.g.
+   #tab-inquiries { --rpm-box-border: 1px solid red; }   Ask "what are the exceptions" → this list. ═══ */
+/* (none yet) */
