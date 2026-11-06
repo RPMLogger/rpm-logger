@@ -4531,7 +4531,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
    Notes, Comms), the Lessons student page plates, rack strips (.rpm-rack).
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --rpm-box-bg: #151515;   /* + paper grain: the nav strip's shade, grained (user, 2026-11-06; point-a = build 1206 had #101010 + grain with #161616 cards) */
+  --rpm-box-bg: #0d0d0d;   /* + paper grain READS as the nav strip #151515 (grain adds ~8: measured). Box darker than the cards (#101010+grain reads ~#181818) (user, 2026-11-06; #151515+grain read lighter than the cards = swapped; point-a = build 1206 had #101010 + grain with #161616 cards) */
   --rpm-box-grain: var(--rpm-grain);
   --rpm-box-border: 1px solid var(--border);
   --rpm-box-radius: 10px;
