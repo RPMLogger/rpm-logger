@@ -4532,11 +4532,12 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
    Notes, Comms), the Lessons student page plates, rack strips (.rpm-rack).
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
-  --rpm-box-bg: var(--box);   /* #101010 + grain = the header's logo panel (user, 2026-11-06; #0b0b0b tried, didn't match) */
+  --rpm-box-bg: #151515;   /* = the header's nav strip, flat (user, 2026-11-06: boxes read darker, cards inside lighter) */
+  --rpm-box-grain: none;
   --rpm-box-border: 1px solid var(--border);
   --rpm-box-radius: 10px;
   --rpm-box-pad: 36px 40px;
-  --rpm-box-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
+  --rpm-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
 html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms),
 html body .td-wk-box,
@@ -4558,8 +4559,8 @@ html body #importBody .im-split > .im-head-card + .im-sec-box { border-top: none
    (#_a#_b never matches: it only lifts the rule above the tabs' own card rules.) ═══ */
 :root {
   --rpm-plate: #171717;   /* the page under the diamond plate (was --bg #0f0f0f) */
-  --rpm-card-bg: #151515;   /* = the header's nav strip, no grain (user, 2026-11-06; #1c1c1c + grain tried, didn't match) */
-  --rpm-card-grain: none;
+  --rpm-card-bg: var(--box);   /* #101010 + grain = the header's logo panel (user, 2026-11-06; tried #1c1c1c+grain, then #151515 flat) */
+  --rpm-card-grain: var(--rpm-grain);
 }
 html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-card, .en-scard, .db-card, #_a#_b) {
   background-color: var(--rpm-card-bg); background-image: var(--rpm-card-grain);
