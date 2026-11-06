@@ -4434,6 +4434,9 @@ html body #tab-audit.tab-panel.active:has(#auMenuView:not([style*="none"])) { mi
   -webkit-mask: radial-gradient(circle closest-side, #000 55%, transparent 100%); mask: radial-gradient(circle closest-side, #000 55%, transparent 100%);
   opacity: 0.12; }
 #tab-audit .au-cap { color: #1f1f1f; } #tab-audit .au-speaker:hover .au-cap { color: #8a8a8a; }   /* dim grey, light grey on hover (user, 2026-11-05; were #1f1f1f / #fff, amber before) */
+/* icons lit like the metal dome they sit on: lighter top-left glint, darker toward the edges (user, 2026-11-06) */
+#tab-audit .au-cap .au-icon { background: radial-gradient(ellipse 75% 70% at 42% 32%, #3a3a3a 0%, #1f1f1f 45%, #0c0c0c 100%); }
+#tab-audit .au-speaker:hover .au-cap .au-icon { background: radial-gradient(ellipse 75% 70% at 42% 32%, #c4c4c4 0%, #8a8a8a 45%, #3e3e3e 100%); }
 #todayBody :is(.td-count, .td-wk-head) .field-label { letter-spacing: 2px; }   /* "2 students" / "16 students" spread like the titles (user, 2026-11-05; was 1.5px) */
 /* Saved background (user, 2026-11-05): the Home speaker at 4%, ready for any window/page.
    Use: put <span class="au-spk spk-bg" aria-hidden="true"><span class="au-cap"></span></span> first inside a box with position: relative,
