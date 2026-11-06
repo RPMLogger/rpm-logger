@@ -3948,7 +3948,7 @@ body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http:
 html body .header { margin: 97px 0 107px; }   /* 20px more room above the handle (user, 2026-10-30); feet 6px above the tab box's amp edge (user, 2026-10-30); the head's control strip + feet; 20px more room inside top and bottom (user, 2026-10-30) */
 html body .header::before {
   left: 4px; right: 4px; top: -67px; bottom: -72px; border: 1px solid #2c2c2c; border-radius: 10px;   /* the inner line: dark and rounded like the outer edge (user, 2026-10-30) */
-  box-shadow: 0 0 0 4px #0b0b0b, 0 0 0 5px #2c2c2c;   /* amp body ring dark (user, 2026-11-06; was #1e1e1e) */   /* the amp body around it, its outer edge rounded too */
+  box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c;   /* amp body ring: lighter grey between the lines (user, 2026-11-06: dark #0b0b0b tried, reverted) */   /* the amp body around it, its outer edge rounded too */
   background:
     linear-gradient(#2c2c2c, #2c2c2c) left bottom 53px / 100% 1px no-repeat padding-box,   /* line 5px higher: as much room above the buttons as under (user, 2026-10-31) */
     linear-gradient(#151515, #151515) left bottom / 100% 53px no-repeat padding-box,
@@ -3990,7 +3990,7 @@ body:has(#tab-calendar.active) .amp-knob[data-k=calendar] .amp-knob-l, body:has(
 body:has(#tab-payments.active) .amp-knob[data-k=payments] .amp-knob-l, body:has(#tab-todo.active) .amp-knob[data-k=todo] .amp-knob-l, body:has(#tab-comms.active) .amp-knob[data-k=comms] .amp-knob-l { color: #9a9a9a; }
 /* Home and Audit get the amp's border under the head: dark body ring around a dark rounded line; every other tab keeps its plain box (user, 2026-10-30) */
 html body #tab-home.active, html body #tab-audit.active {
-  margin-left: 4px; margin-right: 4px; border-color: #2c2c2c; box-shadow: 0 0 0 4px #0b0b0b, 0 0 0 5px #2c2c2c;   /* amp body ring dark (user, 2026-11-06; was #1e1e1e) */ }
+  margin-left: 4px; margin-right: 4px; border-color: #2c2c2c; box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c;   /* amp body ring: lighter grey between the lines (user, 2026-11-06: dark #0b0b0b tried, reverted) */ }
 /* Page 1 has no heading: the window title says Log Lesson and HW (user, 2026-10-30); the case hint stays */
 #imLogWin .im-main-log .im-main-t { display: none; }
 /* Page 1 labels in the Reason (optional) look, no 1234 (user, 2026-10-30) */
@@ -4536,7 +4536,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
   --rpm-box-border: 1px solid var(--border);
   --rpm-box-radius: 10px;
   --rpm-box-pad: 36px 40px;
-  --rpm-box-ring: 0 0 0 4px #0b0b0b, 0 0 0 5px #2c2c2c;
+  --rpm-box-ring: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c;   /* the amp's ring: lighter grey between the two lines */
   --rpm-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
 html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms),
