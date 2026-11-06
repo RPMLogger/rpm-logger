@@ -76,7 +76,7 @@ function _emToggle(key) {
 function _emSectionHtml(key, rows) {
   if (rows === null) return '<div class="empty-state rpm-loading">Loading</div>';
   if (rows.err) return '<div id="emErr-' + key + '"></div>';
-  if (!rows.length) return '<div class="win-note">' +
+  if (!rows.length) return '<div class="win-note rpm-none">' +
     (key === "students" ? "No emails from students since Jan 1." :
      key === "gbusiness" ? "No Google Business emails since Jan 1." : "Nothing in the last 30 days.") + '</div>';
   if (key === "students") {

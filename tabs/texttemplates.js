@@ -85,7 +85,7 @@ function _ttOtherRender(key) {
   if (st.hi >= m.length) st.hi = 0;
   list.innerHTML = m.map(function (n, i) {
     return "<button type='button' class='cash-dd-opt" + (i === st.hi ? ' hi' : '') + "' onmouseenter='_ttPk[\"" + key + "\"].hi=" + i + ";_ttOtherRender(\"" + key + "\")' onclick='_ttOtherPick(\"" + key + "\"," + _auEsc(JSON.stringify(n)) + ")'>" + inqEsc(n) + "</button>";
-  }).join('') || "<div class='cash-dd-opt'>No match</div>";
+  }).join('') || "<div class='cash-dd-opt rpm-none'>No match</div>";
   var hi = list.querySelector('.hi'); if (hi) hi.scrollIntoView({ block: 'nearest' });
 }
 function _ttOtherKey(e, key) {

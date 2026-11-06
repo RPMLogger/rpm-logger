@@ -380,7 +380,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   display: flex; align-items: center; justify-content: space-between;
   text-decoration: none; background: var(--surface2, #161616);
   border: 1px solid var(--border, rgba(255,255,255,0.10));
-  border-left: 3px solid var(--accent); border-radius: 10px;
+  border-radius: 10px;   /* no coloured left edge (user, 2026-11-06) */
   padding: 16px 16px; margin-bottom: 10px;
 }
 .sheet-link:hover:where(:not(:disabled)) { background: #1c1c1c; }
@@ -1259,9 +1259,10 @@ input[type="checkbox"]:checked {
    Audit, Log cash, Contacts, Payment history, Confirm, Dismiss (user, 2026-10-30) */
 #tab-payments :is(.link-btn, .log-cash-btn, .incoming-confirm, .incoming-dismiss) { font-size:10px; letter-spacing:1px; line-height:normal;
   padding:4px 10px; border-radius:7px; border-width:1px; min-width:0; box-sizing:border-box; height:23px; display:inline-flex; align-items:center; }
-#tab-payments .pay-foot-btns { display:flex; gap:8px; margin-top:44px; }   /* about two lines under Log cash, so the panel runs longer (user, 2026-10-30) */
+#tab-payments .pay-foot-btns { display:flex; gap:8px; margin-top:0; }   /* level with Audit (user, 2026-11-05; was 44px lower) */
 #tab-payments .pay-foot { margin-top:36px; }   /* Audit row under the cards, no header (user, 2026-10-30) */
-#tab-payments .pay-foot { align-items:flex-start !important; }
+#tab-payments .pay-foot { align-items:center !important; }   /* Audit, Contacts, Payment history on one line (user, 2026-11-05; was flex-start) */
+#tab-payments #incomingPayments > div:not(.incoming-card) { padding-left: 0 !important; text-align: center !important; }   /* None / Loading in the middle of the box (user, 2026-11-06; was under the heading) */
 .incoming-confirm { min-width: 124px; justify-content: center; }   /* Confirm and Log cash one size */
 .log-cash-btn { color: var(--muted); border-color: rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); }   /* grey like Payment history (2026-09-29) */
 .log-cash-btn:hover:where(:not(:disabled)) { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
@@ -3552,7 +3553,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #rvSummaryBody .rv-sec { margin: 0 0 26px; }   /* at the panel's left edge like Payments' Incoming label, the boxes indented under it (user, 2026-10-29) */
 #rvSummaryBody .ld-card + .ld-card { margin-top: 44px; }   /* more space between the boxes (user, 2026-10-29; was 22px) */
 #rvSummaryBody .ld-cards { margin-bottom: 44px; }   /* and before Current students */
-:is(#rvSummaryBody, #rvCurSum) .ld-card { max-width: 480px; margin-left: auto; margin-right: auto; background: var(--surface); border-left: 3px solid color-mix(in srgb, var(--green) 42%, transparent); }   /* the green 3px edge of Payments' done cards (user, 2026-10-29) */
+:is(#rvSummaryBody, #rvCurSum) .ld-card { max-width: 480px; margin-left: auto; margin-right: auto; background: var(--surface); }   /* plain border all round, no green left edge (user, 2026-11-06) */
 /* the Dashboard boxes narrower than the 760px column, centred, filled like Payments' cards on the panel's darker #141414 (user, 2026-10-29); label column + the longest "date - name" row fit */
 :is(#rvSummaryBody, #rvCurSum) .ld-title > span:first-child { font-family: Syne, sans-serif; font-size: 13px; font-weight: 400; letter-spacing: normal; text-transform: none; }   /* box headers in the payment cards' name font, Syne 13px (user, 2026-10-29; was Bebas caps) */
 #curReviewsBody .en-scard { border-left-color: var(--warn); }   /* the student cards' edge the Ask for a review button's amber (user, 2026-10-29; Payments' duller #8f743d tried) */
@@ -3755,10 +3756,10 @@ th.f2-blk { background:none; }
 #importBody .im-audit-link { color: var(--t-text); border-color: rgba(255,255,255,0.22); }   /* white like the Home buttons, no glass: just a link (user, 2026-10-30; was red with a magnifier) */
 #importBody .im-title-stack { display:inline-flex; flex-direction:column; align-items:flex-start; gap:10px; }   /* icon left under the title, indented a bit (user, 2026-10-30; was centred) */
 #importBody .im-title-stack .st-page-icon { margin-left:8px; }
+#importBody .im-title-row { position:relative; }
 #importBody .st-page-icon { color:var(--muted); line-height:0; }
 #importBody .st-page-icon .win-icon { height:24px; width:auto; }
 /* Payments: om-98 calculator + coin under the title, like Today / Dashboard (user 2026-10-24). */
-#importBody .im-title-row { position:relative; }
 #payMainView > .settings-title:has(+ .pay-page-icon) { margin-bottom:10px; }
 #payMainView > .pay-page-icon { margin:0 0 26px; color:var(--muted); line-height:0; }
 #payMainView > .pay-page-icon .win-icon { height:24px; width:auto; }
@@ -4037,11 +4038,11 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 /* Student page inside, in line with the rest of the portal (user, 2026-10-31):
    DM Mono instead of Arial, 10px corners, 11px small text, warm greys, 22px name like the Students cards */
 #importBody .td-student .im-s, #importBody .td-student .im-hw-text, #importBody .td-student .im-teach { font-family: "DM Mono", monospace; font-size: 11px; }
+/* History + Last homework in the To-do page's handwriting (user, 2026-11-04) */
+#importBody .td-student .im-block .im-s, #importBody .td-student .im-block .im-teach, #importBody .td-student .im-hw-text { font-family: "Caveat", cursive; font-size: 18px; line-height: 1.3; letter-spacing: 0.2px; }
 #importBody .td-student .db-panel.im-list { border-radius: 10px; font-size: 11px; }
 #importBody .td-student .im-year, #importBody .td-student .im-data-h { font-size: 11px; }
 #importBody .td-student .im-sec-head .field-label, #importBody .td-student .im-year, #importBody .td-student .im-data-h, #importBody .td-student .im-none { color: var(--t-normal); }
-/* History + Last homework in the To-do page's handwriting (user, 2026-11-04) */
-#importBody .td-student .im-block .im-s, #importBody .td-student .im-block .im-teach, #importBody .td-student .im-hw-text { font-family: "Caveat", cursive; font-size: 18px; line-height: 1.3; letter-spacing: 0.2px; }
 #importBody .td-student > .im-title > span { font-size: 22px; letter-spacing: 1px; }
 #importBody .td-student .db-file { font-size: 11px; }
 #importBody .td-student .im-hw-row .im-s { color: var(--t-normal); }
@@ -4050,17 +4051,17 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 #importBody .td-student .im-hw-row { grid-template-columns: 1fr auto; column-gap: 16px; align-items: baseline; }   /* no number column: sentence, then the date */
 #importBody .td-student .im-hw-row .im-hw-text { flex: 1; min-width: 0; margin: 0; white-space: normal; color: var(--t-normal); }   /* the HW sentence wraps; the date sits on its first line; History's colour (user, 2026-10-31) */
 #importBody .td-student .im-hw-count { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); margin: 4px 0 6px; }
+#importBody .td-student .im-hw-mat { margin: 18px 0 8px; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; }   /* "Material sent", a small header like the box titles (user, 2026-10-31; was "24 files") */
 /* Student page split into boxes (user, 2026-10-31): no big outer box; the name line on the page, then Notes, History, HW sent, Data each a box like Today's */
 #importBody .td-student.im-split { background: none; border: none; box-shadow: none; padding: 0; }
 #importBody .td-student.im-split > .im-title { padding: 0 24px; margin-bottom: 24px; }
-#importBody .td-student .im-hw-mat { margin: 18px 0 8px; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; }   /* "Material sent", a small header like the box titles (user, 2026-10-31; was "24 files") */
 #importBody .im-split > .im-sec-box { margin-top: 24px; }   /* look: THE BOX (2026-11-06) */
-#importBody .im-split > .im-sec-box > .im-sec-head { margin: 0 0 14px; }
-#importBody .im-split > .im-sec-box > .im-sec-head:last-child { margin-bottom: 0; }
-#importBody .im-split > .im-sec-box > .im-list { margin: 0 16px; }
 /* Every student-page box in the amp head's look (user, 2026-11-05): flat #151515, dark inner line, 4px amp body + outer edge around it */
 body #importBody .im-split > .im-sec-box { margin-top: 34px; }   /* room for the rings between boxes */
 body #importBody .im-split > .im-head-card:has(+ .im-sec-box) { clip-path: inset(-5px -5px 0 -5px); }   /* top card + History read as one box: no ring across the seam */
+#importBody .im-split > .im-sec-box > .im-sec-head { margin: 0 0 14px; }
+#importBody .im-split > .im-sec-box > .im-sec-head:last-child { margin-bottom: 0; }
+#importBody .im-split > .im-sec-box > .im-list { margin: 0 16px; }
 #importBody .im-split > .im-sec-box > .im-list { margin: 0; padding: 0; border: none; background: none; }   /* no inner frame: the box is the frame (user, 2026-10-31) */
 body #importBody .im-split > .im-sec-box > .db-panel.im-list { background-color: transparent; background-image: none; border-color: transparent; }
 #importBody .im-split > .im-sec-box > .im-list { padding-left: 16px; }   /* texts a bit in from the heading (user, 2026-10-31) */
@@ -4211,10 +4212,10 @@ html body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; }
 .cm-arch-h { margin: 14px 8px 6px; color: var(--muted); }   /* "Archived" heading in Search results (user, 2026-11-04) */
 #commsStuList .cm-conv.cm-arch { opacity: 0.7; }
 .cm-msgr.cm-loading { visibility: hidden; }   /* nothing, not "No conversations", until the first load (user, 2026-11-04) */
-/* A student's photo (user, 2026-11-03): grey box while it loads, click = full size. */
 .cm-msgr.cm-loading { position: relative; }
-.cm-msgr .cm-wait { display: none; }
-.cm-msgr.cm-loading .cm-wait { display: flex; visibility: visible; position: absolute; top: 90px; left: 0; right: 0; color: var(--muted); }   /* LOADING... while the frame waits (user, 2026-11-05) */
+.cm-msgr .cm-loadmsg { display: none; }   /* was .cm-wait, which also hid every unanswered conversation (2026-11-06) */
+.cm-msgr.cm-loading .cm-loadmsg { display: flex; visibility: visible; position: absolute; top: 90px; left: 0; right: 0; color: var(--muted); }   /* LOADING... while the frame waits (user, 2026-11-05) */
+/* A student's photo (user, 2026-11-03): grey box while it loads, click = full size. */
 img.cm-img[data-media] { cursor: zoom-in; }
 img.cm-img[data-media] + img.cm-img { margin-top: 4px; }
 .cm-img-wait { width: 200px; height: 150px; background: rgba(255,255,255,0.06); color: var(--muted); font-size: 11px; cursor: default; }
@@ -4406,20 +4407,20 @@ html body #tab-audit.active:has(#auMenuView:not([style*="none"])) { position: re
 #tab-audit .au-cap::before { inset: -16px; box-shadow: none; filter: none;   /* soft edge: the cap fades into the cone, no rim (user, 2026-11-05) */
   -webkit-mask: radial-gradient(circle closest-side, #000 55%, transparent 100%); mask: radial-gradient(circle closest-side, #000 55%, transparent 100%); }
 #tab-audit .au-ish { position: relative; }
-/* the plates = Today's name tags (user, 2026-11-05) */
 #tab-audit .au-spk { width: 330px; height: 330px; }   /* bigger, like a 2x12 cab's (user, 2026-11-05; was 260) */
 html body #tab-audit.tab-panel.active:has(#auMenuView:not([style*="none"])) { min-height: max(460px, calc((var(--vh) * 100 - 344px) * 2 / 3)) !important; }   /* 2/3 of the old height (user, 2026-11-05); !important beats the panel rule's long :not() chain */
 #tab-audit .au-menu .au-top { width: 100%; justify-content: space-evenly; gap: 0; }   /* speakers spaced evenly across (user, 2026-11-05) */
+/* the plates = Today's name tags (user, 2026-11-05) */
 #tab-audit .au-plate { padding: 4px 10px; border-radius: 7px; font-size: 10px; letter-spacing: 1px; line-height: 15px; color: #7a7a7a;
   background: #1e1e1e; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
 #tab-audit .au-cap .au-icon { width: 70px; height: 70px; }   /* smaller, no ring now (user, 2026-11-05; was 92, 44, 28, 40) */
 #tab-audit .au-ish { display: block; filter: drop-shadow(0 -1px 0 rgba(0,0,0,0.9)) drop-shadow(0 1px 0 rgba(255,255,255,0.11)); }   /* embossed: pressed into the cap, dark top edge + light bottom edge (user, 2026-11-05; was a drop shadow) */
 /* Home: one faint speaker behind everything (user, 2026-11-05) */
 #tab-home.active { position: relative; }
-#tab-home .hm-spk { position: absolute; left: 50%; top: 50%; height: 90%; width: auto; aspect-ratio: 1; margin: 0; transform: translate(-50%, -50%); opacity: 0.06; pointer-events: none; z-index: 0;
+#tab-home .hm-spk { position: absolute; left: 50%; top: 50%; height: 85%; width: auto; aspect-ratio: 1; margin: 0; transform: translate(-50%, -50%); opacity: 0.06; pointer-events: none; z-index: 0;
   box-shadow: 0 0 0 1px #050505, 0 0 0 4px #1d1d1d, 0 0 0 5px #050505, inset 0 0 0 1px #262626, inset 0 0 26px rgba(0,0,0,0.9); }
-#tab-home .hm-spk .au-cap { width: 32%; height: 32%; margin: -16% 0 0 -16%; }   /* speaker fills the box like a real cab: 90% of its height (user, 2026-11-05; was 80%, 100%, 460px) */
-#tab-home > :not(.hm-spk) { position: relative; z-index: 1; }
+#tab-home .hm-spk .au-cap { width: 32%; height: 32%; margin: -16% 0 0 -16%; }   /* speaker fills the box like a real cab: 85% of its height (user, 2026-11-05; was 80%, 100%, 90%, 460px) */
+#tab-home > :not(.hm-spk, .td-bolt) { position: relative; z-index: 1; }   /* not the screws: they sit in the corners (2026-11-06) */
 /* Home's speaker gets the Audit look (user, 2026-11-05): faint cone in a ::before, metal cap glinting through the cloth with a soft edge; no hover */
 #tab-home .hm-spk { opacity: 1; border-color: transparent; background: none; box-shadow: none; }
 #tab-home .hm-spk::before { content: ''; position: absolute; inset: -16px; border-radius: 50%; border: 16px solid #191919; pointer-events: none;
@@ -4469,10 +4470,10 @@ html body .header .hdr-mag { right: 23.5px; }
 #commsBody .td-wk-title .cm-ann-btn { margin-left: auto; margin-right: 8px; }
 #commsBody .td-wk-title .cm-ann-btn + .cm-oth-btn { margin-left: 0; }
 .ann-win { width: min(640px, 94vw); }
-.ann-acts { display: flex; gap: 10px; margin: 0 0 14px; }
 .td-student.cm-win.ann-win .im-title > span#annTitle { color: var(--accent); }   /* red name, grey part, like No show · Text templates (user, 2026-11-05) */
 .ann-win-icon { margin: 4px 0 18px; line-height: 0; }
 .ann-win-icon .win-icon { width: auto; height: 40px; color: var(--muted); }   /* No show window's size */
+.ann-acts { display: flex; gap: 10px; margin: 0 0 14px; }
 .ann-textbox { font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; line-height: 1.55; color: var(--t-normal); white-space: pre-wrap;
   background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; }
 .ann-row-l { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
@@ -4509,7 +4510,6 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
 .ann-to-acts { display: flex; gap: 8px; }
 .ann-to { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 18px; margin-bottom: 26px; }
 .ann-to .db-check { cursor: pointer; }
-.ann-foot { display: flex; justify-content: space-between; align-items: center; }
 .ann-to .db-check { color: var(--muted); }   /* unticked dim (user, 2026-11-05; was brighter than ticked) */
 .ann-to .db-check.on { color: var(--t-normal); }
 .ann-prev.ann-prev-empty { display: none; }   /* no empty bubble while the draft is blank (user, 2026-11-05) */
@@ -4518,6 +4518,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
 .ann-others { margin: 4px 0 14px; }
 .ann-others-t { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
 .ann-others .ann-past { margin-top: 8px; }
+.ann-foot { display: flex; justify-content: space-between; align-items: center; }
 /* History: the empty-row dash smaller and a bit in; handwriting stays 18px (user, 2026-11-05) */
 #importBody .td-student .im-block .im-row.im-empty .im-s { font-size: 13px; padding-left: 8px; }
 
@@ -4528,7 +4529,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
    to the tab boxes). Change a value here and every box follows.
    Boxes: every tab's own box (all tabs but Calendar, Fixed schedule, Financial,
    which stay open), the .td-wk-box boxes (Today, This Week, Lessons, To-Do,
-   Notes, Comms), the Lessons student page plates.
+   Notes, Comms), the Lessons student page plates, rack strips (.rpm-rack).
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
   --rpm-box-bg: var(--box);
@@ -4539,11 +4540,15 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
 }
 html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms),
 html body .td-wk-box,
+html body .cr.rpm-rack,
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
   position: relative; box-sizing: border-box;
   background-color: var(--rpm-box-bg); background-image: var(--rpm-box-grain);
   border: var(--rpm-box-border); border-radius: var(--rpm-box-radius); padding: var(--rpm-box-pad);
 }
+/* a rack strip (class rpm-rack, Comms first; user 2026-11-06): the box look, its own knob row sets the height (shape, not look).
+   The Calendar's racks are NOT rpm-rack: the Calendar keeps its own look. */
+html body .cr.rpm-rack { --rpm-box-pad: 0; }
 /* the student page's name card + History join into one plate (shape, not look) */
 html body #importBody .im-split > .im-head-card:has(+ .im-sec-box) { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
 html body #importBody .im-split > .im-head-card + .im-sec-box { border-top: none; border-top-left-radius: 0; border-top-right-radius: 0; }
@@ -4551,3 +4556,8 @@ html body #importBody .im-split > .im-head-card + .im-sec-box { border-top: none
 /* ═══ BOX EXCEPTIONS — one line per box the user wants different. Set a variable on the tab, e.g.
    #tab-inquiries { --rpm-box-border: 1px solid red; }   Ask "what are the exceptions" → this list. ═══ */
 /* (none yet) */
+/* Every None / nothing-found line: ALL CAPS, in the middle of its row (user, 2026-11-06) */
+:is(.empty-state, .inq-empty, .im-none, .cm-none, .inq-resp-none, .gl-none, .db-all-empty, .rpm-none) { text-transform: uppercase; letter-spacing: 2px; text-align: center; }
+.db-all-empty { display: block; }
+#importBody .im-goals-box .gl-none { padding-left: 0; }
+.cm-msgr .cm-none { text-transform: uppercase; }

@@ -379,7 +379,7 @@ function loadIncomingPayments() {
       renderAutoConfirmed(data.autoRecent);
 
       if (!data.success || !data.payments || !data.payments.length) {
-        container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>None</div>";
+        container.innerHTML = "<div class='rpm-none' style='color:var(--muted);font-size:11px;padding:10px 0'>None</div>";
         if (tabBtn) tabBtn.innerHTML = "Payments";
         return;
       }
@@ -506,7 +506,7 @@ function dismissIncoming(cardEl, payment) {
 function checkEmptyIncoming() {
   var container = document.getElementById("incomingPayments");
   if (!container.querySelector(".incoming-card")) {
-    container.innerHTML = "<div style='color:var(--muted);font-size:11px;padding:10px 0'>None</div>";
+    container.innerHTML = "<div class='rpm-none' style='color:var(--muted);font-size:11px;padding:10px 0'>None</div>";
     var tabBtn = document.querySelector(".tab-btn[onclick*=\"payments\"]");
     if (tabBtn) tabBtn.innerHTML = "Payments";
   }
@@ -542,7 +542,7 @@ function loadPayers() {
     .then(function(data) {
       payersLoaded = true;
       if (!data.success || !data.students || !data.students.length) {
-        list.innerHTML = "<div style='color:var(--muted);font-size:11px'>" +
+        list.innerHTML = "<div class='rpm-none' style='color:var(--muted);font-size:11px'>" +
           (data && data.message ? inqEsc(data.message) : "None") + "</div>";
         return;
       }
@@ -742,7 +742,7 @@ function loadPaymentHistory() {
       payHistoryLoaded = true;
       list.innerHTML = "";
       if (!data.success || !data.rows || !data.rows.length) {
-        list.innerHTML = "<div style='color:var(--muted);font-size:11px'>None</div>";
+        list.innerHTML = "<div class='rpm-none' style='color:var(--muted);font-size:11px'>None</div>";
         return;
       }
 

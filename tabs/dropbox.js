@@ -574,7 +574,7 @@ function _dbStudentsHtml() {
     '</div>';
   var cards = sorted.length
     ? sorted.map(function (f) { return _dbCard(f); }).join('')
-    : _dbRow('None');
+    : '<div class="rpm-none">None</div>';
   // No window frame (2026-10-02), like every section on this tab: the
   // window's title and header, then the cards straight on the page.
   return '<div class="db-section">' + _dbTitle('Student folders') + header + cards + '</div>';

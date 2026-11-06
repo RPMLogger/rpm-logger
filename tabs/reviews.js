@@ -324,7 +324,7 @@ function _rvRenderSummary() {
               '<button class="rv-tick" title="Left a review" onclick="_rvAskLeft(' + i + ', this)"></button>' +
               _rvEscHtml(a.date) + ' - ' + _rvEscHtml(a.name) + _rvAskTag(a) + '</span></div>';
           }).join('')
-        : row('', 'No open asks')) +
+        : '<div class="rpm-none">No open asks</div>') +
     '</div>' + _rvPlanHtml() + '</div>';
 }
 

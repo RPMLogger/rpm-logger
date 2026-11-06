@@ -348,7 +348,7 @@ function _stRenderDetail() {
         pastBox.appendChild(row);
       });
     } else {
-      pastBox.innerHTML = "<div style='font-size:12px;color:var(--muted);padding:4px 0'>None</div>";
+      pastBox.innerHTML = "<div class='rpm-none' style='font-size:12px;color:var(--muted);padding:4px 0'>None</div>";
     }
     section.appendChild(pastBox);
   }

@@ -791,7 +791,7 @@ function commsEnsureExtras() {
       stu.innerHTML =
         // Hidden until the first load lands, so it never says "No conversations" while loading (user, 2026-11-04).
         '<div class="cm-msgr cm-loading">' +
-          '<div class="rpm-loading cm-wait">Loading</div>' +   // the ring + LOADING... until the first load (user, 2026-11-05)
+          '<div class="rpm-loading cm-loadmsg">Loading</div>' +   // the ring + LOADING... until the first load (user, 2026-11-05)
           // Top of the list like Messages (user, 2026-11-01): the compose button
           // (New text) alone at the right, then a full-width search with a magnifier.
           '<div class="cm-msgr-list"><div class="cm-list-top">' +
@@ -835,7 +835,7 @@ function commsEnsureExtras() {
           "<span class='cr-cap'>" + cap + "</span>" + (extra || "") + "</span>";
       };
       var rack = document.createElement("div");
-      rack.className = "cal-bar cr cm-rack";
+      rack.className = "cal-bar cr rpm-rack cm-rack";   // rpm-rack: follows THE BOX (css/styles.css end), not the Calendar (user, 2026-11-06)
       rack.innerHTML =
         "<span class='cr-bolt' style='left:8px;top:10px'></span><span class='cr-bolt' style='left:8px;bottom:10px'></span>" +
         "<span class='cr-bolt' style='right:8px;top:10px'></span><span class='cr-bolt' style='right:8px;bottom:10px'></span>" +
