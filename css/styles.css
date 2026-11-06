@@ -4469,10 +4469,45 @@ html body .header .hdr-mag { right: 23.5px; }
 #commsBody .td-wk-title .cm-ann-btn { margin-left: auto; margin-right: 8px; }
 #commsBody .td-wk-title .cm-ann-btn + .cm-oth-btn { margin-left: 0; }
 .ann-win { width: min(640px, 94vw); }
-.td-student.cm-win.ann-win { padding-left: 28px; padding-right: 28px; }   /* more room from the sides (user, 2026-11-06; was 20px like Comms windows) */
+.td-student.cm-win.ann-win { padding-left: 28px; padding-right: 28px; }
+.td-student.cm-win.ann-win { overflow-x: hidden; }   /* no sideways scrollbar from the rows' hidden tooltips (2026-11-06) */   /* more room from the sides (user, 2026-11-06; was 20px like Comms windows) */
 .ann-win .im-sec-head .db-cx-t { color: var(--t-text); }   /* Bebas stays, grey instead of red (user, 2026-11-06) */
 .ann-win :is(.tv-sec-note, .tv-steps span, .ann-cost, .ann-others-t, .ann-past, .ann-row-sub, .ts-trip-dates) { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; }   /* all Arial, easier on the eye (user, 2026-11-06; was DM Mono); headings stay Bebas */
 .ann-win div.ann-cost { font-size: 11px; text-align: right; margin-bottom: 46px; }   /* a footnote under the bubble, smaller than the steps (user, 2026-11-06) */
+/* Confirmations = the To list with marks (user, 2026-11-06): ✓ confirmed, ★ needs reply, empty circle awaiting. */
+.ann-facts { display: grid; grid-template-columns: auto 1fr; gap: 8px 18px; margin: 0 0 20px; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.45; }   /* Subject / Sent / Confirms (user, 2026-11-06) */
+.ann-fact-k { color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }   /* SUBJECT / SENT / CONFIRMS in caps (user, 2026-11-06) */
+.ann-fact-v { color: var(--t-normal); }
+.ann-facts-box { border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin: 0 0 16px; }   /* Subject / Sent / Confirms + Show text in one frame (user, 2026-11-06) */
+.ann-facts-box .ann-facts { margin-bottom: 14px; }
+.ann-facts-box .ann-textbox { margin-bottom: 14px; }
+.ann-facts-box { display: flex; flex-direction: column; }
+.ann-facts-box > [data-a='text'] { align-self: flex-end; }   /* Show text on the right (user, 2026-11-06) */
+.ann-acts.ann-nudge-foot { justify-content: space-between; margin: 34px 0 0; }   /* Archive left, Nudge right (user, 2026-11-06) */
+.ann-win .ann-past + .ann-past { margin-top: 8px; }
+.ann-arch.pay-history-modal { max-width: none; }   /* Payment history's month boxes, full window width (user, 2026-11-06) */
+.ann-arch .ann-arch-row { cursor: pointer; }
+.ann-acts.ann-arch-foot { justify-content: flex-end; }   /* Back on the right (user, 2026-11-06) */
+.ann-arch .pay-history-month, .ann-arch .pay-history-month .pay-history-total { color: var(--t-faint); }   /* month band dim (user, 2026-11-06) */
+.ann-arch .ann-arch-row:hover td { color: var(--t-bright); }
+.ann-arch .pay-history-table td.ph-method { width: 70px; }
+.ann-arch .pay-history-table td.ph-amt { width: 60px; }
+.ann-arch .pay-history-table { table-layout: auto; }
+.ann-arch .pay-history-table td.ph-name { width: auto; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+.ann-arch .pay-history-table td.ph-date { width: 50px; white-space: nowrap; }
+.ann-win .ann-past { margin-top: 0; }   /* Nudge bottom right (user, 2026-11-06) */
+.ann-facts-box { background: var(--rpm-card-bg, #1c1c1c); box-shadow: var(--rpm-card-lift, inset 0 1px 0 rgba(255,255,255,0.06), 0 3px 8px rgba(0,0,0,0.55)); border-color: transparent; }   /* lighter + lifted, the portal's card plate (user, 2026-11-06) */
+.ann-win .ann-card .ann-to-head { margin-top: 34px; }
+.ann-legend { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0 0 18px; }
+.ann-legend .db-check { color: var(--muted); font-size: 11.5px; cursor: default; }
+.ann-legend b { font-weight: normal; color: var(--t-normal); margin-left: 2px; }
+.ann-conf-list .db-check { cursor: pointer; color: var(--t-normal); }
+.ann-conf-list .db-check:hover { color: var(--t-bright); }
+.ann-star { font-style: normal; color: var(--warn); width: 14px; text-align: center; font-size: 13px; line-height: 1; }
+.ann-x { font-style: normal; color: #ff5a4d; width: 14px; text-align: center; font-size: 11px; line-height: 1; }
+.ann-conf-list .ann-st-reply { color: var(--t-bright); }
+.ann-sort-on { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); }
+.ann-win .ann-others { margin-top: 40px; }
 .rpm-dlg-confirm.tv-golive-dlg.ann-send-dlg .rpm-dlg-body .rpm-dlg-msg { line-height: 2.4; }   /* more room between the points (user, 2026-11-06; Travel's Go live keeps 1.8) */
 .td-student.cm-win.ann-win .im-title > span#annTitle { color: var(--accent); }   /* red name, grey part, like No show · Text templates (user, 2026-11-05) */
 .ann-win-icon { margin: -12px 0 26px 4px; line-height: 0; }   /* closer to the title, more room before DRAFT (user, 2026-11-06) */
@@ -4503,7 +4538,13 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
 /* [Student] lit amber in the draft (user, 2026-11-05): the grey box is drawn by the layer behind, the textarea is see-through on top. */
 .ann-hl-wrap { position: relative; border-radius: 10px; background: var(--surface2); }
 /* Greeting picker + the draft as my blue bubble (user, 2026-11-06): one box, no Preview. */
-.ann-greet { display: flex; gap: 26px; margin: 30px 0 20px; }   /* more room under the steps (user, 2026-11-06) */
+.ann-greet { display: flex; gap: 26px; margin: 30px 0 20px; }
+.ann-words { align-items: center; gap: 10px; }
+.ann-word { font-family: Arial, Helvetica, sans-serif; font-size: 9.5px; line-height: 1; color: var(--muted); background: none; border: 1px solid rgba(255,255,255,0.14); border-radius: 999px; padding: 3px 8px; cursor: pointer; }   /* bordered pills to click (user, 2026-11-06) */   /* keywords like the Lesson Log's: plain words, lit on hover (user, 2026-11-06) */
+.ann-word:hover { color: var(--t-bright); border-color: rgba(255,255,255,0.4); }
+.ann-bub > .ann-hl-wrap:first-child .ann-hl, .ann-bub > .ann-hl-wrap:first-child textarea.cm-reply.ann-text { padding-top: 10px; }   /* no greeting line above any more */
+.ann-words .im-word-sep { color: var(--t-faint); }
+.ann-word .ann-mark { padding: 0 3px; margin: 0 2px; border-radius: 4px; color: inherit; }   /* more room under the steps (user, 2026-11-06) */
 .ann-greet .db-check { cursor: pointer; color: var(--muted); }
 .ann-greet .db-check.on { color: var(--t-normal); }
 .ann-greet .ann-mark, .ann-greet-line .ann-mark { color: inherit; }

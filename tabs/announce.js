@@ -19,7 +19,7 @@ var ANN_MEGAPHONE_ICON = '<svg class="win-icon" viewBox="0 0 245.25 195.000001" 
 var ANN_MEGAPHONE_ICON_B = '<svg class="win-icon" viewBox="0 0 245.25 198.749995" fill="currentColor" aria-hidden="true"><defs><clipPath id="annMeg4"><path d="M 1 0.179688 L 193 0.179688 L 193 197.574219 L 1 197.574219 Z M 1 0.179688 " clip-rule="nonzero"/></clipPath></defs><g clip-path="url(#annMeg4)"><path fill="currentColor" d="M 160.023438 3.421875 C 157.210938 1.015625 154.015625 -0.0859375 150.777344 0.234375 C 147.390625 0.570312 144.167969 2.496094 141.699219 5.652344 C 121.308594 31.742188 97.871094 49.523438 72.03125 58.496094 C 62.929688 61.660156 53.578125 63.472656 44.539062 65.222656 C 39.417969 66.214844 34.125 67.242188 28.902344 68.5 C 21.835938 70.210938 17.316406 74.679688 15.472656 81.777344 C 8.054688 83.5625 2.992188 89.058594 1.574219 96.882812 C 0.226562 104.339844 1.679688 111.898438 5.894531 119.34375 C 9.972656 126.539062 16.753906 129.691406 24.511719 128.027344 C 25.984375 131.945312 29.660156 133.09375 32.914062 134.109375 C 34.960938 134.75 36.902344 135.355469 38.222656 136.546875 C 43.902344 141.683594 48.007812 153.421875 51.972656 164.777344 C 57.613281 180.917969 63.425781 197.558594 74.15625 197.558594 C 75.238281 197.558594 76.371094 197.390625 77.5625 197.03125 C 87.667969 193.992188 99.488281 188.144531 98.765625 177.480469 L 98.773438 177.480469 L 98.746094 177.152344 C 98.4375 173.792969 96.269531 171.984375 93.753906 169.886719 C 93.027344 169.28125 92.277344 168.652344 91.535156 167.960938 C 88.136719 164.769531 86.367188 159.515625 84.804688 154.878906 C 84.480469 153.917969 84.164062 152.980469 83.84375 152.085938 C 87.640625 150.894531 90.523438 148.835938 91.777344 146.417969 C 92.613281 144.804688 92.726562 143.074219 92.121094 141.285156 C 91.347656 138.992188 90.046875 136.90625 88.792969 134.890625 C 87.285156 132.46875 85.726562 129.964844 85.050781 127.074219 C 113.445312 123.792969 149.773438 135.6875 171.59375 148.160156 C 174.113281 149.597656 176.898438 149.925781 179.648438 149.109375 C 182.945312 148.132812 185.941406 145.539062 187.671875 142.167969 C 192.230469 133.285156 192.917969 123.925781 192.976562 115.132812 C 193.1875 84.199219 187.082031 53.652344 174.832031 24.347656 C 171.269531 15.824219 166.285156 8.785156 160.023438 3.421875 Z M 166.328125 85.710938 C 161.707031 80.308594 160.226562 72.164062 162.417969 64.203125 C 167.550781 70.886719 168.898438 78.304688 166.328125 85.710938 Z M 156.261719 63.277344 C 154.570312 72.90625 156.125 81.5 161.003906 89.523438 C 158.539062 91.707031 155.71875 93.085938 151.667969 94.09375 C 148.359375 82.191406 146.335938 71.957031 145.324219 61.941406 C 149.273438 61.378906 152.859375 61.816406 156.261719 63.277344 Z M 161.121094 98.117188 C 164.363281 96.570312 167.421875 95.113281 170.1875 92.6875 C 173.695312 89.617188 175.28125 82.925781 174.324219 75.226562 C 173.257812 66.683594 169.441406 59.570312 164.59375 57.097656 C 160.644531 55.085938 156.445312 54.898438 151.992188 54.707031 C 149.496094 54.597656 146.921875 54.484375 144.320312 54.035156 C 143.230469 44.78125 142.078125 12.488281 150.414062 8.867188 C 151.40625 8.433594 152.5 8.46875 153.664062 8.960938 C 160.210938 11.730469 167.472656 27.796875 169.714844 33.753906 C 181.683594 65.488281 186.472656 96.21875 183.949219 125.09375 C 183.449219 130.808594 182.335938 137.71875 178.128906 140.472656 C 177.035156 141.191406 175.863281 141.28125 174.542969 140.742188 C 165.792969 137.203125 155.378906 108.863281 153.769531 102.09375 C 156.222656 100.449219 158.714844 99.261719 161.121094 98.117188 Z M 42.183594 126.902344 C 37.132812 127.917969 32.863281 125.933594 30.164062 121.277344 C 24.164062 110.355469 21.730469 97.457031 23.300781 85.003906 C 24.222656 81.613281 25.554688 78.308594 29 77.097656 L 65.234375 69.328125 C 63.539062 85.667969 67.207031 102.613281 76.144531 119.71875 L 42.292969 126.875 Z M 156.554688 131.691406 C 134.992188 122.679688 113.832031 118.261719 92.132812 118.261719 C 89.570312 118.261719 86.996094 118.320312 84.417969 118.445312 C 74.453125 103.09375 70.558594 85.902344 72.832031 67.347656 C 96.398438 59.074219 117.429688 45.136719 135.351562 25.917969 C 134.375 40.859375 135.242188 54.714844 138.148438 70.699219 C 141.179688 92.003906 147.03125 111.40625 156.550781 131.691406 Z M 78.226562 137.039062 C 78.125 136.316406 78.027344 135.605469 77.902344 134.917969 C 77.902344 134.917969 77.902344 134.667969 77.902344 134.667969 C 77.90625 133.605469 77.960938 132.453125 78.757812 131.898438 C 79.25 134.371094 80.488281 136.390625 81.707031 138.332031 C 82.6875 139.890625 83.613281 141.363281 84.113281 142.972656 C 84.15625 143.25 83.601562 143.753906 82.59375 144.117188 C 81.507812 144.503906 80.445312 144.523438 80.234375 144.15625 C 78.90625 141.898438 78.558594 139.429688 78.226562 137.042969 Z M 68.710938 129.53125 C 69.898438 141.632812 74.140625 152.011719 79.144531 163.351562 L 79.304688 163.71875 C 81.488281 168.671875 83.394531 172.992188 88.105469 175.949219 L 88.03125 175.949219 L 89.066406 176.507812 C 90.390625 177.234375 90.902344 178.121094 90.625 179.230469 C 89.574219 183.453125 77.964844 189.085938 74.21875 189.128906 L 74.1875 189.128906 C 71.199219 189.128906 69.144531 184.757812 67.914062 182.144531 L 67.867188 182.039062 C 64.761719 175.4375 62.28125 168.660156 59.882812 162.097656 C 56.539062 152.949219 53.082031 143.484375 47.90625 134.5625 L 68.707031 129.535156 Z M 20.265625 119.933594 C 17.367188 120.738281 15.054688 118.433594 13.910156 116.953125 C 10.21875 112.171875 7.542969 103.324219 9.457031 96.792969 C 10.34375 93.773438 12.097656 91.710938 14.675781 90.65625 C 14.773438 99.757812 15.558594 109.59375 20.265625 119.933594 Z M 20.265625 119.933594 " fill-opacity="1" fill-rule="nonzero"/></g><path fill="currentColor" d="M 242.507812 57.097656 C 242.136719 56.140625 240.457031 54.476562 238.742188 54.863281 L 204.769531 62.453125 C 204 62.625 203.378906 63.054688 202.972656 63.699219 C 202.4375 64.542969 202.40625 65.507812 202.535156 66.078125 C 202.816406 67.304688 204.328125 68.492188 205.984375 68.492188 C 206.230469 68.492188 206.472656 68.464844 206.71875 68.414062 L 239.769531 61.101562 C 240.839844 60.863281 241.746094 60.179688 242.261719 59.222656 C 242.652344 58.496094 242.746094 57.722656 242.507812 57.097656 Z M 242.507812 57.097656 " fill-opacity="1" fill-rule="nonzero"/><path fill="currentColor" d="M 239.398438 105.210938 L 207.773438 94.367188 C 206.746094 94.015625 205.671875 94.109375 204.8125 94.625 C 204.160156 95.015625 203.726562 95.617188 203.621094 96.269531 C 203.382812 97.753906 204.0625 99.578125 205.824219 100.179688 L 237.148438 110.945312 C 237.5 111.0625 237.84375 111.125 238.183594 111.125 C 238.65625 111.125 239.113281 111.003906 239.53125 110.773438 C 240.351562 110.320312 240.867188 109.527344 240.992188 108.980469 C 241.191406 108.128906 241.011719 105.765625 239.394531 105.214844 Z M 239.398438 105.210938 " fill-opacity="1" fill-rule="nonzero"/><path fill="currentColor" d="M 221.75 12.074219 C 221.671875 11.269531 221.359375 10.628906 220.921875 10.355469 C 220.167969 9.882812 217.828125 9.378906 216.796875 10.320312 L 192.15625 32.859375 C 191.582031 33.386719 191.347656 34.175781 191.496094 35.078125 C 191.671875 36.140625 192.355469 37.179688 193.082031 37.496094 C 193.621094 37.730469 194.152344 37.847656 194.671875 37.847656 C 195.539062 37.847656 196.359375 37.515625 197.058594 36.863281 L 220.945312 14.632812 C 221.65625 13.96875 221.828125 12.875 221.75 12.074219 Z M 221.75 12.074219 " fill-opacity="1" fill-rule="nonzero"/></svg>';
 // [Student] is each student's first name (user, 2026-11-05: tried [], [Student] reads clearer). [] works too;
 // the backend only knows [Student], so [] is turned into it on send.
-var ANN_NAME_RE = /\[\s*(Student|First)?\s*\]/gi;
+var ANN_NAME_RE = /\[\s*(Student|First|Name)?\s*\]/gi;   // [NAME] is what the keyword types (user, 2026-11-06)
 var ANN_NUDGE_TEXT = "Hi [Student]! Quick follow-up on my text above. Please reply Y to confirm. Thanks!";
 
 var annData = null;       // last getAnnouncements answer
@@ -41,6 +41,12 @@ setInterval(function () {
 }, 700);
 
 function annEsc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+// The text's first line as a subject, out of all caps into sentence case (user, 2026-11-06).
+function annSubject(t) {
+  var line = String(t || "").split("\n")[0].replace(ANN_NAME_RE, "NAME").trim();
+  if (/[A-Z]/.test(line) && line === line.toUpperCase()) line = line.charAt(0) + line.slice(1).toLowerCase();
+  return line;
+}
 function annFirst(n) { return String(n || "").trim().split(/\s+/)[0] || ""; }
 
 // ── Cost: plain (GSM-7) texts fit 160 characters, 153 per piece when longer;
@@ -121,6 +127,15 @@ function annWhen(ts) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + ", " +
          d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 }
+function annDay(ts) {
+  var d = new Date(String(ts).replace(" ", "T"));
+  return isNaN(d) ? String(ts || "") : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+function annWho(a) {
+  var roster = ((annData && annData.students) || []).filter(function (n) { return !/\(test\)/i.test(n); });
+  var n = a.students.length;
+  return roster.length && n >= roster.length ? "All students" : n + " student" + (n === 1 ? "" : "s");
+}
 function annTag(s) {
   var tag = function (c, t) { return "<span class='ts-tag' style='color:" + c + "'>" + t + "</span>"; };
   if (s.state === "confirmed") return tag("var(--green)", "Confirmed");
@@ -129,6 +144,7 @@ function annTag(s) {
   return tag("var(--muted)", "Awaiting");
 }
 var ANN_RANK = { reply: 0, failed: 1, waiting: 2, confirmed: 3 };
+var annSort = "az";   // Confirmations list order: "az" (the To list's) or "status"
 
 function annRenderList() {
   var body = document.getElementById("annBody");
@@ -140,59 +156,142 @@ function annRenderList() {
   body.innerHTML = "";
   var cur = list.filter(function (a) { return a.id === open; })[0] || list[0];
   var card = annCard(cur);
-  // The others sit under the buttons, above the student rows, so they're seen without scrolling (user, 2026-11-05).
-  var others = list.filter(function (a) { return a !== cur; });
-  if (others.length) {
-    var slot = card.querySelector(".ann-others");
-    slot.innerHTML = "<div class='ann-others-t'>Other announcements</div>";
-    others.forEach(function (a) { slot.appendChild(annPastRow(a)); });
-    slot.hidden = false;
-  }
+  // Nudge bottom right, under the responses (user, 2026-11-06).
+  var acts = card.querySelector(".ann-acts");
+  if (acts) { acts.classList.add("ann-nudge-foot"); card.appendChild(acts); }
   body.appendChild(card);
+  // Archive bottom left, Nudge bottom right; the other announcements live behind Archive (user, 2026-11-06).
+  if (acts) {
+    var arch = document.createElement("button");
+    arch.className = "link-btn";
+    arch.textContent = "Archive";
+    arch.setAttribute("data-tip", "Instant.\nEvery announcement sent, newest first.");
+    arch.onclick = annRenderArchive;
+    acts.insertBefore(arch, acts.firstChild);
+  }
+}
+
+// Archive: every announcement, newest first; one opens its responses (user, 2026-11-06).
+function annRenderArchive() {
+  var body = document.getElementById("annBody");
+  document.getElementById("annTitle").innerHTML = "Announcements<span class='win-sub'> · Archive</span>";
+  var list = (annData && annData.announcements) || [];
+  body.innerHTML = "";   // no heading: the month boxes say it (user, 2026-11-06)
+  if (!list.length) { body.insertAdjacentHTML("beforeend", "<div class='empty-state'>None</div>"); return; }
+  // Payment history's look (user, 2026-11-06): a box per month, the month + how many on a washed band,
+  // rows of date · subject · time. A row opens its responses.
+  var wrap = document.createElement("div");
+  wrap.className = "pay-history-modal ann-arch";
+  var groups = {}, order = [];
+  list.forEach(function (a) {
+    var d = new Date(String(a.sentAt).replace(" ", "T"));
+    var key = isNaN(d) ? "Archive" : "Archive for " + d.toLocaleDateString("en-US", { month: "short", year: "numeric" });   // "Archive for Nov 2026" (user, 2026-11-06)
+    if (!groups[key]) { groups[key] = []; order.push(key); }
+    groups[key].push(a);
+  });
+  order.forEach(function (key) {
+    var box = document.createElement("div");
+    box.className = "f2-wrap";
+    box.innerHTML = "<div class='pay-history-month'><span>" + annEsc(key) + "</span></div><table class='f2-table pay-history-table'><tbody></tbody></table>";
+    var tb = box.querySelector("tbody");
+    groups[key].forEach(function (a) {
+      var d = new Date(String(a.sentAt).replace(" ", "T"));
+      var tr = document.createElement("tr");
+      tr.className = "f2-row ann-arch-row";
+      tr.innerHTML = "<td class='ph-date'>" + annEsc(annDay(a.sentAt)) + "</td>" +
+        "<td class='ph-name'>" + annEsc(annSubject(a.template)) + "</td>" +
+        "<td class='ph-amt'>" + (isNaN(d) ? "" : annEsc(d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }))) + "</td>";   // no counts (user, 2026-11-06)
+      tr.setAttribute("data-tip", "Instant.\nShows its responses.");
+      tr.onclick = function () { annOpenId = a.id; annRenderList(); };
+      tb.appendChild(tr);
+    });
+    wrap.appendChild(box);
+  });
+  body.appendChild(wrap);
+  var foot = document.createElement("div");
+  foot.className = "ann-acts ann-nudge-foot ann-arch-foot";
+  foot.innerHTML = "<button class='link-btn' data-tip='Instant.\nBack to the open announcement.'>Back</button>";
+  foot.firstChild.onclick = function () { annRenderList(); };
+  body.appendChild(foot);
 }
 
 function annPastRow(a) {
   var r = document.createElement("div");
   r.className = "ann-past";
   r.innerHTML = "<span class='ann-past-when'>" + annEsc(annWhen(a.sentAt)) + "</span>" +
-    "<span class='ann-past-text'>" + annEsc(String(a.template || "").split("\n")[0]) + "</span>" +
+    "<span class='ann-past-text'>" + annEsc(annSubject(a.template)) + "</span>" +
     "<span class='ann-past-n'>" + a.confirmed + " / " + a.students.length + "</span>";
-  r.setAttribute("data-tip", "Instant.\nShows who confirmed this one.");
+  r.setAttribute("data-tip", "Instant.\nShows its responses.");
   r.onclick = function () { annOpenId = a.id; annRenderList(); };
   return r;
 }
 
+// A group heading in the Send page's look: grey Bebas, the count beside it in the group's colour.
+function annGroupHead(label, n, cls) {
+  return "<div class='db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head ann-grp-head'><label class='field-label db-cx-t im-main-t'>" +
+    annEsc(label) + " <span class='ann-grp-n " + cls + "'>" + n + "</span></label></div>";
+}
+
+// Confirmations, grouped (user, 2026-11-06: was 24 tall cards): Needs reply as full rows with what they wrote,
+// then Not delivered, Awaiting and Confirmed as names in two columns. Any name opens their conversation.
 function annCard(a) {
   var wrap = document.createElement("div");
   wrap.className = "ann-card";
-  var waiting = a.students.filter(function (s) { return s.state === "waiting"; });
+  var by = function (st) { return a.students.filter(function (s) { return s.state === st; }).sort(function (x, y) { return x.name.localeCompare(y.name); }); };
+  var reply = by("reply"), failed = by("failed"), waiting = by("waiting"), ok = by("confirmed");
   wrap.innerHTML =
-    "<div class='db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head'><label class='field-label db-cx-t im-main-t'>Confirmations</label></div>" +
-    "<div class='tv-sec-note tv-steps ts-steps'>" +
-      "<span><i>1.</i>Sent " + annEsc(annWhen(a.sentAt)) + " to " + a.students.length + " students</span>" +
-      "<span class='ts-sub'><i>-</i>A Y back (or a 👍) confirms by itself</span>" +
-      "<span class='ts-sub'><i>-</i>Needs reply: they wrote something else, answer it</span>" +
-      "<span><i>2.</i>No answer yet: Nudge texts only the ones awaiting</span></div>" +
-    "<div class='ann-acts'><button class='link-btn' data-a='text' data-tip='Instant.\nThe text that went out.'>Show text</button>" +
-      "<button class='link-btn amber' data-a='nudge'" + (waiting.length ? " data-tip='Opens the Nudge draft.\nOnly the ones awaiting get it.' data-tip-wrap" : " disabled data-tip='Locked.\nNobody is awaiting.' data-tip-wrap") + ">Nudge " +
-      (waiting.length ? waiting.length + " awaiting" : "") + "</button></div>" +
-    "<div class='ann-textbox' hidden>" + annEsc(String(a.template || "").replace(ANN_NAME_RE, "[Student]")) + "</div>" +
-    "<div class='ann-others' hidden></div>" +
-    "<hr class='divider ts-rule'>" +
-    "<div class='ts-trip-dates'>" + a.confirmed + " / " + a.students.length + " confirmed</div>";
-  var list = document.createElement("div");
-  a.students.slice().sort(function (x, y) { return (ANN_RANK[x.state] - ANN_RANK[y.state]) || x.name.localeCompare(y.name); })
-    .forEach(function (s) {
-      var r = document.createElement("div");
-      r.className = "ts-row ann-row " + (s.state === "confirmed" ? "ts-row-ok" : s.state === "reply" ? "ts-row-reply" : s.state === "failed" ? "ann-row-bad" : "ts-row-wait");
-      var sub = s.state === "reply" ? "“" + s.reply + "”" : s.state === "confirmed" ? annWhen(s.confirmedAt) : (s.nudges ? "Nudged " + annWhen(s.lastNudge) : "");
-      r.innerHTML = "<span class='ann-row-l'><span class='ts-row-name'>" + annEsc(s.name) + "</span>" +
-        (sub ? "<span class='ann-row-sub'>" + annEsc(sub) + "</span>" : "") + "</span>" + annTag(s);
-      r.setAttribute("data-tip", "Opens their conversation.");
-      r.onclick = function () { annOpenConversation(s.name); };
-      list.appendChild(r);
+    // Labelled lines (user, 2026-11-06): Subject = the text's first line, Sent, Confirms.
+    // In a frame with Show text inside it (user, 2026-11-06); Nudge under the frame.
+    // In a frame with Show text inside it (user, 2026-11-06); Nudge under the frame.
+    "<div class='db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head'><label class='field-label db-cx-t im-main-t'>Sent text</label></div>" +   // a header over the box, like STUDENTS (user, 2026-11-06)
+    "<div class='ann-facts-box'><div class='ann-facts'>" +
+      "<span class='ann-fact-k'>Subject</span><span class='ann-fact-v'>" + annEsc(annSubject(a.template)) + "</span>" +
+      // Sent = the day only; Who = All students, or how many when it went to some (user, 2026-11-06).
+      "<span class='ann-fact-k'>Sent</span><span class='ann-fact-v'>" + annEsc(annDay(a.sentAt)) + "</span>" +
+      "<span class='ann-fact-k'>Who</span><span class='ann-fact-v'>" + annWho(a) + "</span>" +
+      "<span class='ann-fact-k'>Confirms</span><span class='ann-fact-v'>Please reply Y</span></div>" +
+      "<div class='ann-textbox' hidden>" + annEsc(String(a.template || "").replace(ANN_NAME_RE, "[NAME]")) + "</div>" +
+      "<button class='link-btn' data-a='text' data-tip='Instant.\nThe text that went out.'>Show text</button></div>" +
+    "<div class='ann-acts'><button class='link-btn' data-a='nudge'" + (waiting.length ? " data-tip='Opens the Nudge draft.\nOnly the ones awaiting get it.\nAsks before sending.' data-tip-wrap data-tip-left" : " disabled data-tip='Locked.\nNobody is awaiting.' data-tip-wrap data-tip-left") + ">Nudge " +
+      (waiting.length ? waiting.length + " awaiting →" : "") + "</button></div>";   // → and a left tip: the next page asks before sending (user, 2026-11-06)
+  // The To list's look (user, 2026-11-06): every name with a mark — ✓ confirmed, ★ needs reply, empty circle awaiting.
+  // A legend with the counts, and A–Z / Status sort buttons where All / None sit on the Send page.
+  var mark = function (st) {
+    return st === "confirmed" ? "<i class='db-box'></i>" : st === "reply" ? "<i class='ann-star'>★</i>" : st === "failed" ? "<i class='ann-x'>✕</i>" : "<i class='db-box'></i>";
+  };
+  var legend = "<div class='ann-legend'>" +
+    "<span class='db-check on'><i class='db-box'></i>Confirmed <b>" + ok.length + "</b></span>" +
+    "<span class='db-check'><i class='ann-star'>★</i>Needs reply <b>" + reply.length + "</b></span>" +
+    "<span class='db-check'><i class='db-box'></i>Awaiting <b>" + waiting.length + "</b></span>" +
+    (failed.length ? "<span class='db-check'><i class='ann-x'>✕</i>Not delivered <b>" + failed.length + "</b></span>" : "") + "</div>";
+  var g = document.createElement("div");
+  g.innerHTML =
+    "<div class='db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head ann-to-head'><label class='field-label db-cx-t im-main-t'>Responses</label>" +
+      "<span class='ann-to-acts'><button class='link-btn' data-sort='az' data-tip='Instant.\nNames A to Z.' data-tip-left>A–Z</button>" +
+      "<button class='link-btn' data-sort='status' data-tip='Instant.\nNeeds reply first, then awaiting, then confirmed.' data-tip-left>Status</button></span></div>" +
+    legend + "<div class='ann-to ann-conf-list'></div>";
+  wrap.appendChild(g);
+  var box = g.querySelector(".ann-conf-list");
+  var paintList = function () {
+    var arr = a.students.slice().sort(function (x, y) {
+      return (annSort === "status" ? (ANN_RANK[x.state] - ANN_RANK[y.state]) : 0) || x.name.localeCompare(y.name);
     });
-  wrap.appendChild(list);
+    box.innerHTML = "";
+    arr.forEach(function (s) {
+      var n = document.createElement("span");
+      n.className = "db-check ann-conf ann-st-" + s.state + (s.state === "confirmed" ? " on" : "");
+      n.innerHTML = mark(s.state) + annEsc(s.name);
+      var why = s.state === "reply" ? "Needs reply: “" + s.reply + "”" : s.state === "confirmed" ? "Confirmed " + annWhen(s.confirmedAt) :
+        s.state === "failed" ? "Not delivered. Check the number." : (s.nudges ? "Awaiting. Nudged " + annWhen(s.lastNudge) : "Awaiting");
+      n.setAttribute("data-tip", why + "\nOpens their conversation.");
+      n.setAttribute("data-tip-wrap", "");
+      n.onclick = function () { annOpenConversation(s.name); };
+      box.appendChild(n);
+    });
+    g.querySelectorAll("[data-sort]").forEach(function (b) { b.classList.toggle("ann-sort-on", b.dataset.sort === annSort); });
+  };
+  g.querySelectorAll("[data-sort]").forEach(function (b) { b.onclick = function () { annSort = b.dataset.sort; paintList(); }; });
+  paintList();
   wrap.querySelector("[data-a='text']").onclick = function () {
     var t = wrap.querySelector(".ann-textbox"); t.hidden = !t.hidden;
     this.textContent = t.hidden ? "Show text" : "Hide text";
@@ -228,47 +327,51 @@ function annCompose(opts) {
   names.forEach(function (n) { on[n] = !/\(test\)/i.test(n) || !!nudge; });   // the test number starts unticked
 
   body.innerHTML =
-    "<div class='db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head'><label class='field-label db-cx-t im-main-t'>" + (nudge ? "Nudge draft" : "Draft") + "</label></div>" +
+    "<div class='db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head'><label class='field-label db-cx-t im-main-t'>" + (nudge ? "Edit nudge" : "Draft") + "</label></div>" +
     // Numbered steps like Confirmations' (user, 2026-11-06).
-    "<div class='tv-sec-note tv-steps ts-steps'><span><i>1.</i>Draft your message</span><span><i>2.</i>Pick the person</span><span><i>3.</i>Send</span></div>" +
-    // Greeting picked here, written in by itself (user, 2026-11-06): each student's name, everyone, or none.
-    "<div class='ann-greet' id='annGreet'>" +
-      "<span class='db-check' data-g='name' role='radio' tabindex='0' data-tip='Instant.\nOpens with Hi and each first name.'><i class='db-box'></i><span>Hi <mark class='ann-mark'>NAME</mark>!</span></span>" +
-      "<span class='db-check' data-g='all' role='radio' tabindex='0' data-tip='Instant.\nOpens with Hi everyone!'><i class='db-box'></i>Hi everyone!</span>" +
-      "<span class='db-check' data-g='none' role='radio' tabindex='0' data-tip='Instant.\nNo greeting line.'><i class='db-box'></i>No greeting</span></div>" +
+    // A nudge already knows who it goes to (the ones awaiting): no Pick step, no To list (user, 2026-11-06).
+    "<div class='tv-sec-note tv-steps ts-steps'>" + (nudge
+      ? "<span><i>1.</i>Edit your message</span><span><i>2.</i>Send to the " + opts.names.length + " awaiting</span>"
+      : "<span><i>1.</i>Draft your message</span><span><i>2.</i>Pick the person</span><span><i>3.</i>Send</span>") + "</div>" +
+    // Greetings as keywords, like the Lesson Log's (user, 2026-11-06): a click types it where the cursor is.
+    "<div class='ann-greet ann-words'>" +
+      "<button type='button' class='ann-word' data-ins='Hi [NAME]!' data-tip='Instant.\nTypes Hi NAME! where the cursor is.\nNAME becomes each first name.' data-tip-wrap>Hi <mark class='ann-mark'>NAME</mark>!</button>" +
+      "<button type='button' class='ann-word' data-ins='Hi everyone!' data-tip='Instant.\nTypes Hi everyone! where the cursor is.'>Hi everyone!</button></div>" +
     // One box: you type straight into the blue bubble, my-text blue (user, 2026-11-06; Preview section gone).
     // Just the framed bubble: you type in it, it grows, the greeting on top with a real first name (user, 2026-11-06).
-    "<div class='ts-thread tv-rv-thread ann-thread'><div class='ts-bub tv-rv-bub ann-bub'><div class='ann-greet-line' id='annGreetLine'></div>" +
+    "<div class='ts-thread tv-rv-thread ann-thread'><div class='ts-bub tv-rv-bub ann-bub'>" +
     "<div class='ann-hl-wrap'><div class='ann-hl' id='annHl' aria-hidden='true'></div>" +
     "<textarea class='cm-reply ann-text' id='annText' rows='1' placeholder='Type your message'></textarea></div></div></div>" +
     "<div class='ann-cost' id='annCost'></div>" +
-    "<div class='db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head ann-to-head'><label class='field-label db-cx-t im-main-t'>To</label>" +
+    "<div class='db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head ann-to-head'" + (nudge ? " style='display:none'" : "") + "><label class='field-label db-cx-t im-main-t'>To</label>" +
       "<span class='ann-to-acts'><button class='link-btn' data-all='1' data-tip='Instant.\nTicks every student.' data-tip-left>All</button><button class='link-btn' data-all='0' data-tip='Instant.\nUnticks everyone.' data-tip-left>None</button></span></div>" +
-    "<div class='ann-to' id='annTo'></div>" +
+    "<div class='ann-to' id='annTo'" + (nudge ? " style='display:none'" : "") + "></div>" +
     "<div class='ann-foot'>" + (nudge ? "<button class='link-btn' id='annBack' data-tip='Instant.\nBack to Confirmations, nothing sent.'>Back</button>" : "<span></span>") +
-      "<button class='link-btn red' id='annSend' data-tip='Opens a window.\nWarning first, then the texts go out.' data-tip-wrap data-tip-left>Send</button></div>";
+      "<button class='link-btn " + (nudge ? "amber" : "red") + "' id='annSend' data-tip='Opens a window.\nWarning first, then the texts go out.' data-tip-wrap data-tip-left>Send</button></div>";
   var ta = document.getElementById("annText");
   // Once the default text has gone out, the next announcement starts blank (user, 2026-11-05).
   var annNorm = function (t) { return String(t || "").replace(ANN_NAME_RE, "[Student]").trim(); };
   var defaultSent = ((annData && annData.announcements) || []).some(function (a) { return annNorm(a.template) === annNorm(ANN_DEFAULT_TEXT); });
-  // The greeting lives in the picker, so the box holds only the rest: a "Hi [Student]!" opening is lifted out.
-  var greet = "name", start = nudge ? ANN_NUDGE_TEXT : (defaultSent ? "" : ANN_DEFAULT_TEXT);
-  var GREET_RE = /^\s*Hi\s*(\[\s*(Student|First)?\s*\]|everyone)\s*!\s*/i, gm = start.match(GREET_RE);
-  if (gm) { greet = /everyone/i.test(gm[1]) ? "all" : "name"; start = start.replace(GREET_RE, ""); }
-  ta.value = start;
-  var greetText = function () { return greet === "name" ? "Hi [Student]!" : greet === "all" ? "Hi everyone!" : ""; };
-  var fullText = function () { var g = greetText(), b = ta.value.trim(); return g && b ? g + "\n\n" + b : (g || b); };
-  var paintGreet = function () {
-    body.querySelectorAll("#annGreet .db-check").forEach(function (el) { el.classList.toggle("on", el.dataset.g === greet); el.setAttribute("aria-checked", el.dataset.g === greet); });
-  };
-  body.querySelectorAll("#annGreet .db-check").forEach(function (el) {
-    var pick = function () { greet = el.dataset.g; paintGreet(); paint(); ta.focus(); };
-    el.onclick = pick;
-    el.onkeydown = function (e) { if (e.key === " " || e.key === "Enter") { e.preventDefault(); pick(); } };
+  // A nudge starts from the original message, to add to or cut (user, 2026-11-06; was a short follow-up line).
+  ta.value = (nudge ? String(nudge.template || ANN_NUDGE_TEXT) : (defaultSent ? "" : ANN_DEFAULT_TEXT)).replace(ANN_NAME_RE, "[NAME]");
+  var fullText = function () { return ta.value.trim(); };
+  // A keyword goes in at the cursor; at the very top it brings a blank line under it, as a greeting does.
+  var words = body.querySelector(".ann-words");
+  words.onmousedown = function (e) { e.preventDefault(); };   // the box keeps its cursor
+  words.querySelectorAll(".ann-word").forEach(function (w) {
+    w.onclick = function () {
+      var t = w.dataset.ins, at = ta.selectionStart || 0, end = ta.selectionEnd || at;
+      if (document.activeElement !== ta) { at = 0; end = 0; }
+      var after = at === 0 ? "\n\n" : (/\S$/.test(ta.value.slice(0, at)) ? "" : "");
+      var before = at > 0 && /\S$/.test(ta.value.slice(0, at)) ? " " : "";
+      ta.setRangeText(before + t + after, at, end, "end");
+      ta.focus();
+      paint();
+    };
   });
   var to = document.getElementById("annTo");
   to.innerHTML = names.map(function (n, i) {
-    return "<span class='db-check" + (on[n] ? " on" : "") + "' data-i='" + i + "' role='checkbox' tabindex='0'><i class='db-box'></i>" + annEsc(n) + "</span>";
+    return "<span class='db-check" + (on[n] ? " on" : "") + "' data-i='" + i + "' role='checkbox' tabindex='0' data-tip='Instant.\nTicks or unticks " + annEsc(annFirst(n)) + ".'><i class='db-box'></i>" + annEsc(n) + "</span>";
   }).join("");
   var count = function () { return names.filter(function (n) { return on[n]; }).length; };
   var hl = document.getElementById("annHl");
@@ -284,12 +387,7 @@ function annCompose(opts) {
       c.len + " characters · " + c.pieces + " text" + (c.pieces > 1 ? "s" : "") + " each · " + n + " student" + (n === 1 ? "" : "s") +
       " · about $" + (c.pieces * n * 0.011).toFixed(2) +
       (c.bad.length ? "<br><span class='ann-bad'>" + annEsc(c.bad.join(" ")) + " makes it cost about 2.5× more. Use - * ' \" instead.</span>" : "");
-    // The greeting shows as sent: a ticked student's first name, else the first student's.
-    var first = names.filter(function (x) { return on[x]; })[0] || names[0] || "";
-    var gl = document.getElementById("annGreetLine");
-    gl.textContent = greet === "name" ? "Hi " + (annFirst(first) || "name") + "!" : greet === "all" ? "Hi everyone!" : "";
-    gl.hidden = greet === "none";
-    document.getElementById("annSend").textContent = "Send →";   // the count is in the line under the bubble (user, 2026-11-06)
+    document.getElementById("annSend").textContent = nudge ? "Nudge →" : "Send →";   // the Nudge page says Nudge (user, 2026-11-06)   // the count is in the line under the bubble (user, 2026-11-06)
     document.getElementById("annSend").disabled = !n || !ta.value.trim();
   };
   to.querySelectorAll(".db-check").forEach(function (el) {
@@ -308,7 +406,6 @@ function annCompose(opts) {
   ta.oninput = paint;
   if (nudge) document.getElementById("annBack").onclick = function () { annRenderList(); };
   document.getElementById("annSend").onclick = function () { annSend(nudge, names.filter(function (n) { return on[n]; }), fullText()); };
-  paintGreet();
   paint();
   ta.focus(); ta.setSelectionRange(0, 0); ta.scrollTop = 0;   // start at the top, the whole text in view
 }
