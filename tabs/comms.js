@@ -126,7 +126,7 @@ function renderCommsInbox() {
     var display = msg.fromName || commsFormatPhone(msg.fromNumber) || "Unknown";
     var preview = msg.source === "voicemail"
       ? (msg.transcript && msg.transcript !== "(transcribing…)" && msg.transcript !== "(no transcript)" ? msg.transcript : "Voicemail, no transcript")
-      : (msg.source === "out" ? "You: " : "") + (msg.body || "—");
+      : (msg.body || "—");
     row.innerHTML =
       '<span class="cm-check"></span>' +
       '<span class="td-mini-t">' + commsClock(d) + '</span>' +
@@ -206,7 +206,7 @@ function renderCommsStudents() {
       prev = rx ? "Reacted " + rx.emoji + " to your message"
         : m.source === "voicemail"
         ? "Voicemail" + (m.transcript && m.transcript !== "(transcribing…)" && m.transcript !== "(no transcript)" ? ": " + m.transcript : "")
-        : (m.source === "out" ? "You: " : "") + (commsImageOf(m) && !String(m.body || "").trim() ? "📷 Picture" : commsFileOf(m) && !String(m.body || "").trim() ? "📄 " + commsFileOf(m).name : commsText(m));
+        : (commsImageOf(m) && !String(m.body || "").trim() ? "📷 Picture" : commsFileOf(m) && !String(m.body || "").trim() ? "📄 " + commsFileOf(m).name : commsText(m));
       when = day === "Today" ? commsClock(d) : day === "Yesterday" ? day : day.replace(/^\w+, /, "");
     }
     var ini = p.name.split(/\s+/).map(function (w) { return w.charAt(0); }).join("").slice(0, 2).toUpperCase();

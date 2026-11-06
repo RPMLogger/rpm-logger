@@ -12,6 +12,11 @@ var ANN_DEFAULT_TEXT =
   "As my email said, this RPM Notifications number is now our official texting line for anything lesson-related.\n\n" +
   "Photos are fine here, but videos and PDFs don't come through. Please send me a link, or put them in your Dropbox lesson folder and let me know.\n\n" +
   "Thanks!\nBilgehan";
+// The notepad-and-pen under DRAFT (user's own icon, 2026-11-05).
+var ANN_DRAFT_ICON = '<svg class="win-icon" viewBox="0 0 907.5 830.25" width="33" height="30" fill="currentColor" aria-hidden="true"><defs><clipPath id="annDr548a"><path d="M 0.160156 0 L 578 0 L 578 829.5 L 0.160156 829.5 Z M 0.160156 0 " clip-rule="nonzero"/></clipPath><clipPath id="annDr7472"><path d="M 398 646 L 578 646 L 578 829.5 L 398 829.5 Z M 398 646 " clip-rule="nonzero"/></clipPath><clipPath id="annDr6e62"><path d="M 495 98 L 906.839844 98 L 906.839844 507 L 495 507 Z M 495 98 " clip-rule="nonzero"/></clipPath></defs><g clip-path="url(#annDr548a)"><path d="M 412.632812 829.5 L 47.558594 829.5 C 21.671875 829.5 0.675781 808.507812 0.675781 782.625 L 0.675781 46.875 C 0.675781 20.992188 21.671875 0 47.558594 0 L 530.449219 0 C 556.335938 0 577.332031 20.992188 577.332031 46.875 L 577.332031 369.914062 C 577.332031 377.453125 571.214844 383.566406 563.675781 383.566406 C 556.132812 383.566406 550.015625 377.453125 550.015625 369.914062 L 550.015625 46.875 C 550.015625 36.074219 541.25 27.515625 530.652344 27.515625 L 47.761719 27.515625 C 37.164062 27.515625 28.398438 36.277344 28.398438 46.875 L 28.398438 782.625 C 28.398438 793.425781 37.164062 801.988281 47.761719 801.988281 L 407.128906 801.988281 L 550.015625 654.429688 L 550.015625 480.375 C 550.015625 472.835938 556.132812 466.722656 563.675781 466.722656 C 571.214844 466.722656 577.332031 472.835938 577.332031 480.375 L 577.332031 659.933594 C 577.332031 663.398438 575.902344 666.863281 573.457031 669.511719 L 422.617188 825.222656 C 419.96875 828.074219 416.300781 829.5 412.632812 829.5 Z M 412.632812 829.5 " fill-opacity="1" fill-rule="evenodd"/></g><g clip-path="url(#annDr7472)"><path d="M 412.632812 829.5 C 405.089844 829.5 398.972656 823.386719 398.972656 815.84375 L 398.972656 659.933594 C 398.972656 652.390625 405.089844 646.277344 412.632812 646.277344 L 563.46875 646.277344 C 571.011719 646.277344 577.128906 652.390625 577.128906 659.933594 C 577.128906 667.472656 571.011719 673.585938 563.46875 673.585938 L 426.492188 673.585938 L 426.492188 815.84375 C 426.289062 823.386719 420.171875 829.5 412.632812 829.5 Z M 412.632812 829.5 " fill-opacity="1" fill-rule="evenodd"/></g><g clip-path="url(#annDr6e62)"><path d="M 545.941406 406.800781 L 528.003906 474.671875 L 602.8125 457.753906 L 868.003906 190.152344 C 875.136719 183.019531 878.804688 173.644531 878.804688 163.660156 C 878.804688 153.671875 874.730469 144.296875 867.59375 137.164062 C 853.121094 122.898438 829.679688 122.898438 815.207031 137.367188 Z M 509.046875 506.667969 C 505.375 506.667969 501.707031 505.242188 499.261719 502.386719 C 496 498.921875 494.574219 494.03125 495.796875 489.34375 L 520.460938 396 C 521.070312 393.757812 522.296875 391.515625 523.925781 389.886719 L 795.84375 117.800781 C 820.914062 92.734375 861.683594 92.527344 886.957031 117.394531 C 899.394531 129.621094 906.121094 145.925781 906.324219 163.25 C 906.527344 180.574219 899.800781 196.878906 887.570312 209.3125 L 619.523438 479.765625 C 617.691406 481.597656 615.246094 483.027344 612.796875 483.433594 L 512.101562 506.464844 C 511.085938 506.667969 510.066406 506.667969 509.046875 506.667969 Z M 509.046875 506.667969 " fill-opacity="1" fill-rule="evenodd"/></g><path d="M 853.734375 237.640625 C 850.269531 237.640625 846.804688 236.417969 844.152344 233.769531 L 770.773438 163.046875 C 765.269531 157.746094 765.066406 149.1875 770.363281 143.683594 C 775.664062 138.183594 784.226562 137.976562 789.730469 143.277344 L 863.109375 214.203125 C 868.613281 219.5 868.816406 228.0625 863.519531 233.566406 C 860.867188 236.214844 857.402344 237.640625 853.734375 237.640625 Z M 853.734375 237.640625 " fill-opacity="1" fill-rule="evenodd"/><path d="M 609.742188 483.839844 C 606.480469 483.839844 603.015625 482.617188 600.363281 480.171875 L 524.332031 409.859375 C 518.828125 404.765625 518.421875 396 523.519531 390.496094 C 528.613281 384.996094 537.378906 384.585938 542.882812 389.683594 L 618.914062 460.199219 C 624.417969 465.292969 624.824219 474.058594 619.730469 479.5625 C 617.078125 482.414062 613.410156 483.839844 609.742188 483.839844 Z M 609.742188 483.839844 " fill-opacity="1" fill-rule="evenodd"/><path d="M 455.234375 139.8125 L 117.476562 139.8125 C 109.933594 139.8125 103.820312 133.699219 103.820312 126.15625 C 103.820312 118.617188 109.933594 112.503906 117.476562 112.503906 L 455.234375 112.503906 C 462.773438 112.503906 468.890625 118.617188 468.890625 126.15625 C 468.890625 133.699219 462.773438 139.8125 455.234375 139.8125 Z M 455.234375 139.8125 " fill-opacity="1" fill-rule="evenodd"/><path d="M 455.234375 240.492188 L 117.476562 240.492188 C 109.933594 240.492188 103.820312 234.378906 103.820312 226.839844 C 103.820312 219.296875 109.933594 213.183594 117.476562 213.183594 L 455.234375 213.183594 C 462.773438 213.183594 468.890625 219.296875 468.890625 226.839844 C 468.890625 234.378906 462.773438 240.492188 455.234375 240.492188 Z M 455.234375 240.492188 " fill-opacity="1" fill-rule="evenodd"/><path d="M 455.234375 337.507812 L 117.476562 337.507812 C 109.933594 337.507812 103.820312 331.394531 103.820312 323.851562 C 103.820312 316.3125 109.933594 310.195312 117.476562 310.195312 L 455.234375 310.195312 C 462.773438 310.195312 468.890625 316.3125 468.890625 323.851562 C 468.890625 331.394531 462.773438 337.507812 455.234375 337.507812 Z M 455.234375 337.507812 " fill-opacity="1" fill-rule="evenodd"/><path d="M 455.234375 438.1875 L 117.476562 438.1875 C 109.933594 438.1875 103.820312 432.074219 103.820312 424.53125 C 103.820312 416.992188 109.933594 410.878906 117.476562 410.878906 L 455.234375 410.878906 C 462.773438 410.878906 468.890625 416.992188 468.890625 424.53125 C 468.890625 432.074219 462.773438 438.1875 455.234375 438.1875 Z M 455.234375 438.1875 " fill-opacity="1" fill-rule="evenodd"/><path d="M 351.683594 538.871094 L 117.476562 538.871094 C 109.933594 538.871094 103.820312 532.753906 103.820312 525.214844 C 103.820312 517.671875 109.933594 511.558594 117.476562 511.558594 L 351.683594 511.558594 C 359.226562 511.558594 365.339844 517.671875 365.339844 525.214844 C 365.339844 532.753906 359.226562 538.871094 351.683594 538.871094 Z M 351.683594 538.871094 " fill-opacity="1" fill-rule="evenodd"/></svg>';
+// [Student] is each student's first name (user, 2026-11-05: tried [], [Student] reads clearer). [] works too;
+// the backend only knows [Student], so [] is turned into it on send.
+var ANN_NAME_RE = /\[\s*(Student|First)?\s*\]/gi;
 var ANN_NUDGE_TEXT = "Hi [Student]! Quick follow-up on my text above. Please reply Y to confirm. Thanks!";
 
 var annData = null;       // last getAnnouncements answer
@@ -59,8 +64,11 @@ function annWin() {
   w.id = "annOverlay";
   w.onclick = function (e) { if (e.target === w) annClose(); };
   w.innerHTML = '<div class="td-student cm-win ann-win"><div class="settings-title im-title"><span id="annTitle">Announcements</span>' +
-    '<span class="cm-oth-acts"><button class="link-btn" id="annNewBtn" onclick="annCompose()">New announcement</button>' +
-    '<button class="settings-close" onclick="annClose()">✕</button></span></div><div id="annBody"></div></div>';
+    '<span class="cm-oth-acts"><button class="link-btn" id="annConfBtn" onclick="annOpenId = null; annRenderList()">Confirmations</button>' +
+    '<button class="link-btn" id="annNewBtn" onclick="annCompose()">New announcement</button>' +
+    '<button class="settings-close" onclick="annClose()">✕</button></span></div>' +
+    // The portal's window top (user, 2026-11-05): red name · grey part (No show's look); no icon under it.
+    '<div id="annBody"></div></div>';
   document.body.appendChild(w);
   return w;
 }
@@ -70,9 +78,18 @@ document.addEventListener("keydown", function (e) {
   if (e.key === "Escape" && w && w.classList.contains("open") && !document.querySelector(".rpm-dlg-overlay")) annClose();
 });
 
+// Opens on New announcement; Confirmations is its own button (user, 2026-11-05).
+var annView = "new";
 function annOpen() {
   annWin().classList.add("open");
+  annView = "new";
+  annData = null;   // fresh roster + table each time; LOADING until it lands
   annLoad();
+}
+// The title row shows the button for the other page.
+function annHeadBtns(onList) {
+  document.getElementById("annNewBtn").style.display = onList ? "" : "none";
+  document.getElementById("annConfBtn").style.display = onList ? "none" : "";
 }
 
 function annLoad() {
@@ -84,7 +101,8 @@ function annLoad() {
     .then(function (d) {
       if (!d || !d.success) { body.innerHTML = '<div class="empty-state">' + annEsc((d && d.message) || "Could not load") + '</div>'; return; }
       annData = d;
-      annRenderList();
+      if (annView === "new") { annView = ""; annCompose(); }
+      else annRenderList();
     })
     .catch(function () { body.innerHTML = '<div class="empty-state">Connection failed</div>'; });
 }
@@ -107,8 +125,8 @@ var ANN_RANK = { reply: 0, failed: 1, waiting: 2, confirmed: 3 };
 
 function annRenderList() {
   var body = document.getElementById("annBody");
-  document.getElementById("annTitle").textContent = "Announcements";
-  document.getElementById("annNewBtn").style.display = "";
+  document.getElementById("annTitle").innerHTML = "Announcements<span class='win-sub'> · Confirmations</span>";
+  annHeadBtns(true);
   var list = (annData && annData.announcements) || [];
   if (!list.length) { body.innerHTML = '<div class="empty-state">None</div>'; return; }
   var open = annOpenId || list[0].id;
@@ -140,7 +158,7 @@ function annCard(a) {
     "<div class='ann-acts'><button class='link-btn' data-a='text'>Show text</button>" +
       "<button class='link-btn amber' data-a='nudge'" + (waiting.length ? "" : " disabled data-tip='Locked.\nNobody is awaiting.' data-tip-wrap") + ">Nudge " +
       (waiting.length ? waiting.length + " awaiting" : "") + "</button></div>" +
-    "<div class='ann-textbox' hidden>" + annEsc(a.template) + "</div>" +
+    "<div class='ann-textbox' hidden>" + annEsc(String(a.template || "").replace(ANN_NAME_RE, "[Student]")) + "</div>" +
     "<hr class='divider ts-rule'>" +
     "<div class='ts-trip-dates'>" + a.confirmed + " / " + a.students.length + " confirmed</div>";
   var list = document.createElement("div");
@@ -182,22 +200,32 @@ function annCompose(opts) {
   opts = opts || {};
   var body = document.getElementById("annBody");
   var nudge = opts.nudge || null;
-  document.getElementById("annTitle").innerHTML = nudge ? "Announcements<span class='win-sub'> · Nudge</span>" : "Announcements<span class='win-sub'> · New</span>";
-  document.getElementById("annNewBtn").style.display = "none";
+  document.getElementById("annTitle").innerHTML = nudge ? "Announcements<span class='win-sub'> · Nudge</span>" : "Announcements<span class='win-sub'> · Send text</span>";
+  annHeadBtns(false);
   var everyone = (annData && annData.students) || [];
   var names = nudge ? opts.names : everyone;
   var on = {};
   names.forEach(function (n) { on[n] = !/\(test\)/i.test(n) || !!nudge; });   // the test number starts unticked
 
   body.innerHTML =
-    "<div class='db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head'><label class='field-label db-cx-t im-main-t'>" + (nudge ? "Nudge text" : "Text") + "</label></div>" +
-    "<div class='tv-sec-note'>[Student] is replaced by each student's first name when it's sent (Hi [Student]! → Hi Antonio!). Plain characters keep it cheap.</div>" +
-    "<textarea class='cm-reply ann-text' id='annText' rows='16'></textarea>" +
+    "<div class='db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head'><label class='field-label db-cx-t im-main-t'>" + (nudge ? "Nudge draft" : "Draft") + "</label></div>" +
+    "<div class='ts-th-icon ann-draft-icon'>" + ANN_DRAFT_ICON.replace('class="win-icon"', 'class="ts-lbl-icon"') + "</div>" +
+    "<div class='tv-sec-note'>Draft your message</div>" +
+    // [Student] lit amber (user, 2026-11-05): a layer behind the box draws the marks, the box itself is see-through.
+    "<div class='ann-hl-wrap'><div class='ann-hl' id='annHl' aria-hidden='true'></div>" +
+    "<textarea class='cm-reply ann-text' id='annText' rows='16'></textarea></div>" +
+    // Under the box, above the cost line (user, 2026-11-05; was under DRAFT).
+    "<div class='ann-name-note'><mark class='ann-mark'>[Student]</mark> turns into each student's first name</div>" +
     "<div class='ann-cost' id='annCost'></div>" +
+    // As it will look on their phone, the real name in place: Travel's text bubble (user, 2026-11-05).
+    // SEND TEXT in DRAFT's format: red heading, icon under, note (user, 2026-11-05; was a TEXT MESSAGE label under the icon).
+    "<div class='db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head'><label class='field-label db-cx-t im-main-t'>Preview</label></div>" +
+    "<div class='tv-sec-note' id='annPrevWho'></div>" +
+    "<div class='ts-thread tv-rv-thread ann-prev'><div class='ts-bub tv-rv-bub' id='annPrev'></div></div>" +
     "<div class='db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head ann-to-head'><label class='field-label db-cx-t im-main-t'>To</label>" +
       "<span class='ann-to-acts'><button class='link-btn' data-all='1'>All</button><button class='link-btn' data-all='0'>None</button></span></div>" +
     "<div class='ann-to' id='annTo'></div>" +
-    "<div class='ann-foot'><button class='link-btn' id='annBack'>Back</button>" +
+    "<div class='ann-foot'>" + (nudge ? "<button class='link-btn' id='annBack'>Back</button>" : "<span></span>") +
       "<button class='link-btn red' id='annSend'>Send</button></div>";
   var ta = document.getElementById("annText");
   ta.value = nudge ? ANN_NUDGE_TEXT : ANN_DEFAULT_TEXT;
@@ -206,12 +234,22 @@ function annCompose(opts) {
     return "<span class='db-check" + (on[n] ? " on" : "") + "' data-i='" + i + "' role='checkbox' tabindex='0'><i class='db-box'></i>" + annEsc(n) + "</span>";
   }).join("");
   var count = function () { return names.filter(function (n) { return on[n]; }).length; };
+  var hl = document.getElementById("annHl");
+  var paintHl = function () {
+    hl.innerHTML = annEsc(ta.value).replace(ANN_NAME_RE, function (m) { return "<mark>" + m + "</mark>"; }) + "\n";
+    hl.scrollTop = ta.scrollTop;
+  };
+  ta.addEventListener("scroll", function () { hl.scrollTop = ta.scrollTop; });
   var paint = function () {
-    var c = annCost(ta.value.replace(/\[(Student|First)\]/g, "Christian")), n = count();
+    paintHl();
+    var c = annCost(ta.value.replace(ANN_NAME_RE, "Christian")), n = count();
     document.getElementById("annCost").innerHTML =
       c.len + " characters · " + c.pieces + " text" + (c.pieces > 1 ? "s" : "") + " each · " + n + " student" + (n === 1 ? "" : "s") +
       " · about $" + (c.pieces * n * 0.011).toFixed(2) +
       (c.bad.length ? "<br><span class='ann-bad'>" + annEsc(c.bad.join(" ")) + " makes it cost about 2.5× more. Use - * ' \" instead.</span>" : "");
+    var first = names.filter(function (x) { return on[x] && !/\(test\)/i.test(x); })[0] || names.filter(function (x) { return on[x]; })[0] || "";
+    document.getElementById("annPrevWho").textContent = first ? "This is how " + first + " gets it" : "Nobody picked";
+    document.getElementById("annPrev").textContent = ta.value.replace(ANN_NAME_RE, annFirst(first) || "[Student]");
     document.getElementById("annSend").textContent = "Send to " + n;
     document.getElementById("annSend").disabled = !n || !ta.value.trim();
   };
@@ -229,7 +267,7 @@ function annCompose(opts) {
     };
   });
   ta.oninput = paint;
-  document.getElementById("annBack").onclick = function () { annRenderList(); };
+  if (nudge) document.getElementById("annBack").onclick = function () { annRenderList(); };
   document.getElementById("annSend").onclick = function () { annSend(nudge, names.filter(function (n) { return on[n]; }), ta.value.trim()); };
   paint();
   ta.focus(); ta.setSelectionRange(0, 0); ta.scrollTop = 0;   // start at the top, the whole text in view
@@ -237,7 +275,7 @@ function annCompose(opts) {
 
 function annSend(nudge, picked, text) {
   if (!picked.length || !text) return;
-  var c = annCost(text.replace(/\[(Student|First)\]/g, "Christian"));
+  var c = annCost(text.replace(ANN_NAME_RE, "Christian"));
   rpmConfirm({
     title: "Warning!",
     subtitle: "Upon activation:",
@@ -255,7 +293,7 @@ function annSend(nudge, picked, text) {
     var win = document.querySelector("#annOverlay .ann-win"), btn = document.getElementById("annSend");
     rpmBusy(win, btn, true, "Sending");
     var q = url + "?action=" + (nudge ? "nudgeAnnouncement" : "sendAnnouncement") +
-      "&text=" + encodeURIComponent(text) + "&students=" + encodeURIComponent(picked.join("|")) +
+      "&text=" + encodeURIComponent(text.replace(ANN_NAME_RE, "[Student]")) + "&students=" + encodeURIComponent(picked.join("|")) +
       (nudge ? "&id=" + encodeURIComponent(nudge.id) : "");
     // Not callScript: its catch never calls back, and the window would stay dimmed.
     fetch(q).then(function (r) { return r.json(); }).catch(function () { return { success: false, message: "Connection error. Check the table before sending again." }; }).then(function (d) {
