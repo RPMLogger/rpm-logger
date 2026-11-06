@@ -65,7 +65,7 @@ function annWin() {
   w.onclick = function (e) { if (e.target === w) annClose(); };
   w.innerHTML = '<div class="td-student cm-win ann-win"><div class="settings-title im-title"><span id="annTitle">Announcements</span>' +
     '<span class="cm-oth-acts"><button class="link-btn" id="annConfBtn" onclick="annOpenId = null; annRenderList()">Confirmations</button>' +
-    '<button class="link-btn" id="annNewBtn" onclick="annCompose()">New announcement</button>' +
+    '<button class="link-btn" id="annNewBtn" onclick="annCompose()">Send text</button>' +
     '<button class="settings-close" onclick="annClose()">✕</button></span></div>' +
     // The portal's window top (user, 2026-11-05): red name · grey part (No show's look); no icon under it.
     '<div id="annBody"></div></div>';
@@ -131,7 +131,17 @@ function annRenderList() {
   if (!list.length) { body.innerHTML = '<div class="empty-state">None</div>'; return; }
   var open = annOpenId || list[0].id;
   body.innerHTML = "";
-  list.forEach(function (a) { body.appendChild(a.id === open ? annCard(a) : annPastRow(a)); });
+  var cur = list.filter(function (a) { return a.id === open; })[0] || list[0];
+  var card = annCard(cur);
+  // The others sit under the buttons, above the student rows, so they're seen without scrolling (user, 2026-11-05).
+  var others = list.filter(function (a) { return a !== cur; });
+  if (others.length) {
+    var slot = card.querySelector(".ann-others");
+    slot.innerHTML = "<div class='ann-others-t'>Other announcements</div>";
+    others.forEach(function (a) { slot.appendChild(annPastRow(a)); });
+    slot.hidden = false;
+  }
+  body.appendChild(card);
 }
 
 function annPastRow(a) {
@@ -159,6 +169,7 @@ function annCard(a) {
       "<button class='link-btn amber' data-a='nudge'" + (waiting.length ? "" : " disabled data-tip='Locked.\nNobody is awaiting.' data-tip-wrap") + ">Nudge " +
       (waiting.length ? waiting.length + " awaiting" : "") + "</button></div>" +
     "<div class='ann-textbox' hidden>" + annEsc(String(a.template || "").replace(ANN_NAME_RE, "[Student]")) + "</div>" +
+    "<div class='ann-others' hidden></div>" +
     "<hr class='divider ts-rule'>" +
     "<div class='ts-trip-dates'>" + a.confirmed + " / " + a.students.length + " confirmed</div>";
   var list = document.createElement("div");
@@ -220,15 +231,22 @@ function annCompose(opts) {
     // As it will look on their phone, the real name in place: Travel's text bubble (user, 2026-11-05).
     // SEND TEXT in DRAFT's format: red heading, icon under, note (user, 2026-11-05; was a TEXT MESSAGE label under the icon).
     "<div class='db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head'><label class='field-label db-cx-t im-main-t'>Preview</label></div>" +
+    // Each heading has its icon under it, like DRAFT (user, 2026-11-05).
+    "<div class='ts-th-icon ann-draft-icon'>" + (typeof PHONE_ICON !== "undefined" ? PHONE_ICON.replace('class="win-icon"', 'class="ts-lbl-icon"') : "") + "</div>" +
     "<div class='tv-sec-note' id='annPrevWho'></div>" +
     "<div class='ts-thread tv-rv-thread ann-prev'><div class='ts-bub tv-rv-bub' id='annPrev'></div></div>" +
     "<div class='db-cx-head im-sec-head im-main-head tv-sec-head ts-sec-head ann-to-head'><label class='field-label db-cx-t im-main-t'>To</label>" +
       "<span class='ann-to-acts'><button class='link-btn' data-all='1'>All</button><button class='link-btn' data-all='0'>None</button></span></div>" +
+    "<div class='ts-th-icon ann-draft-icon'>" + (typeof STUDENTS_ICON !== "undefined" ? STUDENTS_ICON.replace('class="students-icon"', 'class="ts-lbl-icon ann-to-icon"') : "") + "</div>" +
+    "<div class='tv-sec-note'>Pick who gets it</div>" +
     "<div class='ann-to' id='annTo'></div>" +
     "<div class='ann-foot'>" + (nudge ? "<button class='link-btn' id='annBack'>Back</button>" : "<span></span>") +
       "<button class='link-btn red' id='annSend'>Send</button></div>";
   var ta = document.getElementById("annText");
-  ta.value = nudge ? ANN_NUDGE_TEXT : ANN_DEFAULT_TEXT;
+  // Once the default text has gone out, the next announcement starts blank (user, 2026-11-05).
+  var annNorm = function (t) { return String(t || "").replace(ANN_NAME_RE, "[Student]").trim(); };
+  var defaultSent = ((annData && annData.announcements) || []).some(function (a) { return annNorm(a.template) === annNorm(ANN_DEFAULT_TEXT); });
+  ta.value = nudge ? ANN_NUDGE_TEXT : (defaultSent ? "" : ANN_DEFAULT_TEXT);
   var to = document.getElementById("annTo");
   to.innerHTML = names.map(function (n, i) {
     return "<span class='db-check" + (on[n] ? " on" : "") + "' data-i='" + i + "' role='checkbox' tabindex='0'><i class='db-box'></i>" + annEsc(n) + "</span>";
@@ -248,8 +266,10 @@ function annCompose(opts) {
       " · about $" + (c.pieces * n * 0.011).toFixed(2) +
       (c.bad.length ? "<br><span class='ann-bad'>" + annEsc(c.bad.join(" ")) + " makes it cost about 2.5× more. Use - * ' \" instead.</span>" : "");
     var first = names.filter(function (x) { return on[x] && !/\(test\)/i.test(x); })[0] || names.filter(function (x) { return on[x]; })[0] || "";
-    document.getElementById("annPrevWho").textContent = first ? "This is how " + first + " gets it" : "Nobody picked";
+    var empty = !ta.value.trim();
+    document.getElementById("annPrevWho").textContent = empty ? "Your text shows here as you type" : first ? "This is how " + first + " gets it" : "Nobody picked";
     document.getElementById("annPrev").textContent = ta.value.replace(ANN_NAME_RE, annFirst(first) || "[Student]");
+    document.querySelector("#annBody .ann-prev").classList.toggle("ann-prev-empty", empty);   // no empty blue blob (user, 2026-11-05)
     document.getElementById("annSend").textContent = "Send to " + n;
     document.getElementById("annSend").disabled = !n || !ta.value.trim();
   };

@@ -4512,5 +4512,13 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
 .ann-to { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 18px; margin-bottom: 26px; }
 .ann-to .db-check { cursor: pointer; }
 .ann-foot { display: flex; justify-content: space-between; align-items: center; }
+.ann-to .db-check { color: var(--muted); }   /* unticked dim (user, 2026-11-05; was brighter than ticked) */
+.ann-to .db-check.on { color: var(--t-normal); }
+.ann-prev.ann-prev-empty { display: none; }   /* no empty bubble while the draft is blank (user, 2026-11-05) */
+#annPrevWho:has(+ .ann-prev-empty) { margin-bottom: 34px; }   /* keep the gap to TO the bubble used to give */
+.ann-to-icon { height: 22px; }
+.ann-others { margin: 4px 0 14px; }
+.ann-others-t { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+.ann-others .ann-past { margin-top: 8px; }
 /* History: the empty-row dash smaller and a bit in; handwriting stays 18px (user, 2026-11-05) */
 #importBody .td-student .im-block .im-row.im-empty .im-s { font-size: 13px; padding-left: 8px; }
