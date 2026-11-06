@@ -4583,3 +4583,5 @@ html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-c
 .db-all-empty { display: block; }
 #importBody .im-goals-box .gl-none { padding-left: 0; }
 .cm-msgr .cm-none { text-transform: uppercase; }
+/* Audit's first page (the two speakers): no corner screws; the Lessons/Payments audit pages keep them (user, 2026-11-06) */
+#tab-audit:has(> #auMenuView:not([style*="none"])) > .td-bolt { display: none; }
