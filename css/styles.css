@@ -4703,3 +4703,12 @@ html body .header .hdr-back:disabled:hover .hdr-home-i { background: var(--muted
 /* main page background: diamond plate only, gold glow + dots off (user, 2026-11-08).
    To bring them back, delete this block (or "go back to plate-glow"). */
 body::before, body::after { display: none; }
+/* Templates / Announcements / Confirmations / Others inside the Student Phone Line box, top right (user, 2026-11-08; was a rack above the box) */
+#commsBody .cm-box { position: relative; }
+.cm-box-btns { position: absolute; top: 40px; right: 40px; z-index: 30; display: flex; gap: 10px; align-items: center; }
+.cm-box-btns .link-btn.lit { color: var(--red, #e0533f); border-color: currentColor; }   /* Others while one waits */
+/* the Comms list's whites toned down (user, 2026-11-08: "left side whites"): names no brighter than --t-normal, previews faint (selected row keeps its grey) */
+#commsStuList .cm-conv .cm-conv-name, #commsStuList .cm-conv.cm-wait .cm-conv-name, #commsStuList .cm-conv.cm-sel .cm-conv-name { color: var(--t-normal); }
+#commsStuList .cm-conv .cm-conv-prev, #commsStuList .cm-conv.cm-wait .cm-conv-prev { color: var(--t-faint); }
+#commsStuList .cm-ava { color: var(--t-normal); }
+#commsBody .cm-page-icon { margin-bottom: 32px; }   /* more space between the phone icon and the list (user, 2026-11-08; was 16) */

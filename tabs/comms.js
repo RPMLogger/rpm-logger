@@ -826,28 +826,21 @@ function commsEnsureExtras() {
       acts.insertAdjacentHTML("beforeend", '<button class="settings-close" onclick="commsShowOthers(false)">✕</button>');
       [box.querySelector(".cm-filters"), document.getElementById("commsEditBar"),
        box.querySelector("hr.td-rule-top"), inbox].forEach(function (n) { if (n) body.appendChild(n); });
-      // A rack above the box (user, 2026-11-05), the Calendar's rack unit: two knobs + grille on the
-      // left, the buttons on the right: Templates (menu: Zoom lesson, No show, Optional schedule),
-      // Announcements (tabs/announce.js, when loaded), Others (lit while one is unanswered).
-      if (typeof _calInjectStyle === "function") _calInjectStyle();
+      // Templates (menu: Zoom lesson, No show, Optional schedule), Announcements (tabs/announce.js,
+      // when loaded), Confirmations, Others (lit while one is unanswered).
+      // The buttons moved into the box, top right beside the title, as plain portal buttons (user, 2026-11-08); the rack is gone.
       var col = function (id, cap, click, tip, extra) {
-        return "<span class='cr-col" + (extra ? " tt-menu" : "") + "'" + (extra ? " id='cmTplWrap'" : "") + "><button class='cr-pb' id='" + id + "' onclick='" + click + "' data-tip='" + tip + "'></button>" +
-          "<span class='cr-cap'>" + cap + "</span>" + (extra || "") + "</span>";
+        var b = "<button class='link-btn' id='" + id + "' onclick='" + click + "' data-tip='" + tip + "'>" + cap + "</button>";
+        return extra ? "<span class='tt-menu' id='cmTplWrap'>" + b + extra + "</span>" : b;
       };
       var rack = document.createElement("div");
-      rack.className = "cal-bar cr rpm-rack cm-rack";   // rpm-rack: follows THE BOX (css/styles.css end), not the Calendar (user, 2026-11-06)
+      rack.className = "cm-box-btns";
       rack.innerHTML =
-        "<span class='cr-bolt' style='left:8px;top:10px'></span><span class='cr-bolt' style='left:8px;bottom:10px'></span>" +
-        "<span class='cr-bolt' style='right:8px;top:10px'></span><span class='cr-bolt' style='right:8px;bottom:10px'></span>" +
-        "<div class='cr-row'>" + (typeof CAL_KNOB === "string" ? CAL_KNOB + CAL_KNOB : "") +
-          "<span class='cr-vents'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>" +
-          "<span class='cr-sp'></span><span class='cr-pair'>" +
             col("cmTplBtn", "Templates", "_ttMenu(event)", "Text templates: Zoom lesson,&#10;No show, Optional schedule.", "<span class='cash-dd-list' id='cmTplList' hidden></span>") +
             (typeof annOpen === "function" ? col("commsAnnBtn", "Announcements", "annOpen()", "Opens a window.&#10;Text all students at once.") : "") +
             (typeof annOpenConf === "function" ? col("commsAnnConfBtn", "Confirmations", "annOpenConf()", "Opens a window.&#10;Who confirmed an announcement, Nudge the rest.") : "") +
-            col("commsOthersBtn", "Others <span id='commsOthersCount'>0</span>", "commsShowOthers(true)", "Opens a window.&#10;Unknown numbers, applicants,&#10;voicemails, scams.") +
-          "</span></div>";
-      box.parentNode.insertBefore(rack, box);
+            col("commsOthersBtn", "Others <span id='commsOthersCount'>0</span>", "commsShowOthers(true)", "Opens a window.&#10;Unknown numbers, applicants,&#10;voicemails, scams.");
+      box.appendChild(rack);
       box.appendChild(stu);
       detail.parentNode.insertBefore(win, detail);   // the conversation window opens on top of it
     }
