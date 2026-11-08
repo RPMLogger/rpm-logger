@@ -3953,8 +3953,8 @@ html body .header::before {
   background:
     linear-gradient(#5e4d2a, #5e4d2a) left bottom 73px / 100% 1.5px no-repeat padding-box,   /* gold line ADDED on top of the grey one, 1.5px, dimmed #9c7d3c → #5e4d2a (user, 2026-11-08) */
     linear-gradient(#2c2c2c, #2c2c2c) left bottom 72px / 100% 1px no-repeat padding-box,   /* gold piping, 1px and dimmed (user, 2026-11-08: was 2px #d4b067→#8a6a2c) between the top and the control strip, like a real amp (user, 2026-11-08; was a #2c2c2c 1px line) */
+    linear-gradient(#151515, #151515) left bottom / 100% 72px no-repeat padding-box,   /* the control strip stays flat #151515: the amp is its own texture, not the rack's (user, 2026-11-08) */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E") padding-box,
-    linear-gradient(#0d0d0d, #0d0d0d) left bottom / 100% 72px no-repeat padding-box,   /* the control strip: the rack's base under the same grain (user, 2026-11-08: was flat #151515; grain now drawn above it) */
     var(--box) padding-box;
 }
 html body .header::after {   /* handle on top, two feet under (feet 13 → 8px tall, top kept at the amp's edge, darker #101010 / #1e1e1e edge; user, 2026-11-08) */
@@ -4922,3 +4922,6 @@ html body #tab-home.tab-panel.active { min-height: 520px !important; }   /* was 
 /* Magnifier + Home icons a tad smaller (user, 2026-11-08; were 15 / 14px), still centred. Delete to undo. */
 html body .header .hdr-mag .hdr-mag-i { left: 5.5px; top: 5.5px; width: 13px; height: 13px; }
 html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) .hdr-home-i { left: 6px; top: 6px; width: 12px; height: 12px; }
+/* Cabinets = the rack (user, 2026-11-08: "cabinet and backgrounds should be like the racks"): every box on THE BOX
+   (tab boxes, Today/Lessons/To-Do/Notes/Comms boxes, Lessons plates, Calendar rack strips) takes the rack's #0d0d0d under the same grain. Delete to undo (#101010). */
+:root { --rpm-box-bg: #0d0d0d; }
