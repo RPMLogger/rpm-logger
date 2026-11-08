@@ -26,7 +26,7 @@ function _rsItems() {
   var lessons = _rsLessonsAudit();
   if (lessons) out.push({ k: 'au-lessons', top: lessons + ' in Lessons audit', fn: 'lessons' });
   var owe = (typeof _auCache !== 'undefined' && _auCache.unpaid && _auCache.unpaid.list) ? _auCache.unpaid.list.length : 0;
-  add('au-pay', owe, 'student owes', 'students owe', null);
+  add('au-pay', owe, 'payment due', 'payments due', null);
   if (owe) out[out.length - 1].fn = 'payments';
   if (typeof _tdHolNear === 'function') {
     var t = new Date(), today = new Date(t.getFullYear(), t.getMonth(), t.getDate());
