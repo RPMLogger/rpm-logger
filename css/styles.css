@@ -4712,3 +4712,12 @@ body::before, body::after { display: none; }
 #commsStuList .cm-conv .cm-conv-prev, #commsStuList .cm-conv.cm-wait .cm-conv-prev { color: var(--t-faint); }
 #commsStuList .cm-ava { color: var(--t-normal); }
 #commsBody .cm-page-icon { margin-bottom: 32px; }   /* more space between the phone icon and the list (user, 2026-11-08; was 16) */
+/* ALERT LIGHTS (user, 2026-11-08): Comms / Emails / Initiate glow gold while something waits (core/nav.js).
+   Rack button = gold face; amp knob = soft gold glow only, pointer + caption stay normal grey (user: gold, not red; rack less bright, amp knob stays bright). Delete this block to undo. */
+.hr-pb.rpm-alert { background: linear-gradient(#b39558, #7a6232); box-shadow: 0 0 6px rgba(212,176,103,.25), inset 0 1px 0 rgba(255,255,255,.18); }
+html body .header .amp-knob.rpm-alert .amp-knob-k, html body .header .amp-knob.rpm-alert:hover .amp-knob-k { box-shadow: 0 0 9px rgba(212,176,103,.6), 0 2px 4px #000, inset 0 1px 0 rgba(255,255,255,.1); }
+/* ENGRAVED CAPTIONS (user, 2026-11-08): the amp knobs' and rack buttons' captions look cut into the metal —
+   a dark edge above, a faint light edge below. Delete this block to undo. */
+html body .header .amp-knob-l, .hr-cap { font-weight: 500; text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.09); }   /* bold = DM Mono 500, the heaviest weight loaded (user, 2026-11-08) */
+html body .header .amp-knob { gap: 9px; }   /* more room between the knob's tick ring and its caption (user, 2026-11-08; was 4px) */
+.home-rack .hr-pb.lit:not(.rpm-alert) { background: linear-gradient(#3a3a3a, #232323); box-shadow: 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); }   /* only the gold alert lights a rack button; no red "lit" on Inquiries etc. (user, 2026-11-08) */

@@ -82,3 +82,31 @@ var _navCurrent = null;
   history.replaceState = function (st, t, u) { if (st && st.rpm) _navCurrent = st; return rs(st, t, u); };
   history.pushState = function (st, t, u) { if (st && st.rpm) _navCurrent = st; return ps(st, t, u); };
 })();
+
+// ALERT LIGHTS (user, 2026-11-08): Comms, Emails and Initiate glow gold on the amp knobs and the
+// rack while their ☰ menu row has its red dot; opening the tab clears the dot, so the light goes off.
+// No alerts on Payments / Audit / Trial / Reviews (user). Delete this block + the CSS block to undo.
+(function () {
+  var TABS = ['comms', 'emails', 'initiate'];
+  function waiting(t) {
+    var b = document.querySelector('.tabs .tab-btn[data-tab="' + t + '"]');
+    if (!b) return false;
+    if (b.classList.contains('cm-new')) return true;
+    var d = b.querySelector('.inq-badge'), n = d ? d.textContent.trim() : '';
+    return !!d && d.style.display !== 'none' && n !== '' && n !== '0';
+  }
+  function paint() {
+    TABS.forEach(function (t) {
+      var on = waiting(t);
+      document.querySelectorAll('.amp-knob[data-k="' + t + '"], .hr-pb[data-k="' + t + '"]')
+        .forEach(function (k) { k.classList.toggle('rpm-alert', on); });
+    });
+  }
+  function start() {
+    var nav = document.querySelector('.tabs');
+    if (!nav) return;
+    new MutationObserver(paint).observe(nav, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['style', 'class'] });
+    paint();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
