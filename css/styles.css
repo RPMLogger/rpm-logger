@@ -4665,3 +4665,10 @@ html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-c
 .db-all-empty { display: block; }
 #importBody .im-goals-box .gl-none { padding-left: 0; }
 .cm-msgr .cm-none { text-transform: uppercase; }
+
+/* BACK (2026-11-07): right of Home, same 26px face; the place you were just before. Dimmed when there is none. */
+html body .header .hdr-home.hdr-back { left: 91.5px; right: auto; }
+html body .header .hdr-back-i { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H6M11 6l-6 6 6 6'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 12H6M11 6l-6 6 6 6'/%3E%3C/svg%3E"); -webkit-mask-size: contain; mask-size: contain; }
+html body .header .hdr-back:disabled { opacity: 0.35; cursor: default; }
+html body .header .hdr-back:disabled:hover { border-color: rgba(255,255,255,0.10); background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); }
+html body .header .hdr-back:disabled:hover .hdr-home-i { background: var(--muted); }

@@ -162,6 +162,7 @@ function _imOpenFirst(name) {
 function _imOpenStudent(name) {
   if (_imIn === 'today') { _tdRefresh(name); return; }   // after a log on the Today tab
   if (_imOpen !== name) _imUndock();   // another student: their own fresh box
+  if (typeof rpmNavGo === 'function') rpmNavGo('import', { kind: 'imStudent', name: name });   // Back's history (core/nav.js)
   _imLift(document.getElementById('importBody'));
   _imOpen = name;
   _imHw = null;
@@ -186,7 +187,8 @@ function _imOpenStudent(name) {
     });
 }
 
-function _imBack() { return '<div style="margin-bottom:22px">' + _imBackBtn() + '</div>'; }
+// The page's own Back is gone (2026-11-07): the header's Back does it (core/nav.js).
+function _imBack() { return ''; }
 function _imBackBtn() {
   return '<button class="link-btn" onclick="_imClose()" data-tip="Instant.\nBack to the students.">' + ARROW_ICON + '<span>Back</span></button>';
 }
