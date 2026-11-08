@@ -279,7 +279,7 @@ function _slcRender() {
     win.innerHTML = _slcWinHtml();
     // Undo, on the icon's line: one click back at a time (user, 2026-10-29).
     var us = document.getElementById('slcUndoSlot');
-    if (us) us.innerHTML = _slc.applied ? '' : "<button class='link-btn' onclick='_slcUndo()'" + (_slc.cutDay ? '' : ' disabled') + " data-tip='Takes back the last click on the weeks.' data-tip-left>Undo</button>";
+    if (us) us.innerHTML = _slc.applied ? '' : "<button class='link-btn' onclick='_slcUndo()'" + (_slc.cutDay ? '' : ' disabled') + " data-tip='Instant.\nTakes back the last click on the weeks.' data-tip-left>Undo</button>";
     _slcDrawWeeks(document.getElementById('slcWeeks'));
   }
   if (_slc.applied && document.getElementById('slcCBody')) _slcPaintDone();
@@ -402,7 +402,7 @@ function _slcWinHtml() {
       // Confirm always at the end, dimmed until W or B is tapped (user, 2026-10-29).
       "<div class='ll-acts st-foot'><span class='ll-state' id='slcConfirmMsg' style='flex:1'></span>" +
         "<button class='link-btn bright opens-window' id='slcConfirmBtn' onclick='_slcConfirmAsk()'" + (n ? '' : ' disabled') +
-        " data-tip='Opens the Warning! box.\nThen the lessons change in Google Calendar.' data-tip-left>Confirm</button></div>");
+        " data-tip='Asks first.\nThen the lessons change in Google Calendar.' data-tip-left>Confirm</button></div>");
 }
 
 // The window after the change: what it did (✓ / ✗, the Email line too, and

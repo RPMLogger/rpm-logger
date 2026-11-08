@@ -53,7 +53,7 @@ function _tdoEntryOpen(o) {
       '<div style="margin:4px 0 18px">' + o.icon + '</div>' +
       '<div class="ll-wrap">' +
         '<div class="ll-rows" id="tdoEntryRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
-        '<button class="link-btn tl-mic" id="tdoEntryMic" data-tip="Starts or stops dictation." data-tip-left onclick="_tdoToggleMic()">' + MIC_ICON + '</button>' +
+        '<button class="link-btn tl-mic" id="tdoEntryMic" data-tip="Instant.\nStarts or stops dictation." data-tip-left onclick="_tdoToggleMic()">' + MIC_ICON + '</button>' +
       '</div>' +
       llAddHtml() +
       '<div class="ll-acts" style="margin-top:16px">' +
@@ -252,7 +252,7 @@ function _todoListRow(t, num, list, i) {
   var del = document.createElement("button");
   del.className = "tdo-del";
   del.textContent = "×";
-  del.title = "Delete";
+  del.dataset.tip = "Asks first.\nDeletes this to-do.";
   del.onclick = function() {
     rpmConfirm({ title: "Delete this task?", confirmLabel: "Delete", danger: true })
       .then(function (ok) { if (ok) _todoDelete(t.row); });

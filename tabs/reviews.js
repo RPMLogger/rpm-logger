@@ -105,7 +105,7 @@ function _rvTemplatesHtml(tpl, p, kind, phone) {
   return num + tpl.map(function (t, i) {
     // Nudges are text only (user, 2026-10-26): no Email, no "also sent" line.
     var nudge = kind === 'nudge';
-    var mail = nudge ? '' : '<button class="link-btn" onclick="_rvOpenMail(\'' + p + '\', ' + i + ')" data-tip="Opens the Email window.\nSending it saves today as the ' + (kind === 'ask' ? 'asked' : 'nudged') + ' date.">' +
+    var mail = nudge ? '' : '<button class="link-btn" onclick="_rvOpenMail(\'' + p + '\', ' + i + ')" data-tip="Opens a window.\nThe email.\nSending it saves today as the ' + (kind === 'ask' ? 'asked' : 'nudged') + ' date.">' +
       ENVELOPE_ICON + '<span>Email</span></button>';
     return '<div class="en-tpl">' +
       '<div class="en-tpl-top">' +
@@ -321,7 +321,7 @@ function _rvRenderSummary() {
       ((o.asks || []).length
         ? o.asks.map(function (a, i) {
             return '<div class="ld-row rv-askrow"><span class="ld-v">' +
-              '<button class="rv-tick" title="Left a review" onclick="_rvAskLeft(' + i + ', this)"></button>' +
+              '<button class="rv-tick" data-tip="Instant.\nTicks Left a review.\nCard disappears from Reviews." onclick="_rvAskLeft(' + i + ', this)"></button>' +
               _rvEscHtml(a.date) + ' - ' + _rvEscHtml(a.name) + _rvAskTag(a) + '</span></div>';
           }).join('')
         : '<div class="rpm-none">No open asks</div>') +

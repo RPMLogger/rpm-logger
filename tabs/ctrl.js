@@ -654,7 +654,7 @@ function _dxGrid() {
     }
     if (has && sl.impUnknown) return '<td class="empty" data-tip="Older than what Import sent here.\nSee the sheet.">·</td>';
     if (has) return td("miss unlog" + (k === firstMiss ? " go" : ""), _dxShort(sl.counter.value), "imp", k,
-      k === firstMiss ? "Opens the Log lesson window.\nLogs " + _dxShort(sl.counter.value) + " into Students Import." : "Log the earlier date first.\nImport fills its rows in order.");
+      k === firstMiss ? "Opens a window.\nLog lesson.\nLogs " + _dxShort(sl.counter.value) + " into Students Import." : "Log the earlier date first.\nImport fills its rows in order.");
     return '<td class="empty"></td>';
   });
   var t = document.createElement("div");
@@ -1078,7 +1078,7 @@ function _auGridHtml(grid, missing, nmArg, locked, noCal) {
     if (!miss[n]) return '<td>' + _auEsc(d) + '</td>';
     var go = n === first && !locked;
     return '<td class="miss unlog au-gcell' + (go ? ' go' : '') + '" data-d="' + _auEsc(d) + '"' +
-      (go ? ' onclick="_auGridLog(this,' + nmArg + ')" data-tip="Opens the Log lesson window.\nLogs ' + _auEsc(d) + ' into Students Import."'
+      (go ? ' onclick="_auGridLog(this,' + nmArg + ')" data-tip="Opens a window.\nLog lesson.\nLogs ' + _auEsc(d) + ' into Students Import."'
           : ' data-tip="' + (locked ? 'Calendar and Counter disagree.\nFix that first with Mismatch.' : 'Log the earlier date first.\nImport fills its rows in order.') + '"') + '>' + _auEsc(d) + '</td>';
   });
   return '<table class="au-grid au-cardgrid">' + head() + counter + imp + '</table>';
@@ -1141,7 +1141,7 @@ function _auChipsNext(card) {
     if (n === firstLeft) {
       td.classList.add("go");
       td.setAttribute("onclick", "_auGridLog(this," + JSON.stringify(card.getAttribute("data-audit-student")) + ")");
-      td.setAttribute("data-tip", "Opens the Log lesson window.\nLogs " + td.getAttribute("data-d") + " into Students Import.");
+      td.setAttribute("data-tip", "Opens a window.\nLog lesson.\nLogs " + td.getAttribute("data-d") + " into Students Import.");
     }
   });
   var b = card.querySelector(".au-logbtn");

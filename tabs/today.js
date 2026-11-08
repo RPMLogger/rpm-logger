@@ -263,7 +263,7 @@ function _tdNsHtml() {
       '<div class="en-tpl-top"><span class="field-label">Template ' + (i + 1) + '</span></div>' +
       '<div class="ts-thread tv-rv-thread rv-thread"><div id="tdNsText' + i + '" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only" spellcheck="false">' + inqEsc(t) + '</div></div>' +
       '<div class="en-tpl-foot"><span class="en-tpl-btns">' +
-        '<button class="link-btn" id="tdNsSave' + i + '" onclick="_tdNsSave(' + i + ')" data-tip="Saves this text to\nNo Show Texts (Counter sheet).">Save</button>' +
+        '<button class="link-btn" id="tdNsSave' + i + '" onclick="_tdNsSave(' + i + ')" data-tip="Instant.\nSaves this text to No Show Texts (Counter sheet).">Save</button>' +
         _ttUseBtn('tdNsText' + i, 'ns') + '</span></div>' +   // Use: into the Comms text box (was Copy for Messages, 2026-11-05)
     '</div>';
   }).join('');

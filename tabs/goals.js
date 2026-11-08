@@ -140,7 +140,7 @@ function _glFormHtml(c) {
         '<textarea id="glF_' + q[0] + '" rows="2" class="rpm-field gl-field" oninput="_glGrow(this)">' + (c ? inqEsc(c[q[0]] || '') : '') + '</textarea>';
     }).join('') +
     '<div class="gl-acts"><button class="link-btn" onclick="_glRender()">Cancel</button>' +
-      '<button class="link-btn gl-save" onclick="_glSave(this)" data-tip="Saves it to Goal Check-ins.">Save</button></div>' +
+      '<button class="link-btn gl-save" onclick="_glSave(this)" data-tip="Instant.\nSaves it to Goal Check-ins.">Save</button></div>' +
   '</div>';
 }
 function _glGrow(t) { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }

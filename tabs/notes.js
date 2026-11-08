@@ -137,7 +137,7 @@ function _notesListRow(n, num, list, i) {
   var del = document.createElement("button");
   del.className = "tdo-del";
   del.textContent = n.removed ? "↩" : "×";
-  del.title = n.removed ? "Put back" : "Remove";
+  del.dataset.tip = n.removed ? "Instant.\nPuts the note back." : "Instant.\nMoves the note to Removed.";
   del.onclick = function() { _notesRemove(n.row, !n.removed, del); };
   row.appendChild(del);
 

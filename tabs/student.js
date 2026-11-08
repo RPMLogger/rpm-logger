@@ -243,7 +243,7 @@ function _stRenderDetail() {
       "<div style='font-family:\"Syne\",sans-serif;font-weight:400;font-size:20px;letter-spacing:0.3px'>" + d.name + "</div>" +
       subLine +
     "</div>" +
-    "<button id='stBack' data-tip='Closes the student.' style='padding:5px 10px;font-size:15px;line-height:1;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>✕</button>";
+    "<button id='stBack' data-tip='Instant.\nCloses the student.' style='padding:5px 10px;font-size:15px;line-height:1;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>✕</button>";
   section.appendChild(hdr);
   document.getElementById('stBack').onclick = function() { _stState.view = 'search'; _stRenderSearch(); };
 
@@ -1096,7 +1096,7 @@ function _stPickSkip() {
   var wrap = s.cell.closest('.im-rs-strips'); if (wrap) wrap.classList.add('st-decided');
   _stPickHead('Skipping');
   mv.innerHTML = "<span>" + _dtpDateLabel(s.lesson.date) + ' · ' + s.lesson.time + "</span>";
-  var b = document.getElementById('imRsConfirmBtn'); if (b) { b.textContent = 'Confirm skip'; b.dataset.tip = 'Removes this one lesson from the calendar\nand logs it to Skip Logs.'; }
+  var b = document.getElementById('imRsConfirmBtn'); if (b) { b.textContent = 'Confirm skip'; b.dataset.tip = 'Instant.\nRemoves this one lesson from the calendar\nand logs it to Skip Logs.'; }
   _stPickButtons();
   var c = document.getElementById('imRsConfirm'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
@@ -1120,7 +1120,7 @@ function _stPickDecide() {
 function _stPickMovedClear() {
   var mv = document.getElementById('imRsMoved'); if (mv) mv.innerHTML = '';
   _stPickHead('Moving to');
-  var b = document.getElementById('imRsConfirmBtn'); if (b) { b.textContent = 'Confirm move'; b.dataset.tip = 'Moves only this lesson in Google Calendar\nand logs it to Reschedule Logs.'; }
+  var b = document.getElementById('imRsConfirmBtn'); if (b) { b.textContent = 'Confirm move'; b.dataset.tip = 'Instant.\nMoves only this lesson in Google Calendar\nand logs it to Reschedule Logs.'; }
   if (_stPickSel && _stPickSel.skip) {
     _stPickSel.skip = false; _stPickSel.cell.classList.remove('st-pick-skip');
     var mk = _stPickSel.cell.querySelector('.st-skip-mark'); if (mk) mk.remove();
@@ -1284,7 +1284,7 @@ function _stOpenSkipModal(studentName, lesson, opts) {
     "<label class='field-label st-gap'>Reason (optional)</label>" +
     "<input id='stSkipNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" + _stReasonPills('stSkipReasons') +
     "<div class='ll-acts st-foot'><span class='ll-state' id='stSkipState' style='flex:1'></span>" +
-      "<button class='link-btn bright' id='stSkipConfirm' data-tip='Removes this one lesson from the calendar\nand logs it to Skip Logs.' data-tip-left>Confirm skip</button></div>");
+      "<button class='link-btn bright' id='stSkipConfirm' data-tip='Instant.\nRemoves this one lesson from the calendar\nand logs it to Skip Logs.' data-tip-left>Confirm skip</button></div>");
   _stWireWho(w, 'stSkipWho', function(v) { who = v; });
   _stWireReasons(w, 'stSkipReasons', 'stSkipNote');
 
@@ -1380,7 +1380,7 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
     "<label class='field-label st-gap'>Reason (optional)</label>" +
     "<input id='stRsNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" + _stReasonPills('stRsReasons') +
     "<div class='ll-acts st-foot'><span class='ll-state' id='stRsState' style='flex:1'></span>" +
-      "<button class='link-btn bright' id='stTimeConfirm' data-tip='Moves only this lesson in Google Calendar\nand logs it to Reschedule Logs.' data-tip-left>Confirm move</button></div>");
+      "<button class='link-btn bright' id='stTimeConfirm' data-tip='Instant.\nMoves only this lesson in Google Calendar\nand logs it to Reschedule Logs.' data-tip-left>Confirm move</button></div>");
   // Each arrow centred under its From box (date, time).
   var fb = w.querySelectorAll('.st-move-group .st-from .st-box'), as = w.querySelectorAll('.st-move-arrow > span');
   for (var ai = 0; ai < as.length && ai < fb.length; ai++) as[ai].style.width = fb[ai].offsetWidth + 'px';

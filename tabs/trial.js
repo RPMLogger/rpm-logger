@@ -308,7 +308,7 @@ function _trPaintNewMsg(email, t) {
   el.innerHTML = _trNeedsReply(email, t)
     ? '<span class="fc-new">\u25cf New message</span>' +
       '<button class="fc-mark-read" onclick="_trMarkRead(\'' + _trEsc(email) + '\')" ' +
-        'data-tip="Clears the flag.\nNothing is sent.\nComes back if they write again." data-tip-wrap>Mark read</button>'
+        'data-tip="Instant.\nClears the flag.\nNothing is sent.\nComes back if they write again." data-tip-wrap>Mark read</button>'
     : '';
 }
 
@@ -648,7 +648,7 @@ function _trPaintOfferLines() {
         var ev  = _trAvBusy(o.date, _trMinOf(o.time));
         if (ev) return "<span class='tr-offer-chip taken' data-tip=\"" + _msAttr("Taken.\n" + (ev.title || "") + " is on the calendar then.") + "\">" + inqEsc(lbl) + "</span>";
         return "<button class='tr-offer-chip' onclick=\"_trBookOffered('" + _trEsc(a.email) + "','" + o.date + "','" + o.time + "')\" " +
-                 "data-tip=\"Opens Book with this date and time.\">" + inqEsc(lbl) + "</button>";
+                 "data-tip=\"Opens a window.\nBook, with this date and time.\">" + inqEsc(lbl) + "</button>";
       }).join("") + "</div>";
   });
 }
@@ -1766,7 +1766,7 @@ function _tlLogHtml(a, s) {
     // where most apps put it.
     '<div class="ll-wrap">' +
       '<div class="ll-rows" id="tlRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
-      '<button class="link-btn tl-mic" id="tlMicBtn" data-tip="Starts or stops dictation." data-tip-left onclick="_tlMic()">' + MIC_ICON + '</button>' +
+      '<button class="link-btn tl-mic" id="tlMicBtn" data-tip="Instant.\nStarts or stops dictation." data-tip-left onclick="_tlMic()">' + MIC_ICON + '</button>' +
     '</div>' +
     llAddHtml() +
     '<div class="ll-acts" style="margin-top:16px">' +
@@ -2200,7 +2200,7 @@ function _tlUploadHtml(folder) {
       'font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);cursor:pointer">' + inqEsc(idle) + '</div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
       '<button class="link-btn" style="flex:1;justify-content:center;padding:7px 10px" onclick="openDropboxLocalFolder(document.getElementById(\'tlDrop\').dataset.folder)" ' +
-        'data-tip="Opens elsewhere. (Their Dropbox folder in Finder.)\nDrag folders in and Dropbox uploads them."><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
+        'data-tip="Opens elsewhere.\nTheir Dropbox folder in Finder.\nDrag folders in and Dropbox uploads them."><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
       '<button class="link-btn" style="flex:1;justify-content:center;padding:7px 10px" onclick="document.getElementById(\'tlFolderIn\').click()">\ud83d\udcc2 Browse folder</button>' +
     '</div>' +
     '<input type="file" id="tlFileIn" multiple style="display:none" onchange="_tlPicked(this, false)">' +

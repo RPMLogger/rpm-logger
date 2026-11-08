@@ -459,17 +459,17 @@ function _calRenderShell(mon) {
         CAL_KNOB +
         "<span class='cr-vents'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>" +
         "<span class='cr-pair'>" +
-          "<span class='cr-col'><button class='cr-pb" + (_calGoogleOpen() ? " lit" : "") + "' id='calGoogleBtn' onclick='_calToggleGoogle()' data-tip='Google Calendar\'s own view under the grid.'></button><span class='cr-cap'>Google</span></span>" +
-          "<span class='cr-col'><button class='cr-pb' id='calAnalyzeBtn' data-tip='Coming soon: this week\'s and next week\'s suggested fixes.'></button><span class='cr-cap'>Analyze</span></span>" +
+          "<span class='cr-col'><button class='cr-pb" + (_calGoogleOpen() ? " lit" : "") + "' id='calGoogleBtn' onclick='_calToggleGoogle()' data-tip='Instant.\nShows or hides Google Calendar&#39;s own view under the grid.'></button><span class='cr-cap'>Google</span></span>" +
+          "<span class='cr-col'><button class='cr-pb' id='calAnalyzeBtn' data-tip='Coming soon.\nThis week&#39;s and next week&#39;s suggested fixes.'></button><span class='cr-cap'>Analyze</span></span>" +
         "</span>" +
         "<span class='cr-sp'></span>" +   // even gaps between the five groups (user, 2026-11-03)
         "<button class='cr-btn' onclick='_calShift(-1)' aria-label='Previous week'>‹</button>" +
-        "<div class='cr-lcd" + (_calWeekOffset ? " back" : "") + "'" + (_calWeekOffset ? " onclick='_calShift(0)' data-tip='Back to this week.'" : "") + ">" + _calWeekLabel(mon, sun) + "</div>" +
+        "<div class='cr-lcd" + (_calWeekOffset ? " back" : "") + "'" + (_calWeekOffset ? " onclick='_calShift(0)' data-tip='Instant.\nBack to this week.'" : "") + ">" + _calWeekLabel(mon, sun) + "</div>" +
         "<button class='cr-btn' onclick='_calShift(1)' aria-label='Next week'>›</button>" +
         "<span class='cr-sp'></span>" +
         // STUDENTS ▾ is the dropdown itself: the list, a box to type in, the Schedule window on a pick
         "<span class='cr-dd' id='calPick'>" +
-          "<span class='cr-cap cr-ddlab' onclick='_calPickToggle()' data-tip='Opens a student\'s next 12 weeks.'>Students ▾</span>" +
+          "<span class='cr-cap cr-ddlab' onclick='_calPickToggle()' data-tip='Instant.\nOpens a student&#39;s next 12 weeks.'>Students ▾</span>" +
           "<span class='cr-ddpanel'><input class='rpm-field' id='calPickIn' placeholder='Type to find…' autocomplete='off' oninput='_calPickHi=0;_calPickRender()' onkeydown='_calPickKey(event)'>" +
           "<span class='cash-dd-list' id='calPickList' hidden></span></span>" +
         "</span>" +
@@ -496,14 +496,14 @@ function _calRenderShell(mon) {
         "<span class='cr-vents'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>" +
         // the New event switch and the input jack on the left, the calendar buttons squeezed together on the right (user, 2026-11-04; fake knobs removed)
         "<span class='cr-sp'></span><span class='cr-pair cal-cal-btns'>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"birthdays\")'></button><span class='cr-cap'>Birthdays</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('doctors') ? " lit" : "") + "' data-cal='doctors' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"doctors\")'></button><span class='cr-cap'>Doctors</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('personal') ? " lit" : "") + "' data-cal='personal' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"personal\")'></button><span class='cr-cap'>Personal</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('biweekly') ? " lit" : "") + "' data-cal='biweekly' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"biweekly\")'></button><span class='cr-cap'>Biweekly</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('gigs') ? " lit" : "") + "' data-cal='gigs' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"gigs\")'></button><span class='cr-cap'>Gigs</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('trial') ? " lit" : "") + "' data-cal='trial' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"trial\")'></button><span class='cr-cap'>Trial</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('weekly') ? " lit" : "") + "' data-cal='weekly' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"weekly\")'></button><span class='cr-cap'>Weekly</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('holidays') ? " lit" : "") + "' data-cal='holidays' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"holidays\")'></button><span class='cr-cap'>Holidays</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' data-tip='Instant.\nShows or hides the Birthdays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"birthdays\")'></button><span class='cr-cap'>Birthdays</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('doctors') ? " lit" : "") + "' data-cal='doctors' data-tip='Instant.\nShows or hides the Doctors calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"doctors\")'></button><span class='cr-cap'>Doctors</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('personal') ? " lit" : "") + "' data-cal='personal' data-tip='Instant.\nShows or hides the Personal calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"personal\")'></button><span class='cr-cap'>Personal</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('biweekly') ? " lit" : "") + "' data-cal='biweekly' data-tip='Instant.\nShows or hides the Biweekly calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"biweekly\")'></button><span class='cr-cap'>Biweekly</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('gigs') ? " lit" : "") + "' data-cal='gigs' data-tip='Instant.\nShows or hides the Gigs calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"gigs\")'></button><span class='cr-cap'>Gigs</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('trial') ? " lit" : "") + "' data-cal='trial' data-tip='Instant.\nShows or hides the Trial calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"trial\")'></button><span class='cr-cap'>Trial</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('weekly') ? " lit" : "") + "' data-cal='weekly' data-tip='Instant.\nShows or hides the Weekly calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"weekly\")'></button><span class='cr-cap'>Weekly</span></span>" +
+        "<span class='cr-col'><button class='cr-pb" + (_calShown('holidays') ? " lit" : "") + "' data-cal='holidays' data-tip='Instant.\nShows or hides the Holidays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"holidays\")'></button><span class='cr-cap'>Holidays</span></span>" +
         "</span>" +
         "</div>" +
     "</div>" +

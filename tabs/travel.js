@@ -590,7 +590,7 @@ function _travelRenderReview() {
         "</div>" +
       "</div>" +
     "</div>" +
-    "<button id='travelBackToPrev' class='link-btn' data-tip='Back to the plan.\nDates and buffer stay as set.' data-tip-left data-tip-wrap>← Back</button>";
+    "<button id='travelBackToPrev' class='link-btn' data-tip='Instant.\nBack to the plan.\nDates and buffer stay as set.' data-tip-left data-tip-wrap>← Back</button>";
   section.appendChild(hdr);
   document.getElementById('travelBackToPrev').onclick = _travelRenderPlan;
 

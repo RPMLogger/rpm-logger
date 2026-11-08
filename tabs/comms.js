@@ -380,7 +380,7 @@ function commsPaintChip() {
   chip.hidden = !commsPaneImage;
   chip.innerHTML = !commsPaneImage ? "" :
     (commsPaneImage.pdf ? commsFileCard({ name: commsPaneImage.name + " · " + commsSizeLabel(commsPaneImage.size) }) : '<img src="' + commsPaneImage.dataUrl + '" alt="">') +
-    '<button title="Remove" onclick="commsPaneImage = null; commsPaintChip()">✕</button>';
+    '<button data-tip="Instant.\nRemoves the attachment." onclick="commsPaneImage = null; commsPaintChip()">✕</button>';
 }
 
 // Drop a picture anywhere on the conversation side.
@@ -795,7 +795,7 @@ function commsEnsureExtras() {
           // Top of the list like Messages (user, 2026-11-01): the compose button
           // (New text) alone at the right, then a full-width search with a magnifier.
           '<div class="cm-msgr-list"><div class="cm-list-top">' +
-            '<span class="cm-new"><button class="cm-compose" title="New text" aria-label="New text" onclick="commsToggleNewText(event)">' + COMMS_COMPOSE_ICON + '</button>' +
+            '<span class="cm-new"><button class="cm-compose" data-tip="Opens a window.\nNew text." aria-label="New text" onclick="commsToggleNewText(event)">' + COMMS_COMPOSE_ICON + '</button>' +
             '<div class="cm-new-list" id="cmNewList" hidden></div></span></div>' +
             '<label class="cm-search-wrap">' + COMMS_SEARCH_ICON +
             '<input class="cm-search" id="cmSearch" type="search" placeholder="Search" oninput="renderCommsStudents()"></label>' +
@@ -807,7 +807,7 @@ function commsEnsureExtras() {
             '<div class="cm-attach-chip" id="cmPaneChip" hidden></div>' +
             '<div class="cm-msgr-input">' +
               // Screenshots (user, 2026-11-01): +, paste (⌘V) or drop a picture on the conversation.
-              '<button class="cm-attach" title="Add a picture or PDF" aria-label="Add a picture or PDF" onclick="document.getElementById(\'cmPaneFile\').click()">+</button>' +
+              '<button class="cm-attach" data-tip="Opens elsewhere.\nPick a picture or PDF to send." aria-label="Add a picture or PDF" onclick="document.getElementById(\'cmPaneFile\').click()">+</button>' +
               '<input type="file" id="cmPaneFile" accept="image/*,application/pdf" hidden onchange="commsPickImage(this.files[0]); this.value=\'\'">' +
               '<textarea class="cm-reply" id="cmPaneReply" rows="1" placeholder="Text message · RPM number" ' +
               'onpaste="commsPasteImage(event)" ' +

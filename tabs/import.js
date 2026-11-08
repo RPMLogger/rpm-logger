@@ -1751,7 +1751,7 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
     // Notes first (2026-10-06): what to mention, before anything else.
     // Today leaves Notes out (2026-10-09).
     (o.noNotes ? '' : _imSec('Notes', '', '', '<div class="im-notes-in">' + _imNotesBoxHtml(detail, name) + '</div>')) +
-    _imSec('History', '<button class="link-btn im-sort-btn" onclick="_imToggleSort()" data-tip="Flips the list.">' + (_imNewestFirst() ? 'Newest' : 'Oldest') + '</button>',
+    _imSec('History', '<button class="link-btn im-sort-btn" onclick="_imToggleSort()" data-tip="Instant.\nFlips the list.">' + (_imNewestFirst() ? 'Newest' : 'Oldest') + '</button>',
       '', items.length ? html + more : 'No lessons logged yet') +
     _imSec('Last homework', '', '', '<div class="db-files db-files-in">' + _imLastHwHtml(hw, name) + '</div>') +
     (o.data ? _imDataHtml(name) : '') +
@@ -1787,12 +1787,12 @@ function _imDoHtml(name, day) {
       // Private (2026-10-25): saved after "TEACHER:" in the log's cell, never emailed.
       _imSub('Notes to teacher <span class="im-mail-opt">(optional)</span>', '', ' im-teach-box',
         '<div class="ll-wrap"><div class="ll-rows" id="imTeachRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
-        '<button type="button" class="link-btn tl-mic" id="imTeachMic" data-tip="Starts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
+        '<button type="button" class="link-btn tl-mic" id="imTeachMic" data-tip="Instant.\nStarts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
         '<button type="button" class="ll-add" id="imTeachAdd" data-tip="Instant.&#10;Adds a row. Enter does too.">' + llAddInner() + '</button>') +
       // In the email only, under NOTES (2026-10-25): "Bring your capo next time."
       _imSub('Notes to the student <span class="im-mail-opt">(optional)</span>', '', ' im-teach-box',
         '<div class="ll-wrap"><div class="ll-rows" id="imStuRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
-        '<button type="button" class="link-btn tl-mic" id="imStuMic" data-tip="Starts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
+        '<button type="button" class="link-btn tl-mic" id="imStuMic" data-tip="Instant.\nStarts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
         '<button type="button" class="ll-add" id="imStuAdd" data-tip="Instant.&#10;Adds a row. Enter does too.&#10;Each row is a sentence in the email.">' + llAddInner() + '</button>') +
     '</div><div id="imTermsCol"></div></div>' +
     '</div>' +
@@ -1873,14 +1873,14 @@ function _imDoHtml(name, day) {
       '</div>' +
       '<div class="im-log-foot im-log-foot-all im-mail-foot"><span class="ll-state" id="imMailStatus"></span>' +
         '<button type="button" class="link-btn" id="imMailRedo" data-tip="Instant.&#10;Throws away your edits:&#10;the email is written from the log again." data-tip-left>Start over</button>' +
-        '<button type="button" class="link-btn" id="imMailPrev" data-tip="Shows the email here, as it will go.&#10;Press again to hide it." data-tip-left>' + DETAILS_ICON + '<span>Preview</span></button>' +
-        '<button type="button" class="link-btn bright" id="imMailSend" disabled data-tip="Sends this email.&#10;Waits for the steps before it." data-tip-left>' + SEND_ICON + '<span>Send</span></button></div>' +
+        '<button type="button" class="link-btn" id="imMailPrev" data-tip="Instant.\nShows the email here, as it will go.&#10;Press again to hide it." data-tip-left>' + DETAILS_ICON + '<span>Preview</span></button>' +
+        '<button type="button" class="link-btn bright" id="imMailSend" disabled data-tip="Instant.\nSends this email.&#10;Waits for the steps before it." data-tip-left>' + SEND_ICON + '<span>Send</span></button></div>' +
       '<iframe class="im-msg-frame" id="imMailFrame" title="The email" hidden></iframe>' +
     '</div>' +
     '</div>' +
     '<div class="im-log-foot im-log-foot-all im-pg-nav" style="margin-top:22px"><span class="ll-state"></span>' +
       '<button type="button" class="link-btn" id="imPgBack" onclick="_imPageGo(-1)" data-tip="Instant.&#10;The page before." data-tip-left>Back</button>' +
-      '<button type="button" class="link-btn bright" id="imPgNext" onclick="_imPageGo(1)" data-tip="Saves this page and turns to the next.&#10;Waits till this page is done." data-tip-left>Next</button></div>' +
+      '<button type="button" class="link-btn bright" id="imPgNext" onclick="_imPageGo(1)" data-tip="Instant.\nSaves this page and turns to the next.&#10;Waits till this page is done." data-tip-left>Next</button></div>' +
     '<div id="imFinDone" class="im-saving rpm-load-center rpm-keep"></div>');   // in the middle of the window (user, 2026-10-21)
 }
 // One answer of a two-way pick, no box (user, 2026-10-25): a full circle, and
@@ -2004,7 +2004,7 @@ function _imLastHwHtml(hw, name) {
   var n2 = _auEsc(JSON.stringify(name));
   return out + '<div class="im-hw-btns">' +
     (r && (r.files || []).length ? '<button class="link-btn im-more" onclick="_imToggleHw(' + n2 + ')">' + (_imHwHide[k] ? 'Show files' : 'Hide') + '</button>' : '') +
-    '<button class="link-btn im-more" onclick="_imToggleDbx(' + n2 + ')" data-tip="Reads their Dropbox folder.">' + (x.open ? 'Show less' : 'Show more') + '</button></div>';
+    '<button class="link-btn im-more" onclick="_imToggleDbx(' + n2 + ')" data-tip="Instant.\nReads their Dropbox folder.">' + (x.open ? 'Show less' : 'Show more') + '</button></div>';
 }
 var _imDbx = {};   // key → { open, loading, items, error }: Show more's Dropbox list
 function _imToggleDbx(name) {
@@ -2072,14 +2072,14 @@ function _imReschedule(name, o) {
       "<label class='field-label st-gap'>Reason (optional)</label>" +
       "<input id='imRsNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" + _stReasonPills('imRsReasons') +
       "<div class='ll-acts st-foot'><span class='ll-state' id='imRsState' style='flex:1'></span>" +
-        "<button class='link-btn bright' id='imRsConfirmBtn' onclick='_stPickConfirm(this)' data-tip='Moves only this lesson in Google Calendar\nand logs it to Reschedule Logs.' data-tip-left>Confirm move</button></div></div>");
+        "<button class='link-btn bright' id='imRsConfirmBtn' onclick='_stPickConfirm(this)' data-tip='Instant.\nMoves only this lesson in Google Calendar\nand logs it to Reschedule Logs.' data-tip-left>Confirm move</button></div></div>");
   _stWireWho(w, 'imRsWho', function(v) { _stPickWho = v; });
   _stWireReasons(w, 'imRsReasons', 'imRsNote');
   _stPickWho = 'Student';
   _rpmTpStyle();
   // Undo on the icon's line, top right (user, 2026-10-29): one step back at a time.
   var ic = w.querySelector('.win-icon');
-  if (ic) { ic.parentNode.classList.add('im-rs-iconrow'); ic.parentNode.insertAdjacentHTML('beforeend', "<button class='link-btn im-rs-undo' id='imRsUndo' disabled onclick='_stPickUndo()' data-tip='Takes back the last step on the weeks.' data-tip-left>Undo</button>"); }
+  if (ic) { ic.parentNode.classList.add('im-rs-iconrow'); ic.parentNode.insertAdjacentHTML('beforeend', "<button class='link-btn im-rs-undo' id='imRsUndo' disabled onclick='_stPickUndo()' data-tip='Instant.\nTakes back the last step on the weeks.' data-tip-left>Undo</button>"); }
   w.querySelector('.st-win').classList.add('im-rs-win');
   _stPickSel = null;   // a fresh pick each time (student.js)
   _imRsLoad(name, o || {});
@@ -2171,7 +2171,7 @@ function _imNotes(d, name) {
       '<div class="im-note-t">“' + inqEsc(d.wrongNumberFlag.text || '') + '”</div>' +
       '<div class="im-note-d">' + inqEsc(d.wrongNumberFlag.flaggedAt || '') + '</div>' +
       '<div class="im-note-a"><span class="im-note-d">Remind them: RPM number vs personal, keep chat on personal.</span>' +
-        '<button class="link-btn" onclick="_imClearWrong(this, ' + _auEsc(JSON.stringify(name)) + ')" data-tip="Clears the warning.\nPress once you\'ve reminded them.">Reminded ✓</button></div>' });
+        '<button class="link-btn" onclick="_imClearWrong(this, ' + _auEsc(JSON.stringify(name)) + ')" data-tip="Instant.\nClears the warning.\nPress once you\'ve reminded them.">Reminded ✓</button></div>' });
   }
   if (d.paymentStatus && d.paymentStatus !== 'Paid' && d.paymentStatus !== '—') {
     // Owes 2 blocks = a quiet warning, 3+ = red alert (2026-10-12; 3 is where
