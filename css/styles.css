@@ -2835,56 +2835,56 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
    become flat sections one under the other. Section names red like MON; labels
    in the clock times' dark grey caps; values at Intake brightness in one column
    (the key ones a step brighter); a line between sections, no gold anywhere. */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) > .ld-head { margin-bottom: 30px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-cards { display: block; margin-bottom: 32px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-card { background: none; border: none; border-radius: 0; padding: 0; margin: 0; display: block; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-card + .ld-card { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; color: var(--accent); margin-bottom: 10px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); align-items: center; gap: 0; padding: 4px 0; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-row .ld-l { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-row .ld-v { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); text-align: left; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-row.lead .ld-v { color: var(--t-bright); }   /* the numbers that matter: brighter, not amber */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-vsub { color: var(--t-faint); margin: 0 10px 0 0; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-rule { border: none; margin: 6px 0; }   /* a small gap inside a section, the line is between sections */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-sublabel { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 4px 0 2px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-note { margin: 6px 0 0; padding: 0; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-row.pick { padding: 3px 0; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-pick { justify-self: start; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-foot { justify-content: flex-start; margin: 10px 0 0 170px; padding: 0; }   /* Reset under the values */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) #loadRatesCard .ld-row.lead .ld-v { color: var(--t-normal); }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) #estimatorTable .ld-row .ld-v { color: var(--t-faint); }   /* the Estimator's two incomes in the monthly prices' dark grey (2026-10-10) */   /* Estimator's Gregorian income and the Weekly/Biweekly rates the same grey as the rows around them (2026-10-10) */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-raise { margin-bottom: 6px; }   /* Last raise row at the top, a small gap before the prices */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-vmo { margin-left: 10px; color: var(--t-faint); }   /* the monthly after the price and a dash, the labels' dark grey */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) > .ld-head { margin-bottom: 30px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-cards { display: block; margin-bottom: 32px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-card { background: none; border: none; border-radius: 0; padding: 0; margin: 0; display: block; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-card + .ld-card { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; color: var(--accent); margin-bottom: 10px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); align-items: center; gap: 0; padding: 4px 0; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-row .ld-l { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-row .ld-v { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); text-align: left; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-row.lead .ld-v { color: var(--t-bright); }   /* the numbers that matter: brighter, not amber */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-vsub { color: var(--t-faint); margin: 0 10px 0 0; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-rule { border: none; margin: 6px 0; }   /* a small gap inside a section, the line is between sections */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-sublabel { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 4px 0 2px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-note { margin: 6px 0 0; padding: 0; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-row.pick { padding: 3px 0; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-pick { justify-self: start; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-foot { justify-content: flex-start; margin: 10px 0 0 170px; padding: 0; }   /* Reset under the values */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) #loadRatesCard .ld-row.lead .ld-v { color: var(--t-normal); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) #estimatorTable .ld-row .ld-v { color: var(--t-faint); }   /* the Estimator's two incomes in the monthly prices' dark grey (2026-10-10) */   /* Estimator's Gregorian income and the Weekly/Biweekly rates the same grey as the rows around them (2026-10-10) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-raise { margin-bottom: 6px; }   /* Last raise row at the top, a small gap before the prices */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-vmo { margin-left: 10px; color: var(--t-faint); }   /* the monthly after the price and a dash, the labels' dark grey */
 /* 2026-10-10: Raised on date, Weekly/Biweekly counts and Load's Gregorian income in the dark grey; Load's Total income bright. */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-raise .ld-v, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) #loadWeekly, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) #loadBiweekly, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) #loadGregorian { color: var(--t-faint); }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) #loadIncome { color: var(--t-bright); }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) > .ld-head { margin-bottom: 10px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) > .ld-icon { margin: 0 0 26px; }   /* the stats icon under the title, window style */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-rule.ld-gap { margin: 18px 0; }   /* 2026 inquiries: the two rate groups further apart */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) > .ld-icon .win-icon { height: 24px; margin-left: 2px; }   /* om-110 (user, 2026-10-23): smaller (was 34px), nudged in so its axis sits under the title's D */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-card + .ld-card { margin-top: 24px; padding-top: 24px; }   /* the same room above and below each line between sections (2026-10-10) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-raise .ld-v, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) #loadWeekly, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) #loadBiweekly, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) #loadGregorian { color: var(--t-faint); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) #loadIncome { color: var(--t-bright); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) > .ld-head { margin-bottom: 10px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) > .ld-icon { margin: 0 0 26px; }   /* the stats icon under the title, window style */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-rule.ld-gap { margin: 18px 0; }   /* 2026 inquiries: the two rate groups further apart */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) > .ld-icon .win-icon { height: 24px; margin-left: 2px; }   /* om-110 (user, 2026-10-23): smaller (was 34px), nudged in so its axis sits under the title's D */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-card + .ld-card { margin-top: 24px; padding-top: 24px; }   /* the same room above and below each line between sections (2026-10-10) */
 /* Skips card group look (user 2026-10-23): small caps heading with a line under it,
    faint lines between rows, no line between sections. */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-card + .ld-card { border-top: none; padding-top: 0; margin-top: 28px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 0; color: var(--t-text); }   /* Folder audit's Bebas Neue and grey (user, 2026-10-23; was DM Mono 10px in Skips' amber) */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-row { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-row.pick { padding: 6px 0; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-rule { display: none; }   /* the row lines already split them */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) #loadTable .ld-row .ld-v { color: var(--t-faint); }   /* Load's numbers all one grey and size; the headline at the top carries them (user 2026-10-23; was big Bebas, then amber) */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-title-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-title-sum .ld-sum { font-size: 12px; letter-spacing: .5px; }   /* 24 STUDENTS · 17.5 NORMALIZED · $6,940 on Load's title line, right, the Skips tab's Total skips line (user 2026-10-23) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-card + .ld-card { border-top: none; padding-top: 0; margin-top: 28px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 0; color: var(--t-text); }   /* Folder audit's Bebas Neue and grey (user, 2026-10-23; was DM Mono 10px in Skips' amber) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-row { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-row.pick { padding: 6px 0; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-rule { display: none; }   /* the row lines already split them */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) #loadTable .ld-row .ld-v { color: var(--t-faint); }   /* Load's numbers all one grey and size; the headline at the top carries them (user 2026-10-23; was big Bebas, then amber) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-title-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-title-sum .ld-sum { font-size: 12px; letter-spacing: .5px; }   /* 24 STUDENTS · 17.5 NORMALIZED · $6,940 on Load's title line, right, the Skips tab's Total skips line (user 2026-10-23) */
 /* The Estimator's pickers a step smaller (2026-10-10). */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-pick { padding: 1px; border-radius: 7px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-pb { width: 18px; font-size: 11px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-pv { min-width: 34px; font-size: 10px; padding: 2px 5px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-pick { padding: 1px; border-radius: 7px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-pb { width: 18px; font-size: 11px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-pv { min-width: 34px; font-size: 10px; padding: 2px 5px; }
 /* Dashboard + Trial Analysis sections boxed like Help's Data tracked windows (user 2026-10-23):
    2px rounded border, faint lines between rows, none under the last. */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-card { border: 2px solid var(--border); border-radius: var(--radius-card); padding: 4px 14px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-card + .ld-card { border-top: 2px solid var(--border); padding-top: 4px; margin-top: 22px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-card, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-card + .ld-card { padding-top: 0; overflow: hidden; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-title { margin: 0 -14px; padding: 12px 14px 10px; background: rgba(255,255,255,0.035); border-bottom: 1px solid var(--border); }   /* a washed header band across the box top */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-card > .ld-row:last-child, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-card > div > .ld-row:last-child, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-card > .ld-row:nth-last-child(2):has(+ .ld-foot) { border-bottom: 0; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #rvSummaryBody, #rvCurSum) .ld-foot { margin-bottom: 12px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-card { border: 2px solid var(--border); border-radius: var(--radius-card); padding: 4px 14px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-card + .ld-card { border-top: 2px solid var(--border); padding-top: 4px; margin-top: 22px; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-card, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-card + .ld-card { padding-top: 0; overflow: hidden; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-title { margin: 0 -14px; padding: 12px 14px 10px; background: rgba(255,255,255,0.035); border-bottom: 1px solid var(--border); }   /* a washed header band across the box top */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-card > .ld-row:last-child, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-card > div > .ld-row:last-child, :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-card > .ld-row:nth-last-child(2):has(+ .ld-foot) { border-bottom: 0; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #rvSummaryBody, #rvCurSum) .ld-foot { margin-bottom: 12px; }
 #tab-trialanalysis > .ld-icon .win-icon { height: 34px; margin-left: -3px; }   /* om-109 bars: bigger, its axis pulled flush with the title (user 2026-10-23) */
 #tab-reviews > .ld-icon { margin: 0 0 26px; }   /* Reviews: om-118 bars under Dashboard, om-120 under Students analysis (user, 2026-10-26) */
 #tab-reviews > .ld-icon .win-icon { height: 34px; width: auto; margin-left: -3px; }
@@ -3928,8 +3928,8 @@ body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http:
 :is(#logHwNothing, #logHwSentBtn, #logHwPhoneBtn, #imNoChangeBtn).pressed { color: var(--bg, #111) !important; background: var(--muted) !important; border-color: var(--muted) !important; }
 :is(#todoContent, #notesContent) .tdo-box:not(.tdo-done) > .td-wk-icon { margin-bottom: 24px; }   /* a bit more room between the icon and row 1 (user, 2026-10-29; was 18) */
 /* Dashboard boxes in Payments' card look: #1a1a1a fill, 1px #2a2a2a frame on the #141414 panel (user, 2026-10-30; were unfilled 2px frames) */
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory) .ld-card,
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory) .ld-card + .ld-card,
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive) .ld-card,
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive) .ld-card + .ld-card,
 #travelBody .tv-box, #travelBody .tv-sum-card, #travelBody #travelCalMonths { background-color: var(--surface); border: 1px solid var(--border); }
 /* Students list cards in the Sheets tab's card look (.sheet-link, user, 2026-10-30): 600px centred, ~70px tall,
    10px corners, 10px apart, grey 3px left edge, paper grain, names in Bebas Neue. A "Finances"-style heading
