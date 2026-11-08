@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=1227">
-  <link rel="stylesheet" href="css/goals.css?v=1227">
-  <link rel="stylesheet" href="css/lessontimer.css?v=1227">
+  <link rel="stylesheet" href="css/styles.css?v=1228">
+  <link rel="stylesheet" href="css/goals.css?v=1228">
+  <link rel="stylesheet" href="css/lessontimer.css?v=1228">
 </head>
 <body>
 <div class="container">
@@ -17,7 +17,7 @@
     <img src="img/portal-logo.png" alt="Red Pick Music">
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1227</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1228</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -136,8 +136,6 @@
   <div class="sb-scrim" onclick="toggleSidebar(false)"></div>
 
   <!-- HOME (2026-10-24): the opening page: Today / Students / Calendar buttons and a student-name box -->
-  <!-- Home's rack (user, 2026-11-07): the Calendar's rack unit under the amp head: one small screw each side, the grille, then the Comms rack's buttons to the business tabs (lit while that tab's badge shows); shown only on Home -->
-  <div class="home-rack"><span class="hr-bolt" style="left:10px"></span><span class="hr-bolt" style="right:10px"></span><div class="hr-row"><span class='hr-knob'><span class='hr-ticks'></span><span class='hr-kn'></span></span><span class='hr-knob'><span class='hr-ticks'></span><span class='hr-kn'></span></span><span class="hr-vents"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="hr-sp"></span><span class="hr-pair"><span class="hr-col"><button class="hr-pb" data-k="comms" id="hrCommsBtn" onclick="switchTab('comms')" data-tip="Instant.&#10;Opens Comms. Lit when a new text comes in."></button><span class="hr-cap">Comms</span></span><span class="hr-col"><button class="hr-pb" data-k="inquiries" onclick="switchTab('inquiries')" data-tip="Instant.&#10;Opens Inquiries. Lit while one waits."></button><span class="hr-cap">Inquiries</span></span><span class="hr-col"><button class="hr-pb" data-k="initiate" onclick="switchTab('initiate')" data-tip="Instant.&#10;Opens Initiate. Lit while one waits."></button><span class="hr-cap">Initiate</span></span><span class="hr-col"><button class="hr-pb" data-k="trial" onclick="switchTab('trial')" data-tip="Instant.&#10;Opens Trial."></button><span class="hr-cap">Trial</span></span><span class="hr-col"><button class="hr-pb" data-k="emails" onclick="switchTab('emails')" data-tip="Instant.&#10;Opens Emails. Lit while one is unread."></button><span class="hr-cap">Emails</span></span><span class="hr-col"><button class="hr-pb" data-k="financial2" onclick="switchTab('financial2')" data-tip="Instant.&#10;Opens Financial. Lit when a check needs me."></button><span class="hr-cap">Financial</span></span></span></div></div>
   <div class="tab-panel" id="tab-home">
     <span class="au-spk hm-spk" aria-hidden="true"><span class="au-cap"></span></span>   <!-- one faint speaker behind everything, the Audit page's (user, 2026-11-05) -->
     <!-- Today, Students, Calendar: regular portal buttons in a row at the top (user, 2026-10-24; were big stacked tiles) -->
@@ -783,54 +781,54 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=1227"></script>
-<script src="core/storage.js?v=1227"></script>
-<script src="core/utils.js?v=1227"></script>
-<script src="core/dialog.js?v=1227"></script>
-<script src="core/api.js?v=1227"></script>
-<script src="core/secalert.js?v=1227"></script>
-<script src="core/magnifier.js?v=1227"></script>
-<script src="core/nav.js?v=1227"></script>
+<script src="core/state.js?v=1228"></script>
+<script src="core/storage.js?v=1228"></script>
+<script src="core/utils.js?v=1228"></script>
+<script src="core/dialog.js?v=1228"></script>
+<script src="core/api.js?v=1228"></script>
+<script src="core/secalert.js?v=1228"></script>
+<script src="core/magnifier.js?v=1228"></script>
+<script src="core/nav.js?v=1228"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=1227"></script>
-<script src="tabs/lessons.js?v=1227"></script>
-<script src="tabs/payments.js?v=1227"></script>
-<script src="tabs/general.js?v=1227"></script>
-<script src="tabs/financial.js?v=1227"></script>
-<script src="tabs/inquiries.js?v=1227"></script>
-<script src="tabs/inqarchive.js?v=1227"></script>
-<script src="tabs/comms.js?v=1227"></script>
-<script src="tabs/announce.js?v=1227"></script>
-<script src="tabs/notes.js?v=1227"></script>
-<script src="tabs/todo.js?v=1227"></script>
-<script src="tabs/availability.js?v=1227"></script>
-<script src="tabs/travel.js?v=1227"></script>
-<script src="tabs/tripsummary.js?v=1227"></script>
-<script src="tabs/triphistory.js?v=1227"></script>
-<script src="tabs/skips.js?v=1227"></script>
-<script src="tabs/student.js?v=1227"></script>
-<script src="tabs/ctrl.js?v=1227"></script>
-<script src="tabs/emails.js?v=1227"></script>
-<script src="tabs/dropbox.js?v=1227"></script>
-<script src="tabs/import.js?v=1227"></script>
-<script src="tabs/today.js?v=1227"></script>
-<script src="tabs/home.js?v=1227"></script>
-<script src="tabs/trial.js?v=1227"></script>
-<script src="tabs/ending.js?v=1227"></script>
-<script src="tabs/reviews.js?v=1227"></script>
-<script src="tabs/financial2.js?v=1227"></script>
-<script src="tabs/studentline.js?v=1227"></script>
-<script src="tabs/calendar.js?v=1227"></script>
-<script src="tabs/fixedcal.js?v=1227"></script>
-<script src="tabs/slotchange.js?v=1227"></script>
-<script src="tabs/help.js?v=1227"></script>
-<script src="tabs/holidays.js?v=1227"></script>
-<script src="tabs/archive.js?v=1227"></script>
-<script src="tabs/texttemplates.js?v=1227"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
-<script src="tabs/goals.js?v=1227"></script>
-<script src="tabs/logtimer.js?v=1227"></script>
-<script src="tabs/lessontimer.js?v=1227"></script>
+<script src="tabs/icons.js?v=1228"></script>
+<script src="tabs/lessons.js?v=1228"></script>
+<script src="tabs/payments.js?v=1228"></script>
+<script src="tabs/general.js?v=1228"></script>
+<script src="tabs/financial.js?v=1228"></script>
+<script src="tabs/inquiries.js?v=1228"></script>
+<script src="tabs/inqarchive.js?v=1228"></script>
+<script src="tabs/comms.js?v=1228"></script>
+<script src="tabs/announce.js?v=1228"></script>
+<script src="tabs/notes.js?v=1228"></script>
+<script src="tabs/todo.js?v=1228"></script>
+<script src="tabs/availability.js?v=1228"></script>
+<script src="tabs/travel.js?v=1228"></script>
+<script src="tabs/tripsummary.js?v=1228"></script>
+<script src="tabs/triphistory.js?v=1228"></script>
+<script src="tabs/skips.js?v=1228"></script>
+<script src="tabs/student.js?v=1228"></script>
+<script src="tabs/ctrl.js?v=1228"></script>
+<script src="tabs/emails.js?v=1228"></script>
+<script src="tabs/dropbox.js?v=1228"></script>
+<script src="tabs/import.js?v=1228"></script>
+<script src="tabs/today.js?v=1228"></script>
+<script src="tabs/home.js?v=1228"></script>
+<script src="tabs/trial.js?v=1228"></script>
+<script src="tabs/ending.js?v=1228"></script>
+<script src="tabs/reviews.js?v=1228"></script>
+<script src="tabs/financial2.js?v=1228"></script>
+<script src="tabs/studentline.js?v=1228"></script>
+<script src="tabs/calendar.js?v=1228"></script>
+<script src="tabs/fixedcal.js?v=1228"></script>
+<script src="tabs/slotchange.js?v=1228"></script>
+<script src="tabs/help.js?v=1228"></script>
+<script src="tabs/holidays.js?v=1228"></script>
+<script src="tabs/archive.js?v=1228"></script>
+<script src="tabs/texttemplates.js?v=1228"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
+<script src="tabs/goals.js?v=1228"></script>
+<script src="tabs/logtimer.js?v=1228"></script>
+<script src="tabs/lessontimer.js?v=1228"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -874,13 +872,6 @@
       return b.style.display !== "none" && b.textContent.trim() !== "";
     });
     document.getElementById("sbBurger").classList.toggle("has-dot", any);   // ☰
-    // Home's rack buttons (2026-11-07): lit while that tab's badge shows.
-    var hr = { inquiries: "inqBadge", initiate: "initNavBadge", emails: "emNavBadge", financial2: "finNavBadge" };
-    document.querySelectorAll(".home-rack .hr-pb").forEach(function(btn) {
-      if (!hr[btn.dataset.k]) return;   // Comms lights on a NEW text (tabs/comms.js), Trial has no badge
-      var bd = document.getElementById(hr[btn.dataset.k]);
-      btn.classList.toggle("lit", !!(bd && bd.style.display !== "none" && bd.textContent.trim() !== ""));
-    });
   }
   new MutationObserver(refreshNavDots).observe(document.querySelector(".tabs"), { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["style"] });
   refreshNavDots();
