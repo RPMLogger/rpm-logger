@@ -3949,36 +3949,37 @@ body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http:
 /* ─── AMP HEAD (2026-10-30, user's idea): the logo box is a minimal amp head, flat like
    the user's icon: dark body, a dark rounded inner line, the box background inside, a control strip holding ☰ (left),
    6 knob buttons (the most-used tabs, labelled) centred in the strip, edge to edge, Magnifier and Home (right), a handle on top and two feet. Drawn in code. Delete this block to undo. */
-html body .header { margin: 97px 0 107px; }   /* 20px more room above the handle (user, 2026-10-30); feet 6px above the tab box's amp edge (user, 2026-10-30); the head's control strip + feet; 20px more room inside top and bottom (user, 2026-10-30) */
+html body .header { margin: 120.5px 0 130.5px; }   /* amp ×1.36 so the control strip = the rack's height incl. its double border (user, 2026-11-08; was 97/88); feet stand on the box under the amp (user, 2026-11-08; was 107); 20px more room above the handle (user, 2026-10-30); feet 6px above the tab box's amp edge (user, 2026-10-30); the head's control strip + feet; 20px more room inside top and bottom (user, 2026-10-30) */
 html body .header::before {
-  left: 4px; right: 4px; top: -67px; bottom: -72px; border: 1px solid #2c2c2c; border-radius: 10px;   /* the inner line: dark and rounded like the outer edge (user, 2026-10-30) */
+  left: 4px; right: 4px; top: -90.5px; bottom: -114.5px; border: 1px solid #2c2c2c; border-radius: 10px;   /* the inner line: dark and rounded like the outer edge (user, 2026-10-30) */
   box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c;   /* amp body ring: lighter grey between the lines (user, 2026-11-06: dark #0b0b0b tried, reverted) */   /* the amp body around it, its outer edge rounded too */
   background:
-    linear-gradient(#2c2c2c, #2c2c2c) left bottom 53px / 100% 1px no-repeat padding-box,   /* line 5px higher: as much room above the buttons as under (user, 2026-10-31) */
-    linear-gradient(#151515, #151515) left bottom / 100% 53px no-repeat padding-box,
+    linear-gradient(#5e4d2a, #5e4d2a) left bottom 73px / 100% 1.5px no-repeat padding-box,   /* gold line ADDED on top of the grey one, 1.5px, dimmed #9c7d3c → #5e4d2a (user, 2026-11-08) */
+    linear-gradient(#2c2c2c, #2c2c2c) left bottom 72px / 100% 1px no-repeat padding-box,   /* gold piping, 1px and dimmed (user, 2026-11-08: was 2px #d4b067→#8a6a2c) between the top and the control strip, like a real amp (user, 2026-11-08; was a #2c2c2c 1px line) */
+    linear-gradient(#151515, #151515) left bottom / 100% 72px no-repeat padding-box,
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E") padding-box,
     var(--box) padding-box;
 }
-html body .header::after {   /* handle on top, two feet under (feet 13 → 8px tall, top kept at the amp's edge; user, 2026-11-08) */
-  content: ""; position: absolute; left: 0; right: 0; top: -93px; bottom: -90px; z-index: -2; pointer-events: none;
+html body .header::after {   /* handle on top, two feet under (feet 13 → 8px tall, top kept at the amp's edge, darker #101010 / #1e1e1e edge; user, 2026-11-08) */
+  content: ""; position: absolute; left: 0; right: 0; top: -116.5px; bottom: -132.5px; z-index: -2; pointer-events: none;
   /* Handle from the user's second drawing (2026-10-31): low flat end caps with a small step, a long strap bowed up between, thick in the middle and thin at the ends */
   background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27276%27 height=%2722%27%3E%3Cg fill=%27%231e1e1e%27 stroke=%27%232c2c2c%27%3E%3Cpath d=%27M50 15.5 Q141 -3 226 15.5 L226 18.5 Q141 6 50 18.5 Z%27/%3E%3Crect x=%2712.5%27 y=%2716.5%27 width=%2736%27 height=%278%27 rx=%271.5%27/%3E%3Crect x=%27227.5%27 y=%2716.5%27 width=%2736%27 height=%278%27 rx=%271.5%27/%3E%3Crect x=%2746.5%27 y=%2713.5%27 width=%275%27 height=%2710%27 rx=%271%27/%3E%3Crect x=%27224.5%27 y=%2713.5%27 width=%275%27 height=%2710%27 rx=%271%27/%3E%3C/g%3E%3C/svg%3E") center top -1px / 276px 22px no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Cpath d=%27M0 0H34L31.5 5.5Q30.8 8 28 8H6Q3.2 8 2.5 5.5Z%27 fill=%27%231a1a1a%27 stroke=%27%232c2c2c%27/%3E%3C/svg%3E") left 50px bottom 5px / 34px 8px no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Cpath d=%27M0 0H34L31.5 5.5Q30.8 8 28 8H6Q3.2 8 2.5 5.5Z%27 fill=%27%231a1a1a%27 stroke=%27%232c2c2c%27/%3E%3C/svg%3E") right 50px bottom 5px / 34px 8px no-repeat;
+    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Cpath d=%27M0 0H34L31.5 5.5Q30.8 8 28 8H6Q3.2 8 2.5 5.5Z%27 fill=%27%23101010%27 stroke=%27%231e1e1e%27/%3E%3C/svg%3E") left 50px bottom 5px / 34px 8px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%278%27%3E%3Cpath d=%27M0 0H34L31.5 5.5Q30.8 8 28 8H6Q3.2 8 2.5 5.5Z%27 fill=%27%23101010%27 stroke=%27%231e1e1e%27/%3E%3C/svg%3E") right 50px bottom 5px / 34px 8px no-repeat;
 }
 /* ☰, Magnifier and Home sit in the control strip, 26px buttons; strip 34 → 48 tall (user, 2026-10-30) */
-html body .sb-burger { left: 23.5px; top: 171.5px; width: 26px; height: 26px; border-radius: 6px; }   /* ☰'s top bar level with the knobs' pointer tops (user, 2026-10-31) */
+html body .sb-burger { left: 23.5px; top: 228px; width: 26px; height: 26px; border-radius: 6px; }   /* ☰'s top bar level with the knobs' pointer tops (user, 2026-10-31) */
 html body .sb-burger::before { left: 6px; right: 6px; top: 7px; box-shadow: 0 5px currentColor, 0 10px currentColor; }
-html body .header .hdr-home { top: 74.5px; transform: none; right: 23.5px; width: 26px; height: 26px; border-radius: 6px; }
+html body .header .hdr-home { top: 107.5px; transform: none; right: 23.5px; width: 26px; height: 26px; border-radius: 6px; }
 html body .header .hdr-mag { right: 58.5px; }
 html body .header .hdr-home-i { left: 5px; top: 5px; width: 14px; height: 14px; }
 /* The six knobs are buttons to the most-used tabs, a tiny grey caps label under each like a real amp;
    the open tab's knob is turned up (user, 2026-10-31). The row centred in the strip; the EQ icon tried and dropped. */
-html body .header .amp-knobs { position: absolute; left: calc(50% - 17.5px); top: 77px;   /* centred between ☰ and the Magnifier (user, 2026-10-31) */   /* knob + label as one, its middle level with ☰ / Home (user, 2026-10-31) */ transform: translateX(-50%); display: flex; }
-html body .header .amp-knob { width: 52px; padding: 0; border: none; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-html body .header .amp-knob-k { position: relative; box-sizing: border-box; width: 18px; height: 18px; border-radius: 50%; background: color-mix(in srgb, #fff 4%, transparent); border: 1px solid rgba(255,255,255,0.10); transition: border-color .12s, background .12s; }   /* the ☰ / Home button face (user, 2026-10-31) */
-html body .header .amp-knob-k::after { content: ""; position: absolute; left: 7px; top: 2px; width: 2px; height: 6px; border-radius: 1px; background: var(--muted); transform-origin: 1px 6px; transition: transform .2s; }   /* pointer in the icons' grey */
-html body .header .amp-knob-l { font-family: "DM Mono", monospace; font-size: 7px; letter-spacing: .6px; text-transform: uppercase; color: #5e5e5e; line-height: 1; white-space: nowrap; transition: color .12s; }
+html body .header .amp-knobs { position: absolute; left: calc(50% - 17.5px); top: 107.5px;   /* centred between ☰ and the Magnifier (user, 2026-10-31) */   /* knob + label as one, its middle level with ☰ / Home (user, 2026-10-31) */ transform: translateX(-50%); display: flex; }
+html body .header .amp-knob { width: 60px; padding: 0; border: none; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+html body .header .amp-knob-k { position: relative; box-sizing: border-box; width: 22px; height: 22px;   /* the rack's push-button size (user, 2026-11-08; was 18) */ border-radius: 50%; background: color-mix(in srgb, #fff 4%, transparent); border: 1px solid rgba(255,255,255,0.10); transition: border-color .12s, background .12s; }   /* the ☰ / Home button face (user, 2026-10-31) */
+html body .header .amp-knob-k::after { content: ""; position: absolute; left: 9px; top: 2px; width: 2px; height: 8px; border-radius: 1px; background: var(--muted); transform-origin: 1px 8px; transition: transform .2s; }   /* pointer in the icons' grey */
+html body .header .amp-knob-l { font-family: "DM Mono", monospace; font-size: 8px; letter-spacing: 1.2px;   /* the rack's caption size (user, 2026-11-08; was 7px / .6px) */ text-transform: uppercase; color: #5e5e5e; line-height: 1; white-space: nowrap; transition: color .12s; }
 html body .header .amp-knob:hover .amp-knob-k { border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 html body .header .amp-knob:hover .amp-knob-k::after { background: rgba(255,255,255,0.82); }
 html body .header .amp-knob:hover .amp-knob-l { color: #9a9a9a; }
@@ -3992,6 +3993,22 @@ body:has(#tab-payments.active) .amp-knob[data-k=payments] .amp-knob-k::after, bo
 body:has(#tab-today.active) .amp-knob[data-k=today] .amp-knob-l, body:has(#tab-import.active) .amp-knob[data-k=import] .amp-knob-l,
 body:has(#tab-calendar.active) .amp-knob[data-k=calendar] .amp-knob-l, body:has(#tab-audit.active) .amp-knob[data-k=audit] .amp-knob-l,
 body:has(#tab-payments.active) .amp-knob[data-k=payments] .amp-knob-l, body:has(#tab-todo.active) .amp-knob[data-k=todo] .amp-knob-l, body:has(#tab-comms.active) .amp-knob[data-k=comms] .amp-knob-l { color: #9a9a9a; }
+/* RACK HARDWARE on the amp strip (user, 2026-11-08: the amp's flat knobs looked weak under the rack).
+   Knobs = the rack's knob (shaded body, drop shadow, white pointer, tick ring), at 22px; ☰ / Home / Back / Magnifier = the rack's push-button face.
+   Delete this block to undo. */
+html body .header .amp-knob-k, html body .header .amp-knob:hover .amp-knob-k { border: none; background: radial-gradient(circle at 40% 30%, #4a4a4a, #1c1c1c 60%, #0e0e0e); box-shadow: 0 2px 4px #000, inset 0 1px 0 rgba(255,255,255,.1); }
+html body .header .amp-knob-k::after { left: 10px; top: 2px; height: 8px; background: var(--muted); transform-origin: 1px 9px; }   /* pointer in the ☰ / Home / Back icons' grey (user, 2026-11-08) */
+html body .header .amp-knob:hover .amp-knob-k::after { background: rgba(255,255,255,0.82); }
+html body .cr.rpm-rack .cr-kn::after { background: var(--muted); }
+html body .cr.rpm-rack .cr-pb { width: 26px; height: 26px; }   /* Templates / Announcements / Confirmations / Others = the ☰ / Home button size (user, 2026-11-08; was 22) */   /* the Comms + Today racks' knob pointers too */
+html body .header .amp-knob-k::before { content: ""; position: absolute; inset: -6px; pointer-events: none;
+  background: repeating-conic-gradient(from -136deg, #3e3e3e 0 3deg, transparent 3deg 27deg);
+  -webkit-mask: radial-gradient(circle, transparent 13px, #000 14px, #000 16px, transparent 17px), conic-gradient(from -137deg, #000 0 274deg, transparent 274deg); -webkit-mask-composite: source-in;
+  mask: radial-gradient(circle, transparent 13px, #000 14px, #000 16px, transparent 17px), conic-gradient(from -137deg, #000 0 274deg, transparent 274deg); mask-composite: intersect; }
+html body .cr.rpm-rack .cr-ticks { background: repeating-conic-gradient(from -136deg, #3e3e3e 0 2deg, transparent 2deg 27deg); }   /* the Comms + Today racks' tick marks dimmed the same (#555 → #3e3e3e); the Calendar's racks keep theirs */
+html body .sb-burger, html body .header .hdr-home, html body .header .hdr-mag { background: linear-gradient(#3a3a3a, #232323); box-shadow: 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); border: 1px solid #111; border-radius: 3px; }   /* the rack buttons' corners (user, 2026-11-08; was 6px) */
+html body .sb-burger:hover, html body .header .hdr-home:hover, html body .header .hdr-mag:hover { background: linear-gradient(#444, #2a2a2a); border-color: #111; }
+html body .header .hdr-mag.on { background: var(--muted); }
 /* Home and Audit get the amp's border under the head: dark body ring around a dark rounded line; every other tab keeps its plain box (user, 2026-10-30) */
 html body #tab-home.active, html body #tab-audit.active {
   margin-left: 4px; margin-right: 4px; border-color: #2c2c2c; box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c;   /* amp body ring: lighter grey between the lines (user, 2026-11-06: dark #0b0b0b tried, reverted) */ }
@@ -4669,6 +4686,12 @@ html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-c
 .db-all-empty { display: block; }
 #importBody .im-goals-box .gl-none { padding-left: 0; }
 .cm-msgr .cm-none { text-transform: uppercase; }
+html body .header .header-title { color: var(--muted); }   /* no brighter than the Home button's icon grey (user, 2026-11-07; was --t-text) */
+/* The name sunk into the panel, engraved (user, 2026-11-07): dark edge on the letters' top, faint light edge under;
+   no drop shadow on the name any more (that made it float). The red badge keeps its shadow: a part mounted on the panel. */
+html body .header .hdr-name { filter: none; }
+html body .header .header-title, html body .header .header-sub { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
+html body .header .header-title { color: oklch(0.5 0.15 29); }   /* red paint in the engraving, the badge's red, dimmed (user, 2026-11-07) */
 
 /* BACK (2026-11-07): right of Home, same 26px face; the place you were just before. Dimmed when there is none. */
 html body .header .hdr-home.hdr-back { left: 91.5px; right: auto; }
