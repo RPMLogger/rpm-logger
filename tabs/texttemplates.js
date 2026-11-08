@@ -5,9 +5,12 @@
 // conversation with the text in the box; Send goes from there. (No Copy: no more iMessage.)
 
 var TT_ITEMS = [['Zoom lesson', '_tdZmOpen'], ['No show', '_tdNsOpen'], ['Optional schedule', '_ttOsOpen']];
+var _ttWrap = null;   // the Templates button's wrap that opened the menu (Comms rack or Today rack, 2026-11-08)
 function _ttMenu(e) {
   if (e) e.stopPropagation();
-  var list = document.getElementById('cmTplList'); if (!list) return;
+  var w = e && e.target && e.target.closest ? e.target.closest('.tt-menu') : null;
+  _ttWrap = w || document.getElementById('cmTplWrap');
+  var list = _ttWrap ? _ttWrap.querySelector('.cash-dd-list') : null; if (!list) return;
   if (!list.hidden) { _ttMenuClose(); return; }
   list.innerHTML = TT_ITEMS.map(function (x) {
     return "<button type='button' class='cash-dd-opt' onclick='_ttMenuClose();" + x[1] + "()'>" + x[0] + "</button>";
@@ -15,10 +18,10 @@ function _ttMenu(e) {
   list.hidden = false;
   setTimeout(function () { document.addEventListener('mousedown', _ttMenuOut); }, 0);
 }
-function _ttMenuOut(e) { var w = document.getElementById('cmTplWrap'); if (!w || !w.contains(e.target)) _ttMenuClose(); }
+function _ttMenuOut(e) { if (!_ttWrap || !_ttWrap.contains(e.target)) _ttMenuClose(); }
 function _ttMenuClose() {
   document.removeEventListener('mousedown', _ttMenuOut);
-  var list = document.getElementById('cmTplList'); if (list) list.hidden = true;
+  document.querySelectorAll('.tt-menu .cash-dd-list').forEach(function (l) { l.hidden = true; });
 }
 
 // Each window has a student picker (user, 2026-11-05): today's students as chips,

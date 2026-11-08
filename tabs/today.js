@@ -19,6 +19,7 @@ function _tdYmd() {
 
 function initTodayTab() {
   _imIn = 'today';
+  _tdRackEnsure();
   var day = _tdYmd();
   if (_td.day !== day) _td = { day: day, data: {}, sel: null };
   var body = document.getElementById('todayBody');
@@ -531,4 +532,50 @@ function _tdHolOpen(items) {
       if (!box.querySelector('.td-hol-one')) { var x = box.querySelector('.rpm-dlg-x'); if (x) x.click(); }
     };
   });
+}
+
+// ── The Comms rack on Today too (user, 2026-11-08: "put this in todays tab") ──
+// Same strip as Comms (tabs/comms.js): two knobs + grille, then Templates (menu: Zoom lesson,
+// No show, Optional schedule), Announcements, Confirmations, Others. Its own ids (td…) so it
+// doesn't fight the Comms one. Others opens Comms with the Others window on top (that window
+// lives in the Comms tab). Others lights + counts from the inbox the 1-minute watcher reads.
+function _tdRackEnsure() {
+  var panel = document.getElementById('tab-today'), body = document.getElementById('todayBody');
+  if (!panel || !body || document.getElementById('tdRack')) return;
+  if (typeof _calInjectStyle === 'function') _calInjectStyle();
+  var col = function (id, cap, click, tip, extra) {
+    return "<span class='cr-col" + (extra ? " tt-menu" : "") + "'><button class='cr-pb' id='" + id + "' onclick='" + click + "' data-tip='" + tip + "'></button>" +
+      "<span class='cr-cap'>" + cap + "</span>" + (extra || "") + "</span>";
+  };
+  var rack = document.createElement('div');
+  rack.id = 'tdRack';
+  rack.className = 'cal-bar cr rpm-rack cm-rack';
+  rack.innerHTML =
+    "<span class='cr-bolt' style='left:8px;top:10px'></span><span class='cr-bolt' style='left:8px;bottom:10px'></span>" +
+    "<span class='cr-bolt' style='right:8px;top:10px'></span><span class='cr-bolt' style='right:8px;bottom:10px'></span>" +
+    "<div class='cr-row'>" + (typeof CAL_KNOB === 'string' ? CAL_KNOB + CAL_KNOB : '') +
+      "<span class='cr-vents'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>" +
+      "<span class='cr-sp'></span><span class='cr-pair'>" +
+        col('tdTplBtn', 'Templates', '_ttMenu(event)', 'Text templates: Zoom lesson,&#10;No show, Optional schedule.', "<span class='cash-dd-list' hidden></span>") +
+        (typeof annOpen === 'function' ? col('tdAnnBtn', 'Announcements', 'annOpen()', 'Opens a window.&#10;Text all students at once.') : '') +
+        (typeof annOpenConf === 'function' ? col('tdAnnConfBtn', 'Confirmations', 'annOpenConf()', 'Opens a window.&#10;Who confirmed an announcement, Nudge the rest.') : '') +
+        col('tdOthersBtn', "Others <span id='tdOthersCount'>0</span>", '_tdOpenOthers()', 'Opens Comms, then its Others window.&#10;Unknown numbers, applicants,&#10;voicemails, scams.') +
+      "</span></div>";
+  panel.insertBefore(rack, body);
+  _tdRackSync();
+  setInterval(_tdRackSync, 5000);
+}
+function _tdRackSync() {
+  if (typeof commsMessages === 'undefined' || !commsMessages) return;
+  var n = commsMessages.filter(function (m) { return !m.scam && m.source !== 'out' && !m.student && !m.responded; }).length;
+  var c = document.getElementById('tdOthersCount'); if (c) c.textContent = n;
+  var b = document.getElementById('tdOthersBtn'); if (b) b.classList.toggle('lit', n > 0);
+}
+function _tdOpenOthers() {
+  switchTab('comms');
+  var tries = 0;
+  (function go() {
+    if (document.getElementById('commsOthersOverlay')) { commsShowOthers(true); return; }
+    if (++tries < 40) setTimeout(go, 150);
+  })();
 }
