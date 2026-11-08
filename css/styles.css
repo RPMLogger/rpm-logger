@@ -4755,3 +4755,6 @@ html body .header .amp-knob { gap: 9px; }   /* more room between the knob's tick
 /* THE RACK ON EVERY TAB (user, 2026-11-08: "this rack will be everywhere, almost part of the amp"), and the same colour as the amp head:
    the amp's button strip reads 20 (measured); the rack keeps its grain (~+7), so its base is #0d0d0d to land on the same shade (was #101010 → 23). */
 .home-rack, body:has(#tab-home.active) .home-rack { display: block; background-color: #0d0d0d; }
+/* the amp's feet back (user, 2026-11-08: "didn't mean connected, bring the legs back"): the rack is its own unit under the head,
+   the feet stand on its outer ring (feet bottom = 127.5px under the head; ring 5px → rack top 132.5, +2 so the ring clears them = margin 4px; was -8, which hid the feet) */
+.home-rack { margin-top: 4px; }
