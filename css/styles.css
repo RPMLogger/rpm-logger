@@ -4758,7 +4758,6 @@ html body .header .amp-knob { gap: 9px; }   /* more room between the knob's tick
 /* the amp's feet back (user, 2026-11-08: "didn't mean connected, bring the legs back"): the rack is its own unit under the head,
    the feet stand on its outer ring (feet bottom = 127.5px under the head; ring 5px → rack top 132.5, +2 so the ring clears them = margin 4px; was -8, which hid the feet) */
 .home-rack { margin-top: 4px; }
-/* RACK KNOBS = TO-DO + NOTES (user, 2026-11-08): the rack's two knobs open To-Do and Notes; pointer like the amp knobs —
 /* Home to the right beside the Magnifier, Back next to ☰ (user, 2026-11-08): ☰ ← | knobs | 🔍 ⌂ */
 html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) { left: auto; right: 23.5px; }
 html body .header .hdr-home.hdr-back { left: 57.5px; }
@@ -4770,6 +4769,7 @@ html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) .hdr-home-i { left: 6px
 html body .header .hdr-back-i {
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.8 12H3.8M10.5 5.3 3.8 12l6.7 6.7'/%3E%3C/svg%3E");
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.8 12H3.8M10.5 5.3 3.8 12l6.7 6.7'/%3E%3C/svg%3E"); }
+/* RACK KNOBS = TO-DO + NOTES (user, 2026-11-08): the rack's two knobs open To-Do and Notes; pointer like the amp knobs —
    icon grey, white on hover, turned a quarter while its tab is open; caption under like the rack buttons. Delete this block + the index.html buttons to undo. */
 button.hr-knob { padding: 0; border: none; background: none; cursor: pointer; width: 34px; height: 34px; }   /* the amp knob's size: 22px face + its tick ring (user, 2026-11-08) */
 .hr-col:has(> button.hr-knob) { gap: 3px; }   /* ring box is 6px taller than the face, so 3 here = the amp's 9 from the face */
