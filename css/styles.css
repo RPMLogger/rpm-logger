@@ -4925,3 +4925,6 @@ html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) .hdr-home-i { left: 6px
 /* Cabinets = the rack (user, 2026-11-08: "cabinet and backgrounds should be like the racks"): every box on THE BOX
    (tab boxes, Today/Lessons/To-Do/Notes/Comms boxes, Lessons plates, Calendar rack strips) takes the rack's #0d0d0d under the same grain. Delete to undo (#101010). */
 :root { --rpm-box-bg: #0d0d0d; }
+/* Rack + the box under it stacked so their outer lines are ONE line, like gear in a stack (user, 2026-11-08).
+   Rack ring 5px, box ring 3px → 7px apart (was 14). Boxes under each other keep their gap. Delete to undo. */
+.home-rack, body:has(#tab-home.active) .home-rack { margin-bottom: 7px; }
