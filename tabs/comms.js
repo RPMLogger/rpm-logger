@@ -45,6 +45,7 @@ function loadCommsInbox() {
         var msgr = document.querySelector(".cm-msgr");
         if (msgr) msgr.classList.remove("cm-loading");
         renderCommsInbox();
+        commsCheckNew();   // the COMMS rack button for a new text (on any tab)
         // An open conversation picks up new texts on the 30-second poll too.
         var win = document.getElementById("commsDetailOverlay");
         if (commsDetail && win && win.classList.contains("open")) renderCommsThread();
@@ -1000,3 +1001,73 @@ function commsEscape(str) {
   div.textContent = str;
   return div.innerHTML;
 }
+
+// ── New-text warning (user, 2026-11-06: "i got a text message, the comms tab should warn me") ──
+// Every minute, on every tab, the inbox is read again. A real text or voicemail that came in
+// after the last one I saw lights the COMMS button on Home's rack + the ☰ Comms row, until I open Comms.
+// Not a warning: my own texts, scams, a 👍 reaction, a bare "Y" (that's an announcement
+// confirm, it shows in Confirmations) and anything already marked answered.
+// "Seen" = the newest inbound time I was shown, kept in localStorage per browser.
+var COMMS_WATCH_INTERVAL = 60000;
+var commsWatchTimer = null;
+var commsAlertList = [];   // the new messages lighting the button, oldest first
+
+function commsSeenTime() {
+  try { return +localStorage.getItem("rpmCommsSeen") || 0; } catch (e) { return 0; }
+}
+function commsSetSeen(t) {
+  try { if (t > commsSeenTime()) localStorage.setItem("rpmCommsSeen", String(t)); } catch (e) {}
+}
+function commsIsInbound(m) {
+  return m && !m.scam && (m.source === "sms" || m.source === "voicemail");
+}
+function commsWorthWarning(m) {
+  if (!commsIsInbound(m) || m.responded === true || m.responded === "TRUE") return false;
+  if (commsReaction(m)) return false;
+  if (m.source === "sms" && /^\s*["“]?\s*y(?![\w'’])[\s!.]*$/i.test(String(m.body || ""))) return false;   // bare Y = confirm
+  return true;
+}
+function commsOnTab() {
+  var t = document.getElementById("tab-comms");
+  return !!(t && t.classList.contains("active"));
+}
+
+// Called after every inbox load (the Comms tab's own 30s poll and the background one).
+function commsCheckNew() {
+  var inbound = commsMessages.filter(commsIsInbound);
+  var newest = inbound.reduce(function (t, m) { return Math.max(t, new Date(m.timestamp).getTime()); }, 0);
+  var seen = commsSeenTime();
+  if (!seen) { commsSetSeen(newest); return; }   // first time in this browser: start from now, no backlog
+  if (commsOnTab()) { commsSetSeen(newest); commsHideAlert(); return; }   // looking at it already
+  commsAlertList = inbound.filter(function (m) {
+    return new Date(m.timestamp).getTime() > seen && commsWorthWarning(m);
+  }).sort(function (a, b) { return new Date(a.timestamp) - new Date(b.timestamp); });
+  if (commsAlertList.length) commsShowAlert(); else commsHideAlert();
+}
+
+// No pop-up (user, 2026-11-06: "on the comms tab ... i was looking at the tabs"): the COMMS
+// button on Home's rack (2026-11-07; a red rocker switch in the header was tried first) and
+// the Comms row in the ☰ list light up until Comms is opened.
+function commsShowAlert() { commsKnobLit(true); }
+function commsHideAlert() { commsKnobLit(false); }
+function commsKnobLit(on) {
+  var k = document.getElementById("hrCommsBtn");
+  if (k) k.classList.toggle("lit", on);
+  var t = document.querySelector('.tabs .tab-btn[data-tab="comms"]');
+  if (t) t.classList.toggle("cm-new", on);
+}
+function commsAlertSeenAll() {
+  var t = commsMessages.filter(commsIsInbound).reduce(function (t, m) { return Math.max(t, new Date(m.timestamp).getTime()); }, 0);
+  commsSetSeen(t);
+}
+function commsWatchTick() {
+  if (document.hidden) return;   // a background browser tab doesn't need to ask Google
+  if (commsOnTab()) return;      // the Comms tab polls every 30s itself
+  loadCommsInbox();
+}
+(function commsWatchStart() {
+  if (commsWatchTimer) return;
+  setTimeout(commsWatchTick, 8000);   // after the startup loads
+  commsWatchTimer = setInterval(commsWatchTick, COMMS_WATCH_INTERVAL);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) commsWatchTick(); });
+})();

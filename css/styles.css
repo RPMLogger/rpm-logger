@@ -4686,12 +4686,43 @@ html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-c
 .db-all-empty { display: block; }
 #importBody .im-goals-box .gl-none { padding-left: 0; }
 .cm-msgr .cm-none { text-transform: uppercase; }
+
+/* ☰ Comms row red with the COMMS button on Home's rack while a new text waits (tabs/comms.js commsKnobLit, 2026-11-07) */
+.tabs .tab-btn.cm-new:not(.active) { color: var(--accent); }
+
+/* Home's rack (user, 2026-11-07): the Calendar's second rack unit (tabs/calendar.js .cal-bar2) under the amp head:
+   the box look (grain, the amp's double border), one small screw each side (user, 2026-11-07: was four full-size + two knobs), the grille, no buttons yet. Only while Home is open.
+   Its own copy of the knob CSS: the Calendar's lives in #calStyle, which only exists after the Calendar opens. */
+.home-rack { display: none; position: relative; box-sizing: border-box; margin: -8px 4px 17px;   /* its outer line 4px under the amp's feet (user, 2026-11-07; was 12) */   /* stacked on the head: its outer line and the head's are ONE line (user, 2026-11-07) */
+  border: 1px solid #2c2c2c; border-radius: 6px; background-color: var(--rpm-box-bg, var(--box)); background-image: var(--rpm-box-grain);
+  box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }   /* the amp head's double border, same size (user, 2026-11-07) */
+body:has(#tab-home.active) .home-rack { display: block; }
+.hr-row { display: flex; align-items: center; gap: 18px; height: 56px; padding: 0 40px; }   /* 64 → 32 (user, 2026-11-07), then 56 so the buttons + captions fit */
+.hr-sp { flex: 1; }
+.hr-pair { display: inline-flex; gap: 12px; }
+.hr-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.hr-cap { font: 8px "DM Mono", monospace; letter-spacing: 1.2px; text-transform: uppercase; color: #6e6e6e; white-space: nowrap; }
+/* the Comms rack's push buttons (tabs/calendar.js .cr-pb), copied so Home needs no Calendar style */
+.hr-pb { width: 16px; height: 16px; padding: 0; border-radius: 2.5px;   /* smaller than the Comms rack's 22 (user, 2026-11-07) */ background: linear-gradient(#3a3a3a, #232323); box-shadow: 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); border: 1px solid #111; cursor: pointer; }
+.hr-pb.lit { background: linear-gradient(oklch(.65 .16 29), oklch(.54 .17 29)); box-shadow: 0 0 6px oklch(.63 .19 29 / .4), inset 0 1px 0 rgba(255,255,255,.35); }
+.hr-vents { display: flex; gap: 4px; }
+.hr-vents i { width: 3px; height: 18px; border-radius: 2px; background: #0a0a0a; box-shadow: inset 0 1px 1px #000, 0 1px 0 #1f1f1f; }
+.hr-bolt { position: absolute; top: calc(50% - 4.5px); width: 9px; height: 9px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #6a6a6a, #2b2b2b 55%, #111 80%); box-shadow: 0 1px 2px #000, inset 0 0 0 1px #0a0a0a; }   /* the Calendar rack's screw, ~half size */
+.hr-bolt::before, .hr-bolt::after { content: ""; position: absolute; left: 2px; right: 2px; top: 4px; height: 1px; background: #111; border-radius: 1px; }
+.hr-bolt::after { transform: rotate(90deg); }
 html body .header .header-title { color: var(--muted); }   /* no brighter than the Home button's icon grey (user, 2026-11-07; was --t-text) */
 /* The name sunk into the panel, engraved (user, 2026-11-07): dark edge on the letters' top, faint light edge under;
    no drop shadow on the name any more (that made it float). The red badge keeps its shadow: a part mounted on the panel. */
 html body .header .hdr-name { filter: none; }
 html body .header .header-title, html body .header .header-sub { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
 html body .header .header-title { color: oklch(0.5 0.15 29); }   /* red paint in the engraving, the badge's red, dimmed (user, 2026-11-07) */
+/* the rack's two knobs back (user, 2026-11-07): the Calendar's knob, copied */
+.hr-knob { position: relative; flex: none; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+.hr-ticks { position: absolute; inset: 0; background: repeating-conic-gradient(from -136deg, #555 0 2deg, transparent 2deg 27deg);
+  -webkit-mask: radial-gradient(circle, transparent 17px, #000 18px, #000 21px, transparent 22px), conic-gradient(from -137deg, #000 0 274deg, transparent 274deg); -webkit-mask-composite: source-in;
+  mask: radial-gradient(circle, transparent 17px, #000 18px, #000 21px, transparent 22px), conic-gradient(from -137deg, #000 0 274deg, transparent 274deg); mask-composite: intersect; }
+.hr-kn { position: relative; width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 40% 30%, #4a4a4a, #1c1c1c 60%, #0e0e0e); box-shadow: 0 2px 4px #000, inset 0 1px 0 rgba(255,255,255,.1); }
+.hr-kn::after { content: ""; position: absolute; left: 14px; top: 3px; width: 2px; height: 9px; border-radius: 1px; background: #ddd; }
 
 /* BACK (2026-11-07): right of Home, same 26px face; the place you were just before. Dimmed when there is none. */
 html body .header .hdr-home.hdr-back { left: 91.5px; right: auto; }
@@ -4721,3 +4752,6 @@ html body .header .amp-knob.rpm-alert .amp-knob-k, html body .header .amp-knob.r
 html body .header .amp-knob-l, .hr-cap { font-weight: 500; text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.09); }   /* bold = DM Mono 500, the heaviest weight loaded (user, 2026-11-08) */
 html body .header .amp-knob { gap: 9px; }   /* more room between the knob's tick ring and its caption (user, 2026-11-08; was 4px) */
 .home-rack .hr-pb.lit:not(.rpm-alert) { background: linear-gradient(#3a3a3a, #232323); box-shadow: 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); }   /* only the gold alert lights a rack button; no red "lit" on Inquiries etc. (user, 2026-11-08) */
+/* THE RACK ON EVERY TAB (user, 2026-11-08: "this rack will be everywhere, almost part of the amp"), and the same colour as the amp head:
+   the amp's button strip reads 20 (measured); the rack keeps its grain (~+7), so its base is #0d0d0d to land on the same shade (was #101010 → 23). */
+.home-rack, body:has(#tab-home.active) .home-rack { display: block; background-color: #0d0d0d; }
