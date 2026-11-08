@@ -301,6 +301,7 @@ body.sb-open .tabs { transform: none; }
 .tabs > [data-tab=notes]       { order: 71; }
 .tabs > [data-tab=sheets]      { order: 72; }
 .tabs > .sb-soon               { order: 99; }
+.tabs > [data-tab=archive]     { order: 100; }   /* the very end, under its own ARCHIVE heading (2026-11-08) */
 
 /* ☰ and the dimmed page behind the open drawer. ☰ sits on the content's left
    edge (user, 2026-10-24; was fixed in the screen corner): three bars, no box or
