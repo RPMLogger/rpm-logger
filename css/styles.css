@@ -4672,3 +4672,8 @@ html body .header .hdr-back-i { -webkit-mask-image: url("data:image/svg+xml,%3Cs
 html body .header .hdr-back:disabled { opacity: 0.35; cursor: default; }
 html body .header .hdr-back:disabled:hover { border-color: rgba(255,255,255,0.10); background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); }
 html body .header .hdr-back:disabled:hover .hdr-home-i { background: var(--muted); }
+
+/* main page background: plain solid #1c1c1c, no diamond plate, dots or gold glow (user, 2026-11-08).
+   To go back to the plate + glow, delete this block. */
+body { background: #1c1c1c; }
+body::before, body::after { display: none; }
