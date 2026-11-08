@@ -1053,6 +1053,9 @@ function commsHideAlert() { commsKnobLit(false); }
 function commsKnobLit(on) {
   var k = document.getElementById("hrCommsBtn");
   if (k) k.classList.toggle("lit", on);
+  // the rack's amber NEW TEXTS counter (user, 2026-11-08): how many new texts since Comms was last opened; dim at 0
+  var c = document.getElementById("hrTextCount");
+  if (c) { var n = on ? commsAlertList.length : 0; c.textContent = n; c.classList.toggle("on", n > 0); }
   var t = document.querySelector('.tabs .tab-btn[data-tab="comms"]');
   if (t) t.classList.toggle("cm-new", on);
 }

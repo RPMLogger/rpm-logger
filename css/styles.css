@@ -4006,7 +4006,7 @@ html body .header .amp-knob-k::before { content: ""; position: absolute; inset: 
   -webkit-mask: radial-gradient(circle, transparent 13px, #000 14px, #000 16px, transparent 17px), conic-gradient(from -137deg, #000 0 274deg, transparent 274deg); -webkit-mask-composite: source-in;
   mask: radial-gradient(circle, transparent 13px, #000 14px, #000 16px, transparent 17px), conic-gradient(from -137deg, #000 0 274deg, transparent 274deg); mask-composite: intersect; }
 html body .cr.rpm-rack .cr-ticks { background: repeating-conic-gradient(from -136deg, #3e3e3e 0 2deg, transparent 2deg 27deg); }   /* the Comms + Today racks' tick marks dimmed the same (#555 → #3e3e3e); the Calendar's racks keep theirs */
-html body .sb-burger, html body .header .hdr-home, html body .header .hdr-mag { background: linear-gradient(#3a3a3a, #232323); box-shadow: 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); border: 1px solid #111; border-radius: 3px; }   /* the rack buttons' corners (user, 2026-11-08; was 6px) */
+html body .sb-burger, html body .header .hdr-home, html body .header .hdr-mag { background: linear-gradient(#3a3a3a, #232323); box-shadow: 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); border: 1px solid #111; border-radius: 6px; }   /* rounded again, 6px (user, 2026-11-08; was 3px; 8px tried, reverted) */
 html body .sb-burger:hover, html body .header .hdr-home:hover, html body .header .hdr-mag:hover { background: linear-gradient(#444, #2a2a2a); border-color: #111; }
 html body .header .hdr-mag.on { background: var(--muted); }
 /* Home and Audit get the amp's border under the head: dark body ring around a dark rounded line; every other tab keeps its plain box (user, 2026-10-30) */
@@ -4758,3 +4758,77 @@ html body .header .amp-knob { gap: 9px; }   /* more room between the knob's tick
 /* the amp's feet back (user, 2026-11-08: "didn't mean connected, bring the legs back"): the rack is its own unit under the head,
    the feet stand on its outer ring (feet bottom = 127.5px under the head; ring 5px → rack top 132.5, +2 so the ring clears them = margin 4px; was -8, which hid the feet) */
 .home-rack { margin-top: 4px; }
+/* RACK KNOBS = TO-DO + NOTES (user, 2026-11-08): the rack's two knobs open To-Do and Notes; pointer like the amp knobs —
+   icon grey, white on hover, turned a quarter while its tab is open; caption under like the rack buttons. Delete this block + the index.html buttons to undo. */
+button.hr-knob { padding: 0; border: none; background: none; cursor: pointer; width: 34px; height: 34px; }   /* the amp knob's size: 22px face + its tick ring (user, 2026-11-08) */
+.hr-col:has(> button.hr-knob) { gap: 3px; }   /* ring box is 6px taller than the face, so 3 here = the amp's 9 from the face */
+button.hr-knob .hr-ticks { background: repeating-conic-gradient(from -136deg, #3e3e3e 0 3deg, transparent 3deg 27deg);
+  -webkit-mask: radial-gradient(circle, transparent 13px, #000 14px, #000 16px, transparent 17px), conic-gradient(from -137deg, #000 0 274deg, transparent 274deg); -webkit-mask-composite: source-in;
+  mask: radial-gradient(circle, transparent 13px, #000 14px, #000 16px, transparent 17px), conic-gradient(from -137deg, #000 0 274deg, transparent 274deg); mask-composite: intersect; }
+button.hr-knob .hr-kn { width: 22px; height: 22px; }
+button.hr-knob .hr-kn::after { left: 10px; top: 2px; height: 8px; background: var(--muted); transform-origin: 1px 9px; transition: transform .2s, background .12s; }
+button.hr-knob:hover .hr-kn::after { background: rgba(255,255,255,0.82); }
+body:has(#tab-todo.active) .hr-knob[data-k=todo] .hr-kn::after, body:has(#tab-notes.active) .hr-knob[data-k=notes] .hr-kn::after { transform: rotate(90deg); }
+body:has(#tab-todo.active) .hr-knob[data-k=todo] + .hr-cap, body:has(#tab-notes.active) .hr-knob[data-k=notes] + .hr-cap { color: #9a9a9a; }
+/* RACK SCREWS FULL SIZE (user, 2026-11-08): the box's regular 15px screw, one each side, instead of the 9px one. Delete this block to undo. */
+.hr-bolt { top: calc(50% - 7.5px); width: 15px; height: 15px; }
+.hr-bolt::before, .hr-bolt::after { left: 3px; right: 3px; top: 6.5px; height: 2px; }
+/* ICONS = THE ☰ SIZE (user, 2026-11-08): every header button's drawn icon is 12px wide like the ☰ lines (12×12).
+   Home's svg fills its box (12px box); search + Back svgs leave ~20% blank in their 24-grid, so their box is 15px to draw 12px. Delete this block to undo. */
+html body .header .hdr-mag .hdr-mag-i, html body .header .hdr-back .hdr-back-i { left: 4.5px; top: 4.5px; width: 15px; height: 15px; }
+/* Back arrow 12 tall like the ☰ (user, 2026-11-08): arrowhead arms longer (still 45°), so the drawn arrow is 12×12. Delete to undo. */
+html body .header .hdr-back-i { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.8 12H3.8M12.2 3.6 3.8 12l8.4 8.4'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.8 12H3.8M12.2 3.6 3.8 12l8.4 8.4'/%3E%3C/svg%3E"); }
+/* Home house 14px (user, 2026-11-08: "looks smaller"): at 12 only the eave tips reach 12 wide, the walls ~9.7; at 14 the walls ~11, so it reads the ☰'s size. Delete to undo. */
+html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) .hdr-home-i { left: 5px; top: 5px; width: 14px; height: 14px; }
+/* Build stamp engraved like the amp's other text (user, 2026-11-08). Delete to undo. */
+html body .header .hdr-build, html body .header .hdr-build * { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.09); }
+/* NAMEPLATE (user, 2026-11-08: "that thing should be on a plate metal", reference = a black amp badge plate):
+   black plate raised off the amp, a thin chrome rim inset from its edge, one Phillips screw at each end. The badge sits on it, the name stays engraved.
+   Delete this block + the .hdr-plate span in index.html to undo. */
+html body .header .hdr-plate { position: absolute; left: 50%; top: -28px; width: 316px; height: 82px; transform: translateX(-50%); z-index: 0; pointer-events: none; border-radius: 9px;
+  background: var(--rpm-grain), #101010; border: 1px solid #070707; box-shadow: none; }   /* not lifted: flush with the amp (user, 2026-11-08) */   /* flatter (user, 2026-11-08: "less 3d"; was a 3px/7px shadow + top highlight + gradient) */
+html body .header .hdr-plate::before { content: ""; position: absolute; inset: 6px; border-radius: 5px; border: 1px solid transparent; box-shadow: 0 0 0 2px #101010, 0 0 0 3px #262626;   /* double line, the amp's style (user, 2026-11-08) */
+  background: var(--rpm-grain) padding-box, linear-gradient(#101010, #101010) padding-box, linear-gradient(transparent, transparent) border-box; }   /* inner line off: only the outer line (user, 2026-11-08) */   /* the amp face exactly: #101010 + its grain; rim dimmed, faint (user, 2026-11-08; was #7a→#5e, then #3e→#33) */   /* flat grey rim, no chrome shine (was a bright mirror gradient + shadow) */
+html body .header .hdr-plate i { position: absolute; top: calc(50% - 4.5px); z-index: 1; width: 9px; height: 9px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #2a2a2a, #121212 70%, #080808); box-shadow: none; }   /* black screws (user, 2026-11-08) */
+html body .header .hdr-plate i::before, html body .header .hdr-plate i::after { content: ""; position: absolute; left: 2px; right: 2px; top: 4px; height: 1px; background: #000; }
+html body .header .hdr-plate i::after { transform: rotate(90deg); }
+html body .header > img, html body .header > .hdr-name { position: relative; z-index: 1; }
+/* Logo badge engraved like the text (user, 2026-11-08): no drop shadow; dark edge above, faint light edge below. Delete to undo (back to raised). */
+html body .header > img { filter: brightness(.9) saturate(.8) drop-shadow(0 -1px 0 rgba(0,0,0,.85)) drop-shadow(0 1px 0 rgba(255,255,255,.09)); }   /* red dimmed to the name's red, oklch(.5 .15 29) (user, 2026-11-08) */
+/* AMP FACE SCREWS (user, 2026-11-08): four black screws in the corners of the amp's top section (above the gold line), the nameplate's screw, a bit bigger. Delete this block + the .hdr-amp-screws span to undo. */
+html body .header .hdr-amp-screws { position: absolute; inset: 0; pointer-events: none; }   /* out of the flex row, so the logo stays centred */
+html body .header .hdr-amp-screws i { position: absolute; z-index: 1; width: 11px; height: 11px; border-radius: 50%; pointer-events: none; background: radial-gradient(circle at 40% 35%, #2a2a2a, #121212 70%, #080808); }
+html body .header .hdr-amp-screws i::before, html body .header .hdr-amp-screws i::after { content: ""; position: absolute; left: 2.5px; right: 2.5px; top: 5px; height: 1px; background: #000; }
+html body .header .hdr-amp-screws i::after { transform: rotate(90deg); }
+/* Nameplate borders off (user, 2026-11-08: "lose all"): no outer edge, no rim line. Delete to undo. */
+html body .header .hdr-plate { border-color: transparent; }
+html body .header .hdr-plate::before { box-shadow: none; }
+/* Logo section a tiny bit smaller (user, 2026-11-08): badge + name + build at 92%. Delete to undo. */
+html body .header > img, html body .header > .hdr-name { zoom: .92; }
+/* Rack button captions on the same line as the To-Do / Notes knob captions (user, 2026-11-08); buttons stay level with the knobs. Delete to undo. */
+.home-rack .hr-pair .hr-cap { position: relative; top: 8.5px; }
+/* COMMS = AMBER COUNTER on the rack (user, 2026-11-08): the Comms push button became the Calendar rack's amber counter (.cr-count):
+   new texts since Comms was last opened, amber + glow while any wait, dim at 0; click opens Comms; caption under it on the others' line.
+   Delete this block + put the old hr-pb Comms button back in index.html + the hrTextCount lines in tabs/comms.js to undo. */
+.hr-count { min-width: 40px; height: 26px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: 2px; background: #1b1006; border: 1px solid #000; box-shadow: inset 0 2px 5px rgba(0,0,0,.9); cursor: pointer;
+  font: 500 12px "DM Mono", monospace; letter-spacing: 1.5px; color: oklch(.72 .14 70 / .3); }
+.hr-count.on { color: oklch(.72 .14 70); text-shadow: 0 0 5px oklch(.63 .19 60 / .4); }
+.home-rack .hr-pair { align-items: center; }   /* buttons centred on the taller Comms counter, not top-aligned (user, 2026-11-08) */
+/* Comms counter in the middle of the rack, a wider screen (user, 2026-11-08) */
+.home-rack .hr-row { position: relative; }
+.home-rack .hr-col-count { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -20.3px); }   /* screen level with the knobs + buttons (measured), caption on their line */
+.home-rack .hr-col-count .hr-count { width: 100px; }   /* was 120 (user, 2026-11-08: "a bit less") */
+.home-rack .hr-col-count .hr-cap { position: relative; top: 3.5px; }
+/* Comms screen in the Calendar's green LCD colours (.cr-lcd), not amber (user, 2026-11-08). Delete to undo (back to amber). */
+.home-rack .hr-count { background: #0a0c0a; border: 1px solid #222; box-shadow: inset 0 2px 6px rgba(0,0,0,.8); color: oklch(.72 .08 145 / .3); text-shadow: none; }
+.home-rack .hr-count.on { color: oklch(.72 .08 145); text-shadow: 0 0 5px oklch(.63 .19 145 / .35); }
+/* Caption to the LEFT of the screen, the screen alone centred on the rack (user, 2026-11-08; like the Calendar's "LESSONS [16]"). Delete to undo (caption under). */
+.home-rack .hr-col-count { display: block; transform: translate(-50%, -20.3px); }   /* screen level with the knobs + buttons (measured) */
+.home-rack .hr-col-count .hr-cap { position: absolute; top: 50%; right: calc(100% + 12px); transform: translateY(-50%); }
+/* Caption + screen centred together on the rack as one group (user, 2026-11-08: "center both") */
+.home-rack .hr-col-count { display: flex; flex-direction: row; align-items: center; gap: 12px; }
+.home-rack .hr-col-count .hr-cap { position: static; order: -1; transform: none; }
+.home-rack .hr-col-count { transform: translate(-50%, -13px); }   /* caption + screen centred top-to-bottom in the rack (user, 2026-11-08), not on the knobs' line */
+/* rack → box gap = amp → rack gap, 6px between the outer rings (user, 2026-11-08; was 9px: margin 17px) */
+.home-rack, body:has(#tab-home.active) .home-rack { margin-bottom: 14px; }
+html body #calBody > .cal-bar.cr:first-child { margin-top: 0; }   /* Calendar's top rack: the same 6px under the home rack as every other tab's box (was -5px → 1px) */
