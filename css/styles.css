@@ -4759,6 +4759,17 @@ html body .header .amp-knob { gap: 9px; }   /* more room between the knob's tick
    the feet stand on its outer ring (feet bottom = 127.5px under the head; ring 5px → rack top 132.5, +2 so the ring clears them = margin 4px; was -8, which hid the feet) */
 .home-rack { margin-top: 4px; }
 /* RACK KNOBS = TO-DO + NOTES (user, 2026-11-08): the rack's two knobs open To-Do and Notes; pointer like the amp knobs —
+/* Home to the right beside the Magnifier, Back next to ☰ (user, 2026-11-08): ☰ ← | knobs | 🔍 ⌂ */
+html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) { left: auto; right: 23.5px; }
+html body .header .hdr-home.hdr-back { left: 57.5px; }
+html body .header .hdr-mag { right: 57.5px; }
+/* The strip's four buttons: every icon centred and the same size, ~12px inside the 26px face (user, 2026-11-08: "not aligned inside").
+   ☰ was 1px low (8 above / 6 below); Home filled 14; the arrow drew only ~9.5 → path redrawn to fill like the Magnifier (~11.3). */
+html body .sb-burger::before { top: 6px; }
+html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) .hdr-home-i { left: 6px; top: 6px; width: 12px; height: 12px; }
+html body .header .hdr-back-i {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.8 12H3.8M10.5 5.3 3.8 12l6.7 6.7'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.8 12H3.8M10.5 5.3 3.8 12l6.7 6.7'/%3E%3C/svg%3E"); }
    icon grey, white on hover, turned a quarter while its tab is open; caption under like the rack buttons. Delete this block + the index.html buttons to undo. */
 button.hr-knob { padding: 0; border: none; background: none; cursor: pointer; width: 34px; height: 34px; }   /* the amp knob's size: 22px face + its tick ring (user, 2026-11-08) */
 .hr-col:has(> button.hr-knob) { gap: 3px; }   /* ring box is 6px taller than the face, so 3 here = the amp's 9 from the face */
@@ -4814,21 +4825,93 @@ html body .header > img, html body .header > .hdr-name { zoom: .92; }
   font: 500 12px "DM Mono", monospace; letter-spacing: 1.5px; color: oklch(.72 .14 70 / .3); }
 .hr-count.on { color: oklch(.72 .14 70); text-shadow: 0 0 5px oklch(.63 .19 60 / .4); }
 .home-rack .hr-pair { align-items: center; }   /* buttons centred on the taller Comms counter, not top-aligned (user, 2026-11-08) */
-/* Comms counter in the middle of the rack, a wider screen (user, 2026-11-08) */
 .home-rack .hr-row { position: relative; }
-.home-rack .hr-col-count { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -20.3px); }   /* screen level with the knobs + buttons (measured), caption on their line */
-.home-rack .hr-col-count .hr-count { width: 100px; }   /* was 120 (user, 2026-11-08: "a bit less") */
-.home-rack .hr-col-count .hr-cap { position: relative; top: 3.5px; }
 /* Comms screen in the Calendar's green LCD colours (.cr-lcd), not amber (user, 2026-11-08). Delete to undo (back to amber). */
 .home-rack .hr-count { background: #0a0c0a; border: 1px solid #222; box-shadow: inset 0 2px 6px rgba(0,0,0,.8); color: oklch(.72 .08 145 / .3); text-shadow: none; }
 .home-rack .hr-count.on { color: oklch(.72 .08 145); text-shadow: 0 0 5px oklch(.63 .19 145 / .35); }
-/* Caption to the LEFT of the screen, the screen alone centred on the rack (user, 2026-11-08; like the Calendar's "LESSONS [16]"). Delete to undo (caption under). */
-.home-rack .hr-col-count { display: block; transform: translate(-50%, -20.3px); }   /* screen level with the knobs + buttons (measured) */
-.home-rack .hr-col-count .hr-cap { position: absolute; top: 50%; right: calc(100% + 12px); transform: translateY(-50%); }
-/* Caption + screen centred together on the rack as one group (user, 2026-11-08: "center both") */
-.home-rack .hr-col-count { display: flex; flex-direction: row; align-items: center; gap: 12px; }
-.home-rack .hr-col-count .hr-cap { position: static; order: -1; transform: none; }
-.home-rack .hr-col-count { transform: translate(-50%, -13px); }   /* caption + screen centred top-to-bottom in the rack (user, 2026-11-08), not on the knobs' line */
 /* rack → box gap = amp → rack gap, 6px between the outer rings (user, 2026-11-08; was 9px: margin 17px) */
 .home-rack, body:has(#tab-home.active) .home-rack { margin-bottom: 14px; }
 html body #calBody > .cal-bar.cr:first-child { margin-top: 0; }   /* Calendar's top rack: the same 6px under the home rack as every other tab's box (was -5px → 1px) */
+/* RACK SCREEN in the middle of the Home rack (user, 2026-11-08): the Calendar tab's ‹ LCD › look; shows the warnings (core/rackscreen.js). */
+.home-rack .hr-screen { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 10px; }
+.home-rack .hr-lcd { height: 36px; min-width: 190px; padding: 0 12px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.25;
+  border-radius: 3px; background: #0a0c0a; border: 1px solid #222; box-shadow: inset 0 2px 6px rgba(0,0,0,.8);
+  font: 12px "DM Mono", monospace; letter-spacing: 2px; color: oklch(.72 .08 145); text-shadow: 0 0 5px oklch(.63 .19 145 / .35); }
+.home-rack .hr-lcd small { font-size: 10px; letter-spacing: 1.5px; opacity: .75; }
+.home-rack .hr-arw { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 1px solid #2c2c2c; border-radius: 4px; background: #151515;
+  color: var(--t-faint); font: 12px "DM Mono", monospace; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 1px 0 #000; }
+/* Rack screen in amber, the rack counter's old amber (user, 2026-11-08). Delete to undo (back to green). */
+.home-rack .hr-lcd { background: #1b1006; border-color: #000; box-shadow: inset 0 2px 5px rgba(0,0,0,.9); color: oklch(.58 .09 70); text-shadow: 0 0 4px oklch(.6 .12 60 / .18); }   /* toned down + dimmed (user: "less", "dim") */
+/* Rack screen text smaller (user, 2026-11-08; was 12px / 10px). Delete to undo. */
+.home-rack .hr-lcd { font-size: 10px; }
+.home-rack .hr-lcd small { font-size: 8.5px; }
+/* Rack screen = warnings (core/rackscreen.js): click opens that tab; long names cut with …; arrows dim when there's nothing to step to. */
+.home-rack .hr-lcd { max-width: 250px; white-space: nowrap; }
+.home-rack .hr-lcd, .home-rack .hr-lcd small { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.home-rack .hr-lcd.go { cursor: pointer; }
+.home-rack .hr-arw:disabled { opacity: .35; cursor: default; }
+/* Arrows scaled with the screen (44 → 36px tall, so 28 → 23px), no hover (user, 2026-11-08) */
+.home-rack .hr-arw { width: 23px; height: 23px; font-size: 10px; }
+/* Grille centred between the Notes knob and the screen's ‹ (user, 2026-11-08: gaps were 18 / 51px). Delete to undo. */
+.home-rack .hr-vents { position: relative; left: 16.5px; }
+/* INPUT JACKS (user, 2026-11-08): two chrome jacks between Back and the TODAY knob, level with the knob faces,
+   "INPUT" on the knob captions' line. Decoration only. Delete this block + the .amp-jacks span in index.html to undo. */
+html body .header .amp-jacks { position: absolute; left: calc(50% - 267.5px); top: 107.5px; width: 54px; height: 22px; display: flex; justify-content: space-between; pointer-events: none; }
+html body .header .amp-jack { position: relative; width: 22px; height: 22px; display: block;
+  clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);   /* the hex nut */
+  background: linear-gradient(160deg, #d9d9d9, #8a8a8a 45%, #5a5a5a 70%, #b5b5b5); }
+html body .header .amp-jack::before { content: ""; position: absolute; inset: 3.5px; border-radius: 50%;   /* the chrome ring */
+  background: radial-gradient(circle at 40% 35%, #f0f0f0, #9a9a9a 55%, #4a4a4a); box-shadow: inset 0 0 0 1px rgba(0,0,0,.45); }
+html body .header .amp-jack::after { content: ""; position: absolute; inset: 7px; border-radius: 50%;   /* the hole */
+  background: radial-gradient(circle at 50% 40%, #000 55%, #1c1c1c); box-shadow: inset 0 1px 2px #000, 0 0 0 1px #2a2a2a; }
+html body .header .amp-jacks-l { position: absolute; left: 0; right: 0; top: 31px; text-align: center; font: 500 8px/normal "DM Mono", monospace; letter-spacing: 1.2px; text-transform: uppercase;
+  color: #5e5e5e; text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.09); }
+/* Rack screen arrows: darker border (user, 2026-11-08; was #2c2c2c). Delete to undo. */
+.home-rack .hr-arw { border-color: #191919; }
+/* Jacks v2 (user, 2026-11-08): no label, nut turned 90°, darker steel, and they're the RIGHTMOST thing on the amp
+   (where Home was, 23.5px in); Magnifier + Home move left to make room (16px from the jacks, their 8px gap kept). Delete to undo. */
+html body .header .amp-jacks { left: auto; right: 23.5px; }
+html body .header .amp-jacks-l { display: none; }
+html body .header .amp-jack { clip-path: polygon(50% 3%, 97% 25%, 97% 75%, 50% 97%, 3% 75%, 3% 25%);
+  background: linear-gradient(160deg, #8a8a8a, #4a4a4a 45%, #2e2e2e 70%, #6a6a6a); }
+html body .header .amp-jack::before { background: radial-gradient(circle at 40% 35%, #a8a8a8, #5a5a5a 55%, #262626); }
+html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) { right: 93.5px; }
+html body .header .hdr-mag { right: 127.5px; }
+/* Jacks stacked one above the other, like a real amp's input panel (user, 2026-11-08); the pair centred on the knob faces. Delete to undo (side by side). */
+html body .header .amp-jacks { width: 22px; height: 50px; top: 93.5px; flex-direction: column; }
+html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) { right: 61.5px; }
+html body .header .hdr-mag { right: 95.5px; }
+/* Jacks smaller (22 → 18px) + darker (user, 2026-11-08: "maybe smaller and darker"); still centred on the knob faces, 16px from Home. Delete to undo. */
+html body .header .amp-jacks { width: 18px; height: 42px; top: 97.5px; }
+html body .header .amp-jack { width: 18px; height: 18px; background: linear-gradient(160deg, #5e5e5e, #333 45%, #1f1f1f 70%, #4a4a4a); }
+html body .header .amp-jack::before { inset: 3px; background: radial-gradient(circle at 40% 35%, #7a7a7a, #3e3e3e 55%, #1a1a1a); }
+html body .header .amp-jack::after { inset: 5.5px; }
+html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) { right: 57.5px; }
+html body .header .hdr-mag { right: 91.5px; }
+/* ☰ + Back 2px up: their middle now level with the knob faces' middle (user, 2026-11-08: "tiny bit up"). Delete to undo. */
+html body .header .hdr-home.hdr-back { top: 105.5px; }
+html body .sb-burger { top: 226px; }
+/* Magnifier + Home 2px up too, level with ☰ / Back / the knob faces (user, 2026-11-08). Delete to undo. */
+html body .header .hdr-mag, html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) { top: 105.5px; }
+/* Rack's Emails / Inquiries / Dropbox buttons 4px down, closer to their captions; captions stay (user, 2026-11-08). Delete to undo. */
+.home-rack .hr-pair .hr-pb { position: relative; top: 4px; }
+/* Rack as tall as the amp's control strip under the gold line (73px inside; was 56), contents centred (user, 2026-11-08: the rack read smaller than the strip above). Delete to undo. */
+.home-rack { padding: 8.5px 0; }
+/* Home speaker a bit dimmer (user, 2026-11-08; cone was 0.04, dust cap 0.12). Delete to undo. */
+#tab-home .hm-spk::before { opacity: 0.03; }
+#tab-home .hm-spk .au-cap::before { opacity: 0.09; }
+/* Home speaker a bit smaller (user, 2026-11-08; was 85% of the box height). Delete to undo. */
+#tab-home .hm-spk { height: 75%; }
+/* HOME CABINET SCREWS (user, 2026-11-08): the amp face's small black screws in the Home box's four corners,
+   the same distance in from the frame as on the amp (18px across, 16.5px down). Delete to undo (no screws on Home). */
+#tab-home > .td-bolt { display: block; z-index: 1; width: 11px; height: 11px; box-shadow: none; background: radial-gradient(circle at 40% 35%, #2a2a2a, #121212 70%, #080808); }
+#tab-home > .td-bolt::before, #tab-home > .td-bolt::after { left: 2.5px; right: 2.5px; top: 5px; height: 1px; border-radius: 0; background: #000; }
+#tab-home > .td-bolt[style*="left"] { left: 17px !important; }
+#tab-home > .td-bolt[style*="right"] { right: 17px !important; }
+#tab-home > .td-bolt[style*="top"] { top: 15.5px !important; }
+#tab-home > .td-bolt[style*="bottom"] { bottom: 15.5px !important; }
+/* Rack screws the amp face screws' size, 11px (user, 2026-11-08; were 15px), same centres. Delete to undo. */
+.home-rack .hr-bolt { top: calc(50% - 5.5px); width: 11px; height: 11px; }
+.home-rack .hr-bolt[style*="left"] { left: 12px !important; }
+.home-rack .hr-bolt[style*="right"] { right: 12px !important; }
+.home-rack .hr-bolt::before, .home-rack .hr-bolt::after { left: 2.5px; right: 2.5px; top: 4.75px; height: 1.5px; }

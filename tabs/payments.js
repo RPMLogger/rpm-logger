@@ -350,7 +350,7 @@ function openPayAudit() {
   if (back && !back.querySelector("svg")) back.insertAdjacentHTML("afterbegin", ARROW_ICON);  window.scrollTo(0, 0);
   var url = getScriptUrl();
   if (!url) { document.getElementById("auditUnpaidSection").innerHTML = '<div class="empty-state">No script URL set</div>'; return; }
-  _runAudit3(url);
+  _runAudit3(url, true);   // the saved results first, then the fresh ones (2026-11-08)
 }
 // The magnifier (Details icon) on the Audit buttons, as soon as the page is up
 // (the Audit tab's two tiles have the user's own icons instead, 2026-10-31).

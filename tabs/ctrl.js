@@ -12,80 +12,102 @@ function openLessonAudit() {
   var back = document.getElementById("btnLessonAuditBack");
   if (back && !back.querySelector("svg")) back.insertAdjacentHTML("afterbegin", ARROW_ICON);
   window.scrollTo(0, 0);
-  initAuditTab();
+  initAuditTab(true);   // the saved results first, then the fresh ones (2026-11-08)
 }
 function closeLessonAudit() {
   document.getElementById("imAuditView").style.display = "none";
   document.getElementById("auMenuView").style.display = "";
 }
 
-function initAuditTab() {
+// useCache (opening the page): draw the last saved results at once, then redraw when the fresh
+// ones land. Every other caller (after a fix, Refresh) waits for fresh ones, as before.
+function initAuditTab(useCache) {
   var url = getScriptUrl();
   if (!url) {
     document.getElementById("auditLessonSection").innerHTML = '<div class="empty-state">No script URL set</div>';
     document.getElementById("auditUnpaidSection").innerHTML = '<div class="empty-state">No script URL set</div>';
     return;
   }
-  _runSyncAudits(url);
-  _runCkAudit(url);
+  _runSyncAudits(url, useCache);
+  _runCkAudit(url, !!(useCache && _ckFromCache()), true);
   // Unpaid Students moved to the Payments tab (2026-09-28); it loads there.
 }
 
 // Audits 1 (lesson dates) + 2 (block sync) fetch in parallel and render as ONE
 // merged card list — one card per student, so the same problem never shows up
 // twice. Both backend audits stay untouched; only the presentation merges.
-function _runSyncAudits(url) {
-  var section = document.getElementById("auditLessonSection");
-  section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
-  var results = { dates: null, sync: null, cal: null };
-  var failed = false;
-
-  function done() {
-    if (failed || results.dates === null || results.sync === null || results.cal === null) return;
-    renderMergedAuditCards(results.dates, results.sync, results.cal);
-  }
-  function fail(msg) {
-    if (failed) return;
-    failed = true;
-    _auditSectionFail(section, msg);
-  }
-
-  fetch(url + "?action=auditLessonDates")
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.success) { fail(data.message || "unknown"); return; }
-      results.dates = data.audit || [];
-      done();
-    })
-    .catch(function() { fail("No answer from Google."); });
-
-  // Calendar vs Counter (the logging gate). If it can't load, cards still
-  // show, just ungated (results.cal = false).
-  fetch(url + "?action=auditCalendarSync")
-    .then(function(r) { return r.json(); })
-    .then(function(data) { results.cal = (data && data.success) ? (data.audit || []) : false; done(); })
-    .catch(function() { results.cal = false; done(); });
-
-  fetch(url + "?action=auditBlockSync")
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.success) { fail(data.message || "unknown"); return; }
-      results.sync = data.audit || [];
-      done();
-    })
-    .catch(function() { fail("No answer from Google."); });
+// ─── SAVED AUDIT RESULTS (user, 2026-11-08) ──────────────────────────────────
+// The audits are slow (Google reads the sheets: Lessons ~3 calls, Payments ~20s), so their
+// last results are kept, in memory and in this browser (rpmAuCache). The Audit pages draw
+// them at once and redraw when the fresh ones land. The portal runs both once in the
+// background ~10s after it opens (core/rackscreen.js), so the pages are ready and the rack
+// screen can show what the audits found. A run already going is shared, never doubled.
+var _auCache = (function () { try { return JSON.parse(localStorage.getItem('rpmAuCache') || 'null') || {}; } catch (e) { return {}; } })();
+var _auWait = {};
+function _auSaveCache() { try { localStorage.setItem('rpmAuCache', JSON.stringify(_auCache)); } catch (e) {} }
+function _auRun(key, fetchFn, cb) {
+  if (_auWait[key]) { if (cb) _auWait[key].push(cb); return; }
+  _auWait[key] = cb ? [cb] : [];
+  fetchFn(function (err, res) {
+    if (!err) { _auCache[key] = res; _auCache[key].at = Date.now(); _auSaveCache(); }
+    var list = _auWait[key]; _auWait[key] = null;
+    list.forEach(function (f) { f(err, res); });
+  });
+}
+// Lessons audit: the three backend audits, merged later by renderMergedAuditCards.
+function _auFetchSync(url, cb) {
+  _auRun('sync', function (done) {
+    var r = { dates: null, sync: null, cal: null }, over = false;
+    function fin(err) {
+      if (over) return;
+      if (err) { over = true; done(err); return; }
+      if (r.dates === null || r.sync === null || r.cal === null) return;
+      over = true; done(null, r);
+    }
+    fetch(url + "?action=auditLessonDates").then(function(x) { return x.json(); })
+      .then(function(d) { if (!d.success) { fin(d.message || "unknown"); return; } r.dates = d.audit || []; fin(); })
+      .catch(function() { fin("No answer from Google."); });
+    // Calendar vs Counter (the logging gate). If it can't load, cards still show, just ungated (cal = false).
+    fetch(url + "?action=auditCalendarSync").then(function(x) { return x.json(); })
+      .then(function(d) { r.cal = (d && d.success) ? (d.audit || []) : false; fin(); })
+      .catch(function() { r.cal = false; fin(); });
+    fetch(url + "?action=auditBlockSync").then(function(x) { return x.json(); })
+      .then(function(d) { if (!d.success) { fin(d.message || "unknown"); return; } r.sync = d.audit || []; fin(); })
+      .catch(function() { fin("No answer from Google."); });
+  }, cb);
+}
+// Payments audit: who owes.
+function _auFetchUnpaid(url, cb) {
+  _auRun('unpaid', function (done) {
+    fetch(url + "?action=auditUnpaid").then(function(x) { return x.json(); })
+      .then(function(d) { if (!d.success) { done(d.message || "unknown"); return; } done(null, { list: d.audit || [] }); })
+      .catch(function() { done("No answer from Google."); });
+  }, cb);
 }
 
-function _runAudit3(url) {
+// Audits 1 (lesson dates) + 2 (block sync) fetch in parallel and render as ONE
+// merged card list — one card per student, so the same problem never shows up
+// twice. Both backend audits stay untouched; only the presentation merges.
+function _runSyncAudits(url, useCache) {
+  var section = document.getElementById("auditLessonSection");
+  var c = useCache && _auCache.sync;
+  if (c && c.dates) renderMergedAuditCards(c.dates, c.sync, c.cal);
+  else section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  _auFetchSync(url, function (err, r) {
+    if (err) { if (!c) _auditSectionFail(section, err); return; }   // a failed refresh keeps the saved cards
+    renderMergedAuditCards(r.dates, r.sync, r.cal);
+  });
+}
+
+function _runAudit3(url, useCache) {
   var section = document.getElementById("auditUnpaidSection");
-  section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
-  fetch(url + "?action=auditUnpaid")
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.success) { _auditSectionFail(section, data.message || "unknown"); return; }
-      renderUnpaidCards(data.audit || []);
-    })
-    .catch(function() { _auditSectionFail(section, "No answer from Google."); });
+  var c = useCache && _auCache.unpaid;
+  if (c && c.list) renderUnpaidCards(c.list.slice());
+  else section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  _auFetchUnpaid(url, function (err, r) {
+    if (err) { if (!c) _auditSectionFail(section, err); return; }
+    renderUnpaidCards(r.list.slice());
+  });
 }
 
 // ─── LESSON CHECKLIST (2026-10-08, replaces Missing HW) ─────────────────────
@@ -95,7 +117,8 @@ function _runAudit3(url) {
 // student: each lesson's date and what's left. Open runs the Log lesson
 // window through them, oldest first; each window shows what's already done.
 // cached: draw from what _ckLoad last read (after a window closes).
-function _runCkAudit(url, cached) {
+// fresh (with cached): draw the saved checklist, then read it again and redraw (opening the Audit page, 2026-11-08).
+function _runCkAudit(url, cached, fresh) {
   var section = document.getElementById("auditCkSection");
   if (!section) return;
   function draw(err) {
@@ -103,8 +126,10 @@ function _runCkAudit(url, cached) {
     var list = _ck.audit || [];
     section.innerHTML = list.length ? list.map(_auCkCard).join("") : '<div class="empty-state">Nothing to fix...</div>';
   }
-  if (cached) { draw(null); return; }
-  section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  if (cached) { draw(null); if (!fresh) return; }
+  else section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  // A read already going (the background run, the Lessons tab): wait for it instead of a second one.
+  if (_ck.busy) { var t = setInterval(function () { if (_ck.busy) return; clearInterval(t); draw(null); }, 1000); return; }
   _ckLoad(draw);
 }
 
