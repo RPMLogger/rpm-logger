@@ -439,9 +439,15 @@ function _tdHolCheck() {
 
 function _tdHolNear() {
   var now = new Date(), lim = new Date(now.getFullYear(), now.getMonth(), now.getDate() + TD_HOL_DAYS + 1);
-  var muted = _tdHolMuted();
-  return _holUpcoming().filter(function (e) { return !e.i.approx && e.d < lim && !muted[_tdHolKey(e)]; });
+  var muted = _tdHolMuted(), all = _holUpcoming().filter(function (e) { return !e.i.approx && !muted[_tdHolKey(e)]; });
+  var near = all.filter(function (e) { return e.d < lim; });
+  // A holiday inside one that's already warning shows with it (Thanksgiving inside Derin's break, user 2026-11-08).
+  var end = near.reduce(function (m, e) { return e.last > m ? e.last : m; }, new Date(0));
+  return all.filter(function (e) { return e.d < lim || e.d <= end; });
 }
+
+// Personal days and Derin's school don't affect students: no lessons under them (user, 2026-11-08).
+function _tdHolPersonal(e) { return e.g && (e.g.tag === 'personal' || e.g.tag === 'Derin'); }
 
 // "Don't warn about it again" silences that holiday for this date only; next year it warns again.
 function _tdHolKey(e) { return e.i.n + '|' + _tdHolYmd(e.d); }
@@ -461,6 +467,7 @@ function _tdHolYmd(d) {
 function _tdHolLoad(near, day) {
   var url = getScriptUrl(), weeks = {};
   near.forEach(function (e) {
+    if (_tdHolPersonal(e)) return;
     for (var d = new Date(e.d); d <= e.last; d.setDate(d.getDate() + 1)) {
       var mon = new Date(d); mon.setDate(d.getDate() - (d.getDay() + 6) % 7);
       weeks[_tdHolYmd(mon)] = 1;
@@ -469,6 +476,7 @@ function _tdHolLoad(near, day) {
   function done(events) {
     if (_tdYmd() !== day) return;
     _tdHolOpen(near.map(function (e) {
+      if (_tdHolPersonal(e)) return { e: e, lessons: [] };
       if (!events) return { e: e, lessons: null };
       var from = _tdHolYmd(e.d), to = _tdHolYmd(e.last);
       return { e: e, lessons: events.filter(function (ev) { return ev.date >= from && ev.date <= to && isReal(ev.title); })
@@ -489,10 +497,12 @@ function _tdHolOpen(items) {
   function hm(min) { var h = Math.floor(min / 60), m = min % 60; return ((h % 12) || 12) + ':' + (m < 10 ? '0' + m : m) + ' ' + (h >= 12 ? 'PM' : 'AM'); }
   // Per holiday: a calendar page with its date (OCT over 31), "Halloween coming up in 7 days", a run of days
   // under it (Nov 23–27), then that day's lessons (user, 2026-10-24; the date was a line of text before).
-  var html = items.map(function (x) {
+  var html = items.map(function (x, n) {
     var e = x.e, multi = e.last > e.d;
     var away = Math.round((e.d - today) / 86400000);
-    var line = away <= 0 ? e.i.n + ' is today' : e.i.n + ' coming up ' + (away === 1 ? 'tomorrow' : 'in ' + away + ' days');
+    var name = (e.g && e.g.tag === 'Derin' ? 'Derin has ' : '') + '<span class="td-hol-n">' + e.i.n + '</span>';   // the holiday's name in caps (user, 2026-11-08)   // "Derin has Thanksgiving Break coming up…" (user, 2026-11-08)
+    var line = away <= 0 ? name + ' is today' : name + ' coming up ' + (away === 1 ? 'tomorrow' : 'in ' + away + ' days');
+    if (multi) line += ' (' + md(e.d) + '–' + (e.last.getMonth() === e.d.getMonth() ? e.last.getDate() : md(e.last)) + ')';   // the days on the same line (user, 2026-11-08; was its own line under it)
     var lessons = x.lessons === null ? '<div class="td-hol-l">Could not read the calendar</div>'
       : x.lessons.map(function (ev) {
           var d = new Date(ev.startMs);
@@ -501,17 +511,24 @@ function _tdHolOpen(items) {
     return '<div class="td-hol-one">' +
       '<div class="td-hol-cal"><div class="td-hol-mo">' + MONTHS[e.d.getMonth()] + '</div><div class="td-hol-dd">' + e.d.getDate() + '</div></div>' +
       '<div>' + line + '</div>' +
-      (multi ? '<div class="td-hol-l">' + md(e.d) + '–' + (e.last.getMonth() === e.d.getMonth() ? e.last.getDate() : md(e.last)) + '</div>' : '') +
-      lessons + '</div>';
+      lessons + '<button class="link-btn td-hol-mute" data-n="' + n + '">Don\'t warn about it again</button></div>';   // one per alert (user, 2026-11-08)
   }).join('');
   // A plain pop-up (the portal's alert box): no title, icon or colour; ✕, Escape or a click outside closes it
   // until tomorrow; the button silences these holidays for good (user, 2026-10-24).
   // "Today is Oct 27" centred on the ✕'s line (user, 2026-10-27; there was no title before)
-  rpmAlert({ title: 'Today is ' + md(today), message: ' ', confirmLabel: "Don't warn about it again", className: 'td-hol-dlg' })
-    .then(function (v) { if (v === undefined) _tdHolMute(items.map(function (x) { return x.e; })); });   // undefined = the button, null = ✕
+  // Each alert has its own "Don't warn about it again" (user, 2026-11-08; was one button for all at the bottom):
+  // it silences just that holiday and takes it out; the last one out closes the pop-up.
+  rpmAlert({ title: 'Today · ' + md(today), message: ' ', confirmLabel: 'OK', className: 'td-hol-dlg' });
   var box = document.querySelector('.rpm-dlg.td-hol-dlg');
   if (!box) return;
   box.querySelector('.rpm-dlg-msg').innerHTML = html;   // the alert only takes text; the calendar pages go in after
   var btn = box.querySelector('.rpm-dlg-btn');
-  if (btn) { btn.className = 'link-btn'; btn.blur(); }   // the portal's own button look; unfocused so a stray Enter doesn't press it
+  if (btn) btn.blur();   // the bottom button is hidden (CSS); unfocused so a stray Enter doesn't press it
+  box.querySelectorAll('.td-hol-mute').forEach(function (b) {
+    b.onclick = function () {
+      _tdHolMute([items[+b.dataset.n].e]);
+      b.closest('.td-hol-one').remove();
+      if (!box.querySelector('.td-hol-one')) { var x = box.querySelector('.rpm-dlg-x'); if (x) x.click(); }
+    };
+  });
 }

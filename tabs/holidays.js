@@ -119,7 +119,7 @@ function _holUpcoming() {
         var last = new Date(d); if (i.days) last.setDate(d.getDate() + i.days - 1);
         if (last < start || d >= end) return;
         var tag = g.tag + (i.note ? ' · ' + i.note : '') + (derinOff[i.n] && g.tag !== 'Derin' ? ' · Derin closed' : '');
-        out.push({ d: d, last: last, i: i, tag: tag });
+        out.push({ d: d, last: last, i: i, tag: tag, g: g });
       });
     });
   });

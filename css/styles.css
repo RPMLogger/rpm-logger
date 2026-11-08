@@ -2815,18 +2815,21 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Today's holiday reminder (2026-10-24): the alert box as just text, no title or colour; the button is a .link-btn (today.js). */
 /* "Today is Oct 27" centred on the ✕'s line (user, 2026-10-27; there was no title before) */
 .rpm-dlg.td-hol-dlg .rpm-dlg-head { justify-content: flex-end; position: relative; }
-.rpm-dlg.td-hol-dlg .rpm-dlg-title { position: absolute; left: 0; right: 0; text-align: center; pointer-events: none;
+.rpm-dlg.td-hol-dlg .rpm-dlg-title { position: absolute; left: 0; right: 0; text-align: left;   /* left like the rest (user, 2026-11-08) */ pointer-events: none;
   font-family: "DM Mono", monospace; font-size: 14px; letter-spacing: 1px; color: var(--t-normal); text-transform: uppercase; }   /* all caps; the size and grey of "Halloween coming up" under it (user, 2026-10-27) */
-.rpm-dlg.td-hol-dlg .rpm-dlg-acts { justify-content: center; }   /* the button centred under the text (user 2026-10-24) */
-.rpm-dlg.td-hol-dlg .rpm-dlg-msg { color: var(--t-normal); text-align: center; font-size: 14px; margin-top: 21px; }   /* ~20px under TODAY IS, like the other gaps (user, 2026-10-27) */   /* the Dashboard values' grey; bigger than the alert's 11px (user 2026-10-24) */
+.rpm-dlg.td-hol-dlg .rpm-dlg-acts { display: none; }   /* each alert has its own button now (user, 2026-11-08) */
+.td-hol-dlg .td-hol-n { text-transform: uppercase; }   /* THANKSGIVING BREAK (user, 2026-11-08) */
+.td-hol-dlg .td-hol-mute { display: block; margin: 24px 0 0 auto; }   /* under each alert, on the right (user, 2026-11-08) */   /* the button centred under the text (user 2026-10-24) */
+.rpm-dlg.td-hol-dlg .rpm-dlg-msg { color: var(--t-normal); text-align: left; font-size: 14px; margin-top: 28px; }   /* ~20px under TODAY IS, like the other gaps (user, 2026-10-27) */   /* the Dashboard values' grey; bigger than the alert's 11px (user 2026-10-24) */
 /* The date as a calendar page (user 2026-10-24): the calendar icon's grey line, month in the top band, the day big. */
-.td-hol-dlg .td-hol-one + .td-hol-one { margin-top: 22px; }
-.td-hol-dlg .td-hol-cal { width: 38px; margin: 0 auto 20px;   /* 14 → 20, the gaps balanced (user, 2026-10-27) */ border: 1.5px solid var(--muted); border-radius: 7px; overflow: hidden; text-align: center; }
+.td-hol-dlg .td-hol-one + .td-hol-one { margin: 32px -24px 0; padding: 32px 24px 0; border-top: 1px solid rgba(255,255,255,0.08); }   /* a divider between alerts, edge to edge across the box's 24px padding (user, 2026-11-08) */
+.td-hol-dlg .td-hol-cal { width: 38px; margin: 0 0 26px;   /* 14 → 20, the gaps balanced (user, 2026-10-27) */ border: 1.5px solid var(--muted); border-radius: 7px; overflow: hidden; text-align: center; }
 .td-hol-dlg .td-hol-mo, .td-day-cal .td-hol-mo { font-family: "DM Mono", monospace; font-size: 7px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); padding: 2px 0 1px; border-bottom: 1.5px solid var(--muted); }
 .td-hol-dlg .td-hol-dd, .td-day-cal .td-hol-dd { font-family: "Bebas Neue", sans-serif; font-size: 19px; line-height: 1; letter-spacing: 1px; color: var(--t-normal); padding: 5px 0 3px; }   /* the page smaller: 48 → 38 wide (user, 2026-10-27) */
 /* Today's date page under the Today title, the holiday warning's (user, 2026-10-27; was the plain calendar icon) */
 .td-day-cal { width: 38px; margin: 4px 0 18px; border: 1.5px solid var(--muted); border-radius: 7px; overflow: hidden; text-align: center; }
-.td-hol-dlg .td-hol-l { margin-top: 4px; font-size: 11px; color: var(--t-faint); white-space: pre; }
+.td-hol-dlg .td-hol-cal + div { margin-bottom: 14px; font-size: 12px; }   /* the alert line, room before its lessons (user "space out all", 2026-11-08) */
+.td-hol-dlg .td-hol-l { margin-top: 10px; font-size: 11px; color: var(--t-faint); white-space: pre; text-align: left; }   /* lessons left-aligned (user, 2026-11-08) */
 
 /* General tab in the This Week window's look (2026-10-10): the four gold cards
    become flat sections one under the other. Section names red like MON; labels
