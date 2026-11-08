@@ -3,11 +3,13 @@
 // Initiate replies, the two audits (Lessons, Payments), then holidays coming up (the Today pop-up's 15-day window).
 // The audits come from their saved results (tabs/ctrl.js _auCache, import.js _ck): the portal runs them
 // ONCE in the background ~10s after it opens (_rsAuditRun), one after another, never on a timer.
+// Until that run is back the screen reads LOADING / CHECKING AUDITS (no old saved counts).
 // ‹ › step through them, clicking the screen opens that tab. Nothing waiting = the day + date.
 // No auto-cycling: it stays on what it shows until you press an arrow or that warning clears.
 // The 3-second redraw reads only what the portal already has (badges, commsAlertList, saved audits, _tdHolNear); it fetches nothing.
 // Trial forms: no "new" signal exists yet, so they're not here.
 var _rsKey = null;   // the warning on screen, kept across refreshes
+var _rsReady = false;   // false until the opening audit run is back: the screen reads LOADING, never old saved counts (user, 2026-11-08)
 
 function _rsBadge(id) {
   var b = document.getElementById(id);
@@ -56,19 +58,26 @@ function _rsLessonsAudit() {
 // The one background run: Lessons audit, then Payments, then the checklist (if nothing read it yet).
 function _rsAuditRun() {
   var url = typeof getScriptUrl === 'function' && getScriptUrl();
-  if (!url || typeof _auFetchSync !== 'function') return;
+  if (!url || typeof _auFetchSync !== 'function') { _rsReady = true; _rsRender(); return; }
   _auFetchSync(url, function () {
     _auFetchUnpaid(url, function () {
       if (typeof _ck !== 'undefined' && !_ck.loaded && !_ck.busy && typeof _ckLoad === 'function') _ckLoad();
+      _rsReady = true;   // a failed run ends the wait too: the screen then shows what it has
       _rsRender();
     });
-    _rsRender();
   });
 }
 
 function _rsRender() {
   var lcd = document.getElementById('hrLcd');
   if (!lcd) return;
+  if (!_rsReady) {
+    var wait = 'LOADING<small>CHECKING AUDITS</small>';
+    if (lcd.innerHTML !== wait) lcd.innerHTML = wait;
+    lcd.classList.remove('go'); lcd.dataset.tab = ''; lcd.dataset.fn = '';
+    document.querySelectorAll('.home-rack .hr-arw').forEach(function (b) { b.disabled = true; });
+    return;
+  }
   var items = _rsItems(), i = 0;
   items.forEach(function (it, n) { if (it.k === _rsKey) i = n; });
   var it = items[i];
