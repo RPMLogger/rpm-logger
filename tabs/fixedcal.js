@@ -411,7 +411,7 @@ function _fcInjectStyle() {
     // Screens sunk into the panel (user, 2026-11-07): black rim, deep shadow from the top, a light lip along the bottom edge
     "#fcBody .cr-lcd,#fcBody .fc-screen{border:1px solid #000;box-shadow:inset 0 3px 9px rgba(0,0,0,.95),inset 0 -1px 0 rgba(255,255,255,.03),0 -1px 0 rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.08)}" +
     "#fcBody .fc-screen{height:30px;box-shadow:inset 0 4px 8px rgba(0,0,0,1),inset 0 -1px 0 rgba(255,255,255,.04),0 -1px 0 rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.11)}" +   // the slim screens sunk as deep as THIS WEEK (user, 2026-11-07)   // knob pointers dimmed to the ticks' grey (user, 2026-11-07)
-    ".cal-ev.fc-ev{cursor:default;background-image:none;box-shadow:none;border-color:transparent}" +   // flat: just the colour, no button shading (user, 2026-11-07)
+    ".cal-ev.fc-ev{cursor:default}" +   // the Calendar's card 3D again: shading, dark edge, drop line (user, 2026-11-09; flat from 2026-11-07)
     ".cal-ev.fc-ev .n{color:var(--t-normal)}" +   // names dialled back to the time's grey (user, 2026-11-07)
     ".cal-ev.fc-ev.clash{outline:1px solid var(--accent)}" +
     ".cal-ev.fc-ev.pen{border:1px dashed oklch(0.63 0.19 70 / .7)}" +

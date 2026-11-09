@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=1264">
-  <link rel="stylesheet" href="css/goals.css?v=1264">
-  <link rel="stylesheet" href="css/lessontimer.css?v=1264">
+  <link rel="stylesheet" href="css/styles.css?v=1265">
+  <link rel="stylesheet" href="css/goals.css?v=1265">
+  <link rel="stylesheet" href="css/lessontimer.css?v=1265">
 </head>
 <body>
 <div class="container">
@@ -18,7 +18,7 @@
     <img src="img/portal-logo-grey.png" alt="Red Pick Music">   <!-- badge lettering grey, the portal text grey (user, 2026-11-08; white original = img/portal-logo.png) -->
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1264</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1265</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -29,6 +29,7 @@
     <span class="amp-power" aria-hidden="true"></span>   <!-- power switch beside the jacks, for looks (user, 2026-11-08) -->
     <span class="amp-jacks" aria-hidden="true"><i class="amp-jack"></i><i class="amp-jack"></i></span>
     <div class="amp-knobs"><button class="amp-knob" data-k="today" onclick="switchTab('today')" aria-label="Today"><span class="amp-knob-k"></span><span class="amp-knob-l">Today</span></button><button class="amp-knob" data-k="import" onclick="switchTab('import')" aria-label="Lessons"><span class="amp-knob-k"></span><span class="amp-knob-l">Lessons</span></button><button class="amp-knob" data-k="calendar" onclick="switchTab('calendar')" aria-label="Calendar"><span class="amp-knob-k"></span><span class="amp-knob-l">Calendar</span></button><button class="amp-knob" data-k="payments" onclick="switchTab('payments')" aria-label="Payments"><span class="amp-knob-k"></span><span class="amp-knob-l">Payments</span></button><button class="amp-knob" data-k="audit" onclick="switchTab('audit')" aria-label="Audit"><span class="amp-knob-k"></span><span class="amp-knob-l">Audit</span></button><button class="amp-knob" data-k="comms" onclick="switchTab('comms')" aria-label="Comms"><span class="amp-knob-k"></span><span class="amp-knob-l">Comms</span></button></div>
+    <button class="hdr-home hdr-refresh" onclick="rpmRefreshCurrent()" aria-label="Refresh" data-tip="Reads this tab again.&#10;Changes nothing."><span class="hdr-home-i hdr-refresh-i"></span></button>   <!-- the user's arrow (2026-11-09); the browser's refresh still lands on Home -->
     <button class="hdr-home hdr-mag" id="hdrMag" onclick="magToggle()" aria-label="Magnifier" data-tip="Instant.&#10;Magnifier: rest the pointer on longer text&#10;for half a second to see it bigger."><span class="hdr-home-i hdr-mag-i"></span></button>
     <button class="hdr-home" onclick="switchTab('home')" aria-label="Home" data-tip="Instant.&#10;Back to Home."><span class="hdr-home-i"></span></button>
     <!-- Back (2026-11-07): the place you were just before; only a location, never undoes (core/nav.js) -->
@@ -781,55 +782,55 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=1264"></script>
-<script src="core/storage.js?v=1264"></script>
-<script src="core/utils.js?v=1264"></script>
-<script src="core/dialog.js?v=1264"></script>
-<script src="core/api.js?v=1264"></script>
-<script src="core/secalert.js?v=1264"></script>
-<script src="core/magnifier.js?v=1264"></script>
-<script src="core/nav.js?v=1264"></script>
-<script src="core/rackscreen.js?v=1264"></script>
+<script src="core/state.js?v=1265"></script>
+<script src="core/storage.js?v=1265"></script>
+<script src="core/utils.js?v=1265"></script>
+<script src="core/dialog.js?v=1265"></script>
+<script src="core/api.js?v=1265"></script>
+<script src="core/secalert.js?v=1265"></script>
+<script src="core/magnifier.js?v=1265"></script>
+<script src="core/nav.js?v=1265"></script>
+<script src="core/rackscreen.js?v=1265"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=1264"></script>
-<script src="tabs/lessons.js?v=1264"></script>
-<script src="tabs/payments.js?v=1264"></script>
-<script src="tabs/general.js?v=1264"></script>
-<script src="tabs/financial.js?v=1264"></script>
-<script src="tabs/inquiries.js?v=1264"></script>
-<script src="tabs/inqarchive.js?v=1264"></script>
-<script src="tabs/comms.js?v=1264"></script>
-<script src="tabs/announce.js?v=1264"></script>
-<script src="tabs/notes.js?v=1264"></script>
-<script src="tabs/todo.js?v=1264"></script>
-<script src="tabs/availability.js?v=1264"></script>
-<script src="tabs/travel.js?v=1264"></script>
-<script src="tabs/tripsummary.js?v=1264"></script>
-<script src="tabs/triphistory.js?v=1264"></script>
-<script src="tabs/skips.js?v=1264"></script>
-<script src="tabs/student.js?v=1264"></script>
-<script src="tabs/ctrl.js?v=1264"></script>
-<script src="tabs/emails.js?v=1264"></script>
-<script src="tabs/dropbox.js?v=1264"></script>
-<script src="tabs/import.js?v=1264"></script>
-<script src="tabs/today.js?v=1264"></script>
-<script src="tabs/home.js?v=1264"></script>
-<script src="tabs/trial.js?v=1264"></script>
-<script src="tabs/ending.js?v=1264"></script>
-<script src="tabs/reviews.js?v=1264"></script>
-<script src="tabs/financial2.js?v=1264"></script>
-<script src="tabs/studentline.js?v=1264"></script>
-<script src="tabs/calendar.js?v=1264"></script>
-<script src="tabs/fixedcal.js?v=1264"></script>
-<script src="tabs/slotchange.js?v=1264"></script>
-<script src="tabs/help.js?v=1264"></script>
-<script src="tabs/holidays.js?v=1264"></script>
-<script src="tabs/archive.js?v=1264"></script>
-<script src="tabs/texttemplates.js?v=1264"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
-<script src="tabs/goals.js?v=1264"></script>
-<script src="tabs/logtimer.js?v=1264"></script>
-<script src="tabs/lessontimer.js?v=1264"></script>
+<script src="tabs/icons.js?v=1265"></script>
+<script src="tabs/lessons.js?v=1265"></script>
+<script src="tabs/payments.js?v=1265"></script>
+<script src="tabs/general.js?v=1265"></script>
+<script src="tabs/financial.js?v=1265"></script>
+<script src="tabs/inquiries.js?v=1265"></script>
+<script src="tabs/inqarchive.js?v=1265"></script>
+<script src="tabs/comms.js?v=1265"></script>
+<script src="tabs/announce.js?v=1265"></script>
+<script src="tabs/notes.js?v=1265"></script>
+<script src="tabs/todo.js?v=1265"></script>
+<script src="tabs/availability.js?v=1265"></script>
+<script src="tabs/travel.js?v=1265"></script>
+<script src="tabs/tripsummary.js?v=1265"></script>
+<script src="tabs/triphistory.js?v=1265"></script>
+<script src="tabs/skips.js?v=1265"></script>
+<script src="tabs/student.js?v=1265"></script>
+<script src="tabs/ctrl.js?v=1265"></script>
+<script src="tabs/emails.js?v=1265"></script>
+<script src="tabs/dropbox.js?v=1265"></script>
+<script src="tabs/import.js?v=1265"></script>
+<script src="tabs/today.js?v=1265"></script>
+<script src="tabs/home.js?v=1265"></script>
+<script src="tabs/trial.js?v=1265"></script>
+<script src="tabs/ending.js?v=1265"></script>
+<script src="tabs/reviews.js?v=1265"></script>
+<script src="tabs/financial2.js?v=1265"></script>
+<script src="tabs/studentline.js?v=1265"></script>
+<script src="tabs/calendar.js?v=1265"></script>
+<script src="tabs/fixedcal.js?v=1265"></script>
+<script src="tabs/slotchange.js?v=1265"></script>
+<script src="tabs/help.js?v=1265"></script>
+<script src="tabs/holidays.js?v=1265"></script>
+<script src="tabs/archive.js?v=1265"></script>
+<script src="tabs/texttemplates.js?v=1265"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
+<script src="tabs/goals.js?v=1265"></script>
+<script src="tabs/logtimer.js?v=1265"></script>
+<script src="tabs/lessontimer.js?v=1265"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -989,10 +990,16 @@ function rpmBoxBolts(p) {
 // Forgets the tab's kept data, then opens the tab again; no Back step.
 var _rpmRefreshing = false;
 function rpmTabRefreshBtn(p) {
+  return;   // 2026-11-09: one refresh on the amp (beside the Magnifier) instead, for whatever tab is open
   if (!p || typeof REFRESH_ICON !== 'string') return;
   var id = p.id.replace('tab-', '');
   if (id === 'dropbox' || id === 'home' || id === 'fixedcal' || p.querySelector(':scope > .tab-refresh')) return;   // Fixed schedule: none, it reads fresh on open (user, 2026-11-09)
   p.insertAdjacentHTML('afterbegin', '<button class="win-refresh tab-refresh" onclick="rpmTabRefresh(\'' + id + '\')" data-tip="Reads this tab again.\nChanges nothing.">' + REFRESH_ICON + '</button>');
+}
+// The amp's refresh (user, 2026-11-09): reads the open tab again and stays on it.
+function rpmRefreshCurrent() {
+  var p = document.querySelector('.tab-panel.active');
+  rpmTabRefresh(p ? p.id.replace('tab-', '') : 'home');
 }
 function rpmTabRefresh(tab) {
   if (tab === 'student' && window._stState) _stState.roster = null;

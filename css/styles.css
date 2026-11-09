@@ -5101,3 +5101,42 @@ html body #calBody .cal-bar:has(#calPick) { position: relative; z-index: 30; }  
 /* Gold alert glows a bit brighter (user, 2026-11-09): amp knobs (Payments, Audit, Comms) .6 → .85 and 9 → 11px; rack buttons (Emails…) .4 → .6. Delete to undo. */
 html body .header .amp-knob.rpm-alert .amp-knob-k, html body .header .amp-knob.rpm-alert:hover .amp-knob-k { box-shadow: 0 0 11px rgba(212,176,103,.85), 0 2px 4px #000, inset 0 1px 0 rgba(255,255,255,.1); }
 html body .home-rack .hr-pb.rpm-alert, html body .home-rack .hr-pb.rpm-alert:hover { box-shadow: 0 0 3px 1.5px rgba(212,176,103,.6), 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); }
+/* THE AMP'S REFRESH (user, 2026-11-09): the user's arrow, left of the Magnifier — ☰ ← ⌂ | knobs | ⟳ 🔍 power.
+   Reads the open tab again; the browser's own refresh still lands on Home. Per-tab refresh buttons are off. */
+html body .header .hdr-home.hdr-refresh:not(.hdr-mag):not(.hdr-back) { left: auto; right: 127.5px; }   /* Magnifier 93.5 + 34, the left trio's spacing */
+html body .header .hdr-home.hdr-refresh:not(.hdr-mag):not(.hdr-back) .hdr-refresh-i { left: 6px; top: 6px; width: 12px; height: 12px;
+  -webkit-mask: url("../img/refresh-arrow.svg") center / contain no-repeat; mask: url("../img/refresh-arrow.svg") center / contain no-repeat; }
+/* RACK FEET (user, 2026-11-09: "the amp legs, put them also on the racks"; spread tried, reverted): the amp's two feet, same shape and colours,
+   just under the rack's outer ring (5px), set in like the amp's, hanging in the 48px gap like the amp's. Delete this block to undo. */
+/* + the bottom rack of the Calendar and Fixed schedule stacks (user, 2026-11-09: "calendar racks as well") */
+.home-rack::after, html body #tab-calendar .cal-bar.cr.cal-bar2::after, html body #fcBody .cal-bar.cr.fc-rack2::after { content: ""; position: absolute; left: 46px; right: 46px; bottom: -19px;   /* not spread (user, 2026-11-09): 51px inside the ring, like the amp's */
+  height: 14px; pointer-events: none;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2714%27%3E%3Cpath d=%27M0 0H34L31.5 11.5Q30.8 14 28 14H6Q3.2 14 2.5 11.5Z%27 fill=%27%231e1e1e%27 stroke=%27%232c2c2c%27/%3E%3C/svg%3E") left center / 34px 14px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2714%27%3E%3Cpath d=%27M0 0H34L31.5 11.5Q30.8 14 28 14H6Q3.2 14 2.5 11.5Z%27 fill=%27%231e1e1e%27 stroke=%27%232c2c2c%27/%3E%3C/svg%3E") right center / 34px 14px no-repeat; }
+body:has(#tab-calendar.active, #tab-fixedcal.active) .home-rack::after { display: none; }   /* there the racks stack on each other, no room for feet */
+/* ONE RACK CASE on Calendar + Fixed schedule (user, 2026-11-09: stacked racks' doubled rings read too heavy, "try one rack case"):
+   the Home rack + the two Calendar racks touch, one 1px seam between units, and the 4px ring runs only round the outside of the stack.
+   Each rack draws its share of the ring in ::before (its own box-shadow ring off): top unit = top + sides, middle = sides, bottom = sides + bottom.
+   Delete this block to undo. */
+body:has(#tab-calendar.active, #tab-fixedcal.active) .home-rack,
+html body #tab-calendar .cal-bar.cr, html body #fcBody .cal-bar.cr { box-shadow: none !important; }   /* !important: the Calendar rack's own ring rule outranks this */
+body:has(#tab-calendar.active, #tab-fixedcal.active) .home-rack { margin-bottom: 0; }
+html body #tab-calendar .cal-bar.cr:not(.cal-bar2), html body #fcBody .cal-bar.cr:not(.fc-rack2) { margin-bottom: 0 !important; }
+html body #tab-calendar .cal-bar.cr, html body #fcBody .cal-bar.cr { margin-top: 0 !important; border-top-width: 0; border-top-left-radius: 0; border-top-right-radius: 0; }
+body:has(#tab-calendar.active, #tab-fixedcal.active) .home-rack { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+html body #tab-calendar .cal-bar.cr:not(.cal-bar2), html body #fcBody .cal-bar.cr:not(.fc-rack2) { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+body:has(#tab-calendar.active, #tab-fixedcal.active) .home-rack::before,
+html body #tab-calendar .cal-bar.cr::before, html body #fcBody .cal-bar.cr::before { content: ""; position: absolute; inset: -6px; pointer-events: none;
+  box-shadow: inset 0 0 0 1px #2c2c2c, inset 0 0 0 5px #1e1e1e; }
+body:has(#tab-calendar.active, #tab-fixedcal.active) .home-rack::before { border-radius: 11px 11px 0 0; clip-path: inset(0 0 5px 0); }
+html body #tab-calendar .cal-bar.cr:not(.cal-bar2)::before, html body #fcBody .cal-bar.cr:not(.fc-rack2)::before { top: -5px; border-radius: 0; clip-path: inset(5px 0 5px 0); }
+html body #tab-calendar .cal-bar.cr.cal-bar2::before, html body #fcBody .cal-bar.cr.fc-rack2::before { top: -5px; border-radius: 0 0 11px 11px; clip-path: inset(5px 0 0 0); }
+/* FEET STAND ON THE NEXT BORDER (user, 2026-11-09: "maybe legs sit on top of next border"): every gap under a unit with feet
+   = the feet (14px between the outer rings) instead of 48px. Amp → rack, rack → tab box, Calendar / Fixed schedule bottom rack → week grid.
+   Delete this block to undo. */
+.home-rack { margin-top: -34px; }   /* collapses with the amp's 172.5px bottom margin → 138.5: rack ring meets the amp's feet */
+.home-rack::after, html body #tab-calendar .cal-bar.cr.cal-bar2::after, html body #fcBody .cal-bar.cr.fc-rack2::after { bottom: -20px; }   /* feet top on the ring, 14px below it */
+.home-rack, body:has(#tab-home.active) .home-rack { margin-bottom: 22px; }   /* was 56 */
+body:has(#tab-home.active, #tab-audit.active) .home-rack { margin-bottom: 24px; }   /* was 58 */
+html body #tab-calendar #calBody > .cal-bar2.cr, html body #fcBody > .cal-bar.cr.fc-rack2 { margin-bottom: 19px !important; }   /* was 53 */
