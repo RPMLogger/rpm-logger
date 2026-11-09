@@ -751,19 +751,35 @@ function _dxEdit(which, k) {
     var sp = _dx.counterSp[k];
     line.appendChild(sp.box);
     // Clearing the date is a trash icon, so the only ✕ in the box closes it.
-    var clr = _fxX("Clears this date.\nNothing saves until Save."); clr.innerHTML = TRASH_ICON; clr.classList.add("fx-trash");
-    clr.onclick = function() { sp.clear(); }; line.appendChild(clr);
+    var had = sl.counter && !sl.counter.empty;
+    var clr = _fxX(had ? "Clears this date: the lesson didn't happen.\nSave logs it as a skip and deletes that day's calendar lesson."
+                       : "Clears this date.\nNothing saves until Save.");
+    clr.innerHTML = TRASH_ICON; clr.classList.add("fx-trash");
+    line.appendChild(clr);
     line.appendChild(st);
     var save = _fxBtn("Save"); save._fxState = st; line.appendChild(save);
+    // Deleting a date that was there = the lesson didn't happen = a skip
+    // (2026-11-09, Tianyi Nov 6): who + reason, then Save logs it to Skip Logs
+    // and deletes that day's calendar lesson too.
+    var skip = had ? _dxSkipRow(sl.counter.value) : null;
+    if (skip) box.appendChild(skip.el);
+    clr.onclick = function() { sp.clear(); if (skip) skip.show(); };
     save.onclick = function() {
-      var fields = [], cur = 0;
+      var fields = [], last = -1;
       _dx.slots.forEach(function(s2, j) {
         if (!s2.counter) return;
         var v = _dx.counterSp[j].getValue();
         fields.push({ col: s2.counter.col, value: v });
-        if (j >= 4 && v) cur++;
+        if (v) last = j;
       });
-      _saveCounterRow(_dx.d.counter.row, fields, String(cur || 1), save, "Save");
+      // E = the slot (1-4) of the last date left in the row. Every block before
+      // the grid is full, so nothing left in the grid = 4 (was: count the
+      // current block's dates, 0 → 1, which set Tianyi's E to 1, not 4).
+      var fin = last >= 0 ? String(last % 4 + 1) : (_dx.cOff === 0 ? "4" : "");
+      var cleared = had && !sp.getValue();
+      if (cleared && !skip.who()) { skip.show(); rpmHalf(st, "Pick who skipped"); return; }
+      if (!cleared) { _saveCounterRow(_dx.d.counter.row, fields, fin, save, "Save"); return; }
+      _dxSaveSkip(sl.counter.value, skip, fields, fin, save);
     };
   } else if (which === "imp") {
     var logged = sl.imp && !sl.imp.empty;
@@ -820,6 +836,78 @@ function _saveCounterRow(row, fields, finished, btn, label) {
     _fxBusy(btn, false);
     if (r.ok) { _trSetLabel(btn, "Saved ✓"); setTimeout(function() { if (_fixCurrentName) _loadFixData(_fixCurrentName); }, 500); }
     else { btn.disabled = false; _trSetLabel(btn, label); rpmFail(btn._fxState, r.why || "Save failed"); }
+  });
+}
+
+// The Counter date's year: the nearest past one (cells hold "Nov /6", no year).
+function _dxYmd(disp) {
+  var p = _fixParseMonDay(disp);
+  return p ? rpmDtpYmd(new Date(_fixInferYear(p.mon, p.day), p.mon, p.day)) : "";
+}
+
+// Skipped by Student / Teacher / Vacation + reason, under a deleted date.
+// Hidden until the trash is pressed.
+function _dxSkipRow(disp) {
+  var el = document.createElement("div"); el.className = "dx-skip"; el.hidden = true;
+  var who = "";
+  var lab = document.createElement("div"); lab.className = "fx-sub";
+  lab.textContent = "Skip · " + _dxShort(disp) + " · who skipped?";
+  el.appendChild(lab);
+  var row = document.createElement("div"); row.className = "dx-line";
+  var btns = ["Student", "Teacher", "Vacation"].map(function(w) {
+    var b = document.createElement("button"); b.type = "button";
+    b.className = "link-btn"; b.setAttribute("data-toggle", ""); b.textContent = w;
+    b.onclick = function() { who = w; btns.forEach(function(x) { x.classList.toggle("pressed", x === b); }); };
+    row.appendChild(b); return b;
+  });
+  var note = document.createElement("input"); note.type = "text";
+  note.className = "rpm-field dx-skip-note"; note.placeholder = "Reason (optional)";
+  row.appendChild(note);
+  el.appendChild(row);
+  // Income only recounts the last 3 weeks (RPM Accountant, 6am): older than
+  // 2 weeks may already be frozen there.
+  var d = new Date(_dxYmd(disp) + "T12:00:00");
+  if (Date.now() - d.getTime() > 14 * 864e5) {
+    var w = document.createElement("div"); w.className = "fx-hint dx-skip-warn";
+    w.textContent = "Older than 2 weeks: Income may not recount that week. Check the Income tab by hand.";
+    el.appendChild(w);
+  }
+  return {
+    el: el,
+    show: function() { el.hidden = false; },
+    who: function() { return who; },
+    note: function() { return note.value.trim(); }
+  };
+}
+
+// Counter row → Skip Logs → that day's calendar lesson (if still there).
+// Stops at the first failure and says which steps already went through.
+function _dxSaveSkip(disp, skip, fields, fin, btn) {
+  var ymd = _dxYmd(disp), name = _fixCurrentName;
+  var ev = (_dx.d.calendar || []).filter(function(e) { return e.ymd === ymd; })[0];
+  if (btn._fxState) btn._fxState.innerHTML = "";
+  btn.disabled = true; _trSetLabel(btn, "Saving…"); _fxBusy(btn, true);
+  var done = [];
+  function fail(why) {
+    _fxBusy(btn, false); btn.disabled = false; _trSetLabel(btn, "Save");
+    rpmFail(btn._fxState, (done.length ? "Done: " + done.join(", ") + ". " : "") + why);
+  }
+  _fxCall("saveCounterRow", { row: _dx.d.counter.row, finished: fin, fields: JSON.stringify(fields) }).then(function(r) {
+    if (!r.ok) return fail(r.why || "Counter save failed");
+    done.push("Counter");
+    return _fxCall("logSkipManual", { name: name, date: ymd, who: skip.who(), note: skip.note() }).then(function(r2) {
+      if (!r2.ok) return fail(r2.why || "Skip log failed");
+      done.push("Skip Logs");
+      if (!ev) return true;
+      return _fxCall("deleteCalendarEvent", { calId: ev.calId, eventId: ev.id, date: ymd }).then(function(r3) {
+        if (!r3.ok) return fail(r3.why || "Calendar delete failed");
+        return true;
+      });
+    });
+  }).then(function(ok) {
+    if (ok !== true) return;
+    _fxBusy(btn, false); _trSetLabel(btn, "Saved ✓");
+    setTimeout(function() { if (_fixCurrentName) _loadFixData(_fixCurrentName); }, 500);
   });
 }
 

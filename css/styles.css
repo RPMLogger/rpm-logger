@@ -906,6 +906,10 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 #auditFixContent .field-label { margin-bottom: 16px; }
 #auditFixContent .dx-ed { margin-top: 30px; padding: 20px 22px; }
 #auditFixContent .dx-ed .fx-sub { margin-bottom: 14px; }
+/* Repair: deleting a date = a skip (who + reason) under the date line */
+.dx-skip { margin-top: 22px; }
+.dx-skip .dx-skip-note { flex: 1; min-width: 0; padding: 4px 8px; font-size: 11px; height: 26px; box-sizing: border-box; }
+.dx-skip .dx-skip-warn { margin-top: 10px; color: var(--amber, #e0a040); }
 #auditFixContent .fx-row { padding: 7px 0; }
 #auditFixContent .fx-row.dx-blockstart { margin-top: 22px; }   /* second block after a gap, like the grid's block gap (2026-09-29) */
 #auditFixContent .link-btn .trash-icon { height: 11px; width: auto; }
