@@ -5104,7 +5104,7 @@ html body .home-rack .hr-pb.rpm-alert, html body .home-rack .hr-pb.rpm-alert:hov
 /* THE AMP'S REFRESH (user, 2026-11-09): the user's arrow, left of the Magnifier — ☰ ← ⌂ | knobs | ⟳ 🔍 power.
    Reads the open tab again; the browser's own refresh still lands on Home. Per-tab refresh buttons are off. */
 html body .header .hdr-home.hdr-refresh:not(.hdr-mag):not(.hdr-back) { left: auto; right: 127.5px; }   /* Magnifier 93.5 + 34, the left trio's spacing */
-html body .header .hdr-home.hdr-refresh:not(.hdr-mag):not(.hdr-back) .hdr-refresh-i { left: 6px; top: 6px; width: 12px; height: 12px;
+html body .header .hdr-home.hdr-refresh:not(.hdr-mag):not(.hdr-back) .hdr-refresh-i { left: 6.5px; top: 6.5px; width: 11px; height: 11px;   /* 11px: the Magnifier's drawn size (user, 2026-11-09; was 12) */
   -webkit-mask: url("../img/refresh-arrow.svg") center / contain no-repeat; mask: url("../img/refresh-arrow.svg") center / contain no-repeat; }
 /* RACK FEET (user, 2026-11-09: "the amp legs, put them also on the racks"; spread tried, reverted): the amp's two feet, same shape and colours,
    just under the rack's outer ring (5px), set in like the amp's, hanging in the 48px gap like the amp's. Delete this block to undo. */
