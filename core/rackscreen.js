@@ -19,14 +19,14 @@ function _rsBadge(id) {
 
 function _rsItems() {
   var out = [], add = function (k, n, one, many, tab) {
-    if (n > 0) out.push({ k: k, top: n + ' ' + (n === 1 ? one : many), tab: tab });
+    if (n > 0) out.push({ k: k, n: n, top: n + ' ' + (n === 1 ? one : many), tab: tab });
   };
   add('texts', typeof commsAlertList !== 'undefined' ? commsAlertList.length : 0, 'new text', 'new texts', 'comms');
   add('emails', _rsBadge('emNavBadge'), 'new email', 'new emails', 'emails');
   add('inq', _rsBadge('inqBadge'), 'new inquiry', 'new inquiries', 'inquiries');
   add('init', _rsBadge('initNavBadge'), 'Initiate reply', 'Initiate replies', 'initiate');
   var lessons = _rsLessonsAudit();
-  if (lessons) out.push({ k: 'au-lessons', top: lessons + ' in Lessons audit', fn: 'lessons' });
+  if (lessons) out.push({ k: 'au-lessons', n: lessons, top: lessons + ' in Lessons audit', fn: 'lessons' });
   var owe = (typeof _auCache !== 'undefined' && _auCache.unpaid && _auCache.unpaid.list) ? _auCache.unpaid.list.length : 0;
   add('au-pay', owe, 'payment due', 'payments due', null);
   if (owe) out[out.length - 1].fn = 'payments';
@@ -68,7 +68,22 @@ function _rsAuditRun() {
   });
 }
 
+// THE TO-DO METER (user, 2026-11-09): the Calendar's VU meter moved to the Home rack (was the grille). The needle = everything waiting
+// on the screen added up (texts, emails, inquiries, Initiate replies, Lessons audit, payments due; not holidays). 0 = nothing to do;
+// the 0 mark = 10 things; past it, the red. The screen beside it says what they are, so no hover.
+var HR_VU_FULL = 10, _hrVuLast = null;
+function _hrVuRender() {
+  var el = document.getElementById('hrVu');
+  if (!el || typeof _calVuSvg !== 'function') return;
+  // waits for the audits like the screen does: the needle stays at rest until the real total is in (user, 2026-11-09: "show reality")
+  var total = _rsReady ? _rsItems().reduce(function (a, it) { return a + (it.n || 0); }, 0) : null;
+  if (total === _hrVuLast && el.firstChild) return;
+  _hrVuLast = total;
+  el.innerHTML = _calVuSvg(total == null ? null : total / HR_VU_FULL);
+}
+
 function _rsRender() {
+  _hrVuRender();
   var lcd = document.getElementById('hrLcd');
   if (!lcd) return;
   if (!_rsReady) {

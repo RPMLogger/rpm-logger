@@ -55,8 +55,9 @@ body::after { content: ""; position: fixed; inset: 0; pointer-events: none;
   background: radial-gradient(circle, rgb(255 240 215 / 0.04) 1px, transparent 1.6px) 0 0 / 7px 7px;
   }   /* back on over a fainter diamond plate (user, 2026-10-30); fainter 0.07 → 0.04, page less busy (user, 2026-11-06) */
 /* the user's diamond plate on the page background, under the gold glow (user, 2026-10-30; tweed amp photo tried first);
-   drawn in code so every diamond is even (the image tile had brighter patches and seams; was ../img/bg-plate.jpg 0 0 / 380px under 93% dark) */
-body { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cg fill='%23fff' fill-opacity='0.07'%3E%3Cpath d='M1 15 Q10 10 15 1 Q6 6 1 15Z'/%3E%3Cpath d='M15.5 15.5 Q24.5 20.5 29.5 29.5 Q20.5 24.5 15.5 15.5Z'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 30px, var(--rpm-plate); }
+   drawn in code so every diamond is even (the image tile had brighter patches and seams; was ../img/bg-plate.jpg 0 0 / 380px under 93% dark)
+   highlights 0.07 → 0.04, less visible (user, 2026-11-09) */
+body { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cg fill='%23fff' fill-opacity='0.04'%3E%3Cpath d='M1 15 Q10 10 15 1 Q6 6 1 15Z'/%3E%3Cpath d='M15.5 15.5 Q24.5 20.5 29.5 29.5 Q20.5 24.5 15.5 15.5Z'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 30px, var(--rpm-plate); }
 /* a faint paper grain inside the student cards; body-prefixed so the cards' own background: shorthand keeps it (user, 2026-10-30) */
 body #importBody .im-card, body #tab-payments .incoming-card, body #importBody .td-student .db-panel.im-list { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* a bit of the cards' paper grain on the big boxes, logo box included (user, 2026-10-30; was on the page background) */
@@ -5032,3 +5033,68 @@ html body .header .amp-power::before { background: linear-gradient(#45201b, #361
 body:has(#tab-home.active, #tab-audit.active) .home-rack { margin-bottom: 58px; }
 body:has(#tab-calendar.active) .home-rack { margin-bottom: 12px; }   /* Calendar: its two racks stack on the Home rack, 2px between the rings; the 48px goes under its last rack (user, 2026-11-09) */
 body:has(#tab-fixedcal.active) .home-rack { margin-bottom: 17px; }   /* Fixed schedule's rack stacks on the Home rack too, 2px between the rings (its margin is -5px) */
+/* ALL SCREWS = THE AMP'S SCREWS (user, 2026-11-09: "screw consistency"): every screw in the portal (box .td-bolt, rack .cr-bolt/.hr-bolt,
+   Audit speaker .au-sb, nameplate) is the amp face's 11px black Phillips. Margins keep each screw's old centre (15px → +2px, 9px → -1px).
+   Ones already in the amp look (Home box, Home rack, Fixed Calendar racks) keep their own placement. Delete this block to undo. */
+html body .td-bolt, html body .cr-bolt, html body .hr-bolt, html body .au-sb, html body .header .hdr-plate i {
+  width: 11px; height: 11px; border-radius: 50%; box-shadow: none; background: radial-gradient(circle at 40% 35%, #2a2a2a, #121212 70%, #080808); }
+html body .td-bolt::before, html body .td-bolt::after, html body .cr-bolt::before, html body .cr-bolt::after,
+html body .hr-bolt::before, html body .hr-bolt::after, html body .au-sb::before, html body .au-sb::after,
+html body .header .hdr-plate i::before, html body .header .hdr-plate i::after {
+  content: ""; position: absolute; left: 2.5px; right: 2.5px; top: 5px; height: 1px; border-radius: 0; background: #000; }
+html body .td-bolt::after, html body .cr-bolt::after, html body .hr-bolt::after, html body .au-sb::after, html body .header .hdr-plate i::after { transform: rotate(90deg); }
+html body .td-bolt, html body .cr-bolt { margin: 2px; }      /* were 15px */
+html body .au-sb, html body .header .hdr-plate i { margin: -1px; }   /* were 9px */
+html body #tab-home > .td-bolt, html body .home-rack .hr-bolt, html body #fcBody .cal-bar > .cr-bolt { margin: 0; }   /* already amp screws, placed by hand */
+html body .hr-bolt:not(.home-rack .hr-bolt) { top: calc(50% - 5.5px); }
+/* Fixed schedule WEEK A / THIS WEEK screen the Thanksgiving screen's size (user, 2026-11-09: "balance them"), green kept, WEEK A on top:
+   190 × 36px, lines 10 / 8.5px. Delete to undo (44px, flexible width). */
+html body #fcBody .cr-lcd { flex: none; width: 190px; height: 36px; box-sizing: border-box;
+  font-size: 10px; }   /* green kept (user, 2026-11-09: "size good but don't change the color") */
+html body #fcBody .cr-lcd small { font-size: 8.5px; letter-spacing: 1.5px; opacity: .75; }
+/* WEEK A screen right under the Thanksgiving screen (user, 2026-11-09: "make screens come under same lines"): centred in its rack like
+   Thanksgiving is in the Home rack; the big knob 17px right to keep clear of it. Delete to undo (screen over A / B BALANCE). */
+html body #fcBody .cr-lcd { position: absolute; left: calc(50% - 95px); top: calc(50% - 18px); }
+html body #fcBody .fc-bigknob { position: relative; left: 17px; }
+/* The three count screens centred in their rack (user, 2026-11-09: "keep same but move center"), same sizes: shifted right by half
+   the empty right block (110px + 22px gap) so their middle is the rack's middle, under WEEK A and Thanksgiving. Delete to undo. */
+html body #fcBody .fc-countrow .fc-screens { margin-left: 0; min-width: 0; }   /* no centring offset: the open-spot screens need the room (2026-11-09; was 93px) */
+html body #fcBody .fc-countrow .fc-right { width: auto; }   /* the key moved here (user, 2026-11-09): the block hugs it */
+/* Fixed schedule A + B / Week A / Week B lined up under the Home rack's To-do / Notes / Dropbox (user, 2026-11-09: "balance buttons"):
+   the same 20px gaps and the same start. Delete to undo (10px gaps, 18px further left). */
+html body #fcBody .fc-modes { gap: 20px; margin-left: 18px; }
+/* Lit red, lit from behind (user, 2026-11-09: "seems a bit fake" → this look; "match the amp button to what you did"): darker red edge,
+   softer centre, faint top light, small glow. On the Fixed schedule push buttons AND the amp's power rocker. Delete to undo. */
+html body #fcBody .cr-pb.lit, html body .header .amp-power::before {   /* not the Calendar tab: it keeps its flat red (user, 2026-11-09) */
+  background: radial-gradient(circle at 50% 42%, oklch(.6 .17 29), oklch(.44 .15 29) 70%, oklch(.34 .12 29));
+  box-shadow: inset 0 0 3px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.12), 0 0 5px oklch(.55 .18 29 / .3); }
+/* Calendar LESSONS counter = the Fixed schedule Load screen's style (user, 2026-11-09: "match the style"):
+   its softer amber, 11px numbers, sunk glass with the bevel. Delete to undo (brighter amber, 10px). */
+html body #calBody .cr-count { border-radius: 3px; font: 500 11px 'DM Mono', monospace; letter-spacing: 1px; color: oklch(.58 .09 70); text-shadow: 0 0 4px oklch(.6 .12 60 / .18);
+  box-shadow: inset 0 4px 8px rgba(0,0,0,1), inset 0 -1px 0 rgba(255,255,255,.04), 0 -1px 0 rgba(0,0,0,.8), 0 1px 0 rgba(255,255,255,.11); }
+/* Calendar week screen's text = the other screens' (Thanksgiving, Fixed WEEK A) (user, 2026-11-09): 10px, second line 8.5px. Delete to undo (12 / 10px). */
+html body #calBody .cr-lcd { font-size: 10px; }
+html body #calBody .cr-lcd small { font-size: 8.5px; letter-spacing: 1.5px; opacity: .75; }
+/* LESSONS inside the Calendar's counter, like the Load screen's WEEK A 18 (user, 2026-11-09). Delete + the markup in tabs/calendar.js to undo. */
+html body #calBody .cr-count { gap: 12px; }
+html body #calBody .cr-count small { font: 500 8px 'DM Mono', monospace; letter-spacing: 1.5px; text-transform: uppercase; opacity: .75; }
+html body #calBody .cr-count b { font-weight: 500; }
+/* Calendar week screen + arrows = the Home rack's (user, 2026-11-09): screen 190 × 36, ‹ › 23px with the Home arrows' darker rim and 10px glyph,
+   10px from the screen. The W / B meter's lit bars toned to the screen's text green (a solid bar read brighter than the same green in text). Delete to undo. */
+html body #calBody .cal-bar .cr-lcd { width: 190px; min-width: 190px; height: 36px; box-sizing: border-box; margin: 0 2px; }   /* 10px to each arrow, like Home */
+html body #calBody .cal-bar .cr-btn { width: 23px; height: 23px; font-size: 10px; border-color: #191919; }
+html body #calBody .cr-lr i { background: repeating-linear-gradient(90deg, transparent 0 5px, #0a0c0a 5px 6px), linear-gradient(90deg, oklch(.62 .07 145) 0 var(--v), oklch(.26 .035 145) var(--v)); box-shadow: 0 0 4px oklch(.63 .19 145 / .15); }
+/* Calendar student search = an empty screen, switched off (user, 2026-11-09): the week screen's dark glass, no rim, same 36px height;
+   typing lights it in the screen's green. Delete to undo (Home-style search box). */
+html body .cal-search .rpm-field { height: 36px; padding: 0 12px 0 30px; border-radius: 3px; border: 1px solid #000; background: #070807;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.8); color: oklch(.72 .08 145); text-shadow: 0 0 5px oklch(.63 .19 145 / .35);
+  font: 10px 'DM Mono', monospace; letter-spacing: 2px; text-transform: uppercase; }
+html body .cal-search .rpm-field:focus { border-color: #000; background: #0a0c0a; }
+html body .cal-search svg { stroke: #2e332e; }
+html body .cal-search:focus-within svg { stroke: oklch(.72 .08 145 / .6); }
+/* Calendar student list opens DOWN over the week grid (user, 2026-11-09: it opened up behind the logo, "Guitar lessons portal" printed over the first name). */
+html body #calBody .cr-ddpanel { bottom: auto; top: calc(100% + 8px); z-index: 50; }
+html body #calBody .cal-bar:has(#calPick) { position: relative; z-index: 30; }   /* the rack with the student list above the rack under it, so the list takes the clicks (2026-11-09) */
+/* THE TO-DO METER on the Home rack (user, 2026-11-09): the VU meter from the Calendar rack, where the grille was (same centre). core/rackscreen.js _hrVuRender. */
+.cr-vu { display: block; flex: none; font-family: 'DM Mono', monospace; filter: brightness(.88) drop-shadow(0 1px 1px #000); }   /* global now: the Home rack shows it on every tab */
+.home-rack .hr-vu { position: absolute; left: calc(50% + 170px); top: calc(50% - 22px); }   /* centred between the screen's › and Emails */

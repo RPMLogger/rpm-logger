@@ -105,6 +105,7 @@ function _fcRender(statusMsg) {
 
   // Counts don't depend on the view.
   var open = 0, half = 0, weekly = 0, biweekly = 0, wkA = 0, wkB = 0;
+  var spots = [], halves = [];   // the open spots themselves, for the rack's screen (user, 2026-11-09)
   students.forEach(function(s) {
     if (s.type === 'weekly') { weekly++; return; }
     biweekly++;
@@ -113,9 +114,9 @@ function _fcRender(statusMsg) {
   days.forEach(function(d) {
     rows.forEach(function(m) {
       var c = cells[d + '|' + m];
-      if (!c) { if (_fcInGrid(d, m)) open++; return; }
+      if (!c) { if (_fcInGrid(d, m)) { open++; spots.push({ d: d, m: m }); } return; }
       if (c.weekly.length) return;
-      if (!(c.A.length && c.B.length)) half++;
+      if (!(c.A.length && c.B.length)) { half++; halves.push({ d: d, m: m, free: c.A.length ? 'B' : 'A' }); }
     });
   });
 
@@ -129,18 +130,35 @@ function _fcRender(statusMsg) {
   }
   // The counts: a slim screen on top (numbers), captions printed on the rack under it, like a pedal's labels (user, 2026-11-07)
   // Two screens (user, 2026-11-07): what's free (open + half-open = total), then everything else
-  var titles = ['Free slots', 'A / B balance', 'Booked'];   // a title strip over each screen (user, 2026-11-07)
+  _fcSpots = spots.concat(halves); if (_fcSpotI >= _fcSpots.length) _fcSpotI = 0;
+  var titles = ['Free slots', 'Load'];   // a title strip over each screen (user, 2026-11-07)
   var groups = [
-    [[open, 'Open'], [half, 'Half-open', 'Biweekly slots with one week free.'], [open + half, 'Total open', 'Slots with any room: open + half-open.']],
-    [[wkA, 'Week A'], [wkB, 'Week B']],   // its own screen (user, 2026-11-07)
-    [[pencilled.length, 'Pencilled'], [weekly, 'Weekly'], [biweekly, 'Biweekly']]
+    [[open, 'Open'], [half, 'Half-open', 'Biweekly slots with one week free.']],   // Total open removed (user, 2026-11-09)
+    // A / B balance moved up to the top rack as a meter (user, 2026-11-09)
+    // Booked (Pencilled / Weekly / Biweekly) removed (user, 2026-11-09)
+    [[weekly + wkA, 'Week A', 'Lessons in a Week A: weekly ' + weekly + ' + biweekly A ' + wkA + '.'], [weekly + wkB, 'Week B', 'Lessons in a Week B: weekly ' + weekly + ' + biweekly B ' + wkB + '.']]   // was Av weekly load (user, 2026-11-09)   // its own screen (user, 2026-11-09)
   ];
+  // A / B balance (user, 2026-11-09): the Calendar's W / B meter, A over B, each bar its share of the biweeklies; in the top rack
+  // Biweekly A / B (user, 2026-11-09; was the W / B style meter): BIWEEKLY on the rack, Week A / Week B in a screen like the Load one
+  var abHtml = "<span class='fc-vert'><span class='fc-vcaps'><span class='cr-cap'>Biweekly</span></span>" +
+    "<span class='fc-vscreen fc-vwide'>" + [['Week A', wkA], ['Week B', wkB]].map(function(m) { return "<span><small>" + m[0] + "</small><b>" + m[1] + "</b></span>"; }).join('') + "</span></span>";
+  // Vertical (user, 2026-11-09): one small screen, a row per count, caption left and number right
+  // Vertical (user, 2026-11-09): captions printed on the rack on the left, a slim screen of numbers on the right
+  // Av weekly load its own unit beside Open / Half-open (user, 2026-11-09)
+  var vertHtml = groups.map(function(g, gi) {
+    var caps = function(cls) { return "<span class='fc-vcaps" + cls + "'>" + g.map(function(x) { return "<span class='cr-cap'" + (x[2] ? " data-tip='" + _fcEsc(x[2]) + "'" : "") + ">" + x[1] + "</span>"; }).join('') + "</span>"; };
+    var screen = "<span class='fc-vscreen'>" + g.map(function(x) { return "<b>" + x[0] + "</b>"; }).join('') + "</span>";
+    // the load unit: LOAD on the left, Week A / Week B inside the screen beside their numbers (user, 2026-11-09)
+    var loadScreen = "<span class='fc-vscreen fc-vwide'>" + g.map(function(x) { return "<span" + (x[2] ? " data-tip='" + _fcEsc(x[2]) + "'" : "") + "><small>" + x[1] + "</small><b>" + x[0] + "</b></span>"; }).join('') + "</span>";
+    if (gi === 0) return _fcSpotsHtml();   // the open spots, one at a time, Thanksgiving style (user, 2026-11-09; were the Open / Half-open counts)
+    return "<span class='fc-vert'>" + (gi === 1 ? "<span class='fc-vcaps'><span class='cr-cap'>Load</span></span>" + loadScreen : caps('') + screen) + "</span>";
+  }).join('');
   var screenHtml = "<span class='fc-screens'>" + groups.map(function(g, gi) {
     var cols = "grid-template-columns:repeat(" + g.length + ",1fr)";
     return "<span class='fc-meters' style='flex:" + g.length + "'>" +
-      "<span class='fc-title'>" + titles[gi] + "</span>" +
-      "<span class='fc-screen' style='" + cols + "'>" + g.map(function(x) { return "<b" + (x[2] ? " data-tip='" + _fcEsc(x[2]) + "'" : "") + ">" + x[0] + "</b>"; }).join('') + "</span>" +
-      "<span class='fc-caps' style='" + cols + "'>" + g.map(function(x) { return "<span class='cr-cap'>" + x[1] + "</span>"; }).join('') + "</span>" +
+      // no title strips: the rack is the others' 75px, the captions say it (user, 2026-11-09)
+      ("<span class='fc-screen' style='" + cols + "'>" + g.map(function(x) { return "<b" + (x[2] ? " data-tip='" + _fcEsc(x[2]) + "'" : "") + ">" + x[0] + "</b>"; }).join('') + "</span>") +
+      ("<span class='fc-caps' style='" + cols + "'>" + g.map(function(x) { return "<span class='cr-cap'>" + x[1] + "</span>"; }).join('') + "</span>") +
     "</span>";
   }).join('') + "</span>";
   var html =
@@ -151,14 +169,21 @@ function _fcRender(statusMsg) {
         // the knobs + grille in a fixed-width block in both layers, so the buttons line up with the screens under them (user, 2026-11-07)
         // Three columns sized like the three screens below, so THIS WEEK sits right over A / B BALANCE (user, 2026-11-07)
         "<span class='fc-screens fc-top'><span class='fc-tgrp' style='flex:3'>" +
-        "<span class='cr-pair fc-modes'>" + pb('both', 'A + B') + pb('A', 'Week A') + pb('B', 'Week B') + "<span class='fc-rl'>" + "<span class='cr-col'><button class='cr-pb' onclick='initFixedCalTab()' aria-label='Reload' data-tip='Read the calendars again.'></button><span class='cr-cap'>Reload</span></span>" + "</span></span>" +   // Reload joins the buttons (user, 2026-11-07: the big knob took its spot)   // push buttons again: easier than the slide switch (user, 2026-11-07)
+        "<span class='cr-pair fc-modes'>" + pb('both', 'A + B') + pb('A', 'Week A') + pb('B', 'Week B') + "</span>" +   // Reload removed: the tab's ⟳ does the same (user, 2026-11-09)   // push buttons again: easier than the slide switch (user, 2026-11-07)
         "</span><span class='fc-tgrp' style='flex:2'>" +
-        "<div class='cr-lcd'><small>THIS WEEK</small>WEEK " + _fcEsc(_fcData.thisWeek) + "</div>" +
+        "<div class='cr-lcd'>WEEK " + _fcEsc(_fcData.thisWeek) + "<small>THIS WEEK</small></div>" +
         "</span><span class='fc-tgrp fc-tgrp3' style='flex:3'>" +
         _fcBigKnob() +   // the knob and the key swapped (user, 2026-11-09)
         "</span></span>" +
         // a 160px block on the right of both layers keeps the screens as short as they were (user, 2026-11-07); the key sits in it
-        "<span class='fc-right fc-knobspot'>" +
+        "<span class='fc-right fc-knobspot'>" + abHtml +   // the key moved to the counts rack, A / B balance here (user, 2026-11-09)
+        "</span>" +
+      "</div>" +
+    "</div>" +
+    // split into two rack units like the Calendar's (user, 2026-11-09; was one rack, two layers)
+    "<div class='cal-bar cr fc-rack2'>" + bolts +
+      "<div class='cr-row fc-countrow'>" +
+        "<span class='fc-screens fc-vpair'>" + vertHtml + "</span>" + "<span class='fc-right'>" +   // was screenHtml (the wide screens)
         "<span class='cr-legend fc-legend2'>" +   // the key where the knob was (user, 2026-11-07)
           "<span><i style='background:color-mix(in oklab, " + FC_COLORS.weekly + " 55%, #1a1a1a);box-shadow:none'></i>Weekly</span>" +
           "<span><i style='background:color-mix(in oklab, " + FC_COLORS.A + " 55%, #1a1a1a);box-shadow:none'></i>Biweekly A</span>" +
@@ -166,12 +191,6 @@ function _fcRender(statusMsg) {
           "<span><i class='pen'></i>Pencilled</span>" +
         "</span>" +
         "</span>" +
-      "</div>" +
-    "</div>" +
-    // split into two rack units like the Calendar's (user, 2026-11-09; was one rack, two layers)
-    "<div class='cal-bar cr fc-rack2'>" + bolts +
-      "<div class='cr-row fc-countrow'>" +
-        screenHtml + "<span class='fc-right'></span>" +
       "</div>" +
     "</div>" +
     (statusMsg ? "<div class='cal-status'>" + _fcEsc(statusMsg) + "</div>" : "") +
@@ -254,6 +273,46 @@ function _fcOpen(w, pos) { return "<div class='fc-open' style='" + pos + "'>open
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
+// The open spots screen (user, 2026-11-09): fully open first, then half-open; ‹ › step through them like the Thanksgiving screen.
+var _fcSpots = [], _fcSpotI = 0;
+function _fcSpotText() {
+  var n = _fcSpots.length;
+  if (!n) return "NO OPEN SPOTS<small>EVERY SLOT TAKEN</small>";
+  var sp = _fcSpots[_fcSpotI];
+  return FC_DAYS[sp.d].toUpperCase() + " " + _fcTime(sp.m) + "<small>" + (sp.free ? "WEEK " + sp.free + " FREE" : "OPEN") + " \u00b7 " + (_fcSpotI + 1) + " OF " + n + "</small>";
+}
+// Listed (user, 2026-11-09): every spot at once in one amber screen, two per column under its kind (OPEN / WEEK A FREE / WEEK B FREE).
+// More than 5 columns would be too wide: then the ‹ › screen above.
+function _fcSpotsHtml() {
+  // Separate screens (user, 2026-11-09): fully open (captioned OPEN on the rack), half-open (HALF-OPEN, columns headed by the free week)
+  var full = _fcSpots.filter(function(sp) { return !sp.free; });
+  var halves = _fcSpots.filter(function(sp) { return sp.free; });   // which week is free not shown (user, 2026-11-09: "week not important")
+  var halfCols = [];
+  for (var j = 0; j < halves.length; j += 2) halfCols.push({ items: halves.slice(j, j + 2) });
+  var fullCols = [];
+  for (var i = 0; i < full.length; i += 2) fullCols.push({ items: full.slice(i, i + 2) });
+  if (_fcSpots.length && fullCols.length + halfCols.length <= 5) {
+    var scr = function(cols, cls, tip) {
+      return "<span class='fc-slist" + cls + "' data-tip='" + tip + "'>" + cols.map(function(c) {
+        return "<span>" + (c.head ? "<small>" + c.head + "</small>" : "") + c.items.map(function(sp) { return "<b>" + FC_DAYS[sp.d].toUpperCase() + "<i>" + _fcTime(sp.m) + "</i></b>"; }).join('') + "</span>";
+      }).join('') + "</span>";
+    };   // the day like the Load screen's 18, the time small like its WEEK A (user, 2026-11-09)
+    var unit = function(cap, html) { return "<span class='fc-vert'><span class='fc-vcaps'><span class='cr-cap'>" + cap + "</span></span>" + html + "</span>"; };
+    return (fullCols.length ? unit('Full open', scr(fullCols, ' fc-sfull', 'Fully open: any student.')) : '') +
+           (halfCols.length ? unit('Half-open', scr(halfCols, ' fc-sfull', 'Half-open: biweekly only.')) : '');
+  }
+  var many = _fcSpots.length > 1;
+  return "<span class='fc-spots'>" +
+    "<button class='cr-btn' onclick='_fcSpot(-1)' aria-label='Previous open spot'" + (many ? "" : " disabled") + ">\u2039</button>" +
+    "<span class='fc-slcd' id='fcSpotLcd' data-tip='Open = any student.\nWeek A / B free = biweekly only.'>" + _fcSpotText() + "</span>" +
+    "<button class='cr-btn' onclick='_fcSpot(1)' aria-label='Next open spot'" + (many ? "" : " disabled") + ">\u203a</button></span>";
+}
+function _fcSpot(step) {
+  var n = _fcSpots.length; if (!n) return;
+  _fcSpotI = (_fcSpotI + step + n) % n;
+  var el = document.getElementById('fcSpotLcd'); if (el) el.innerHTML = _fcSpotText();
+}
+
 function _fcTime(m) {
   var h = Math.floor(m / 60), mm = m % 60;
   return ((h % 12) || 12) + ':' + (mm < 10 ? '0' : '') + mm + (h >= 12 ? ' PM' : ' AM');
@@ -303,17 +362,31 @@ function _fcInjectStyle() {
     ".fc-knobspot{position:relative;align-self:stretch}.fc-knobspot .fc-bigknob{zoom:1;position:absolute;left:50%;margin-left:-52px;top:calc((100% + 82px) / 2 - 52px)}.fc-rl{margin-left:10px}" +
     ".fc-screens{flex:1;margin-left:0;display:flex;gap:18px}" +
     ".fc-meters{min-width:0;display:flex;flex-direction:column;gap:5px}" +
-    ".cr-row.fc-countrow{height:84px}" +
+    ".cr-row.fc-countrow{height:56px}"   /* the top rack's row: both racks 75px (user, 2026-11-09; was 84) */ +
     ".fc-title{align-self:center;padding:0 10px;height:15px;display:flex;align-items:center;justify-content:center;background:none;box-shadow:none;font:600 8px 'DM Mono',monospace;letter-spacing:2.5px;text-transform:uppercase;color:#6e6e6e}" +   // title text like the WEEK A caption, wider spacing (user, 2026-11-07)
     ".fc-screen,.fc-caps{display:grid;text-align:center}" +
     // the screen made like the THIS WEEK display: dark glass, inset shadow, the LCD green
     ".fc-screen{height:26px;align-items:center;border-radius:3px;background:#0a0c0a;border:1px solid #222;box-shadow:inset 0 2px 6px rgba(0,0,0,.8)}" +
-    ".fc-screen b{font:500 12px 'DM Mono',monospace;letter-spacing:2px;color:oklch(.72 .08 145);text-shadow:0 0 5px oklch(.63 .19 145 / .35)}" +
+    ".fc-screen b{font:500 12px 'DM Mono',monospace;letter-spacing:2px;color:oklch(.65 .16 29);text-shadow:0 0 5px oklch(.63 .19 29 / .35)}" +
+    // the A / B meter: the Calendar's .cr-lr bars, green, in the slim screen (user, 2026-11-09)
+    "#fcBody .fc-vert{flex:none;align-self:center;display:flex;align-items:center;gap:10px}#fcBody .fc-vert *{white-space:nowrap}" +   // vertical counts (user, 2026-11-09)
+    "#fcBody .fc-spots{display:flex;align-items:center;gap:10px}" +   // the open spots screen (user, 2026-11-09)
+    "#fcBody .fc-slcd{width:190px;height:36px;box-sizing:border-box;padding:0 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.25;border-radius:3px;background:#1b1006;border:1px solid #000;box-shadow:inset 0 2px 5px rgba(0,0,0,.9);font:10px 'DM Mono',monospace;letter-spacing:2px;color:oklch(.58 .09 70);text-shadow:0 0 4px oklch(.6 .12 60 / .18);white-space:nowrap}" +
+    "#fcBody .fc-slcd small{font-size:8.5px;letter-spacing:1.5px;opacity:.75}" +
+    "#fcBody .fc-slist{height:52px;box-sizing:border-box;padding:0 12px;display:flex;align-items:center;gap:16px;border-radius:3px;background:#0a0c0a;border:1px solid #000;box-shadow:inset 0 2px 5px rgba(0,0,0,.9);font:10px/14px 'DM Mono',monospace;letter-spacing:1.5px;color:oklch(.72 .08 145);text-shadow:0 0 5px oklch(.63 .19 145 / .35);white-space:nowrap}   /* WEEK A's green (user, 2026-11-09; was amber) */" +   // the listed spots (user, 2026-11-09)
+    "#fcBody .fc-slist>span{display:flex;flex-direction:column;align-self:flex-start;padding-top:4px}#fcBody .fc-slist.fc-sfull>span{align-self:center;padding-top:0}#fcBody .fc-slist small{font-size:8px;opacity:.6}#fcBody .fc-slist b{font-weight:400;font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:6px}#fcBody .fc-slist b i{font-style:normal;font-size:8px;opacity:.75}" +
+    "#fcBody .fc-screens.fc-vpair{justify-content:center;align-items:center;gap:20px}" +
+    "#fcBody .fc-vcaps,#fcBody .fc-vscreen{display:flex;flex-direction:column;justify-content:center;gap:2px}" +
+    "#fcBody .fc-vcaps{align-items:flex-end}#fcBody .fc-vscreen.fc-vwide{width:auto;align-items:stretch;background:#1b1006}#fcBody .fc-vscreen.fc-vwide b{color:oklch(.58 .09 70);text-shadow:0 0 4px oklch(.6 .12 60 / .18)}#fcBody .fc-vwide>span{display:flex;align-items:center;justify-content:space-between;gap:12px}#fcBody .fc-vwide small{font:500 8px/14px 'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;color:oklch(.58 .09 70);opacity:.75;text-shadow:0 0 4px oklch(.6 .12 60 / .18)}   /* the Thanksgiving screen's amber (user, 2026-11-09) */#fcBody .fc-vcaps .cr-cap{line-height:14px}" +
+    "#fcBody .fc-vscreen{width:46px;box-sizing:border-box;padding:6px 10px;align-items:flex-end;border-radius:3px;background:#0a0c0a;border:1px solid #000;box-shadow:inset 0 4px 8px rgba(0,0,0,1),inset 0 -1px 0 rgba(255,255,255,.04),0 -1px 0 rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.11)}" +
+    "#fcBody .fc-vscreen b{line-height:14px;font:500 11px/14px 'DM Mono',monospace;letter-spacing:1px;color:oklch(.65 .16 29);text-shadow:0 0 5px oklch(.63 .19 29 / .35)}" +
+    "#fcBody .fc-screen.fc-ab{align-self:center;width:80px;height:26px;box-sizing:border-box;grid-template-columns:7px 1fr;align-content:center;gap:3px 4px;padding:0 6px}" +   // the Calendar's exact size (user, 2026-11-09)
+    "#fcBody .fc-ab b{font:500 7px 'DM Mono',monospace;letter-spacing:0;color:oklch(.72 .08 145 / .75);text-shadow:0 0 6px oklch(.63 .19 145 / .4)}" +
+    "#fcBody .fc-ab i{display:block;height:5px;border-radius:1px;background:repeating-linear-gradient(90deg,transparent 0 5px,#0a0c0a 5px 6px),linear-gradient(90deg,oklch(.72 .08 145) 0 var(--v),oklch(.28 .04 145) var(--v));box-shadow:0 0 5px oklch(.63 .19 145 / .25)}" +
     ".fc-legend2 i.pen{background:color-mix(in oklab, oklch(0.63 0.19 70) 55%, #1a1a1a);box-shadow:none}   /* toned down, no glow (user, 2026-11-07) */" +
     // on top of the Calendar's .cal-ev: nothing to drag here
     "#fcBody .cr-kn:after{background:#6e6e6e}" +
-    // the selected button lit greyish white, not red; its caption brighter (user, 2026-11-07)
-    "#fcBody .cr-pb.lit{background:linear-gradient(#b4b4b4,#7c7c7c);box-shadow:0 0 6px rgba(255,255,255,.12),inset 0 1px 0 rgba(255,255,255,.45)}" +
+    // the selected button lit red like the Calendar tab's (user, 2026-11-09; was greyish white from 2026-11-07); its caption brighter
     "#fcBody .cr-col:has(.cr-pb.lit) .cr-cap{color:#a8a8a8}" +
     "#fcBody .cr-row+.cr-row{border-top:none}" +
     // even space above, between and below the two layers (user, 2026-11-07): rows as tall as their contents, 16px gaps
@@ -326,10 +399,10 @@ function _fcInjectStyle() {
     "#fcBody .cal-bar>.cr-row{padding:0 24px}#fcBody .fc-right{width:110px;margin-left:12px}#fcBody .fc-screens{gap:12px}" +
     "html body #fcBody>.cal-bar.cr{margin-bottom:12px}html body #fcBody>.cal-bar.cr.fc-rack2{margin-top:0;margin-bottom:53px}" +   // the two racks 2px apart; last rack → week grid 48px between the rings, as on the Calendar (user, 2026-11-09)
     // two racks (user, 2026-11-09): the top one the Home rack's height (56px row), the knob in it, smaller; the counts rack as tall as its screens
-    "html body #fcBody .cal-bar{padding:8.5px 0;gap:0}html body #fcBody .cal-bar:not(.fc-rack2)>.cr-row{height:56px}" +
+    "html body #fcBody .cal-bar{padding:8.5px 0;gap:0}html body #fcBody .cal-bar>.cr-row{height:56px}" +
     "#tab-fixedcal>.tab-refresh{top:22.5px;right:-44px}" +
     "#fcBody .cal-bar .cr-pb{width:16px;height:16px;border-radius:2.5px}" +   // push buttons the Home rack's size (user, 2026-11-09; were 22)   // ↻ just outside the top rack's right side, as on the Calendar
-    "#fcBody .fc-knobspot{align-self:center}#fcBody .fc-tgrp3>.fc-bigknob{margin:0 auto;zoom:.55}" +   // the knob centred where the key was, sized to the rack (user, 2026-11-09)
+    "#fcBody .fc-right.fc-knobspot{display:flex;justify-content:flex-end}#fcBody .fc-knobspot{align-self:center}#fcBody .fc-tgrp3>.fc-bigknob{margin:0 auto;zoom:.55}" +   // the knob centred where the key was, sized to the rack (user, 2026-11-09)
     // the Home rack's face (grain) and its two small screws, one each side, centred (user, 2026-11-09; were four big corner screws)
     "html body #fcBody>.cal-bar.cr{background-image:var(--rpm-box-grain)}" +
     "#fcBody .cal-bar>.cr-bolt{top:calc(50% - 5.5px)!important;bottom:auto!important;width:11px;height:11px;box-shadow:none;background:radial-gradient(circle at 40% 35%,#2a2a2a,#121212 70%,#080808)}" +

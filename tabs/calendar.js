@@ -96,10 +96,17 @@ function _calPickRender() {
   if (_calPickHi >= m.length) _calPickHi = 0;
   list.innerHTML = !_imRoster ? "<div class='cash-dd-opt'>Loading…</div>" :
     m.map(function(n, i) {
-      return "<button type='button' class='cash-dd-opt" + (i === _calPickHi ? ' hi' : '') + "' onmouseenter='_calPickHi=" + i + ";_calPickRender()' onclick='_calPickStudent(" + _auEsc(JSON.stringify(n)) + ")'>" + inqEsc(n) + "</button>";
+      return "<button type='button' class='cash-dd-opt" + (i === _calPickHi ? ' hi' : '') + "' onmouseenter='_calPickHover(" + i + ")' onclick='_calPickStudent(" + _auEsc(JSON.stringify(n)) + ")'>" + inqEsc(n) + "</button>";
     }).join('');
   var hi = list.querySelector('.hi');
   if (hi) hi.scrollIntoView({ block: 'nearest' });
+}
+
+// Hover only moves the highlight; redrawing the list under the mouse ate the click (user, 2026-11-09: "clicking does nothing")
+function _calPickHover(i) {
+  _calPickHi = i;
+  var opts = document.querySelectorAll('#calPickList .cash-dd-opt');
+  for (var k = 0; k < opts.length; k++) opts[k].classList.toggle('hi', k === i);
 }
 
 function _calPickKey(e) {
@@ -425,7 +432,6 @@ function _calVuSvg(frac) {
 // each as its share of the two together (user, 2026-11-04; were L = this week, R = next week).
 function _calMeters(n) {
   var c = document.getElementById('calCount'); if (c && n != null) c.textContent = n;
-  var vu = document.getElementById('calVu'); if (vu && n != null) vu.innerHTML = _calVuSvg(_calFull(n));
   var w = 0, b = 0;
   (_calEvents || []).forEach(function(e) { if (e.calType === 'weekly') w++; else if (e.calType === 'biweekly') b++; });
   var tot = w + b;
@@ -466,14 +472,16 @@ function _calRenderShell(mon) {
         "<span class='cr-sp'></span>" +
         // STUDENTS ▾ is the dropdown itself: the list, a box to type in, the Schedule window on a pick
         "<span class='cr-dd' id='calPick'>" +
-          "<span class='cr-cap cr-ddlab' onclick='_calPickToggle()' data-tip='Instant.\nOpens a student&#39;s next 12 weeks.'>Students ▾</span>" +
-          "<span class='cr-ddpanel'><input class='rpm-field' id='calPickIn' placeholder='Type to find…' autocomplete='off' oninput='_calPickHi=0;_calPickRender()' onkeydown='_calPickKey(event)'>" +
+          // a search box on the rack, like Home's, with a magnifier (user, 2026-11-09; was the "Students ▾" label + a box inside the list)
+          "<span class='cal-search'><svg viewBox='0 0 16 16' aria-hidden='true'><circle cx='7' cy='7' r='4.5'/><path d='M10.4 10.4 14 14'/></svg>" +
+          "<input class='rpm-field' id='calPickIn' aria-label='Find a student' autocomplete='off' onfocus='_calPickOpen()' onclick='_calPickOpen()' oninput='_calPickOpen();_calPickHi=0;_calPickRender()' onkeydown='_calPickKey(event)'></span>" +
+          "<span class='cr-ddpanel'>" +
           "<span class='cash-dd-list' id='calPickList' hidden></span></span>" +
         "</span>" +
         "<span class='cr-lr' data-tip='W = weekly, B = biweekly this week.'><b>W</b><i id='calMeterL'></i><b>B</b><i id='calMeterR'></i></span>" +
         // LESSONS count moved down to the second rack (user, 2026-11-09)
         "<span class='cr-sp'></span>" +
-        "<span id='calVu'>" + _calVuSvg(null) + "</span>" +
+        // the VU meter moved up to the Home rack as the to-do meter (user, 2026-11-09)
         "<span class='cr-legend'>" +
           "<span class='wk'><i></i>Weekly</span><span class='bi'><i></i>Biweekly</span><span class='tr'><i></i>Trial</span>" +
         "</span>" +
@@ -493,7 +501,7 @@ function _calRenderShell(mon) {
         "<span class='hr-col'><button class='hr-knob" + (_calGoogleOpen() ? " lit" : "") + "' id='calGoogleBtn' onclick='_calToggleGoogle()' data-tip='Instant.\nShows or hides Google Calendar&#39;s own view under the grid.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Google</span></span>" +
         "<span class='hr-col'><button class='hr-knob' id='calAnalyzeBtn' data-tip='Coming soon.\nThis week&#39;s and next week&#39;s suggested fixes.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Analyze</span></span>" +
         "<span class='cr-vents'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>" +
-        "<span class='cr-sp'></span><span class='cr-cap'>Lessons</span><span class='cr-count' id='calCount'>–</span>" +   // moved down from the top rack (user, 2026-11-09)
+        "<span class='cr-sp'></span><span class='cr-count'><small>Lessons</small><b id='calCount'>–</b></span>" +   // moved down from the top rack (user, 2026-11-09)
         "<span class='cr-sp'></span><span class='cr-pair cal-cal-btns'>" +
         "<span class='cr-col'><button class='cr-pb" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' data-tip='Instant.\nShows or hides the Birthdays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"birthdays\")'></button><span class='cr-cap'>Birthdays</span></span>" +
         "<span class='cr-col'><button class='cr-pb" + (_calShown('doctors') ? " lit" : "") + "' data-cal='doctors' data-tip='Instant.\nShows or hides the Doctors calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"doctors\")'></button><span class='cr-cap'>Doctors</span></span>" +
@@ -861,6 +869,8 @@ function _calInjectStyle() {
     ".cr-dd{position:relative}.cr-ddlab{cursor:pointer;user-select:none}.cr-ddlab:hover,.cr-dd.open .cr-ddlab{color:var(--t-text)}" +
     ".cr-ddpanel{display:none;position:absolute;bottom:calc(100% + 10px);left:-10px;z-index:20;width:210px;padding:6px;border-radius:8px;background:#121212;border:1px solid #333;box-shadow:0 8px 20px rgba(0,0,0,.6)}" +
     ".cr-dd.open .cr-ddpanel{display:block}.cr-ddpanel .rpm-field{width:100%;font-size:12px;margin-bottom:4px}" +
+    ".cal-search{position:relative;display:block;width:160px}.cal-search svg{position:absolute;left:10px;top:calc(50% - 6.5px);width:13px;height:13px;fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round;pointer-events:none}" +
+    ".cal-search .rpm-field{width:100%;box-sizing:border-box;padding:6px 10px 6px 30px;border-radius:6px;border-color:rgba(255,255,255,0.22);color:var(--t-bright);font-size:12px}.cal-search .rpm-field:focus{outline:none;border-color:var(--muted)}" +
     ".cr-ddpanel .cash-dd-list{position:static;display:block;max-height:280px;border:none;box-shadow:none;padding:0;background:transparent}" +
     ".cr-lr{height:26px;width:80px;padding:0 6px;display:grid;grid-template-columns:7px 1fr;align-content:center;gap:3px 4px;align-items:center;border-radius:3px;background:#0a0c0a;border:1px solid #222;box-shadow:inset 0 2px 6px rgba(0,0,0,.8)}" +
     ".cr-lr b{font:500 7px 'DM Mono',monospace;color:oklch(.72 .08 145 / .75);text-shadow:0 0 6px oklch(.63 .19 145 / .4)}" +
@@ -871,7 +881,7 @@ function _calInjectStyle() {
     ".cal-status{min-height:0;margin:0 auto 10px;text-align:center;font-size:11px;color:var(--t-faint)}.cal-status:empty{display:none}" +
     ".cal-btn{padding:6px 10px;white-space:nowrap;font-size:12px;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:inherit}" +
     ".cal-btn:hover:where(:not(:disabled)){border-color:#555}" +
-    ".cal-sv-acts{position:absolute;top:24px;right:0;display:flex;flex-direction:column;align-items:flex-end;gap:10px}" +
+    ".cal-sv-acts{position:absolute;top:24px;right:0;display:flex;flex-direction:column;align-items:stretch;gap:10px}" +   // both buttons the wider one's width (user, 2026-11-09; were each their own width)
     ".st-win.cal-sv-win{width:min(702px,96vw);background-image:linear-gradient(to right,transparent calc(100% - 250px),color-mix(in srgb,#ffffff 11%,transparent) calc(100% - 250px),color-mix(in srgb,#ffffff 11%,transparent) calc(100% - 249px),rgba(0,0,0,.22) calc(100% - 249px));background-attachment:local}" +
     ".st-win.cal-sv-win>.settings-title{margin-right:242px}" +
     ".cal-sv-cols{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:32px;align-items:start}" +
