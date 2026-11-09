@@ -693,7 +693,7 @@ function _imTodayMiss(n) {
   var m = [];
   var hr = _imHwToday.rows && _imHwToday.rows[_imKey(n)];
   if (_imHwToday.rows && !(hr && hr.text)) m.push('HW');
-  if (_imHwToday.rows && !hr) m.push('Materials');
+  if (_imHwToday.rows && !(hr && hr.hw)) m.push('Materials');   // a HW-text-only row (2026-11-08) isn't Materials
   if (!_imSchedGet(n)) m.push('Schedule');
   if (_imMailNeeded(n, _tdYmd())) m.push('Email');
   return m;
@@ -1291,6 +1291,9 @@ function _imSend(w, hw) {
     for (var k in log.params) q += '&' + k + '=' + encodeURIComponent(log.params[k]);
     // logLesson's own HW names (hwFiles, hwLinks, hwText).
     if (hwc) q += _logHwQuery(hw, 'hw');
+    // No Materials answer yet: the HW text goes with the log on its own (hw=text, user 2026-11-08),
+    // so it's saved the moment Log is pressed; Materials fills in the same row later.
+    else if (hw && hw.text && log.params.studentName) { q += '&hw=text&hwText=' + encodeURIComponent(hw.text); var hwTextSent = hw.text; }
     calls.push(get(q));
   } else calls.push(Promise.resolve(null));
   calls.push(hwc && !log ? get(url + '?action=saveHw&name=' + encodeURIComponent(hw.name) + '&lessonDate=' + hw.date + hwq +
@@ -1322,6 +1325,7 @@ function _imSend(w, hw) {
           _tlMarkEmail(w.trial, tp);
         }
         if (lr.hwSaved && hw && hw.choice === hwc) hw.dirty = false;
+        if (lr.hwSaved && hw && hwTextSent) hw.textStored = hwTextSent;
         if (lr.noShowError) why.push('No show: ' + lr.noShowError + '.');
         if (lr.hwError && lockBusy(lr.hwError)) { retry = true; if (hw && hw.choice === hwc) hw.dirty = true; }
         else if (lr.hwError) { why.push('HW: ' + lr.hwError); if (hw && hw.choice === hwc) { if (isLock(lr.hwError)) hw.dirty = true; else { hw.choice = null; hw.dirty = false; } } }

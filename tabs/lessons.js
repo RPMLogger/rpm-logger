@@ -505,6 +505,8 @@ function _logHwExisting() {
     .then(function(d) {
       if (!done()) return;
       var ex = d.success && d.rows && d.rows[0];
+      // HW text only (saved with Log, 2026-11-08): fill the text, Materials still to answer.
+      if (ex && !ex.hw) { _logHwTextFill(hw, ex.text); if (ex.text) { hw.textSaved = hw.text || ex.text; hw.textStored = ex.text; } ex = null; }
       if (ex) {
         hw.saved = true;   // answered in the sheet already: show that answer and its files
         var have = {};
@@ -776,6 +778,8 @@ function logHwCheck() {
         // Only what was dropped / browsed here (2026-10-07): older files in
         // their Dropbox stay out of the zone, so it starts empty.
         hw.files = (d.files || []).filter(function(f) { return hw.mine[String(f.name || f.path.split("/").pop()).toLowerCase()]; });
+        // A row with the HW text only (saved with Log, 2026-11-08) isn't a Materials answer yet.
+        if (d.existing && !d.existing.hw) { _logHwTextFill(hw, d.existing.text); d.existing = null; }
         if (d.existing) {
           hw.saved = true;   // answered in the sheet already
           // Already answered for this lesson: show that answer, and keep its
