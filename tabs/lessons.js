@@ -113,7 +113,7 @@ function openLogFresh(student, idx, opts) {
   resetRows();
   rpmBusy(panel, null, false);
   var lb = document.getElementById("btnLog");
-  lb.disabled = true; lb.textContent = "＋ Log"; lb.className = "link-btn amber";
+  lb.disabled = true; lb.textContent = "Log"; lb.className = "link-btn amber";   // no plus sign (user, 2026-11-09)
   var mic = document.getElementById("logMicBtn");
   if (mic) { mic.innerHTML = MIC_ICON; mic.classList.remove("rec"); mic.disabled = false; }
   _logState("");
@@ -309,7 +309,7 @@ function submitLog(noShow) {
   function fail(why) {
     rpmBusy(panel, btn, false);
     if (logHw) { logHw.locked = false; _logHwRender(); }
-    btn.textContent = "＋ Log"; btn.disabled = false;
+    btn.textContent = "Log"; btn.disabled = false;
     rpmFail("logPanelStatus", why);
   }
   fetch(q).then(function(r) { return r.json(); }).then(function(data) {
@@ -604,6 +604,7 @@ function logHwUpload(fileList) {
   hw.queue = hw.queue || [];
   hw.queue.push(Array.prototype.slice.call(fileList));
   hw.matDone = false;   // more files after Finish: Finish again once they're in (user, 2026-11-08: → lit mid-upload)
+  if (window._imDocked && hw.pick === "none") hw.pick = null;   // files after a "nothing" Done: Done again sends them
   if (!hw.uploading) _logHwUploadNext(hw);
 }
 function _logHwUploadNext(hw) {
@@ -866,7 +867,8 @@ function _logHwRender() {
   sent.disabled = hw.locked || hw.loading || !n;
   none.disabled = hw.locked || hw.loading;
   // Nothing to send stands alone: it waits till nothing else is picked, and the rest wait while it's on.
-  var busy = hw.loading || !!hw.uploading || !!hw.saving, none = hw.choice === "none";
+  // The Log window's one Practice materials page (2026-11-08): links stay open after a "nothing" Done.
+  var busy = hw.loading || !!hw.uploading || !!hw.saving, none = hw.choice === "none" && !window._imDocked;
   var nb = document.getElementById("logHwNothing");
   if (nb) { nb.classList.toggle("pressed", none); nb.disabled = busy || hw.choice === "sent"; }
   var sb = document.getElementById("logHwSentBtn");

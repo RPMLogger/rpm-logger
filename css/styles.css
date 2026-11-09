@@ -1836,7 +1836,7 @@ a:focus-visible,
 /* A window (or card) while Google works: dimmed and untouchable, every button
    too; only the centre word (rpm-keep) stays bright (user, 2026-10-23). */
 .rpm-busy { pointer-events: none; }
-.rpm-busy > *:not(.rpm-keep) { opacity: .15; transition: opacity .15s; }   /* see-through again (user, 2026-10-30: darkening looked bad) */
+.rpm-busy > *:not(.rpm-keep) { opacity: 0; transition: opacity .15s; }   /* hidden while busy, only the centre word shows (user, 2026-11-08: see-through .15 looked bad; 2026-10-30 darkening did too) */
 .rpm-toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 10000; max-width: 88vw;
   display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border);
   border-radius: 10px; padding: 10px 14px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
@@ -3644,7 +3644,7 @@ th.f2-blk { background:none; }
   color:var(--blue); background:color-mix(in srgb, var(--blue) 15%, transparent); }   /* Payments' Venmo / Zelle badge shape */
 .f2-badge.bad { color:#ff5a4d; background:rgba(255,90,77,0.15); }   /* under the Expenses icon, over the table */
 .f2-ex-btns { display:flex; justify-content:space-between; align-items:center; margin-top:16px; }
-#f2ExModal.rpm-busy > *:not(.rpm-keep) { opacity:.15; }   /* dimmer than .4 so the centre text reads */
+#f2ExModal.rpm-busy > *:not(.rpm-keep) { opacity:0; }   /* dimmer than .4 so the centre text reads */
 #f2ExModal .rpm-load-center, #fin2Body .rpm-load-center { background:none; border:none; box-shadow:none; }   /* just the ring + text, no box (user 2026-10-22) */
 .f2-bill { display:flex; gap:22px; margin:2px 0 14px; }   /* Billed: Monthly / Yearly radios */
 .f2-radio { display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); cursor:pointer; }
@@ -4304,9 +4304,9 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 #imLogWin #imLinksFinishBtn:not(:disabled):hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 50%, transparent); background: color-mix(in srgb, #ffffff 10%, transparent); }
 #imLogWin .im-rec-btn { margin-right: 8px; min-width: 72px; justify-content: center; color: color-mix(in srgb, #ffffff 60%, var(--muted)); border-color: color-mix(in srgb, #ffffff 25%, transparent); background: color-mix(in srgb, #ffffff 5%, transparent); }   /* Phone / Zoom as buttons (user, 2026-11-02) */
 #imLogWin .im-rec-btn:hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 50%, transparent); }
-#imLogWin #imMatNone .im-rec-btn.done, #imLogWin #imMatNone .im-rec-btn.done:hover:where(:not(:disabled)) { color: #111111; background: #e8e8e8; border-color: #e8e8e8; }   /* picked = inverted (user, 2026-11-02) */
+#imLogWin .im-rec-btn.done, #imLogWin .im-rec-btn.done:hover:where(:not(:disabled)) { color: #111111; background: #9a9a9a; border-color: #9a9a9a; }   /* picked: a soft grey, #e8e8e8 too bright (user, 2026-11-09) */   /* picked = inverted (user, 2026-11-02) */
 /* Log page: boxes left, one Terms column right (user, 2026-11-02); the window wider on that page only */
-.st-win.im-log-win.im-log-wide { width: min(880px, 96vw); }
+.st-win.im-log-win.im-log-wide { width: min(880px, 96vw); min-height: min(800px, 92vh); }   /* one size on every page: the Log page's (user, 2026-11-08) */
 #imLogWin .im-log-cols { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 32px; align-items: start; }
 #imLogWin .im-terms-col { align-self: stretch; padding-left: 0; }
 #imLogWin .im-terms-grp + .im-terms-grp { margin-top: 16px; }
@@ -4327,7 +4327,41 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 .st-win.im-log-win.im-log-wide { background-image: linear-gradient(to right, transparent calc(100% - 250px), color-mix(in srgb, #ffffff 11%, transparent) calc(100% - 250px), color-mix(in srgb, #ffffff 11%, transparent) calc(100% - 249px), rgba(0,0,0,.22) calc(100% - 249px)); background-attachment: local; }   /* the Terms side a bit darker (user, 2026-11-02) */
 /* Shortcuts at the top of its column (user, 2026-11-02): pinned to the card's top right; the grid keeps its 210px slot */
 .st-win.im-log-wide .im-do-card { position: relative; }
-.st-win.im-log-wide #imTermsCol { position: absolute; top: -128px; bottom: -24px; right: 0; width: 210px; display: flex; flex-direction: column; justify-content: center; }   /* Shortcuts centred in the column, top to bottom of the window (user, 2026-11-02) */
+/* The right panel on every page (user, 2026-11-08): Steps on top, a line, then Shortcuts (Log page only).
+   STEPS level with the window title (top: -138px = the card's offset under the title, user "top align") */
+.st-win.im-log-wide #imSideCol { position: absolute; top: -138px; bottom: -24px; right: 0; width: 210px; display: flex; flex-direction: column; }
+#imLogWin #imSideCol #imTermsCol { position: static; flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; }   /* Shortcuts centred in the space under the line (user, 2026-11-08) */
+#imLogWin #imSideCol #imTermsCol > .im-terms-col > .im-sub-head:first-child { margin-top: 0; }
+#imLogWin #imSideCol > * { flex: none; }
+#imLogWin #imSideCol { padding-left: 14px; box-sizing: border-box; }
+#imLogWin #imSideCol .im-sub-t { color: #7c7c7c; }
+/* + Log ready = inverted: amber fill, dark text (user, 2026-11-09); not ready stays the faded outline */
+/* Ready = inverted amber (user, 2026-11-09; black/white tried, amber is better): darker amber fill, bold dark text,
+   letters close. Not ready = the faded amber outline. */
+#imLogWin .im-page:is([data-pg="6"], [data-pg="3"]) .im-mat-q { font-family: "DM Mono", monospace; font-size: 11.5px; letter-spacing: 2.5px; text-transform: uppercase; color: #7c7c7c; }   /* RECORDED ON THEIR SIDE? in the titles' look (FILES, WEB LINK; user, 2026-11-09) */
+#imLogWin .im-page:is([data-pg="6"], [data-pg="3"]) .im-rec-btn:not(.done) { color: var(--muted); border-color: color-mix(in srgb, #ffffff 15%, transparent); background: none; }   /* Phone / Zoom quieter until picked (user, 2026-11-09) */
+#imLogWin .im-page:is([data-pg="6"], [data-pg="3"]) .im-rec-btn:not(.done):hover:where(:not(:disabled)) { color: var(--t-normal); border-color: color-mix(in srgb, #ffffff 30%, transparent); }
+#imLogWin #imMatFilesTools.im-mat-tools-below { display: flex; justify-content: flex-end; margin-top: 12px; }   /* Gather / Browse / Dropbox under the drop zone (user, 2026-11-09) */
+/* Ready = solid darker amber, bold dark text (user, 2026-11-09; a tinted version tried, "better before") */
+#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn).amber:not(:disabled) { background: oklch(0.52 0.12 76); color: #111111; border-color: oklch(0.52 0.12 76); font-weight: 700; }
+#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn).amber:not(:disabled):hover:where(:not(:disabled)) { background: oklch(0.58 0.14 76); border-color: oklch(0.58 0.14 76); color: #111111; }
+#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn).amber:disabled { color: var(--muted); border-color: color-mix(in srgb, #ffffff 16%, transparent); background: none; opacity: 1; }   /* off = greyish outline, no amber (user, 2026-11-09; black pill tried, reverted) */
+#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn).amber { letter-spacing: 0; padding-left: 10px; padding-right: 10px; border-radius: 999px; }   /* tight: no letter spread, less amber either side, a full pill (user, 2026-11-09; 3px corners tried) */   /* Done = LOG's job on page 2: same spot, same look (user, 2026-11-09) */   /* STEPS / SHORTCUTS in the left titles' grey, not brighter (user, 2026-11-09) */
+/* ✕ at the window's top right, over the Steps panel, level with STEPS (user, 2026-11-09) */
+.st-win.im-log-win.im-log-wide { position: relative; }
+.st-win.im-log-win.im-log-wide > .settings-title .settings-close { position: absolute; top: 29px; right: 31px; }
+/* + Log at the top (user, 2026-11-08/09): level with the name in the title, right edge of the left panel; the fail line sits left of it */
+.st-win.im-log-wide .im-page:is([data-pg="1"], [data-pg="6"], [data-pg="3"]) .im-main-box > .im-log-foot-all { position: absolute; top: -103px; right: 242px; margin: 0; padding: 0; border: none; }
+#imLogWin #imSideNav { display: flex; justify-content: flex-end; gap: 6px; margin-top: 22px; margin-right: -4px; }   /* ← → under the steps, right-aligned (user, 2026-11-08/09) */
+#imLogWin #imSideNav .im-pg-arrow .pg-arrow-icon { width: 18px; height: 18px; }   /* smaller (user, 2026-11-09) */
+#imLogWin .im-side-div { height: 1px; background: color-mix(in srgb, #ffffff 11%, transparent); margin: 36px -24px 26px -30px; }   /* a bit lower (user, 2026-11-08) · full width: from the panel line to the window edge (user, 2026-11-08) */
+#imLogWin .im-step-side { display: flex; justify-content: space-between; align-items: baseline; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--t-faint); padding: 4px 0; }
+#imLogWin .im-step-side + .im-step-side { margin-top: 10px; }
+#imLogWin .im-step-side.done { color: color-mix(in srgb, var(--t-faint) 70%, transparent); }
+#imLogWin .im-step-side.on { color: oklch(0.60 0.13 76); }   /* the step you're on in amber, the Log button's (user, 2026-11-09; white was too bright) */
+#imLogWin .im-step-side-m { margin-left: 8px; }
+.st-win.im-log-wide .im-page:not([data-pg="1"]) { margin-right: 242px; }   /* the other pages keep clear of the panel */
+.st-win.im-log-wide .im-page:not([data-pg="1"]) .im-log-foot-all { margin-right: 0; }   /* Done / Send bottom right of the left panel, where + Log is (not pushed twice) */
 .st-win.im-log-wide .im-do-card .im-log-foot-all { margin-right: 242px; }   /* + Log and Next in the left column too */
 .st-win.im-log-wide > .settings-title { margin-right: 242px; }   /* the ✕ in the left column, next to the line (user, 2026-11-02) */
 #imLogWin .st-win.im-log-wide #imTermsCol > .im-terms-col { flex: none; }
@@ -4337,8 +4371,6 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 #imLogWin .im-ns-slot > #btnNoShow:not(:disabled):hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 40%, transparent); }
 #imLogWin .im-ns-slot > #btnNoShow:disabled { opacity: .45; }
 .st-win.im-log-wide .im-do-card .im-pg-nav { position: absolute; top: 14px; right: 242px; margin: 0; }   /* Next top right, level with No show (user, 2026-11-02) */
-#imLogWin .st-win.im-log-wide #imPgNext { color: #6e6e6e; border-color: color-mix(in srgb, #ffffff 15%, transparent); background: none; }   /* rarely used: No show's dim (user, 2026-11-02) */
-#imLogWin .st-win.im-log-wide #imPgNext:not(:disabled):hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 40%, transparent); }
 /* The reason beside Unsuccessful in the Log window (user, 2026-11-08) */
 #imLogWin .im-pg-state { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex: 1; }
 #imLogWin .im-pg-state .im-fail-why { margin-right: 0; }
@@ -4347,8 +4379,11 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 .db-file .db-file-x { background: none; border: none; color: var(--muted); cursor: pointer; padding: 0 4px; margin-left: 8px; font-size: 14px; line-height: 1; }
 .db-file .db-file-x:hover:where(:not(:disabled)) { color: var(--text); }
 /* ← → instead of Back / Next (user, 2026-11-08): icon-only, same size each */
-#imLogWin .im-pg-arrow { padding: 6px 9px; min-width: 0; }
-#imLogWin .im-pg-arrow .arrow-icon { width: 15px; height: 15px; }
+#imLogWin .im-pg-arrow { padding: 4px; min-width: 0; border: none; background: none; color: oklch(0.60 0.13 76); }   /* lit = amber, like DONE and the current step (user, 2026-11-09; white, then grey tried) · the arrow's own ring is the button */
+#imLogWin .im-pg-arrow:hover:where(:not(:disabled)) { color: oklch(0.70 0.14 76); background: none; }
+#imLogWin .im-pg-arrow:disabled { color: var(--muted); opacity: .5; }   /* off = grey */
+#imLogWin .im-pg-arrow .pg-arrow-icon { width: 20px; height: 20px; display: block; }
+#imLogWin .im-pg-arrow .pg-arrow-icon.back { transform: scaleX(-1); }   /* your arrows (2026-11-08): ← is → mirrored */
 /* Shortcuts groups open and close on their name (user, 2026-11-02) */
 #imLogWin .im-terms-h { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; padding: 4px 0; cursor: pointer; text-align: left; }
 #imLogWin .im-terms-h:hover { color: #ffffff; }
