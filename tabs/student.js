@@ -98,7 +98,7 @@ function _stRenderSearch() {
     'width:300px;padding:15px 18px;font-size:17px;font-family:inherit;text-align:center;letter-spacing:0.3px;' +
     'background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:12px;outline:none;' +
     'transition:border-color .15s, box-shadow .15s';
-  input.onfocus = function() { input.style.borderColor = 'var(--accent)'; input.style.boxShadow = '0 0 0 3px rgba(232,70,58,0.14)'; };
+  input.onfocus = function() { input.style.borderColor = 'var(--accent)'; input.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent)'; };
   input.onblur  = function() { input.style.borderColor = 'var(--border)'; input.style.boxShadow = 'none'; };
   wrap.appendChild(input);
 
@@ -509,7 +509,7 @@ function _stRenderDetail() {
   // Calendar — all the way at the bottom
   var calBtn = document.createElement('button');
   calBtn.textContent = '📅 Reschedule';
-  calBtn.style.cssText = 'width:100%;padding:10px;font-size:13px;background:transparent;color:var(--text);border:1px solid rgba(232,70,58,0.55);border-radius:6px;cursor:pointer;margin-top:6px;letter-spacing:0.3px';
+  calBtn.style.cssText = 'width:100%;padding:10px;font-size:13px;background:transparent;color:var(--text);border:1px solid color-mix(in srgb, var(--accent) 55%, transparent);border-radius:6px;cursor:pointer;margin-top:6px;letter-spacing:0.3px';
   calBtn.onclick = _stOpenCalendar;
   section.appendChild(calBtn);
 }
@@ -737,8 +737,8 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
     cell.dataset.has  = (lesson && !isPast) ? '1' : '0';
     if (lesson && !isPast) {
       cell.style.cssText +=
-        'background:rgba(232,70,58,0.18);color:var(--accent);' +
-        'border:1px solid rgba(232,70,58,0.5);cursor:pointer';
+        'background:color-mix(in srgb, var(--accent) 18%, transparent);color:var(--accent);' +
+        'border:1px solid color-mix(in srgb, var(--accent) 50%, transparent);cursor:pointer';
       cell.innerHTML =
         "<div style='" + topStyle + "'>" + topLabel + "</div>" +
         "<div style='font-size:15px;font-weight:700;line-height:1.3'>" + d.getDate() + "</div>" +
@@ -752,7 +752,7 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
     } else if (lesson && isPast) {
       // A lesson already had this week: still shown, dimmed, nothing to tap (user, 2026-10-29).
       cell.style.cssText +=
-        'background:rgba(232,70,58,0.18);color:var(--accent);border:1px solid rgba(232,70,58,0.5);opacity:.35;cursor:default';
+        'background:color-mix(in srgb, var(--accent) 18%, transparent);color:var(--accent);border:1px solid color-mix(in srgb, var(--accent) 50%, transparent);opacity:.35;cursor:default';
       cell.innerHTML =
         "<div style='" + topStyle + "'>" + topLabel + "</div>" +
         "<div style='font-size:15px;font-weight:700;line-height:1.3'>" + d.getDate() + "</div>" +
@@ -871,7 +871,7 @@ function _rpmTpStyle() {
     "#imRsWin .st-who .db-check{flex-direction:row-reverse;justify-content:space-between;width:110px}" +
     "#imRsWin .st-foot{margin-top:40px}" +
     // Decided with the ✓: the day moved to looks like a lesson, red (user, 2026-10-29).
-    ".im-rs-strips .st-pick-to.st-pick-done{background:rgba(232,70,58,0.18) !important;border-color:rgba(232,70,58,0.5) !important;color:var(--accent) !important}" +
+    ".im-rs-strips .st-pick-to.st-pick-done{background:color-mix(in srgb, var(--accent) 18%, transparent) !important;border-color:color-mix(in srgb, var(--accent) 50%, transparent) !important;color:var(--accent) !important}" +
     ".im-rs-strips .st-pick-to.st-pick-done div{color:var(--accent) !important}" +
     ".st-pick-arrow{position:absolute;left:0;top:0;pointer-events:none;overflow:visible;color:rgba(255,255,255,0.18);z-index:3}" +   // fainter than the picked lesson's border (user, 2026-10-29; was green)
     // The lesson picked to change, dimmer: it is going away (user, 2026-10-29). Its ✕ stays bright.

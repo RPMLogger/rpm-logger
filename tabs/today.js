@@ -44,7 +44,7 @@ function _tdWeekReady() {
 
 // One colour for every Today card (2026-10-09, was one per student): red on
 // the card's edge, the name, and its badge in the list at the top.
-var TD_COLOR = '#e8463a';
+var TD_COLOR = 'oklch(0.5 0.15 29)';
 function _tdColor() { return TD_COLOR; }
 
 function _tdTime(iso) {

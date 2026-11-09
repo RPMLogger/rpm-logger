@@ -85,7 +85,7 @@ function _secAlertDismiss(row, night) {
   var st = document.createElement('style');
   st.textContent =
     "#secAlert{display:none;align-items:center;gap:14px;flex-wrap:wrap;margin-right:auto;" +
-      "padding:12px 16px;border:1px solid var(--accent);border-radius:8px;background:rgba(232,70,58,.12)}" +
+      "padding:12px 16px;border:1px solid var(--accent);border-radius:8px;background:color-mix(in srgb, var(--accent) 12%, transparent)}" +
     "#secAlert+span{white-space:nowrap}" +
     "#secAlert .sa-head{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--accent)}" +
     "#secAlert .sa-text{font-size:12px;color:var(--text)}" +

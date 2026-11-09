@@ -17,7 +17,7 @@ var CAL_SNAP      = 15;            // drag snaps to 15 minutes
 // Our own colours, matched to the red: oklch(0.63 0.19 <hue>), only the hue changes (user, 2026-11-02;
 // were Google Calendar's #26a69a / #e91e63 / #f4511e). Weekly blue, biweekly pink, trial green
 // (amber went brown in the dark fill).
-var CAL_COLORS    = { weekly: 'oklch(0.63 0.19 255)', biweekly: 'oklch(0.63 0.19 350)', trial: 'oklch(0.63 0.19 145)' };
+var CAL_COLORS    = { weekly: 'oklch(0.5 0.15 255)', biweekly: 'oklch(0.5 0.15 350)', trial: 'oklch(0.5 0.15 145)' };
 var CAL_DAYS      = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 var CAL_MONTHS    = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -214,7 +214,7 @@ function _calSvLoad() {
 // Lessons (weekly / biweekly / trial) come with the week; the rest are fetched
 // only when their button is lit, read only (no drag, no click).
 var CAL_OTHER = ['birthdays', 'doctors', 'personal', 'gigs', 'holidays'];
-var CAL_OTHER_COLORS = { birthdays: 'oklch(0.63 0.04 80)', doctors: 'oklch(0.63 0.19 220)', personal: 'oklch(0.63 0.06 70)', gigs: 'oklch(0.63 0.19 300)', holidays: 'oklch(0.63 0.05 80)' };
+var CAL_OTHER_COLORS = { birthdays: 'oklch(0.5 0.032 80)', doctors: 'oklch(0.5 0.15 220)', personal: 'oklch(0.5 0.047 70)', gigs: 'oklch(0.5 0.15 300)', holidays: 'oklch(0.5 0.04 80)' };
 var _calOther = [];   // events of the lit other calendars, this week
 var _calShowState = null;
 function _calShowMap() {

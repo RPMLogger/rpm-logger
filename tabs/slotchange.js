@@ -347,7 +347,7 @@ function _slcDrawWeeks(box) {
     if (isNew[ymd]) {   // drawn as a real lesson cell (student.js's look)
       c.classList.remove('slc-gone');
       c.classList.add('slc-new');
-      c.style.background = 'rgba(232,70,58,0.18)'; c.style.color = 'var(--accent)'; c.style.border = '1px solid rgba(232,70,58,0.5)';
+      c.style.background = 'color-mix(in srgb, var(--accent) 18%, transparent)'; c.style.color = 'var(--accent)'; c.style.border = '1px solid color-mix(in srgb, var(--accent) 50%, transparent)';
       var t = c.children[2]; if (t) { t.textContent = newTime; t.style.color = 'var(--accent)'; t.style.opacity = '0.85'; }
       var num = c.children[1]; if (num) { num.style.fontSize = '15px'; num.style.fontWeight = '700'; num.style.color = ''; }
     }

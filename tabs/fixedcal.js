@@ -20,7 +20,7 @@ var FC_GRID = {
 };
 var FC_DAYS   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 // The Calendar tab's colours (user, 2026-11-07): weekly blue, biweekly pink (A) + a violet B, all oklch(0.63 0.19 hue)
-var FC_COLORS = { weekly: 'oklch(0.63 0.19 255)', A: 'oklch(0.63 0.19 350)', B: 'oklch(0.63 0.19 300)', pencil: 'oklch(0.63 0.19 70)' };
+var FC_COLORS = { weekly: 'oklch(0.5 0.15 255)', A: 'oklch(0.5 0.15 350)', B: 'oklch(0.5 0.15 300)', pencil: 'oklch(0.5 0.15 70)' };
 
 var _fcMode = 'both';   // 'both' | 'A' | 'B'
 var _fcData = null;
@@ -304,7 +304,7 @@ function _fcInjectStyle() {
     // the screen made like the THIS WEEK display: dark glass, inset shadow, the LCD green
     ".fc-screen{height:26px;align-items:center;border-radius:3px;background:#0a0c0a;border:1px solid #222;box-shadow:inset 0 2px 6px rgba(0,0,0,.8)}" +
     ".fc-screen b{font:500 12px 'DM Mono',monospace;letter-spacing:2px;color:oklch(.72 .08 145);text-shadow:0 0 5px oklch(.63 .19 145 / .35)}" +
-    ".fc-legend2 i.pen{background:color-mix(in oklab, oklch(0.63 0.19 70) 55%, #1a1a1a);box-shadow:none}   /* toned down, no glow (user, 2026-11-07) */" +
+    ".fc-legend2 i.pen{background:color-mix(in oklab, oklch(0.5 0.15 70) 55%, #1a1a1a);box-shadow:none}   /* toned down, no glow (user, 2026-11-07) */" +
     // on top of the Calendar's .cal-ev: nothing to drag here
     "#fcBody .cr-kn:after{background:#6e6e6e}" +
     // the selected button lit greyish white, not red; its caption brighter (user, 2026-11-07)
@@ -322,7 +322,7 @@ function _fcInjectStyle() {
     ".cal-ev.fc-ev{cursor:default;background-image:none;box-shadow:none;border-color:transparent}" +   // flat: just the colour, no button shading (user, 2026-11-07)
     ".cal-ev.fc-ev .n{color:var(--t-normal)}" +   // names dialled back to the time's grey (user, 2026-11-07)
     ".cal-ev.fc-ev.clash{outline:1px solid var(--accent)}" +
-    ".cal-ev.fc-ev.pen{border:1px dashed oklch(0.63 0.19 70 / .7)}" +
+    ".cal-ev.fc-ev.pen{border:1px dashed oklch(0.5 0.15 70 / .7)}" +
     // Open: the rack's LCD green, a dashed outline, placed like a lesson card
     ".fc-open{position:absolute;left:3px;right:3px;z-index:1;box-sizing:border-box;border:1px dashed oklch(.72 .08 145 / .45);border-radius:4px;color:oklch(.72 .08 145);font:9px 'DM Mono',monospace;text-transform:uppercase;letter-spacing:1.2px;display:flex;align-items:center;justify-content:center}";
   document.head.appendChild(st);

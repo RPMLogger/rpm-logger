@@ -5,10 +5,10 @@
   --surface: #1a1a1a;
   --box:     #101010;   /* solid again, no gold glow through the boxes (user, 2026-10-30; was 80%); darker than #141414 to offset the boxes' grain — the one big-box shade: header, every tab's box, Today / Students / To-Do / Notes boxes (user, 2026-10-30) */
   --surface2: #222;
-  --accent:  #e8463a;
-  --accent2: oklch(0.63 0.19 76);   /* amber at the red's lightness + strength; was #f0a500 (user, 2026-10-27: colours matched to the red in OKLCH) */
-  --green:   oklch(0.63 0.162 152);   /* red's lightness, a touch less chroma (read brighter at 0.19); was rgba(46,204,113,0.7) (user, 2026-10-27: colours matched to the red in OKLCH) */
-  --blue:    oklch(0.63 0.162 254);   /* as green; was #4a9eff (user, 2026-10-27: colours matched to the red in OKLCH) */
+  --accent:  oklch(0.5 0.15 29);   /* the header's red, the new anchor; was #e8463a (user, 2026-11-08) */
+  --accent2: oklch(0.5 0.15 76);   /* amber at the red's lightness + strength; was #f0a500 (user, 2026-10-27: colours matched to the red in OKLCH) */
+  --green:   oklch(0.5 0.128 152);   /* red's lightness, a touch less chroma (read brighter at 0.19); was rgba(46,204,113,0.7) (user, 2026-10-27: colours matched to the red in OKLCH) */
+  --blue:    oklch(0.5 0.128 254);   /* as green; was #4a9eff (user, 2026-10-27: colours matched to the red in OKLCH) */
   /* Text whites on four steps, set by role, warm cream like the old --text (hue 81); Normal = the red's lightness (user, 2026-10-27: whites on a ladder).
      Faint: dates, hints · Normal: secondary values · Text: names, notes, labels · Bright: hover, the picked/now moment */
   --t-faint:  oklch(0.43 0.006 81);   /* was white 0.24–0.35 */
@@ -18,7 +18,7 @@
   --text:    var(--t-text);   /* was #f0ede8 (L 0.95): too much on Notes and the Students names (user, 2026-10-27: whites on a ladder) */
   --muted:   #7a7a7a;   /* style pass: was #555, which read as disabled */
   --border:  #2a2a2a;
-  --forgot:  #c0392b;
+  --forgot:  oklch(0.44 0.144 29);   /* a step under the red; was #c0392b (user, 2026-11-08) */
 
   /* Card fill. 26 cards in the tab files already ask for --panel; it was
      never defined, so they rendered with no background at all. */
@@ -432,7 +432,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   display: flex; align-items: center; gap: 5px;
 }
 .week-pill:hover:where(:not(:disabled)) { border-color: var(--accent); color: var(--text); }
-.week-pill.recording { border-color: var(--accent); color: var(--accent); background: rgba(232,70,58,0.08); }
+.week-pill.recording { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
 .week-pill.trial-pill { border-color: color-mix(in srgb, var(--blue) 30%, transparent); color: var(--blue); }
 .week-pill.forgot { border-color: #444; color: #888; background: rgba(255,255,255,0.03); }
 .week-pill .pill-date { font-size: 9px; opacity: 0.6; margin-left: 2px; }
@@ -1102,7 +1102,7 @@ input[type="checkbox"]:checked {
 }
 .ia-chip.ia-yes     { color: var(--green); border-color: color-mix(in srgb, var(--green) 35%, transparent); }
 .ia-chip.ia-maybe   { color: var(--warn);  border-color: color-mix(in srgb, var(--accent2) 35%, transparent); }
-.ia-chip.ia-no      { color: var(--accent); border-color: rgba(232,70,58,0.35); }
+.ia-chip.ia-no      { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
 .ia-chip.ia-open    { color: var(--text);  border-color: var(--border); }
 .inq-drow  { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .inq-chan  { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
@@ -1198,12 +1198,12 @@ input[type="checkbox"]:checked {
 .log-feed  { display: flex; flex-direction: column; gap: 5px; margin-top: 12px; }
 .log-entry { padding: 8px 12px; border-radius: 4px; font-size: 11px; line-height: 1.4; border-left: 3px solid transparent; }
 .log-entry.success { background: color-mix(in srgb, var(--green) 8%, transparent);  border-left-color: var(--green);   color: var(--green);   }
-.log-entry.error   { background: rgba(232,70,58,0.08);   border-left-color: var(--accent);  color: var(--accent);  }
+.log-entry.error   { background: color-mix(in srgb, var(--accent) 8%, transparent);   border-left-color: var(--accent);  color: var(--accent);  }
 .log-entry.info    { background: color-mix(in srgb, var(--accent2) 8%, transparent);   border-left-color: var(--accent2); color: var(--accent2); }
 
 /* ─── LESSON BADGE ────────────────────────────────────────────────────────── */
 .today-btn .lesson-badge { font-size: 7px; font-family: "DM Mono", monospace; font-weight: 400; letter-spacing: 1px; margin-top: 2px; background: color-mix(in srgb, var(--accent2) 12%, transparent); color: var(--accent2); padding: 2px 6px; border-radius: 2px; width: fit-content; }
-.today-btn .lesson-badge.pay-time { background: rgba(232,70,58,0.12); color: var(--accent); }
+.today-btn .lesson-badge.pay-time { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
 
 /* ─── INCOMING PAYMENTS ───────────────────────────────────────────────────── */
 .incoming-card {
@@ -1729,7 +1729,7 @@ a:focus-visible,
   border-color: var(--green); color: var(--green); background: color-mix(in srgb, var(--green) 10%, transparent);
 }
 .db-mini-btn.danger:hover:not(:disabled) {
-  border-color: var(--accent); color: var(--accent); background: rgba(232,70,58,0.10);
+  border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 .db-mini-btn.blue:hover:not(:disabled) {
   border-color: var(--blue); color: var(--blue); background: color-mix(in srgb, var(--blue) 10%, transparent);
@@ -2037,8 +2037,8 @@ a:focus-visible,
 .rpm-dlg-btn:hover:where(:not(:disabled)) { background: var(--surface2); color: var(--text); }
 .rpm-dlg-btn.go     { color: var(--green);  border-color: color-mix(in srgb, var(--green) 55%, transparent); }
 .rpm-dlg-btn.go:hover:where(:not(:disabled))     { background: color-mix(in srgb, var(--green) 16%, transparent); }
-.rpm-dlg-btn.danger { color: var(--accent); border-color: rgba(232,70,58,0.55); }
-.rpm-dlg-btn.danger:hover:where(:not(:disabled)) { background: rgba(232,70,58,0.16); }
+.rpm-dlg-btn.danger { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+.rpm-dlg-btn.danger:hover:where(:not(:disabled)) { background: color-mix(in srgb, var(--accent) 16%, transparent); }
 /* Same thin grey ring as every other button. The dialog still focuses Cancel
    on open, so Enter is the safe answer. */
 .rpm-dlg-btn:focus-visible { outline: 1px solid var(--muted); outline-offset: -1px; }
@@ -2996,7 +2996,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Email window titles in the Log window's "A. Lesson" look (user, 2026-10-16), not green / blue. */
 #imMailWin .im-mail-sec > .field-label { color: var(--t-text); font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; font-weight: 400; text-transform: uppercase; }
 /* Numbered red titles, the Log window's "1. Log" look (user, 2026-10-16; replaces the grey ones above). */
-#imMailWin .im-mail-sec > .field-label { color: #e8463a; font-family: "Bebas Neue", sans-serif; font-size: 16px; letter-spacing: 1.5px; font-weight: 400; text-transform: none; }
+#imMailWin .im-mail-sec > .field-label { color: var(--accent); font-family: "Bebas Neue", sans-serif; font-size: 16px; letter-spacing: 1.5px; font-weight: 400; text-transform: none; }
 .st-win.im-mail-win .win-icon { height: 18px; width: auto; }   /* This Week's size (user, 2026-10-17; was 30px like Intake Compose) */
 /* Email window boxes as rows (2026-10-16), the Log window's look: ＋ under each, right. */
 #imMailWin .ll-add { display: flex; width: fit-content; margin: 8px 0 0; }   /* left, like the HW box's */
@@ -3005,7 +3005,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #imMailWin .im-mail-head { display: flex; align-items: baseline; gap: 12px; margin: 0 0 10px; }
 #imMailWin .im-mail-head > .field-label { margin: 0; flex: none; }
 #imMailWin .im-mail-head .im-mail-ref { margin: 0; flex: 1; min-width: 0; }
-#imMailWin .im-mail-head > .field-label { color: #e8463a; font-family: "Bebas Neue", sans-serif; font-size: 16px; letter-spacing: 1.5px; font-weight: 400; text-transform: none; }   /* the numbered red titles, inside the title row too */
+#imMailWin .im-mail-head > .field-label { color: var(--accent); font-family: "Bebas Neue", sans-serif; font-size: 16px; letter-spacing: 1.5px; font-weight: 400; text-transform: none; }   /* the numbered red titles, inside the title row too */
 /* Spaced out with dividers between the sections (user, 2026-10-16), like the Log window's. */
 #imMailWin .im-mail-sec { margin-top: 0; }
 #imMailWin .im-mail-hr { margin: 36px -24px; }   /* edge to edge of the window (its 24px padding), user 2026-10-16 */
@@ -4363,13 +4363,13 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 /* Email page in the recap email's own setup and wording, dark (user, 2026-11-02) */
 #imLogWin .im-mail-dark { margin-top: 20px; font: 13px/1.5 Arial, Helvetica, sans-serif; color: var(--t-normal); }
 #imLogWin .im-mail-dark p { margin: 0 0 14px; }
-#imLogWin .im-mail-dark strong { color: #d8d8d8; }
+#imLogWin .im-mail-dark strong { color: var(--t-normal); }   /* was #d8d8d8, too white (user, 2026-11-08) */
 #imLogWin .im-mail-dark hr { border: none !important; border-top: 1px solid color-mix(in srgb, #ffffff 10%, transparent) !important; margin: 22px 0 !important; }
-#imLogWin .im-mail-dark .im-ml-h { margin: 18px 0 4px; font-size: 11px; font-weight: 700; letter-spacing: .3px; color: #bdbdbd; }
+#imLogWin .im-mail-dark .im-ml-h { margin: 18px 0 4px; font-size: 11px; font-weight: 700; letter-spacing: .3px; color: var(--t-normal); }   /* was #bdbdbd (user, 2026-11-08) */
 #imLogWin .im-mail-dark [style*="background"] { background: color-mix(in srgb, #ffffff 3%, transparent) !important; border-color: color-mix(in srgb, #ffffff 9%, transparent) !important; }
 #imLogWin .im-mail-dark [style*="color:#555"], #imLogWin .im-mail-dark [style*="color:#666"] { color: var(--t-faint) !important; }
 #imLogWin .im-mail-dark a { color: #7aa3dd !important; }
-#imLogWin .im-mail-dark textarea.im-ml-box { display: block; width: 100%; box-sizing: border-box; margin: 0 0 14px; padding: 10px 14px; border: 1px solid color-mix(in srgb, #ffffff 9%, transparent); border-radius: 6px; background: color-mix(in srgb, #ffffff 3%, transparent); color: var(--t-normal); font: 12px/1.55 Arial, Helvetica, sans-serif; resize: none; overflow: hidden; }
+#imLogWin .im-mail-dark textarea.im-ml-box { display: block; width: 100%; box-sizing: border-box; margin: 0 0 14px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface2); color: var(--t-normal); font: 12.5px/1.55 Arial, Helvetica, sans-serif; resize: none; overflow: hidden; }   /* the Announcements box look (user, 2026-11-05 + 11-08) */
 #imLogWin .im-mail-dark textarea.im-ml-box:focus { outline: none; border-color: color-mix(in srgb, #ffffff 28%, transparent); }
 #imLogWin .im-mail-dark img[alt="Red Pick Music"] { opacity: .85; }
 #imLogWin #imMailPrev { display: none; }   /* the page is the preview now */
