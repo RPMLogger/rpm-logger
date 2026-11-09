@@ -78,6 +78,7 @@ function _rsRender() {
     document.querySelectorAll('.home-rack .hr-arw').forEach(function (b) { b.disabled = true; });
     return;
   }
+  _rsKnobGlow();
   var items = _rsItems(), i = 0;
   items.forEach(function (it, n) { if (it.k === _rsKey) i = n; });
   var it = items[i];
@@ -97,6 +98,17 @@ function _rsRender() {
   lcd.dataset.tab = it ? (it.tab || '') : '';
   lcd.dataset.fn = it ? (it.fn || '') : '';
   document.querySelectorAll('.home-rack .hr-arw').forEach(function (b) { b.disabled = items.length < 2; });
+}
+
+// The Audit + Payments amp knobs glow gold like Comms while their audit has something (user, 2026-11-08):
+// Audit = students on the Lessons audit, Payments = payments due. Only once the fresh audits are in.
+function _rsKnobGlow() {
+  var owe = (typeof _auCache !== 'undefined' && _auCache.unpaid && _auCache.unpaid.list) ? _auCache.unpaid.list.length : 0;
+  var on = { audit: _rsReady && _rsLessonsAudit() > 0, payments: _rsReady && owe > 0 };
+  Object.keys(on).forEach(function (k) {
+    var b = document.querySelector('.amp-knob[data-k="' + k + '"]');
+    if (b) b.classList.toggle('rpm-alert', on[k]);
+  });
 }
 
 function _rsEsc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
