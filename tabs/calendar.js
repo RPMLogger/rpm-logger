@@ -458,10 +458,7 @@ function _calRenderShell(mon) {
         // the knob at the very left, then the grille, then the lesson count (user, 2026-11-03)
         CAL_KNOB +
         "<span class='cr-vents'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>" +
-        "<span class='cr-pair'>" +
-          "<span class='cr-col'><button class='cr-pb" + (_calGoogleOpen() ? " lit" : "") + "' id='calGoogleBtn' onclick='_calToggleGoogle()' data-tip='Instant.\nShows or hides Google Calendar&#39;s own view under the grid.'></button><span class='cr-cap'>Google</span></span>" +
-          "<span class='cr-col'><button class='cr-pb' id='calAnalyzeBtn' data-tip='Coming soon.\nThis week&#39;s and next week&#39;s suggested fixes.'></button><span class='cr-cap'>Analyze</span></span>" +
-        "</span>" +
+        // GOOGLE / ANALYZE moved down to the second rack (user, 2026-11-09)
         "<span class='cr-sp'></span>" +   // even gaps between the five groups (user, 2026-11-03)
         "<button class='cr-btn' onclick='_calShift(-1)' aria-label='Previous week'>‹</button>" +
         "<div class='cr-lcd" + (_calWeekOffset ? " back" : "") + "'" + (_calWeekOffset ? " onclick='_calShift(0)' data-tip='Instant.\nBack to this week.'" : "") + ">" + _calWeekLabel(mon, sun) + "</div>" +
@@ -474,13 +471,13 @@ function _calRenderShell(mon) {
           "<span class='cash-dd-list' id='calPickList' hidden></span></span>" +
         "</span>" +
         "<span class='cr-lr' data-tip='W = weekly, B = biweekly this week.'><b>W</b><i id='calMeterL'></i><b>B</b><i id='calMeterR'></i></span>" +
-        "<span class='cr-sp'></span>" +
-        "<span class='cr-cap'>Lessons</span><span class='cr-count' id='calCount'>–</span>" +
+        // LESSONS count moved down to the second rack (user, 2026-11-09)
         "<span class='cr-sp'></span>" +
         "<span id='calVu'>" + _calVuSvg(null) + "</span>" +
         "<span class='cr-legend'>" +
           "<span class='wk'><i></i>Weekly</span><span class='bi'><i></i>Biweekly</span><span class='tr'><i></i>Trial</span>" +
         "</span>" +
+        "<span class='cr-sp'></span>" +   // a spacer after the legend too: four equal gaps, edge to edge (user, 2026-11-09)
       "</div>" +
     "</div>";
   var html =
@@ -492,9 +489,11 @@ function _calRenderShell(mon) {
       // One button per Google calendar (user, 2026-11-04): lit = shown on the week. Right-click = New event on that calendar (user, 2026-11-05; was a switch). Lessons on by default, the rest off; remembered on this computer.
       // One button per Google calendar (user, 2026-11-04): lit = shown on the week. Lessons on by default, the rest off; remembered on this computer.
       "<div class='cr-row cal-cals'>" +
-        CAL_KNOB + CAL_KNOB +   // two knobs and a grille in place of the input jack (user, 2026-11-05)
+        // GOOGLE / ANALYZE as the two knobs, the Home rack's TO-DO / NOTES look; turned up = on (user, 2026-11-09; were fake knobs, then push buttons)
+        "<span class='hr-col'><button class='hr-knob" + (_calGoogleOpen() ? " lit" : "") + "' id='calGoogleBtn' onclick='_calToggleGoogle()' data-tip='Instant.\nShows or hides Google Calendar&#39;s own view under the grid.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Google</span></span>" +
+        "<span class='hr-col'><button class='hr-knob' id='calAnalyzeBtn' data-tip='Coming soon.\nThis week&#39;s and next week&#39;s suggested fixes.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Analyze</span></span>" +
         "<span class='cr-vents'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>" +
-        // the New event switch and the input jack on the left, the calendar buttons squeezed together on the right (user, 2026-11-04; fake knobs removed)
+        "<span class='cr-sp'></span><span class='cr-cap'>Lessons</span><span class='cr-count' id='calCount'>–</span>" +   // moved down from the top rack (user, 2026-11-09)
         "<span class='cr-sp'></span><span class='cr-pair cal-cal-btns'>" +
         "<span class='cr-col'><button class='cr-pb" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' data-tip='Instant.\nShows or hides the Birthdays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"birthdays\")'></button><span class='cr-cap'>Birthdays</span></span>" +
         "<span class='cr-col'><button class='cr-pb" + (_calShown('doctors') ? " lit" : "") + "' data-cal='doctors' data-tip='Instant.\nShows or hides the Doctors calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"doctors\")'></button><span class='cr-cap'>Doctors</span></span>" +
@@ -891,6 +890,22 @@ function _calInjectStyle() {
     ".cal-ne-msg{min-height:16px;margin-top:10px;font-size:11px;color:var(--accent)}.cal-ne-btns{display:flex;justify-content:flex-end;margin-top:24px}" +
     ".cal-ext{cursor:default;z-index:1}.cal-allday{height:16px;padding:1px 6px;font-size:9px;z-index:3}.cal-allday .n{line-height:14px}" +   // other calendars: read only; all-day strips over the top of the day
     ".cal-bar2.cr{margin-top:0}.cal-cals{gap:18px}.cal-cal-btns{gap:12px}" +
+    // Both racks the Home rack's size, like the amp over the cab (user, 2026-11-09): its width (column − 8px) and height (56px row + 8.5px top/bottom).
+    // To fit: the top rack drops its fake knob + grille, LCD 190 → 170. Delete these lines to undo.
+    "html body #calBody>.cal-bar.cr{width:min(752px,calc(100% - 8px));margin-left:auto;margin-right:auto}" +
+    // and the Home rack's border + face: the amp's 4px double ring (was the plates' 2px), its box shade
+    "html body #tab-calendar #calBody>.cal-bar.cr{box-shadow:0 0 0 4px #1e1e1e,0 0 0 5px #2c2c2c;background-color:var(--rpm-box-bg,var(--box));margin-bottom:12px}" +
+    "html body #tab-calendar #calBody>.cal-bar.cr:first-child{margin-top:12px}" +   // a tiny 2px between the outer rings, Home rack → rack → rack (user, 2026-11-09)
+    "html body #tab-calendar #calBody>.cal-bar2.cr{margin-bottom:53px}" +   // lower rack → week grid: 48px between the outer rings (user, 2026-11-09)
+    "#calBody .cal-bar>.cr-row{height:56px;padding:8.5px 24px;box-sizing:content-box;gap:8px}" +
+    "#calBody .cal-bar:not(.cal-bar2)>.cr-row>:is(.cr-vents,.cr-knob){display:none}" +
+    "#calBody .cal-bar:not(.cal-bar2)>.cr-row{padding-left:0;padding-right:0}" +   // the spacers make the edge gaps, equal to the gaps between
+    "#calBody .cal-bar:not(.cal-bar2) .cr-lcd{min-width:170px}#calBody .cal-bar .cr-lr{flex:none}#calBody .cal-bar2 .cal-cals{gap:12px}" +
+    // push buttons the Home rack's size: 16px, 2.5px corners (user, 2026-11-09; were 22)
+    "#calBody .cal-bar .cr-pb{width:16px;height:16px;border-radius:2.5px}" +
+    "#calGoogleBtn.lit .hr-kn::after{transform:rotate(90deg)}#calGoogleBtn.lit+.hr-cap{color:#9a9a9a}" +   // GOOGLE open = knob turned up, like an open TO-DO
+    "#tab-calendar>.tab-refresh{top:22.5px;right:-44px}" +   // ↻ just outside the top rack's right side, not on its legend
+
     ".cr-jack{position:relative;display:block;width:30px;height:26px;margin:2px 0;filter:drop-shadow(0 2px 2px #000)}" +   // the modular synth's jack: a hexagon nut round a chrome ring and a black socket (user, 2026-11-04)
     ".cr-jack:before{content:'';position:absolute;inset:0;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:linear-gradient(160deg,#8a8a8a,#4a4a4a 45%,#2a2a2a 80%,#1e1e1e)}" +
     ".cr-jack:after{content:'';position:absolute;left:5px;top:3px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#000 0 6px,#111 6.5px,#9a9a9a 8px,#e0e0e0 9px,#7a7a7a 10px);box-shadow:inset 0 1px 2px rgba(0,0,0,.6)}" +
