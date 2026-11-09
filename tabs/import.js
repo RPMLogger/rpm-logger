@@ -509,7 +509,8 @@ function _imDictate(btn, box) {
 function _imLogEditStart() {
   var w = window._imWin;
   if (!w || !activeStudent || !activeStudent.logged || w.logEdit || w.pendLog || w.sending) return false;
-  w.logEdit = true; w.logReplace = true; w.noTurn = true;
+  // Back on a page already passed: Save stays. On the furthest page (a reopened lesson, HW missing): Save turns on.
+  w.logEdit = true; w.logReplace = true; w.noTurn = (w.pgList || []).indexOf(w.page) < (w.pgMax || 0);
   activeStudent.logged = false;
   var box = _logBox();
   if (box) { box.classList.remove('locked'); llRows(box).forEach(function (el) { el.readOnly = false; }); }
@@ -545,6 +546,25 @@ function _imLogLock(text) {
   if (mic) mic.disabled = true;
   var lb = document.getElementById('btnLog');
   if (lb) { lb.textContent = 'Logged ✓'; lb.disabled = true; }
+  // No text with it (the checklist only knows it's logged): read it from their sheet (user, 2026-11-08, Cathy).
+  if (!text) _imLogTextLoad();
+}
+function _imLogTextLoad() {
+  var w = window._imWin, st = activeStudent;
+  if (!w || !st || !st.student) return;
+  var d = new Date(w.day + 'T12:00:00'), key = d.toLocaleString('en-US', { month: 'short' }) + ' /' + d.getDate();
+  fetch(getScriptUrl() + '?action=getPastLessons&studentName=' + encodeURIComponent(st.student.name))
+    .then(function (r) { return r.json(); })
+    .then(function (r) {
+      if (window._imWin !== w || activeStudent !== st || !st.logged || w.logEdit) return;
+      var hit = (r.lessons || []).filter(function (l) { return l.date === key; })[0];
+      if (!hit || !hit.subject) return;
+      var row = llRows(_logBox())[0];
+      if (row && !row.value) row.value = _imNoTeacher(hit.subject);
+      var tb = _imTeachBox(), tr = tb && llRows(tb)[0];
+      if (tr && !tr.value) tr.value = _imTeacherOf(hit.subject);
+    })
+    .catch(function () {});
 }
 
 // A student's open lessons, oldest first (2026-10-08): the past ones from the
@@ -1153,8 +1173,13 @@ function _imPagesRender(w, done, hasHw) {
   // Log, the picks, Finish and Change appointment are what turn the page; → is only for going forward again.
   w.pgOpen = w.pgOpen || {};
   var nx = list[list.indexOf(w.page) + 1];
+  // Reached for the first time already done (answered before the window reopened, e.g. Change
+  // appointment): turns on too (user, 2026-11-08, Cathy), or it's a dead end with → still grey.
+  w.pgSeen = w.pgSeen || {};
+  var firstSeen = !w.pgSeen[w.page];
+  w.pgSeen[w.page] = true;
   if (!done[w.page]) w.pgOpen[w.page] = true;
-  else if (w.pgOpen[w.page] && nx && !w.noTurn) {
+  else if ((w.pgOpen[w.page] || firstSeen) && nx && !w.noTurn) {
     w.pgOpen[w.page] = false;
     var from = w.page;
     var turn = function () {
@@ -1184,7 +1209,7 @@ function _imPagesRender(w, done, hasHw) {
   if (back) { back.style.visibility = at > 0 ? '' : 'hidden'; back.disabled = busy || !!w.logEdit; }
   // A saved log reads Edit (user, 2026-11-08); Logged ✓ only while it waits to go.
   var lb = _imQ('btnLog') || document.getElementById('btnLog');
-  if (lb && done[1] && !w.logEdit && activeStudent && activeStudent.logged) {
+  if (lb && !w.logEdit && activeStudent && activeStudent.logged) {   // done or not: a reopened lesson with no HW yet needs Edit to go on
     var saved = !w.pendLog && !w.sending;
     lb.textContent = saved ? 'Edit' : 'Logged ✓';
     lb.className = saved ? 'link-btn' : 'link-btn green';
@@ -1222,7 +1247,7 @@ function _imPendLog(student, params, action) {
   w.pendLog = { student: student, params: params, action: action };
   activeStudent.logged = true;
   var edited = !!w.logEdit;
-  if (edited) { w.logEdit = false; w.pgOpen = w.pgOpen || {}; w.pgOpen[1] = false; if (!w.mailSent) w.mailFilled = false; }
+  if (edited) { w.logEdit = false; w.pgOpen = w.pgOpen || {}; if (w.noTurn) w.pgOpen[1] = false; if (!w.mailSent) w.mailFilled = false; }
   llLock(_logBox());
   _imTeachLock(true);
   var mic = document.getElementById('logMicBtn');
