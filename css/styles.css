@@ -2264,6 +2264,9 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
   color: var(--muted); display: inline-flex; align-items: center; justify-content: center; transition: color .12s, background .12s; }
 .win-refresh:hover:where(:not(:disabled)) { color: var(--text); background: var(--surface2); }
 .win-refresh svg { width: auto; height: 14px; }   /* 14px tall, like the ✕ disc */
+/* Every tab's refresh, top right inside its box, clear of the screws (user, 2026-11-08) */
+.tab-panel.active { position: relative; }
+.tab-panel > .tab-refresh { position: absolute; top: 4px; right: 30px; margin: 0; z-index: 3; }   /* in the empty top band, so it never sits on a tab's own top-right button */
 
 
 /* Student cards (2026-10-02; #1a1a1a like Inquiries cards 2026-10-21): two lines - name over size on the left,
