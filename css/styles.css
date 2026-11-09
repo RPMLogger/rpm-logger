@@ -5018,3 +5018,11 @@ html body .header .amp-power::before { background: linear-gradient(#45201b, #361
   box-shadow: 0 0 9px rgba(212,176,103,.6), 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); }
 /* Rack button glow square, following the button's shape (user, 2026-11-08: the 9px blur read round). Delete to undo. */
 .home-rack .hr-pb.rpm-alert, .home-rack .hr-pb.rpm-alert:hover { box-shadow: 0 0 2.5px 1.5px rgba(212,176,103,.4), 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); }   /* in between (user) */
+/* TITLES ENGRAVED like the logo name (user, 2026-11-09): every tab + window title (.settings-title, incl. its grey sub) — dark edge above, faint light edge below.
+   Buttons sitting in a title line stay as they were. Delete this block to undo. */
+.settings-title { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
+.settings-title button, .settings-title .link-btn { text-shadow: none; }
+/* SMALL TITLES ENGRAVED TOO (user, 2026-11-09: "even small titles like Incoming, Auto confirmed"): section + box headings portal-wide, same edges as the titles.
+   Buttons / inputs inside them stay as they were. Delete this block to undo. */
+.section-label, .field-label, .settings-label, .db-cx-head, .db-cards-head, .f2-head, .em-sec-head, .gl-card-head, .en-card-head, .lh-hw-head, .pa-label { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
+:is(.section-label, .field-label, .settings-label, .db-cx-head, .db-cards-head, .f2-head, .em-sec-head, .gl-card-head, .en-card-head, .lh-hw-head, .pa-label) :is(button, .link-btn, input, textarea, select) { text-shadow: none; }
