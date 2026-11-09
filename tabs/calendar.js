@@ -895,7 +895,7 @@ function _calInjectStyle() {
     "html body #calBody>.cal-bar.cr{width:min(752px,calc(100% - 8px));margin-left:auto;margin-right:auto}" +
     // and the Home rack's border + face: the amp's 4px double ring (was the plates' 2px), its box shade
     "html body #tab-calendar #calBody>.cal-bar.cr{box-shadow:0 0 0 4px #1e1e1e,0 0 0 5px #2c2c2c;background-color:var(--rpm-box-bg,var(--box));margin-bottom:12px}" +
-    "html body #tab-calendar #calBody>.cal-bar.cr:first-child{margin-top:12px}" +   // a tiny 2px between the outer rings, Home rack → rack → rack (user, 2026-11-09)
+    "html body #tab-calendar #calBody>.cal-bar.cr:first-child{margin-top:0}" +   // the gap above comes from the Home rack (styles.css, 48px between the rings on every tab; user, 2026-11-09)
     "html body #tab-calendar #calBody>.cal-bar2.cr{margin-bottom:53px}" +   // lower rack → week grid: 48px between the outer rings (user, 2026-11-09)
     "#calBody .cal-bar>.cr-row{height:56px;padding:8.5px 24px;box-sizing:content-box;gap:8px}" +
     "#calBody .cal-bar:not(.cal-bar2)>.cr-row>:is(.cr-vents,.cr-knob){display:none}" +

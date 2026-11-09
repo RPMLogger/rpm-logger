@@ -5026,3 +5026,8 @@ html body .header .amp-power::before { background: linear-gradient(#45201b, #361
    Buttons / inputs inside them stay as they were. Delete this block to undo. */
 .section-label, .field-label, .settings-label, .db-cx-head, .db-cards-head, .f2-head, .em-sec-head, .gl-card-head, .en-card-head, .lh-hw-head, .pa-label { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
 :is(.section-label, .field-label, .settings-label, .db-cx-head, .db-cards-head, .f2-head, .em-sec-head, .gl-card-head, .en-card-head, .lh-hw-head, .pa-label) :is(button, .link-btn, input, textarea, select) { text-shadow: none; }
+/* Home rack → the tab's first box: 48px between the outer rings on every tab, the same as the amp's bottom → Home rack (user, 2026-11-09; was 7px, rings touching).
+   56 = 48 + the rack's 5px ring + a plate's 3px ring; amp-ringed boxes (Home, Audit, the Calendar racks) have 5px, so 58. Delete to undo. */
+.home-rack, body:has(#tab-home.active) .home-rack { margin-bottom: 56px; }
+body:has(#tab-home.active, #tab-audit.active, #tab-calendar.active) .home-rack { margin-bottom: 58px; }
+body:has(#tab-fixedcal.active) .home-rack { margin-bottom: 61px; }   /* Fixed schedule's rack sits 5px up (margin -5px), so 5 more here */
