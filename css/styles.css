@@ -4266,6 +4266,7 @@ a.cm-file:hover { background: rgba(255,255,255,0.14); }
 .td-all-li::before { content: "•"; position: absolute; left: 0; color: var(--t-faint); }   /* a bullet in front of each line (user, 2026-11-05; dash tried first) */
 .td-all-box .im-hw-files { margin-top: 8px; }
 .td-all-box .td-all-mat { margin-top: 18px; margin-bottom: 12px; }   /* Material sent, a line's room, then the folders (user, 2026-11-02) */
+.td-all-teach { color: var(--muted); }   /* the teacher note, dimmer (user, 2026-11-08) */
 .td-all-box .im-hw-files .db-file { color: var(--t-normal); font-size: 11px; line-height: 1.6; }   /* folder lines a step brighter than the Material sent title (user, 2026-11-02; were fainter) */
 .td-all-box .td-all-h ~ .td-all-h { margin-top: 18px; }   /* room above HW, no line (user, 2026-11-01) */
 #tdAllBody { margin-top: 24px; }   /* room under the window title (user, 2026-11-01) */

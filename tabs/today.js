@@ -170,7 +170,13 @@ function _tdAllFolders(paths) {
   }).join('') + '</span></div>';
 }
 
-// One line per comma part, each starting with a capital (user, 2026-11-02).
+// As written, one paragraph (user, 2026-11-08; was a bullet per comma part since 2026-11-02):
+// the sheet joins lines with commas, so a comma typed inside a line split it wrongly.
+function _tdAllText(t) {
+  t = String(t || '').trim();
+  return '<div class="td-all-para">' + inqEsc(t.charAt(0).toUpperCase() + t.slice(1)) + '</div>';
+}
+// One line per comma part, each starting with a capital (user, 2026-11-02). Not used since 2026-11-08.
 function _tdAllLines(t) {
   return String(t).split(',').map(function (x) { return x.trim(); }).filter(Boolean)
     .map(function (x) { return '<div class="td-all-li">' + inqEsc(x.charAt(0).toUpperCase() + x.slice(1)) + '</div>'; }).join('');   // each line with a dash in front (user, 2026-11-05)
@@ -206,12 +212,12 @@ function _tdAllOneHtml(n, ls, hw, hwIn, o) {
   var l = ls && ls !== 'fail' && ls[0];
   var lm = l && String(l.date || '').replace(/\//g, '').trim().match(/^([A-Za-z]{3})\s*(\d{1,2})$/);
   var lDay = l ? (lm ? lm[1] + ' ' + parseInt(lm[2], 10) : l.date || '') : '';
-  var t = l ? _imNoTeacher(l.subject) : '';
+  var t = l ? _imNoTeacher(l.subject) : '', note = l ? _imTeacherOf(l.subject) : '';
   var lesson = ls === undefined ? wait : ls === 'fail' ? '<div class="im-none">Could not read</div>' : !l ? '<div class="im-none">None</div>' :
-    '<div class="td-all-txt">' + (t ? _tdAllLines(t) : '—') + '</div>';
+    '<div class="td-all-txt">' + (t ? _tdAllText(t) : '—') + '</div>';
   var files = hw && (hw.files || []).length, hDay = hw ? day(hw.date) : '';
   var hwHtml = !a.hwIn ? wait : !hw ? '<div class="im-none">None</div>' :
-    (hw.text ? '<div class="td-all-txt">' + _tdAllLines(hw.text) + '</div>' : '') +
+    (hw.text ? '<div class="td-all-txt">' + _tdAllText(hw.text) + '</div>' : '') +
     (hw.links || []).map(function (x) { return '<div class="im-hw-link"><span>' + (x.kind === 'Video' ? 'Video lesson' : 'Link') + '</span><a href="' + inqEsc(x.url) + '" target="_blank" rel="noopener">' + inqEsc(x.url) + '</a></div>'; }).join('') +
     (files ? _tdAllFolders(hw.files) : '');
   var head = function (label, d) { return '<div class="td-all-h"><span class="td-all-lbl">' + label + (d ? ' - ' + inqEsc(d) : '') + '</span></div>'; };   // the date beside the label, "LESSON - OCT 22" (user, 2026-11-05; was on the right)
@@ -221,6 +227,8 @@ function _tdAllOneHtml(n, ls, hw, hwIn, o) {
     (o.noName ? '' : '<button class="link-btn td-mini-b td-all-name" onclick="_tdAllPick(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a tab.\nEvery lesson logged for ' + _auEsc(n) + '.">' + inqEsc(n) + '</button>') +
     '<div class="ts-thread tv-rv-thread rv-thread td-all-box">' +
       head('Lesson', lDay) + lesson +
+      // The teacher note, for me only (user, 2026-11-08): never in the email.
+      (note ? head('Notes to teacher', '') + '<div class="td-all-txt td-all-teach">' + _tdAllText(note) + '</div>' : '') +
       head('HW given', hDay && hDay !== lDay ? hDay : '') + hwHtml +
     '</div>' +
   '</div>';
