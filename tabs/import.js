@@ -502,6 +502,35 @@ function _imDictate(btn, box) {
   };
   r.start();
 }
+// Edit (user, 2026-11-08): back on the Log page of a lesson already in the sheet, the
+// Log button reads Edit. It opens the log, teacher and HW rows again; Save writes over
+// the same log (logLesson replace=1) and the HW text over the same HW row (saveHw), and
+// stays on the page. The email, if not sent yet, is written again from the new log.
+function _imLogEditStart() {
+  var w = window._imWin;
+  if (!w || !activeStudent || !activeStudent.logged || w.logEdit || w.pendLog || w.sending) return false;
+  w.logEdit = true; w.logReplace = true; w.noTurn = true;
+  activeStudent.logged = false;
+  var box = _logBox();
+  if (box) { box.classList.remove('locked'); llRows(box).forEach(function (el) { el.readOnly = false; }); }
+  _imTeachLock(false);
+  var mic = document.getElementById('logMicBtn');
+  if (mic) mic.disabled = false;
+  if (logHw) {
+    logHw.textLocked = false;
+    var hb = _hwRowsBox();
+    if (hb) { hb.classList.remove('locked'); llRows(hb).forEach(function (el) { el.readOnly = false; }); }
+    var hm = document.getElementById('logHwMic');
+    if (hm) hm.disabled = false;
+  }
+  var lb = document.getElementById('btnLog');
+  if (lb) { lb.textContent = 'Save'; lb.className = 'link-btn bright'; }
+  updateLogButton();
+  var r = box && llRows(box)[0];
+  if (r) r.focus();
+  return true;
+}
+
 // Already logged (the sheet says so): its text in the row, locked, like right after Log.
 function _imLogLock(text) {
   if (!activeStudent) return;
@@ -1004,7 +1033,7 @@ function _imStepsRender() {
   var linksYes = !!(hw && (hw.linksQ === 'yes' || hw.links.length || hw.videoOnly));
   var recDone = !!(hw && _imRecDone(hw));
   var linksDone = !!(hw && ((hw.linksQ === 'no' && !linksYes) || (linksYes && hw.linksDone)));
-  var filesDone = !!(hw && (hw.pick === 'none' || (hw.pick === 'send' && hw.matDone)));
+  var filesDone = !!(hw && (hw.pick === 'none' || (hw.pick === 'send' && hw.matDone && !hw.uploading && !hw.loading && !hw.gathering)));   // never done mid-upload (2026-11-08)
   var matIn = !!(hw && hw.choice && linksDone && filesDone);
   var matOk = recDone && matIn;
   // Files page: the box (drop zone, Gather, Browse, Finish) opens on Send.
@@ -1101,11 +1130,12 @@ function _imStepsRender() {
 // ── Pages (user, 2026-10-30) ──
 // The Log window shows one section at a time: 1. Log, 2. Practice materials,
 // 3. Change appointment, 4. Email (a trial has no 3; no HW question, no 2; no
-// email to send, no 4). Next waits till the page is done, saves it (_imSend,
-// as closing does) and turns to the next; Back and the numbers on top go back.
+// email to send, no 4). A done page saves (_imSend, as closing does) and turns
+// to the next by itself; ← goes back, → forward again to pages already done.
 function _imPageList(w, hasHw) {
   // Materials is three pages (2, 5, 6) since 2026-11-02; the ids stay numbers, the order is this list's.
-  return [1, 2, 5, 6, 3, 4].filter(function (p) {
+  // Files, Links, then Recorded (user, 2026-11-08; was Recorded, Links, Files).
+  return [1, 6, 5, 2, 3, 4].filter(function (p) {
     return ([2, 5, 6].indexOf(p) < 0 || hasHw) && (p !== 3 || !w.trial) && (p !== 4 || w.mail);
   });
 }
@@ -1118,8 +1148,24 @@ function _imPagesRender(w, done, hasHw) {
   if (!w.page || list.indexOf(w.page) < 0) {
     w.page = list.filter(function (p) { return !done[p]; })[0] || list[list.length - 1];
   }
-  // No turning by itself (user, 2026-11-02; it did since 2026-10-30): a done page waits for Next.
+  // A page turns to the next by itself once it's done (user, 2026-10-30; off 2026-11-02, back on
+  // 2026-11-08): only when it was open and not done, so going back to a finished page stays put.
+  // Log, the picks, Finish and Change appointment are what turn the page; → is only for going forward again.
+  w.pgOpen = w.pgOpen || {};
+  var nx = list[list.indexOf(w.page) + 1];
+  if (!done[w.page]) w.pgOpen[w.page] = true;
+  else if (w.pgOpen[w.page] && nx && !w.noTurn) {
+    w.pgOpen[w.page] = false;
+    var from = w.page;
+    var turn = function () {
+      if (window._imWin !== w || w.page !== from) return;
+      if (w.sending) return setTimeout(turn, 300);   // waits out a save
+      _imPageTo(nx);
+    };
+    setTimeout(turn, 350);   // a beat to see the tick
+  }
   var at = list.indexOf(w.page);
+  w.pgMax = Math.max(w.pgMax || 0, at);   // the furthest page reached: → lights only behind it
   // The page's name in the window title, red (user, 2026-10-30): no heading on the page.
   var sub = c.root.querySelector('.settings-title .win-sub');
   if (sub) sub.textContent = ' · ' + ({ 1: 'Log Lesson & Homework', 2: 'Recorded on Their Side', 5: 'Links', 6: 'Practice Materials', 3: 'Change Appointment', 4: 'Email the Student' })[w.page];
@@ -1135,14 +1181,24 @@ function _imPagesRender(w, done, hasHw) {
   if (typeof ltPage === 'function') ltPage(w.page === 5 || w.page === 6 ? 2 : w.page);   // the timer keeps Materials as one
   // No step buttons on top (user, 2026-10-30): the section titles are numbered already; Back goes back.
   var back = _imQ('imPgBack'), next = _imQ('imPgNext'), busy = !!(w.sending || w.mailBusy);
-  if (back) { back.style.visibility = at > 0 ? '' : 'hidden'; back.disabled = busy; }
-  if (next) { next.style.display = at < list.length - 1 ? '' : 'none'; next.disabled = busy || !done[w.page]; }
+  if (back) { back.style.visibility = at > 0 ? '' : 'hidden'; back.disabled = busy || !!w.logEdit; }
+  // A saved log reads Edit (user, 2026-11-08); Logged ✓ only while it waits to go.
+  var lb = _imQ('btnLog') || document.getElementById('btnLog');
+  if (lb && done[1] && !w.logEdit && activeStudent && activeStudent.logged) {
+    var saved = !w.pendLog && !w.sending;
+    lb.textContent = saved ? 'Edit' : 'Logged ✓';
+    lb.className = saved ? 'link-btn' : 'link-btn green';
+    lb.disabled = !saved;
+    lb.setAttribute('data-tip', saved ? 'Instant.\nOpens the log and HW again.\nSave writes over the saved one.' : 'Instant.\nSaves the lesson log.\n⌘ Enter does too.');
+  }
+  if (next) { next.style.visibility = at < list.length - 1 ? '' : 'hidden'; next.disabled = busy || !!w.logEdit || !done[w.page] || at >= w.pgMax; }
 }
 function _imPageTo(p) {
   var w = window._imWin;
   if (!w || w.sending) return;
   if (_imPending(w, logHw)) _imSend(w, logHw);   // what's ticked goes to Google now, as on close
   w.page = p;
+  w.noTurn = false;
   _imStepsRender();
   var d = _imQ('imPgDots');
   if (d) d.scrollIntoView({ block: 'start' });
@@ -1151,7 +1207,7 @@ function _imPageGo(step) {
   var w = window._imWin, list = w && w.pgList;
   if (!list) return;
   var i = list.indexOf(w.page) + step;
-  if (i < 0 || i >= list.length || (step > 0 && !(w.pgDone || {})[w.page])) return;
+  if (w.logEdit || i < 0 || i >= list.length || (step > 0 && (!(w.pgDone || {})[w.page] || list.indexOf(w.page) >= (w.pgMax || 0)))) return;
   _imPageTo(list[i]);
 }
 
@@ -1165,6 +1221,8 @@ function _imPendLog(student, params, action) {
   if (!w || !activeStudent) return;
   w.pendLog = { student: student, params: params, action: action };
   activeStudent.logged = true;
+  var edited = !!w.logEdit;
+  if (edited) { w.logEdit = false; w.pgOpen = w.pgOpen || {}; w.pgOpen[1] = false; if (!w.mailSent) w.mailFilled = false; }
   llLock(_logBox());
   _imTeachLock(true);
   var mic = document.getElementById('logMicBtn');
@@ -1186,6 +1244,7 @@ function _imPendLog(student, params, action) {
     if (hm) hm.disabled = true;
   }
   _imStepsRender();
+  if (edited) _imSend(w, logHw);   // an edit saves now and stays on the page
 }
 // HW to save: answered here, or files picked up here, and not in the sheet yet.
 function _imHwNeeds(hw) { return !!(hw && hw.choice && (hw.dirty || !hw.saved) && !hw.loading && !hw.uploading); }
@@ -1193,6 +1252,8 @@ function _imPending(w, hw) { return !!(w.pendLog || _imHwNeeds(hw) || w.pendSche
 function _imSend(w, hw) {
   if (!w || w.sending || !_imPending(w, hw)) return;
   w.sending = true;
+  var pst = _imQ('imPgState');
+  if (pst) pst.innerHTML = '';
   var url = getScriptUrl(), log = w.pendLog, sched = w.pendSched, hwc = _imHwNeeds(hw) ? hw.choice : null;
   var hwq = hwc ? _logHwQuery(hw, '') : '';
   function get(q) {
@@ -1220,6 +1281,11 @@ function _imSend(w, hw) {
     var lr = r[0], hr = r[1], sr = r[2], why = [];
     w.sending = false;
     if (hw) hw.locked = false;
+    // Lock timeout (user, 2026-11-08): Google was busy with another job (the hourly payment
+    // check, the inquiry sync). Keep the answers and try again by itself, 3 times, 5s apart.
+    var tries = w.lockTries || 0, retry = false;
+    function isLock(m) { return /lock timeout|holding the lock/i.test(String(m || '')); }
+    function lockBusy(m) { return tries < 3 && isLock(m); }
     if (lr) {
       w.pendLog = null;
       if (lr.success) {
@@ -1232,7 +1298,8 @@ function _imSend(w, hw) {
         }
         if (lr.hwSaved && hw && hw.choice === hwc) hw.dirty = false;
         if (lr.noShowError) why.push('No show: ' + lr.noShowError + '.');
-        if (lr.hwError) { why.push('HW: ' + lr.hwError); if (hw && hw.choice === hwc) { hw.choice = null; hw.dirty = false; } }
+        if (lr.hwError && lockBusy(lr.hwError)) { retry = true; if (hw && hw.choice === hwc) hw.dirty = true; }
+        else if (lr.hwError) { why.push('HW: ' + lr.hwError); if (hw && hw.choice === hwc) { if (isLock(lr.hwError)) hw.dirty = true; else { hw.choice = null; hw.dirty = false; } } }
       } else {
         why.push(lr.message || 'Lesson not logged.');
         // Back to Log: the rows open again; HW and Schedule stay ticked and go with the next Log.
@@ -1255,22 +1322,29 @@ function _imSend(w, hw) {
         if (hw.choice === hwc) { hw.saved = true; hw.dirty = false; }
         _logHwSaved(hw.name, hw);
         if (w.trial && typeof _tlMarkEmail === 'function') _tlMarkEmail(w.trial, { hwSent: true, hwLog: hw.text || '' });
+      } else if (lockBusy(hr.message)) {
+        retry = true;
+        if (hw.choice === hwc) hw.dirty = true;
       } else {
         why.push('HW: ' + (hr.message || 'not saved.'));
-        if (hw.choice === hwc) { hw.choice = null; hw.dirty = false; }   // un-ticked: pick it again to retry
+        // Google busy: the answer stays, Try again sends it. Anything else: un-ticked, pick it again.
+        if (hw.choice === hwc) { if (isLock(hr.message)) hw.dirty = true; else { hw.choice = null; hw.dirty = false; } }
       }
     }
     if (sr) {
       if (w.pendSched === sched) delete w.pendSched;
-      if (!sr.success) {
+      if (!sr.success && lockBusy(sr.message)) { retry = true; if (w.pendSched === undefined) w.pendSched = sched; }
+      else if (!sr.success) {
         why.push('Schedule: ' + (sr.message || 'not saved.'));
         if (window._imWin === w) _imSchedPut(w.name, w.day, ''); else try { localStorage.removeItem(_imSchedKey(w.name, w.day)); } catch (e) {}
       }
     }
+    w.lockTries = retry ? tries + 1 : 0;
+    if (retry) setTimeout(function () { if (!w.sending && _imPending(w, hw)) _imSend(w, hw); }, 5000);
     if (window._imWin === w) {
       var card2 = document.querySelector('#imLogWin .im-do-card');
       rpmBusy(card2, null, false);
-      if (why.length) { window._imActed = null; rpmFail('logPanelStatus', why.join(' ')); }
+      if (why.length) { window._imActed = null; rpmFail('logPanelStatus', why.join(' ')); _imFailWhy(why); }
       _logHwRender(); updateLogButton(); _imStepsRender();
     } else {
       // Saved after the window closed: say so only if something didn't.
@@ -1280,6 +1354,22 @@ function _imSend(w, hw) {
       _ckLoad(function () { _ckRedraw(); });
     }
   });
+}
+// The reason written out next to Unsuccessful (user, 2026-11-08: it hid in the hover), in plain words.
+function _imFailWhy(why) {
+  var el = document.getElementById('logPanelStatus');
+  if (!el) return;
+  var lock = false;
+  var plain = why.map(function (m) {
+    if (!/lock timeout|holding the lock/i.test(m)) return m;
+    lock = true;
+    return m.split(':')[0] + ': Google was busy with another job and didn\'t answer in time.';
+  }).join(' ');
+  el.insertAdjacentHTML('afterbegin', '<span class="im-fail-why">' + inqEsc(plain) + '</span>');
+  // The same at the bottom of every page (the Log page's line is out of sight later on), with Try again.
+  var pst = _imQ('imPgState');
+  if (pst) pst.innerHTML = '<span class="tl-fail">Unsuccessful</span><span class="im-fail-why">' + inqEsc(plain) + '</span>' +
+    (lock ? '<button type="button" class="link-btn" onclick="_imSend(window._imWin, logHw)" data-tip="Waits for Google.&#10;Sends what didn\'t save." data-tip-left>Try again</button>' : '');
 }
 // closeLogPanel: the window shuts now; what was ticked still saves.
 function _imFlushOnClose() {
@@ -1880,9 +1970,11 @@ function _imDoHtml(name, day) {
       '<iframe class="im-msg-frame" id="imMailFrame" title="The email" hidden></iframe>' +
     '</div>' +
     '</div>' +
-    '<div class="im-log-foot im-log-foot-all im-pg-nav" style="margin-top:22px"><span class="ll-state"></span>' +
-      '<button type="button" class="link-btn" id="imPgBack" onclick="_imPageGo(-1)" data-tip="Instant.&#10;The page before." data-tip-left>Back</button>' +
-      '<button type="button" class="link-btn bright" id="imPgNext" onclick="_imPageGo(1)" data-tip="Instant.\nSaves this page and turns to the next.&#10;Waits till this page is done." data-tip-left>Next</button></div>' +
+    '<div class="im-log-foot im-log-foot-all im-pg-nav" style="margin-top:22px"><span class="ll-state im-pg-state" id="imPgState"></span>' +
+      // ← → (user, 2026-11-08; were Back / Next): pages turn by themselves, → only goes forward again after ←.
+      // Every page can be changed on the way back: Edit on Log, × on files (user, 2026-11-08).
+      '<button type="button" class="link-btn im-pg-arrow" id="imPgBack" onclick="_imPageGo(-1)" aria-label="Page before" data-tip="Instant.&#10;The page before." data-tip-left>' + ARROW_ICON + '</button>' +
+      '<button type="button" class="link-btn im-pg-arrow" id="imPgNext" onclick="_imPageGo(1)" aria-label="Page after" data-tip="Instant.&#10;Forward again, to a page already done.&#10;New pages turn by themselves." data-tip-left>' + ARROW_ICON.replace('class="arrow-icon"', 'class="arrow-icon fwd"') + '</button></div>' +
     '<div id="imFinDone" class="im-saving rpm-load-center rpm-keep"></div>');   // in the middle of the window (user, 2026-10-21)
 }
 // One answer of a two-way pick, no box (user, 2026-10-25): a full circle, and

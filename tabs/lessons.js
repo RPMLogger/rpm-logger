@@ -251,6 +251,8 @@ function logNoShow() {
 function submitLog(noShow) {
   var url = getScriptUrl(); if (!url) return;
   if (activeStudent && activeStudent.hwOnly) { logHwSaveOnly(); return; }
+  // Log window, already logged: the button is Edit (user, 2026-11-08), it opens the rows again.
+  if (window._imDocked && typeof _imLogEditStart === "function" && _imLogEditStart()) return;
   if (logHw && !logHw.choice && !window._imDocked) return;   // the docked box asks HW in Finish logging
 
   // Rows join with commas (2026-10-06, was " - "), each row one Title Case item
@@ -280,7 +282,11 @@ function submitLog(noShow) {
 
   // The Log lesson window (2026-10-09): Log only ticks; the lesson goes to
   // Google with its HW and Schedule once all three are done (_imSend, import.js).
-  if (window._imDocked && typeof _imPendLog === "function") { _imPendLog(student, params, action); return; }
+  if (window._imDocked && typeof _imPendLog === "function") {
+    if (window._imWin && window._imWin.logReplace && action === "logLesson") params.replace = "1";   // Edit: over the saved log, not a second one
+    _imPendLog(student, params, action);
+    return;
+  }
 
   var btn = document.getElementById("btnLog");
   var panel = document.getElementById("logPanel");
@@ -595,6 +601,7 @@ function logHwUpload(fileList) {
   Array.prototype.forEach.call(fileList, function(f) { hw.mine[String(f.name).toLowerCase()] = 1; });
   hw.queue = hw.queue || [];
   hw.queue.push(Array.prototype.slice.call(fileList));
+  hw.matDone = false;   // more files after Finish: Finish again once they're in (user, 2026-11-08: → lit mid-upload)
   if (!hw.uploading) _logHwUploadNext(hw);
 }
 function _logHwUploadNext(hw) {
@@ -806,6 +813,28 @@ function logHwPick(c) {
   _logHwRender(); updateLogButton();
 }
 
+// × on a file in the Log window (user, 2026-11-08): off the list at once, deleted from their
+// Dropbox (deleteHwFile, to Dropbox's trash); back on the list if Dropbox says no.
+// Finish is needed again, and the HW row saves again without it.
+function _logHwFileDel(path) {
+  var hw = logHw;
+  if (!hw || hw.locked || hw.uploading || hw.loading) return;
+  var i = hw.files.map(function(f) { return f.path; }).indexOf(path);
+  if (i < 0) return;
+  var f = hw.files.splice(i, 1)[0];
+  hw.matDone = false; hw.dirty = true;
+  _logHwRecalc(hw); _logHwRender(); updateLogButton();
+  fetch(getScriptUrl() + "?action=deleteHwFile&path=" + encodeURIComponent("/" + hw.name + "/" + path))
+    .then(function(r) { return r.json(); })
+    .then(function(d) { if (!d.success) throw new Error(d.message || "not deleted"); })
+    .catch(function(e) {
+      if (logHw !== hw) return;
+      hw.files.push(f);
+      _logHwRecalc(hw); _logHwRender(); updateLogButton();
+      addLog("lessonFeed", "⚠ " + f.name + " not removed from Dropbox: " + e.message, "warn");
+    });
+}
+
 function _logHwRender() {
   var hw = logHw;
   var list = document.getElementById("logHwFiles");
@@ -822,7 +851,7 @@ function _logHwRender() {
   // Grey like the rest of the zone (2026-10-06, was amber), and says what to do.
   else if (hw.error) list.innerHTML = dim + "Couldn't check their Dropbox.</span>";
   else if (!hw.files.length) list.innerHTML = dim + (hw.noFolder ? "No Dropbox folder named " + inqEsc(hw.name) : "⬆ Drag files or folders or browse") + "</span>";
-  else list.innerHTML = _dbDetailsFilesHtml({ items: hw.files }) + "<div class='lh-drop-more'><span class='link-btn'>⬆ Drop more here</span></div>";
+  else list.innerHTML = _dbDetailsFilesHtml({ items: hw.files, xFn: window._imDocked && !hw.locked ? "_logHwFileDel" : "", xDir: lessonFolderName(hw.date) }) + "<div class='lh-drop-more'><span class='link-btn'>⬆ Drop more here</span></div>";
   list.classList.toggle("lh-empty", !hw.error && !hw.files.length && !hw.upMsg);
   list.style.opacity = !hw.filesOn && hw.choice && hw.files.length ? ".4" : "";   // the files aren't this lesson's
   var n = hw.files.length;

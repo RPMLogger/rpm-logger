@@ -513,7 +513,11 @@ function _dbDetailsFilesHtml(f) {
     return '<span class="db-file"' + (indent ? ' style="padding-left:' + (20 * indent) + 'px"' : '') + '>' + DB_BULLET_PAGE +
       '<span>' + inqEsc(it.name) + '</span>' +
       (it.bytes == null ? '' :   // HW log lines: names only (the file may be gone)
-        '<span style="color:var(--t-faint)">' + _dbSize(it.bytes) + (age == null ? '' : ' · ' + _dbAgeText(age)) + '</span>') + '</span>';
+        '<span style="color:var(--t-faint)">' + _dbSize(it.bytes) + (age == null ? '' : ' · ' + _dbAgeText(age)) + '</span>') +
+      // × (Log window, user 2026-11-08): f.xFn removes it, only under f.xDir (the lesson's HW folder).
+      (f.xFn && it.path && f.xDir && it.path.indexOf(f.xDir + '/') === 0 ?
+        '<button type="button" class="lh-link-x db-file-x" data-p="' + inqEsc(it.path) + '" onclick="event.stopPropagation();' + f.xFn + '(this.dataset.p)" aria-label="Remove" data-tip="Waits for Dropbox.&#10;Deletes this file from their Dropbox&#10;(it goes to Dropbox\'s trash)." data-tip-left>×</button>' : '') +
+      '</span>';
   }
   // Group by the top folder a file sits in (usually "HW - OCT 4"), in
   // order of each folder's newest file; inside it, the lesson's own folders

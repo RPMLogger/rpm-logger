@@ -4335,6 +4335,16 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 .st-win.im-log-wide .im-do-card .im-pg-nav { position: absolute; top: 14px; right: 242px; margin: 0; }   /* Next top right, level with No show (user, 2026-11-02) */
 #imLogWin .st-win.im-log-wide #imPgNext { color: #6e6e6e; border-color: color-mix(in srgb, #ffffff 15%, transparent); background: none; }   /* rarely used: No show's dim (user, 2026-11-02) */
 #imLogWin .st-win.im-log-wide #imPgNext:not(:disabled):hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 40%, transparent); }
+/* The reason beside Unsuccessful in the Log window (user, 2026-11-08) */
+#imLogWin .im-pg-state { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex: 1; }
+#imLogWin .im-pg-state .im-fail-why { margin-right: 0; }
+#imLogWin .im-fail-why { color: var(--muted); font-size: 12px; margin-right: 10px; text-transform: none; letter-spacing: normal; }
+/* × on a lesson file in the Log window (user, 2026-11-08): plain, like the link ×'s */
+.db-file .db-file-x { background: none; border: none; color: var(--muted); cursor: pointer; padding: 0 4px; margin-left: 8px; font-size: 14px; line-height: 1; }
+.db-file .db-file-x:hover:where(:not(:disabled)) { color: var(--text); }
+/* ← → instead of Back / Next (user, 2026-11-08): icon-only, same size each */
+#imLogWin .im-pg-arrow { padding: 6px 9px; min-width: 0; }
+#imLogWin .im-pg-arrow .arrow-icon { width: 15px; height: 15px; }
 /* Shortcuts groups open and close on their name (user, 2026-11-02) */
 #imLogWin .im-terms-h { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; padding: 4px 0; cursor: pointer; text-align: left; }
 #imLogWin .im-terms-h:hover { color: #ffffff; }

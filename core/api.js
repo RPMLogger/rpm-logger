@@ -269,6 +269,24 @@ function collectDroppedFiles(dataTransfer, done) {
   window.addEventListener("drop", function (e) { e.preventDefault(); }, false);
 })();
 
+// ⌘V puts copied files in (user, 2026-11-08): files copied in Finder, or a copied
+// screenshot, go to the drop zone on screen as if dropped there. Typing boxes keep
+// their own paste (Comms pastes images itself). Folders don't come through a paste.
+(function () {
+  if (window._dbxPasteGuard) return;
+  window._dbxPasteGuard = true;
+  document.addEventListener("paste", function (e) {
+    var cd = e.clipboardData, t = e.target;
+    var files = Array.prototype.slice.call((cd && cd.files) || []);
+    if (!files.length) return;
+    if (t && t.closest && t.closest("input, textarea, [contenteditable=''], [contenteditable='true']")) return;
+    var zone = ["logHwFiles", "stDropZone", "tlDrop"].map(function (id) { return document.getElementById(id); })
+      .filter(function (el) { return el && el.offsetParent && typeof el.ondrop === "function"; })[0];
+    if (!zone) return;
+    e.preventDefault();
+    zone.ondrop({ preventDefault: function () {}, stopPropagation: function () {}, target: zone, dataTransfer: { files: files } });
+  });
+})();
 
 // Shown wherever a rate could not be resolved. The backend message names the
 // student, so it is repeated as-is rather than summarised into "an error".
