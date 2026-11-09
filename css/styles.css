@@ -4928,3 +4928,35 @@ html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) .hdr-home-i { left: 6px
 /* Rack + the box under it stacked so their outer lines are ONE line, like gear in a stack (user, 2026-11-08).
    Rack ring 5px, box ring 3px → 7px apart (was 14). Boxes under each other keep their gap. Delete to undo. */
 .home-rack, body:has(#tab-home.active) .home-rack { margin-bottom: 7px; }
+/* Home button to the left, beside ☰ and Back (user, 2026-11-08): ☰ ← ⌂ | knobs | 🔍 jacks. The magnifier takes Home's old spot, 16px from the jacks. Delete to undo. */
+html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) { left: 91.5px; right: auto; }
+html body .header .hdr-mag { right: 57.5px; }
+/* Rack screws = the amp face's black screws (user, 2026-11-08), same 11px. Delete to undo (grey). */
+.home-rack .hr-bolt { box-shadow: none; background: radial-gradient(circle at 40% 35%, #2a2a2a, #121212 70%, #080808); }
+.home-rack .hr-bolt::before, .home-rack .hr-bolt::after { left: 2.5px; right: 2.5px; top: 5px; height: 1px; border-radius: 0; background: #000; }
+/* POWER SWITCH (user, 2026-11-08: "a power on/off switch next to the inputs"; their photos: a red rocker, lit when on): a square black bezel
+   with a red rocker inside, glowing = on; between the magnifier and the jacks, centred on the knob faces. Decoration only. Magnifier moves left to keep 16px.
+   Delete + the .amp-power span to undo. */
+html body .header .amp-power { position: absolute; right: 53.5px; top: 105.5px; width: 20px; height: 26px; box-sizing: border-box; pointer-events: none;
+  border-radius: 3px; background: #050505; border: 1px solid #2a2a2a; box-shadow: 0 1px 2px #000, inset 0 0 0 2px #0b0b0b; }   /* the bezel */
+html body .header .amp-power::before { content: ""; position: absolute; inset: 4px 3px; border-radius: 2px;   /* the rocker, lit */
+  background: linear-gradient(#e0412f, #b8241a 45%, #8f1a12 55%, #c22b1f);
+  box-shadow: 0 0 6px rgba(225,60,40,.55), inset 0 1px 0 rgba(255,190,170,.45), inset 0 -1px 0 rgba(0,0,0,.35); }
+html body .header .hdr-mag { right: 89.5px; }
+/* Power rocker less bright (user, 2026-11-08): deeper red, softer glow. Delete to undo. */
+html body .header .amp-power::before { background: linear-gradient(#a8352a, #86231b 45%, #6a1912 55%, #8f271d);
+  box-shadow: 0 0 4px rgba(200,50,35,.3), inset 0 1px 0 rgba(255,170,150,.25), inset 0 -1px 0 rgba(0,0,0,.35); }
+/* Power rocker a bit bigger (user, 2026-11-08; was 20 × 26): 24 × 30, same centre, still 12px from the jacks; magnifier keeps 16px. Delete to undo. */
+html body .header .amp-power { top: 103.5px; width: 24px; height: 30px; }
+html body .header .amp-power::before { inset: 5px 4px; }
+html body .header .hdr-mag { right: 93.5px; }
+/* Power rocker dimmer (user, 2026-11-08): darker red, faint glow. Delete to undo. */
+html body .header .amp-power::before { background: linear-gradient(#7e2a22, #641c16 45%, #50140f 55%, #6b2019);
+  box-shadow: 0 0 3px rgba(180,45,30,.18), inset 0 1px 0 rgba(255,160,140,.15), inset 0 -1px 0 rgba(0,0,0,.35); }
+/* Power rocker dimmer again (user, 2026-11-08: "dim" ×2). Delete to undo. */
+html body .header .amp-power::before { background: linear-gradient(#5e221c, #4a1712 45%, #3b110d 55%, #501a15);
+  box-shadow: inset 0 1px 0 rgba(255,150,130,.1), inset 0 -1px 0 rgba(0,0,0,.35); }
+/* Power rocker dimmer, third step (user, 2026-11-08). Delete to undo. */
+html body .header .amp-power::before { background: linear-gradient(#45201b, #361511 45%, #2a0f0c 55%, #3a1814); box-shadow: inset 0 1px 0 rgba(255,150,130,.07), inset 0 -1px 0 rgba(0,0,0,.35); }
+/* Dropbox moved beside Notes (user, 2026-11-08), so the grille moves to the right half: centred between the screen's › and Emails. Delete + move Dropbox back in index.html to undo. */
+.home-rack .hr-vents { position: absolute; left: calc(50% + 172.5px); top: calc(50% - 9px); }
