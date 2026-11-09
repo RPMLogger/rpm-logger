@@ -56,8 +56,8 @@ body::after { content: ""; position: fixed; inset: 0; pointer-events: none;
   }   /* back on over a fainter diamond plate (user, 2026-10-30); fainter 0.07 → 0.04, page less busy (user, 2026-11-06) */
 /* the user's diamond plate on the page background, under the gold glow (user, 2026-10-30; tweed amp photo tried first);
    drawn in code so every diamond is even (the image tile had brighter patches and seams; was ../img/bg-plate.jpg 0 0 / 380px under 93% dark)
-   highlights 0.07 → 0.04, less visible (user, 2026-11-09) */
-body { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cg fill='%23fff' fill-opacity='0.04'%3E%3Cpath d='M1 15 Q10 10 15 1 Q6 6 1 15Z'/%3E%3Cpath d='M15.5 15.5 Q24.5 20.5 29.5 29.5 Q20.5 24.5 15.5 15.5Z'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 30px, var(--rpm-plate); }
+   highlights tried at 0.04, back to 0.07: "was better originally" (user, 2026-11-09) */
+body { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cg fill='%23fff' fill-opacity='0.07'%3E%3Cpath d='M1 15 Q10 10 15 1 Q6 6 1 15Z'/%3E%3Cpath d='M15.5 15.5 Q24.5 20.5 29.5 29.5 Q20.5 24.5 15.5 15.5Z'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 30px, var(--rpm-plate); }
 /* a faint paper grain inside the student cards; body-prefixed so the cards' own background: shorthand keeps it (user, 2026-10-30) */
 body #importBody .im-card, body #tab-payments .incoming-card, body #importBody .td-student .db-panel.im-list { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
 /* a bit of the cards' paper grain on the big boxes, logo box included (user, 2026-10-30; was on the page background) */
@@ -5098,3 +5098,6 @@ html body #calBody .cal-bar:has(#calPick) { position: relative; z-index: 30; }  
 /* THE TO-DO METER on the Home rack (user, 2026-11-09): the VU meter from the Calendar rack, where the grille was (same centre). core/rackscreen.js _hrVuRender. */
 .cr-vu { display: block; flex: none; font-family: 'DM Mono', monospace; filter: brightness(.88) drop-shadow(0 1px 1px #000); }   /* global now: the Home rack shows it on every tab */
 .home-rack .hr-vu { position: absolute; left: calc(50% + 170px); top: calc(50% - 22px); }   /* centred between the screen's › and Emails */
+/* Gold alert glows a bit brighter (user, 2026-11-09): amp knobs (Payments, Audit, Comms) .6 → .85 and 9 → 11px; rack buttons (Emails…) .4 → .6. Delete to undo. */
+html body .header .amp-knob.rpm-alert .amp-knob-k, html body .header .amp-knob.rpm-alert:hover .amp-knob-k { box-shadow: 0 0 11px rgba(212,176,103,.85), 0 2px 4px #000, inset 0 1px 0 rgba(255,255,255,.1); }
+html body .home-rack .hr-pb.rpm-alert, html body .home-rack .hr-pb.rpm-alert:hover { box-shadow: 0 0 3px 1.5px rgba(212,176,103,.6), 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); }
