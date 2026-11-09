@@ -6,7 +6,7 @@
   --box:     #101010;   /* solid again, no gold glow through the boxes (user, 2026-10-30; was 80%); darker than #141414 to offset the boxes' grain — the one big-box shade: header, every tab's box, Today / Students / To-Do / Notes boxes (user, 2026-10-30) */
   --surface2: #222;
   --accent:  oklch(0.5 0.15 29);   /* the header's red, the new anchor; was #e8463a (user, 2026-11-08) */
-  --accent2: oklch(0.5 0.15 76);   /* amber at the red's lightness + strength; was #f0a500 (user, 2026-10-27: colours matched to the red in OKLCH) */
+  --accent2: oklch(0.63 0.19 76);   /* amber KEPT at 0.63 (user, 2026-11-08: 0.5 went brownish) */   /* amber at the red's lightness + strength; was #f0a500 (user, 2026-10-27: colours matched to the red in OKLCH) */
   --green:   oklch(0.5 0.128 152);   /* red's lightness, a touch less chroma (read brighter at 0.19); was rgba(46,204,113,0.7) (user, 2026-10-27: colours matched to the red in OKLCH) */
   --blue:    oklch(0.5 0.128 254);   /* as green; was #4a9eff (user, 2026-10-27: colours matched to the red in OKLCH) */
   /* Text whites on four steps, set by role, warm cream like the old --text (hue 81); Normal = the red's lightness (user, 2026-10-27: whites on a ladder).
@@ -4315,7 +4315,7 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 /* Phrase buttons as plain words (user, 2026-11-02): no chip, lit on hover */
 #imLogWin .im-pills.im-words { gap: 0; row-gap: 4px; align-items: baseline; }
 #imLogWin .im-pills.im-words .im-pill { border: none; background: none; padding: 2px 0; border-radius: 0; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }   /* caps; the titles' old grey, swapped (user, 2026-11-02) */
-#imLogWin .im-pills.im-words .im-pill:hover:where(:not(:disabled)) { color: #ffffff; background: none; }
+#imLogWin .im-pills.im-words .im-pill:hover:where(:not(:disabled)) { color: var(--t-text); background: none; }   /* was #ffffff, too bright (user, 2026-11-08) */
 #imLogWin .im-word-sep { font-family: "DM Mono", monospace; font-size: 10px; color: color-mix(in srgb, var(--t-faint) 60%, transparent); margin: 0 8px; }   /* a dash between the words (user, 2026-11-02; was a comma) */
 /* Titles on every Log window page in the spread-out DM Mono (user, 2026-11-02; Bebas tried and dropped) */
 #imLogWin .im-main-box .im-sub-t, #imLogWin .im-main-log ~ .im-main-box .im-sub-t, #imLogWin #imMailBox .field-label { font-family: "DM Mono", monospace; font-size: 11.5px; letter-spacing: 2.5px; text-transform: uppercase; color: #7c7c7c; }   /* the words' old grey, swapped (user, 2026-11-02) */
