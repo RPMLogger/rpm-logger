@@ -5029,5 +5029,6 @@ html body .header .amp-power::before { background: linear-gradient(#45201b, #361
 /* Home rack → the tab's first box: 48px between the outer rings on every tab, the same as the amp's bottom → Home rack (user, 2026-11-09; was 7px, rings touching).
    56 = 48 + the rack's 5px ring + a plate's 3px ring; amp-ringed boxes (Home, Audit, the Calendar racks) have 5px, so 58. Delete to undo. */
 .home-rack, body:has(#tab-home.active) .home-rack { margin-bottom: 56px; }
-body:has(#tab-home.active, #tab-audit.active, #tab-calendar.active) .home-rack { margin-bottom: 58px; }
-body:has(#tab-fixedcal.active) .home-rack { margin-bottom: 61px; }   /* Fixed schedule's rack sits 5px up (margin -5px), so 5 more here */
+body:has(#tab-home.active, #tab-audit.active) .home-rack { margin-bottom: 58px; }
+body:has(#tab-calendar.active) .home-rack { margin-bottom: 12px; }   /* Calendar: its two racks stack on the Home rack, 2px between the rings; the 48px goes under its last rack (user, 2026-11-09) */
+body:has(#tab-fixedcal.active) .home-rack { margin-bottom: 17px; }   /* Fixed schedule's rack stacks on the Home rack too, 2px between the rings (its margin is -5px) */

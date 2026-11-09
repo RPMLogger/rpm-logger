@@ -155,16 +155,21 @@ function _fcRender(statusMsg) {
         "</span><span class='fc-tgrp' style='flex:2'>" +
         "<div class='cr-lcd'><small>THIS WEEK</small>WEEK " + _fcEsc(_fcData.thisWeek) + "</div>" +
         "</span><span class='fc-tgrp fc-tgrp3' style='flex:3'>" +
+        _fcBigKnob() +   // the knob and the key swapped (user, 2026-11-09)
+        "</span></span>" +
+        // a 160px block on the right of both layers keeps the screens as short as they were (user, 2026-11-07); the key sits in it
+        "<span class='fc-right fc-knobspot'>" +
         "<span class='cr-legend fc-legend2'>" +   // the key where the knob was (user, 2026-11-07)
           "<span><i style='background:color-mix(in oklab, " + FC_COLORS.weekly + " 55%, #1a1a1a);box-shadow:none'></i>Weekly</span>" +
           "<span><i style='background:color-mix(in oklab, " + FC_COLORS.A + " 55%, #1a1a1a);box-shadow:none'></i>Biweekly A</span>" +
           "<span><i style='background:color-mix(in oklab, " + FC_COLORS.B + " 55%, #1a1a1a);box-shadow:none'></i>Biweekly B</span>" +
           "<span><i class='pen'></i>Pencilled</span>" +
         "</span>" +
-        "</span></span>" +
-        // a 160px block on the right of both layers keeps the screens as short as they were (user, 2026-11-07); the key sits in it
-        "<span class='fc-right fc-knobspot'>" + _fcBigKnob() + "</span>" +   // the knob moved to the right (user, 2026-11-07)
+        "</span>" +
       "</div>" +
+    "</div>" +
+    // split into two rack units like the Calendar's (user, 2026-11-09; was one rack, two layers)
+    "<div class='cal-bar cr fc-rack2'>" + bolts +
       "<div class='cr-row fc-countrow'>" +
         screenHtml + "<span class='fc-right'></span>" +
       "</div>" +
@@ -316,6 +321,20 @@ function _fcInjectStyle() {
     // the thin double border (a dark ring + an outer line), as on the Calendar's racks and cab (user, 2026-11-07)
     "#fcBody .cal-bar,#fcBody .cal-inner{box-shadow:0 0 0 2px #1e1e1e,0 0 0 3px #2c2c2c}" +
     "#fcBody .cal-wrap{padding:3px;margin:0 -3px}" +   // room for the cab's ring inside the scroller (it clips)   // no line between the rack's two layers (user, 2026-11-07)
+    // The rack the Home rack's width + double ring, like the Calendar's racks (user, 2026-11-09): knob block 260 → 110px, tighter gaps so it fits. Delete to undo.
+    "html body #fcBody>.cal-bar.cr{width:min(752px,calc(100% - 8px));margin-left:auto;margin-right:auto;box-shadow:0 0 0 4px #1e1e1e,0 0 0 5px #2c2c2c;background-color:var(--rpm-box-bg,var(--box))}" +
+    "#fcBody .cal-bar>.cr-row{padding:0 24px}#fcBody .fc-right{width:110px;margin-left:12px}#fcBody .fc-screens{gap:12px}" +
+    "html body #fcBody>.cal-bar.cr{margin-bottom:12px}html body #fcBody>.cal-bar.cr.fc-rack2{margin-top:0;margin-bottom:53px}" +   // the two racks 2px apart; last rack → week grid 48px between the rings, as on the Calendar (user, 2026-11-09)
+    // two racks (user, 2026-11-09): the top one the Home rack's height (56px row), the knob in it, smaller; the counts rack as tall as its screens
+    "html body #fcBody .cal-bar{padding:8.5px 0;gap:0}html body #fcBody .cal-bar:not(.fc-rack2)>.cr-row{height:56px}" +
+    "#tab-fixedcal>.tab-refresh{top:22.5px;right:-44px}" +
+    "#fcBody .cal-bar .cr-pb{width:16px;height:16px;border-radius:2.5px}" +   // push buttons the Home rack's size (user, 2026-11-09; were 22)   // ↻ just outside the top rack's right side, as on the Calendar
+    "#fcBody .fc-knobspot{align-self:center}#fcBody .fc-tgrp3>.fc-bigknob{margin:0 auto;zoom:.55}" +   // the knob centred where the key was, sized to the rack (user, 2026-11-09)
+    // the Home rack's face (grain) and its two small screws, one each side, centred (user, 2026-11-09; were four big corner screws)
+    "html body #fcBody>.cal-bar.cr{background-image:var(--rpm-box-grain)}" +
+    "#fcBody .cal-bar>.cr-bolt{top:calc(50% - 5.5px)!important;bottom:auto!important;width:11px;height:11px;box-shadow:none;background:radial-gradient(circle at 40% 35%,#2a2a2a,#121212 70%,#080808)}" +
+    "#fcBody .cal-bar>.cr-bolt[style*='left']{left:12px!important}#fcBody .cal-bar>.cr-bolt[style*='right']{right:12px!important}" +
+    "#fcBody .cal-bar>.cr-bolt:before,#fcBody .cal-bar>.cr-bolt:after{left:2.5px;right:2.5px;top:5px;height:1px;border-radius:0;background:#000}" +   // last rack → week grid: 48px between the rings, as on the Calendar (user, 2026-11-09)
     // Screens sunk into the panel (user, 2026-11-07): black rim, deep shadow from the top, a light lip along the bottom edge
     "#fcBody .cr-lcd,#fcBody .fc-screen{border:1px solid #000;box-shadow:inset 0 3px 9px rgba(0,0,0,.95),inset 0 -1px 0 rgba(255,255,255,.03),0 -1px 0 rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.08)}" +
     "#fcBody .fc-screen{height:30px;box-shadow:inset 0 4px 8px rgba(0,0,0,1),inset 0 -1px 0 rgba(255,255,255,.04),0 -1px 0 rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.11)}" +   // the slim screens sunk as deep as THIS WEEK (user, 2026-11-07)   // knob pointers dimmed to the ticks' grey (user, 2026-11-07)
