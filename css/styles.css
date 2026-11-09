@@ -4349,7 +4349,7 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 #imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn).amber { letter-spacing: 0; padding-left: 10px; padding-right: 10px; border-radius: 999px; }   /* tight: no letter spread, less amber either side, a full pill (user, 2026-11-09; 3px corners tried) */   /* Done = LOG's job on page 2: same spot, same look (user, 2026-11-09) */   /* STEPS / SHORTCUTS in the left titles' grey, not brighter (user, 2026-11-09) */
 /* ✕ at the window's top right, over the Steps panel, level with STEPS (user, 2026-11-09) */
 .st-win.im-log-win.im-log-wide { position: relative; }
-.st-win.im-log-win.im-log-wide > .settings-title .settings-close { position: absolute; top: 29px; right: 31px; }
+.st-win.im-log-win.im-log-wide > .settings-title .settings-close { position: absolute; top: 29px; right: 31px; z-index: 5; }   /* above the Steps panel, which caught its clicks (user, 2026-11-09) */
 /* + Log at the top (user, 2026-11-08/09): level with the name in the title, right edge of the left panel; the fail line sits left of it */
 .st-win.im-log-wide .im-page:is([data-pg="1"], [data-pg="6"], [data-pg="3"]) .im-main-box > .im-log-foot-all { position: absolute; top: -103px; right: 242px; margin: 0; padding: 0; border: none; }
 #imLogWin #imSideNav { display: flex; justify-content: flex-end; gap: 6px; margin-top: 22px; margin-right: -4px; }   /* ← → under the steps, right-aligned (user, 2026-11-08/09) */
