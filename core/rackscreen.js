@@ -82,6 +82,29 @@ function _hrVuRender() {
   el.innerHTML = _calVuSvg(total == null ? null : total / HR_VU_FULL);
 }
 
+// THE NEEDLE FLUTTERS WHILE THE PORTAL WORKS (user, 2026-11-10): while anything loads, refreshes or saves (any visible rolling ring,
+// or the screen still checking audits) the needle wiggles a few degrees around where it is, like a real VU with signal, and settles
+// back when it's done. Small on purpose: a wide swing would read as the to-do count changing. Pivot = the SVG's (40,74).
+var _vuWig = { a: 0, v: 0, target: 0, next: 0, raf: 0 };
+function _vuBusyNow() {
+  if (typeof _rsReady !== 'undefined' && !_rsReady) return true;
+  var rings = document.querySelectorAll('.rpm-loading');
+  for (var i = 0; i < rings.length; i++) if (rings[i].getClientRects().length) return true;
+  return false;
+}
+function _vuWigStep(t) {
+  var w = _vuWig, busy = _vuBusyNow();
+  if (busy && t > w.next) { w.target = (Math.random() * 2 - 1) * 3.5; w.next = t + 90 + Math.random() * 160; }   // ±3.5°, a new kick every 90–250ms
+  if (!busy) w.target = 0;
+  w.v = (w.v + (w.target - w.a) * 0.12) * 0.82;   // a damped spring: the needle overshoots a touch and settles, like the real thing
+  w.a += w.v;
+  var line = document.querySelector('#hrVu .cr-needle');
+  if (line) line.setAttribute('transform', Math.abs(w.a) < 0.02 ? '' : 'rotate(' + w.a.toFixed(2) + ' 40 74)');
+  if (!busy && Math.abs(w.a) < 0.02 && Math.abs(w.v) < 0.02) { w.a = w.v = 0; w.raf = 0; return; }   // at rest: stop until the next check
+  w.raf = requestAnimationFrame(_vuWigStep);
+}
+setInterval(function () { if (!_vuWig.raf && !document.hidden && _vuBusyNow()) _vuWig.raf = requestAnimationFrame(_vuWigStep); }, 200);
+
 function _rsRender() {
   _hrVuRender();
   var lcd = document.getElementById('hrLcd');

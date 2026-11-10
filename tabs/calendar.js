@@ -418,12 +418,13 @@ function _calVuSvg(frac) {
   return "<svg class='cr-vu' viewBox='0 0 84 56' width='66' height='44'><defs>" +
     "<radialGradient id='crGlow' cx='50%' cy='100%' r='90%'><stop offset='0' stop-color='oklch(.86 .06 88)'/><stop offset='.6' stop-color='oklch(.74 .06 82)'/><stop offset='1' stop-color='oklch(.55 .05 75)'/></radialGradient>" +
     "<linearGradient id='crShade' x1='0' y1='0' x2='0' y2='1'><stop offset='.62' stop-color='#000' stop-opacity='0'/><stop offset='1' stop-color='#000' stop-opacity='.6'/></linearGradient>" +
-    "<radialGradient id='crVig' cx='50%' cy='70%' r='75%'><stop offset='.55' stop-color='#000' stop-opacity='0'/><stop offset='1' stop-color='#000' stop-opacity='.5'/></radialGradient></defs>" +
+    "<radialGradient id='crVig' cx='50%' cy='70%' r='75%'><stop offset='.55' stop-color='#000' stop-opacity='0'/><stop offset='1' stop-color='#000' stop-opacity='.5'/></radialGradient>" +
+    "<clipPath id='crFace'><rect x='2' y='4' width='76' height='48' rx='2'/></clipPath></defs>" +   // the needle stays inside the face (user, 2026-11-10: it ran over the black frame at the bottom)
     "<rect x='.5' y='.5' width='83' height='55' rx='4' fill='#0c0c0c' stroke='#333'/><g transform='translate(2,0)'>" +
     "<rect x='2' y='4' width='76' height='48' rx='2' fill='url(#crGlow)'/>" +
     "<path d='" + arc(-36, 13) + "' fill='none' stroke='#2a2418' stroke-width='.8'/><path d='" + arc(13, 34) + "' fill='none' stroke='#b8322a' stroke-width='2.2'/>" + out +
     "<text x='7' y='12' font-size='6.5' font-weight='700' fill='#2a2418'>VU</text><circle cx='71' cy='10' r='2' fill='#2a2a2a' stroke='#555' stroke-width='.5'/>" +
-    "<line x1='" + cx + "' y1='" + cy + "' x2='" + n[0].toFixed(1) + "' y2='" + n[1].toFixed(1) + "' stroke='#111' stroke-width='.9'/>" +
+    "<g clip-path='url(#crFace)'><line class='cr-needle' x1='" + cx + "' y1='" + cy + "' x2='" + n[0].toFixed(1) + "' y2='" + n[1].toFixed(1) + "' stroke='#111' stroke-width='.9'/></g>" +   // .cr-needle: core/rackscreen.js wiggles it while busy
     "<rect x='2' y='4' width='76' height='48' rx='2' fill='url(#crVig)'/><rect x='2' y='4' width='76' height='48' rx='2' fill='url(#crShade)'/></g>" +
     "<title>" + (frac == null ? 'This week' : Math.round(frac * CAL_FULL) + ' of ' + CAL_FULL + ' lessons') + "</title></svg>";
 }
