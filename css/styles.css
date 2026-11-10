@@ -4203,19 +4203,20 @@ html body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; }
 .cm-msgr .cm-search, .cm-msgr .cm-to, .cm-msgr .cm-msg-t, .cm-msgr .cm-stamp, .cm-msgr .cm-react-note,
 .cm-msgr .cm-reply, .cm-msgr .cm-none, .cm-msgr .cm-new-opt, .cm-msgr .cm-sending {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; letter-spacing: 0; }
-.cm-msgr .cm-conv-name { font-size: 13px; font-weight: 600; }
-.cm-msgr .cm-conv-prev { font-size: 11.5px; line-height: 1.35; }
-.cm-msgr .cm-conv-when { font-size: 11.5px; }
-.cm-msgr .cm-ava { font-size: 13px; font-weight: 600; }
-.cm-msgr .cm-search { font-size: 13px; }
-.cm-msgr .cm-to { font-size: 13px; }
+/* Sizes pulled toward the amp knob labels (8px), a tad bigger than them (user, 2026-11-10; were 11–13px) */
+.cm-msgr .cm-conv-name { font-size: 10px; font-weight: 600; }
+.cm-msgr .cm-conv-prev { font-size: 9.5px; line-height: 1.35; }
+.cm-msgr .cm-conv-when { font-size: 9.5px; }
+.cm-msgr .cm-ava { font-size: 10.5px; font-weight: 600; }
+.cm-msgr .cm-search { font-size: 10.5px; }
+.cm-msgr .cm-to { font-size: 10.5px; }
 .cm-msgr #cmPaneTo { font-weight: 600; }
-.cm-msgr .cm-msg-t { font-size: 14.5px; line-height: 1.35; }   /* measured from the user's Messages screenshot */
-.cm-msgr .cm-stamp { font-size: 11px; font-weight: 500; letter-spacing: 0; }
-.cm-msgr .cm-react-note { font-size: 11.5px; }
-.cm-msgr .cm-reply { font-size: 14.5px; }
-.cm-msgr .cm-new-opt { font-size: 13px; }
-.cm-msgr .cm-none { font-size: 12.5px; text-transform: none; }
+.cm-msgr .cm-msg-t { font-size: 10px; line-height: 1.4; }   /* 14.5 → 12 (user, 2026-11-09) → 10 (2026-11-10) */
+.cm-msgr .cm-stamp { font-size: 9px; font-weight: 500; letter-spacing: 0; }
+.cm-msgr .cm-react-note { font-size: 9.5px; }
+.cm-msgr .cm-reply { font-size: 10px; }
+.cm-msgr .cm-new-opt { font-size: 10.5px; }
+.cm-msgr .cm-none { font-size: 10px; text-transform: none; }
 /* Pictures (user, 2026-11-01): + / paste / drop a screenshot, shown in the bubble. */
 .cm-attach { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface2); color: var(--t-normal);
   font-size: 17px; line-height: 1; cursor: pointer; margin-bottom: 3px; }
