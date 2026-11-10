@@ -109,6 +109,7 @@ function _rsRender() {
   _hrVuRender();
   var lcd = document.getElementById('hrLcd');
   if (!lcd) return;
+  if (_rsComms(lcd)) return;
   if (!_rsReady) {
     var wait = 'LOADING<small>CHECKING AUDITS</small>';
     if (lcd.innerHTML !== wait) lcd.innerHTML = wait;
@@ -136,6 +137,21 @@ function _rsRender() {
   lcd.dataset.tab = it ? (it.tab || '') : '';
   lcd.dataset.fn = it ? (it.fn || '') : '';
   document.querySelectorAll('.home-rack .hr-arw').forEach(function (b) { b.disabled = items.length < 2; });
+}
+
+// ON THE COMMS TAB the screen shows the texts instead (user, 2026-11-10): how many conversations wait on a reply
+// (the red dots in the list) and, under it, the Others count. Read from the page, nothing fetched. Off Comms = the warnings again.
+function _rsComms(lcd) {
+  if (typeof commsOnTab !== 'function' || !commsOnTab()) return false;
+  var wait = document.querySelectorAll('#commsStuList .cm-conv.cm-wait').length;
+  var oth = document.getElementById('commsOthersCount');
+  var o = oth ? parseInt(oth.textContent, 10) || 0 : 0;
+  var top = wait ? wait + (wait === 1 ? ' text waiting' : ' texts waiting') : 'All answered';
+  var html = _rsEsc(top.toUpperCase()) + '<small>' + _rsEsc(('Others ' + o).toUpperCase()) + '</small>';
+  if (lcd.innerHTML !== html) lcd.innerHTML = html;
+  lcd.classList.remove('go'); lcd.dataset.tab = ''; lcd.dataset.fn = '';
+  document.querySelectorAll('.home-rack .hr-arw').forEach(function (b) { b.disabled = true; });
+  return true;
 }
 
 // The Audit + Payments amp knobs glow gold like Comms while their audit has something (user, 2026-11-08):

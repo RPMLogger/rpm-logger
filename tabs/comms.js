@@ -773,7 +773,7 @@ function commsEnsureExtras() {
   // the grey engraved .win-sub, like every other title (was a line under it).
   if (sub) {
     if (sub.previousSibling && sub.previousSibling.nodeType === 3) sub.previousSibling.textContent = "Twilio";
-    sub.textContent = " · (201) 904-4937";
+    sub.innerHTML = '<span class="cm-title-icon">' + COMMS_TEXT_ICON + '</span>';   // the phone icon beside TWILIO instead of the number (user, 2026-11-10)
   }
   // Unanswered sits last in the filter row (user, 2026-10-31).
   var unans = document.querySelector('.cm-f[data-filter="unresponded"]');
@@ -836,7 +836,7 @@ function commsEnsureExtras() {
       // 2026-11-10: the caption under each (user: "this is a special window"). Templates and
       // Announcements = the amp's knobs (they never light); Others = a square push button that lights red.
       var col = function (id, cap, click, tip, extra, wrapId, knob) {
-        var btn = "<button class='" + (knob ? "cm-knob" : "cm-pb") + "' id='" + id + "' onclick='" + click + "' data-tip='" + tip + "'></button>";
+        var btn = "<button class='" + (knob ? "cm-knob" : "cm-pb") + "' id='" + id + "' onclick='" + click + "' data-tip='" + tip + "'>" + (knob ? commsKnobSvg() : "") + "</button>";
         var b = "<span class='cm-pcol'>" + btn +
                 "<span class='cm-pcap'>" + cap + "</span></span>";
         return extra ? "<span class='tt-menu' id='" + (wrapId || "cmTplWrap") + "'>" + b + extra + "</span>" : b;
@@ -847,7 +847,7 @@ function commsEnsureExtras() {
             col("cmTplBtn", "Templates", "_ttMenu(event)", "Text templates: Zoom lesson,&#10;No show, Optional schedule.", "<span class='cash-dd-list' id='cmTplList' hidden></span>", "cmTplWrap", true) +
             // One Announcements button, menu: New / Confirmations (user, 2026-11-10; were two buttons).
             col("commsAnnBtn", "Announcements", "commsAnnMenu(event)", "New: text all students at once.&#10;Confirmations: who confirmed, Nudge the rest.", "<span class='cash-dd-list' hidden></span>", "cmAnnWrap", true) +
-            col("commsOthersBtn", "Others <span id='commsOthersCount'>0</span>", "commsShowOthers(true)", "Opens a window.&#10;Unknown numbers, applicants,&#10;voicemails, scams.");
+            col("commsOthersBtn", "Others <span id='commsOthersCount'>0</span>", "commsShowOthers(true)", "Opens a window.&#10;Unknown numbers, applicants,&#10;voicemails, scams.", null, null, true);   // a knob too (user, 2026-11-10); glows gold while one waits, like the amp knobs
       box.appendChild(rack);
       box.insertAdjacentHTML("beforeend", commsScopeSvg());   // the green phase scope, VU-meter size (user, 2026-11-10)
       box.appendChild(stu);
@@ -855,10 +855,12 @@ function commsEnsureExtras() {
       // knobs in their own box on top, the rack's gap, then the box with the two panes.
       var head = document.createElement("div");
       head.className = "td-wk-box cm-headbox";
-      head.innerHTML = '<span class="td-bolt" style="left:8px;top:10px"></span><span class="td-bolt" style="left:8px;bottom:10px"></span>' +
-        '<span class="td-bolt" style="right:8px;top:10px"></span><span class="td-bolt" style="right:8px;bottom:10px"></span>';
+      head.innerHTML = '<span class="hr-bolt" style="left:10px"></span><span class="hr-bolt" style="right:10px"></span>';   // the rack's screws: one each side, centred (user, 2026-11-10)
       [box.querySelector(".td-wk-title"), document.getElementById("cmLineNo"), rack, box.querySelector(".cm-scope")].forEach(function (n) { if (n) head.appendChild(n); });
       box.parentNode.insertBefore(head, box);
+      // A ⋯ button where EDIT was (user, 2026-11-10): press it for a menu (Edit, Others). EDIT shows again only as Done while editing.
+      var lt = stu.querySelector(".cm-list-top");
+      if (lt) lt.insertAdjacentHTML("afterbegin", '<span class="tt-menu cm-more" id="cmMoreWrap"><button type="button" class="cm-more-btn" onclick="commsMoreMenu(event)" aria-label="More">\u22ef</button><span class="cash-dd-list" hidden></span></span>');
       detail.parentNode.insertBefore(win, detail);   // the conversation window opens on top of it
     }
   }
@@ -888,26 +890,34 @@ function commsDimEmoji(html) {
 // a glowing trace (user's picture, 2026-11-10). The trace moves only while the
 // 30-second Comms check runs (at least 1.5s so it shows), flat the rest of the time.
 function commsScopeSvg() {
-  return '<span class="cm-scope" aria-hidden="true"><svg viewBox="0 0 84 56" width="75" height="50">' +   // slightly bigger than the VU's 66x44 (user, 2026-11-10)
+  // Round, like an old panel meter (user, 2026-11-10 picture): black bezel with four screws, round green screen.
+  var screws = "";
+  [[30, 4.2], [4.2, 30], [55.8, 30], [30, 55.8]].forEach(function (c, k) {
+    screws += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="2.3" fill="url(#cmScScrew)" stroke="#000" stroke-width=".4"/>' +
+      '<line x1="' + (c[0] - 1.5) + '" y1="' + c[1] + '" x2="' + (c[0] + 1.5) + '" y2="' + c[1] + '" stroke="#0a0a0a" stroke-width=".6" transform="rotate(' + (25 + k * 40) + ' ' + c[0] + ' ' + c[1] + ')"/>';
+  });
+  return '<span class="cm-scope" aria-hidden="true"><svg viewBox="0 0 60 60" width="58" height="58">' +
     '<defs>' +
-      '<radialGradient id="cmScGlass" cx="50%" cy="50%" r="65%"><stop offset="0" stop-color="#0d2a12"/><stop offset=".7" stop-color="#061a0a"/><stop offset="1" stop-color="#020904"/></radialGradient>' +   // the darker screen (user's pick over a brighter try, 2026-11-10)
-      '<pattern id="cmScLines" width="2" height="1.4" patternUnits="userSpaceOnUse"><rect width="2" height=".55" fill="rgba(0,0,0,.38)"/></pattern>' +
-      '<filter id="cmScGlow" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation=".9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>' +
-      '<clipPath id="cmScClip"><rect x="4" y="4" width="76" height="48" rx="2"/></clipPath>' +
+      '<radialGradient id="cmScBez" cx="40%" cy="30%" r="80%"><stop offset="0" stop-color="#2e2e2e"/><stop offset=".6" stop-color="#141414"/><stop offset="1" stop-color="#060606"/></radialGradient>' +
+      '<radialGradient id="cmScScrew" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#6a6a6a"/><stop offset=".6" stop-color="#262626"/><stop offset="1" stop-color="#0c0c0c"/></radialGradient>' +
+      '<radialGradient id="cmScGlass" cx="50%" cy="50%" r="55%"><stop offset="0" stop-color="#0d2a12"/><stop offset=".7" stop-color="#061a0a"/><stop offset="1" stop-color="#020904"/></radialGradient>' +
+      '<pattern id="cmScLines" width="2" height="1.2" patternUnits="userSpaceOnUse"><rect width="2" height=".5" fill="rgba(0,0,0,.38)"/></pattern>' +
+      '<filter id="cmScGlow" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation=".8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>' +
+      '<clipPath id="cmScClip"><circle cx="30" cy="30" r="20.5"/></clipPath>' +
     '</defs>' +
-    '<rect x=".5" y=".5" width="83" height="55" rx="3.5" fill="#0b0b0b" stroke="#2d2d2d" stroke-width=".88"/>' +   // the VU meter's frame as it shows (its .88 brightness), edge + corners scaled back to the VU's size at 75x50
+    '<circle cx="30" cy="30" r="29.3" fill="url(#cmScBez)" stroke="#000" stroke-width=".7"/>' +
+    '<circle cx="30" cy="30" r="22.6" fill="#030303" stroke="#2a2a2a" stroke-width=".7"/>' + screws +
     '<g clip-path="url(#cmScClip)">' +
-      '<rect x="4" y="4" width="76" height="48" fill="url(#cmScGlass)"/>' +
-      '<g stroke="#3ccf55" stroke-opacity=".5" stroke-width=".45" fill="none">' +
-        '<line x1="42" y1="9" x2="42" y2="47"/><line x1="11" y1="28" x2="73" y2="28"/>' +
-        '<line x1="22" y1="11" x2="62" y2="45"/><line x1="62" y1="11" x2="22" y2="45"/>' +
-        '<line x1="40.5" y1="11" x2="43.5" y2="11"/><line x1="40.5" y1="45" x2="43.5" y2="45"/>' +
-        '<line x1="13" y1="26.5" x2="13" y2="29.5"/><line x1="71" y1="26.5" x2="71" y2="29.5"/>' +
+      '<circle cx="30" cy="30" r="20.5" fill="url(#cmScGlass)"/>' +
+      '<g stroke="#3ccf55" stroke-opacity=".5" stroke-width=".4" fill="none">' +
+        '<line x1="30" y1="12" x2="30" y2="48"/><line x1="12" y1="30" x2="48" y2="30"/>' +
+        '<line x1="17.5" y1="17.5" x2="42.5" y2="42.5"/><line x1="42.5" y1="17.5" x2="17.5" y2="42.5"/>' +
       '</g>' +
-      '<text x="13" y="16" font-family="Arial, sans-serif" font-size="5.5" fill="#7fe48d" fill-opacity=".85">L</text>' +
-      '<text x="67.5" y="16" font-family="Arial, sans-serif" font-size="5.5" fill="#7fe48d" fill-opacity=".85">R</text>' +
-      '<path id="cmScTrace" d="M14 28 L70 28" stroke="#c8ffc8" stroke-width=".8" fill="none" stroke-linecap="round" filter="url(#cmScGlow)"/>' +
-      '<rect x="4" y="4" width="76" height="48" fill="url(#cmScLines)"/>' +
+      '<text x="19" y="22" font-family="Arial, sans-serif" font-size="4.2" fill="#7fe48d" fill-opacity=".85">L</text>' +
+      '<text x="38.6" y="22" font-family="Arial, sans-serif" font-size="4.2" fill="#7fe48d" fill-opacity=".85">R</text>' +
+      '<path id="cmScTrace" d="M13 30 L47 30" stroke="#c8ffc8" stroke-width=".7" fill="none" stroke-linecap="round" filter="url(#cmScGlow)"/>' +
+      '<rect x="9" y="9" width="42" height="42" fill="url(#cmScLines)"/>' +
+      '<ellipse cx="25" cy="19" rx="12" ry="5" fill="#fff" fill-opacity=".05"/>' +
     '</g>' +
   '</svg></span>';
 }
@@ -921,17 +931,59 @@ setInterval(function () {
   var t = document.getElementById("cmScTrace");
   if (!t || !t.closest(".cm-scope").offsetParent) return;
   if (!_cmScopeBusy && Date.now() > _cmScopeUntil) {
-    if (!_cmScopeFlat) { t.setAttribute("d", "M14 28 L70 28"); _cmScopeFlat = true; }
+    if (!_cmScopeFlat) { t.setAttribute("d", "M13 30 L47 30"); _cmScopeFlat = true; }
     return;
   }
   _cmScopeFlat = false;
-  var d = "M14 28";
-  for (var x = 15.5; x <= 70; x += 1.5) {
-    var amp = 1.7 * Math.sin(Math.PI * (x - 14) / 56);
-    d += " L" + x + " " + (28 + (Math.random() - .5) * 2 * amp).toFixed(2);
+  var d = "M13 30";
+  for (var x = 14; x <= 47; x += 1) {
+    var amp = 1.4 * Math.sin(Math.PI * (x - 13) / 34);
+    d += " L" + x + " " + (30 + (Math.random() - .5) * 2 * amp).toFixed(2);
   }
   t.setAttribute("d", d);
 }, 140);
+
+// The Comms knob (user's picture, 2026-11-10): a glossy black gear-shaped knob with a pointer fin and a light
+// line, sitting in a dark ring that catches warm light on the left and cool on the right. .cm-kg turns while
+// its menu is open.
+function commsKnobSvg() {
+  // body: round, four big scallops cut at +-55 / +-125 deg, a tall fin up top (past the ring) and a tail down the bottom
+  return '<svg viewBox="0 0 40 42" width="30" height="31.5" aria-hidden="true"><defs>' +
+      '<linearGradient id="cmKRing" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a6634"/><stop offset=".22" stop-color="#3a2a1c"/><stop offset=".5" stop-color="#0d0d0e"/><stop offset=".78" stop-color="#1d2a3a"/><stop offset="1" stop-color="#5a7aa0"/></linearGradient>' +
+      '<radialGradient id="cmKBody" cx="50%" cy="32%" r="75%"><stop offset="0" stop-color="#3a3a3c"/><stop offset=".5" stop-color="#151516"/><stop offset="1" stop-color="#050505"/></radialGradient>' +
+      '<linearGradient id="cmKShine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c08040" stop-opacity=".55"/><stop offset=".3" stop-color="#c08040" stop-opacity="0"/><stop offset=".7" stop-color="#6a8ab8" stop-opacity="0"/><stop offset="1" stop-color="#6a8ab8" stop-opacity=".55"/></linearGradient>' +
+      '<linearGradient id="cmKFin" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4a4a4c"/><stop offset=".45" stop-color="#121213"/><stop offset="1" stop-color="#3a4250"/></linearGradient>' +
+    '</defs>' +
+    '<circle cx="20" cy="22" r="18" fill="url(#cmKRing)" stroke="#000" stroke-width=".7"/>' +
+    '<circle cx="20" cy="22" r="14.6" fill="#050505"/>' +
+    '<g class="cm-kg">' +
+      // tail (bottom) and fin (top) first, the body over them
+      '<path d="M16.6 30 L15.2 39.6 Q20 41 24.8 39.6 L23.4 30 Z" fill="url(#cmKFin)" stroke="#000" stroke-width=".4"/>' +
+      '<path d="M18 1.2 Q20 0.4 22 1.2 L23.6 14 L16.4 14 Z" fill="url(#cmKFin)" stroke="#000" stroke-width=".4"/>' +
+      '<path d="M20 9.4 A12.6 12.6 0 0 1 28.9 13.1 A3.4 3.4 0 0 0 31.6 18.3 A12.6 12.6 0 0 1 31.6 25.7 A3.4 3.4 0 0 0 28.9 30.9 ' +
+        'A12.6 12.6 0 0 1 11.1 30.9 A3.4 3.4 0 0 0 8.4 25.7 A12.6 12.6 0 0 1 8.4 18.3 A3.4 3.4 0 0 0 11.1 13.1 A12.6 12.6 0 0 1 20 9.4 Z" ' +
+        'fill="url(#cmKBody)" stroke="#000" stroke-width=".5"/>' +
+      '<path d="M20 9.4 A12.6 12.6 0 0 1 28.9 13.1 A3.4 3.4 0 0 0 31.6 18.3 A12.6 12.6 0 0 1 31.6 25.7 A3.4 3.4 0 0 0 28.9 30.9 ' +
+        'A12.6 12.6 0 0 1 11.1 30.9 A3.4 3.4 0 0 0 8.4 25.7 A12.6 12.6 0 0 1 8.4 18.3 A3.4 3.4 0 0 0 11.1 13.1 A12.6 12.6 0 0 1 20 9.4 Z" ' +
+        'fill="url(#cmKShine)"/>' +
+      '<rect x="19.3" y="2" width="1.4" height="14.5" rx=".7" fill="#dcdcdc"/>' +
+    '</g></svg>';
+}
+
+// The list's ⋯ menu (user, 2026-11-10). Same open/close as the Templates menu.
+function commsMoreMenu(e) {
+  if (e) e.stopPropagation();
+  var w = document.getElementById("cmMoreWrap"), list = w ? w.querySelector(".cash-dd-list") : null;
+  if (!list) return;
+  if (!list.hidden) { _ttMenuClose(); return; }
+  _ttMenuClose();
+  _ttWrap = w;
+  list.innerHTML =
+    (typeof commsStuToggleEdit === "function" ? "<button type='button' class='cash-dd-opt' onclick='_ttMenuClose();commsStuToggleEdit()'>Edit</button>" : "") +
+    "<button type='button' class='cash-dd-opt' onclick='_ttMenuClose();commsShowOthers(true)'>Others</button>";
+  list.hidden = false;
+  setTimeout(function () { document.addEventListener("mousedown", _ttMenuOut); }, 0);
+}
 
 // Announcements ▾ menu: New / Confirmations. Reuses the Templates menu's
 // open/close (tabs/texttemplates.js _ttWrap, _ttMenuOut, _ttMenuClose).

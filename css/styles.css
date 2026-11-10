@@ -4848,7 +4848,23 @@ html body .cm-box-btns { gap: 26px; align-items: flex-end; top: 30px; }   /* cap
 .cm-knob:hover::after { background: rgba(255,255,255,0.82); }
 .cm-knob:focus, .cm-knob:focus-visible { outline: none; }
 .tt-menu:has(> .cash-dd-list:not([hidden])) .cm-knob::after { transform: rotate(90deg); }
-.cm-pcol:has(.cm-knob) { gap: 9px; }   /* the amp's knob-to-caption gap */
+.cm-pcol:has(.cm-knob) { gap: 9px; }   /* the amp's knob-to-caption gap */   /* room for the tick ring, like the amp (9px) */
+/* Others = a knob (user, 2026-11-10; was a red push button): while one waits it glows gold like an amp knob with news (.rpm-alert), caption brighter. */
+.cm-knob.lit { box-shadow: 0 0 11px rgba(212,176,103,.85), 0 2px 4px #000, inset 0 1px 0 rgba(255,255,255,.1); }
+/* Knobs evenly spaced like the amp's (user, 2026-11-10): every column the same width, so centres sit 90px apart
+   (the amp's 60 is too tight for ANNOUNCEMENTS); was gap 26 between caption-wide columns (92 / 89). */
+html body #commsBody .cm-headbox .cm-box-btns { gap: 0; }
+html body #commsBody .cm-headbox .cm-pcol { width: 90px; }
+/* The gear knob (user, 2026-11-10 picture; drawn in commsKnobSvg): the old round knob's paint off, the SVG is the knob. */
+html body #commsBody .cm-knob { width: 30px; height: 30px; margin: 2px 0 0; background: none; box-shadow: none; border-radius: 50%; filter: drop-shadow(0 2px 3px rgba(0,0,0,.7)); }
+html body #commsBody .cm-knob::before, html body #commsBody .cm-knob::after { display: none; }
+.cm-knob svg { display: block; }
+.cm-knob .cm-kg { transform-box: view-box; transform-origin: 20px 22px; transition: transform .2s; }
+.tt-menu:has(> .cash-dd-list:not([hidden])) .cm-knob .cm-kg { transform: rotate(90deg); }
+.cm-knob:hover .cm-kg rect { fill: #fff; }
+html body #commsBody .cm-knob.lit { box-shadow: none; filter: drop-shadow(0 0 5px rgba(212,176,103,.85)) drop-shadow(0 2px 3px rgba(0,0,0,.7)); }   /* Others while one waits */
+html body #commsBody .cm-pcol:has(.cm-knob) { gap: 6px; }
+.cm-pcol:has(.cm-knob.lit) .cm-pcap { color: #a8a8a8; }
 /* the Comms list's whites toned down (user, 2026-11-08: "left side whites"): names no brighter than --t-normal, previews faint (selected row keeps its grey) */
 #commsStuList .cm-conv .cm-conv-name, #commsStuList .cm-conv.cm-wait .cm-conv-name, #commsStuList .cm-conv.cm-sel .cm-conv-name { color: var(--t-normal); }
 #commsStuList .cm-conv .cm-conv-prev, #commsStuList .cm-conv.cm-wait .cm-conv-prev { color: var(--t-faint); }
@@ -4896,6 +4912,49 @@ body:has(#tab-todo.active) .hr-knob[data-k=todo] + .hr-cap, body:has(#tab-notes.
 .hr-bolt { top: calc(50% - 7.5px); width: 15px; height: 15px; }
 .hr-bolt::before, .hr-bolt::after { left: 3px; right: 3px; top: 6.5px; height: 2px; }
 #commsBody .cm-headbox { position: relative; flex: none; margin-bottom: 40px; }   /* the top box: title, icon, scope, knobs; gap 40px (user, 2026-11-10: "more" than the racks' 22) */
+/* The top box = the rack's size, 75px tall (user, 2026-11-10; was 150): title + icon centred, scope and knobs centred on it. */
+html body #commsBody .cm-headbox { box-sizing: border-box; height: 75px; padding-top: 24.5px;   /* the title alone, centred in 75 (was 9px with the icon under it) */ padding-bottom: 0; margin-top: 0; }   /* margin-top 0: a box rule gave it 34px, so the gap above was 56 not the racks' 22 */
+html body #commsBody .cm-headbox .cm-page-icon { display: none; }   /* no phone icon (user, 2026-11-10: "lose the icon") */
+.cm-title-icon { display: inline-block; margin-left: 10px; color: var(--muted); line-height: 0; vertical-align: -7px; }   /* the phone icon beside TWILIO (user, 2026-11-10; was the number) */
+.cm-title-icon .win-icon { height: 28px; width: auto; }   /* bigger (user, 2026-11-10; was 20) */
+html body #commsBody .cm-headbox .td-wk-title { margin-bottom: 0; }
+html body #commsBody .cm-headbox .cm-scope { top: 7.5px; }   /* the round 58px meter, centred in 75 */
+html body #commsBody .cm-headbox .cm-box-btns { top: 13px; right: 138px; }
+html body #commsBody .cm-headbox .cm-scope { left: auto; right: 44px; transform: none; }   /* centred under the VU meter (VU 66 wide at 40px in → centre 73px in; 73 - 29) */
+/* Legs like the rack's (user, 2026-11-10: "put legs and align to bottom"): the rack's two feet, 46px in, hanging from the box's
+   3px ring and standing on the panes box's ring (so the gap = 21px, was 40). */
+html body #commsBody .cm-headbox { margin-bottom: 18px; }   /* feet stand on the panes box's border (no ring now) */
+html body #commsBody .cm-box { box-shadow: none; }   /* the panes box: one border, no ring around it (user, 2026-11-10: "one border not double") */
+/* The panes ARE the box (user, 2026-11-10: "maybe this should be the full conversation box"): no padding or screws around
+   the two panes, the box's own border is the conversation's border, the panes fill it. */
+html body #commsBody .cm-box { padding: 0; overflow: hidden; display: flex; flex-direction: column; }   /* it grows to the page bottom (rpm-fill); the panes grow with it */
+html body #commsBody .cm-box > .td-bolt { display: none; }
+html body #commsBody .cm-box > .cm-stu { margin: 0; flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+html body #commsBody .cm-box .cm-msgr { border: none; border-radius: 0; flex: 1 1 0; height: auto; }   /* fills the box (was its own screen-height calc) */
+/* A top bar like Messages (user, 2026-11-10: "top part can be menu, like iMessage"): Edit + compose on the list side,
+   To: on the conversation side, one height and one shade across both, a line under it; Search sits under the bar. */
+html body #commsBody .cm-box .cm-msgr-list { padding: 0; }
+html body #commsBody .cm-box .cm-list-top, html body #commsBody .cm-box .cm-msgr-head { box-sizing: border-box; height: 48px; min-height: 48px;
+  background: #151515; border-bottom: 1px solid var(--border); }
+html body #commsBody .cm-box .cm-list-top { padding: 0 16px 0 18px; }
+/* ⋯ menu button where EDIT was (user, 2026-11-10); EDIT itself only shows as Done while editing, and ⋯ hides then. */
+.cm-more { position: relative; display: flex; align-items: center; }
+.cm-more-btn { width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 1px solid var(--border); background: color-mix(in srgb, var(--surface2) 50%, var(--surface));
+  color: var(--muted); font-size: 16px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.cm-more-btn:hover { color: var(--t-normal); border-color: color-mix(in srgb, var(--muted) 55%, transparent); }
+html body #commsBody .cm-more .cash-dd-list { left: 0 !important; right: auto !important; transform: none; width: 150px; top: calc(100% + 6px); }   /* opens to the right, under the button */
+html body #commsBody .cm-list-top:not(.editing) #cmStuEdit { display: none; }
+html body #commsBody .cm-list-top.editing .cm-more { display: none; }
+/* The bar and its line run the full width even before a conversation is picked (user, 2026-11-10: "a divider all the way through, 3 distinct sections"):
+   comms.js hides the head (inline visibility) until a click; the bar stays, only its contents hide. */
+html body #commsBody .cm-box .cm-msgr-head { visibility: visible !important; }
+html body #commsBody .cm-box .cm-msgr-head[style*="hidden"] > * { visibility: hidden; }
+html body #commsBody .cm-conv:not(.cm-picked) .cm-pick { border-color: #464646; }   /* Edit's tick boxes dimmer (user, 2026-11-10: "too bright"; were --muted) */
+html body #commsBody .cm-headbox .cm-pcap { font-weight: 500; color: #6e6e6e; }   /* the rack captions' weight + grey (user, 2026-11-10; were 400 / --muted) */
+html body #commsBody .cm-headbox .cm-pcol:has(.lit) .cm-pcap { color: #a8a8a8; }   /* Others still brightens while one waits */
+html body #commsBody .cm-box .cm-search-wrap { margin: 12px 12px 6px; }
+html body #commsBody .cm-headbox::after { content: ""; position: absolute; left: 46px; right: 46px; bottom: -18px; height: 14px; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2714%27%3E%3Cpath d=%27M0 0H34L31.5 11.5Q30.8 14 28 14H6Q3.2 14 2.5 11.5Z%27 fill=%27%23101010%27 stroke=%27%231e1e1e%27/%3E%3C/svg%3E") left center / 34px 14px no-repeat, url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2714%27%3E%3Cpath d=%27M0 0H34L31.5 11.5Q30.8 14 28 14H6Q3.2 14 2.5 11.5Z%27 fill=%27%23101010%27 stroke=%27%231e1e1e%27/%3E%3C/svg%3E") right center / 34px 14px no-repeat; }
 #commsBody .cm-scope { position: absolute; left: 50%; top: 34px; transform: translateX(-50%); line-height: 0; pointer-events: none; filter: drop-shadow(0 1px 1px #000); }   /* the green phase scope, VU size + frame, centred in the title row (user, 2026-11-10) */
 /* Tighter head (user, 2026-11-10: "tighten up"): title→icon 16→8, icon→line 32→20, line→panes 25→20. */
 #commsBody .td-wk-title { margin-bottom: 8px; }
