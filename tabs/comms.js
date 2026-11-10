@@ -30,8 +30,9 @@ function loadCommsInbox() {
   var url = getScriptUrl();
   if (!url) return;
 
+  commsScopeBusy(true);   // the scope's trace moves while this check runs (user, 2026-11-10)
   fetch(url + "?action=getCommsInbox")
-    .then(function(r) { return r.json(); })
+    .then(function(r) { commsScopeBusy(false); return r.json(); })
     .then(function(data) {
       if (data.success) {
         // The live Inbox sheet carries a stray uppercase header row at row 2
@@ -51,7 +52,7 @@ function loadCommsInbox() {
         if (commsDetail && win && win.classList.contains("open")) renderCommsThread();
       }
     })
-    .catch(function() {});
+    .catch(function() { commsScopeBusy(false); });
 }
 
 function startCommsPolling() {
@@ -217,7 +218,7 @@ function renderCommsStudents() {
       '<span class="cm-conv-main">' +
         '<span class="cm-conv-top"><span class="cm-conv-name">' + commsEscape(p.name) + '</span>' +
         '<span class="cm-conv-when">' + when + '</span></span>' +
-        '<span class="cm-conv-prev">' + commsEscape(prev) + '</span>' +
+        '<span class="cm-conv-prev">' + commsDimEmoji(commsEscape(prev)) + '</span>' +
       '</span>';
     list.appendChild(row);
   });
@@ -848,6 +849,8 @@ function commsEnsureExtras() {
             col("commsAnnBtn", "Announcements", "commsAnnMenu(event)", "New: text all students at once.&#10;Confirmations: who confirmed, Nudge the rest.", "<span class='cash-dd-list' hidden></span>", "cmAnnWrap", true) +
             col("commsOthersBtn", "Others <span id='commsOthersCount'>0</span>", "commsShowOthers(true)", "Opens a window.&#10;Unknown numbers, applicants,&#10;voicemails, scams.");
       box.appendChild(rack);
+      box.insertAdjacentHTML("beforeend", commsScopeSvg());   // the green phase scope, VU-meter size (user, 2026-11-10)
+      box.insertAdjacentHTML("beforeend", '<hr class="cm-head-rule">');   // a line the box's whole width under the title + icon (user, 2026-11-10)
       box.appendChild(stu);
       detail.parentNode.insertBefore(win, detail);   // the conversation window opens on top of it
     }
@@ -867,6 +870,61 @@ function commsEnsureExtras() {
     }
   }
 }
+
+// Emojis in the list previews a bit dimmer (user, 2026-11-10): wraps each in .cm-emo.
+function commsDimEmoji(html) {
+  return html.replace(/(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*)/gu, '<span class="cm-emo">$1</span>');
+}
+
+// A small green phase scope (goniometer) in the Comms title row, the VU meter's
+// size and frame (#0c0c0c, #333 edge, 76x48 window; user 2026-11-10), scan lines, + and X grid, L / R, and
+// a glowing trace (user's picture, 2026-11-10). The trace moves only while the
+// 30-second Comms check runs (at least 1.5s so it shows), flat the rest of the time.
+function commsScopeSvg() {
+  return '<span class="cm-scope" aria-hidden="true"><svg viewBox="0 0 84 56" width="75" height="50">' +   // slightly bigger than the VU's 66x44 (user, 2026-11-10)
+    '<defs>' +
+      '<radialGradient id="cmScGlass" cx="50%" cy="50%" r="65%"><stop offset="0" stop-color="#0d2a12"/><stop offset=".7" stop-color="#061a0a"/><stop offset="1" stop-color="#020904"/></radialGradient>' +   // the darker screen (user's pick over a brighter try, 2026-11-10)
+      '<pattern id="cmScLines" width="2" height="1.4" patternUnits="userSpaceOnUse"><rect width="2" height=".55" fill="rgba(0,0,0,.38)"/></pattern>' +
+      '<filter id="cmScGlow" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation=".9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>' +
+      '<clipPath id="cmScClip"><rect x="4" y="4" width="76" height="48" rx="2"/></clipPath>' +
+    '</defs>' +
+    '<rect x=".5" y=".5" width="83" height="55" rx="3.5" fill="#0b0b0b" stroke="#2d2d2d" stroke-width=".88"/>' +   // the VU meter's frame as it shows (its .88 brightness), edge + corners scaled back to the VU's size at 75x50
+    '<g clip-path="url(#cmScClip)">' +
+      '<rect x="4" y="4" width="76" height="48" fill="url(#cmScGlass)"/>' +
+      '<g stroke="#3ccf55" stroke-opacity=".5" stroke-width=".45" fill="none">' +
+        '<line x1="42" y1="9" x2="42" y2="47"/><line x1="11" y1="28" x2="73" y2="28"/>' +
+        '<line x1="22" y1="11" x2="62" y2="45"/><line x1="62" y1="11" x2="22" y2="45"/>' +
+        '<line x1="40.5" y1="11" x2="43.5" y2="11"/><line x1="40.5" y1="45" x2="43.5" y2="45"/>' +
+        '<line x1="13" y1="26.5" x2="13" y2="29.5"/><line x1="71" y1="26.5" x2="71" y2="29.5"/>' +
+      '</g>' +
+      '<text x="13" y="16" font-family="Arial, sans-serif" font-size="5.5" fill="#7fe48d" fill-opacity=".85">L</text>' +
+      '<text x="67.5" y="16" font-family="Arial, sans-serif" font-size="5.5" fill="#7fe48d" fill-opacity=".85">R</text>' +
+      '<path id="cmScTrace" d="M14 28 L70 28" stroke="#c8ffc8" stroke-width=".8" fill="none" stroke-linecap="round" filter="url(#cmScGlow)"/>' +
+      '<rect x="4" y="4" width="76" height="48" fill="url(#cmScLines)"/>' +
+    '</g>' +
+  '</svg></span>';
+}
+var _cmScopeBusy = false, _cmScopeUntil = 0, _cmScopeFlat = false;
+function commsScopeBusy(on) {
+  if (on) { _cmScopeBusy = true; _cmScopeUntil = Date.now() + 1500; }
+  else _cmScopeBusy = false;
+}
+// The trace's jitter: a new jagged line every 140ms, only while a check runs and the scope is on screen.
+setInterval(function () {
+  var t = document.getElementById("cmScTrace");
+  if (!t || !t.closest(".cm-scope").offsetParent) return;
+  if (!_cmScopeBusy && Date.now() > _cmScopeUntil) {
+    if (!_cmScopeFlat) { t.setAttribute("d", "M14 28 L70 28"); _cmScopeFlat = true; }
+    return;
+  }
+  _cmScopeFlat = false;
+  var d = "M14 28";
+  for (var x = 15.5; x <= 70; x += 1.5) {
+    var amp = 1.7 * Math.sin(Math.PI * (x - 14) / 56);
+    d += " L" + x + " " + (28 + (Math.random() - .5) * 2 * amp).toFixed(2);
+  }
+  t.setAttribute("d", d);
+}, 140);
 
 // Announcements ▾ menu: New / Confirmations. Reuses the Templates menu's
 // open/close (tabs/texttemplates.js _ttWrap, _ttMenuOut, _ttMenuClose).
