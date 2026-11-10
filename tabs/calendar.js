@@ -129,28 +129,50 @@ function _calPickStudent(name) {
 // window's strips with nothing to tap.
 var _calSvName = '', _calSvWeeks = 12;
 
-function _calSchedView(name) {
+function _calSchedView(name, o) {
+  o = o || {};
+  _calInjectStyle();   // opened from the Lessons tab too (＋ Note), before the Calendar ever drew
   _calSvName = name; _calSvWeeks = 12;
-  var w = _stWin('calSvWin', inqEsc(name), 'Schedule', CALENDAR_ICON,
+  var w = _stWin('calSvWin', inqEsc(name), o.note ? 'Take note' : 'Schedule', o.note && typeof PEN_ICON === 'string' ? PEN_ICON : CALENDAR_ICON,   // ＋ Note: the pen instead of the calendar (user, 2026-11-10)
     // The Log window's wide look (user, 2026-11-02): left the main column, Calendar view;
     // right a darker 210px column, Reschedule / Slot change at its top and List view,
     // with one line between them running the whole window.
-    "<div class='cal-sv-cols'><div class='cal-sv-main'>" +
+    "<div class='cal-sv-cols'>" + (typeof _snBandHtml === 'function' ? _snBandHtml(o.from) : '') +
+      (o.note ? "<div class='sv-show-row'><button type='button' class='link-btn' onclick='_calSvToggle(this)' data-tip='Instant.\nShows or hides their next 12 weeks.'>Show schedule</button></div>" : "") +   // Take note: the schedule starts closed (user, 2026-11-10)
+      "<div class='cal-sv-main'>" +   // Notes across the top (user, 2026-11-10)
       "<div class='cal-sv-t'>Calendar view</div><div id='calSvBody'></div>" +
     "</div><div class='cal-sv-side'>" +
       // Reschedule / Slot change at the top of the right column (user, 2026-11-02; were over Calendar view)
-      "<div class='cal-sv-acts'>" +
+      (o.note ? "" : "<div class='cal-sv-acts'>" +   // Take note: no Reschedule / Slot change (user, 2026-11-10)
         "<button class='link-btn amber opens-window' onclick='_calSvGo(\"rs\")' data-tip='Opens a window.\nSkip or move one lesson.' data-tip-left>Reschedule</button>" +
         "<button class='link-btn amber opens-window' onclick='_calSvGo(\"slot\")' data-tip='Opens a window.\nChange their regular slot for good.' data-tip-left>Slot change</button>" +
-      "</div>" +
+      "</div>") +
       "<div class='cal-sv-t'>List view</div><div class='cal-sv-dates' id='calSvDates'></div>" +
     "</div></div>");
   w.querySelector('.st-win').classList.add('im-rs-win', 'cal-sv-win');
+  if (o.note) {
+    var svw = w.querySelector('.st-win');
+    svw.classList.add('sv-closed', 'sv-note');
+    var bl = svw.querySelector('.sn-bar-l'); if (bl) bl.appendChild(svw.querySelector('.sv-show-row'));   // bottom left, Save note bottom right (user, 2026-11-10)
+  }
+  if (typeof _snBandInit === 'function') _snBandInit(name);
+  if (o.note) setTimeout(function () { var t = document.querySelector('#snBandRows .ll-row'); if (t) t.focus(); }, 30);   // ＋ Note: the box ready to type
   _calSvLoad();
 }
 
 // Reschedule = the Change appointment window; Slot change = the Slot change
 // tab's window (tabs/slotchange.js), its student list read first if not yet.
+function _calSvToggle(btn) {
+  var win = btn.closest('.st-win');
+  // The window stays where it is; the schedule opens downward (user, 2026-11-10).
+  var top = Math.round(win.getBoundingClientRect().top), ov = win.parentNode;
+  var off = top - ov.getBoundingClientRect().top - (parseFloat(getComputedStyle(ov).paddingTop) || 0) - (parseFloat(win.style.marginTop) ? 0 : 0);
+  if (!win._svPinned) { ov.style.alignItems = 'flex-start'; win.style.marginTop = Math.round(off) + 'px'; win._svPinned = true; }
+  win.style.maxHeight = 'calc(100vh - ' + (top + 20) + 'px)';
+  var closed = win.classList.toggle('sv-closed');
+  btn.textContent = closed ? 'Show schedule' : 'Hide schedule';
+}
+
 function _calSvGo(what) {
   var name = _calSvName;
   var w = document.getElementById('calSvWin');
@@ -177,7 +199,8 @@ function _calSvLoad() {
   if (!dl0.firstChild) dl0.innerHTML = "<div class='empty-state rpm-loading'>Loading</div>";
   var box = document.getElementById('calSvBody');
   if (!box.firstChild) box.innerHTML = "<div class='empty-state rpm-loading'>Loading</div>";
-  rpmBusy(document.querySelector('#calSvWin .st-win'), null, true, 'Loading');
+  var svWin = document.querySelector('#calSvWin .st-win');
+  if (!svWin.classList.contains('sv-closed')) rpmBusy(svWin, null, true, 'Loading');   // Take note with the schedule closed: write at once, it loads behind
   fetch(url + '?action=getStudentLessons&weeks=' + weeks + '&name=' + encodeURIComponent(name))
     .then(function(r) { return r.json(); })
     .then(function(data) {

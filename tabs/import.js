@@ -236,6 +236,8 @@ function _imRenderStudent(name, lessons) {
       acts.className = 'im-head-acts';
       [].slice.call(t.children, 1).forEach(function (el) { acts.appendChild(el); });
       card.appendChild(acts);
+      var snb = acts.querySelector('.sn-note-btn');
+      if (snb) { var snr = document.createElement('div'); snr.className = 'sn-note-under'; snr.appendChild(snb); card.appendChild(snr); }   // ＋ Note on its own row under the name; Not logged stays centred on the name's line (user, 2026-11-10)
       // Goals bottom left of the History box, on Show all's row (user, 2026-11-02).
       var gl = acts.querySelector('.gl-btn');
       var hist = [].filter.call(st.querySelectorAll(':scope > .im-sec-box'), function (b) { return /^history$/i.test((b.querySelector('.db-cx-t') || {}).textContent || ''); })[0];
@@ -738,8 +740,9 @@ function _imStepsHtml(day, miss, hwText, name, onlyMissing) {
     return (s !== 'HW' || day >= HW_TEXT_START || hwText) && (s !== 'Email' || day >= MSG_START);   // HW shown on older lessons too when they have it
   });
   function red(label, tip, mark) { return '<button class="im-step todo' + (mark === false ? ' nolog' : '') + ' opens-window" onclick="event.stopPropagation(); _imLogOpen(' + n + ')" data-tip="Opens a window.\n' + tip + '">' + (mark === false ? '' : '✕ ') + label + '</button>'; }
-  // Nothing done yet: one "Not logged" button, not a row of them (user, 2026-10-17).
-  if (steps.every(function (s) { return miss.indexOf(s) >= 0; })) return red('Not logged', _ckDay(day) + ' not logged.', false);   // no ✕ on this one (user, 2026-10-17)
+  // Nothing done yet: one button, not a row of them (user, 2026-10-17). It says what it does,
+  // "＋ Log", not the state "Not logged" (user, 2026-11-10); dimmed when there's nothing to log.
+  if (steps.every(function (s) { return miss.indexOf(s) >= 0; })) return red('＋ Log', 'Log ' + _ckDay(day) + '.', false);   // no ✕ on this one (user, 2026-10-17)
   return steps.map(function (s) {
     var label = s === 'Email' ? 'Recap' : s;   // the Email step reads "Recap" (user, 2026-10-26); the sheet still says Email
     return miss.indexOf(s) >= 0 ? red(label, label + ' missing for ' + _ckDay(day) + '.')
@@ -1991,6 +1994,7 @@ function _imStudentHtml(name, lessons, hw, detail, o) {
     // Today draws its own name row (the card's open/close bar, 2026-10-09).
     (o.noTitle ? '' : '<div class="settings-title im-title"><span>' + inqEsc(name) + (o.sub ? '<span class="win-sub"> · ' + inqEsc(o.sub) + '</span>' : '') + '</span>' +
       (o.log ? _imLogBtnHtml(name, { label: '＋ Log' }) : '') +   // just "＋ Log" on the student page (user, 2026-10-31)
+      (o.log && typeof _calSchedView === 'function' ? '<button class="link-btn opens-window sn-note-btn" onclick="_calSchedView(this.dataset.n,{from:\'Lessons\',note:true})" data-n="' + inqEsc(name) + '" data-tip="Opens a window.\nTheir schedule, with notes on top." data-tip-left>＋ Note</button>' : '') +   // Take a note during the lesson (tabs/schednotes.js, user 2026-11-10)
       (o.log && typeof glBtnHtml === 'function' ? glBtnHtml(name) : '') +   // Goal window, red when a 3-month check-in is due (tabs/goals.js, 2026-11-02)
       '</div>') +
     // Each box's small title sits above it, outside its border (2026-10-06).
