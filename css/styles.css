@@ -1389,9 +1389,9 @@ input[type="checkbox"]:checked {
   box-shadow: 0 8px 24px rgba(0,0,0,.5); scrollbar-width: thin; scrollbar-color: #333 transparent; }
 .cash-dd-opt { display: block; width: 100%; text-align: left; background: transparent; border: none;
   padding: 7px 12px; cursor: pointer; font-family: Arial, Helvetica, sans-serif; font-size: 11px;
-  color: var(--t-normal); }
-.cash-dd-opt.hi { background: color-mix(in srgb, #fff 6%, transparent); color: #fff; }
-.cash-dd-opt.on { color: #fff; }
+  color: var(--muted); }   /* names grey, not near-white (user, 2026-11-10; was --t-normal) */
+.cash-dd-opt.hi { background: color-mix(in srgb, #fff 6%, transparent); color: var(--t-normal); }   /* highlighted row = the old name colour, no pure white (user, 2026-11-10) */
+.cash-dd-opt.on { color: var(--t-normal); }
 
 #cashLogPanel, #cashActs { display: none; }
 #cashLogPanel.active { display: block; }
