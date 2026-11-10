@@ -160,7 +160,6 @@ function _imOpenFirst(name) {
 }
 
 function _imOpenStudent(name) {
-  if (_imIn === 'today') { _tdRefresh(name); return; }   // after a log on the Today tab
   if (_imOpen !== name) _imUndock();   // another student: their own fresh box
   if (typeof rpmNavGo === 'function') rpmNavGo('import', { kind: 'imStudent', name: name });   // Back's history (core/nav.js)
   _imLift(document.getElementById('importBody'));
@@ -2345,7 +2344,6 @@ function _imRsDone(what) {
 // The HW-only or Log window saved an answer: refresh Last HW.
 function _imHwSaved(name) {
   if (window._imWin && window._imWin.name !== _imOpen) return;   // saved for someone not open here
-  if (_imIn === 'today') { _tdRefresh(name); return; }
   if (_imOpen && _imKey(_imOpen) === _imKey(name)) _imLoadHw(_imOpen);
 }
 
@@ -2397,7 +2395,7 @@ function _imClearWrong(btn, name) {
     .then(function (r) { return r.json(); })
     .then(function () {
       // The detail this page drew from: Import's open student, or the Today tab's copy.
-      var d = _imIn === 'today' ? (_td.data[_imKey(name)] || {}).detail : _imDetail;
+      var d = _imDetail;   // the Today card's own read is gone with the card (user, 2026-11-10)
       if (d) d.wrongNumberFlag = null;
       _imRedraw();
     })

@@ -67,38 +67,17 @@ function _tdRender() {
     '<div class="td-day-cal"><div class="td-hol-mo">' + MONTHS[now.getMonth()] + '</div><div class="td-hol-dd">' + now.getDate() + '</div></div>';   // today's date page, the holiday warning's (user, 2026-10-27; was the plain calendar icon)
   // A day off (2026-10-08): the resting figure over the line (om-82).
   if (!list.length) { body.innerHTML = head + '<div class="empty-state td-rest">' + REST_ICON + '<div>No lessons today!</div></div></div>' + _tdWeekSection(); return; }
-  list.forEach(function (s) { if (!_td.data[_imKey(s.name)]) _tdLoad(s.name); });
   // At the top (2026-10-06): how many, and a mini list of times + names; a
   // name jumps to its card.
   var mini = '<div class="db-cx-head im-sec-head td-count"><label class="field-label db-cx-t">' + list.length + (list.length === 1 ? ' student' : ' students') + '</label></div>' +
     '<hr class="divider td-rule td-rule-top">' +
     '<div class="db-panel im-list td-mini">' + list.map(function (s, i) {
       // The name in the portal's link-button look, a plain tag since 2026-11-01 (was a button opening its card, 2026-10-09).
-      return '<div class="td-mini-row' + (_td.sel === _imKey(s.name) ? ' td-on' : '') + '" id="tdMini' + i + '">' +
+      return '<div class="td-mini-row">' +
         '<span class="td-mini-t">' + _tdTime(s.eventDate) + '</span><span class="link-btn td-mini-b td-mini-tag">' + inqEsc(s.name) + '</span></div>';   // a plain name tag, not a button (user, 2026-11-01): All shows their lesson and HW
     }).join('') + '</div></div>';   // the box ends after the list; the open card goes under it
-  // The open card is a window over the page (user, 2026-10-24); a click outside it closes it.
-  body.innerHTML = head + mini + '<div class="im-notes-back td-card-back' + (_td.sel ? ' td-show' : '') + '" id="tdCardBack" onclick="if (event.target === this) _tdClose()">' + list.map(function (s, i) {
-    return '<div class="td-student' + (_td.sel === _imKey(s.name) ? ' td-open' : '') + '" id="tdCard' + i + '" style="--td-c:' + _tdColor(i) + '" data-key="' + _auEsc(_imKey(s.name)) + '">' + _tdStudentHtml(s) + '</div>';
-  }).join('') + '</div>' + _tdWeekSection();
+  body.innerHTML = head + mini + _tdWeekSection();   // the Quick look card window is gone: nothing opened it since 2026-11-01 (user, 2026-11-10)
   _imFixTips(body);
-}
-
-// A name in the list at the top opens that card and closes the one that was
-// open; their name again (or the card's name row) closes it. Kept for the day.
-function _tdJump(i) {
-  var el = document.getElementById('tdCard' + i);
-  if (!el) return;
-  var key = el.getAttribute('data-key');
-  _td.sel = _td.sel === key ? null : key;
-  document.querySelectorAll('#todayBody .td-student').forEach(function (c) { c.classList.toggle('td-open', c.getAttribute('data-key') === _td.sel); });
-  document.querySelectorAll('#todayBody .td-mini-row').forEach(function (r, j) { r.classList.toggle('td-on', j === i && !!_td.sel); });
-  var back = document.getElementById('tdCardBack');
-  if (back) back.classList.toggle('td-show', !!_td.sel);
-}
-function _tdClose() {
-  var el = document.querySelector('#todayBody .td-student.td-open');
-  if (el) _tdJump(parseInt(el.id.replace('tdCard', ''), 10));
 }
 
 // ── All (user, 2026-11-01) ──────────────────────────────────────────────────
@@ -332,65 +311,6 @@ function _tdZmShow() {
     '<div class="en-tpl-foot"><span class="en-tpl-btns">' + _ttUseBtn('tdZmText', 'zm') + '</span></div></div>';
 }
 
-function _tdStudentHtml(s) {
-  // Name · Quick look (2026-10-06, was the lesson time), with a chevron: the
-  // whole row opens and closes the card (2026-10-09).
-  var d = _td.data[_imKey(s.name)] || {}, i = (todayStudents || []).indexOf(s);
-  // A window since 2026-10-24: the ✕ closes it, like every window (was the chevron + the whole row).
-  var title = '<div class="settings-title im-title td-head"><span>' + inqEsc(s.name) +
-    '<span class="win-sub"> · Quick look</span></span><button class="settings-close" onclick="_tdClose()">✕</button></div>';
-  var body = d.failed ? '<div class="empty-state">Could not read: ' + inqEsc(d.failed) + '</div>'
-    : !d.lessons ? '<div class="empty-state rpm-loading">Loading</div>'
-    : _imStudentHtml(s.name, d.lessons, d.hw, null, { noTitle: true, noNotes: true }) +
-      // Log lesson (2026-10-11): the Log lesson window without leaving Today; small, grey, bottom left.
-      '<div class="td-foot">' + _imLogBtnHtml(s.name, { plain: true }) + '</div>';
-  // Owes 2 blocks: a quiet line; 3+: red (2026-10-12), under the name even
-  // with the card closed, so it's seen during the lesson.
-  var owes = (d.pay && d.pay.owes) || 0;
-  var owe = owes >= 2 ? '<div class="td-owe' + (owes >= 3 ? ' td-owe-alert' : '') + '">' +
-    (owes >= 3 ? '⚠ ' : '') + 'Owes ' + owes + ' blocks</div>' : '';
-  // The PREVIEW stamp under the name (om-84, 2026-10-09).
-  return title + owe + '<div class="td-body"><img class="td-stamp" src="img/preview-stamp.svg" alt="">' + body + '</div>';
-}
-
-// Redraw one student's part when their reads come in.
-function _tdDrawOne(name) {
-  var key = _imKey(name), el = document.querySelector('#todayBody .td-student[data-key="' + key.replace(/"/g, '') + '"]');
-  var s = (todayStudents || []).filter(function (x) { return _imKey(x.name) === key; })[0];
-  if (!el || !s) return;
-  el.innerHTML = _tdStudentHtml(s);
-  _imFixTips(el);
-}
-
-// The reads for one student (+ payment, 2026-10-12) (Notes' detail read dropped with Notes, 2026-10-09). Each one redraws that student's part.
-function _tdLoad(name) {
-  var key = _imKey(name), day = _td.day, url = getScriptUrl();
-  if (!url) return;
-  var d = _td.data[key] = _td.data[key] || {};
-  function done() { if (_td.day === day) _tdDrawOne(name); }
-  function get(action, q) { return fetch(url + '?action=' + action + q).then(function (r) { return r.json(); }); }
-  get('getPastLessons', '&count=9999&studentName=' + encodeURIComponent(name))
-    .then(function (r) {
-      if (r.success) { d.lessons = r.lessons || []; d.failed = null; }
-      else if (/no sheet/i.test(r.message || '')) d.lessons = [];   // a trial: no Import tab yet
-      else d.failed = r.message || 'unknown';
-      done();
-    })
-    .catch(function () { d.failed = 'No answer from Google.'; done(); });
-  get('getHwLog', '&name=' + encodeURIComponent(name))
-    .then(function (r) { if (r.success) { d.hw = { rows: r.rows || [] }; done(); } })
-    .catch(function () {});
-  get('getPayInfo', '&name=' + encodeURIComponent(name))
-    .then(function (r) { if (r.success) { d.pay = { status: r.status, owes: r.owes || 0 }; done(); } })
-    .catch(function () {});
-}
-
-// After a lesson or its HW is logged for them: read that student again.
-function _tdRefresh(name) {
-  delete _td.data[_imKey(name)];
-  _tdLoad(name);
-}
-
 // ── This Week (2026-10-09 a window, was its own Week tab; 2026-10-24 a box under Today's, the Week button gone) ──
 // This week's lessons, Mon–Sun, read-only: one group per day (a day off: one line, a dash for its date), time + name like
 // the list at the top of Today. Every day looks the same (no dimming: Today is the tab for today).
@@ -510,26 +430,33 @@ function _tdHolOpen(items) {
     var away = Math.round((e.d - today) / 86400000);
     var name = (e.g && e.g.tag === 'Derin' ? 'Derin has ' : '') + '<span class="td-hol-n">' + e.i.n + '</span>';   // the holiday's name in caps (user, 2026-11-08)   // "Derin has Thanksgiving Break coming up…" (user, 2026-11-08)
     var line = away <= 0 ? name + ' is today' : name + ' coming up ' + (away === 1 ? 'tomorrow' : 'in ' + away + ' days');
-    if (multi) line += ' (' + md(e.d) + '–' + (e.last.getMonth() === e.d.getMonth() ? e.last.getDate() : md(e.last)) + ')';   // the days on the same line (user, 2026-11-08; was its own line under it)
+    // the date in caps at the start: "(NOV 23–27) Derin has…" (user, 2026-11-10)
+    line = '<span class="td-hol-n td-hol-date">' + md(e.d) + (multi ? '–' + (e.last.getMonth() === e.d.getMonth() ? e.last.getDate() : md(e.last)) : '') + '</span><br>' + line;   // no brackets (user, 2026-11-10)   // the text on the next line (user, 2026-11-10)   // the date in the text only; the calendar icon is today's now (user, 2026-11-10)   // the days on the same line (user, 2026-11-08; was its own line under it)
     var lessons = x.lessons === null ? '<div class="td-hol-l">Could not read the calendar</div>'
       : x.lessons.map(function (ev) {
           var d = new Date(ev.startMs);
           return '<div class="td-hol-l">' + (multi ? HOL_DAYS[d.getDay()] + ' ' : '') + hm(ev.startMin) + '  ' + inqEsc(ev.title) + '</div>';
         }).join('');
     return '<div class="td-hol-one">' +
-      '<div class="td-hol-cal"><div class="td-hol-mo">' + MONTHS[e.d.getMonth()] + '</div><div class="td-hol-dd">' + e.d.getDate() + '</div></div>' +
-      '<div>' + line + '</div>' +
-      lessons + '<button class="link-btn td-hol-mute" data-n="' + n + '">Don\'t warn about it again</button></div>';   // one per alert (user, 2026-11-08)
+      '<div class="td-hol-line">' + line + '</div>' +   // no 1, 2 numbers (user, 2026-11-10)
+      lessons + '<button class="link-btn td-hol-mute" data-n="' + n + '">Don\'t warn anymore</button></div>';   // one per alert (user, 2026-11-08)
   }).join('');
+  // One calendar icon at the top, TODAY's date (it reads as "today" right after the Today tab's own); the
+  // holidays' dates go in their lines only (user, 2026-11-10; each holiday had its own icon before).
+  html = '<div class="td-hol-cal td-hol-today"><div class="td-hol-mo">' + MONTHS[today.getMonth()] + '</div><div class="td-hol-dd">' + today.getDate() + '</div></div>' + html;
   // A plain pop-up (the portal's alert box): no title, icon or colour; ✕, Escape or a click outside closes it
   // until tomorrow; the button silences these holidays for good (user, 2026-10-24).
   // "Today is Oct 27" centred on the ✕'s line (user, 2026-10-27; there was no title before)
   // Each alert has its own "Don't warn about it again" (user, 2026-11-08; was one button for all at the bottom):
   // it silences just that holiday and takes it out; the last one out closes the pop-up.
-  rpmAlert({ title: 'Today · ' + md(today), message: ' ', confirmLabel: 'OK', className: 'td-hol-dlg' });
+  rpmAlert({ title: 'Today', message: ' ', confirmLabel: 'OK', className: 'td-hol-dlg' });
   var box = document.querySelector('.rpm-dlg.td-hol-dlg');
   if (!box) return;
   box.querySelector('.rpm-dlg-msg').innerHTML = html;   // the alert only takes text; the calendar pages go in after
+  // Every alert section as tall as the tallest, its button at the bottom (user, 2026-11-10)
+  var ones = box.querySelectorAll('.td-hol-one'), tall = 0;
+  ones.forEach(function (o) { tall = Math.max(tall, o.getBoundingClientRect().height - (parseFloat(getComputedStyle(o).paddingTop) || 0)); });
+  ones.forEach(function (o) { o.style.minHeight = (tall + (parseFloat(getComputedStyle(o).paddingTop) || 0)) + 'px'; });
   var btn = box.querySelector('.rpm-dlg-btn');
   if (btn) btn.blur();   // the bottom button is hidden (CSS); unfocused so a stray Enter doesn't press it
   box.querySelectorAll('.td-hol-mute').forEach(function (b) {
