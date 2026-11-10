@@ -360,19 +360,9 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .home-mag { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--t-faint); pointer-events: none; }   /* inside the box on the left, like the Comms search (user, 2026-11-10; was outside) */
 .home-search .rpm-field { padding-left: 30px; border-color: #5e4d2a; box-shadow: 0 0 0 1px #2c2c2c; }   /* the general box; only the border differs: the amp's gold line + the grey line it sits on, outside (user, 2026-11-10) */
 .home-search .rpm-field:focus { outline: none; border-color: #5e4d2a; }
-.home-results {
-  position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5;
-  display: flex; flex-direction: column; gap: 2px;
-}
-.home-results:not(:empty) {
-  padding: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.45);
-}
-.home-res {
-  padding: 6px 10px; border: none; border-radius: 4px; background: transparent; text-align: center;
-  color: var(--muted); font-family: Arial, Helvetica, sans-serif; font-size: 12px; cursor: pointer;
-}
-.home-res.hi { background: var(--surface2); color: var(--text); }
+/* Home's names = the Calendar's list (user, 2026-11-10): the shared .cash-dd-list in the Calendar's panel frame. Was its own centred .home-results. */
+#tab-home .home-search .cash-dd-list { top: calc(100% + 8px); max-height: 280px; padding: 6px; background: #121212; border: 1px solid #333; box-shadow: 0 8px 20px rgba(0,0,0,.6); z-index: 50; }
+#tab-home .home-search .cash-dd-list[hidden] { display: none; }
 
 /* ─── SHEET LINKS (Sheets tab) ────────────────────────────────────────────── */
 .sheet-link {
@@ -2138,6 +2128,7 @@ a:focus-visible,
   padding: 9px 12px; resize: vertical;
 }
 .rpm-field::placeholder { color: var(--muted); font-style: italic; }
+input.rpm-field { padding-top: 6px; padding-bottom: 6px; }   /* one-line boxes shorter, ~33px; writing boxes (textareas) keep 9px (user, 2026-11-10) */
 
 /* ─── Moving dots on a waiting button (core/utils.js wraps the "…") ──────────
    The real "…" stays in the text but is hidden; the user's three round dots
