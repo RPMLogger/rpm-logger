@@ -4286,7 +4286,7 @@ a.cm-file:hover { background: rgba(255,255,255,0.14); }
 .td-all-box .im-hw-files { margin-top: 8px; }
 .td-all-box .td-all-mat { margin-top: 18px; margin-bottom: 12px; }   /* Material sent, a line's room, then the folders (user, 2026-11-02) */
 .td-all-teach { color: var(--muted); }   /* the teacher note, dimmer (user, 2026-11-08) */
-.td-all-box .im-hw-files .db-file { color: var(--t-normal); font-size: 11px; line-height: 1.6; }   /* folder lines a step brighter than the Material sent title (user, 2026-11-02; were fainter) */
+.td-all-box .im-hw-files .db-file { color: oklch(0.53 0.006 81); font-size: 11px; line-height: 1.6; }   /* folder lines a step brighter than the Material sent title (user, 2026-11-02; were fainter) */   /* dimmer, between faint and normal (user, 2026-11-10) */
 .td-all-box .td-all-h ~ .td-all-h { margin-top: 18px; }   /* room above HW, no line (user, 2026-11-01) */
 #tdAllBody { margin-top: 24px; }   /* room under the window title (user, 2026-11-01) */
 .td-all-one + .td-all-one { margin-top: 40px; }   /* no line between students (user, 2026-11-01) */
