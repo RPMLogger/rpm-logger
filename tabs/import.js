@@ -421,7 +421,8 @@ function _imPillsWire() {
     if (!wrap || (wrap.nextElementSibling && wrap.nextElementSibling.classList.contains('im-pills'))) return;   // the Log and HW rows stay between windows
     var d = document.createElement('div');
     d.className = 'im-pills im-words';   // plain words with dashes between, lit on hover (user, 2026-11-02; were chips)
-    d.innerHTML = x[1].map(function (t) { return '<button type="button" class="im-pill">' + t + '</button>'; }).join('<span class="im-word-sep">–</span>');
+    // each word keeps its dash with it, so a new line never starts with a dash (user, 2026-11-09)
+    d.innerHTML = x[1].map(function (t, i, a) { return '<span class="im-word-grp"><button type="button" class="im-pill">' + t + '</button>' + (i < a.length - 1 ? '<span class="im-word-sep">–</span>' : '') + '</span>'; }).join('');
     d.onmousedown = function (e) { e.preventDefault(); };   // the row keeps its cursor
     d.onclick = function (e) { if (e.target.classList.contains('im-pill')) _imPillPut(box, e.target.textContent); };
     wrap.after(d);
@@ -1383,7 +1384,7 @@ function _imSend(w, hw) {
           var mic = document.getElementById('logMicBtn');
           if (mic) mic.disabled = false;
           var lb = document.getElementById('btnLog');
-          if (lb) { lb.textContent = 'Log'; lb.className = 'link-btn amber'; lb.disabled = false; }
+          if (lb) { lb.textContent = '＋ Log'; lb.className = 'link-btn amber'; lb.disabled = false; }
           var ns = document.getElementById('btnNoShow');
           if (ns) ns.disabled = false;
         }
@@ -1987,8 +1988,10 @@ function _imDoHtml(name, day) {
     // Each of the three sections sits in its own bordered box, its title above it, no dividers (2026-10-18).
     // The typing reminder on its own line under it (user, 2026-10-26), in the (optional) grey.
     '<div class="im-page" data-pg="1">' +
-    _imMainHead('1. Log the lesson and HW', '', '<span class="im-mail-opt im-case-hint">One item per row, no commas, capital first letter, no end punctuation</span>', 'im-main-log') +   // all red (2026-10-18)
-    '<div class="im-ns-slot" id="imNsSlot"></div>' +   // No show under the hint, above LOG LESSON (user, 2026-11-02)
+    _imMainHead('1. Log the lesson and HW', '', '', 'im-main-log') +   // all red (2026-10-18)
+    '<div class="im-ns-slot" id="imNsSlot"></div>' +   // No show first, then the typing rules (user, 2026-11-09; was under the hint)
+    // the typing rules on one line under the icon (user, 2026-11-09)
+    '<div class="im-mail-opt im-case-list">One item per row - No commas - Capital first letter - No end punctuation</div>' +   // one line again, dashes (user, 2026-11-09; were four bullets)
     '<div class="im-main-box"><div class="im-log-cols"><div class="im-log-left">' +   // the boxes left, Terms right (user, 2026-11-02)
       _imSub('Log lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
       _imSub('Log homework', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
@@ -2034,7 +2037,15 @@ function _imDoHtml(name, day) {
     '<div class="im-main-box">' +
     '<div class="db-panel im-list im-sched-box">' +
       // No question (user, 2026-11-09): like Practice materials, change it if needed, then Done.
-      '<div id="imSchedRs" class="im-sched-rs"><button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + n + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Change appointment</button></div>' +
+      // The question under the icon (user, 2026-11-09)
+      '<div class="im-mail-opt im-sched-q">Does the next appt need adjustment?</div>' +
+      // (user, 2026-11-09) No change on top (grey), then "or" Change appointment (red), centred
+      '<div id="imSchedRs" class="im-sched-rs">' +
+        '<div class="sn-row"><button class="link-btn im-rs-btn sn-nochange" onclick="_imSchedDone(' + n + ')" data-tip="Instant.\nNothing to change: ticks Schedule\nand goes to the next page.">No change</button></div>' +
+        '<div class="sn-row"><span class="sn-or">or</span></div>' +   // "or" on its own line (user, 2026-11-09)
+        // Take a note left here (user, 2026-11-09): notes get taken during the lesson, on the lesson page
+        '<div class="sn-row">' +
+        '<button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + n + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Change appointment</button></div></div>' +
     '</div>' +
     '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn amber" id="imSchedDoneBtn" onclick="_imSchedDone(' + n + ')">Done</button></div>' +
     '</div>' +
@@ -2060,7 +2071,7 @@ function _imDoHtml(name, day) {
       '<div class="im-log-foot im-log-foot-all im-mail-foot"><span class="ll-state" id="imMailStatus"></span>' +
         '<button type="button" class="link-btn" id="imMailRedo" data-tip="Instant.&#10;Throws away your edits:&#10;the email is written from the log again." data-tip-left>Start over</button>' +
         '<button type="button" class="link-btn" id="imMailPrev" data-tip="Instant.\nShows the email here, as it will go.&#10;Press again to hide it." data-tip-left>' + DETAILS_ICON + '<span>Preview</span></button>' +
-        '<button type="button" class="link-btn bright" id="imMailSend" disabled data-tip="Instant.\nSends this email.&#10;Waits for the steps before it." data-tip-left>' + SEND_ICON + '<span>Send</span></button></div>' +
+        '<button type="button" class="link-btn amber" id="imMailSend" disabled>Send</button></div>' +
       '<iframe class="im-msg-frame" id="imMailFrame" title="The email" hidden></iframe>' +
     '</div>' +
     '</div>' +

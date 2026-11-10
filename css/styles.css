@@ -4353,15 +4353,21 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 #imLogWin .im-page:is([data-pg="6"], [data-pg="3"]) .im-rec-btn:not(.done):hover:where(:not(:disabled)) { color: var(--t-normal); border-color: color-mix(in srgb, #ffffff 30%, transparent); }
 #imLogWin #imMatFilesTools.im-mat-tools-below { display: flex; justify-content: flex-end; margin-top: 12px; }   /* Gather / Browse / Dropbox under the drop zone (user, 2026-11-09) */
 /* Ready = solid darker amber, bold dark text (user, 2026-11-09; a tinted version tried, "better before") */
-#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn).amber:not(:disabled) { background: oklch(0.52 0.12 76); color: #111111; border-color: oklch(0.52 0.12 76); font-weight: 700; }
-#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn).amber:not(:disabled):hover:where(:not(:disabled)) { background: oklch(0.58 0.14 76); border-color: oklch(0.58 0.14 76); color: #111111; }
-#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn).amber:disabled { color: var(--muted); border-color: color-mix(in srgb, #ffffff 16%, transparent); background: none; opacity: 1; }   /* off = greyish outline, no amber (user, 2026-11-09; black pill tried, reverted) */
-#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn).amber { letter-spacing: 0; padding-left: 10px; padding-right: 10px; border-radius: 999px; }   /* tight: no letter spread, less amber either side, a full pill (user, 2026-11-09; 3px corners tried) */   /* Done = LOG's job on page 2: same spot, same look (user, 2026-11-09) */   /* STEPS / SHORTCUTS in the left titles' grey, not brighter (user, 2026-11-09) */
+#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn, #imMailSend).amber:not(:disabled) { background: oklch(0.52 0.12 76); color: #111111; border-color: oklch(0.52 0.12 76); font-weight: 700; }
+#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn, #imMailSend).amber:not(:disabled):hover:where(:not(:disabled)) { background: oklch(0.58 0.14 76); border-color: oklch(0.58 0.14 76); color: #111111; }
+#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn, #imMailSend).amber:disabled { color: var(--muted); border-color: color-mix(in srgb, #ffffff 16%, transparent); background: none; opacity: 1; }   /* off = greyish outline, no amber (user, 2026-11-09; black pill tried, reverted) */
+#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn, #imMailSend).amber { letter-spacing: 0; padding-left: 10px; padding-right: 10px; border-radius: 999px; }   /* tight: no letter spread, less amber either side, a full pill (user, 2026-11-09; 3px corners tried) */   /* Done = LOG's job on page 2: same spot, same look (user, 2026-11-09) */   /* STEPS / SHORTCUTS in the left titles' grey, not brighter (user, 2026-11-09) */
 /* ✕ at the window's top right, over the Steps panel, level with STEPS (user, 2026-11-09) */
 .st-win.im-log-win.im-log-wide { position: relative; }
 .st-win.im-log-win.im-log-wide > .settings-title .settings-close { position: absolute; top: 29px; right: 31px; z-index: 5; }   /* above the Steps panel, which caught its clicks (user, 2026-11-09) */
 /* + Log at the top (user, 2026-11-08/09): level with the name in the title, right edge of the left panel; the fail line sits left of it */
+.st-win.im-log-wide .im-page[data-pg="4"] #imMailSend { position: absolute; top: -57px; right: 242px; margin: 0; }   /* level with the notepad icon (user, 2026-11-09; was the title line, -103px) */   /* Send on the title line like Log / Done (user, 2026-11-09); Start over + Preview stay below */
 .st-win.im-log-wide .im-page:is([data-pg="1"], [data-pg="6"], [data-pg="3"]) .im-main-box > .im-log-foot-all { position: absolute; top: -103px; right: 242px; margin: 0; padding: 0; border: none; }
+/* Page 1 (user, 2026-11-09): LOG down level with No show; the ✕ moves into LOG's old spot (title line, left panel's right edge) */
+.st-win.im-log-wide .im-page[data-pg="1"] .im-main-box > .im-log-foot-all { top: -57px; }   /* + Log level with the icon, like Done / Send (user, 2026-11-09; was level with No show) */
+.st-win.im-log-wide .im-page[data-pg="6"] .im-main-box > .im-log-foot-all { top: -57px; }   /* level with the notepad icon (user, 2026-11-09) */   /* page 2: Done level with FILES (user, 2026-11-09) */
+.st-win.im-log-wide .im-page[data-pg="3"] .im-main-box > .im-log-foot-all { top: -57px; }   /* level with the icon, same spot as every page (user, 2026-11-09; was level with the question) */
+.st-win.im-log-win.im-log-wide > .settings-title .settings-close { right: 274px; }   /* every page now: the ✕ where Log / Done / Send were (user, 2026-11-09) */
 #imLogWin #imSideNav { display: flex; justify-content: flex-end; gap: 6px; margin-top: 22px; margin-right: -4px; }   /* ← → under the steps, right-aligned (user, 2026-11-08/09) */
 #imLogWin #imSideNav .im-pg-arrow .pg-arrow-icon { width: 18px; height: 18px; }   /* smaller (user, 2026-11-09) */
 #imLogWin .im-side-div { height: 1px; background: color-mix(in srgb, #ffffff 11%, transparent); margin: 36px -24px 26px -30px; }   /* a bit lower (user, 2026-11-08) · full width: from the panel line to the window edge (user, 2026-11-08) */
@@ -4380,6 +4386,14 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 #imLogWin .im-ns-slot > #btnNoShow:not([hidden]) { display: inline-flex; color: #6e6e6e; border-color: color-mix(in srgb, #ffffff 15%, transparent); background: none; }
 #imLogWin .im-ns-slot > #btnNoShow:not(:disabled):hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 40%, transparent); }
 #imLogWin .im-ns-slot > #btnNoShow:disabled { opacity: .45; }
+/* No show first, then the typing rules as four bullets (user, 2026-11-09) */
+#imLogWin .im-ns-slot { position: absolute; top: -9px; right: 242px; margin: 0; }   /* No show on the right, level with the first bullet (user, 2026-11-09; LOG LESSON line tried, "higher") */
+#imLogWin .im-ns-slot > #btnNoShow:not([hidden]) { background: color-mix(in srgb, var(--muted) 7%, transparent); color: var(--muted); border-color: color-mix(in srgb, #ffffff 15%, transparent); font-weight: 400; letter-spacing: 1px; border-radius: 7px; box-shadow: none; }   /* back to the grey portal button with a wash, like No change on page 3 (user, 2026-11-09; the red pedal is saved in design-names) */
+#imLogWin .im-ns-slot > #btnNoShow:not(:disabled):hover:where(:not(:disabled)) { background: color-mix(in srgb, var(--muted) 16%, transparent); color: var(--t-normal); border-color: color-mix(in srgb, #ffffff 30%, transparent); }
+/* LOG in No show's shape: 7px corners, not a pill; its solid amber stays (user, 2026-11-09; the 70% amber + black border was tried, the old amber was better) */
+#imLogWin#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn, #imMailSend).amber { border-radius: 7px; line-height: 13px; letter-spacing: 1px; }   /* 1px letters like No show (user, 2026-11-09) */   /* the ＋ made it 1px taller than No show (user, 2026-11-09) */
+#imLogWin .im-case-list { display: block; margin: -59px 0 -16px;   /* the bullets 22px under the icon now No show has moved (user, 2026-11-09) */   /* 24px above and below, even (user, 2026-11-09) */ padding-left: 18px; font-size: 12px; line-height: 1.8; }
+#imLogWin .im-case-list { padding-left: 0; }   /* one line now, no bullets (user, 2026-11-09) */
 .st-win.im-log-wide .im-do-card .im-pg-nav { position: absolute; top: 14px; right: 242px; margin: 0; }   /* Next top right, level with No show (user, 2026-11-02) */
 /* The reason beside Unsuccessful in the Log window (user, 2026-11-08) */
 #imLogWin .im-pg-state { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex: 1; }
@@ -5145,3 +5159,31 @@ html body #tab-calendar .cal-bar.cr.cal-bar2::before, html body #fcBody .cal-bar
 .home-rack, body:has(#tab-home.active) .home-rack { margin-bottom: 22px; }   /* was 56 */
 body:has(#tab-home.active, #tab-audit.active) .home-rack { margin-bottom: 24px; }   /* was 58 */
 html body #tab-calendar #calBody > .cal-bar2.cr, html body #fcBody > .cal-bar.cr.fc-rack2 { margin-bottom: 19px !important; }   /* was 53 */
+#imLogWin .im-mat-tools-below > * , #imLogWin .im-mat-tools-below button { box-shadow: none; }   /* Gather / Browse / Dropbox flat, no lift (user, 2026-11-09) */
+/* Page 3 (user, 2026-11-09): Take a note + Change appointment on one line, red like the portal's .link-btn.red; "or" No change under, grey (Phone / Zoom's look) */
+#imLogWin #imSchedRs { display: flex; flex-direction: column; align-items: center; gap: 14px; width: fit-content; margin-top: 40px; }   /* left, under the question; "or" centred between the buttons (user, 2026-11-09; was centred in the panel) */
+#imLogWin #imSchedRs .sn-row { display: flex; align-items: center; gap: 8px; }
+#imLogWin #imSchedRs .sn-or { color: var(--muted); font-size: 12px; }
+#imLogWin #imSchedRs .im-rs-btn { flex: none; width: auto; min-width: 0; box-shadow: none; padding: 4px 10px; border-radius: 7px; font-size: 10px; letter-spacing: 1px; font-weight: 400; margin: 0; }
+#imLogWin #imSchedRs .im-rs-btn:not(.red) { color: var(--muted); border-color: color-mix(in srgb, #ffffff 15%, transparent); background: color-mix(in srgb, var(--muted) 7%, transparent); }   /* a grey wash like the red one (user, 2026-11-09) */
+#imLogWin #imSchedRs .im-rs-btn:not(.red):not(:disabled):hover:where(:not(:disabled)) { color: var(--t-normal); border-color: color-mix(in srgb, #ffffff 30%, transparent); background: color-mix(in srgb, var(--muted) 16%, transparent); }
+#imLogWin #imSchedRs .im-rs-btn.red { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 7%, transparent); }   /* the adjusted portal red (header red), not the old #ff5a4d (user, 2026-11-09) */
+#imLogWin #imSchedRs .im-rs-btn.red:not(:disabled):hover:where(:not(:disabled)) { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+#imLogWin #imSchedRs .im-rs-btn { width: 162px; justify-content: center; }   /* No change as long as Change appointment (user, 2026-11-09) */
+#imLogWin .im-sched-q { display: block; margin: -7px 0 0; font-size: 12px; }   /* "Does the next appt need adjustment?" under the icon, a bit more room (was -15px), like No show on page 1 (user, 2026-11-09) */
+/* Page 2 tighter (user, 2026-11-09): ~30px between the sections (was 72 / 40 / 42) */
+#imLogWin .im-page[data-pg="6"] .im-sub-head { margin-top: 28px; }
+#imLogWin .im-page[data-pg="6"] .im-mat-box > .im-sub-head:first-child { margin-top: 0; }
+#imLogWin .im-page[data-pg="6"] .im-mat-qbox { margin-top: 2px; }
+#imLogWin .im-page[data-pg="6"] #imMatBox { margin-top: 24px; }   /* more room under the icon (user, 2026-11-09) */
+#imLogWin #logHwFiles span[style*="--muted"] { color: #5a5a5a !important; }   /* the drop zone line darker (user, 2026-11-09; was --muted #7a7a7a) */
+/* Page 4 in pages 1-3 colours (user, 2026-11-09): titles in the LOG LESSON look, boxes the dark field fill */
+#imLogWin .im-ml-h > label { font-family: "DM Mono", monospace; font-size: 11.5px; font-weight: 400; letter-spacing: 2.5px; color: #7c7c7c; }
+#imLogWin .im-mail-dark textarea.im-ml-box { background: #0f0f0f; border-color: #2a2a2a; }
+#imLogWin .im-mail-box img { content: url(../img/portal-logo-grey.png); filter: brightness(.9) saturate(.8); }   /* the amp header logo (grey white, dimmed), in the portal preview only; the email itself keeps email-logo.png (user, 2026-11-09) */
+#imLogWin #imMailDark hr { display: none; }   /* no divider lines in the email preview (user, 2026-11-09) */
+#imLogWin .st-win.im-log-wide .im-page[data-pg="4"] #imMailRedo { position: absolute; top: 50px; right: 242px; margin: 0; }   /* Start over level with "Hi …", right edge; only the button moves, Send keeps its spot (user, 2026-11-09) */
+#imLogWin #imMailRedo { box-shadow: none; }   /* no lift (user, 2026-11-09) */
+#imLogWin .im-page[data-pg="1"] .im-sub-head ~ .im-sub-head { margin-top: 28px; }   /* page 1 tighter, like page 2 (user, 2026-11-09; was 40px) */
+#imLogWin#imLogWin .im-words .im-pill, #imLogWin#imLogWin .im-words { font-size: 9px; }   /* the starter words smaller (user, 2026-11-09; were 10px) */
+#imLogWin .im-word-grp { display: inline-flex; align-items: center; white-space: nowrap; }   /* word + its dash stay together (user, 2026-11-09) */

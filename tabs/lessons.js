@@ -113,7 +113,7 @@ function openLogFresh(student, idx, opts) {
   resetRows();
   rpmBusy(panel, null, false);
   var lb = document.getElementById("btnLog");
-  lb.disabled = true; lb.textContent = "Log"; lb.className = "link-btn amber";   // no plus sign (user, 2026-11-09)
+  lb.disabled = true; lb.textContent = "＋ Log"; lb.className = "link-btn amber";   // plus sign back (user, 2026-11-09, later the same day)
   var mic = document.getElementById("logMicBtn");
   if (mic) { mic.innerHTML = MIC_ICON; mic.classList.remove("rec"); mic.disabled = false; }
   _logState("");
@@ -309,7 +309,7 @@ function submitLog(noShow) {
   function fail(why) {
     rpmBusy(panel, btn, false);
     if (logHw) { logHw.locked = false; _logHwRender(); }
-    btn.textContent = "Log"; btn.disabled = false;
+    btn.textContent = "＋ Log"; btn.disabled = false;
     rpmFail("logPanelStatus", why);
   }
   fetch(q).then(function(r) { return r.json(); }).then(function(data) {
