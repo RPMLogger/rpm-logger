@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=1281">
-  <link rel="stylesheet" href="css/goals.css?v=1281">
-  <link rel="stylesheet" href="css/lessontimer.css?v=1281">
+  <link rel="stylesheet" href="css/styles.css?v=1282">
+  <link rel="stylesheet" href="css/goals.css?v=1282">
+  <link rel="stylesheet" href="css/lessontimer.css?v=1282">
 </head>
 <body>
 <div class="container">
@@ -18,7 +18,7 @@
     <img src="img/portal-logo-grey.png" alt="Red Pick Music">   <!-- badge lettering grey, the portal text grey (user, 2026-11-08; white original = img/portal-logo.png) -->
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1281</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1282</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -146,13 +146,8 @@
   <div class="home-rack"><span class="hr-bolt" style="left:10px"></span><span class="hr-bolt" style="right:10px"></span><div class="hr-row"><span class="hr-col"><button class="hr-knob" data-k="todo" onclick="switchTab('todo')" aria-label="To-Do"><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class="hr-cap">To-Do</span></span><span class="hr-col"><button class="hr-knob" data-k="notes" onclick="switchTab('notes')" aria-label="Notes"><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class="hr-cap">Notes</span></span><span class="hr-col"><button class="hr-knob" data-k="dropbox" onclick="switchTab('dropbox')" aria-label="Dropbox" data-tip="Instant.&#10;Opens Dropbox."><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class="hr-cap">Dropbox</span></span><span class="hr-screen"><button class="hr-arw" onclick="rackScreenStep(-1)" aria-label="Previous warning">‹</button><span class="hr-lcd" id="hrLcd" onclick="rackScreenOpen()"></span><button class="hr-arw" onclick="rackScreenStep(1)" aria-label="Next warning">›</button></span><span class="hr-vu" id="hrVu"></span><span class="hr-sp"></span><span class="hr-pair"><span class="hr-col"><button class="hr-pb" data-k="emails" onclick="switchTab('emails')" data-tip="Instant.&#10;Opens Emails. Glows gold while one is unread."></button><span class="hr-cap">Emails</span></span><span class="hr-col"><button class="hr-pb" data-k="inquiries" onclick="switchTab('inquiries')" data-tip="Instant.&#10;Opens Inquiries."></button><span class="hr-cap">Inq</span></span></span></div></div>
   <div class="tab-panel" id="tab-home">
     <!-- faint speaker behind the picture removed (user, 2026-11-10; was <span class="au-spk hm-spk">, 2026-11-05) -->
-    <img class="home-hero" src="img/amp-color.svg" alt="">   <!-- amp + guitar icon above the search box (user, 2026-11-01; the Today/Lessons/Calendar buttons removed 2026-11-08: the amp knobs do the same) -->
-    <!-- Student name (2026-10-24, user): names show as you type, a pick opens their Students card; tabs/home.js -->
-    <div class="home-search">
-      <svg class="home-mag" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 L21 21"/></svg>
-      <input type="text" id="homeSearch" class="rpm-field" autocomplete="off" onclick="_hmOpen()" oninput="_hmInput()" onkeydown="_hmKey(event)">
-      <span class="cash-dd-list" id="homeResults" hidden></span>   <!-- the shared name list, like the Calendar's (user, 2026-11-10; was its own .home-results) -->
-    </div>
+    <img class="home-hero" src="img/amp-color.svg" alt="">   <!-- amp + guitar icon (user, 2026-11-01; the Today/Lessons/Calendar buttons removed 2026-11-08: the amp knobs do the same) -->
+    <!-- Student name box removed (user, 2026-11-10: "I don't use it"); tabs/home.js does nothing without #homeSearch -->
   </div>
 
   <!-- STUDENT -->
@@ -795,57 +790,57 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=1281"></script>
-<script src="core/storage.js?v=1281"></script>
-<script src="core/utils.js?v=1281"></script>
-<script src="core/dialog.js?v=1281"></script>
-<script src="core/api.js?v=1281"></script>
-<script src="core/secalert.js?v=1281"></script>
-<script src="core/magnifier.js?v=1281"></script>
-<script src="core/nav.js?v=1281"></script>
-<script src="core/rackscreen.js?v=1281"></script>
+<script src="core/state.js?v=1282"></script>
+<script src="core/storage.js?v=1282"></script>
+<script src="core/utils.js?v=1282"></script>
+<script src="core/dialog.js?v=1282"></script>
+<script src="core/api.js?v=1282"></script>
+<script src="core/secalert.js?v=1282"></script>
+<script src="core/magnifier.js?v=1282"></script>
+<script src="core/nav.js?v=1282"></script>
+<script src="core/rackscreen.js?v=1282"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=1281"></script>
-<script src="tabs/lessons.js?v=1281"></script>
-<script src="tabs/payments.js?v=1281"></script>
-<script src="tabs/general.js?v=1281"></script>
-<script src="tabs/financial.js?v=1281"></script>
-<script src="tabs/inquiries.js?v=1281"></script>
-<script src="tabs/inqarchive.js?v=1281"></script>
-<script src="tabs/comms.js?v=1281"></script>
-<script src="tabs/announce.js?v=1281"></script>
-<script src="tabs/notes.js?v=1281"></script>
-<script src="tabs/todo.js?v=1281"></script>
-<script src="tabs/availability.js?v=1281"></script>
-<script src="tabs/travel.js?v=1281"></script>
-<script src="tabs/tripsummary.js?v=1281"></script>
-<script src="tabs/triphistory.js?v=1281"></script>
-<script src="tabs/skips.js?v=1281"></script>
-<script src="tabs/student.js?v=1281"></script>
-<script src="tabs/ctrl.js?v=1281"></script>
-<script src="tabs/emails.js?v=1281"></script>
-<script src="tabs/dropbox.js?v=1281"></script>
-<script src="tabs/import.js?v=1281"></script>
-<script src="tabs/today.js?v=1281"></script>
-<script src="tabs/home.js?v=1281"></script>
-<script src="tabs/trial.js?v=1281"></script>
-<script src="tabs/ending.js?v=1281"></script>
-<script src="tabs/reviews.js?v=1281"></script>
-<script src="tabs/financial2.js?v=1281"></script>
-<script src="tabs/studentline.js?v=1281"></script>
-<script src="tabs/calendar.js?v=1281"></script>
-<script src="tabs/fixedcal.js?v=1281"></script>
-<script src="tabs/slotchange.js?v=1281"></script>
-<script src="tabs/help.js?v=1281"></script>
-<script src="tabs/holidays.js?v=1281"></script>
-<script src="tabs/archive.js?v=1281"></script>
-<script src="tabs/texttemplates.js?v=1281"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
-<script src="tabs/goals.js?v=1281"></script>
-<script src="tabs/logtimer.js?v=1281"></script>
-<script src="core/usage.js?v=1281"></script>
-<script src="tabs/usage.js?v=1281"></script>
-<script src="tabs/lessontimer.js?v=1281"></script>
+<script src="tabs/icons.js?v=1282"></script>
+<script src="tabs/lessons.js?v=1282"></script>
+<script src="tabs/payments.js?v=1282"></script>
+<script src="tabs/general.js?v=1282"></script>
+<script src="tabs/financial.js?v=1282"></script>
+<script src="tabs/inquiries.js?v=1282"></script>
+<script src="tabs/inqarchive.js?v=1282"></script>
+<script src="tabs/comms.js?v=1282"></script>
+<script src="tabs/announce.js?v=1282"></script>
+<script src="tabs/notes.js?v=1282"></script>
+<script src="tabs/todo.js?v=1282"></script>
+<script src="tabs/availability.js?v=1282"></script>
+<script src="tabs/travel.js?v=1282"></script>
+<script src="tabs/tripsummary.js?v=1282"></script>
+<script src="tabs/triphistory.js?v=1282"></script>
+<script src="tabs/skips.js?v=1282"></script>
+<script src="tabs/student.js?v=1282"></script>
+<script src="tabs/ctrl.js?v=1282"></script>
+<script src="tabs/emails.js?v=1282"></script>
+<script src="tabs/dropbox.js?v=1282"></script>
+<script src="tabs/import.js?v=1282"></script>
+<script src="tabs/today.js?v=1282"></script>
+<script src="tabs/home.js?v=1282"></script>
+<script src="tabs/trial.js?v=1282"></script>
+<script src="tabs/ending.js?v=1282"></script>
+<script src="tabs/reviews.js?v=1282"></script>
+<script src="tabs/financial2.js?v=1282"></script>
+<script src="tabs/studentline.js?v=1282"></script>
+<script src="tabs/calendar.js?v=1282"></script>
+<script src="tabs/fixedcal.js?v=1282"></script>
+<script src="tabs/slotchange.js?v=1282"></script>
+<script src="tabs/help.js?v=1282"></script>
+<script src="tabs/holidays.js?v=1282"></script>
+<script src="tabs/archive.js?v=1282"></script>
+<script src="tabs/texttemplates.js?v=1282"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
+<script src="tabs/goals.js?v=1282"></script>
+<script src="tabs/logtimer.js?v=1282"></script>
+<script src="core/usage.js?v=1282"></script>
+<script src="tabs/usage.js?v=1282"></script>
+<script src="tabs/lessontimer.js?v=1282"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>

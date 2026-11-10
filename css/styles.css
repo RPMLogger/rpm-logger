@@ -355,14 +355,6 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   flex-direction: column; justify-content: center; gap: 10px; width: 150px; height: 108px; font-size: 12px; border-radius: 10px;   /* tiles, 2/3 of the first big size (user, 2026-10-30); smaller again (user, 2026-11-03) */
   transform: translateY(-3px); box-shadow: 0 8px 18px rgba(0,0,0,0.55), 0 2px 4px rgba(0,0,0,0.4); }   /* lifted off the page with a shadow (user, 2026-11-03) */
 .au-top .link-btn svg { width: 27px; height: 27px; }   /* the magnifier inside each tile (user, 2026-10-30) */
-/* Student name box under them; the names drop down over the page */
-.home-search { position: relative; width: 240px; margin: 20px auto 0; }   /* tighter (user, 2026-11-05; was 40) */
-.home-mag { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--t-faint); pointer-events: none; }   /* inside the box on the left, like the Comms search (user, 2026-11-10; was outside) */
-.home-search .rpm-field { padding-left: 30px; border-color: #5e4d2a; box-shadow: 0 0 0 1px #2c2c2c; }   /* the general box; only the border differs: the amp's gold line + the grey line it sits on, outside (user, 2026-11-10) */
-.home-search .rpm-field:focus { outline: none; border-color: #5e4d2a; }
-/* Home's names = the Calendar's list (user, 2026-11-10): the shared .cash-dd-list in the Calendar's panel frame. Was its own centred .home-results. */
-#tab-home .home-search .cash-dd-list { top: calc(100% + 8px); max-height: 280px; padding: 6px; background: #121212; border: 1px solid #333; box-shadow: 0 8px 20px rgba(0,0,0,.6); z-index: 50; }
-#tab-home .home-search .cash-dd-list[hidden] { display: none; }
 
 /* ─── SHEET LINKS (Sheets tab) ────────────────────────────────────────────── */
 .sheet-link {
@@ -5000,10 +4992,6 @@ html body .header .hdr-mag, html body .header .hdr-home:not(.hdr-mag):not(.hdr-b
 .home-rack .hr-bolt[style*="left"] { left: 12px !important; }
 .home-rack .hr-bolt[style*="right"] { right: 12px !important; }
 .home-rack .hr-bolt::before, .home-rack .hr-bolt::after { left: 2.5px; right: 2.5px; top: 4.75px; height: 1.5px; }
-/* Home search box smaller (user, 2026-11-08; was 240 × 39px): 160 × 33, corners 6px. Delete to undo. */
-.home-search { width: 180px; }   /* fits the longest name, Gulnara Shigabutdinova (129px of text) + the magnifier inside (user, 2026-11-10; was 160) */
-/* Search box closer to the picture: 16px gap (user, 2026-11-08; was 30). Delete to undo. */
-.home-search { margin-top: 6px; }
 /* Home box a fixed height, not the whole window: it only holds the picture + search (user, 2026-11-08: "too long for nothing"). Delete to undo (fills the window). */
 html body #tab-home.tab-panel.active { min-height: 520px !important; }   /* was 440 (user: "a bit more longer") */
 /* Magnifier + Home icons a tad smaller (user, 2026-11-08; were 15 / 14px), still centred. Delete to undo. */
