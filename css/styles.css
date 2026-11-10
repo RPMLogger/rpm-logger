@@ -1491,7 +1491,7 @@ input[type="checkbox"]:checked {
 .cm-row .td-mini-t { font-size: 10.5px; color: var(--t-faint); min-width: 64px; }
 .cm-ico { font-size: 12px; width: 16px; text-align: center; flex: none; }
 .cm-page-icon { margin: 0 0 16px 8px; color: var(--muted); line-height: 0; }   /* hand-and-phone icon under the number, like Payments (user, 2026-11-01) */
-.cm-page-icon .win-icon { height: 40px; width: auto; }
+.cm-page-icon .win-icon { height: 24px; width: auto; }   /* the Lessons + Payments page-icon size (user, 2026-11-10; was 40px) */
 .cm-name { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); flex: none; width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cm-prev { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* This Week's colours (user, 2026-10-30): times + messages faint, numbers normal; answered = all faint */
@@ -4893,7 +4893,7 @@ body:has(#tab-todo.active) .hr-knob[data-k=todo] + .hr-cap, body:has(#tab-notes.
 /* RACK SCREWS FULL SIZE (user, 2026-11-08): the box's regular 15px screw, one each side, instead of the 9px one. Delete this block to undo. */
 .hr-bolt { top: calc(50% - 7.5px); width: 15px; height: 15px; }
 .hr-bolt::before, .hr-bolt::after { left: 3px; right: 3px; top: 6.5px; height: 2px; }
-#commsBody .cm-head-rule { border: none; border-top: 1px solid var(--border); margin: 0 -40px 20px; }   /* edge to edge across the box (its 40px side padding), under the title + icon (user, 2026-11-10) */
+#commsBody .cm-headbox { position: relative; flex: none; margin-bottom: 40px; }   /* the top box: title, icon, scope, knobs; gap 40px (user, 2026-11-10: "more" than the racks' 22) */
 #commsBody .cm-scope { position: absolute; left: 50%; top: 34px; transform: translateX(-50%); line-height: 0; pointer-events: none; filter: drop-shadow(0 1px 1px #000); }   /* the green phase scope, VU size + frame, centred in the title row (user, 2026-11-10) */
 /* Tighter head (user, 2026-11-10: "tighten up"): title→icon 16→8, icon→line 32→20, line→panes 25→20. */
 #commsBody .td-wk-title { margin-bottom: 8px; }

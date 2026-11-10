@@ -850,8 +850,15 @@ function commsEnsureExtras() {
             col("commsOthersBtn", "Others <span id='commsOthersCount'>0</span>", "commsShowOthers(true)", "Opens a window.&#10;Unknown numbers, applicants,&#10;voicemails, scams.");
       box.appendChild(rack);
       box.insertAdjacentHTML("beforeend", commsScopeSvg());   // the green phase scope, VU-meter size (user, 2026-11-10)
-      box.insertAdjacentHTML("beforeend", '<hr class="cm-head-rule">');   // a line the box's whole width under the title + icon (user, 2026-11-10)
       box.appendChild(stu);
+      // Two boxes (user, 2026-11-10; was one box with a line across): the title, icon, scope and
+      // knobs in their own box on top, the rack's gap, then the box with the two panes.
+      var head = document.createElement("div");
+      head.className = "td-wk-box cm-headbox";
+      head.innerHTML = '<span class="td-bolt" style="left:8px;top:10px"></span><span class="td-bolt" style="left:8px;bottom:10px"></span>' +
+        '<span class="td-bolt" style="right:8px;top:10px"></span><span class="td-bolt" style="right:8px;bottom:10px"></span>';
+      [box.querySelector(".td-wk-title"), document.getElementById("cmLineNo"), rack, box.querySelector(".cm-scope")].forEach(function (n) { if (n) head.appendChild(n); });
+      box.parentNode.insertBefore(head, box);
       detail.parentNode.insertBefore(win, detail);   // the conversation window opens on top of it
     }
   }
