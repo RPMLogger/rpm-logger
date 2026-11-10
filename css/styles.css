@@ -4416,7 +4416,8 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 #imLogWin .im-pg-arrow .pg-arrow-icon.back { transform: scaleX(-1); }   /* your arrows (2026-11-08): ← is → mirrored */
 /* Shortcuts groups open and close on their name (user, 2026-11-02) */
 #imLogWin .im-terms-h { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; padding: 4px 0; cursor: pointer; text-align: left; }
-#imLogWin .im-terms-h:hover { color: #ffffff; }
+#imLogWin .im-terms-grp.open > .im-terms-h { color: var(--t-normal); }   /* open groups lit too (user, 2026-11-10) */
+#imLogWin .im-terms-h:hover { color: var(--t-text); }   /* was #fff, too bright (user, 2026-11-10) */
 #imLogWin .im-terms-car { font-size: 9px; transition: transform .15s; }
 #imLogWin .im-terms-grp.open .im-terms-car { transform: rotate(180deg); }
 #imLogWin .im-terms-grp:not(.open) > .im-terms { display: none; }
