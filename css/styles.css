@@ -362,6 +362,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .home-search .rpm-field:focus { outline: none; border-color: #5e4d2a;   /* same as the amp's gold line, focused or not (user, 2026-11-10; was #8a6a2c) */ }
 .home-search { width: 180px; }   /* smaller box (user, 2026-11-10; was 240) */
 .home-search .rpm-field { padding-top: 4px; padding-bottom: 4px; caret-color: transparent; }   /* shorter + no blinking cursor (user, 2026-11-10) */
+.home-search .rpm-field, .home-search .rpm-field:focus { box-shadow: 0 0 0 1px #2c2c2c; }   /* the grey line the amp's gold sits on, outside the gold (user, 2026-11-10) */
 .home-results {
   position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5;
   display: flex; flex-direction: column; gap: 2px;
