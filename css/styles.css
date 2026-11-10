@@ -5221,3 +5221,7 @@ html body #tab-calendar #calBody > .cal-bar2.cr, html body #fcBody > .cal-bar.cr
 html body .header .amp-power { pointer-events: auto; cursor: pointer; }
 html body .header .amp-power::before { transition: background .15s, box-shadow .15s; }
 html body .header .amp-power.off::before { background: linear-gradient(#2a1513, #1f0e0c 45%, #180a09 55%, #23110f); box-shadow: inset 0 0 3px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05); }
+
+/* No under Recorded on their side? (user, 2026-11-10): a word like None, lit once picked */
+#imLogWin .im-pills.im-rec-none { margin-top: -12px; }
+#imLogWin .im-pills.im-words .im-pill.done, #imLogWin .im-pills.im-words .im-pill.done:hover:where(:not(:disabled)) { color: var(--t-normal); }

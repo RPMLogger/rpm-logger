@@ -338,7 +338,7 @@ function _imLogWinOpen(student, idx, day, item, next) {
 // into the email.
 function _imTeachBox() { return _imQ('imTeachRows'); }
 function _imTeachWire() {
-  _imNoteWire('imTeach', null);
+  _imNoteWire('imTeach', function () { if (typeof updateLogButton === 'function') updateLogButton(); });   // Log waits on all four boxes (user, 2026-11-10)
   // 4. Notes to the student (2026-10-25): optional, only in the email's NOTES
   // part (not the sheet's cell). Open till Send; kept in this browser per lesson.
   var w = window._imWin, box = _imStuBox(), o = {};
@@ -346,7 +346,7 @@ function _imTeachWire() {
   if (box && o.notes && o.notes.length) {
     box.innerHTML = o.notes.map(function (v, i) { return '<textarea rows="1" class="rpm-field ll-row' + (i ? '' : ' active') + '">' + _auEsc(v) + '</textarea>'; }).join('');
   }
-  _imNoteWire('imStu', function () { _imRowsPut('notes', llValues(box)); _imStepsRender(); });
+  _imNoteWire('imStu', function () { _imRowsPut('notes', llValues(box)); if (typeof updateLogButton === 'function') updateLogButton(); _imStepsRender(); });
 }
 function _imStuBox() { return _imQ('imStuRows'); }
 // Phrase pills (user, 2026-10-26): the openings typed every lesson, one tap
@@ -356,8 +356,15 @@ function _imStuBox() { return _imQ('imStuRows'); }
 var IM_PILLS = {
   log:   ['Covered', 'Practiced', 'Looked at', 'Went over', 'Talked about', 'We played', 'Started', 'Introduced', 'Improved', 'Reviewed'],   // last five: user, 2026-10-30
   hw:    ['Go over', 'Practice', 'Play', 'Review', 'Speed up', 'Try to', 'Look at'],   // Try to: user, 2026-10-31 · Look at: user, 2026-11-02
-  notes: ['Make sure']
+  notes: ['Make sure', 'What matters', 'None'],   // What matters + None: user, 2026-11-10
+  teach: ['None']   // user, 2026-11-10: the notes boxes need something in them, None says there's nothing
 };
+// "None" in a notes box means empty: never saved after TEACHER:, never emailed.
+function _imNotNone(v) { return !!v && !/^\s*none\s*$/i.test(v); }
+// Both notes boxes answered (a row typed or None), so Log can go (user, 2026-11-10).
+function _imNotesAnswered() {
+  return [_imTeachBox(), _imStuBox()].every(function (b) { return !b || llValues(b).some(function (v) { return v && v.trim(); }); });
+}
 // Terms (user, 2026-11-02): one Terms column right of the Log page's boxes (was a
 // line of chips under each). They don't start a row and aren't capitalised: typed
 // in where the cursor is, in whichever box was typed in last. Add more to a group here.
@@ -374,14 +381,24 @@ var IM_TERMS = [
   ['Techniques',   ['hammer-on', 'pull-off', 'strumming']]
 ];
 var _imTermRow = null;   // the last row typed in on the Log page
+// Every row starts with a capital by itself (user, 2026-11-10), as it's typed or dictated.
+// Only real typing: a Shortcut put in first (ii–V–i) keeps its small letters.
+document.addEventListener('input', function (e) {
+  var el = e.target;
+  if (!e.inputType || !el.classList || !el.classList.contains('ll-row') || !el.closest('#imLogWin')) return;
+  var v = el.value, m = v.match(/^(\s*)([a-z])/);
+  if (!m || /–/.test(v.split(' ')[0])) return;
+  var a = el.selectionStart, b = el.selectionEnd;
+  el.value = m[1] + m[2].toUpperCase() + v.slice(m[0].length);
+  el.setSelectionRange(a, b);
+}, true);
 document.addEventListener('focusin', function (e) {
   if (e.target.classList && e.target.classList.contains('ll-row') && e.target.closest('#imLogWin')) _imTermRow = e.target;
 });
-// Each group opens and closes on its name (user, 2026-11-02: the list got long); which
-// are open is kept in this browser (imTermsOpen), all closed at first.
-function _imTermsOpen() { try { return JSON.parse(localStorage.getItem('imTermsOpen') || '{}'); } catch (e) { return {}; } }
+// Each group opens and closes on its name (user, 2026-11-02: the list got long); all
+// closed whenever the window opens (user, 2026-11-10).
 function _imTermsColHtml() {
-  var open = _imTermsOpen();
+  var open = {};   // all closed each time the window opens (user, 2026-11-10); a click opens one for now
   return '<div class="im-terms-col"><div class="db-cx-head im-sub-head"><label class="field-label db-cx-t im-sub-t">Shortcuts</label></div>' +
     IM_TERMS.map(function (g) {
       var on = !!open[g[0]];
@@ -402,10 +419,7 @@ function _imTermsWire() {
   col.onclick = function (e) {
     var h = e.target.closest && e.target.closest('.im-terms-h');
     if (h) {
-      var grp = h.parentNode, open = _imTermsOpen();
-      grp.classList.toggle('open');
-      open[h.dataset.grp] = grp.classList.contains('open');
-      try { localStorage.setItem('imTermsOpen', JSON.stringify(open)); } catch (x) {}
+      h.parentNode.classList.toggle('open');
       return;
     }
     if (!e.target.classList.contains('im-term')) return;
@@ -414,8 +428,8 @@ function _imTermsWire() {
   };
 }
 function _imPillsWire() {
-  // None under Notes to teacher (user, 2026-10-26).
-  [[_logBox(), IM_PILLS.log], [_hwRowsBox(), IM_PILLS.hw], [_imStuBox(), IM_PILLS.notes]].forEach(function (x) {
+  // None under both notes boxes (user, 2026-11-10; Notes to teacher had none before).
+  [[_logBox(), IM_PILLS.log], [_hwRowsBox(), IM_PILLS.hw], [_imTeachBox(), IM_PILLS.teach], [_imStuBox(), IM_PILLS.notes]].forEach(function (x) {
     var box = x[0], wrap = box && box.closest('.ll-wrap');
     if (!wrap || (wrap.nextElementSibling && wrap.nextElementSibling.classList.contains('im-pills'))) return;   // the Log and HW rows stay between windows
     var d = document.createElement('div');
@@ -461,7 +475,7 @@ function _imNoteWire(pre, onChange) {
   _imQ(pre + 'Mic').onclick = function () { _imDictate(this, box); };
 }
 function _imTeachText() {
-  var box = _imTeachBox(), rows = box ? llValues(box).filter(Boolean) : [];
+  var box = _imTeachBox(), rows = box ? llValues(box).filter(_imNotNone) : [];
   return rows.length ? toSentenceCase(rows.join(', ')) : '';
 }
 function _imTeachLock(on) {
@@ -814,7 +828,7 @@ function _imMailSentences(rows) {
 }
 // Notes to the student stay sentences: first letter up, a full stop unless signed.
 function _imMailNotes(rows) {
-  return (rows || []).filter(Boolean).map(function (t) {
+  return (rows || []).filter(_imNotNone).map(function (t) {
     t = t.charAt(0).toUpperCase() + t.slice(1);
     return /[.!?]$|- RPM$/.test(t) ? t : t + '.';
   }).join(' ');
@@ -1098,7 +1112,7 @@ function _imStepsRender() {
   var db = _imQ('imMatDoneBtn');
   if (db) {
     var some = !!(hw && (hw.files.length || hw.links.length || hw.videoOnly || (hw.found || []).length || hw.rec === 'phone' || hw.rec === 'zoom'));
-    db.disabled = !hw || !!(hw.locked || hw.loading || hw.uploading || hw.gathering || hw.saving);
+    db.disabled = !hw || !!(hw.locked || hw.loading || hw.uploading || hw.gathering || hw.saving) || !_imMatAnswered(hw);
     db.textContent = 'Done';   // one word, like Log, no hover tip (user, 2026-11-09; was "Done · Nothing to send" when empty)
     db.removeAttribute('data-tip');
   }
@@ -1575,9 +1589,21 @@ function _imRecDone(hw) { return !!hw.rec && hw.rec !== 'yes'; }
 // Practice materials, one page (user, 2026-11-08): Done answers all three at once from what's
 // on the page: files in → Send (gathered ones are moved in first), none → No files; links in →
 // Links, none → No; Phone / Zoom picked → recorded, neither → No. Anything changed after it: Done again.
+// Video lesson link, Web link and Recorded each need an answer before Done (user, 2026-11-10):
+// a link, or None typed / picked in the box; Phone, Zoom or No. Files can stay empty.
+function _imMatAnswered(hw) {
+  if (!hw) return false;
+  if (hw.linksDone) return true;   // a reopened lesson, already answered
+  function box(kind, id) {
+    var inp = document.getElementById(id);
+    return hw.links.some(function (l) { return l.kind === kind; }) || (kind === 'Video' && !!hw.videoOnly) || !!(inp && inp.value.trim());
+  }
+  return box('Video', 'logHwVideoInput') && box('Link', 'logHwLinkInput') && ['phone', 'zoom', 'no'].indexOf(hw.rec) >= 0;
+}
 function _imMatDone() {
   var hw = logHw;
   if (!hw || hw.locked || hw.loading || hw.uploading || hw.gathering || hw.saving) return;
+  if (!_imMatAnswered(hw)) return;
   ['Video', 'Link'].forEach(function (k) {   // a link still typed in its line goes in
     var inp = document.getElementById(k === 'Video' ? 'logHwVideoInput' : 'logHwLinkInput');
     if (inp && inp.value.trim()) _imHwLinkAdd(k);
@@ -1621,7 +1647,7 @@ function _imHwLinkAdd(kind) {
   var hw = logHw, inp = document.getElementById(kind === 'Video' ? 'logHwVideoInput' : 'logHwLinkInput');
   if (!hw || !inp || hw.locked) return;
   var url = inp.value.trim();
-  if (!url) return;
+  if (!url || /^none$/i.test(url)) return;   // None answers the box, it's never a link (user, 2026-11-10)
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
   hw.links.push({ kind: kind === 'Video' ? 'Video' : 'Link', url: url });
   if (kind === 'Video') hw.videoOnly = false;
@@ -1726,6 +1752,21 @@ function _imHwOut() {
   ['logHwVideoAddBtn', 'logHwLinkAddBtn'].forEach(function (id) {
     var b = document.getElementById(id);
     if (b && !b.classList.contains('im-link-add')) { b.classList.add('im-link-add'); b.innerHTML = ROW_ADD_ICON; b.setAttribute('aria-label', 'Add'); b.setAttribute('data-tip', 'Instant.\nAdds the link. Enter does too.'); b.setAttribute('data-tip-left', ''); }
+  });
+  // None under each link box (user, 2026-11-10): fills the box with None, never sent.
+  [['logHwVideo', 'logHwVideoInput'], ['logHwLink', 'logHwLinkInput']].forEach(function (x) {
+    var sec = document.getElementById(x[0]), inp = document.getElementById(x[1]);
+    if (!sec || !inp || sec.querySelector('.im-link-none')) return;
+    var d = document.createElement('div');
+    d.className = 'im-pills im-words im-link-none';
+    d.innerHTML = '<span class="im-word-grp"><button type="button" class="im-pill">None</button></span>';
+    d.onmousedown = function (e) { e.preventDefault(); };
+    d.onclick = function (e) {
+      if (!e.target.classList.contains('im-pill') || !logHw || logHw.locked) return;
+      inp.value = 'None'; logHw.linksDone = false; _imHwChanged();
+    };
+    sec.querySelector('.lh-link-add').after(d);
+    inp.addEventListener('input', function () { if (logHw && logHw.linksDone) logHw.linksDone = false; _imStepsRender(); });
   });
   var vs = document.getElementById('logHwVideo'), vd = _imQ('imMatVideo');
   if (vs && vd && vs.parentNode !== vd) vd.appendChild(vs);
@@ -1990,17 +2031,17 @@ function _imDoHtml(name, day) {
     _imMainHead('1. Log the lesson and HW', '', '', 'im-main-log') +   // all red (2026-10-18)
     '<div class="im-ns-slot" id="imNsSlot"></div>' +   // No show first, then the typing rules (user, 2026-11-09; was under the hint)
     // the typing rules on one line under the icon (user, 2026-11-09)
-    '<div class="im-mail-opt im-case-list">One item per row - No commas - Capital first letter - No end punctuation</div>' +   // one line again, dashes (user, 2026-11-09; were four bullets)
+    '<div class="im-mail-opt im-case-list">One item per row - No commas - No end punctuation</div>' +   // one line again, dashes (user, 2026-11-09; were four bullets)
     '<div class="im-main-box"><div class="im-log-cols"><div class="im-log-left">' +   // the boxes left, Terms right (user, 2026-11-02)
       _imSub('Log lesson', '', ' im-log-box', '<div id="imLogDock"></div>') +
       _imSub('Log homework', '', ' im-hwtext-box', '<div id="imHwTextDock"></div>') +
       // Private (2026-10-25): saved after "TEACHER:" in the log's cell, never emailed.
-      _imSub('Notes to teacher <span class="im-mail-opt">(optional)</span>', '', ' im-teach-box',
+      _imSub('Notes to teacher', '', ' im-teach-box',
         '<div class="ll-wrap"><div class="ll-rows" id="imTeachRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
         '<button type="button" class="link-btn tl-mic" id="imTeachMic" data-tip="Instant.\nStarts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
         '<button type="button" class="ll-add" id="imTeachAdd" data-tip="Instant.&#10;Adds a row. Enter does too.">' + llAddInner() + '</button>') +
       // In the email only, under NOTES (2026-10-25): "Bring your capo next time."
-      _imSub('Notes to the student <span class="im-mail-opt">(optional)</span>', '', ' im-teach-box',
+      _imSub('Notes to the student', '', ' im-teach-box',
         '<div class="ll-wrap"><div class="ll-rows" id="imStuRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
         '<button type="button" class="link-btn tl-mic" id="imStuMic" data-tip="Instant.\nStarts or stops dictation." data-tip-left>' + MIC_ICON + '</button></div>' +
         '<button type="button" class="ll-add" id="imStuAdd" data-tip="Instant.&#10;Adds a row. Enter does too.&#10;Each row is a sentence in the email.">' + llAddInner() + '</button>') +
@@ -2025,7 +2066,10 @@ function _imDoHtml(name, day) {
       '<div class="im-mat-qbox"><div class="im-mat-row"><span class="im-mat-q">Recorded on their side?</span>' +
         '<button type="button" class="link-btn im-rec-btn" id="imRecPhone" onclick="_imRecPick(\'phone\')" data-tip="Instant.&#10;They filmed the lesson on their phone.&#10;The email says so. Again: not recorded." data-tip-left>Phone</button>' +
         '<button type="button" class="link-btn im-rec-btn" id="imRecZoom" onclick="_imRecPick(\'zoom\')" data-tip="Instant.&#10;They recorded the lesson on Zoom, their side.&#10;The email says so. Again: not recorded." data-tip-left>Zoom</button>' +
-      '</div></div>' +
+      '</div>' +
+      // None as a word under the question, like under the link boxes (user, 2026-11-10); lit once picked
+      '<div class="im-pills im-words im-rec-none"><span class="im-word-grp"><button type="button" class="im-pill" id="imRecNo" onmousedown="event.preventDefault()" onclick="_imRecPick(\'no\')">None</button></span></div>' +
+      '</div>' +
       '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn amber" id="imMatDoneBtn" onclick="_imMatDone()">Done</button></div>' +
     '</div>' +
     '</div><div class="im-page" data-pg="3">' +

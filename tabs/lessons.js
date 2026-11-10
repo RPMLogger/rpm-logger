@@ -408,6 +408,8 @@ function updateLogButton() {
   if (window._imDocked && logHw) hwOk = !logHw.loading;
   // One Log for the lesson and its HW (2026-10-18): both need something in them.
   if (window._imDocked && logHw && !(activeStudent && activeStudent.hwOnly)) hwOk = hwOk && !!_hwRowsJoin();
+  // Notes to teacher + Notes to the student need a row too, None counts (user, 2026-11-10).
+  if (window._imDocked && !(activeStudent && activeStudent.hwOnly) && typeof _imNotesAnswered === "function") hwOk = hwOk && _imNotesAnswered();
   document.getElementById("btnLog").disabled = !(rowsOk && hwOk);
   if (window._imDocked && typeof _imStepsRender === "function") _imStepsRender();
 }
