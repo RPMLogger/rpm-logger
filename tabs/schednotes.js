@@ -216,6 +216,7 @@ function _snRefreshView() {
   var host = document.getElementById('calNotesHost');
   if (host && host.offsetParent !== null) _snRender(host);
   _snBandRender();
+  _snTabRender();
 }
 
 function _snOpenView(host) {
@@ -307,6 +308,67 @@ function _snInjectStyle() {
     ".sn-words{display:flex;flex-wrap:wrap;row-gap:4px;align-items:baseline;margin-top:10px;flex:1;min-width:0}.sn-word-grp{display:inline-flex;align-items:center;white-space:nowrap}" +
     ".sn-word{border:none;background:none;padding:2px 0;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--t-faint);cursor:pointer}.sn-word:hover{color:var(--t-text)}" +
     ".sn-word-sep{font-family:'DM Mono',monospace;font-size:9px;color:color-mix(in srgb,var(--t-faint) 60%,transparent);margin:0 8px}" +
+    ".sn-tab-name{text-transform:uppercase}#snotesContent .tdo-row+.tdo-row{margin-top:22px}" +
     ".sn-closed-btn{margin-top:20px}.sn-err{color:var(--muted);margin-bottom:10px}";
   document.head.appendChild(st);
+}
+
+
+// ── Student Notes tab (user, 2026-11-10) ────────────────────────────────────
+// Calendar ▾ Student Notes: every note from the Schedule Notes tab, in the
+// Notes / To-Do look (box, pen, numbered notebook rows, newest first).
+// × closes one (Closed + "Done" on the sheet); closed ones in their own box, hidden.
+var _snTabClosedShown = false;
+function initStudentNotesTab() {
+  var host = document.getElementById('snotesContent');
+  if (!host) return;
+  _snInjectStyle();
+  if (host.dataset.built !== '1') {
+    host.innerHTML =
+      '<div class="td-wk-box tdo-box">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>Student Notes</span></div>' +
+        '<div class="td-wk-icon">' + PEN_ICON + '</div>' +
+        '<div id="snTabList"></div></div>' +
+      '<div id="snTabClosedWrap"></div>';
+    host.dataset.built = '1';
+  }
+  _snTabClosedShown = false;
+  if (!_snNotes) document.getElementById('snTabList').innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  else _snTabRender();
+  _snLoad(_snTabRender);
+}
+function _snTabRender() {
+  var list = document.getElementById('snTabList');
+  if (!list) return;
+  var all = (_snNotes || []).slice().sort(function (a, b) { return b.row - a.row; });   // newest first
+  var open = all.filter(function (n) { return !n.closed; }), closed = all.filter(function (n) { return n.closed; });
+  list.innerHTML = _snErr && !all.length ? '<div class="empty-state">Couldn\'t read the notes: ' + _snEsc(_snErr) + '</div>'
+    : !open.length ? '<div class="empty-state tdo-none">None</div>'
+    : open.map(function (n, i) { return _snTabRow(n, i + 1); }).join('');
+  var wrap = document.getElementById('snTabClosedWrap');
+  if (!closed.length) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = '<div class="td-wk-box tdo-box tdo-done' + (_snTabClosedShown ? '' : ' tdo-done-hidden') + '">' + TD_BOLTS +
+    '<div class="settings-title td-wk-title"><span>Closed</span><span class="tdo-title-btns"><button class="link-btn" onclick="_snTabClosedShown=!_snTabClosedShown;_snTabRender()">' + (_snTabClosedShown ? 'Hide' : 'Show') + '</button></span></div>' +
+    '<div class="tdo-done-list"' + (_snTabClosedShown ? '' : ' style="display:none"') + '>' + closed.map(function (n, i) { return _snTabRow(n, i + 1, true); }).join('') + '</div></div>';
+}
+function _snTabRow(n, num, closed) {
+  var day = function (ymd) { if (!ymd) return ''; var d = _snParse(ymd); return SN_MONTHS[d.getMonth()] + ' ' + d.getDate(); };
+  return '<div class="tdo-row"><div class="tdo-num">' + num + '.</div>' +
+    '<div class="tdo-text">' + (n.name ? '<span class="sn-tab-name">' + _snEsc(n.name) + '</span>\n' : '') + _snEsc(n.note) + '</div>' +
+    '<div class="tdo-date">' + _snEsc(day(closed ? n.closed : n.created)) + '</div>' +
+    (closed ? '' : '<button class="tdo-del" onclick="_snTabClose(' + n.row + ',this)" data-tip="Instant.\nCloses the note.">×</button>') + '</div>';
+}
+function _snTabClose(row, btn) {
+  var n = (_snNotes || []).filter(function (x) { return x.row === row; })[0];
+  if (!n) return;
+  var url = getScriptUrl();
+  var done = function () { n.closed = _snYmd(new Date()); n.how = 'Done'; _snTabRender(); };
+  if (!url || row < 0) { done(); return; }
+  btn.disabled = true;
+  fetch(url + '?action=closeSchedNote&row=' + row + '&how=Done&note=' + encodeURIComponent(n.note))
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (!d.success) throw new Error(d.message || 'not saved'); done(); })
+    .catch(function (e) {
+      btn.disabled = false;
+      rpmToast('fail', 'Unsuccessful', 'Not closed: ' + ((e && e.message && e.message !== 'Failed to fetch') ? e.message : 'no answer from Google.'));
+    });
 }
