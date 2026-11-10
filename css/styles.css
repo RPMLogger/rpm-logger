@@ -5137,8 +5137,8 @@ html body .header .hdr-home.hdr-refresh:not(.hdr-mag):not(.hdr-back) .hdr-refres
 .home-rack::after, html body #tab-calendar .cal-bar.cr.cal-bar2::after, html body #fcBody .cal-bar.cr.fc-rack2::after { content: ""; position: absolute; left: 46px; right: 46px; bottom: -19px;   /* not spread (user, 2026-11-09): 51px inside the ring, like the amp's */
   height: 14px; pointer-events: none;
   background:
-    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2714%27%3E%3Cpath d=%27M0 0H34L31.5 11.5Q30.8 14 28 14H6Q3.2 14 2.5 11.5Z%27 fill=%27%231e1e1e%27 stroke=%27%232c2c2c%27/%3E%3C/svg%3E") left center / 34px 14px no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2714%27%3E%3Cpath d=%27M0 0H34L31.5 11.5Q30.8 14 28 14H6Q3.2 14 2.5 11.5Z%27 fill=%27%231e1e1e%27 stroke=%27%232c2c2c%27/%3E%3C/svg%3E") right center / 34px 14px no-repeat; }
+    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2714%27%3E%3Cpath d=%27M0 0H34L31.5 11.5Q30.8 14 28 14H6Q3.2 14 2.5 11.5Z%27 fill=%27%23101010%27 stroke=%27%231e1e1e%27/%3E%3C/svg%3E") left center / 34px 14px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2714%27%3E%3Cpath d=%27M0 0H34L31.5 11.5Q30.8 14 28 14H6Q3.2 14 2.5 11.5Z%27 fill=%27%23101010%27 stroke=%27%231e1e1e%27/%3E%3C/svg%3E") right center / 34px 14px no-repeat; }
 body:has(#tab-calendar.active, #tab-fixedcal.active) .home-rack::after { display: none; }   /* there the racks stack on each other, no room for feet */
 /* ONE RACK CASE on Calendar + Fixed schedule (user, 2026-11-09: stacked racks' doubled rings read too heavy, "try one rack case"):
    the Home rack + the two Calendar racks touch, one 1px seam between units, and the 4px ring runs only round the outside of the stack.
