@@ -4816,6 +4816,30 @@ body::before, body::after { display: none; }
 #commsBody .cm-box { position: relative; }
 .cm-box-btns { position: absolute; top: 40px; right: 40px; z-index: 30; display: flex; gap: 10px; align-items: center; }
 .cm-box-btns .link-btn.lit { color: var(--red, #e0533f); border-color: currentColor; }   /* Others while one waits */
+/* Square push buttons, caption under (user, 2026-11-10: the Calendar rack's Birthdays / Doctors look; "a special window"). */
+html body .cm-box-btns { gap: 26px; align-items: flex-end; top: 30px; }   /* captions on one line under a bigger knob (2026-11-10) */
+.cm-pcol { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.cm-pb { width: 20px; height: 20px; padding: 0; border-radius: 3px; border: 1px solid #111; cursor: pointer;
+  background: linear-gradient(#3a3a3a, #232323); box-shadow: 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); }
+.cm-pb:hover:where(:not(:disabled)) { background: linear-gradient(#444, #2a2a2a); }
+.cm-pb.lit, .cm-pb.lit:hover { background: radial-gradient(circle at 50% 42%, oklch(.6 .17 29), oklch(.44 .15 29) 70%, oklch(.34 .12 29));
+  box-shadow: inset 0 0 3px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.12), 0 0 5px oklch(.55 .18 29 / .3); }   /* the Fixed schedule lit look */
+.cm-pcap { font: 8px "DM Mono", monospace; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); white-space: nowrap;
+  text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
+.cm-pcol:has(.cm-pb.lit) .cm-pcap { color: #a8a8a8; }
+/* Templates + Announcements = the amp's knob, copied from .header .amp-knob-k (user, 2026-11-10: "regular amp knob"; they never light).
+   Pointer turns while its menu is open. ::before needs its own width/height: a tooltip rule zeroes ::before sizes. */
+.cm-knob { position: relative; box-sizing: border-box; width: 22px; height: 22px; margin: 6px 0 0; padding: 0; border: none; border-radius: 50%; cursor: pointer;
+  background: radial-gradient(circle at 40% 30%, #4a4a4a, #1c1c1c 60%, #0e0e0e); box-shadow: 0 2px 4px #000, inset 0 1px 0 rgba(255,255,255,.1); }
+.cm-knob::after { content: ""; position: absolute; left: 10px; top: 2px; width: 2px; height: 8px; border-radius: 1px; background: var(--muted); transform-origin: 1px 9px; transition: transform .2s; }
+.cm-knob::before { content: ""; position: absolute; left: -6px; top: -6px; width: 34px; height: 34px; pointer-events: none;
+  background: repeating-conic-gradient(from -136deg, #3e3e3e 0 3deg, transparent 3deg 27deg);
+  -webkit-mask: radial-gradient(circle, transparent 13px, #000 14px, #000 16px, transparent 17px), conic-gradient(from -137deg, #000 0 274deg, transparent 274deg); -webkit-mask-composite: source-in;
+  mask: radial-gradient(circle, transparent 13px, #000 14px, #000 16px, transparent 17px), conic-gradient(from -137deg, #000 0 274deg, transparent 274deg); mask-composite: intersect; }
+.cm-knob:hover::after { background: rgba(255,255,255,0.82); }
+.cm-knob:focus, .cm-knob:focus-visible { outline: none; }
+.tt-menu:has(> .cash-dd-list:not([hidden])) .cm-knob::after { transform: rotate(90deg); }
+.cm-pcol:has(.cm-knob) { gap: 9px; }   /* the amp's knob-to-caption gap */
 /* the Comms list's whites toned down (user, 2026-11-08: "left side whites"): names no brighter than --t-normal, previews faint (selected row keeps its grey) */
 #commsStuList .cm-conv .cm-conv-name, #commsStuList .cm-conv.cm-wait .cm-conv-name, #commsStuList .cm-conv.cm-sel .cm-conv-name { color: var(--t-normal); }
 #commsStuList .cm-conv .cm-conv-prev, #commsStuList .cm-conv.cm-wait .cm-conv-prev { color: var(--t-faint); }

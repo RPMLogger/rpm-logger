@@ -768,9 +768,11 @@ function commsEnsureExtras() {
   // One plain title like Today / Notes / To-Do (user, 2026-11-01): "Student
   // Phone Line", no grey "· …" part (was "Comms · Twilio line").
   var sub = document.querySelector("#commsBody .td-wk-title .win-sub");
+  // 2026-11-10: "Twilio" (was "Student Phone Line") with the number beside it in
+  // the grey engraved .win-sub, like every other title (was a line under it).
   if (sub) {
-    if (sub.previousSibling && sub.previousSibling.nodeType === 3) sub.previousSibling.textContent = "Student Phone Line";
-    sub.remove();
+    if (sub.previousSibling && sub.previousSibling.nodeType === 3) sub.previousSibling.textContent = "Twilio";
+    sub.textContent = " · (201) 904-4937";
   }
   // Unanswered sits last in the filter row (user, 2026-10-31).
   var unans = document.querySelector('.cm-f[data-filter="unresponded"]');
@@ -778,7 +780,7 @@ function commsEnsureExtras() {
   if (!document.getElementById("cmLineNo")) {
     var filters = document.querySelector("#commsBody .cm-filters");
     if (filters) filters.insertAdjacentHTML("beforebegin",
-      '<div class="cm-line-no" id="cmLineNo">(201) 904-4937</div><div class="cm-page-icon">' + COMMS_TEXT_ICON + '</div>');
+      '<div class="cm-page-icon" id="cmLineNo">' + COMMS_TEXT_ICON + '</div>');   // number moved into the title (2026-11-10)
   }
   // Students fill the page (user, 2026-11-01); Others (unknown numbers,
   // applicants, voicemails, scams) live in their own window behind a button in
@@ -830,16 +832,20 @@ function commsEnsureExtras() {
       // Templates (menu: Zoom lesson, No show, Optional schedule), Announcements (tabs/announce.js,
       // when loaded), Confirmations, Others (lit while one is unanswered).
       // The buttons moved into the box, top right beside the title, as plain portal buttons (user, 2026-11-08); the rack is gone.
-      var col = function (id, cap, click, tip, extra) {
-        var b = "<button class='link-btn' id='" + id + "' onclick='" + click + "' data-tip='" + tip + "'>" + cap + "</button>";
-        return extra ? "<span class='tt-menu' id='cmTplWrap'>" + b + extra + "</span>" : b;
+      // 2026-11-10: the caption under each (user: "this is a special window"). Templates and
+      // Announcements = the amp's knobs (they never light); Others = a square push button that lights red.
+      var col = function (id, cap, click, tip, extra, wrapId, knob) {
+        var btn = "<button class='" + (knob ? "cm-knob" : "cm-pb") + "' id='" + id + "' onclick='" + click + "' data-tip='" + tip + "'></button>";
+        var b = "<span class='cm-pcol'>" + btn +
+                "<span class='cm-pcap'>" + cap + "</span></span>";
+        return extra ? "<span class='tt-menu' id='" + (wrapId || "cmTplWrap") + "'>" + b + extra + "</span>" : b;
       };
       var rack = document.createElement("div");
       rack.className = "cm-box-btns";
       rack.innerHTML =
-            col("cmTplBtn", "Templates", "_ttMenu(event)", "Text templates: Zoom lesson,&#10;No show, Optional schedule.", "<span class='cash-dd-list' id='cmTplList' hidden></span>") +
-            (typeof annOpen === "function" ? col("commsAnnBtn", "Announcements", "annOpen()", "Opens a window.&#10;Text all students at once.") : "") +
-            (typeof annOpenConf === "function" ? col("commsAnnConfBtn", "Confirmations", "annOpenConf()", "Opens a window.&#10;Who confirmed an announcement, Nudge the rest.") : "") +
+            col("cmTplBtn", "Templates", "_ttMenu(event)", "Text templates: Zoom lesson,&#10;No show, Optional schedule.", "<span class='cash-dd-list' id='cmTplList' hidden></span>", "cmTplWrap", true) +
+            // One Announcements button, menu: New / Confirmations (user, 2026-11-10; were two buttons).
+            col("commsAnnBtn", "Announcements", "commsAnnMenu(event)", "New: text all students at once.&#10;Confirmations: who confirmed, Nudge the rest.", "<span class='cash-dd-list' hidden></span>", "cmAnnWrap", true) +
             col("commsOthersBtn", "Others <span id='commsOthersCount'>0</span>", "commsShowOthers(true)", "Opens a window.&#10;Unknown numbers, applicants,&#10;voicemails, scams.");
       box.appendChild(rack);
       box.appendChild(stu);
@@ -860,6 +866,22 @@ function commsEnsureExtras() {
       foot.insertAdjacentHTML("beforeend", '<button class="link-btn cm-send" id="cmSendBtn" onclick="commsSendReply()">Send</button>');
     }
   }
+}
+
+// Announcements ▾ menu: New / Confirmations. Reuses the Templates menu's
+// open/close (tabs/texttemplates.js _ttWrap, _ttMenuOut, _ttMenuClose).
+function commsAnnMenu(e) {
+  if (e) e.stopPropagation();
+  var w = document.getElementById("cmAnnWrap"), list = w ? w.querySelector(".cash-dd-list") : null;
+  if (!list) return;
+  if (!list.hidden) { _ttMenuClose(); return; }
+  _ttMenuClose();
+  _ttWrap = w;
+  list.innerHTML =
+    "<button type='button' class='cash-dd-opt' onclick='_ttMenuClose();annOpen()'>New</button>" +
+    "<button type='button' class='cash-dd-opt' onclick='_ttMenuClose();annOpenConf()'>Confirmations</button>";
+  list.hidden = false;
+  setTimeout(function () { document.addEventListener("mousedown", _ttMenuOut); }, 0);
 }
 
 // Texts from the RPM number and adds the "out" bubble locally. Used by the
