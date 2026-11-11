@@ -5271,8 +5271,14 @@ body:has(#tab-calendar.active, #tab-fixedcal.active) .home-rack,
 html body #tab-calendar .cal-bar.cr:not(.cal-bar2), html body #fcBody .cal-bar.cr:not(.fc-rack2) { border-bottom-color: transparent; }
 html body:has(#tab-calendar.active, #tab-fixedcal.active) .home-rack::after,
 html body #tab-calendar .cal-bar.cr:not(.cal-bar2)::after, html body #fcBody .cal-bar.cr:not(.fc-rack2)::after {
-  display: block; content: ""; position: absolute; left: 0; right: 0; top: auto; bottom: -3px; height: 3px; box-sizing: border-box;
-  border-top: 1px solid #2c2c2c; border-bottom: 1px solid #2c2c2c; background: none; pointer-events: none; }
+  display: block; content: ""; position: absolute; left: -1px; right: -1px; top: auto; bottom: -3px; height: 3px; box-sizing: border-box;
+  border-top: 1px solid #2c2c2c; border-bottom: 1px solid #2c2c2c; background: var(--rpm-box-bg, var(--box)); pointer-events: none; }
+/* outer line runs straight through each seam: the box reaches 2px past the bottom and only that bit is clipped */
+body:has(#tab-calendar.active, #tab-fixedcal.active) .home-rack::before,
+html body #tab-calendar .cal-bar.cr:not(.cal-bar2)::before, html body #fcBody .cal-bar.cr:not(.fc-rack2)::before { bottom: -5px; }
+/* the Calendar racks the Home rack's width so the side lines line up (were 752 vs 749: 1.5px out each side) */
+html body #tab-calendar #calBody > .cal-bar.cr { width: calc(100% - 11px); }
+/* ╠ join (user, 2026-11-10 sketch): the seam runs over the inner side line, so the inner line turns into the seam's lines and the side gap flows into the seam gap; the outer line runs straight down. */
 /* FEET STAND ON THE NEXT BORDER (user, 2026-11-09: "maybe legs sit on top of next border"): every gap under a unit with feet
    = the feet (14px between the outer rings) instead of 48px. Amp → rack, rack → tab box, Calendar / Fixed schedule bottom rack → week grid.
    Delete this block to undo. */
