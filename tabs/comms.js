@@ -744,10 +744,9 @@ function commsThreadHtml(detail) {
     var photos = commsInPhotos(m);
     // Their photo shows itself, so the "📎 Sent a photo" line goes; any words stay.
     if (photos.length) txt = /^📎 Sent (a photo|\d+ attachments \(photo\))$/m.test(txt) ? txt.replace(/\n?📎 Sent .*$/m, "").trim() : txt;
-    var noteable = m.source !== "out" && txt;   // their texts with words: a note button on hover (user, 2026-11-10)
+    var noteable = m.source !== "out" && txt;   // their texts with words: right-click → Add to notes (user, 2026-11-10; was a hover icon)
     return stamp + '<div class="cm-msg ' + (m.source === "out" ? "out" : "in") + (t ? " cm-has-tag" : "") + (img || file || photos.length ? " cm-has-img" : "") + '"' +
       (noteable ? ' data-note="' + commsEscape(txt) + '" data-when="' + d.getTime() + '"' : '') + '>' +
-      (noteable ? '<button type="button" class="cm-note-btn" onclick="commsNoteFrom(this)" data-tip="Instant.&#10;Opens a note for this student with the text in it." aria-label="Add to Student Notes">' + COMMS_NOTE_ICON + '</button>' : '') +
       (img ? '<a href="' + commsEscape(img.full) + '" target="_blank" rel="noopener"><img class="cm-img" src="' + commsEscape(img.src) + '" alt="Picture" referrerpolicy="no-referrer"></a>' : "") +
       photos.map(commsPhotoHtml).join("") +
       (file ? commsFileCard(file) : "") +
@@ -988,18 +987,46 @@ function commsMoreMenu(e) {
   setTimeout(function () { document.addEventListener("mousedown", _ttMenuOut); }, 0);
 }
 
-// A text worth remembering → Student Notes (user, 2026-11-10): the existing Take note window
-// (tabs/schednotes.js _snNewWin) opens for this person, the text and its date already in the note.
-var COMMS_NOTE_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>';
-function commsNoteFrom(btn) {
-  if (typeof _snNewWin !== "function") return;
-  var bub = btn.closest(".cm-msg"), d = commsPaneDetail || commsDetail || {};
-  var name = d.student || "";
-  var when = new Date(+bub.dataset.when);
-  _snNewWin(name, "comms");
-  var box = document.getElementById("snText"), who = document.getElementById("snWho");
-  if (who && !name) who.value = d.fromName || commsFormatPhone(d.fromNumber || "");
-  if (box) box.value = "Texted " + when.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + ": \u201c" + bub.dataset.note + "\u201d";
+// A text worth remembering → Student Notes (user, 2026-11-10/11): right-click a text → Add to notes, saved straight away.
+// Right-click one of their texts → a one-line menu, Add to notes (the conversation list's menu look).
+document.addEventListener("contextmenu", function (e) {
+  var bub = e.target.closest && e.target.closest(".cm-msg[data-note]");
+  if (!bub || !bub.closest("#commsBody, #commsDetailOverlay")) return;
+  e.preventDefault();
+  commsCloseConvMenu();
+  var menu = document.createElement("div");
+  menu.className = "cm-new-list cm-ctx";
+  menu.id = "cmCtx";
+  menu.innerHTML = '<button type="button" class="cm-new-opt"><span class="cm-ctx-arw">\u2192</span> Student Note</button>';
+  menu.style.left = e.clientX + "px";
+  menu.style.top = e.clientY + "px";
+  document.body.appendChild(menu);
+  menu.onclick = function () { commsCloseConvMenu(); commsNoteFrom(bub, e.clientX, e.clientY); };
+});
+function commsNoteFrom(bub, x, y) {
+  // Saved straight to Student Notes, no window (user, 2026-11-11): "(from text) <their text> · Nov 7" under their name.
+  var d = commsPaneDetail || commsDetail || {};
+  var name = d.student || d.fromName || commsFormatPhone(d.fromNumber || "");
+  var when = new Date(+bub.dataset.when).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  var note = "(from text) " + bub.dataset.note + " \u00b7 " + when;
+  var flash = function (msg) {
+    var f = document.createElement("div");
+    f.className = "cm-new-list cm-ctx cm-note-flash";
+    f.textContent = msg;
+    f.style.left = x + "px"; f.style.top = y + "px";
+    document.body.appendChild(f);
+    setTimeout(function () { f.remove(); }, 1400);
+  };
+  var url = getScriptUrl();
+  if (!url) { flash("Not saved: no portal link"); return; }
+  fetch(url + "?action=addSchedNote&name=" + encodeURIComponent(name) + "&note=" + encodeURIComponent(note) + "&week=&picks=&from=comms")
+    .then(function (r) { return r.json(); })
+    .then(function (r) {
+      if (!r.success) throw new Error(r.message || "not saved");
+      if (typeof _snNotes !== "undefined" && _snNotes) _snNotes.push({ row: r.row || -Date.now(), name: name, note: note, week: "", picks: "", created: "", from: "comms", closed: "", how: "" });
+      flash("Added to notes");
+    })
+    .catch(function (e) { flash("Not saved: " + ((e && e.message) || "no answer")); });
 }
 
 // Announcements ▾ menu: New / Confirmations. Reuses the Templates menu's
