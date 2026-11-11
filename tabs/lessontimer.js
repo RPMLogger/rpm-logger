@@ -47,12 +47,14 @@ function _ltmYmd(ms) {
 // The box (tabs/import.js puts it last on the student page).
 function ltmBoxHtml(name) {
   var cell = function (cls, v) { return '<span class="' + cls + '" data-v="' + v + '"></span>'; };
+  var arg = _auEsc(JSON.stringify(name));
+  var hot = function (v, ev) { return '<span class="ltm-v ltm-hot" data-v="' + v + '" on' + ev + '="ltmHit(' + arg + ',\'' + v + '\')"></span>'; };
   setTimeout(_ltmTick, 0);   // the numbers, once the box is on the page
   return '<div class="im-sec-box ltm-box" data-ltm-box="' + _auEsc(name) + '">' +
-    '<div class="db-cx-head im-sec-head"><label class="field-label db-cx-t">Lesson timer</label><span class="ltm-btns">' + _ltmBtns(name) + '</span></div>' +
+    '<div class="db-cx-head im-sec-head"><label class="field-label db-cx-t">Lesson timer</label></div>' +
     '<div class="ltm-grid">' +
       ['Chat', 'Lesson', 'Total'].map(function (h) { return '<span class="ltm-h">' + h + '</span>'; }).join('') +
-      cell('ltm-v', 'chat') + cell('ltm-v', 'teach') + cell('ltm-v', 'total') +
+      hot('chat', 'click') + hot('teach', 'click') + hot('total', 'dblclick') +
       ['Start', '', 'End'].map(function (h) { return '<span class="ltm-h ltm-h2">' + h + '</span>'; }).join('') +
       cell('ltm-t', 'start') + cell('ltm-t ltm-lbl', 'lbl') + cell('ltm-t', 'end') +
     '</div></div>';
@@ -78,13 +80,14 @@ function _ltmBtns(name) {
 // Every second: only the numbers change (buttons stay put, so a click is never lost).
 function _ltmTick() {
   var t = _ltmGet();
+  _ltmTopPaint(t);
   document.querySelectorAll('.ltm-box[data-ltm-box]').forEach(function (b) {
     var name = b.dataset.ltmBox, k = _ltmKey(name), run = t && t.key === k ? t : null, v = run || _ltmDone[k] || null;
     var s = v ? _ltmSums(v, Date.now()) : null, st = run ? _ltmStage(run) : '';
     var chat = s ? s.before + s.pause + s.after : 0, teach = s ? s.teach : 0;
     var lbl = !v ? (t ? 'Running for ' + t.name : '') :
       !run ? (v.failed ? 'NOT SAVED' : 'Saved') :
-      st === 'before' ? 'Chat before' : st === 'pause' ? 'Paused' : st === 'after' ? 'Chat after' :
+      st === 'before' ? 'Chat before' : st === 'pause' ? 'Chat' : st === 'after' ? 'Chat after' :
       teach >= LTM_LEN ? '+' + _ltmClock(teach - LTM_LEN) + ' over' : 'Teaching';
     var out = { chat: _ltmClock(chat), teach: _ltmClock(teach), total: _ltmClock(chat + teach),
                 start: v ? _ltmTime(v.marks[0].at) : '–', end: v && v.left ? _ltmTime(v.left) : '–', lbl: lbl };
@@ -93,6 +96,7 @@ function _ltmTick() {
       var f = el.dataset.v;
       el.textContent = out[f];
       if (f === 'teach') el.classList.toggle('ltm-warn', !!v);   // always amber, no colour change at 50 (user, 2026-11-02)
+      if (el.classList.contains('ltm-hot')) el.classList.toggle('ltm-dim', !!run && (f === 'chat' ? st === 'teach' : f === 'teach' ? st !== 'teach' : false));
       if (f === 'lbl') el.classList.toggle('ltm-fail', !run && !!v && !!v.failed);
     });
   });
@@ -128,11 +132,75 @@ function ltmCancel(name) {
   if (t && t.key === _ltmKey(name)) { _ltmPut(null); _ltmPaint(); }
 }
 
+// Hidden controls (2026-11-07): the numbers are the buttons, so students see no Play/Pause.
+//   Chat click   → chat runs (starts the visit, or pauses teaching)
+//   Lesson click → teaching runs; clicked while teaching → back to chat
+//   Total double-click → they left: saves (nothing taught = thrown away)
+// The last chat after teaching is saved as "after" (no End lesson button needed).
+function ltmHit(name, f) {
+  var t = _ltmGet(), k = _ltmKey(name);
+  if (t && t.key !== k) return;   // another student's timer is running
+  var st = t ? _ltmStage(t) : '';
+  if (f === 'chat') { if (!t) ltmStart(name); else if (st === 'teach') ltmPause(name); }
+  else if (f === 'teach') {
+    if (!t) { ltmStart(name); var n = _ltmGet(); n.marks[0].s = 'teach'; _ltmPut(n); _ltmPaint(); }   // straight into teaching
+    else _ltmMark(name, st === 'teach' ? 'pause' : 'teach');
+  }
+  else if (f === 'total' && t) {
+    if (t.marks.some(function (m) { return m.s === 'teach'; })) ltmLeft(name); else ltmCancel(name);
+  }
+}
+
+// Buttons at the top of the student page (user, 2026-11-10): plain icons, no labels, so students
+// don't know what I'm pressing. The box at the bottom shows the times.
+//   ▶   they entered the room (chat before starts)
+//   ▶▶  the lesson starts (or back to the lesson after a chat)
+//   ■   finished: saves (nothing taught = thrown away), same as Total double-click
+//   (■■ pause/end removed 2026-11-11, user)
+var LTM_TRI = function (x) { return '<path d="M' + x + ' 3.5v9L' + (x + 6.5) + ' 8z" fill="currentColor"/>'; };
+var LTM_SQ  = function (x) { return '<rect x="' + x + '" y="4.5" width="7" height="7" rx="1" fill="currentColor"/>'; };
+var LTM_IC = [
+  ['in',    '<svg viewBox="0 0 16 16" width="16" height="16">' + LTM_TRI(5) + '</svg>'],
+  ['teach', '<svg viewBox="0 0 22 16" width="22" height="16">' + LTM_TRI(3) + LTM_TRI(10) + '</svg>'],
+  ['left',  '<svg viewBox="0 0 16 16" width="16" height="16">' + LTM_SQ(4.5) + '</svg>']
+];
+function ltmTopHtml(name) {
+  var arg = _auEsc(JSON.stringify(name));
+  setTimeout(_ltmTick, 0);
+  return '<span class="ltm-top" data-ltm-top="' + _auEsc(name) + '">' + LTM_IC.map(function (b) {
+    return '<button class="ltm-ic" data-f="' + b[0] + '" onclick="ltmTop(' + arg + ',\'' + b[0] + '\')">' + b[1] + '</button>';
+  }).join('') + '<span class="ltm-top-n"></span></span>';
+}
+function ltmTop(name, f) {
+  var t = _ltmGet(), st = t ? _ltmStage(t) : '';
+  if (t && t.key !== _ltmKey(name)) return;   // another student's timer is running
+  if (f === 'in')    { if (!t) ltmStart(name); return; }
+  if (f === 'teach') {
+    if (!t) { ltmStart(name); var n = _ltmGet(); n.marks[0].s = 'teach'; _ltmPut(n); _ltmPaint(); }   // straight into the lesson
+    else if (st !== 'teach') _ltmMark(name, 'teach');
+    return;
+  }
+  if (f === 'end')   { if (st === 'teach' || st === 'pause') ltmEnd(name); return; }
+  if (f === 'left')  ltmHit(name, 'total');
+}
+function _ltmTopPaint(t) {
+  document.querySelectorAll('.ltm-top[data-ltm-top]').forEach(function (b) {
+    var k = _ltmKey(b.dataset.ltmTop), mine = !!t && t.key === k, st = mine ? _ltmStage(t) : '';
+    var on = { in: !t, teach: !t || (mine && st !== 'teach'), end: mine && (st === 'teach' || st === 'pause'), left: mine };
+    b.querySelectorAll('[data-f]').forEach(function (el) { el.disabled = !on[el.dataset.f]; });
+    // Small dim clock (user, 2026-11-11): ▶ counts the chat before, ▶▶ resets it to 0 and counts the lesson.
+    var n = b.querySelector('.ltm-top-n'), s = mine ? _ltmSums(t, Date.now()) : null;
+    if (n) n.textContent = !s ? '' : _ltmClock(st === 'before' ? s.before : s.teach);
+  });
+}
+
 // They left: the row goes to Lesson Times, the box keeps the visit showing.
 function ltmLeft(name) {
   var t = _ltmGet();
   if (!t || t.key !== _ltmKey(name)) return;
   t.left = Date.now();
+  var last = t.marks[t.marks.length - 1];
+  if (last.s === 'pause') last.s = 'after';   // chat after the last teaching = chat after
   var s = _ltmSums(t, t.left), r = function (x) { return Math.round(x); };
   var pauses = t.marks.filter(function (m) { return m.s === 'pause'; }).length;
   var q = '&name=' + encodeURIComponent(t.name) + '&day=' + _ltmYmd(t.marks[0].at) +

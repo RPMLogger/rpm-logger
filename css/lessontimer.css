@@ -9,7 +9,10 @@
 .ltm-t.ltm-lbl { font-size: 11px; color: var(--t-faint); align-self: center; }
 .ltm-box .ltm-warn { color: var(--warn); }
 .ltm-box .ltm-over, .ltm-box .ltm-fail { color: var(--accent); }
-.ltm-box-idle .ltm-v, .ltm-box-idle .ltm-t { color: var(--muted); }
+/* .ltm-box-idle no longer greys the numbers: bright all the time (user, 2026-11-09) */
+/* hidden controls (2026-11-07): the numbers are the buttons; the one not running is dimmed, no pointer */
+.ltm-hot { user-select: none; -webkit-user-select: none; transition: opacity .25s; }
+.ltm-box .ltm-dim { opacity: 1; }   /* no dimming, bright (user, 2026-11-09; was .35) */
 /* Goals bottom left of the History box, Show all on the right (user, 2026-11-02) */
 #importBody .td-student .im-hist-foot { display: flex; align-items: center; justify-content: center; margin-top: 44px; }   /* Show all alone, centred, more room under the last lesson (user, 2026-11-05; was 10px) */
 #importBody .im-goals-box .im-sec-head { margin-bottom: 0; }
@@ -18,3 +21,10 @@
 #importBody .im-goals-box .gl-none { margin-top: 18px; padding-left: 16px; }
 #importBody .im-split .im-row.im-empty .im-s { color: var(--t-faint); font-family: inherit; }   /* the empty lessons' dash as dim as their numbers (user, 2026-11-05) */
 #importBody .td-student .im-hist-foot > .im-more { margin: 0; }
+/* Play/Pause + Finish by the name at the top (user, 2026-11-09): plain icons, no label, so students don't know what they are */
+.ltm-top { display: inline-flex; gap: 10px; margin-left: 14px; vertical-align: middle; }
+.ltm-top .ltm-ic { background: none; border: 0; padding: 4px; color: var(--t-normal); cursor: pointer; display: inline-flex; line-height: 0; }
+.ltm-top .ltm-ic:hover:where(:not(:disabled)) { color: var(--warn); }
+.ltm-top .ltm-ic:disabled { opacity: .3; cursor: default; }   /* not this step yet */
+.ltm-top-n { align-self: center; font-size: 11px; color: var(--t-normal); opacity: .35; font-variant-numeric: tabular-nums; }   /* dim lesson clock after ▶▶ */
+.ltm-top-n:empty { display: none; }
