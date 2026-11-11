@@ -1859,6 +1859,8 @@ a:focus-visible,
 #tab-guitartypes .gt-menu button { display: block; width: 100%; text-align: left; background: transparent; border: none; padding: 6px 12px; font: inherit; text-transform: uppercase; letter-spacing: 1px; color: var(--t-normal); cursor: pointer; }
 #tab-guitartypes .gt-menu button:hover { background: rgba(255,255,255,0.05); color: var(--t-bright); }
 #tab-guitartypes .gt-menu button.on { color: var(--accent); }
+#tab-guitartypes #guitarTypesBody .ld-card { overflow: visible; }   /* the card clipped the last rows' menus (user 2026-11-11) */
+#tab-guitartypes .gt-menu.up { top: auto; bottom: calc(100% + 4px); }   /* opens upward when there's no room below */
 #tab-holidays .hol-sub { font-family: "Bebas Neue", sans-serif; font-size: 13px; letter-spacing: 1.5px; line-height: 1.2; color: var(--accent); padding: 16px 0 6px; border-bottom: 1px solid rgba(255,255,255,0.04); }   /* a group's heading inside its box (Very high impact, Fall …) */
 #tab-holidays .ld-row:has(+ .hol-sub) { border-bottom: none; }   /* no faint line right above a heading */
 #tab-holidays .hol-note { color: var(--t-faint); }   /* the note after the dot, the labels' dark grey */

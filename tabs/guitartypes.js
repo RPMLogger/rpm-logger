@@ -71,6 +71,7 @@ function _gtOpen(e, btn) {
     m.appendChild(o);
   });
   drop.appendChild(m);
+  if (m.getBoundingClientRect().bottom > window.innerHeight - 8) m.classList.add('up');   // no room below: open upward
 }
 document.addEventListener('click', function (e) { if (!e.target.closest || !e.target.closest('.gt-drop')) _gtClose(); });
 
