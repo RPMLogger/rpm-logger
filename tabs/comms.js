@@ -1026,24 +1026,23 @@ function commsNoteFrom(bub, x, y) {
   var name = d.student || d.fromName || commsFormatPhone(d.fromNumber || "");
   var when = new Date(+bub.dataset.when).toLocaleDateString("en-US", { month: "short", day: "numeric" });
   var note = "(from text) " + bub.dataset.note + " \u00b7 " + when;
-  var flash = function (msg, ok) {
-    var f = document.createElement("div");
-    f.className = "cm-new-list cm-ctx cm-note-flash";
-    f.innerHTML = (ok ? '<span class="cm-note-ok">\u2713</span> ' : "") + commsEscape(msg);   // a check when it saved (user, 2026-11-11)
-    f.style.left = x + "px"; f.style.top = y + "px";
-    document.body.appendChild(f);
-    setTimeout(function () { f.remove(); }, ok ? 1800 : 3000);
-  };
+  // Plain white "Sending…" where you clicked, gone when it's saved (user, 2026-11-11; was a box with ✓ Added to notes).
+  var f = document.createElement("div");
+  f.className = "cm-note-flash";
+  f.textContent = "Sending\u2026";
+  f.style.left = x + "px"; f.style.top = y + "px";
+  document.body.appendChild(f);
+  var fail = function (msg) { f.textContent = "Not saved: " + msg; f.classList.add("bad"); setTimeout(function () { f.remove(); }, 3000); };
   var url = getScriptUrl();
-  if (!url) { flash("Not saved: no portal link"); return; }
+  if (!url) { fail("no portal link"); return; }
   fetch(url + "?action=addSchedNote&name=" + encodeURIComponent(name) + "&note=" + encodeURIComponent(note) + "&week=&picks=&from=comms")
     .then(function (r) { return r.json(); })
     .then(function (r) {
       if (!r.success) throw new Error(r.message || "not saved");
       if (typeof _snNotes !== "undefined" && _snNotes) _snNotes.push({ row: r.row || -Date.now(), name: name, note: note, week: "", picks: "", created: "", from: "comms", closed: "", how: "" });
-      flash("Added to notes", true);
+      f.remove();
     })
-    .catch(function (e) { flash("Not saved: " + ((e && e.message) || "no answer")); });
+    .catch(function (e) { fail((e && e.message) || "no answer"); });
 }
 
 // Announcements ▾ menu: New / Confirmations. Reuses the Templates menu's
