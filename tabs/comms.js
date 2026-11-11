@@ -1026,13 +1026,13 @@ function commsNoteFrom(bub, x, y) {
   var name = d.student || d.fromName || commsFormatPhone(d.fromNumber || "");
   var when = new Date(+bub.dataset.when).toLocaleDateString("en-US", { month: "short", day: "numeric" });
   var note = "(from text) " + bub.dataset.note + " \u00b7 " + when;
-  var flash = function (msg) {
+  var flash = function (msg, ok) {
     var f = document.createElement("div");
     f.className = "cm-new-list cm-ctx cm-note-flash";
-    f.textContent = msg;
+    f.innerHTML = (ok ? '<span class="cm-note-ok">\u2713</span> ' : "") + commsEscape(msg);   // a check when it saved (user, 2026-11-11)
     f.style.left = x + "px"; f.style.top = y + "px";
     document.body.appendChild(f);
-    setTimeout(function () { f.remove(); }, 1400);
+    setTimeout(function () { f.remove(); }, ok ? 1800 : 3000);
   };
   var url = getScriptUrl();
   if (!url) { flash("Not saved: no portal link"); return; }
@@ -1041,7 +1041,7 @@ function commsNoteFrom(bub, x, y) {
     .then(function (r) {
       if (!r.success) throw new Error(r.message || "not saved");
       if (typeof _snNotes !== "undefined" && _snNotes) _snNotes.push({ row: r.row || -Date.now(), name: name, note: note, week: "", picks: "", created: "", from: "comms", closed: "", how: "" });
-      flash("Added to notes");
+      flash("Added to notes", true);
     })
     .catch(function (e) { flash("Not saved: " + ((e && e.message) || "no answer")); });
 }
