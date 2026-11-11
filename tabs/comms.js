@@ -744,7 +744,10 @@ function commsThreadHtml(detail) {
     var photos = commsInPhotos(m);
     // Their photo shows itself, so the "📎 Sent a photo" line goes; any words stay.
     if (photos.length) txt = /^📎 Sent (a photo|\d+ attachments \(photo\))$/m.test(txt) ? txt.replace(/\n?📎 Sent .*$/m, "").trim() : txt;
-    return stamp + '<div class="cm-msg ' + (m.source === "out" ? "out" : "in") + (t ? " cm-has-tag" : "") + (img || file || photos.length ? " cm-has-img" : "") + '">' +
+    var noteable = m.source !== "out" && txt;   // their texts with words: a note button on hover (user, 2026-11-10)
+    return stamp + '<div class="cm-msg ' + (m.source === "out" ? "out" : "in") + (t ? " cm-has-tag" : "") + (img || file || photos.length ? " cm-has-img" : "") + '"' +
+      (noteable ? ' data-note="' + commsEscape(txt) + '" data-when="' + d.getTime() + '"' : '') + '>' +
+      (noteable ? '<button type="button" class="cm-note-btn" onclick="commsNoteFrom(this)" data-tip="Instant.&#10;Opens a note for this student with the text in it." aria-label="Add to Student Notes">' + COMMS_NOTE_ICON + '</button>' : '') +
       (img ? '<a href="' + commsEscape(img.full) + '" target="_blank" rel="noopener"><img class="cm-img" src="' + commsEscape(img.src) + '" alt="Picture" referrerpolicy="no-referrer"></a>' : "") +
       photos.map(commsPhotoHtml).join("") +
       (file ? commsFileCard(file) : "") +
@@ -983,6 +986,20 @@ function commsMoreMenu(e) {
     "<button type='button' class='cash-dd-opt' onclick='_ttMenuClose();commsShowOthers(true)'>Others</button>";
   list.hidden = false;
   setTimeout(function () { document.addEventListener("mousedown", _ttMenuOut); }, 0);
+}
+
+// A text worth remembering → Student Notes (user, 2026-11-10): the existing Take note window
+// (tabs/schednotes.js _snNewWin) opens for this person, the text and its date already in the note.
+var COMMS_NOTE_ICON = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>';
+function commsNoteFrom(btn) {
+  if (typeof _snNewWin !== "function") return;
+  var bub = btn.closest(".cm-msg"), d = commsPaneDetail || commsDetail || {};
+  var name = d.student || "";
+  var when = new Date(+bub.dataset.when);
+  _snNewWin(name, "comms");
+  var box = document.getElementById("snText"), who = document.getElementById("snWho");
+  if (who && !name) who.value = d.fromName || commsFormatPhone(d.fromNumber || "");
+  if (box) box.value = "Texted " + when.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + ": \u201c" + bub.dataset.note + "\u201d";
 }
 
 // Announcements ▾ menu: New / Confirmations. Reuses the Templates menu's
