@@ -5251,6 +5251,9 @@ html body #tab-calendar .cal-bar.cr::before, html body #fcBody .cal-bar.cr::befo
 body:has(#tab-calendar.active, #tab-fixedcal.active) .home-rack::before { border-radius: 11px 11px 0 0; clip-path: inset(0 0 5px 0); }
 html body #tab-calendar .cal-bar.cr:not(.cal-bar2)::before, html body #fcBody .cal-bar.cr:not(.fc-rack2)::before { top: -5px; border-radius: 0; clip-path: inset(5px 0 5px 0); }
 html body #tab-calendar .cal-bar.cr.cal-bar2::before, html body #fcBody .cal-bar.cr.fc-rack2::before { top: -5px; border-radius: 0 0 11px 11px; clip-path: inset(5px 0 0 0); }
+/* Thick double seam between stacked racks (user, 2026-11-10: "thick but double"; was 1px solid). Delete to undo. */
+body:has(#tab-calendar.active, #tab-fixedcal.active) .home-rack,
+html body #tab-calendar .cal-bar.cr:not(.cal-bar2), html body #fcBody .cal-bar.cr:not(.fc-rack2) { border-bottom: 5px double #2c2c2c; }
 /* FEET STAND ON THE NEXT BORDER (user, 2026-11-09: "maybe legs sit on top of next border"): every gap under a unit with feet
    = the feet (14px between the outer rings) instead of 48px. Amp → rack, rack → tab box, Calendar / Fixed schedule bottom rack → week grid.
    Delete this block to undo. */
