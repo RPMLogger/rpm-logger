@@ -196,6 +196,28 @@ function _imClose() { _imUndock(); _imOpen = null; _imLast = null; _imRoster ? _
 
 var _imLast = null;   // { name, lessons } of the open student, for re-sorting
 
+// Picture in the student card from Data ▾ Guitar Types (_gtData, tabs/guitartypes.js).
+// Hidden until the type is known so the electric never flashes before the acoustic.
+var _imGtLoading = null;
+function _imGuitarArt(img, name) {
+  if (!img) return;
+  function apply() {
+    var k = String(name || '').trim().toLowerCase();
+    var s = (_gtData || []).filter(function (x) { return String(x.name).trim().toLowerCase() === k; })[0];
+    if (s && s.type === 'Acoustic') img.src = 'img/student-acoustic.svg';
+    img.style.visibility = '';
+  }
+  if (typeof _gtData === 'undefined') return;
+  if (_gtData) return apply();
+  img.style.visibility = 'hidden';
+  var url = typeof _gtUrl === 'function' ? _gtUrl() : '';
+  if (!url) return apply();
+  _imGtLoading = _imGtLoading || fetch(url + '?action=getGuitarTypes').then(function (r) { return r.json(); })
+    .then(function (d) { if (d && d.success && !_gtData) _gtData = d.students || []; })
+    .catch(function () {}).then(function () { _imGtLoading = null; });
+  _imGtLoading.then(apply);
+}
+
 // lessons arrive newest first, dates without a year ("Sep /30"). Walking down
 // that list, a month later than the one above it means the year went back one.
 // Then blocks of 4, 1 2 3 4 inside each, as the sheet lays them out; empty
@@ -239,6 +261,7 @@ function _imRenderStudent(name, lessons) {
       var snb = acts.querySelector('.sn-note-btn');
       if (snb) { var snr = document.createElement('div'); snr.className = 'sn-note-under'; snr.appendChild(snb); card.appendChild(snr); }   // ＋ Note on its own row under the name; Not logged stays centred on the name's line (user, 2026-11-10)
       card.insertAdjacentHTML('beforeend', '<img class="im-head-art" src="img/student-guitar.svg" alt="" aria-hidden="true">');   // the red guitar in the card's empty middle (user, 2026-11-11)
+      _imGuitarArt(card.querySelector('.im-head-art'), name);   // Acoustic → acoustic guitar; Electric / Both / not set → red electric (user, 2026-11-11)
       // Goals bottom left of the History box, on Show all's row (user, 2026-11-02).
       var gl = acts.querySelector('.gl-btn');
       var hist = [].filter.call(st.querySelectorAll(':scope > .im-sec-box'), function (b) { return /^history$/i.test((b.querySelector('.db-cx-t') || {}).textContent || ''); })[0];
