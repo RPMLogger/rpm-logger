@@ -4929,8 +4929,8 @@ html body #commsBody .cm-box { box-shadow: none; }   /* the panes box: one borde
    the two panes, the box's own border is the conversation's border, the panes fill it. */
 html body #commsBody .cm-box { padding: 0; overflow: hidden; display: flex; flex-direction: column; }   /* it grows to the page bottom (rpm-fill); the panes grow with it */
 html body #commsBody .cm-box > .td-bolt { display: none; }
-html body #commsBody .cm-box > .cm-stu { margin: 0; flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
-html body #commsBody .cm-box .cm-msgr { border: none; border-radius: 0; flex: 1 1 0; height: auto; }   /* fills the box (was its own screen-height calc) */
+html body #commsBody .cm-box > .cm-stu { margin: 0; flex: 1 0 auto; display: flex; flex-direction: column; }   /* never shrinks below the panes (1 1 0 collapsed the box to nothing on a big screen, b1292) */
+html body #commsBody .cm-box .cm-msgr { border: none; border-radius: 0; flex: 1 0 auto; }   /* fills the box (was its own screen-height calc) */
 /* A top bar like Messages (user, 2026-11-10: "top part can be menu, like iMessage"): Edit + compose on the list side,
    To: on the conversation side, one height and one shade across both, a line under it; Search sits under the bar. */
 html body #commsBody .cm-box .cm-msgr-list { padding: 0; }
