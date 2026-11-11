@@ -1400,11 +1400,11 @@ var _TR_STEPS = [
   { key: 'hw',    label: 'Send HW',    lesson: true, required: true }
 ];
 // From 2026-10-23 Log lesson is the regular Log lesson window (Lesson + HW,
-// then Materials; no Schedule), and the Trial Recap email is its own step.
+// then Materials, then the Trial Recap email; no Schedule). Since 2026-11-11 the
+// email is part of step 8, not its own step 9: it was the same window anyway.
 // A trial logged the old way (Lesson Log, no HW Log) keeps Log lesson + Send HW.
 var _TR_LESSON_NEW = [
-  { key: 'log',   label: 'Log lesson', lesson: true, required: true },
-  { key: 'mail',  label: 'Email',      lesson: true, required: true }
+  { key: 'log',   label: 'Log lesson', lesson: true, required: true }
 ];
 function _trOldLog(s) { s = s || {}; return _trFilled(s.whatWeDid) && !_trFilled(s.hwLog); }
 function _trSteps(a) {
@@ -1449,13 +1449,16 @@ function _trStepState(a) {
     setup: !!s.setupSent,
     setupSent: !!s.setupSent
   };
-  // The new Log lesson is done once the lesson, its HW and the materials are all in.
-  if (!_trOldLog(s)) st.log = st.log && _trFilled(s.hwLog) && st.hw;
+  // The new Log lesson is done once the lesson, its HW, the materials AND the
+  // Trial Recap email are all in (the email is the window's last page).
+  var logIn = st.log && _trFilled(s.hwLog) && st.hw;
+  if (!_trOldLog(s)) st.log = logIn && st.mail;
   st.missing = _trSteps(a).filter(function (x) { return (!x.lesson || x.required) && !st[x.key]; })
     .map(function (x) {
       // The button labels are steps, not reasons. Say what is actually missing.
       if (x.key === 'terms') return 'Terms not sent';
       if (x.key === 'setup') return 'Documents not sent';
+      if (x.key === 'log' && !_trOldLog(s) && logIn) return 'Trial recap not sent';
       return x.label;
     });
   // Terms back is not a step (it happens on its own), but Make student still
@@ -1488,7 +1491,7 @@ function _trStepsHtml(a) {
   // One numbered list, split across two columns rather than two lists that
   // each start at 1. The lesson steps used to number themselves 1 and 2 beside
   // a left column that ran 1 to 7, which read as two separate checklists when
-  // it is one: nine steps, five then four.
+  // it is one: eight steps, five then three.
   var steps = _trSteps(a);
   var all = steps.filter(function (x) { return !x.lesson; })
               .concat(steps.filter(function (x) { return x.lesson; }));
@@ -2309,8 +2312,11 @@ function _tlDropbox() {
       var up = document.getElementById('tlUpload');
       if (up) up.innerHTML = _tlUploadHtml(a.name);
       // Shared, but the sheet did not record it: do not create it again.
+      // That warning keeps the window open; otherwise it closes, like Info's Save
+      // (user, 2026-11-11). The card's Dropbox step ticks.
       if (!d.stamped) _tlHalf('tlDbxMsg', 'Shared, not ticked on the sheet',
         'The folder was made and shared, but the sheet did not record it. Do not create it again.');
+      else _tlClose();
     })
     .catch(function () {
       if (!_tl) return;

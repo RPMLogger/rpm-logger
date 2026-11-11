@@ -5314,7 +5314,7 @@ html body #tab-calendar #calBody > .cal-bar2.cr, html body #fcBody > .cal-bar.cr
 #imLogWin .im-mail-dark textarea.im-ml-box { background: #0f0f0f; border-color: #2a2a2a; }
 #imLogWin .im-mail-box img { content: url(../img/portal-logo-grey.png); filter: brightness(.9) saturate(.8); }   /* the amp header logo (grey white, dimmed), in the portal preview only; the email itself keeps email-logo.png (user, 2026-11-09) */
 #imLogWin #imMailDark hr { display: none; }   /* no divider lines in the email preview (user, 2026-11-09) */
-#imLogWin .st-win.im-log-wide .im-page[data-pg="4"] #imMailRedo { position: absolute; top: 50px; right: 242px; margin: 0; }   /* Start over level with "Hi …", right edge; only the button moves, Send keeps its spot (user, 2026-11-09) */
+#imLogWin .st-win.im-log-wide .im-page[data-pg="4"] #imMailRedo { position: absolute; top: -26px; right: 242px; margin: 0; }   /* Start over right under Send, 8px gap (user, 2026-11-11; was level with "Hi …", top 50px); was: right edge; only the button moves, Send keeps its spot (user, 2026-11-09) */
 #imLogWin #imMailRedo { box-shadow: none; }   /* no lift (user, 2026-11-09) */
 #imLogWin .im-page[data-pg="1"] .im-sub-head ~ .im-sub-head { margin-top: 28px; }   /* page 1 tighter, like page 2 (user, 2026-11-09; was 40px) */
 #imLogWin#imLogWin .im-words .im-pill, #imLogWin#imLogWin .im-words { font-size: 9px; }   /* the starter words smaller (user, 2026-11-09; were 10px) */

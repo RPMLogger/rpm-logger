@@ -1236,7 +1236,7 @@ function _imPagesRender(w, done, hasHw) {
   w.pgMax = Math.max(w.pgMax || 0, at);   // the furthest page reached: → lights only behind it
   // The page's name in the window title, red (user, 2026-10-30): no heading on the page.
   var sub = c.root.querySelector('.settings-title .win-sub');
-  if (sub) sub.textContent = ' · ' + ({ 1: 'Log Lesson & Homework', 2: 'Recorded on Their Side', 5: 'Links', 6: 'Practice Materials', 3: 'Change Appointment', 4: 'Email the Student' })[w.page];
+  if (sub) sub.textContent = ' · ' + ({ 1: 'Log Lesson & Homework', 2: 'Recorded on Their Side', 5: 'Links', 6: 'Practice Materials', 3: 'Change Appointment', 4: 'Lesson Recap Email' })[w.page];
   Array.prototype.forEach.call(c.root.querySelectorAll('.im-page'), function (el) {
     el.style.display = +el.getAttribute('data-pg') === w.page ? '' : 'none';
   });
@@ -1269,7 +1269,7 @@ function _imPagesRender(w, done, hasHw) {
 function _imStepsSide(w, list, done) {
   var el = _imQ('imStepsCol');
   if (!el) return;
-  var names = { 1: 'Log lesson & homework', 6: 'Practice materials', 3: 'Change appointment', 4: 'Email the student' };
+  var names = { 1: 'Log lesson & homework', 6: 'Practice materials', 3: 'Change appointment', 4: 'Lesson recap email' };
   el.innerHTML = '<div class="db-cx-head im-sub-head"><label class="field-label db-cx-t im-sub-t">Steps</label></div>' +
     list.map(function (p, i) {
       var cls = p === w.page ? ' on' : done[p] ? ' done' : '';
@@ -2101,7 +2101,7 @@ function _imDoHtml(name, day) {
     // The email (user, 2026-10-30, Initiate's Compose look): written from the log,
     // each part editable here (the sheet keeps the log as it is); Preview if
     // wanted, Send; Start over writes it from the log again.
-    _imMainHead('<span id="imMailNum">4.</span> Email the student') +
+    _imMainHead('<span id="imMailNum">4.</span> Lesson recap email') +
     '<div class="im-main-box im-mail-box" id="imMailBox">' +
       '<div class="im-mail-to"><div class="td-mini-row"><span class="td-mini-t">To:</span><span class="td-wk-name" id="imMailToShow">…</span></div>' +
         '<div class="td-mini-row"><span class="td-mini-t">Sbj:</span><span class="td-wk-name" id="imMailSbj"></span></div></div>' +
