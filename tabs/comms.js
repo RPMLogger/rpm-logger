@@ -834,7 +834,7 @@ function commsEnsureExtras() {
               // Screenshots (user, 2026-11-01): +, paste (⌘V) or drop a picture on the conversation.
               '<button class="cm-attach" data-tip="Opens elsewhere.\nPick a picture or PDF to send." aria-label="Add a picture or PDF" onclick="document.getElementById(\'cmPaneFile\').click()">+</button>' +
               '<input type="file" id="cmPaneFile" accept="image/*,application/pdf" hidden onchange="commsPickImage(this.files[0]); this.value=\'\'">' +
-              '<textarea class="cm-reply" id="cmPaneReply" rows="1" placeholder="Text message · RPM number" ' +
+              '<textarea class="cm-reply" id="cmPaneReply" rows="1" placeholder="Message" ' +
               'onpaste="commsPasteImage(event)" ' +
               'onkeydown="if (event.key === \'Enter\' && !event.shiftKey) { event.preventDefault(); commsPaneSend(); }"></textarea>' +
               '<button class="link-btn cm-send" id="cmPaneSend" onclick="commsPaneSend()">Send</button></div>' +
