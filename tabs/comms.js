@@ -1066,11 +1066,12 @@ document.addEventListener("keydown", function (e) {
   if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
   if (typeof commsOnTab !== "function" || !commsOnTab()) return;
   var t = e.target;
-  if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+  // Opening a conversation puts the cursor in the reply box: an EMPTY reply box still lets ↑ / ↓ move the list.
+  var emptyReply = t && t.id === "cmPaneReply" && !t.value;
+  if (t && !emptyReply && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
   var rows = Array.prototype.slice.call(document.querySelectorAll("#commsStuList .cm-conv:not(.cm-newmsg)"));
   var cur = rows.findIndex(function (r) { return r.classList.contains("cm-sel"); });
-  if (cur < 0) return;
-  var next = rows[cur + (e.key === "ArrowDown" ? 1 : -1)];
+  var next = cur < 0 ? (e.key === "ArrowDown" ? rows[0] : null) : rows[cur + (e.key === "ArrowDown" ? 1 : -1)];   // none open yet: ↓ opens the first
   if (!next) return;
   e.preventDefault();
   next.click();
