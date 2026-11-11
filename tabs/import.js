@@ -238,6 +238,7 @@ function _imRenderStudent(name, lessons) {
       card.appendChild(acts);
       var snb = acts.querySelector('.sn-note-btn');
       if (snb) { var snr = document.createElement('div'); snr.className = 'sn-note-under'; snr.appendChild(snb); card.appendChild(snr); }   // ＋ Note on its own row under the name; Not logged stays centred on the name's line (user, 2026-11-10)
+      card.insertAdjacentHTML('beforeend', '<img class="im-head-art" src="img/student-guitar.svg" alt="" aria-hidden="true">');   // the red guitar in the card's empty middle (user, 2026-11-11)
       // Goals bottom left of the History box, on Show all's row (user, 2026-11-02).
       var gl = acts.querySelector('.gl-btn');
       var hist = [].filter.call(st.querySelectorAll(':scope > .im-sec-box'), function (b) { return /^history$/i.test((b.querySelector('.db-cx-t') || {}).textContent || ''); })[0];
