@@ -4952,8 +4952,10 @@ html body #commsBody .cm-box .cm-msgr:not(.cm-loading) .cm-msgr-head[style*="hid
 html body #commsBody .cm-conv:not(.cm-picked) .cm-pick { border-color: #464646; }   /* Edit's tick boxes dimmer (user, 2026-11-10: "too bright"; were --muted) */
 html body #commsBody .cm-headbox .cm-pcap { font-weight: 500; color: #6e6e6e; }   /* the rack captions' weight + grey (user, 2026-11-10; were 400 / --muted) */
 html body #commsBody .cm-headbox .cm-pcol:has(.lit) .cm-pcap { color: #a8a8a8; }   /* Others still brightens while one waits */
-.cm-note-flash { position: fixed; z-index: 9999; font: 600 9px -apple-system, "Helvetica Neue", Arial, sans-serif; color: #fff; pointer-events: none; text-shadow: 0 1px 2px #000; }   /* plain white "Sending…", no box (user, 2026-11-11) */
-.cm-note-flash.bad { color: var(--accent); }
+.cm-ctx .cm-new-opt:disabled { color: var(--muted); cursor: default; }   /* Sending… / Already in Student Notes */
+.cm-ctx .cm-new-opt.cm-ctx-bad { color: var(--accent); }
+/* A text already in Student Notes: a thin amber border round the bubble (user, 2026-11-11; tried an icon beside it, then a green dot). */
+html body .cm-msg.in.cm-noted { border-color: #9a7836; }   /* amber, 1px, no glow, dimmer (user, 2026-11-11: "not that thick", "not that bright"; was #d4a54a) */
 html body .cm-ctx { min-width: 0; width: auto; padding: 3px 0; }
 html body .cm-ctx .cm-new-opt { font-size: 9px; padding: 5px 12px; }   /* right-click menus (Add to notes, Mark answered, Archive) sized like the pane text (user, 2026-11-11: "too big") */
 .cm-ctx-arw { font-size: 18px; line-height: 0; vertical-align: -2px; margin-right: 3px; }   /* the → bigger than the words (user, 2026-11-11) */

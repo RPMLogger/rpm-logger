@@ -310,6 +310,7 @@ function commsPaintPane(jump) {
   if (!d) { th.innerHTML = '<div class="cm-none cm-thread-empty">Pick a conversation, or start one with New text.</div>'; return; }
   var atBottom = th.scrollHeight - th.scrollTop - th.clientHeight < 40;
   th.innerHTML = commsThreadHtml(d);
+  commsMarkNoted(th);   // a mark on texts already in Student Notes (user, 2026-11-11)
   if (jump || atBottom) commsStickBottom(th);
   commsLoadPhotos(th);
 }
@@ -778,6 +779,7 @@ function renderCommsThread() {
   var el = document.getElementById("cmThread");
   if (!el || !commsDetail) return;
   el.innerHTML = commsThreadHtml(commsDetail);
+  commsMarkNoted(el);   // a mark on texts already in Student Notes (user, 2026-11-11)
   commsStickBottom(el);
   commsLoadPhotos(el);
 }
@@ -877,6 +879,7 @@ function commsEnsureExtras() {
       head.innerHTML = '<span class="hr-bolt" style="left:10px"></span><span class="hr-bolt" style="right:10px"></span>';   // the rack's screws: one each side, centred (user, 2026-11-10)
       [box.querySelector(".td-wk-title"), document.getElementById("cmLineNo"), rack, box.querySelector(".cm-scope")].forEach(function (n) { if (n) head.appendChild(n); });
       box.parentNode.insertBefore(head, box);
+      if (typeof _snLoad === "function" && typeof _snNotes !== "undefined" && !_snNotes) _snLoad(function () { commsMarkNoted(); });   // Student Notes, so a text already noted is not saved twice
       // A ⋯ button where EDIT was (user, 2026-11-10): press it for a menu (Edit, Others). EDIT shows again only as Done while editing.
       var lt = stu.querySelector(".cm-list-top");
       if (lt) lt.insertAdjacentHTML("afterbegin", '<span class="tt-menu cm-more" id="cmMoreWrap"><button type="button" class="cm-more-btn" onclick="commsMoreMenu(event)" aria-label="More">\u22ef</button><span class="cash-dd-list" hidden></span></span>');
@@ -1018,32 +1021,64 @@ document.addEventListener("contextmenu", function (e) {
   menu.style.left = e.clientX + "px";
   menu.style.top = e.clientY + "px";
   document.body.appendChild(menu);
-  menu.onclick = function () { commsCloseConvMenu(); commsNoteFrom(bub, e.clientX, e.clientY); };
+  // Click = the menu closes; the note mark on the bubble is the only sign it saved (user, 2026-11-11: no Sending…).
+  // Already in Student Notes → nothing is saved twice.
+  menu.onclick = function (ev) {
+    ev.stopPropagation();
+    menu.remove();
+    if (!commsNoted(bub)) commsNoteFrom(bub);
+  };
 });
-function commsNoteFrom(bub, x, y) {
-  // Saved straight to Student Notes, no window (user, 2026-11-11): "(from text) <their text> · Nov 7" under their name.
+// The note text for a bubble: "(from text) <their text> · Nov 7", under the student's name.
+function commsNoteOf(bub) {
   var d = commsPaneDetail || commsDetail || {};
   var name = d.student || d.fromName || commsFormatPhone(d.fromNumber || "");
   var when = new Date(+bub.dataset.when).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  var note = "(from text) " + bub.dataset.note + " \u00b7 " + when;
-  // Plain white "Sending…" where you clicked, gone when it's saved (user, 2026-11-11; was a box with ✓ Added to notes).
-  var f = document.createElement("div");
-  f.className = "cm-note-flash";
-  f.textContent = "Sending\u2026";
-  f.style.left = x + "px"; f.style.top = y + "px";
-  document.body.appendChild(f);
-  var fail = function (msg) { f.textContent = "Not saved: " + msg; f.classList.add("bad"); setTimeout(function () { f.remove(); }, 3000); };
-  var url = getScriptUrl();
-  if (!url) { fail("no portal link"); return; }
-  fetch(url + "?action=addSchedNote&name=" + encodeURIComponent(name) + "&note=" + encodeURIComponent(note) + "&week=&picks=&from=comms")
+  return { name: name, note: "(from text) " + bub.dataset.note + " \u00b7 " + when };
+}
+// The mark: .cm-noted on every bubble already in Student Notes. Run after each thread draw, after the
+// notes arrive, and after a save.
+function commsMarkNoted(root) {
+  (root || document).querySelectorAll(".cm-msg[data-note]").forEach(function (b) { b.classList.toggle("cm-noted", commsNoted(b)); });
+}
+// Already sent: a Student Notes row with the same name + note (notes read once, tabs/schednotes.js _snLoad).
+function commsNoted(bub) {
+  if (typeof _snNotes === "undefined" || !_snNotes) return false;
+  var n = commsNoteOf(bub);
+  return _snNotes.some(function (x) { return x.name === n.name && x.note === n.note; });
+}
+function commsNoteFrom(bub) {
+  // Saved straight to Student Notes (user, 2026-11-11). No message either way: the mark appears when it
+  // saved; no mark = it didn't.
+  var n = commsNoteOf(bub), url = getScriptUrl();
+  if (!url) return;
+  fetch(url + "?action=addSchedNote&name=" + encodeURIComponent(n.name) + "&note=" + encodeURIComponent(n.note) + "&week=&picks=&from=comms")
     .then(function (r) { return r.json(); })
     .then(function (r) {
-      if (!r.success) throw new Error(r.message || "not saved");
-      if (typeof _snNotes !== "undefined" && _snNotes) _snNotes.push({ row: r.row || -Date.now(), name: name, note: note, week: "", picks: "", created: "", from: "comms", closed: "", how: "" });
-      f.remove();
+      if (!r.success) return;
+      if (typeof _snNotes !== "undefined") { if (!_snNotes) _snNotes = []; _snNotes.push({ row: r.row || -Date.now(), name: n.name, note: n.note, week: "", picks: "", created: "", from: "comms", closed: "", how: "" }); }
+      bub.classList.add("cm-noted");
     })
-    .catch(function (e) { fail((e && e.message) || "no answer"); });
+    .catch(function () {});
 }
+// 2. ↑ / ↓ move through the conversation list once one is open (user, 2026-11-11). Not while typing.
+document.addEventListener("keydown", function (e) {
+  if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+  if (typeof commsOnTab !== "function" || !commsOnTab()) return;
+  var t = e.target;
+  if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+  var rows = Array.prototype.slice.call(document.querySelectorAll("#commsStuList .cm-conv:not(.cm-newmsg)"));
+  var cur = rows.findIndex(function (r) { return r.classList.contains("cm-sel"); });
+  if (cur < 0) return;
+  var next = rows[cur + (e.key === "ArrowDown" ? 1 : -1)];
+  if (!next) return;
+  e.preventDefault();
+  next.click();
+  setTimeout(function () {
+    var sel = document.querySelector("#commsStuList .cm-conv.cm-sel");
+    if (sel) sel.scrollIntoView({ block: "nearest" });
+  }, 0);
+});
 
 // Announcements ▾ menu: New / Confirmations. Reuses the Templates menu's
 // open/close (tabs/texttemplates.js _ttWrap, _ttMenuOut, _ttMenuClose).
