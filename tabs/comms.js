@@ -22,6 +22,7 @@ var commsSelected = {};       // sheet row → true
 // ── Entry point (called from switchTab) ─────────────────────────────────────
 function initCommsTab() {
   commsEnsureExtras();
+  if (!(typeof rpmNav !== "undefined" && rpmNav.restoring)) commsShowOthers(false);   // the tab opens on Students; Back puts Others back itself
   setCommsFilter(commsFilter);   // paint the filter row to match the live filter
   loadCommsInbox();
 }
@@ -286,6 +287,7 @@ function commsDeleteConv(p) {
 
 function commsPaneOpen(detail) {
   commsPaneDetail = detail;
+  if (detail && !detail.blank) commsPaneMark();   // opening it = read: the red dot goes (user, 2026-11-11)
   renderCommsStudents();
   commsPaintPane(true);
   var box = document.getElementById("cmPaneReply");
@@ -471,9 +473,24 @@ function commsPaintNewText() {
   });
 }
 
-function commsShowOthers(on) {
-  var w = document.getElementById("commsOthersOverlay");
-  if (w) w.classList.toggle("open", on);
+// Others page on/off. nav = true when a button asked (records a Back step); the Back
+// history itself and opening the tab call it with nav false.
+function commsShowOthers(on, nav) {
+  var box = document.querySelector("#commsBody .cm-box");
+  if (!box) return;
+  var was = box.classList.contains("cm-on-others");
+  if (nav && was && on) on = false;           // the knob again on the Others page = back to Students
+  if (nav && was && !on) { rpmBack(); return; }
+  box.classList.toggle("cm-on-others", on);
+  var sub = document.querySelector("#commsBody .cm-headbox .win-sub");
+  if (sub) {   // the title's grey part: the phone icon, plus "· Others" on this page
+    var o = sub.querySelector(".cm-title-oth");
+    if (on && !o) sub.insertAdjacentHTML("beforeend", '<span class="cm-title-oth"> &middot; Others</span>');
+    if (!on && o) o.remove();
+  }
+  var k = document.getElementById("commsOthersBtn");
+  if (k) k.classList.toggle("pressed", on);
+  if (on && nav && typeof rpmNavGo === "function") rpmNavGo("comms", { kind: "commsOthers" });
 }
 
 function commsToggleNewText(e) {
@@ -548,7 +565,7 @@ function commsDeleteSelected() {
     danger: true
   }).then(function (ok) {
     if (!ok) return;
-    var box = document.querySelector(".cm-oth-win"), btn = document.getElementById("commsDeleteBtn");
+    var box = document.getElementById("commsOthersPage"), btn = document.getElementById("commsDeleteBtn");
     rpmBusy(box, btn, true, "Deleting");
     fetch(getScriptUrl() + "?action=deleteCommsRows&rows=" + rows.join(","))
       .then(function (r) { return r.json(); })
@@ -592,7 +609,7 @@ function openCommsDetail(msg) {
   renderCommsThread();
   var box = document.getElementById("cmReply");
   box.value = "";
-  commsPaintResponded();
+  toggleCommsResponded();   // opening it = read: the red dot goes, no Mark answered button (user, 2026-11-11)
   document.getElementById("commsDetailOverlay").classList.add("open");
   box.focus();
 }
@@ -820,16 +837,16 @@ function commsEnsureExtras() {
               'onkeydown="if (event.key === \'Enter\' && !event.shiftKey) { event.preventDefault(); commsPaneSend(); }"></textarea>' +
               '<button class="link-btn cm-send" id="cmPaneSend" onclick="commsPaneSend()">Send</button></div>' +
           '</div></div>';
+      // Others = its own page inside Comms (user, 2026-11-11; was a window): it takes the panes' place
+      // in the box; the header ← (or the Others knob again) goes back to Students.
       var win = document.createElement("div");
-      win.className = "im-notes-back cm-win-back";
-      win.id = "commsOthersOverlay";
-      win.onclick = function (e) { if (e.target === win) commsShowOthers(false); };
-      win.innerHTML = '<div class="td-student cm-win cm-oth-win"><div class="settings-title im-title"><span>Others</span>' +
-        '<span class="cm-oth-acts"></span></div></div>';
-      var body = win.firstChild, acts = body.querySelector(".cm-oth-acts");
+      win.className = "cm-oth-page";
+      win.id = "commsOthersPage";
+      win.innerHTML = '<div class="cm-oth-top"><span class="cm-oth-name">Others</span><span class="cm-oth-acts"></span></div>' +
+        '<div class="cm-oth-body"></div>';
+      var body = win.querySelector(".cm-oth-body"), acts = win.querySelector(".cm-oth-acts");
       var edit = document.getElementById("commsEditToggle");
       if (edit) acts.appendChild(edit);
-      acts.insertAdjacentHTML("beforeend", '<button class="settings-close" onclick="commsShowOthers(false)">✕</button>');
       [box.querySelector(".cm-filters"), document.getElementById("commsEditBar"),
        box.querySelector("hr.td-rule-top"), inbox].forEach(function (n) { if (n) body.appendChild(n); });
       // Templates (menu: Zoom lesson, No show, Optional schedule), Announcements (tabs/announce.js,
@@ -849,7 +866,7 @@ function commsEnsureExtras() {
             col("cmTplBtn", "Templates", "_ttMenu(event)", "Text templates: Zoom lesson,&#10;No show, Optional schedule.", "<span class='cash-dd-list' id='cmTplList' hidden></span>", "cmTplWrap", true) +
             // One Announcements button, menu: New / Confirmations (user, 2026-11-10; were two buttons).
             col("commsAnnBtn", "Announcements", "commsAnnMenu(event)", "New: text all students at once.&#10;Confirmations: who confirmed, Nudge the rest.", "<span class='cash-dd-list' hidden></span>", "cmAnnWrap", true) +
-            col("commsOthersBtn", "Others <span id='commsOthersCount'>0</span>", "commsShowOthers(true)", "Opens a window.&#10;Unknown numbers, applicants,&#10;voicemails, scams.", null, null, true);   // a knob too (user, 2026-11-10); glows gold while one waits, like the amp knobs
+            col("commsOthersBtn", "Others <span id='commsOthersCount'>0</span>", "commsShowOthers(true, true)", "Opens the Others page.&#10;Unknown numbers, applicants,&#10;voicemails, scams.", null, null, true);   // a knob too (user, 2026-11-10); glows gold while one waits, like the amp knobs
       box.appendChild(rack);
       box.insertAdjacentHTML("beforeend", commsScopeSvg());   // the green phase scope, VU-meter size (user, 2026-11-10)
       box.appendChild(stu);
@@ -863,7 +880,7 @@ function commsEnsureExtras() {
       // A ⋯ button where EDIT was (user, 2026-11-10): press it for a menu (Edit, Others). EDIT shows again only as Done while editing.
       var lt = stu.querySelector(".cm-list-top");
       if (lt) lt.insertAdjacentHTML("afterbegin", '<span class="tt-menu cm-more" id="cmMoreWrap"><button type="button" class="cm-more-btn" onclick="commsMoreMenu(event)" aria-label="More">\u22ef</button><span class="cash-dd-list" hidden></span></span>');
-      detail.parentNode.insertBefore(win, detail);   // the conversation window opens on top of it
+      box.appendChild(win);
     }
   }
   if (commsFilter === "students") commsFilter = "all";
@@ -982,7 +999,7 @@ function commsMoreMenu(e) {
   _ttWrap = w;
   list.innerHTML =
     (typeof commsStuToggleEdit === "function" ? "<button type='button' class='cash-dd-opt' onclick='_ttMenuClose();commsStuToggleEdit()'>Edit</button>" : "") +
-    "<button type='button' class='cash-dd-opt' onclick='_ttMenuClose();commsShowOthers(true)'>Others</button>";
+    "<button type='button' class='cash-dd-opt' onclick='_ttMenuClose();commsShowOthers(true, true)'>Others</button>";
   list.hidden = false;
   setTimeout(function () { document.addEventListener("mousedown", _ttMenuOut); }, 0);
 }
@@ -1091,8 +1108,7 @@ function commsOpenInThread(detail) {
 function commsPaintResponded() {
   var b = document.getElementById("commsRespondedBtn");
   if (!b) return;
-  b.textContent = "Mark answered";
-  b.style.display = commsOpenInThread().length ? "" : "none";
+  b.style.display = "none";   // gone: opening a conversation marks it (user, 2026-11-11)
 }
 
 // Twilio recording URLs need Basic Auth, so we can't point <audio> at them

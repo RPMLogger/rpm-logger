@@ -5324,3 +5324,14 @@ html body .header .amp-power.off::before { background: linear-gradient(#2a1513, 
 /* No under Recorded on their side? (user, 2026-11-10): a word like None, lit once picked */
 #imLogWin .im-pills.im-rec-none { margin-top: -12px; }
 #imLogWin .im-pills.im-words .im-pill.done, #imLogWin .im-pills.im-words .im-pill.done:hover:where(:not(:disabled)) { color: var(--t-normal); }
+
+/* Others = a page inside Comms (user, 2026-11-11; was a window): it takes the panes' place in the box. */
+html body #commsBody .cm-box:not(.cm-on-others) > .cm-oth-page { display: none; }
+html body #commsBody .cm-box.cm-on-others > .cm-stu { display: none; }
+html body #commsBody .cm-box > .cm-oth-page { flex: 1 0 auto; display: flex; flex-direction: column; min-height: max(420px, calc(calc(var(--vh) * 100) - 513px)); }
+html body #commsBody .cm-oth-top { box-sizing: border-box; height: 48px; min-height: 48px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px 0 18px; background: #151515; border-bottom: 1px solid var(--border); }
+html body #commsBody .cm-oth-name { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: var(--t-normal); }
+html body #commsBody .cm-oth-body { padding: 14px 20px 22px; }
+html body #commsBody .cm-oth-page .cm-filters { justify-content: flex-start; margin-top: 0; }
+html body #commsBody .cm-oth-page .field-label { display: block; margin: 0 0 8px; }

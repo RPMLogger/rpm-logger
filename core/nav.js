@@ -69,6 +69,7 @@ window.addEventListener('popstate', function (e) {
     rpmNav.idx = s.idx;
     switchTab(s.tab);
     if (s.page && s.page.kind === 'imStudent' && typeof _imOpenStudent === 'function') _imOpenStudent(s.page.name);
+    else if (s.tab === 'comms' && typeof commsShowOthers === 'function') commsShowOthers(!!(s.page && s.page.kind === 'commsOthers'));
     else if (s.tab === 'import' && typeof _imOpen !== 'undefined' && _imOpen && typeof _imClose === 'function') _imClose();
   } finally { rpmNav.restoring = false; }
   _navCurrent = s;
