@@ -5066,6 +5066,8 @@ html body .header .hdr-mag { right: 95.5px; }
 /* Jacks smaller (22 → 18px) + darker (user, 2026-11-08: "maybe smaller and darker"); still centred on the knob faces, 16px from Home. Delete to undo. */
 html body .header .amp-jacks { width: 18px; height: 42px; top: 97.5px; }
 html body .header .amp-jack { width: 18px; height: 18px; background: linear-gradient(160deg, #5e5e5e, #333 45%, #1f1f1f 70%, #4a4a4a); }
+/* Rack screen text = the amp knob captions' size, both lines (user, 2026-11-11; was 10px / 8.5px). Delete to undo. */
+.home-rack .hr-lcd, .home-rack .hr-lcd small { font-size: 8px; letter-spacing: 1.2px; }
 html body .header .amp-jack::before { inset: 3px; background: radial-gradient(circle at 40% 35%, #7a7a7a, #3e3e3e 55%, #1a1a1a); }
 html body .header .amp-jack::after { inset: 5.5px; }
 html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) { right: 57.5px; }
