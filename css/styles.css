@@ -4947,8 +4947,8 @@ html body #commsBody .cm-list-top:not(.editing) #cmStuEdit { display: none; }
 html body #commsBody .cm-list-top.editing .cm-more { display: none; }
 /* The bar and its line run the full width even before a conversation is picked (user, 2026-11-10: "a divider all the way through, 3 distinct sections"):
    comms.js hides the head (inline visibility) until a click; the bar stays, only its contents hide. */
-html body #commsBody .cm-box .cm-msgr-head { visibility: visible !important; }
-html body #commsBody .cm-box .cm-msgr-head[style*="hidden"] > * { visibility: hidden; }
+html body #commsBody .cm-box .cm-msgr:not(.cm-loading) .cm-msgr-head { visibility: visible !important; }   /* not while loading: the whole box stays hidden till it's ready (fix 2026-11-11) */
+html body #commsBody .cm-box .cm-msgr:not(.cm-loading) .cm-msgr-head[style*="hidden"] > * { visibility: hidden; }
 html body #commsBody .cm-conv:not(.cm-picked) .cm-pick { border-color: #464646; }   /* Edit's tick boxes dimmer (user, 2026-11-10: "too bright"; were --muted) */
 html body #commsBody .cm-headbox .cm-pcap { font-weight: 500; color: #6e6e6e; }   /* the rack captions' weight + grey (user, 2026-11-10; were 400 / --muted) */
 html body #commsBody .cm-headbox .cm-pcol:has(.lit) .cm-pcap { color: #a8a8a8; }   /* Others still brightens while one waits */
