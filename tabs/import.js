@@ -384,7 +384,7 @@ function _imStuBox() { return _imQ('imStuRows'); }
 var IM_PILLS = {
   log:   ['Covered', 'Practiced', 'Looked at', 'Went over', 'Talked about', 'We played', 'Started', 'Introduced', 'Improved', 'Reviewed'],   // last five: user, 2026-10-30
   hw:    ['Go over', 'Practice', 'Play', 'Review', 'Speed up', 'Try to', 'Look at'],   // Try to: user, 2026-10-31 · Look at: user, 2026-11-02
-  notes: ['Make sure', 'What matters', 'None'],   // What matters + None: user, 2026-11-10
+  notes: ['None', 'Make sure', 'What matters'],   // What matters + None: user, 2026-11-10 · None first, as a bordered pill (user, 2026-11-12)
   teach: ['None']   // user, 2026-11-10: the notes boxes need something in them, None says there's nothing
 };
 // "None" in a notes box means empty: never saved after TEACHER:, never emailed.
@@ -474,7 +474,8 @@ function _imPillsWire() {
     var d = document.createElement('div');
     d.className = 'im-pills im-words';   // plain words with dashes between, lit on hover (user, 2026-11-02; were chips)
     // each word keeps its dash with it, so a new line never starts with a dash (user, 2026-11-09)
-    d.innerHTML = x[1].map(function (t, i, a) { return '<span class="im-word-grp"><button type="button" class="im-pill">' + t + '</button>' + (i < a.length - 1 ? '<span class="im-word-sep">–</span>' : '') + '</span>'; }).join('');
+    // None first, in a border with no dash after it, so it reads apart from the starters (user, 2026-11-12)
+    d.innerHTML = x[1].map(function (t, i, a) { var no = t === 'None'; return '<span class="im-word-grp"><button type="button" class="im-pill' + (no ? ' im-pill-none' : '') + '">' + t + '</button>' + (!no && i < a.length - 1 ? '<span class="im-word-sep">–</span>' : '') + '</span>'; }).join('');
     d.onmousedown = function (e) { e.preventDefault(); };   // the row keeps its cursor
     d.onclick = function (e) { if (e.target.classList.contains('im-pill')) _imPillPut(box, e.target.textContent); };
     wrap.after(d);
