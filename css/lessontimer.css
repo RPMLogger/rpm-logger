@@ -22,7 +22,7 @@
 #importBody .im-split .im-row.im-empty .im-s { color: var(--t-faint); font-family: inherit; }   /* the empty lessons' dash as dim as their numbers (user, 2026-11-05) */
 #importBody .td-student .im-hist-foot > .im-more { margin: 0; }
 /* Play/Pause + Finish by the name at the top (user, 2026-11-09): plain icons, no label, so students don't know what they are */
-.ltm-top { display: inline-flex; gap: 10px; margin-left: 14px; vertical-align: middle; }
+.ltm-top { display: inline-flex; align-items: center; gap: 10px; margin-left: 14px; vertical-align: middle; height: 37px; box-sizing: border-box; padding: 4px 12px; border: 1px solid rgba(122,122,122,.22); border-radius: 7px; box-shadow: 0 3px 10px rgba(0,0,0,.25); }   /* in a box like the Log button (user, 2026-11-12) */
 .ltm-top .ltm-ic { background: none; border: 0; padding: 4px; color: var(--t-normal); cursor: pointer; display: inline-flex; line-height: 0; }
 .ltm-top .ltm-ic:hover:where(:not(:disabled)) { color: var(--warn); }
 .ltm-top .ltm-ic:disabled { opacity: .3; cursor: default; }   /* not this step yet */

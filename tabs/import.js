@@ -294,7 +294,8 @@ function _imRenderStudent(name, lessons) {
       hwBox.parentNode.insertBefore(matBox, hwBox.nextSibling);
     }
     if (typeof glBtnHtml === 'function') st.insertAdjacentHTML('beforeend', _imGoalsBoxHtml(name));   // Goals plate above the timer (user, 2026-11-05)
-    if (typeof ltmBoxHtml === 'function') st.insertAdjacentHTML('beforeend', ltmBoxHtml(name));   // Chat / Lesson / Total at the very bottom (tabs/lessontimer.js, 2026-11-02; under Goals, user 2026-11-05)
+    // Lesson timer box removed (user, 2026-11-12): the icons by the name + small clock are the timer now
+    // if (typeof ltmBoxHtml === 'function') st.insertAdjacentHTML('beforeend', ltmBoxHtml(name));   // Chat / Lesson / Total at the very bottom (tabs/lessontimer.js, 2026-11-02; under Goals, user 2026-11-05)
     // Screws on every plate, Today's (user, 2026-11-05). The name card + History read as one plate: two on top, two at the bottom.
     var hc = st.querySelector(':scope > .im-head-card');
     [].forEach.call(st.querySelectorAll(':scope > :is(.im-head-card, .im-sec-box)'), function (b) {

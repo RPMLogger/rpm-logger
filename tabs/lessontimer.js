@@ -12,6 +12,7 @@
 
 var LTM_KEY = 'lessonTimer';
 var LTM_LEN = 50 * 60;   // seconds of teaching
+var LTM_MAX = 75 * 60 * 1000;   // 75 min after ▶ the timer finishes on its own (user, 2026-11-12)
 var _ltmDone = {};   // student key → the visit just saved { marks, left, failed }, until the page is left
 
 function _ltmKey(n) { return String(n || '').trim().toLowerCase().replace(/\s+/g, ' '); }
@@ -80,6 +81,10 @@ function _ltmBtns(name) {
 // Every second: only the numbers change (buttons stay put, so a click is never lost).
 function _ltmTick() {
   var t = _ltmGet();
+  if (t && Date.now() - t.marks[0].at >= LTM_MAX) {   // forgot ■: finish it at the 75-minute mark
+    if (t.marks.some(function (m) { return m.s === 'teach'; })) ltmLeft(t.name, t.marks[0].at + LTM_MAX); else ltmCancel(t.name);
+    return;
+  }
   _ltmTopPaint(t);
   document.querySelectorAll('.ltm-box[data-ltm-box]').forEach(function (b) {
     var name = b.dataset.ltmBox, k = _ltmKey(name), run = t && t.key === k ? t : null, v = run || _ltmDone[k] || null;
@@ -195,10 +200,10 @@ function _ltmTopPaint(t) {
 }
 
 // They left: the row goes to Lesson Times, the box keeps the visit showing.
-function ltmLeft(name) {
+function ltmLeft(name, at) {
   var t = _ltmGet();
   if (!t || t.key !== _ltmKey(name)) return;
-  t.left = Date.now();
+  t.left = at || Date.now();
   var last = t.marks[t.marks.length - 1];
   if (last.s === 'pause') last.s = 'after';   // chat after the last teaching = chat after
   var s = _ltmSums(t, t.left), r = function (x) { return Math.round(x); };
