@@ -5424,7 +5424,9 @@ html body #commsBody .cm-title-icon { opacity: .45; filter: drop-shadow(0 -1px 0
 #imLogWin#imLogWin .im-pills.im-words .im-pill.im-pill-none { border: 1px solid var(--t-faint); border-radius: 999px; padding: 3px 10px; margin-right: 14px; }
 #imLogWin#imLogWin .im-pills.im-words .im-pill.im-pill-none:hover:where(:not(:disabled)) { border-color: var(--t-text); }
 /* Link boxes: None on the add icon's line, right under the box (user, 2026-11-12) */
-#imLogWin .lh-link-add:has(.im-link-none) { flex-direction: row; flex-wrap: wrap; align-items: center; }
+#imLogWin .lh-link-add:has(.im-link-none) { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; }
 #imLogWin .lh-link-add:has(.im-link-none) > input { flex: 0 0 100%; }
 #imLogWin .lh-link-add > .im-pills.im-link-none { float: none; width: auto; margin: 10px 0 0; padding: 0; }
-#imLogWin .lh-link-add:has(.im-link-none) > .im-link-add { margin-left: auto; }
+#imLogWin .lh-link-add:has(.im-link-none) > .im-link-add { margin-left: auto; }   /* the plus on the right of None (user, 2026-11-12; flow-root at :has(> .im-pills) had dropped it a line) */
+#imLogWin#imLogWin :is(.ll-add, .im-link-add) { color: var(--t-faint); }   /* every plus dimmer (user, 2026-11-12) */
+#imLogWin#imLogWin :is(.ll-add, .im-link-add):hover:where(:not(:disabled)) { color: var(--text); }

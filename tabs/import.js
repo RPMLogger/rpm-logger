@@ -2124,7 +2124,7 @@ function _imDoHtml(name, day) {
         '<button type="button" class="link-btn im-rec-btn" id="imRecZoom" onclick="_imRecPick(\'zoom\')" data-tip="Instant.&#10;They recorded the lesson on Zoom, their side.&#10;The email says so. Again: not recorded." data-tip-left>Zoom</button>' +
       '</div>' +
       // None as a word under the question, like under the link boxes (user, 2026-11-10); lit once picked
-      '<div class="im-pills im-words im-rec-none"><span class="im-word-grp"><button type="button" class="im-pill" id="imRecNo" onmousedown="event.preventDefault()" onclick="_imRecPick(\'no\')">None</button></span></div>' +
+      '<div class="im-pills im-words im-rec-none"><span class="im-word-grp"><button type="button" class="im-pill im-pill-none" id="imRecNo" onmousedown="event.preventDefault()" onclick="_imRecPick(\'no\')">None</button></span></div>' +
       '</div>' +
       '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn amber" id="imMatDoneBtn" onclick="_imMatDone()">Done</button></div>' +
     '</div>' +
