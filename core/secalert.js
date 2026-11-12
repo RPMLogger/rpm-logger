@@ -87,7 +87,7 @@ function _secAlertDismiss(row, night) {
     "#secAlert{display:none;align-items:center;gap:14px;flex-wrap:wrap;margin-right:auto;" +
       "padding:12px 16px;border:1px solid var(--accent);border-radius:8px;background:color-mix(in srgb, var(--accent) 12%, transparent)}" +
     "#secAlert+span{white-space:nowrap}" +
-    "#secAlert .sa-head{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--accent)}" +
+    "#secAlert .sa-head{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;color:var(--accent)}" +
     "#secAlert .sa-text{font-size:12px;color:var(--text)}" +
     "#secAlert .sa-btn{padding:6px 14px;font-size:12px;background:transparent;color:var(--text);" +
       "border:1px solid var(--text);border-radius:4px;cursor:pointer;font-family:inherit}";

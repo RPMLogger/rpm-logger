@@ -142,7 +142,7 @@ body #tab-calendar .cal-inner, body #tab-calendar .cal-bar   /* the Calendar's c
 }
 .settings-title {
   font-family: "Bebas Neue", sans-serif; font-size: 20px;
-  color: var(--accent); letter-spacing: 2px; margin-bottom: 16px;
+  color: var(--accent); letter-spacing: 1.5px; margin-bottom: 16px;
   display: flex; align-items: center; justify-content: space-between;
 }
 /* Every modal's close button, portal wide. The user's om-10.svg - a disc with
@@ -190,7 +190,7 @@ body #tab-calendar .cal-inner, body #tab-calendar .cal-bar   /* the Calendar's c
 /* A value shown under a field-label that cannot be edited: plain text in the
    field's own face, no box. */
 .field-text { font-family: Arial, sans-serif; font-size: 12px; color: var(--t-normal); padding: 2px 1px 0; }
-.settings-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
+.settings-label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
 .settings-input {
   width: 100%; background: var(--surface2); border: 1px solid var(--border);
   border-radius: 4px; padding: 9px 13px; color: var(--muted);
@@ -201,7 +201,7 @@ body #tab-calendar .cal-inner, body #tab-calendar .cal-bar   /* the Calendar's c
 .btn-settings-load {
   width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 4px;
   background: transparent; color: var(--muted); font-family: "DM Mono", monospace;
-  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
   cursor: pointer; transition: all 0.2s;
 }
 .btn-settings-load:hover:where(:not(:disabled)) { border-color: var(--accent2); color: var(--accent2); }
@@ -258,7 +258,7 @@ body.sb-open .tabs { transform: none; }
 .nav-toggle.active,
 .nav-toggle:hover:where(:not(:disabled)) {
   pointer-events: none; background: none; color: var(--t-faint);
-  font-size: 9px; letter-spacing: 2px; padding: 18px 10px 6px;
+  font-size: 9px; letter-spacing: 1px; padding: 18px 10px 6px;
 }
 .nav-toggle.has-new::after { display: none; }   /* the tabs under it carry their own dots */
 
@@ -266,7 +266,7 @@ body.sb-open .tabs { transform: none; }
 .tabs .sb-h { margin-top: 37px; position: relative; overflow: visible; }
 .tabs .sb-h::before {
   content: attr(data-h); position: absolute; right: 10px; top: -19px;
-  font-size: 9px; letter-spacing: 2px; color: var(--t-faint); pointer-events: none;
+  font-size: 9px; letter-spacing: 1px; color: var(--t-faint); pointer-events: none;
 }
 
 /* Coming Soon stays a flyout at the bottom */
@@ -366,12 +366,12 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 }
 .sheet-link:hover:where(:not(:disabled)) { background: #1c1c1c; }
 .sheet-name {
-  font-family: "Bebas Neue", sans-serif; font-size: 22px; letter-spacing: 1px;
+  font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1.5px;
   color: var(--text, #fff); line-height: 1.05;
 }
 .sheet-sub {
   display: block; font-family: "DM Mono", monospace; font-size: 10px;
-  letter-spacing: .5px; color: var(--muted, #777); margin-top: 3px;
+  letter-spacing: 0; color: var(--muted, #777); margin-top: 3px;
 }
 .sheet-arrow { color: var(--muted, #777); font-size: 18px; }
 
@@ -380,13 +380,13 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
    from a finished block to the next label. A label belongs to what follows
    it, so it sits nearer to that than to what came before, but the page is
    meant to breathe: the 32 is a real rest between sections, not a hairline. */
-.section-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+.section-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
 .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 .empty-state { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 11px; line-height: 2; }
 /* Every loading state in the portal: the dot ring, then the word. Nothing
    else says "loading" anywhere, so the shape alone is enough to recognise. */
 .rpm-loading { display: flex; align-items: center; justify-content: center; gap: 9px; line-height: 1;
-  text-transform: uppercase; letter-spacing: 1.5px; font-size: 10px !important; }   /* LOADING, SAVING, GATHERING DATA: all caps everywhere (user, 2026-10-23); 10px, a bit smaller (user, 2026-10-24) */
+  text-transform: uppercase; letter-spacing: 1px; font-size: 10px !important; }   /* LOADING, SAVING, GATHERING DATA: all caps everywhere (user, 2026-10-23); 10px, a bit smaller (user, 2026-10-24) */
 .rpm-loading:not(:empty)::after { content: "..."; margin-left: -8px; }   /* every waiting word ends in three dots (user, 2026-10-24); the margin undoes the ring's gap */
 .rpm-loading::before {
   content: ""; width: 16px; height: 16px; flex: none;
@@ -434,7 +434,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   border: 1px solid var(--border); border-radius: 6px;
   background: var(--surface); color: var(--muted);
   font-family: "DM Mono", monospace; font-size: 10px;
-  letter-spacing: 2px; text-transform: uppercase;
+  letter-spacing: 1px; text-transform: uppercase;
   cursor: pointer; transition: all 0.2s;
 }
 .refresh-btn:hover:where(:not(:disabled)) { border-color: var(--muted); color: var(--text); }
@@ -470,7 +470,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .btn-log {
   flex: 1; padding: 11px; border: none; border-radius: 4px;
   background: var(--accent); color: white; font-family: "DM Mono", monospace;
-  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
   cursor: pointer; transition: all 0.2s;
 }
 .btn-log:hover:where(:not(:disabled)) { background: #d63d32; }
@@ -505,11 +505,11 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .past-student-btn {
   padding: 16px 14px; border: 1.5px solid var(--border); border-radius: 10px;
   background: var(--surface); color: var(--text); font-family: "Syne", sans-serif;
-  font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: left; line-height: 1.3;
+  font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: left; line-height: 1.3;
 }
 .past-student-btn:hover:where(:not(:disabled))      { border-color: var(--accent2); background: color-mix(in srgb, var(--accent2) 5%, transparent); }
 .past-student-btn.active-past { border-color: var(--accent2); background: color-mix(in srgb, var(--accent2) 8%, transparent); }
-.past-header { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: none; }
+.past-header { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: none; }
 .past-header span { color: var(--accent2); }
 .past-lessons-list { display: flex; flex-direction: column; gap: 4px; }
 .past-row {
@@ -533,19 +533,19 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;
 }
-.week-bar-label  { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px; }
+.week-bar-label  { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
 .week-bar-counts { font-family: "DM Mono", monospace; font-size: 14px; font-weight: 500; color: var(--muted); }
 .week-bar-counts span { color: var(--muted); }
 .week-bar-right  { font-size: 10px; color: var(--muted); }
 .week-day-group  { margin-bottom: 14px; }
-.week-day-label  { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; padding-left: 2px; }
+.week-day-label  { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; padding-left: 2px; }
 .week-day-pills  { display: flex; flex-wrap: wrap; gap: 7px; }
 
 /* ─── GENERAL ─────────────────────────────────────────────────────────────── */
 .general-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
 .stat-card    { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-.stat-label   { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-.stat-value   { font-family: "DM Mono", monospace !important; font-size: 36px; font-weight: 500; color: var(--text); }
+.stat-label   { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.stat-value   { font-family: "DM Mono", monospace !important; font-size: 32px; font-weight: 500; color: var(--text); }
 .stat-value.c-accent { color: var(--accent);  }
 .stat-value.c-gold   { color: var(--accent2); }
 .stat-value.c-blue   { color: var(--blue);    }
@@ -557,7 +557,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .load-label  { font-size: 10px; color: var(--muted); letter-spacing: 1px; font-family: "DM Mono", monospace; }
 .load-value  { font-family: "DM Mono", monospace; font-size: 12px; font-weight: 500; color: var(--text); }
 .load-row.highlight .load-label { color: var(--accent2); }
-.load-row.highlight .load-value { color: var(--accent2); font-size: 13px; }
+.load-row.highlight .load-value { color: var(--accent2); font-size: 14px; }
 .load-row.income .load-value    { color: var(--green); }
 /* Availability tab: Terminate's cards (2026-10-22) */
 #availabilityList { margin-top: 32px; }
@@ -581,17 +581,17 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Skips tab: Availability's cards (2026-10-22) */
 .sk-card .en-card-head.sk-none { cursor: default; }
 .sk-card .en-card-head.sk-none .sk-caret { visibility: hidden; }   /* keeps the counts lined up with the cards that open */
-.sk-dn { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; color: color-mix(in srgb, var(--accent2) 90%, transparent); margin-left: 12px; }   /* Density beside the name, the amber (user 2026-10-24) */
+.sk-dn { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; color: color-mix(in srgb, var(--accent2) 90%, transparent); margin-left: 12px; }   /* Density beside the name, the amber (user 2026-10-24) */
 .en-card.sk-card.open { border-color: var(--border); border-left-color: rgba(255,255,255,0.28); }   /* an open card keeps its closed look (user 2026-10-23) */
-.sk-counts { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }   /* Travel Plan's SKIPPING N LESSONS; 10.5px like the portal's other DM Mono values (user 2026-10-23; was 13px) */
+.sk-counts { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }   /* Travel Plan's SKIPPING N LESSONS; 10.5px like the portal's other DM Mono values (user 2026-10-23; was 13px) */
 .f2-icon.sk-icon .win-icon { height: 34px; width: auto; }   /* the calendar + person icon, Availability's size (user 2026-10-23) */
 .sk-hi { color: color-mix(in srgb, var(--accent2) 90%, transparent); }   /* Financial 2's amber, a bit brighter (user 2026-10-22) */
 .sk-counts.av-never { color: var(--t-faint); }
 .sk-group { margin-top: 6px; }
 .sk-group + .sk-group { margin-top: 18px; }
-.sk-group-h { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.sk-group-h { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
 .sk-trip-h { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-normal); padding: 12px 0 6px; border-bottom: 1px solid rgba(255,255,255,0.04); }   /* one trip's heading inside Vacation */
-.link-btn.sk-more { margin-left: 12px; padding: 2px 8px; font-size: 9.5px; vertical-align: middle; }   /* Vacation's Show / Hide, beside the amber heading */
+.link-btn.sk-more { margin-left: 12px; padding: 2px 8px; font-size: 10px; vertical-align: middle; }   /* Vacation's Show / Hide, beside the amber heading */
 .sk-row { display: flex; align-items: baseline; gap: 14px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: "DM Mono", monospace; font-size: 12px; }
 .sk-row:last-child { border-bottom: none; }
 .sk-date { flex: 0 0 52px; color: var(--text); }
@@ -633,7 +633,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .comms-open-count { font-weight: 500; }
 
 /* ─── INQUIRIES ───────────────────────────────────────────────────────────── */
-.inq-new { margin-left: 8px; padding: 1px 6px; border-radius: 8px; background: var(--accent); color: #fff; font-size: 9px; letter-spacing: .5px; text-transform: uppercase; }
+.inq-new { margin-left: 8px; padding: 1px 6px; border-radius: 8px; background: var(--accent); color: #fff; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; }
 /* Tab alerts are a plain dot like Intake ▾ (user, 2026-10-24), no count shown. */
 .inq-badge { display: inline-block; width: 6px; height: 6px; padding: 0; margin-left: 5px; border-radius: 50%; background: var(--accent); font-size: 0; line-height: 0; overflow: hidden; vertical-align: middle; }
 .tab-btn.active .inq-badge { background: var(--text); }
@@ -659,7 +659,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
    all three: sentence case, tight, amber. It reads as somewhere to go. */
 .inq-archive.top {
   display: block; margin: 0 0 18px;
-  font-size: 11px; letter-spacing: 0.3px; text-transform: none;
+  font-size: 11px; letter-spacing: 0; text-transform: none;
   color: color-mix(in srgb, var(--accent2) 60%, var(--muted));
   transition: color .12s;
 }
@@ -680,7 +680,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   border-radius: var(--radius-pill);
   padding: 9px 8px; text-align: center;
 }
-.rpm-count-n { font-family: "DM Mono", monospace; font-size: 13px; color: var(--text); }
+.rpm-count-n { font-family: "DM Mono", monospace; font-size: 14px; color: var(--text); }
 .rpm-count-l {
   font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px;
   text-transform: uppercase; color: var(--muted); margin-top: 2px;
@@ -716,7 +716,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .iat-row:last-child { border-bottom: none; }
 .iat-l { font-size: 11px; color: var(--t-text); }
 .iat-p { font-size: 10px; color: var(--muted); text-align: right; }
-.iat-n { font-size: 13px; color: var(--text); text-align: right; }
+.iat-n { font-size: 14px; color: var(--text); text-align: right; }
 .iat-row.top .iat-l { color: var(--text); }
 .iat-row.sub .iat-l { padding-left: 16px; color: var(--muted); }
 .iat-row.sub .iat-n { color: var(--t-text); }
@@ -789,7 +789,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 }
 .inq-replies-head {
   font-family: "DM Mono", monospace; font-size: 10px;
-  letter-spacing: 1.5px; text-transform: uppercase;
+  letter-spacing: 1px; text-transform: uppercase;
   color: var(--warn); margin-bottom: 10px;
 }
 .inq-reply { padding: 8px 0; border-top: 1px solid color-mix(in srgb, var(--accent2) 18%, transparent); }
@@ -798,7 +798,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .inq-reply-name { font-family: "Syne", sans-serif; font-size: 16px; color: var(--text); }
 .inq-reply-when { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); white-space: nowrap; }
 .inq-reply-text {
-  font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.6;
+  font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.6;
   color: var(--t-normal); margin: 5px 0 9px;
 }
 .inq-reply-acts { display: flex; gap: 6px; justify-content: flex-end; }
@@ -808,10 +808,10 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
    The Inquiries card (.inq-dcard). Under the name, one caps line says where
    they stand, the Trial card's "TRIAL ON" voice: amber = unpaid / due,
    red = overdue (lesson 4 done, next block not paid). */
-.au-sub { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.3px; text-transform: uppercase; margin-top: 4px; }
+.au-sub { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
 .au-sub.due  { color: var(--warn); }
 .au-sub.over { color: #ff5a4d; }
-.au-cap { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.au-cap { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
 .au-acts { display: flex; align-items: center; gap: 8px; }
 .au-acts .au-state { flex: 1; text-align: right; }
 .au-unpaid { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 22px; }   /* Unpaid card: Details on the right, one row (2026-09-29) */
@@ -879,7 +879,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .dx-grid td.dx-c:hover:where(:not(:disabled)) { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25); }
 .dx-grid td.sel { box-shadow: inset 0 0 0 1px var(--text) !important; }
 .dx-grid td.warn { background: color-mix(in srgb, var(--accent2) 12%, transparent); color: var(--accent2); }
-.dx-extra { margin-top: 10px; font-family: "DM Mono", monospace; font-size: 10.5px; color: #ff5a4d; }
+.dx-extra { margin-top: 10px; font-family: "DM Mono", monospace; font-size: 11px; color: #ff5a4d; }
 .dx-exchip { display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: 3px; background: rgba(255,90,77,0.15); cursor: pointer; }
 .dx-ed { margin-top: 14px; padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 3%, transparent); }
 .dx-line { display: flex; align-items: center; gap: 10px; }
@@ -913,13 +913,13 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .link-btn.red { color: #ff5a4d; border-color: color-mix(in srgb, #ff5a4d 55%, transparent); background: color-mix(in srgb, #ff5a4d 7%, transparent); }
 .link-btn.red:hover:where(:not(:disabled)) { color: #ff5a4d; border-color: #ff5a4d; background: color-mix(in srgb, #ff5a4d 16%, transparent); }
 .au-grid td.nocal { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent2) 70%, transparent); color: var(--accent2); }
-.au-calonly { display: flex; align-items: center; gap: 10px; font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--warn); }   /* amber: the "why"; title + Repair carry the red */
+.au-calonly { display: flex; align-items: center; gap: 10px; font-family: "DM Mono", monospace; font-size: 11px; color: var(--warn); }   /* amber: the "why"; title + Repair carry the red */
 .au-calonly .warn-icon { flex: none; }
 /* Details (nothing mismatched): one step brighter than a plain link-btn. */
 .link-btn.au-details { color: var(--t-text); border-color: rgba(255,255,255,0.16); }
 .link-btn.au-details:hover:where(:not(:disabled)) { color: var(--t-bright); }
 .au-chip { display: inline-block; margin: 0 4px 6px 0; padding: 3px 8px; border-radius: 3px;
-  font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--accent2); background: color-mix(in srgb, var(--accent2) 14%, transparent);
+  font-family: "DM Mono", monospace; font-size: 11px; color: var(--accent2); background: color-mix(in srgb, var(--accent2) 14%, transparent);
   transition: opacity .3s; }
 .au-chip.go { cursor: pointer; }
 .au-chip.go:hover:where(:not(:disabled)) { background: color-mix(in srgb, var(--accent2) 24%, transparent); }
@@ -962,7 +962,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* .small: the quiet member of the family. A disclosure that only unfolds text
    already on the card, so the caret does the telling, not a colour. */
 .tr-open-btn.small {
-  width: auto; padding: 4px 10px; font-size: 10px; letter-spacing: 0.5px; text-transform: none;
+  width: auto; padding: 4px 10px; font-size: 10px; letter-spacing: 0; text-transform: none;
   background: color-mix(in srgb, #fff 4%, transparent);
   border-color: rgba(255,255,255,0.10);
   color: var(--muted);
@@ -1080,7 +1080,7 @@ input[type="checkbox"]:checked {
   display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
   margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
 }
-.ia-year-n { font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 2px; color: var(--muted); }
+.ia-year-n { font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 1px; color: var(--muted); }
 /* The decision, where the Inquiries card keeps its buttons. */
 .ia-chip {
   font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px;
@@ -1092,7 +1092,7 @@ input[type="checkbox"]:checked {
 .ia-chip.ia-no      { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
 .ia-chip.ia-open    { color: var(--text);  border-color: var(--border); }
 .inq-drow  { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.inq-chan  { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+.inq-chan  { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
 .inq-when  { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); white-space: nowrap; }
 .inq-name-line { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin: 7px 0 5px; }
 /* Initiate: they wrote back and you have not answered. Sits on the name line
@@ -1141,7 +1141,7 @@ input[type="checkbox"]:checked {
           background: none; border: none; padding: 2px 4px; margin-left: 10px; color: var(--t-faint); cursor: pointer; }   /* quiet, beside the flag (user, 2026-10-31) */
 .fc-mark-read:hover { color: var(--text); }
 .inq-name  { font-family: "Syne", sans-serif; font-size: 16px; font-weight: 400; color: var(--text); }
-.inq-fields { display: grid; grid-template-columns: auto 1fr; gap: 3px 16px; margin-top: 8px; font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.5; }
+.inq-fields { display: grid; grid-template-columns: auto 1fr; gap: 3px 16px; margin-top: 8px; font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.5; }
 .inq-flabel { color: var(--t-faint); white-space: nowrap; }
 .inq-fval   { color: var(--t-normal); }
 .inq-acts  { display: flex; align-items: center; gap: 6px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
@@ -1189,7 +1189,7 @@ input[type="checkbox"]:checked {
 .log-entry.info    { background: color-mix(in srgb, var(--accent2) 8%, transparent);   border-left-color: var(--accent2); color: var(--accent2); }
 
 /* ─── LESSON BADGE ────────────────────────────────────────────────────────── */
-.today-btn .lesson-badge { font-size: 7px; font-family: "DM Mono", monospace; font-weight: 400; letter-spacing: 1px; margin-top: 2px; background: color-mix(in srgb, var(--accent2) 12%, transparent); color: var(--accent2); padding: 2px 6px; border-radius: 2px; width: fit-content; }
+.today-btn .lesson-badge { font-size: 9px; font-family: "DM Mono", monospace; font-weight: 400; letter-spacing: 1px; margin-top: 2px; background: color-mix(in srgb, var(--accent2) 12%, transparent); color: var(--accent2); padding: 2px 6px; border-radius: 2px; width: fit-content; }
 .today-btn .lesson-badge.pay-time { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
 
 /* ─── INCOMING PAYMENTS ───────────────────────────────────────────────────── */
@@ -1206,10 +1206,10 @@ input[type="checkbox"]:checked {
 #tab-payments .incoming-card { max-width: 600px; padding: 22px 16px; margin-bottom: 10px; background-color: #121212;
   border: 1px solid #353535; border-left: 3px solid #424242; }
 #tab-payments .section-label { padding-left: 22px; }
-#tab-payments .incoming-name { font-family: "Bebas Neue", sans-serif; font-size: 22px; letter-spacing: 1px; line-height: 1.05; }   /* names like the Students cards (user, 2026-10-30) */
+#tab-payments .incoming-name { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1.5px; line-height: 1.05; }   /* names like the Students cards (user, 2026-10-30) */
 #tab-payments .section-label { margin-top:36px !important; margin-bottom:16px !important; }   /* tighter (user, 2026-10-30; were 56 / 26 inline) */
 #tab-payments .pay-page-icon + .section-label { margin-top:28px !important; }   /* the first one keeps its gap under the icon */
-.incoming-name { font-family: "Syne", sans-serif; font-size: 13px; margin-bottom: 10px; }   /* 5 → 10px: name and payment line apart (2026-09-29) */
+.incoming-name { font-family: "Syne", sans-serif; font-size: 16px; margin-bottom: 10px; }   /* 5 → 10px: name and payment line apart (2026-09-29) */
 .incoming-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .incoming-method { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; font-family: "DM Mono", monospace; }
 .incoming-method.venmo { background: color-mix(in srgb, var(--blue) 15%, transparent); color: var(--blue); }   /* the portal's blue, was #0082c8 (user, 2026-10-30) */
@@ -1270,12 +1270,12 @@ input[type="checkbox"]:checked {
   background: var(--surface); padding: 12px 12px 10px;
 }
 .payer-card-head {
-  font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1px;
+  font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px;
   color: var(--t-bright); line-height: 1; margin-bottom: 10px;
 }
 .payer-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
 .payer-name { flex: 1; font-family: "DM Mono", monospace; font-size: 10px;
-  color: var(--t-normal); letter-spacing: .4px; }
+  color: var(--t-normal); letter-spacing: 0; }
 /* An added name reads as the extra it is; their own name is the plain one. */
 .payer-name.added { color: var(--t-text); }
 .payer-del { background: none; border: none; color: transparent; cursor: pointer;
@@ -1296,9 +1296,9 @@ input[type="checkbox"]:checked {
 .dtp-drop .dt-ico { width: 11px; height: 6px; display: block; fill: currentColor; }
 .pay-add-modal { max-width: 440px; width: 94%; overflow: visible; }
 .pa-who { margin: 2px 0 20px; }
-.pa-name { font-family: "DM Mono", monospace; font-size: 15px; color: var(--t-bright); letter-spacing: .5px; }
+.pa-name { font-family: "DM Mono", monospace; font-size: 16px; color: var(--t-bright); letter-spacing: 0; }
 /* The label wears the buttons' own type, not the windows' Bebas field label. */
-.pa-label { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 2px;
+.pa-label { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px;
   text-transform: uppercase; color: var(--muted); margin-bottom: 9px; }
 .pa-acts { display: flex; align-items: center; gap: 10px; margin-top: 22px; }
 /* Add contact sits on a line of its own across the top of the card, above the
@@ -1319,7 +1319,7 @@ input[type="checkbox"]:checked {
 .pa-save {
   flex: none; padding: 9px 16px; border: 1px solid var(--border); border-radius: 4px;
   background: transparent; color: var(--muted); font-family: "DM Mono", monospace;
-  font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+  font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
   cursor: pointer; transition: all 0.2s; white-space: nowrap;
 }
 .pa-save:hover:where(:not(:disabled)) { border-color: var(--text); color: var(--text); }
@@ -1332,7 +1332,7 @@ input[type="checkbox"]:checked {
 #payAddList button {
   display: block; width: 100%; text-align: left; padding: 6px 12px; border: none;
   border-radius: 6px; background: transparent; color: var(--t-normal);
-  font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: .8px;
+  font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 1px;
   text-transform: uppercase; cursor: pointer; white-space: nowrap;
 }
 #payAddList button:hover { background: rgba(255,255,255,0.08); color: #fff; }
@@ -1343,7 +1343,7 @@ input[type="checkbox"]:checked {
   display: block; width: 100%; padding: 12px;
   background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
   color: var(--muted); font-family: "DM Mono", monospace; font-size: 9px;
-  letter-spacing: 3px; text-transform: uppercase; cursor: pointer; text-align: left;
+  letter-spacing: 1px; text-transform: uppercase; cursor: pointer; text-align: left;
   transition: color 0.15s;
 }
 .btn-manual-entry:active { color: var(--text); }
@@ -1392,7 +1392,7 @@ input[type="checkbox"]:checked {
 /* ─── PAYMENT HISTORY ─────────────────────────────────────────────────────── */
 .pay-history-modal { max-width: 520px; }
 .pay-history-month {
-  font-family: "Bebas Neue", sans-serif; font-size: 13px;
+  font-family: "Bebas Neue", sans-serif; font-size: 14px;
   letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent2); padding: 10px 0 4px;
 }
 /* 2026-10-24: each month a box in the Dashboard Estimator's look (user): 2px --border frame, no fill,
@@ -1401,7 +1401,7 @@ input[type="checkbox"]:checked {
 .pay-history-modal .f2-wrap { border-color: var(--border); background: transparent; }
 .pay-history-modal .f2-wrap + .f2-wrap { margin-top: 22px; }
 .pay-history-modal .pay-history-month { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 14px 10px; background: rgba(255,255,255,0.035); border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.2; color: var(--t-text); }
-.pay-history-modal .pay-history-table { width: calc(100% - 28px); margin: 0 14px; font-size: 10.5px; }
+.pay-history-modal .pay-history-table { width: calc(100% - 28px); margin: 0 14px; font-size: 11px; }
 .pay-history-modal .pay-history-table td { padding: 8px 10px; border-left: none !important; border-top-color: rgba(255,255,255,0.04); color: var(--t-normal); }   /* row lines only, no column lines */
 .pay-history-modal .pay-history-table td:first-child { padding-left: 0; }
 .pay-history-modal .pay-history-table td:last-child { padding-right: 0; }
@@ -1421,9 +1421,9 @@ input[type="checkbox"]:checked {
 
 /* ─── WEEK TAB — NEW HEADER & DAY LIST ───────────────────────────────────── */
 .wtab-header-wrap  { margin-bottom: 18px; }
-.wtab-this-week    { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.wtab-this-week    { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
 .wtab-date-range   { font-family: "DM Mono", monospace; font-size: 12px; color: var(--muted); margin-top: 6px; margin-bottom: 10px; }
-.wtab-total        { font-family: "DM Mono", monospace; font-size: 36px; font-weight: 500; color: var(--accent2); line-height: 1.1; }
+.wtab-total        { font-family: "DM Mono", monospace; font-size: 32px; font-weight: 500; color: var(--accent2); line-height: 1.1; }
 .wtab-divider      { border: none; border-top: 1px solid var(--border); margin: 14px 0 16px; }
 .wtab-day-row      { margin-bottom: 10px; font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.6; }
 .wtab-day-name     { color: var(--accent2); font-weight: 500; }
@@ -1437,7 +1437,7 @@ input[type="checkbox"]:checked {
 .comms-filter-btn {
   flex: 1; padding: 7px 4px; border: none; border-radius: 4px;
   background: transparent; color: var(--muted); font-family: "DM Mono", monospace;
-  font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase;
+  font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
   cursor: pointer; transition: all 0.2s; white-space: nowrap;
 }
 .comms-filter-btn.active { background: var(--accent); color: var(--text); }
@@ -1456,7 +1456,7 @@ input[type="checkbox"]:checked {
 }
 .comms-source { font-size: 14px; margin-right: 8px; flex-shrink: 0; }
 .comms-from {
-  font-family: "Syne", sans-serif; font-size: 13px; font-weight: 400;
+  font-family: "Syne", sans-serif; font-size: 16px; font-weight: 400;
   flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .comms-time { font-size: 9px; color: var(--muted); white-space: nowrap; margin-left: 8px; }
@@ -1488,12 +1488,12 @@ input[type="checkbox"]:checked {
 .cm-day > .field-label { color: var(--accent); margin-bottom: 6px; }
 .cm-row { display: flex; align-items: center; gap: 14px; padding: 6px 8px; margin: 0 -8px; border-radius: 6px; cursor: pointer; }
 .cm-row:hover { background: var(--surface2); }
-.cm-row .td-mini-t { font-size: 10.5px; color: var(--t-faint); min-width: 64px; }
+.cm-row .td-mini-t { font-size: 11px; color: var(--t-faint); min-width: 64px; }
 .cm-ico { font-size: 12px; width: 16px; text-align: center; flex: none; }
 .cm-page-icon { margin: 0 0 16px 8px; color: var(--muted); line-height: 0; }   /* hand-and-phone icon under the number, like Payments (user, 2026-11-01) */
 .cm-page-icon .win-icon { height: 24px; width: auto; }   /* the Lessons + Payments page-icon size (user, 2026-11-10; was 40px) */
-.cm-name { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); flex: none; width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cm-prev { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cm-name { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); flex: none; width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cm-prev { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* This Week's colours (user, 2026-10-30): times + messages faint, numbers normal; answered = all faint */
 .cm-row.cm-done .cm-name { color: var(--t-faint); }
 .cm-check { display: none; width: 12px; height: 12px; border: 1px solid var(--muted); border-radius: 3px; flex: none; position: relative; order: 1; }   /* tick box at the right end of the row (user, 2026-10-31) */
@@ -1509,7 +1509,7 @@ input[type="checkbox"]:checked {
 .cm-win .field-label { display: block; margin: 0 0 8px; }
 .cm-win-time { color: var(--t-faint); }
 .td-student.cm-win .im-title > span { color: var(--t-normal); }   /* the number in the window not amber either */
-.cm-win-text { font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.6; color: var(--t-normal); white-space: pre-wrap; margin-bottom: 18px; }
+.cm-win-text { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: var(--t-normal); white-space: pre-wrap; margin-bottom: 18px; }
 .cm-win-audio audio { width: 100%; margin-bottom: 18px; color-scheme: dark; }   /* the browser's dark player, not the white one */
 .cm-win-foot { display: flex; justify-content: space-between; align-items: center; }
 /* The conversation (2026-10-31): theirs grey on the left, mine blue on the right — Trip Summary's bubbles (user), a reply box under it. */
@@ -1517,11 +1517,11 @@ input[type="checkbox"]:checked {
 .cm-msg { max-width: 78%; padding: 9px 12px; border-radius: 10px; background: color-mix(in srgb, var(--muted) 38%, #131313); border: 1px solid color-mix(in srgb, var(--muted) 38%, #131313); }
 .cm-msg.in { align-self: flex-start; border-bottom-left-radius: 3px; }
 .cm-msg.out { align-self: flex-end; border-bottom-right-radius: 3px; background: color-mix(in srgb, var(--blue) 35%, #131313); border-color: color-mix(in srgb, var(--blue) 35%, #131313); }
-.cm-msg-t { font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; color: var(--text); white-space: pre-wrap; word-break: break-word; }
-.cm-msg-d { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: .5px; color: color-mix(in srgb, var(--text) 55%, transparent); margin-top: 4px; }
+.cm-msg-t { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.5; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+.cm-msg-d { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 0; color: color-mix(in srgb, var(--text) 55%, transparent); margin-top: 4px; }
 .cm-msg.out .cm-msg-d { text-align: right; }
 .cm-reply { width: 100%; box-sizing: border-box; resize: vertical; margin-bottom: 12px; padding: 10px 12px; border-radius: 8px;
-  background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; }
+  background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.5; }
 .cm-reply:focus-visible { outline: 1px solid var(--muted); outline-offset: 0; }
 
 /* ─── COMMS DETAIL OVERLAY ──────────────────────────────────────────────── */
@@ -1548,7 +1548,7 @@ input[type="checkbox"]:checked {
 }
 .comms-detail-body {
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-  padding: 16px; font-size: 13px; line-height: 1.7; margin-bottom: 16px;
+  padding: 16px; font-size: 12px; line-height: 1.7; margin-bottom: 16px;
   white-space: pre-wrap; word-break: break-word;
 }
 .comms-detail-audio { margin-bottom: 16px; }
@@ -1558,7 +1558,7 @@ input[type="checkbox"]:checked {
   padding: 16px; margin-bottom: 16px;
 }
 .comms-transcript-label {
-  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
   color: var(--accent2); margin-bottom: 8px;
 }
 .comms-transcript-text {
@@ -1575,13 +1575,13 @@ input[type="checkbox"]:checked {
 }
 .comms-responded-toggle input { display: none; }
 .comms-responded-label {
-  font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+  font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
   transition: color 0.2s;
 }
 .comms-responded-toggle:has(input:checked) .comms-responded-label { color: var(--green); }
 
 .load-row.blue .load-label { color: var(--blue); }
-.load-row.blue .load-value { color: var(--blue); font-size: 13px; }
+.load-row.blue .load-value { color: var(--blue); font-size: 14px; }
 
 
 
@@ -1606,7 +1606,7 @@ input[type="checkbox"]:checked {
   border-radius: 8px; padding: 14px; margin-bottom: 10px;
 }
 .audit-card-name {
-  font-family: "Syne", sans-serif; font-size: 13px; font-weight: 400;
+  font-family: "Syne", sans-serif; font-size: 16px; font-weight: 400;
   color: var(--text); margin-bottom: 10px;
 }
 .audit-date-row {
@@ -1772,7 +1772,7 @@ a:focus-visible,
 .dtp-val {
   display: flex; align-items: center; justify-content: center; min-width: 120px; box-sizing: border-box;
   background: transparent; border: none; border-radius: 0;
-  font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.8px; white-space: nowrap; text-transform: uppercase;
+  font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; white-space: nowrap; text-transform: uppercase;
   color: var(--text); text-align: center; padding: 0 14px; cursor: pointer;
   transition: background .12s, color .12s;
 }
@@ -1846,7 +1846,7 @@ a:focus-visible,
 /* Portal Usage (2026-11-09, tabs/usage.js): the Dashboard look; button names are long, so a wider left column. */
 #tab-usage .ld-card .ld-row { grid-template-columns: 300px minmax(0, 1fr); }
 #tab-usage .us-note { color: var(--t-faint); }
-#tab-usage .us-list { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; line-height: 2; text-transform: uppercase; color: var(--t-normal); padding: 4px 0; }   /* Never opened: the names in one wrapped line */   /* the note after the dot, the labels' dark grey (like Holidays) */
+#tab-usage .us-list { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; line-height: 2; text-transform: uppercase; color: var(--t-normal); padding: 4px 0; }   /* Never opened: the names in one wrapped line */   /* the note after the dot, the labels' dark grey (like Holidays) */
 #tab-usage .ld-row .ld-l { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 12px; }
 /* Guitar Types (2026-11-11): Portal Usage's rows; the value is a small dropdown in the Skips menu look. */
 #tab-guitartypes .ld-card .ld-row { grid-template-columns: 300px minmax(0, 1fr); }
@@ -1861,7 +1861,7 @@ a:focus-visible,
 #tab-guitartypes .gt-menu button.on { color: var(--accent); }
 #tab-guitartypes #guitarTypesBody .ld-card { overflow: visible; }   /* the card clipped the last rows' menus (user 2026-11-11) */
 #tab-guitartypes .gt-menu.up { top: auto; bottom: calc(100% + 4px); }   /* opens upward when there's no room below */
-#tab-holidays .hol-sub { font-family: "Bebas Neue", sans-serif; font-size: 13px; letter-spacing: 1.5px; line-height: 1.2; color: var(--accent); padding: 16px 0 6px; border-bottom: 1px solid rgba(255,255,255,0.04); }   /* a group's heading inside its box (Very high impact, Fall …) */
+#tab-holidays .hol-sub { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; color: var(--accent); padding: 16px 0 6px; border-bottom: 1px solid rgba(255,255,255,0.04); }   /* a group's heading inside its box (Very high impact, Fall …) */
 #tab-holidays .ld-row:has(+ .hol-sub) { border-bottom: none; }   /* no faint line right above a heading */
 #tab-holidays .hol-note { color: var(--t-faint); }   /* the note after the dot, the labels' dark grey */
 #tab-holidays .hol-chrono .ld-row { grid-template-columns: 160px minmax(0, 1fr); }   /* the left column only holds a date */
@@ -1870,9 +1870,9 @@ a:focus-visible,
 /* 2026-10-29: in the Dashboard's look (shares the :is(#tab-general …) rules below). */
 #tab-triphistory.tab-panel > .ld-icon .win-icon { height: 34px; width: auto; margin-left: 0; }   /* om-140 map + pins, the 34px of Holidays / Trial Analysis / Reviews (user 2026-10-29) */
 /* A trip's line (user 2026-10-29): place · dates · days · loss · Show, the Dashboard's row look. */
-#tab-triphistory .th-line { display: grid; grid-template-columns: minmax(0, 1fr) 130px 130px 100px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); }
-#tab-triphistory .th-line.th-head { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--t-faint); padding: 10px 0 8px; }   /* the column names, the first row in the box: Slot change's "To change the slot" font (.im-rs-cap), user 2026-10-29 */
-#tab-triphistory .ld-card > .ld-title { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2.5px; text-align: left; color: var(--green); }   /* green (user 2026-10-29; blue tried); the band: the header row's earlier font, left (user 2026-10-29; was centred) */
+#tab-triphistory .th-line { display: grid; grid-template-columns: minmax(0, 1fr) 130px 130px 100px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); }
+#tab-triphistory .th-line.th-head { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); padding: 10px 0 8px; }   /* the column names, the first row in the box: Slot change's "To change the slot" font (.im-rs-cap), user 2026-10-29 */
+#tab-triphistory .ld-card > .ld-title { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-align: left; color: var(--green); }   /* green (user 2026-10-29; blue tried); the band: the header row's earlier font, left (user 2026-10-29; was centred) */
 #tab-triphistory .ld-card > .th-line:last-child, #tab-triphistory .th-trip:has(+ .th-det[hidden]) { border-bottom: 0; }
 /* Show's rows (user 2026-10-29; was a table inside the box): the same columns, a thicker line under the trip's row as their header. */
 #tab-triphistory .th-det[hidden] { display: none; }
@@ -1963,7 +1963,7 @@ a:focus-visible,
 /* The house title face (Bebas, as on every window), but not red: in a dialog
    the colour belongs to the action button. */
 .rpm-dlg-title {
-  font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 2px;
+  font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1.5px;
   color: var(--text); line-height: 1.2;
 }
 .rpm-dlg-head { align-items: center; }
@@ -1974,7 +1974,7 @@ a:focus-visible,
 }
 /* Label above a field, the shape the Trial Info window uses. */
 .rpm-dlg-label {
-  font-family: "DM Mono", monospace; font-size: 10.5px;
+  font-family: "DM Mono", monospace; font-size: 11px;
   color: var(--t-bright);
   text-transform: uppercase; letter-spacing: 1px;
   margin: 12px 0 4px;
@@ -2001,7 +2001,7 @@ a:focus-visible,
 /* Quiet line above a field: "To: someone@example.com" */
 .rpm-dlg-meta {
   font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted);
-  margin-top: 10px; letter-spacing: 0.3px;
+  margin-top: 10px; letter-spacing: 0;
 }
 .rpm-dlg-meta.warn { color: var(--warn); }
 /* The dialog's own accent, set per use: Maybe amber, No red. */
@@ -2016,7 +2016,7 @@ a:focus-visible,
    .db-mini-btn.strong): Cancel dim, the action one step brighter, both amber
    on hover. The action may carry an icon (rpmConfirm's icon option). */
 .rpm-dlg-confirm { max-width: 340px; padding: 18px; }
-.rpm-dlg-confirm .rpm-dlg-title { font-size: 18px; color: var(--accent); }
+.rpm-dlg-confirm .rpm-dlg-title { font-size: 20px; color: var(--accent); }
 .rpm-dlg-confirm .rpm-dlg-btn,
 .rpm-dlg-confirm .rpm-dlg-btn.go,
 .rpm-dlg-confirm .rpm-dlg-btn.danger {
@@ -2187,10 +2187,10 @@ input.rpm-field { padding-top: 6px; padding-bottom: 6px; }   /* one-line boxes s
 .ld-cards { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; align-items: stretch; margin-bottom: 32px; }
 .ld-card { border-left-color: var(--warn); margin-bottom: 0; display: flex; flex-direction: column; }
 /* Card title in the window-title face (Bebas 20px, 2px tracking), grey. */
-.ld-title { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--muted); margin-bottom: 22px; line-height: 1; }
+.ld-title { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 22px; line-height: 1; }
 .ld-row { display: flex; align-items: baseline; justify-content: space-between; padding: 7px 0; }
-.ld-l { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.3px; color: var(--t-normal); }
-.ld-v { font-family: "DM Mono", monospace; font-size: 13px; color: var(--text); }
+.ld-l { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0; color: var(--t-normal); }
+.ld-v { font-family: "DM Mono", monospace; font-size: 14px; color: var(--text); }
 .ld-row.lead .ld-l, .ld-row.lead .ld-v { color: var(--warn); }
 .ld-row.lead .ld-l { text-transform: uppercase; letter-spacing: 1px; }   /* the amber rows read in caps */
 .ld-row.sub .ld-v { color: var(--muted); }
@@ -2212,10 +2212,10 @@ input.rpm-field { padding-top: 6px; padding-bottom: 6px; }   /* one-line boxes s
 .ld-foot { display: flex; justify-content: flex-end; margin-top: auto; padding-top: 14px; }   /* Reset sits at the card foot */
 /* The picker: − value + in one grey box, the value on a darker well. */
 .ld-pick { display: inline-flex; align-items: stretch; padding: 2px; gap: 1px; border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); border-radius: 8px; background: var(--surface2); }
-.ld-pb { width: 22px; background: transparent; border: none; border-radius: 5px; color: var(--t-normal); font-family: "DM Mono", monospace; font-size: 13px; line-height: 1; cursor: pointer; transition: color .12s, background .12s; }
+.ld-pb { width: 22px; background: transparent; border: none; border-radius: 5px; color: var(--t-normal); font-family: "DM Mono", monospace; font-size: 14px; line-height: 1; cursor: pointer; transition: color .12s, background .12s; }
 .ld-pb:hover:where(:not(:disabled)) { color: #fff; background: color-mix(in srgb, #fff 8%, transparent); }
 .ld-pb:focus { outline: none; }
-.ld-pv { min-width: 42px; text-align: center; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.5px; color: var(--muted); padding: 4px 6px; border-radius: 5px; background: var(--bg); }
+.ld-pv { min-width: 42px; text-align: center; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0; color: var(--muted); padding: 4px 6px; border-radius: 5px; background: var(--bg); }
 
 /* ─── Window panels (2026-10-02, trying on the Dropbox tab first) ────────────
    Cards are for people. Everything else on a tab - stats, checks, tools -
@@ -2224,7 +2224,7 @@ input.rpm-field { padding-top: 6px; padding-bottom: 6px; }   /* one-line boxes s
    field-labels over dark boxes, dim .link-btn actions bottom right. */
 .win-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
   padding: 28px; margin-bottom: 18px; box-sizing: border-box; }
-.settings-title .win-sub { color: var(--muted); font-weight: 400; font-size: 15px; }   /* in a window or not; 15px like This Week's dates, portal-wide (user, 2026-11-04) */
+.settings-title .win-sub { color: var(--muted); font-weight: 400; font-size: 16px; }   /* in a window or not; 15px like This Week's dates, portal-wide (user, 2026-11-04) */
 .win-icon-row { margin: 4px 0 18px; }   /* the Text window's own icon spacing */
 .win-gap { margin-top: 22px; }   /* panels and pop-up windows alike */
 /* A read-only line in the field's own box, optionally with a button or a
@@ -2260,7 +2260,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Folder audit in the Financial 2 Expenses table's look (user, 2026-10-23): the heavy grey frame, a line between rows, DM Mono. */
 .db-audit { padding: 0; gap: 0; border: 2px solid #3a3a3a; border-radius: var(--radius-card); width: fit-content; max-width: 100%; }   /* only as wide as its longest line (user, 2026-10-23) */
 .db-audit .db-check { padding-right: 24px; }
-.db-audit .db-check { padding: 8px 10px; font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.6; }
+.db-audit .db-check { padding: 8px 10px; font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.6; }
 .db-audit .db-check + .db-check { border-top: 1px solid var(--border); }
 
 
@@ -2292,14 +2292,14 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .db-card-l { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 /* Two lines that line up across the card: name ↔ Recover (both 26px tall),
    size ↔ age (same mono 12px). */
-.db-card-n { font-family: "Syne", sans-serif; font-size: 15px; line-height: 26px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.db-card-n { font-family: "Syne", sans-serif; font-size: 16px; line-height: 26px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .db-card-s { font-family: "DM Mono", monospace; font-size: 12px; line-height: 16px; color: var(--muted); white-space: nowrap; }
 .db-card-r { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
 .db-card-a { font-family: "DM Mono", monospace; font-size: 12px; line-height: 16px; white-space: nowrap; text-transform: uppercase;
   padding-right: 10px; }   /* ends under Recover's text, not its border */
 .db-dt-gap { margin-top: 30px; }   /* student page: even room between sections */
 .db-panel { box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface);   /* the Folder audit's box, the card's background */
-  font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.5; color: var(--t-normal); }
+  font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.5; color: var(--t-normal); }
 .db-files { padding: 16px 14px; }   /* even room top and bottom */
 .db-file { display: flex; align-items: center; gap: 11px; }   /* room after the folder/page icon */
 .db-file .db-bullet { flex: none; }
@@ -2322,7 +2322,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 #logHwFiles { border: 1.5px dashed rgba(91,157,255,0.4); cursor: pointer; transition: border-color .15s, background .15s; }
 #logHwFiles.lh-empty { padding: 44px 16px; text-align: center; font-size: 12px; }
 #logHwFiles.lh-drop-on, #logHwFiles:hover:where(:not(:disabled)) { border-color: #5b9dff; background: rgba(91,157,255,0.08); }
-.lh-drop-more { margin-top: 10px; text-align: center; color: var(--muted); font-size: 10.5px; }
+.lh-drop-more { margin-top: 10px; text-align: center; color: var(--muted); font-size: 11px; }
 .lh-hw-tools { display: flex; align-items: center; gap: 8px; }   /* Browse folder + recheck, right of HW (2026-10-06) */
 /* What HW (2026-10-15): one text row with its own mic at the right end, above the materials. */
 .lh-what { position: relative; margin-bottom: 10px; }
@@ -2367,7 +2367,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-miss { display: inline-flex; align-items: center; gap: 7px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent2); flex: none; }
 .im-miss-i { flex: none; }
 /* A lesson's steps on its Students card (2026-10-17): small buttons, grey = done, red = missing. */
-.im-steps { display: inline-flex; align-items: center; gap: 6px; flex: none; font-family: "DM Mono", monospace; font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; }
+.im-steps { display: inline-flex; align-items: center; gap: 6px; flex: none; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
 .im-step { font: inherit; letter-spacing: inherit; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); color: var(--t-faint); background: transparent; line-height: 1.2; }
 .im-step.todo { cursor: pointer; color: #ff5a4d; border-color: color-mix(in srgb, #ff5a4d 55%, transparent); background: color-mix(in srgb, #ff5a4d 7%, transparent); }   /* the red buttons' red (.link-btn.red), user 2026-10-17 */
 .im-step.todo:hover:where(:not(:disabled)) { border-color: #ff5a4d; background: color-mix(in srgb, #ff5a4d 16%, transparent); }
@@ -2383,11 +2383,11 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-do-card.im-done > *:not(.im-done-msg) { opacity: .3; pointer-events: none; transition: opacity .2s; }
 .im-do-card.im-done .im-fin { visibility: hidden; }   /* DONE says it; no Finished ✓ beside it */
 .im-done-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-family: "Bebas Neue", sans-serif; font-size: 34px; letter-spacing: 3px; color: var(--green); }
+  font-family: "Bebas Neue", sans-serif; font-size: 32px; letter-spacing: 1.5px; color: var(--green); }
 .im-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 4px 0 18px; }
 .im-count { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); }
 .im-list { padding: 8px 14px 14px; }
-.im-year { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 2px; color: var(--muted); padding: 14px 0 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.im-year { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; color: var(--muted); padding: 14px 0 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
 .im-row { display: grid; grid-template-columns: 14px 1fr auto; gap: 14px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
 .im-row:last-child { border-bottom: none; }
 .im-n, .im-d { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); }   /* Intake labels' brightness */
@@ -2411,7 +2411,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-data { margin-top: 0; font-size: 11px; }   /* Lessons card Data box: skips + reschedules (2026-10-12) */
 .im-data .inq-flabel { color: var(--t-normal); }
 .im-data .inq-fval { color: var(--text); }
-.im-data .im-data-h { grid-column: 1 / -1; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }   /* STUDENT / TEACHER */
+.im-data .im-data-h { grid-column: 1 / -1; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }   /* STUDENT / TEACHER */
 .im-data .im-data-gap { margin-top: 14px; }
 .im-data .im-data-since { margin-left: 14px; color: var(--t-faint); }   /* "since Jun 23": where that log's counting starts */
 .im-more { display: block; margin: 10px auto 0; }   /* Show all / Show less, bottom middle, opens the older blocks (2026-10-06) */
@@ -2422,8 +2422,8 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-rs-hint { line-height: 1.55; }
 .im-rs-hint ol { margin: 2px 0 0; padding-left: 22px; }
 .im-rs-sec + .im-rs-sec { margin-top: 1.5em; }
-.im-rs-h { font-weight: 700; letter-spacing: .3px; }
-.im-rs-cap { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--t-faint); margin-bottom: 10px; }   /* To make a change: the labels' font */
+.im-rs-h { font-weight: 500; letter-spacing: 0; }
+.im-rs-cap { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); margin-bottom: 10px; }   /* To make a change: the labels' font */
 /* Pick on the 8-week view (user, 2026-10-26): the picked lesson white (selected) with ✕ (Skip) in its corner; the day it moves to green with a ✓. */
 .im-rs-strips button { position: relative; }
 .im-rs-strips .st-pick-sel { background: rgba(255,255,255,0.10) !important; border-color: rgba(255,255,255,0.55) !important; color: #fff !important; }
@@ -2498,7 +2498,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-steps-row .im-checks { flex-direction: row; flex-wrap: wrap; gap: 8px 28px; }
 .im-steps-row .im-check { color: var(--blue); }   /* to-do steps in the card's blue (2026-10-07); done ones stay dim */
 .im-steps-row .im-check.done { color: var(--t-faint); }
-.im-fin { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; color: var(--green); }   /* Finished ✓ */
+.im-fin { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; color: var(--green); }   /* Finished ✓ */
 .im-hw-row { border-bottom: none; padding: 4px 0; font-family: inherit; }   /* Last HW: one line like a lesson row (2026-10-06) */
 .im-hw-files { margin-top: 10px; }
 .im-none, .im-hw-row .im-s { font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.6; color: var(--muted); }   /* None / No HW sent: the HW drop area's "No new files" type (2026-10-06) */
@@ -2542,7 +2542,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-note + .im-note { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
 .im-note-h { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--warn); margin-bottom: 6px; }
 .im-note-t { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; color: var(--t-normal); white-space: pre-wrap; }
-.im-note-d { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); margin-top: 4px; }
+.im-note-d { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); margin-top: 4px; }
 .im-note-a { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
 .im-note-a .link-btn { white-space: nowrap; flex: none; }
 /* Lesson / Reschedule / Skip windows (2026-10-05, student.js _stWin): the
@@ -2552,7 +2552,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .st-when + .st-when { margin-top: -12px; }
 .st-when.st-from { margin: 0; }   /* Reschedule's Move from, under its title (2026-10-26) */
 /* Move from / Move to's days (user, 2026-10-27): the picker's caps font, bigger, the first thing seen. */
-.st-big { font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: .8px; text-transform: uppercase; color: rgba(255,255,255,0.72); }
+.st-big { font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.72); }
 .st-to .dtp > .dtp-box:first-of-type { display: none; }   /* the day's box: the day sits in the time box instead */
 /* Change appointment's small windows (Reschedule, Skip): quiet labels, the picker tabs' small grey caps, so the dates lead (user, 2026-10-27; were Bebas titles). */
 #stTimeModal .field-label, #stSkipModal .field-label, #imRsWin .field-label { font-family: "DM Mono", monospace; font-size: 11.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--t-faint); }
@@ -2596,7 +2596,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Lesson / Reschedule / Skip balance pass (2026-10-05): smaller picker,
    tighter rhythm, one text size for values. */
 .st-win .win-icon { height: 18px; }
-.st-win .st-when { margin: -4px 0 18px; font-size: 10.5px; }
+.st-win .st-when { margin: -4px 0 18px; font-size: 11px; }
 .st-win .st-when + .st-when { margin-top: -14px; }
 .st-win .field-label { margin-bottom: 7px; }
 .st-win .st-gap { margin-top: 18px; }
@@ -2612,7 +2612,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .st-who .db-check.on { color: var(--t-bright); }   /* picked = lit, not dimmed like a passed audit line */
 /* Requested by in the picker's type (2026-10-05): DM Mono 10px like MON, OCT 12,
    normal case; dim until picked, like the picker's values. */
-.st-who .db-check { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.8px; color: var(--t-normal); }
+.st-who .db-check { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; color: var(--t-normal); }
 .st-who .db-check.on { color: #fff; }
 .st-who .db-check, .st-who .db-check.on { color: var(--t-normal); }   /* the date's brightness; the tick shows the pick */
 .st-who .db-check:hover:where(:not(:disabled)) { color: #fff; }
@@ -2628,7 +2628,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .db-card.db-card-still { cursor: default; }
 .db-card.db-card-still:hover:where(:not(:disabled)) { border-color: var(--border); border-left-color: var(--blue); }
 .db-card-still .db-card-a { color: #6d8fc0; }
-.db-files.db-files-in { padding: 10px 0 0; font-family: "DM Mono", monospace; font-size: 10.5px; }   /* the file list inside the student's card (2026-10-06) */
+.db-files.db-files-in { padding: 10px 0 0; font-family: "DM Mono", monospace; font-size: 11px; }   /* the file list inside the student's card (2026-10-06) */
 .db-files-in .db-file { color: var(--t-normal); }   /* names at the card values' brightness */
 .db-files-in .db-file.db-dir { color: var(--t-normal); }
 /* HW sent - last in a student card (2026-10-07): no top gap, so None sits centred
@@ -2651,7 +2651,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .db-files-btn .db-bullet { width: 12px; height: 10px; }
 .db-ov-acts { display: flex; align-items: center; gap: 16px; }   /* All files + refresh, top right of Overview */
 .db-all-btn { height: 22px; box-sizing: border-box; text-transform: none; letter-spacing: 0; font-size: 10px; padding: 0 9px; }   /* the cards' Files button size */
-.db-all { padding: 0; font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); }   /* All files window */
+.db-all { padding: 0; font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); }   /* All files window */
 .db-all-folder + .db-all-folder { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }   /* a rule between folders */
 .db-all-folder > .db-dir { color: var(--text); }   /* the Dropbox folder's name a step brighter */
 .db-all-in { padding-left: 20px; margin-top: 4px; }   /* its files one step in */
@@ -2672,7 +2672,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-main-t .win-sub { color: var(--muted); }
 .im-do-card .im-sub-head { margin: 40px 0 16px; }   /* small titles look like Checklist's (2026-10-15) */
 .im-do-card .im-main-head + .im-sub-head, .im-do-card .im-main-head + .im-hw-dock-box > .im-sub-head:first-child { margin-top: 0; }
-.im-sub-head .field-label, .im-mat-row > .field-label { margin: 0; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }   /* typewriter like the buttons (2026-10-15) */
+.im-sub-head .field-label, .im-mat-row > .field-label { margin: 0; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }   /* typewriter like the buttons (2026-10-15) */
 .im-list.im-mat-sec { background: transparent; border: none; border-radius: 0; padding: 0; }
 #imHwDock .lh-hw-head { display: none; }   /* its buttons live on the sub-titles now */
 /* Video lesson / Link paste box and the links added (2026-10-15) */
@@ -2760,7 +2760,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 .im-dim:hover:where(:not(:disabled)) { opacity: .7; }
 /* Drop more here as a small button (2026-10-08): the zone's own click picks files, so it works as one. */
 .lh-drop-more { margin-top: 14px; }
-.lh-drop-more .link-btn { font-size: 9.5px; }
+.lh-drop-more .link-btn { font-size: 10px; }
 #logHwFiles:hover:where(:not(:disabled)) .lh-drop-more .link-btn { color: var(--text); border-color: var(--muted); }
 /* Lesson Checklist cards (2026-10-08): each open lesson's date and what's left. */
 .au-ck-list { margin-top: 18px; display: flex; flex-direction: column; gap: 8px; }
@@ -2780,17 +2780,17 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* This Week's list (2026-10-09 the Week window; 2026-10-24 a box under Today's). */
 .td-wk-day { display: flex; flex-direction: column; gap: 9px; }
 .td-wk-day + .td-wk-day { margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--border); }
-.td-wk-date { color: var(--muted); font-size: 10.5px; }   /* 75% of the day, like a window title's date (15 of 20px) (user, 2026-11-04) */
+.td-wk-date { color: var(--muted); font-size: 11px; }   /* 75% of the day, like a window title's date (15 of 20px) (user, 2026-11-04) */
 .td-wk-dn { display: inline-block; width: 78px; }   /* the time column + gap, so the date lines up with the names */
 /* Times and names in the Intake cards' label + value look (Date · Sep 23): DM Mono 10.5px, 24% / 50% white. */
-.td-wk-day .td-mini-t { font-size: 10.5px; color: var(--t-faint); }
-.td-wk-name { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); }
+.td-wk-day .td-mini-t { font-size: 11px; color: var(--t-faint); }
+.td-wk-name { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); }
 .td-wk-day .field-label { color: var(--accent); }   /* every day red, none dimmed */
 .td-wk-none { font-family: "DM Mono", monospace; font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }   /* a day off: OPEN in the date's place, small, the date's grey */
 /* Today and This Week boxes (user, 2026-10-24): the old Week window's size and look, full length, centred on the page */
 .td-wk-box { margin: 34px auto 0; box-sizing: border-box; width: 100%; }   /* look: THE BOX (2026-11-06) */   /* the Week window's size and look (.st-win / .log-panel) */
 .td-wk-box .field-label { display: block; }
-.td-wk-title .win-sub { font-size: 15px; }   /* the dates smaller than THIS WEEK (user, 2026-10-24) */
+.td-wk-title .win-sub { font-size: 16px; }   /* the dates smaller than THIS WEEK (user, 2026-10-24) */
 .td-wk-icon { margin: 4px 0 18px; }   /* _stWin's icon spacing */
 .td-wk-icon .win-icon { height: 20px; }
 .td-wk-box .td-wk-head { margin: 0 0 10px; }   /* the count → line → list spacing of Today's box (user, 2026-10-24) */
@@ -2800,7 +2800,7 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* "Today is Oct 27" centred on the ✕'s line (user, 2026-10-27; there was no title before) */
 .rpm-dlg.td-hol-dlg .rpm-dlg-head { justify-content: flex-end; position: relative; }
 .rpm-dlg.td-hol-dlg .rpm-dlg-title { position: absolute; left: 0; right: 0; text-align: left;   /* left like the rest (user, 2026-11-08) */ pointer-events: none;
-  font-family: "Bebas Neue", sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }   /* red (user, 2026-11-10); TODAY in Bebas, like the dates (user, 2026-11-10; was DM Mono 14px) */
+  font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1.5px; color: var(--accent); text-transform: uppercase; }   /* red (user, 2026-11-10); TODAY in Bebas, like the dates (user, 2026-11-10; was DM Mono 14px) */
 /* EVERY DIALOG in the holiday pop-up's look (user, 2026-11-10: "all dialogs like this"): darker panel, the amp ring,
    raised + paper grain, flat buttons, red engraved titles. Was #1a1a1a with a 1px grey border. */
 .rpm-dlg.rpm-dlg { background: #151515;   /* a bit darker than the dialogs' #1a1a1a (user, 2026-11-10) */
@@ -2825,7 +2825,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 .td-hol-dlg .td-hol-n { text-transform: uppercase; }
 .rpm-dlg.td-hol-dlg .rpm-dlg-title, .td-hol-dlg .td-hol-date { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }   /* engraved like the header name (user, 2026-11-10) */
 .td-hol-dlg .td-hol-today { filter: drop-shadow(0 -1px 0 rgba(0,0,0,.85)) drop-shadow(0 1px 0 rgba(255,255,255,.09)); }   /* today's icon engraved too, like the logo badge (user, 2026-11-10) */
-.td-hol-dlg .td-hol-date { font-family: "Bebas Neue", sans-serif; font-size: 18px; letter-spacing: 1.5px; line-height: 1.3; color: var(--accent); }   /* red (user, 2026-11-10); NOV 23–27 in Bebas (user, 2026-11-10) */   /* THANKSGIVING BREAK (user, 2026-11-08) */
+.td-hol-dlg .td-hol-date { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1.5px; line-height: 1.3; color: var(--accent); }   /* red (user, 2026-11-10); NOV 23–27 in Bebas (user, 2026-11-10) */   /* THANKSGIVING BREAK (user, 2026-11-08) */
 .td-hol-dlg .td-hol-one { display: flex; flex-direction: column; align-items: stretch; box-sizing: border-box; }   /* sections the same height, button at the bottom (user, 2026-11-10) */
 .td-hol-dlg .td-hol-mute { display: block; margin: auto auto 0 0; box-shadow: none; }   /* flat, not lifted (user, 2026-11-10) */
 .td-hol-dlg .td-hol-one > :nth-last-child(2) { margin-bottom: 24px; }   /* the old 24px gap above the button */   /* under each alert, on the left (user, 2026-11-10; was right, 2026-11-08) */   /* the button centred under the text (user 2026-10-24) */
@@ -2833,8 +2833,8 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 /* The date as a calendar page (user 2026-10-24): the calendar icon's grey line, month in the top band, the day big. */
 .td-hol-dlg .td-hol-one + .td-hol-one { margin: 32px -24px 0; padding: 32px 24px 0; border-top: 1px solid rgba(255,255,255,0.08); }   /* a divider between alerts, edge to edge across the box's 24px padding (user, 2026-11-08) */
 .td-hol-dlg .td-hol-cal { width: 38px; margin: 0 0 26px;   /* 14 → 20, the gaps balanced (user, 2026-10-27) */ border: 1.5px solid var(--muted); border-radius: 7px; overflow: hidden; text-align: center; }
-.td-hol-dlg .td-hol-mo, .td-day-cal .td-hol-mo { font-family: "DM Mono", monospace; font-size: 7px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); padding: 2px 0 1px; border-bottom: 1.5px solid var(--muted); }
-.td-hol-dlg .td-hol-dd, .td-day-cal .td-hol-dd { font-family: "Bebas Neue", sans-serif; font-size: 19px; line-height: 1; letter-spacing: 1px; color: var(--t-normal); padding: 5px 0 3px; }   /* the page smaller: 48 → 38 wide (user, 2026-10-27) */
+.td-hol-dlg .td-hol-mo, .td-day-cal .td-hol-mo { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 2px 0 1px; border-bottom: 1.5px solid var(--muted); }
+.td-hol-dlg .td-hol-dd, .td-day-cal .td-hol-dd { font-family: "Bebas Neue", sans-serif; font-size: 20px; line-height: 1; letter-spacing: 1.5px; color: var(--t-normal); padding: 5px 0 3px; }   /* the page smaller: 48 → 38 wide (user, 2026-10-27) */
 /* Today's date page under the Today title, the holiday warning's (user, 2026-10-27; was the plain calendar icon) */
 .td-day-cal { width: 38px; margin: 4px 0 18px; border: 1.5px solid var(--muted); border-radius: 7px; overflow: hidden; text-align: center; }
 .td-hol-dlg .td-hol-cal + div, .td-hol-dlg .td-hol-line { margin-bottom: 14px; font-size: 12px; }   /* .td-hol-line: the icons left the alerts (user, 2026-11-10) */
@@ -2853,13 +2853,13 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-card + .ld-card { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-title { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; color: var(--accent); margin-bottom: 10px; }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); align-items: center; gap: 0; padding: 4px 0; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-row .ld-l { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-row .ld-v { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); text-align: left; }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-row .ld-l { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-row .ld-v { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); text-align: left; }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-row.lead .ld-v { color: var(--t-bright); }   /* the numbers that matter: brighter, not amber */
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-vsub { color: var(--t-faint); margin: 0 10px 0 0; }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-rule { border: none; margin: 6px 0; }   /* a small gap inside a section, the line is between sections */
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-sublabel { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 4px 0 2px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-note { margin: 6px 0 0; padding: 0; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-note { margin: 6px 0 0; padding: 0; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-row.pick { padding: 3px 0; }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-pick { justify-self: start; }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-foot { justify-content: flex-start; margin: 10px 0 0 170px; padding: 0; }   /* Reset under the values */
@@ -2884,7 +2884,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-rule { display: none; }   /* the row lines already split them */
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) #loadTable .ld-row .ld-v { color: var(--t-faint); }   /* Load's numbers all one grey and size; the headline at the top carries them (user 2026-10-23; was big Bebas, then amber) */
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-title-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-title-sum .ld-sum { font-size: 12px; letter-spacing: .5px; }   /* 24 STUDENTS · 17.5 NORMALIZED · $6,940 on Load's title line, right, the Skips tab's Total skips line (user 2026-10-23) */
+:is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-title-sum .ld-sum { font-size: 12px; letter-spacing: 0; }   /* 24 STUDENTS · 17.5 NORMALIZED · $6,940 on Load's title line, right, the Skips tab's Total skips line (user 2026-10-23) */
 /* The Estimator's pickers a step smaller (2026-10-10). */
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-pick { padding: 1px; border-radius: 7px; }
 :is(#tab-general, #tab-trialanalysis, #tab-holidays, #tab-triphistory, #tab-archive, #tab-usage, #tab-guitartypes, #rvSummaryBody, #rvCurSum) .ld-pb { width: 18px; font-size: 11px; }
@@ -2970,7 +2970,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 #imMailWin .link-btn.tl-mic:hover:where(:not(:disabled)) { color: var(--text); }
 #imMailWin .link-btn.tl-mic svg { width: 14px; height: 14px; }
 #imMailWin .link-btn.tl-mic.rec { color: var(--accent); }
-.im-mail-mat { font-size: 13px; color: var(--text); }
+.im-mail-mat { font-size: 12px; color: var(--text); }
 .im-mail-mat ul { margin: 0; padding-left: 18px; }
 .im-mail-mat li { margin: 3px 0; }
 .im-mail-mat a { color: var(--text); }
@@ -2992,7 +2992,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 .im-mail-log textarea:focus { border-color: color-mix(in srgb, var(--green) 45%, transparent); }
 .im-mail-small > .field-label { font-size: 0.92em; }
 .im-mail-opt { color: var(--muted); font-weight: 400; letter-spacing: 0; text-transform: none; font-size: 11px; font-family: "DM Mono", monospace; }
-.im-mail-small textarea { min-height: 38px; font-size: 13px; }
+.im-mail-small textarea { min-height: 38px; font-size: 12px; }
 .im-mail-matsec > .field-label { color: color-mix(in srgb, var(--blue) 70%, var(--muted)); }
 .im-mail-matsec .im-mail-mat { color: color-mix(in srgb, var(--blue) 60%, var(--text)); border-left: 2px solid color-mix(in srgb, var(--blue) 35%, transparent); padding-left: 10px; }
 .im-mail-matsec .im-mail-mat a { color: inherit; }
@@ -3006,7 +3006,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 #imMailPrev:hover:where(:not(:disabled)), #imMailSend:hover:where(:not(:disabled)) { color: var(--accent2); border-color: color-mix(in srgb, var(--accent2) 60%, transparent); background: color-mix(in srgb, var(--accent2) 10%, transparent); }
 .im-mail-matsec .im-mail-mat { color: color-mix(in srgb, var(--text) 62%, transparent); }   /* not so bright (user, 2026-10-16) */
 /* Email window titles in the Log window's "A. Lesson" look (user, 2026-10-16), not green / blue. */
-#imMailWin .im-mail-sec > .field-label { color: var(--t-text); font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; font-weight: 400; text-transform: uppercase; }
+#imMailWin .im-mail-sec > .field-label { color: var(--t-text); font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; font-weight: 400; text-transform: uppercase; }
 /* Numbered red titles, the Log window's "1. Log" look (user, 2026-10-16; replaces the grey ones above). */
 #imMailWin .im-mail-sec > .field-label { color: var(--accent); font-family: "Bebas Neue", sans-serif; font-size: 16px; letter-spacing: 1.5px; font-weight: 400; text-transform: none; }
 .st-win.im-mail-win .win-icon { height: 18px; width: auto; }   /* This Week's size (user, 2026-10-17; was 30px like Intake Compose) */
@@ -3031,7 +3031,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 #imMailWin .im-mail-foot { margin-top: 22px; }
 /* The number grey, the title red, like a window title's "This week · Oct 12 – Oct 18" (.win-sub; user, 2026-10-17). */
 #imMailWin .im-mail-n { color: var(--muted); margin-right: 6px; }
-#imMailWin .im-mail-k { text-transform: uppercase; letter-spacing: .5px; }
+#imMailWin .im-mail-k { text-transform: uppercase; letter-spacing: 1px; }
 #imMailWin .im-mail-ref ul { margin: 0; padding-left: 14px; }   #imMailWin .im-mail-ref li { margin: 0 0 2px; }
 /* The log / HW list under its title, not beside it (user, 2026-10-16). */
 #imMailWin .im-mail-head { display: block; margin: 0 0 14px; }
@@ -3050,10 +3050,10 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 /* The subject as a bigger white title with a line under it (user, 2026-10-16). */
 #imMailWin .im-mail-meta { margin: 2px 0 22px; }
 #imMailWin .im-mail-meta b { color: var(--text); font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1.5px; font-weight: 400; }
-#imMailWin .im-mail-meta b { font-size: 15px; letter-spacing: 1.2px; }   /* smaller (user, 2026-10-16) */
-#imMailWin .im-mail-meta b { font-family: "DM Mono", monospace; font-size: 14px; letter-spacing: .3px; text-transform: none; }   /* the portal text font, normal case (user, 2026-10-16) */
+#imMailWin .im-mail-meta b { font-size: 16px; letter-spacing: 1px; }   /* smaller (user, 2026-10-16) */
+#imMailWin .im-mail-meta b { font-family: "DM Mono", monospace; font-size: 14px; letter-spacing: 0; text-transform: none; }   /* the portal text font, normal case (user, 2026-10-16) */
 /* The title under the icon in caps, the Materials lines' colour and size (user, 2026-10-16). */
-#imMailWin .im-mail-meta b { font-family: "DM Mono", monospace; font-size: 13px; letter-spacing: .5px; text-transform: uppercase; color: color-mix(in srgb, var(--text) 62%, transparent); }
+#imMailWin .im-mail-meta b { font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: color-mix(in srgb, var(--text) 62%, transparent); }
 /* "GUITAR LESSON RECAP (OCT 15)" under the name, before the icon (user, 2026-10-16). */
 #imMailWin .settings-title + .im-mail-meta { margin: -6px 0 14px; }
 /* The This Week window's look (user, 2026-10-17): titles its day size, all grey
@@ -3061,7 +3061,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
    grey DM Mono names, no bullets, its row spacing. */
 #imMailWin .im-mail-sec > .field-label, #imMailWin .im-mail-head > .field-label { color: var(--muted); font-size: 14px; letter-spacing: 1.5px; }
 #imMailWin .im-mail-n { color: inherit; margin-right: 4px; }
-#imMailWin .im-mail-ref, #imMailWin .im-mail-mat, #imMailWin .im-mail-matsec .im-mail-mat { font-family: "DM Mono", monospace; font-size: 10.5px; line-height: 1.4; color: var(--t-faint); }   /* the times' dark grey (user, 2026-10-17) */
+#imMailWin .im-mail-ref, #imMailWin .im-mail-mat, #imMailWin .im-mail-matsec .im-mail-mat { font-family: "DM Mono", monospace; font-size: 11px; line-height: 1.4; color: var(--t-faint); }   /* the times' dark grey (user, 2026-10-17) */
 #imMailWin .im-mail-ref ul, #imMailWin .im-mail-mat ul { list-style: none; padding-left: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }   /* tighter than This Week's 9px (user, 2026-10-17) */
 #imMailWin .im-mail-ref li, #imMailWin .im-mail-mat li { margin: 0; }
 #imMailWin .im-copy { transition: color .2s; }
@@ -3071,7 +3071,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 #imMailWin .im-copy.copied, #imMailWin .im-copy.copied .im-copy-b { color: var(--accent2); }   /* copied: a short amber flash (2026-10-17) */
 #imMailWin .im-mail-head .im-mail-ref { margin: 12px 0 0; }
 #imMailWin .im-mail-to { display: flex; flex-direction: column; gap: 4px; margin: 0 0 22px; }
-#imMailWin .im-mail-to .td-mini-t { font-size: 10.5px; color: var(--t-faint); min-width: 0; width: 24px; }   /* "To:" / "Sbj:" as typed (user, 2026-10-17); just wide enough for "Sbj:" */
+#imMailWin .im-mail-to .td-mini-t { font-size: 11px; color: var(--t-faint); min-width: 0; width: 24px; }   /* "To:" / "Sbj:" as typed (user, 2026-10-17); just wide enough for "Sbj:" */
 #imMailWin .im-mail-to .td-mini-row { gap: 3px; }   /* tight after the colon (user, 2026-10-17) */
 #imMailWin .im-mail-to .td-wk-name { color: var(--t-faint); }   /* as dark as the log lines (user, 2026-10-17; amber tried, back to grey) */
 #imMailWin .im-mail-to, #imMailWin .im-mail-to .td-mini-t, #imMailWin .im-mail-to .td-wk-name, #imMailWin .im-mail-opt { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; }   /* To / Sbj and (optional) in the History list font (user, 2026-10-17) */
@@ -3114,7 +3114,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
    calendar; each follows the other. Off = accent, back = green. */
 .tv-cal { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 16px 20px 18px; margin-bottom: 14px; }
 .tv-cal-head { display: flex; justify-content: space-between; align-items: center; min-height: 30px; margin-top: 14px; }   /* under the months (2026-10-18) */
-.tv-cal-hint { font-size: 13px; color: var(--text); }
+.tv-cal-hint { font-size: 12px; color: var(--text); }
 .tv-cal-muted { color: var(--muted); }
 .tv-off  { color: var(--accent); }
 .tv-back { color: var(--green); }
@@ -3122,7 +3122,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 /* the Calculate result: two numbers, Next on the right */
 .tv-sum { display: flex; align-items: center; gap: 32px; }
 .tv-sum .link-btn { margin-left: auto; }
-.tv-sum-num b { display: block; font-family: "Bebas Neue", sans-serif; font-size: 30px; font-weight: 400; letter-spacing: 1px; line-height: 1; color: var(--text); }
+.tv-sum-num b { display: block; font-family: "Bebas Neue", sans-serif; font-size: 32px; font-weight: 400; letter-spacing: 1.5px; line-height: 1; color: var(--text); }
 .tv-sum-num.loss b { color: var(--accent); }
 .tv-sum-num span { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
 .tv-cal-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
@@ -3170,7 +3170,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 .tv-cal-nav:disabled { opacity: 0.2; cursor: default; }
 .tv-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 4px; }
 .tv-cal-dow { text-align: center; font-size: 10px; color: var(--muted); letter-spacing: 1px; padding-bottom: 6px; margin-bottom: 4px; border-bottom: 1px solid var(--border); }
-.tv-cal-day { height: 36px; background: transparent; border: none; padding: 0; color: rgba(240,237,232,0.5); font-family: inherit; font-size: 13px; cursor: pointer; }   /* every day grey, the trip's too (user, 2026-10-18) */
+.tv-cal-day { height: 36px; background: transparent; border: none; padding: 0; color: rgba(240,237,232,0.5); font-family: inherit; font-size: 12px; cursor: pointer; }   /* every day grey, the trip's too (user, 2026-10-18) */
 .tv-cal-day { position: relative; }
 /* The days-off band: opaque, so neighbouring days meet with no seam; the day's circle sits on top. */
 .tv-band { position: absolute; top: 50%; height: 32px; margin-top: -16px; background: color-mix(in srgb, #f0ede8 7%, var(--panel)); pointer-events: none; }
@@ -3226,7 +3226,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
    Name left, Days / Lessons / Revenue loss right; buffers smaller and dimmer, Total amber. */
 #travelSumTable { margin-top: 0; }
 .tv-sum-card { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--blue); border-radius: 10px; padding: 2px 14px; }
-.tv-sum-row { display: grid; grid-template-columns: 1fr 70px 80px 120px; align-items: center; padding: 11px 0; font-size: 13px; color: rgba(240,237,232,0.72); letter-spacing: 0.5px; }
+.tv-sum-row { display: grid; grid-template-columns: 1fr 70px 80px 120px; align-items: center; padding: 11px 0; font-size: 12px; color: rgba(240,237,232,0.72); letter-spacing: 0; }
 .tv-sum-row + .tv-sum-row { border-top: 1px solid var(--border); }
 .tv-sum-row > span:not(.tv-sum-name) { text-align: right; }
 .tv-sum-row.tv-sum-cols { padding: 10px 0 8px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
@@ -3302,7 +3302,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 #travelCalMonths .tv-cal-day.is-travel span, #travelCalMonths .tv-cal-day.is-off span, #travelCalMonths .tv-cal-day.is-back span { background: #131313; }   /* rings still stop the band, on the new dark */
 #travelCalMonths .tv-band { background: color-mix(in srgb, #f0ede8 7%, #131313); }
 /* Set vacation place (user, 2026-10-20): first section, one entry box, dark and framed like the date boxes, as wide as the table. */
-.tv-place { display: block; box-sizing: border-box; width: 100%; max-width: 480px; margin: 0 auto 30px; padding: 11px 14px; background: #131313; border: 2px solid color-mix(in srgb, var(--blue) 60%, transparent); border-radius: 7px; color: var(--text); font-family: inherit; font-size: 13px; letter-spacing: 0.5px; outline: none; }
+.tv-place { display: block; box-sizing: border-box; width: 100%; max-width: 480px; margin: 0 auto 30px; padding: 11px 14px; background: #131313; border: 2px solid color-mix(in srgb, var(--blue) 60%, transparent); border-radius: 7px; color: var(--text); font-family: inherit; font-size: 12px; letter-spacing: 0; outline: none; }
 .tv-place::placeholder { color: var(--muted); }
 .tv-place:focus { border-color: color-mix(in srgb, var(--blue) 100%, transparent); }
 .tv-place, .tv-dates .dtp-cell { height: 40px; box-sizing: border-box; }   /* place box and Leaving on / Back on as tall as a Cost analysis row (user, 2026-10-20) */
@@ -3399,7 +3399,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 .tv-dates .tv-in-label { justify-content: center; text-align: center; }   /* LEAVING ON / BACK ON centred in their tab (user, 2026-10-21) */
 /* Go live's Warning popup (user, 2026-10-21): wider, roomier, Cancel and Activate both red (link-btn red). */
 .rpm-dlg-confirm.tv-golive-dlg { max-width: 480px; padding: 26px 28px; }
-.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-title { font-size: 22px; }
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-title { font-size: 20px; }
 .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-msg { font-size: 12px; margin-top: 16px; }
 .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn,
 .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-btn.danger { color: #ff5a4d; border-color: color-mix(in srgb, #ff5a4d 55%, transparent); background: color-mix(in srgb, #ff5a4d 7%, transparent); padding: 8px 16px; }
@@ -3425,17 +3425,17 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body { margin-top: 18px; padding: 16px 18px; background: #131313; border: 1.5px solid color-mix(in srgb, #ff5a4d 35%, transparent); border-radius: 8px; }
 .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body .rpm-dlg-sub { margin-top: 0; }
 .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body .rpm-dlg-msg { margin-top: 12px; }
-.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body .rpm-dlg-msg { text-transform: uppercase; letter-spacing: 0.5px; }   /* the dashed points in caps (user, 2026-10-21) */
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body .rpm-dlg-msg { text-transform: uppercase; letter-spacing: 1px; }   /* the dashed points in caps (user, 2026-10-21) */
 .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body { padding: 24px 26px; }   /* more room inside the frame (user, 2026-10-21) */
-.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-sub { font-size: 22px; letter-spacing: 2px; }   /* UPON ACTIVATION as big as WARNING, still grey (user, 2026-10-21) */
-.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body .rpm-dlg-msg { font-size: 10.5px; }   /* the points smaller (user, 2026-10-21; was 12px) */
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-sub { font-size: 20px; letter-spacing: 1.5px; }   /* UPON ACTIVATION as big as WARNING, still grey (user, 2026-10-21) */
+.rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body .rpm-dlg-msg { font-size: 11px; }   /* the points smaller (user, 2026-10-21; was 12px) */
 .rpm-dlg-confirm.tv-golive-dlg .rpm-dlg-body { border-color: color-mix(in srgb, var(--accent) 42%, transparent); }   /* the dimmed red of the Trip Summary edges (user, 2026-10-21) */
 /* Dates and texts: the unsent text as a thread bubble, Trip Summary's look; the box grows to fit (user, 2026-10-21). */
 .tv-rv-thread { height: auto; overflow: visible; margin: 0 0 8px; padding: 14px; }
 .tv-rv-bub { align-self: flex-end; max-width: 85%; font-size: 11px; line-height: 1.5; padding: 10px 14px; border-radius: 10px; white-space: pre-wrap; }
 .tv-rv-card { border-left-color: color-mix(in srgb, var(--accent) 42%, transparent); }   /* Dates and texts cards: the dimmed red edge (user, 2026-10-21) */
 /* Legends one size down (user, 2026-10-21; were 9px): Dates and texts' Lesson / Skip and Set buffer's three. */
-.tv-rv-key, .tv-buf-key b { font-size: 8px; }
+.tv-rv-key, .tv-buf-key b { font-size: 9px; }
 .ts-lbl-icon.tv-rv-cal-icon { height: 22px; }   /* the calendar a step smaller than the phone (user, 2026-10-21; was 30px) */
 /* Dates and texts cells at Trial's 70% (user, 2026-10-21): Skip red dimmed to match the green; Resume no fill. */
 .tv-rv-dcell .tv-c-skip, .tv-rv-key .tv-c-skip { color: rgba(255,90,77,0.7); box-shadow: inset 0 0 0 1px rgba(255,90,77,0.42); }
@@ -3449,10 +3449,10 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 /* Before / Resume cells (and the Lesson key) grey instead of green; Skip stays red (user, 2026-10-21). */
 .tv-rv-dcell .tv-c-before, .tv-rv-dcell .tv-c-resume, .tv-rv-key .tv-c-before { color: rgba(240,237,232,0.6); box-shadow: inset 0 0 0 1px rgba(240,237,232,0.25); }
 .tv-rv-dcell .tv-c-resume { background: rgba(240,237,232,0.07) !important; }   /* Resume set apart by a grey wash (user, 2026-10-21) */
-.tv-rv-resume { text-align: right; margin-top: 12px; font-size: 13px; color: var(--t-normal); text-transform: uppercase; letter-spacing: 1px; }   /* RESUMING ON MON, DEC 8 AT 5:00 PM, like SKIPPING N LESSONS (user, 2026-10-21) */
+.tv-rv-resume { text-align: right; margin-top: 12px; font-size: 12px; color: var(--t-normal); text-transform: uppercase; letter-spacing: 1px; }   /* RESUMING ON MON, DEC 8 AT 5:00 PM, like SKIPPING N LESSONS (user, 2026-10-21) */
 .tv-rv-dates, .ts-thread.tv-rv-thread { border-color: var(--border); }   /* Dates and texts boxes: the usual grey edge, not blue (user, 2026-10-21) */
 .tv-rv-dates, .ts-thread.tv-rv-thread { border-style: solid; }   /* solid, not dashed (user, 2026-10-21) */
-.tv-rv-resume-d { text-transform: none; letter-spacing: 0.5px; }   /* RESUME ON: Sun, Dec 7 at 2:00 PM (user, 2026-10-21) */
+.tv-rv-resume-d { text-transform: none; letter-spacing: 0; }   /* RESUME ON: Sun, Dec 7 at 2:00 PM (user, 2026-10-21) */
 .tv-rv-resume { margin-top: 20px; }   /* more room under the schedule box (user, 2026-10-21; was 12px) */
 .tv-rv-dcell span.tv-rv-arr { font-size: 14px; line-height: 10px; letter-spacing: 0; }   /* → over repeated boxes, bigger; same row height as the words (user, 2026-10-21) */
 .tv-rv-key .tv-c-resume { box-shadow: inset 0 0 0 1px rgba(240,237,232,0.25); background: rgba(240,237,232,0.07); }   /* the key's Resume swatch (user, 2026-10-21) */
@@ -3485,7 +3485,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 .en-foot.en-card-foot .en-foot-note { font-size: 11px; color: var(--t-normal); }
 .en-foot.en-card-foot .en-go { font-size: 11px; padding: 8px 16px; gap: 8px; flex: none; }
 .en-card-body .en-status { margin: 16px 0 0; }
-.en-card-n { font-family: "Syne", sans-serif; font-size: 15px; line-height: 26px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.en-card-n { font-family: "Syne", sans-serif; font-size: 16px; line-height: 26px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .en-card-a { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); white-space: nowrap; }
 .en-card-r { display: flex; align-items: center; gap: 14px; }   /* head right: Ask for a review, then the arrow */
 /* Stat-style card (Reviews tab cards; .en-scard-sub = the Done line on a
@@ -3515,8 +3515,8 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 /* Before archiving (2026-10-24): the 4 questions, label left, an open box
    right; Terminate stays dimmed until all 4 have text. */
 .en-ask { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border); }
-.en-ask-h { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-normal); margin-bottom: 14px; }
-.en-ask-grid { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; align-items: center; font-family: "DM Mono", monospace; font-size: 10.5px; }
+.en-ask-h { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--t-normal); margin-bottom: 14px; }
+.en-ask-grid { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; align-items: center; font-family: "DM Mono", monospace; font-size: 11px; }
 .en-ask-in { width: 100%; font-size: 12px; }
 .link-btn.red.en-go:disabled:not(.tv-busy) { opacity: .35; cursor: default; }   /* until all 4 are answered */
 /* Review texts loading: the plan steps back, only the button's spinner stays bright (user, 2026-10-21). */
@@ -3548,7 +3548,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 .rv-bub:focus { color: var(--text); box-shadow: 0 0 0 1px color-mix(in srgb, var(--blue) 45%, transparent); }
 .rv-due { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent2); margin-left: 8px; }   /* Nudge due: 10 days after a yes, no review (2026-10-26) */
 .rv-yes { cursor: pointer; font-family: "DM Mono", monospace; font-size: inherit; color: inherit; }   /* the card values' face, not the tick-box line's */
-.rv-tpl-phone { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); margin: -6px 0 22px; }
+.rv-tpl-phone { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); margin: -6px 0 22px; }
 .st-win .en-tpl-top .field-label { color: var(--t-text); }   /* Text template N, the Travel Plan's 72% grey */
 /* At the Trial colours' 70% strength, like --green (user, 2026-10-26: full blue too bright) */
 .rv-tpl-foot .link-btn.blue { --rvb: color-mix(in srgb, var(--blue) 70%, transparent); color: var(--rvb); border-color: color-mix(in srgb, var(--rvb) 55%, transparent); background: color-mix(in srgb, var(--rvb) 6%, transparent); }
@@ -3563,7 +3563,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 #rvSummaryBody .rv-plan .ld-row:last-child { padding-bottom: 10px; }
 .rv-dd-in { width: 100%; font-size: 11px; padding: 5px 10px; line-height: 14px; color: var(--t-text); }   /* 26px tall (user, 2026-10-26; was 30, then 22) */
 .rv-dd .cash-dd-opt[hidden], .rv-dd .rv-dd-grp[hidden] { display: none; }   /* typing narrows the list */
-.rv-dd-grp { font-family: "DM Mono", monospace; font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); padding: 8px 12px 4px; }
+.rv-dd-grp { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); padding: 8px 12px 4px; }
 .rv-dd-where { float: right; color: var(--t-faint); }   /* already planned in another week */
 #rvSummaryBody .rv-plan .ld-row .ld-l { text-align: center; }   /* the week dates centred in their column (user, 2026-10-29) */
 #rvSummaryBody .rv-sec { margin: 0 0 26px; }   /* at the panel's left edge like Payments' Incoming label, the boxes indented under it (user, 2026-10-29) */
@@ -3571,7 +3571,7 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 #rvSummaryBody .ld-cards { margin-bottom: 44px; }   /* and before Current students */
 :is(#rvSummaryBody, #rvCurSum) .ld-card { max-width: 480px; margin-left: auto; margin-right: auto; background: var(--surface); }   /* plain border all round, no green left edge (user, 2026-11-06) */
 /* the Dashboard boxes narrower than the 760px column, centred, filled like Payments' cards on the panel's darker #141414 (user, 2026-10-29); label column + the longest "date - name" row fit */
-:is(#rvSummaryBody, #rvCurSum) .ld-title > span:first-child { font-family: Syne, sans-serif; font-size: 13px; font-weight: 400; letter-spacing: normal; text-transform: none; }   /* box headers in the payment cards' name font, Syne 13px (user, 2026-10-29; was Bebas caps) */
+:is(#rvSummaryBody, #rvCurSum) .ld-title > span:first-child { font-family: Syne, sans-serif; font-size: 16px; font-weight: 400; letter-spacing: normal; text-transform: none; }   /* box headers in the payment cards' name font, Syne 13px (user, 2026-10-29; was Bebas caps) */
 #curReviewsBody .en-scard { border-left-color: var(--warn); }   /* the student cards' edge the Ask for a review button's amber (user, 2026-10-29; Payments' duller #8f743d tried) */
 .rv-plan { overflow: visible !important; }   /* the open list may hang below the box */
 #rvSummaryBody .rv-plan .ld-title { border-radius: calc(var(--radius-card) - 2px) calc(var(--radius-card) - 2px) 0 0; }   /* so the band keeps the box's corners without overflow hidden */
@@ -3605,10 +3605,10 @@ html body :is(.settings-overlay, .im-notes-back) > div :is(button, .link-btn, .r
 .em-foot { display: flex; justify-content: flex-end; }
 
 /* ─── Financial 2 (tabs/financial2.js): read-only copy of the Accountant sheet ─── */
-.f2-status { font-family:'DM Mono',monospace; font-size:10px; color:var(--t-faint); text-transform:uppercase; letter-spacing:.5px; }   /* dim note under the Income table (user 2026-10-22) */
+.f2-status { font-family:'DM Mono',monospace; font-size:10px; color:var(--t-faint); text-transform:uppercase; letter-spacing: 1px; }   /* dim note under the Income table (user 2026-10-22) */
 .f2-wrap { overflow-x:auto; border:2px solid #3a3a3a; border-radius:var(--radius-card); background:var(--surface); }
-.f2-table { width:100%; border-collapse:collapse; font-family:'DM Mono',monospace; font-size:10.5px; color:var(--t-normal); }   /* values = Reviews card .inq-fval, labels = .inq-flabel 0.24 (user 2026-10-22) */
-.f2-table th { font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:var(--t-faint); font-weight:400; text-align:right; padding:10px 5px 8px; border-bottom:1px solid var(--border); white-space:nowrap; }
+.f2-table { width:100%; border-collapse:collapse; font-family:'DM Mono',monospace; font-size: 11px; color:var(--t-normal); }   /* values = Reviews card .inq-fval, labels = .inq-flabel 0.24 (user 2026-10-22) */
+.f2-table th { font-size:9px; letter-spacing: 1px; text-transform:uppercase; color:var(--t-faint); font-weight:400; text-align:right; padding:10px 5px 8px; border-bottom:1px solid var(--border); white-space:nowrap; }
 .f2-table th span { text-transform:none; letter-spacing:0; }
 .f2-table th:first-child, .f2-table th:nth-child(2) { text-align:left; }
 .f2-table td { text-align:right; padding:6px 5px; white-space:nowrap; }
@@ -3629,23 +3629,23 @@ th.f2-blk { background:none; }
 .f2-foot > :only-child { margin-left:auto; }
 .f2-icon { margin:0 0 28px; line-height:0; }   /* under the title, like Travel Plan's icons */
 .divider.f2-rule { margin:48px 0; }   /* one section gap on both sides of a line (user 2026-10-22: even spacing) */
-.f2-head { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px; color:var(--muted); margin-bottom:16px; }   /* like the title's gray "Income & Expenses" */
+.f2-head { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing: 1.5px; color:var(--muted); margin-bottom:16px; }   /* like the title's gray "Income & Expenses" */
 .f2-head.f2-red { color:var(--accent); }   /* Income + Expenses section titles red (user 2026-10-22) */
 .f2-head-row { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:16px; }
 .f2-head-row .f2-head { margin-bottom:0; }
 .f2-icon .win-icon { height:34px; }
-.f2-cur { font-family:'DM Mono',monospace; font-size:15px; text-transform:uppercase; letter-spacing:.5px; color:var(--t-normal); }   /* Current total: just the numbers, table font (user 2026-10-22) */
+.f2-cur { font-family:'DM Mono',monospace; font-size: 16px; text-transform:uppercase; letter-spacing: 1px; color:var(--t-normal); }   /* Current total: just the numbers, table font (user 2026-10-22) */
 .f2-future td { opacity:.4; }
 .f2-net { color:color-mix(in srgb, var(--accent2) 70%, transparent); }
 .f2-hi { color:color-mix(in srgb, var(--accent2) 70%, transparent); }   /* St., Net, Av. St.: Trial's 70% amber (user 2026-10-22; was 50%) */
 /* Net in the Month number's font, 16px; St. + Av.S. stay DM Mono (user 2026-10-22) */
-.f2-table td.f2-net { font-family:'Bebas Neue',sans-serif; line-height:1; letter-spacing:.3px; }
+.f2-table td.f2-net { font-family:'Bebas Neue',sans-serif; line-height:1; letter-spacing: 1.5px; }
 .f2-table td.f2-net { font-size:16px; }
 .f2-table col.f2-eq { width:56px; }   /* Week, Lessons, Gigs, Weekly: one width (user 2026-10-22) */
 .f2-table col.f2-eq2 { width:63px; }   /* Monthly, Expense, Net, Gregorian: one width (user 2026-10-22) */
 .f2-table col.f2-nar { width:40px; }   /* Mo. (user 2026-10-22) */
 .f2-table col.f2-avs { width:40px; }   /* St. + Av. St.: one width (user 2026-10-22) */
-.f2-dash { color:var(--t-faint); font-family:'DM Mono',monospace; font-size:10.5px; }   /* 0 / blank in Income shows a dim 0 (user 2026-10-22) */
+.f2-dash { color:var(--t-faint); font-family:'DM Mono',monospace; font-size: 11px; }   /* 0 / blank in Income shows a dim 0 (user 2026-10-22) */
 .f2-table:not(.f2-ex) { table-layout:fixed; }
 .f2-click { cursor:pointer; }   /* an Expenses row opens its Edit window */
 .f2-click:hover td { background:rgba(255,255,255,0.03); }
@@ -3678,18 +3678,18 @@ th.f2-blk { background:none; }
 /* Travel Plan Cost analysis in the Financial 2 Expenses table's look (user 2026-10-22): grey 2px frame, DM Mono,
    dim headers, 50% values right-aligned, faint inner lines. Scoped to #travelSumTable so Trip is live keeps its table. */
 #travelSumTable .tv-sum-card { border:2px solid #3a3a3a; border-radius:var(--radius-card); background:var(--surface); padding:0; overflow:hidden; }
-#travelSumTable .tv-sum-row { grid-template-columns:1.4fr 1fr 1fr 1.4fr; height:40px; padding:0; font-family:'DM Mono',monospace; font-size:10.5px; letter-spacing:0; color:var(--t-normal); border-top:1px solid var(--border); }
-#travelSumTable .tv-sum-row > span { padding:0 10px; justify-content:flex-end; text-align:right; font-size:10.5px; color:var(--t-normal); border-left:1px solid rgba(255,255,255,0.05); }
-#travelSumTable .tv-sum-row > span.tv-sum-name { justify-content:flex-start; text-align:left; border-left:none; text-transform:uppercase; letter-spacing:.5px; }
+#travelSumTable .tv-sum-row { grid-template-columns:1.4fr 1fr 1fr 1.4fr; height:40px; padding:0; font-family:'DM Mono',monospace; font-size: 11px; letter-spacing:0; color:var(--t-normal); border-top:1px solid var(--border); }
+#travelSumTable .tv-sum-row > span { padding:0 10px; justify-content:flex-end; text-align:right; font-size: 11px; color:var(--t-normal); border-left:1px solid rgba(255,255,255,0.05); }
+#travelSumTable .tv-sum-row > span.tv-sum-name { justify-content:flex-start; text-align:left; border-left:none; text-transform:uppercase; letter-spacing: 1px; }
 #travelSumTable .tv-sum-row.tv-sum-cols { height:34px; border-top:none; }
-#travelSumTable .tv-sum-row.tv-sum-cols > span { font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:var(--t-faint); }
+#travelSumTable .tv-sum-row.tv-sum-cols > span { font-size:9px; letter-spacing: 1px; text-transform:uppercase; color:var(--t-faint); }
 #travelSumTable .tv-sum-row.tv-sum-total > span:not(.tv-sum-name) { color:color-mix(in srgb, var(--accent2) 70%, transparent); }   /* Total keeps its amber, Financial 2's 70% */
 #travelSumTable .tv-sum-none { color:var(--t-faint); }
 .tv-cal { background:none; border:none; border-radius:0; padding:0; }   /* no card round Travel Plan / Trip is live: straight on the page like Financial 2 (user 2026-10-23) */
 /* Travel Plan laid out like Financial 2 (user 2026-10-23): boxes full width, 20px section titles, 48px round the rules, 28px under the icons. */
 .tv-place, .tv-dates, #travelCalMonths, #travelSumTable, .tv-live-table { max-width:none; }
 #travelBody .tv-sec-head { margin-bottom:16px; }
-#travelBody .tv-sec-head label { font-size:20px; letter-spacing:2px; }
+#travelBody .tv-sec-head label { font-size:20px; letter-spacing: 1px; }
 #travelBody .tv-sec-rule { margin:48px 0; }
 #travelBody .tv-sec-icon { margin-bottom:28px; }
 #travelBody .tv-steps { margin-bottom:24px; }
@@ -3722,7 +3722,7 @@ th.f2-blk { background:none; }
 #travelBody .tv-dates > .tv-date { width:calc(50% - 8px); flex:none; }
 #travelBody .tv-dates-foot { justify-content:flex-start; }   /* Set bottom left of its box (user 2026-10-24; was bottom right) */
 #travelBody .tv-sub-head { margin-bottom:12px; }
-#travelBody .tv-sub-head label { font-size:14px; letter-spacing:1.5px; margin:0; }
+#travelBody .tv-sub-head label { font-size:14px; letter-spacing: 1px; margin:0; }
 /* Travel Plan boxes framed like the Dashboard's (user 2026-10-23): 2px --border frame, no fill,
    washed header band (Cost analysis header row, Leaving on / Back on tabs), faint 1px inner lines. */
 #travelBody .tv-place, #travelBody .tv-dates .tv-date-off .dtp-cell, #travelBody .tv-dates .tv-date-back .dtp-cell,
@@ -3755,7 +3755,7 @@ th.f2-blk { background:none; }
 #travelBody .tv-place-box { display:flex; align-items:stretch; width:calc(50% - 8px); height:40px; box-sizing:border-box; border:2px solid var(--border); border-radius:var(--radius-card); overflow:hidden; }
 #travelBody .tv-place-box:focus-within { border-color:#3a3a3a; }
 #travelBody .tv-place-box .tv-in-label { min-width:95px; box-sizing:border-box; justify-content:center; background:rgba(255,255,255,0.035); border-right:1px solid var(--border); color:var(--text); }
-#travelBody .tv-place-box .tv-place { flex:1; min-width:0; width:auto; height:auto; margin:0; border:none; border-radius:0; background:transparent; font-size:10px; letter-spacing:.8px; }
+#travelBody .tv-place-box .tv-place { flex:1; min-width:0; width:auto; height:auto; margin:0; border:none; border-radius:0; background:transparent; font-size:10px; letter-spacing: 1px; }
 #travelBody .tv-place-box .tv-place:focus { border:none; outline:none; }
 #travelBody .tv-box + .tv-box { margin-top:22px; }   /* no dividers between the boxes, the Dashboard's gap (user 2026-10-23) */
 /* White kept for titles (user 2026-10-23): box tabs grey like the Dashboard's row labels, dates + place like its values. */
@@ -3845,7 +3845,7 @@ th.f2-blk { background:none; }
 #imLogWin .im-link-add svg, #imLogWin .ll-add svg { width: 16px; height: 17px; }   /* one size for every add icon in the Log window, between the two (user, 2026-10-25) */
 #imLogWin #logHwVideoAddBtn.im-link-add:not(:disabled):hover:where(:not(:disabled)), #imLogWin #logHwLinkAddBtn.im-link-add:not(:disabled):hover:where(:not(:disabled)) { color: var(--text); background: none; }
 #imLogWin .im-link-yes .im-pick { margin-right: 0; }
-#imLogWin .lh-link a { color: var(--t-normal); text-decoration: none; font-size: 10.5px; }   /* the Dropbox file list's grey, no underline (user, 2026-10-25) */
+#imLogWin .lh-link a { color: var(--t-normal); text-decoration: none; font-size: 11px; }   /* the Dropbox file list's grey, no underline (user, 2026-10-25) */
 #imLogWin .lh-link a:hover { color: var(--t-bright); }
 #imLogWin .lh-link-add { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }   /* D. / E. like the notes: the box full width, the add icon under it (user, 2026-10-25) */
 #imLogWin .lh-link-add > input { width: 100%; box-sizing: border-box; }
@@ -3866,7 +3866,7 @@ th.f2-blk { background:none; }
    box, on the add icon's line (the negative bottom margin pulls the icon up beside them). */
 #imLogWin .im-pills { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0 -29px; padding-right: 36px; position: relative; z-index: 1; }
 .st-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin: 12px 0 0; justify-content: flex-start; }   /* left-aligned (user, 2026-10-28; was spread edge to edge) */   /* Skip / Reschedule reason pills (user, 2026-10-26) */
-#imLogWin .im-pill, .st-reasons .im-pill { font-family: "DM Mono", monospace; font-size: 10px; line-height: 1; letter-spacing: .2px; color: #8a8a8a; background: transparent;
+#imLogWin .im-pill, .st-reasons .im-pill { font-family: "DM Mono", monospace; font-size: 10px; line-height: 1; letter-spacing: 0; color: #8a8a8a; background: transparent;
   border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; padding: 4px 8px; cursor: pointer; }
 #imLogWin .im-pill:hover:where(:not(:disabled)), .st-reasons .im-pill:hover:where(:not(:disabled)), .st-reasons .im-pill.on { color: #ddd; border-color: rgba(255,255,255,0.4); }
 #imLogWin .ll-wrap:has(.ll-rows.locked) + .im-pills { pointer-events: none; }   /* logged: nothing to add to; not dimmed (user, 2026-10-30) */
@@ -3877,12 +3877,12 @@ th.f2-blk { background:none; }
 :is(#todoContent, #notesContent, #snotesContent) > .tdo-box:first-child { margin-top: 0; }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-row { display: flex; align-items: flex-start; gap: 12px; padding: 9px 0; }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-row + .tdo-row { border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
-:is(#todoContent, #notesContent, #snotesContent) .tdo-num { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); min-width: 20px; text-align: right; padding-top: 2px; }
+:is(#todoContent, #notesContent, #snotesContent) .tdo-num { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); min-width: 20px; text-align: right; padding-top: 2px; }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-cb { appearance: none; -webkit-appearance: none; flex-shrink: 0; width: 15px; height: 15px; margin: 1px 0 0; border: 1.5px solid var(--muted); border-radius: 50%; cursor: pointer; position: relative; }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-cb:hover:where(:not(:disabled)) { border-color: var(--green); }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-cb:checked { border-color: color-mix(in srgb, var(--green) 60%, transparent); background: color-mix(in srgb, var(--green) 14%, transparent); }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-cb:checked::after { content: "✓"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--green); }
-:is(#todoContent, #notesContent, #snotesContent) .tdo-text { flex: 1; font-size: 13px; line-height: 1.45; color: var(--t-normal); white-space: pre-wrap; word-break: break-word; }
+:is(#todoContent, #notesContent, #snotesContent) .tdo-text { flex: 1; font-size: 12px; line-height: 1.45; color: var(--t-normal); white-space: pre-wrap; word-break: break-word; }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-date { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); flex-shrink: 0; padding-top: 2px; white-space: nowrap; }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-del { padding: 0 2px 0 6px; font-size: 22px; line-height: 1;   /* bigger × (user, 2026-10-28; was 15px) */ background: none; border: none; color: var(--muted); cursor: pointer; opacity: 0; }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-row:hover .tdo-del { opacity: 1; }
@@ -3953,7 +3953,7 @@ body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http:
   padding: 22px 16px; background-color: #121212;   /* under the paper grain this averages about #1c1c1c (user, 2026-10-30; #0f0f0f, #141414 tried) */ border-radius: 10px;
   border: 1px solid #353535; border-left: 3px solid #424242; }   /* the left edge a step lighter, almost a shadow (user, 2026-10-30); sides #2a2a2a, #383838, #2e2e2e tried */
 #importBody .im-card:hover:where(:not(:disabled)) { background-color: #181818; border-color: #353535; border-left-color: #424242; }   /* one grey left edge for Today, Not logged and Others (user, 2026-10-30; were green / amber / blue) */
-#importBody .im-card .db-card-n { font-family: "Bebas Neue", sans-serif; font-size: 22px; letter-spacing: 1px; line-height: 1.05; }
+#importBody .im-card .db-card-n { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1.5px; line-height: 1.05; }
 /* Students cards come in one by one on opening the tab (user, 2026-10-30): each fades up 6px, 30ms after the one before (tabs/import.js sets --i). */
 #importBody .im-stagger > .im-card, #importBody .im-stagger > .im-title-row { animation: imCardIn .28s ease-out both; animation-delay: calc(var(--i, 0) * 30ms); }
 @keyframes imCardIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -4027,7 +4027,7 @@ html body #tab-home.active, html body #tab-audit.active {
 /* Page 1 has no heading: the window title says Log Lesson and HW (user, 2026-10-30); the case hint stays */
 #imLogWin .im-main-log .im-main-t { display: none; }
 /* Page 1 labels in the Reason (optional) look, no 1234 (user, 2026-10-30) */
-#imLogWin .im-log-wrap .im-sub-t, #imLogWin .im-main-log ~ .im-main-box .im-sub-t { font-family: "DM Mono", monospace; font-size: 11.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--t-faint); }
+#imLogWin .im-log-wrap .im-sub-t, #imLogWin .im-main-log ~ .im-main-box .im-sub-t { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--t-faint); }
 #imLogWin .im-main-head.im-main-log { margin-top: 16px; margin-bottom: 52px; }   /* room between the hint and LOG LESSON (user, 2026-10-30) */
 #imLogWin .im-pills .im-pill { color: #5e5e5e; border-color: rgba(255,255,255,0.09); }   /* keyword chips darker (user, 2026-10-30); hover still lights them */
 #imLogWin .im-pills .im-pill:hover:where(:not(:disabled)) { color: #ddd; border-color: rgba(255,255,255,0.4); }
@@ -4054,7 +4054,7 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 /* Student page in the Students tab's look (user, 2026-10-31): the name in the old section-heading look (Bebas, --t-text, not blue);
    NOTES / HISTORY / HW SENT in the spaced-caps .section-label look; the frame = the list cards' #353535 with the 3px #424242 left edge. */
 #importBody .td-student .im-title > span { color: var(--t-text); }
-#importBody .td-student .im-sec-head .db-cx-t { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+#importBody .td-student .im-sec-head .db-cx-t { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
 #importBody .td-student { border: 1px solid #353535; border-left: 3px solid #424242; }
 #importBody .td-student .db-panel.im-list { border-color: transparent; }   /* inner panels: fill only, no frame; only the outside card has a border (user, 2026-10-31; no fill at all tried, harder on the eye) */
 #importBody .td-student .im-year { border-bottom: 0.5px solid #3a3a3a; }   /* the line under the year: a hairline, a step lighter (user, 2026-10-31; was 1px #2a2a2a) */
@@ -4076,7 +4076,7 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 #importBody .td-student .db-panel.im-list { border-radius: 10px; font-size: 11px; }
 #importBody .td-student .im-year, #importBody .td-student .im-data-h { font-size: 11px; }
 #importBody .td-student .im-sec-head .field-label, #importBody .td-student .im-year, #importBody .td-student .im-data-h, #importBody .td-student .im-none { color: var(--t-normal); }
-#importBody .td-student > .im-title > span { font-size: 22px; letter-spacing: 1px; }
+#importBody .td-student > .im-title > span { font-size: 20px; letter-spacing: 1.5px; }
 #importBody .td-student .db-file { font-size: 11px; }
 #importBody .td-student .im-hw-row .im-s { color: var(--t-normal); }
 #importBody .td-student .im-year { display: none; }   /* no year line in History (user, 2026-10-31) */
@@ -4084,7 +4084,7 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
 #importBody .td-student .im-hw-row { grid-template-columns: 1fr auto; column-gap: 16px; align-items: baseline; }   /* no number column: sentence, then the date */
 #importBody .td-student .im-hw-row .im-hw-text { flex: 1; min-width: 0; margin: 0; white-space: normal; color: var(--t-normal); }   /* the HW sentence wraps; the date sits on its first line; History's colour (user, 2026-10-31) */
 #importBody .td-student .im-hw-count { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); margin: 4px 0 6px; }
-#importBody .td-student .im-hw-mat { margin: 18px 0 8px; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; }   /* "Material sent", a small header like the box titles (user, 2026-10-31; was "24 files") */
+#importBody .td-student .im-hw-mat { margin: 18px 0 8px; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }   /* "Material sent", a small header like the box titles (user, 2026-10-31; was "24 files") */
 /* Student page split into boxes (user, 2026-10-31): no big outer box; the name line on the page, then Notes, History, HW sent, Data each a box like Today's */
 #importBody .td-student.im-split { background: none; border: none; box-shadow: none; padding: 0; }
 #importBody .td-student.im-split > .im-title { padding: 0 24px; margin-bottom: 24px; }
@@ -4102,7 +4102,7 @@ body #importBody .im-split > .im-sec-box > .db-panel.im-list { background-color:
 #importBody .im-split > .im-head-card { max-width: 600px; margin: 0 auto; padding: 22px 16px; background-color: #121212; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
   border: 1px solid #353535; border-left: 3px solid #424242; border-radius: 10px; }
 #importBody .im-split > .im-head-card .im-title { padding: 0; margin: 0; align-items: center; }
-#importBody .im-split > .im-head-card .im-title > span { font-size: 22px; letter-spacing: 1px; line-height: 1.05; }
+#importBody .im-split > .im-head-card .im-title > span { font-size: 20px; letter-spacing: 1.5px; line-height: 1.05; }
 /* the top card matches the boxes under it: their width, fill and frame; Back in it, left of the name (user, 2026-10-31) */
 body #importBody .im-split > .im-head-card { max-width: none; display: flex; align-items: center; gap: 18px; }
 #importBody .im-split > .im-head-card > .im-head-main { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }   /* the name (user, 2026-10-31) */
@@ -4131,11 +4131,11 @@ html body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; }
 #slcBody .slc-scard, #slcBody .slc-scard:hover:where(:not(:disabled)) { max-width: 600px; margin: 0 auto 10px; padding: 22px 16px; box-sizing: border-box;
   background-color: #121212; border-radius: 10px; border: 1px solid #353535; border-left: 3px solid #424242;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E"); }
-#slcBody .slc-scard .db-card-n { font-family: "Bebas Neue", sans-serif; font-size: 22px; letter-spacing: 1px; line-height: 1.05; }
+#slcBody .slc-scard .db-card-n { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1.5px; line-height: 1.05; }
 
 /* Comms (user, 2026-11-01): Students fill the page; Others is a window behind a button. */
 #commsBody .cm-stu { margin-top: 8px; }
-#commsBody .cm-col-t { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--t-bright); margin-bottom: 14px;
+#commsBody .cm-col-t { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1.5px; color: var(--t-bright); margin-bottom: 14px;
   display: flex; align-items: center; justify-content: flex-end; }   /* just New text, right */
 #commsBody .td-wk-title .cm-oth-btn { margin-left: auto; margin-right: 8px; }
 .cm-oth-acts { display: flex; align-items: center; gap: 10px; }
@@ -4162,8 +4162,8 @@ html body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; }
 .cm-conv-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .cm-conv-top { display: flex; justify-content: space-between; gap: 10px; }
 .cm-conv-name { font-family: "DM Mono", monospace; font-size: 12px; color: var(--t-normal); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cm-conv-when { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); flex: none; }
-.cm-conv-prev { font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-faint); line-height: 1.45;
+.cm-conv-when { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); flex: none; }
+.cm-conv-prev { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); line-height: 1.45;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .cm-conv.cm-wait .cm-dot { background: var(--accent); }
 .cm-conv.cm-wait .cm-conv-name { color: var(--t-bright); }
@@ -4188,7 +4188,7 @@ html body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; }
 .cm-to { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); }
 #cmPaneTo { color: var(--t-normal); margin-left: 4px; }   /* was t-bright, too bright (user, 2026-11-05) */
 .cm-pane-thread { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; scrollbar-width: thin; scrollbar-color: #333 transparent; }
-.cm-stamp { align-self: center; font-family: "DM Mono", monospace; font-size: 9.5px; letter-spacing: .5px; color: var(--t-faint); margin: 10px 0 4px; }
+.cm-stamp { align-self: center; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0; color: var(--t-faint); margin: 10px 0 4px; }
 .cm-msg { border-radius: 16px; }
 .cm-msg.in { border-bottom-left-radius: 4px; }
 .cm-msg.out { border-bottom-right-radius: 4px; }
@@ -4219,20 +4219,20 @@ html body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; }
 .cm-msgr .cm-reply, .cm-msgr .cm-none, .cm-msgr .cm-new-opt, .cm-msgr .cm-sending {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; letter-spacing: 0; }
 /* Sizes pulled toward the amp knob labels (8px) (user, 2026-11-10: 11–13px → ~10, then "smaller still" → ~8.5) */
-.cm-msgr .cm-conv-name { font-size: 8.5px; font-weight: 600; }
-.cm-msgr .cm-conv-prev { font-size: 8px; line-height: 1.35; }
-.cm-msgr .cm-conv-when { font-size: 8px; }
+.cm-msgr .cm-conv-name { font-size: 9px; font-weight: 600; }
+.cm-msgr .cm-conv-prev { font-size: 9px; line-height: 1.35; }
+.cm-msgr .cm-conv-when { font-size: 9px; }
 .cm-msgr .cm-ava { font-size: 9px; font-weight: 600; }
 .cm-msgr .cm-search { font-size: 9px; }
 .cm-msgr .cm-to { font-size: 9px; }
 .cm-msgr #cmPaneTo { font-weight: 600; }
-.cm-msgr .cm-msg-t { font-size: 8.5px; line-height: 1.4; }   /* 14.5 → 12 (user, 2026-11-09) → 10 (2026-11-10) */
-.cm-msgr .cm-stamp { font-size: 7.5px; font-weight: 500; letter-spacing: 0; }
-.cm-msgr .cm-react-note { font-size: 8px; }
-.cm-msgr .cm-reply { font-size: 8.5px; }
-.cm-msgr .cm-sending { font-size: 8px; }   /* "Delivered" (was 11px) */
+.cm-msgr .cm-msg-t { font-size: 9px; line-height: 1.4; }   /* 14.5 → 12 (user, 2026-11-09) → 10 (2026-11-10) */
+.cm-msgr .cm-stamp { font-size: 9px; font-weight: 500; letter-spacing: 0; }
+.cm-msgr .cm-react-note { font-size: 9px; }
+.cm-msgr .cm-reply { font-size: 9px; }
+.cm-msgr .cm-sending { font-size: 9px; }   /* "Delivered" (was 11px) */
 .cm-msgr .cm-new-opt { font-size: 9px; }
-.cm-msgr .cm-none { font-size: 8.5px; text-transform: none; }
+.cm-msgr .cm-none { font-size: 9px; text-transform: none; }
 .cm-emo { opacity: .6; filter: saturate(.75); }   /* emojis in the list previews a bit dimmer (user, 2026-11-10) */
 /* Pictures (user, 2026-11-01): + / paste / drop a screenshot, shown in the bubble. */
 .cm-attach { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface2); color: var(--t-normal);
@@ -4267,7 +4267,7 @@ img.cm-img[data-media] + img.cm-img { margin-top: 4px; }
 a.cm-file:hover { background: rgba(255,255,255,0.14); }
 .cm-file-ico { flex: none; width: 30px; height: 36px; border-radius: 4px; background: #f2f2f2; color: #c33; font: 700 9px -apple-system, Arial, sans-serif;
   display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px; box-sizing: border-box; }
-.cm-file-name { font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.cm-file-name { font-size: 12px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .cm-attach-chip .cm-file { background: var(--surface2); border: 1px solid var(--border); }
 #todayBody .td-today-box { position:relative; }
 #todayBody .td-hero { position:absolute; left:50%; transform:translateX(calc(-50% + 30px)); top:85px; height:70px; opacity:.55; pointer-events:none; }   /* red combo amp in the Today box, bottom on the "N students" line (user, 2026-11-02; was the orange amp head) */
@@ -4280,7 +4280,7 @@ a.cm-file:hover { background: rgba(255,255,255,0.14); }
 #tdAllBody .td-all-name { background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }   /* shadow like the Today tab's name buttons (user, 2026-11-04) */
 .td-all-box { display: block; margin-top: 0; }   /* No show's box (ts-thread), text down the page, not a flex column */
 .td-all-h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-.td-all-lbl { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--t-faint); }
+.td-all-lbl { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--t-faint); }
 .td-all-txt { font-family: "Caveat", cursive; font-size: 18px; line-height: 1.3; letter-spacing: 0.2px; color: var(--t-normal); }   /* softer (user, 2026-11-01) */
 .td-all-li { position: relative; padding-left: 18px; }
 /* Pictures stand on their own like in Messages, no bubble around them (user, 2026-11-10); a caption gets its own bubble under the picture. */
@@ -4328,11 +4328,11 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 #imLogWin .im-rec-btn:hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 50%, transparent); }
 #imLogWin .im-rec-btn.done, #imLogWin .im-rec-btn.done:hover:where(:not(:disabled)) { color: #111111; background: #9a9a9a; border-color: #9a9a9a; }   /* picked: a soft grey, #e8e8e8 too bright (user, 2026-11-09) */   /* picked = inverted (user, 2026-11-02) */
 /* Log page: boxes left, one Terms column right (user, 2026-11-02); the window wider on that page only */
-.st-win.im-log-win.im-log-wide { width: min(880px, 96vw); min-height: min(800px, 92vh); }   /* one size on every page: the Log page's (user, 2026-11-08) */
+.st-win.im-log-win.im-log-wide { width: min(700px, 96vw); min-height: min(600px, 92vh); }   /* one size on every page: the Log page's (user, 2026-11-08) */
 #imLogWin .im-log-cols { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 32px; align-items: start; }
 #imLogWin .im-terms-col { align-self: stretch; padding-left: 0; }
 #imLogWin .im-terms-grp + .im-terms-grp { margin-top: 16px; }
-#imLogWin .im-terms-h { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--t-faint); margin-bottom: 8px; }
+#imLogWin .im-terms-h { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); margin-bottom: 8px; }
 #imLogWin .im-terms-col .im-pills { float: none; width: auto; margin: 0; }
 /* Phrase buttons as plain words (user, 2026-11-02): no chip, lit on hover */
 #imLogWin .im-pills.im-words { gap: 0; row-gap: 4px; align-items: baseline; }
@@ -4340,7 +4340,7 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 #imLogWin .im-pills.im-words .im-pill:hover:where(:not(:disabled)) { color: var(--t-text); background: none; }   /* was #ffffff, too bright (user, 2026-11-08) */
 #imLogWin .im-word-sep { font-family: "DM Mono", monospace; font-size: 10px; color: color-mix(in srgb, var(--t-faint) 60%, transparent); margin: 0 8px; }   /* a dash between the words (user, 2026-11-02; was a comma) */
 /* Titles on every Log window page in the spread-out DM Mono (user, 2026-11-02; Bebas tried and dropped) */
-#imLogWin .im-main-box .im-sub-t, #imLogWin .im-main-log ~ .im-main-box .im-sub-t, #imLogWin #imMailBox .field-label { font-family: "DM Mono", monospace; font-size: 11.5px; letter-spacing: 2.5px; text-transform: uppercase; color: #7c7c7c; }   /* the words' old grey, swapped (user, 2026-11-02) */
+#imLogWin .im-main-box .im-sub-t, #imLogWin .im-main-log ~ .im-main-box .im-sub-t, #imLogWin #imMailBox .field-label { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #7c7c7c; }   /* the words' old grey, swapped (user, 2026-11-02) */
 #imLogWin #imMailBox .field-label .im-mail-opt { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--t-faint); }
 #imLogWin #imTermsCol { align-self: stretch; display: flex; }
 #imLogWin #imTermsCol > .im-terms-col { flex: 1; }
@@ -4360,12 +4360,12 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 /* + Log ready = inverted: amber fill, dark text (user, 2026-11-09); not ready stays the faded outline */
 /* Ready = inverted amber (user, 2026-11-09; black/white tried, amber is better): darker amber fill, bold dark text,
    letters close. Not ready = the faded amber outline. */
-#imLogWin .im-page:is([data-pg="6"], [data-pg="3"]) .im-mat-q { font-family: "DM Mono", monospace; font-size: 11.5px; letter-spacing: 2.5px; text-transform: uppercase; color: #7c7c7c; }   /* RECORDED ON THEIR SIDE? in the titles' look (FILES, WEB LINK; user, 2026-11-09) */
+#imLogWin .im-page:is([data-pg="6"], [data-pg="3"]) .im-mat-q { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #7c7c7c; }   /* RECORDED ON THEIR SIDE? in the titles' look (FILES, WEB LINK; user, 2026-11-09) */
 #imLogWin .im-page:is([data-pg="6"], [data-pg="3"]) .im-rec-btn:not(.done) { color: var(--muted); border-color: color-mix(in srgb, #ffffff 15%, transparent); background: none; }   /* Phone / Zoom quieter until picked (user, 2026-11-09) */
 #imLogWin .im-page:is([data-pg="6"], [data-pg="3"]) .im-rec-btn:not(.done):hover:where(:not(:disabled)) { color: var(--t-normal); border-color: color-mix(in srgb, #ffffff 30%, transparent); }
 #imLogWin #imMatFilesTools.im-mat-tools-below { display: flex; justify-content: flex-end; margin-top: 12px; }   /* Gather / Browse / Dropbox under the drop zone (user, 2026-11-09) */
 /* Ready = solid darker amber, bold dark text (user, 2026-11-09; a tinted version tried, "better before") */
-#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn, #imMailSend).amber:not(:disabled) { background: oklch(0.52 0.12 76); color: #111111; border-color: oklch(0.52 0.12 76); font-weight: 700; }
+#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn, #imMailSend).amber:not(:disabled) { background: oklch(0.52 0.12 76); color: #111111; border-color: oklch(0.52 0.12 76); font-weight: 500; }
 #imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn, #imMailSend).amber:not(:disabled):hover:where(:not(:disabled)) { background: oklch(0.58 0.14 76); border-color: oklch(0.58 0.14 76); color: #111111; }
 #imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn, #imMailSend).amber:disabled { color: var(--muted); border-color: color-mix(in srgb, #ffffff 16%, transparent); background: none; opacity: 1; }   /* off = greyish outline, no amber (user, 2026-11-09; black pill tried, reverted) */
 #imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn, #imMailSend).amber { letter-spacing: 0; padding-left: 10px; padding-right: 10px; border-radius: 999px; }   /* tight: no letter spread, less amber either side, a full pill (user, 2026-11-09; 3px corners tried) */   /* Done = LOG's job on page 2: same spot, same look (user, 2026-11-09) */   /* STEPS / SHORTCUTS in the left titles' grey, not brighter (user, 2026-11-09) */
@@ -4383,7 +4383,7 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 #imLogWin #imSideNav { display: flex; justify-content: flex-end; gap: 6px; margin-top: 22px; margin-right: -4px; }   /* ← → under the steps, right-aligned (user, 2026-11-08/09) */
 #imLogWin #imSideNav .im-pg-arrow .pg-arrow-icon { width: 18px; height: 18px; }   /* smaller (user, 2026-11-09) */
 #imLogWin .im-side-div { height: 1px; background: color-mix(in srgb, #ffffff 11%, transparent); margin: 36px -24px 26px -30px; }   /* a bit lower (user, 2026-11-08) · full width: from the panel line to the window edge (user, 2026-11-08) */
-#imLogWin .im-step-side { display: flex; justify-content: space-between; align-items: baseline; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--t-faint); padding: 4px 0; }
+#imLogWin .im-step-side { display: flex; justify-content: space-between; align-items: baseline; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); padding: 4px 0; }
 #imLogWin .im-step-side + .im-step-side { margin-top: 10px; }
 #imLogWin .im-step-side.done { color: color-mix(in srgb, var(--t-faint) 70%, transparent); }
 #imLogWin .im-step-side.on { color: oklch(0.60 0.13 76); }   /* the step you're on in amber, the Log button's (user, 2026-11-09; white was too bright) */
@@ -4437,7 +4437,7 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 #imLogWin .im-mail-dark p { margin: 0 0 14px; }
 #imLogWin .im-mail-dark strong { color: var(--t-normal); }   /* was #d8d8d8, too white (user, 2026-11-08) */
 #imLogWin .im-mail-dark hr { border: none !important; border-top: 1px solid color-mix(in srgb, #ffffff 10%, transparent) !important; margin: 22px 0 !important; }
-#imLogWin .im-mail-dark .im-ml-h { margin: 18px 0 4px; font-size: 11px; font-weight: 700; letter-spacing: .3px; color: var(--t-normal); }   /* was #bdbdbd (user, 2026-11-08) */
+#imLogWin .im-mail-dark .im-ml-h { margin: 18px 0 4px; font-size: 11px; font-weight: 500; letter-spacing: 0; color: var(--t-normal); }   /* was #bdbdbd (user, 2026-11-08) */
 #imLogWin .im-mail-dark [style*="background"] { background: color-mix(in srgb, #ffffff 3%, transparent) !important; border-color: color-mix(in srgb, #ffffff 9%, transparent) !important; }
 #imLogWin .im-mail-dark [style*="color:#555"], #imLogWin .im-mail-dark [style*="color:#666"] { color: var(--t-faint) !important; }
 #imLogWin .im-mail-dark a { color: #7aa3dd !important; }
@@ -4597,7 +4597,7 @@ html body .header .hdr-mag { right: 23.5px; }
 .ann-win div.ann-cost { font-size: 11px; text-align: right; margin-bottom: 46px; }   /* a footnote under the bubble, smaller than the steps (user, 2026-11-06) */
 /* Confirmations = the To list with marks (user, 2026-11-06): ✓ confirmed, ★ needs reply, empty circle awaiting. */
 .ann-facts { display: grid; grid-template-columns: auto 1fr; gap: 8px 18px; margin: 0 0 20px; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.45; }   /* Subject / Sent / Confirms (user, 2026-11-06) */
-.ann-fact-k { color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }   /* SUBJECT / SENT / CONFIRMS in caps (user, 2026-11-06) */
+.ann-fact-k { color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }   /* SUBJECT / SENT / CONFIRMS in caps (user, 2026-11-06) */
 .ann-fact-v { color: var(--t-normal); }
 .ann-facts-box { border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin: 0 0 16px; }   /* Subject / Sent / Confirms + Show text in one frame (user, 2026-11-06) */
 .ann-facts-box .ann-facts { margin-bottom: 14px; }
@@ -4620,7 +4620,7 @@ html body .header .hdr-mag { right: 23.5px; }
 .ann-facts-box { background: var(--rpm-card-bg, #1c1c1c); box-shadow: var(--rpm-card-lift, inset 0 1px 0 rgba(255,255,255,0.06), 0 3px 8px rgba(0,0,0,0.55)); border-color: transparent; }   /* lighter + lifted, the portal's card plate (user, 2026-11-06) */
 .ann-win .ann-card .ann-to-head { margin-top: 34px; }
 .ann-legend { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0 0 18px; }
-.ann-legend .db-check { color: var(--muted); font-size: 11.5px; cursor: default; }
+.ann-legend .db-check { color: var(--muted); font-size: 11px; cursor: default; }
 .ann-legend b { font-weight: normal; color: var(--t-normal); margin-left: 2px; }
 .ann-conf-list .db-check { cursor: pointer; color: var(--t-normal); }
 .ann-conf-list .db-check:hover { color: var(--t-bright); }
@@ -4634,7 +4634,7 @@ html body .header .hdr-mag { right: 23.5px; }
 .ann-win-icon { margin: -12px 0 26px 4px; line-height: 0; }   /* closer to the title, more room before DRAFT (user, 2026-11-06) */
 .ann-win-icon .win-icon { width: auto; height: 32px; color: var(--muted); }   /* the megaphone is wide: 32px, not No show's 40 (user, 2026-11-06) */
 .ann-acts { display: flex; gap: 10px; margin: 0 0 14px; }
-.ann-textbox { font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; line-height: 1.55; color: var(--t-normal); white-space: pre-wrap;
+.ann-textbox { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.55; color: var(--t-normal); white-space: pre-wrap;
   background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; }
 .ann-row-l { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .ann-row-sub { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 380px; }
@@ -4650,18 +4650,18 @@ html body .header .hdr-mag { right: 23.5px; }
 .ann-prev-icon { margin: 0 0 10px; }
 .ann-draft-icon { margin: 4px 0 20px; }   /* more room between the icon and its note (user, 2026-11-06; was 12px) */
 .ann-prev-t { color: var(--t-text); margin: 0 0 6px; }
-.ann-prev-who { margin-bottom: 18px; font-family: "DM Mono", monospace; font-size: 10.5px; color: rgba(255,255,255,.5); }
+.ann-prev-who { margin-bottom: 18px; font-family: "DM Mono", monospace; font-size: 11px; color: rgba(255,255,255,.5); }
 .ann-prev { margin-bottom: 30px; }
-.ann-prev .tv-rv-bub { color: var(--t-normal); font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; }
+.ann-prev .tv-rv-bub { color: var(--t-normal); font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
 textarea.cm-reply.ann-text { background: var(--surface2); color: var(--t-normal); border: 1px solid var(--border); border-radius: 10px;
-  padding: 12px 14px; font-size: 12.5px; line-height: 1.55; }
+  padding: 12px 14px; font-size: 12px; line-height: 1.55; }
 textarea.cm-reply.ann-text:focus-visible { outline: none; }
 /* [Student] lit amber in the draft (user, 2026-11-05): the grey box is drawn by the layer behind, the textarea is see-through on top. */
 .ann-hl-wrap { position: relative; border-radius: 10px; background: var(--surface2); }
 /* Greeting picker + the draft as my blue bubble (user, 2026-11-06): one box, no Preview. */
 .ann-greet { display: flex; gap: 26px; margin: 30px 0 20px; }
 .ann-words { align-items: center; gap: 10px; }
-.ann-word { font-family: Arial, Helvetica, sans-serif; font-size: 9.5px; line-height: 1; color: var(--muted); background: none; border: 1px solid rgba(255,255,255,0.14); border-radius: 999px; padding: 3px 8px; cursor: pointer; }   /* bordered pills to click (user, 2026-11-06) */   /* keywords like the Lesson Log's: plain words, lit on hover (user, 2026-11-06) */
+.ann-word { font-family: Arial, Helvetica, sans-serif; font-size: 10px; line-height: 1; color: var(--muted); background: none; border: 1px solid rgba(255,255,255,0.14); border-radius: 999px; padding: 3px 8px; cursor: pointer; }   /* bordered pills to click (user, 2026-11-06) */   /* keywords like the Lesson Log's: plain words, lit on hover (user, 2026-11-06) */
 .ann-word:hover { color: var(--t-bright); border-color: rgba(255,255,255,0.4); }
 .ann-bub > .ann-hl-wrap:first-child .ann-hl, .ann-bub > .ann-hl-wrap:first-child textarea.cm-reply.ann-text { padding-top: 10px; }   /* no greeting line above any more */
 .ann-words .im-word-sep { color: var(--t-faint); }
@@ -4672,20 +4672,20 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
 .ann-greet .ann-mark { padding: 2px 6px; margin: 0 2px; border-radius: 4px; }   /* a wider highlight on NAME (user, 2026-11-06) */
 .ann-thread { margin: 0; min-height: 132px; }
 #annBody .ann-thread { border-style: dashed; }   /* the text frame dashed (user, 2026-11-06) */
-.ann-thread .ann-bub { padding: 0; min-width: 200px; max-width: 85%; color: var(--t-normal); font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; }
+.ann-thread .ann-bub { padding: 0; min-width: 200px; max-width: 85%; color: var(--t-normal); font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
 .ann-bub .ann-hl-wrap { background: transparent; border-radius: 10px; }
 /* The mirror under the text sets the bubble's size; the textarea lies on top of it, same font and padding, so it grows with it. */
 .ann-bub .ann-hl { position: static; inset: auto; padding: 0 14px 10px; border: 0; min-height: 1.55em; }
 .ann-bub .ann-hl-wrap textarea.cm-reply.ann-text { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; margin: 0; padding: 0 14px 10px;
-  border: 0; resize: none; overflow: hidden; background: transparent; font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; line-height: 1.55; color: var(--t-normal); }
+  border: 0; resize: none; overflow: hidden; background: transparent; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.55; color: var(--t-normal); }
 .ann-bub .ann-hl-wrap textarea.cm-reply.ann-text::placeholder { color: color-mix(in srgb, var(--t-normal) 60%, transparent); }
 .ann-bub .ann-greet-line:not([hidden]) + .ann-hl-wrap textarea.cm-reply.ann-text, .ann-bub .ann-greet-line:not([hidden]) + .ann-hl-wrap .ann-hl { padding-top: 19px; }   /* a blank line under the greeting, as sent */
 .ann-bub .ann-greet-line[hidden] + .ann-hl-wrap textarea.cm-reply.ann-text, .ann-bub .ann-greet-line[hidden] + .ann-hl-wrap .ann-hl { padding-top: 10px; }
-.ann-greet-line { font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; line-height: 1.55; color: var(--t-normal); padding: 10px 14px 0; white-space: nowrap; }
+.ann-greet-line { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.55; color: var(--t-normal); padding: 10px 14px 0; white-space: nowrap; }
 .ann-thread + .ann-cost { margin-top: 14px; }
 .ann-hl-wrap textarea.cm-reply.ann-text { position: relative; z-index: 1; background: transparent; display: block; margin: 0; }
 .ann-hl { position: absolute; inset: 0; box-sizing: border-box; padding: 12px 14px; border: 1px solid transparent; overflow: hidden; pointer-events: none;
-  font-family: Arial, Helvetica, sans-serif; font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: break-word; color: transparent; }
+  font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: break-word; color: transparent; }
 .ann-hl mark, .ann-mark { background: rgba(255,255,255,0.13); color: transparent; border-radius: 3px; }   /* grey, not amber (user, 2026-11-05) */
 .ann-mark { color: var(--t-normal); padding: 0 2px; }   /* no light edge while typing (user, 2026-11-05) */
 .ann-cost { font-size: 11px; color: var(--muted); margin: 4px 0 34px; line-height: 1.6; }
@@ -4705,7 +4705,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
 .ann-others .ann-past { margin-top: 8px; }
 .ann-foot { display: flex; justify-content: space-between; align-items: center; }
 /* History: the empty-row dash smaller and a bit in; handwriting stays 18px (user, 2026-11-05) */
-#importBody .td-student .im-block .im-row.im-empty .im-s { font-size: 13px; padding-left: 8px; }
+#importBody .td-student .im-block .im-row.im-empty .im-s { font-size: 12px; padding-left: 8px; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    THE BOX (user, 2026-11-06): ONE look for every big box in the portal —
@@ -4782,7 +4782,7 @@ html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-c
 #tab-calendar .cal-bar, #tab-calendar .cal-inner { box-shadow: var(--rpm-box-ring); }   /* the Calendar's racks + cab get the plates' double border (user, 2026-11-06) */
 #tab-calendar .cal-wrap { padding: 3px; margin: 0 -3px; }   /* room for the cab's ring inside the scroller (it clips) */
 /* Every None / nothing-found line: ALL CAPS, in the middle of its row (user, 2026-11-06) */
-:is(.empty-state, .inq-empty, .im-none, .cm-none, .inq-resp-none, .gl-none, .db-all-empty, .rpm-none) { text-transform: uppercase; letter-spacing: 2px; text-align: center; }
+:is(.empty-state, .inq-empty, .im-none, .cm-none, .inq-resp-none, .gl-none, .db-all-empty, .rpm-none) { text-transform: uppercase; letter-spacing: 1px; text-align: center; }
 .db-all-empty { display: block; }
 #importBody .im-goals-box .gl-none { padding-left: 0; }
 .cm-msgr .cm-none { text-transform: uppercase; }
@@ -4801,7 +4801,7 @@ body:has(#tab-home.active) .home-rack { display: block; }
 .hr-sp { flex: 1; }
 .hr-pair { display: inline-flex; gap: 12px; }
 .hr-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.hr-cap { font: 8px "DM Mono", monospace; letter-spacing: 1.2px; text-transform: uppercase; color: #6e6e6e; white-space: nowrap; }
+.hr-cap { font: 8px "DM Mono", monospace; letter-spacing: 1px; text-transform: uppercase; color: #6e6e6e; white-space: nowrap; }
 /* the Comms rack's push buttons (tabs/calendar.js .cr-pb), copied so Home needs no Calendar style */
 .hr-pb { width: 16px; height: 16px; padding: 0; border-radius: 2.5px;   /* smaller than the Comms rack's 22 (user, 2026-11-07) */ background: linear-gradient(#3a3a3a, #232323); box-shadow: 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); border: 1px solid #111; cursor: pointer; }
 .hr-pb.lit { background: linear-gradient(oklch(.65 .16 29), oklch(.54 .17 29)); box-shadow: 0 0 6px oklch(.63 .19 29 / .4), inset 0 1px 0 rgba(255,255,255,.35); }
@@ -4846,7 +4846,7 @@ html body .cm-box-btns { gap: 26px; align-items: flex-end; top: 30px; }   /* cap
 .cm-pb:hover:where(:not(:disabled)) { background: linear-gradient(#444, #2a2a2a); }
 .cm-pb.lit, .cm-pb.lit:hover { background: radial-gradient(circle at 50% 42%, oklch(.6 .17 29), oklch(.44 .15 29) 70%, oklch(.34 .12 29));
   box-shadow: inset 0 0 3px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.12), 0 0 5px oklch(.55 .18 29 / .3); }   /* the Fixed schedule lit look */
-.cm-pcap { font: 8px "DM Mono", monospace; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); white-space: nowrap;
+.cm-pcap { font: 8px "DM Mono", monospace; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); white-space: nowrap;
   text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
 .cm-pcol:has(.cm-pb.lit) .cm-pcap { color: #a8a8a8; }
 /* Templates + Announcements = the amp's knob, copied from .header .amp-knob-k (user, 2026-11-10: "regular amp knob"; they never light).
@@ -5017,7 +5017,7 @@ html body .header > img, html body .header > .hdr-name { zoom: .92; }
    new texts since Comms was last opened, amber + glow while any wait, dim at 0; click opens Comms; caption under it on the others' line.
    Delete this block + put the old hr-pb Comms button back in index.html + the hrTextCount lines in tabs/comms.js to undo. */
 .hr-count { min-width: 40px; height: 26px; padding: 0 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: 2px; background: #1b1006; border: 1px solid #000; box-shadow: inset 0 2px 5px rgba(0,0,0,.9); cursor: pointer;
-  font: 500 12px "DM Mono", monospace; letter-spacing: 1.5px; color: oklch(.72 .14 70 / .3); }
+  font: 500 12px "DM Mono", monospace; letter-spacing: 1px; color: oklch(.72 .14 70 / .3); }
 .hr-count.on { color: oklch(.72 .14 70); text-shadow: 0 0 5px oklch(.63 .19 60 / .4); }
 .home-rack .hr-pair { align-items: center; }   /* buttons centred on the taller Comms counter, not top-aligned (user, 2026-11-08) */
 .home-rack .hr-row { position: relative; }
@@ -5218,7 +5218,7 @@ html body #calBody .cr-lcd { font-size: 10px; }
 html body #calBody .cr-lcd small { font-size: 8.5px; letter-spacing: 1.5px; opacity: .75; }
 /* LESSONS inside the Calendar's counter, like the Load screen's WEEK A 18 (user, 2026-11-09). Delete + the markup in tabs/calendar.js to undo. */
 html body #calBody .cr-count { gap: 12px; }
-html body #calBody .cr-count small { font: 500 8px 'DM Mono', monospace; letter-spacing: 1.5px; text-transform: uppercase; opacity: .75; }
+html body #calBody .cr-count small { font: 500 8px 'DM Mono', monospace; letter-spacing: 1px; text-transform: uppercase; opacity: .75; }
 html body #calBody .cr-count b { font-weight: 500; }
 /* Calendar week screen + arrows = the Home rack's (user, 2026-11-09): screen 190 × 36, ‹ › 23px with the Home arrows' darker rim and 10px glyph,
    10px from the screen. The W / B meter's lit bars toned to the screen's text green (a solid bar read brighter than the same green in text). Delete to undo. */
@@ -5229,7 +5229,7 @@ html body #calBody .cr-lr i { background: repeating-linear-gradient(90deg, trans
    typing lights it in the screen's green. Delete to undo (Home-style search box). */
 html body .cal-search .rpm-field { height: 36px; padding: 0 12px 0 30px; border-radius: 3px; border: 1px solid #000; background: #070807;
   box-shadow: inset 0 2px 6px rgba(0,0,0,.8); color: oklch(.72 .08 145); text-shadow: 0 0 5px oklch(.63 .19 145 / .35);
-  font: 10px 'DM Mono', monospace; letter-spacing: 2px; text-transform: uppercase; }
+  font: 10px 'DM Mono', monospace; letter-spacing: 1px; text-transform: uppercase; }
 html body .cal-search .rpm-field:focus { border-color: #000; background: #0a0c0a; }
 html body .cal-search svg { stroke: #2e332e; }
 html body .cal-search:focus-within svg { stroke: oklch(.72 .08 145 / .6); }
@@ -5325,7 +5325,7 @@ html body #tab-calendar #calBody > .cal-bar2.cr, html body #fcBody > .cal-bar.cr
 #imLogWin .im-page[data-pg="6"] #imMatBox { margin-top: 24px; }   /* more room under the icon (user, 2026-11-09) */
 #imLogWin #logHwFiles span[style*="--muted"] { color: #5a5a5a !important; }   /* the drop zone line darker (user, 2026-11-09; was --muted #7a7a7a) */
 /* Page 4 in pages 1-3 colours (user, 2026-11-09): titles in the LOG LESSON look, boxes the dark field fill */
-#imLogWin .im-ml-h > label { font-family: "DM Mono", monospace; font-size: 11.5px; font-weight: 400; letter-spacing: 2.5px; color: #7c7c7c; }
+#imLogWin .im-ml-h > label { font-family: "DM Mono", monospace; font-size: 11px; font-weight: 400; letter-spacing: 1px; color: #7c7c7c; }
 #imLogWin .im-mail-dark textarea.im-ml-box { background: #0f0f0f; border-color: #2a2a2a; }
 #imLogWin .im-mail-box img { content: url(../img/portal-logo-grey.png); filter: brightness(.9) saturate(.8); }   /* the amp header logo (grey white, dimmed), in the portal preview only; the email itself keeps email-logo.png (user, 2026-11-09) */
 #imLogWin #imMailDark hr { display: none; }   /* no divider lines in the email preview (user, 2026-11-09) */
@@ -5349,7 +5349,7 @@ html body #commsBody .cm-box.cm-on-others > .cm-stu { display: none; }
 html body #commsBody .cm-box > .cm-oth-page { flex: 1 0 auto; display: flex; flex-direction: column; min-height: max(420px, calc(calc(var(--vh) * 100) - 513px)); }
 html body #commsBody .cm-oth-top { box-sizing: border-box; height: 48px; min-height: 48px; display: flex; align-items: center; justify-content: space-between;
   padding: 0 16px 0 18px; background: #151515; border-bottom: 1px solid var(--border); }
-html body #commsBody .cm-oth-name { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: var(--t-normal); }
+html body #commsBody .cm-oth-name { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); }
 html body #commsBody .cm-oth-body { padding: 14px 20px 22px; }
 html body #commsBody .cm-oth-page .cm-filters { justify-content: flex-start; margin-top: 0; }
 html body #commsBody .cm-oth-page .field-label { display: block; margin: 0 0 8px; }
@@ -5359,3 +5359,10 @@ html body #commsBody .cm-oth-page .field-label { display: block; margin: 0 0 8px
 /* Comms TWILIO title engraved like the header name, phone icon dimmed (user, 2026-11-12). Delete to undo. */
 html body #commsBody .cm-headbox .td-wk-title, html body #commsBody .cm-headbox .td-wk-title * { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
 html body #commsBody .cm-title-icon { opacity: .45; filter: drop-shadow(0 -1px 0 rgba(0,0,0,.85)) drop-shadow(0 1px 0 rgba(255,255,255,.09)); }
+
+/* CONTENT SCALE (user, 2026-11-12): at 175% browser zoom the amp reads right but everything inside the boxes read one size up.
+   One knob: the inside of every tab box and every window at 86% (= what 150% looks like); the amp, header and box frames stay.
+   Home + Audit (amps) and Calendar (drag maths) left out for now. */
+:root { --content-scale: .8; }
+.tab-panel:not(#tab-home, #tab-audit, #tab-calendar) > :not(.td-bolt) { zoom: var(--content-scale); }
+:is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) > * { zoom: var(--content-scale); }   /* every window + warning dialog */

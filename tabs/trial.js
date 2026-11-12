@@ -733,7 +733,7 @@ function _trAvStyle() {
     ".tr-av-grid{display:grid;grid-template-columns:38px repeat(7,1fr);gap:3px;font-family:'DM Mono',monospace;" +
       "background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:6px}" +
     ".tr-av-day{text-align:center;font-size:9px;letter-spacing:.5px;color:var(--muted);padding-bottom:3px}" +
-    ".tr-av-day b{display:block;font-size:13px;font-weight:700;color:var(--text)}" +
+    ".tr-av-day b{display:block;font-size:14px;font-weight:500;color:var(--text)}" +
     ".tr-av-day.past,.tr-av-day.past b{color:rgba(180,180,180,.25)}" +
     ".tr-av-time{font-size:9px;color:var(--muted);text-align:right;padding-right:4px;line-height:22px}" +
     ".tr-av-sq{height:22px;border-radius:3px;font-family:inherit;font-size:9px;line-height:20px;text-align:center;" +

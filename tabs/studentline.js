@@ -40,10 +40,10 @@ function renderStudentLine() {
     card.style.cssText = "background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:8px";
     card.innerHTML =
       "<div style='display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px'>" +
-        "<span style='font-weight:600;color:var(--text);font-size:13px'>" + slEsc(m.student || "Unknown") + "</span>" +
+        "<span style='font-weight:500;color:var(--text);font-size:12px'>" + slEsc(m.student || "Unknown") + "</span>" +
         "<span style='font-size:10px;color:var(--muted)'>" + slTime(m.timestamp) + "</span>" +
       "</div>" +
-      "<div style='font-size:13px;color:var(--text);margin-bottom:10px;white-space:pre-wrap'>" + slEsc(m.body || "—") + "</div>" +
+      "<div style='font-size:12px;color:var(--text);margin-bottom:10px;white-space:pre-wrap'>" + slEsc(m.body || "—") + "</div>" +
       "<div style='display:flex;gap:8px'>" +
         "<button onclick=\"slSetStatus(" + m.row + ",'handled')\" style='flex:1;padding:8px;background:rgba(80,200,120,0.12);border:1px solid rgba(80,200,120,0.4);color:#4ec27a;border-radius:5px;font-family:inherit;font-size:12px;cursor:pointer'>✓ Handle</button>" +
         "<button onclick=\"slSetStatus(" + m.row + ",'misplaced')\" style='flex:1;padding:8px;background:rgba(255,120,60,0.12);border:1px solid rgba(255,120,60,0.4);color:#ff7a3c;border-radius:5px;font-family:inherit;font-size:12px;cursor:pointer'>⚠ Misplaced</button>" +

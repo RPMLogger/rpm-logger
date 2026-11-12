@@ -522,15 +522,15 @@ function _arcStyle() {
     '#tab-archive .arc-find { display: flex; align-items: center; gap: 12px; margin: 0 0 24px; }' +
     '#tab-archive .arc-find input { flex: 1; min-width: 0; max-width: 340px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--t-text); font-family: "DM Mono", monospace; font-size: 12px; padding: 9px 12px; outline: none; }' +
     '#tab-archive .arc-find input:focus { border-color: var(--accent); }' +
-    '#tab-archive .arc-find span { font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; color: var(--t-faint); }' +
+    '#tab-archive .arc-find span { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; color: var(--t-faint); }' +
     '#tab-archive .ld-title { display: flex; align-items: baseline; gap: 10px; }' +
     '#tab-archive .ld-title .arc-n { color: var(--t-faint); }' +
     '#tab-archive .arc-shut .ld-title { border-bottom: 0; }' +
     '#tab-archive .arc-toggle { width: calc(100% + 28px); border-top: 0; border-left: 0; border-right: 0; cursor: pointer; text-align: left; }' +
-    '#tab-archive .arc-chev { margin-left: auto; font-family: "DM Mono", monospace; font-size: 10.5px; letter-spacing: 1px; color: var(--t-faint); }' +
+    '#tab-archive .arc-chev { margin-left: auto; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; color: var(--t-faint); }' +
     '#tab-archive .arc-toggle:hover .arc-chev { color: var(--t-text); }' +
     '#tab-archive .arc-names { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0 20px; padding: 8px 0 6px; }' +
-    '#tab-archive .arc-name { display: flex; align-items: baseline; gap: 8px; min-width: 0; padding: 4px 0; font-family: "DM Mono", monospace; font-size: 10.5px; color: var(--t-normal); }' +
+    '#tab-archive .arc-name { display: flex; align-items: baseline; gap: 8px; min-width: 0; padding: 4px 0; font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); }' +
     '#tab-archive .arc-name b { font-weight: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }' +
     '#tab-archive .arc-name i { font-style: normal; color: var(--t-faint); flex: none; }';
   var st = document.createElement('style');

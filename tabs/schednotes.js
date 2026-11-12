@@ -280,7 +280,7 @@ function _snInjectStyle() {
   st.id = 'snStyle';
   st.textContent =
     ".sn-form{display:grid;grid-template-columns:90px minmax(0,1fr);gap:12px 14px;align-items:start;width:440px;max-width:100%;margin-bottom:18px}" +
-    ".sn-lbl{color:var(--muted);font-size:13px;padding-top:6px}" +
+    ".sn-lbl{color:var(--muted);font-size:12px;padding-top:6px}" +
     ".sn-text{width:100%;resize:vertical;min-height:70px;box-sizing:border-box}.sn-who{width:100%;box-sizing:border-box}" +
     ".sn-win{width:min(760px,calc(100vw - 40px))}.sn-win .sn-form{width:100%}" +
     ".sn-weeks-l{display:block;margin-top:6px}.sn-hint{color:var(--muted);font-size:12px;margin:4px 0 2px}" +
@@ -289,12 +289,12 @@ function _snInjectStyle() {
     ".sn-status{margin-right:auto}" +
     ".sn-wrap{max-width:820px;margin:0 auto;padding:4px 0 40px}" +
     ".sn-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px}" +
-    ".sn-title{font-size:18px;color:var(--t-normal,#ddd)}.sn-count{color:var(--muted);font-size:13px;margin-right:auto}" +
+    ".sn-title{font-size:18px;color:var(--t-normal,#ddd)}.sn-count{color:var(--muted);font-size:12px;margin-right:auto}" +
     ".sn-group{color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin:22px 0 8px}" +
     ".sn-item{position:relative;display:flex;align-items:center;gap:16px;padding:12px 16px;margin-bottom:8px;background:var(--surface2,#161616);border:1px solid #2a2a2a;border-radius:6px}" +
     ".sn-item.closed{opacity:.55}" +
     ".sn-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}" +
-    ".sn-name{font-weight:600}.sn-note{white-space:pre-wrap}.sn-meta{color:var(--muted);font-size:12px}" +
+    ".sn-name{font-weight:500}.sn-note{white-space:pre-wrap}.sn-meta{color:var(--muted);font-size:12px}" +
     ".sn-acts{display:flex;gap:12px;flex:none}" +
     ".sn-band{position:relative;z-index:2;grid-column:1/-1;margin:0;padding:4px 0 26px}" +
     ".sn-band::after{content:'';position:absolute;left:-24px;right:-24px;bottom:0;height:1px;background:color-mix(in srgb,#ffffff 11%,transparent)}" +   // a divider across the whole window under the notes, no box (user, 2026-11-10)

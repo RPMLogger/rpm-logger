@@ -947,7 +947,7 @@ function _calInjectStyle() {
     ".st-win.cal-sv-win{width:min(702px,96vw);background-image:linear-gradient(to right,transparent calc(100% - 250px),color-mix(in srgb,#ffffff 11%,transparent) calc(100% - 250px),color-mix(in srgb,#ffffff 11%,transparent) calc(100% - 249px),rgba(0,0,0,.22) calc(100% - 249px));background-attachment:local}" +
     ".st-win.cal-sv-win>.settings-title{margin-right:242px}" +
     ".cal-sv-cols{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:32px;align-items:start}" +
-    ".cal-sv-t{font-family:'DM Mono',monospace;font-size:11.5px;letter-spacing:2.5px;text-transform:uppercase;color:#7c7c7c;margin:0 0 12px}" +
+    ".cal-sv-t{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#7c7c7c;margin:0 0 12px}" +
     ".cal-sv-main .cal-sv-t{margin-top:8px;margin-bottom:16px}.cal-sv-side{position:absolute;top:-106px;bottom:-24px;right:0;width:210px;display:flex;flex-direction:column;justify-content:center}" +   // no lines (user, 2026-11-02); List view centred in the whole window's height, as the Log window's Shortcuts
     ".cal-sv-dates{display:flex;flex-direction:column;gap:6px;font-size:12px}" +
     // List rows: just the days, no borders (user, 2026-11-02).
@@ -958,7 +958,7 @@ function _calInjectStyle() {
     // A speaker cab under the amp head (user, 2026-11-02): the head's frame, a dark rounded inner line
     // inside a 4px body ring with its own rounded edge (styles.css .header::before).
     ".cal-ctx-note{padding:4px 12px 8px;font-size:10px;color:var(--muted)}.cm-ctx .cm-new-opt:disabled{opacity:.35;cursor:default}" +
-    ".cal-ne-win{max-width:520px}.cal-ne-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;user-select:none;touch-action:none}.cal-ne-slot{height:26px;border:1px solid #2c2c2c;border-radius:4px;background:#151515;color:var(--t-faint);font:11px 'DM Mono',monospace;cursor:pointer;padding:0}.cal-ne-slot:hover:where(:not(:disabled)){border-color:#555;color:var(--t-text)}.cal-ne-slot.on{background:color-mix(in oklab,oklch(.72 .08 145) 28%,#151515);border-color:oklch(.72 .08 145 / .6);color:var(--t-text)}#calNeRange{letter-spacing:1px;text-transform:none;color:var(--t-normal);margin-left:6px}.cal-ne .field-label{font-family:'DM Mono',monospace;font-size:11.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--t-faint)}.cal-ne #calNeTimes{align-items:flex-start}.cal-ne .field-label{margin:28px 0 10px}.cal-ne .st-who{display:flex;gap:18px;margin:14px 0 0}.cal-ne #calNeTimes{margin-top:0}" +
+    ".cal-ne-win{max-width:520px}.cal-ne-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;user-select:none;touch-action:none}.cal-ne-slot{height:26px;border:1px solid #2c2c2c;border-radius:4px;background:#151515;color:var(--t-faint);font:11px 'DM Mono',monospace;cursor:pointer;padding:0}.cal-ne-slot:hover:where(:not(:disabled)){border-color:#555;color:var(--t-text)}.cal-ne-slot.on{background:color-mix(in oklab,oklch(.72 .08 145) 28%,#151515);border-color:oklch(.72 .08 145 / .6);color:var(--t-text)}#calNeRange{letter-spacing:1px;text-transform:none;color:var(--t-normal);margin-left:6px}.cal-ne .field-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--t-faint)}.cal-ne #calNeTimes{align-items:flex-start}.cal-ne .field-label{margin:28px 0 10px}.cal-ne .st-who{display:flex;gap:18px;margin:14px 0 0}.cal-ne #calNeTimes{margin-top:0}" +
     ".cal-ne-msg{min-height:16px;margin-top:10px;font-size:11px;color:var(--accent)}.cal-ne-btns{display:flex;justify-content:flex-end;margin-top:24px}" +
     ".cal-ext{cursor:default;z-index:1}.cal-ev.cal-allday{height:16px;padding:0 6px;font-size:9px;line-height:14px;z-index:3}.cal-ev.cal-allday .n{line-height:14px}" +   // other calendars: read only; all-day strips over the top of the day
     ".cal-bar2.cr{margin-top:0}.cal-cals{gap:18px}.cal-cal-btns{gap:12px}" +
@@ -1021,7 +1021,7 @@ function _calInjectStyle() {
     ".cal-col{position:relative;border-left:1px solid var(--border)}" +
     // today: only the green name + round date badge, no column wash (user, 2026-11-04)
     ".cal-head>div.today{color:oklch(.72 .08 145)}" +
-    ".cal-head>div.today b{width:22px;height:22px;line-height:22px;margin:3px auto 0;border-radius:50%;background:oklch(.72 .08 145);color:#0a0c0a;letter-spacing:0;font-weight:600}" +
+    ".cal-head>div.today b{width:22px;height:22px;line-height:22px;margin:3px auto 0;border-radius:50%;background:oklch(.72 .08 145);color:#0a0c0a;letter-spacing:0;font-weight:500}" +
     ".cal-line{position:absolute;left:60px;right:24px;height:1px;background:var(--border);pointer-events:none}" +   // the hour lines stop short of the frame, no fade; only the header line fades (user, 2026-11-04)
     "" +
     ".cal-line.half{height:0;background:none;border-top:1px dashed rgba(255,255,255,0.045);right:24px}" +

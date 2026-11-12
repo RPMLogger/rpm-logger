@@ -493,7 +493,7 @@ function _slcInjectStyle() {
     ".slc-scard .db-card-n+.db-card-s{margin-top:6px}" +   // room between the name and WEEKLY (user, 2026-10-29)
     ".slc-scard .db-card-r .link-btn{height:22px;box-sizing:border-box;text-transform:none;letter-spacing:0;font-size:10px;padding:0 9px}" +
     // The window: Change appointment's (#imRsWin) look; Skip's labels (user, 2026-10-29).
-    "#slcModal .field-label{font-family:'DM Mono',monospace;font-size:11.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--t-faint)}" +
+    "#slcModal .field-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--t-faint)}" +
     "#slcModal .field-label.st-gap{margin-top:34px}" +
     "#slcModal .slc-rule{margin:34px 0 0}" +
     // The weeks: a start day can be clicked; new lessons green, removed ones crossed out.
@@ -519,7 +519,7 @@ function _slcInjectStyle() {
     // Time first: clock top left, W / B along the bottom (user, 2026-10-31).
     "#slcWeeks .st-pick-clock{top:-7px;bottom:auto}" +
     "#slcWeeks .slc-time-tab{top:-8px;left:6px;width:auto;height:15px;padding:0 6px;border-radius:4px;border:1px solid #8a8a8a;background:#8a8a8a;color:#1a1a1a;" +   // grey, inverted (user, 2026-10-31)
-      "font-family:'DM Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.04em;line-height:13px;box-sizing:border-box}" +
+      "font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.04em;line-height:13px;box-sizing:border-box}" +
     // The same look in the steps, so it reads as the button to click (user, 2026-10-31).
     "#slcModal .im-rs-hint li{margin:5px 0}" +
     "#slcModal .st-tpop{border-color:#8a8a8a}" +
@@ -530,7 +530,7 @@ function _slcInjectStyle() {
     ".slc-wb-chip{display:inline-block;width:16px;height:16px;border-radius:50%;border:1px solid var(--green);color:var(--green);box-sizing:border-box;" +
       "font-family:'DM Mono',monospace;font-size:9px;line-height:14px;text-align:center;vertical-align:1px;opacity:.5}" +   // dim in the steps (user, 2026-10-31)
     ".slc-time-chip{display:inline-block;padding:0 6px;border-radius:4px;border:1px solid #8a8a8a;background:#8a8a8a;color:#1a1a1a;" +
-      "font-family:'DM Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.04em;line-height:13px;vertical-align:1px}" +
+      "font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.04em;line-height:13px;vertical-align:1px}" +
     "#slcWeeks .slc-time-tab:hover{background:#bbb;border-color:#bbb;color:#111}" +
     ".slc-repeats{font-family:'DM Mono',monospace;font-size:11px;color:var(--t-normal);margin-top:14px}" +
     ".slc-warnbox{min-height:20px;margin-top:14px;font-size:11px}" +   // room kept, so the window doesn't grow

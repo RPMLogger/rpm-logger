@@ -186,7 +186,7 @@ function _skLogForm(students) {
 
   var save = document.createElement('button');
   save.textContent = 'Save';
-  save.style.cssText = 'padding:6px 16px;font-size:12px;font-weight:600;background:#ff7a3c;color:#000;border:none;border-radius:4px;cursor:pointer;flex:0 0 auto';
+  save.style.cssText = 'padding:6px 16px;font-size:12px;font-weight:500;background:#ff7a3c;color:#000;border:none;border-radius:4px;cursor:pointer;flex:0 0 auto';
 
   var msg = document.createElement('div');
   msg.style.cssText = 'flex:1 1 100%;font-size:11px;color:var(--muted)';

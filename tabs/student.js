@@ -256,7 +256,7 @@ function _stRenderDetail() {
     wn.style.cssText = 'border:1px solid rgba(255,120,60,0.5);background:rgba(255,120,60,0.1);border-radius:6px;padding:12px 14px;margin-bottom:18px';
 
     var wnTitle = document.createElement('div');
-    wnTitle.style.cssText = 'color:#ff7a3c;font-weight:600;font-size:12px;margin-bottom:6px';
+    wnTitle.style.cssText = 'color:#ff7a3c;font-weight:500;font-size:12px;margin-bottom:6px';
     wnTitle.textContent = '⚠ Texted the RPM line by mistake';
 
     var wnMsg = document.createElement('div');
@@ -380,7 +380,7 @@ function _stRenderDetail() {
   //  · Off-day (late-log / correcting) → a date stepper that starts at today and
   //    steps ±1 day (▲/▼ buttons or keyboard Up/Down), plus a Log button that
   //    records for the chosen date.
-  var _stLogGreen = 'width:100%;padding:10px;font-size:13px;background:color-mix(in srgb, var(--green) 12%, transparent);' +
+  var _stLogGreen = 'width:100%;padding:10px;font-size:12px;background:color-mix(in srgb, var(--green) 12%, transparent);' +
     'color:var(--green);border:1px solid color-mix(in srgb, var(--green) 40%, transparent);border-radius:6px;cursor:pointer;letter-spacing:0.3px';
 
   if (d.isLessonToday && d.loggedToday) {
@@ -389,7 +389,7 @@ function _stRenderDetail() {
     // detail and lands here automatically, flipping the button to this state.
     var doneBar = document.createElement('div');
     doneBar.textContent = "✓ Lesson Logged";
-    doneBar.style.cssText = 'width:100%;padding:10px;font-size:13px;background:color-mix(in srgb, var(--green) 12%, transparent);' +
+    doneBar.style.cssText = 'width:100%;padding:10px;font-size:12px;background:color-mix(in srgb, var(--green) 12%, transparent);' +
       'color:var(--green);border:1px solid color-mix(in srgb, var(--green) 40%, transparent);border-radius:6px;text-align:center;' +
       'letter-spacing:0.3px;margin-bottom:18px;box-sizing:border-box';
     section.appendChild(doneBar);
@@ -397,7 +397,7 @@ function _stRenderDetail() {
     // Lesson day → yellow box, matching the yellow "Today" line up top.
     var logBtn = document.createElement('button');
     logBtn.textContent = "📊 Log Today's Lesson";
-    logBtn.style.cssText = 'width:100%;padding:10px;font-size:13px;background:color-mix(in srgb, var(--accent2) 14%, transparent);' +
+    logBtn.style.cssText = 'width:100%;padding:10px;font-size:12px;background:color-mix(in srgb, var(--accent2) 14%, transparent);' +
       'color:var(--accent2);border:1px solid color-mix(in srgb, var(--accent2) 50%, transparent);border-radius:6px;cursor:pointer;' +
       'letter-spacing:0.3px;margin-bottom:18px';
     logBtn.onclick = function() { _stLogLessonFor(d.name, _stToday()); };
@@ -509,7 +509,7 @@ function _stRenderDetail() {
   // Calendar — all the way at the bottom
   var calBtn = document.createElement('button');
   calBtn.textContent = '📅 Reschedule';
-  calBtn.style.cssText = 'width:100%;padding:10px;font-size:13px;background:transparent;color:var(--text);border:1px solid color-mix(in srgb, var(--accent) 55%, transparent);border-radius:6px;cursor:pointer;margin-top:6px;letter-spacing:0.3px';
+  calBtn.style.cssText = 'width:100%;padding:10px;font-size:12px;background:transparent;color:var(--text);border:1px solid color-mix(in srgb, var(--accent) 55%, transparent);border-radius:6px;cursor:pointer;margin-top:6px;letter-spacing:0.3px';
   calBtn.onclick = _stOpenCalendar;
   section.appendChild(calBtn);
 }
@@ -542,7 +542,7 @@ function _stRenderAudit(data) {
   hdr.innerHTML =
     "<div>" +
       "<div style='font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px'>Audit</div>" +
-      "<div style='font-weight:700;font-size:15px;margin-top:2px'>" + data.name + "</div>" +
+      "<div style='font-weight:600;font-size:16px;font-family:Syne,sans-serif;margin-top:2px'>" + data.name + "</div>" +
     "</div>" +
     "<button id='stBackToDetail' style='padding:6px 12px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>← Back</button>";
   section.appendChild(hdr);
@@ -557,7 +557,7 @@ function _stRenderAudit(data) {
   var hasProblem = problems.length > 0;
 
   var verdict = document.createElement('div');
-  verdict.style.cssText = 'padding:10px 12px;border-radius:6px;margin-bottom:10px;font-size:13px;font-weight:600;border:1px solid ' +
+  verdict.style.cssText = 'padding:10px 12px;border-radius:6px;margin-bottom:10px;font-size:12px;font-weight:500;border:1px solid ' +
     (hasProblem ? 'rgba(255,180,0,0.5);background:rgba(255,180,0,0.10);color:#ffb400'
                 : 'color-mix(in srgb, var(--green) 50%, transparent);background:color-mix(in srgb, var(--green) 10%, transparent);color:var(--green)');
   verdict.textContent = hasProblem ? ('⚠ Needs attention — ' + problems.join(' · ')) : '✓ Looks good — nothing to fix';
@@ -579,7 +579,7 @@ function _stRenderAudit(data) {
   var color = colors[data.paymentStatus] || 'var(--muted)';
   payBox.innerHTML =
     "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Payment</div>" +
-    "<div style='font-size:14px;color:" + color + ";font-weight:600'>● " + (data.paymentStatus || '—') + "</div>";
+    "<div style='font-size:14px;color:" + color + ";font-weight:500'>● " + (data.paymentStatus || '—') + "</div>";
   section.appendChild(payBox);
 
   // Sync check: only flags Counter dates absent from Import. Import naturally
@@ -591,12 +591,12 @@ function _stRenderAudit(data) {
   if (!missing.length) {
     syncBox.innerHTML =
       "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Counter ↔ Import</div>" +
-      "<div style='font-size:13px;color:var(--green);font-weight:600'>✓ All Counter dates present in Import</div>";
+      "<div style='font-size:12px;color:var(--green);font-weight:500'>✓ All Counter dates present in Import</div>";
   } else {
     syncBox.innerHTML =
       "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Missing from Import</div>" +
       missing.map(function(d) {
-        return "<div style='font-size:13px;color:#ffb400;font-weight:600'>● " + d + "</div>";
+        return "<div style='font-size:12px;color:#ffb400;font-weight:500'>● " + d + "</div>";
       }).join('');
   }
   section.appendChild(syncBox);
@@ -670,7 +670,7 @@ function _stRenderCalendar() {
   hdr.innerHTML =
     "<div>" +
       "<div style='font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px'>Next 8 weeks</div>" +
-      "<div style='font-weight:700;font-size:15px;margin-top:2px'>" + data.student + "</div>" +
+      "<div style='font-weight:600;font-size:16px;font-family:Syne,sans-serif;margin-top:2px'>" + data.student + "</div>" +
     "</div>" +
     "<button id='stCalBack' style='padding:6px 12px;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:4px;cursor:pointer'>← Back</button>";
   section.appendChild(hdr);
@@ -724,7 +724,7 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
     // weekday so the start of each month is visible at a glance.
     var isFirst = d.getDate() === 1;
     var topLabel = isFirst   // the month in a tiny border (user, 2026-11-02; a faint circle tried)
-      ? "<span style='display:inline-block;padding:1px 4px;margin-top:-3px;font-size:10.5px;border:1px solid rgba(215,215,215,0.45);border-radius:3px'>" + ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()] + "</span>"
+      ? "<span style='display:inline-block;padding:1px 4px;margin-top:-3px;font-size:11px;border:1px solid rgba(215,215,215,0.45);border-radius:3px'>" + ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()] + "</span>"
       : dayName.toUpperCase();
     var topStyle = 'font-size:9px;line-height:1;letter-spacing:0.5px'
       + (isFirst ? ';font-weight:500;color:rgba(215,215,215,0.8)' : '');   // grey but bold (user, 2026-11-02; was blue, before that amber). DM Mono stops at 500, so a step lighter too
@@ -741,7 +741,7 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
         'border:1px solid color-mix(in srgb, var(--accent) 50%, transparent);cursor:pointer';
       cell.innerHTML =
         "<div style='" + topStyle + "'>" + topLabel + "</div>" +
-        "<div style='font-size:15px;font-weight:700;line-height:1.3'>" + d.getDate() + "</div>" +
+        "<div style='font-size:14px;font-weight:500;line-height:1.3'>" + d.getDate() + "</div>" +
         "<div style='font-size:9px;line-height:1.2;color:var(--accent);opacity:0.85'>" + lesson.time + "</div>";
       if (opts && opts.view) cell.style.cursor = 'default';   // the Calendar tab's student view: look only (2026-11-02)
       else (function(l, c) {
@@ -755,7 +755,7 @@ function _stBuildWeekStrip(monday, byDate, today, studentName, opts) {
         'background:color-mix(in srgb, var(--accent) 18%, transparent);color:var(--accent);border:1px solid color-mix(in srgb, var(--accent) 50%, transparent);opacity:.35;cursor:default';
       cell.innerHTML =
         "<div style='" + topStyle + "'>" + topLabel + "</div>" +
-        "<div style='font-size:15px;font-weight:700;line-height:1.3'>" + d.getDate() + "</div>" +
+        "<div style='font-size:14px;font-weight:500;line-height:1.3'>" + d.getDate() + "</div>" +
         "<div style='font-size:9px;line-height:1.2;color:var(--accent);opacity:0.85'>" + lesson.time + "</div>";
     } else {
       var isToday = ymd === _stYmd(today);   // a step brighter than the other days (user, 2026-10-29)
@@ -893,14 +893,14 @@ function _rpmTpStyle() {
     ".im-rs-moved-l{color:var(--t-faint);letter-spacing:2px}" +
     // MOVING TO over the box in the SKIP / RESCHEDULE titles' look; the date centred inside.
     "#imRsWin .im-rs-weeks-l{margin-top:28px}" +   // room where the line above Next 8 weeks was
-    ".im-rs-moved-h{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--t-faint);margin-top:22px}" +
+    ".im-rs-moved-h{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--t-faint);margin-top:22px}" +
     ".im-rs-hint ol{padding-left:34px}" +   // the step numbers a little further in (user, 2026-10-29; was 22px)
     ".im-rs-hint.im-rs-hint-top{margin-top:0}" +   // the steps at the top now
     // SKIP / RESCHEDULE in the To make a change title's look (user, 2026-10-29).
     ".im-rs-hint .im-rs-h{font-family:'DM Mono',monospace;font-size:11px;font-weight:400;letter-spacing:2.5px;text-transform:uppercase;color:var(--t-faint);margin-bottom:10px}" +
     ".im-rs-hint li::marker{color:var(--t-faint)}" +   // the step numbers in the titles' grey (user, 2026-10-29)
     ".im-rs-timerow{display:flex;align-items:center;gap:14px;margin-top:20px}" +
-    ".im-rs-timerow .field-label{margin:0 !important;font-family:'DM Mono',monospace;font-size:11.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--t-faint)}";
+    ".im-rs-timerow .field-label{margin:0 !important;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--t-faint)}";
   document.head.appendChild(st);
 }
 function _stHhmm(label) {   // "6:30 PM" -> "18:30"

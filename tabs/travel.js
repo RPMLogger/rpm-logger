@@ -647,7 +647,7 @@ function _travelRenderReview() {
       "<div class='ts-th-icon' style='margin:40px 0 10px'>" + PHONE_ICON.replace('class="win-icon"', 'class="ts-lbl-icon"') + "</div>" +
       "<label class='field-label' style='color:var(--t-text);margin:0 0 6px'>Text message</label>" +   // no number; 72% like the Dashboard's titles (user, 2026-10-24)
       // The number it goes to, under the title, then the text (user, 2026-10-21; taken out and put back 2026-10-24).
-      "<div style='margin-bottom:18px;font-family:\"DM Mono\",monospace;font-size:10.5px;color:" + (s.phone ? "rgba(255,255,255,.5)" : "#ff6b6b") + "'>" +
+      "<div style='margin-bottom:18px;font-family:\"DM Mono\",monospace;font-size:11px;color:" + (s.phone ? "rgba(255,255,255,.5)" : "#ff6b6b") + "'>" +
         (s.phone ? _escapeHtml(s.phone) : '⚠ No number on file — will NOT be texted') + "</div>" +
       // The text as it will look in Trip Summary's thread: a blue bubble on the right in the
       // dashed box; no time, it isn't sent yet (user, 2026-10-21; was plain text in the box).
