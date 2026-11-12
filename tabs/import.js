@@ -1806,13 +1806,15 @@ function _imHwOut() {
     if (!sec || !inp || sec.querySelector('.im-link-none')) return;
     var d = document.createElement('div');
     d.className = 'im-pills im-words im-link-none';
-    d.innerHTML = '<span class="im-word-grp"><button type="button" class="im-pill">None</button></span>';
+    d.innerHTML = '<span class="im-word-grp"><button type="button" class="im-pill im-pill-none">None</button></span>';
     d.onmousedown = function (e) { e.preventDefault(); };
     d.onclick = function (e) {
       if (!e.target.classList.contains('im-pill') || !logHw || logHw.locked) return;
       inp.value = 'None'; logHw.linksDone = false; _imHwChanged();
     };
-    sec.querySelector('.lh-link-add').after(d);
+    // On the add icon's line, right under the box, like the notes boxes' None (user, 2026-11-12; sat a line lower)
+    var add = sec.querySelector('.lh-link-add');
+    add.insertBefore(d, add.querySelector('.im-link-add'));
     inp.addEventListener('input', function () { if (logHw && logHw.linksDone) logHw.linksDone = false; _imStepsRender(); });
   });
   var vs = document.getElementById('logHwVideo'), vd = _imQ('imMatVideo');
