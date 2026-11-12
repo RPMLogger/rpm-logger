@@ -153,15 +153,14 @@ function _enRenderCard(i, d) {
       'data-tip="Instant.\nOpens the Reviews tab.">Ask for a review</button>';
 }
 
-// ── Before archiving: 4 questions (2026-10-24) ──────────────────────────────
-// What the sheets can't tell: how they found you, why and how they left, and
-// whether they gave notice. Open boxes, nothing prefilled (user 2026-10-24).
-// All 4 required; Terminate stays dimmed until each has text. Saved to the
-// Lifetime & Review summary row, S..V.
+// ── Before archiving: 3 questions (2026-10-24) ──────────────────────────────
+// What the sheets can't tell: how they found you, why they left, and whether
+// they gave notice. Open boxes, nothing prefilled (user 2026-10-24).
+// All required; Terminate stays dimmed until each has text. Saved to the
+// Lifetime & Review summary row, S..V ("How they left" cut 2026-11-12, U stays blank).
 var EN_ASK = [
   { k: 'found',  q: 'How they found you' },
   { k: 'why',    q: 'Why they left' },
-  { k: 'how',    q: 'How they left' },
   { k: 'notice', q: 'Notice given' }
 ];
 
