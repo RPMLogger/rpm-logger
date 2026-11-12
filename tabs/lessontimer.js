@@ -164,9 +164,9 @@ function ltmHit(name, f) {
 //   (■■ pause/end removed 2026-11-11, user)
 var LTM_TRI = function (x) { return '<path d="M' + x + ' 3.5v9L' + (x + 6.5) + ' 8z" fill="currentColor"/>'; };
 var LTM_SQ  = function (x) { return '<rect x="' + x + '" y="4.5" width="7" height="7" rx="1" fill="currentColor"/>'; };
+// 2026-11-12 (user): only ▶ (lesson starts) and ■ (saves); no chat-before step.
 var LTM_IC = [
-  ['in',    '<svg viewBox="0 0 16 16" width="16" height="16">' + LTM_TRI(5) + '</svg>'],
-  ['teach', '<svg viewBox="0 0 22 16" width="22" height="16">' + LTM_TRI(3) + LTM_TRI(10) + '</svg>'],
+  ['teach', '<svg viewBox="0 0 16 16" width="16" height="16">' + LTM_TRI(5) + '</svg>'],
   ['left',  '<svg viewBox="0 0 16 16" width="16" height="16">' + LTM_SQ(4.5) + '</svg>']
 ];
 function ltmTopHtml(name) {
@@ -195,7 +195,7 @@ function _ltmTopPaint(t) {
     b.querySelectorAll('[data-f]').forEach(function (el) { el.disabled = !on[el.dataset.f]; });
     // Small dim clock (user, 2026-11-11): ▶ counts the chat before, ▶▶ resets it to 0 and counts the lesson.
     var n = b.querySelector('.ltm-top-n'), s = mine ? _ltmSums(t, Date.now()) : null;
-    if (n) n.textContent = !s ? '' : _ltmClock(st === 'before' ? s.before : s.teach);
+    if (n) n.textContent = _ltmClock(s ? s.teach : 0);   // counter always in the box, 0:00 when idle (user, 2026-11-12)
   });
 }
 

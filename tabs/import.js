@@ -264,10 +264,10 @@ function _imRenderStudent(name, lessons) {
       [].slice.call(t.children, 1).forEach(function (el) { acts.appendChild(el); });
       card.appendChild(acts);
       var snb = acts.querySelector('.sn-note-btn');
-      if (snb) { var snr = document.createElement('div'); snr.className = 'sn-note-under'; snr.appendChild(snb); card.appendChild(snr); }   // ＋ Note on its own row under the name; Not logged stays centred on the name's line (user, 2026-11-10)
+      if (snb) acts.appendChild(snb);   // ＋ Note under Log (user, 2026-11-12; was its own row under the name)
       card.insertAdjacentHTML('beforeend', '<img class="im-head-art" src="img/student-guitar.svg" alt="" aria-hidden="true">');   // the red guitar in the card's empty middle (user, 2026-11-11)
       _imGuitarArt(card.querySelector('.im-head-art'), name);   // Acoustic → acoustic guitar; Electric / Both / not set → red electric (user, 2026-11-11)
-      if (typeof ltmTopHtml === 'function') t.insertAdjacentHTML('beforeend', ltmTopHtml(name));   // hidden Play/Pause + Finish right of the name (user, 2026-11-09)
+      if (typeof ltmTopHtml === 'function') main.insertAdjacentHTML('beforeend', ltmTopHtml(name));   // ▶ ■ + counter under the name (user, 2026-11-12)
       // Goals bottom left of the History box, on Show all's row (user, 2026-11-02).
       var gl = acts.querySelector('.gl-btn');
       var hist = [].filter.call(st.querySelectorAll(':scope > .im-sec-box'), function (b) { return /^history$/i.test((b.querySelector('.db-cx-t') || {}).textContent || ''); })[0];
