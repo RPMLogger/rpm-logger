@@ -448,7 +448,10 @@ function _calLoad(statusMsg) {
 function _calWeekLabel(mon, sun) {
   var dates = (CAL_MONTHS[mon.getMonth()] + ' ' + mon.getDate() + ' – ' + CAL_MONTHS[sun.getMonth()] + ' ' + sun.getDate()).toUpperCase();
   var name = { '0': 'Current week', '1': 'Next week', '-1': 'Last week' }[String(_calWeekOffset)];
-  return name ? name.toUpperCase() + "<small>" + dates + "</small>" : dates;
+  // Week A / B on the screen (user, 2026-11-12): fixed, Week A = fortnight of Sep 14 2026, as RPM_FixedCal.gs
+  var wks = Math.round((new Date(mon.getFullYear(), mon.getMonth(), mon.getDate()) - new Date(2026, 8, 14)) / 6048e5);
+  var ab = ' · ' + (((wks % 2) + 2) % 2 ? 'B' : 'A');
+  return name ? name.toUpperCase() + ab + "<small>" + dates + "</small>" : dates + ab;
 }
 
 // How full a week is: its lessons out of CAL_FULL.
