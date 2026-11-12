@@ -204,7 +204,7 @@ function _imGuitarArt(img, name) {
   function apply() {
     var k = String(name || '').trim().toLowerCase();
     var s = (_gtData || []).filter(function (x) { return String(x.name).trim().toLowerCase() === k; })[0];
-    if (s && s.type === 'Acoustic') img.src = 'img/student-acoustic.svg';
+    if (s && s.type === 'Acoustic') img.src = 'img/student-acoustic.png';
     img.style.visibility = '';
   }
   if (typeof _gtData === 'undefined') return;
