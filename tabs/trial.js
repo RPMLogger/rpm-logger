@@ -2921,7 +2921,7 @@ function _msOverlay() {
     ov = document.createElement('div');
     ov.className = 'settings-overlay';
     ov.id = 'msOverlay';
-    ov.innerHTML = '<div class="settings-modal" id="msModal" style="max-width:520px"></div>';
+    ov.innerHTML = '<div class="settings-modal" id="msModal" style="max-width:460px;max-height:90vh;overflow-y:auto"></div>';
     ov.addEventListener('click', function (e) { if (e.target === ov) _msClose(); });
     document.body.appendChild(ov);
   }
@@ -2976,50 +2976,66 @@ function _msRenderForm() {
   var rate = (_msRates && _msRates[_ms.cadence]) || '';
   var tp = _trTrialPayFor(a.email);
 
-  // Only the lines that carry a value. The tick column is gone and so are the
-  // rows that were nothing but a tick - Info and Dropbox: the step list on the
-  // card behind this window already says what is done, and repeating it here
-  // in green made the finished work the loudest thing on a confirm screen.
-  function row(k, v, color) {
-    if (!v) return '';
-    return '<div style="display:flex;gap:12px;padding:4px 0;font-family:\'DM Mono\',monospace;font-size:12px">' +
-        '<span class="field-label" style="width:104px;flex:none;margin:0;padding-top:1px">' + k + '</span>' +
-        '<span style="color:' + (color || 'rgba(255,255,255,0.82)') + '">' + v + '</span>' +
-      '</div>';
+  // Same look as the trial step windows (2026-11-12, user: "looks nothing
+  // like portal windows"): icon, labelled boxes, link-btn actions bottom
+  // right, the welcome text below in a plain box.
+  function ro(id, label, v) {
+    return '<div style="margin-bottom:16px"><div class="field-label">' + label + '</div>' +
+      '<input class="rpm-field" id="' + id + '" readonly tabindex="-1" style="cursor:default" value="' + _msAttr(v) + '"></div>';
   }
+  // Only what is missing gets a line, in the amber summary caps.
+  var miss = [];
+  if (!tp) miss.push('No trial payment found');
+  if (!st.termsBack) miss.push(st.termsSent ? 'Terms not back' : 'Terms not sent');
 
   document.getElementById('msModal').innerHTML =
-    // Same title as every window (NAME · what it does), and the ready
-    // counterpart of MISSING STEPS in the summary caps, grey (2026-09-26).
     '<div class="settings-title"><span>' + inqEsc(_ms.name) +
       '<span class="win-sub"> · Confirm student</span></span>' +
       '<button class="settings-close" id="msX" onclick="_msClose()">✕</button></div>' +
-    '<div class="pt-sum" style="margin:0 0 12px">All steps done</div>' +
-    '<div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 0;margin-bottom:16px">' +
-      row('Frequency', _ms.cadence === 'biweekly' ? 'Biweekly' : 'Weekly') +
-      row('First lesson', inqEsc(_msWhenLabel())) +
-      // Only worth a line when something is missing.
-      row('Payment', tp ? '' : 'No trial payment found', 'var(--muted)') +
-      row('Terms',   st.termsBack ? 'Back' : (st.termsSent ? 'Sent' : 'Not sent yet'),
-          st.termsBack ? null : 'var(--muted)') +
-    '</div>' +
-
-    _msLbl('Rate ($ per lesson)') +
-    '<input class="settings-input" id="msRate" inputmode="decimal" value="' + _msAttr(rate) + '" oninput="_ms.rateEdited=true">' +
-    '<div id="msRateHint" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin:-6px 0 10px"></div>' +
-
-    '<label style="display:block;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--t-bright);margin:4px 0 16px">' +
-      '<input type="checkbox" id="msText" checked> Send welcome text</label>' +
-
-    '<div style="display:flex;justify-content:flex-end">' +
-      '<button id="msGoBtn" onclick="_msMake()" ' +
-        'style="background:var(--green);color:#0b0b0b;border:none;border-radius:8px;padding:8px 18px;' +
-        'font-family:\'DM Mono\',monospace;font-size:12px;font-weight:500;letter-spacing:0.5px;cursor:pointer;' +
-        'display:inline-flex;align-items:center;justify-content:center;gap:8px">' +
-        'Confirm as student</button>' +
-    '</div>' +
-    '<div id="msResult"></div>';
+    '<div style="margin:4px 0 18px">' + CONTACT_ADD_ICON + '</div>' +
+    ro('msFreq', 'Frequency', _ms.cadence === 'biweekly' ? 'Biweekly' : 'Weekly') +
+    ro('msWhen', 'First lesson', _msWhenLabel()) +
+    '<label class="field-label" for="msRate">Rate ($ per lesson)</label>' +
+    '<input class="rpm-field" id="msRate" inputmode="decimal" value="' + _msAttr(rate) + '" oninput="_ms.rateEdited=true">' +
+    '<div id="msRateHint" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin:6px 0 16px"></div>' +
+    (miss.length ? '<div class="pt-sum" style="margin:0 0 14px"><span class="pt-freq">' + miss.join(' · ') + '</span></div>' : '') +
+    '<label style="display:flex;align-items:center;gap:8px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--t-bright)">' +
+      '<input type="checkbox" id="msText" checked onchange="_msTextToggle()"> Send welcome text</label>' +
+    _tlActs('<button class="link-btn bright" id="msGoBtn" onclick="_msMake()"><span>Confirm as student</span></button>') +
+    '<div id="msResult"></div>' +
+    '<div id="msPreview"></div>';
   _msRateHint();
+  _msPreviewText();   // opens on its own at the bottom (user, 2026-11-12)
+}
+
+// The exact welcome text Make Student will send, from the backend's
+// read-only getMakeStudentPreview (smsText), as plain text in a box.
+function _msPreviewText() {
+  var url = getScriptUrl();
+  if (!url || !_ms) return;
+  var box = document.getElementById('msPreview');
+  box.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  // The rate isn't in the text, and it may not have loaded yet: a stand-in
+  // keeps the read-only preview from refusing an empty rate.
+  var q = _msQuery().replace(/(^|&)rate=(&|$)/, '$1rate=1$2');
+  fetch(url + '?action=getMakeStudentPreview&' + q)
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!_ms) return;
+      if (!d || !d.success) { rpmFail(box, (d && d.message) || 'No preview'); return; }
+      box.innerHTML = '<div style="margin-top:16px">' +
+        // Plain text in Announcements' Show-text box look, not a bubble (user, 2026-11-12).
+        '<div style="background:var(--surface2);color:var(--t-normal);border:1px solid var(--border);border-radius:10px;' +
+          'padding:12px 14px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.55;white-space:pre-wrap">' +
+          inqEsc(d.smsText || '') + '</div></div>';
+    })
+    .catch(function () { rpmFail(box, 'could not reach Google'); });
+}
+
+// No text, nothing to preview.
+function _msTextToggle() {
+  var on = document.getElementById('msText').checked;
+  if (on) _msPreviewText(); else document.getElementById('msPreview').innerHTML = '';
 }
 
 function _msRateHint() {
