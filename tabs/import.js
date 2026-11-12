@@ -387,8 +387,8 @@ function _imStuBox() { return _imQ('imStuRows'); }
 // it is empty; otherwise it opens a new row under it (user, 2026-11-02: each row
 // is its own line in the log). Always capitalised, a row's first word.
 var IM_PILLS = {
-  log:   ['Covered', 'Practiced', 'Looked at', 'Went over', 'Talked about', 'We played', 'Started', 'Introduced', 'Improved', 'Reviewed'],   // last five: user, 2026-10-30
-  hw:    ['Go over', 'Practice', 'Play', 'Review', 'Speed up', 'Try to', 'Look at'],   // Try to: user, 2026-10-31 · Look at: user, 2026-11-02
+  log:   ['Covered', 'Practiced', 'Looked at', 'Went over', 'Talked about', 'We played', 'Started', 'Introduced', 'Improved', 'Reviewed', 'Sequences'],   // last five: user, 2026-10-30
+  hw:    ['Go over', 'Practice', 'Play', 'Review', 'Speed up', 'Try to', 'Look at', 'Sequences'],   // Try to: user, 2026-10-31 · Look at: user, 2026-11-02 · Sequences (log + HW): user, 2026-11-12
   notes: ['None', 'Make sure', 'What matters'],   // What matters + None: user, 2026-11-10 · None first, as a bordered pill (user, 2026-11-12)
   teach: ['None']   // user, 2026-11-10: the notes boxes need something in them, None says there's nothing
 };
