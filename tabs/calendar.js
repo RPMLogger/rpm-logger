@@ -979,9 +979,9 @@ function _calInjectStyle() {
     "#calBody .cr-ob-grp{display:flex;gap:16px}#calBody .cr-ob-colm{display:flex;flex-direction:column;gap:8px}" +
     "#calBody .cr-ob-cell{display:flex;align-items:center;gap:6px}#calBody .cr-ob-cell .cr-cap{width:38px;text-align:right;line-height:9px}" +   // short caption on the left (user, 2026-11-11)
     "#calBody .cr-ob-row{display:flex;align-items:center;gap:6px}" +
-    "#calBody .cr-ob{width:20px;height:11px;padding:0;border:1px solid #0a0a0a;border-radius:2px;cursor:pointer;font:700 6px/9px 'DM Mono',monospace;letter-spacing:.3px;color:#2a2620;" +
-      "background:linear-gradient(#ece5d2,#cfc7b0);box-shadow:0 1px 0 #000,inset 0 0 0 1px rgba(255,255,255,.35),inset 0 -1px 0 rgba(0,0,0,.18)}" +
-    "#calBody .cr-ob.lit{background:linear-gradient(#d9d1bb,#c4bca4);box-shadow:0 0 0 #000,inset 0 1px 2px rgba(0,0,0,.35)}" +   // pressed in when on
+    "#calBody .cr-ob{width:17px;height:10px;padding:0;border:1px solid #0a0a0a;border-radius:1.5px;cursor:pointer;font:700 5px/8px 'DM Mono',monospace;letter-spacing:.2px;color:#111;" +   // the VU meter's face: its glow, shade and #111 ink (user, 2026-11-12: "like vu meter"; 17×10, was 20×11)
+      "background:linear-gradient(to bottom,transparent 55%,rgba(0,0,0,.35)),linear-gradient(oklch(.58 .035 82),oklch(.48 .03 78));color:#2a2722;box-shadow:0 1px 0 #000,inset 0 0 2px rgba(0,0,0,.5)}" +   // off: the VU face with its lamp out (user, 2026-11-12: "this is like their on look, how about off")
+    "#calBody .cr-ob.lit{color:#111;background:linear-gradient(to bottom,transparent 55%,rgba(0,0,0,.3)),radial-gradient(90% 140% at 50% 100%,oklch(.86 .06 88),oklch(.74 .06 82) 60%,oklch(.55 .05 75));box-shadow:0 1px 0 #000,inset 0 0 2px rgba(0,0,0,.4),0 0 5px oklch(.8 .08 85 / .35)}" +   // on: lit like the VU meter, a soft glow
     "#calBody .cr-led{display:block;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#5a2420,#2a0d0b);box-shadow:inset 0 1px 1px rgba(0,0,0,.7),0 0 0 1px #0a0a0a}" +
     "#calBody .cr-ob.lit+.cr-led{background:radial-gradient(circle at 35% 35%,oklch(.78 .14 29),oklch(.6 .2 29));box-shadow:0 0 0 1px #0a0a0a,0 0 5px oklch(.63 .2 29 / .7)}" +
     "#calGoogleBtn.lit .hr-kn::after{transform:rotate(90deg)}#calGoogleBtn.lit+.hr-cap{color:#9a9a9a}" +   // GOOGLE open = knob turned up, like an open TO-DO
