@@ -1395,7 +1395,8 @@ var _TR_STEPS = [
   { key: 'time',  label: 'Pick a time' },
   { key: 'pay',   label: 'Payment' },                   // trial payment; the window shows what was found
   { key: 'terms', label: 'Send Terms' },               // email 1: Terms & Conditions + form
-  { key: 'setup', label: 'Send Documents' },            // email 2: Dropbox + Texting, once the terms are back
+  // 'Send Documents' (email 2) removed 2026-11-12: the Dropbox step sends the
+  // Dropbox Instructions itself, and the welcome text covers the phone line.
   { key: 'log',   label: 'Log lesson', lesson: true, required: true },
   { key: 'hw',    label: 'Send HW',    lesson: true, required: true }
 ];
@@ -1457,7 +1458,7 @@ function _trStepState(a) {
     .map(function (x) {
       // The button labels are steps, not reasons. Say what is actually missing.
       if (x.key === 'terms') return 'Terms not sent';
-      if (x.key === 'setup') return 'Documents not sent';
+      if (x.key === 'setup') return 'Dropbox instructions not sent';
       if (x.key === 'log' && !_trOldLog(s) && logIn) return 'Trial recap not sent';
       return x.label;
     });
@@ -1469,7 +1470,7 @@ function _trStepState(a) {
 }
 
 // Status: where the documents stand. Not a step - nothing to do here, it
-// changes on its own (Send Documents → Waiting, form back → Accepted) - so it
+// changes on its own (Send Terms → Waiting, form back → Accepted) - so it
 // sits in the bottom row, left of Confirm Student, the same size, opening the
 // dates. Grey / amber / green like the Inquiries decision buttons.
 function _trStatusHtml(a) {
@@ -1748,6 +1749,9 @@ function _tlDbxHtml(a, s) {
     '</div>' +
     '<label class="field-label" for="tlDbxEmail">Account email</label>' +
     '<input class="rpm-field" id="tlDbxEmail" value="' + _msAttr(dbxEmail) + '"' + (made ? ' disabled' : '') + '>' +
+    // Create & share also emails the Dropbox Instructions (2026-11-12).
+    '<div class="field-label" style="margin-top:16px">Email \u00b7 Dropbox Instructions</div>' +
+    '<div class="tl-docs"><a class="tl-doc" href="' + DB_PDF_LINK + '" target="_blank" rel="noopener"><span>Dropbox Instructions - 2026.pdf</span>' + OPEN_OUT_ICON + '</a></div>' +
     _tlMsg('tlDbxMsg') +
     _tlActs('<button class="link-btn ' + (made ? 'green' : 'bright') + '" id="tlDbxBtn"' +
       (made ? ' disabled' : '') + ' onclick="_tlDropbox()">' +
@@ -2074,8 +2078,8 @@ function _tlPayHtml(a, s) {
 
 // ── 6 · Terms ──
 // Two emails, two steps (2026-09-26): with everything in one email the terms
-// got skimmed. Send Terms is the terms alone; Send Documents (Dropbox +
-// Texting) unlocks once the form is back. Each list opens the real documents.
+// got skimmed. Send Terms is the terms alone. The old Send Documents step
+// (email 2) was removed 2026-11-12; its window code below is unused. Each list opens the real documents.
 // Same links as TL_LINK_* in RPM_TrialLesson.gs - change them in both places.
 var _TL_LINKS = {
   dropbox: 'https://drive.google.com/file/d/1OnCnnQi9AuEqz9oZs0Dru3iF98SKxFjJ/view?usp=sharing',
@@ -2110,7 +2114,7 @@ function _tlTermsHtml(a, s) {
 // Preview works anytime, so what goes out later can be read now.
 function _tlSetupHtml(a, s) {
   var locked = !s.termsBack && !s.setupSent;
-  return _tlEmailHtml('setup', [['Texting & Phone Instructions', _TL_LINKS.phone], ['Dropbox Instructions', _TL_LINKS.dropbox]], !!s.setupSent,
+  return _tlEmailHtml('setup', [['Dropbox Instructions', _TL_LINKS.dropbox]], !!s.setupSent,
     locked ? 'Locked until the terms are back.' : '');
 }
 
