@@ -557,15 +557,22 @@ function _calRenderShell(mon) {
         "<span class='hr-col'><button class='hr-knob' id='calAnalyzeBtn' data-tip='Coming soon.\nThis week&#39;s and next week&#39;s suggested fixes.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Analyze</span></span>" +
         // WEEK / FIXED / NOTES buttons deleted (user, 2026-11-11: "i don't want it here"); _calSetView stays for the ☰ Fixed schedule link
         "<span class='cr-sp'></span><span class='cr-count'><small>Lessons</small><b id='calCount'>–</b></span>" +   // moved down from the top rack (user, 2026-11-09)
+        // My own calendars as their own group (user, 2026-11-11, photo of a cream ON button + red LED): two columns of two, short caption on the left, LED on when shown
+        "<span class='cr-sp'></span><span class='cr-ob-grp'>" +
+        "<span class='cr-ob-colm'>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Birth.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' data-tip='Instant.\nShows or hides the Birthdays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"birthdays\")'>ON</button><i class='cr-led'></i></span></span>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Doct.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('doctors') ? " lit" : "") + "' data-cal='doctors' data-tip='Instant.\nShows or hides the Doctors calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"doctors\")'>ON</button><i class='cr-led'></i></span></span>" +
+        "</span>" +
+        "<span class='cr-ob-colm'>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Pers.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('personal') ? " lit" : "") + "' data-cal='personal' data-tip='Instant.\nShows or hides the Personal calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"personal\")'>ON</button><i class='cr-led'></i></span></span>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Holid.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('holidays') ? " lit" : "") + "' data-cal='holidays' data-tip='Instant.\nShows or hides the Holidays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"holidays\")'>ON</button><i class='cr-led'></i></span></span>" +
+        "</span>" +
+        "</span>" +
         "<span class='cr-sp'></span><span class='cr-pair cal-cal-btns'>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' data-tip='Instant.\nShows or hides the Birthdays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"birthdays\")'></button><span class='cr-cap'>Birthdays</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('doctors') ? " lit" : "") + "' data-cal='doctors' data-tip='Instant.\nShows or hides the Doctors calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"doctors\")'></button><span class='cr-cap'>Doctors</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('personal') ? " lit" : "") + "' data-cal='personal' data-tip='Instant.\nShows or hides the Personal calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"personal\")'></button><span class='cr-cap'>Personal</span></span>" +
         "<span class='cr-col'><button class='cr-pb" + (_calShown('biweekly') ? " lit" : "") + "' data-cal='biweekly' data-tip='Instant.\nShows or hides the Biweekly calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"biweekly\")'></button><span class='cr-cap'>Biweekly</span></span>" +
         "<span class='cr-col'><button class='cr-pb" + (_calShown('gigs') ? " lit" : "") + "' data-cal='gigs' data-tip='Instant.\nShows or hides the Gigs calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"gigs\")'></button><span class='cr-cap'>Gigs</span></span>" +
         "<span class='cr-col'><button class='cr-pb" + (_calShown('trial') ? " lit" : "") + "' data-cal='trial' data-tip='Instant.\nShows or hides the Trial calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"trial\")'></button><span class='cr-cap'>Trial</span></span>" +
         "<span class='cr-col'><button class='cr-pb" + (_calShown('weekly') ? " lit" : "") + "' data-cal='weekly' data-tip='Instant.\nShows or hides the Weekly calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"weekly\")'></button><span class='cr-cap'>Weekly</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('holidays') ? " lit" : "") + "' data-cal='holidays' data-tip='Instant.\nShows or hides the Holidays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"holidays\")'></button><span class='cr-cap'>Holidays</span></span>" +
         "</span>" +
         "</div>" +
     "</div>" +
@@ -968,6 +975,15 @@ function _calInjectStyle() {
     "#calBody .cal-bar:not(.cal-bar2) .cr-lcd{min-width:170px}#calBody .cal-bar .cr-lr{flex:none}#calBody .cal-bar2 .cal-cals{gap:12px}" +
     // push buttons the Home rack's size: 16px, 2.5px corners (user, 2026-11-09; were 22)
     "#calBody .cal-bar .cr-pb{width:16px;height:16px;border-radius:2.5px}" +
+    // Cream ON buttons + red LED for Birthdays / Doctors / Personal / Holidays (user, 2026-11-11). Delete these lines + the markup to undo.
+    "#calBody .cr-ob-grp{display:flex;gap:16px}#calBody .cr-ob-colm{display:flex;flex-direction:column;gap:8px}" +
+    "#calBody .cr-ob-cell{display:flex;align-items:center;gap:6px}#calBody .cr-ob-cell .cr-cap{width:38px;text-align:right;line-height:9px}" +   // short caption on the left (user, 2026-11-11)
+    "#calBody .cr-ob-row{display:flex;align-items:center;gap:6px}" +
+    "#calBody .cr-ob{width:20px;height:11px;padding:0;border:1px solid #0a0a0a;border-radius:2px;cursor:pointer;font:700 6px/9px 'DM Mono',monospace;letter-spacing:.3px;color:#2a2620;" +
+      "background:linear-gradient(#ece5d2,#cfc7b0);box-shadow:0 1px 0 #000,inset 0 0 0 1px rgba(255,255,255,.35),inset 0 -1px 0 rgba(0,0,0,.18)}" +
+    "#calBody .cr-ob.lit{background:linear-gradient(#d9d1bb,#c4bca4);box-shadow:0 0 0 #000,inset 0 1px 2px rgba(0,0,0,.35)}" +   // pressed in when on
+    "#calBody .cr-led{display:block;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#5a2420,#2a0d0b);box-shadow:inset 0 1px 1px rgba(0,0,0,.7),0 0 0 1px #0a0a0a}" +
+    "#calBody .cr-ob.lit+.cr-led{background:radial-gradient(circle at 35% 35%,oklch(.78 .14 29),oklch(.6 .2 29));box-shadow:0 0 0 1px #0a0a0a,0 0 5px oklch(.63 .2 29 / .7)}" +
     "#calGoogleBtn.lit .hr-kn::after{transform:rotate(90deg)}#calGoogleBtn.lit+.hr-cap{color:#9a9a9a}" +   // GOOGLE open = knob turned up, like an open TO-DO
     "#tab-calendar>.tab-refresh{top:22.5px;right:-44px}" +   // ↻ just outside the top rack's right side, not on its legend
 
