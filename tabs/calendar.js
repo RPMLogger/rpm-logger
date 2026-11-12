@@ -536,6 +536,7 @@ function _calRenderShell(mon) {
           "<span class='cr-ddpanel'>" +
           "<span class='cash-dd-list' id='calPickList' hidden></span></span>" +
         "</span>" +
+        "<span class='cr-sp'></span>" +   // search centred between › and the W / B meter (user, 2026-11-12)
         "<span class='cr-lr' data-tip='W = weekly, B = biweekly this week.'><b>W</b><i id='calMeterL'></i><b>B</b><i id='calMeterR'></i></span>" +
         // LESSONS count moved down to the second rack (user, 2026-11-09)
         "<span class='cr-sp'></span>" +
