@@ -5293,7 +5293,7 @@ html body #tab-calendar .cal-bar.cr:not(.cal-bar2)::after, html body #fcBody .ca
 body:has(#tab-calendar.active, #tab-fixedcal.active) .home-rack::before,
 html body #tab-calendar .cal-bar.cr:not(.cal-bar2)::before, html body #fcBody .cal-bar.cr:not(.fc-rack2)::before { bottom: -5px; }
 /* the Calendar racks the Home rack's width so the side lines line up (were 752 vs 749: 1.5px out each side) */
-html body #tab-calendar #calBody > .cal-bar.cr { width: calc(100% - 11px); }
+html body #tab-calendar #calBody > .cal-bar.cr { width: min(752px, calc(100% - 11px)); margin-left: auto; margin-right: auto; }   /* never wider than the Home rack (752 = its column 760 − 8); the tab body is 1200 wide on big windows (user, 2026-11-11) */
 /* ╠ join (user, 2026-11-10 sketch): the seam runs over the inner side line, so the inner line turns into the seam's lines and the side gap flows into the seam gap; the outer line runs straight down. */
 /* FEET STAND ON THE NEXT BORDER (user, 2026-11-09: "maybe legs sit on top of next border"): every gap under a unit with feet
    = the feet (14px between the outer rings) instead of 48px. Amp → rack, rack → tab box, Calendar / Fixed schedule bottom rack → week grid.
