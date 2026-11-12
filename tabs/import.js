@@ -423,6 +423,17 @@ document.addEventListener('input', function (e) {
 document.addEventListener('focusin', function (e) {
   if (e.target.classList && e.target.classList.contains('ll-row') && e.target.closest('#imLogWin')) _imTermRow = e.target;
 });
+// Clicking into a locked row of a saved log is Edit (user, 2026-11-12: went back to
+// change Notes to teacher, None couldn't be deleted). The cursor stays where clicked.
+document.addEventListener('focusin', function (e) {
+  var el = e.target;
+  if (!el.classList || !el.classList.contains('ll-row') || !el.readOnly || !el.closest('#imLogWin')) return;
+  var box = el.closest('.ll-rows');
+  if (!box || [_logBox(), _imTeachBox(), _hwRowsBox()].indexOf(box) < 0) return;
+  if (typeof _imLogEditStart !== 'function' || !_imLogEditStart()) return;
+  el.focus();
+  el.setSelectionRange(el.value.length, el.value.length);
+});
 // Each group opens and closes on its name (user, 2026-11-02: the list got long); all
 // closed whenever the window opens (user, 2026-11-10).
 function _imTermsColHtml() {
