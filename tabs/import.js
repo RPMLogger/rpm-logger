@@ -1165,6 +1165,9 @@ function _imStepsRender() {
   if (sy) sy.classList.toggle('done', sNeed);
   if (sn) sn.classList.toggle('done', sRaw === 'nochange');
   if (srs) srs.style.display = '';   // always there (2026-11-09)
+  // Done waits for an answer (user, 2026-11-12): No change or a saved change first.
+  var sdb = _imQ('imSchedDoneBtn');
+  if (sdb) sdb.disabled = sRaw !== 'changed' && sRaw !== 'nochange';
   // Recorded: Yes opens Phone / Zoom on the line under it (user, 2026-11-02).
   var recYes = !!(hw && (hw.rec === 'yes' || hw.rec === 'phone' || hw.rec === 'zoom')), rw = _imQ('imRecHow');
   if (rw) rw.style.display = recYes ? '' : 'none';
@@ -1315,7 +1318,10 @@ function _imStepsSide(w, list, done) {
 }
 function _imPageTo(p) {
   var w = window._imWin;
-  if (!w || w.sending) return;
+  if (!w) return;
+  // Already saving (a tick that finished the lesson starts the save itself, 2026-11-12): turn once it's saved,
+  // or the page stayed put and needed a second press.
+  if (w.sending) { w.turnTo = p; return; }
   // Save first, on this page, then turn (user, 2026-11-08: turning first showed the NEXT page
   // with LOGGING over it, before it was ever seen). _imSend turns to w.turnTo once it's saved.
   if (_imPending(w, logHw)) { w.turnTo = p; _imSend(w, logHw); return; }
