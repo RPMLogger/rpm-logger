@@ -7,8 +7,10 @@
 var commsMessages = [];
 // Comms page icon under the number: hand holding a phone (user, om-12, 2026-11-01; was om-11 phone in a circle).
 var COMMS_TEXT_ICON = '<svg class="win-icon" viewBox="0 0 858 907.5" aria-hidden="true"><path fill="currentColor" d="M 451 748.2 L 287.5 780.2 C 280 781.6 275.1 788.9 276.6 796.5 C 277.9 803.1 283.7 807.7 290.2 807.7 C 291.1 807.7 291.9 807.6 292.8 807.4 L 456.3 775.4 C 463.8 774 468.8 766.7 467.3 759.2 C 465.8 751.6 458.5 746.7 451 748.2 Z M 451 748.2"/><path fill="currentColor" d="M 853.8 770.2 C 850.5 739.9 834.5 712.4 809.7 694.8 L 721.6 631.9 C 722 570.9 702.9 527 664.7 501.4 C 663.8 500.5 662.8 499.7 661.6 499 L 533.4 428.1 L 469 66.7 C 465.4 46.3 454 28.5 436.9 16.6 C 419.9 4.8 399.2 0.2 378.8 3.9 L 95.6 55.1 C 53.6 62.6 25.5 103 33 145.1 L 70.7 356.6 L 52.5 355.2 C 27.4 353.5 5.6 372.5 3.9 397.6 L 1.9 427.3 C 0.2 452.3 19.1 474.1 44.1 475.8 L 92.6 479.5 L 93.3 483 C 86.2 484.7 79.7 488.1 74.1 492.9 C 64.9 500.9 59.4 512 58.6 524.2 L 56.6 553.9 C 55.2 573 66 590.2 82.2 598 C 78.4 604.2 76.1 611.3 75.6 618.8 L 73.5 648.6 C 72.2 667.8 83.1 685.1 99.5 692.9 C 95.6 699.2 93.2 706.4 92.6 714.1 L 90.6 743.8 C 88.9 768.8 107.9 790.6 133.1 792.4 L 148.6 793.2 L 150.5 804.3 C 154.2 824.7 165.6 842.5 182.6 854.4 C 195.8 863.5 211.1 868.3 226.8 868.3 C 231.4 868.3 236.1 867.9 240.7 867 L 444.3 830.3 C 444.8 830.4 445.2 830.5 445.7 830.5 L 566.2 845.4 L 614.2 878.2 C 641.4 896.7 673.5 906.5 706.1 906.5 C 712.4 906.5 718.8 906.2 725.1 905.4 C 764.1 900.8 800.2 882.3 826.6 853.2 C 847.1 830.7 857 800.4 853.8 770.2 Z M 46.1 448.2 C 36.3 447.5 28.9 439 29.6 429.2 L 31.6 399.5 C 32.3 389.7 40.8 382.3 50.5 382.9 L 75.8 384.9 L 87.6 451.3 Z M 84.2 555.8 L 86.3 526.1 C 86.6 521.3 88.8 517 92.3 513.9 C 95.9 510.7 100.5 509.2 105.2 509.5 L 165.5 513.7 C 175.3 514.3 182.7 522.9 182 532.6 L 180 562.4 C 179.3 572.1 170.8 579.6 161 578.9 L 100.8 574.7 C 91 574.1 83.6 565.6 84.2 555.8 Z M 101.2 650.5 L 103.3 620.8 C 103.6 616 105.7 611.7 109.3 608.6 C 112.9 605.4 117.5 603.9 122.2 604.2 L 168.4 607.4 C 173.1 607.7 177.5 609.9 180.6 613.5 C 183.7 617.1 185.2 621.6 184.9 626.4 L 182.9 656.1 C 182.2 665.9 173.7 673.3 163.9 672.6 L 117.7 669.4 C 108 668.8 100.6 660.2 101.2 650.5 Z M 118.3 745.7 L 120.3 716 C 120.7 711.2 122.8 706.9 126.4 703.8 C 129.7 700.9 133.7 699.4 138.1 699.4 C 138.6 699.4 139 699.4 139.4 699.4 L 161.4 700.7 C 171.2 701.4 178.6 709.9 177.9 719.7 L 175.9 749.4 C 175.2 759.2 166.7 766.6 157 765.9 C 156.9 765.9 156.8 765.9 156.8 765.9 L 134.8 764.6 C 125 764 117.6 755.5 118.3 745.7 Z M 235.8 839.7 C 222.7 842.1 209.4 839.2 198.5 831.6 C 187.5 823.9 180.2 812.5 177.9 799.4 L 176.2 790 C 191.3 783.4 202.4 768.9 203.6 751.3 L 205.6 721.6 C 206.5 709.3 202.4 697.9 195 689.2 C 203.8 681.5 209.7 670.5 210.6 658 L 212.6 628.3 C 213.4 616.1 209.5 604.4 201.5 595.2 C 200.1 593.6 198.5 592 196.9 590.6 C 203 583.5 207 574.4 207.7 564.3 L 209.7 534.5 C 211.4 509.5 192.4 487.7 167.4 486 L 121.4 482.8 L 60.3 140.2 C 55.5 113.2 73.6 87.3 100.6 82.4 L 101.1 82.3 L 111.7 98.6 C 121.3 113.5 138.9 121.1 156.4 118 L 343.3 84.4 C 360.8 81.3 374.6 68 378.5 50.7 L 382.8 31.4 L 383.8 31.3 C 396.9 28.9 410.1 31.8 421.1 39.4 C 432 47 439.3 58.5 441.7 71.6 L 503.3 417.4 C 495.8 416.3 488.1 416.4 480.6 417.6 L 369.5 435.4 C 359.5 437 351 443.1 346.2 452 C 341.3 461 341 471.4 345.1 480.7 L 352 495.9 C 364.2 523.1 393.3 539.4 422.8 535.5 L 458.3 530.8 C 460.7 530.5 463.2 531.3 464.9 533.1 L 537.3 607.8 L 559.2 730.8 C 564 757.8 546 783.7 519 788.6 Z M 806.1 834.5 C 784.2 858.6 754.2 874 721.9 877.8 C 689.5 881.6 656.8 873.6 629.9 855.2 L 579.1 820.5 C 577.2 819.3 575.1 818.5 572.9 818.2 L 533.9 813.4 C 570.3 801.7 593.4 764.5 586.5 725.9 L 570.3 635.1 C 573.6 634.9 576.8 633.7 579.3 631.2 C 584.8 625.9 584.9 617.1 579.6 611.6 L 560.2 591.6 C 560.2 591.6 560.2 591.6 560.2 591.6 L 484.8 513.8 C 477 505.7 465.7 501.8 454.6 503.3 L 419.2 507.9 C 401.7 510.3 384.5 500.6 377.3 484.6 L 370.4 469.3 C 369.6 467.5 370.2 466 370.6 465.2 C 371 464.5 372 463.2 373.9 462.8 L 485 445 C 493.7 443.6 502.6 444.6 510.8 447.8 C 513.2 450.6 516.6 452.3 520.2 452.5 L 645.6 521.9 C 646.2 522.4 646.7 522.8 647.3 523.2 C 680.3 544.2 695.5 581.9 693.8 638.5 C 693.6 643.1 695.8 647.5 699.6 650.2 L 793.6 717.4 C 811.9 730.4 823.8 750.8 826.2 773.1 C 828.5 795.5 821.2 817.9 806.1 834.5 Z M 806.1 834.5"/></svg>';
-var COMMS_COMPOSE_ICON = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+var COMMS_COMPOSE_ICON = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
   '<path d="M12 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/><path d="M18.4 2.6a2 2 0 0 1 2.8 2.8L12 14.6 8.5 15.5l.9-3.5z"/></svg>';
+var COMMS_PERSON_ICON = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><circle cx="12" cy="8.5" r="4"/><path d="M4 20.5c.8-4 4-6 8-6s7.2 2 8 6z"/></svg>';
+var COMMS_CHEVRON_ICON = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 var COMMS_SEARCH_ICON = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg>';
 var commsStudents = [];       // every roster student {name, number}: Students lists them even before they write
 var commsArchived = [];       // students' archived texts (the Deleted tab): Search finds them under "Archived"
@@ -146,6 +148,17 @@ function renderCommsInbox() {
 // red dot while they wait for me, a search box), the open one on the right
 // with bubbles and a text box. New text reaches any roster student.
 var commsPaneDetail = null;   // whose conversation the right pane shows
+// Edit (user, 2026-11-09): tick conversations (or Select all) and Mark read.
+var commsStuEditing = false, commsStuPicked = {};   // person key → true
+var commsStuShownKeys = [];
+// New message like the Messages app (user, 2026-11-09): compose puts a "New message"
+// row on top of the list and a To: box on the right; names pop up as I type.
+var commsComposing = false, commsToPick = 0, commsToHits = [];
+// The draft stays on top of the list until it's sent, like Messages (user, 2026-11-09):
+// I can open other conversations and come back to it.
+var commsDraftTo = null;      // the picked student {name, number}, or null while To: is empty
+var commsOnDraft = false;     // is the right side showing the draft now
+var commsDraftText = "";      // what I'd typed in the draft when I clicked away                          // the unarchived rows on screen (Select all ticks only these)
 
 function commsStudentPeople(archived) {
   var byKey = {};
@@ -169,7 +182,7 @@ function renderCommsStudents() {
   if (!list) return;
   commsPaintNewText();
   var people = commsStudentPeople();
-  if (!commsPaneDetail && people.length) commsPaneDetail = people[0].latest;   // open the newest, like Messages
+  // Nothing opens by itself: the right side stays empty until I click a conversation (user, 2026-11-09).
 
   var q = ((document.getElementById("cmSearch") || {}).value || "").trim().toLowerCase();
   var shown = people.filter(function (p) {
@@ -191,14 +204,30 @@ function renderCommsStudents() {
   arch.forEach(function (p) { p.archived = true; });
   if (arch.length) shown = shown.concat([{ header: "Archived" }], arch);
 
-  var openKey = commsPaneDetail ? commsKey(commsPaneDetail.fromNumber) : "", openArch = !!(commsPaneDetail && commsPaneDetail.archived);
-  list.innerHTML = shown.length ? "" : '<div class="cm-none cm-list-empty">' + (q ? "No match" : "No conversations yet. Start one with New text.") + '</div>';
+  var openKey = commsPaneDetail && !commsOnDraft ? commsKey(commsPaneDetail.fromNumber) : "", openArch = !!(commsPaneDetail && commsPaneDetail.archived);
+  list.innerHTML = shown.length || commsComposing ? "" : '<div class="cm-none cm-list-empty">' + (q ? "No match" : "No conversations yet. Start one with New text.") + '</div>';
+  if (commsComposing) {
+    var nm = document.createElement("div");
+    nm.className = "cm-conv cm-newmsg";   // no highlight when it's the one open (user, 2026-11-12)
+    nm.innerHTML = '<span class="cm-dot"></span><span class="cm-ava">' + COMMS_PERSON_ICON + '</span>' +
+      '<span class="cm-conv-main"><span class="cm-conv-top"><span class="cm-conv-name">New message' +
+      (commsDraftTo ? " to " + commsEscape(commsDraftTo.name) : "") + '</span></span></span>';
+    nm.onclick = commsBackToDraft;
+    list.appendChild(nm);
+  }
   shown.forEach(function (p) {
     if (p.header) { list.insertAdjacentHTML("beforeend", '<div class="field-label cm-arch-h">' + p.header + '</div>'); return; }
     var m = p.latest, row = document.createElement("div");
+    var pickable = commsStuEditing && m && !p.archived;
     row.className = "cm-conv" + (p.waiting ? " cm-wait" : "") + (p.archived ? " cm-arch" : "") +
-      (p.key === openKey && !!p.archived === openArch ? " cm-sel" : "");
+      (p.key === openKey && !!p.archived === openArch ? " cm-sel" : "") +
+      (pickable ? " cm-pickable" : "") + (pickable && commsStuPicked[p.key] ? " cm-picked" : "");
     row.onclick = function () {
+      if (pickable) {
+        if (commsStuPicked[p.key]) delete commsStuPicked[p.key]; else commsStuPicked[p.key] = true;
+        renderCommsStudents();
+        return;
+      }
       commsPaneOpen(m || { row: 0, source: "sms", fromNumber: p.number, fromName: p.name, student: p.name, responded: true, blank: true });
     };
     if (m && !p.archived) row.oncontextmenu = function (e) { e.preventDefault(); commsConvMenu(e, p); };
@@ -214,7 +243,7 @@ function renderCommsStudents() {
     }
     var ini = p.name.split(/\s+/).map(function (w) { return w.charAt(0); }).join("").slice(0, 2).toUpperCase();
     row.innerHTML =
-      '<span class="cm-dot"></span>' +
+      (pickable ? '<span class="cm-pick"></span>' : '') + '<span class="cm-dot"></span>' +   // dots stay while ticking
       '<span class="cm-ava">' + commsEscape(ini) + '</span>' +
       '<span class="cm-conv-main">' +
         '<span class="cm-conv-top"><span class="cm-conv-name">' + commsEscape(p.name) + '</span>' +
@@ -223,7 +252,46 @@ function renderCommsStudents() {
       '</span>';
     list.appendChild(row);
   });
+  commsStuShownKeys = shown.filter(function (p) { return !p.header && p.latest && !p.archived; }).map(function (p) { return p.key; });
+  commsStuPaintEdit();
   commsPaintPane(false);
+}
+
+function commsStuToggleEdit() {
+  commsStuEditing = !commsStuEditing;
+  commsStuPicked = {};
+  renderCommsStudents();
+}
+
+function commsStuSelectAll() {
+  var all = commsStuShownKeys.length && commsStuShownKeys.every(function (k) { return commsStuPicked[k]; });
+  commsStuPicked = {};
+  if (!all) commsStuShownKeys.forEach(function (k) { commsStuPicked[k] = true; });
+  renderCommsStudents();
+}
+
+function commsStuPaintEdit() {
+  var top = document.querySelector(".cm-list-top"), ed = document.getElementById("cmStuEdit");
+  var all = document.getElementById("cmStuAll"), mark = document.getElementById("cmStuMark");
+  if (!top || !ed) return;
+  top.classList.toggle("editing", commsStuEditing);
+  ed.textContent = commsStuEditing ? "Done" : "Edit";
+  var n = commsStuShownKeys.filter(function (k) { return commsStuPicked[k]; }).length;
+  if (all) all.textContent = commsStuShownKeys.length && n === commsStuShownKeys.length ? "Select none" : "Select all";
+  if (mark) { mark.disabled = !n; mark.textContent = n ? "Mark read " + n : "Mark read"; }
+}
+
+// Mark read = Mark answered for every ticked conversation: the red dots go.
+function commsStuMarkRead() {
+  var url = getScriptUrl();
+  commsMessages.forEach(function (m) {
+    if (!commsStuPicked[commsKey(m.fromNumber)] || m.source === "out" || m.responded || !m.row || commsReaction(m)) return;
+    m.responded = true;
+    if (url) fetch(url + "?action=markCommsResponded&row=" + m.row + "&responded=true").catch(function () {});
+  });
+  commsStuEditing = false;
+  commsStuPicked = {};
+  renderCommsInbox();
 }
 
 // Right-click a conversation, like Messages (user, 2026-11-04): Mark answered
@@ -286,6 +354,7 @@ function commsDeleteConv(p) {
 }
 
 function commsPaneOpen(detail) {
+  commsLeaveDraft();
   commsPaneDetail = detail;
   if (detail && !detail.blank) commsPaneMark();   // opening it = read: the red dot goes (user, 2026-11-11)
   renderCommsStudents();
@@ -301,13 +370,30 @@ function commsPaintPane(jump) {
   var to = document.getElementById("cmPaneTo"), th = document.getElementById("cmPaneThread");
   var mark = document.getElementById("cmPaneMark"), input = document.querySelector(".cm-msgr-input");
   if (!to || !th) return;
+  var toIn = document.getElementById("cmToInput"), head = document.querySelector(".cm-msgr-head");
+  var chip = document.getElementById("cmToChip");
+  if (toIn) toIn.hidden = !(commsOnDraft && !commsDraftTo);
+  if (chip) {
+    chip.hidden = !(commsOnDraft && commsDraftTo);
+    if (commsDraftTo) chip.firstChild.textContent = commsDraftTo.name;
+  }
+  if (commsOnDraft && !commsDraftTo) {
+    to.textContent = "";
+    if (head) head.style.visibility = "";
+    if (input) input.style.visibility = "hidden";
+    if (mark) mark.style.display = "none";
+    th.innerHTML = "";
+    return;
+  }
+  commsToShow(false);
   var d = commsPaneDetail;
-  to.textContent = d ? (d.student || d.fromName || commsFormatPhone(d.fromNumber)) : "";
+  to.textContent = commsOnDraft ? "" : d ? (d.student || d.fromName || commsFormatPhone(d.fromNumber)) : "";
   // An archived conversation is read-only: no text box, no Mark answered.
   if (input) input.style.visibility = d && !d.archived ? "" : "hidden";
   if (mark) mark.style.display = d && !d.archived && commsOpenInThread(d).length ? "" : "none";
   if (d && d.archived) to.textContent += " · Archived";
-  if (!d) { th.innerHTML = '<div class="cm-none cm-thread-empty">Pick a conversation, or start one with New text.</div>'; return; }
+  if (head) head.style.visibility = d ? "" : "hidden";   // clean right side until a click (user, 2026-11-09)
+  if (!d) { th.innerHTML = ""; return; }
   var atBottom = th.scrollHeight - th.scrollTop - th.clientHeight < 40;
   th.innerHTML = commsThreadHtml(d);
   commsMarkNoted(th);   // a mark on texts already in Student Notes (user, 2026-11-11)
@@ -410,6 +496,7 @@ function commsPaneSend() {
   if (!d || !box) return;
   var body = box.value.trim(), pic = commsPaneImage;
   if (!body && !pic) { box.focus(); return; }
+  if (commsOnDraft) { commsComposing = false; commsOnDraft = false; commsDraftTo = null; commsDraftText = ""; }   // sent: the draft row goes
   var to = d.fromNumber, key = commsKey(to);
   var msg = { row: 0, timestamp: new Date().toISOString(), source: "out", fromNumber: to,
     audioUrl: pic ? (pic.pdf ? "file|" + pic.name + "|" : pic.dataUrl) : "",
@@ -496,8 +583,143 @@ function commsShowOthers(on, nav) {
 
 function commsToggleNewText(e) {
   if (e) e.stopPropagation();
-  var menu = document.getElementById("cmNewList");
-  if (menu) menu.hidden = !menu.hidden;
+  if (!commsOnDraft) commsDraftKeepText();
+  commsComposing = true;
+  commsOnDraft = true;
+  commsDraftTo = null;
+  commsDraftText = "";
+  commsPaneDetail = null;
+  if (commsStuEditing) { commsStuEditing = false; commsStuPicked = {}; }
+  var toIn = document.getElementById("cmToInput");
+  if (toIn) toIn.value = "";
+  commsToTyped = ""; commsToHits = [];
+  renderCommsStudents();
+  commsToShow(false);
+  if (toIn) toIn.focus();
+}
+
+function commsCancelCompose() {
+  if (!commsComposing) return;
+  commsComposing = false; commsOnDraft = false; commsDraftTo = null; commsDraftText = "";
+  commsPaneDetail = null;
+  renderCommsStudents();
+}
+
+function commsDraftKeepText() {
+  var box = document.getElementById("cmPaneReply");
+  if (commsOnDraft && box) commsDraftText = box.value;
+}
+
+// Opening another conversation: an empty draft (no To:) just goes away; one
+// with a name stays on top, text kept, until I come back and send it.
+function commsLeaveDraft() {
+  if (!commsComposing) return;
+  commsDraftKeepText();
+  commsOnDraft = false;
+  if (!commsDraftTo) commsComposing = false;
+}
+
+function commsDraftDetail() {
+  var s = commsDraftTo, k = commsKey(s.number);
+  var last = commsMessages.filter(function (m) { return commsKey(m.fromNumber) === k; })
+    .sort(function (a, b) { return new Date(b.timestamp) - new Date(a.timestamp); })[0];
+  return last || { row: 0, source: "sms", fromNumber: s.number, fromName: s.name, student: s.name, responded: true, blank: true };
+}
+
+function commsBackToDraft() {
+  if (commsOnDraft) return;
+  commsOnDraft = true;
+  commsPaneDetail = commsDraftTo ? commsDraftDetail() : null;
+  renderCommsStudents();
+  commsPaintPane(true);
+  var box = document.getElementById("cmPaneReply"), toIn = document.getElementById("cmToInput");
+  if (commsDraftTo && box) { box.value = commsDraftText; box.focus(); }
+  else if (toIn) toIn.focus();
+}
+
+// The name chip in To: — click it to pick someone else.
+function commsToChange() {
+  commsDraftTo = null;
+  commsPaneDetail = null;
+  var toIn = document.getElementById("cmToInput");
+  if (toIn) toIn.value = "";
+  commsToTyped = ""; commsToHits = [];
+  renderCommsStudents();
+  commsToShow(false);
+  if (toIn) toIn.focus();
+}
+
+// Names (and numbers) that match what's typed in To:, roster students only.
+// No drop list (user, 2026-11-12): like iMessage the best match fills in right in
+// the To: box, the rest of the name selected; keep typing to narrow, ↑↓ steps
+// through the other matches, Enter / Tab / → takes it. A faint count shows how many match.
+var commsToTyped = "";
+function commsToType(e) {
+  var inp = document.getElementById("cmToInput");
+  if (!inp) return;
+  var raw = inp.value, q = raw.trim().toLowerCase();
+  commsToTyped = raw;
+  var digits = q.replace(/\D/g, "");
+  commsToHits = !q ? [] : commsStudents.filter(function (s) {
+    return s.name.toLowerCase().split(/\s+/).some(function (w) { return w.indexOf(q) === 0; }) ||
+      s.name.toLowerCase().indexOf(q) === 0 || (digits.length >= 3 && String(s.number).replace(/\D/g, "").indexOf(digits) >= 0);
+  }).sort(function (a, b) {
+    // whole-name starts first, so they can fill in the box
+    var pa = a.name.toLowerCase().indexOf(q) === 0 ? 0 : 1, pb = b.name.toLowerCase().indexOf(q) === 0 ? 0 : 1;
+    return pa - pb || a.name.localeCompare(b.name);
+  });
+  commsToPick = 0;
+  // Backspace / delete: don't fill back in, or the name could never be erased.
+  var deleting = e && e.inputType && e.inputType.indexOf("delete") === 0;
+  commsToShow(commsToHits.length > 0, deleting);
+}
+
+function commsToShow(on, noFill) {
+  var inp = document.getElementById("cmToInput"), hint = document.getElementById("cmToSugg");
+  if (!hint) return;
+  hint.hidden = !on;
+  if (!on) { hint.textContent = ""; return; }
+  var s = commsToHits[commsToPick], typed = commsToTyped;
+  var n = commsToHits.length;
+  if (inp && !noFill && s && s.name.toLowerCase().indexOf(typed.toLowerCase()) === 0) {
+    inp.value = typed + s.name.slice(typed.length);
+    inp.setSelectionRange(typed.length, inp.value.length);
+    hint.textContent = n > 1 ? (commsToPick + 1) + " of " + n : "";
+  } else {
+    // a last-name or number match can't fill in the box: name it beside instead
+    hint.textContent = (s ? "→ " + s.name : "") + (n > 1 ? "  ·  " + (commsToPick + 1) + " of " + n : "");
+  }
+  hint.hidden = !hint.textContent;
+}
+
+function commsToKey(e) {
+  if (e.key === "Escape") { commsCancelCompose(); return; }
+  if (!commsToHits.length) return;
+  var inp = e.target;
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    e.preventDefault();
+    commsToPick = (commsToPick + (e.key === "ArrowDown" ? 1 : -1) + commsToHits.length) % commsToHits.length;
+    // stepping to a name that doesn't start with what I typed: show it whole
+    var s = commsToHits[commsToPick];
+    if (s.name.toLowerCase().indexOf(commsToTyped.toLowerCase()) !== 0) inp.value = commsToTyped;
+    commsToShow(true);
+  } else if (e.key === "Enter" || e.key === "Tab" ||
+      (e.key === "ArrowRight" && inp.selectionStart !== inp.selectionEnd)) {
+    e.preventDefault();
+    commsToChoose(commsToPick);
+  }
+}
+
+// Picking a name: the draft becomes "New message to …" with their thread below, ready to type.
+function commsToChoose(i) {
+  var s = commsToHits[i];
+  if (!s) return;
+  commsDraftTo = s;
+  commsPaneDetail = commsDraftDetail();
+  renderCommsStudents();
+  commsPaintPane(true);
+  var box = document.getElementById("cmPaneReply");
+  if (box) { box.value = commsDraftText; box.focus(); }
 }
 document.addEventListener("click", function (e) {
   var menu = document.getElementById("cmNewList");
@@ -765,6 +987,7 @@ function commsThreadHtml(detail) {
     var noteable = m.source !== "out" && txt;   // their texts with words: right-click → Add to notes (user, 2026-11-10; was a hover icon)
     return stamp + '<div class="cm-msg ' + (m.source === "out" ? "out" : "in") + (t ? " cm-has-tag" : "") + (img || file || photos.length ? " cm-has-img" : "") + '"' +
       (noteable ? ' data-note="' + commsEscape(txt) + '" data-when="' + d.getTime() + '"' : '') + '>' +
+
       (img ? '<a href="' + commsEscape(img.full) + '" target="_blank" rel="noopener"><img class="cm-img" src="' + commsEscape(img.src) + '" alt="Picture" referrerpolicy="no-referrer"></a>' : "") +
       photos.map(commsPhotoHtml).join("") +
       (file ? commsFileCard(file) : "") +
@@ -820,14 +1043,20 @@ function commsEnsureExtras() {
           // Top of the list like Messages (user, 2026-11-01): the compose button
           // (New text) alone at the right, then a full-width search with a magnifier.
           '<div class="cm-msgr-list"><div class="cm-list-top">' +
+            // Edit (user, 2026-11-09): left of the compose button; Select all + Mark read show while editing.
+            '<span class="cm-stu-edit"><button class="link-btn" id="cmStuEdit" onclick="commsStuToggleEdit()">Edit</button>' +
+            '<span class="cm-stu-tools"><button class="link-btn" id="cmStuAll" onclick="commsStuSelectAll()">Select all</button>' +
+            '<button class="link-btn" id="cmStuMark" onclick="commsStuMarkRead()" disabled>Mark read</button></span></span>' +
             '<span class="cm-new"><button class="cm-compose" data-tip="Opens a window.\nNew text." aria-label="New text" onclick="commsToggleNewText(event)">' + COMMS_COMPOSE_ICON + '</button>' +
-            '<div class="cm-new-list" id="cmNewList" hidden></div></span></div>' +
+            '</span></div>' +
             '<label class="cm-search-wrap">' + COMMS_SEARCH_ICON +
             '<input class="cm-search" id="cmSearch" type="search" placeholder="Search" oninput="renderCommsStudents()"></label>' +
             '<div id="commsStuList"></div></div>' +
           '<div class="cm-msgr-conv">' +
             '<div class="cm-msgr-head"><span class="cm-to">To: <span id="cmPaneTo"></span></span>' +
-              '<button class="link-btn" id="cmPaneMark" onclick="commsPaneMark()" style="display:none">Mark answered</button></div>' +
+              '<button type="button" class="cm-to-chip" id="cmToChip" hidden onclick="commsToChange()"><span></span>' + COMMS_CHEVRON_ICON + '</button>' +
+              '<input class="cm-to-input" id="cmToInput" hidden autocomplete="off" spellcheck="false" oninput="commsToType(event)" onkeydown="commsToKey(event)">' +
+              '<span class="cm-to-sugg" id="cmToSugg" hidden></span></div>' +   // Mark answered button removed: Edit → Mark read + right-click cover it (user, 2026-11-09)
             '<div class="cm-pane-thread" id="cmPaneThread"></div>' +
             '<div class="cm-attach-chip" id="cmPaneChip" hidden></div>' +
             '<div class="cm-msgr-input">' +
