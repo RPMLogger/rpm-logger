@@ -111,7 +111,7 @@ function _rsRender() {
   if (!lcd) return;
   if (_rsComms(lcd)) return;
   if (!_rsReady) {
-    var wait = 'LOADING<small>CHECKING AUDITS</small>';
+    var wait = 'LOADING...<small>CHECKING AUDITS</small>';
     if (lcd.innerHTML !== wait) lcd.innerHTML = wait;
     lcd.classList.remove('go'); lcd.dataset.tab = ''; lcd.dataset.fn = '';
     document.querySelectorAll('.home-rack .hr-arw').forEach(function (b) { b.disabled = true; });

@@ -204,7 +204,7 @@ function _imGuitarArt(img, name) {
   function apply() {
     var k = String(name || '').trim().toLowerCase();
     var s = (_gtData || []).filter(function (x) { return String(x.name).trim().toLowerCase() === k; })[0];
-    if (s && s.type === 'Acoustic') img.src = 'img/student-acoustic-amp.svg';   // acoustic + amp + mic (user, 2026-11-12; was student-acoustic.svg)
+    if (s && s.type === 'Acoustic') img.src = 'img/student-acoustic.svg';
     img.style.visibility = '';
   }
   if (typeof _gtData === 'undefined') return;
@@ -260,7 +260,7 @@ function _imRenderStudent(name, lessons) {
       card.appendChild(acts);
       var snb = acts.querySelector('.sn-note-btn');
       if (snb) { var snr = document.createElement('div'); snr.className = 'sn-note-under'; snr.appendChild(snb); card.appendChild(snr); }   // ＋ Note on its own row under the name; Not logged stays centred on the name's line (user, 2026-11-10)
-      card.insertAdjacentHTML('beforeend', '<img class="im-head-art" src="img/student-guitar-amp.svg" alt="" aria-hidden="true">');   // the red guitar + amp in the card's empty middle (user, 2026-11-12; was the guitar alone, student-guitar.svg)
+      card.insertAdjacentHTML('beforeend', '<img class="im-head-art" src="img/student-guitar.svg" alt="" aria-hidden="true">');   // the red guitar in the card's empty middle (user, 2026-11-11)
       _imGuitarArt(card.querySelector('.im-head-art'), name);   // Acoustic → acoustic guitar; Electric / Both / not set → red electric (user, 2026-11-11)
       if (typeof ltmTopHtml === 'function') t.insertAdjacentHTML('beforeend', ltmTopHtml(name));   // hidden Play/Pause + Finish right of the name (user, 2026-11-09)
       // Goals bottom left of the History box, on Show all's row (user, 2026-11-02).

@@ -564,7 +564,7 @@ function _rvSaveWin(row, inp) {
   var was = { win: r.win, winDate: r.winDate, winDays: r.winDays };
   r.win = v;
   var dateEl = document.getElementById('rc' + row + 'WinDate');
-  if (dateEl) dateEl.textContent = v ? 'Saving' : '';
+  if (dateEl) dateEl.textContent = v ? 'Saving...' : '';
   _rvSaveNote(r, 'win', v, function () { r.win = was.win; r.winDate = was.winDate; r.winDays = was.winDays; _rvRenderCurrent(); }, function (res) {
     r.winDate = res.winDate || ''; r.winDays = v ? 0 : null;
     if (dateEl) dateEl.textContent = r.winDate;
