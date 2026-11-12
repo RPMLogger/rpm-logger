@@ -34,6 +34,38 @@ function initCalendarTab() {
   _calInjectStyle();
   _calLoad();
   _calLoadRoster();
+  _calSetView(_calView);
+}
+
+// ── Views (user, 2026-11-09): WEEK / FIXED / NOTES on the lower rack swap what
+// shows under the racks. FIXED borrows the Fixed schedule tab's #fcBody.
+var _calView = 'week';
+function _calHost(id) {
+  var h = document.getElementById(id);
+  if (!h) {
+    h = document.createElement('div'); h.id = id; h.style.display = 'none';
+    var g = document.getElementById('calGoogle');
+    g.parentNode.insertBefore(h, g);
+  }
+  return h;
+}
+function _calSetView(v) {
+  _calView = v;
+  var body = document.getElementById('calBody');
+  if (!body) return;
+  body.classList.toggle('cal-off-week', v !== 'week');
+  document.querySelectorAll('.cal-views .cr-pb').forEach(function (b) { b.classList.toggle('lit', b.dataset.view === v); });
+  var fh = _calHost('calFixedHost'), nh = _calHost('calNotesHost');
+  fh.style.display = v === 'fixed' ? '' : 'none';
+  nh.style.display = v === 'notes' ? '' : 'none';
+  var g = document.getElementById('calGoogle');
+  if (g && v !== 'week' && _calGoogleOpen()) _calToggleGoogle();
+  if (v === 'fixed') {
+    var fc = document.getElementById('fcBody');
+    if (fc && fc.parentNode !== fh) fh.appendChild(fc);
+    if (typeof initFixedCalTab === 'function') initFixedCalTab();
+  }
+  if (v === 'notes' && typeof _snOpenView === 'function') _snOpenView(nh);
 }
 
 // ── Student picker ──────────────────────────────────────────────────────────
@@ -273,7 +305,6 @@ function _calLoadOther(mon, token) {
       if (!d.success) { _calSetStatus(d.message ? 'Other calendars: ' + d.message : 'Other calendars: backend not deployed yet'); return; }
       _calOther = d.events || [];
       _calRenderEvents();
-      if (d.missing && d.missing.length) _calSetStatus('Not found in Google: ' + d.missing.join(', '));
     })
     .catch(function() {});
 }
@@ -524,7 +555,7 @@ function _calRenderShell(mon) {
         // GOOGLE / ANALYZE as the two knobs, the Home rack's TO-DO / NOTES look; turned up = on (user, 2026-11-09; were fake knobs, then push buttons)
         "<span class='hr-col'><button class='hr-knob" + (_calGoogleOpen() ? " lit" : "") + "' id='calGoogleBtn' onclick='_calToggleGoogle()' data-tip='Instant.\nShows or hides Google Calendar&#39;s own view under the grid.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Google</span></span>" +
         "<span class='hr-col'><button class='hr-knob' id='calAnalyzeBtn' data-tip='Coming soon.\nThis week&#39;s and next week&#39;s suggested fixes.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Analyze</span></span>" +
-        "<span class='cr-vents'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>" +
+        // WEEK / FIXED / NOTES buttons deleted (user, 2026-11-11: "i don't want it here"); _calSetView stays for the ☰ Fixed schedule link
         "<span class='cr-sp'></span><span class='cr-count'><small>Lessons</small><b id='calCount'>–</b></span>" +   // moved down from the top rack (user, 2026-11-09)
         "<span class='cr-sp'></span><span class='cr-pair cal-cal-btns'>" +
         "<span class='cr-col'><button class='cr-pb" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' data-tip='Instant.\nShows or hides the Birthdays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"birthdays\")'></button><span class='cr-cap'>Birthdays</span></span>" +
@@ -943,7 +974,8 @@ function _calInjectStyle() {
     ".cr-jack{position:relative;display:block;width:30px;height:26px;margin:2px 0;filter:drop-shadow(0 2px 2px #000)}" +   // the modular synth's jack: a hexagon nut round a chrome ring and a black socket (user, 2026-11-04)
     ".cr-jack:before{content:'';position:absolute;inset:0;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:linear-gradient(160deg,#8a8a8a,#4a4a4a 45%,#2a2a2a 80%,#1e1e1e)}" +
     ".cr-jack:after{content:'';position:absolute;left:5px;top:3px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#000 0 6px,#111 6.5px,#9a9a9a 8px,#e0e0e0 9px,#7a7a7a 10px);box-shadow:inset 0 1px 2px rgba(0,0,0,.6)}" +
-    "#calBody.rpm-busy>.cal-wrap{opacity:0}#calBody.rpm-busy>.cal-bar{opacity:1}" +   // loading: the rack stays, the week fades out   // loading: just LOADING, no ghost of the week under it (user, 2026-11-02)
+    "#calBody.rpm-busy>.cal-wrap{opacity:0}#calBody.rpm-busy>.cal-bar{opacity:1}" +
+    "#calBody.cal-off-week>.cal-wrap,#calBody.cal-off-week>.cal-status{display:none}" +   // FIXED / NOTES: the week grid steps aside (user, 2026-11-09)   // loading: the rack stays, the week fades out   // loading: just LOADING, no ghost of the week under it (user, 2026-11-02)
     ".cal-wrap{margin:0;overflow-x:auto}.cal-inner{border:1px solid #2c2c2c;border-radius:6px;background-color:var(--box);position:relative}" +   // Google's lines (user, 2026-11-04): header + hour lines fade out on the right, day lines only a short tick in the header, nothing past the frame
     ".cal-head{overflow:visible}.cal-head::after{content:'';position:absolute;left:60px;right:0;bottom:0;height:1px;background:linear-gradient(to right,#2c2c2c calc(100% - 80px),transparent);pointer-events:none}" +
     ".cal-head::before{content:'';position:absolute;left:72px;height:22px;bottom:0;border-left:1px solid #2c2c2c;pointer-events:none;z-index:1}" +   // the hours' line: a short tick above the header line; the body's own line carries it down
