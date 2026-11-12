@@ -525,8 +525,26 @@ function rpmBusy(root, btn, on, word) {
   root.classList.toggle('rpm-busy', !!on);
   var pill = root.querySelector(':scope > .rpm-busy-msg');
   if (on && !pill && word !== false)
+  {
     root.insertAdjacentHTML('beforeend', '<div class="rpm-load-center rpm-keep rpm-busy-msg"><span class="rpm-loading">' + _rpmAttr(word || rpmBusyWord(btn)) + '</span></div>');
+    // A card taller than the screen: sit in the middle of the part you can see, not the card's own middle (2026-11-12)
+    var r = root.getBoundingClientRect(), vt = Math.max(r.top, 0), vb = Math.min(r.bottom, window.innerHeight);
+    if (r.height > window.innerHeight && vb > vt) root.lastElementChild.style.top = Math.round((vt + vb) / 2 - r.top) + 'px';
+  }
   else if (!on && pill) pill.remove();
+  // The rack screen shows the newest busy word too, until the last one is done (user, 2026-11-12)
+  _rpmBusyList = _rpmBusyList.filter(function (b) { return b.root !== root; });
+  if (on) {
+    var tab = (document.querySelector('.tab-panel.active') || {}).id || '';
+    var tb = document.querySelector('.tab-btn[data-tab="' + tab.replace(/^tab-/, '') + '"]');
+    _rpmBusyList.push({ root: root, word: word === false ? 'Loading' : (word || rpmBusyWord(btn)), place: tb ? tb.textContent.trim() : '' });
+  }
+  if (typeof _rsRender === 'function') _rsRender();
+}
+var _rpmBusyList = [];   // [{ root, word, place }], oldest first
+function rpmBusyNow() {   // the newest busy word still showing, or null
+  _rpmBusyList = _rpmBusyList.filter(function (b) { return b.root.isConnected && b.root.classList.contains('rpm-busy'); });
+  return _rpmBusyList[_rpmBusyList.length - 1] || null;
 }
 var RPM_BUSY_WORDS = { log: 'Logging', save: 'Saving', set: 'Saving', send: 'Sending', remove: 'Removing', 'delete': 'Removing',
   move: 'Moving', skip: 'Skipping', book: 'Booking', upload: 'Uploading' };

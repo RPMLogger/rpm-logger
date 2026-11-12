@@ -110,13 +110,16 @@ function _rsRender() {
   var lcd = document.getElementById('hrLcd');
   if (!lcd) return;
   if (_rsComms(lcd)) return;
-  if (!_rsReady) {
-    var wait = 'LOADING...<small>CHECKING AUDITS</small>';
-    if (lcd.innerHTML !== wait) lcd.innerHTML = wait;
-    lcd.classList.remove('go'); lcd.dataset.tab = ''; lcd.dataset.fn = '';
+  // Opening audit run, or anything loading/saving anywhere: one rolling LOADING... until the last one is done
+  // (user, 2026-11-12: the opening screen rolls too; one word is enough, no second line, no REFRESHING/SAVING)
+  if (!_rsReady || (typeof rpmBusyNow === 'function' && rpmBusyNow())) {
+    var bh = '<span class="hr-roll">LOADING...</span>';
+    if (lcd.innerHTML !== bh) lcd.innerHTML = bh;   // unchanged = left alone, so the roll never restarts on the 3-second redraw
+    lcd.classList.add('rolling'); lcd.classList.remove('go'); lcd.dataset.tab = ''; lcd.dataset.fn = '';
     document.querySelectorAll('.home-rack .hr-arw').forEach(function (b) { b.disabled = true; });
     return;
   }
+  lcd.classList.remove('rolling');
   _rsKnobGlow();
   var items = _rsItems(), i = 0;
   items.forEach(function (it, n) { if (it.k === _rsKey) i = n; });

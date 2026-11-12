@@ -399,11 +399,19 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .rpm-loading.is-inline { display: inline-flex; }   /* inside a line of text or a status note (2026-10-21) */
 /* A window's own spinner: in the middle of the screen, over the dimmed window (user, 2026-10-21).
    Just the ring and the word, no box (user, 2026-10-22). */
+/* 2026-11-12: pinned to the card/window it belongs to (was the browser window's middle, so
+   it floated over the header when scrolled), and in a dark box (user). */
 .rpm-load-center {
-  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9000;
-  margin: 0; padding: 14px 22px; pointer-events: none;
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9000;
+  margin: 0; padding: 12px 20px; pointer-events: none; white-space: nowrap;
   color: var(--muted); font-size: 11px; opacity: 1 !important;
+  background: #121212; border: 1px solid var(--border); border-radius: 10px;   /* between #0b0b0b (too dark) and --surface #1a1a1a (user, 2026-11-12) */
+  box-shadow: 0 6px 24px rgba(0,0,0,.5);
 }
+/* the word in the amp knob caption's font: DM Mono 500, 8px, 1.2px spacing, engraved (user, 2026-11-12) */
+.rpm-load-center .rpm-loading { font-family: "DM Mono", monospace; font-size: 8px !important; font-weight: 500; letter-spacing: 1.2px;
+  color: #9a9a9a; text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.09); }
+:where(:has(> .rpm-load-center)) { position: relative; }   /* zero specificity: a window's own fixed/absolute position still wins */
 .rpm-load-center:empty { display: none; }
 
 /* ─── WEEK PILLS ──────────────────────────────────────────────────────────── */
@@ -3657,7 +3665,7 @@ th.f2-blk { background:none; }
 .f2-badge.bad { color:#ff5a4d; background:rgba(255,90,77,0.15); }   /* under the Expenses icon, over the table */
 .f2-ex-btns { display:flex; justify-content:space-between; align-items:center; margin-top:16px; }
 #f2ExModal.rpm-busy > *:not(.rpm-keep) { opacity:0; }   /* dimmer than .4 so the centre text reads */
-#f2ExModal .rpm-load-center, #fin2Body .rpm-load-center { background:none; border:none; box-shadow:none; }   /* just the ring + text, no box (user 2026-10-22) */
+/* 2026-11-12: Financial 2 busy word now uses the shared dark box (user) */
 .f2-bill { display:flex; gap:22px; margin:2px 0 14px; }   /* Billed: Monthly / Yearly radios */
 .f2-radio { display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); cursor:pointer; }
 .f2-radio input { appearance:none; -webkit-appearance:none; margin:0; width:13px; height:13px; border:none; color:var(--muted); background:currentColor; cursor:pointer;
@@ -3709,7 +3717,7 @@ th.f2-blk { background:none; }
 #travelSumTable + .tv-cal-head { margin-top:32px; }
 #travelBody .tv-buf-top { margin-bottom:24px; }   /* steps + key → calendar, tightened (user 2026-10-23; was 44px) */
 #travelBody .tv-cal.tv-loading > *:not(.rpm-keep) { opacity:.15; pointer-events:none; transition:opacity .15s; }   /* Review loading: the whole plan dims, its button too (user 2026-10-23; Review's row stayed bright) */
-#travelBody .rpm-load-center { background:none; border:none; box-shadow:none; }   /* just the ring + text, like Financial 2 */
+/* 2026-11-12: Travel busy word now uses the shared dark box (user) */
 /* Travel Plan in the Today / Dropbox look (user 2026-10-23): one red title with Reset on its line, one icon, white section titles. */
 #travelBody .tv-page-title { margin-bottom:10px; }
 #travelBody .tv-page-icon { margin:0 0 26px; color:var(--muted); }
@@ -3956,6 +3964,7 @@ body.mag-on, body.mag-on * { cursor: url("data:image/svg+xml,%3Csvg xmlns='http:
 #importBody .im-card .db-card-n { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1.5px; line-height: 1.05; }
 /* Students cards come in one by one on opening the tab (user, 2026-10-30): each fades up 6px, 30ms after the one before (tabs/import.js sets --i). */
 #importBody .im-stagger > .im-card, #importBody .im-stagger > .im-title-row { animation: imCardIn .28s ease-out both; animation-delay: calc(var(--i, 0) * 30ms); }
+#importBody .im-stagger.rpm-busy > :not(.rpm-keep) { animation: none; }   /* the fade-in held cards at full opacity, so REFRESHING sat on top of them (2026-11-12) */
 @keyframes imCardIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 /* ─── AMP HEAD (2026-10-30, user's idea): the logo box is a minimal amp head, flat like
@@ -5406,3 +5415,8 @@ html body #commsBody .cm-title-icon { opacity: .45; filter: drop-shadow(0 -1px 0
 :root { --content-scale: .8; }
 .tab-panel:not(#tab-home, #tab-audit, #tab-calendar) > :not(.td-bolt) { zoom: var(--content-scale); }
 :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) > * { zoom: var(--content-scale); }   /* every window + warning dialog */
+/* Rack screen while something loads: the word rolls right → left like a ticker (user, 2026-11-12) */
+.home-rack .hr-lcd.rolling { align-items: flex-start; }
+.home-rack .hr-lcd .hr-roll { display: inline-block; padding-left: 100%; animation: hrRoll 7s linear infinite; }
+.home-rack .hr-lcd.rolling small { align-self: center; }
+@keyframes hrRoll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
