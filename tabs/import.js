@@ -77,7 +77,7 @@ function _imRenderCards(noRead) {
     // ✓ done, ☐ still to do, "· 2 open" when more lessons wait.
     var todo = miss && miss.length ? 1 : 0, all = o + todo;
     var first = past.length ? { day: past[0].date, miss: past[0].missing || [], hw: past[0].hwText } : todo ? { day: _tdYmd(), miss: miss } : null;
-    return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-donetoday' : '') + '"' + inStyle() + ' onclick="_imOpenFirst(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a window.\nTheir last lesson and HW first;\nclose it for every lesson logged.">' +
+    return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-donetoday' : '') + '"' + inStyle() + ' onclick="' + (!isToday(n) && o ? '_imOpenLog' : '_imOpenFirst') + '(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a window.\n' + (!isToday(n) && o ? 'Straight into the Log.' : 'Their last lesson and HW first;\nclose it for every lesson logged.') + '">' +   // Not logged: straight into the Log (user, 2026-11-12)
       '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
       (miss && !miss.length && !o ? '<span class="im-logged"><span class="im-logged-t">LOGGED</span>' + PAID_CHECK_ICON.replace('width="13" height="13"', 'width="15" height="15"') + '</span>' : '') +   // the Auto-confirmed check (user, 2026-10-26)
       (isToday(n) && !(miss && !miss.length && !o) ? '<span class="im-steps"><span class="im-step im-today-tag">Today</span></span>' : '') +   // green TODAY sign on today's cards (user, 2026-10-30)
@@ -134,6 +134,11 @@ function _imHwTodayLoad() {
 
 // A card on the list (user, 2026-11-02): the student page, and over it a window with
 // their last lesson and HW (the Today tab's All look, _tdAllOneHtml); closing it shows the page.
+// Not logged cards (user, 2026-11-12): the student page, and the Log window right over it, no Last lesson & HW first.
+function _imOpenLog(name) {
+  _imOpenStudent(name);
+  _imLogOpen(name);
+}
 function _imOpenFirst(name) {
   _imOpenStudent(name);
   var w = _stWin('imLastWin', inqEsc(name), 'Last lesson & HW', null, '<div id="imLastBody"></div>');
@@ -406,7 +411,8 @@ var IM_TERMS = [
   ['Modes',        ['Ionian', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian', 'Locrian']],   // user, 2026-11-02
   ['Strings',      ['1st string', '2nd string', '3rd string', '4th string', '5th string', '6th string']],   // user, 2026-11-02
   ['Fingers',      ['1st finger', '2nd finger', '3rd finger', '4th finger']],   // user, 2026-11-02
-  ['Techniques',   ['hammer-on', 'pull-off', 'strumming']]
+  ['Techniques',   ['hammer-on', 'pull-off', 'strumming']],
+  ['Sequences',    ['12321', '123.1', '1.321', '1.3', '12345.3.1', '1.3.54321', '123454321', '1.3.5.3.1']]   // user, 2026-11-12
 ];
 var _imTermRow = null;   // the last row typed in on the Log page
 // Every row starts with a capital by itself (user, 2026-11-10), as it's typed or dictated.
