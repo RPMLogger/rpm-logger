@@ -5528,3 +5528,5 @@ html body #commsBody .cm-title-icon { opacity: 1; filter: none; }
    Was 11 heights (14–40). Icons inside buttons, Travel's inline place/live/buffer icons and the Dropbox Finder icon keep their own size. */
 html body .tab-panel :is(.win-icon, #_a#_b):not(button *, .link-btn *, .db-finder *, .tv-buf-icon, .tv-place-icon, .tv-live-icon) { height: 24px; width: auto; }   /* 24 (user, 2026-11-13: an icon shouldn't be as big as the title; was 34) */
 html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) :is(.win-icon, .rpm-dlg-ticon > svg, .rpm-dlg-ticon > img, #_a#_b):not(button *, .link-btn *, .db-finder *) { height: 20px; width: auto; }   /* 20 (was 24) */
+/* Home box fits the screen height, no scroll (user, 2026-11-13: "the cabinet should fit into screenheight, so shorter"): top of box at 422px + 72px page bottom. Floor 360px. Delete to undo (fixed 520px). */
+html body #tab-home.tab-panel.active { min-height: max(360px, calc(var(--vh) * 100 - 422px - 72px)) !important; height: max(360px, calc(var(--vh) * 100 - 422px - 72px)); }
