@@ -543,7 +543,8 @@ function rpmBusy(root, btn, on, word) {
 }
 var _rpmBusyList = [];   // [{ root, word, place }], oldest first
 function rpmBusyNow() {   // the newest busy word still showing, or null
-  _rpmBusyList = _rpmBusyList.filter(function (b) { return b.root.isConnected && b.root.classList.contains('rpm-busy'); });
+  // a window closed (hidden, not removed) while still busy no longer holds LOADING on the rack screen (2026-11-13)
+  _rpmBusyList = _rpmBusyList.filter(function (b) { return b.root.isConnected && b.root.classList.contains('rpm-busy') && b.root.getClientRects().length; });
   return _rpmBusyList[_rpmBusyList.length - 1] || null;
 }
 var RPM_BUSY_WORDS = { log: 'Logging', save: 'Saving', set: 'Saving', send: 'Sending', remove: 'Removing', 'delete': 'Removing',

@@ -10,6 +10,8 @@
 // Trial forms: no "new" signal exists yet, so they're not here.
 var _rsKey = null;   // the warning on screen, kept across refreshes
 var _rsReady = false;   // false until the opening audit run is back: the screen reads LOADING, never old saved counts (user, 2026-11-08)
+// The opening sequence (user, 2026-11-13): LOADING while the page loads, then AUDITING LESSONS, AUDITING PAYMENTS, then the warnings.
+var _rsStage = 'lessons';
 
 function _rsBadge(id) {
   var b = document.getElementById(id);
@@ -67,6 +69,7 @@ function _rsAuditRun() {
   var url = typeof getScriptUrl === 'function' && getScriptUrl();
   if (!url || typeof _auFetchSync !== 'function') { _rsReady = true; _rsRender(); return; }
   _auFetchSync(url, function () {
+    _rsStage = 'payments'; _rsRender();
     _auFetchUnpaid(url, function () {
       if (typeof _ck !== 'undefined' && !_ck.loaded && !_ck.busy && typeof _ckLoad === 'function') _ckLoad();
       _rsReady = true;   // a failed run ends the wait too: the screen then shows what it has
@@ -119,8 +122,10 @@ function _rsRender() {
   if (_rsComms(lcd)) return;
   // Opening audit run, or anything loading/saving anywhere: one rolling LOADING... until the last one is done
   // (user, 2026-11-12: the opening screen rolls too; one word is enough, no second line, no REFRESHING/SAVING)
-  if (!_rsReady || (typeof rpmBusyNow === 'function' && rpmBusyNow())) {
-    var bh = '<span class="hr-roll">LOADING...</span>';
+  // Then, until the background audit run is back, it says which audit is running (user, 2026-11-13: plain LOADING looked stuck).
+  var busy = typeof rpmBusyNow === 'function' && rpmBusyNow();
+  if (busy || !_rsReady) {
+    var bh = '<span class="hr-roll">' + (busy ? 'LOADING' : 'AUDITING ' + _rsStage.toUpperCase()) + '...</span>';
     if (lcd.innerHTML !== bh) lcd.innerHTML = bh;   // unchanged = left alone, so the roll never restarts on the 3-second redraw
     lcd.classList.add('rolling'); lcd.classList.remove('go'); lcd.dataset.tab = ''; lcd.dataset.fn = '';
     document.querySelectorAll('.home-rack .hr-arw').forEach(function (b) { b.disabled = true; });
@@ -199,6 +204,9 @@ function rackScreenOpen() {
 }
 
 (function () {
-  function start() { _rsRender(); setInterval(_rsRender, 3000); setTimeout(_rsAuditRun, 10000); }
+  function start() {
+    _rsRender(); setInterval(_rsRender, 3000); setTimeout(_rsAuditRun, 10000);
+    setTimeout(function () { if (!_rsReady) { _rsReady = true; _rsRender(); } }, 120000);   // Google never answered: stop waiting after 2 min (2026-11-13)
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

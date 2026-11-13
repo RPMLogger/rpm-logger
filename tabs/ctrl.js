@@ -51,7 +51,7 @@ function _auRun(key, fetchFn, cb) {
   fetchFn(function (err, res) {
     if (!err) { _auCache[key] = res; _auCache[key].at = Date.now(); _auSaveCache(); }
     var list = _auWait[key]; _auWait[key] = null;
-    list.forEach(function (f) { f(err, res); });
+    list.forEach(function (f) { try { f(err, res); } catch (e) { console.error(e); } });   // one crashing page never skips the rack screen's turn (2026-11-13)
   });
 }
 // Lessons audit: the three backend audits, merged later by renderMergedAuditCards.
