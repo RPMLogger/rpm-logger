@@ -5526,5 +5526,5 @@ html body #commsBody .cm-title-icon { opacity: 1; filter: none; }
 
 /* TITLE ICON SIZES (user, 2026-11-13: "34 and 24"): every tab title icon 34px tall, every window/dialog title icon 24px tall; width follows the drawing.
    Was 11 heights (14–40). Icons inside buttons, Travel's inline place/live/buffer icons and the Dropbox Finder icon keep their own size. */
-html body .tab-panel :is(.win-icon, #_a#_b):not(button *, .link-btn *, .db-finder *, .tv-buf-icon, .tv-place-icon, .tv-live-icon) { height: 34px; width: auto; }
-html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) :is(.win-icon, .rpm-dlg-ticon > svg, .rpm-dlg-ticon > img, #_a#_b):not(button *, .link-btn *, .db-finder *) { height: 24px; width: auto; }
+html body .tab-panel :is(.win-icon, #_a#_b):not(button *, .link-btn *, .db-finder *, .tv-buf-icon, .tv-place-icon, .tv-live-icon) { height: 24px; width: auto; }   /* 24 (user, 2026-11-13: an icon shouldn't be as big as the title; was 34) */
+html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) :is(.win-icon, .rpm-dlg-ticon > svg, .rpm-dlg-ticon > img, #_a#_b):not(button *, .link-btn *, .db-finder *) { height: 20px; width: auto; }   /* 20 (was 24) */
