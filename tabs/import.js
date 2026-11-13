@@ -203,24 +203,43 @@ var _imLast = null;   // { name, lessons } of the open student, for re-sorting
 
 // Picture in the student card from Data ▾ Guitar Types (_gtData, tabs/guitartypes.js).
 // Hidden until the type is known so the electric never flashes before the acoustic.
-var _imGtLoading = null;
+// No delay (user, 2026-11-12): the types are fetched when the portal opens and kept
+// in this browser, both pictures are preloaded, and the picture shows once drawn.
+var _imGtLoading = null, _imGtFresh = false, _IM_GT_KEY = 'rpmGuitarTypes';
+var _IM_ART = { Acoustic: 'img/student-acoustic.png', other: 'img/student-guitar.svg' };
+[_IM_ART.Acoustic, _IM_ART.other].forEach(function (u) { var i = new Image(); i.src = u; });
+function _imGtFetch() {
+  if (typeof _gtData === 'undefined') return null;
+  if (!_gtData) { try { var c = JSON.parse(localStorage.getItem(_IM_GT_KEY) || 'null'); if (Array.isArray(c)) _gtData = c; } catch (e) {} }
+  if (_imGtLoading || _imGtFresh) return _imGtLoading;
+  var url = typeof _gtUrl === 'function' ? _gtUrl() : '';
+  if (!url) return null;
+  _imGtLoading = fetch(url + '?action=getGuitarTypes').then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d || !d.success) return;
+      _gtData = d.students || []; _imGtFresh = true;
+      try { localStorage.setItem(_IM_GT_KEY, JSON.stringify(_gtData)); } catch (e) {}
+    })
+    .catch(function () {}).then(function () { _imGtLoading = null; });
+  return _imGtLoading;
+}
+window.addEventListener('load', function () { try { _imGtFetch(); } catch (e) {} });
 function _imGuitarArt(img, name) {
   if (!img) return;
   function apply() {
     var k = String(name || '').trim().toLowerCase();
     var s = (_gtData || []).filter(function (x) { return String(x.name).trim().toLowerCase() === k; })[0];
-    if (s && s.type === 'Acoustic') img.src = 'img/student-acoustic.png';
-    img.style.visibility = '';
+    var want = s && s.type === 'Acoustic' ? _IM_ART.Acoustic : _IM_ART.other;
+    if (img.getAttribute('src') !== want) img.setAttribute('src', want);
+    if (img.complete) img.style.visibility = '';
+    else img.onload = img.onerror = function () { img.style.visibility = ''; };
   }
-  if (typeof _gtData === 'undefined') return;
-  if (_gtData) return apply();
+  if (typeof _gtData === 'undefined') { img.setAttribute('src', _IM_ART.other); img.style.visibility = ''; return; }
   img.style.visibility = 'hidden';
-  var url = typeof _gtUrl === 'function' ? _gtUrl() : '';
-  if (!url) return apply();
-  _imGtLoading = _imGtLoading || fetch(url + '?action=getGuitarTypes').then(function (r) { return r.json(); })
-    .then(function (d) { if (d && d.success && !_gtData) _gtData = d.students || []; })
-    .catch(function () {}).then(function () { _imGtLoading = null; });
-  _imGtLoading.then(apply);
+  var p = _imGtFetch();
+  if (_gtData) apply();          // known (or kept from last time): show now
+  if (p) p.then(apply);          // fresh list arrives: correct it if a type changed
+  else if (!_gtData) apply();
 }
 
 // lessons arrive newest first, dates without a year ("Sep /30"). Walking down
@@ -265,7 +284,7 @@ function _imRenderStudent(name, lessons) {
       card.appendChild(acts);
       var snb = acts.querySelector('.sn-note-btn');
       if (snb) acts.appendChild(snb);   // ＋ Note under Log (user, 2026-11-12; was its own row under the name)
-      card.insertAdjacentHTML('beforeend', '<img class="im-head-art" src="img/student-guitar.svg" alt="" aria-hidden="true">');   // the red guitar in the card's empty middle (user, 2026-11-11)
+      card.insertAdjacentHTML('beforeend', '<img class="im-head-art" alt="" aria-hidden="true" style="visibility:hidden">');   // the red guitar in the card's empty middle (user, 2026-11-11)
       _imGuitarArt(card.querySelector('.im-head-art'), name);   // Acoustic → acoustic guitar; Electric / Both / not set → red electric (user, 2026-11-11)
       if (typeof ltmTopHtml === 'function') main.insertAdjacentHTML('beforeend', ltmTopHtml(name));   // ▶ ■ + counter under the name (user, 2026-11-12)
       // Goals bottom left of the History box, on Show all's row (user, 2026-11-02).
