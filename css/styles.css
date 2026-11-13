@@ -5532,7 +5532,7 @@ html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) :is(.win-icon
 html body #tab-home.tab-panel.active { min-height: max(360px, calc(var(--vh) * 100 - 422px - 72px)) !important; height: max(360px, calc(var(--vh) * 100 - 422px - 72px)); }
 
 /* SIDE ART (user, 2026-11-13): a picture in the empty right side of a box; never covers a card, hidden when the window is too narrow for it. */
-html body #importBody > .im-box:nth-child(1 of .im-box)::after { content: ""; position: absolute; bottom: 28px; right: 180px; width: 120px; height: 112px; pointer-events: none;
-  background: url('../img/side/flyingv-amp.png') right bottom / contain no-repeat; opacity: .5; }   /* Home's size + dimming (112px tall, Home .55) */   /* Lessons · Today: red Flying V + green amp drawing IN COLOUR (was a yellow guitar + amp), a little dimmed (user, 2026-11-13: silhouette idea dropped; was the bass girl) */
+html body #importBody > .im-box:nth-child(1 of .im-box)::after { content: ""; position: absolute; bottom: 57px; right: 180px; width: 120px; height: 172px; pointer-events: none;
+  background: url('../img/side/flyingv-amp.png') right bottom / contain no-repeat; opacity: .5; filter: drop-shadow(0 3px 8px rgba(0,0,0,.55)); }   /* lifted like the cards (their shadow under) (user, 2026-11-13) */   /* Home's size + dimming (112px tall, Home .55) */   /* Lessons · Today: red Flying V + green amp drawing IN COLOUR (was a yellow guitar + amp), a little dimmed (user, 2026-11-13: silhouette idea dropped; was the bass girl) */
 html body #importBody { container-type: inline-size; }   /* lets the art ask how wide the Lessons column really is (zoom + window width both count) */
 @container (max-width: 820px) { html body #importBody > .im-box:nth-child(1 of .im-box)::after { display: none; } }   /* hide only when cards (460) + padding + art (240) don't fit */
