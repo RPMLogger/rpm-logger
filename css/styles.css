@@ -5518,3 +5518,8 @@ html body #tab-emails .em-panes .em-msgr { margin-top: 0; border: none; border-r
    the list and the email the same (the box). Text colours unchanged. */
 #tab-emails .em-side { background: #1b1b1b; }   /* the sidebar its own shade, lighter than the top row (#151515), like Mail's */
 #tab-emails .cm-msgr-list { background: none; }   /* list + email share one shade: the box itself (user, 2026-11-13: "second 3, 1st column different") */
+
+/* TITLE ICONS = ENGRAVED (user, 2026-11-13: "all engraved"): every icon under/beside a title or in a window title is cut into the plate like the header text —
+   header grey, dark line above, faint light line below. No drop shadows (Today's removed), no fading (Comms' .45 removed). Icons inside buttons keep their own look. */
+html body :is(.win-icon, .rpm-dlg-ticon > *, #_a#_b):not(button .win-icon, .link-btn .win-icon) { color: var(--muted); opacity: 1; filter: drop-shadow(0 -1px 0 rgba(0,0,0,.85)) drop-shadow(0 1px 0 rgba(255,255,255,.07)); }
+html body #commsBody .cm-title-icon { opacity: 1; filter: none; }
