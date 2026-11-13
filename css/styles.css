@@ -5523,3 +5523,8 @@ html body #tab-emails .em-panes .em-msgr { margin-top: 0; border: none; border-r
    header grey, dark line above, faint light line below. No drop shadows (Today's removed), no fading (Comms' .45 removed). Icons inside buttons keep their own look. */
 html body :is(.win-icon, .rpm-dlg-ticon > *, #_a#_b):not(button .win-icon, .link-btn .win-icon) { color: var(--muted); opacity: 1; filter: drop-shadow(0 -1px 0 rgba(0,0,0,.85)) drop-shadow(0 1px 0 rgba(255,255,255,.07)); }
 html body #commsBody .cm-title-icon { opacity: 1; filter: none; }
+
+/* TITLE ICON SIZES (user, 2026-11-13: "34 and 24"): every tab title icon 34px tall, every window/dialog title icon 24px tall; width follows the drawing.
+   Was 11 heights (14–40). Icons inside buttons, Travel's inline place/live/buffer icons and the Dropbox Finder icon keep their own size. */
+html body .tab-panel :is(.win-icon, #_a#_b):not(button *, .link-btn *, .db-finder *, .tv-buf-icon, .tv-place-icon, .tv-live-icon) { height: 34px; width: auto; }
+html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) :is(.win-icon, .rpm-dlg-ticon > svg, .rpm-dlg-ticon > img, #_a#_b):not(button *, .link-btn *, .db-finder *) { height: 24px; width: auto; }
