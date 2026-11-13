@@ -4306,7 +4306,7 @@ img.cm-img[data-media] + img.cm-img { margin-top: 4px; }
 .cm-img-wait { width: 200px; height: 150px; background: rgba(255,255,255,0.06); color: var(--muted); font-size: 11px; cursor: default; }
 .cm-msgr-conv.cm-drop { outline: 2px dashed var(--muted); outline-offset: -8px; }
 .cm-msg-t a { color: inherit; text-decoration: underline; text-underline-offset: 2px; word-break: break-all; }
-#tab-home .home-hero { display:block; height:132px;   /* 80% (user, 2026-11-12; was 165, before that 110) */ opacity:.55; margin:18px auto 10px; pointer-events:none; }   /* amp + guitar icon above the Home buttons (user, 2026-11-01) */
+#tab-home .home-hero { display:block; height:112px;   /* a bit smaller (user, 2026-11-13; was 132, 165, 110) */ opacity:.55; margin:18px auto 10px; pointer-events:none; }   /* amp + guitar icon above the Home buttons (user, 2026-11-01) */
 :root { --vh: 1vh; }   /* one screen-height %; the 150%/200% zoom buttons set it to the real screen so pages don't grow with the zoom (user, 2026-11-01) */
 /* PDFs go as a link, shown as a file card (user, 2026-11-01). */
 .cm-file { display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 8px; border-radius: 12px; background: rgba(255,255,255,0.08);
