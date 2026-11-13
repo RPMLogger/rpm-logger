@@ -157,11 +157,13 @@ function _rsComms(lcd) {
   return true;
 }
 
-// The Audit + Payments amp knobs glow gold like Comms while their audit has something (user, 2026-11-08):
-// Audit = students on the Lessons audit, Payments = payments due. Only once the fresh audits are in.
+// The Audit + Payments amp knobs glow gold like Comms while they need you (user, 2026-11-08):
+// Audit = students on the Lessons audit, once the fresh audits are in. Payments = an Incoming
+// Venmo/Zelle whose name matches no student, to Dismiss or Add contact (user, 2026-11-12:
+// students owing no longer light it). Count comes from tabs/payments.js (_payUnmatched).
 function _rsKnobGlow() {
-  var owe = (typeof _auCache !== 'undefined' && _auCache.unpaid && _auCache.unpaid.list) ? _auCache.unpaid.list.length : 0;
-  var on = { audit: _rsReady && _rsLessonsAudit() > 0, payments: _rsReady && owe > 0 };
+  var unk = (typeof _payUnmatched === 'number') ? _payUnmatched : 0;
+  var on = { audit: _rsReady && _rsLessonsAudit() > 0, payments: unk > 0 };
   Object.keys(on).forEach(function (k) {
     var b = document.querySelector('.amp-knob[data-k="' + k + '"]');
     if (b) b.classList.toggle('rpm-alert', on[k]);

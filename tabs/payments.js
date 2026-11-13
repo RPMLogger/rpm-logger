@@ -366,6 +366,31 @@ function closePayAudit() {
 }
 
 // ─── INCOMING PAYMENTS (Venmo / Zelle) ───────────────────────────────────────
+// How many Incoming payments have a name no student owns (not trials): these light the
+// Payments amp knob (user, 2026-11-12). Checked at load + every 15 min; kept live as cards go.
+var _payUnmatched = 0;
+function _paySetUnmatched(n) {
+  _payUnmatched = n;
+  if (typeof _rsKnobGlow === 'function') _rsKnobGlow();
+}
+function _payCountUnmatched(list) {
+  return (list || []).filter(function (p) { return !p.trial && !p.matched; }).length;
+}
+function _payRecountCards() {
+  _paySetUnmatched(document.querySelectorAll('#incomingPayments .incoming-card[data-unk]').length);
+}
+function payUnmatchedCheck() {
+  var url = getScriptUrl(); if (!url || document.hidden) return;
+  fetch(url + "?action=getIncomingPayments")
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (d && d.success) _paySetUnmatched(_payCountUnmatched(d.payments)); })
+    .catch(function () {});
+}
+(function () {
+  function go() { setTimeout(payUnmatchedCheck, 4000); setInterval(payUnmatchedCheck, 15 * 60 * 1000); }
+  if (document.readyState === 'complete') go(); else window.addEventListener('load', go);
+})();
+
 function loadIncomingPayments() {
   var url = getScriptUrl(); if (!url) return;
   var container = document.getElementById("incomingPayments");
@@ -377,6 +402,7 @@ function loadIncomingPayments() {
       container.innerHTML = "";
       var tabBtn = document.querySelector(".tab-btn[onclick*=\"payments\"]");
       renderAutoConfirmed(data.autoRecent);
+      if (data.success) _paySetUnmatched(_payCountUnmatched(data.payments));
 
       if (!data.success || !data.payments || !data.payments.length) {
         container.innerHTML = "<div class='rpm-none' style='color:var(--muted);font-size:11px;padding:10px 0'>None</div>";
@@ -392,6 +418,7 @@ function loadIncomingPayments() {
         var isTrial = !!p.trial;
         var card = document.createElement("div");
         card.className = "incoming-card";
+        if (!isTrial && !p.matched) card.setAttribute("data-unk", "1");
         // A name nobody owns: Confirm first opens Add contact (2026-10-30, was
         // its own button above the name): pick the student, the name is theirs
         // from then on, then the usual note + Log.
@@ -430,6 +457,7 @@ function loadIncomingPayments() {
             canAdd = false;
             var warn = card.querySelector(".incoming-nomatch");
             if (warn) warn.remove();
+            card.removeAttribute("data-unk"); _payRecountCards();
           }, gone);
         });
         card.querySelector(".incoming-dismiss").addEventListener("click", function() {
@@ -505,6 +533,7 @@ function dismissIncoming(cardEl, payment) {
 
 function checkEmptyIncoming() {
   var container = document.getElementById("incomingPayments");
+  _payRecountCards();
   if (!container.querySelector(".incoming-card")) {
     container.innerHTML = "<div class='rpm-none' style='color:var(--muted);font-size:11px;padding:10px 0'>None</div>";
     var tabBtn = document.querySelector(".tab-btn[onclick*=\"payments\"]");
