@@ -495,10 +495,26 @@ function _calMeters(n) {
   var tot = w + b;
   [['calMeterL', w], ['calMeterR', b]].forEach(function(m) {
     var el = document.getElementById(m[0]);
-    if (el) el.style.setProperty('--v', (tot ? Math.round(m[1] / tot * 100) : 0) + '%');
+    if (el) { el.dataset.v = tot ? Math.round(m[1] / tot * 100) : 0; el.style.setProperty('--v', el.dataset.v + '%'); }
   });
   var lr = document.querySelector('.cr-lr'); if (lr) lr.setAttribute('data-tip', 'W = weekly ' + w + ', B = biweekly ' + b + ' this week.');
 }
+
+// W / B FLUTTER WHILE THE PORTAL WORKS (user, 2026-11-13): same busy test as the VU needle (_vuBusyNow: audits still running or any
+// visible rolling ring). Each bar jumps a block or two around its real value, like signal on a level meter, and settles back when done.
+var _calWbBusy = false;
+setInterval(function () {
+  if (document.hidden) return;
+  var busy = typeof _vuBusyNow === 'function' && _vuBusyNow();
+  if (!busy && !_calWbBusy) return;
+  _calWbBusy = busy;
+  ['calMeterL', 'calMeterR'].forEach(function (id) {
+    var el = document.getElementById(id); if (!el || el.dataset.v == null) return;
+    var v = +el.dataset.v;
+    if (busy) v = Math.max(4, Math.min(100, v + Math.round((Math.random() * 2 - 1) * 18)));
+    el.style.setProperty('--v', v + '%');
+  });
+}, 140);
 
 // ── Rendering ───────────────────────────────────────────────────────────────
 
