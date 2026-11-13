@@ -5532,7 +5532,8 @@ html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) :is(.win-icon
 html body #tab-home.tab-panel.active { min-height: max(360px, calc(var(--vh) * 100 - 422px - 72px)) !important; height: max(360px, calc(var(--vh) * 100 - 422px - 72px)); }
 
 /* SIDE ART (user, 2026-11-13): a picture in the empty right side of a box; never covers a card, hidden when the window is too narrow for it. */
-html body #importBody > .im-box:nth-child(1 of .im-box)::after { content: ""; position: absolute; top: 80px; bottom: 30px; right: 56px; width: 180px; max-height: 190px; pointer-events: none; opacity: .5; filter: saturate(.75);
-  background: url('../img/side/pedal-superego.png') right center / contain no-repeat; }   /* Lessons · Today: the Superego pedal */
+html body #importBody > .im-box:nth-child(1 of .im-box)::after { content: ""; position: absolute; bottom: 28px; right: 56px; width: 68px; height: 76px; pointer-events: none;
+  background-color: oklch(0.31 0.006 81);   /* a step under the icons' --t-faint (user: smaller, darker) */ -webkit-mask: url('../img/side/player-bass.png') right bottom / contain no-repeat; mask: url('../img/side/player-bass.png') right bottom / contain no-repeat;
+  filter: drop-shadow(0 -1px 0 rgba(0,0,0,.85)) drop-shadow(0 1px 0 rgba(255,255,255,.07)); }   /* Lessons · Today: girl with a bass (user, 2026-11-13; rock guy from the Terms, seated guitarist before) — silhouette in the title icons' grey, engraved (user, 2026-11-13; pedal + amp art tried, dropped) */
 html body #importBody { container-type: inline-size; }   /* lets the art ask how wide the Lessons column really is (zoom + window width both count) */
 @container (max-width: 820px) { html body #importBody > .im-box:nth-child(1 of .im-box)::after { display: none; } }   /* hide only when cards (460) + padding + art (240) don't fit */
