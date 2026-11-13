@@ -22,7 +22,14 @@ function _rsItems() {
     if (n > 0) out.push({ k: k, n: n, top: n + ' ' + (n === 1 ? one : many), tab: tab });
   };
   add('texts', typeof commsAlertList !== 'undefined' ? commsAlertList.length : 0, 'new text', 'new texts', 'comms');
-  add('emails', _rsBadge('emNavBadge'), 'new email', 'new emails', 'emails');
+  // Emails split in two (user, 2026-11-12): students on their own line with who wrote, then G Business.
+  var em = typeof _emCounts !== 'undefined' ? _emCounts : null;
+  if (em) {
+    add('em-stu', em.students, 'student email', 'student emails', null);
+    if (em.students) { var it = out[out.length - 1]; it.fn = 'em-students'; it.sub = (em.names || []).slice(0, 2).join(', ') + ((em.names || []).length > 2 ? ' +' + (em.names.length - 2) : ''); }
+    add('em-gb', em.gbusiness, 'G Business email', 'G Business emails', null);
+    if (em.gbusiness) out[out.length - 1].fn = 'em-gbusiness';
+  } else add('emails', _rsBadge('emNavBadge'), 'new email', 'new emails', 'emails');
   add('inq', _rsBadge('inqBadge'), 'new inquiry', 'new inquiries', 'inquiries');
   add('init', _rsBadge('initNavBadge'), 'Initiate reply', 'Initiate replies', 'initiate');
   var lessons = _rsLessonsAudit();
@@ -186,6 +193,8 @@ function rackScreenOpen() {
   if (!lcd) return;
   if (lcd.dataset.fn === 'lessons') { openLessonAudit(); return; }
   if (lcd.dataset.fn === 'payments') { switchTab('audit'); openPayAudit(); return; }
+  if (lcd.dataset.fn === 'em-students') { _emKey = 'students'; switchTab('emails'); return; }
+  if (lcd.dataset.fn === 'em-gbusiness') { _emKey = 'gbusiness'; switchTab('emails'); return; }
   if (lcd.dataset.tab) switchTab(lcd.dataset.tab);
 }
 

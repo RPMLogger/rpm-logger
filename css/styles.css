@@ -333,7 +333,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Every tab in one bordered box like Today's (user, 2026-10-26; Home too).
    Today, Students, To-Do, Notes and Comms make their own boxes; Calendar, Fixed schedule
    and Financial are wider than the column, so they stay open. */
-.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms) {
+.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms):not(#tab-emails) {
   box-sizing: border-box;   /* background, border, corners, padding, grain, screws: THE BOX at the end of this file (2026-11-06) */   /* was: every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
 
@@ -4767,7 +4767,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
   --rpm-box-ring: 0 0 0 2px #1e1e1e, 0 0 0 3px #2c2c2c;   /* screwed metal plates: the amp's double line, half as thick (user, 2026-11-06) */
   --rpm-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms):not(#tab-emails),
 html body .td-wk-box,
 html body .cr.rpm-rack,
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
@@ -4777,7 +4777,7 @@ html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
   box-shadow: var(--rpm-box-ring);   /* Home's double border: dark amp-body ring + outer line (user, 2026-11-06) */
 }
 /* the ring sits 5px outside: every box 4px in from the column, like Home and the header */
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms):not(#tab-emails),
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) { margin-left: 4px; margin-right: 4px; }
 html body .td-wk-box { width: calc(100% - 8px); }
 html body .cr.rpm-rack { margin-left: 4px !important; margin-right: 4px !important; }
@@ -5430,3 +5430,87 @@ html body #commsBody .cm-title-icon { opacity: .45; filter: drop-shadow(0 -1px 0
 #imLogWin .lh-link-add:has(.im-link-none) > .im-link-add { margin-left: auto; }   /* the plus on the right of None (user, 2026-11-12; flow-root at :has(> .im-pills) had dropped it a line) */
 #imLogWin#imLogWin :is(.ll-add, .im-link-add) { color: var(--t-faint); }   /* every plus dimmer (user, 2026-11-12) */
 #imLogWin#imLogWin :is(.ll-add, .im-link-add):hover:where(:not(:disabled)) { color: var(--text); }
+/* EMAILS (2026-11-12, user): like Mail — sidebar (Students, G Business) | list | the open email.
+   Reuses the Comms pieces (.cm-msgr, .cm-conv rows, .cm-msgr-input reply); only what differs is here. */
+#tab-emails .em-msgr { margin-top: 18px; grid-template-columns: 190px minmax(250px, 30%) 1fr; height: max(460px, calc(var(--vh) * 100 - 420px)); }
+#tab-emails .em-side { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; border-right: 1px solid var(--border); background: color-mix(in srgb, var(--box) 70%, #000); }
+#tab-emails .em-side-head { height: 48px; display: flex; align-items: flex-end; padding: 0 8px 8px; box-sizing: border-box; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--t-faint); }
+#tab-emails .em-box { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px; border: 0; border-radius: 6px; background: none; color: var(--t-normal); cursor: pointer; text-align: left;
+  font-family: "DM Mono", monospace; font-size: 12px; }
+#tab-emails .em-box svg { flex: none; color: var(--accent); }
+#tab-emails .em-box:hover { background: var(--surface2); }
+#tab-emails .em-box.cm-on { background: var(--accent); color: var(--t-bright); }   /* the picked mailbox, Mail's red row */
+#tab-emails .em-box.cm-on svg { color: var(--t-bright); }
+#tab-emails .em-box-name { flex: 1; }
+#tab-emails .em-box-n { font-size: 11px; color: var(--t-faint); }
+#tab-emails .em-box-n:not(:empty) { padding: 1px 7px; border-radius: 9px; background: var(--surface2); color: var(--t-normal); }
+#tab-emails .em-box.cm-on .em-box-n:not(:empty) { background: rgba(0,0,0,0.25); color: var(--t-bright); }
+#tab-emails .em-list-top { flex-direction: column; justify-content: center; align-items: flex-start; gap: 2px; height: 48px; min-height: 48px; padding: 0 12px; margin: 0; background: #151515; border-bottom: 1px solid var(--border); }
+#tab-emails .em-list-title { font-family: "DM Mono", monospace; font-size: 12px; color: var(--t-bright); }
+#tab-emails .em-list-note { font-family: "DM Mono", monospace; font-size: 10px; color: var(--t-faint); }
+#tab-emails .em-list { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 12px 12px; scrollbar-width: thin; scrollbar-color: #333 transparent; }
+#tab-emails .em-list .cm-conv { margin: 0 -4px; padding: 10px 4px; }
+#tab-emails .cm-conv.em-on { background: var(--surface2); }
+#tab-emails .cm-conv .em-subj { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#tab-emails .cm-conv.cm-wait .em-subj { color: var(--t-bright); }
+/* The open email's head, Mail's: round initial, sender, subject, To: — the time top right. */
+#tab-emails .em-head { height: auto; min-height: 48px; padding: 14px 18px; align-items: flex-start; justify-content: flex-start; gap: 12px; background: #151515; }
+#tab-emails .em-head:empty { visibility: visible; }   /* the bar stays even with nothing open: one top row across (user, 2026-11-13) */
+#tab-emails .em-head .cm-ava { width: 38px; height: 38px; font-size: 13px; }
+#tab-emails .em-head-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; font-family: "DM Mono", monospace; }
+#tab-emails .em-head-from { font-size: 13px; color: var(--t-bright); }
+#tab-emails .em-head-subj { font-size: 12px; color: var(--t-normal); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#tab-emails .em-head-to { font-size: 11px; color: var(--t-faint); }
+#tab-emails .em-head-when { flex: none; font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); }
+#tab-emails .em-read { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+#tab-emails .em-pick { margin: auto; }
+#tab-emails #emReplyBar[hidden] { display: none; }
+#tab-emails .em-read { background: var(--surface2); }   /* the grey screen (user, 2026-11-12: "gray screen and text", no bubble) */
+#tab-emails .em-text { padding: 20px 22px; font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.6; color: var(--t-normal); white-space: pre-wrap; word-break: break-word; overflow-y: auto; }
+#tab-emails .em-text a { color: #8fb0d8; }
+#tab-emails .em-status { padding: 16px 18px; }
+#tab-emails .em-status:empty { display: none; }
+#tab-emails .cm-msgr-conv { min-width: 0; }   /* the long subject line can't push the email past the box edge */
+#tab-emails .em-text { overflow-wrap: anywhere; }
+#tab-emails .em-head-side { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+#tab-emails .em-gmail { font-size: 10px; }   /* replies happen in Gmail (user, 2026-11-12: the tab is a glance) */
+/* One top row across all three columns, the open email's head height (user, 2026-11-13): same height, same shade, one line under it. */
+#tab-emails { --em-top: 80px; }
+#tab-emails .em-side-head { height: var(--em-top); margin: 0 -8px 6px; padding: 0 16px; align-items: center; background: #151515; border-bottom: 1px solid var(--border); }
+#tab-emails .em-list-top { height: var(--em-top); min-height: var(--em-top); padding: 0 14px; gap: 4px; }
+#tab-emails .em-head { box-sizing: border-box; height: var(--em-top); min-height: var(--em-top); padding: 0 18px; align-items: center; }
+#tab-emails .em-head-to { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* From: + address on one line */
+/* Emails = the Comms build (user, 2026-11-13: "check out comms center box colors borders"): no tab box; a title strip
+   (screws, ring, legs) then the panes box — one border, no ring, the three columns fill it. Copied from #commsBody's rules. */
+html body #tab-emails .em-headbox { position: relative; box-sizing: border-box; height: 75px; padding-top: 24.5px; padding-bottom: 0; margin-top: 0; margin-bottom: 18px; }
+html body #tab-emails .em-headbox .td-wk-title { margin-bottom: 0; }
+html body #tab-emails .em-headbox .td-wk-title, html body #tab-emails .em-headbox .td-wk-title * { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
+html body #tab-emails .em-headbox::after { content: ""; position: absolute; left: 46px; right: 46px; bottom: -18px; height: 14px; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2714%27%3E%3Cpath d=%27M0 0H34L31.5 11.5Q30.8 14 28 14H6Q3.2 14 2.5 11.5Z%27 fill=%27%23101010%27 stroke=%27%231e1e1e%27/%3E%3C/svg%3E") left center / 34px 14px no-repeat, url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2714%27%3E%3Cpath d=%27M0 0H34L31.5 11.5Q30.8 14 28 14H6Q3.2 14 2.5 11.5Z%27 fill=%27%23101010%27 stroke=%27%231e1e1e%27/%3E%3C/svg%3E") right center / 34px 14px no-repeat; }
+html body #tab-emails .em-panes { margin-top: 0; box-shadow: none; padding: 0; overflow: hidden; }
+html body #tab-emails .em-panes > .td-bolt { display: none; }
+html body #tab-emails .em-panes .em-msgr { margin-top: 0; border: none; border-radius: 0; height: max(460px, calc(var(--vh) * 100 - 500px)); }
+#tab-emails .em-side { background: color-mix(in srgb, var(--box) 85%, #000); }   /* same shade as the list, like Comms' list */
+#tab-emails .em-read { background: none; }   /* the email sits on the box itself, like Comms' conversation side */
+/* Text = Comms' panes (user, 2026-11-13: "text brightness check with comms"): Apple's system font, names t-normal + 600,
+   the rest t-faint, nothing white except the picked mailbox on red; the email's text in Comms' message colour. */
+#tab-emails .em-msgr :is(.em-box, .em-list-title, .em-list-note, .em-subj, .em-head-from, .em-head-subj, .em-head-to, .em-head-when, .em-text, .em-gmail, .em-side-head) {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; letter-spacing: 0; }
+#tab-emails .em-box { font-size: 10px; color: var(--t-normal); }
+#tab-emails .em-box.cm-on { color: var(--t-bright); }
+#tab-emails .em-box-n { font-size: 9px; }
+#tab-emails .em-side-head { font-size: 9px; font-weight: 600; letter-spacing: 0.5px; color: var(--t-faint); }
+#tab-emails .em-list-title { font-size: 10px; font-weight: 600; color: var(--t-normal); }
+#tab-emails .em-list-note { font-size: 9px; color: var(--t-faint); }
+#tab-emails .cm-conv .em-subj, #tab-emails .cm-conv.cm-wait .em-subj { font-size: 9px; color: var(--t-normal); }
+#tab-emails .cm-conv.cm-wait .cm-conv-name { color: var(--t-normal); }
+#tab-emails .em-head .cm-ava { font-size: 10px; }
+#tab-emails .em-head-from { font-size: 10px; font-weight: 600; color: var(--t-normal); }
+#tab-emails .em-head-subj { font-size: 9px; color: var(--t-normal); }
+#tab-emails .em-head-to, #tab-emails .em-head-when { font-size: 9px; color: var(--t-faint); }
+#tab-emails .em-text { font-size: 10px; line-height: 1.5; color: var(--text); }
+/* The top row stays ONE shade across (#151515); only the columns below differ (user, 2026-11-13: "different first row same") */
+/* Column backgrounds (user, 2026-11-13): the top row one shade; below it the sidebar its own shade,
+   the list and the email the same (the box). Text colours unchanged. */
+#tab-emails .em-side { background: #1b1b1b; }   /* the sidebar its own shade, lighter than the top row (#151515), like Mail's */
+#tab-emails .cm-msgr-list { background: none; }   /* list + email share one shade: the box itself (user, 2026-11-13: "second 3, 1st column different") */

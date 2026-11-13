@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=1343">
-  <link rel="stylesheet" href="css/goals.css?v=1343">
-  <link rel="stylesheet" href="css/lessontimer.css?v=1343">
+  <link rel="stylesheet" href="css/styles.css?v=1344">
+  <link rel="stylesheet" href="css/goals.css?v=1344">
+  <link rel="stylesheet" href="css/lessontimer.css?v=1344">
 </head>
 <body>
 <div class="container">
@@ -18,7 +18,7 @@
     <img src="img/portal-logo-grey.png" alt="Red Pick Music">   <!-- badge lettering grey, the portal text grey (user, 2026-11-08; white original = img/portal-logo.png) -->
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1343</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1344</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -123,7 +123,7 @@
     <button class="tab-btn" data-tab="ending" onclick="switchTab('ending')">Terminate</button>
     <button class="tab-btn sb-h" data-h="MESSAGES" data-tab="comms" onclick="switchTab('comms')">Comms<span class="inq-badge" id="commsNavBadge" style="display:none"></span></button>
     <button class="tab-btn" data-tab="studentline" onclick="switchTab('studentline')">Student Line<span class="inq-badge" id="slNavBadge" style="display:none"></span></button>
-    <button class="tab-btn" data-tab="emails" onclick="switchTab('emails')">Emails<span class="inq-badge" id="emNavBadge" style="display:none"></span></button>   <!-- 2026-11-02: the Gmail inbox in sections (Students, Google Business, Subscriptions, Everything else), tabs/emails.js; replaced the G Business tab -->
+    <button class="tab-btn" data-tab="emails" onclick="switchTab('emails')">Emails<span class="inq-badge" id="emNavBadge" style="display:none"></span></button>   <!-- 2026-11-02: the Gmail inbox in sections (Students, Google Business, Subscriptions, Everything else), tabs/emails.js; replaced the G Business tab; 2026-11-12: Mail look, Students = newest 7 + G Business 2026 -->
     <button class="tab-btn sb-h" data-h="ARCHIVE" data-tab="archive" onclick="switchTab('archive')">Archive</button>   <!-- 2026-11-08 (user): every student ever, by year, tabs/archive.js -->
     <div class="nav-drop sb-soon">
       <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Coming Soon ▾</button>
@@ -709,9 +709,30 @@
   </div>
 
   <!-- EMAILS -->
+  <!-- EMAILS (2026-11-12, user): like Mail — the sidebar (Students, G Business),
+       the list, the open email on the right as plain text — a glance only,
+       replies happen in Gmail (Open in Gmail). Students = the 7 newest, G Business = all 2026. -->
   <div class="tab-panel" id="tab-emails">
-    <div class="settings-title"><span>Emails<span class="win-sub"> · redpickmusic@gmail.com</span></span></div>
-    <div id="emBody"><div class="empty-state rpm-loading">Loading</div></div>
+    <div class="td-wk-box em-headbox"><span class="hr-bolt" style="left:10px"></span><span class="hr-bolt" style="right:10px"></span>
+      <div class="settings-title td-wk-title"><span>Emails<span class="win-sub"> · redpickmusic@gmail.com</span></span></div></div>
+    <div class="td-wk-box em-panes">
+    <div class="cm-msgr em-msgr">
+      <!-- Mail's sidebar (user, 2026-11-12): the two mailboxes, each with its new count. -->
+      <div class="em-side">
+        <div class="em-side-head">redpickmusic@gmail.com</div>
+        <button class="em-box" data-em="students" onclick="emShow('students')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 13l2.5-7.5h13L21 13v6H3z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/></svg><span class="em-box-name">Students</span><span class="em-box-n" id="emStuN"></span></button>
+        <button class="em-box" data-em="gbusiness" onclick="emShow('gbusiness')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 6.5h6l2 2h10V19H3z"/></svg><span class="em-box-name">G Business</span><span class="em-box-n" id="emGbN"></span></button>
+      </div>
+      <div class="cm-msgr-list">
+        <div class="cm-list-top em-list-top"><span class="em-list-title" id="emListTitle"></span><span class="em-list-note" id="emListNote"></span></div>
+        <div class="em-list" id="emList"><div class="empty-state rpm-loading">Loading</div></div>
+      </div>
+      <div class="cm-msgr-conv">
+        <div class="cm-msgr-head em-head" id="emHead"></div>
+        <div class="em-read" id="emRead"><div class="cm-none cm-thread-empty em-pick">Pick an email on the left.</div></div>
+      </div>
+    </div>
+  </div>
   </div>
 
   <!-- TAX -->
@@ -805,59 +826,59 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=1343"></script>
-<script src="core/storage.js?v=1343"></script>
-<script src="core/utils.js?v=1343"></script>
-<script src="core/dialog.js?v=1343"></script>
-<script src="core/api.js?v=1343"></script>
-<script src="core/secalert.js?v=1343"></script>
-<script src="core/magnifier.js?v=1343"></script>
-<script src="core/nav.js?v=1343"></script>
-<script src="core/rackscreen.js?v=1343"></script>
+<script src="core/state.js?v=1344"></script>
+<script src="core/storage.js?v=1344"></script>
+<script src="core/utils.js?v=1344"></script>
+<script src="core/dialog.js?v=1344"></script>
+<script src="core/api.js?v=1344"></script>
+<script src="core/secalert.js?v=1344"></script>
+<script src="core/magnifier.js?v=1344"></script>
+<script src="core/nav.js?v=1344"></script>
+<script src="core/rackscreen.js?v=1344"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=1343"></script>
-<script src="tabs/lessons.js?v=1343"></script>
-<script src="tabs/payments.js?v=1343"></script>
-<script src="tabs/general.js?v=1343"></script>
-<script src="tabs/financial.js?v=1343"></script>
-<script src="tabs/inquiries.js?v=1343"></script>
-<script src="tabs/inqarchive.js?v=1343"></script>
-<script src="tabs/comms.js?v=1343"></script>
-<script src="tabs/announce.js?v=1343"></script>
-<script src="tabs/notes.js?v=1343"></script>
-<script src="tabs/todo.js?v=1343"></script>
-<script src="tabs/availability.js?v=1343"></script>
-<script src="tabs/travel.js?v=1343"></script>
-<script src="tabs/tripsummary.js?v=1343"></script>
-<script src="tabs/triphistory.js?v=1343"></script>
-<script src="tabs/skips.js?v=1343"></script>
-<script src="tabs/student.js?v=1343"></script>
-<script src="tabs/ctrl.js?v=1343"></script>
-<script src="tabs/emails.js?v=1343"></script>
-<script src="tabs/dropbox.js?v=1343"></script>
-<script src="tabs/import.js?v=1343"></script>
-<script src="tabs/today.js?v=1343"></script>
-<script src="tabs/home.js?v=1343"></script>
-<script src="tabs/trial.js?v=1343"></script>
-<script src="tabs/ending.js?v=1343"></script>
-<script src="tabs/reviews.js?v=1343"></script>
-<script src="tabs/financial2.js?v=1343"></script>
-<script src="tabs/studentline.js?v=1343"></script>
-<script src="tabs/calendar.js?v=1343"></script>
-<script src="tabs/fixedcal.js?v=1343"></script>
-<script src="tabs/slotchange.js?v=1343"></script>
-<script src="tabs/help.js?v=1343"></script>
-<script src="tabs/holidays.js?v=1343"></script>
-<script src="tabs/archive.js?v=1343"></script>
-<script src="tabs/texttemplates.js?v=1343"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
-<script src="tabs/goals.js?v=1343"></script>
-<script src="tabs/schednotes.js?v=1343"></script>
-<script src="tabs/logtimer.js?v=1343"></script>
-<script src="core/usage.js?v=1343"></script>
-<script src="tabs/usage.js?v=1343"></script>
-<script src="tabs/guitartypes.js?v=1343"></script>
-<script src="tabs/lessontimer.js?v=1343"></script>
+<script src="tabs/icons.js?v=1344"></script>
+<script src="tabs/lessons.js?v=1344"></script>
+<script src="tabs/payments.js?v=1344"></script>
+<script src="tabs/general.js?v=1344"></script>
+<script src="tabs/financial.js?v=1344"></script>
+<script src="tabs/inquiries.js?v=1344"></script>
+<script src="tabs/inqarchive.js?v=1344"></script>
+<script src="tabs/comms.js?v=1344"></script>
+<script src="tabs/announce.js?v=1344"></script>
+<script src="tabs/notes.js?v=1344"></script>
+<script src="tabs/todo.js?v=1344"></script>
+<script src="tabs/availability.js?v=1344"></script>
+<script src="tabs/travel.js?v=1344"></script>
+<script src="tabs/tripsummary.js?v=1344"></script>
+<script src="tabs/triphistory.js?v=1344"></script>
+<script src="tabs/skips.js?v=1344"></script>
+<script src="tabs/student.js?v=1344"></script>
+<script src="tabs/ctrl.js?v=1344"></script>
+<script src="tabs/emails.js?v=1344"></script>
+<script src="tabs/dropbox.js?v=1344"></script>
+<script src="tabs/import.js?v=1344"></script>
+<script src="tabs/today.js?v=1344"></script>
+<script src="tabs/home.js?v=1344"></script>
+<script src="tabs/trial.js?v=1344"></script>
+<script src="tabs/ending.js?v=1344"></script>
+<script src="tabs/reviews.js?v=1344"></script>
+<script src="tabs/financial2.js?v=1344"></script>
+<script src="tabs/studentline.js?v=1344"></script>
+<script src="tabs/calendar.js?v=1344"></script>
+<script src="tabs/fixedcal.js?v=1344"></script>
+<script src="tabs/slotchange.js?v=1344"></script>
+<script src="tabs/help.js?v=1344"></script>
+<script src="tabs/holidays.js?v=1344"></script>
+<script src="tabs/archive.js?v=1344"></script>
+<script src="tabs/texttemplates.js?v=1344"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
+<script src="tabs/goals.js?v=1344"></script>
+<script src="tabs/schednotes.js?v=1344"></script>
+<script src="tabs/logtimer.js?v=1344"></script>
+<script src="core/usage.js?v=1344"></script>
+<script src="tabs/usage.js?v=1344"></script>
+<script src="tabs/guitartypes.js?v=1344"></script>
+<script src="tabs/lessontimer.js?v=1344"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
