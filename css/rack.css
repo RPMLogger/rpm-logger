@@ -26,9 +26,9 @@ html body.rk-lessons {
 #rkLayer .rk-back {   /* back panel: tight perforated steel, rounded top */
   position: absolute; border-radius: 10px 10px 0 0;
   background:
-    radial-gradient(circle, rgba(0,0,0,.75) 0 1.1px, rgba(255,255,255,.04) 1.5px, transparent 1.9px) 0 0 / 6px 6px,
-    radial-gradient(circle, rgba(0,0,0,.75) 0 1.1px, rgba(255,255,255,.04) 1.5px, transparent 1.9px) 3px 3px / 6px 6px,
-    #1c1c1c;
+    radial-gradient(circle, rgba(0,0,0,.45) 0 1.1px, rgba(255,255,255,.02) 1.5px, transparent 1.9px) 0 0 / 6px 6px,
+    radial-gradient(circle, rgba(0,0,0,.45) 0 1.1px, rgba(255,255,255,.02) 1.5px, transparent 1.9px) 3px 3px / 6px 6px,
+    #161616;   /* darker (user, 2026-11-14; was #1c1c1c) */
   box-shadow: 0 0 0 1px rgba(0,0,0,.5);
 }
 #rkLayer .rk-shade { position: absolute; pointer-events: none; }   /* what each unit casts onto the back */
@@ -40,9 +40,9 @@ html body.rk-lessons {
     repeating-linear-gradient(to bottom, transparent 0 5px, rgba(0,0,0,.85) 5px 9.5px, rgba(255,255,255,.10) 9.5px 10.5px, transparent 10.5px 15px) 0 0 / 5px 100% no-repeat,
     repeating-linear-gradient(90deg, rgba(255,255,255,.016) 0 1px, transparent 1px 2px, rgba(0,0,0,.04) 2px 3px, transparent 3px 5px),
     linear-gradient(180deg, rgba(255,255,255,.035), transparent 30%, rgba(255,255,255,.02) 60%, rgba(0,0,0,.08)),
-    #1d1e20;
+    #18191b;   /* darker (user, 2026-11-14; was #1d1e20) */
   box-shadow:
-    inset 1px 0 0 rgba(255,255,255,.09), inset -1px 0 0 rgba(255,255,255,.05),
+    inset 1px 0 0 rgba(255,255,255,.07), inset -1px 0 0 rgba(255,255,255,.04),
     inset 2px 0 0 rgba(0,0,0,.35), inset -2px 0 0 rgba(0,0,0,.35),
     0 0 0 1px rgba(0,0,0,.55);
 }
