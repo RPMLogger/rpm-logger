@@ -1,0 +1,60 @@
+/* THE RACK (user, 2026-11-14) — TRIAL ON THE LESSONS TAB ONLY.
+   Everything here is under body.rk-lessons, which core/rack.js puts on while Lessons is open; every other tab is untouched.
+   The whole page becomes one rack case standing against a grey plaster wall:
+   - two flat steel rails + a perforated back panel, drawn behind the boxes by core/rack.js (#rkLayer);
+     the boxes keep their own design — their own corner screws are what sit on the rails
+   - each unit casts a soft shadow onto the back panel, so the back reads as set behind them
+   - the amp head sits in the rack too: no carry handle, no legs (nor the Home rack's legs)
+   - equal 48px of rack showing between every unit
+   To drop the trial: remove this file, core/rack.js and their two lines in index.html. */
+
+/* ── the wall (instead of the diamond plate) ── */
+html body.rk-lessons {
+  background-color: #242424;
+  background-image:
+    radial-gradient(ellipse 75% 55% at 50% -5%, rgba(255,250,240,.04), transparent 70%),
+    linear-gradient(180deg, transparent 45%, rgba(0,0,0,.12)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014' numOctaves='4' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.1 -0.45'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)' opacity='.18'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 -.38'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.35'/%3E%3C/svg%3E");
+  background-size: 100% 100vh, 100% 100vh, 420px 420px, 200px 200px;
+  background-repeat: no-repeat, no-repeat, repeat, repeat;
+  background-attachment: fixed, fixed, scroll, scroll;
+}
+
+/* ── the case (drawn into #rkLayer by core/rack.js) ── */
+#rkLayer { position: absolute; left: 0; top: 0; width: 100%; pointer-events: none; z-index: 1; }
+#rkLayer .rk-back {   /* back panel: tight perforated steel, rounded top */
+  position: absolute; border-radius: 10px 10px 0 0;
+  background:
+    radial-gradient(circle, rgba(0,0,0,.75) 0 1.1px, rgba(255,255,255,.04) 1.5px, transparent 1.9px) 0 0 / 6px 6px,
+    radial-gradient(circle, rgba(0,0,0,.75) 0 1.1px, rgba(255,255,255,.04) 1.5px, transparent 1.9px) 3px 3px / 6px 6px,
+    #1c1c1c;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.5);
+}
+#rkLayer .rk-shade { position: absolute; pointer-events: none; }   /* what each unit casts onto the back */
+#rkLayer .rk-below { height: 22px; background: linear-gradient(180deg, rgba(0,0,0,.6), rgba(0,0,0,.25) 40%, transparent); }
+#rkLayer .rk-above { height: 8px;  background: linear-gradient(0deg, rgba(0,0,0,.4), transparent); }
+#rkLayer .rk-rail {   /* flat stamped steel: crisp edges, punched holes with a lit lip, faint sheen down the length */
+  position: absolute; width: 40px;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 5px, rgba(0,0,0,.85) 5px 9.5px, rgba(255,255,255,.10) 9.5px 10.5px, transparent 10.5px 15px) 0 0 / 5px 100% no-repeat,
+    repeating-linear-gradient(90deg, rgba(255,255,255,.016) 0 1px, transparent 1px 2px, rgba(0,0,0,.04) 2px 3px, transparent 3px 5px),
+    linear-gradient(180deg, rgba(255,255,255,.035), transparent 30%, rgba(255,255,255,.02) 60%, rgba(0,0,0,.08)),
+    #1d1e20;
+  box-shadow:
+    inset 1px 0 0 rgba(255,255,255,.09), inset -1px 0 0 rgba(255,255,255,.05),
+    inset 2px 0 0 rgba(0,0,0,.35), inset -2px 0 0 rgba(0,0,0,.35),
+    0 0 0 1px rgba(0,0,0,.55);
+}
+#rkLayer .rk-rail.rk-l { background-position: left 21px top, 0 0, 0 0, 0 0; border-top-left-radius: 10px; }   /* holes right under the boxes' screws */
+#rkLayer .rk-rail.rk-r { background-position: right 21px top, 0 0, 0 0, 0 0; border-top-right-radius: 10px; }
+
+/* ── the units: in front of the case, otherwise exactly as they are ── */
+body.rk-lessons .container > :is(.header, .home-rack, .alarm-rack, .tab-panel) { position: relative; z-index: 2; }
+html body.rk-lessons .header::after { display: none; }                  /* amp: no carry handle, no legs */
+html body.rk-lessons .container > .home-rack::after { display: none; }  /* Home rack: no legs */
+
+/* ── equal gaps: 48px of rack showing between every unit (rings counted) ── */
+html body.rk-lessons .container > .home-rack { margin-top: 0 !important; margin-bottom: 56px !important; }
+html body.rk-lessons .container > .home-rack:has(+ .alarm-rack) { margin-bottom: 58px !important; }
+html body.rk-lessons #importBody .im-box ~ .im-box { margin-top: 67.5px; }   /* this area is scaled 0.8: 67.5 → 54 on screen */
