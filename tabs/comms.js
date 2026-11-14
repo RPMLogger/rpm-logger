@@ -49,6 +49,9 @@ function loadCommsInbox() {
         var msgr = document.querySelector(".cm-msgr");
         if (msgr) msgr.classList.remove("cm-loading");
         renderCommsInbox();
+        // A text arriving in the conversation I have open on screen = read: no red dot (user, 2026-11-14).
+        if (commsPaneDetail && !commsOnDraft && !commsPaneDetail.archived && !commsPaneDetail.blank &&
+            commsOnTab() && !document.hidden && commsOpenInThread(commsPaneDetail).length) commsPaneMark();
         commsCheckNew();   // the COMMS rack button for a new text (on any tab)
         // An open conversation picks up new texts on the 30-second poll too.
         var win = document.getElementById("commsDetailOverlay");
