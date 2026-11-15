@@ -4081,7 +4081,7 @@ textarea.ll-row { overflow: hidden; display: block; width: 100%; box-sizing: bor
    DM Mono instead of Arial, 10px corners, 11px small text, warm greys, 22px name like the Students cards */
 #importBody .td-student .im-s, #importBody .td-student .im-hw-text, #importBody .td-student .im-teach { font-family: "DM Mono", monospace; font-size: 11px; }
 /* History + Last homework in the To-do page's handwriting (user, 2026-11-04) */
-#importBody .td-student .im-block .im-s, #importBody .td-student .im-block .im-teach, #importBody .td-student .im-hw-text { font-family: "Caveat", cursive; font-size: 18px; line-height: 1.3; letter-spacing: 0.2px; }
+#importBody .td-student .im-block .im-s, #importBody .td-student .im-block .im-teach, #importBody .td-student .im-hw-text { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; letter-spacing: 0; }   /* Arial try (user, 2026-11-15; was Caveat 18px / 1.3) */
 #importBody .td-student .db-panel.im-list { border-radius: 10px; font-size: 11px; }
 #importBody .td-student .im-year, #importBody .td-student .im-data-h { font-size: 11px; }
 #importBody .td-student .im-sec-head .field-label, #importBody .td-student .im-year, #importBody .td-student .im-data-h, #importBody .td-student .im-none { color: var(--t-normal); }
@@ -4328,7 +4328,7 @@ a.cm-file:hover { background: rgba(255,255,255,0.14); }
 .td-all-box { display: block; margin-top: 0; }   /* No show's box (ts-thread), text down the page, not a flex column */
 .td-all-h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
 .td-all-lbl { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--t-faint); }
-.td-all-txt { font-family: "Caveat", cursive; font-size: 18px; line-height: 1.3; letter-spacing: 0.2px; color: var(--t-normal); }   /* softer (user, 2026-11-01) */
+.td-all-txt { font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.6; letter-spacing: 0; color: var(--t-normal); }   /* softer (user, 2026-11-01) */
 .td-all-li { position: relative; padding-left: 18px; }
 .td-all-teach { color: var(--muted); }   /* the teacher note, dimmer (user, 2026-11-08) */
 .td-all-li::before { content: "•"; position: absolute; left: 0; color: var(--t-faint); }   /* a bullet in front of each line (user, 2026-11-05; dash tried first) */
