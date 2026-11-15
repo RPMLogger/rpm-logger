@@ -7,6 +7,10 @@
 
 var rpmNav = { idx: 0, restoring: false, fresh: false };
 
+// A browser refresh always lands at the top of Home, not where the page was scrolled (user, 2026-11-15)
+try { history.scrollRestoration = "manual"; } catch (e) {}
+window.scrollTo(0, 0);
+
 function _navSame(a, b) {
   return !!a && !!b && a.tab === b.tab && JSON.stringify(a.page || null) === JSON.stringify(b.page || null);
 }
