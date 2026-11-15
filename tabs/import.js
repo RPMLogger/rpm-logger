@@ -1628,30 +1628,23 @@ function _imMatFinish() {
   if (!hw || hw.choice !== 'sent' || hw.loading || hw.uploading || hw.gathering) return;
   var paths = (hw.found || []).map(function (f) { return f.path; });
   if (!paths.length) { hw.matDone = true; _imStepsRender(); return; }
-  var card = document.querySelector('#imLogWin .im-do-card');
-  hw.gathering = 'move';
-  rpmBusy(card, null, true, 'Moving');
-  _imStepsRender();
-  fetch(getScriptUrl() + '?action=gatherHwFiles&name=' + encodeURIComponent(hw.name) + '&lessonDate=' + hw.date + '&paths=' + encodeURIComponent(paths.join('\n')))
+  // No waiting (user, 2026-11-15): the move only keeps the student's Dropbox tidy. The files count now,
+  // under the lesson's folder where the move puts them; the move runs behind (one batch, RPM_HwLog.js).
+  // If it fails, a red note says which ones; the HW is saved either way.
+  var folder = lessonFolderName(hw.date), name = hw.name;
+  paths.map(function (p) { return p.split('/')[0].toUpperCase() === folder ? p : folder + '/' + p; }).forEach(function (p) {
+    var nm = p.split('/').pop();
+    if (!hw.files.some(function (f) { return f.path.toLowerCase() === p.toLowerCase(); })) hw.files.push({ name: nm, path: p });
+    hw.mine[nm.toLowerCase()] = true;
+  });
+  hw.found = null;
+  hw.matDone = true;
+  fetch(getScriptUrl() + '?action=gatherHwFiles&name=' + encodeURIComponent(name) + '&lessonDate=' + hw.date + '&paths=' + encodeURIComponent(paths.join('\n')))
     .then(function (r) { return r.json(); })
     .catch(function () { return { success: false, message: 'No answer from Google.' }; })
-    .then(function (d) {
-      if (logHw !== hw) return;
-      hw.gathering = false;
-      rpmBusy(card, null, false);
-      var folder = lessonFolderName(hw.date);
-      var moved = d.paths || (d.success ? paths.map(function (p) { return p.split('/')[0].toUpperCase() === folder ? p : folder + '/' + p; }) : []);
-      moved.forEach(function (p) {
-        var nm = p.split('/').pop();
-        if (!hw.files.some(function (f) { return f.path.toLowerCase() === p.toLowerCase(); })) hw.files.push({ name: nm, path: p });
-        hw.mine[nm.toLowerCase()] = true;
-      });
-      hw.found = null;
-      if (!d.success) { rpmFail('logPanelStatus', d.message || 'Files not moved.'); _imHwChanged(); return; }
-      hw.matDone = true;
-      if (hw.doneAfterMove) { hw.doneAfterMove = false; _imMatDone(); return; }   // Done pressed with gathered files
-      _imHwChanged();
-    });
+    .then(function (d) { if (!d.success) rpmToast('fail', 'Files not moved', name + ': ' + (d.message || 'Dropbox said no.') + ' The HW is saved; move them in Dropbox.'); });
+  if (hw.doneAfterMove) { hw.doneAfterMove = false; _imMatDone(); return; }   // Save & next pressed with gathered files
+  _imHwChanged();
 }
 // Gather (2026-10-25): what went into their Dropbox since the lesson day and is
 // on no HW yet; no ticks (user: put in that day means meant for it), Finish takes all.
