@@ -103,7 +103,7 @@ function _trAcceptedCard(a) {
         // Text sits between Email and Book, the order you do them in. Blue: a
         // contact method, same weight as Email (2026-09-27).
         '<button class="link-btn blue opens-window" onclick="_trOpenText(\'' + em + '\')" ' +
-          'data-tip="Opens a window.\nDownload their contact card, then the text for Messages.\nNothing sends from here." data-tip-wrap>' + TEXT_ICON + '<span>Text</span></button>' +
+          'data-tip="Opens a window.\nA text from the RPM line, ready to edit.\nNothing sends until you press Send." data-tip-wrap>' + TEXT_ICON + '<span>Text</span></button>' +
         '<button class="link-btn bright opens-window" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
           'data-tip="Opens a window.\nBooking with their name and email.\nYou pick the date and time.\nCard moves to Trial once booked.\n(Not in Email list.)" data-tip-wrap data-tip-left>' + CALENDAR_ICON + '<span>Book</span></button>' +
       '</div>' +
@@ -405,12 +405,14 @@ function _trMsgRow(m, them) {
   var who  = mine ? 'You' : (them || 'Them');
   // Them green, you amber: each side of the exchange has its own colour, so
   // who said what reads down the edge without reading the headers.
-  var edge = mine ? 'var(--warn)' : 'var(--green)';
+  // Texts (RPM line, 2026-11-14): blue mine, grey theirs, the portal's texting colours.
+  var edge = m.sms ? (mine ? 'var(--blue)' : 'var(--muted)') : (mine ? 'var(--warn)' : 'var(--green)');
+  var tag  = m.sms ? ' · Text' + (mine && /^(undelivered|failed)$/.test(m.status || '') ? ' · Not delivered' : '') : '';
   return '<div class="tr-msg"><div style="border-left:2px solid ' + edge + ';padding:0 0 0 9px;margin-bottom:20px">' +
       // The name dimmed to the text's level (2026-09-27): the edge carries the colour.
       '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:color-mix(in srgb, ' + edge + ' 65%, transparent);margin:6px 0 16px">' +
         inqEsc(who) +
-        '<span style="font-size:10px;color:var(--muted)"> · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) + '</span>' +
+        '<span style="font-size:10px;color:var(--muted)"> · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) + inqEsc(tag) + '</span>' +
       '</div>' +
       '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.5;color:var(--t-normal);margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere">' +
         inqEsc(m.text) +
@@ -860,18 +862,19 @@ function _trAvToggle(date, time) {
 }
 
 // ── The Text window ─────────────────────────────────────────────────────────
-// Was the bottom half of the Email window; its own window since 2026-09-27 so
-// it could take a first step: download their contact card (.vcf), which opens
-// straight into Contacts on the Mac, so Messages shows a name instead of a
-// number. Replaced a Google Contacts save the same day: that waited on Google
-// syncing down to the Mac. Top down in the order you do it: card, then text.
+// From Initiate on, the personal number is out of the picture (user,
+// 2026-11-14): the text goes out from the RPM (Twilio) line, right here, and
+// their answer comes back into the card's thread and the Initiate badge. It
+// used to be Copy text + Open Messages + a contact card for the phone.
 function _trOpenText(email) {
   var a = _trFindAccepted(email);
   if (!a) return;
   var first = (a.name || "").split(" ")[0];
-  var sms   = _trSmsText(first);
   var phoneDigits = (a.phone || "").toString().replace(/\D/g, "");
   var phonePretty = _trPhonePretty(a.phone);
+  // Texted before? Then a fresh box, not the first-contact line again.
+  var t = (_trThreadCache || {})[email];
+  var texted = !!(t && (t.messages || []).some(function (m) { return m.sms && m.fromMe; }));
 
   var overlay = document.createElement("div");
   overlay.id = "trTxModal";
@@ -880,7 +883,7 @@ function _trOpenText(email) {
   function lbl(t, id) { return "<label class='field-label'" + (id ? " for='" + id + "'" : "") + ">" + t + "</label>"; }
   function ro(v) { return "<input class='rpm-field' readonly tabindex='-1' style='cursor:default' value=\"" + _msAttr(v) + "\">"; }
   overlay.innerHTML =
-    "<div style='background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:460px;width:100%;padding:28px;box-sizing:border-box;max-height:92vh;overflow:auto'>" +
+    "<div id='trTxWin' style='background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:460px;width:100%;padding:28px;box-sizing:border-box;max-height:92vh;overflow:auto'>" +
       "<div class='settings-title'>" +
         "<span>" + inqEsc(a.name || "") +
           "<span style='color:var(--muted);font-weight:400'> · Text</span></span>" +
@@ -888,72 +891,73 @@ function _trOpenText(email) {
       "</div>" +
       "<div style='margin:4px 0 18px'>" + TEXT_WIN_ICON + "</div>" +
       lbl("Phone") + ro(phonePretty || "No phone number on file") +
-      // Its own row under the number it saves. Dim like the helpers below.
       (phoneDigits
-        ? _tlActs("<button class='link-btn' onclick='_trDownloadCard(this)'>" + CONTACT_ADD_ICON + "<span>Download card</span></button>")
+        ? "<div style='margin-top:24px'>" + lbl("Message", "trFcSms") + "</div>" +
+          "<textarea id='trFcSms' rows='4' class='rpm-field'>" + inqEsc(texted ? "" : _trSmsText(first)) + "</textarea>" +
+          "<div id='trTxStatus' style='margin-top:12px'></div>" +
+          _tlActs("<button class='link-btn blue' id='trTxBtn' onclick='_trSendText()'>" + TEXT_ICON + "<span>Send</span></button>")
         : "") +
-      "<div style='margin-top:24px'>" + lbl("Message", "trFcSms") + "</div>" +
-      "<textarea id='trFcSms' rows='3' readonly class='rpm-field'>" + inqEsc(sms) + "</textarea>" +
-      // Three helpers, one job: get this text into iMessage. None of them
-      // sends anything, so all three stay dim.
-      _tlActs(
-        "<button class='link-btn' onclick='_trCopySms(this)'>" + COPY_ICON + "<span>Copy text</span></button>" +
-        (phoneDigits
-          ? "<button class='link-btn' onclick='_trCopyPhone(this,\"" + phoneDigits + "\")'>" + COPY_ICON + "<span>Copy phone #</span></button>" +
-            "<a class='link-btn' href='sms:" + phoneDigits + "'><span>Open Messages</span>" + OPEN_OUT_ICON + "</a>"
-          : "")) +
     "</div>";
-  overlay.addEventListener("click", function (ev) { if (ev.target === overlay) _trCloseText(); });
+  overlay.addEventListener("click", function (ev) { if (ev.target === overlay && !overlay._busy) _trCloseText(); });
   document.body.appendChild(overlay);
   overlay._card = a;
+  var ta = document.getElementById("trFcSms");
+  if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
 }
 
 function _trCloseText() {
   var m = document.getElementById("trTxModal");
-  if (m) m.remove();
+  if (m && !m._busy) m.remove();
 }
 
-// A vCard built in the browser, no backend. Opening the download shows
-// Contacts' Import prompt. Name the card's way: last word is the family name.
-function _trDownloadCard(btn) {
-  var overlay = document.getElementById("trTxModal");
-  if (!overlay) return;
-  var a = overlay._card || {};
-  var name = (a.name || "").trim();
+// Texts stay plain characters (GSM-7): curly quotes and long dashes would
+// double the cost of every piece.
+function _trSmsPlain(s) {
+  return String(s || "").replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, "-").replace(/\u2026/g, "...").replace(/[\u200B-\u200D\uFEFF]/g, "");
+}
+
+// One sender for the Text window and the thread window's Text button:
+// sendCommsReply texts from the RPM line and saves it in the Comms Inbox, which
+// is where the card's thread reads it back from.
+function _trTextSend(to, body, btn, st, win, ov, onSent) {
+  var url = getScriptUrl();
+  if (!url) return;
+  body = _trSmsPlain(body);
+  if (!body.trim()) { rpmHalf(st, "Write something first"); return; }
+  var label = btn.textContent;
+  st.innerHTML = "";
+  btn.disabled = true; _trSetLabel(btn, "Sending…");
+  rpmBusy(win, btn, true); ov._busy = true;
+  fetch(url + "?action=sendCommsReply&to=" + encodeURIComponent(to) + "&body=" + encodeURIComponent(body))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      rpmBusy(win, btn, false); ov._busy = false;
+      if (!d.success) { btn.disabled = false; _trSetLabel(btn, label); rpmFail(st, d.message || ""); return; }
+      _trSetLabel(btn, "Sent ✓");
+      onSent();
+    })
+    .catch(function () {
+      rpmBusy(win, btn, false); ov._busy = false;
+      btn.disabled = false; _trSetLabel(btn, label);
+      rpmFail(st, "No answer from Google. It may have gone out: check Comms before sending again.");
+    });
+}
+
+function _trSendText() {
+  var ov = document.getElementById("trTxModal");
+  if (!ov) return;
+  var a = ov._card || {};
   var d = (a.phone || "").toString().replace(/\D/g, "");
   if (d.length > 10) d = d.slice(-10);
-  var parts = name.split(/\s+/);
-  var last  = parts.length > 1 ? parts.pop() : "";
-  var esc = function (v) { return (v || "").replace(/([\\;,])/g, "\\$1"); };
-  var lines = [
-    "BEGIN:VCARD", "VERSION:3.0",
-    "N:" + esc(last) + ";" + esc(parts.join(" ")) + ";;;",
-    "FN:" + esc(name),
-    // +1 form so caller ID matches however the number arrives.
-    "TEL;TYPE=CELL:+1" + d
-  ];
-  if (a.email) lines.push("EMAIL;TYPE=INTERNET:" + a.email);
-  lines.push("END:VCARD");
-  var blob = new Blob([lines.join("\r\n") + "\r\n"], { type: "text/vcard" });
-  var link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = (name || "Contact") + ".vcf";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(function () { URL.revokeObjectURL(link.href); }, 1000);
-  // Done only changes the words; a second click downloads it again.
-  _trSetLabel(btn, "Downloaded ✓");
-}
-
-function _trCopySms(btn) {
-  var ta = document.getElementById("trFcSms");
-  if (!ta) return;
-  // The label only. textContent here would take the icon with it.
-  var done = function () { _trFlashLabel(btn, "Copied ✓"); };
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(ta.value).then(done, function () { ta.select(); document.execCommand("copy"); done(); });
-  } else { ta.select(); document.execCommand("copy"); done(); }
+  _trTextSend("+1" + d, (document.getElementById("trFcSms") || {}).value || "",
+    document.getElementById("trTxBtn"), document.getElementById("trTxStatus"),
+    document.getElementById("trTxWin"), ov,
+    function () {
+      // The card's thread picks the text up; the window closes a moment later.
+      _trRefreshThreads();
+      setTimeout(function () { ov._busy = false; _trCloseText(); }, 900);
+    });
 }
 
 // Render exactly what will be sent (logo shown as a placeholder — the real one
@@ -2787,12 +2791,17 @@ function _trThreadWin(id) {
     '<div style="margin:4px 0 18px">' + THREAD_WIN_ICON + '</div>' +
     _trBounceRow(t) +
     t.messages.map(function (m) { return _trMsgRow(m, first); }).join('') +
-    (t.threadId
+    // One box, two ways out (2026-11-14): Reply answers in the Gmail thread,
+    // Text sends it from the RPM line. Each shows only when it can work.
+    ((t.threadId || t.phone)
       ? '<label class="field-label" for="thBody" style="margin-top:6px">Reply</label>' +
         '<textarea id="thBody" rows="5" class="rpm-field" style="font-size:11px"></textarea>' +
         '<div id="thStatus" style="margin-top:12px"></div>' +
-        _tlActs('<button class="link-btn bright" id="thBtn" onclick="_trThreadWinSend(\'' + t.threadId + '\')">' +
-          REPLY_ICON + '<span>Reply</span></button>')
+        _tlActs(
+          (t.phone ? '<button class="link-btn blue" id="thTxBtn" onclick="_trThreadWinText()">' +
+            TEXT_ICON + '<span>Text</span></button>' : '') +
+          (t.threadId ? '<button class="link-btn bright" id="thBtn" onclick="_trThreadWinSend(\'' + t.threadId + '\')">' +
+            REPLY_ICON + '<span>Reply</span></button>' : ''))
       : '');
   ov.classList.add('open');
 }
@@ -2837,10 +2846,27 @@ function _trThreadWinSend(threadId) {
     });
 }
 
+function _trThreadWinText() {
+  var t = (_trThreadCache || {})[_trThreadWinEmail];
+  if (!t || !t.phone) return;
+  _trTextSend(t.phone, (document.getElementById('thBody') || {}).value || '',
+    document.getElementById('thTxBtn'), document.getElementById('thStatus'),
+    document.getElementById('thModal'), document.getElementById('thOverlay'),
+    function () {
+      var id = emailToId(_trThreadWinEmail || '');
+      _trRefreshThreads(function () {
+        var o = document.getElementById('thOverlay');
+        if (o && o.classList.contains('open')) _trThreadWin(id);
+      });
+      var trial = document.getElementById('tab-trial');
+      if (trial && trial.classList.contains('active')) _trLoadThreads();
+    });
+}
+
 function _trThreadSummary(id, msgs) {
   if (!msgs.length) {
     return '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">' +
-        'No email exchange yet.' +
+        'Nothing sent yet.' +
       '</div>';
   }
   var last = msgs[msgs.length - 1];
@@ -2850,7 +2876,7 @@ function _trThreadSummary(id, msgs) {
   return '<div id="fcsum-' + id + '" style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:8px">' +
       '<button class="tr-open-btn small opens-window" id="fctog-' + id + '" onclick="_trThreadWin(\'' + id + '\')">Show</button>' +
       '<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:color-mix(in srgb, var(--muted) 72%, transparent)">' +
-        'Last: ' + (last.fromMe ? 'You' : 'Them') +
+        'Last: ' + (last.fromMe ? 'You' : 'Them') + (last.sms ? ' · Text' : ' · Email') +
       '</span>' +
     '</div>';
 }
