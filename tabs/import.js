@@ -1215,11 +1215,11 @@ function _imStepsRender() {
   // Recorded: Yes opens Phone / Zoom on the line under it (user, 2026-11-02).
   var recYes = !!(hw && (hw.rec === 'yes' || hw.rec === 'phone' || hw.rec === 'zoom')), rw = _imQ('imRecHow');
   if (rw) rw.style.display = recYes ? '' : 'none';
-  [['imRecYes', recYes], ['imRecPhone', hw && hw.rec === 'phone'], ['imRecZoom', hw && hw.rec === 'zoom'], ['imRecNo', hw && hw.rec === 'no'], ['imMatSend', hw && hw.pick === 'send'], ['imMatNo', hw && hw.pick === 'none']].forEach(function (x) {
+  [['imRecYes', recYes], ['imRecPhone', hw && hw.rec === 'phone'], ['imRecZoom', hw && hw.rec === 'zoom'], ['imRecNo', hw && hw.rec === 'no'], ['imFilesNo', hw && hw.filesNone && !hw.files.length], ['imMatSend', hw && hw.pick === 'send'], ['imMatNo', hw && hw.pick === 'none']].forEach(function (x) {
     var b = _imQ(x[0]);
     if (!b) return;
     b.classList.toggle('done', !!x[1]);
-    b.disabled = !hw || !!(hw.locked || hw.loading || hw.saving || (x[0] === 'imMatNo' || x[0] === 'imMatSend') && hw.uploading);
+    b.disabled = !hw || !!(hw.locked || hw.loading || hw.saving || (x[0] === 'imMatNo' || x[0] === 'imMatSend') && hw.uploading) || x[0] === 'imFilesNo' && !!(hw.files.length || hw.uploading);
   });
   var steps = [
     { label: 'Lesson log', cls: 'log', done: logged },
@@ -1689,7 +1689,8 @@ function _imMatAnswered(hw) {
     var inp = document.getElementById(id);
     return hw.links.some(function (l) { return l.kind === kind; }) || (kind === 'Video' && !!hw.videoOnly) || !!(inp && inp.value.trim());
   }
-  return box('Video', 'logHwVideoInput') && box('Link', 'logHwLinkInput') && ['phone', 'zoom', 'no'].indexOf(hw.rec) >= 0;
+  var files = hw.files.length > 0 || (hw.found || []).length > 0 || !!hw.filesNone;   // Files: some, or None (user, 2026-11-15)
+  return files && box('Video', 'logHwVideoInput') && box('Link', 'logHwLinkInput') && ['phone', 'zoom', 'no'].indexOf(hw.rec) >= 0;
 }
 function _imMatDone() {
   var hw = logHw;
@@ -1710,6 +1711,14 @@ function _imMatDone() {
   hw.phone = hw.rec === 'phone' || hw.rec === 'zoom';
   hw.zoom = hw.rec === 'zoom';
   hw.choice = null;
+  _imHwChanged();
+}
+// Files None (user, 2026-11-15): no files this lesson; again = not answered. Waits while files are in.
+function _imFilesNone() {
+  var hw = logHw;
+  if (!hw || hw.loading || hw.saving || hw.locked || hw.files.length) return;
+  hw.filesNone = !hw.filesNone;
+  hw.linksDone = false;
   _imHwChanged();
 }
 // Phone / Zoom (2026-11-08): one or the other, again = not recorded. Done needed again.
@@ -2150,7 +2159,7 @@ function _imDoHtml(name, day) {
       // The Log window's HW part (#logHw) is split over these (_imHwOut).
       '<div class="im-hw-dock-box">' +
       // Gather (2026-10-25): files put in their Dropbox by hand (Finder) show under the zone.
-      _imSub('Files', '<span id="imMatFilesTools"><button type="button" class="link-btn lh-gather-btn" id="logHwGatherBtn" onclick="_imGather()" data-tip="Instant.&#10;Lists what you put in their Dropbox since the lesson day,&#10;e.g. with Finder, that\'s on no HW yet.&#10;Done moves it all into this lesson\'s HW folder." data-tip-left data-tip-wrap>' + TRAY_IN_ICON + '<span>Gather</span></button></span>', ' im-mat-sec', '<div id="imHwDock"></div><div id="imGatherList"></div>') +
+      _imSub('Files', '<span id="imMatFilesTools"><span class="im-pills im-words im-files-none"><span class="im-word-grp"><button type="button" class="im-pill im-pill-none" id="imFilesNo" onmousedown="event.preventDefault()" onclick="_imFilesNone()" data-tip="Instant.&#10;No files this lesson." data-tip-left>None</button></span></span><button type="button" class="link-btn lh-gather-btn" id="logHwGatherBtn" onclick="_imGather()" data-tip="Instant.&#10;Lists what you put in their Dropbox since the lesson day,&#10;e.g. with Finder, that\'s on no HW yet.&#10;Done moves it all into this lesson\'s HW folder." data-tip-left data-tip-wrap>' + TRAY_IN_ICON + '<span>Gather</span></button></span>', ' im-mat-sec', '<div id="imHwDock"></div><div id="imGatherList"></div>') +
       '</div></div>' +
       // Right column (user, 2026-11-15): links + Recorded beside Files, so the page fits without scrolling.
       '<div class="im-mat-right">' +
@@ -2159,12 +2168,13 @@ function _imDoHtml(name, day) {
         _imSub('Web link', '', ' im-mat-sec', '<div id="imMatLink"></div>') +
       '</div>' +
       // Recorded on their side: Phone or Zoom, or neither (not recorded).
-      '<div class="im-mat-qbox"><div class="im-mat-row"><span class="im-mat-q">Recorded on their side?</span>' +
-        '<button type="button" class="link-btn im-rec-btn" id="imRecPhone" onclick="_imRecPick(\'phone\')" data-tip="Instant.&#10;They filmed the lesson on their phone.&#10;The email says so. Again: not recorded." data-tip-left>Phone</button>' +
-        '<button type="button" class="link-btn im-rec-btn" id="imRecZoom" onclick="_imRecPick(\'zoom\')" data-tip="Instant.&#10;They recorded the lesson on Zoom, their side.&#10;The email says so. Again: not recorded." data-tip-left>Zoom</button>' +
-      '</div>' +
-      // None as a word under the question, like under the link boxes (user, 2026-11-10); lit once picked
-      '<div class="im-pills im-words im-rec-none"><span class="im-word-grp"><button type="button" class="im-pill im-pill-none" id="imRecNo" onmousedown="event.preventDefault()" onclick="_imRecPick(\'no\')">None</button></span></div>' +
+      // Phone / Zoom / No recording as words under the question, like None (user, 2026-11-15; were buttons beside it)
+      '<div class="im-mat-qbox"><div class="im-mat-row"><span class="im-mat-q">Recorded on their side?</span></div>' +
+      '<div class="im-pills im-words im-rec-none"><span class="im-word-grp">' +
+        '<button type="button" class="im-pill im-pill-none" id="imRecPhone" onmousedown="event.preventDefault()" onclick="_imRecPick(\'phone\')" data-tip="Instant.&#10;They filmed the lesson on their phone.&#10;The email says so. Again: not answered." data-tip-left>Phone</button>' +
+        '<button type="button" class="im-pill im-pill-none" id="imRecZoom" onmousedown="event.preventDefault()" onclick="_imRecPick(\'zoom\')" data-tip="Instant.&#10;They recorded the lesson on Zoom, their side.&#10;The email says so. Again: not answered." data-tip-left>Zoom</button>' +
+        '<button type="button" class="im-pill im-pill-none" id="imRecNo" onmousedown="event.preventDefault()" onclick="_imRecPick(\'no\')">No recording</button>' +
+      '</span></div>' +
       '</div>' +
       '</div>' +   // .im-mat-right
       '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn amber" id="imMatDoneBtn" onclick="_imMatDone()">Done</button></div>' +
