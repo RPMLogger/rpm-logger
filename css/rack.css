@@ -72,10 +72,12 @@ body.rk-lessons { --rk-amp-x: 11px; --rk-rack-x: 6px; --rk-box-x: 6.14px; }   /*
 #rkLayer .rk-rail.rk-r { box-shadow: inset 1px 0 0 rgba(255,255,255,.07), inset -1px 0 0 rgba(255,255,255,.04), inset 2px 0 0 rgba(0,0,0,.35), inset -2px 0 0 rgba(0,0,0,.35), 0 0 0 1px rgba(0,0,0,.55), 6px 4px 12px rgba(0,0,0,.6); }
 
 
-/* while Lessons loads (user, 2026-11-15): the "Loading" line becomes an empty box already mounted in the rack, so the rack never stops short;
-   the real boxes replace it in the same place */
-html body.rk-lessons #importBody > .rpm-loading:only-child {
+/* while Lessons loads (user, 2026-11-15): the "Loading" line becomes an empty box already mounted in the rack, plus one more empty box
+   (.rk-ghost, core/rack.js) for each box Lessons had last time, each at its remembered height — so the real boxes land exactly in place */
+html body.rk-lessons #importBody > :is(.rpm-loading:first-child, .rk-ghost) {
   box-sizing: border-box; min-height: 320px; margin: 0;
   background-color: var(--rpm-box-bg); background-image: var(--rpm-box-grain);
   border: var(--rpm-box-border); border-radius: var(--rpm-box-radius); box-shadow: var(--rpm-box-ring);
 }
+html body.rk-lessons #importBody > .rpm-loading:first-child[data-rk-h] { min-height: 0; }   /* a remembered height is set inline */
+html body.rk-lessons #importBody > .rk-ghost.rk-ghost.rk-ghost { min-height: 0; margin-top: 50px; }          /* same gap as between the real boxes */

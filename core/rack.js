@@ -18,7 +18,7 @@
   }
   function units() {   // every mounted box, in page coordinates (amp head not included: it only sets the top)
     var out = [], y = scrollY, x = scrollX;
-    document.querySelectorAll('.container > .home-rack, .container > .alarm-rack, .tab-panel.active, .tab-panel.active .td-wk-box, #importBody > .rpm-loading:only-child').forEach(function (e) {
+    document.querySelectorAll('.container > .home-rack, .container > .alarm-rack, .tab-panel.active, .tab-panel.active .td-wk-box, #importBody > .rpm-loading:first-child, #importBody > .rk-ghost').forEach(function (e) {
       var r = e.getBoundingClientRect(), cs = getComputedStyle(e);
       if (r.height <= 30 || r.width <= 600 || cs.display === 'none' || cs.borderTopWidth === '0px') return;
       var s = ring(e);
@@ -34,7 +34,33 @@
              t: r.top + parseFloat(s.top) + scrollY, b: r.bottom - parseFloat(s.bottom) + scrollY };
   }
 
+  // Lessons while loading (user, 2026-11-15): remember each box's height when Lessons is shown; while it loads,
+  // give the Loading box the first height and add an empty box for each of the others, so nothing jumps.
+  // Kept in this browser only (a convenience); the real render replaces it all.
+  var HKEY = 'rkLessonsBoxH';
+  function lessonsPlaceholders() {
+    var ib = document.getElementById('importBody'), p = document.getElementById('tab-import');
+    if (!ib || !p || !p.classList.contains('active')) return;
+    var real = ib.querySelectorAll(':scope > .im-box');
+    if (real.length) {
+      var hs = [].map.call(real, function (e) { return e.offsetHeight; });
+      if (hs.every(function (h) { return h > 0; })) { try { localStorage.setItem(HKEY, JSON.stringify(hs)); } catch (e) {} }
+      return;
+    }
+    var ld = ib.querySelector(':scope > .rpm-loading:first-child');
+    if (!ld || ld.hasAttribute('data-rk-h')) return;
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(HKEY) || 'null'); } catch (e) {}
+    if (!Array.isArray(saved) || !saved.length) return;
+    ld.setAttribute('data-rk-h', '');
+    ld.style.height = saved[0] + 'px';
+    saved.slice(1).forEach(function (h) {
+      var g = document.createElement('div'); g.className = 'rk-ghost'; g.style.height = h + 'px'; ib.appendChild(g);
+    });
+  }
+
   function draw() {
+    lessonsPlaceholders();
     var L = document.getElementById('rkLayer');
     if (!lessonsOpen()) {
       document.body.classList.remove('rk-lessons');
