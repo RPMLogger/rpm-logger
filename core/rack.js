@@ -18,7 +18,7 @@
   }
   function units() {   // every mounted box, in page coordinates (amp head not included: it only sets the top)
     var out = [], y = scrollY, x = scrollX;
-    document.querySelectorAll('.container > .home-rack, .container > .alarm-rack, .tab-panel.active, .tab-panel.active .td-wk-box').forEach(function (e) {
+    document.querySelectorAll('.container > .home-rack, .container > .alarm-rack, .tab-panel.active, .tab-panel.active .td-wk-box, #importBody > .rpm-loading:only-child').forEach(function (e) {
       var r = e.getBoundingClientRect(), cs = getComputedStyle(e);
       if (r.height <= 30 || r.width <= 600 || cs.display === 'none' || cs.borderTopWidth === '0px') return;
       var s = ring(e);
