@@ -4503,9 +4503,9 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 .td-bolt:after { transform: rotate(90deg); }
 /* ── Audit = a speaker cab (user, 2026-11-05): the page is the grille, each audit a speaker, its name on a plate ── */
 html body #tab-audit.active:has(#auMenuView:not([style*="none"])) { position: relative; min-height: 560px; }   /* no grille: the portal's plain box (user, 2026-11-05) */
-#tab-audit .au-top { gap: 64px; }
-#tab-audit .au-top .link-btn.au-speaker { width: auto; height: auto; padding: 0; gap: 18px; border: 0; border-radius: 0; background: none; box-shadow: none; transform: none; }
-#tab-audit .au-top .link-btn.au-speaker:hover { background: none; border: 0; box-shadow: none; }
+:is(#tab-audit, #tab-home) .au-top { gap: 64px; }
+:is(#tab-audit, #tab-home) .au-top .link-btn.au-speaker { width: auto; height: auto; padding: 0; gap: 18px; border: 0; border-radius: 0; background: none; box-shadow: none; transform: none; }
+:is(#tab-audit, #tab-home) .au-top .link-btn.au-speaker:hover { background: none; border: 0; box-shadow: none; }
 .au-spk { position: relative; display: block; width: 260px; height: 260px; border-radius: 50%; box-sizing: border-box;
   border: 16px solid #191919;   /* the surround */
   background:
@@ -4519,65 +4519,65 @@ html body #tab-audit.active:has(#auMenuView:not([style*="none"])) { position: re
 .au-cap .au-icon { width: 40px; height: 40px; }
 .au-plate { display: inline-block; padding: 8px 18px; border-radius: 4px; font-family: "DM Mono", monospace; font-size: 12px; letter-spacing: 2.5px; text-transform: uppercase; color: #bdbdbd;
   background: linear-gradient(#2b2b2b, #1b1b1b); border: 1px solid #3a3a3a; box-shadow: 0 3px 8px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06); transition: color .15s; }
-#tab-audit .au-speaker:hover .au-spk { filter: brightness(1.25); }
-#tab-audit .au-speaker:hover .au-cap, #tab-audit .au-speaker:hover .au-plate { color: #fff; }
-#tab-audit .au-speaker:active .au-cap { transform: scale(0.95); }
+:is(#tab-audit, #tab-home) .au-speaker:hover .au-spk { filter: brightness(1.25); }
+:is(#tab-audit, #tab-home) .au-speaker:hover .au-cap, :is(#tab-audit, #tab-home) .au-speaker:hover .au-plate { color: #fff; }
+:is(#tab-audit, #tab-home) .au-speaker:active .au-cap { transform: scale(0.95); }
 .au-sb { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #8a8a8a, #3a3a3a 55%, #151515 85%); box-shadow: 0 1px 1px #000; }   /* small screws on the surround */
 .au-sb.t { top: -12.5px; left: calc(50% - 4.5px); } .au-sb.b { bottom: -12.5px; left: calc(50% - 4.5px); }
 .au-sb.l { left: -12.5px; top: calc(50% - 4.5px); } .au-sb.r { right: -12.5px; top: calc(50% - 4.5px); }
 /* the speakers sit back, as if behind the cloth: faint until hovered (user, 2026-11-05) */
-#tab-audit .au-spk { opacity: 0.14;   /* (user, 2026-11-05; was 0.38, then Home's 0.04) */
+:is(#tab-audit, #tab-home) .au-spk { opacity: 0.14;   /* (user, 2026-11-05; was 0.38, then Home's 0.04) */
   box-shadow: 0 0 0 1px #050505, 0 0 0 4px #1d1d1d, 0 0 0 5px #050505, inset 0 0 0 1px #262626, inset 0 0 26px rgba(0,0,0,0.9); transition: opacity .2s, filter .2s; }
-#tab-audit .au-speaker:hover .au-spk { opacity: 0.85; filter: none; }
-#tab-audit .au-sb { opacity: 0.035; transition: opacity .2s; }   /* screws back, as faint as the speaker (user, 2026-11-05; were hidden) */
-#tab-audit .au-speaker:hover .au-sb { opacity: 0.6; }
+:is(#tab-audit, #tab-home) .au-speaker:hover .au-spk { opacity: 0.85; filter: none; }
+:is(#tab-audit, #tab-home) .au-sb { opacity: 0.035; transition: opacity .2s; }   /* screws back, as faint as the speaker (user, 2026-11-05; were hidden) */
+:is(#tab-audit, #tab-home) .au-speaker:hover .au-sb { opacity: 0.6; }
 /* faint speaker, full-strength icon (user, 2026-11-05): the look moves to ::before layers so only they fade */
-#tab-audit .au-spk, #tab-audit .au-speaker:hover .au-spk { opacity: 1; filter: none; border-color: transparent; background: none; box-shadow: none; }
-#tab-audit .au-spk::before { content: ''; position: absolute; inset: -16px; border-radius: 50%; border: 16px solid #191919; pointer-events: none;
+:is(#tab-audit, #tab-home) .au-spk, :is(#tab-audit, #tab-home) .au-speaker:hover .au-spk { opacity: 1; filter: none; border-color: transparent; background: none; box-shadow: none; }
+:is(#tab-audit, #tab-home) .au-spk::before { content: ''; position: absolute; inset: -16px; border-radius: 50%; border: 16px solid #191919; pointer-events: none;
   background: radial-gradient(circle, transparent 1.6px, #141414 2px) 0 0 / 7px 7px, radial-gradient(circle, #4a4a4a 0 22%, #2b2b2b 36%, #555 52%, #3a3a3a 70%, #1d1d1d 100%);
   box-shadow: 0 0 0 1px #050505, 0 0 0 4px #1d1d1d, 0 0 0 5px #050505, inset 0 0 0 1px #262626, inset 0 0 26px rgba(0,0,0,0.9);
   opacity: 0.13; transition: opacity .2s; }
-#tab-audit .au-speaker:hover .au-spk::before { opacity: 0.6; }
-#tab-audit .au-cap { background: none; box-shadow: none; }
-#tab-audit .au-cap::before { content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+:is(#tab-audit, #tab-home) .au-speaker:hover .au-spk::before { opacity: 0.6; }
+:is(#tab-audit, #tab-home) .au-cap { background: none; box-shadow: none; }
+:is(#tab-audit, #tab-home) .au-cap::before { content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
   background: radial-gradient(circle at 40% 35%, #333, #1a1a1a 60%, #0e0e0e); box-shadow: 0 4px 10px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px #050505;
   opacity: 0.13; transition: opacity .2s; }
-#tab-audit .au-speaker:hover .au-cap::before { opacity: 0.6; }
+:is(#tab-audit, #tab-home) .au-speaker:hover .au-cap::before { opacity: 0.6; }
 /* metal dust cap glinting through the cloth, like a real cab's (user, 2026-11-05): silver dome, soft glint top-left, cloth mesh over it */
-#tab-audit .au-cap::before { background:
+:is(#tab-audit, #tab-home) .au-cap::before { background:
     radial-gradient(circle, transparent 1.6px, rgba(10,10,10,0.55) 2px) 0 0 / 7px 7px,
     radial-gradient(ellipse 60% 50% at 42% 32%, rgba(255,255,255,0.95), rgba(255,255,255,0) 70%),
     radial-gradient(circle at 45% 40%, #cfcfcf 0%, #8c8c8c 35%, #4a4a4a 65%, #1c1c1c 100%);
   box-shadow: 0 0 18px 4px rgba(200,200,200,0.12), 0 0 0 1px #050505; filter: blur(0.4px); opacity: 0.16; }
-#tab-audit .au-speaker:hover .au-cap::before { opacity: 0.55; }
-#tab-audit .au-cap::before { inset: -16px; box-shadow: none; filter: none;   /* soft edge: the cap fades into the cone, no rim (user, 2026-11-05) */
+:is(#tab-audit, #tab-home) .au-speaker:hover .au-cap::before { opacity: 0.55; }
+:is(#tab-audit, #tab-home) .au-cap::before { inset: -16px; box-shadow: none; filter: none;   /* soft edge: the cap fades into the cone, no rim (user, 2026-11-05) */
   -webkit-mask: radial-gradient(circle closest-side, #000 55%, transparent 100%); mask: radial-gradient(circle closest-side, #000 55%, transparent 100%); }
-#tab-audit .au-ish { position: relative; }
-#tab-audit .au-spk { width: 330px; height: 330px; }   /* bigger, like a 2x12 cab's (user, 2026-11-05; was 260) */
+:is(#tab-audit, #tab-home) .au-ish { position: relative; }
+:is(#tab-audit, #tab-home) .au-spk { width: 330px; height: 330px; }   /* bigger, like a 2x12 cab's (user, 2026-11-05; was 260) */
 html body #tab-audit.tab-panel.active:has(#auMenuView:not([style*="none"])) { min-height: max(460px, calc((var(--vh) * 100 - 344px) * 2 / 3)) !important; }   /* 2/3 of the old height (user, 2026-11-05); !important beats the panel rule's long :not() chain */
-#tab-audit .au-menu .au-top { width: 100%; justify-content: space-evenly; gap: 0; }   /* speakers spaced evenly across (user, 2026-11-05) */
+:is(#tab-audit, #tab-home) .au-menu .au-top { width: 100%; justify-content: space-evenly; gap: 0; }   /* speakers spaced evenly across (user, 2026-11-05) */
 /* the plates = Today's name tags (user, 2026-11-05) */
-#tab-audit .au-plate { padding: 4px 10px; border-radius: 7px; font-size: 10px; letter-spacing: 1px; line-height: 15px; color: #7a7a7a;
+:is(#tab-audit, #tab-home) .au-plate { padding: 4px 10px; border-radius: 7px; font-size: 10px; letter-spacing: 1px; line-height: 15px; color: #7a7a7a;
   background: #1e1e1e; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
-#tab-audit .au-speaker:hover .au-cap .au-icon.au-icon { background: radial-gradient(ellipse 75% 70% at 42% 32%, #3a3a3a 0%, #1f1f1f 45%, #0c0c0c 100%); }   /* the icon stays dark, pressed in, on hover (user 2026-11-10; halfway grey and amber tried) */
+:is(#tab-audit, #tab-home) .au-speaker:hover .au-cap .au-icon.au-icon { background: radial-gradient(ellipse 75% 70% at 42% 32%, #3a3a3a 0%, #1f1f1f 45%, #0c0c0c 100%); }   /* the icon stays dark, pressed in, on hover (user 2026-11-10; halfway grey and amber tried) */
 /* finer grille: smaller, closer dots (user 2026-11-10; were 1.6px holes every 7px) */
-#tab-audit .au-spk::before { background: radial-gradient(circle, transparent 1px, #141414 1.4px) 0 0 / 4.5px 4.5px, radial-gradient(circle, #4a4a4a 0 22%, #2b2b2b 36%, #555 52%, #3a3a3a 70%, #1d1d1d 100%); }
-#tab-audit .au-cap::before { background:
+:is(#tab-audit, #tab-home) .au-spk::before { background: radial-gradient(circle, transparent 1px, #141414 1.4px) 0 0 / 4.5px 4.5px, radial-gradient(circle, #4a4a4a 0 22%, #2b2b2b 36%, #555 52%, #3a3a3a 70%, #1d1d1d 100%); }
+:is(#tab-audit, #tab-home) .au-cap::before { background:
     radial-gradient(circle, transparent 1px, rgba(10,10,10,0.55) 1.4px) 0 0 / 4.5px 4.5px,
     radial-gradient(ellipse 60% 50% at 42% 32%, rgba(255,255,255,0.95), rgba(255,255,255,0) 70%),
     radial-gradient(circle at 45% 40%, #cfcfcf 0%, #8c8c8c 35%, #4a4a4a 65%, #1c1c1c 100%); }
 /* plate text = the header knob labels' lettering: DM Mono 500, engraved (user 2026-11-10) */
-#tab-audit .au-spk::before { opacity: 0.11; }   /* rest dimmed in proportion to the hover, then up (user 2026-11-10; was 0.13, 0.05, 0.08) */
-#tab-audit .au-cap::before { opacity: 0.13; }   /* (was 0.16, 0.07, 0.10) */
-#tab-audit .au-sb { opacity: 0.028; }   /* (was 0.035, 0.013, 0.02) */
-#tab-audit .au-speaker:hover .au-spk::before { opacity: 0.22; }   /* hover lights the speaker less (user 2026-11-10; was 0.6, then 0.35) */
-#tab-audit .au-speaker:hover .au-cap::before { opacity: 0.24; }   /* (was 0.55, then 0.35) */
-#tab-audit .au-speaker:hover .au-sb { opacity: 0.2; }   /* screws too (was 0.6, then 0.35) */
-#tab-audit .au-plate { order: -1;   /* above the speaker (user 2026-11-10; was under it) */ font-size: 8px;   /* the knob labels' size (user 2026-11-10; was 10px) */ font-weight: 500; letter-spacing: 1.2px; text-shadow: 0 -1px 0 rgba(0,0,0,0.85), 0 1px 0 rgba(255,255,255,0.09); }
-#tab-audit :is(.au-spk, .au-cap)::before { transition: opacity .35s ease, filter .35s ease; filter: sepia(0.6) saturate(1.4) hue-rotate(-5deg); }   /* amberish at rest too, not only on hover (user 2026-11-10) */
-#tab-audit .au-speaker:hover :is(.au-spk, .au-cap)::before { filter: sepia(0.6) saturate(1.4) hue-rotate(-5deg); }   /* the speaker warms faintly amber on hover, like the header knobs' glow (user 2026-11-10; full amber was too much) */
-#tab-audit .au-cap .au-icon { width: 60px; height: 60px; }   /* a bit smaller (user, 2026-11-10; was 70, 92, 44, 28, 40) */
-#tab-audit .au-ish { display: block; filter: drop-shadow(0 -1px 0 rgba(0,0,0,0.9)) drop-shadow(0 1px 0 rgba(255,255,255,0.11)); }   /* embossed: pressed into the cap, dark top edge + light bottom edge (user, 2026-11-05; was a drop shadow) */
+:is(#tab-audit, #tab-home) .au-spk::before { opacity: 0.11; }   /* rest dimmed in proportion to the hover, then up (user 2026-11-10; was 0.13, 0.05, 0.08) */
+:is(#tab-audit, #tab-home) .au-cap::before { opacity: 0.13; }   /* (was 0.16, 0.07, 0.10) */
+:is(#tab-audit, #tab-home) .au-sb { opacity: 0.028; }   /* (was 0.035, 0.013, 0.02) */
+:is(#tab-audit, #tab-home) .au-speaker:hover .au-spk::before { opacity: 0.22; }   /* hover lights the speaker less (user 2026-11-10; was 0.6, then 0.35) */
+:is(#tab-audit, #tab-home) .au-speaker:hover .au-cap::before { opacity: 0.24; }   /* (was 0.55, then 0.35) */
+:is(#tab-audit, #tab-home) .au-speaker:hover .au-sb { opacity: 0.2; }   /* screws too (was 0.6, then 0.35) */
+:is(#tab-audit, #tab-home) .au-plate { order: -1;   /* above the speaker (user 2026-11-10; was under it) */ font-size: 8px;   /* the knob labels' size (user 2026-11-10; was 10px) */ font-weight: 500; letter-spacing: 1.2px; text-shadow: 0 -1px 0 rgba(0,0,0,0.85), 0 1px 0 rgba(255,255,255,0.09); }
+:is(#tab-audit, #tab-home) :is(.au-spk, .au-cap)::before { transition: opacity .35s ease, filter .35s ease; filter: sepia(0.6) saturate(1.4) hue-rotate(-5deg); }   /* amberish at rest too, not only on hover (user 2026-11-10) */
+:is(#tab-audit, #tab-home) .au-speaker:hover :is(.au-spk, .au-cap)::before { filter: sepia(0.6) saturate(1.4) hue-rotate(-5deg); }   /* the speaker warms faintly amber on hover, like the header knobs' glow (user 2026-11-10; full amber was too much) */
+:is(#tab-audit, #tab-home) .au-cap .au-icon { width: 60px; height: 60px; }   /* a bit smaller (user, 2026-11-10; was 70, 92, 44, 28, 40) */
+:is(#tab-audit, #tab-home) .au-ish { display: block; filter: drop-shadow(0 -1px 0 rgba(0,0,0,0.9)) drop-shadow(0 1px 0 rgba(255,255,255,0.11)); }   /* embossed: pressed into the cap, dark top edge + light bottom edge (user, 2026-11-05; was a drop shadow) */
 /* Home: one faint speaker behind everything (user, 2026-11-05) */
 #tab-home.active { position: relative; }
 #tab-home .hm-spk { position: absolute; left: 50%; top: 50%; height: 85%; width: auto; aspect-ratio: 1; margin: 0; transform: translate(-50%, -50%); opacity: 0.06; pointer-events: none; z-index: 0;
@@ -4597,10 +4597,10 @@ html body #tab-audit.tab-panel.active:has(#auMenuView:not([style*="none"])) { mi
     radial-gradient(circle at 45% 40%, #cfcfcf 0%, #8c8c8c 35%, #4a4a4a 65%, #1c1c1c 100%);
   -webkit-mask: radial-gradient(circle closest-side, #000 55%, transparent 100%); mask: radial-gradient(circle closest-side, #000 55%, transparent 100%);
   opacity: 0.12; }
-#tab-audit .au-cap { color: #1f1f1f; } #tab-audit .au-speaker:hover .au-cap { color: #8a8a8a; }   /* dim grey, light grey on hover (user, 2026-11-05; were #1f1f1f / #fff, amber before) */
+:is(#tab-audit, #tab-home) .au-cap { color: #1f1f1f; } :is(#tab-audit, #tab-home) .au-speaker:hover .au-cap { color: #8a8a8a; }   /* dim grey, light grey on hover (user, 2026-11-05; were #1f1f1f / #fff, amber before) */
 /* icons lit like the metal dome they sit on: lighter top-left glint, darker toward the edges (user, 2026-11-06) */
-#tab-audit .au-cap .au-icon { background: radial-gradient(ellipse 75% 70% at 42% 32%, #3a3a3a 0%, #1f1f1f 45%, #0c0c0c 100%); }
-#tab-audit .au-speaker:hover .au-cap .au-icon { background: radial-gradient(ellipse 75% 70% at 42% 32%, #c4c4c4 0%, #8a8a8a 45%, #3e3e3e 100%); }
+:is(#tab-audit, #tab-home) .au-cap .au-icon { background: radial-gradient(ellipse 75% 70% at 42% 32%, #3a3a3a 0%, #1f1f1f 45%, #0c0c0c 100%); }
+:is(#tab-audit, #tab-home) .au-speaker:hover .au-cap .au-icon { background: radial-gradient(ellipse 75% 70% at 42% 32%, #c4c4c4 0%, #8a8a8a 45%, #3e3e3e 100%); }
 #todayBody :is(.td-count, .td-wk-head) .field-label { letter-spacing: 2px; }   /* "2 students" / "16 students" spread like the titles (user, 2026-11-05; was 1.5px) */
 /* Saved background (user, 2026-11-05): the Home speaker at 4%, ready for any window/page.
    Use: put <span class="au-spk spk-bg" aria-hidden="true"><span class="au-cap"></span></span> first inside a box with position: relative,
@@ -5533,7 +5533,12 @@ html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) :is(.win-icon
 html body #tab-home.tab-panel.active { min-height: max(360px, calc(var(--vh) * 100 - 422px - 72px)) !important; height: max(360px, calc(var(--vh) * 100 - 422px - 72px)); }
 
 /* SIDE ART (user, 2026-11-13): a picture in the empty right side of a box; never covers a card, hidden when the window is too narrow for it. */
-html body #importBody > .im-box:nth-child(1 of .im-box)::after { content: ""; position: absolute; bottom: 57px; right: 180px; width: 120px; height: 172px; pointer-events: none;
-  background: url('../img/side/flyingv-silver-amp.png?v=3') right bottom / contain no-repeat; opacity: .5; filter: drop-shadow(0 4px 10px #000) drop-shadow(0 2px 3px rgba(0,0,0,.8)); }   /* lifted: deeper than the cards' shadow so it still shows at 50% on the dark box (user, 2026-11-13) */   /* Home's size + dimming (112px tall, Home .55) */   /* Lessons · Today: red Flying V + silver amp drawing IN COLOUR (orange-amp and green-amp versions, a yellow guitar before), a little dimmed (user, 2026-11-13: silhouette idea dropped; was the bass girl) */
+/* Lessons home picture (Flying V + amp; yellow guitar before) REMOVED (user, 2026-11-15) */
 html body #importBody { container-type: inline-size; }   /* lets the art ask how wide the Lessons column really is (zoom + window width both count) */
 @container (max-width: 820px) { html body #importBody > .im-box:nth-child(1 of .im-box)::after { display: none; } }   /* hide only when cards (460) + padding + art (240) don't fit */
+/* Home = the Audit speaker cab, static (user, 2026-11-15): speakers don't react, only the plates are buttons; hovering a plate lights its speaker like Audit */
+#tab-home .hm-au { flex: 1; display: flex; flex-direction: column; }
+#tab-home .hm-au .au-top { margin: auto 0; }
+#tab-home .hm-au .au-speaker { display: flex; flex-direction: column; align-items: center; gap: 18px; pointer-events: none; }
+#tab-home .hm-au .au-plate { pointer-events: auto; cursor: pointer; font-family: "DM Mono", monospace; text-transform: uppercase; }
+html body #tab-home.tab-panel.active { min-height: max(460px, calc((var(--vh) * 100 - 344px) * 2 / 3)) !important; height: auto; }   /* Audit's box height so the speakers + plates fit (user, 2026-11-15; was max(360px, …)) */

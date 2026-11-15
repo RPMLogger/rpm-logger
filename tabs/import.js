@@ -284,8 +284,7 @@ function _imRenderStudent(name, lessons) {
       card.appendChild(acts);
       var snb = acts.querySelector('.sn-note-btn');
       if (snb) acts.appendChild(snb);   // ＋ Note under Log (user, 2026-11-12; was its own row under the name)
-      card.insertAdjacentHTML('beforeend', '<img class="im-head-art" alt="" aria-hidden="true" style="visibility:hidden">');   // the red guitar in the card's empty middle (user, 2026-11-11)
-      _imGuitarArt(card.querySelector('.im-head-art'), name);   // Acoustic → acoustic guitar; Electric / Both / not set → red electric (user, 2026-11-11)
+      // card picture (red electric / acoustic guitar) REMOVED (user, 2026-11-15)
       if (typeof ltmTopHtml === 'function') main.insertAdjacentHTML('beforeend', ltmTopHtml(name));   // ▶ ■ + counter under the name (user, 2026-11-12)
       // Goals bottom left of the History box, on Show all's row (user, 2026-11-02).
       var gl = acts.querySelector('.gl-btn');
