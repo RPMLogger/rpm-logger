@@ -1,4 +1,4 @@
-// THE RACK (user, 2026-11-14) — TRIAL ON THE LESSONS + PAYMENTS TABS (RACK_TABS). Look: css/rack.css.
+// THE RACK (user, 2026-11-14; all tabs but Calendar + Fixed schedule since 2026-11-15, NO_RACK). Look: css/rack.css.
 // While a rack tab is open: puts body.rk-lessons on, and draws the rack case behind the boxes into #rkLayer:
 // a perforated back panel + two rails from the amp head's top to the last box, plus the shadow each unit casts on the back.
 // The boxes are never touched: their own corner screws sit on the rails.
@@ -8,9 +8,10 @@
 (function () {
   var RAIL = 40, OVER = 6, last = '';
 
-  var RACK_TABS = ['import', 'payments'];   // tabs the rack trial runs on (user, 2026-11-14: Payments added to see it)
+  var NO_RACK = ['calendar', 'fixedcal'];   // every tab has the rack except these two: their grids are wider than the rack (user, 2026-11-15)
   function lessonsOpen() {
-    return RACK_TABS.some(function (t) { var p = document.getElementById('tab-' + t); return !!(p && p.classList.contains('active')); });
+    var p = document.querySelector('.tab-panel.active');
+    return !!p && NO_RACK.indexOf(p.id.replace('tab-', '')) < 0;
   }
   function ring(e) {   // a box's outer ring (its 0 0 0 Npx shadows)
     var m = getComputedStyle(e).boxShadow.match(/0px 0px 0px [\d.]+px/g) || [];
@@ -76,7 +77,8 @@
     var left = Math.min.apply(null, bs.map(function (b) { return b.l; })) - OVER;
     var right = Math.max.apply(null, bs.map(function (b) { return b.r; })) + OVER;
     var top = Math.min.apply(null, all.map(function (b) { return b.t; })) - 5;   // flush with the amp's outer ring
-    var bot = Math.max.apply(null, bs.map(function (b) { return b.b; })) + 20;
+    var ap = document.querySelector('.tab-panel.active');   // tabs with open (unboxed) content too: the rack runs to the bottom of the tab (user, 2026-11-15)
+    var bot = Math.max(Math.max.apply(null, bs.map(function (b) { return b.b; })), ap ? ap.getBoundingClientRect().bottom + scrollY : 0) + 20;
     var lx = Math.round(left), rx = Math.round(right - RAIL), w = Math.round(right - left), h = Math.round(bot - top);
     var html = '<div class="rk-back" style="left:' + lx + 'px;top:' + Math.round(top) + 'px;width:' + w + 'px;height:' + h + 'px"></div>';
     all.forEach(function (b) {
@@ -103,7 +105,7 @@
 
   function start() {
     var body = document.getElementById('importBody');
-    RACK_TABS.forEach(function (t) { var p = document.getElementById('tab-' + t); if (p) new MutationObserver(draw).observe(p, { attributes: true, attributeFilter: ['class'] }); });
+    document.querySelectorAll('.tab-panel').forEach(function (p) { new MutationObserver(draw).observe(p, { attributes: true, attributeFilter: ['class'] }); });
     if (body) new MutationObserver(draw).observe(body, { childList: true });
     addEventListener('resize', draw);
     setInterval(draw, 1000);

@@ -1,4 +1,4 @@
-/* THE RACK (user, 2026-11-14) — TRIAL ON THE LESSONS + PAYMENTS TABS (core/rack.js RACK_TABS).
+/* THE RACK (user, 2026-11-14) — ON EVERY TAB BUT CALENDAR + FIXED SCHEDULE (core/rack.js NO_RACK, 2026-11-15).
    Everything here is under body.rk-lessons, which core/rack.js puts on while a rack tab is open; every other tab is untouched.
    The whole page becomes one rack case (on the original diamond-plate background):
    - two flat steel rails + a perforated back panel, drawn behind the boxes by core/rack.js (#rkLayer);
@@ -84,3 +84,9 @@ html body.rk-lessons #importBody > .rk-ghost.rk-ghost.rk-ghost { min-height: 0; 
 
 /* student page (Lessons → a student): its sections are units too, with the same 30px of rack between them (user, 2026-11-15; were 24px CSS = 19px on screen) */
 html body.rk-lessons #importBody .im-split > .im-sec-box + .im-sec-box { margin-top: 50px; }   /* scaled 0.8: 50 → 40 raw = 30 between rings */
+
+/* any tab with several boxes (Today, Comms, Emails, …): the same 30px of rack between them (user, 2026-11-15) */
+html body.rk-lessons .tab-panel.active .td-wk-box.td-wk-box ~ .td-wk-box.td-wk-box { margin-top: 50px !important; }   /* scaled 0.8: 50 → 40 raw = 30 between rings */
+html body.rk-lessons .tab-panel.active .td-wk-box:has(~ .td-wk-box) { margin-bottom: 0 !important; }
+html body.rk-lessons .tab-panel.active .td-wk-box.td-wk-box { box-shadow: var(--rpm-box-ring) !important; }   /* every box keeps the double border (Comms/Emails main box had it off) */
+html body.rk-lessons .tab-panel.active .td-wk-box.tdo-done { margin-top: 50px !important; }   /* To-do + Notes: the Done box sits in its own wrapper */
