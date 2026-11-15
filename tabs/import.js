@@ -1606,8 +1606,9 @@ function _imDone(name) {
   if (!card) return;
   card.classList.add('im-done');
   var msg = document.createElement('div');
-  msg.className = 'im-done-msg';
-  msg.textContent = 'Done ✓';
+  // The SAVING look (user, 2026-11-15): page hidden, a centred pill, DONE with a thin check in place of the ring.
+  msg.className = 'im-done-msg rpm-load-center rpm-keep';
+  msg.innerHTML = '<span class="im-done-t"><svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>Done</span>';
   card.appendChild(msg);
   setTimeout(function () {
     var w = window._imWin;
