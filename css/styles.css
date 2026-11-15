@@ -5602,8 +5602,9 @@ html body #tab-home.tab-panel.active { min-height: max(460px, calc((var(--vh) * 
 /* ★ before a missing page in Steps, red like the missing steps (user, 2026-11-15) */
 #imLogWin .im-step-star { color: #ff5a4d; }
 .st-win.im-log-wide .im-page[data-pg="1"] .im-main-box > .im-log-foot-all { margin-right: 242px; }   /* page 1: Save & next in the left column, clear of Steps / Shortcuts (user, 2026-11-15) */
-/* Save & next: the letters outlined in black (user, 2026-11-15) */
-#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn) { text-shadow: -1px 0 #000, 1px 0 #000, 0 -1px #000, 0 1px #000; }   /* a thin black outline on the letters */
+/* Save & next: a black ring inside the pill around the words, plain letters (user, 2026-11-15; letter outline looked bad) */
+#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn) { position: relative; padding: 12px 26px; }
+#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn)::before { content: ""; position: absolute; inset: 5px 8px; border: 1.5px solid #000; border-radius: 999px; pointer-events: none; }   /* a rounded black ring inside the pill, around the words (user's sketch) */
 
 /* (user, 2026-11-15): the red concrete texture under the diamond plate (plate on top), darkened 88% so the boxes still lead (was 78%: too bright).
    To go back to the diamond plate, delete this block (and img/bg-red-grunge.jpg). */
