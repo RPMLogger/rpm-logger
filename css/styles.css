@@ -5540,5 +5540,5 @@ html body #importBody { container-type: inline-size; }   /* lets the art ask how
 #tab-home .hm-au { flex: 1; display: flex; flex-direction: column; }
 #tab-home .hm-au .au-top { margin: auto 0; }
 #tab-home .hm-au .au-speaker { display: flex; flex-direction: column; align-items: center; gap: 18px; pointer-events: none; }
-#tab-home .hm-au .au-plate { pointer-events: auto; cursor: pointer; font-family: "DM Mono", monospace; text-transform: uppercase; }
+/* no plates on Home (user, 2026-11-15: a still picture, no buttons) */
 html body #tab-home.tab-panel.active { min-height: max(460px, calc((var(--vh) * 100 - 344px) * 2 / 3)) !important; height: auto; }   /* Audit's box height so the speakers + plates fit (user, 2026-11-15; was max(360px, …)) */
