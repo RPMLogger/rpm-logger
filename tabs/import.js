@@ -2204,9 +2204,10 @@ function _imDoHtml(name, day) {
       // Phone / Zoom / No recording as words under the question, like None (user, 2026-11-15; were buttons beside it)
       '<div class="im-mat-qbox"><div class="im-mat-row"><span class="im-mat-q">Recorded on their side?</span></div>' +
       '<div class="im-pills im-words im-rec-none"><span class="im-word-grp">' +
-        '<button type="button" class="im-pill im-pill-none" id="imRecPhone" onmousedown="event.preventDefault()" onclick="_imRecPick(\'phone\')" data-tip="Instant.&#10;They filmed the lesson on their phone.&#10;The email says so. Again: not answered." data-tip-left>Phone</button>' +
-        '<button type="button" class="im-pill im-pill-none" id="imRecZoom" onmousedown="event.preventDefault()" onclick="_imRecPick(\'zoom\')" data-tip="Instant.&#10;They recorded the lesson on Zoom, their side.&#10;The email says so. Again: not answered." data-tip-left>Zoom</button>' +
-        '<button type="button" class="im-pill im-pill-none" id="imRecNo" onmousedown="event.preventDefault()" onclick="_imRecPick(\'no\')">No recording</button>' +
+        // No first (user, 2026-11-15; was "No recording", last)
+        '<button type="button" class="im-pill im-pill-none" id="imRecNo" onmousedown="event.preventDefault()" onclick="_imRecPick(\'no\')">No</button>' +
+        '<button type="button" class="im-pill im-pill-none" id="imRecZoom" onmousedown="event.preventDefault()" onclick="_imRecPick(\'zoom\')" data-tip="Instant.&#10;They recorded the lesson on Zoom, their side.&#10;The email says so. Again: not answered." data-tip-left>Yes zoom</button>' +
+        '<button type="button" class="im-pill im-pill-none" id="imRecPhone" onmousedown="event.preventDefault()" onclick="_imRecPick(\'phone\')" data-tip="Instant.&#10;They filmed the lesson on their phone.&#10;The email says so. Again: not answered." data-tip-left>Yes phone</button>' +
       '</span></div>' +
       '</div>' +
       '</div>' +   // .im-mat-right
