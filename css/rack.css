@@ -81,3 +81,6 @@ html body.rk-lessons #importBody > :is(.rpm-loading:first-child, .rk-ghost) {
 }
 html body.rk-lessons #importBody > .rpm-loading:first-child[data-rk-h] { min-height: 0; }   /* a remembered height is set inline */
 html body.rk-lessons #importBody > .rk-ghost.rk-ghost.rk-ghost { min-height: 0; margin-top: 50px; }          /* same gap as between the real boxes */
+
+/* student page (Lessons → a student): its sections are units too, with the same 30px of rack between them (user, 2026-11-15; were 24px CSS = 19px on screen) */
+html body.rk-lessons #importBody .im-split > .im-sec-box + .im-sec-box { margin-top: 50px; }   /* scaled 0.8: 50 → 40 raw = 30 between rings */

@@ -16,9 +16,10 @@
     var m = getComputedStyle(e).boxShadow.match(/0px 0px 0px [\d.]+px/g) || [];
     return Math.max.apply(null, [0].concat(m.map(function (x) { return parseFloat(x.split(' ')[3]); })));
   }
+  // every box type the portal draws (css/styles.css THE BOX rule); the student page uses .im-split sections (user, 2026-11-15)
   function units() {   // every mounted box, in page coordinates (amp head not included: it only sets the top)
     var out = [], y = scrollY, x = scrollX;
-    document.querySelectorAll('.container > .home-rack, .container > .alarm-rack, .tab-panel.active, .tab-panel.active .td-wk-box, #importBody > .rpm-loading:first-child, #importBody > .rk-ghost').forEach(function (e) {
+    document.querySelectorAll('.container > .home-rack, .container > .alarm-rack, .tab-panel.active, .tab-panel.active .td-wk-box, .tab-panel.active .cr.rpm-rack, .tab-panel.active .im-split > .im-sec-box, .tab-panel.active .im-split > .im-head-card, #importBody > .rpm-loading:first-child, #importBody > .rk-ghost').forEach(function (e) {
       var r = e.getBoundingClientRect(), cs = getComputedStyle(e);
       if (r.height <= 30 || r.width <= 600 || cs.display === 'none' || cs.borderTopWidth === '0px') return;
       var s = ring(e);
