@@ -1,5 +1,5 @@
-// THE RACK (user, 2026-11-14) — TRIAL ON THE LESSONS TAB ONLY. Look: css/rack.css.
-// While Lessons is open: puts body.rk-lessons on, and draws the rack case behind the boxes into #rkLayer:
+// THE RACK (user, 2026-11-14) — TRIAL ON THE LESSONS + PAYMENTS TABS (RACK_TABS). Look: css/rack.css.
+// While a rack tab is open: puts body.rk-lessons on, and draws the rack case behind the boxes into #rkLayer:
 // a perforated back panel + two rails from the amp head's top to the last box, plus the shadow each unit casts on the back.
 // The boxes are never touched: their own corner screws sit on the rails.
 // Any other tab: the class comes off and the layer is removed, so the page is exactly as before.
@@ -8,9 +8,9 @@
 (function () {
   var RAIL = 40, OVER = 6, last = '';
 
+  var RACK_TABS = ['import', 'payments'];   // tabs the rack trial runs on (user, 2026-11-14: Payments added to see it)
   function lessonsOpen() {
-    var p = document.getElementById('tab-import');
-    return !!(p && p.classList.contains('active'));
+    return RACK_TABS.some(function (t) { var p = document.getElementById('tab-' + t); return !!(p && p.classList.contains('active')); });
   }
   function ring(e) {   // a box's outer ring (its 0 0 0 Npx shadows)
     var m = getComputedStyle(e).boxShadow.match(/0px 0px 0px [\d.]+px/g) || [];
@@ -58,6 +58,16 @@
     });
     html += '<div class="rk-rail rk-l" style="left:' + lx + 'px;top:' + Math.round(top) + 'px;height:' + h + 'px"></div>' +
             '<div class="rk-rail rk-r" style="left:' + rx + 'px;top:' + Math.round(top) + 'px;height:' + h + 'px"></div>';
+    // the rail holes: exactly two in every gap between units, centred, in the screws' column (user, 2026-11-14)
+    var sorted = all.slice().sort(function (p, q) { return p.t - q.t; });
+    for (var i = 1; i < sorted.length; i++) {
+      var mid = (sorted[i - 1].b + sorted[i].t) / 2;
+      [mid - 7.5, mid + 7.5].forEach(function (y) {
+        var ty = Math.round(y - 2.25);
+        html += '<span class="rk-hole" style="left:' + (lx + 21) + 'px;top:' + ty + 'px"></span>' +
+                '<span class="rk-hole" style="left:' + (rx + RAIL - 26) + 'px;top:' + ty + 'px"></span>';
+      });
+    }
     if (!L) { L = document.createElement('div'); L.id = 'rkLayer'; L.setAttribute('aria-hidden', 'true'); document.body.prepend(L); }
     var ph = document.documentElement.scrollHeight + 'px';
     if (L.style.height !== ph) L.style.height = ph;
@@ -65,8 +75,8 @@
   }
 
   function start() {
-    var p = document.getElementById('tab-import'), body = document.getElementById('importBody');
-    if (p) new MutationObserver(draw).observe(p, { attributes: true, attributeFilter: ['class'] });
+    var body = document.getElementById('importBody');
+    RACK_TABS.forEach(function (t) { var p = document.getElementById('tab-' + t); if (p) new MutationObserver(draw).observe(p, { attributes: true, attributeFilter: ['class'] }); });
     if (body) new MutationObserver(draw).observe(body, { childList: true });
     addEventListener('resize', draw);
     setInterval(draw, 1000);
