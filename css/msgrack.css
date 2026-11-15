@@ -7,12 +7,14 @@
 /* 3 sections side by side, thin engraved lines between; header on top, the lights stacked under it,
    small engraved caption left of each button (user, 2026-11-14) */
 .mr-row { display: flex; align-items: stretch; padding: 0 34px; box-sizing: border-box; }
-.mr-grp { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 7px; padding: 4px 0 2px; }
-.mr-grp + .mr-grp { border-left: 1px solid #262626; box-shadow: -1px 0 0 #000; }
-.mr-grp-cap { color: #8a8a8a; letter-spacing: 1.5px; }
-.mr-cells { display: flex; flex-direction: column; gap: 4px; }
+.mr-grp { flex: 1; display: flex; align-items: center; justify-content: center; padding: 4px 0 2px; }
+.mr-top .mr-grp + .mr-grp { border-left: 1px solid #262626; box-shadow: -1px 0 0 #000; }
+.mr-caps .mr-grp { padding: 6px 0 0; }
+.mr-grp-cap { letter-spacing: 4px; margin-right: -4px; }   /* spaced out (user, 2026-11-15); margin keeps it centred */   /* the group names, above the engraved line (user, 2026-11-15) */
+/* lights side by side under the header (user, 2026-11-15: "make them horizontal") */
+.mr-cells { display: flex; flex-direction: row; gap: 18px; }
 .mr-cell { display: flex; align-items: center; gap: 5px; }
-.mr-cell .hr-cap { width: 44px; text-align: right; font-size: 6.5px; line-height: 8px; letter-spacing: .8px; }   /* engraved: never brightens */
+.mr-cell .hr-cap { text-align: right; font-size: 6.5px; line-height: 8px; letter-spacing: .8px; }   /* engraved: never brightens */
 
 /* the Calendar's cream button (VU-meter face) + red LED */
 .mr-ob { width: 17px; height: 10px; padding: 0; border: 1px solid #0a0a0a; border-radius: 1.5px; cursor: pointer;

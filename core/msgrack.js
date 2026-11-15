@@ -96,9 +96,15 @@ function msgRackOpen(k) {
 function _mrRender() {
   var box = document.getElementById('msgRack');
   if (box && !box.firstChild) {
+    // the group names sit above the engraved line, their lights in one row under it (user, 2026-11-15)
+    var caps = function (groups) {
+      return '<div class="mr-row mr-caps">' + groups.map(function (g) {
+        return '<span class="mr-grp"><span class="hr-cap mr-grp-cap">' + g.grp + '</span></span>';
+      }).join('') + '</div>';
+    };
     var tier = function (groups, cls) {
       return '<div class="mr-row ' + cls + '">' + groups.map(function (g) {
-        return '<span class="mr-grp"><span class="hr-cap mr-grp-cap">' + g.grp + '</span><span class="mr-cells">' +
+        return '<span class="mr-grp"><span class="mr-cells">' +
           g.items.map(function (it) {
             return '<span class="mr-cell">' + (it.cap ? '<span class="hr-cap">' + it.cap + '</span>' : '') +
               '<button class="mr-ob" data-k="' + it.k + '" data-tip="' + it.tip.replace(/\n/g, '&#10;') + '" onclick="msgRackOpen(this.dataset.k)"></button>' +
@@ -108,7 +114,7 @@ function _mrRender() {
     };
     // The Home rack's second tier (user, 2026-11-14: "all in one rack"): a line, then the message lights.
     // Messages only (user, 2026-11-14): the alarms moved to their own slim rack (#alarmRack, below).
-    box.innerHTML = '<div class="mr-tier-line"></div>' + tier(MR_LIGHTS, 'mr-top');
+    box.innerHTML = '<div class="mr-tier-line" style="visibility:hidden"></div>' + caps(MR_LIGHTS) + '<div class="mr-tier-line"></div>' + tier(MR_LIGHTS, 'mr-top');
   }
   var al = document.getElementById('alarmRack');
   if (al && !al.firstChild) {
