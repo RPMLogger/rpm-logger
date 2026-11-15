@@ -252,7 +252,19 @@ function submitLog(noShow) {
   var url = getScriptUrl(); if (!url) return;
   if (activeStudent && activeStudent.hwOnly) { logHwSaveOnly(); return; }
   // Log window, already logged: the button is Edit (user, 2026-11-08), it opens the rows again.
-  if (window._imDocked && typeof _imLogEditStart === "function" && _imLogEditStart()) return;
+  // Already saved and not being changed: Save & next just goes on (user, 2026-11-15).
+  // Something typed without the box switching to editing (the HW box isn't locked): it saves over the log first.
+  if (window._imDocked && window._imWin && activeStudent && activeStudent.logged && !window._imWin.logEdit && !window._imWin.pendLog && !window._imWin.sending) {
+    var lbx = _logBox(), hwNow = typeof _hwRowsJoin === "function" ? _hwRowsJoin() : "";
+    var hwWas = logHw ? (logHw.textStored || logHw.textSaved || logHw.text || "") : hwNow;
+    var changed = (lbx && !lbx.classList.contains("locked")) || hwNow !== hwWas;
+    if (!changed) {
+      var pl = window._imWin.pgList || [], nx = pl[pl.indexOf(window._imWin.page) + 1];
+      if (nx && typeof _imPageTo === "function") _imPageTo(nx);
+      return;
+    }
+    if (typeof _imLogEditStart === "function") _imLogEditStart();   // then on below: saved over the log, then forward
+  }
   if (logHw && !logHw.choice && !window._imDocked) return;   // the docked box asks HW in Finish logging
 
   // Rows join with commas (2026-10-06, was " - "), each row one Title Case item

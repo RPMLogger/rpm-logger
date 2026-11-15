@@ -655,7 +655,7 @@ function _imLogEditStart() {
     if (hm) hm.disabled = false;
   }
   var lb = document.getElementById('btnLog');
-  if (lb) { lb.textContent = 'Save'; lb.className = 'link-btn bright'; }
+  if (lb) { lb.textContent = 'Save & next'; lb.className = 'link-btn bright'; }
   updateLogButton();
   var r = box && llRows(box)[0];
   if (r) r.focus();
@@ -1371,10 +1371,11 @@ function _imPagesRender(w, done, hasHw) {
   var lb = _imQ('btnLog') || document.getElementById('btnLog');
   if (lb && !w.logEdit && activeStudent && activeStudent.logged) {   // done or not: a reopened lesson with no HW yet needs Edit to go on
     var saved = !w.pendLog && !w.sending;
-    lb.textContent = saved ? 'Edit' : 'Saved ✓';
-    lb.className = saved ? 'link-btn' : 'link-btn green';
+    // Saved: Save & next just goes on (user, 2026-11-15; was Edit). Click into a box to change it.
+    lb.textContent = saved ? 'Save & next' : 'Saved ✓';
+    lb.className = saved ? 'link-btn amber' : 'link-btn green';
     lb.disabled = !saved;
-    lb.setAttribute('data-tip', saved ? 'Instant.\nOpens the log and HW again.\nSave writes over the saved one.' : 'Instant.\nSaves the lesson log.\n⌘ Enter does too.');
+    lb.setAttribute('data-tip', saved ? 'Instant.\nGoes to the next page.\nClick into a box to change the log first.' : 'Instant.\nSaves the lesson log.\n⌘ Enter does too.');
   }
   if (next) { next.style.visibility = at < list.length - 1 ? '' : 'hidden'; next.disabled = busy || !!w.logEdit || !done[w.page] || at >= w.pgMax; }
 }
@@ -1447,7 +1448,8 @@ function _imPendLog(student, params, action) {
     if (hm) hm.disabled = true;
   }
   _imStepsRender();
-  if (edited) _imSend(w, logHw);   // an edit saves now and stays on the page
+  // An edit saves over the log, then goes forward like the first save (user, 2026-11-15; it stayed on page 1).
+  if (edited) { var pl = w.pgList || [], nx = pl[pl.indexOf(w.page) + 1]; if (nx) w.turnTo = nx; _imSend(w, logHw); }
 }
 // HW to save: answered here, or files picked up here, and not in the sheet yet.
 function _imHwNeeds(hw) { return !!(hw && hw.choice && (hw.dirty || !hw.saved) && !hw.loading && !hw.uploading); }

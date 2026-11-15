@@ -5601,3 +5601,6 @@ html body #tab-home.tab-panel.active { min-height: max(460px, calc((var(--vh) * 
 #importBody .im-card .im-warn-grp { margin-left: auto; }
 /* ★ before a missing page in Steps, red like the missing steps (user, 2026-11-15) */
 #imLogWin .im-step-star { color: #ff5a4d; }
+.st-win.im-log-wide .im-page[data-pg="1"] .im-main-box > .im-log-foot-all { margin-right: 242px; }   /* page 1: Save & next in the left column, clear of Steps / Shortcuts (user, 2026-11-15) */
+/* Save & next: the letters outlined in black (user, 2026-11-15) */
+#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn) { text-shadow: -1px 0 #000, 1px 0 #000, 0 -1px #000, 0 1px #000; }   /* a thin black outline on the letters */
