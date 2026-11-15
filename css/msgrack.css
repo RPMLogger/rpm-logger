@@ -35,15 +35,26 @@ body:has(#tab-home.active, #tab-audit.active) .alarm-rack { margin-bottom: 58px;
 body:has(#tab-calendar.active) .alarm-rack { margin-bottom: 12px; }
 body:has(#tab-fixedcal.active) .alarm-rack { margin-bottom: 17px; }
 .alarm-rack .hr-bolt { top: calc(50% - 5.5px); }
-.al-row { display: flex; justify-content: space-evenly; align-items: center; padding: 0 48px; }
-.al-jack { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 0; border: 0; background: none; cursor: pointer; font: inherit; }
-.al-jack .hr-cap { font-size: 6.5px; letter-spacing: 1px; line-height: 8px; }   /* engraved: never brightens */
-/* the socket: a chrome ring round a black hole; lit = the hole glows red */
-.al-sock { display: block; width: 16px; height: 16px; border-radius: 50%;
-  background: radial-gradient(circle, #050505 0 3.5px, #1a1a1a 4px, #6a6a6a 5.5px, #b0b0b0 6.5px, #4a4a4a 7.5px, #1c1c1c 8px);
-  box-shadow: 0 1px 1px #000; }
-.al-jack.lit .al-sock { background: radial-gradient(circle, oklch(.78 .14 29) 0 1.5px, oklch(.6 .2 29) 3.5px, #1a1a1a 4px, #6a6a6a 5.5px, #b0b0b0 6.5px, #4a4a4a 7.5px, #1c1c1c 8px);
-  box-shadow: 0 1px 1px #000, 0 0 6px oklch(.63 .2 29 / .55); }
+/* a full patch bay (user, 2026-11-15, photo): one even row of sockets edge to edge, the rack ears marked off by an engraved line each side */
+.al-row { display: grid; align-items: start; padding: 2px 44px 0; }
+.al-jack.al-grp { grid-column: span 3; display: grid; grid-template-columns: repeat(3, 1fr); justify-items: center; width: auto; row-gap: 4px; }
+.al-jack.al-grp .hr-cap { grid-column: 1 / -1; }
+.al-empty { justify-self: center; }
+.alarm-rack::before, .alarm-rack::after { content: ""; position: absolute; top: 0; bottom: 0; width: 1px; background: #262626; box-shadow: 1px 0 0 #000; }
+.alarm-rack::before { left: 30px; } .alarm-rack::after { right: 30px; }
+.al-jack { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 22px; padding: 0; border: 0; background: none; cursor: pointer; font: inherit; }
+.al-empty { cursor: default; }
+.al-jack .hr-cap { font-size: 6.5px; letter-spacing: 1px; line-height: 8px; min-height: 8px; white-space: nowrap; }   /* engraved: never brightens */
+/* the socket: the photo's round patch-bay jack (outer ring, groove, inner ring, hole), coloured dim like the header's
+   input jacks (user, 2026-11-15): no shadow, the two tones are gradients lit from the top left. Lit alarm = the hole glows red. */
+.al-sock { position: relative; display: block; width: 19px; height: 19px; border-radius: 50%;
+  background: linear-gradient(160deg, #5e5e5e, #333 45%, #1f1f1f 70%, #4a4a4a); box-shadow: inset 0 0 0 1px rgba(0,0,0,.5); }
+.al-sock::before { content: ""; position: absolute; inset: 2.5px; border-radius: 50%;   /* the groove, then the inner ring */
+  background: linear-gradient(160deg, #6a6a6a, #3a3a3a 45%, #1c1c1c 70%, #505050); box-shadow: 0 0 0 1px #141414, inset 0 0 0 1px rgba(0,0,0,.45); }
+.al-sock::after { content: ""; position: absolute; inset: 5.5px; border-radius: 50%;   /* the hole */
+  background: radial-gradient(circle at 50% 40%, #000 55%, #1c1c1c); box-shadow: inset 0 1px 2px #000, 0 0 0 1px #2a2a2a; }
+/* the alarm lights (user, 2026-11-15): the messages tier's small red LED above every hole; an alarm lights the one over its middle hole */
+.al-jack.lit .al-led.al-mid { background: radial-gradient(circle at 35% 35%, oklch(.78 .14 29), oklch(.6 .2 29)); box-shadow: 0 0 0 1px #0a0a0a, 0 0 5px oklch(.63 .2 29 / .7); }
 
 @keyframes mrFlash { 0%, 100% { box-shadow: none; } 30% { box-shadow: 0 0 0 2px oklch(.63 .2 29 / .8); } }
 .mr-flash { animation: mrFlash 1.2s ease 2; }   /* SECRETARY pressed: the alert box by the build number blinks */

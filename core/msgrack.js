@@ -26,6 +26,7 @@ var MR_LIGHTS = [
     { k: 'trial', cap: 'Trial', tip: 'Opens Trial.\nLit while someone wrote back.' } ] }
 ];
 
+var AL_JACKS = 12;   // sockets on the alarm rack (was the photo's 22, then 17; user 2026-11-15: "fewer" = no empty ones)
 var MR_PROBLEMS = [
   { grp: 'Payments', items: [{ k: 'payments', tip: 'Lit when a payment didn\'t auto-confirm,\nor a student owes 3+ blocks.' }] },
   { grp: 'Financial', items: [{ k: 'financial', tip: 'Opens Financial.\nLit when income is not recording.' }] },
@@ -114,11 +115,19 @@ function _mrRender() {
     // THE ALARM RACK (user, 2026-11-14, patch-bay photo): a slim unit of its own, a row of jack sockets that glow red
     // when something broke, an engraved label under each. No buttons: the socket (or its label) opens the place.
     al.innerHTML = '<span class="hr-bolt" style="left:10px"></span><span class="hr-bolt" style="right:10px"></span>' +
-      '<div class="al-row">' + MR_PROBLEMS.map(function (g) {
-        var it = g.items[0];
-        return '<button class="al-jack" data-k="' + it.k + '" data-tip="' + it.tip.replace(/\n/g, '&#10;') + '" onclick="msgRackOpen(this.dataset.k)">' +
-          '<i class="al-sock"></i><span class="hr-cap">' + g.grp + '</span></button>';
-      }).join('') + '</div>';
+      // a full patch bay (user, 2026-11-15, patch-bay photo): each alarm's label spans 3 sockets (its middle one lights),
+      // spread evenly (user, 2026-11-15): the empty sockets shared out at both ends and between the alarms
+      (function () {
+        var empty = function (n) { return new Array(Math.max(n, 0) + 1).join('<span class="al-jack al-empty"><i class="mr-led al-led"></i><i class="al-sock"></i></span>'); };
+        var gaps = MR_PROBLEMS.length + 1, spare = AL_JACKS - MR_PROBLEMS.length * 3, each = Math.floor(spare / gaps), extra = spare - each * gaps;
+        return '<div class="al-row" style="grid-template-columns:repeat(' + AL_JACKS + ',1fr)">' + empty(each + Math.floor(extra / 2)) + MR_PROBLEMS.map(function (g, n) {
+          var it = g.items[0];
+          return '<button class="al-jack al-grp" data-k="' + it.k + '" data-tip="' + it.tip.replace(/\n/g, '&#10;') + '" onclick="msgRackOpen(this.dataset.k)">' +
+            '<i class="mr-led al-led"></i><i class="mr-led al-led al-mid"></i><i class="mr-led al-led"></i>' +
+          '<i class="al-sock"></i><i class="al-sock"></i><i class="al-sock"></i><span class="hr-cap">' + g.grp + '</span></button>' +
+            empty(n === MR_PROBLEMS.length - 1 ? each + extra - Math.floor(extra / 2) : each);
+        }).join('') + '</div>';
+      })();
   }
   var s = _mrState();
   document.querySelectorAll('#msgRack .mr-ob, #alarmRack .al-jack').forEach(function (b) { b.classList.toggle('lit', !!s[b.dataset.k]); });
