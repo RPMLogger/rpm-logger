@@ -5606,6 +5606,8 @@ html body #tab-home.tab-panel.active { min-height: max(460px, calc((var(--vh) * 
 /* (user, 2026-11-15): the red concrete texture under the diamond plate (plate on top), darkened 88% so the boxes still lead (was 78%: too bright).
    To go back to the diamond plate, delete this block (and img/bg-red-grunge.jpg). */
 html body { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cg fill='%23fff' fill-opacity='0.07'%3E%3Cpath d='M1 15 Q10 10 15 1 Q6 6 1 15Z'/%3E%3Cpath d='M15.5 15.5 Q24.5 20.5 29.5 29.5 Q20.5 24.5 15.5 15.5Z'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 30px, linear-gradient(rgb(12 8 8 / 0.88), rgb(12 8 8 / 0.88)), url("../img/bg-red-grunge.jpg") center / cover fixed, #2a1414; }
+/* the header's square buttons a tad smaller (user, 2026-11-15): menu, back, home + refresh, search; 26px → ~22px, same centres and spacing */
+html body #sbBurger, html body .header .hdr-home { scale: 0.85; }
 /* Files None dark once files are in (user, 2026-11-15) */
 #imLogWin#imLogWin #imFilesNo:disabled { opacity: .25; cursor: default; border-color: var(--t-faint); }
 /* Gathered files scroll in their own box, and Save & next sits at the bottom of the right column,
