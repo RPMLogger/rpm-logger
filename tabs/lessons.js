@@ -113,7 +113,7 @@ function openLogFresh(student, idx, opts) {
   resetRows();
   rpmBusy(panel, null, false);
   var lb = document.getElementById("btnLog");
-  lb.disabled = true; lb.textContent = "＋ Log"; lb.className = "link-btn amber";   // plus sign back (user, 2026-11-09, later the same day)
+  lb.disabled = true; lb.textContent = "Save & next"; lb.className = "link-btn amber";   // plus sign back (user, 2026-11-09, later the same day)
   var mic = document.getElementById("logMicBtn");
   if (mic) { mic.innerHTML = MIC_ICON; mic.classList.remove("rec"); mic.disabled = false; }
   _logState("");
@@ -309,7 +309,7 @@ function submitLog(noShow) {
   function fail(why) {
     rpmBusy(panel, btn, false);
     if (logHw) { logHw.locked = false; _logHwRender(); }
-    btn.textContent = "＋ Log"; btn.disabled = false;
+    btn.textContent = "Save & next"; btn.disabled = false;
     rpmFail("logPanelStatus", why);
   }
   fetch(q).then(function(r) { return r.json(); }).then(function(data) {
@@ -320,7 +320,7 @@ function submitLog(noShow) {
       // (logged is final), and a second later the window closes by itself
       // (2026-09-28). A failure keeps it open with its Unsuccessful badge.
       if (activeStudent) activeStudent.logged = true;
-      btn.textContent = "Logged ✓"; btn.className = "link-btn green";
+      btn.textContent = "Saved ✓"; btn.className = "link-btn green";
       var mic = document.getElementById("logMicBtn");
       if (mic) mic.disabled = true;
       llLock(_logBox());

@@ -37,6 +37,29 @@ function _imKey(n) { return String(n || '').trim().toLowerCase().replace(/\s+/g,
 
 // Today's students first, in lesson-time order and in amber (2026-10-07);
 // everyone else A–Z under them. Resorts itself each day from the week read.
+// Just logged (user, 2026-11-15): the sheets take a few minutes to catch up, and the
+// Lessons card showed red / + Log right after a log. For 3 minutes after a save the card
+// shows LOGGED ✓ and no alerts; then the checklist is read again and the real state shows.
+var IM_HOLD_MS = 3 * 60 * 1000, _imHoldT = null;
+function _imHolds() { try { return JSON.parse(localStorage.getItem('rpmLogHold') || '{}'); } catch (e) { return {}; } }
+function _imHeld(n) { var t = _imHolds()[_imKey(n)]; return !!t && Date.now() - t < IM_HOLD_MS; }
+// Logged in the window today and the hold is over (user, 2026-11-15): anything still missing reads Missing sections.
+function _imWarned(n) { var t = _imHolds()[_imKey(n)]; return !!t && Date.now() - t >= IM_HOLD_MS && t >= new Date().setHours(0, 0, 0, 0); }
+function _imHoldSet(n) {
+  if (!n) return;
+  var h = _imHolds(), now = Date.now(), day0 = new Date().setHours(0, 0, 0, 0);
+  Object.keys(h).forEach(function (k) { if (h[k] < day0) delete h[k]; });   // kept for the day: after the hold they say Missing sections
+  h[_imKey(n)] = now;
+  try { localStorage.setItem('rpmLogHold', JSON.stringify(h)); } catch (e) {}
+  _imHoldTimer();
+}
+// When the last hold ends: read the checklist again, the cards redraw with what the sheets say.
+function _imHoldTimer() {
+  clearTimeout(_imHoldT); _imHoldT = null;
+  var h = _imHolds(), now = Date.now(), end = 0;
+  Object.keys(h).forEach(function (k) { if (now - h[k] < IM_HOLD_MS) end = Math.max(end, h[k] + IM_HOLD_MS); });
+  if (end) _imHoldT = setTimeout(function () { _ckLoad(function () { if (typeof _ckRedraw === 'function') _ckRedraw(); }); }, end - now + 500);
+}
 // Redraws the list when the day's last lesson ends, so + Log shows up on its own (2026-11-15).
 var _imDayOverT = null;
 function _imDayOverTimer(lastStart, over) {
@@ -56,7 +79,8 @@ function _imRenderCards(noRead) {
   var isToday = function (n) { return today.indexOf(_imKey(n)) >= 0; };
   // Today's lesson logged (2026-10-07): green when Schedule and HW are done too,
   // else the amber card says what's missing; clicking it reopens it to edit.
-  var logged = (todayStudents || []).filter(function (s) { return s.alreadyLogged; }).map(function (s) { return _imKey(s.name); });
+  var logged = (todayStudents || []).filter(function (s) { var ck = _ckItem(s.name, _tdYmd()); return s.alreadyLogged || _imHeld(s.name) || !!(ck && ck.log); }).map(function (s) { return _imKey(s.name); });   // just logged counts (hold, 2026-11-15)
+  _imHoldTimer();
   // The day is over an hour after the last lesson starts (lessons are an hour; only starts come in).
   var lastStart = Math.max.apply(null, (todayStudents || []).map(function (s) { return new Date(s.eventDate).getTime() || 0; }).concat([0]));
   var dayOver = lastStart > 0 && Date.now() >= lastStart + 3600000;
@@ -73,9 +97,10 @@ function _imRenderCards(noRead) {
   var anim = _imAnim, step = 0; _imAnim = false;
   var inStyle = function () { return anim ? ' style="--i:' + (step++) + '"' : ''; };
   // Missed lessons still open (2026-10-08, Lesson checklist): "2 open".
-  var open = function (n) { return _ckPast(n).length; };
+  var open = function (n) { return _imHeld(n) ? 0 : _ckPast(n).length; };   // just logged: nothing open yet (hold)
   var missing = function (n) {
     if (logged.indexOf(_imKey(n)) < 0) return null;   // not logged yet: no verdict
+    if (_imHeld(n)) return [];   // just logged: no alerts for 3 minutes (hold)
     return _imTodayMiss(n);
   };
   // Three groups, each A–Z (user, 2026-10-24; today's were in lesson-time order):
@@ -87,10 +112,12 @@ function _imRenderCards(noRead) {
   // One box like Today's (user, 2026-10-26; three boxes were tried): the title,
   // today's students (amber), then everyone else (blue; red past-open first).
   var card = function (n) {
-    var miss = missing(n), o = open(n), past = _ckPast(n);
+    var miss = missing(n), o = open(n), past = _imHeld(n) ? [] : _ckPast(n);
     // The oldest open lesson's steps (user, 2026-10-17; was "1 lesson open"):
     // ✓ done, ☐ still to do, "· 2 open" when more lessons wait.
     var todo = miss && miss.length ? 1 : 0, all = o + todo;
+    // After the hold, something still missing: one red Missing sections on the card, nothing else (user, 2026-11-15).
+    var warn = _imWarned(n) && (todo || o) ? '<span class="im-steps im-warn-grp"><button class="im-step todo im-missing opens-window" onclick="event.stopPropagation(); _imLogOpen(' + _auEsc(JSON.stringify(n)) + ', true)" data-tip="Opens a window.\nThe missing pages have a ★.">Missing sections</button></span>' : '';
     var first = past.length ? { day: past[0].date, miss: past[0].missing || [], hw: past[0].hwText } : todo ? { day: _tdYmd(), miss: miss } : null;
     return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-donetoday' : '') + '"' + inStyle() + ' onclick="' + (!isToday(n) && o ? '_imOpenLog' : '_imOpenFirst') + '(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a window.\n' + (!isToday(n) && o ? 'Straight into the Log.' : 'Their last lesson and HW first;\nclose it for every lesson logged.') + '">' +   // Not logged: straight into the Log (user, 2026-11-12)
       '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
@@ -100,8 +127,9 @@ function _imRenderCards(noRead) {
         (!dayOver ? '<span class="im-steps im-today-grp"><span class="im-step im-today-tag">Today</span></span>'
           : logged.indexOf(_imKey(n)) < 0 ? '<span class="im-steps im-today-grp"><button class="im-step todo nolog opens-window" onclick="event.stopPropagation(); _imLogOpen(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a window.\nLog today.">+ Log</button></span>' : '') : '') +
       // Not logged group: one "+ Log" button only (user, 2026-10-30; was the step row + "· 2 open").
-      (!isToday(n) && o ? '<span class="im-steps"><button class="im-step todo nolog opens-window" onclick="event.stopPropagation(); _imLogOpen(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a window.\nLog ' + _auEsc(_ckDay(past[0].date)) + '.">+ Log</button></span>' : '') +
-      (first && !(!isToday(n) && o) ? '<span class="im-steps">' + _imStepsHtml(first.day, first.miss, first.hw, n).replace(/[✓✕] /g, '') +   // colour says it on the list: green done, red missing (user, 2026-11-15)
+      warn +
+      (!warn && !isToday(n) && o ? '<span class="im-steps"><button class="im-step todo nolog opens-window" onclick="event.stopPropagation(); _imLogOpen(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a window.\nLog ' + _auEsc(_ckDay(past[0].date)) + '.">+ Log</button></span>' : '') +
+      (!warn && first && !(!isToday(n) && o) ? '<span class="im-steps">' + _imStepsHtml(first.day, first.miss, first.hw, n).replace(/[✓✕] /g, '') +   // colour says it on the list: green done, red missing (user, 2026-11-15)
 (all > 1 ? '<span class="im-step-more">· ' + all + ' open</span>' : '') + '</span>' : '') +
     '</div>';
   };
@@ -647,7 +675,7 @@ function _imLogLock(text) {
   var mic = document.getElementById('logMicBtn');
   if (mic) mic.disabled = true;
   var lb = document.getElementById('btnLog');
-  if (lb) { lb.textContent = 'Logged ✓'; lb.disabled = true; }
+  if (lb) { lb.textContent = 'Saved ✓'; lb.disabled = true; }
   // No text with it (the checklist only knows it's logged): read it from their sheet (user, 2026-11-08, Cathy).
   if (!text) _imLogTextLoad();
 }
@@ -711,11 +739,12 @@ function _imRunQueue(q, onEach) {
   _imLogWinOpen(x.student, x.idx, x.date, x.item, next);
   if (onEach) onEach(x);
 }
-function _imLogOpen(name) {
+function _imLogOpen(name, warn) {
   var q = _imQueue(name);
   if (!q.length) return;
   // A save redraws this student's page under the window; the last Done goes back to the list.
-  _imRunQueue(q, function () { window._imLogActive = name; if (window._imWin) window._imWin.fromImport = true; });
+  // From Missing sections (2026-11-15): the pages not done get a ★ in Steps.
+  _imRunQueue(q, function () { window._imLogActive = name; if (window._imWin) { window._imWin.fromImport = true; if (warn) { window._imWin.starMissing = true; _imStepsRender(); } } });
 }
 
 // Today's lesson in the list (newest first, dates like "Oct /6"): its text, or null.
@@ -1197,7 +1226,7 @@ function _imStepsRender() {
   if (db) {
     var some = !!(hw && (hw.files.length || hw.links.length || hw.videoOnly || (hw.found || []).length || hw.rec === 'phone' || hw.rec === 'zoom'));
     db.disabled = !hw || !!(hw.locked || hw.loading || hw.uploading || hw.gathering || hw.saving) || !_imMatAnswered(hw);
-    db.textContent = 'Done';   // one word, like Log, no hover tip (user, 2026-11-09; was "Done · Nothing to send" when empty)
+    db.textContent = 'Save & next';   // one word, like Log, no hover tip (user, 2026-11-09; was "Done · Nothing to send" when empty)
     db.removeAttribute('data-tip');
   }
   var gl = _imQ('imGatherList'), gb = _imQ('logHwGatherBtn');
@@ -1342,7 +1371,7 @@ function _imPagesRender(w, done, hasHw) {
   var lb = _imQ('btnLog') || document.getElementById('btnLog');
   if (lb && !w.logEdit && activeStudent && activeStudent.logged) {   // done or not: a reopened lesson with no HW yet needs Edit to go on
     var saved = !w.pendLog && !w.sending;
-    lb.textContent = saved ? 'Edit' : 'Logged ✓';
+    lb.textContent = saved ? 'Edit' : 'Saved ✓';
     lb.className = saved ? 'link-btn' : 'link-btn green';
     lb.disabled = !saved;
     lb.setAttribute('data-tip', saved ? 'Instant.\nOpens the log and HW again.\nSave writes over the saved one.' : 'Instant.\nSaves the lesson log.\n⌘ Enter does too.');
@@ -1358,7 +1387,8 @@ function _imStepsSide(w, list, done) {
   el.innerHTML = '<div class="db-cx-head im-sub-head"><label class="field-label db-cx-t im-sub-t">Steps</label></div>' +
     list.map(function (p, i) {
       var cls = p === w.page ? ' on' : done[p] ? ' done' : '';
-      return '<div class="im-step-side' + cls + '"><span>' + (i + 1) + '. ' + names[p] + '</span><span class="im-step-side-m">' + (done[p] ? '✓' : '') + '</span></div>';
+      var star = w.starMissing && !done[p] ? '<span class="im-step-star">★ </span>' : '';   // missing, from Missing sections (2026-11-15)
+      return '<div class="im-step-side' + cls + '"><span>' + star + (i + 1) + '. ' + names[p] + '</span><span class="im-step-side-m">' + (done[p] ? '✓' : '') + '</span></div>';
     }).join('');
 }
 function _imPageTo(p) {
@@ -1401,7 +1431,7 @@ function _imPendLog(student, params, action) {
   var mic = document.getElementById('logMicBtn');
   if (mic) mic.disabled = true;
   var lb = document.getElementById('btnLog');
-  if (lb) { lb.textContent = 'Logged ✓'; lb.className = 'link-btn green'; lb.disabled = true; }
+  if (lb) { lb.textContent = 'Saved ✓'; lb.className = 'link-btn green'; lb.disabled = true; }
   var ns = document.getElementById('btnNoShow');
   if (ns) ns.disabled = true;
   // Log is for the lesson and its HW together (2026-10-18): the HW rows tick and lock with it.
@@ -1465,6 +1495,7 @@ function _imSend(w, hw) {
     if (lr) {
       w.pendLog = null;
       if (lr.success) {
+        _imHoldSet(w.name);   // the list holds this student's alerts while the sheets catch up
         _logLessonDone(log.student, log.params.subject, lr, hw);
         // The Trial card's steps follow (2026-10-23).
         if (w.trial && typeof _tlMarkEmail === 'function') {
@@ -1488,7 +1519,7 @@ function _imSend(w, hw) {
           var mic = document.getElementById('logMicBtn');
           if (mic) mic.disabled = false;
           var lb = document.getElementById('btnLog');
-          if (lb) { lb.textContent = '＋ Log'; lb.className = 'link-btn amber'; lb.disabled = false; }
+          if (lb) { lb.textContent = 'Save & next'; lb.className = 'link-btn amber'; lb.disabled = false; }
           var ns = document.getElementById('btnNoShow');
           if (ns) ns.disabled = false;
         }
@@ -2177,7 +2208,7 @@ function _imDoHtml(name, day) {
       '</span></div>' +
       '</div>' +
       '</div>' +   // .im-mat-right
-      '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn amber" id="imMatDoneBtn" onclick="_imMatDone()">Done</button></div>' +
+      '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn amber" id="imMatDoneBtn" onclick="_imMatDone()">Save &amp; next</button></div>' +
     '</div>' +
     '</div><div class="im-page" data-pg="3">' +
     // Schedule (2026-10-25, like Practice materials): Needed / Not needed first.
@@ -2197,7 +2228,7 @@ function _imDoHtml(name, day) {
         '<div class="sn-row">' +
         '<button class="link-btn red im-rs-btn opens-window" onclick="_imReschedule(' + n + ')" data-tip="Opens a window.\nTheir next 8 weeks: skip or move a lesson.">Change appointment</button></div></div>' +
     '</div>' +
-    '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn amber" id="imSchedDoneBtn" onclick="_imSchedDone(' + n + ')">Done</button></div>' +
+    '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn amber" id="imSchedDoneBtn" onclick="_imSchedDone(' + n + ')">Save &amp; next</button></div>' +
     '</div>' +
     '</div><div class="im-page" data-pg="4">' +
     // "Logging" spinner while the three go to Google; stays bright in the dimmed window (2026-10-21).

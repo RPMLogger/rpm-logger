@@ -5556,16 +5556,16 @@ html body #tab-home.tab-panel.active { min-height: max(460px, calc((var(--vh) * 
    buttons as they were: a group of its own, normal gap before the steps. */
 #importBody .im-card > .db-card-l { flex: 0 1 auto; }
 #importBody .im-card > .db-card-l + .im-steps { margin-left: auto; }   /* chips grouped on the right */
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog)) { gap: 4px; letter-spacing: .5px; }
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog)) .im-step { border: none; border-radius: 2px; padding: 2px 5px; font-size: 7.5px; letter-spacing: .5px; }
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog)) .im-step.opens-window::after { content: none; display: none; }
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog)) .im-step:not(.todo) { color: color-mix(in srgb, var(--green) 75%, var(--muted)); background: color-mix(in srgb, var(--green) 10%, transparent); }
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog)) .im-step.todo { background: color-mix(in srgb, #ff5a4d 15%, transparent); }
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog)) .im-step.todo.nolog { background: color-mix(in srgb, var(--accent2) 15%, transparent); }
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog)) .im-step.todo:hover:where(:not(:disabled)) { background: color-mix(in srgb, #ff5a4d 26%, transparent); }
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog)) .im-step.todo.nolog:hover:where(:not(:disabled)) { background: color-mix(in srgb, var(--accent2) 26%, transparent); }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) { gap: 4px; letter-spacing: .5px; }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) .im-step { border: none; border-radius: 2px; padding: 2px 5px; font-size: 7.5px; letter-spacing: .5px; }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) .im-step.opens-window::after { content: none; display: none; }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) .im-step:not(.todo) { color: color-mix(in srgb, var(--green) 75%, var(--muted)); background: color-mix(in srgb, var(--green) 10%, transparent); }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) .im-step.todo { background: color-mix(in srgb, #ff5a4d 15%, transparent); }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) .im-step.todo.nolog { background: color-mix(in srgb, var(--accent2) 15%, transparent); }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) .im-step.todo:hover:where(:not(:disabled)) { background: color-mix(in srgb, #ff5a4d 26%, transparent); }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) .im-step.todo.nolog:hover:where(:not(:disabled)) { background: color-mix(in srgb, var(--accent2) 26%, transparent); }
 /* The steps after TODAY sit on their own line under the name, left (user, 2026-11-15) */
-#importBody .im-card.im-today > .im-steps:not(.im-today-grp) { flex: 1 0 100%; justify-content: flex-start; margin-left: 0; order: 9; }
+#importBody .im-card.im-today > .im-steps:not(.im-today-grp, .im-warn-grp) { flex: 1 0 100%; justify-content: flex-start; margin-left: 0; order: 9; }
 /* Practice materials in two columns so it fits in one shot (user, 2026-11-15):
    Files left (its list scrolls inside), Video link / Web link / Recorded right. Wider window on this page only. */
 .st-win.im-log-win.im-log-wide { width: min(1080px, 96vw); }   /* one wide size on every page (user, 2026-11-15) */
@@ -5594,3 +5594,10 @@ html body #tab-home.tab-panel.active { min-height: max(460px, calc((var(--vh) * 
 #imLogWin #imMatFilesTools > .im-pills.im-files-none .im-pill-none { margin-right: 0; }
 /* Recorded: the question alone, Phone / Zoom / No recording as words under it (user, 2026-11-15) */
 #imLogWin .im-pills.im-rec-none { margin-top: 0; float: none; width: auto; }
+/* Save / Done at the bottom of the page, right, under the last box (user, 2026-11-15; were up on the icon line) */
+.st-win.im-log-wide .im-page:is([data-pg="1"], [data-pg="6"], [data-pg="3"]) .im-main-box > .im-log-foot-all { position: static; top: auto; right: auto; display: flex; justify-content: flex-end; margin: 32px 0 0; }
+.st-win.im-log-wide .im-page[data-pg="6"] .im-main-box.im-mat-split > .im-log-foot-all { grid-column: 1 / -1; }   /* full width under both columns */
+/* Missing sections: the red step button, full size, on the right (user, 2026-11-15) */
+#importBody .im-card .im-warn-grp { margin-left: auto; }
+/* ★ before a missing page in Steps, red like the missing steps (user, 2026-11-15) */
+#imLogWin .im-step-star { color: #ff5a4d; }
