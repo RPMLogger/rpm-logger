@@ -37,6 +37,17 @@ function _imKey(n) { return String(n || '').trim().toLowerCase().replace(/\s+/g,
 
 // Today's students first, in lesson-time order and in amber (2026-10-07);
 // everyone else A–Z under them. Resorts itself each day from the week read.
+// Redraws the list when the day's last lesson ends, so + Log shows up on its own (2026-11-15).
+var _imDayOverT = null;
+function _imDayOverTimer(lastStart, over) {
+  clearTimeout(_imDayOverT); _imDayOverT = null;
+  var wait = lastStart + 3600000 - Date.now();
+  if (!lastStart || over || wait > 86400000) return;
+  _imDayOverT = setTimeout(function () {
+    var b = document.getElementById('importBody');
+    if (b && b.offsetParent && !_imOpen) _imRenderCards(true);
+  }, wait + 1000);
+}
 function _imRenderCards(noRead) {
   var body = document.getElementById('importBody');
   _imLift(body);
@@ -46,6 +57,10 @@ function _imRenderCards(noRead) {
   // Today's lesson logged (2026-10-07): green when Schedule and HW are done too,
   // else the amber card says what's missing; clicking it reopens it to edit.
   var logged = (todayStudents || []).filter(function (s) { return s.alreadyLogged; }).map(function (s) { return _imKey(s.name); });
+  // The day is over an hour after the last lesson starts (lessons are an hour; only starts come in).
+  var lastStart = Math.max.apply(null, (todayStudents || []).map(function (s) { return new Date(s.eventDate).getTime() || 0; }).concat([0]));
+  var dayOver = lastStart > 0 && Date.now() >= lastStart + 3600000;
+  _imDayOverTimer(lastStart, dayOver);
   // Loading until the checklist is in too, so the cards draw once, already in their
   // groups (user, 2026-10-30; they drew first, then Not logged jumped up amber).
   // _ckLoad calls _imAfterCk when it ends, whoever started it; a failed read draws anyway.
@@ -80,10 +95,14 @@ function _imRenderCards(noRead) {
     return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-donetoday' : '') + '"' + inStyle() + ' onclick="' + (!isToday(n) && o ? '_imOpenLog' : '_imOpenFirst') + '(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a window.\n' + (!isToday(n) && o ? 'Straight into the Log.' : 'Their last lesson and HW first;\nclose it for every lesson logged.') + '">' +   // Not logged: straight into the Log (user, 2026-11-12)
       '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
       (miss && !miss.length && !o ? '<span class="im-logged"><span class="im-logged-t">LOGGED</span>' + PAID_CHECK_ICON.replace('width="13" height="13"', 'width="15" height="15"') + '</span>' : '') +   // the Auto-confirmed check (user, 2026-10-26)
-      (isToday(n) && !(miss && !miss.length && !o) ? '<span class="im-steps"><span class="im-step im-today-tag">Today</span></span>' : '') +   // green TODAY sign on today's cards (user, 2026-10-30)
+      (isToday(n) && !(miss && !miss.length && !o) ? // Green TODAY sign on today's cards (user, 2026-10-30). Once the day's last lesson is over the cards stay
+        // in Today, TODAY goes and the ones not logged yet turn into + Log (user, 2026-11-15).
+        (!dayOver ? '<span class="im-steps im-today-grp"><span class="im-step im-today-tag">Today</span></span>'
+          : logged.indexOf(_imKey(n)) < 0 ? '<span class="im-steps im-today-grp"><button class="im-step todo nolog opens-window" onclick="event.stopPropagation(); _imLogOpen(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a window.\nLog today.">+ Log</button></span>' : '') : '') +
       // Not logged group: one "+ Log" button only (user, 2026-10-30; was the step row + "· 2 open").
       (!isToday(n) && o ? '<span class="im-steps"><button class="im-step todo nolog opens-window" onclick="event.stopPropagation(); _imLogOpen(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a window.\nLog ' + _auEsc(_ckDay(past[0].date)) + '.">+ Log</button></span>' : '') +
-      (first && !(!isToday(n) && o) ? '<span class="im-steps">' + _imStepsHtml(first.day, first.miss, first.hw, n) + (all > 1 ? '<span class="im-step-more">· ' + all + ' open</span>' : '') + '</span>' : '') +
+      (first && !(!isToday(n) && o) ? '<span class="im-steps">' + _imStepsHtml(first.day, first.miss, first.hw, n).replace(/[✓✕] /g, '') +   // colour says it on the list: green done, red missing (user, 2026-11-15)
+(all > 1 ? '<span class="im-step-more">· ' + all + ' open</span>' : '') + '</span>' : '') +
     '</div>';
   };
   // Three boxes like Today's (user, 2026-10-30; was one box, group headings inside):
@@ -1311,6 +1330,7 @@ function _imPagesRender(w, done, hasHw) {
   }
   var sw = c.root.querySelector('.st-win');
   if (sw) sw.classList.add('im-log-wide');   // two panels on every page, one size (user, 2026-11-08; was the Log page only)
+  if (sw) sw.classList.toggle('im-pg-mat', w.page === 6);   // Practice materials: wider, two columns (user, 2026-11-15)
   var tc = _imQ('imTermsCol');
   if (tc) tc.style.display = w.page === 1 ? '' : 'none';   // Shortcuts belong to the Log page
   _imStepsSide(w, list, done);
@@ -2132,6 +2152,8 @@ function _imDoHtml(name, day) {
       // Gather (2026-10-25): files put in their Dropbox by hand (Finder) show under the zone.
       _imSub('Files', '<span id="imMatFilesTools"><button type="button" class="link-btn lh-gather-btn" id="logHwGatherBtn" onclick="_imGather()" data-tip="Instant.&#10;Lists what you put in their Dropbox since the lesson day,&#10;e.g. with Finder, that\'s on no HW yet.&#10;Done moves it all into this lesson\'s HW folder." data-tip-left data-tip-wrap>' + TRAY_IN_ICON + '<span>Gather</span></button></span>', ' im-mat-sec', '<div id="imHwDock"></div><div id="imGatherList"></div>') +
       '</div></div>' +
+      // Right column (user, 2026-11-15): links + Recorded beside Files, so the page fits without scrolling.
+      '<div class="im-mat-right">' +
       '<div class="im-mat-box" id="imLinksBox">' +
         _imSub('Video lesson link', '', ' im-mat-sec', '<div id="imMatVideo"></div>') +
         _imSub('Web link', '', ' im-mat-sec', '<div id="imMatLink"></div>') +
@@ -2144,6 +2166,7 @@ function _imDoHtml(name, day) {
       // None as a word under the question, like under the link boxes (user, 2026-11-10); lit once picked
       '<div class="im-pills im-words im-rec-none"><span class="im-word-grp"><button type="button" class="im-pill im-pill-none" id="imRecNo" onmousedown="event.preventDefault()" onclick="_imRecPick(\'no\')">None</button></span></div>' +
       '</div>' +
+      '</div>' +   // .im-mat-right
       '<div class="im-log-foot im-log-foot-all"><button type="button" class="link-btn amber" id="imMatDoneBtn" onclick="_imMatDone()">Done</button></div>' +
     '</div>' +
     '</div><div class="im-page" data-pg="3">' +
