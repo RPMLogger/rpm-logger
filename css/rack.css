@@ -34,8 +34,9 @@
     inset 2px 0 0 rgba(0,0,0,.35), inset -2px 0 0 rgba(0,0,0,.35),
     0 0 0 1px rgba(0,0,0,.55);
 }
-#rkLayer .rk-rail.rk-l { border-top-left-radius: 10px; }
-#rkLayer .rk-rail.rk-r { border-top-right-radius: 10px; }
+#rkLayer .rk-rail.rk-l { border-radius: 10px 0 0 10px; }   /* rounded top and bottom alike (user, 2026-11-15) */
+#rkLayer .rk-rail.rk-r { border-radius: 0 10px 10px 0; }
+#rkLayer .rk-back { border-radius: 10px; }
 /* the rail holes: exactly TWO in every gap, centred, right under the boxes' screws (user, 2026-11-14; core/rack.js places them) */
 #rkLayer .rk-hole { position: absolute; width: 5px; height: 4.5px; background: rgba(0,0,0,.85); box-shadow: 0 1px 0 rgba(255,255,255,.10); }
 

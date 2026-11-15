@@ -78,7 +78,10 @@
     var right = Math.max.apply(null, bs.map(function (b) { return b.r; })) + OVER;
     var top = Math.min.apply(null, all.map(function (b) { return b.t; })) - 5;   // flush with the amp's outer ring
     var ap = document.querySelector('.tab-panel.active');   // tabs with open (unboxed) content too: the rack runs to the bottom of the tab (user, 2026-11-15)
-    var bot = Math.max(Math.max.apply(null, bs.map(function (b) { return b.b; })), ap ? ap.getBoundingClientRect().bottom + scrollY : 0) + 20;
+    // the bottom closes like the top (user, 2026-11-15): flush with the last box's outer ring, rounded rails + back;
+    // open (unboxed) content below the last box still carries the rack down to it
+    var boxBot = Math.max.apply(null, bs.map(function (b) { return b.b; })), tabBot = ap ? ap.getBoundingClientRect().bottom + scrollY : 0;
+    var bot = (tabBot > boxBot + 40 ? tabBot : boxBot) + 5;
     var lx = Math.round(left), rx = Math.round(right - RAIL), w = Math.round(right - left), h = Math.round(bot - top);
     var html = '<div class="rk-back" style="left:' + lx + 'px;top:' + Math.round(top) + 'px;width:' + w + 'px;height:' + h + 'px"></div>';
     all.forEach(function (b) {
