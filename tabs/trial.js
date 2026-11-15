@@ -328,7 +328,13 @@ function _trSetInitiateBadge(threads) {
   });
   if (n > 0) { el.textContent = n; el.style.display = 'inline-block'; }
   else       { el.style.display = 'none'; }
+  // Trial replies have no badge: the messages rack's TRIAL light reads this (user, 2026-11-14).
+  _trTrialReplies = Object.keys(threads || {}).filter(function (em) {
+    var t = threads[em];
+    return t && t.stage === 'trial' && _trNeedsReply(em, t);
+  }).length;
 }
+var _trTrialReplies = 0;
 
 function refreshInitiateBadge() {
   var url = getScriptUrl();

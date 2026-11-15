@@ -7,6 +7,7 @@
 // Also (2026-10-12) a new trial with no guest email. Stays until "Got it".
 // Add ?secAlertDemo (night run) or ?secAlertDemo=trial to see a sample.
 
+var _secAlerts = [];
 function refreshSecretaryAlert() {
   var box = document.getElementById('secAlert');
   if (!box) return;
@@ -31,6 +32,7 @@ function refreshSecretaryAlert() {
 }
 
 function _secAlertRender(alerts) {
+  _secAlerts = alerts || [];   // the messages rack's PAYMENTS (owes) / SECRETARY lights read this (user, 2026-11-14)
   var box = document.getElementById('secAlert');
   if (!alerts.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
   var a      = alerts[0];
