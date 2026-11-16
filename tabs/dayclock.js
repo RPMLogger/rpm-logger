@@ -111,10 +111,10 @@ function _dcSec(L, m) {
   return '<div class="dc-sec' + (on ? ' on' : '') + (L.auto ? ' auto' : '') + '">' +
     '<span class="dc-nm hr-cap">' + _dcEsc(String(L.name).trim().split(/\s+/)[0]) + '</span>' +   // first name only, like the sketch (user, 2026-11-16)
     '<div class="dc-body">' +
-      '<span class="dc-ctl">' +   // no light above the knob: its tip turns amber while counting (user, 2026-11-16)
-      '<button class="dc-key"' + (off ? ' disabled' : ' onclick="' + call + '"') + ' data-tip="' + tip + '" data-tip-wrap><i class="dc-kb"></i><i class="dc-kp"></i></button></span>' +
+      '<span class="dc-ctl"><i class="mr-led dc-led"></i>' +   // a light on top, lit soft amber while counting (user, 2026-11-16)
+      '<button class="dc-key"' + (off ? ' disabled' : ' onclick="' + call + '"') + ' data-tip="' + tip + '" data-tip-wrap></button></span>' +   // a lit push button, not a knob (user, 2026-11-16, photo)
       '<div class="dc-scr">' +
-        scr('Start', L.running ? _dcClock(L.as) : '') +   // screens blank unless counting (user, 2026-11-16)
+        // no START screen (user, 2026-11-16): only the count; the start is still saved
         scr('Count', L.running ? _dcCount(L.len) : L.auto ? 'FIX' : '', L.running ? 'run' : '') +   // no END screen (user, 2026-11-16: thinner); the end is still saved
       '</div></div></div>';
 }

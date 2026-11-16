@@ -5744,3 +5744,27 @@ body:has(#tab-dayclock.active) #tab-dayclock { display: none; }   /* the tab is 
 .dc-rack .dc-sec.on .dc-kp { transform: rotate(60deg); }
 .dc-rack .dc-kp::after { background: #4e4e4e; }   /* the knob tip line dimmer (user, 2026-11-16) */
 .dc-rack .dc-sec.on .dc-kp::after { background: oklch(.68 .1 70); box-shadow: 0 0 3px oklch(.7 .12 70 / .4); }   /* counting: the tip goes soft amber, instead of a light (user, 2026-11-16) */
+/* Day Clock: a lit push button instead of the knob (user, 2026-11-16, photo): dark when off, warm amber lit while counting */
+.dc-rack .dc-key { width: 28px; height: 18px; border-radius: 4px; border: 0;
+  background: linear-gradient(180deg, #2c2c2c, #171717); box-shadow: 0 0 0 1px #000, 0 1px 2px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.07); }
+.dc-rack .dc-sec.on .dc-key { background: linear-gradient(180deg, #f2c9a4, #dc9f70 55%, #c7875a);
+  box-shadow: 0 0 0 1px #000, 0 0 7px oklch(.75 .1 60 / .35), inset 0 1px 0 rgba(255,255,255,.45), inset 0 -2px 3px rgba(120,60,20,.35); }
+/* Day Clock button = the Home rack's square buttons (Emails, Inquiries; .hr-pb) (user, 2026-11-16): counting = their gold glow */
+.dc-rack .dc-key, .dc-rack .dc-sec.on .dc-key { width: 16px; height: 16px; border-radius: 2.5px; border: 1px solid #111;
+  background: linear-gradient(#3a3a3a, #232323); box-shadow: 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); }
+.dc-rack .dc-sec.on .dc-key { box-shadow: 0 0 3px 1.5px rgba(212,176,103,.6), 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); }
+.dc-rack .dc-sec.on .dc-key { box-shadow: 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,.12); }   /* no glow around the button, only the bulb lights (user, 2026-11-16) */
+.dc-rack .dc-ctl { gap: 7px; }   /* the bulb a bit higher above the button */
+.dc-rack .dc-body { height: 36px; align-items: center; }   /* bulb + button + COUNT centred on the clock screen's middle (user, 2026-11-16) */
+.dc-rack .dc-big { height: 26px; }   /* clock screen slimmer (user, 2026-11-16; was 36) */
+.dc-rack .dc-body { height: 26px; }   /* keeps bulb + button + COUNT on the clock's middle */
+/* Day Clock in the Calendar rack's green (user, 2026-11-16): the week screen's glass + green text; the bulb lights green */
+.dc-rack .dc-lcd { background: #070807; border: 1px solid #222; box-shadow: inset 0 2px 6px rgba(0,0,0,.8); }
+.dc-rack .dc-big, .dc-rack .dc-sec.on .dc-lcd { background: #0a0c0a; color: oklch(.72 .08 145); text-shadow: 0 0 5px oklch(.63 .19 145 / .35); }
+.dc-rack .dc-led { background: radial-gradient(circle at 35% 35%, #1f3320, #0b140b); }
+.dc-rack .dc-sec.on .dc-led { background: radial-gradient(circle at 35% 35%, oklch(.82 .12 145), oklch(.6 .14 145)); box-shadow: 0 0 0 1px #0a0a0a, 0 0 4px oklch(.7 .15 145 / .45); }
+.dc-rack .dc-led { background: radial-gradient(circle at 35% 35%, #4a3418, #1e1408); }   /* the bulb stays amber, the screens green (user, 2026-11-16) */
+.dc-rack .dc-sec.on .dc-led { background: radial-gradient(circle at 35% 35%, oklch(.8 .1 75), oklch(.62 .12 65)); box-shadow: 0 0 0 1px #0a0a0a, 0 0 4px oklch(.7 .12 70 / .45); }
+.dc-rack .dc-sec.on .dc-led { background: radial-gradient(circle at 40% 35%, oklch(.86 .06 88), oklch(.74 .06 82) 60%, oklch(.55 .05 75));
+  box-shadow: 0 0 0 1px #0a0a0a, 0 0 5px oklch(.8 .08 85 / .35); }   /* lit = the vintage cream of the Comms rack's Student button / VU face (user, 2026-11-16) */
+.dc-rack .dc-led { background: radial-gradient(circle at 35% 35%, #3d3a30, #191813); }   /* unlit: dark cream */
