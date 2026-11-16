@@ -333,7 +333,7 @@ function _imRenderStudent(name, lessons) {
       var snb = acts.querySelector('.sn-note-btn');
       if (snb) acts.appendChild(snb);   // ＋ Note under Log (user, 2026-11-12; was its own row under the name)
       // card picture (red electric / acoustic guitar) REMOVED (user, 2026-11-15)
-      if (typeof ltmTopHtml === 'function') main.insertAdjacentHTML('beforeend', ltmTopHtml(name));   // ▶ ■ + counter under the name (user, 2026-11-12)
+      // ▶ ■ + counter under the name REMOVED (user, 2026-11-16): the Day Clock rack over Lessons starts/stops lessons now (tabs/dayclock.js)
       // Goals bottom left of the History box, on Show all's row (user, 2026-11-02).
       var gl = acts.querySelector('.gl-btn');
       var hist = [].filter.call(st.querySelectorAll(':scope > .im-sec-box'), function (b) { return /^history$/i.test((b.querySelector('.db-cx-t') || {}).textContent || ''); })[0];
