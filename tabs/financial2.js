@@ -9,14 +9,19 @@ function initFinancial2Tab() {
   var body = document.getElementById('fin2Body');
   if (!body) return;
   if (!url) { body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>'; return; }
-  body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  // the title box: screws + the calculator icon (three boxes, user 2026-11-15)
+  var top = document.getElementById('fin2Top');
+  if (top && !top.querySelector(':scope > .td-bolt')) top.insertAdjacentHTML('afterbegin', TD_BOLTS);
+  var ic = document.getElementById('fin2Icon');
+  if (ic && !ic.innerHTML) ic.innerHTML = COST_ICON.replace(/class="[^"]*"/, 'class="win-icon"');   // om-98 calculator + coin under the title (user 2026-10-22)
+  body.innerHTML = '<div class="td-wk-box f2-box"><div class="empty-state rpm-loading">Loading</div></div>';
   fetch(url + '?action=getFinanceSheet')
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (!d || !d.success) { body.innerHTML = '<div class="empty-state">⚠ ' + _f2Esc((d && d.message) || 'Failed') + '</div>'; return; }
+      if (!d || !d.success) { body.innerHTML = '<div class="td-wk-box f2-box"><div class="empty-state">⚠ ' + _f2Esc((d && d.message) || 'Failed') + '</div></div>'; return; }
       body.innerHTML = _f2Render(d);
     })
-    .catch(function () { body.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
+    .catch(function () { body.innerHTML = '<div class="td-wk-box f2-box"><div class="empty-state">❌ Could not load.</div></div>'; });
 }
 
 var F2_ACC_SHEET = 'https://docs.google.com/spreadsheets/d/1pHKWO9j2DrVWrGRYT3bEdvXKHkEIqQZq-Gib27bC_CA/edit?gid=';
@@ -75,8 +80,7 @@ function _f2Render(d) {
   blocks.forEach(function (b) { b.weeks.forEach(function (w) { if (d.curWeek >= 0 && w.idx <= d.curWeek) weeksSoFar++; }); });
   var season =
     '<div class="f2-head" style="margin-top:48px">Current total income</div>' +   // no divider above it (user 2026-10-22)   // divider + heading like Income (user 2026-10-22)
-    '<div class="f2-cur"><span class="f2-hi">' + _f2Money(lessons + gigs) + '</span> · ' + weeksSoFar + ' weeks</div>' +   // plain text, not a table (user 2026-10-22)
-    '<hr class="divider f2-rule">';
+    '<div class="f2-cur"><span class="f2-hi">' + _f2Money(lessons + gigs) + '</span> · ' + weeksSoFar + ' weeks</div>';   // plain text, not a table (user 2026-10-22); its own box ends here (2026-11-15)
 
   // Income grid — same columns as the sheet; H..L span their 4-week block.
   // Two header rows: "Income" spans Lessons/Gigs/Weekly/Monthly; widths live on the <col>s.
@@ -114,8 +118,6 @@ function _f2Render(d) {
     });
   });
   var income =
-    '<div class="f2-icon">' + COST_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>' +   // om-98 calculator + coin under the title (user 2026-10-22)
-    '<hr class="divider f2-rule">' +
     // INCOME left, the Accountant's last run right, above the table (user 2026-10-22)
     // INCOME left; the Accountant sheet's own Income + Expenses tabs on its line, right (user 2026-10-22)
     '<div class="f2-head-row"><div class="f2-head f2-red">Income</div><span class="f2-sheet-links">' +
@@ -173,7 +175,9 @@ function _f2Render(d) {
     '<div class="f2-head" style="margin-top:48px">Current total expense</div>' +
     '<div class="f2-cur"><span class="f2-hi">' + _f2Money(expSoFar) + '</span> · ' + weeksSoFar + ' weeks</div>';   // footnote at the bottom (user 2026-10-22)
 
-  return income + expenses;
+  // three boxes (user, 2026-11-15): the title box is in index.html; Income and Expenses each get their own
+  return '<div class="td-wk-box f2-box">' + TD_BOLTS + income + '</div>' +
+         '<div class="td-wk-box f2-box">' + TD_BOLTS + expenses + '</div>';
 }
 
 // ── Expenses window: add / edit / remove one row (user, 2026-10-22) ─────────

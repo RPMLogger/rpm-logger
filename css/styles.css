@@ -331,8 +331,8 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 /* Every tab in one bordered box like Today's (user, 2026-10-26; Home too).
-   Today, Students, To-Do, Notes and Comms make their own boxes; Calendar, Fixed schedule
-   and Financial are wider than the column, so they stay open. */
+   Today, Students, To-Do, Notes and Comms make their own boxes; Calendar and Fixed schedule
+   are wider than the column, so they stay open. Financial makes its own three boxes (user, 2026-11-15). */
 .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-comms):not(#tab-emails) {
   box-sizing: border-box;   /* background, border, corners, padding, grain, screws: THE BOX at the end of this file (2026-11-06) */   /* was: every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
@@ -4494,7 +4494,7 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 #tab-general .ld-hero { display:block; height:110px; opacity:.55; margin:0 auto 24px; pointer-events:none; }   /* amp + electric guitar picture at the top of the Dashboard, like Home's (user, 2026-11-03) */
 /* Every tab at least as tall as Home's box (user, 2026-11-03): a one-box tab's box, or a tab's stacked boxes in total
    (the last box stretches; rpmFillLast in index.html marks it). Calendar, Fixed schedule and Financial stay open. */
-.tab-panel.active:not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2) { box-sizing: border-box; min-height: calc(calc(var(--vh) * 100) - 272px - 72px); }
+.tab-panel.active:not(#tab-calendar):not(#tab-fixedcal) { box-sizing: border-box; min-height: calc(calc(var(--vh) * 100) - 272px - 72px); }
 .tab-panel.active.rpm-fill-chain, .rpm-fill-chain { display: flex; flex-direction: column; flex: 1 0 auto; }
 .rpm-fill { flex: 1 0 auto; }
 /* four screws on the Today + This Week boxes, the Calendar's (user, 2026-11-04) */
@@ -5651,3 +5651,6 @@ html body #tab-home.tab-panel.active { min-height: 0 !important; height: auto; a
 /* centre smaller and much dimmer (user, 2026-11-15; was 28% of the speaker at 0.04) */
 #tab-home .hm-au .au-cap { width: calc(var(--hs) * 0.18); height: calc(var(--hs) * 0.18); margin: calc(var(--hs) * -0.09) 0 0 calc(var(--hs) * -0.09); }
 #tab-home .hm-au .au-cap::before { opacity: 0.015; }
+/* Financial: three boxes, title · Income · Expenses (user, 2026-11-15) */
+#tab-financial2 > #fin2Top { margin-top: 0; }
+#fin2Top #finHealth:empty { display: none; }
