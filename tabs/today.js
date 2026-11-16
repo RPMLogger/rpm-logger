@@ -54,19 +54,28 @@ function _tdTime(iso) {
   return ((h % 12) || 12) + ':' + m[2] + ' ' + (h >= 12 ? 'PM' : 'AM');
 }
 
+// Today and This Week on ONE plate, side by side with a divider between (user, 2026-11-16; were two stacked boxes).
+function _tdPlate(today) {
+  // The tab is "Glance" now (user, 2026-11-16): GLANCE the red title, today's date page its icon; Today and
+  // This Week are subtitles in the columns, no icons.
+  var now = new Date();
+  return '<div class="td-wk-box td-plate">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>Glance<span class="win-sub"> · ' + _tdWeekHtml().sub + '</span></span></div>' +
+    '<div class="td-day-cal"><div class="td-hol-mo">' + MONTHS[now.getMonth()] + '</div><div class="td-hol-dd">' + now.getDate() + '</div></div>' +
+    '<hr class="divider td-glance-rule">' +   // full-length line under the icon, over both columns (user, 2026-11-16)
+    '<div class="td-cols">' + today + '<div class="td-col-div"></div>' + _tdWeekSection() + '</div></div>';
+}
+
 function _tdRender() {
   var body = document.getElementById('todayBody');
   if (!body) return;
   var list = todayStudents || [];
   var now = new Date();
   // Today's top part in a box like This Week's under it (user, 2026-10-24): title, calendar, count, list.
-  var head = '<div class="td-wk-box td-today-box">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>Today</span>' +   // no " · Tue, Oct 27": the date page under it says it (user, 2026-10-27)
+  var head = '<div class="td-col td-today-box"><div class="td-sub"><span>Today</span>' +   // a subtitle, no date page: that's Glance's icon now (user, 2026-11-16)
     '<span class="td-top-btns"><button class="link-btn opens-window" onclick="_tdAllOpen()" data-tip="Opens a window.\nToday\'s students: last lesson,\nlast HW and its folders.">All</button>' +   // All, left of No show (user, 2026-11-01)
-    '</span></div>' +   // Zoom + No show moved to the Text templates tab (user, 2026-11-05)
-    '<img class="td-hero" src="img/amp-combo.svg" alt="">' +   // red combo amp (user, 2026-11-02; guitar + amp tried 2026-11-03, amp alone kept)
-    '<div class="td-day-cal"><div class="td-hol-mo">' + MONTHS[now.getMonth()] + '</div><div class="td-hol-dd">' + now.getDate() + '</div></div>';   // today's date page, the holiday warning's (user, 2026-10-27; was the plain calendar icon)
+    '</span></div>';   // Zoom + No show moved to the Text templates tab (user, 2026-11-05)
   // A day off (2026-10-08): the resting figure over the line (om-82).
-  if (!list.length) { body.innerHTML = head + '<div class="empty-state td-rest">' + REST_ICON + '<div>No lessons today!</div></div></div>' + _tdWeekSection(); return; }
+  if (!list.length) { body.innerHTML = _tdPlate(head + '<div class="empty-state td-rest">' + REST_ICON + '<div>No lessons today!</div></div></div>'); return; }
   // At the top (2026-10-06): how many, and a mini list of times + names; a
   // name jumps to its card.
   var mini = '<div class="db-cx-head im-sec-head td-count"><label class="field-label db-cx-t">' + list.length + (list.length === 1 ? ' student' : ' students') + '</label></div>' +
@@ -76,7 +85,7 @@ function _tdRender() {
       return '<div class="td-mini-row">' +
         '<span class="td-mini-t">' + _tdTime(s.eventDate) + '</span><span class="link-btn td-mini-b td-mini-tag">' + inqEsc(s.name) + '</span></div>';   // a plain name tag, not a button (user, 2026-11-01): All shows their lesson and HW
     }).join('') + '</div></div>';   // the box ends after the list; the open card goes under it
-  body.innerHTML = head + mini + _tdWeekSection();   // the Quick look card window is gone: nothing opened it since 2026-11-01 (user, 2026-11-10)
+  body.innerHTML = _tdPlate(head + mini);   // the amp went (user, 2026-11-16)   // the Quick look card window is gone: nothing opened it since 2026-11-01 (user, 2026-11-10)
   _imFixTips(body);
 }
 
@@ -316,8 +325,7 @@ function _tdZmShow() {
 // the list at the top of Today. Every day looks the same (no dimming: Today is the tab for today).
 function _tdWeekSection() {
   var w = _tdWeekHtml();
-  return '<div class="td-wk-box">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>This Week<span class="win-sub"> · ' + w.sub + '</span></span></div>' +
-    '<div class="td-wk-icon">' + CALENDAR_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + '</div>' +   // the window's calendar under the title
+  return '<div class="td-col td-week-col"><div class="td-sub"><span>This Week</span></div>' +   // a subtitle, no calendar icon; its dates moved beside GLANCE (user, 2026-11-16)
     w.body + '</div>';
 }
 function _tdWeekHtml() {
