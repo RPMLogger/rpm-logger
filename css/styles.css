@@ -1914,6 +1914,8 @@ a:focus-visible,
   background: #eeeae1; color: #222;
   /* The user's own paper texture, tinted a touch of cream (user, 2026-10-31). */
   background-image: url("../img/tip-paper.png"); background-size: 300px;
+  /* a bit dimmer: the paper multiplied over a darker cream (user, 2026-11-15) */
+  background-color: #b8b4ab; background-blend-mode: multiply;
   border: none; border-radius: 6px;
   padding: 4px 8px;
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; font-size: 12px; letter-spacing: 0;

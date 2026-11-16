@@ -10,6 +10,11 @@
 .mr-grp { flex: 1; display: flex; align-items: center; justify-content: center; padding: 4px 0 2px; }
 .mr-top .mr-grp + .mr-grp { border-left: 1px solid #262626; box-shadow: -1px 0 0 #000; }
 .mr-caps .mr-grp { padding: 6px 0 0; }
+/* each group name on its own grey label plate, dark letters (user, 2026-11-15; a full-width strip was too much) */
+html body .mr-caps .mr-grp-cap { color: #111; font-weight: 500; font-size: 7.5px; line-height: 9px; letter-spacing: 3.5px; text-shadow: 0 1px 0 rgba(255,255,255,.08);
+  display: inline-block; box-sizing: border-box; width: 76px; text-align: center;   /* all three plates one length (user, 2026-11-15) */
+  background: #5e5e5a; padding: 2px 0 2px 3.5px; margin-right: 0; border-radius: 1px;   /* left pad = the trailing letter-spacing, keeps it centred */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 0 rgba(0,0,0,.3), 0 1px 0 #000; }
 .mr-grp-cap { letter-spacing: 4px; margin-right: -4px; }   /* spaced out (user, 2026-11-15); margin keeps it centred */   /* the group names, above the engraved line (user, 2026-11-15) */
 /* lights side by side under the header (user, 2026-11-15: "make them horizontal") */
 .mr-cells { display: flex; flex-direction: row; gap: 18px; }
