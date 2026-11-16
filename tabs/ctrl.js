@@ -164,7 +164,7 @@ function _auCkOpen(name) {
 // Empty Audit section (2026-10-13): the all-clear icon + words, in the Today
 // tab's "No lessons today!" look, in place of "None".
 function _auAllGood() {
-  return '<div class="empty-state td-rest au-good">' + ALLGOOD_ICON + '<div>All is good!</div></div>';
+  return '<div class="empty-state">Nothing to fix...</div>';   // 2026-11-15: same as Lesson Checklist (was icon + "All is good!")
 }
 
 function _auditSectionFail(section, why) {
