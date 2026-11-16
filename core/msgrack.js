@@ -29,9 +29,9 @@ var MR_LIGHTS = [
 
 var AL_JACKS = 12;   // sockets on the alarm rack (was the photo's 22, then 17; user 2026-11-15: "fewer" = no empty ones)
 var MR_PROBLEMS = [
+  { grp: 'Logs', items: [{ k: 'logs', tip: 'Opens the Lessons audit.\nLit when lessons are out of sync.' }] },
   { grp: 'Payments', items: [{ k: 'payments', tip: 'Lit when a payment didn\'t auto-confirm,\nor a student owes 3+ blocks.' }] },
   { grp: 'Financial', items: [{ k: 'financial', tip: 'Opens Financial.\nLit when income is not recording.' }] },
-  { grp: 'Logs', items: [{ k: 'logs', tip: 'Opens the Lessons audit.\nLit when lessons are out of sync.' }] },
   { grp: 'Secretary', items: [{ k: 'secretary', tip: 'Lit when the Secretary raised an alert:\nnight run recovered, or a trial with no email.' }] }
 ];
 
