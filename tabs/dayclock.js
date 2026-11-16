@@ -131,7 +131,11 @@ function _dcRender() {
   rack.innerHTML = '<span class="hr-bolt" style="left:10px"></span><span class="hr-bolt" style="right:10px"></span>' +
     '<div class="dc-row">' +
       '<div class="dc-sec dc-clk"><span class="dc-nm hr-cap">Clock</span><span class="dc-lcd dc-big" id="dcNow"></span></div>' +
-      secs + '</div>';
+      secs +
+      // Report (user, 2026-11-16): the numbers the rack keeps quiet live on their own tab (tabs/report.js)
+      '<div class="dc-sec dc-rep"><span class="dc-nm hr-cap">Report</span><div class="dc-body">' +
+        '<button class="dc-key" onclick="switchTab(\'report\')" data-tip="Instant.\nOpens Report." data-tip-wrap></button></div></div>' +
+      '</div>';
   _dcClockPaint();
   if (typeof _imFixTips === 'function') _imFixTips(rack);
 }
