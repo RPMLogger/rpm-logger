@@ -10,7 +10,7 @@
 // Next steps (agreed 2026-11-16): log lag per lesson, three days side by side, then an archive.
 
 var DC_LEN = 50, DC_AUTO = 75;   // booked minutes when the calendar gives no end; the timer's auto-off
-var _dcRows = null, _dcDay = '';   // saved Lesson Times rows for _dcDay
+var _dcRows = null, _dcDay = '', _dcN = -1;   // saved Lesson Times rows for _dcDay
 
 function _dcYmd(d) { d = d || new Date(); var m = d.getMonth() + 1, x = d.getDate(); return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (x < 10 ? '0' : '') + x; }
 function _dcEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -123,6 +123,7 @@ function _dcCount(min) { var s = Math.max(0, Math.floor(min * 60)); return Math.
 function _dcRender() {
   var rack = document.getElementById('dcRack');
   if (!rack) return;
+  _dcN = (todayStudents || []).length;
   var m = _dcRows === null ? { lessons: [] } : _dcModel();
   var secs = _dcRows === null ? '<div class="dc-sec dc-msg"><span class="dc-lcd">LOADING</span></div>' :
     !m.lessons.length ? '<div class="dc-sec dc-msg"><span class="dc-lcd">NO LESSONS TODAY</span></div>' :
@@ -141,9 +142,10 @@ function _dcClockPaint() {
 }
 // Every second: the clock and the running counter. The button stays put.
 function _dcTick() {
-  var p = document.getElementById('tab-dayclock');
-  if (!p || !p.classList.contains('active')) return;
+  var rk = document.getElementById('dcRack');
+  if (!rk || !rk.offsetParent) return;   // shown on Day Clock and Lessons (css)
   _dcClockPaint();
+  if ((todayStudents || []).length !== _dcN) { _dcRender(); return; }   // the calendar read came in after the rack was drawn
   if (_dcDay && _dcDay !== _dcYmd()) { initDayClockTab(); return; }   // past midnight: a new day
   if (_dcRows === null) return;
   var m = _dcModel(), r = m.lessons.filter(function (L) { return L.running; })[0];

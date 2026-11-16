@@ -5694,7 +5694,7 @@ html body.rk-lessons #importBody > :is(.rpm-loading:first-child, .rk-ghost) { wi
 
 /* DAY CLOCK (2026-11-16, user's sketch): one rack unit, the alarm rack's box — clock left, a section per lesson */
 .container > .dc-rack { display: none; }
-body:has(#tab-dayclock.active) .container > .dc-rack { display: block; }
+body:has(#tab-dayclock.active, #tab-import.active) .container > .dc-rack { display: block; }   /* and all over Lessons (user, 2026-11-16) */
 body:has(#tab-dayclock.active) #tab-dayclock { display: none; }   /* the tab is only the rack unit */
 .dc-rack .dc-row { display: flex; align-items: stretch; padding: 5px 44px 6px; }   /* thinner (user, 2026-11-16) */
 .dc-rack .dc-sec { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 0 14px; min-width: 0; }
