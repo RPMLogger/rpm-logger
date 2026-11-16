@@ -475,6 +475,8 @@ var _arcNoneOpen = false;
 
 function initArchiveTab() {
   _arcStyle();
+  var top = document.getElementById('arcTop');   // the title box's screws (five boxes, user 2026-11-15)
+  if (top && typeof TD_BOLTS === 'string' && !top.querySelector(':scope > .td-bolt')) top.insertAdjacentHTML('afterbegin', TD_BOLTS);
   var cnt = document.getElementById('arcCount');
   if (cnt) cnt.textContent = ARC_STUDENTS.length;
   var q = document.getElementById('arcSearch');
@@ -509,8 +511,9 @@ function _arcRender() {
   var keys = Object.keys(groups).sort(function (a, b) { return rank(a) - rank(b) || (a < b ? 1 : a > b ? -1 : 0); });
   var shownEl = document.getElementById('arcShown');
   if (shownEl) shownEl.textContent = needle ? shown + ' of ' + ARC_STUDENTS.length : '';
-  if (!keys.length) { body.innerHTML = '<div class="empty-state">No one by that name</div>'; return; }
-  body.innerHTML = '<div class="ld-cards">' + keys.map(function (k) {
+  var bolts = typeof TD_BOLTS === 'string' ? TD_BOLTS : '';
+  if (!keys.length) { body.innerHTML = '<div class="td-wk-box arc-box">' + bolts + '<div class="empty-state">No one by that name</div></div>'; return; }
+  var card = function (k) {
     var list = groups[k].slice().sort(function (a, b) { return a.n.localeCompare(b.n); });
     var title = k === 'none' ? 'No dates' : k === 'pre' ? 'Before 1998' : k;
     var names = list.map(function (s) {
@@ -525,7 +528,22 @@ function _arcRender() {
       : '<div class="ld-title">' + title + '<span class="arc-n">' + list.length + '</span></div>';
     return '<div class="ld-card' + (shut ? ' arc-shut' : '') + '">' + head +
            (shut ? '' : '<div class="arc-names">' + names + '</div>') + '</div>';
-  }).join('') + '</div>';
+  };
+  // Four boxes of five-year spans, ~80–97 names each (user, 2026-11-15); a box with no match hides.
+  var eras = [
+    { t: '2020 – 2026', has: function (k) { return k >= '2020' && k < 'a'; } },
+    { t: '2015 – 2019', has: function (k) { return k >= '2015' && k < '2020'; } },
+    { t: '2010 – 2014', has: function (k) { return k >= '2010' && k < '2015'; } },
+    { t: '2009 and earlier', has: function (k) { return k < '2010' || k === 'pre' || k === 'none'; } }
+  ];
+  body.innerHTML = eras.map(function (e) {
+    var ks = keys.filter(e.has);
+    if (!ks.length) return '';
+    var all = ks.reduce(function (t, k) { return t + groups[k].length; }, 0);
+    return '<div class="td-wk-box arc-box">' + bolts +
+      '<div class="settings-title td-wk-title arc-era"><span>' + e.t + '<span class="win-sub"> · ' + all + ' students</span></span></div>' +
+      '<div class="ld-cards">' + ks.map(card).join('') + '</div></div>';
+  }).join('');
 }
 
 // The tab's own look, kept here so the Archive is one file (2026-11-08).
@@ -534,7 +552,13 @@ function _arcStyle() {
   // Boxes, title bands and text come from the shared Holidays / General rules in
   // styles.css (#tab-archive is in those lists). Only the name grid is ours.
   var css =
-    '#tab-archive.tab-panel > .ld-icon .win-icon { width: 36px; height: auto; margin-left: 0; }' +
+    '#tab-archive #arcTop > .ld-head { margin-bottom: 10px; }' +   // five boxes (2026-11-15): the shared "> .ld-head / > .ld-icon" rules no longer reach inside the title box
+    '#tab-archive #arcTop > .ld-icon { margin: 0 0 26px; }' +
+    '#tab-archive #arcTop > .ld-icon .win-icon { width: 36px; height: auto; margin-left: 0; }' +
+    '#tab-archive > #arcTop { margin-top: 0; }' +
+    '#tab-archive #arcTop .arc-find { margin: 0; }' +
+    '#tab-archive .arc-era { margin-bottom: 24px; }' +
+    '#tab-archive .arc-box .ld-cards { margin-bottom: 0; }' +
     '#tab-archive .arc-find { display: flex; align-items: center; gap: 12px; margin: 0 0 24px; }' +
     '#tab-archive .arc-find input { flex: 1; min-width: 0; max-width: 340px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--t-text); font-family: "DM Mono", monospace; font-size: 12px; padding: 9px 12px; outline: none; }' +
     '#tab-archive .arc-find input:focus { border-color: var(--accent); }' +
