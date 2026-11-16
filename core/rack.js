@@ -94,7 +94,7 @@
     var sorted = all.slice().sort(function (p, q) { return p.t - q.t; });
     for (var i = 1; i < sorted.length; i++) {
       var mid = (sorted[i - 1].b + sorted[i].t) / 2;
-      [mid - 7.5, mid + 7.5].forEach(function (y) {
+      [mid - 10, mid + 10].forEach(function (y) {
         var ty = Math.round(y - 2.25);
         html += '<span class="rk-hole" style="left:' + (lx + 21) + 'px;top:' + ty + 'px"></span>' +
                 '<span class="rk-hole" style="left:' + (rx + RAIL - 26) + 'px;top:' + ty + 'px"></span>';

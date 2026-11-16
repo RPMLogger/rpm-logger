@@ -45,14 +45,14 @@ body.rk-lessons .container > :is(.header, .home-rack, .alarm-rack, .tab-panel) {
 html body.rk-lessons .header::after { display: none; }                  /* amp: no carry handle, no legs */
 html body.rk-lessons .container > .home-rack::after { display: none; }  /* Home rack: no legs */
 
-/* ── equal gaps: 30px of rack showing between every unit (rings counted) = room for two rail holes (user, 2026-11-14; was 48px) ── */
+/* ── equal gaps: 40px of rack showing between every unit (rings counted), two rail holes 20px apart (user, 2026-11-16; was 30px / 15px apart; 2026-11-14 was 48px) ── */
 /* every box on a rack tab: the full double border, like the amp + racks (user, 2026-11-14; were the thin plate ring) */
 body.rk-lessons { --rpm-box-ring: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }
 
-html body.rk-lessons .container > .home-rack { margin-top: -18px !important; margin-bottom: 40px !important; }
-html body.rk-lessons .container > .home-rack:has(+ .alarm-rack) { margin-bottom: 40px !important; }
-html body.rk-lessons .container > .alarm-rack { margin-bottom: 67px !important; }   /* more grille under the jack rack, every tab like Glance (user, 2026-11-16; was 40) */
-html body.rk-lessons #importBody .im-box ~ .im-box { margin-top: 50px; }   /* this area is scaled 0.8: 50 → 40 on screen */
+html body.rk-lessons .container > .home-rack { margin-top: -18px !important; margin-bottom: 50px !important; }
+html body.rk-lessons .container > .home-rack:has(+ .alarm-rack) { margin-bottom: 50px !important; }
+html body.rk-lessons .container > .alarm-rack { margin-bottom: 50px !important; }
+html body.rk-lessons #importBody .im-box ~ .im-box { margin-top: 62.5px; }   /* this area is scaled 0.8: 50 → 40 on screen */
 
 /* ── every screw the same (user, 2026-11-14): 11px on screen, centred 12.5px in from its box's edge = right over the rails' hole column.
       Heights stay as each unit had them. !important: the racks' and boxes' screws carry inline left/right. ── */
@@ -81,13 +81,13 @@ html body.rk-lessons #importBody > :is(.rpm-loading:first-child, .rk-ghost) {
   border: var(--rpm-box-border); border-radius: var(--rpm-box-radius); box-shadow: var(--rpm-box-ring);
 }
 html body.rk-lessons #importBody > .rpm-loading:first-child[data-rk-h] { min-height: 0; }   /* a remembered height is set inline */
-html body.rk-lessons #importBody > .rk-ghost.rk-ghost.rk-ghost { min-height: 0; margin-top: 50px; }          /* same gap as between the real boxes */
+html body.rk-lessons #importBody > .rk-ghost.rk-ghost.rk-ghost { min-height: 0; margin-top: 62.5px; }          /* same gap as between the real boxes */
 
 /* student page (Lessons → a student): its sections are units too, with the same 30px of rack between them (user, 2026-11-15; were 24px CSS = 19px on screen) */
-html body.rk-lessons #importBody .im-split > .im-sec-box + .im-sec-box { margin-top: 50px; }   /* scaled 0.8: 50 → 40 raw = 30 between rings */
+html body.rk-lessons #importBody .im-split > .im-sec-box + .im-sec-box { margin-top: 62.5px; }   /* scaled 0.8: 50 → 40 raw = 30 between rings */
 
 /* any tab with several boxes (Today, Comms, Emails, …): the same 30px of rack between them (user, 2026-11-15) */
-html body.rk-lessons .tab-panel.active .td-wk-box.td-wk-box ~ .td-wk-box.td-wk-box { margin-top: 50px !important; }   /* scaled 0.8: 50 → 40 raw = 30 between rings */
+html body.rk-lessons .tab-panel.active .td-wk-box.td-wk-box ~ .td-wk-box.td-wk-box { margin-top: 62.5px !important; }   /* scaled 0.8: 50 → 40 raw = 30 between rings */
 html body.rk-lessons .tab-panel.active .td-wk-box:has(~ .td-wk-box) { margin-bottom: 0 !important; }
 html body.rk-lessons .tab-panel.active .td-wk-box.td-wk-box { box-shadow: var(--rpm-box-ring) !important; }   /* every box keeps the double border (Comms/Emails main box had it off) */
-html body.rk-lessons .tab-panel.active .td-wk-box.tdo-done { margin-top: 50px !important; }   /* To-do + Notes: the Done box sits in its own wrapper */
+html body.rk-lessons .tab-panel.active .td-wk-box.tdo-done { margin-top: 62.5px !important; }   /* To-do + Notes: the Done box sits in its own wrapper */

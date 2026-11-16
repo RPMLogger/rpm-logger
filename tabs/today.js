@@ -17,6 +17,8 @@ function _tdYmd() {
   return d.getFullYear() + '-' + (m < 10 ? '0' + m : m) + '-' + (dd < 10 ? '0' + dd : dd);
 }
 
+// Loading inside the Glance plate, so it is the plate's width from the start (user, 2026-11-16: it came out wider, then shrank).
+var _TD_LOADING = '<div class="td-wk-box td-plate"><div class="empty-state rpm-loading">Loading</div></div>';
 function initTodayTab() {
   _imIn = 'today';
   var day = _tdYmd();
@@ -24,11 +26,11 @@ function initTodayTab() {
   var body = document.getElementById('todayBody');
   // The calendar read (fetchWeekStudents) is from an earlier day: read it again.
   if (window._weekFetchedDay && window._weekFetchedDay !== day) {
-    body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+    body.innerHTML = _TD_LOADING;
     var url = getScriptUrl(); if (url) fetchWeekStudents(url);
     return;
   }
-  if (!window._weekFetchedDay) { body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>'; return; }
+  if (!window._weekFetchedDay) { body.innerHTML = _TD_LOADING; return; }
   _tdRender();
   _tdHolCheck();   // the holiday reminder window, once a day
 }
