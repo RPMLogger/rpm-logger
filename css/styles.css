@@ -5688,3 +5688,4 @@ html body #tab-home.tab-panel.active { min-height: 0 !important; height: auto; a
 #todayBody .td-col-div { margin-bottom: -36px; }   /* through the plate's 36px bottom padding */
 /* TODAY / THIS WEEK in Syne (user, 2026-11-16; was Bebas) */
 #todayBody .td-sub { font-family: "Syne", sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; }   /* narrower: less spacing, a step lighter (user, 2026-11-16) */
+html body #todayBody .td-plate { margin-top: 0 !important; }   /* the rack's 67px gap does it now, same as every tab (user, 2026-11-16) */

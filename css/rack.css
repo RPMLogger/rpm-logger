@@ -51,7 +51,7 @@ body.rk-lessons { --rpm-box-ring: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }
 
 html body.rk-lessons .container > .home-rack { margin-top: -18px !important; margin-bottom: 40px !important; }
 html body.rk-lessons .container > .home-rack:has(+ .alarm-rack) { margin-bottom: 40px !important; }
-html body.rk-lessons .container > .alarm-rack { margin-bottom: 40px !important; }
+html body.rk-lessons .container > .alarm-rack { margin-bottom: 67px !important; }   /* more grille under the jack rack, every tab like Glance (user, 2026-11-16; was 40) */
 html body.rk-lessons #importBody .im-box ~ .im-box { margin-top: 50px; }   /* this area is scaled 0.8: 50 → 40 on screen */
 
 /* ── every screw the same (user, 2026-11-14): 11px on screen, centred 12.5px in from its box's edge = right over the rails' hole column.
