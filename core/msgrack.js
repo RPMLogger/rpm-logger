@@ -16,12 +16,12 @@
 var MR_LIGHTS = [
   // Inq. first, Texts last (user, 2026-11-15)
   { grp: 'Inq.', items: [
-    { k: 'inq', cap: 'Inq', tip: 'Opens Inquiries.\nLit while a new inquiry came in.' },
+    { k: 'inq', cap: 'Inquiries', tip: 'Opens Inquiries.\nLit while a new inquiry came in.' },
     { k: 'initiate', cap: 'Initiate', tip: 'Opens Initiate.\nLit while someone wrote back.' },
     { k: 'trial', cap: 'Trial', tip: 'Opens Trial.\nLit while someone wrote back.' } ] },
   { grp: 'Emails', items: [
     { k: 'stu-email', cap: 'Student', tip: 'Opens Emails, Students.\nLit while a student email is new.' },
-    { k: 'gbus', cap: 'G.Bus.', tip: 'Opens Emails, G Business.\nLit while a G Business email is new.' } ] },
+    { k: 'gbus', cap: 'G Business', tip: 'Opens Emails, G Business.\nLit while a G Business email is new.' } ] },
   { grp: 'Texts', items: [
     { k: 'stu-text', cap: 'Student', tip: 'Opens Comms.\nLit while a student text waits for an answer.' },
     { k: 'others', cap: 'Others', tip: 'Opens Others.\nLit while an unknown number or voicemail waits.' } ] }
