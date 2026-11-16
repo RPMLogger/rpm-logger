@@ -1874,7 +1874,10 @@ function _imHwOut() {
   if (ft) [br, db].forEach(function (el) { if (el && el.parentNode !== ft) ft.appendChild(el); });
   // Under the drop zone, not on the Files title (user, 2026-11-09).
   var fdock = _imQ('imHwDock');
-  if (ft && fdock && ft.previousElementSibling !== fdock) { fdock.after(ft); ft.classList.add('im-mat-tools-below'); }
+  // Gather / Browse / Dropbox on top, right under FILES; the drop zone; then None under it, bottom left (user, 2026-11-15).
+  if (ft && fdock && ft.nextElementSibling !== fdock) { fdock.before(ft); ft.classList.add('im-mat-tools-below'); }
+  var fnone = ft && ft.querySelector('.im-files-none');
+  if (fnone && fdock && fdock.nextElementSibling !== fnone) fdock.after(fnone);
   // Add is the add-row icon, bigger, no box (user, 2026-10-25).
   ['logHwVideoAddBtn', 'logHwLinkAddBtn'].forEach(function (id) {
     var b = document.getElementById(id);
