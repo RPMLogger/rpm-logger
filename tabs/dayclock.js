@@ -111,11 +111,11 @@ function _dcSec(L, m) {
   return '<div class="dc-sec' + (on ? ' on' : '') + (L.auto ? ' auto' : '') + '">' +
     '<span class="dc-nm hr-cap">' + _dcEsc(String(L.name).trim().split(/\s+/)[0]) + '</span>' +   // first name only, like the sketch (user, 2026-11-16)
     '<div class="dc-body">' +
-      '<span class="dc-ctl"><i class="mr-led dc-led"></i>' +   // red light above the knob: lit while counting (user, 2026-11-16)
+      '<span class="dc-ctl">' +   // no light above the knob: its tip turns amber while counting (user, 2026-11-16)
       '<button class="dc-key"' + (off ? ' disabled' : ' onclick="' + call + '"') + ' data-tip="' + tip + '" data-tip-wrap><i class="dc-kb"></i><i class="dc-kp"></i></button></span>' +
       '<div class="dc-scr">' +
-        scr('Start', L.as == null ? '--:--' : _dcClock(L.as)) +
-        scr('Count', L.as == null ? '0:00' : L.auto ? 'FIX' : _dcCount(L.len), L.running ? 'run' : '') +   // no END screen (user, 2026-11-16: thinner); the end is still saved
+        scr('Start', L.running ? _dcClock(L.as) : '') +   // screens blank unless counting (user, 2026-11-16)
+        scr('Count', L.running ? _dcCount(L.len) : L.auto ? 'FIX' : '', L.running ? 'run' : '') +   // no END screen (user, 2026-11-16: thinner); the end is still saved
       '</div></div></div>';
 }
 function _dcCount(min) { var s = Math.max(0, Math.floor(min * 60)); return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + s % 60; }

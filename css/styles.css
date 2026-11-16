@@ -5738,3 +5738,9 @@ body:has(#tab-dayclock.active) #tab-dayclock { display: none; }   /* the tab is 
 .dc-rack .dc-sec.on .dc-kp { transform: rotate(25deg); }
 .dc-rack .dc-sec.on .dc-led { background: radial-gradient(circle at 35% 35%, oklch(.8 .1 75), oklch(.62 .12 65)); box-shadow: 0 0 0 1px #0a0a0a, 0 0 4px oklch(.7 .12 70 / .45); }   /* soft amber, not red (user, 2026-11-16) */
 .dc-rack .dc-led { background: radial-gradient(circle at 35% 35%, #4a3418, #1e1408); }   /* unlit: dark amber, not the jack rack's dark red */
+/* Day Clock (user, 2026-11-16): screens dark until counting, then lit like the clock; knob at 12 o'clock idle, 2 o'clock counting */
+.dc-rack .dc-sec.on .dc-lcd { color: oklch(.58 .09 70); text-shadow: 0 0 4px oklch(.6 .12 60 / .18); font-size: 9px; }
+.dc-rack .dc-kp { transform: rotate(0deg); }
+.dc-rack .dc-sec.on .dc-kp { transform: rotate(60deg); }
+.dc-rack .dc-kp::after { background: #4e4e4e; }   /* the knob tip line dimmer (user, 2026-11-16) */
+.dc-rack .dc-sec.on .dc-kp::after { background: oklch(.68 .1 70); box-shadow: 0 0 3px oklch(.7 .12 70 / .4); }   /* counting: the tip goes soft amber, instead of a light (user, 2026-11-16) */
