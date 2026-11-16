@@ -14,16 +14,17 @@
 //   SECRETARY night run recovered, or a trial with no email
 
 var MR_LIGHTS = [
-  { grp: 'Texts', items: [
-    { k: 'stu-text', cap: 'Student', tip: 'Opens Comms.\nLit while a student text waits for an answer.' },
-    { k: 'others', cap: 'Others', tip: 'Opens Others.\nLit while an unknown number or voicemail waits.' } ] },
-  { grp: 'Emails', items: [
-    { k: 'stu-email', cap: 'Student', tip: 'Opens Emails, Students.\nLit while a student email is new.' },
-    { k: 'gbus', cap: 'G.Bus.', tip: 'Opens Emails, G Business.\nLit while a G Business email is new.' } ] },
+  // Inq. first, Texts last (user, 2026-11-15)
   { grp: 'Inq.', items: [
     { k: 'inq', cap: 'Inq', tip: 'Opens Inquiries.\nLit while a new inquiry came in.' },
     { k: 'initiate', cap: 'Initiate', tip: 'Opens Initiate.\nLit while someone wrote back.' },
-    { k: 'trial', cap: 'Trial', tip: 'Opens Trial.\nLit while someone wrote back.' } ] }
+    { k: 'trial', cap: 'Trial', tip: 'Opens Trial.\nLit while someone wrote back.' } ] },
+  { grp: 'Emails', items: [
+    { k: 'stu-email', cap: 'Student', tip: 'Opens Emails, Students.\nLit while a student email is new.' },
+    { k: 'gbus', cap: 'G.Bus.', tip: 'Opens Emails, G Business.\nLit while a G Business email is new.' } ] },
+  { grp: 'Texts', items: [
+    { k: 'stu-text', cap: 'Student', tip: 'Opens Comms.\nLit while a student text waits for an answer.' },
+    { k: 'others', cap: 'Others', tip: 'Opens Others.\nLit while an unknown number or voicemail waits.' } ] }
 ];
 
 var AL_JACKS = 12;   // sockets on the alarm rack (was the photo's 22, then 17; user 2026-11-15: "fewer" = no empty ones)
@@ -99,7 +100,7 @@ function _mrRender() {
     // the group names sit above the engraved line, their lights in one row under it (user, 2026-11-15)
     var caps = function (groups) {
       return '<div class="mr-row mr-caps">' + groups.map(function (g) {
-        return '<span class="mr-grp"><span class="hr-cap mr-grp-cap">' + g.grp + '</span></span>';
+        return '<span class="mr-grp"><span class="hr-cap mr-grp-cap" data-grp="' + g.grp + '">' + g.grp + '</span></span>';
       }).join('') + '</div>';
     };
     var tier = function (groups, cls) {
@@ -137,6 +138,8 @@ function _mrRender() {
   }
   var s = _mrState();
   document.querySelectorAll('#msgRack .mr-ob, #alarmRack .al-jack').forEach(function (b) { b.classList.toggle('lit', !!s[b.dataset.k]); });
+  var tx = document.querySelector('#msgRack .mr-grp-cap[data-grp="Texts"]');   // the TEXTS label lights up with a student text (user, 2026-11-15)
+  if (tx) tx.classList.toggle('lit', !!s['stu-text']);
 }
 
 (function () {
