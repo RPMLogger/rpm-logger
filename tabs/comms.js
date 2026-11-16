@@ -176,6 +176,10 @@ function commsStudentPeople(archived) {
     p.msgs.sort(function (a, b) { return new Date(b.timestamp) - new Date(a.timestamp); });
     p.latest = p.msgs[0];
     p.waiting = p.msgs.some(function (m) { return m.source !== "out" && !m.responded && !commsReaction(m); });   // a 👍 needs no answer
+    // Reply needed (user, 2026-11-16): a flagged text with no text of mine after it = amber dot.
+    var lastOut = p.msgs.filter(function (m) { return m.source === "out"; })[0];
+    p.replyMsg = p.msgs.filter(function (m) { return m.reply && m.source !== "out" && (!lastOut || new Date(m.timestamp) > new Date(lastOut.timestamp)); })[0] || null;
+    p.replyNeeded = !!p.replyMsg && !p.waiting;   // red wins while unread
     return p;
   }).sort(function (a, b) { return new Date(b.latest.timestamp) - new Date(a.latest.timestamp); });
 }
@@ -222,7 +226,7 @@ function renderCommsStudents() {
     if (p.header) { list.insertAdjacentHTML("beforeend", '<div class="field-label cm-arch-h">' + p.header + '</div>'); return; }
     var m = p.latest, row = document.createElement("div");
     var pickable = commsStuEditing && m && !p.archived;
-    row.className = "cm-conv" + (p.waiting ? " cm-wait" : "") + (p.archived ? " cm-arch" : "") +
+    row.className = "cm-conv" + (p.waiting ? " cm-wait" : "") + (p.replyNeeded ? " cm-reply" : "") + (p.archived ? " cm-arch" : "") +
       (p.key === openKey && !!p.archived === openArch ? " cm-sel" : "") +
       (pickable ? " cm-pickable" : "") + (pickable && commsStuPicked[p.key] ? " cm-picked" : "");
     row.onclick = function () {
@@ -304,7 +308,10 @@ function commsConvMenu(e, p) {
   var menu = document.createElement("div");
   menu.className = "cm-new-list cm-ctx";
   menu.id = "cmCtx";
+  var theirs = p.msgs.filter(function (m) { return m.source !== "out" && m.row >= 2; })[0];   // the newest text from them
   menu.innerHTML = (p.waiting ? '<button type="button" class="cm-new-opt" data-a="mark">Mark answered</button>' : "") +
+    (p.replyMsg ? '<button type="button" class="cm-new-opt" data-a="noreply">Reply not needed</button>'
+      : theirs ? '<button type="button" class="cm-new-opt" data-a="reply">Reply needed</button>' : "") +
     '<button type="button" class="cm-new-opt cm-ctx-del" data-a="del">Archive</button>';   // no "…": the portal turns a trailing … into loading dots
   menu.style.left = e.clientX + "px";
   menu.style.top = e.clientY + "px";
@@ -314,7 +321,21 @@ function commsConvMenu(e, p) {
     commsCloseConvMenu();
     if (a === "mark") { var keep = commsPaneDetail; commsPaneDetail = p.latest; commsPaneMark(); commsPaneDetail = keep; renderCommsStudents(); }
     if (a === "del") commsDeleteConv(p);
+    if (a === "reply" || a === "noreply") commsSetReply(p, a === "reply" ? theirs : null);
   };
+}
+
+// Reply needed on/off (user, 2026-11-16). On: their newest text gets the flag and counts as read
+// (the red dot turns amber). Off: every flag in the conversation is cleared. Texting them clears it by itself.
+function commsSetReply(p, msg) {
+  var url = getScriptUrl();
+  var send = function (m, on) { m.reply = on; if (url) fetch(url + "?action=markCommsReply&row=" + m.row + "&on=" + on).catch(function () {}); };
+  if (msg) {
+    if (p.waiting) { var keep = commsPaneDetail; commsPaneDetail = p.latest; commsPaneMark(); commsPaneDetail = keep; }
+    send(msg, true);
+  } else p.msgs.forEach(function (m) { if (m.reply) send(m, false); });
+  renderCommsStudents();
+  if (typeof _rsRender === "function") _rsRender();
 }
 function commsCloseConvMenu() { var m = document.getElementById("cmCtx"); if (m) m.remove(); }
 document.addEventListener("click", function (e) { if (!e.target.closest("#cmCtx")) commsCloseConvMenu(); });

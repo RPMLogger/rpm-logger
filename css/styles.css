@@ -4178,6 +4178,7 @@ html body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; }
 .cm-conv-prev { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); line-height: 1.45;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .cm-conv.cm-wait .cm-dot { background: var(--accent); }
+.cm-conv.cm-reply .cm-dot { background: var(--warn); }   /* Reply needed: amber until I text them (user, 2026-11-16) */
 .cm-conv.cm-wait .cm-conv-name { color: var(--t-bright); }
 .cm-conv.cm-wait .cm-conv-prev { color: var(--t-normal); }
 /* Students = the Messages app's setup (user, 2026-11-01): list left, conversation right. */

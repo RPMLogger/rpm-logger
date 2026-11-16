@@ -156,13 +156,17 @@ function _rsRender() {
 
 // ON THE COMMS TAB the screen shows the texts instead (user, 2026-11-10): how many conversations wait on a reply
 // (the red dots in the list) and, under it, the Others count. Read from the page, nothing fetched. Off Comms = the warnings again.
+// Reply needed (user, 2026-11-16): the amber dots count too; with nothing unread they take the top line instead of ALL ANSWERED.
 function _rsComms(lcd) {
   if (typeof commsOnTab !== 'function' || !commsOnTab()) return false;
   var wait = document.querySelectorAll('#commsStuList .cm-conv.cm-wait').length;
+  var reply = document.querySelectorAll('#commsStuList .cm-conv.cm-reply').length;
   var oth = document.getElementById('commsOthersCount');
   var o = oth ? parseInt(oth.textContent, 10) || 0 : 0;
-  var top = wait ? wait + (wait === 1 ? ' text waiting' : ' texts waiting') : 'All answered';
-  var html = _rsEsc(top.toUpperCase()) + '<small>' + _rsEsc(('Others ' + o).toUpperCase()) + '</small>';
+  var rl = reply + ' reply needed';
+  var top = wait ? wait + (wait === 1 ? ' text waiting' : ' texts waiting') : reply ? rl : 'All answered';
+  var sub = (wait && reply ? rl + ' · ' : '') + 'Others ' + o;
+  var html = _rsEsc(top.toUpperCase()) + '<small>' + _rsEsc(sub.toUpperCase()) + '</small>';
   if (lcd.innerHTML !== html) lcd.innerHTML = html;
   lcd.classList.remove('go'); lcd.dataset.tab = ''; lcd.dataset.fn = '';
   document.querySelectorAll('.home-rack .hr-arw').forEach(function (b) { b.disabled = true; });
