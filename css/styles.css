@@ -5558,16 +5558,16 @@ html body #tab-home.tab-panel.active { min-height: max(460px, calc((var(--vh) * 
    buttons as they were: a group of its own, normal gap before the steps. */
 #importBody .im-card > .db-card-l { flex: 0 1 auto; }
 #importBody .im-card > .db-card-l + .im-steps { margin-left: auto; }   /* chips grouped on the right */
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) { gap: 4px; letter-spacing: .5px; }
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) .im-step { border: none; border-radius: 2px; padding: 2px 5px; font-size: 7.5px; letter-spacing: .5px; }
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) .im-step.opens-window::after { content: none; display: none; }
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) .im-step:not(.todo) { color: color-mix(in srgb, var(--green) 75%, var(--muted)); background: color-mix(in srgb, var(--green) 10%, transparent); }
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) .im-step.todo { background: color-mix(in srgb, #ff5a4d 15%, transparent); }
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) .im-step.todo.nolog { background: color-mix(in srgb, var(--accent2) 15%, transparent); }
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) .im-step.todo:hover:where(:not(:disabled)) { background: color-mix(in srgb, #ff5a4d 26%, transparent); }
-#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing)) .im-step.todo.nolog:hover:where(:not(:disabled)) { background: color-mix(in srgb, var(--accent2) 26%, transparent); }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing, .im-logged-tag)) { gap: 4px; letter-spacing: .5px; }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing, .im-logged-tag)) .im-step { border: none; border-radius: 2px; padding: 2px 5px; font-size: 7.5px; letter-spacing: .5px; }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing, .im-logged-tag)) .im-step.opens-window::after { content: none; display: none; }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing, .im-logged-tag)) .im-step:not(.todo) { color: color-mix(in srgb, var(--green) 75%, var(--muted)); background: color-mix(in srgb, var(--green) 10%, transparent); }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing, .im-logged-tag)) .im-step.todo { background: color-mix(in srgb, #ff5a4d 15%, transparent); }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing, .im-logged-tag)) .im-step.todo.nolog { background: color-mix(in srgb, var(--accent2) 15%, transparent); }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing, .im-logged-tag)) .im-step.todo:hover:where(:not(:disabled)) { background: color-mix(in srgb, #ff5a4d 26%, transparent); }
+#importBody .im-card .im-steps:not(:has(.im-today-tag, .nolog, .im-missing, .im-logged-tag)) .im-step.todo.nolog:hover:where(:not(:disabled)) { background: color-mix(in srgb, var(--accent2) 26%, transparent); }
 /* The steps after TODAY sit on their own line under the name, left (user, 2026-11-15) */
-#importBody .im-card.im-today > .im-steps:not(.im-today-grp, .im-warn-grp) { flex: 1 0 100%; justify-content: flex-start; margin-left: 0; order: 9; }
+#importBody .im-card.im-today > .im-steps:not(.im-today-grp, .im-warn-grp, .im-logged-grp) { flex: 1 0 100%; justify-content: flex-start; margin-left: 0; order: 9; }
 /* Practice materials in two columns so it fits in one shot (user, 2026-11-15):
    Files left (its list scrolls inside), Video link / Web link / Recorded right. Wider window on this page only. */
 .st-win.im-log-win.im-log-wide { width: min(1080px, 96vw); }   /* one wide size on every page (user, 2026-11-15) */
@@ -5631,3 +5631,6 @@ html body #sbBurger, html body .header .hdr-home { scale: 0.85; }
 #imLogWin .im-hw-dock-box .im-pills.im-files-none .im-pill-none { margin-right: 0; }
 /* Save & next under the Recorded pills, not on them: room kept at the bottom of the right column */
 #imLogWin .im-pg-mat .im-mat-split > .im-mat-right { padding-bottom: 64px; }
+#importBody .im-card > .im-logged-grp { margin-left: auto; }   /* LOGGED on the right, on the name's line */
+/* LOGGED at regular size: the TODAY sign's green outlined pill (user, 2026-11-15) */
+#importBody .im-card .im-step.im-logged-tag { color: var(--green); border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 7%, transparent); }

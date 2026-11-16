@@ -121,7 +121,8 @@ function _imRenderCards(noRead) {
     var first = past.length ? { day: past[0].date, miss: past[0].missing || [], hw: past[0].hwText } : todo ? { day: _tdYmd(), miss: miss } : null;
     return '<div class="db-card im-card' + (isToday(n) ? ' im-today' : o ? ' im-unlog' : '') + (miss && !miss.length && !o ? ' im-donetoday' : '') + '"' + inStyle() + ' onclick="' + (!isToday(n) && o ? '_imOpenLog' : '_imOpenFirst') + '(' + _auEsc(JSON.stringify(n)) + ')" data-tip="Opens a window.\n' + (!isToday(n) && o ? 'Straight into the Log.' : 'Their last lesson and HW first;\nclose it for every lesson logged.') + '">' +   // Not logged: straight into the Log (user, 2026-11-12)
       '<div class="db-card-l"><span class="db-card-n">' + inqEsc(n) + '</span></div>' +
-      (miss && !miss.length && !o ? '<span class="im-logged"><span class="im-logged-t">LOGGED</span>' + PAID_CHECK_ICON.replace('width="13" height="13"', 'width="15" height="15"') + '</span>' : '') +   // the Auto-confirmed check (user, 2026-10-26)
+      // All done: one green LOGGED badge in the step badges' look, no check icon (user, 2026-11-15; was the Payments check)
+      (miss && !miss.length && !o ? '<span class="im-steps im-logged-grp"><span class="im-step im-logged-tag">Logged</span></span>' : '') +
       (isToday(n) && !(miss && !miss.length && !o) ? // Green TODAY sign on today's cards (user, 2026-10-30). Once the day's last lesson is over the cards stay
         // in Today, TODAY goes and the ones not logged yet turn into + Log (user, 2026-11-15).
         (!dayOver ? '<span class="im-steps im-today-grp"><span class="im-step im-today-tag">Today</span></span>'
