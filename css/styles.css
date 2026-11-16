@@ -4491,7 +4491,6 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 #imLogWin .im-mail-dark img[alt="Red Pick Music"] { opacity: .85; }
 #imLogWin #imMailPrev { display: none; }   /* the page is the preview now */
 
-#tab-general .ld-hero { display:block; height:110px; opacity:.55; margin:0 auto 24px; pointer-events:none; }   /* amp + electric guitar picture at the top of the Dashboard, like Home's (user, 2026-11-03) */
 /* Every tab at least as tall as Home's box (user, 2026-11-03): a one-box tab's box, or a tab's stacked boxes in total
    (the last box stretches; rpmFillLast in index.html marks it). Calendar, Fixed schedule and Financial stay open. */
 .tab-panel.active:not(#tab-calendar):not(#tab-fixedcal) { box-sizing: border-box; min-height: calc(calc(var(--vh) * 100) - 272px - 72px); }
