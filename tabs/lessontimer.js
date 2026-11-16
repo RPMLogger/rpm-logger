@@ -211,7 +211,7 @@ function ltmLeft(name, at) {
   var q = '&name=' + encodeURIComponent(t.name) + '&day=' + _ltmYmd(t.marks[0].at) +
     '&arrived=' + encodeURIComponent(_ltmTime(t.marks[0].at)) +
     '&teachStart=' + encodeURIComponent(_ltmTime(_ltmAt(t, 'teach'))) +
-    '&teachEnd=' + encodeURIComponent(_ltmTime(_ltmAt(t, 'after'))) +
+    '&teachEnd=' + encodeURIComponent(_ltmTime(_ltmAt(t, 'after') || t.left)) +   // ▶ then ■ has no 'after' mark: teaching ended at ■ (was 1969's time, fixed 2026-11-16)
     '&left=' + encodeURIComponent(_ltmTime(t.left)) +
     '&before=' + r(s.before) + '&teach=' + r(s.teach) + '&during=' + r(s.pause) + '&after=' + r(s.after) + '&pauses=' + pauses;
   _ltmDone[t.key] = t;
