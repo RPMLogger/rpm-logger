@@ -34,8 +34,6 @@ function emShow(key) {
     b.classList.toggle("cm-on", b.getAttribute("data-em") === key);
   });
   var s = EM_SECTIONS.filter(function (x) { return x.key === key; })[0];
-  document.getElementById("emListTitle").textContent = s ? s.title : "";
-  document.getElementById("emListNote").textContent = s ? s.note : "";
   if (!Array.isArray(_emData[key])) _emData[key] = null;
   _emRender();
   var url = getScriptUrl();
@@ -49,6 +47,7 @@ function emShow(key) {
         rows = rows.sort(function (a, b) { return b.ts - a.ts; }).slice(0, 7);
       _emData[key] = rows;
       _emRender();
+      _emReopenLast(key);
     })
     .catch(function (err) { _emData[key] = { err: err.message }; _emRender(); });
 }
@@ -113,9 +112,23 @@ function _emInitials(name) {
   return ((w[0] || "?")[0] + (w.length > 1 ? w[w.length - 1][0] : "")).toUpperCase();
 }
 
-function _emOpen(key, i) {
+// Like Mac Mail (user, 2026-11-16): coming back to the tab (or a mailbox) shows
+// the email last opened there, not "Pick an email". Remembered per mailbox in
+// this browser. It was opened before, so reopening it marks nothing.
+function _emLastKey(key) { return "rpmEmLast_" + key; }
+function _emReopenLast(key) {
+  if (_emCur || _emKey !== key) return;
+  var id = null;
+  try { id = localStorage.getItem(_emLastKey(key)); } catch (x) {}
+  if (!id) return;
+  var rows = _emData[key] || [];
+  for (var i = 0; i < rows.length; i++) if (rows[i].id === id) { _emOpen(key, i, true); return; }
+}
+
+function _emOpen(key, i, reopen) {
   var e = (_emData[key] || [])[i];
   if (!e) return;
+  try { localStorage.setItem(_emLastKey(key), e.id); } catch (x) {}
   _emPane({ key: key, e: e });
   _emRender();
   rpmSetLoading(document.getElementById("emMsgStatus"), "Opening");
@@ -127,7 +140,7 @@ function _emOpen(key, i) {
       var st = document.getElementById("emMsgStatus");
       if (st) st.innerHTML = "";
       _emShowBody(key, e, data.html || "");
-      if (_emHot(e)) _emMarkRead(key, e);
+      if (_emHot(e) && !reopen) _emMarkRead(key, e);
     })
     .catch(function (err) {
       var st = document.getElementById("emMsgStatus");
@@ -141,7 +154,10 @@ function _emOpen(key, i) {
 function _emShowBody(key, e, html) {
   var read = document.getElementById("emRead");
   if (!read) return;
-  read.innerHTML = '<div class="em-text">' + (_emPlain(html, key === "students") || "(no text)") + '</div>';
+  // Cutting the quote can leave nothing when the whole email IS a quote (Mac Mail's
+  // Share wraps it all in one, 2026-11-16 Tianyi Cao): then show it uncut.
+  var text = _emPlain(html, key === "students") || (key === "students" ? _emPlain(html, false) : "");
+  read.innerHTML = '<div class="em-text">' + (text || "(no text)") + '</div>';
 }
 
 // The email's HTML → safe portal HTML: escaped text, line breaks, and its links

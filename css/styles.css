@@ -5500,11 +5500,21 @@ html body #tab-emails .em-headbox::after { content: ""; position: absolute; left
 html body #tab-emails .em-panes { margin-top: 0; box-shadow: none; padding: 0; overflow: hidden; }
 html body #tab-emails .em-panes > .td-bolt { display: none; }
 html body #tab-emails .em-panes .em-msgr { margin-top: 0; border: none; border-radius: 0; height: max(460px, calc(var(--vh) * 100 - 500px)); }
+/* The panes box stretches to the tab's bottom (rpmFillLast), and the panes fill it: no empty rack under them (user, 2026-11-16). */
+html body #tab-emails .em-panes.rpm-fill { display: flex; flex-direction: column; }
+html body #tab-emails .em-panes.rpm-fill .em-msgr { flex: 1 1 0; height: auto; min-height: 460px; }
 #tab-emails .em-side { background: color-mix(in srgb, var(--box) 85%, #000); }   /* same shade as the list, like Comms' list */
+/* One top cell over sidebar + list (user, 2026-11-16): the address only. The email pane keeps its own head on the right. */
+#tab-emails .em-msgr { grid-template-rows: var(--em-top) minmax(0, 1fr); }
+#tab-emails .em-top { grid-column: 1 / 3; grid-row: 1; display: flex; align-items: center; padding: 0 16px; background: #151515; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);
+  font-family: "DM Mono", monospace; font-size: 9px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--t-faint); text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
+#tab-emails .em-side { grid-column: 1; grid-row: 2; padding-top: 6px; }
+#tab-emails .em-msgr > .cm-msgr-list { grid-column: 2; grid-row: 2; }
+#tab-emails .em-msgr > .cm-msgr-conv { grid-column: 3; grid-row: 1 / 3; }
 #tab-emails .em-read { background: none; }   /* the email sits on the box itself, like Comms' conversation side */
 /* Text = Comms' panes (user, 2026-11-13: "text brightness check with comms"): Apple's system font, names t-normal + 600,
    the rest t-faint, nothing white except the picked mailbox on red; the email's text in Comms' message colour. */
-#tab-emails .em-msgr :is(.em-box, .em-list-title, .em-list-note, .em-subj, .em-head-from, .em-head-subj, .em-head-to, .em-head-when, .em-text, .em-gmail, .em-side-head) {
+#tab-emails .em-msgr :is(.em-box, .em-list-title, .em-list-note, .em-subj, .em-head-from, .em-head-subj, .em-head-to, .em-head-when, .em-text, .em-gmail, .em-side-head, .em-top) {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; letter-spacing: 0; }
 #tab-emails .em-box { font-size: 10px; color: var(--t-normal); }
 #tab-emails .em-box.cm-on { color: var(--t-bright); }
@@ -5653,3 +5663,8 @@ html body #tab-home.tab-panel.active { min-height: 0 !important; height: auto; a
 /* Financial: three boxes, title · Income · Expenses (user, 2026-11-15) */
 #tab-financial2 > #fin2Top { margin-top: 0; }
 #fin2Top #finHealth:empty { display: none; }
+
+/* The top cell: the Gmail logo, a link to the inbox (user, 2026-11-16; was the address, which stays in the title strip). */
+#tab-emails .em-gmail-top.cm-ava { width: 38px; height: 38px; flex: none; text-decoration: none; transition: background .15s; }   /* Gmail's M in the grey avatar circle, like the TC one opposite (user, 2026-11-16) */
+#tab-emails .em-gmail-top.cm-ava:hover { background: var(--surface2); filter: brightness(1.15); }
+#tab-emails .em-gmail-top img { width: 18px; height: auto; display: block; }
