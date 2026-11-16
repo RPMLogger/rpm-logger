@@ -819,7 +819,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .au-sub { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
 .au-sub.due  { color: var(--warn); }
 .au-sub.over { color: #ff5a4d; }
-.au-cap { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.au-head { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
 .au-acts { display: flex; align-items: center; gap: 8px; }
 .au-acts .au-state { flex: 1; text-align: right; }
 .au-unpaid { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 22px; }   /* Unpaid card: Details on the right, one row (2026-09-29) */

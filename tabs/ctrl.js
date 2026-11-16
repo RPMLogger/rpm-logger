@@ -339,7 +339,7 @@ function _auPayRemList(s, from) {
     return r.kind === "Auto" && (!from || r.at >= from);
   }).reverse();
   return '<hr class="divider" style="margin:40px 0 28px">' +
-    '<div class="au-cap" style="margin-bottom:16px">Reminders</div>' +
+    '<div class="au-head" style="margin-bottom:16px">Reminders</div>' +
     (list.length
       ? '<div class="inq-fields au-rem-list">' + list.map(function(r) {
           return '<span class="inq-flabel au-rem-kind ' + r.kind.toLowerCase() + '">' + r.kind + '</span>' +
@@ -1294,7 +1294,7 @@ function _auSyncCard(st) {
       _auGridHtml(st.grid, st.missing, nmArg, mismatch, calBad ? st.cal.counterOnly : null) + '</div>';
   } else if (s) {
     rows = '<hr class="divider" style="margin:18px 0">' +
-      '<div class="au-cap">Last logged</div>' +
+      '<div class="au-head">Last logged</div>' +
       '<div class="inq-fields">' +
         // Import first, Counter under it: the Counter is always the later date.
         '<span class="inq-flabel au-caps">Import</span><span class="inq-fval au-caps">Lesson ' + _auEsc(s.importLesson != null ? s.importLesson : "?") + ' · ' + _auEsc(_auDate(s.importDate || "?")) + '</span>' +
@@ -1315,7 +1315,7 @@ function _auSyncCard(st) {
   }
   if (st.warnings.length) {
     chips += '<hr class="divider" style="margin:18px 0">' +
-      '<div class="au-cap">Check by hand</div><div>' +
+      '<div class="au-head">Check by hand</div><div>' +
       st.warnings.map(function(w) {
         return '<span class="au-chip audit-warn-chip">' + _auEsc(w.sheet + " " + w.cell + ": “" + (w.value || "") + "”") + '</span>';
       }).join("") + '</div>';
