@@ -5812,3 +5812,4 @@ html body #tab-general .ld-cards > .ld-card.ld-card { border-color: #353535; }
    THE BOX plates via the variable, plus the header racks (Home rack, alarm + Day Clock racks) that set their own border. */
 :root { --rpm-box-border: 1px solid #5e4d2a; }
 html body .container > :is(.home-rack, .alarm-rack) { border-color: #5e4d2a; }
+html body .header::before { border-color: #5e4d2a; }   /* the amp head's inner edge too (user, 2026-11-16) */
