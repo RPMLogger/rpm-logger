@@ -5536,7 +5536,7 @@ html body #tab-emails .em-panes.rpm-fill .em-msgr { flex: 1 1 0; height: auto; m
 
 /* TITLE ICONS = ENGRAVED (user, 2026-11-13: "all engraved"): every icon under/beside a title or in a window title is cut into the plate like the header text —
    header grey, dark line above, faint light line below. No drop shadows (Today's removed), no fading (Comms' .45 removed). Icons inside buttons keep their own look. */
-html body :is(.win-icon, .rpm-dlg-ticon > *, #_a#_b):not(button .win-icon, .link-btn .win-icon) { color: var(--t-faint);   /* one step under the header grey: big line drawings read brighter than text of the same grey (user, 2026-11-13) */ opacity: 1; filter: drop-shadow(0 -1px 0 rgba(0,0,0,.85)) drop-shadow(0 1px 0 rgba(255,255,255,.07)); }
+html body :is(.win-icon, .rpm-dlg-ticon > *, #_a#_b):not(button .win-icon, .link-btn .win-icon) { color: oklch(0.43 0.028 84);   /* HALF BRASS (user, 2026-11-17): the grey's lightness, half the gold piping's colour (#5e4d2a = .43 .056 84); was var(--t-faint) */   /* one step under the header grey: big line drawings read brighter than text of the same grey (user, 2026-11-13) */ opacity: 1; filter: drop-shadow(0 -1px 0 rgba(0,0,0,.85)) drop-shadow(0 1px 0 rgba(255,255,255,.07)); }
 html body #commsBody .cm-title-icon { opacity: 1; filter: none; }
 
 /* TITLE ICON SIZES (user, 2026-11-13: "34 and 24"): every tab title icon 34px tall, every window/dialog title icon 24px tall; width follows the drawing.
@@ -5659,6 +5659,10 @@ html body #tab-home.tab-panel.active { min-height: 0 !important; height: auto; a
 /* centre smaller and much dimmer (user, 2026-11-15; was 28% of the speaker at 0.04) */
 #tab-home .hm-au .au-cap { width: calc(var(--hs) * 0.18); height: calc(var(--hs) * 0.18); margin: calc(var(--hs) * -0.09) 0 0 calc(var(--hs) * -0.09); }
 #tab-home .hm-au .au-cap::before { opacity: 0.015; }
+/* speakers never overlap: each one's ring reaches 21px past it (16px surround + 5px edge), so 46px between boxes = a 4px gap
+   between rings; the cab's padding is used too, rings 6px from the cab edge (user, 2026-11-17; were 50cqw - 12px, rings overlapping 42px) */
+#tab-home .hm-au { margin: -36px -40px; --hs: calc(50cqw - 9px); }
+#tab-home .hm-au .au-top { column-gap: 46px; row-gap: 46px; }
 /* Financial: three boxes, title · Income · Expenses (user, 2026-11-15) */
 #tab-financial2 > #fin2Top { margin-top: 0; }
 #fin2Top #finHealth:empty { display: none; }
