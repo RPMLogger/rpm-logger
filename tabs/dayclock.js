@@ -134,7 +134,8 @@ function _dcRender() {
       secs +
       // Recap (user, 2026-11-16): today's day recap in a window (rpRecapOpen, tabs/report.js); the rest on the Report tab
       '<div class="dc-sec dc-rep"><span class="dc-nm hr-cap">Recap</span><div class="dc-body">' +   // a window, not the tab (user, 2026-11-16)
-        '<button class="dc-key" onclick="rpRecapOpen()" data-tip="Opens a window.\nToday: time lost, booked vs taught." data-tip-wrap></button></div></div>' +
+        // a male XLR jack as the button (user, 2026-11-17, splitter photos): black border, deep well, three gold pins
+        '<button class="dc-xlr" onclick="rpRecapOpen()" data-tip="Opens a window.\nToday: time lost, booked vs taught." data-tip-wrap><i class="dc-pin"></i><i class="dc-pin"></i><i class="dc-pin"></i></button></div></div>' +
       '</div>';
   _dcClockPaint();
   if (typeof _imFixTips === 'function') _imFixTips(rack);

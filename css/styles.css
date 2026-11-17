@@ -5808,6 +5808,22 @@ body:has(#tab-import.active) .container > .dc-rack { display: block; }   /* and 
 #tab-report .ld-card .ld-row { grid-template-columns: 300px minmax(0, 1fr); }
 #tab-report .us-note { color: var(--t-faint); }
 .dc-rack .dc-rep { flex: 0 0 auto; }
+/* Recap = a male XLR jack (user, 2026-11-17, splitter photos): thin matte border tying it to the rack, a deep black well, three gold pins */
+.dc-rack .dc-xlr { position: relative; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+  background: radial-gradient(circle, #0b0b0b 0 7px, #030303 11px, #1c1c1c 11.5px 12px, #000 12.5px 13px, transparent 13.5px),
+              linear-gradient(180deg, #212121, #131313);
+  box-shadow: 0 0 0 1px #000, 0 1px 2px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.05); }
+.dc-rack .dc-xlr:hover { filter: brightness(1.25); }
+.dc-rack .dc-xlr:active { transform: translateY(1px); }
+.dc-rack .dc-clk .hr-cap { color: #474747; }   /* CLOCK engraving as dim as the names, not bright (user, 2026-11-17) */
+.dc-rack .dc-ctl { position: relative; top: -6px; }   /* start/stop button centred on the clock screen's middle, bulb rides along above (user, 2026-11-17) */
+.dc-rack .dc-ctl .dc-led { position: relative; top: -4.5px; }   /* bulb on the name's middle line (YAXU), same spot left of it (user, 2026-11-17) */
+.dc-rack .dc-xlr .dc-pin { position: absolute; width: 4px; height: 4px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #5e5038, #3f321a 55%, #1f180a); box-shadow: 0 0 2px rgba(0,0,0,.9); }
+/* pins: two on top, one at the bottom (user: turned, flipped 180°; dull gold) */
+.dc-rack .dc-xlr .dc-pin:nth-child(1) { left: 13px; top: 18px; }
+.dc-rack .dc-xlr .dc-pin:nth-child(2) { left: 18px; top: 12px; }
+.dc-rack .dc-xlr .dc-pin:nth-child(3) { left: 8px; top: 12px; }
 #trTop #trialPayBody > .empty-state { text-align: left; padding: 0; }   /* "None" left under PAYMENTS like a value, no centred block (user, 2026-11-16) */
 /* Trial card steps: Log lesson the same as the rest (was blue), all one step dimmer (user, 2026-11-16). Done steps keep their faint look. */
 html body #tab-trial .tr-step-b:not(.done) { color: var(--t-normal); border-color: color-mix(in srgb, var(--muted) 50%, transparent); background: color-mix(in srgb, #fff 3%, transparent); }
