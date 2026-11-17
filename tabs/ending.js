@@ -47,7 +47,7 @@ function _enLoadRoster() {
 function _enRenderSearch() {
   var body = document.getElementById('endingBody');
   body.innerHTML =
-    '<div id="enList" style="margin-top:32px"></div>' +
+    '<div id="enList"></div>' +   // no 32px top: the title icon's 26px sets the gap now (user, 2026-11-16)
     '<div class="en-reload"><button class="link-btn" onclick="_enState.roster=null;initEndingTab()" data-tip="Instant.\nReloads the student list.">Reload</button></div>';
   var list = document.getElementById('enList');
   var roster = _enState.roster || [];

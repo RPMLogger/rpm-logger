@@ -272,6 +272,7 @@ function _slcRender() {
   if (!body || !_slc.data) return;
   var d = _slc.data;
   body.innerHTML = '<div class="db-section">' + _slcTitle('Students') +
+    '<div class="td-wk-icon slc-title-icon">' + CALENDAR_ICON.replace('class="calendar-icon"', 'class="win-icon"') + '</div>' +   // the title icon = its window's calendar (user, 2026-11-16)
     // No "24 students" header row (user, 2026-10-31).
     d.students.map(function(x, i) { return _slcStudentCard(x, i); }).join('') + '</div>' + _slcRecentHtml();
   var win = document.getElementById('slcWin');

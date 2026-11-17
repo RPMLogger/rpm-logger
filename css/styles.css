@@ -5812,3 +5812,14 @@ html body #tab-general .ld-cards > .ld-card.ld-card { border-color: #353535; }
 :root { --rpm-box-border: 1px solid #5e4d2a; }
 html body .container > :is(.home-rack, .alarm-rack) { border-color: #5e4d2a; }
 html body .header::before { border-color: #5e4d2a; }   /* the amp head's inner edge too (user, 2026-11-16) */
+
+/* Emails title icon (user, 2026-11-16): beside the title like Comms' phone, the slim head box has no room under it; size + engraving from TITLE ICONS */
+html body #tab-emails .em-title-icon { margin: 4px 0 0; line-height: 0; }   /* under the title like the other tabs (user, 2026-11-16) */
+html body :is(#tab-ending .end-title-icon, #slcBody .slc-title-icon) { margin: -6px 0 31px; line-height: 0; }   /* Terminate + Slot change title icons sit like the Dashboard's (user, 2026-11-16) */
+html body #tab-emails .em-gmail-link .em-gmail-m { height: 11px; width: auto; display: block; opacity: .6; filter: saturate(.7); }   /* Gmail's M in the link, dimmed (user, 2026-11-16; was the title icon) */   /* Gmail's M in colour as the title icon (user, 2026-11-16) */
+/* Emails = one plate (user, 2026-11-16): title bar, line, panes */
+html body #tab-emails .em-titlebar { padding: 26px 28px 0; }
+html body #tab-emails .em-titlebar .td-wk-title { margin-bottom: 0; }
+html body #tab-emails .em-titlebar .td-wk-title, html body #tab-emails .em-titlebar .td-wk-title * { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
+html body #tab-emails .em-title-rule { margin: 33px 0 0; }   /* icon → line = the Inquiries title block */
+html body #tab-emails .em-title-icon :is(.win-icon, #_a#_b#_c) { height: 20px; }   /* the envelope is wide: 20 tall makes it ~20 wide, the others' size (user, 2026-11-16) */

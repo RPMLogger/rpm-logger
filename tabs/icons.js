@@ -263,7 +263,9 @@ function _rpmFillDataIcons() {
     students: function () { return STUDENTS_ICON.replace('class="students-icon"', 'class="win-icon"'); },
     analysis: function () { return ANALYSIS_ICON; },
     trayin:   function () { return TRAY_IN_ICON.replace(/class="[^"]*"/, 'class="win-icon"'); },   // Inquiries title (2026-11-16)
-    send:     function () { return SEND_ICON.replace(/class="[^"]*"/, 'class="win-icon"'); }       // Initiate title (2026-11-16)
+    send:     function () { return SEND_ICON.replace(/class="[^"]*"/, 'class="win-icon"'); },      // Initiate title (2026-11-16)
+    archivebox: function () { return ARCHIVE_ICON.replace(/class="[^"]*"/, 'class="win-icon"'); },  // Terminate title (2026-11-16)
+    emailwin: function () { return ENVELOPE_ICON.replace(/class="[^"]*"/, 'class="win-icon"'); }   // Emails title: the outline envelope (user, 2026-11-16; @ envelope tried first)
   };
   document.querySelectorAll("[data-icon]").forEach(function (el) {
     var f = map[el.getAttribute("data-icon")];
