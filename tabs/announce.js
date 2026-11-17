@@ -415,7 +415,7 @@ function annSend(nudge, picked, text) {
   var c = annCost(text.replace(ANN_NAME_RE, "Christian"));
   rpmConfirm({
     title: "Warning!",
-    subtitle: "Upon activation:",
+    subtitle: "Upon activation",
     message: "→ " + picked.length + " student" + (picked.length === 1 ? "" : "s") + " get this text from the RPM line, one each (no group chat).\n" +
              "→ " + c.pieces + " text" + (c.pieces > 1 ? "s" : "") + " each, about $" + (c.pieces * picked.length * 0.011).toFixed(2) + " in all.\n" +
              "→ Sent texts can't be taken back.",

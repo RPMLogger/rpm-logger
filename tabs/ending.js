@@ -208,7 +208,7 @@ function _enAskFinish(i) {
   });
   rpmConfirm({
     title: 'Warning!',
-    subtitle: 'Upon activation:',
+    subtitle: 'Upon activation',
     message: msg + '\n\n→ This cannot be undone.',
     confirmLabel: 'Terminate',
     icon: WARN_ICON,

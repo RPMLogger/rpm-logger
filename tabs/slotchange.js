@@ -224,7 +224,7 @@ function _slcConfirmAsk() {
   var first = _slc.name.split(' ')[0], lastOld = _slcLastOld();
   rpmConfirm({
     title: 'Warning!',
-    subtitle: 'Upon activation:',
+    subtitle: 'Upon activation',
     message: '→ ' + first + ' is muted for the rest of today: no Secretary activity until the midnight relabel.\n\n' +
       '→ New ' + (_slc.type === 'biweekly' ? 'biweekly' : 'weekly') + ' series from ' + _slcDateLbl(_slc.date) + ' at ' + _slcTimeLbl(n.startMin) + '.\n\n' +
       '→ The old series ends' + (lastOld ? ': ' + first + "'s last lesson on it is " + _slcDateLbl(lastOld) : '') + '.\n\n' +

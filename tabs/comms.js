@@ -348,7 +348,7 @@ function commsDeleteConv(p) {
   // The Warning! box, like Terminate's and Slot change's (user, 2026-11-04).
   rpmConfirm({
     title: "Warning!",
-    subtitle: "Upon activation:",
+    subtitle: "Upon activation",
     message: "→ The conversation with " + p.name + " is archived: all " + rows.length + " message" + (rows.length === 1 ? "" : "s") + ".\n\n" +
       "→ It leaves the list. Search still finds it, under Archived.\n\n" +
       "→ A new text from " + p.name.split(" ")[0] + " starts a fresh conversation.",

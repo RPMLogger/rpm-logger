@@ -677,7 +677,7 @@ function _travelRenderReview() {
     var nL = data.totalLessons, nS = data.totalStudents;
     rpmConfirm({
       title: 'Warning!',
-      subtitle: 'Upon activation:',   // small grey line under it (user, 2026-10-21)
+      subtitle: 'Upon activation',   // small grey line under it (user, 2026-10-21)
       message:
         '→ ' + nL + ' lesson' + (nL === 1 ? '' : 's') + ' across ' + nS + ' student' + (nS === 1 ? '' : 's') + ' will be deleted from the calendar.\n\n' +
         '→ ' + (_travelState.testMode ? 'The texts go to YOUR phone (test): ' : 'Each student is texted ') +

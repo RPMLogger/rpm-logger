@@ -5422,6 +5422,7 @@ html body #commsBody .cm-title-icon { opacity: .45; filter: drop-shadow(0 -1px 0
    Home + Audit (amps) and Calendar (drag maths) left out for now. */
 :root { --content-scale: .9; }   /* 90% (user, 2026-11-16: 80% read small a few times, e.g. Glance) */
 .tab-panel:not(#tab-home, #tab-audit, #tab-calendar) > :not(.td-bolt) { zoom: var(--content-scale); }
+html body #tab-audit > :is(#imAuditView, #payAuditView) { zoom: var(--content-scale); }   /* the two Audit pages at the content size; the speaker menu stays full (user, 2026-11-17) */
 :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) > * { zoom: var(--content-scale); }   /* every window + warning dialog */
 /* Rack screen while something loads: the word rolls right → left like a ticker (user, 2026-11-12) */
 .home-rack .hr-lcd.rolling { align-items: flex-start; }
@@ -5822,3 +5823,13 @@ html body #tab-emails .em-titlebar .td-wk-title { margin-bottom: 0; }
 html body #tab-emails .em-titlebar .td-wk-title, html body #tab-emails .em-titlebar .td-wk-title * { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
 html body #tab-emails .em-title-rule { margin: 33px 0 0; }   /* icon → line = the Inquiries title block */
 html body #tab-emails .em-title-icon :is(.win-icon, #_a#_b#_c) { height: 20px; }   /* the envelope is wide: 20 tall makes it ~20 wide, the others' size (user, 2026-11-16) */
+/* WARNING BOX (user, 2026-11-17: "not a good alarm warning"): the window's own inner edge red, no inner frame, the points in plain readable text, subheading 14 */
+html body :is(.rpm-dlg-confirm.tv-golive-dlg, #_a#_b#_c) { border: 1px solid oklch(0.43 0.09 29); }   /* red at the gold piping's lightness (#5e4d2a = oklch .43 .056 84), so it reads as piping, not a glow */
+html body :is(.rpm-dlg-confirm.tv-golive-dlg, #_a#_b#_c) .rpm-dlg-body { border: none; background: none; padding: 0; margin-top: 22px; }
+html body :is(.rpm-dlg-confirm.tv-golive-dlg, #_a#_b#_c) .rpm-dlg-sub { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }   /* the section-heading face, like UNLOGGED LESSONS (user, 2026-11-17: Bebas was the wrong font here) */
+html body :is(.rpm-dlg-confirm.tv-golive-dlg, #_a#_b#_c) .rpm-dlg-body .rpm-dlg-msg { text-transform: none; letter-spacing: 0; font-size: 12px; color: var(--t-normal); margin-top: 12px; }
+/* DIALOG BUTTONS = WINDOW BUTTONS (user, 2026-11-17: small pop-ups had bigger buttons than big windows): every confirm + warning button at the .link-btn size, colours kept */
+html body :is(.rpm-dlg-btn, #_a#_b#_c) { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; line-height: normal; }
+html body :is(.rpm-dlg-btn, #_a#_b#_c) svg { width: auto; height: 12px; }
+html body :is(.rpm-dlg-btn.danger, #_a#_b#_c) { color: #ff5a4d; border-color: color-mix(in srgb, #ff5a4d 55%, transparent); background: color-mix(in srgb, #ff5a4d 7%, transparent); }   /* every dangerous action red, like Terminate (user, 2026-11-17: Delete was white) */
+html body :is(.rpm-dlg-btn.danger, #_a#_b#_c):hover:where(:not(:disabled)) { color: #ff5a4d; border-color: #ff5a4d; background: color-mix(in srgb, #ff5a4d 16%, transparent); }
