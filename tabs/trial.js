@@ -407,10 +407,10 @@ function _trMsgRow(m, them) {
   }
   var mine = !!m.fromMe;
   var who  = mine ? 'You' : (them || 'Them');
-  // Them green, you amber: each side of the exchange has its own colour, so
+  // Blue mine, grey theirs (the portal's texting colours, emails too since 2026-11-17), so
   // who said what reads down the edge without reading the headers.
   // Texts (RPM line, 2026-11-14): blue mine, grey theirs, the portal's texting colours.
-  var edge = m.sms ? (mine ? 'var(--blue)' : 'var(--muted)') : (mine ? 'var(--warn)' : 'var(--green)');
+  var edge = mine ? 'var(--blue)' : 'var(--muted)';   // blue mine, grey theirs, emails too (user, 2026-11-17; emails were amber / green)
   var tag  = m.sms ? ' · Text' + (mine && /^(undelivered|failed)$/.test(m.status || '') ? ' · Not delivered' : '') : '';
   return '<div class="tr-msg"><div style="border-left:2px solid ' + edge + ';padding:0 0 0 9px;margin-bottom:20px">' +
       // The name dimmed to the text's level (2026-09-27): the edge carries the colour.
@@ -1181,8 +1181,8 @@ function _trManualFormHtml(p) {
       _trDtHtml(p) +
     '</div>' +
     '<button class="db-mini-btn" id="' + p + 'BookBtn" onclick="_trBook(\'' + p + '\')" ' +
-      'style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:5px 10px;color:#ff5a4d;' +
-      'background:' + _skFade('#ff5a4d') + ';border-color:rgba(255,255,255,0.1)">＋ Book trial</button>';
+      'style="min-width:120px;text-align:left;' + _TR_CAPS + ';font-size:9px;padding:5px 10px;color:var(--btn-main);' +
+      'background:transparent;border-color:color-mix(in srgb, var(--muted) 80%, transparent)">＋ Book trial</button>';
 }
 
 function _trBook(p) {
@@ -1362,7 +1362,7 @@ function _trStageCard(a) {
       '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || '—') + '</span></div>' +
       // "TRIAL - Sun, Sep 13 - 11:15 AM" on its own line, then a divider.
       (when
-        ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:0.3px;margin-top:4px;color:var(--green)">' +
+        ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:0.3px;margin-top:4px;color:var(--accent2)">' +   // amber: coming up = needs your eye; green means done (user, 2026-11-17)
             'TRIAL ON - ' + inqEsc(when.replace(/^(\w{3})\s+/, '$1, ').replace(/\s+·\s+/, ', ')) +
           '</div>'
         : '') +

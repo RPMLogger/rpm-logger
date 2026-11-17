@@ -561,7 +561,7 @@ function _arcStyle() {
     '#tab-archive .arc-box .ld-cards { margin-bottom: 0; }' +
     '#tab-archive .arc-find { display: flex; align-items: center; gap: 12px; margin: 0 0 24px; }' +
     '#tab-archive .arc-find input { flex: 1; min-width: 0; max-width: 340px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--t-text); font-family: "DM Mono", monospace; font-size: 12px; padding: 9px 12px; outline: none; }' +
-    '#tab-archive .arc-find input:focus { border-color: var(--accent); }' +
+    '#tab-archive .arc-find input:focus { border-color: var(--focus); }' +
     '#tab-archive .arc-find span { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; color: var(--t-faint); }' +
     '#tab-archive .ld-title { display: flex; align-items: baseline; gap: 10px; }' +
     '#tab-archive .ld-title .arc-n { color: var(--t-faint); }' +

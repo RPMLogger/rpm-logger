@@ -189,7 +189,7 @@ function _tsStatusPill(s) {
   if (s.confirmedAt)   return tag('var(--green)', 'Confirmed');
   if (_tsNeedsReply(s)) return tag('var(--warn)', 'Needs reply');   // (user, 2026-10-20; was Needs you)
   if (s.messageSentAt) return tag('var(--muted)', 'Awaiting', 'rgba(240,237,232,0.07)');   // the grey key badge on Travel Plan
-  return tag('#ff5a4d', 'Not sent');
+  return tag('var(--accent)', 'Not sent');
 }
 
 function _tsStudentRow(s, readOnly) {

@@ -974,7 +974,7 @@ function _calInjectStyle() {
     ".cal-sv-strips{margin-top:0}.cal-sv-dates>div:not(.empty-state){display:flex;align-items:baseline;gap:12px;padding:5px 2px;color:var(--t-normal)}" +
     ".cal-sv-dates i{font-style:normal;color:var(--t-faint)}.cal-sv-dates>div>i{width:20px;text-align:right}.cal-sv-dates b{display:inline-block;min-width:11ch;font-weight:normal}" +
     ".cal-sv-strips button,.cal-sv-strips button[data-past='0'][data-has='0']{cursor:default}" +
-    ".cal-btn-go{background:var(--accent);border-color:var(--accent);color:#fff}" +
+    ".cal-btn-go{background:transparent;border-color:color-mix(in srgb, var(--muted) 80%, transparent);color:var(--btn-main)}" +
     // A speaker cab under the amp head (user, 2026-11-02): the head's frame, a dark rounded inner line
     // inside a 4px body ring with its own rounded edge (styles.css .header::before).
     ".cal-ctx-note{padding:4px 12px 8px;font-size:10px;color:var(--muted)}.cm-ctx .cm-new-opt:disabled{opacity:.35;cursor:default}" +

@@ -140,7 +140,7 @@ function annTag(s) {
   var tag = function (c, t) { return "<span class='ts-tag' style='color:" + c + "'>" + t + "</span>"; };
   if (s.state === "confirmed") return tag("var(--green)", "Confirmed");
   if (s.state === "reply")     return tag("var(--warn)", "Needs reply");
-  if (s.state === "failed")    return tag("#ff5a4d", "Not delivered");
+  if (s.state === "failed")    return tag("var(--accent)", "Not delivered");
   return tag("var(--muted)", "Awaiting");
 }
 var ANN_RANK = { reply: 0, failed: 1, waiting: 2, confirmed: 3 };

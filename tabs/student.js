@@ -98,7 +98,7 @@ function _stRenderSearch() {
     'width:300px;padding:15px 18px;font-size:17px;font-family:inherit;text-align:center;letter-spacing:0.3px;' +
     'background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:12px;outline:none;' +
     'transition:border-color .15s, box-shadow .15s';
-  input.onfocus = function() { input.style.borderColor = 'var(--accent)'; input.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent)'; };
+  input.onfocus = function() { input.style.borderColor = 'var(--focus)'; input.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--focus) 14%, transparent)'; };
   input.onblur  = function() { input.style.borderColor = 'var(--border)'; input.style.boxShadow = 'none'; };
   wrap.appendChild(input);
 
@@ -361,7 +361,7 @@ function _stRenderDetail() {
 
   var payRow = document.createElement('div');
   payRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--panel);margin-bottom:16px';
-  var payColors = { 'Paid': '#8f8f8f', 'Due': '#ffb400', 'Overdue': '#ff5050' };
+  var payColors = { 'Paid': '#8f8f8f', 'Due': 'var(--accent2)', 'Overdue': 'var(--accent)' };
   var payColor = payColors[d.paymentStatus] || 'var(--muted)';
   payRow.innerHTML =
     "<span style='font-size:12px;color:" + payColor + "'>" + (d.paymentStatus || '—') + "</span>" +
@@ -380,8 +380,8 @@ function _stRenderDetail() {
   //  · Off-day (late-log / correcting) → a date stepper that starts at today and
   //    steps ±1 day (▲/▼ buttons or keyboard Up/Down), plus a Log button that
   //    records for the chosen date.
-  var _stLogGreen = 'width:100%;padding:10px;font-size:12px;background:color-mix(in srgb, var(--green) 12%, transparent);' +
-    'color:var(--green);border:1px solid color-mix(in srgb, var(--green) 40%, transparent);border-radius:6px;cursor:pointer;letter-spacing:0.3px';
+  var _stLogGreen = 'width:100%;padding:10px;font-size:12px;background:transparent;' +   // bright main action, not green: green = done (user, 2026-11-17)
+    'color:var(--text);border:1px solid var(--muted);border-radius:6px;cursor:pointer;letter-spacing:0.3px';
 
   if (d.isLessonToday && d.loggedToday) {
     // Today's lesson is already in Import → a done bar instead of a live log
@@ -575,7 +575,7 @@ function _stRenderAudit(data) {
   // Payment
   var payBox = document.createElement('div');
   payBox.style.cssText = 'padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--panel);margin-bottom:10px';
-  var colors = { 'Paid': 'var(--green)', 'Due': '#ffb400', 'Overdue': '#ff5050' };
+  var colors = { 'Paid': 'var(--green)', 'Due': 'var(--accent2)', 'Overdue': 'var(--accent)' };
   var color = colors[data.paymentStatus] || 'var(--muted)';
   payBox.innerHTML =
     "<div style='font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px'>Payment</div>" +
@@ -878,15 +878,15 @@ function _rpmTpStyle() {
     ".im-rs-strips .st-pick-sel{background:rgba(255,255,255,0.04) !important;border-color:rgba(255,255,255,0.3) !important}" +
     ".im-rs-strips .st-pick-sel div{color:rgba(255,255,255,0.4) !important}" +
     ".im-rs-strips .st-pick-x{color:rgba(255,255,255,0.85)}" +
-    ".im-rs-strips .st-pick-sel.st-pick-same div:nth-child(3){color:var(--green) !important}" +   // same day: the new time green till the ✓ (2026-10-31)
+    ".im-rs-strips .st-pick-sel.st-pick-same div:nth-child(3){color:var(--accent2) !important}" +   // same day: the new time green till the ✓ (2026-10-31)
     ".st-pick-ok .st-check-ico{width:16px;height:16px;display:block}" +
     ".im-rs-strips .st-pick-ok{color:rgba(255,255,255,0.85)}" +   // white (user, 2026-10-29; the clock stays green)
     ".im-rs-strips .st-pick-ok:hover{background:#1a1a1a;color:var(--green)}" +
     // Change appointment: the clock on the day moved to, bottom left (user, 2026-10-29; the ✓ is top right), green like the day.
-    ".st-pick-clock{position:absolute;bottom:-7px;left:-7px;width:16px;height:16px;border-radius:50%;background:#1a1a1a;color:var(--green);cursor:pointer;display:flex;align-items:center;justify-content:center}" +
+    ".st-pick-clock{position:absolute;bottom:-7px;left:-7px;width:16px;height:16px;border-radius:50%;background:#1a1a1a;color:var(--accent2);cursor:pointer;display:flex;align-items:center;justify-content:center}" +
     ".st-pick-clock .st-clock-ico{width:16px;height:16px;display:block}" +
     ".st-pick-clock:hover{color:#fff}" +
-    ".st-tpop{position:absolute;z-index:20;max-height:220px;overflow:auto;padding:4px;box-sizing:border-box;background:var(--surface);border:1px solid var(--green);" +
+    ".st-tpop{position:absolute;z-index:20;max-height:220px;overflow:auto;padding:4px;box-sizing:border-box;background:var(--surface);border:1px solid var(--accent2);" +
       "border-radius:var(--radius-card);box-shadow:0 8px 28px rgba(0,0,0,.6)}" +
     ".im-rs-moved{min-height:44px;box-sizing:border-box;margin-top:10px;padding:0 16px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;border:1px solid var(--border);border-radius:var(--radius-card);" +
       "font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.8px;text-transform:uppercase;color:var(--text)}" +
