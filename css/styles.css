@@ -5811,7 +5811,6 @@ html body #tab-general .ld-cards > .ld-card.ld-card { border-color: #353535; }
    THE BOX plates via the variable, plus the header racks (Home rack, alarm + Day Clock racks) that set their own border. */
 :root { --rpm-box-border: 1px solid #5e4d2a; }
 html body .container > :is(.home-rack, .alarm-rack) { border-color: #5e4d2a; }
-html body .header::before { border-color: #5e4d2a; }   /* the amp head's inner edge too (user, 2026-11-16) */
 
 /* Emails title icon (user, 2026-11-16): beside the title like Comms' phone, the slim head box has no room under it; size + engraving from TITLE ICONS */
 html body #tab-emails .em-title-icon { margin: 4px 0 0; line-height: 0; }   /* under the title like the other tabs (user, 2026-11-16) */
