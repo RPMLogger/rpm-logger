@@ -5807,6 +5807,90 @@ html body .rpm-title-btns .link-btn svg { height: 12px; width: auto; filter: non
 html body :is(.rpm-card-plate > .inq-dcard, #_a#_b#_c) { border: none; box-shadow: none; background: none; padding: 0; margin: 0; border-radius: 0; }   /* the card IS the plate (Trial, Inquiries); #_a#_b#_c outranks THE CARD rule */
 html body :is(.rpm-card-plate > .inq-dcard, #_a#_b#_c)::after { display: none; }
 html body.rk-lessons :is(#trialStageBody, #inquiriesList) > .td-wk-box:first-child { margin-top: 62.5px; }   /* the rack's gap between plates (css/rack.css), though it starts a new wrapper */
+/* Day recap window (user's sketch, 2026-11-16; tidied to the payment Details window's look): rpRecapOpen, tabs/report.js.
+   Hours on top, then BOOKED (dashed grey chips) and TAUGHT (green chips) on one time scale; under a divider the Day list. */
+.settings-modal.rp-recap-win { max-width: 900px; width: 92%; }
+.rp-recap-win .rp-icon { margin: 4px 0 18px; }
+.rp-recap-win .rp-icon .win-icon { width: 24px; height: 24px; color: var(--t-normal); }
+.rp-recap-win .rp-grid { display: grid; grid-template-columns: 78px minmax(0, 1fr); align-items: center; row-gap: 18px; column-gap: 12px; font-family: "DM Mono", monospace; font-size: 11px; }
+.rp-recap-win .rp-lbl { color: var(--t-normal); text-transform: uppercase; letter-spacing: 1px; }
+.rp-recap-win .rp-trk { position: relative; height: 30px; margin-right: 22px; }
+.rp-recap-win .rp-hrs { height: 14px; margin-bottom: -6px; }
+.rp-recap-win .rp-hr { position: absolute; top: 0; transform: translateX(-50%); color: var(--t-faint); white-space: nowrap; }
+.rp-recap-win .rp-chip { position: absolute; top: 0; bottom: 0; box-sizing: border-box; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
+.rp-recap-win .rp-chip.bk { background: #1e1e1e; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10); color: var(--t-normal); text-transform: uppercase; letter-spacing: 1px; }   /* grey fill, not dashed (user, 2026-11-16) */
+.rp-recap-win .rp-chip.tg { background: linear-gradient(180deg, oklch(.63 .19 145 / .16), oklch(.63 .19 145 / .07)); color: oklch(.8 .08 145); box-shadow: inset 0 0 0 1px oklch(.72 .08 145 / .5); cursor: default; }   /* the rack screens' green (user likes it, 2026-11-16) */
+.rp-recap-win .rp-chip.tg:hover { box-shadow: inset 0 0 0 1px oklch(.8 .1 145 / .8); }
+.rp-recap-win .rp-fl { color: var(--t-normal); text-transform: uppercase; letter-spacing: 1px; }
+.rp-recap-win .rp-red { color: color-mix(in srgb, var(--accent) 80%, white); }   /* the header red, a touch lifted to read as text */
+.rp-recap-win .rp-green { color: oklch(.8 .08 145); }
+.rp-recap-foot { display: flex; justify-content: flex-end; margin: 48px -7px -3px 0; }   /* button as far from the bottom-right corner as ✕ is from the top-right (user, 2026-11-17) */   /* same gap as between sections (user, 2026-11-17; was 24px) */
+.rp-recap-win .rp-by { color: var(--t-faint); }   /* who it was lost to */
+/* The three lines (user, 2026-11-16): green lessons × 50, grey slots × 60, red taught — subtle: thin, muted, no glow (user) */
+.rp-recap-win .rp-bars { margin-top: 28px; row-gap: 12px; }
+.rp-recap-win .rp-bar-row { display: flex; align-items: center; gap: 12px; margin-right: 22px; min-width: 0; }
+.rp-recap-win .rp-bar { height: 4px; border-radius: 2px; flex: none; }
+.rp-recap-win .rp-bar.g { background: oklch(.72 .08 145 / .7); }
+.rp-recap-win .rp-bar.k { background: #3c3c3c; }
+.rp-recap-win .rp-bar.r { background: var(--accent); }
+.rp-recap-win .rp-bar-v { color: var(--t-normal); white-space: nowrap; }
+/* One bordered graph (user, 2026-11-16): the three lines in a box, a dashed mark at the lessons' total through them */
+.rp-recap-win .rp-graph { margin-top: 104px; padding: 18px 0 18px 18px; border: 1px solid var(--border); border-radius: 6px; }
+.rp-recap-win .rp-graph .rp-bars { margin-top: 0; position: relative; }
+.rp-recap-win .rp-mark-row { position: absolute; left: 90px; right: 22px; top: -8px; bottom: -8px; pointer-events: none; }   /* same box as a line's row */
+.rp-recap-win .rp-mark { position: absolute; top: 0; bottom: 0; border-left: 1px dashed oklch(.72 .08 145 / .45); }
+.rp-recap-win .rp-box { padding: 18px 0 20px 18px; border: 1px solid var(--border); border-radius: 6px; }   /* the time line in a border like the graph (user, 2026-11-16) */
+.rp-recap-win :is(.rp-box, .rp-graph) { background: var(--box); box-shadow: inset 0 1px 4px rgba(0,0,0,.55); }   /* recessed panels, darker than the window (user, 2026-11-16) */
+.rp-recap-win :is(.rp-box, .rp-graph) { box-sizing: border-box; height: 168px; padding: 0 0 0 18px; display: flex; flex-direction: column; justify-content: center; }   /* both boxes the same size (user, 2026-11-16) */
+.rp-recap-win .rp-sec { font-family: "Bebas Neue", sans-serif; font-size: 18px; color: var(--t-normal); letter-spacing: 1.5px; line-height: 1; margin: 48px 0 12px; }   /* Timeline / Total / Lesson length above their boxes (user, 2026-11-17) */
+.rp-recap-win .rp-total { margin-top: 0 !important; }
+.rp-recap-win .rp-sec { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }   /* section titles engraved like the header name (user, 2026-11-17) */
+.rp-recap-win .rp-graph { margin: 0 !important; }
+.rp-recap-win.rp-recap-win :is(.rp-box, .rp-graph, .rp-card) { border-color: #353535; }   /* box borders a touch more visible, was #2a2a2a (user, 2026-11-17) */
+/* Every Day Recap box = a student-card plate: raised, two rivets top corners (user, 2026-11-17) */
+.rp-recap-win.rp-recap-win :is(.rp-card, .rp-box, .rp-graph) { position: relative; background-color: var(--box);   /* the earlier darker fill kept (user, 2026-11-17) */ background-image: var(--rpm-card-grain); box-shadow: 0 3px 8px rgba(0,0,0,0.55); }
+.rp-recap-win.rp-recap-win .rp-cards > .rp-card { padding-left: 26px; padding-right: 26px; }   /* name bar clears the rivets */
+.rp-recap-win.rp-recap-win .rp-graph { padding-top: 22px; padding-bottom: 20px; }   /* first bar clears the rivets */
+.rp-recap-win :is(.rp-card, .rp-box, .rp-graph)::after { content: ""; position: absolute; top: 8px; left: 8px; right: 8px; height: 7px; pointer-events: none; background: radial-gradient(circle 1.6px at 2.6px 2.3px, rgba(160,160,160,0.55), transparent) left top / 7px 7px no-repeat, radial-gradient(circle 3.5px at 3.5px 3.5px, #4a4a4a, #2b2b2b 1.9px, #141414 2.9px, #0a0a0a 3.3px, transparent 3.6px) left top / 7px 7px no-repeat, radial-gradient(circle 1.6px at 2.6px 2.3px, rgba(160,160,160,0.55), transparent) right top / 7px 7px no-repeat, radial-gradient(circle 3.5px at 3.5px 3.5px, #4a4a4a, #2b2b2b 1.9px, #141414 2.9px, #0a0a0a 3.3px, transparent 3.6px) right top / 7px 7px no-repeat; filter: drop-shadow(0 1px 1px #000); }
+.rp-recap-win .rp-top { margin: 4px 0 0; padding: 16px 14px 18px; }   /* Total extra + Hours at the very top (user, 2026-11-17) */
+.rp-recap-win .rp-bv.rp-red { color: color-mix(in srgb, var(--accent) 80%, white); }
+.rp-recap-win .rp-graph { height: auto; padding: 16px 0 16px 18px; }   /* tighter bar graph (user, 2026-11-17) */
+.rp-recap-win .rp-graph .rp-bars { row-gap: 4px !important; }
+.rp-recap-win .rp-graph .rp-bar-row { height: 24px !important; }   /* bar graph sits under the Total title, above its rows (user, 2026-11-17) */
+.rp-recap-win .rp-graph .rp-bars { row-gap: 18px; }
+.rp-recap-win .rp-graph .rp-bar-row { height: 30px; }   /* the same row rhythm as the time line box: 30px rows, 18px apart (user, 2026-11-16) */
+/* Dashed lines at the half hours, down through Booked and Taught (user, 2026-11-16) */
+.rp-recap-win .rp-box .rp-grid { position: relative; }
+.rp-recap-win .rp-vls { position: absolute; left: 90px; right: 22px; top: 18px; bottom: -6px; pointer-events: none; }.rp-recap-win .rp-vl { position: absolute; top: 0; bottom: 0; border-left: 1px dashed rgba(255,255,255,0.12); }
+.rp-recap-win .rp-chip { z-index: 1; }
+/* A taught chip past 50 minutes: that part red, the payment window's red (user, 2026-11-16) */
+.rp-recap-win .rp-over { position: absolute; top: 0; bottom: 0; right: 0; border-radius: 0 4px 4px 0; background: color-mix(in srgb, var(--accent) 30%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 75%, transparent); }
+.rp-recap-win .rp-chip-t { position: relative; }
+.rp-recap-win .rp-sep { font-style: normal; margin: 0 10px; color: #444; }
+/* Each lesson's small box in the Recap window (user, 2026-11-16) */
+.rp-recap-win .rp-cards { display: flex; flex-wrap: wrap; gap: 12px; }
+.rp-recap-win .rp-card { flex: 1 1 170px; box-sizing: border-box; }   /* together as wide as the boxes above (user, 2026-11-16) */
+.rp-recap-win .rp-card { padding: 12px 14px 14px; border: 1px solid var(--border); border-radius: 6px; background: var(--box); box-shadow: inset 0 1px 4px rgba(0,0,0,.55); font-family: "DM Mono", monospace; font-size: 11px; }
+.rp-recap-win .rp-cn { font-family: "Bebas Neue", sans-serif; font-size: 18px; color: var(--t-normal); letter-spacing: 1.5px; line-height: 1; margin-bottom: 12px; }   /* names in Bebas, not white (user, 2026-11-16) */
+.rp-recap-win .rp-cf { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; }
+.rp-recap-win .rp-cl { color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.rp-recap-win .rp-cv { color: var(--t-normal); text-align: right; white-space: nowrap; }
+.rp-recap-win .rp-cards .rp-cn { font-family: "DM Mono", monospace; font-size: 11px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; }   /* names like the Booked chips (user, 2026-11-17) */
+.rp-recap-win .rp-cards .rp-cn { height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 4px; background: #1e1e1e; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.10); }   /* the name sits in a filled bar, the Booked chip itself (user, 2026-11-17) */
+.rp-recap-win .rp-big { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; text-align: center; }   /* Extra + Late big (user, 2026-11-17) */
+.rp-recap-win .rp-bl { display: block; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-size: 10px; margin-bottom: 5px; }
+.rp-recap-win .rp-bv { font-size: 22px; line-height: 1; color: var(--t-normal); }
+.rp-recap-win .rp-bv.rp-dim { color: var(--muted); }
+.rp-recap-win .rp-hx { color: var(--muted); }   /* (+1) after Hours: minutes past the booked hours (user, 2026-11-17) */
+.rp-recap-win .rp-hx.rp-amb { color: color-mix(in srgb, var(--accent) 80%, white); }   /* light red (user, 2026-11-17) */
+.rp-recap-win .rp-bv.rp-amb { color: var(--accent2); }
+.rp-recap-win .rp-sub { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06); }
+.rp-recap-win .rp-sub .rp-bl { margin-bottom: 3px; }
+.rp-recap-win .rp-sub .rp-bv { font-size: 11px; color: var(--t-normal); }
+.rp-recap-win .rp-untimed { text-align: center; }   /* untimed card: name + dim dash, centred (user, 2026-11-17) */
+.rp-recap-win .rp-dash { color: var(--muted); font-size: 13px; line-height: 1; }
+.rp-recap-win .rp-amb { color: var(--accent2); }
+
 /* Every card's edge = the Payments card's #353535 (user, 2026-11-16: "payment card color looks good, apply to all"; Inquiries/Initiate/Terminate/Dropbox were #2a2a2a, Dashboard #2c2c2c).
    Low specificity on purpose: each card's own :hover / open colours still win. */
 html body :is(.inq-dcard, .en-card, .en-scard, .db-card) { border-top-color: #353535; border-right-color: #353535; border-bottom-color: #353535; }
@@ -5820,6 +5904,8 @@ html body #tab-general .ld-cards > .ld-card.ld-card { border-color: #353535; }
    THE BOX plates via the variable, plus the header racks (Home rack, alarm + Day Clock racks) that set their own border. */
 :root { --rpm-box-border: 1px solid #5e4d2a; }
 html body .container > :is(.home-rack, .alarm-rack) { border-color: #5e4d2a; }
+.rp-recap-win .rp-total { margin-top: 28px; padding: 14px 18px 16px; }   /* Total, a box like the lesson boxes (user, 2026-11-16) */
+.rp-recap-win .rp-total .inq-fields { margin-top: 0; grid-template-columns: 220px 1fr; row-gap: 10px; }
 
 /* Emails title icon (user, 2026-11-16): beside the title like Comms' phone, the slim head box has no room under it; size + engraving from TITLE ICONS */
 html body #tab-emails .em-title-icon { margin: 4px 0 0; line-height: 0; }   /* under the title like the other tabs (user, 2026-11-16) */

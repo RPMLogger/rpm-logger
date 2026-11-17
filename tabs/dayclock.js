@@ -132,9 +132,9 @@ function _dcRender() {
     '<div class="dc-row">' +
       '<div class="dc-sec dc-clk"><span class="dc-nm hr-cap">Clock</span><span class="dc-lcd dc-big" id="dcNow"></span></div>' +
       secs +
-      // Report (user, 2026-11-16): the numbers the rack keeps quiet live on their own tab (tabs/report.js)
-      '<div class="dc-sec dc-rep"><span class="dc-nm hr-cap">Report</span><div class="dc-body">' +
-        '<button class="dc-key" onclick="switchTab(\'report\')" data-tip="Instant.\nOpens Report." data-tip-wrap></button></div></div>' +
+      // Recap (user, 2026-11-16): today's day recap in a window (rpRecapOpen, tabs/report.js); the rest on the Report tab
+      '<div class="dc-sec dc-rep"><span class="dc-nm hr-cap">Recap</span><div class="dc-body">' +   // a window, not the tab (user, 2026-11-16)
+        '<button class="dc-key" onclick="rpRecapOpen()" data-tip="Opens a window.\nToday: time lost, booked vs taught." data-tip-wrap></button></div></div>' +
       '</div>';
   _dcClockPaint();
   if (typeof _imFixTips === 'function') _imFixTips(rack);
