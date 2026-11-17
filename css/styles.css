@@ -5420,7 +5420,7 @@ html body #commsBody .cm-title-icon { opacity: .45; filter: drop-shadow(0 -1px 0
 /* CONTENT SCALE (user, 2026-11-12): at 175% browser zoom the amp reads right but everything inside the boxes read one size up.
    One knob: the inside of every tab box and every window at 86% (= what 150% looks like); the amp, header and box frames stay.
    Home + Audit (amps) and Calendar (drag maths) left out for now. */
-:root { --content-scale: .8; }
+:root { --content-scale: .9; }   /* 90% (user, 2026-11-16: 80% read small a few times, e.g. Glance) */
 .tab-panel:not(#tab-home, #tab-audit, #tab-calendar) > :not(.td-bolt) { zoom: var(--content-scale); }
 :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) > * { zoom: var(--content-scale); }   /* every window + warning dialog */
 /* Rack screen while something loads: the word rolls right → left like a ticker (user, 2026-11-12) */
