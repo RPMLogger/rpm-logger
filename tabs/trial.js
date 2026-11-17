@@ -16,10 +16,8 @@ function initTrialTab() {
   body.innerHTML =
     // 12px on top of the label's own 16, so the first card doesn't hug the title.
     // Padding, not margin: a margin would collapse into the label's.
-    '<div class="tr-av-bar"><button class="link-btn bright opens-window" onclick="_trAvOpen()" ' +
-      'data-tip="Opens a window.\nThis week and next on the teaching grid.\nPick a name, then the times to offer them.\nOffers last 3 days." data-tip-wrap data-tip-left>' +
-      CALENDAR_ICON + '<span>Available times</span></button></div>' +
-    '<div id="trAccepted" style="padding-top:12px"><div class="empty-state rpm-loading">Loading</div></div>' +
+    // Available times sits on the title line now (index.html, user 2026-11-16).
+    '<div id="trAccepted"><div class="empty-state rpm-loading">Loading</div></div>' +
     '<div id="trBookArea" style="display:none">' +
       '<hr class="divider" style="margin:22px 0 16px">' +
       _trManualFormHtml() + '<div id="trStatus"></div>' +
@@ -722,9 +720,6 @@ function _trAvStyle() {
   var el = document.createElement("style");
   el.id = "trAvStyle";
   el.textContent =
-    // Up on the tab title's line, right edge (user, 2026-10-31): -35px lifts the
-    // 35px button from 16px under the 14.5px label to centred on it.
-    ".tr-av-bar{display:flex;justify-content:flex-end;margin-top:-35px;margin-bottom:12px}" +
     ".tr-av-names{display:flex;flex-wrap:wrap;gap:6px}" +
     ".tr-av-name{font-family:'DM Mono',monospace;font-size:11px;padding:5px 10px;border-radius:6px;cursor:pointer;" +
       "background:transparent;color:var(--muted);border:1px solid var(--border)}" +
@@ -1322,8 +1317,13 @@ function initTrialStageTab() {
   var url = getScriptUrl();
   var body = document.getElementById('trialStageBody');
   if (!body) return;
-  if (!url) { body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>'; return; }
-  body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  // Title plate (Payments inside it): screws and the title icon (user, 2026-11-16)
+  var top = document.getElementById('trTop');
+  if (top && typeof TD_BOLTS === 'string' && !top.querySelector(':scope > .td-bolt')) top.insertAdjacentHTML('afterbegin', TD_BOLTS);
+  var ic = document.getElementById('trIcon');
+  if (ic && !ic.innerHTML) ic.innerHTML = CHECKLIST_ICON.replace(/class="[^"]*"/, 'class="win-icon"');
+  if (!url) { body.innerHTML = _trPlate('<div class="empty-state">Set your Apps Script URL in settings first.</div>'); return; }
+  body.innerHTML = _trPlate('<div class="section-label">Booked</div><div class="empty-state rpm-loading">Loading</div>');
 
   // Payments go first and run in parallel. Reading the booked list means
   // reading the inquiry archive and the calendar, which is slow, and the
@@ -1333,7 +1333,7 @@ function initTrialStageTab() {
   fetch(url + '?action=getTrialStage')
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (!d.success) { body.innerHTML = '<div class="empty-state">⚠ ' + (d.message || 'Could not load') + '</div>'; return; }
+      if (!d.success) { body.innerHTML = _trPlate('<div class="empty-state">⚠ ' + (d.message || 'Could not load') + '</div>'); return; }
       _trStageCache = d.booked || [];
       _trStageLoaded = true;
       // The payments list is already on screen by now, drawn without matches.
@@ -1342,13 +1342,19 @@ function initTrialStageTab() {
       // The opener goes first, not last. Booking by hand is something you
       // arrive at the tab already meaning to do; it should not be behind a
       // scroll past every trial in progress.
-      if (!_trStageCache.length) { body.innerHTML = '<div class="empty-state">None</div>' + _trStageBookHtml(); return; }
-      body.innerHTML = _trStageCache.map(_trStageCard).join('') + _trStageBookHtml();
+      if (!_trStageCache.length) { body.innerHTML = _trStageNoneHtml(); return; }
+      body.innerHTML = _trStageCache.map(function (a) { return _trPlate(_trStageCard(a), 'tr-card-plate rpm-card-plate'); }).join('');
       _trPaintPaid();
       _trLoadStageThreads();
     })
-    .catch(function () { body.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
+    .catch(function () { body.innerHTML = _trPlate('<div class="empty-state">❌ Could not load.</div>'); });
 }
+
+// One screwed plate (the Lessons student page's box look); each booked trial gets its own (user, 2026-11-16).
+function _trPlate(inner, cls) {
+  return '<div class="td-wk-box tr-box' + (cls ? ' ' + cls : '') + '">' + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') + inner + '</div>';
+}
+function _trStageNoneHtml() { return _trPlate('<div class="section-label">Booked</div><div class="empty-state">None</div>'); }
 
 function _trStageCard(a) {
   var when = a.trialDateLabel || '';
@@ -2533,10 +2539,10 @@ function _trNotContinuingGo(id, email, outcome) {
 function _trDropStageCard(email) {
   _trStageCache = _trStageCache.filter(function (a) { return (a.email || '') !== email; });
   var card = document.getElementById('trcard-' + emailToId(email || ''));
-  if (card) card.remove();
+  if (card) (card.closest('.tr-card-plate') || card).remove();   // its whole plate
   _trPayRender();
   var body = document.getElementById('trialStageBody');
-  if (body && !_trStageCache.length) body.innerHTML = '<div class="empty-state">None</div>' + _trStageBookHtml();
+  if (body && !_trStageCache.length) body.innerHTML = _trStageNoneHtml();
 }
 
 // After a reply lands, redraw whichever stage is on screen.
@@ -2584,13 +2590,8 @@ function _trLoadStageThreads(onDone) {
 // who inquired, and booking one of them is driven from their card. This is the
 // other case: a trial that never came through the form. Own id prefix ("ts") so
 // its fields cannot collide with Initiate's, since both panels live in the DOM.
-// Bottom of the tab: it is the rare path, so it sits under the cards instead of
-// between the section label and them. It opens a window like every other form
-// on this tab, rather than unfolding the form in the page.
-function _trStageBookHtml() {
-  return '<hr class="divider" style="margin:36px 0 32px">' +
-    '<button class="tr-open-btn opens-window" onclick="_tsShowBook()">Book a trial manually</button>';
-}
+// Opened from the small link on the title plate (index.html). It opens a window
+// like every other form on this tab, rather than unfolding the form in the page.
 
 var _tsBusy = false;
 

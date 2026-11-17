@@ -36,7 +36,7 @@ function loadData() {
   var url = getScriptUrl();
   if (!url) return;
   document.getElementById("todayGrid").innerHTML     = "<div class='empty-state rpm-loading'>Loading</div>";
-  document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty rpm-loading'>Loading</div>";
+  document.getElementById("inquiriesList").innerHTML = _inqPlate("<div class='inq-empty rpm-loading'>Loading</div>");
   ["loadTotal","loadNorm","loadWeekly","loadBiweekly","loadIncome","loadGregorian"].forEach(function(id){
     document.getElementById(id).textContent = "—";
   });
@@ -130,9 +130,9 @@ function fetchInquiries(url) {
         renderInquiries(data.inquiries || []);
         updateCommsSummary("email", (data.inquiries || []).length);
       }
-      else document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty'>No inquiries found</div>";
+      else document.getElementById("inquiriesList").innerHTML = _inqPlate("<div class='inq-empty'>No inquiries found</div>");
     }).catch(function() {
-      document.getElementById("inquiriesList").innerHTML = "<div class='inq-empty'>Could not load inquiries</div>";
+      document.getElementById("inquiriesList").innerHTML = _inqPlate("<div class='inq-empty'>Could not load inquiries</div>");
     });
 }
 function fetchCommsSummary(url) {

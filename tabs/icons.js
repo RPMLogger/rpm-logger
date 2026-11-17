@@ -244,7 +244,7 @@ var ANALYSIS_ICON =
 
 // Static buttons in index.html ask for an icon with data-icon; filled in once
 // at the end of this file (every icon defined by then), since the markup cannot
-// call JS. "archive", "reply", "back", "fwd", "out", "cash", "stats", "bars", "cost", "calendar", "time", "students", "analysis".
+// call JS. "archive", "reply", "back", "fwd", "out", "cash", "stats", "bars", "cost", "calendar", "time", "students", "analysis", "trayin", "send".
 function _rpmFillDataIcons() {
   var map = {
     archive: function () { return ARCHIVE_ICON; },
@@ -261,7 +261,9 @@ function _rpmFillDataIcons() {
     trip:     function () { return TRIP_ICON; },
     time:     function () { return TIME_ICON; },
     students: function () { return STUDENTS_ICON.replace('class="students-icon"', 'class="win-icon"'); },
-    analysis: function () { return ANALYSIS_ICON; }
+    analysis: function () { return ANALYSIS_ICON; },
+    trayin:   function () { return TRAY_IN_ICON.replace(/class="[^"]*"/, 'class="win-icon"'); },   // Inquiries title (2026-11-16)
+    send:     function () { return SEND_ICON.replace(/class="[^"]*"/, 'class="win-icon"'); }       // Initiate title (2026-11-16)
   };
   document.querySelectorAll("[data-icon]").forEach(function (el) {
     var f = map[el.getAttribute("data-icon")];

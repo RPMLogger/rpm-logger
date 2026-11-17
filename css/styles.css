@@ -333,7 +333,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Every tab in one bordered box like Today's (user, 2026-10-26; Home too).
    Today, Students, To-Do, Notes and Comms make their own boxes; Calendar and Fixed schedule
    are wider than the column, so they stay open. Financial makes its own three boxes (user, 2026-11-15). */
-.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails) {
+.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries) {
   box-sizing: border-box;   /* background, border, corners, padding, grain, screws: THE BOX at the end of this file (2026-11-06) */   /* was: every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
 
@@ -4767,7 +4767,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
   --rpm-box-ring: 0 0 0 2px #1e1e1e, 0 0 0 3px #2c2c2c;   /* screwed metal plates: the amp's double line, half as thick (user, 2026-11-06) */
   --rpm-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries),
 html body .td-wk-box,
 html body .cr.rpm-rack,
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
@@ -4777,7 +4777,7 @@ html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
   box-shadow: var(--rpm-box-ring);   /* Home's double border: dark amp-body ring + outer line (user, 2026-11-06) */
 }
 /* the ring sits 5px outside: every box 4px in from the column, like Home and the header */
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries),
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) { margin-left: 4px; margin-right: 4px; }
 html body .td-wk-box { width: calc(100% - 8px); }
 html body .cr.rpm-rack { margin-left: 4px !important; margin-right: 4px !important; }
@@ -4807,7 +4807,7 @@ html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-c
 /* small cards: Lessons, Payments, Slot change, Terminate, Skips, Availability, Dropbox. Wide (the whole box): Inquiries, Initiate, Trial, Reviews */
 html body .container :is(.im-card, .incoming-card, .slc-scard, .en-card, .db-card, #_a#_b) { max-width: var(--rpm-card-w-small); margin-left: 0; margin-right: auto; }   /* LEFT-aligned under their section heading (user, 2026-11-13; was centred) */
 html body .container :is(.inq-dcard, .en-scard, #_a#_b) { max-width: none; }
-html body :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-card, .en-scard, .db-card, #_a#_b) { border-left-width: 1px; border-left-color: #353535; --rpm-card-lift: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c, 0 3px 8px rgba(0,0,0,0.55); position: relative; }   /* every card gets the racks' double border (user, 2026-11-15) */   /* EVERY card (user, 2026-11-13: "2 rivets all cards"; was Payments + Lessons only). Trip Summary rows (.ts-row) keep their status edges: no bevel — even 1px edge all round, no light line on top (user, 2026-11-12) */
+html body :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-card, .en-scard, .db-card, #_a#_b) { border-left-width: 1px; border-left-color: #353535; --rpm-card-lift: 0 3px 8px rgba(0,0,0,0.55); position: relative; }   /* inner cards: ONE border, no rack ring (user, 2026-11-16: "inner plates should not have double border"; the ring was added 2026-11-15) */   /* EVERY card (user, 2026-11-13: "2 rivets all cards"; was Payments + Lessons only). Trip Summary rows (.ts-row) keep their status edges: no bevel — even 1px edge all round, no light line on top (user, 2026-11-12) */
 html body :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-card, .en-scard, .db-card, #_a#_b)::after { content: ""; position: absolute; top: 8px; left: 8px; right: 8px; height: 7px; pointer-events: none; background: radial-gradient(circle 1.6px at 2.6px 2.3px, rgba(160,160,160,0.55), transparent) left top / 7px 7px no-repeat, radial-gradient(circle 3.5px at 3.5px 3.5px, #4a4a4a, #2b2b2b 1.9px, #141414 2.9px, #0a0a0a 3.3px, transparent 3.6px) left top / 7px 7px no-repeat, radial-gradient(circle 1.6px at 2.6px 2.3px, rgba(160,160,160,0.55), transparent) right top / 7px 7px no-repeat, radial-gradient(circle 3.5px at 3.5px 3.5px, #4a4a4a, #2b2b2b 1.9px, #141414 2.9px, #0a0a0a 3.3px, transparent 3.6px) right top / 7px 7px no-repeat; filter: drop-shadow(0 1px 1px #000); }   /* two rivets, top corners = "student card" mark, in place of the bevel (user, 2026-11-12). ::after only: ::before is the [data-tip] tooltip */
 html body .en-card > .en-card-head { padding-left: 26px; padding-right: 26px; }   /* Terminate / Skips / Availability rows: name and ▾ clear the rivets (8px in + 7px rivet; was 14px) */
 html body :is(.db-card, #_a#_b) { padding-left: 26px; padding-right: 26px; }   /* Dropbox cards: name + buttons clear the rivets (was 14px) */
@@ -5789,3 +5789,26 @@ body:has(#tab-dayclock.active) #tab-dayclock { display: none; }   /* the tab is 
 html body #tab-trial .tr-step-b:not(.done) { color: var(--t-normal); border-color: color-mix(in srgb, var(--muted) 50%, transparent); background: color-mix(in srgb, #fff 3%, transparent); }
 html body #tab-trial .tr-step-b:not(.done):hover:where(:not(:disabled)) { color: var(--accent2); border-color: var(--accent2); background: color-mix(in srgb, #fff 4%, transparent); }
 .tr-open-btn.small { text-transform: uppercase; letter-spacing: 1px; }   /* Show / Hide in caps like every other button (user, 2026-11-16; were sentence case, 0 tracking) */
+/* TRIAL = screwed plates like Lessons' student page (user, 2026-11-16: "double border within double border not good"):
+   title plate (Book a trial manually top right, Payments under a line) · one plate per booked trial. trial.js _trPlate. */
+#tab-trial > #trTop { margin-top: 0; }
+/* THE TITLE BLOCK (user, 2026-11-16; Trial Lesson first, then Inquiries + Initiate): title left, small links right, engraved icon under, a line */
+.rpm-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.rpm-title-row .settings-title { margin-bottom: 0; }
+.rpm-title-btns { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+html body .rpm-title-btns .link-btn svg { height: 12px; width: auto; filter: none; }   /* button icons at the Archive button's 12px, not engraved */
+.divider.rpm-title-rule { margin: 24px 0 26px; }
+/* the card IS the plate now: no second border, ring, fill or rivets inside it */
+html body :is(.rpm-card-plate > .inq-dcard, #_a#_b#_c) { border: none; box-shadow: none; background: none; padding: 0; margin: 0; border-radius: 0; }   /* the card IS the plate (Trial, Inquiries); #_a#_b#_c outranks THE CARD rule */
+html body :is(.rpm-card-plate > .inq-dcard, #_a#_b#_c)::after { display: none; }
+html body.rk-lessons :is(#trialStageBody, #inquiriesList) > .td-wk-box:first-child { margin-top: 62.5px; }   /* the rack's gap between plates (css/rack.css), though it starts a new wrapper */
+/* Every card's edge = the Payments card's #353535 (user, 2026-11-16: "payment card color looks good, apply to all"; Inquiries/Initiate/Terminate/Dropbox were #2a2a2a, Dashboard #2c2c2c).
+   Low specificity on purpose: each card's own :hover / open colours still win. */
+html body :is(.inq-dcard, .en-card, .en-scard, .db-card) { border-top-color: #353535; border-right-color: #353535; border-bottom-color: #353535; }
+html body #tab-general .ld-cards > .ld-card.ld-card { border-color: #353535; }
+#tab-inquiries #inqTop { margin-top: 0; }
+#inquiriesList .inq-empty { padding: 0; text-align: left; }   /* a plate's "None" / Loading: left, like Trial's Payments */
+/* EVERY PLATE's inner edge in the amp's gold piping (#5e4d2a, the line under the amp head), outer dark ring kept (user, 2026-11-16: "all plates"):
+   THE BOX plates via the variable, plus the header racks (Home rack, alarm + Day Clock racks) that set their own border. */
+:root { --rpm-box-border: 1px solid #5e4d2a; }
+html body .container > :is(.home-rack, .alarm-rack) { border-color: #5e4d2a; }

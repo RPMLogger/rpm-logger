@@ -275,10 +275,7 @@ function renderInquiries(inquiries) {
   var active = (inquiries || []).filter(function (i) { return (i.status || "unread") !== "responded"; });
 
   if (!active.length) {
-    var empty = document.createElement("div");
-    empty.className = "inq-empty";
-    empty.textContent = "None";
-    list.appendChild(empty);
+    list.innerHTML = _inqPlate('<div class="inq-empty">None</div>');
     var b0 = document.getElementById("inqBadge");
     if (b0) b0.style.display = "none";
     return;
@@ -357,8 +354,18 @@ function renderInquiries(inquiries) {
         markInquiryRead(id);
       });
     }
-    list.appendChild(card);
+    // each applicant on its own screwed plate, like Trial Lesson (user, 2026-11-16)
+    var plate = document.createElement("div");
+    plate.className = "td-wk-box rpm-card-plate";
+    plate.innerHTML = typeof TD_BOLTS === "string" ? TD_BOLTS : "";
+    plate.appendChild(card);
+    list.appendChild(plate);
   });
+}
+
+// One screwed plate (the rack box look) around inner html: loading / none / error lines.
+function _inqPlate(inner) {
+  return '<div class="td-wk-box">' + (typeof TD_BOLTS === "string" ? TD_BOLTS : "") + inner + '</div>';
 }
 
 // "10 Years Old" → "10". Leaves anything non-numeric as-is. (Raw — the field
@@ -588,7 +595,9 @@ function _inqSendBtnReset() {
 
 function _inqRemoveCard(domId) {
   var card = document.getElementById("inq-" + domId);
-  if (card) card.remove();
+  if (card) (card.closest(".rpm-card-plate") || card).remove();   // its whole plate
+  var list = document.getElementById("inquiriesList");
+  if (list && !list.querySelector(".inq-dcard")) list.innerHTML = _inqPlate('<div class="inq-empty">None</div>');
   // Refresh the strip so counts/income reflect any change (Yes → future student).
   loadBusinessStrip();
 }
