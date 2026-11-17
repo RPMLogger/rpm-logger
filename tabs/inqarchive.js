@@ -153,8 +153,7 @@ function _iaRender(inquiries) {
 
   // The page head: its label and the all-time count as one wide tile. No rule
   // under it: the year heading's own underline does that job (2026-09-24).
-  var html = "<div class='section-label'>Inquiry Archive</div>" +
-    "<div class='rpm-counts'>" + _inqCount("Inquiries", all.length) + "</div>";
+  var html = "<div class='rpm-counts'>" + _inqCount("Inquiries", all.length) + "</div>";
 
   years.forEach(function (y) {
     var rows = byYear[y];
