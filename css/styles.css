@@ -5809,6 +5809,9 @@ html body.rk-lessons :is(#trialStageBody, #inquiriesList) > .td-wk-box:first-chi
 /* Every card's edge = the Payments card's #353535 (user, 2026-11-16: "payment card color looks good, apply to all"; Inquiries/Initiate/Terminate/Dropbox were #2a2a2a, Dashboard #2c2c2c).
    Low specificity on purpose: each card's own :hover / open colours still win. */
 html body :is(.inq-dcard, .en-card, .en-scard, .db-card) { border-top-color: #353535; border-right-color: #353535; border-bottom-color: #353535; }
+/* Hover / open lights the LEFT side too (user, 2026-11-17): the one-border rule (#_a#_b) kept the left #353535, so only 3 sides lit.
+   Terminate / Skips / Availability / Dropbox cards; Skips' open card and still Dropbox cards keep their closed look. */
+html body :is(.en-card, .db-card:not(.db-card-still), #_a#_b):hover:where(:not(:disabled)), html body .en-card.open:not(.sk-card):is(.en-card, #_a#_b) { border-left-color: var(--muted); }
 html body #tab-general .ld-cards > .ld-card.ld-card { border-color: #353535; }
 #tab-inquiries #inqTop { margin-top: 0; }
 #inquiriesList .inq-empty { padding: 0; text-align: left; }   /* a plate's "None" / Loading: left, like Trial's Payments */
