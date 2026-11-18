@@ -4850,7 +4850,7 @@ html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-c
 #tab-calendar .cal-bar, #tab-calendar .cal-inner { box-shadow: var(--rpm-box-ring); }   /* the Calendar's racks + cab get the plates' double border (user, 2026-11-06) */
 #tab-calendar .cal-wrap { padding: 3px; margin: 0 -3px; }   /* room for the cab's ring inside the scroller (it clips) */
 /* Every None / nothing-found line: ALL CAPS, in the middle of its row (user, 2026-11-06) */
-:is(.empty-state, .inq-empty, .im-none, .cm-none, .inq-resp-none, .gl-none, .db-all-empty, .rpm-none) { text-transform: uppercase; letter-spacing: 1px; text-align: center; }
+:is(.empty-state, .inq-empty, .im-none, .cm-none, .inq-resp-none, .gl-none, .db-all-empty, .rpm-none) { text-transform: uppercase; letter-spacing: 1px; text-align: left; }   /* every None line left-aligned (user, 2026-11-18; was centered 2026-11-06) */
 .db-all-empty { display: block; }
 #importBody .im-goals-box .gl-none { padding-left: 0; }
 .cm-msgr .cm-none { text-transform: uppercase; }
