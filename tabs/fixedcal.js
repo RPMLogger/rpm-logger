@@ -161,37 +161,25 @@ function _fcRender(statusMsg) {
       ("<span class='fc-caps' style='" + cols + "'>" + g.map(function(x) { return "<span class='cr-cap'>" + x[1] + "</span>"; }).join('') + "</span>") +
     "</span>";
   }).join('') + "</span>";
-  var html =
-    "<div class='cal-bar cr'>"   // the counts rack on top (user, 2026-11-07)
-     + bolts +
-      // one rack, two layers (user, 2026-11-07; were two rack units)
-      "<div class='cr-row'>" +
-        // the knobs + grille in a fixed-width block in both layers, so the buttons line up with the screens under them (user, 2026-11-07)
-        // Three columns sized like the three screens below, so THIS WEEK sits right over A / B BALANCE (user, 2026-11-07)
-        "<span class='fc-screens fc-top'><span class='fc-tgrp' style='flex:3'>" +
-        "<span class='cr-pair fc-modes'>" + pb('both', 'A + B') + pb('A', 'Week A') + pb('B', 'Week B') + "</span>" +   // Reload removed: the tab's ⟳ does the same (user, 2026-11-09)   // push buttons again: easier than the slide switch (user, 2026-11-07)
-        "</span><span class='fc-tgrp' style='flex:2'>" +
-        "<div class='cr-lcd'>WEEK " + _fcEsc(_fcData.thisWeek) + "<small>THIS WEEK</small></div>" +
-        "</span><span class='fc-tgrp fc-tgrp3' style='flex:3'>" +
-        _fcBigKnob() +   // the knob and the key swapped (user, 2026-11-09)
-        "</span></span>" +
-        // a 160px block on the right of both layers keeps the screens as short as they were (user, 2026-11-07); the key sits in it
-        "<span class='fc-right fc-knobspot'>" + abHtml +   // the key moved to the counts rack, A / B balance here (user, 2026-11-09)
-        "</span>" +
-      "</div>" +
-    "</div>" +
-    // split into two rack units like the Calendar's (user, 2026-11-09; was one rack, two layers)
-    "<div class='cal-bar cr fc-rack2'>" + bolts +
-      "<div class='cr-row fc-countrow'>" +
-        "<span class='fc-screens fc-vpair'>" + vertHtml + "</span>" + "<span class='fc-right'>" +   // was screenHtml (the wide screens)
-        "<span class='cr-legend fc-legend2'>" +   // the key where the knob was (user, 2026-11-07)
+  // ONE LONG RACK (user, 2026-11-18: "like calendar size rack and combine to calendar"): the two racks
+  // are one, the calendar's full width, two rows, stacked under the Calendar's long rack and sitting on
+  // the fixed grid, so the three read as one case. The old two-rack markup is in git (before 2026-11-18).
+  var legendHtml =
+        "<span class='cr-legend fc-legend2'>" +
           "<span><i style='background:color-mix(in oklab, " + FC_COLORS.weekly + " 55%, #1a1a1a);box-shadow:none'></i>Weekly</span>" +
           "<span><i style='background:color-mix(in oklab, " + FC_COLORS.A + " 55%, #1a1a1a);box-shadow:none'></i>Biweekly A</span>" +
           "<span><i style='background:color-mix(in oklab, " + FC_COLORS.B + " 55%, #1a1a1a);box-shadow:none'></i>Biweekly B</span>" +
           "<span><i class='pen'></i>Pencilled</span>" +
-        "</span>" +
-        "</span>" +
+        "</span>";
+  var html =
+    "<div class='cal-bar cr fc-long'>" +
+      "<span class='cr-bolt' style='left:calc(50% - 371px)'></span><span class='cr-bolt' style='right:calc(50% - 371px)'></span>" +
+      "<div class='cr-row fc-lrow'>" +
+        "<span class='fc-lc'><span class='cr-pair fc-modes'>" + pb('both', 'A + B') + pb('A', 'Week A') + pb('B', 'Week B') + "</span></span>" +
+        "<span class='fc-lc'><div class='cr-lcd'>WEEK " + _fcEsc(_fcData.thisWeek) + "<small>THIS WEEK</small></div>" + _fcBigKnob() + "</span>" +
+        "<span class='fc-lc'>" + abHtml + legendHtml + "</span>" +
       "</div>" +
+      "<div class='cr-row fc-lrow fc-lrow2'>" + _fcCols(vertHtml) + "</div>" +
     "</div>" +
     (statusMsg ? "<div class='cal-status'>" + _fcEsc(statusMsg) + "</div>" : "") +
     "";
@@ -283,6 +271,10 @@ function _fcSpotText() {
 }
 // Listed (user, 2026-11-09): every spot at once in one amber screen, two per column under its kind (OPEN / WEEK A FREE / WEEK B FREE).
 // More than 5 columns would be too wide: then the ‹ › screen above.
+// The long rack's bottom row: each top-level unit (.fc-vert / .fc-spots) in its own column cell (user, 2026-11-18)
+function _fcCols(html) {
+  return html.split(/(?=<span class='fc-(?:vert|spots)'>)/).filter(Boolean).map(function(u) { return "<span class='fc-lc'>" + u + "</span>"; }).join('');
+}
 function _fcSpotsHtml() {
   // Separate screens (user, 2026-11-09): fully open (captioned OPEN on the rack), half-open (HALF-OPEN, columns headed by the free week)
   var full = _fcSpots.filter(function(sp) { return !sp.free; });
@@ -411,6 +403,18 @@ function _fcInjectStyle() {
     // Screens sunk into the panel (user, 2026-11-07): black rim, deep shadow from the top, a light lip along the bottom edge
     "#fcBody .cr-lcd,#fcBody .fc-screen{border:1px solid #000;box-shadow:inset 0 3px 9px rgba(0,0,0,.95),inset 0 -1px 0 rgba(255,255,255,.03),0 -1px 0 rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.08)}" +
     "#fcBody .fc-screen{height:30px;box-shadow:inset 0 4px 8px rgba(0,0,0,1),inset 0 -1px 0 rgba(255,255,255,.04),0 -1px 0 rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.11)}" +   // the slim screens sunk as deep as THIS WEEK (user, 2026-11-07)   // knob pointers dimmed to the ticks' grey (user, 2026-11-07)
+    // ONE LONG RACK (user, 2026-11-18): the calendar's width, gold inner edge, plate ring on the sides only,
+    // glued under the Calendar's long rack (its gold seam is the line between) and onto the fixed grid. Delete to undo.
+    "html body #fcBody>.cal-bar.cr.fc-long{width:100%;margin:-3px 0 -3px!important;padding:6px 0;gap:4px;border:1px solid #5e4d2a;border-top:none;border-bottom:1.5px solid #5e4d2a;border-radius:0;box-shadow:none!important}" +
+    "html body #fcBody>.cal-bar.cr.fc-long::after{display:none}" +
+    "html body #fcBody>.cal-bar.cr.fc-long::before{display:block;content:'';position:absolute;inset:0 -4px -4px -4px;pointer-events:none;box-shadow:inset 0 0 0 1px #2c2c2c,inset 0 0 0 3px #1e1e1e;clip-path:inset(0 0 3px 0)}" +
+    "html body #fcBody>.cal-bar.cr.fc-long>.cr-row{height:52px;padding:0 24px;gap:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:center}" +
+    "#fcBody .fc-long .fc-lc{display:flex;align-items:center;justify-content:center;gap:28px;min-width:0}#fcBody .fc-long .fc-lc .cr-lcd{margin:0}" +
+    "#fcBody .fc-long>.cr-row>*{flex:none}#fcBody .fc-long .fc-bigknob{zoom:.55}#fcBody .fc-long .cr-lcd{min-width:170px}" +
+    "#fcBody .fc-long>.cr-bolt{display:block;top:calc(50% - 5.5px)!important}html body #fcBody .fc-long .cr-lcd{position:static}" +   // the LCD back in the row (styles.css centres it absolutely for the old rack)
+    "#fcBody .cal-bar.fc-long>.cr-bolt[style*='left']{left:calc(50% - 371px)!important}#fcBody .cal-bar.fc-long>.cr-bolt[style*='right']{right:calc(50% - 371px)!important}" +   // over the rails, like the Calendar's
+    "#fcBody>.fc-long~.cal-wrap{padding-top:0}#fcBody>.fc-long~.cal-wrap>.cal-inner{border-color:#5e4d2a;border-top:1px solid #2c2c2c;border-top-left-radius:0;border-top-right-radius:0;clip-path:inset(0 -3px -3px -3px)}" +
+    "#calBody.cal-off-week>.cal-bar.cr.cal-long{margin-bottom:0!important}" +   // FIXED: the Calendar's rack rests on the fixed rack, not the week grid
     ".cal-ev.fc-ev{cursor:default}" +   // the Calendar's card 3D again: shading, dark edge, drop line (user, 2026-11-09; flat from 2026-11-07)
     ".cal-ev.fc-ev .n{color:var(--t-normal)}" +   // names dialled back to the time's grey (user, 2026-11-07)
     ".cal-ev.fc-ev.clash{outline:1px solid var(--accent)}" +
