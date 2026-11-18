@@ -5943,7 +5943,9 @@ html body.rk-lessons :is(#trialStageBody, #inquiriesList) > .td-wk-box:first-chi
 .rp-in-tab .rp-cards .rp-tl :is(.rp-bl, .rp-bv) { color: var(--muted); }   /* Lesson | Log | Delay row: labels + numbers one grey, dimmer than the name row (user, 2026-11-17) */
 .rp-in-tab .rp-cards .rp-tl { gap: 0; }
 .rp-in-tab .rp-cards .rp-tl > div + div { border-left: 1px solid #353535; }   /* a line between Lesson | Log | Delay (user, 2026-11-17) */
-.rp-in-tab .rp-top .rp-bv { font-size: 13px; }   /* Average + Week boxes 22 → 13, in line with Lessons (Day Recap's top box keeps 22) */
+.rp-in-tab .rp-top .rp-big3 { gap: 0; }
+.rp-in-tab .rp-top .rp-big3 > div + div { border-left: 1px solid #353535; }   /* the top box split like the tiles (user, 2026-11-17) */
+.rp-in-tab .rp-top .rp-bv { font-size: 13px; color: var(--muted); }   /* top box 22 → 13, in line with Lessons (Day Recap's keeps 22); numbers the tiles' grey (user, 2026-11-17) */
 .rp-in-tab .rp-big.rp-one { grid-template-columns: 1fr; margin-top: 0; }   /* Week box: one number (user, 2026-11-17) */
 .rp-in-tab .divider.rp-div { margin: 32px 0; }
 html body #tab-report.tab-panel.active:not(#_a) { min-height: 0; }   /* the box ends with the tiles, not at the screen bottom (user, 2026-11-17: too much empty space) */
