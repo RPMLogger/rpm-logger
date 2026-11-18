@@ -1254,7 +1254,8 @@ input[type="checkbox"]:checked {
 #tab-payments :is(.link-btn, .log-cash-btn, .incoming-confirm, .incoming-dismiss) { font-size:10px; letter-spacing:1px; line-height:normal;
   padding:4px 10px; border-radius:7px; border-width:1px; min-width:0; box-sizing:border-box; height:23px; display:inline-flex; align-items:center; }
 #tab-payments .pay-foot-btns { display:flex; gap:8px; margin-top:0; }   /* level with Audit (user, 2026-11-05; was 44px lower) */
-#tab-payments .pay-foot { margin-top:36px; }   /* Audit row under the cards, no header (user, 2026-10-30) */
+#tab-payments.active { display:flex; flex-direction:column; }   /* button row pinned to the panel's bottom edge, same spot while loading and after (user, 2026-11-18) */
+#tab-payments .pay-foot { margin-top:auto; padding-top:36px; }   /* Audit row under the cards, no header (user, 2026-10-30) */
 #tab-payments .pay-foot { align-items:center !important; }   /* Audit, Contacts, Payment history on one line (user, 2026-11-05; was flex-start) */
 #tab-payments #incomingPayments > div:not(.incoming-card) { padding: 0 !important; text-align: left !important; }   /* None / Loading left-aligned like the other None lines (user, 2026-11-18; was centered 2026-11-06) */
 .incoming-confirm { min-width: 124px; justify-content: center; }   /* Confirm and Log cash one size */
