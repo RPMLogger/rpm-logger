@@ -47,6 +47,10 @@ body:has(#tab-fixedcal.active) .alarm-rack { margin-bottom: 17px; }
 .al-row { display: grid; align-items: start; padding: 2px 44px 0; }
 .al-jack.al-grp { grid-column: span 3; display: grid; grid-template-columns: repeat(3, 1fr); justify-items: center; width: auto; row-gap: 4px; }
 .al-jack.al-grp .hr-cap { grid-column: 1 / -1; }
+.al-jack.al-grp .hr-cap { grid-row: 1; }
+.al-jack.al-grp .al-sock { grid-row: 2; }
+.al-jack.al-grp .al-led { grid-row: 3; }   /* label on top, sockets, bulbs underneath (user, 2026-11-18) */
+.al-jack.al-empty { flex-direction: column-reverse; padding-top: 12px; }   /* same: socket, bulb below; 12px = the label row it lacks (8px + 4px gap) */
 .al-empty { justify-self: center; }
 .alarm-rack::before, .alarm-rack::after { content: ""; position: absolute; top: 0; bottom: 0; width: 1px; background: #262626; box-shadow: 1px 0 0 #000; }
 .alarm-rack::before { left: 30px; } .alarm-rack::after { right: 30px; }
