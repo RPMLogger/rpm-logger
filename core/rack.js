@@ -8,7 +8,7 @@
 (function () {
   var RAIL = 40, OVER = 6, last = '';
 
-  var NO_RACK = ['calendar', 'fixedcal'];   // every tab has the rack except these two: their grids are wider than the rack (user, 2026-11-15)
+  var NO_RACK = ['fixedcal'];   // Calendar back in (user, 2026-11-18): rails at the amp's width, running down behind the long rack + week grid   // every tab has the rack except these two: their grids are wider than the rack (user, 2026-11-15)
   function lessonsOpen() {
     var p = document.querySelector('.tab-panel.active');
     return !!p && NO_RACK.indexOf(p.id.replace('tab-', '')) < 0;

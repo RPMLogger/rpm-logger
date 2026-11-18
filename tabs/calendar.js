@@ -534,9 +534,11 @@ function _calRenderShell(mon) {
   // The old two-rack markup is in git (before 2026-11-18) if this is undone.
   var html =
     "<div class='cal-bar cr cal-long'>" +
-      "<span class='cr-bolt' style='left:9px;top:calc(50% - 5.5px)'></span><span class='cr-bolt' style='right:9px;top:calc(50% - 5.5px)'></span>" +
-      "<div class='cr-row cal-cals'>" +
-        "<span class='cr-sp'></span>" +
+      // its two screws over the rails (user, 2026-11-18): the rails' hole column = the Home rack's edge + 12.5px, about 365.5px either side of the middle (measured)
+      "<span class='cr-bolt' style='left:calc(50% - 371px);top:calc(50% - 5.5px)'></span><span class='cr-bolt' style='right:calc(50% - 371px);top:calc(50% - 5.5px)'></span>" +
+      // three parts with a slot over each rail between them, where its two screws sit (user, 2026-11-18)
+      "<div class='cr-row cal-cals cal-3'>" +
+        "<span class='cl-seg'>" +
         // search at the very left (user, 2026-11-18)
         "<span class='cr-dd' id='calPick'>" +
           // a search box on the rack, like Home's, with a magnifier (user, 2026-11-09; was the "Students ▾" label + a box inside the list)
@@ -545,22 +547,19 @@ function _calRenderShell(mon) {
           "<span class='cr-ddpanel'>" +
           "<span class='cash-dd-list' id='calPickList' hidden></span></span>" +
         "</span>" +
-        "<span class='cr-sp'></span>" +
+        "<span class='cl-knobs'>" +
         "<span class='hr-col'><button class='hr-knob" + (_calGoogleOpen() ? " lit" : "") + "' id='calGoogleBtn' onclick='_calToggleGoogle()' data-tip='Instant.\nShows or hides Google Calendar&#39;s own view under the grid.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Google</span></span>" +
         "<span class='hr-col'><button class='hr-knob' id='calAnalyzeBtn' data-tip='Coming soon.\nThis week&#39;s and next week&#39;s suggested fixes.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Analyze</span></span>" +
-        "<span class='cr-sp'></span>" +
+        "</span>" +
+        "</span><span></span>" +
+        "<span class='cl-seg'>" +
+        "<span class='cl-week'>" +
         "<button class='cr-btn' onclick='_calShift(-1)' aria-label='Previous week'>‹</button>" +
         "<div class='cr-lcd" + (_calWeekOffset ? " back" : "") + "'" + (_calWeekOffset ? " onclick='_calShift(0)' data-tip='Instant.\nBack to this week.'" : "") + ">" + _calWeekLabel(mon, sun) + "</div>" +
         "<button class='cr-btn' onclick='_calShift(1)' aria-label='Next week'>›</button>" +
-        "<span class='cr-sp'></span>" +
-        "<span class='cr-lr' data-tip='W = weekly, B = biweekly this week.'><b>W</b><i id='calMeterL'></i><b>B</b><i id='calMeterR'></i></span>" +
-        "<span class='cr-sp'></span>" +
-        "<span class='cr-legend'>" +
-          "<span class='wk'><i></i>Weekly</span><span class='bi'><i></i>Biweekly</span><span class='tr'><i></i>Trial</span>" +
         "</span>" +
-        "<span class='cr-sp'></span>" +
+        "<span class='cr-lr' data-tip='W = weekly, B = biweekly this week.'><b>W</b><i id='calMeterL'></i><b>B</b><i id='calMeterR'></i></span>" +
         "<span class='cr-count'><small>Lessons</small><b id='calCount'>–</b></span>" +
-        "<span class='cr-sp'></span>" +
         "<span class='cr-ob-grp'>" +
         "<span class='cr-ob-colm'>" +
         "<span class='cr-ob-cell'><span class='cr-cap'>Birth.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' data-tip='Instant.\nShows or hides the Birthdays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"birthdays\")'>ON</button><i class='cr-led'></i></span></span>" +
@@ -571,11 +570,12 @@ function _calRenderShell(mon) {
         "<span class='cr-ob-cell'><span class='cr-cap'>Holid.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('holidays') ? " lit" : "") + "' data-cal='holidays' data-tip='Instant.\nShows or hides the Holidays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"holidays\")'>ON</button><i class='cr-led'></i></span></span>" +
         "</span>" +
         "</span>" +
-        "<span class='cr-sp'></span>" +
+        "</span><span></span>" +
+        "<span class='cl-seg'>" +
         // the lesson calendars in the same cream ON + red LED look as Birth. / Doct. (user, 2026-11-18; were red push buttons)
         "<span class='cr-ob-grp cal-ob-lessons'>" +
         "<span class='cr-ob-colm'>" +
-        "<span class='cr-ob-cell'><span class='cr-cap'>Biweekly</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('biweekly') ? " lit" : "") + "' data-cal='biweekly' data-tip='Instant.\nShows or hides the Biweekly calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"biweekly\")'>ON</button><i class='cr-led'></i></span></span>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Biweek.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('biweekly') ? " lit" : "") + "' data-cal='biweekly' data-tip='Instant.\nShows or hides the Biweekly calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"biweekly\")'>ON</button><i class='cr-led'></i></span></span>" +
         "<span class='cr-ob-cell'><span class='cr-cap'>Gigs</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('gigs') ? " lit" : "") + "' data-cal='gigs' data-tip='Instant.\nShows or hides the Gigs calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"gigs\")'>ON</button><i class='cr-led'></i></span></span>" +
         "</span>" +
         "<span class='cr-ob-colm'>" +
@@ -583,7 +583,7 @@ function _calRenderShell(mon) {
         "<span class='cr-ob-cell'><span class='cr-cap'>Weekly</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('weekly') ? " lit" : "") + "' data-cal='weekly' data-tip='Instant.\nShows or hides the Weekly calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"weekly\")'>ON</button><i class='cr-led'></i></span></span>" +
         "</span>" +
         "</span>" +
-        "<span class='cr-sp'></span>" +
+        "</span>" +
       "</div>" +
     "</div>" +
     "<div class='cal-status' id='calStatus'></div>" +
@@ -591,6 +591,9 @@ function _calRenderShell(mon) {
       // four screws like the rack's (user, 2026-11-04)
       "<span class='cr-bolt' style='left:8px;top:10px'></span><span class='cr-bolt' style='left:8px;bottom:10px'></span>" +
       "<span class='cr-bolt' style='right:8px;top:10px'></span><span class='cr-bolt' style='right:8px;bottom:10px'></span>" +
+      // two more over the rails at the top, two at the bottom (user, 2026-11-18)
+      "<span class='cr-bolt' style='left:calc(50% - 371px);top:10px'></span><span class='cr-bolt' style='right:calc(50% - 371px);top:10px'></span>" +
+      "<span class='cr-bolt' style='left:calc(50% - 371px);bottom:10px'></span><span class='cr-bolt' style='right:calc(50% - 371px);bottom:10px'></span>" +   // and two at the bottom, matching (user, 2026-11-18)
       // the days row: no screws (user, 2026-11-03)
       "<div class='cal-head'><div></div>";
 
@@ -991,6 +994,10 @@ function _calInjectStyle() {
     "html body #tab-calendar #calBody>.cal-bar.cr.cal-long::before{display:block;content:'';position:absolute;inset:-4px -4px -6px -4px;border-radius:9px 9px 0 0;pointer-events:none;box-shadow:inset 0 0 0 1px #2c2c2c,inset 0 0 0 3px #1e1e1e;clip-path:inset(0 0 3px 0)}" +
     "html body #tab-calendar #calBody>.cal-bar.cr.cal-long>.cr-bolt{display:block}" +
     "#calBody .cal-bar.cal-long>.cr-row{padding:8.5px 24px;gap:0}#calBody .cal-long>.cr-row>*{flex:none}#calBody .cal-long>.cr-row>.cr-sp{flex:1 1 0;min-width:8px}" +   // only the spacers make the gaps, all equal
+    "body.rk-lessons #tab-calendar{--rpm-box-ring:0 0 0 2px #1e1e1e,0 0 0 3px #2c2c2c}" +   // the rack tabs' thick ring off here: the long rack + grid keep their plate ring (user, 2026-11-18)
+    // the row in three parts round the rail slots: the middle part sits exactly between the rails (their hole columns ±365.5px from the middle)
+    "#calBody .cal-bar.cal-long>.cr-row.cal-3{display:grid;grid-template-columns:minmax(0,1fr) 24px 707px 24px minmax(0,1fr);padding-left:2px;padding-right:2px}" +
+    "#calBody .cal-3>.cl-seg{display:flex;align-items:center;justify-content:space-evenly;min-width:0}#calBody .cal-3 .cl-knobs,#calBody .cal-3 .cl-week{display:flex;align-items:center}" +
     "#calBody .cal-ob-lessons .cr-ob-cell .cr-cap{width:58px}" +   // room for BIWEEKLY
     "#calBody .cal-long .hr-col+.hr-col{margin-left:10px}#calBody .cal-long .cr-lcd{margin:0 8px}#calBody .cal-long .cal-search{width:110px}" +
     "#calBody>.cal-long~.cal-wrap>.cal-inner{border-top-width:0;border-top-left-radius:0;border-top-right-radius:0;clip-path:inset(0 -3px -3px -3px)}" +
