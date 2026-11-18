@@ -588,11 +588,7 @@ function _calRenderShell(mon) {
     "</div>" +
     "<div class='cal-status' id='calStatus'></div>" +
     "<div class='cal-wrap'><div class='cal-inner'>" +
-      // four screws like the rack's (user, 2026-11-04)
-      "<span class='cr-bolt' style='left:8px;top:10px'></span><span class='cr-bolt' style='left:8px;bottom:10px'></span>" +
-      "<span class='cr-bolt' style='right:8px;top:10px'></span><span class='cr-bolt' style='right:8px;bottom:10px'></span>" +
-      // two more over the rails at the top, two at the bottom (user, 2026-11-18)
-      "<span class='cr-bolt' style='left:calc(50% - 371px);top:10px'></span><span class='cr-bolt' style='right:calc(50% - 371px);top:10px'></span>" +
+      // corner screws + the top two over the rails removed (user, 2026-11-18); only the bottom two over the rails stay
       "<span class='cr-bolt' style='left:calc(50% - 371px);bottom:10px'></span><span class='cr-bolt' style='right:calc(50% - 371px);bottom:10px'></span>" +   // and two at the bottom, matching (user, 2026-11-18)
       // the days row: no screws (user, 2026-11-03)
       "<div class='cal-head'><div></div>";
@@ -1001,6 +997,8 @@ function _calInjectStyle() {
     "#calBody .cal-ob-lessons .cr-ob-cell .cr-cap{width:58px}" +   // room for BIWEEKLY
     "#calBody .cal-long .hr-col+.hr-col{margin-left:10px}#calBody .cal-long .cr-lcd{margin:0 8px}#calBody .cal-long .cal-search{width:110px}" +
     "html body #tab-calendar #calBody>.cal-bar.cr.cal-long,html body #tab-calendar #calBody .cal-inner{border-color:#5e4d2a}" +   // inner edges in the plates' gold piping, outer dark ring kept (user, 2026-11-18)
+    "html body #tab-calendar #calBody>.cal-bar.cr.cal-long{border-bottom:1.5px solid #5e4d2a}html body #tab-calendar #calBody>.cal-bar.cr.cal-long::before{bottom:-4px}" +   // the seam onto the grid: ONE amber line, not the double (user, 2026-11-18)
+    "html body #tab-calendar #calBody>.cal-long~.cal-wrap>.cal-inner{border-top:1px solid #2c2c2c}" +   // ...like the amp's: 1.5px gold on a 1px grey line (user, 2026-11-18: "kinda like the amp")   // inner edges in the plates' gold piping, outer dark ring kept (user, 2026-11-18)
     "#calBody>.cal-long~.cal-wrap>.cal-inner{border-top-width:0;border-top-left-radius:0;border-top-right-radius:0;clip-path:inset(0 -3px -3px -3px)}" +
     // push buttons the Home rack's size: 16px, 2.5px corners (user, 2026-11-09; were 22)
     "#calBody .cal-bar .cr-pb{width:16px;height:16px;border-radius:2.5px}" +
