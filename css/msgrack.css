@@ -38,7 +38,7 @@ html body .mr-caps .mr-grp-cap { color: #111; font-weight: 500; font-size: 7.5px
   border: 1px solid #2c2c2c; border-radius: 6px; background-color: #0d0d0d; background-image: var(--rpm-box-grain);
   box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c; }
 html body .home-rack, html body:has(#tab-home.active) .home-rack, html body:has(#tab-home.active, #tab-audit.active) .home-rack,
-html body:has(#tab-calendar.active) .home-rack, html body:has(#tab-fixedcal.active) .home-rack { margin-bottom: 12px; }
+html body:has(#tab-fixedcal.active) .home-rack { margin-bottom: 12px; }
 body:has(#tab-home.active, #tab-audit.active) .alarm-rack { margin-bottom: 58px; }
 body:has(#tab-calendar.active) .alarm-rack { margin-bottom: 12px; }
 body:has(#tab-fixedcal.active) .alarm-rack { margin-bottom: 17px; }
@@ -79,7 +79,7 @@ html body .header .amp-knob.rpm-alert .amp-knob-k, html body .header .amp-knob.r
 html body .container > .alarm-rack:has(+ .home-rack) { margin-top: -34px; margin-bottom: 12px; }
 html body .container > .alarm-rack + .home-rack { margin-top: 0; margin-bottom: 56px; }
 html body:has(#tab-home.active, #tab-audit.active) .container > .alarm-rack + .home-rack { margin-bottom: 58px; }
-html body:has(#tab-calendar.active) .container > .alarm-rack + .home-rack { margin-bottom: 12px; }
+/* (Calendar no longer stacks its racks under the Home rack: 48px gap like every tab, user 2026-11-18) */
 html body:has(#tab-fixedcal.active) .container > .alarm-rack + .home-rack { margin-bottom: 17px; }
 html body.rk-lessons .container > .alarm-rack:has(+ .home-rack) { margin-top: -18px !important; margin-bottom: 50px !important; }
 html body.rk-lessons .container > .alarm-rack + .home-rack { margin-top: 0 !important; margin-bottom: 50px !important; }

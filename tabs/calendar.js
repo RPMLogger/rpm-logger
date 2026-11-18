@@ -529,22 +529,15 @@ function _calRenderShell(mon) {
   // controls, the week (‹ ›, the display = back to this week) and STUDENTS ▾; GOOGLE / ANALYZE
   // switches; the VU needle and the L / R bars show how full the week is (CAL_FULL lessons = full).
   // Under the week grid (user, 2026-11-04; was above it).
-  var bar =
-    "<div class='cal-bar cr'>" +
-      "<span class='cr-bolt' style='left:8px;top:10px'></span><span class='cr-bolt' style='left:8px;bottom:10px'></span>" +
-      "<span class='cr-bolt' style='right:8px;top:10px'></span><span class='cr-bolt' style='right:8px;bottom:10px'></span>" +
-      // one slim row, as wide as the cab (user, 2026-11-03; was two rows at the head's width)
-      "<div class='cr-row'>" +
-        // the knob at the very left, then the grille, then the lesson count (user, 2026-11-03)
-        CAL_KNOB +
-        "<span class='cr-vents'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>" +
-        // GOOGLE / ANALYZE moved down to the second rack (user, 2026-11-09)
-        "<span class='cr-sp'></span>" +   // even gaps between the five groups (user, 2026-11-03)
-        "<button class='cr-btn' onclick='_calShift(-1)' aria-label='Previous week'>‹</button>" +
-        "<div class='cr-lcd" + (_calWeekOffset ? " back" : "") + "'" + (_calWeekOffset ? " onclick='_calShift(0)' data-tip='Instant.\nBack to this week.'" : "") + ">" + _calWeekLabel(mon, sun) + "</div>" +
-        "<button class='cr-btn' onclick='_calShift(1)' aria-label='Next week'>›</button>" +
+  // ONE LONG RACK (user, 2026-11-18: "a long rack that sits on top of calendar"): the two racks that stacked
+  // under the Home rack are now one row, the calendar's width, sitting right on the week grid (no feet).
+  // The old two-rack markup is in git (before 2026-11-18) if this is undone.
+  var html =
+    "<div class='cal-bar cr cal-long'>" +
+      "<span class='cr-bolt' style='left:9px;top:calc(50% - 5.5px)'></span><span class='cr-bolt' style='right:9px;top:calc(50% - 5.5px)'></span>" +
+      "<div class='cr-row cal-cals'>" +
         "<span class='cr-sp'></span>" +
-        // STUDENTS ▾ is the dropdown itself: the list, a box to type in, the Schedule window on a pick
+        // search at the very left (user, 2026-11-18)
         "<span class='cr-dd' id='calPick'>" +
           // a search box on the rack, like Home's, with a magnifier (user, 2026-11-09; was the "Students ▾" label + a box inside the list)
           "<span class='cal-search'><svg viewBox='0 0 16 16' aria-hidden='true'><circle cx='7' cy='7' r='4.5'/><path d='M10.4 10.4 14 14'/></svg>" +
@@ -552,33 +545,23 @@ function _calRenderShell(mon) {
           "<span class='cr-ddpanel'>" +
           "<span class='cash-dd-list' id='calPickList' hidden></span></span>" +
         "</span>" +
-        "<span class='cr-sp'></span>" +   // search centred between › and the W / B meter (user, 2026-11-12)
-        "<span class='cr-lr' data-tip='W = weekly, B = biweekly this week.'><b>W</b><i id='calMeterL'></i><b>B</b><i id='calMeterR'></i></span>" +
-        // LESSONS count moved down to the second rack (user, 2026-11-09)
         "<span class='cr-sp'></span>" +
-        // the VU meter moved up to the Home rack as the to-do meter (user, 2026-11-09)
+        "<span class='hr-col'><button class='hr-knob" + (_calGoogleOpen() ? " lit" : "") + "' id='calGoogleBtn' onclick='_calToggleGoogle()' data-tip='Instant.\nShows or hides Google Calendar&#39;s own view under the grid.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Google</span></span>" +
+        "<span class='hr-col'><button class='hr-knob' id='calAnalyzeBtn' data-tip='Coming soon.\nThis week&#39;s and next week&#39;s suggested fixes.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Analyze</span></span>" +
+        "<span class='cr-sp'></span>" +
+        "<button class='cr-btn' onclick='_calShift(-1)' aria-label='Previous week'>‹</button>" +
+        "<div class='cr-lcd" + (_calWeekOffset ? " back" : "") + "'" + (_calWeekOffset ? " onclick='_calShift(0)' data-tip='Instant.\nBack to this week.'" : "") + ">" + _calWeekLabel(mon, sun) + "</div>" +
+        "<button class='cr-btn' onclick='_calShift(1)' aria-label='Next week'>›</button>" +
+        "<span class='cr-sp'></span>" +
+        "<span class='cr-lr' data-tip='W = weekly, B = biweekly this week.'><b>W</b><i id='calMeterL'></i><b>B</b><i id='calMeterR'></i></span>" +
+        "<span class='cr-sp'></span>" +
         "<span class='cr-legend'>" +
           "<span class='wk'><i></i>Weekly</span><span class='bi'><i></i>Biweekly</span><span class='tr'><i></i>Trial</span>" +
         "</span>" +
-        "<span class='cr-sp'></span>" +   // a spacer after the legend too: four equal gaps, edge to edge (user, 2026-11-09)
-      "</div>" +
-    "</div>";
-  var html =
-    bar +   // the rack back above the week (user, 2026-11-04; was under it)
-    // A second rack unit under it (user, 2026-11-04): fake knobs + jack, then the calendar buttons
-    "<div class='cal-bar cr cal-bar2'>" +
-      "<span class='cr-bolt' style='left:8px;top:10px'></span><span class='cr-bolt' style='left:8px;bottom:10px'></span>" +
-      "<span class='cr-bolt' style='right:8px;top:10px'></span><span class='cr-bolt' style='right:8px;bottom:10px'></span>" +
-      // One button per Google calendar (user, 2026-11-04): lit = shown on the week. Right-click = New event on that calendar (user, 2026-11-05; was a switch). Lessons on by default, the rest off; remembered on this computer.
-      // One button per Google calendar (user, 2026-11-04): lit = shown on the week. Lessons on by default, the rest off; remembered on this computer.
-      "<div class='cr-row cal-cals'>" +
-        // GOOGLE / ANALYZE as the two knobs, the Home rack's TO-DO / NOTES look; turned up = on (user, 2026-11-09; were fake knobs, then push buttons)
-        "<span class='hr-col'><button class='hr-knob" + (_calGoogleOpen() ? " lit" : "") + "' id='calGoogleBtn' onclick='_calToggleGoogle()' data-tip='Instant.\nShows or hides Google Calendar&#39;s own view under the grid.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Google</span></span>" +
-        "<span class='hr-col'><button class='hr-knob' id='calAnalyzeBtn' data-tip='Coming soon.\nThis week&#39;s and next week&#39;s suggested fixes.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Analyze</span></span>" +
-        // WEEK / FIXED / NOTES buttons deleted (user, 2026-11-11: "i don't want it here"); _calSetView stays for the ☰ Fixed schedule link
-        "<span class='cr-sp'></span><span class='cr-count'><small>Lessons</small><b id='calCount'>–</b></span>" +   // moved down from the top rack (user, 2026-11-09)
-        // My own calendars as their own group (user, 2026-11-11, photo of a cream ON button + red LED): two columns of two, short caption on the left, LED on when shown
-        "<span class='cr-sp'></span><span class='cr-ob-grp'>" +
+        "<span class='cr-sp'></span>" +
+        "<span class='cr-count'><small>Lessons</small><b id='calCount'>–</b></span>" +
+        "<span class='cr-sp'></span>" +
+        "<span class='cr-ob-grp'>" +
         "<span class='cr-ob-colm'>" +
         "<span class='cr-ob-cell'><span class='cr-cap'>Birth.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' data-tip='Instant.\nShows or hides the Birthdays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"birthdays\")'>ON</button><i class='cr-led'></i></span></span>" +
         "<span class='cr-ob-cell'><span class='cr-cap'>Doct.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('doctors') ? " lit" : "") + "' data-cal='doctors' data-tip='Instant.\nShows or hides the Doctors calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"doctors\")'>ON</button><i class='cr-led'></i></span></span>" +
@@ -588,13 +571,20 @@ function _calRenderShell(mon) {
         "<span class='cr-ob-cell'><span class='cr-cap'>Holid.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('holidays') ? " lit" : "") + "' data-cal='holidays' data-tip='Instant.\nShows or hides the Holidays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"holidays\")'>ON</button><i class='cr-led'></i></span></span>" +
         "</span>" +
         "</span>" +
-        "<span class='cr-sp'></span><span class='cr-pair cal-cal-btns'>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('biweekly') ? " lit" : "") + "' data-cal='biweekly' data-tip='Instant.\nShows or hides the Biweekly calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"biweekly\")'></button><span class='cr-cap'>Biweekly</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('gigs') ? " lit" : "") + "' data-cal='gigs' data-tip='Instant.\nShows or hides the Gigs calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"gigs\")'></button><span class='cr-cap'>Gigs</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('trial') ? " lit" : "") + "' data-cal='trial' data-tip='Instant.\nShows or hides the Trial calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"trial\")'></button><span class='cr-cap'>Trial</span></span>" +
-        "<span class='cr-col'><button class='cr-pb" + (_calShown('weekly') ? " lit" : "") + "' data-cal='weekly' data-tip='Instant.\nShows or hides the Weekly calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"weekly\")'></button><span class='cr-cap'>Weekly</span></span>" +
+        "<span class='cr-sp'></span>" +
+        // the lesson calendars in the same cream ON + red LED look as Birth. / Doct. (user, 2026-11-18; were red push buttons)
+        "<span class='cr-ob-grp cal-ob-lessons'>" +
+        "<span class='cr-ob-colm'>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Biweekly</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('biweekly') ? " lit" : "") + "' data-cal='biweekly' data-tip='Instant.\nShows or hides the Biweekly calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"biweekly\")'>ON</button><i class='cr-led'></i></span></span>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Gigs</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('gigs') ? " lit" : "") + "' data-cal='gigs' data-tip='Instant.\nShows or hides the Gigs calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"gigs\")'>ON</button><i class='cr-led'></i></span></span>" +
         "</span>" +
-        "</div>" +
+        "<span class='cr-ob-colm'>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Trial</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('trial') ? " lit" : "") + "' data-cal='trial' data-tip='Instant.\nShows or hides the Trial calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"trial\")'>ON</button><i class='cr-led'></i></span></span>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Weekly</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('weekly') ? " lit" : "") + "' data-cal='weekly' data-tip='Instant.\nShows or hides the Weekly calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"weekly\")'>ON</button><i class='cr-led'></i></span></span>" +
+        "</span>" +
+        "</span>" +
+        "<span class='cr-sp'></span>" +
+      "</div>" +
     "</div>" +
     "<div class='cal-status' id='calStatus'></div>" +
     "<div class='cal-wrap'><div class='cal-inner'>" +
@@ -993,6 +983,17 @@ function _calInjectStyle() {
     "#calBody .cal-bar:not(.cal-bar2)>.cr-row>:is(.cr-vents,.cr-knob){display:none}" +
     "#calBody .cal-bar:not(.cal-bar2)>.cr-row{padding-left:0;padding-right:0}" +   // the spacers make the edge gaps, equal to the gaps between
     "#calBody .cal-bar:not(.cal-bar2) .cr-lcd{min-width:170px}#calBody .cal-bar .cr-lr{flex:none}#calBody .cal-bar2 .cal-cals{gap:12px}" +
+    // ONE LONG RACK on the week grid (user, 2026-11-18): the calendar's full width, its ring on top + sides only, a double seam
+    // onto the grid (the stacked racks' seam), the grid's top ring off so the two read as one case. One screw each side. Delete to undo.
+    "html body #tab-calendar #calBody>.cal-bar.cr.cal-long{width:100%;margin:0 0 -3px!important;border:1px solid #2c2c2c;border-bottom:3px double #2c2c2c;border-radius:6px 6px 0 0;box-shadow:none!important}" +
+    "html body #tab-calendar #calBody>.cal-bar.cr.cal-long::after{display:none}" +
+    // the ring (the grid's plate ring) drawn round top + sides only, in ::before, so nothing clips the student list below the rack
+    "html body #tab-calendar #calBody>.cal-bar.cr.cal-long::before{display:block;content:'';position:absolute;inset:-4px -4px -6px -4px;border-radius:9px 9px 0 0;pointer-events:none;box-shadow:inset 0 0 0 1px #2c2c2c,inset 0 0 0 3px #1e1e1e;clip-path:inset(0 0 3px 0)}" +
+    "html body #tab-calendar #calBody>.cal-bar.cr.cal-long>.cr-bolt{display:block}" +
+    "#calBody .cal-bar.cal-long>.cr-row{padding:8.5px 24px;gap:0}#calBody .cal-long>.cr-row>*{flex:none}#calBody .cal-long>.cr-row>.cr-sp{flex:1 1 0;min-width:8px}" +   // only the spacers make the gaps, all equal
+    "#calBody .cal-ob-lessons .cr-ob-cell .cr-cap{width:58px}" +   // room for BIWEEKLY
+    "#calBody .cal-long .hr-col+.hr-col{margin-left:10px}#calBody .cal-long .cr-lcd{margin:0 8px}#calBody .cal-long .cal-search{width:110px}" +
+    "#calBody>.cal-long~.cal-wrap>.cal-inner{border-top-width:0;border-top-left-radius:0;border-top-right-radius:0;clip-path:inset(0 -3px -3px -3px)}" +
     // push buttons the Home rack's size: 16px, 2.5px corners (user, 2026-11-09; were 22)
     "#calBody .cal-bar .cr-pb{width:16px;height:16px;border-radius:2.5px}" +
     // Cream ON buttons + red LED for Birthdays / Doctors / Personal / Holidays (user, 2026-11-11). Delete these lines + the markup to undo.
