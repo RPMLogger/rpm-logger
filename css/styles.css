@@ -4213,6 +4213,7 @@ html body #importBody .im-split > .im-head-card + .im-sec-box { margin-top: 0; }
 #commsStuList .cm-conv + .cm-conv { border-top: none; border-radius: 8px; }
 .cm-conv.cm-sel, .cm-conv.cm-sel:hover { background: color-mix(in srgb, var(--muted) 30%, #131313); }   /* grey (user, 2026-11-01; tried red, green); 45% → 30%, was too bright (user, 2026-11-05) */
 .cm-conv.cm-sel .cm-conv-name { color: var(--t-bright); }
+#commsStuList .cm-conv.cm-sel { box-shadow: inset 0 0 0 1px var(--muted); }   /* border on the picked text, shows the instant it's clicked (user, 2026-11-18) */
 .cm-conv.cm-sel .cm-conv-when, .cm-conv.cm-sel .cm-conv-prev { color: var(--t-normal); }   /* not white (user, 2026-11-05) */
 .cm-conv.cm-sel .cm-ava { background: rgba(255,255,255,0.22); }
 .cm-list-empty, .cm-thread-empty { padding: 16px 8px; text-transform: none; letter-spacing: 0; }

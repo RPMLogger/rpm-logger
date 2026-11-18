@@ -235,7 +235,11 @@ function renderCommsStudents() {
         renderCommsStudents();
         return;
       }
-      commsPaneOpen(m || { row: 0, source: "sms", fromNumber: p.number, fromName: p.name, student: p.name, responded: true, blank: true });
+      // Mark it picked at once (border), then open after the browser has painted that (user, 2026-11-18: click felt dead for a while).
+      document.querySelectorAll("#commsStuList .cm-conv.cm-sel").forEach(function (r) { r.classList.remove("cm-sel"); });
+      row.classList.add("cm-sel");
+      var det = m || { row: 0, source: "sms", fromNumber: p.number, fromName: p.name, student: p.name, responded: true, blank: true };
+      requestAnimationFrame(function () { setTimeout(function () { commsPaneOpen(det); }, 0); });
     };
     if (m && !p.archived) row.oncontextmenu = function (e) { e.preventDefault(); commsConvMenu(e, p); };
     var prev = "No messages yet", when = "";
