@@ -1089,7 +1089,8 @@ function commsEnsureExtras() {
               '<input type="file" id="cmPaneFile" accept="image/*,application/pdf" hidden onchange="commsPickImage(this.files[0]); this.value=\'\'">' +
               '<textarea class="cm-reply" id="cmPaneReply" rows="1" placeholder="Message" ' +
               'onpaste="commsPasteImage(event)" ' +
-              'onkeydown="if (event.key === \'Enter\' && !event.shiftKey) { event.preventDefault(); commsPaneSend(); }"></textarea>' +
+              // Enter = new line, ⌘Enter sends (user, 2026-11-18; was Enter sends).
+              'onkeydown="if ((event.metaKey || event.ctrlKey) && event.key === \'Enter\') { event.preventDefault(); commsPaneSend(); }"></textarea>' +
               '<button class="link-btn cm-send" id="cmPaneSend" onclick="commsPaneSend()">Send</button></div>' +
           '</div></div>';
       // Others = its own page inside Comms (user, 2026-11-11; was a window): it takes the panes' place
@@ -1125,6 +1126,9 @@ function commsEnsureExtras() {
       box.appendChild(rack);
       box.insertAdjacentHTML("beforeend", commsScopeSvg());   // the green phase scope, VU-meter size (user, 2026-11-10)
       box.appendChild(stu);
+      // The reply box keys under the panes, below a divider (user, 2026-11-18; a fake toggle in the rack was tried first).
+      var msgr = stu.querySelector(".cm-msgr");
+      if (msgr) msgr.insertAdjacentHTML("afterend", '<div class="cm-keys"><span class="cm-key">Enter</span> New line <span class="cm-keys-dot">\u00b7</span> <span class="cm-key">Cmd Enter</span> Send</div>');
       // Two boxes (user, 2026-11-10; was one box with a line across): the title, icon, scope and
       // knobs in their own box on top, the rack's gap, then the box with the two panes.
       var head = document.createElement("div");

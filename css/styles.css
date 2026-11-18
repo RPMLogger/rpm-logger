@@ -6046,3 +6046,11 @@ html body :is(.tabs .tab-btn.cm-new:not(.active), #_a#_b#_c) { color: var(--acce
 /* 6: decorative red card edges grey like every card; status edges (overdue, unlogged, ok, bad) keep theirs (plain selectors on purpose: any status class outranks these) */
 .inq-dcard { border-left-color: #353535; }
 .ts-card, .tv-rv-card { border-left-color: #353535; }
+/* Compose = the ⋯ button's twin (user, 2026-11-18): same 22px round, border and fill; small pencil. */
+html body #commsBody .cm-list-top .cm-compose { width: 22px; height: 22px; padding: 0; border-radius: 50%; border: 1px solid var(--border); background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); display: flex; align-items: center; justify-content: center; }
+html body #commsBody .cm-list-top .cm-compose:hover { border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); }
+html body #commsBody .cm-list-top .cm-compose svg { width: 11px; height: 11px; }
+/* The reply box keys under the panes, below a divider (user, 2026-11-18); the panes give up its 30px. */
+#commsBody .cm-keys { margin-top: 0; padding: 11px 0 12px; border-top: 1px solid var(--border); text-align: center; font: 500 8px "DM Mono", monospace; letter-spacing: 1px; text-transform: uppercase; color: #6e6e6e; line-height: 1; }
+#commsBody .cm-keys-dot { margin: 0 10px; }
+#commsBody .cm-key { display: inline-block; padding: 3px 8px; margin-right: 4px; border-radius: 999px; border: 1px solid var(--border); background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); color: #8a8a8a; }   /* key names as pills (user, 2026-11-18) */
