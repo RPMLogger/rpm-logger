@@ -5925,6 +5925,23 @@ html body.rk-lessons :is(#trialStageBody, #inquiriesList) > .td-wk-box:first-chi
 .rp-recap-win .rp-untimed { text-align: center; }   /* untimed card: name + dim dash, centred (user, 2026-11-17) */
 .rp-recap-win .rp-dash { color: var(--muted); font-size: 13px; line-height: 1; }
 .rp-recap-win .rp-amb { color: var(--accent2); }
+/* Report tab student tiles (user, 2026-11-17): the Day Recap's cards, wrapper .rp-recap-win.rp-in-tab (tabs/report.js _rpTiles) */
+.rp-recap-win .rp-bv.rp-over-red { color: color-mix(in srgb, var(--accent) 80%, white); }   /* over the booked time: light red, like Day Recap's (+1) */
+.rp-recap-win .rp-big.rp-big3 { grid-template-columns: 1fr 1fr 1fr; margin-top: 0; }
+.rp-in-tab .rp-cards > .rp-card { flex: 0 1 calc((100% - 16px) / 2); padding-top: 16px; padding-bottom: 20px; }   /* bigger tiles: two a row (user, 2026-11-17; was three) */
+.rp-in-tab .rp-cards { gap: 16px; }
+#reportViews { display: none; }   /* Report is always this week: no Today / 7 / 30 days, no week arrows (user, 2026-11-17) */
+.rp-in-tab .rp-cards .rp-bv { font-size: 22px; white-space: nowrap; }   /* four numbers a tile, each on one line; 16 → 22 with the bigger tiles (user, 2026-11-17) */
+.rp-in-tab .rp-cards .rp-big { margin-top: 16px; }
+.rp-in-tab .rp-cards .rp-big + .rp-big { margin-top: 18px; }
+.rp-in-tab .rp-cards .rp-cn { height: 32px; font-size: 12px; }
+.rp-in-tab .rp-cards .rp-cn.rp-cn-tot { justify-content: space-between; padding: 0 14px; height: 40px; }   /* name left, Total right (user, 2026-11-17) */
+.rp-in-tab .rp-cards .rp-cn-t { font-size: 18px; letter-spacing: 0; text-transform: none; color: var(--t-normal); }
+.rp-in-tab .rp-cards .rp-cn-t.rp-over-red { color: color-mix(in srgb, var(--accent) 80%, white); }
+.rp-in-tab .rp-cards .rp-cn-t.rp-dim { color: var(--muted); }
+.rp-in-tab .rp-cards .rp-tl .rp-bv { font-size: 18px; }
+.rp-in-tab .rp-cards .rp-bv.rp-dim2 { color: #555; }   /* Log + Delay: a step under the muted grey (#7a7a7a) (user, 2026-11-17: "dim them more") */
+.rp-recap-win .rp-big.rp-big4 { grid-template-columns: repeat(4, 1fr); }   /* Report's Average box: Lesson · Extra · Log · Delay in one row (user, 2026-11-17) */
 
 /* Every card's edge = the Payments card's #353535 (user, 2026-11-16: "payment card color looks good, apply to all"; Inquiries/Initiate/Terminate/Dropbox were #2a2a2a, Dashboard #2c2c2c).
    Low specificity on purpose: each card's own :hover / open colours still win. */

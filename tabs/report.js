@@ -10,8 +10,7 @@
 // One read, getDayReport (RPM_LessonTimes.js). Today / Last 7 days / Last 30 days picks the range.
 // Portal Usage look (tabs/usage.js): ld-card boxes, css shares #tab-general's rules.
 
-var _rpData = {}, _rpView = 'week';
-var RP_DAYS = { today: 1, week: 7, month: 30 };
+var _rpData = {}, _rpView = 'w0';   // always this week, Mon–Sun, clears Monday; no week arrows (user, 2026-11-17)
 var RP_MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 var RP_WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -50,22 +49,17 @@ function _rpAvg(a) { return a.length ? a.reduce(function (s, x) { return s + x; 
 function _rpMid(a) { if (!a.length) return null; a = a.slice().sort(function (x, y) { return x - y; }); return a[Math.floor(a.length / 2)]; }
 
 function initReportTab() {
-  try { _rpView = localStorage.getItem('reportView') || 'week'; } catch (e) {}
+  _rpView = 'w0';   // always opens on this week
   _rpRender();
   _rpLoad(_rpView);
 }
 
-function _rpSetView(v) {
-  _rpView = v;
-  try { localStorage.setItem('reportView', v); } catch (e) {}
-  _rpRender();
-  _rpLoad(v);
-}
-
+// Monday of the week `off` weeks from this one (0 = this week, -1 = last week)
+function _rpMon(off) { var d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - (d.getDay() + 6) % 7 + 7 * off); return d; }
 function _rpLoad(v) {
   var url = getScriptUrl();
   if (!url) return;
-  var to = new Date(), from = new Date(); from.setDate(to.getDate() - RP_DAYS[v] + 1);
+  var off = parseInt(v.slice(1), 10) || 0, from = _rpMon(off), to = new Date(from); to.setDate(from.getDate() + 6);
   fetch(url + '?action=getDayReport&from=' + _rpYmd(from) + '&to=' + _rpYmd(to))
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -197,14 +191,91 @@ function _rpSummary(days) {
 function _rpRender() {
   var body = document.getElementById('reportBody');
   if (!body) return;
-  document.querySelectorAll('#reportViews .link-btn').forEach(function (b) { b.classList.toggle('lit', b.dataset.view === _rpView); });
   var d = _rpData[_rpView];
   if (!d) { body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>'; return; }
   if (d === 'error') { body.innerHTML = '<div class="empty-state">Couldn\'t load the report.</div>'; return; }
   var days = d.filter(function (D) { return D.lessons.length; });
-  if (!days.length) { body.innerHTML = '<div class="empty-state">No lessons in this range.</div>'; return; }
-  body.innerHTML = '<div class="ld-cards">' + days.map(_rpDay).join('') + (days.length > 1 ? _rpSummary(days) : '') + '</div>';   // Averages at the bottom (user, 2026-11-16)
+  if (!days.length) { body.innerHTML = '<div class="empty-state">No lessons this week.</div>'; return; }
+  // Student tiles + the range's line (user, 2026-11-17), in the Day Recap's plate look: the wrapper
+  // borrows .rp-recap-win so the tiles share that window's card rules. (Day tables: _rpDay / _rpSummary, unused now.)
+  body.innerHTML = '<div class="rp-recap-win rp-in-tab">' + _rpTiles(days) + '</div>';
   if (typeof _imFixTips === 'function') _imFixTips(body);
+}
+
+// One tile per student booked this week (user, 2026-11-17: "students of the week already there every week, and clear"):
+// the week's tiles are there from Monday, empty, and fill in as I teach (rack) and log.
+//   Total = lesson (rack start → end) + logging = all the time that student took
+//   vs booked = Total − the booked slot (60), light red when over
+//   then Lesson · Extra (teaching past 50) · Log · Delay (booked end → recap email sent; was "Recap", user 2026-11-17)
+// Finished tiles (timed + logged) first, most over first; the rest after, in lesson order.
+function _rpTiles(days) {
+  var by = {}, ord = 0;
+  days.forEach(function (D) {
+    D.lessons.slice().sort(function (a, b) { return (a.bs == null ? 1e4 : a.bs) - (b.bs == null ? 1e4 : b.bs); }).forEach(function (L) {
+      var k = String(L.name).trim(), s = by[k] || (by[k] = { name: k, ord: ord++, n: 0, lesson: 0, timed: 0, extra: 0, log: 0, logN: 0, booked: 0, lag: [] });
+      s.n++;
+      if (L.log != null) { s.logN++; s.log += L.log; }
+      if (L.lag != null && L.lag >= 0) s.lag.push(L.lag);
+      if (L.as != null && L.ae != null && L.ae - L.as >= 5) {
+        s.timed++; s.lesson += L.ae - L.as;
+        s.extra += Math.max(0, L.ae - L.as - (L.be != null && L.bs != null ? L.be - L.bs : 60));   // past the booked slot (60), not the 50 taught (user, 2026-11-17)
+        s.booked += L.be != null && L.bs != null ? L.be - L.bs : 60;
+      }
+    });
+  });
+  // Four plain numbers (user, 2026-11-17: "just put a min, like 69 min in lesson, roll the mins"):
+  //   Lesson = rack Start → End · Log = logging, whole minutes · Total = Lesson + Log, all the time on that student
+  //   (light red past the 60-min slot: Gail 69 + 2 = 71) · Delay = recap email lag
+  var list = Object.keys(by).map(function (k) {
+    var s = by[k];
+    s.done = s.timed === s.n && s.logN === s.n;   // timed on the rack AND logged
+    s.total = s.done ? s.lesson + s.log : null;
+    return s;
+  }).sort(function (a, b) {
+    if (a.done !== b.done) return a.done ? -1 : 1;   // finished first, most time first
+    return a.done ? b.total - a.total || a.ord - b.ord : a.ord - b.ord;
+  });
+  if (!list.length) return '<div class="empty-state">No lessons this week.</div>';
+  var big = function (l, v, cls) { return '<div><span class="rp-bl">' + l + '</span><span class="rp-bv ' + (cls || '') + '">' + v + '</span></div>'; };
+  // minutes to the nearest half (user, 2026-11-17): 2.3 → 2.5 min, 69 → 69 min; past an hour in the Week box: 3h 33.5m
+  var half = function (v) { return Math.round(v * 2) / 2; };
+  var mn = function (v, hm) {
+    if (v == null) return '—';
+    v = half(v);
+    return hm && v >= 60 ? Math.floor(v / 60) + 'h ' + half(v % 60) + 'm' : v + ' min';
+  };
+  var four = function (ls, g, t, d, slot, cls, hm) {
+    return '<div class="rp-big' + (cls || '') + '">' +
+      big('Lesson', mn(ls, hm), ls == null ? 'rp-dim' : '') +
+      big('Log', mn(g, hm), g == null ? 'rp-dim' : '') +
+      (cls ? '' : '</div><div class="rp-big">') +
+      big('Total', mn(t, hm), t == null ? 'rp-dim' : slot != null && half(t) > slot ? 'rp-over-red' : '') +
+      big('Delay', d == null ? '—' : _rpLag(Math.round(d)), d == null ? 'rp-dim' : '') + '</div>';
+  };
+  var tiles = list.map(function (s) {
+    var nm = _rpEsc(s.name.split(/\s+/)[0]) + (s.n > 1 ? ' · ' + s.n : '');
+    // Total in the name bar, right (user, 2026-11-17: "total at the top, maybe even on title"); Lesson · Log · Delay under it
+    var tc = s.total == null ? 'rp-dim' : s.booked && half(s.total) > s.booked ? 'rp-over-red' : '';
+    return '<div class="rp-card' + (s.done ? '' : ' rp-open') + '"><div class="rp-cn rp-cn-tot" title="' + _rpEsc(s.name) + '"><span>' + nm + '</span>' +
+      '<span class="rp-cn-t ' + tc + '">' + mn(s.total) + '</span></div>' +
+      '<div class="rp-big rp-big3 rp-tl">' +
+        big('Lesson', mn(s.timed ? s.lesson : null), s.timed ? '' : 'rp-dim') +
+        big('Log', mn(s.logN ? s.log : null), 'rp-dim rp-dim2') +   // Log + Delay dimmed well down, only the lesson bright (user, 2026-11-17)
+        big('Delay', s.lag.length ? _rpLag(Math.round(_rpAvg(s.lag))) : '—', 'rp-dim rp-dim2') +
+      '</div></div>';
+  }).join('');
+  // Average, its own wide box at the top (user, 2026-11-17): a typical student this week, finished tiles only
+  var fl = list.filter(function (s) { return s.done; }), av = function (a) { return a.length ? _rpAvg(a) : null; };
+  var lags = [].concat.apply([], list.map(function (s) { return s.lag; }));
+  var avgBox = '<div class="rp-card rp-top rp-avgbox">' + four(av(fl.map(function (s) { return s.lesson / s.n; })), av(fl.map(function (s) { return s.log / s.n; })),
+      av(fl.map(function (s) { return s.total / s.n; })), av(lags), av(fl.map(function (s) { return s.booked / s.n; })), ' rp-big4') + '</div>';
+  // The week added up (user, 2026-11-17): all the lesson time, all the logging, the two together; delay stays an average
+  var sum = function (k) { return fl.length ? fl.reduce(function (t, s) { return t + s[k]; }, 0) : null; };
+  var wk = function (k) { var v = sum(k); return v == null ? null : v; };
+  var weekBox = '<div class="rp-card rp-top">' + four(wk('lesson'), wk('log'), wk('total'), av(lags), wk('booked'), ' rp-big4', true) + '</div>';
+  return '<div class="rp-sec" style="margin-top:0">Average</div>' + avgBox +
+    '<div class="rp-sec">Students</div><div class="rp-cards">' + tiles + '</div>' +
+    '<div class="rp-sec">Week</div>' + weekBox;
 }
 
 // ─── DAY RECAP WINDOW (user, 2026-11-16) ────────────────────────────────────
