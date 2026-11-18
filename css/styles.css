@@ -5964,7 +5964,7 @@ html body .container > :is(.home-rack, .alarm-rack) { border-color: #5e4d2a; }
 /* Emails title icon (user, 2026-11-16): beside the title like Comms' phone, the slim head box has no room under it; size + engraving from TITLE ICONS */
 html body #tab-emails .em-title-icon { margin: 4px 0 0; line-height: 0; }   /* under the title like the other tabs (user, 2026-11-16) */
 html body :is(#tab-ending .end-title-icon, #slcBody .slc-title-icon, .tab-panel > .ttl-icon) { margin: -6px 0 31px; line-height: 0; }   /* Terminate + Slot change title icons sit like the Dashboard's (user, 2026-11-16) */
-html body #tab-emails .em-gmail-link .em-gmail-m { height: 11px; width: auto; display: block; opacity: .6; filter: saturate(.7); }   /* Gmail's M in the link, dimmed (user, 2026-11-16; was the title icon) */   /* Gmail's M in colour as the title icon (user, 2026-11-16) */
+html body #tab-emails .em-gmail-link .em-gmail-m { height: 18px; width: auto; display: block; opacity: .85; }   /* Gmail's M in the link, dimmed (user, 2026-11-16; was the title icon) */   /* Gmail's M in colour as the title icon (user, 2026-11-16) */
 /* Emails = one plate (user, 2026-11-16): title bar, line, panes */
 html body #tab-emails .em-titlebar { padding: 26px 28px 0; }
 html body #tab-emails .em-titlebar .td-wk-title { margin-bottom: 0; }
