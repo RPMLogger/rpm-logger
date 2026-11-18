@@ -73,3 +73,13 @@ html body .mr-caps .mr-grp-cap.lit { background: linear-gradient(to bottom, tran
 /* The amp knobs no longer light up (user, 2026-11-16): the alarm rack does the warning now.
    The JS still sets .rpm-alert; this keeps the knob looking as it does when nothing is waiting. */
 html body .header .amp-knob.rpm-alert .amp-knob-k, html body .header .amp-knob.rpm-alert:hover .amp-knob-k { box-shadow: 0 2px 4px #000, inset 0 1px 0 rgba(255,255,255,.1); }
+
+/* SWAPPED (user, 2026-11-18): the alarm rack now sits ABOVE the Home rack. Each takes the other's old place:
+   the alarm rack gets the Home rack's top margin + the 2px-between-rings gap, the Home rack gets the alarm rack's old gap below. */
+html body .container > .alarm-rack:has(+ .home-rack) { margin-top: -34px; margin-bottom: 12px; }
+html body .container > .alarm-rack + .home-rack { margin-top: 0; margin-bottom: 56px; }
+html body:has(#tab-home.active, #tab-audit.active) .container > .alarm-rack + .home-rack { margin-bottom: 58px; }
+html body:has(#tab-calendar.active) .container > .alarm-rack + .home-rack { margin-bottom: 12px; }
+html body:has(#tab-fixedcal.active) .container > .alarm-rack + .home-rack { margin-bottom: 17px; }
+html body.rk-lessons .container > .alarm-rack:has(+ .home-rack) { margin-top: -18px !important; margin-bottom: 50px !important; }
+html body.rk-lessons .container > .alarm-rack + .home-rack { margin-top: 0 !important; margin-bottom: 50px !important; }
