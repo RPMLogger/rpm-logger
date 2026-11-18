@@ -77,6 +77,7 @@
     // Calendar's long rack (user, 2026-11-18: "rails missing holes"): wider than the rails, so it only counts for the holes,
     // never for the rails' width
     var cl = document.querySelector('#tab-calendar.active #calBody > .cal-long'), holeUnits = all;
+    if (!(cl && cl.offsetHeight)) cl = document.querySelector('#tab-calendar.active #fcBody > .fc-one');   // Fixed schedule's rack the same (user, 2026-11-18)
     if (cl && cl.offsetHeight) { var cr = cl.getBoundingClientRect(); holeUnits = all.concat([{ t: cr.top + scrollY, b: cr.bottom + scrollY }]); }
     var left = Math.min.apply(null, bs.map(function (b) { return b.l; })) - OVER;
     var right = Math.max.apply(null, bs.map(function (b) { return b.r; })) + OVER;
@@ -86,6 +87,9 @@
     // open (unboxed) content below the last box still carries the rack down to it
     var boxBot = Math.max.apply(null, bs.map(function (b) { return b.b; })), tabBot = ap ? ap.getBoundingClientRect().bottom + scrollY : 0;
     var bot = (tabBot > boxBot + 40 ? tabBot : boxBot) + 5;
+    // Calendar + Fixed schedule: a short strip of rail always shows under the grid, with two holes (user, 2026-11-18)
+    var gis = [].filter.call(document.querySelectorAll('#tab-calendar.active .cal-inner'), function (e) { return e.offsetHeight; }), gb = 0;
+    if (gis.length) { gb = Math.max.apply(null, gis.map(function (e) { return e.getBoundingClientRect().bottom + scrollY + ring(e); })); bot = Math.max(bot, gb + 34); }
     var lx = Math.round(left), rx = Math.round(right - RAIL), w = Math.round(right - left), h = Math.round(bot - top);
     var html = '<div class="rk-back" style="left:' + lx + 'px;top:' + Math.round(top) + 'px;width:' + w + 'px;height:' + h + 'px"></div>';
     all.forEach(function (b) {
@@ -104,6 +108,11 @@
                 '<span class="rk-hole" style="left:' + (rx + RAIL - 26) + 'px;top:' + ty + 'px"></span>';
       });
     }
+    if (gb) [gb + 12, gb + 24].forEach(function (y) {
+      var ty = Math.round(y - 2.25);
+      html += '<span class="rk-hole" style="left:' + (lx + 21) + 'px;top:' + ty + 'px"></span>' +
+              '<span class="rk-hole" style="left:' + (rx + RAIL - 26) + 'px;top:' + ty + 'px"></span>';
+    });
     if (!L) { L = document.createElement('div'); L.id = 'rkLayer'; L.setAttribute('aria-hidden', 'true'); document.body.prepend(L); }
     var ph = document.documentElement.scrollHeight + 'px';
     if (L.style.height !== ph) L.style.height = ph;

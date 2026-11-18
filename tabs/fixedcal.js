@@ -116,7 +116,7 @@ function _fcRender(statusMsg) {
       var c = cells[d + '|' + m];
       if (!c) { if (_fcInGrid(d, m)) { open++; spots.push({ d: d, m: m }); } return; }
       if (c.weekly.length) return;
-      if (!(c.A.length && c.B.length)) { half++; halves.push({ d: d, m: m, free: c.A.length ? 'B' : 'A' }); }
+      if (!(c.A.length && c.B.length)) { half++; halves.push({ d: d, m: m, free: c.A.length ? 'B' : 'A', who: (c.A.length ? c.A : c.B).map(function(s) { return s.name; }).join(', ') }); }   // who: the student in the other week (user, 2026-11-18)
     });
   });
 
@@ -171,18 +171,35 @@ function _fcRender(statusMsg) {
           "<span><i style='background:color-mix(in oklab, " + FC_COLORS.B + " 55%, #1a1a1a);box-shadow:none'></i>Biweekly B</span>" +
           "<span><i class='pen'></i>Pencilled</span>" +
         "</span>";
+  // Load moves up to the top level beside Biweekly (user, 2026-11-18); the open spots stay below
+  var spotUnits = vertHtml.split(/(?=<span class='fc-(?:vert|spots)'>)/).filter(Boolean), loadHtml = spotUnits.pop();
+  // One table screen (user, 2026-11-18): WEEK A / WEEK B across the top, BIWEEKLY / LOAD down the first column
+  // WEEK A / WEEK B printed on the rack above the screen (user, 2026-11-18)
+  var abTable = "<span class='fc-abwrap'><span class='fc-abhead'><span></span><span class='cr-cap'>Week A</span><span class='cr-cap'>Week B</span></span>" +
+    "<span class='fc-vscreen fc-vwide fc-abtab'>" +
+    "<small>Biweekly</small><b>" + wkA + "</b><b>" + wkB + "</b>" +
+    "<small>Load</small><b data-tip='Lessons in a Week A: weekly " + weekly + " + biweekly A " + wkA + ".'>" + (weekly + wkA) + "</b>" +
+    "<b data-tip='Lessons in a Week B: weekly " + weekly + " + biweekly B " + wkB + ".'>" + (weekly + wkB) + "</b>" +
+    "</span></span>";
+  // ONE RACK (user, 2026-11-18: "try one rack"): switches, this week, biweekly, open spots, load in one row,
+  // screws at the ends, sitting on the fixed grid. The two-rack version is in git (b after 2026-11-18 commits).
   var html =
-    "<div class='cal-bar cr fc-long'>" +
-      "<span class='cr-bolt' style='left:calc(50% - 371px)'></span><span class='cr-bolt' style='right:calc(50% - 371px)'></span>" +
+    "<div class='cal-bar cr fc-long fc-long2 fc-one'>" +
+      "<span class='cr-bolt' style='left:12px'></span><span class='cr-bolt' style='right:12px'></span>" +
       "<div class='cr-row fc-lrow'>" +
-        "<span class='fc-lc'><span class='cr-pair fc-modes'>" + pb('both', 'A + B') + pb('A', 'Week A') + pb('B', 'Week B') + "</span></span>" +
-        "<span class='fc-lc'><div class='cr-lcd'>WEEK " + _fcEsc(_fcData.thisWeek) + "<small>THIS WEEK</small></div>" + _fcBigKnob() + "</span>" +
-        "<span class='fc-lc'>" + abHtml + legendHtml + "</span>" +
+        // this-week screen first, switches second (user, 2026-11-18: swapped)
+        "<span class='fc-lc'><span class='fc-tw'><span class='cr-cap'>This week</span><div class='cr-lcd'>WEEK " + _fcEsc(_fcData.thisWeek) + "</div></span></span>" +   // THIS WEEK printed above, slimmer screen (user, 2026-11-18)   // the fake knob removed (user, 2026-11-18)
+        "<span class='fc-lc'>" + _fcSelHtml() + "</span>" +   // a rotary selector, like a pedal's mode knob (user, 2026-11-18; were three push buttons)
+        "<span class='fc-lc'>" + abTable + "</span>" +   // Biweekly + Load as one table (user, 2026-11-18; swapped before Open spots)
+        // FULL OPEN / HALF-OPEN plates open a window listing the spots (user, 2026-11-18); the spot screens + second level gone, rack slim again
+        "<span class='fc-lc'><span class='fc-plates'><span class='cr-cap'>Open spots</span><span class='fc-amps'>" +   // caption on top + two lit amber buttons like an amp's ANALOG (user, 2026-11-18)
+          "<span class='fc-amp'><button type='button' onclick=\"_fcSpotsWin('full')\" data-tip='" + open + " spot" + (open === 1 ? '' : 's') + ".'>Full</button></span>" +
+          "<span class='fc-amp'><button type='button' onclick=\"_fcSpotsWin('half')\" data-tip='" + half + " spot" + (half === 1 ? '' : 's') + ".'>Half</button></span></span>" +
+        "</span></span>" +
+        "<span class='fc-lc'>" + legendHtml + "</span>" +   // the colour key back, at the very right (user, 2026-11-18)
       "</div>" +
-      "<div class='cr-row fc-lrow fc-lrow2'>" + _fcCols(vertHtml) + "</div>" +
     "</div>" +
-    (statusMsg ? "<div class='cal-status'>" + _fcEsc(statusMsg) + "</div>" : "") +
-    "";
+    "";   // the status line moved under the grid so the rack sits right on it, like the Calendar (user, 2026-11-18)
 
   // The week grid built exactly like the Calendar tab's (user, 2026-11-07): its own classes
   // (.cal-wrap/.cal-inner/.cal-head/.cal-body/.cal-ev), screws, hours on the half hour, lessons as
@@ -190,8 +207,8 @@ function _fcRender(statusMsg) {
   var hourPx = CAL_HOUR_PX, top0 = CAL_DAY_START;
   html +=
     "<div class='cal-wrap'><div class='cal-inner'>" +
-      "<span class='cr-bolt' style='left:8px;top:10px'></span><span class='cr-bolt' style='left:8px;bottom:10px'></span>" +
-      "<span class='cr-bolt' style='right:8px;top:10px'></span><span class='cr-bolt' style='right:8px;bottom:10px'></span>" +
+      // bottom screws only: the top ones went, the rack is glued on, like the Calendar's grid (user, 2026-11-18)
+      "<span class='cr-bolt' style='left:calc(50% - 371px);bottom:10px'></span><span class='cr-bolt' style='right:calc(50% - 371px);bottom:10px'></span>" +   // over the rails, like the Calendar's (user, 2026-11-18)
       "<div class='cal-head'><div></div>";
   for (var d = 0; d < 7; d++) html += "<div>" + FC_DAYS[d].toUpperCase() + "<b>&nbsp;</b></div>";
   html += "</div><div class='cal-body' style='height:" + ((CAL_DAY_END - top0) / 60 * hourPx) + "px'><div class='cal-gutter'>";
@@ -216,6 +233,7 @@ function _fcRender(statusMsg) {
     html += "<div class='cal-line" + (l % 60 === 30 ? '' : ' half') + "' style='top:" + ((l - top0) / 60 * hourPx) + "px'></div>";
   }
   html += "</div></div></div>";
+  if (statusMsg) html += "<div class='cal-status'>" + _fcEsc(statusMsg) + "</div>";
 
 
   body.innerHTML = html;
@@ -274,6 +292,39 @@ function _fcSpotText() {
 // The long rack's bottom row: each top-level unit (.fc-vert / .fc-spots) in its own column cell (user, 2026-11-18)
 function _fcCols(html) {
   return html.split(/(?=<span class='fc-(?:vert|spots)'>)/).filter(Boolean).map(function(u) { return "<span class='fc-lc'>" + u + "</span>"; }).join('');
+}
+// The view selector: WEEK A / A + B / WEEK B; the shown view's LED is lit.
+function _fcSelHtml() {   // Home rack push buttons (cream button + red LED), stacked; replaced the knob (user, 2026-11-18)
+  var row = function(m, cap) {
+    return "<span class='mr-cell'><span class='hr-cap'>" + cap + "</span><button type='button' class='mr-ob" + (_fcMode === m ? ' lit' : '') + "' onclick=\"_fcSetMode('" + m + "')\" aria-label='" + cap + "'></button><i class='mr-led'></i></span>";
+  };
+  return "<span class='fc-sw'>" + row('A', 'Week A') + row('both', 'A + B') + row('B', 'Week B') + "</span>";
+}
+
+// The FULL OPEN / HALF-OPEN plates' window (user, 2026-11-18): every spot of that kind, one per line, in day order
+function _fcSpotsWin(kind) {
+  var list = _fcSpots.filter(function(sp) { return kind === 'full' ? !sp.free : !!sp.free; });
+  // numbered 1, 2, 3… ; half-open adds the student in the other week (user, 2026-11-18)
+  // columns lined up (user, 2026-11-18): the window's text is monospace, so pad each part to the longest
+  var when = list.map(function(sp) { return FC_DAYS[sp.d].toUpperCase() + ' ' + _fcTime(sp.m); });   // days + WEEK in caps (user, 2026-11-18)
+  var w = Math.max.apply(null, when.map(function(s) { return s.length; }).concat([0]));
+  var pad = function(s) { while (s.length < w) s += ' '; return s; };
+  // the number, (free) and the name dimmer (user, 2026-11-18)
+  var dim = function(s) { return "<span class='fc-dim'>" + _fcEsc(s) + "</span>"; };
+  var lines = list.map(function(sp, i) {
+    var n = dim((i + 1) + '.') + '  ';
+    return sp.free
+      ? n + _fcEsc(pad(when[i])) + '  ·  WEEK ' + sp.free + ' ' + dim('(free)') + (sp.who ? '  ·  ' + dim(sp.who) : '')
+      : n + _fcEsc(when[i]);
+  });
+  rpmAlert({
+    title: kind === 'full' ? 'Full open' : 'Half-open',
+    message: lines.length ? ' ' : 'No spots.',
+    confirmLabel: 'Close',
+    className: 'fc-spots-dlg'
+  });
+  var msg = document.querySelector('.rpm-dlg.fc-spots-dlg .rpm-dlg-msg');   // the dialog sets text only; the dim parts need spans
+  if (msg && lines.length) msg.innerHTML = lines.join('\n');
 }
 function _fcSpotsHtml() {
   // Separate screens (user, 2026-11-09): fully open (captioned OPEN on the rack), half-open (HALF-OPEN, columns headed by the free week)
@@ -413,9 +464,56 @@ function _fcInjectStyle() {
     "#fcBody .fc-long>.cr-row>*{flex:none}#fcBody .fc-long .fc-bigknob{zoom:.55}#fcBody .fc-long .cr-lcd{min-width:170px}" +
     "#fcBody .fc-long>.cr-bolt{display:block;top:calc(50% - 5.5px)!important}html body #fcBody .fc-long .cr-lcd{position:static}" +   // the LCD back in the row (styles.css centres it absolutely for the old rack)
     "#fcBody .cal-bar.fc-long>.cr-bolt[style*='left']{left:calc(50% - 371px)!important}#fcBody .cal-bar.fc-long>.cr-bolt[style*='right']{right:calc(50% - 371px)!important}" +   // over the rails, like the Calendar's
-    "#fcBody>.fc-long~.cal-wrap{padding-top:0}#fcBody>.fc-long~.cal-wrap>.cal-inner{border-color:#5e4d2a;border-top:1px solid #2c2c2c;border-top-left-radius:0;border-top-right-radius:0;clip-path:inset(0 -3px -3px -3px)}" +
+    "#fcBody>.fc-long~.cal-wrap{padding-top:0}#fcBody>.fc-long~.cal-wrap>.cal-inner{border-color:#5e4d2a;border-top:1px solid #5e4d2a;border-top-left-radius:0;border-top-right-radius:0;clip-path:inset(0 -3px -3px -3px)}" +
     "#calBody.cal-off-week>.cal-bar.cr.cal-long{margin-bottom:0!important}" +   // FIXED: the Calendar's rack rests on the fixed rack, not the week grid
-    ".cal-ev.fc-ev{cursor:default}" +   // the Calendar's card 3D again: shading, dark edge, drop line (user, 2026-11-09; flat from 2026-11-07)
+    // 3 RACKS (user, 2026-11-18): Calendar rack, switches rack, counts rack, each its own unit with a full ring
+    // and gold edge, a gap of background between; the last one still sits on the fixed grid. Delete to undo.
+    // FIXED hides the Calendar's rack (user, 2026-11-18): everything on it works the week grid only. Delete to undo.
+    "html body #tab-calendar #calBody.cal-fixed>.cal-bar.cr.cal-long{display:none}" +
+    "html body #fcBody>.cal-bar.cr.fc-long:not(.fc-long2){margin:0 0 10px!important;border:1px solid #5e4d2a;border-radius:6px}" +
+    "html body #fcBody>.cal-bar.cr.fc-long:not(.fc-long2)::before{inset:-4px;border-radius:9px;clip-path:none}" +
+    "html body #fcBody>.cal-bar.cr.fc-long2{margin:0 0 -3px!important;border:1px solid #5e4d2a;border-bottom:1.5px solid #5e4d2a;border-radius:6px 6px 0 0}" +
+    "html body #fcBody>.cal-bar.cr.fc-long2::before{inset:-4px -4px -4px -4px;border-radius:9px 9px 0 0}" +
+    // ONE RACK (user, 2026-11-18): one flex row, tight gaps, screws at the ends. Delete to undo.
+    // Slim again (user, 2026-11-18): one level, the Calendar rack's height; the plates open the spot lists
+    "html body #fcBody>.cal-bar.cr.fc-one{height:85px;box-sizing:border-box;padding:0;gap:0;justify-content:center}" +
+    "html body #fcBody>.cal-bar.cr.fc-one>.cr-row{display:flex;justify-content:space-between;align-items:center;padding:0 48px;height:83px;min-height:0}" +
+    "html body #fcBody .fc-plates{display:flex;flex-direction:column;gap:9px}" +
+    // the view selector: labels on lines into the knob (user, 2026-11-18)
+    "html body #fcBody .fc-sel{position:relative;display:block;width:140px;height:60px;flex:none}" +
+    "html body #fcBody .fc-sel-lines{position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:#555;stroke-width:1;pointer-events:none}" +
+    "html body #fcBody .fc-sel-l{position:absolute;font:500 7.5px/9px 'DM Mono',monospace;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap}" +
+    // one brightness for every label and the pointer: the knob already points at the view (user, 2026-11-18)
+    "html body #fcBody .fc-sel-led{position:absolute;left:-8px;top:2.5px;width:4px;height:4px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#5a2420,#2a0d0b);box-shadow:inset 0 1px 1px rgba(0,0,0,.7),0 0 0 1px #0a0a0a}" +   // small red light per spot, lit on the shown view (user, 2026-11-18)
+    "html body #fcBody .fc-sel-l.lit .fc-sel-led{background:radial-gradient(circle at 35% 35%,oklch(.78 .14 29),oklch(.6 .2 29));box-shadow:0 0 0 1px #0a0a0a,0 0 5px oklch(.63 .2 29 / .7)}" +
+"html body #fcBody .fc-sel-l:hover{color:var(--t-normal)}html body #fcBody .fc-sel-ptr{stroke:var(--muted)}" +
+    "html body #fcBody .fc-sel-a{left:0;top:34.5px}html body #fcBody .fc-sel-b{right:-1.8px;top:34.5px}html body #fcBody .fc-sel-t{left:50%;top:5.5px;transform:translateX(-50%);margin-left:.9px}" +
+    "html body #fcBody .fc-sel-knob{position:absolute;left:51px;top:20px;width:38px;height:38px;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 2px 3px #000)}html body #fcBody .fc-sel-knob svg{display:block;width:100%;height:100%}" +
+    "html body #fcBody .fc-one .cr-row>.fc-lc:last-child{justify-content:flex-end}" +   // the colour key flush right (user, 2026-11-18)
+    "html body #fcBody .fc-plate{display:block;box-sizing:border-box;width:96px;height:13px;padding:2px 0 2px 3.5px;border:0;cursor:pointer;text-align:center;color:#111;font:500 7.5px/9px 'DM Mono',monospace;letter-spacing:3.5px;text-transform:uppercase;text-shadow:0 1px 0 rgba(255,255,255,.08);background:#5e5e5a;border-radius:1px;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -1px 0 rgba(0,0,0,.3),0 1px 0 #000}" +
+    "html body #fcBody .fc-plate:hover{background:#6a6a65}" +
+    "html body #fcBody .fc-tw{display:flex;flex-direction:column;align-items:center;gap:7px;transform:translateY(-10.5px)}html body #fcBody .fc-one .fc-tw .cr-lcd{width:130px;height:24px}" +
+    "html body #fcBody .fc-sw{display:flex;flex-direction:column;align-items:flex-end;gap:6px}html body #fcBody .fc-sw .hr-cap{font-size:7px;letter-spacing:1.2px}html body #fcBody .fc-one .fc-sel{transform:translateY(-8.8px)}html body #fcBody .fc-one .fc-plates{transform:translateY(-1px)}html body #fcBody .fc-one .fc-abwrap{transform:translateY(-4px)}" +   // knob, buttons and amber screen centred top-to-bottom; captions sit above (user, 2026-11-18)
+    "html body #fcBody .fc-plates{align-items:center;gap:9px}html body #fcBody .fc-amps{display:flex;flex-direction:column;gap:6px}" +
+    "html body #fcBody .fc-amp{display:block;padding:2px;background:#0b0b0b;border-radius:3px;box-shadow:inset 0 1px 1px rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.05)}" +   // the black bezel
+    "html body #fcBody .fc-amp>button{display:block;width:40px;height:14px;padding:0 0 0 1.5px;border:0;border-radius:2px;cursor:pointer;color:#1c1504;font:700 7px/14px 'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;text-shadow:0 1px 0 rgba(255,225,140,.18);background:radial-gradient(ellipse 70% 85% at 50% 45%,#c09e34 0%,#a07b1e 45%,#6e5310 85%,#523e0c 100%);box-shadow:inset 0 1px 0 rgba(255,230,150,.25),inset 0 -2px 3px rgba(0,0,0,.4),inset 0 0 4px rgba(0,0,0,.35),0 0 4px rgba(220,170,40,.12)}" +
+    "html body #fcBody .fc-amp>button:hover{background:radial-gradient(ellipse 70% 85% at 50% 45%,#ccaa3e 0%,#ad8726 45%,#795c14 85%,#59430e 100%)}html body #fcBody .fc-amp>button:active{box-shadow:inset 0 1px 2px rgba(0,0,0,.45),0 0 4px rgba(240,190,50,.25)}" +
+    ".rpm-dlg.fc-spots-dlg .rpm-dlg-msg{white-space:pre;font-family:'DM Mono',monospace;line-height:1.9}.rpm-dlg.fc-spots-dlg{width:auto;min-width:560px;max-width:92vw;padding-bottom:28px}.rpm-dlg.fc-spots-dlg .rpm-dlg-msg{font-size:12.5px;margin:10px 0 6px}.rpm-dlg.fc-spots-dlg .fc-dim{opacity:.5}.rpm-dlg.fc-spots-dlg .rpm-dlg-acts{display:none}" +
+    // the portal's window look, not the alert's double ring (user, 2026-11-18): one #353535 line, plain fill, like .settings-modal
+    "html body .rpm-dlg.fc-spots-dlg{border:1px solid #353535;background:#151515;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -3px 8px rgba(0,0,0,.45),0 18px 50px rgba(0,0,0,.5)}" +   // a bit bigger; no Close button, the ✕ does it (user, 2026-11-18) (user, 2026-11-18) +   // one line per spot, the window as wide as the longest (user, 2026-11-18)
+    "html body #fcBody .fc-vscreen.fc-abtab{display:grid;grid-template-columns:64px 46px 46px;column-gap:10px;row-gap:1px;align-items:center;padding:5px 12px}" +
+    "html body #fcBody .fc-abtab small{display:block;text-align:left}html body #fcBody .fc-abtab b{text-align:right}" +
+    "html body #fcBody .fc-abwrap{display:flex;flex-direction:column;gap:4px}html body #fcBody .fc-abhead{display:grid;grid-template-columns:64px 46px 46px;column-gap:10px;padding:0 13px}html body #fcBody .fc-abhead .cr-cap{text-align:right}" +
+    "html body #fcBody>.cal-bar.cr.fc-one>.cr-row.fc-lrow2{grid-template-columns:repeat(2,minmax(0,1fr))}" +   // two units below now
+    // the open-spot screens thinner, every spot on one line (user, 2026-11-18). Delete to undo.
+    "html body #fcBody .fc-one .fc-slist{height:30px;gap:14px}html body #fcBody .fc-one .fc-slist>span{display:contents}" +
+    "html body #fcBody>.cal-bar.cr.fc-one>.cr-row.fc-lrow2{grid-template-columns:auto auto;justify-content:space-around}" +
+    // FULL OPEN / HALF-OPEN as grey plates above their screens, like Home's INQ. / EMAILS / TEXTS (user, 2026-11-18)
+    "html body #fcBody .fc-one .fc-lrow2 .fc-vert{flex-direction:column;align-items:center;gap:7px}html body #fcBody .fc-one .fc-lrow2 .fc-vcaps{margin:0;padding:0;align-items:center}" +
+    "html body #fcBody .fc-one .fc-lrow2 .fc-vcaps .cr-cap{display:inline-block;box-sizing:border-box;min-width:96px;padding:2px 10px 2px 13.5px;text-align:center;color:#111;font:500 7.5px/9px 'DM Mono',monospace;letter-spacing:3.5px;text-transform:uppercase;text-shadow:0 1px 0 rgba(255,255,255,.08);background:#5e5e5a;border-radius:1px;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -1px 0 rgba(0,0,0,.3),0 1px 0 #000}" +
+    "html body #fcBody>.cal-bar.cr.fc-one>.cr-row+.cr-row{position:relative}html body #fcBody>.cal-bar.cr.fc-one>.cr-row+.cr-row::before{content:'';position:absolute;top:0;left:80px;right:80px;height:1px;background:#000;box-shadow:0 1px 0 rgba(255,255,255,.05)}" +
+    "html body #fcBody .fc-one .fc-lc{gap:10px}html body #fcBody .fc-one .cr-lcd{min-width:0;padding-left:12px;padding-right:12px}" +
+        ".cal-ev.fc-ev{cursor:default}" +   // the Calendar's card 3D again: shading, dark edge, drop line (user, 2026-11-09; flat from 2026-11-07)
     ".cal-ev.fc-ev .n{color:var(--t-normal)}" +   // names dialled back to the time's grey (user, 2026-11-07)
     ".cal-ev.fc-ev.clash{outline:1px solid var(--accent)}" +
     ".cal-ev.fc-ev.pen{border:1px dashed oklch(0.63 0.19 70 / .7)}" +
