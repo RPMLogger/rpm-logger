@@ -231,11 +231,12 @@ function _rpTiles(days) {
     s.done = s.timed === s.n && s.logN === s.n;   // timed on the rack AND logged
     s.total = s.done ? s.lesson + s.log : null;
     return s;
-  }).sort(function (a, b) {
+  }).filter(function (s) { return s.logN > 0; })   // only lessons I've logged; the rest pop up once logged (user, 2026-11-17)
+    .sort(function (a, b) {
     if (a.done !== b.done) return a.done ? -1 : 1;   // finished first, most time first
     return a.done ? b.total - a.total || a.ord - b.ord : a.ord - b.ord;
   });
-  if (!list.length) return '<div class="empty-state">No lessons this week.</div>';
+  if (!list.length) return '<div class="empty-state">Nothing logged this week yet.</div>';
   var big = function (l, v, cls) { return '<div><span class="rp-bl">' + l + '</span><span class="rp-bv ' + (cls || '') + '">' + v + '</span></div>'; };
   // minutes to the nearest half (user, 2026-11-17): 2.3 → 2.5 min, 69 → 69 min; past an hour in the Week box: 3h 33.5m
   var half = function (v) { return Math.round(v * 2) / 2; };
