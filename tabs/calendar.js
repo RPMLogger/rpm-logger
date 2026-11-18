@@ -558,8 +558,9 @@ function _calRenderShell(mon) {
         "<div class='cr-lcd" + (_calWeekOffset ? " back" : "") + "'" + (_calWeekOffset ? " onclick='_calShift(0)' data-tip='Instant.\nBack to this week.'" : "") + ">" + _calWeekLabel(mon, sun) + "</div>" +
         "<button class='cr-btn' onclick='_calShift(1)' aria-label='Next week'>›</button>" +
         "</span>" +
-        "<span class='cr-lr' data-tip='W = weekly, B = biweekly this week.'><b>W</b><i id='calMeterL'></i><b>B</b><i id='calMeterR'></i></span>" +
+        // LESSONS counter before the W / B meter (user, 2026-11-18: swapped)
         "<span class='cr-count'><small>Lessons</small><b id='calCount'>–</b></span>" +
+        "<span class='cr-lr' data-tip='W = weekly, B = biweekly this week.'><b>W</b><i id='calMeterL'></i><b>B</b><i id='calMeterR'></i></span>" +
         "<span class='cr-ob-grp'>" +
         "<span class='cr-ob-colm'>" +
         "<span class='cr-ob-cell'><span class='cr-cap'>Birth.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' data-tip='Instant.\nShows or hides the Birthdays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"birthdays\")'>ON</button><i class='cr-led'></i></span></span>" +
@@ -995,7 +996,7 @@ function _calInjectStyle() {
     "#calBody .cal-bar.cal-long>.cr-row.cal-3{display:grid;grid-template-columns:minmax(0,1fr) 24px 707px 24px minmax(0,1fr);padding-left:2px;padding-right:2px}" +
     "#calBody .cal-3>.cl-seg{display:flex;align-items:center;justify-content:space-evenly;min-width:0}#calBody .cal-3 .cl-knobs,#calBody .cal-3 .cl-week{display:flex;align-items:center}" +
     "#calBody .cal-ob-lessons .cr-ob-cell .cr-cap{width:58px}" +   // room for BIWEEKLY
-    "#calBody .cal-long .hr-col+.hr-col{margin-left:10px}#calBody .cal-long .cr-lcd{margin:0 8px}#calBody .cal-long .cal-search{width:110px}" +
+    "#calBody .cal-long .hr-col+.hr-col{margin-left:10px}#calBody .cal-long .cr-lcd{margin:0 8px}#calBody .cal-long .cal-search{width:90px}#calBody .cal-long .cal-search .rpm-field{height:26px}" +   // the search = the LESSONS counter's size, 90 × 26 (user, 2026-11-18; was 110 × 36)
     "html body #tab-calendar #calBody>.cal-bar.cr.cal-long,html body #tab-calendar #calBody .cal-inner{border-color:#5e4d2a}" +   // inner edges in the plates' gold piping, outer dark ring kept (user, 2026-11-18)
     "html body #tab-calendar #calBody>.cal-bar.cr.cal-long{border-bottom:1.5px solid #5e4d2a}html body #tab-calendar #calBody>.cal-bar.cr.cal-long::before{bottom:-4px}" +   // the seam onto the grid: ONE amber line, not the double (user, 2026-11-18)
     "html body #tab-calendar #calBody>.cal-long~.cal-wrap>.cal-inner{border-top:1px solid #2c2c2c}" +   // ...like the amp's: 1.5px gold on a 1px grey line (user, 2026-11-18: "kinda like the amp")   // inner edges in the plates' gold piping, outer dark ring kept (user, 2026-11-18)
