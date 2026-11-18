@@ -44,6 +44,7 @@
 body.rk-lessons .container > :is(.header, .home-rack, .alarm-rack, .tab-panel) { position: relative; z-index: 2; }
 html body.rk-lessons .header::after { display: none; }                  /* amp: no carry handle, no legs */
 html body.rk-lessons .container > .home-rack::after { display: none; }  /* Home rack: no legs */
+html body.rk-lessons #commsBody .cm-headbox::after, html body.rk-lessons #tab-emails .em-headbox::after { display: none; }   /* Twilio + Emails head units: no legs in the rack (user, 2026-11-18) */
 
 /* ── equal gaps: 40px of rack showing between every unit (rings counted), two rail holes 20px apart (user, 2026-11-16; was 30px / 15px apart; 2026-11-14 was 48px) ── */
 /* every box on a rack tab: the full double border, like the amp + racks (user, 2026-11-14; were the thin plate ring) */
