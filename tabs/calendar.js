@@ -1000,6 +1000,7 @@ function _calInjectStyle() {
     "#calBody .cal-3>.cl-seg{display:flex;align-items:center;justify-content:space-evenly;min-width:0}#calBody .cal-3 .cl-knobs,#calBody .cal-3 .cl-week{display:flex;align-items:center}" +
     "#calBody .cal-ob-lessons .cr-ob-cell .cr-cap{width:58px}" +   // room for BIWEEKLY
     "#calBody .cal-long .hr-col+.hr-col{margin-left:10px}#calBody .cal-long .cr-lcd{margin:0 8px}#calBody .cal-long .cal-search{width:110px}" +
+    "html body #tab-calendar #calBody>.cal-bar.cr.cal-long,html body #tab-calendar #calBody .cal-inner{border-color:#5e4d2a}" +   // inner edges in the plates' gold piping, outer dark ring kept (user, 2026-11-18)
     "#calBody>.cal-long~.cal-wrap>.cal-inner{border-top-width:0;border-top-left-radius:0;border-top-right-radius:0;clip-path:inset(0 -3px -3px -3px)}" +
     // push buttons the Home rack's size: 16px, 2.5px corners (user, 2026-11-09; were 22)
     "#calBody .cal-bar .cr-pb{width:16px;height:16px;border-radius:2.5px}" +
@@ -1018,7 +1019,7 @@ function _calInjectStyle() {
     ".cr-jack{position:relative;display:block;width:30px;height:26px;margin:2px 0;filter:drop-shadow(0 2px 2px #000)}" +   // the modular synth's jack: a hexagon nut round a chrome ring and a black socket (user, 2026-11-04)
     ".cr-jack:before{content:'';position:absolute;inset:0;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:linear-gradient(160deg,#8a8a8a,#4a4a4a 45%,#2a2a2a 80%,#1e1e1e)}" +
     ".cr-jack:after{content:'';position:absolute;left:5px;top:3px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#000 0 6px,#111 6.5px,#9a9a9a 8px,#e0e0e0 9px,#7a7a7a 10px);box-shadow:inset 0 1px 2px rgba(0,0,0,.6)}" +
-    "#calBody.rpm-busy>.cal-wrap{opacity:0}#calBody.rpm-busy>.cal-bar{opacity:1}" +
+    "#calBody.rpm-busy>.cal-wrap{opacity:1}#calBody.rpm-busy>.cal-bar{opacity:1}" +   // loading: the empty week grid shows at once, LOADING sits on it, lessons fill in (user, 2026-11-18)
     "#calBody.cal-off-week>.cal-wrap,#calBody.cal-off-week>.cal-status{display:none}" +   // FIXED / NOTES: the week grid steps aside (user, 2026-11-09)   // loading: the rack stays, the week fades out   // loading: just LOADING, no ghost of the week under it (user, 2026-11-02)
     ".cal-wrap{margin:0;overflow-x:auto}.cal-inner{border:1px solid #2c2c2c;border-radius:6px;background-color:var(--box);position:relative}" +   // Google's lines (user, 2026-11-04): header + hour lines fade out on the right, day lines only a short tick in the header, nothing past the frame
     ".cal-head{overflow:visible}.cal-head::after{content:'';position:absolute;left:60px;right:0;bottom:0;height:1px;background:linear-gradient(to right,#2c2c2c calc(100% - 80px),transparent);pointer-events:none}" +

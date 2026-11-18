@@ -74,6 +74,10 @@
     var bs = units(), a = amp();
     if (!bs.length) return;
     var all = a ? bs.concat([a]) : bs;
+    // Calendar's long rack (user, 2026-11-18: "rails missing holes"): wider than the rails, so it only counts for the holes,
+    // never for the rails' width
+    var cl = document.querySelector('#tab-calendar.active #calBody > .cal-long'), holeUnits = all;
+    if (cl && cl.offsetHeight) { var cr = cl.getBoundingClientRect(); holeUnits = all.concat([{ t: cr.top + scrollY, b: cr.bottom + scrollY }]); }
     var left = Math.min.apply(null, bs.map(function (b) { return b.l; })) - OVER;
     var right = Math.max.apply(null, bs.map(function (b) { return b.r; })) + OVER;
     var top = Math.min.apply(null, all.map(function (b) { return b.t; })) - 5;   // flush with the amp's outer ring
@@ -91,7 +95,7 @@
     html += '<div class="rk-rail rk-l" style="left:' + lx + 'px;top:' + Math.round(top) + 'px;height:' + h + 'px"></div>' +
             '<div class="rk-rail rk-r" style="left:' + rx + 'px;top:' + Math.round(top) + 'px;height:' + h + 'px"></div>';
     // the rail holes: exactly two in every gap between units, centred, in the screws' column (user, 2026-11-14)
-    var sorted = all.slice().sort(function (p, q) { return p.t - q.t; });
+    var sorted = holeUnits.slice().sort(function (p, q) { return p.t - q.t; });
     for (var i = 1; i < sorted.length; i++) {
       var mid = (sorted[i - 1].b + sorted[i].t) / 2;
       [mid - 10, mid + 10].forEach(function (y) {
