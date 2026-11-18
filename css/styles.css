@@ -5937,11 +5937,21 @@ html body.rk-lessons :is(#trialStageBody, #inquiriesList) > .td-wk-box:first-chi
 .rp-in-tab .rp-cards .rp-cn { height: 32px; font-size: 12px; }
 .rp-in-tab .rp-cards .rp-cn.rp-cn-tot { justify-content: space-between; padding: 0 14px; height: 40px; }   /* name left, Total right (user, 2026-11-17) */
 .rp-in-tab .rp-cards .rp-cn-t { font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--t-normal); }
-.rp-in-tab .rp-cards .rp-cn-t.rp-over-red { color: color-mix(in srgb, var(--accent) 80%, white); }
+.rp-in-tab .rp-cards .rp-cn-t.rp-over-red { color: var(--accent2); }   /* past the 60-min slot: amber, not red (user, 2026-11-17) */
 .rp-in-tab .rp-cards .rp-cn-t.rp-dim { color: var(--muted); }
 .rp-in-tab .rp-cards .rp-tl .rp-bv { font-size: 12px; }   /* the Lessons tab's detail size (12px; names 16) (user, 2026-11-17: fonts too big vs Lessons) */
+.rp-in-tab .rp-cards .rp-tl :is(.rp-bl, .rp-bv) { color: var(--muted); }   /* Lesson | Log | Delay row: labels + numbers one grey, dimmer than the name row (user, 2026-11-17) */
+.rp-in-tab .rp-cards .rp-tl { gap: 0; }
+.rp-in-tab .rp-cards .rp-tl > div + div { border-left: 1px solid #353535; }   /* a line between Lesson | Log | Delay (user, 2026-11-17) */
 .rp-in-tab .rp-top .rp-bv { font-size: 13px; }   /* Average + Week boxes 22 → 13, in line with Lessons (Day Recap's top box keeps 22) */
-.rp-in-tab .rp-cards .rp-cn.rp-cn-tot { height: 34px; }
+.rp-in-tab .rp-big.rp-one { grid-template-columns: 1fr; margin-top: 0; }   /* Week box: one number (user, 2026-11-17) */
+.rp-in-tab .divider.rp-div { margin: 32px 0; }
+html body #tab-report.tab-panel.active:not(#_a) { min-height: 0; }   /* the box ends with the tiles, not at the screen bottom (user, 2026-11-17: too much empty space) */
+.rp-in-tab .tv-sec-note.rp-note { margin: 0 0 32px; padding-left: 16px; list-style: disc; line-height: 1.7; }
+.rp-in-tab .tv-sec-note.rp-note li::marker { color: #555; }   /* the how-to line above the Week box (user, 2026-11-17) */
+.rp-in-tab .rp-cards .rp-cn-tot > span:first-child { font-family: "Bebas Neue", sans-serif; font-size: 18px; letter-spacing: 1.5px; line-height: 1; color: var(--t-normal); text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }   /* names in the section titles' font, engraved (user, 2026-11-17) */
+.rp-in-tab.rp-recap-win.rp-recap-win :is(.rp-card, .rp-box, .rp-graph) { background-color: var(--rpm-card-bg); border-radius: 10px; }   /* Report's plates = every other tab's riveted cards (#1c1c1c), not Day Recap's dark #101010; 10px corners like Payments (user, 2026-11-17) */
+.rp-in-tab .rp-cards .rp-cn.rp-cn-tot { height: auto; background: none; box-shadow: none; border-radius: 0; padding: 4px 2px 12px; border-bottom: 1px solid #353535; }   /* no box round the name, a line under it (user, 2026-11-17) */
 .rp-in-tab .rp-cards .rp-bv.rp-dim2 { color: #555; }   /* Log + Delay: a step under the muted grey (#7a7a7a) (user, 2026-11-17: "dim them more") */
 .rp-recap-win .rp-big.rp-big4 { grid-template-columns: repeat(4, 1fr); }   /* Report's Average box: Lesson · Extra · Log · Delay in one row (user, 2026-11-17) */
 

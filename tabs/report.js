@@ -215,7 +215,12 @@ function _rpTiles(days) {
       var k = String(L.name).trim(), s = by[k] || (by[k] = { name: k, ord: ord++, n: 0, lesson: 0, timed: 0, extra: 0, log: 0, logN: 0, booked: 0, lag: [] });
       s.n++;
       if (L.log != null) { s.logN++; s.log += L.log; }
-      if (L.lag != null && L.lag >= 0) s.lag.push(L.lag);
+      // Delay = lesson end → recap sent (= logging finished), from my real End press when the rack timed it,
+      // else the booked end (user, 2026-11-17). Sheet lag counts from the booked end, so shift it by End − booked end.
+      if (L.lag != null) {
+        var dl = L.ae != null && L.as != null && L.ae - L.as >= 5 && L.be != null ? L.lag - (L.ae - L.be) : L.lag;
+        if (dl >= 0) s.lag.push(dl);
+      }
       if (L.as != null && L.ae != null && L.ae - L.as >= 5) {
         s.timed++; s.lesson += L.ae - L.as;
         s.extra += Math.max(0, L.ae - L.as - (L.be != null && L.bs != null ? L.be - L.bs : 60));   // past the booked slot (60), not the 50 taught (user, 2026-11-17)
@@ -245,14 +250,6 @@ function _rpTiles(days) {
     v = half(v);
     return hm && v >= 60 ? Math.floor(v / 60) + 'h ' + half(v % 60) + 'm' : v + ' min';
   };
-  var four = function (ls, g, t, d, slot, cls, hm) {
-    return '<div class="rp-big' + (cls || '') + '">' +
-      big('Lesson', mn(ls, hm), ls == null ? 'rp-dim' : '') +
-      big('Log', mn(g, hm), g == null ? 'rp-dim' : '') +
-      (cls ? '' : '</div><div class="rp-big">') +
-      big('Total', mn(t, hm), t == null ? 'rp-dim' : slot != null && half(t) > slot ? 'rp-over-red' : '') +
-      big('Delay', d == null ? '—' : _rpLag(Math.round(d)), d == null ? 'rp-dim' : '') + '</div>';
-  };
   var tiles = list.map(function (s) {
     var nm = _rpEsc(s.name.split(/\s+/)[0]) + (s.n > 1 ? ' · ' + s.n : '');
     // Total in the name bar, right (user, 2026-11-17: "total at the top, maybe even on title"); Lesson · Log · Delay under it
@@ -261,22 +258,26 @@ function _rpTiles(days) {
       '<span class="rp-cn-t ' + tc + '">' + mn(s.total) + '</span></div>' +
       '<div class="rp-big rp-big3 rp-tl">' +
         big('Lesson', mn(s.timed ? s.lesson : null), s.timed ? '' : 'rp-dim') +
-        big('Log', mn(s.logN ? s.log : null), 'rp-dim rp-dim2') +   // Log + Delay dimmed well down, only the lesson bright (user, 2026-11-17)
-        big('Delay', s.lag.length ? _rpLag(Math.round(_rpAvg(s.lag))) : '—', 'rp-dim rp-dim2') +
+        big('Log', mn(s.logN ? s.log : null), s.logN ? '' : 'rp-dim') +   // all three the same grey again (user, 2026-11-17; Log + Delay were dimmed)
+        big('Delay', s.lag.length ? _rpLag(Math.round(_rpAvg(s.lag))) : '—', s.lag.length ? '' : 'rp-dim') +
       '</div></div>';
   }).join('');
-  // Average, its own wide box at the top (user, 2026-11-17): a typical student this week, finished tiles only
   var fl = list.filter(function (s) { return s.done; }), av = function (a) { return a.length ? _rpAvg(a) : null; };
-  var lags = [].concat.apply([], list.map(function (s) { return s.lag; }));
-  var avgBox = '<div class="rp-card rp-top rp-avgbox">' + four(av(fl.map(function (s) { return s.lesson / s.n; })), av(fl.map(function (s) { return s.log / s.n; })),
-      av(fl.map(function (s) { return s.total / s.n; })), av(lags), av(fl.map(function (s) { return s.booked / s.n; })), ' rp-big4') + '</div>';
-  // The week added up (user, 2026-11-17): all the lesson time, all the logging, the two together; delay stays an average
-  var sum = function (k) { return fl.length ? fl.reduce(function (t, s) { return t + s[k]; }, 0) : null; };
-  var wk = function (k) { var v = sum(k); return v == null ? null : v; };
-  var weekBox = '<div class="rp-card rp-top">' + four(wk('lesson'), wk('log'), wk('total'), av(lags), wk('booked'), ' rp-big4', true) + '</div>';
-  return '<div class="rp-sec" style="margin-top:0">Average</div>' + avgBox +
-    '<div class="rp-sec">Students</div><div class="rp-cards">' + tiles + '</div>' +
-    '<div class="rp-sec">Week</div>' + weekBox;
+  // Lesson · Log only (user, 2026-11-17: averaged Total and Delay "no usage")
+  var aL = av(fl.map(function (s) { return s.lesson / s.n; })), aG = av(list.map(function (s) { return s.log / s.logN; }));
+  // One Week box (user, 2026-11-17: "we can combine this"): all my logging this week so far (every logged lesson)
+  // first, then the average lesson and average log
+  var logAll = list.reduce(function (t, s) { return t + s.log; }, 0);
+  var weekBox = '<div class="rp-card rp-top"><div class="rp-big rp-big3">' +
+    big('Spent on logging', mn(logAll, true)) +
+    big('Avg lesson', mn(aL), aL == null ? 'rp-dim' : '') + big('Avg log time', mn(aG), aG == null ? 'rp-dim' : '') + '</div></div>';
+  // A how-to line instead of a Week title, the Financial tab's "Filled by the Accountant…" look (user, 2026-11-17)
+  return '<ul class="tv-sec-note rp-note">' +   // one bullet per number (user, 2026-11-17)
+      '<li>Values reset every week</li>' +   // the user's own wording (2026-11-17)
+      '<li>Shows total time spent on logging</li>' +
+      '<li>Average lesson length</li>' +
+      '<li>Average time to log one lesson</li></ul>' + weekBox +
+    '<hr class="divider rp-div"><div class="rp-cards">' + tiles + '</div>';   // a line, not a Students title (user, 2026-11-17)
 }
 
 // ─── DAY RECAP WINDOW (user, 2026-11-16) ────────────────────────────────────
