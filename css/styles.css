@@ -1256,7 +1256,7 @@ input[type="checkbox"]:checked {
 #tab-payments .pay-foot-btns { display:flex; gap:8px; margin-top:0; }   /* level with Audit (user, 2026-11-05; was 44px lower) */
 #tab-payments .pay-foot { margin-top:36px; }   /* Audit row under the cards, no header (user, 2026-10-30) */
 #tab-payments .pay-foot { align-items:center !important; }   /* Audit, Contacts, Payment history on one line (user, 2026-11-05; was flex-start) */
-#tab-payments #incomingPayments > div:not(.incoming-card) { padding-left: 0 !important; text-align: center !important; }   /* None / Loading in the middle of the box (user, 2026-11-06; was under the heading) */
+#tab-payments #incomingPayments > div:not(.incoming-card) { padding: 0 !important; text-align: left !important; }   /* None / Loading left-aligned like the other None lines (user, 2026-11-18; was centered 2026-11-06) */
 .incoming-confirm { min-width: 124px; justify-content: center; }   /* Confirm and Log cash one size */
 .log-cash-btn { color: var(--muted); border-color: rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); }   /* grey like Payment history (2026-09-29) */
 .log-cash-btn:hover:where(:not(:disabled)) { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
