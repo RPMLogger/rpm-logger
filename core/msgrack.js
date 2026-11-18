@@ -94,13 +94,18 @@ function msgRackOpen(k) {
   switchTab(k === 'inq' ? 'inquiries' : k);
 }
 
+// INQ. / EMAILS / TEXTS captions open their page (user, 2026-11-17)
+function msgRackGroup(g) {
+  switchTab(g === 'Inq.' ? 'inquiries' : g === 'Emails' ? 'emails' : 'comms');
+}
+
 function _mrRender() {
   var box = document.getElementById('msgRack');
   if (box && !box.firstChild) {
     // the group names sit above the engraved line, their lights in one row under it (user, 2026-11-15)
     var caps = function (groups) {
       return '<div class="mr-row mr-caps">' + groups.map(function (g) {
-        return '<span class="mr-grp"><span class="hr-cap mr-grp-cap" data-grp="' + g.grp + '">' + g.grp + '</span></span>';
+        return '<span class="mr-grp"><span class="hr-cap mr-grp-cap" data-grp="' + g.grp + '" onclick="msgRackGroup(this.dataset.grp)" style="cursor:pointer">' + g.grp + '</span></span>';   // the group name is a link to its page (user, 2026-11-17)
       }).join('') + '</div>';
     };
     var tier = function (groups, cls) {
