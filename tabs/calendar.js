@@ -549,7 +549,8 @@ function _calRenderShell(mon) {
           "<span class='cash-dd-list' id='calPickList' hidden></span></span>" +
         "</span>" +
         "<span class='cl-knobs'>" +
-        "<span class='hr-col'><button class='hr-knob" + (_calGoogleOpen() ? " lit" : "") + "' id='calGoogleBtn' onclick='_calToggleGoogle()' data-tip='Instant.\nShows or hides Google Calendar&#39;s own view under the grid.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Google</span></span>" +
+        // G Cal (user, 2026-11-18): opens the real Google Calendar in a new browser tab; the read-only embed under the grid is gone
+        "<span class='hr-col'><button class='hr-knob' id='calGoogleBtn' onclick='window.open(\"https://calendar.google.com/calendar/r/week\",\"_blank\",\"noopener\")' data-tip='Opens a new tab.\nGoogle Calendar, this week.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>G-Cal</span></span>" +
         "<span class='hr-col'><button class='hr-knob' id='calAnalyzeBtn' data-tip='Coming soon.\nThis week&#39;s and next week&#39;s suggested fixes.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Analyze</span></span>" +
         "</span>" +
         "</span><span></span>" +
