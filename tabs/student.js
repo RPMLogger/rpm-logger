@@ -1278,10 +1278,11 @@ function _stOpenSkipModal(studentName, lesson, opts) {
   var who = 'Student';
   var w = _stWin('stSkipModal', studentName, 'Skip', CALENDAR_ICON,
     // The lesson in the Reschedule window's dark box, date and time boxes (user, 2026-10-28; was a plain line).
-    "<div class='st-move-group'><div class='st-move-inner'><label class='field-label'>Skip</label>" +
+    // Same as Reschedule (user, 2026-11-19): the label above, no box, (optional) small, two dividers
+    "<label class='field-label'>Skip</label><div class='st-move-group'><div class='st-move-inner st-to-only'>" +
       "<div class='st-from'><span class='st-big st-box'>" + _stDayLabel(lesson) + "</span><span class='st-big st-box'>" + lesson.time + "</span></div></div></div>" +
     "<label class='field-label st-gap'>Requested by</label>" + _stWhoSeg('stSkipWho', who) +
-    "<label class='field-label st-gap'>Reason (optional)</label>" +
+    "<label class='field-label st-gap'>Reason <span class='st-opt'>(optional)</span></label>" +
     "<input id='stSkipNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" + _stReasonPills('stSkipReasons') +
     "<div class='ll-acts st-foot'><span class='ll-state' id='stSkipState' style='flex:1'></span>" +
       "<button class='link-btn bright' id='stSkipConfirm' data-tip='Instant.\nRemoves this one lesson from the calendar\nand logs it to Skip Logs.' data-tip-left>Confirm skip</button></div>");
