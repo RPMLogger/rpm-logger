@@ -1158,9 +1158,7 @@ function _trBookWinPaint() {
 function _trManualFormHtml(p) {
   p = p || 'tr';
   function inp(id, ph, type) {
-    return '<input id="' + id + '" type="' + (type || 'text') + '" placeholder="' + ph + '" ' +
-      'style="box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,0.1);border-radius:6px;' +
-      'padding:6px 10px;color:var(--text);font-family:\'DM Mono\',monospace;font-size:11px">';
+    return '<input id="' + id + '" type="' + (type || 'text') + '" placeholder="' + ph + '" class="rpm-field">';
   }
   return '<div class="section-label" style="margin-bottom:10px">Book a trial</div>' +
     '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">' +

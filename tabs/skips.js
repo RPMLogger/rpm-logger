@@ -107,7 +107,7 @@ function _skLogForm(students) {
   var box = document.createElement('div');
   box.style.cssText = 'border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:12px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center';
 
-  var field = 'padding:6px 8px;font-size:12px;background:transparent;color:inherit;border:1px solid var(--border);border-radius:4px';
+  var field = 'padding:6px 8px';   /* look comes from .rpm-field (Day 4 entry boxes, 2026-11-19) */
 
   // Custom dropdown (not a native <select>, so it matches the portal instead of
   // the OS menu). sel.value holds the picked name, same as a select would.
@@ -116,6 +116,7 @@ function _skLogForm(students) {
   sel.style.cssText = 'position:relative;flex:1 1 160px;min-width:0';
   var selBtn = document.createElement('button');
   selBtn.type = 'button';
+  selBtn.className = 'rpm-field';
   selBtn.style.cssText = field + ";width:100%;cursor:pointer;" +
                          'display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left';
   var selList = document.createElement('div');
@@ -182,6 +183,7 @@ function _skLogForm(students) {
   var note = document.createElement('input');
   note.type = 'text';
   note.placeholder = 'Note (optional)';
+  note.className = 'rpm-field';
   note.style.cssText = field + ';flex:1 1 160px;min-width:0';
 
   var save = document.createElement('button');

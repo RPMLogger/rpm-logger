@@ -6061,3 +6061,23 @@ html body #commsBody .cm-list-top .cm-compose svg { width: 11px; height: 11px; }
 #commsBody .cm-key { display: inline-block; padding: 3px 8px; margin-right: 4px; border-radius: 999px; border: 1px solid var(--border); background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); color: #8a8a8a; }   /* key names as pills (user, 2026-11-18) */
 /* Applications, Contact + Trial Lesson titles (user, 2026-11-19): the "· Trial Lessons" subtitle + tray icon in the plate border's gold piping (#5e4d2a), not grey / half brass */
 html body :is(#tab-inquiries, #tab-initiate, #tab-trial) :is(.settings-title .win-sub, .td-wk-icon .win-icon, #_a#_b#_c) { color: #5e4d2a; }   /* #_a#_b#_c outranks the HALF BRASS icon rule */
+
+/* ─── DAY 4: ENTRY BOXES (user, 2026-11-19) ─────────────────────────────────
+   Every box you type into, one look: ENGRAVED - a dark well cut into the card
+   (inner shadow on top, faint light edge under), Arial 12px, 8px corners,
+   grey focus. Label above (unchanged). Sizes stay per box (email big, Lesson
+   log rows one line that grows). Left alone: the text composer (Comms reply,
+   Announcements), the date/time pickers, the Calendar rack search, Travel's
+   place box, the Comms "To:" line. User may switch back to plain flat dark:
+   swap background to #0f0f0f, border to var(--border), drop the box-shadow. */
+html body :is(.rpm-field, .rpm-dlg-input, .rpm-dlg-textarea, .settings-input, .cash-input, .inp-textarea, .transcript-box, .im-ml-box, .cm-search, #arcSearch, #_a#_b#_c):not(.cal-search .rpm-field) {
+  background-color: #121212; border: 1px solid #0a0a0a; border-radius: 8px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.05);
+  font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal);
+}
+html body :is(.rpm-field, .rpm-dlg-input, .rpm-dlg-textarea, .settings-input, .cash-input, .inp-textarea, .transcript-box, .im-ml-box, .cm-search, #arcSearch, #_a#_b#_c):not(.cal-search .rpm-field):focus { border-color: var(--focus); outline: none; }
+/* Labels above the box, portal wide (Day 4): Terminate's "Before archiving" had them on the left. */
+html body .en-ask-grid { display: block; }
+html body .en-ask-grid .inq-flabel { display: block; margin: 16px 0 6px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
+html body .en-ask-grid .inq-flabel:first-child { margin-top: 0; }
+html body .en-ask-grid .en-ask-in { margin-bottom: 0; }
