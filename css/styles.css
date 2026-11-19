@@ -6095,3 +6095,9 @@ html body :is(.rpm-dlg-confirm.tv-golive-dlg, #_a#_b#_c) { max-width: 520px; }
 html body :is(.settings-overlay > .settings-modal, #_a#_b):not(.fx-modal):not(.rp-recap-win) { max-width: 460px; }
 html body :is(.st-win.gl-win, .td-student.cm-win, .st-win.im-log-win:not(.im-log-wide), .st-win.td-all-win, #_a#_b#_c) { width: min(640px, 94vw); }
 html body :is(.settings-modal.fx-modal, #_a#_b#_c) { max-width: 760px; }
+/* ONE LABEL above every box (user, 2026-11-19: "S T U D E N T, like in Lesson log"): the Lesson log's
+   label - typewriter caps, 2px tracking, quiet grey #7c7c7c. Windows (.field-label, was Bebas 14 bright),
+   dialogs, Settings/Financial (.settings-label) and Terminate's "Before archiving" all wear it. */
+html body :is(.field-label, .rpm-dlg-label, .settings-label, .en-ask-grid .inq-flabel, #_a#_b#_c) {
+  font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #7c7c7c;
+}
