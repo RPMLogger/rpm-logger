@@ -409,8 +409,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9000;
   margin: 0; padding: 12px 20px; pointer-events: none; white-space: nowrap;
   color: var(--muted); font-size: 11px; opacity: 1 !important;
-  background: #121212; border: 1px solid var(--border); border-radius: 10px;   /* between #0b0b0b (too dark) and --surface #1a1a1a (user, 2026-11-12) */
-  box-shadow: 0 6px 24px rgba(0,0,0,.5);
+  background: none; border: none; box-shadow: none;   /* no box: ring + word only, no window over the window (user, 2026-11-19; was a #121212 box since 2026-11-12) */
 }
 /* the word in the amp knob caption's font: DM Mono 500, 8px, 1.2px spacing, engraved (user, 2026-11-12) */
 .rpm-load-center .rpm-loading { font-family: "DM Mono", monospace; font-size: 8px !important; font-weight: 500; letter-spacing: 1.2px;
