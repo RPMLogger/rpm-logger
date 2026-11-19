@@ -6121,7 +6121,7 @@ html body #tab-calendar #calBody { overflow-x: clip; }
 
 /* Report tab, the user's pass (2026-11-19): title "Report · Weekly", smaller title icon, tiles a bit darker
    (#1c1c1c → #191919; the grained box reads ~#181818, so this is about as dark as a tile can go and still sit lighter). */
-html body #tab-report > .ld-icon :is(.win-icon, #_a#_b#_c) { height: 18px; width: auto; }
+html body .tab-panel :is(.td-wk-icon, .ld-icon, .pay-page-icon, .st-page-icon, .tv-page-icon, .cm-title-icon, .cm-page-icon) :is(.win-icon, #_a#_b#_c#_d#_e) { height: 18px; width: auto; }   /* EVERY tab title icon 18px, Report's size (user, 2026-11-19; was 24) */
 html body #tab-report :is(.rp-in-tab.rp-recap-win .rp-card, #_a#_b#_c) { background-color: #191919; }
 
 /* Report as two plates (user, 2026-11-19: "make this a new box"): the tab is see-through like Inquiries; plate 1 = title,
