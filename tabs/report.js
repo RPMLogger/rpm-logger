@@ -188,17 +188,21 @@ function _rpSummary(days) {
     '</div>';
 }
 
+function _rpTilesHide() { var tb = document.getElementById('reportTilesBox'); if (tb) tb.hidden = true; }
 function _rpRender() {
   var body = document.getElementById('reportBody');
   if (!body) return;
   var d = _rpData[_rpView];
-  if (!d) { body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>'; return; }
-  if (d === 'error') { body.innerHTML = '<div class="empty-state">Couldn\'t load the report.</div>'; return; }
+  if (!d) { _rpTilesHide(); body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>'; return; }
+  if (d === 'error') { _rpTilesHide(); body.innerHTML = '<div class="empty-state">Couldn\'t load the report.</div>'; return; }
   var days = d.filter(function (D) { return D.lessons.length; });
-  if (!days.length) { body.innerHTML = '<div class="empty-state">No lessons this week.</div>'; return; }
+  if (!days.length) { _rpTilesHide(); body.innerHTML = '<div class="empty-state">No lessons this week.</div>'; return; }
   // Student tiles + the range's line (user, 2026-11-17), in the Day Recap's plate look: the wrapper
   // borrows .rp-recap-win so the tiles share that window's card rules. (Day tables: _rpDay / _rpSummary, unused now.)
-  body.innerHTML = '<div class="rp-recap-win rp-in-tab">' + _rpTiles(days) + '</div>';
+  var parts = _rpTiles(days).split('<hr class="divider rp-div">');   // the tiles go in their own plate below (user, 2026-11-19)
+  body.innerHTML = '<div class="rp-recap-win rp-in-tab">' + parts[0] + '</div>';
+  var tb = document.getElementById('reportTilesBox'), tt = document.getElementById('reportTiles');
+  if (tb && tt) { tt.innerHTML = parts[1] || ''; tb.hidden = !parts[1]; if (typeof _imFixTips === 'function') _imFixTips(tt); }
   if (typeof _imFixTips === 'function') _imFixTips(body);
 }
 
