@@ -6081,3 +6081,17 @@ html body .en-ask-grid { display: block; }
 html body .en-ask-grid .inq-flabel { display: block; margin: 16px 0 6px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
 html body .en-ask-grid .inq-flabel:first-child { margin-top: 0; }
 html body .en-ask-grid .en-ask-in { margin-bottom: 0; }
+
+/* ─── DAY 5: WINDOWS (2026-11-19, my calls, one review) ─────────────────────
+   The shell was already one look (Nov 10 / 17: grained panel, one border, four
+   screws, red engraved title, ✕). What differed was the WIDTH: 16 sizes from
+   340 to 1080. Now:
+     Dialog (asks first) 420 · wide dialog 520
+     Window small 460 (forms) · medium 640 (lists, templates, Log) · large 760 (big pages)
+   Kept on purpose: Day Recap 680 (user's pick), the wide Log page 1080 (user's
+   pick), the Schedule grid 702 (fitted to the grid), Fixed calendar spots 92vw. */
+html body :is(.rpm-dlg-confirm, #_a#_b#_c) { max-width: 420px; }
+html body :is(.rpm-dlg-confirm.tv-golive-dlg, #_a#_b#_c) { max-width: 520px; }
+html body :is(.settings-overlay > .settings-modal, #_a#_b):not(.fx-modal):not(.rp-recap-win) { max-width: 460px; }
+html body :is(.st-win.gl-win, .td-student.cm-win, .st-win.im-log-win:not(.im-log-wide), .st-win.td-all-win, #_a#_b#_c) { width: min(640px, 94vw); }
+html body :is(.settings-modal.fx-modal, #_a#_b#_c) { max-width: 760px; }

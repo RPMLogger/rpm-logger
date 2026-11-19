@@ -55,11 +55,11 @@ function _snNewWin(name, from) {
     ? "<span class='td-wk-name'>" + _snEsc(name) + "</span>"
     : "<input class='rpm-field sn-who' id='snWho' list='snRoster' autocomplete='off'>" +   // no hint text in the boxes (user, 2026-11-19)
       "<datalist id='snRoster'>" + (_imRoster || []).map(function (n) { return "<option value='" + _snEsc(n) + "'>"; }).join('') + "</datalist>";
-  var win = _stWin('snWin', name ? _snEsc(name) : 'Notes', 'New note', '',
+  var win = _stWin('snWin', name ? _snEsc(name) : 'Notes', 'New note', typeof PEN_ICON === 'string' ? PEN_ICON : '',   // every window: its icon under the title (Day 5, 2026-11-19)
     "<div id='snGrid'></div>" +
     "<div class='sn-form'>" +
-      (name ? "" : "<div class='sn-lbl'>Student</div>" + who) +
-      "<div class='sn-lbl'>Note</div><textarea class='rpm-field sn-text' id='snText' rows='3'></textarea>" +
+      (name ? "" : "<div class='field-label'>Student</div>" + who) +   // labels above the box (Day 4 rule, 2026-11-19)
+      "<div class='field-label'>Note</div><textarea class='rpm-field sn-text' id='snText' rows='3'></textarea>" +
     "</div>" +
     "<div class='im-log-foot im-log-foot-all'><span id='snStatus' class='sn-status'></span>" +
       "<button type='button' class='link-btn amber' id='snSaveBtn' data-tip='Instant.\nAdds it to the Notes list.' data-tip-left>Save note</button></div>");
@@ -279,7 +279,7 @@ function _snInjectStyle() {
   var st = document.createElement('style');
   st.id = 'snStyle';
   st.textContent =
-    ".sn-form{display:grid;grid-template-columns:90px minmax(0,1fr);gap:12px 14px;align-items:start;width:440px;max-width:100%;margin-bottom:18px}" +
+    ".sn-form{width:440px;max-width:100%;margin-bottom:18px}.sn-form .sn-who{margin-bottom:16px}" +
     ".sn-lbl{color:var(--muted);font-size:12px;padding-top:6px}" +
     ".sn-text{width:100%;resize:vertical;min-height:70px;box-sizing:border-box}.sn-who{width:240px;max-width:100%;box-sizing:border-box}   /* short, like the other pickers (user, 2026-11-19; was full width) */" +
     ".sn-win{width:min(760px,calc(100vw - 40px))}.sn-win .sn-form{width:100%}" +
