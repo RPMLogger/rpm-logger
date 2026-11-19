@@ -53,13 +53,13 @@ function _snNewWin(name, from) {
   if (typeof _calLoadRoster === 'function') _calLoadRoster();
   var who = name
     ? "<span class='td-wk-name'>" + _snEsc(name) + "</span>"
-    : "<input class='rpm-field sn-who' id='snWho' list='snRoster' autocomplete='off' placeholder='Student (optional)'>" +
+    : "<input class='rpm-field sn-who' id='snWho' list='snRoster' autocomplete='off'>" +   // no hint text in the boxes (user, 2026-11-19)
       "<datalist id='snRoster'>" + (_imRoster || []).map(function (n) { return "<option value='" + _snEsc(n) + "'>"; }).join('') + "</datalist>";
   var win = _stWin('snWin', name ? _snEsc(name) : 'Notes', 'New note', '',
     "<div id='snGrid'></div>" +
     "<div class='sn-form'>" +
       (name ? "" : "<div class='sn-lbl'>Student</div>" + who) +
-      "<div class='sn-lbl'>Note</div><textarea class='rpm-field sn-text' id='snText' rows='3' placeholder='Anything: a schedule change, bring your capo…'></textarea>" +
+      "<div class='sn-lbl'>Note</div><textarea class='rpm-field sn-text' id='snText' rows='3'></textarea>" +
     "</div>" +
     "<div class='im-log-foot im-log-foot-all'><span id='snStatus' class='sn-status'></span>" +
       "<button type='button' class='link-btn amber' id='snSaveBtn' data-tip='Instant.\nAdds it to the Notes list.' data-tip-left>Save note</button></div>");
@@ -281,7 +281,7 @@ function _snInjectStyle() {
   st.textContent =
     ".sn-form{display:grid;grid-template-columns:90px minmax(0,1fr);gap:12px 14px;align-items:start;width:440px;max-width:100%;margin-bottom:18px}" +
     ".sn-lbl{color:var(--muted);font-size:12px;padding-top:6px}" +
-    ".sn-text{width:100%;resize:vertical;min-height:70px;box-sizing:border-box}.sn-who{width:100%;box-sizing:border-box}" +
+    ".sn-text{width:100%;resize:vertical;min-height:70px;box-sizing:border-box}.sn-who{width:240px;max-width:100%;box-sizing:border-box}   /* short, like the other pickers (user, 2026-11-19; was full width) */" +
     ".sn-win{width:min(760px,calc(100vw - 40px))}.sn-win .sn-form{width:100%}" +
     ".sn-weeks-l{display:block;margin-top:6px}.sn-hint{color:var(--muted);font-size:12px;margin:4px 0 2px}" +
         ".sn-grid{margin-bottom:18px}.sn-strips button{cursor:default!important}" +
@@ -325,7 +325,9 @@ function initStudentNotesTab() {
   _snInjectStyle();
   if (host.dataset.built !== '1') {
     host.innerHTML =
-      '<div class="td-wk-box tdo-box">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>Student Notes</span></div>' +
+      '<div class="td-wk-box tdo-box">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>Student Notes</span>' +
+        // + New (user, 2026-11-19): a note typed in by hand, student optional; the To-Do tab's + New look
+        '<span class="tdo-title-btns"><button class="link-btn amber opens-window" onclick="_snNewWin(\'\',\'Student Notes\')" data-tip="Opens a window.\nNew note.">+ New</button></span></div>' +
         '<div class="td-wk-icon">' + PEN_ICON + '</div>' +
         '<div id="snTabList"></div></div>' +
       '<div id="snTabClosedWrap"></div>';

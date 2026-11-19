@@ -728,6 +728,8 @@ function _calRenderShell(mon) {
         // G Cal (user, 2026-11-18): opens the real Google Calendar in a new browser tab; the read-only embed under the grid is gone
         "<span class='hr-col'><button class='hr-knob' id='calGoogleBtn' onclick='window.open(\"https://calendar.google.com/calendar/r/week\",\"_blank\",\"noopener\")' data-tip='Opens a new tab.\nGoogle Calendar, this week.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>G-Cal</span></span>" +
         "<span class='hr-col'><button class='hr-knob' id='calAnalyzeBtn' onclick='_calAnalyze()' data-tip='Opens a window.\nNext week&#39;s warnings, suggestions only.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Analyze</span></span>" +
+        // Notes (user, 2026-11-19): goes to the Student Notes page
+        "<span class='hr-col'><button class='hr-knob' id='calNotesBtn' onclick='switchTab(\"studentnotes\")' data-tip='Instant.\nGoes to Student Notes.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Notes</span></span>" +
         "</span>" +
         "</span><span></span>" +
         "<span class='cl-seg'>" +
