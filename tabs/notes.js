@@ -14,7 +14,7 @@ function initNotesTab() {
     // In To-Do's look (user, 2026-10-28): a Notes box (title, + New top right, the pen, the notebook list).
     section.innerHTML =
       '<div class="td-wk-box tdo-box">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>Notes</span>' +
-        '<span class="tdo-title-btns"><button id="notesAddBtn" class="link-btn amber opens-window" data-tip="Opens a window.\nNew note.">+ New</button></span></div>' +
+        '<span class="tdo-title-btns"><button id="notesAddBtn" class="link-btn bright opens-window" data-tip="Opens a window.\nNew note.">+ New</button></span></div>' +
         '<div class="td-wk-icon">' + PEN_ICON + '</div>' +   // the pen (om-127; To-Do's until it got om-129, user 2026-10-28)
       '<div id="notesList"></div>' +
       '<div class="tdo-foot"><button id="notesDragBtn" class="link-btn" data-tip="Instant.\nDrag mode: drag the notes into a new order.\nPress again to finish." data-tip-left>Drag</button></div></div>' +

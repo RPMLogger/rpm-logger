@@ -2220,9 +2220,9 @@ function _tlUploadHtml(folder) {
       'style="margin-top:10px;padding:34px 12px;border:1.5px dashed rgba(91,157,255,0.4);border-radius:8px;text-align:center;' +
       'font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);cursor:pointer">' + inqEsc(idle) + '</div>' +
     '<div style="display:flex;gap:8px;margin-top:8px">' +
-      '<button class="link-btn" style="flex:1;justify-content:center;padding:7px 10px" onclick="openDropboxLocalFolder(document.getElementById(\'tlDrop\').dataset.folder)" ' +
+      '<button class="link-btn" style="flex:1;justify-content:center" onclick="openDropboxLocalFolder(document.getElementById(\'tlDrop\').dataset.folder)" ' +
         'data-tip="Opens elsewhere.\nTheir Dropbox folder in Finder.\nDrag folders in and Dropbox uploads them."><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
-      '<button class="link-btn" style="flex:1;justify-content:center;padding:7px 10px" onclick="document.getElementById(\'tlFolderIn\').click()">\ud83d\udcc2 Browse folder</button>' +
+      '<button class="link-btn" style="flex:1;justify-content:center" onclick="document.getElementById(\'tlFolderIn\').click()">\ud83d\udcc2 Browse folder</button>' +
     '</div>' +
     '<input type="file" id="tlFileIn" multiple style="display:none" onchange="_tlPicked(this, false)">' +
     '<input type="file" id="tlFolderIn" multiple webkitdirectory style="display:none" onchange="_tlPicked(this, true)">';
@@ -2623,7 +2623,7 @@ function _tsShowBook() {
     // Same footer as the Book window on an inquiry card: green, bottom right,
     // because it creates a calendar event and mails the student.
     '<div style="display:flex;justify-content:flex-end;margin-top:24px">' +
-      '<button class="db-mini-btn go" id="tsBookBtn" style="padding:7px 20px" ' +
+      '<button class="db-mini-btn go" id="tsBookBtn" ' +
         'onclick="_trBook(\'ts\')" data-tip="Instant.\nCreates the calendar event.\nEmails them the confirmation." data-tip-wrap data-tip-left>Book</button>' +
     '</div>';
   ov.classList.add('open');

@@ -789,7 +789,7 @@ function _travelRenderDone(data, snap) {
     "<div class='tv-sec-note tv-steps'><span><i>1.</i>Check replies and confirmations in Trip Summary</span></div>" +   // step 2 (Secretary's email) dropped (user, 2026-10-20)
     "<div class='tv-live-table'><div class='tv-sum-card'>" + rows + "</div></div>" +
     "<div class='tv-dates-foot'>" +
-      "<button class='link-btn amber' id='travelToSummary' data-tip='Opens Trip Summary.\nReplies and confirmations come in there.' data-tip-left data-tip-wrap>Trip Summary →</button>" +
+      "<button class='link-btn' id='travelToSummary' data-tip='Opens Trip Summary.\nReplies and confirmations come in there.' data-tip-left data-tip-wrap>Trip Summary →</button>" +
     "</div>";
   section.appendChild(card);
   document.getElementById('travelToSummary').onclick = function () { if (typeof switchTab === 'function') switchTab('tripsummary'); };

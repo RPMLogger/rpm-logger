@@ -6019,8 +6019,7 @@ html body :is(.im-rs-strips .st-pick-to, #_a#_b#_c) { background: color-mix(in s
 html body :is(.im-rs-strips .st-pick-to div, #_a#_b#_c) { color: var(--accent2) !important; }
 /* ═══ AMBER SWEEP (user, 2026-11-17, design pass D3): amber = waiting / needs your eye / pick this, nothing else. */
 /* 1: main actions bright white, never amber (user picked "bright white" over the amber pedal) */
-html body :is(#imLogWin #logPanel .im-log-foot #btnLog:not(.green), #imLogWin .im-log-foot-all #btnLog:not(.green), #_a#_b#_c#_d) { color: var(--btn-main); border-color: color-mix(in srgb, var(--muted) 80%, transparent); background: transparent; }
-html body :is(#imLogWin #logPanel .im-log-foot #btnLog:not(.green), #imLogWin .im-log-foot-all #btnLog:not(.green), #_a#_b#_c#_d):not(:disabled):hover { color: var(--t-bright); border-color: rgba(255,255,255,0.4); background: var(--surface2); }
+/* Log page 1 Save & next back to AMBER like pages 2-3 (user, 2026-11-19; the Day 3 sweep had made it bright) */
 html body :is(#imMailPrev, #_a#_b#_c) { color: var(--muted); border-color: rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); }   /* Preview = plain secondary; Send is the bright one */
 html body :is(#imMailPrev, #_a#_b#_c):hover:where(:not(:disabled)) { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 /* 2: headline numbers bright, not amber (Normalized, Gregorian, Density, Financial St./Net, Travel totals, Terminate Start date/Lifetime/Density, Dropbox ages) */
@@ -6100,4 +6099,13 @@ html body :is(.settings-modal.fx-modal, #_a#_b#_c) { max-width: 760px; }
    dialogs, Settings/Financial (.settings-label) and Terminate's "Before archiving" all wear it. */
 html body :is(.field-label, .rpm-dlg-label, .settings-label, .en-ask-grid .inq-flabel, #_a#_b#_c) {
   font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #7c7c7c;
+}
+
+/* ─── DAY 6: BUTTONS (user, 2026-11-19) ─────────────────────────────────────
+   Look A = today's button (outline, faint fill, soft shadow), ONE SMALL SIZE everywhere:
+   the plain .link-btn's 4px/10px padding, 10px DM Mono caps, 1px tracking, 7px corners.
+   Colours stay as Day 3 set them. The Lesson log window's buttons keep their own look (user). */
+html body :is(.link-btn, .db-mini-btn, .btn-settings-load, .pa-save, .rpm-dlg-btn, .tr-open-btn, .incoming-confirm, .inq-db, #_a#_b#_c):not(#imLogWin *) {
+  padding: 4px 10px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+  border-radius: 7px; line-height: normal; height: auto; min-height: 0;
 }

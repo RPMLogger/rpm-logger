@@ -177,8 +177,8 @@ function _calSchedView(name, o) {
     "</div><div class='cal-sv-side'>" +
       // Reschedule / Slot change at the top of the right column (user, 2026-11-02; were over Calendar view)
       (o.note ? "" : "<div class='cal-sv-acts'>" +   // Take note: no Reschedule / Slot change (user, 2026-11-10)
-        "<button class='link-btn amber opens-window' onclick='_calSvGo(\"rs\")' data-tip='Opens a window.\nSkip or move one lesson.' data-tip-left>Reschedule</button>" +
-        "<button class='link-btn amber opens-window' onclick='_calSvGo(\"slot\")' data-tip='Opens a window.\nChange their regular slot for good.' data-tip-left>Slot change</button>" +
+        "<button class='link-btn opens-window' onclick='_calSvGo(\"rs\")' data-tip='Opens a window.\nSkip or move one lesson.' data-tip-left>Reschedule</button>" +
+        "<button class='link-btn opens-window' onclick='_calSvGo(\"slot\")' data-tip='Opens a window.\nChange their regular slot for good.' data-tip-left>Slot change</button>" +
       "</div>") +
       "<div class='cal-sv-t'>List view</div><div class='cal-sv-dates' id='calSvDates'></div>" +
     "</div></div>");

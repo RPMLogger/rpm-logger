@@ -62,7 +62,7 @@ function _snNewWin(name, from) {
       "<div class='field-label'>Note</div><textarea class='rpm-field sn-text' id='snText' rows='3'></textarea>" +
     "</div>" +
     "<div class='im-log-foot im-log-foot-all'><span id='snStatus' class='sn-status'></span>" +
-      "<button type='button' class='link-btn amber' id='snSaveBtn' data-tip='Instant.\nAdds it to the Notes list.' data-tip-left>Save note</button></div>");
+      "<button type='button' class='link-btn bright' id='snSaveBtn' data-tip='Instant.\nAdds it to the Notes list.' data-tip-left>Save note</button></div>");
   win.querySelector('.st-win').classList.add('sn-win');
   win.dataset.from = from || '';
   win.dataset.name = name || '';
@@ -161,7 +161,7 @@ function _snBandHtml(from) {
     "</div>" +
     "<div id='snBandStatus' class='sn-status'></div>" +
     // bottom bar: Show schedule left (Take note), Save note right (user, 2026-11-10)
-    "<div class='sn-band-bar'><span class='sn-bar-l'></span><button type='button' class='link-btn amber' onclick='_snBandSave(this)' data-tip='Instant.\nAdds them to the Notes list.\n⌘ Enter does too.' data-tip-left>Save note</button></div></div>";
+    "<div class='sn-band-bar'><span class='sn-bar-l'></span><button type='button' class='link-btn bright' onclick='_snBandSave(this)' data-tip='Instant.\nAdds them to the Notes list.\n⌘ Enter does too.' data-tip-left>Save note</button></div></div>";
 }
 function _snBandInit(name) {
   _snInjectStyle();
@@ -327,7 +327,7 @@ function initStudentNotesTab() {
     host.innerHTML =
       '<div class="td-wk-box tdo-box">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>Student Notes</span>' +
         // + New (user, 2026-11-19): a note typed in by hand, student optional; the To-Do tab's + New look
-        '<span class="tdo-title-btns"><button class="link-btn amber opens-window" onclick="_snNewWin(\'\',\'Student Notes\')" data-tip="Opens a window.\nNew note.">+ New</button></span></div>' +
+        '<span class="tdo-title-btns"><button class="link-btn bright opens-window" onclick="_snNewWin(\'\',\'Student Notes\')" data-tip="Opens a window.\nNew note.">+ New</button></span></div>' +
         '<div class="td-wk-icon">' + PEN_ICON + '</div>' +
         '<div id="snTabList"></div></div>' +
       '<div id="snTabClosedWrap"></div>';

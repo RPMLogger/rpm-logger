@@ -656,7 +656,7 @@ function _imLogEditStart() {
     if (hm) hm.disabled = false;
   }
   var lb = document.getElementById('btnLog');
-  if (lb) { lb.textContent = 'Save & next'; lb.className = 'link-btn bright'; }
+  if (lb) { lb.textContent = 'Save & next'; lb.className = 'link-btn amber'; }   // amber like the other pages' Save & next (user, 2026-11-19)
   updateLogButton();
   var r = box && llRows(box)[0];
   if (r) r.focus();

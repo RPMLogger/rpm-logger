@@ -15,7 +15,7 @@ function initTodoTab() {
     // In Today's box look (user, 2026-10-26): a To-Do box (title, + New top right, icon, count, list) and a Completed box under it.
     section.innerHTML =
       '<div class="td-wk-box tdo-box">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>To-Do</span>' +
-        '<span class="tdo-title-btns"><button id="todoAddBtn" class="link-btn amber opens-window" data-tip="Opens a window.\nNew to-do.">+ New</button></span></div>' +
+        '<span class="tdo-title-btns"><button id="todoAddBtn" class="link-btn bright opens-window" data-tip="Opens a window.\nNew to-do.">+ New</button></span></div>' +
         '<div class="td-wk-icon">' + TODO_ICON + '</div>' +   // the checklist + pencil (om-131, user 2026-10-28; was om-129; the pen moved to Notes, the checklist to Completed)
       '<div id="todoActive"></div>' +
       '<div class="tdo-foot"><button id="todoDragBtn" class="link-btn" data-tip="Instant.\nDrag mode: drag the to-dos into a new order.\nPress again to finish." data-tip-left>Drag</button></div></div>' +
