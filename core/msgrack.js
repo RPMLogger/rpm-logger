@@ -15,10 +15,10 @@
 
 var MR_LIGHTS = [
   // Inq. first, Texts last (user, 2026-11-15)
-  { grp: 'Inq.', items: [
-    { k: 'inq', cap: 'Inquiries', tip: 'Opens Inquiries.\nLit while a new inquiry came in.' },
-    { k: 'initiate', cap: 'Initiate', tip: 'Opens Initiate.\nLit while someone wrote back.' },
-    { k: 'trial', cap: 'Trial', tip: 'Opens Trial.\nLit while someone wrote back.' } ] },
+  { grp: 'Intake', items: [
+    { k: 'inq', cap: 'Applications', tip: 'Opens Applications.\nLit while a new application came in.' },
+    { k: 'initiate', cap: 'Contact', tip: 'Opens Contact.\nLit while someone wrote back.' },
+    { k: 'trial', cap: 'Trial Lesson', tip: 'Opens Trial Lesson.\nLit while someone wrote back.' } ] },
   { grp: 'Emails', items: [
     { k: 'stu-email', cap: 'Student', tip: 'Opens Emails, Students.\nLit while a student email is new.' },
     { k: 'gbus', cap: 'G Business', tip: 'Opens Emails, G Business.\nLit while a G Business email is new.' } ] },
@@ -96,7 +96,7 @@ function msgRackOpen(k) {
 
 // INQ. / EMAILS / TEXTS captions open their page (user, 2026-11-17)
 function msgRackGroup(g) {
-  switchTab(g === 'Inq.' ? 'inquiries' : g === 'Emails' ? 'emails' : 'comms');
+  switchTab(g === 'Intake' ? 'inquiries' : g === 'Emails' ? 'emails' : 'comms');
 }
 
 function _mrRender() {
