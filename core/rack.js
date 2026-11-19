@@ -114,8 +114,9 @@
               '<span class="rk-hole" style="left:' + (rx + RAIL - 26) + 'px;top:' + ty + 'px"></span>';
     });
     if (!L) { L = document.createElement('div'); L.id = 'rkLayer'; L.setAttribute('aria-hidden', 'true'); document.body.prepend(L); }
-    var ph = document.documentElement.scrollHeight + 'px';
-    if (L.style.height !== ph) L.style.height = ph;
+    // no height on the layer (user, 2026-11-19): it was set to the page height, which counts the layer itself, so it only
+    // ever grew: after a long tab, a short one (Dropbox) kept thousands of px of empty scroll. The pieces place themselves.
+    if (L.style.height) L.style.height = '';
     if (html !== last) { L.innerHTML = html; last = html; }
   }
 

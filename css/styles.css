@@ -4520,6 +4520,7 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 .tab-panel.active.rpm-fill-chain, .rpm-fill-chain { display: flex; flex-direction: column; flex: 1 0 auto; }
 .rpm-fill { flex: 1 0 auto; }
 /* four screws on the Today + This Week boxes, the Calendar's (user, 2026-11-04) */
+.tab-panel.rpm-fill-chain:not(.active) { display: none; }   /* the tab you just left hides at once: it stayed up under the new tab for a moment, and the roll aimed thousands of px down (user, 2026-11-19) */
 /* (screw boxes' 36px 40px padding now in THE BOX, 2026-11-06) */
 .td-bolt { position: absolute; width: 15px; height: 15px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #6a6a6a, #2b2b2b 55%, #111 80%); box-shadow: 0 1px 2px #000, inset 0 0 0 1px #0a0a0a; pointer-events: none; }
 .td-bolt:before, .td-bolt:after { content: ''; position: absolute; left: 3px; right: 3px; top: 6.5px; height: 2px; background: #111; border-radius: 1px; }
