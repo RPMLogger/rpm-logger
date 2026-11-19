@@ -1355,18 +1355,9 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
   var w = _stWin('stTimeModal', studentName, 'Reschedule', CALENDAR_ICON,
     // Move from: the lesson as it is; Move to: the picker (2026-10-06).
     // The two dates and the arrow in one centred, bordered box (user, 2026-10-27).
-    "<label class='field-label'>Move the lesson</label>" +   // above the box, like Next 8 weeks (user, 2026-10-28)
-    "<div class='st-move-group'><div class='st-move-inner'>" +
-    "<label class='field-label'>From</label>" +   // just From / To (user, 2026-10-27; were Move from / Move to)
-    // Plain text, the Skip window's line: it's fixed, not a picker (user, 2026-10-26; was the picker's boxes).
-    // In the picker's caps and bigger, the first thing seen (user, 2026-10-27).
-    // A thin divider between the day and the time, not a dot (user, 2026-10-27).
-    // Date and time in their own boxes (user, 2026-10-27; were one box with a divider).
-    "<div class='st-from'><span class='st-big st-box'>" + _stDayLabel(lesson) + "</span><span class='st-big st-box'>" + lesson.time + "</span></div>" +
-    // A down arrow between the two, centred on the dates (user, 2026-10-27).
-    // Two arrows, one under the date and one under the time (user, 2026-10-27).
-    "<div class='st-move-arrow'><span>" + ST_MOVE_ARROW + "</span><span>" + ST_MOVE_ARROW + "</span></div>" +
-    "<label class='field-label st-gap st-to-lab'>To</label>" +
+    // Just where it goes: no From row, no arrows (user, 2026-11-19: "I never look where it's moving from"; it's always the lesson I just picked or dragged)
+    "<label class='field-label'>Move to</label>" +
+    "<div class='st-move-group'><div class='st-move-inner st-to-only'>" +
     // Picked on the 8-week view: the day is written in, only the time moves (user, 2026-10-26).
     // The Calendar tab keeps its day arrows (a tap there has no day picked yet).
     // Picked: one box like Move from, "TUE, NOV 3 · 5:30 PM", the arrows at its end (user, 2026-10-27).
@@ -1377,7 +1368,7 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
     (opts.pick ? '</div>' : '')) +
     "</div></div>" +
     "<label class='field-label st-gap'>Requested by</label>" + _stWhoSeg('stRsWho', who) +
-    "<label class='field-label st-gap'>Reason (optional)</label>" +
+    "<label class='field-label st-gap'>Reason <span class='st-opt'>(optional)</span></label>" +
     "<input id='stRsNote' type='text' class='rpm-field' autocomplete='off' style='width:100%'>" + _stReasonPills('stRsReasons') +
     "<div class='ll-acts st-foot'><span class='ll-state' id='stRsState' style='flex:1'></span>" +
       "<button class='link-btn bright' id='stTimeConfirm' data-tip='Instant.\nMoves only this lesson in Google Calendar\nand logs it to Reschedule Logs.' data-tip-left>Confirm move</button></div>");

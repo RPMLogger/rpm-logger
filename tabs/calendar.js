@@ -1184,6 +1184,7 @@ function _calInjectStyle() {
     "#calBody .cal-long .hr-col+.hr-col{margin-left:10px}#calBody .cal-long .cr-lcd{margin:0 8px}#calBody .cal-long .cal-search{width:90px}#calBody .cal-long .cal-search .rpm-field{height:26px}" +   // the search = the LESSONS counter's size, 90 × 26 (user, 2026-11-18; was 110 × 36)
     "html body #tab-calendar #calBody>.cal-bar.cr.cal-long,html body #tab-calendar #calBody .cal-inner{border-color:#5e4d2a}" +   // inner edges in the plates' gold piping, outer dark ring kept (user, 2026-11-18)
     "html body #tab-calendar #calBody>.cal-bar.cr.cal-long{border-bottom:1.5px solid #5e4d2a;height:85px}html body #tab-calendar #calBody .cal-bar.cal-long>.cr-row.cal-3{height:83px;align-items:center}" +   // taller rack (user, 2026-11-18; was 75.5px)
+    "html body #tab-calendar #calBody>.cal-bar.cr.cal-long{box-shadow:0 1px 0 #2c2c2c!important}" +   // the seam like the amp's: gold 1.5px on top, grey 1px under it (user, 2026-11-19)
     "html body #tab-calendar #calBody>.cal-bar.cr.cal-long::before{bottom:-4px}" +   // the seam onto the grid: ONE amber line, not the double (user, 2026-11-18)
     "html body #tab-calendar #calBody>.cal-long~.cal-wrap>.cal-inner{border-top:1px solid #5e4d2a}" +   // the line under the rack back, now amber (user, 2026-11-18; was grey #2c2c2c)   // inner edges in the plates' gold piping, outer dark ring kept (user, 2026-11-18)
     "#calBody>.cal-long~.cal-wrap>.cal-inner{border-top-width:0;border-top-left-radius:0;border-top-right-radius:0;clip-path:inset(0 -3px -3px -3px)}" +

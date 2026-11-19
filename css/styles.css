@@ -2591,6 +2591,11 @@ a.win-row:hover:where(:not(:disabled)), .win-row.opens:hover:where(:not(:disable
 /* Labels all the way left; the dates centred, the time arrows hanging off the right (user, 2026-10-27). */
 /* Each label on its date row (user, 2026-10-27): label | date | time, the arrow under the dates. */
 .st-move-inner { display: grid; grid-template-columns: auto auto; column-gap: 24px; align-items: center; justify-content: start; align-self: stretch; }   /* left-aligned in its box (user, 2026-10-27) */
+#stTimeModal .st-move-inner.st-to-only { grid-template-columns: auto; }   /* only the To pickers now, no From / To labels (user, 2026-11-19) */
+#stTimeModal .st-move-group:has(> .st-to-only) { padding: 0; border: 0; background: none; align-items: flex-start; }   /* no box round the pickers now they stand alone (user, 2026-11-19) */
+#stTimeModal .st-move-group:has(> .st-to-only) + .field-label.st-gap { margin-top: 44px; }
+#stTimeModal .field-label .st-opt { text-transform: none; letter-spacing: .5px; }   /* "(optional)" in small letters (user, 2026-11-19) */
+#stTimeModal :is(.st-move-group:has(> .st-to-only) + .field-label.st-gap, .field-label.st-gap:has(.st-opt)) { margin-top: 32px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.08); align-self: stretch; }   /* two dividers: pickers | Requested by | Reason (user, 2026-11-19); the Holidays alerts line */
 :is(#stTimeModal, #stSkipModal) .st-move-group .field-label { margin: 0; justify-self: start; white-space: nowrap; }
 #stTimeModal .st-move-group .st-move-arrow { grid-column: 2; justify-self: start; }
 .st-to .dtp-val.tm { min-width: 0; padding: 0 18px; font-size: 12px; color: rgba(255,255,255,0.72); }   /* the time right after the day, same font */
