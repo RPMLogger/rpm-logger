@@ -394,6 +394,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
   background: var(--accent2);
   -webkit-mask: url("../img/loading.png") center / contain no-repeat;
           mask: url("../img/loading.png") center / contain no-repeat;
+  mask-mode: luminance;   /* the PNG's tail fade is grey shades, not transparency: without this all 8 dots were equal gold and the spin was invisible (2026-11-19) */
   /* Eight dots, so eight steps: it ticks round like a real spinner instead
      of sliding, and the built-in fade reads as the tail. */
   animation: rpm-spin 1s steps(8) infinite;
