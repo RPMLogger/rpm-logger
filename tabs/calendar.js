@@ -271,6 +271,182 @@ function _calSvLoad() {
 }
 
 
+// ── Analyze (user, 2026-11-18) ──────────────────────────────────────────────
+// Always NEXT week (this week can't be changed any more). Suggestions only, nothing
+// is changed. Rules the user picked: 1 lone lesson day, 2 hole in a day, 6 two
+// lessons at once, 7 lesson vs Personal / Doctors / Gigs, 8 holiday on a lesson day,
+// 10 regular missing (no lesson, no skip / reschedule logged), 12 biweekly on its
+// off week. "Known" hides a warning (kept in this browser).
+var CAL_AZ_RULES = [
+  ['clash',   'Two lessons at once'],
+  ['mine',    'Lesson vs your own events'],
+  ['holiday', 'Holiday on a lesson day'],
+  ['missing', 'Regular missing'],
+  ['offweek', 'Biweekly on its off week'],
+  ['lone',    'Lone lesson day'],
+  ['hole',    'Hole in a day']
+];
+var _calAzShowKnown = false, _calAzLast = null;
+function _calAzKnown() {
+  try { return JSON.parse(localStorage.getItem('rpmAnalyzeKnown') || '{}') || {}; } catch (e) { return {}; }
+}
+function _calAzSetKnown(id, on) {
+  var k = _calAzKnown();
+  if (on) k[id] = 1; else delete k[id];
+  try { localStorage.setItem('rpmAnalyzeKnown', JSON.stringify(k)); } catch (e) {}
+  _calAzPaint();
+}
+function _calAzName(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+function _calAzSame(a, b) {
+  a = _calAzName(a); b = _calAzName(b);
+  return !!a && !!b && (a === b || a.indexOf(b + ' ') === 0 || b.indexOf(a + ' ') === 0);
+}
+function _calAzYmd(s) {   // a sheet date as shown ("11/23/2026", "Nov 23, 2026", ...) → yyyy-mm-dd
+  var d = new Date(String(s || ''));
+  return isNaN(d) ? '' : _calYmd(d);
+}
+
+// The Next week window: from the Calendar rack's Analyze knob and Glance's Next week button (user, 2026-11-19).
+function _calAnalyze() {
+  _calInjectStyle();
+  var mon = _calMonday(1), sun = _calAddDays(mon, 6);
+  _calAzLast = null;
+  var w = _stWin('calAzWin', 'Next week', CAL_MONTHS[mon.getMonth()] + ' ' + mon.getDate() + ' – ' + CAL_MONTHS[sun.getMonth()] + ' ' + sun.getDate(),
+    typeof ANALYSIS_ICON === 'string' ? ANALYSIS_ICON : '', "<div id='calAzBody'></div>");
+  var win = w.querySelector('.st-win');
+  win.classList.add('cal-az-win');
+  rpmBusy(win, null, true, 'Analyzing');
+  _calAzLoad(function(res) {
+    if (!document.getElementById('calAzWin')) return;
+    rpmBusy(win, null, false);
+    _calAzLast = res;
+    _calAzPaint();
+  });
+}
+
+// Read next week and run the rules; cb(result) where result = { items, notes } or { error }.
+function _calAzLoad(cb) {
+  var mon = _calMonday(1);
+  var url = getScriptUrl();
+  if (!url) { cb(_calAzRun(mon, _calSampleEvents(mon), [], _fcSample(), [])); return; }
+  var get = function(q) { return fetch(url + '?action=' + q).then(function(r) { return r.json(); }).catch(function() { return { success: false, message: 'No answer from Google.' }; }); };
+  Promise.all([
+    get('getCalendarWeek&weekStart=' + _calYmd(mon)),
+    get('getOtherCalendarsWeek&weekStart=' + _calYmd(mon) + '&cals=personal,doctors,gigs,holidays'),
+    get('getFixedCalendar'),
+    get('getSkipsStudents')
+  ]).then(function(r) {
+    if (!r[0].success) { cb({ error: 'Next week did not load: ' + (r[0].message || 'unknown') }); return; }
+    cb(_calAzRun(mon, r[0].events || [], r[1].success ? r[1].events || [] : null,
+      r[2].success ? r[2] : null, r[3].success ? r[3].students || [] : null));
+  });
+}
+
+// The rules. Returns { items: [{ id, rule, date, text }], notes: [] }.
+function _calAzRun(mon, events, other, fixed, skips) {
+  var items = [], notes = [];
+  var days = [0, 1, 2, 3, 4, 5, 6].map(function(i) { return _calYmd(_calAddDays(mon, i)); });
+  var endYmd = _calYmd(_calAddDays(mon, 7));
+  var lessons = events.filter(function(e) { return ['weekly', 'biweekly', 'trial'].indexOf(e.calType) >= 0; })
+    .sort(function(a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.startMin - b.startMin; });
+  var byDay = {};
+  lessons.forEach(function(l) { (byDay[l.date] = byDay[l.date] || []).push(l); });
+  var who = function(l) { return _calEsc(l.title) + " <i>" + _calFmt(l.startMin) + "</i>"; };
+  var dayOf = function(ymd) { return _calDayLabel(new Date(+ymd.slice(0, 4), +ymd.slice(5, 7) - 1, +ymd.slice(8, 10))); };
+  var add = function(rule, date, key, text) { items.push({ id: rule + '|' + date + '|' + key, rule: rule, date: date, text: text }); };
+
+  days.forEach(function(ymd) {
+    var L = byDay[ymd] || [];
+    // 1. Lone lesson day
+    if (L.length === 1) add('lone', ymd, L[0].title, "Only one lesson: " + who(L[0]));
+    for (var i = 0; i < L.length; i++) {
+      // 2. Hole in a day: an hour or more empty between two lessons
+      if (i > 0) {
+        var gap = L[i].startMin - L[i - 1].endMin;
+        if (gap >= 60) add('hole', ymd, L[i - 1].startMin + '-' + L[i].startMin,
+          (gap % 60 ? (gap / 60).toFixed(1) : gap / 60) + " hr empty between " + who(L[i - 1]) + " and " + who(L[i]));
+      }
+      // 6. Two lessons at once
+      for (var j = i + 1; j < L.length; j++) {
+        if (L[j].startMin < L[i].endMin && L[i].startMin < L[j].endMin)
+          add('clash', ymd, L[i].title + '|' + L[j].title, who(L[i]) + " and " + who(L[j]) + " overlap");
+      }
+    }
+  });
+
+  if (other) {
+    other.forEach(function(e) {
+      var L = byDay[e.date] || [];
+      if (!L.length) return;
+      // 8. Holiday on a lesson day
+      if (e.calType === 'holidays') {
+        add('holiday', e.date, e.title, _calEsc(e.title) + ": " + L.length + " lesson" + (L.length > 1 ? "s" : "") + " booked");
+        return;
+      }
+      // 7. Lesson vs Personal / Doctors / Gigs (all-day ones count for the whole day)
+      var hit = L.filter(function(l) { return e.allDay || (l.startMin < e.endMin && e.startMin < l.endMin); });
+      if (!hit.length) return;
+      var cal = { personal: 'Personal', doctors: 'Doctors', gigs: 'Gigs' }[e.calType] || e.calType;
+      add('mine', e.date, e.title + '|' + e.startMin,
+        cal + " · " + _calEsc(e.title || '(no title)') + " <i>" + (e.allDay ? "all day" : _calFmt(e.startMin)) + "</i> vs " + hit.map(who).join(', '));
+    });
+  } else notes.push('Personal / Doctors / Gigs / Holidays did not load, rules 7 and 8 not checked.');
+
+  if (fixed && skips) {
+    var next = fixed.thisWeek === 'A' ? 'B' : 'A';
+    // a skip or a move logged for a date next week excuses a missing lesson; a move INTO next week excuses an off-week one
+    var excused = function(name, field) {
+      return skips.some(function(s) {
+        if (!_calAzSame(s.name, name)) return false;
+        var list = field === 'to' ? (s.resched || []) : (s.skips || []).concat(s.resched || []);
+        return list.some(function(x) { var y = _calAzYmd(field === 'to' ? x.toDate : x.date); return y >= days[0] && y < endYmd; });
+      });
+    };
+    (fixed.students || []).forEach(function(s) {
+      // 10. Regular missing
+      if (s.type === 'weekly' || s.week === next) {
+        var has = lessons.some(function(l) { return _calAzSame(l.title, s.name); });
+        if (!has && !excused(s.name, 'from'))
+          add('missing', days[s.dayIdx], s.name, _calEsc(s.name) + " <i>usually " + CAL_DAYS[s.dayIdx] + " " + _calFmt(s.startMin) + "</i>: no lesson and no skip logged");
+      }
+    });
+    // 12. Biweekly on its off week
+    lessons.forEach(function(l) {
+      if (l.calType !== 'biweekly') return;
+      var s = (fixed.students || []).filter(function(x) { return x.type === 'biweekly' && _calAzSame(x.name, l.title); })[0];
+      if (s && s.week && s.week !== next && !excused(s.name, 'to'))
+        add('offweek', l.date, l.title, who(l) + ": a Week " + s.week + " student, next week is Week " + next);
+    });
+  } else notes.push('Fixed schedule or Skip logs did not load, rules 10 and 12 not checked.');
+
+  return { items: items, notes: notes };
+}
+
+function _calAzPaint() {
+  var box = document.getElementById('calAzBody');
+  if (!box || !_calAzLast) return;
+  if (_calAzLast.error) { box.innerHTML = "<div class='empty-state'>" + _calEsc(_calAzLast.error) + "</div>"; return; }
+  var known = _calAzKnown(), nKnown = 0, html = '';
+  CAL_AZ_RULES.forEach(function(r) {
+    var rows = _calAzLast.items.filter(function(it) { return it.rule === r[0]; });
+    var open = rows.filter(function(it) { return !known[it.id]; });
+    nKnown += rows.length - open.length;
+    var show = _calAzShowKnown ? rows : open;
+    if (!show.length) return;
+    html += "<div class='cal-sv-t'>" + r[1] + "</div><div class='cal-az-list'>" + show.map(function(it) {
+      var k = !!known[it.id];
+      var d = new Date(+it.date.slice(0, 4), +it.date.slice(5, 7) - 1, +it.date.slice(8, 10));
+      return "<div class='cal-az-row" + (k ? " known" : "") + "'><b>" + _calDayLabel(d) + "</b><span>" + it.text + "</span>" +
+        "<button class='link-btn' onclick='_calAzSetKnown(" + JSON.stringify(it.id).replace(/'/g, '&#39;') + "," + !k + ")' data-tip='Instant.\n" + (k ? "Shows this warning again." : "Hides this warning: you know about it.") + "'>" + (k ? "Unmark" : "Known") + "</button></div>";
+    }).join('') + "</div>";
+  });
+  if (!html) html = "<div class='empty-state'>All clear for next week.</div>";
+  html += _calAzLast.notes.map(function(n) { return "<div class='cal-az-note'>" + _calEsc(n) + "</div>"; }).join('');
+  if (nKnown) html += "<div class='cal-az-foot'><button class='link-btn' onclick='_calAzShowKnown=!_calAzShowKnown;_calAzPaint()'>" +
+    (_calAzShowKnown ? "Hide known" : "Show known (" + nKnown + ")") + "</button></div>";
+  box.innerHTML = html;
+}
+
 // ── Data ────────────────────────────────────────────────────────────────────
 
 // ── The other calendars (user, 2026-11-04) ─────────────────────────────────
@@ -551,7 +727,7 @@ function _calRenderShell(mon) {
         "<span class='cl-knobs'>" +
         // G Cal (user, 2026-11-18): opens the real Google Calendar in a new browser tab; the read-only embed under the grid is gone
         "<span class='hr-col'><button class='hr-knob' id='calGoogleBtn' onclick='window.open(\"https://calendar.google.com/calendar/r/week\",\"_blank\",\"noopener\")' data-tip='Opens a new tab.\nGoogle Calendar, this week.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>G-Cal</span></span>" +
-        "<span class='hr-col'><button class='hr-knob' id='calAnalyzeBtn' data-tip='Coming soon.\nThis week&#39;s and next week&#39;s suggested fixes.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Analyze</span></span>" +
+        "<span class='hr-col'><button class='hr-knob' id='calAnalyzeBtn' onclick='_calAnalyze()' data-tip='Opens a window.\nNext week&#39;s warnings, suggestions only.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Analyze</span></span>" +
         "</span>" +
         "</span><span></span>" +
         "<span class='cl-seg'>" +
@@ -935,7 +1111,7 @@ function _calInjectStyle() {
     ".cr-cap{font:8px 'DM Mono',monospace;letter-spacing:1.2px;text-transform:uppercase;color:#6e6e6e;white-space:nowrap}" +
     ".cr-pb{width:22px;height:22px;padding:0;border-radius:3px;background:linear-gradient(#3a3a3a,#232323);box-shadow:0 1px 0 #000,inset 0 1px 0 rgba(255,255,255,.12);border:1px solid #111;cursor:pointer}" +
     ".cr-pb.lit{background:linear-gradient(oklch(.65 .16 29),oklch(.54 .17 29));box-shadow:0 0 6px oklch(.63 .19 29 / .4),inset 0 1px 0 rgba(255,255,255,.35)}" +
-    "#calAnalyzeBtn{cursor:default}" +
+
     ".cr-vu{display:block;flex:none;font-family:'DM Mono',monospace;filter:brightness(.88) drop-shadow(0 1px 1px #000)}" +
     ".cr-vents{display:flex;gap:4px}.cr-vents i{width:3px;height:18px;border-radius:2px;background:#0a0a0a;box-shadow:inset 0 1px 1px #000,0 1px 0 #1f1f1f}" +
     ".cr-count{min-width:40px;height:26px;padding:0 10px;display:flex;align-items:center;justify-content:center;border-radius:2px;background:#1b1006;border:1px solid #000;box-shadow:inset 0 2px 5px rgba(0,0,0,.9);" +
@@ -960,6 +1136,11 @@ function _calInjectStyle() {
     ".st-win.cal-sv-win>.settings-title{margin-right:242px}" +
     ".cal-sv-cols{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:32px;align-items:start}" +
     ".cal-sv-t{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#7c7c7c;margin:0 0 12px}" +
+    // Next week window (user, 2026-11-18): a heading per rule, a row per warning, Known on the right
+    ".cal-az-win{width:min(640px,calc(100vw - 40px))}#calAzBody .cal-sv-t{margin:18px 0 8px}#calAzBody .cal-sv-t:first-child{margin-top:0}" +
+    ".cal-az-row{display:grid;grid-template-columns:110px 1fr auto;gap:12px;align-items:baseline;padding:7px 0;border-top:1px solid #222;color:var(--t-normal);font-size:13px}.cal-az-row:first-child{border-top:none}" +
+    ".cal-az-row b{font-weight:500;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase}.cal-az-row i{font-style:normal;color:var(--muted)}" +
+    ".cal-az-row.known{opacity:.45}.cal-az-note{margin-top:14px;color:var(--muted);font-size:12px}.cal-az-foot{margin-top:16px;text-align:right}" +
     ".cal-sv-main .cal-sv-t{margin-top:8px;margin-bottom:16px}.cal-sv-side{position:absolute;top:-106px;bottom:-24px;right:0;width:210px;display:flex;flex-direction:column;justify-content:center}" +   // no lines (user, 2026-11-02); List view centred in the whole window's height, as the Log window's Shortcuts
     ".cal-sv-dates{display:flex;flex-direction:column;gap:6px;font-size:12px}" +
     // List rows: just the days, no borders (user, 2026-11-02).

@@ -327,7 +327,9 @@ function _tdZmShow() {
 // the list at the top of Today. Every day looks the same (no dimming: Today is the tab for today).
 function _tdWeekSection() {
   var w = _tdWeekHtml();
-  return '<div class="td-col td-week-col"><div class="td-sub"><span>This Week</span></div>' +   // a subtitle, no calendar icon; its dates moved beside GLANCE (user, 2026-11-16)
+  return '<div class="td-col td-week-col"><div class="td-sub"><span>This Week</span>' +
+    // Next week (user, 2026-11-19): the Calendar rack's Analyze window, next week's warnings
+    '<span class="td-top-btns"><button class="link-btn opens-window" onclick="_calAnalyze()" data-tip="Opens a window.\nNext week\'s warnings, suggestions only.">Next week</button></span></div>' +   // a subtitle, no calendar icon; its dates moved beside GLANCE (user, 2026-11-16)
     w.body + '</div>';
 }
 function _tdWeekHtml() {
