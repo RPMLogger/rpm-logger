@@ -6059,8 +6059,8 @@ html body #commsBody .cm-list-top .cm-compose svg { width: 11px; height: 11px; }
 #commsBody .cm-keys { margin-top: 0; padding: 11px 0 12px; border-top: 1px solid var(--border); text-align: center; font: 500 8px "DM Mono", monospace; letter-spacing: 1px; text-transform: uppercase; color: #6e6e6e; line-height: 1; }
 #commsBody .cm-keys-dot { margin: 0 10px; }
 #commsBody .cm-key { display: inline-block; padding: 3px 8px; margin-right: 4px; border-radius: 999px; border: 1px solid var(--border); background: color-mix(in srgb, var(--surface2) 50%, var(--surface)); color: #8a8a8a; }   /* key names as pills (user, 2026-11-18) */
-/* Applications, Contact + Trial Lesson titles (user, 2026-11-19): the "· Trial Lessons" subtitle + tray icon in the plate border's gold piping (#5e4d2a), not grey / half brass */
-html body :is(#tab-inquiries, #tab-initiate, #tab-trial) :is(.settings-title .win-sub, .td-wk-icon .win-icon, #_a#_b#_c) { color: #5e4d2a; }   /* #_a#_b#_c outranks the HALF BRASS icon rule */
+/* Every tab title (user, 2026-11-19; started on Applications, Contact + Trial Lesson): the "· Trial Lessons" subtitle + tray icon in the plate border's gold piping (#5e4d2a), not grey / half brass */
+html body .tab-panel :is(.settings-title .win-sub, :is(.td-wk-icon, .ld-icon, .pay-page-icon, .st-page-icon, .tv-page-icon, .cm-title-icon, .cm-page-icon) .win-icon, #_a#_b#_c) { color: #5e4d2a; }   /* EVERY tab title (user, 2026-11-19: "make every title like this") */   /* #_a#_b#_c outranks the HALF BRASS icon rule */
 
 /* ─── DAY 4: ENTRY BOXES (user, 2026-11-19) ─────────────────────────────────
    Every box you type into, one look: ENGRAVED - a dark well cut into the card
