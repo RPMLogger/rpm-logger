@@ -6109,3 +6109,12 @@ html body :is(.link-btn, .db-mini-btn, .btn-settings-load, .pa-save, .rpm-dlg-bt
   padding: 4px 10px; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
   border-radius: 7px; line-height: normal; height: auto; min-height: 0;
 }
+
+/* ─── DAY 7: CORNERS (2026-11-19, my calls) ─────────────────────────────────
+   The portal's corners: 10px boxes / cards / windows · 8px entry boxes · 7px buttons, chips, small tiles · round dots.
+   These small things sat at 4 or 6px; now the button corner. Kept on purpose: the Calendar / Fixed schedule racks
+   (hardware: 1.5-4px), the Comms composer (chat bubble), the Financial tables (user's layout, Financial design is its own to-do). */
+html body :is(.gt-btn, .rpm-count, .im-step, .im-today-tag, .ia-chip, .td-day-cal, #_a#_b#_c) { border-radius: 7px; }
+/* Laptop width (1280): the Calendar rack's hidden knob labels stuck out 79px past the calendar and gave the whole
+   page a sideways scroll. Nothing visible sits out there, so the calendar body clips at its own edge. */
+html body #tab-calendar #calBody { overflow-x: clip; }
