@@ -125,7 +125,7 @@ function _dcRender() {
   if (!rack) return;
   _dcN = (todayStudents || []).length;
   var m = _dcRows === null ? { lessons: [] } : _dcModel();
-  var secs = _dcRows === null ? '<div class="dc-sec dc-msg"><span class="dc-lcd">LOADING</span></div>' :
+  var secs = _dcRows === null ? '<div class="dc-sec dc-msg"><span class="rpm-loading">Loading</span></div>' :   // the portal's own loading sign, not a screen (user, 2026-11-20)
     !m.lessons.length ? '<div class="dc-sec dc-msg"><span class="dc-lcd">NO LESSONS TODAY</span></div>' :
     m.lessons.map(function (L) { return _dcSec(L, m); }).join('');
   rack.innerHTML = '<span class="hr-bolt" style="left:10px"></span><span class="hr-bolt" style="right:10px"></span>' +
