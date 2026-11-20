@@ -1318,7 +1318,7 @@ function _stOpenLessonActions(studentName, lesson, opts) {
   // anyone it would overlap. Reschedule starts from that day and time.
   var to = opts && opts.to;
   var w = _stWin('stActionModal', studentName, 'Lesson', CALENDAR_ICON,
-    "<div class='st-when'>" + _stDayLabel(lesson) + " · " + lesson.time + "</div>" +
+    "<div class='st-when'>" + _stDayLong(lesson) + " · " + lesson.time + "</div>" +   // the day written out: Friday, Nov 20 (user, 2026-11-19)
     (to ? "<div class='st-when' style='color:var(--blue)'>Dropped on " + to.label + "</div>" : "") +
     (to && to.overlaps && to.overlaps.length ? "<div class='st-when' style='color:var(--warn)'>Overlaps " + to.overlaps.join(', ') + "</div>" : "") +
     "<div class='ll-acts st-foot' style='justify-content:flex-end'>" +
@@ -1404,6 +1404,11 @@ function _stOpenTimeConfirm(studentName, lesson, newYmd, opts) {
 // backend's "Sun Oct 18" lacks.
 function _stDayLabel(lesson) {
   return rpmDtpParse(lesson.date) ? _dtpDateLabel(lesson.date) : lesson.dateLabel;
+}
+// The day written out, "Friday, Nov 20" (Lesson window, user 2026-11-19).
+function _stDayLong(lesson) {
+  var d = rpmDtpParse(lesson.date);
+  return d ? d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) : lesson.dateLabel;
 }
 
 // ── Window helpers for Skip / Lesson / Reschedule (2026-10-05) ──

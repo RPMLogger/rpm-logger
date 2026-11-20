@@ -5572,7 +5572,7 @@ html body #commsBody .cm-title-icon { opacity: 1; filter: none; }
 /* TITLE ICON SIZES (user, 2026-11-13: "34 and 24"): every tab title icon 34px tall, every window/dialog title icon 24px tall; width follows the drawing.
    Was 11 heights (14–40). Icons inside buttons, Travel's inline place/live/buffer icons and the Dropbox Finder icon keep their own size. */
 html body .tab-panel :is(.win-icon, #_a#_b):not(button *, .link-btn *, .db-finder *, .tv-buf-icon, .tv-place-icon, .tv-live-icon) { height: 24px; width: auto; }   /* 24 (user, 2026-11-13: an icon shouldn't be as big as the title; was 34) */
-html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) :is(.win-icon, .rpm-dlg-ticon > svg, .rpm-dlg-ticon > img, #_a#_b):not(button *, .link-btn *, .db-finder *) { height: 20px; width: auto; }   /* 20 (was 24) */
+html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) :is(.win-icon, .rpm-dlg-ticon > svg, .rpm-dlg-ticon > img, #_a#_b):not(button *, .link-btn *, .db-finder *) { height: 18px; width: auto; }   /* 18 like every tab title icon (user, 2026-11-19; was 20, before that 24) */
 /* Home box fits the screen height, no scroll (user, 2026-11-13: "the cabinet should fit into screenheight, so shorter"): top of box at 422px + 72px page bottom. Floor 360px. Delete to undo (fixed 520px). */
 html body #tab-home.tab-panel.active { min-height: max(360px, calc(var(--vh) * 100 - 422px - 72px)) !important; height: max(360px, calc(var(--vh) * 100 - 422px - 72px)); }
 
@@ -6134,3 +6134,124 @@ html body #tab-report :is(.rp-in-tab.rp-recap-win .rp-card, #_a#_b#_c) { backgro
 html body #tab-report > .td-wk-box:first-child { margin-top: 0; }
 html body #tab-report .rp-tiles-box[hidden] { display: none; }
 html body #tab-report .rp-tiles-box .rp-cards { margin-top: 0; }
+
+/* The date/time picker = an entry box (user, 2026-11-19): you pick a value in it, so it takes Day 4's engraved look and
+   the entry box's height (32px, was 40), 8px corners. Everywhere it's used (10 places) except Travel's Leaving on / Back on,
+   which keep their own frame (sized to the Cost analysis rows), and the read-only picker. Change appointment's fixed
+   day/time boxes (.st-box) sit beside it, so they match the height and corners too. */
+html body :is(.dtp-cell, #_a#_b#_c):not(.tv-dates .dtp-cell):not(.dtp-ro .dtp-cell) {
+  height: 32px; background-color: #121212; border: 1px solid #0a0a0a; border-radius: 8px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.05);
+}
+html body :is(.dtp-cell, #_a#_b#_c):not(.tv-dates .dtp-cell):not(.dtp-ro .dtp-cell) :is(.dtp-lab, .dtp-chevs) { background: transparent; border-color: #1e1e1e; }
+html body :is(.st-box, #_a#_b#_c) { height: 32px; border: 1px solid #0a0a0a; border-radius: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.05); }
+/* Subtitle as big as the title (user, 2026-11-19: "TEST STUDENT · RESCHEDULE" should be one size), in every window and tab title (was 16px under a 20px title). */
+html body :is(.settings-title .win-sub, #_a#_b#_c) { font-size: inherit; }
+/* Log window page 1: a divider between the "One item per row…" line and LOG LESSON (user, 2026-11-19), the Reschedule window's divider. */
+html body #imLogWin :is(.im-case-list, #_a#_b#_c) { margin-bottom: -16px; padding-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+/* No "add a row" buttons anywhere (user, 2026-11-19: "remove it everywhere"): Enter in a row adds the next one. */
+html body :is(.ll-add, #_a#_b#_c#_d) { display: none; }
+/* Window title icons grey, the subtitle's grey (user, 2026-11-19: "windows should not be brass"); tab title icons stay gold. */
+html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) :is(.win-icon, .rpm-dlg-ticon > *, #_a#_b#_c):not(button *, .link-btn *, .db-finder *) { color: var(--muted); }
+/* Log window: a divider above Save & next on page 3 (Schedule; page 1 has the band's edge instead); 2 and 4 lay their foot out beside / over other parts (user, 2026-11-19), and the title icon 24px, bigger in this wide window (user: "24 is good"). */
+html body #imLogWin .im-sched-box + :is(.im-log-foot-all, #_a#_b#_c) { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 31px; }   /* even space above and below the line */
+html body #imLogWin :is(.settings-title ~ * .win-icon, .win-icon, #_a#_b#_c#_d#_e#_f):not(button *, .link-btn *) { height: 24px; width: auto; }
+/* Log window page 1 (user, 2026-11-19: "we have room"): Mark no show moves under the "One item per row…" line,
+   on the left, ABOVE the divider, then LOG LESSON (was up on the right, level with that line). */
+html body #imLogWin .im-page:has(> #imNsSlot) { display: flex; flex-direction: column; }
+html body #imLogWin .im-page:has(> #imNsSlot) > :is(.im-case-list, #_a#_b#_c#_d) { order: 1; margin-top: -78px; margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+html body #imLogWin :is(.im-ns-slot, #_a#_b#_c) { order: 2; position: static; align-self: stretch; margin: 12px 0 3px; padding-bottom: 25px; }   /* no divider under it: the band below has its own edge (user, 2026-11-19) */
+html body #imLogWin .im-page:has(> #imNsSlot) > .im-main-box { order: 3; }
+/* Log window page 1: the four boxes (Log lesson, Log homework, both notes) on a band (user, 2026-11-19): flat #1c1c1c, no card shadow,
+   from the window's left edge to the steps column's line (drawn 250px in from the window's right), 40px all round inside. */
+html body #imLogWin .im-log-cols > :is(.im-log-left, #_a#_b#_c) { box-sizing: border-box; background: #1c1c1c; border-radius: 0; margin-left: -24px; margin-right: -16px; padding: 10px 40px 50px 50px; box-shadow: none; }   /* top 10 + the heads' own 40px margin = 50, like the bottom */
+/* Log window page 2, Practice materials (user, 2026-11-19: "files should be like video lesson height"): FILES lines up with
+   VIDEO LESSON LINK — same top, the Gather / Browse / Dropbox buttons up on the FILES line. The drop box keeps its size. */
+html body #imLogWin :is(#imMatBox, #_a#_b#_c) { margin-top: 4px; }
+html body #imLogWin #imMatBox .im-hw-dock-box { position: relative; }
+html body #imLogWin :is(#imMatFilesTools, #_a#_b#_c) { position: absolute; top: -6px; right: 0; margin: 0; }
+/* The drop box stays one size, empty or full (user, 2026-11-19): 108px, the empty box's height; a long list scrolls on the right (was: grew to 300px). */
+html body #imLogWin :is(#logHwFiles, #_a#_b#_c#_d) { height: 108px; max-height: 108px; overflow-y: auto; box-sizing: border-box; }
+/* Mic buttons dimmer, all through the portal (user, 2026-11-19): the faint grey, a step up on hover; recording stays red. */
+html body :is(.link-btn.tl-mic, #_a#_b#_c#_d):not(.rec) { color: var(--t-faint); }
+html body :is(.link-btn.tl-mic, #_a#_b#_c#_d):not(.rec):hover:where(:not(:disabled)) { color: var(--t-normal); }
+/* The band gets a thin line top and bottom (user, 2026-11-19: "looks better"), and the steps column's divider turns into the
+   same line, full width from the steps line to the window's edge. */
+html body #imLogWin .im-log-cols > :is(.im-log-left, #_a#_b#_c#_d) { border-top: 1px solid #2c2c2c; border-bottom: 1px solid #2c2c2c; }
+html body #imLogWin :is(.im-side-div, #_a#_b#_c) { background: #2c2c2c; }
+/* None / No / Zoom / Phone pills a tiny bit brighter (user, 2026-11-19): text + ring from the faint grey (L 0.43) to L 0.52. */
+html body #imLogWin .im-pills.im-words :is(.im-pill.im-pill-none, #_a#_b#_c):not(.done):not(:hover) { color: oklch(0.52 0.006 81); border-color: oklch(0.52 0.006 81); }   /* not when picked (.done) */
+/* The steps column now spans from the steps line to the window's edge (was 210px inside the padding, and its overflow clip cut
+   the divider short): padding keeps everything in it where it was, and the divider runs the full width (user, 2026-11-19: "extend"). */
+html body #imLogWin .st-win.im-log-wide :is(#imSideCol, #_a#_b#_c) { right: -24px; width: 250px; padding-left: 30px; padding-right: 24px; }
+/* The drop box's scrollbar smaller than the page's, in proportion (user, 2026-11-19): 4px wide (page 9px), track inset 6px (page 14px). */
+#imLogWin #logHwFiles::-webkit-scrollbar { width: 4px; }
+#imLogWin #logHwFiles::-webkit-scrollbar-track { margin: 6px 0; }
+#imLogWin #logHwFiles::-webkit-scrollbar-thumb { border-radius: 2px; }
+#imLogWin #logHwFiles { scrollbar-color: auto; scrollbar-width: auto; }   /* the portal-wide scrollbar-color would make Chrome ignore the 4px rules above */
+/* Drop box taller so its None sits level with No / Yes Zoom / Yes Phone, and a thicker blue dashed edge (user, 2026-11-19). */
+html body #imLogWin :is(#logHwFiles, #_a#_b#_c#_d#_e) { height: 250px; max-height: 250px; border-width: 2px; }   /* one line more: its None level with Yes zoom / Yes phone (user, 2026-11-19) */
+/* Recorded on their side?: None on its own line (level with the Files None), Yes zoom + Yes phone on the next (user, 2026-11-19). */
+html body #imLogWin :is(.im-word-grp:has(> #imRecNo), #_a#_b#_c) { flex-wrap: wrap; row-gap: 10px; }
+html body #imLogWin :is(#imRecNo, #_a#_b#_c) { margin-right: 100%; }
+/* Log window page 2, Practice materials, on the same band as page 1 (user, 2026-11-19): window's left edge to the steps line,
+   thin lines top and bottom, 40px inside; Save & next under it at the right. The band is a ::before so Save & next stays outside it. */
+html body #imLogWin :is(.im-main-box.im-mat-split, #_a#_b#_c) { position: relative; margin-left: -24px; margin-right: -16px; padding: 46px 40px 0 50px; box-sizing: border-box; }
+html body #imLogWin .im-mat-split::before { content: ''; position: absolute; left: 0; right: 0; top: 0; bottom: 55px; background: #1c1c1c; border-top: 1px solid #2c2c2c; border-bottom: 1px solid #2c2c2c; z-index: 0; pointer-events: none; }
+html body #imLogWin .im-mat-split > * { position: relative; z-index: 1; }
+html body #imLogWin :is(.im-mat-split > .im-log-foot-all, #_a#_b#_c) { grid-row: 2; grid-column: 1 / -1; justify-self: end; align-self: start; margin-top: 55px; }
+html body #imLogWin :is(.im-mat-split > #imMatBox, #_a#_b#_c#_d) { margin-top: 4px; }
+html body #imLogWin :is(.im-mat-split > .im-mat-right, #_a#_b#_c#_d) { margin-top: 0; padding-bottom: 0; }
+/* Pages 1 and 2 match when you turn (user, 2026-11-19): page 2's band starts where page 1's does (page 1 has the hint line and
+   Mark no show above it), and page 1's Notes row sits lower so both bands are one height and the Nones land on one line. */
+html body #imLogWin .im-page[data-pg="6"] { display: flow-root; padding-top: 75px; }   /* padding, not a margin on the band: a margin leaked out and pushed the steps column down 60px (user, 2026-11-19) */
+html body #imLogWin .im-log-left > :is(.im-sub-head:nth-child(5), .im-sub-head:nth-child(7), #_a#_b#_c#_d) { margin-top: 89px; }
+/* Log window, under the steps (user, 2026-11-19): the page arrows bigger (26px, was 18) and spread out, ← on the left edge of the
+   steps text, → on the right edge. */
+html body #imLogWin :is(#imSideNav, #_a#_b#_c) { justify-content: space-between; margin-right: 0; }
+html body #imLogWin :is(#imPgBack, #imPgNext, #_a#_b#_c) { padding: 0; }
+html body #imLogWin :is(#imPgBack, #imPgNext, #_a#_b#_c) svg { width: 26px; height: 26px; }
+/* Page 2: Gather / Browse / Dropbox move under the drop box, on the None line at the right (user, 2026-11-19). */
+html body #imLogWin :is(#imMatFilesTools, #_a#_b#_c#_d) { top: auto; bottom: -3px; right: 0; }   /* centred on the None pill */
+/* The link boxes' add (+) buttons gone too (user, 2026-11-19): Enter in a link box adds the link, like Enter adds a row. */
+html body :is(.im-link-add, #_a#_b#_c#_d) { display: none; }
+/* Page 2 like page 1 (user, 2026-11-19): only None is a pill; Yes zoom – Yes phone are words like page 1's chips (faint caps, a dash
+   between, brighter when picked). */
+html body #imLogWin .im-pills.im-words :is(#imRecZoom, #imRecPhone, #_a#_b#_c) { border: none; border-radius: 0; padding: 2px 0; margin: 3px 0 0; background: none; }   /* 3px down: centred on the Files None */
+html body #imLogWin .im-pills.im-words :is(#imRecZoom, #imRecPhone, #_a#_b#_c):not(.done):not(:hover) { color: var(--t-faint); }
+/* Save & next while there's nothing to save: its amber look, much dimmer (user, 2026-11-19: "like what it is going to be but much
+   dimmer"; was a grey outline, 2026-11-09). */
+html body #imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn, #imMailSend, #_a#_b#_c).amber:disabled { background: oklch(0.52 0.12 76); border-color: oklch(0.52 0.12 76); color: #111111; font-weight: 500; opacity: 0.25; }
+html body #imLogWin .im-rec-sep { align-self: center; margin-top: 3px; }   /* on the Yes words' line */
+/* "Did they record?" in the same font as WEB LINK / VIDEO LESSON LINK (user, 2026-11-19): 2px letters + the engraved shadow. */
+html body #imLogWin :is(.im-mat-q, #_a#_b#_c) { letter-spacing: 2px; text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
+/* Log window steps list a tiny bit bigger (user, 2026-11-19): 11px, was 10. */
+html body #imLogWin :is(.im-step-side, #_a#_b#_c), html body #imLogWin .im-step-side > span { font-size: 11px; }
+/* Yes zoom / Yes phone as buttons, the Gather / Browse button shape (user, 2026-11-19), in the plain grey (blue = opens outside):
+   7px corners, faint fill, thin outline; picked = bright. None stays the round pill. No dash between buttons. */
+html body #imLogWin .im-pills.im-words :is(#imRecZoom, #imRecPhone, #_a#_b#_c#_d) { padding: 4px 10px; margin: -1.6px 0 0; font-size: 10px; letter-spacing: 1px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.04); box-shadow: 0 3px 10px rgba(0,0,0,0.25); line-height: normal; }
+html body #imLogWin .im-pills.im-words :is(#imRecZoom, #imRecPhone, #_a#_b#_c#_d):not(.done):not(:hover) { color: var(--muted); }
+html body #imLogWin .im-pills.im-words :is(#imRecZoom, #imRecPhone, #_a#_b#_c#_d):hover:where(:not(:disabled)) { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); }
+html body #imLogWin .im-pills.im-words :is(#imRecZoom, #imRecPhone, #_a#_b#_c#_d).done { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 80%, transparent); }   /* picked: bright (a dimmer one tried, user kept bright) */
+html body #imLogWin :is(#imRecPhone, #_a#_b#_c#_d) { margin-left: 10px; }
+html body #imLogWin :is(.im-rec-sep, #_a#_b#_c) { display: none; }
+/* None picked → Yes zoom / Yes phone dim (user, 2026-11-19). */
+html body #imLogWin .im-word-grp:has(> #imRecNo.done) > :is(#imRecZoom, #imRecPhone, #_a#_b#_c) { opacity: 0.35; }
+/* …and the other way: Yes zoom or Yes phone picked → None dims (user, 2026-11-19). */
+html body #imLogWin .im-word-grp:has(> :is(#imRecZoom, #imRecPhone).done) > :is(#imRecNo, #_a#_b#_c) { opacity: 0.35; }
+/* A link added to Video lesson link / Web link → that box's None dims (user, 2026-11-19). */
+html body #imLogWin .lh-link-sec:has(.lh-links > *) .im-link-none :is(.im-pill-none, #_a#_b#_c) { opacity: 0.35; }
+/* An entered link shows inside its black box, × at the right end (user, 2026-11-19: "fit that into the black box"), cut with …
+   when long, so you can see it's in; the boxes below don't shift. Click in the box to type another and it steps aside. */
+html body #imLogWin :is(#logHwVideo, #logHwLink, #_a#_b#_c) { position: relative; }
+html body #imLogWin :is(#logHwVideoList, #logHwLinkList, #_a#_b#_c) { position: absolute; top: 0; left: 12px; right: 10px; height: 32px; margin: 0; display: flex; flex-direction: row; align-items: center; gap: 14px; overflow: hidden; pointer-events: none; }
+html body #imLogWin :is(#logHwVideoList, #logHwLinkList)::before, html body #imLogWin :is(#logHwVideoList, #logHwLinkList)::after { display: none; }   /* a label pseudo took the first slot */
+html body #imLogWin :is(#logHwVideoList, #logHwLinkList) .lh-link { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex: 1 1 0; min-width: 0; margin: 0; padding: 0; font-size: 11px; pointer-events: auto; }
+html body #imLogWin :is(#logHwVideoList, #logHwLinkList) .lh-link a { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+html body #imLogWin :is(#logHwVideo, #logHwLink):has(input:focus) :is(#logHwVideoList, #logHwLinkList) { visibility: hidden; }
+/* Files dropped in → the Files None dims (user, 2026-11-19), like the link boxes'. */
+html body #imLogWin #imMatBox:has(#logHwFiles:not(.lh-empty)) .im-files-none :is(.im-pill-none, #_a#_b#_c) { opacity: 0.35; }
+/* Windows could only use 72% of the screen's height since the 80% content scale (b1487): their 90%-of-screen cap is counted
+   before the scale shrinks them. Divided back out, a window can again reach 90% of the screen, so the Log window fits without
+   scrolling at 175% (user, 2026-11-19). */
+html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) > :is(.st-win, .fx-modal, .td-student.cm-win, #_a#_b) { max-height: calc(var(--vh) * 90 / var(--content-scale)); }

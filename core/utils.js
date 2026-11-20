@@ -615,6 +615,15 @@ function llWire(box, onFocus, onChange, onSubmit) {
   if (!box || box._llWired) return;
   box._llWired = true;
   box._llFocus = onFocus; box._llChange = onChange; box._llSubmit = onSubmit;
+  // Re-place the mic when the box changes width (user, 2026-11-19: Log homework's mic sat low; it was placed while
+  // the window was still laying out, when the row wrapped to two lines). Width only, so llFit's height change can't loop.
+  if (window.ResizeObserver) {
+    var lastW = 0;
+    new ResizeObserver(function () {
+      var w = box.offsetWidth;
+      if (w && w !== lastW) { lastW = w; llPlaceMic(box); }
+    }).observe(box);
+  }
   box.addEventListener('focusin', function (ev) {
     var i = llRows(box).indexOf(ev.target);
     if (i >= 0 && box._llFocus) box._llFocus(i);
