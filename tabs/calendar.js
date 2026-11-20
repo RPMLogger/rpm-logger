@@ -460,7 +460,7 @@ var _calOther = [];   // events of the lit other calendars, this week
 // RPM holidays (user, 2026-11-20): the Holid. button shows the Holidays tab's own list (tabs/holidays.js
 // HOL_GROUPS: General, Personal, Derin's school) as all-day strips, worked out here, no Google calendar.
 // Google's Holidays calendar is no longer on the rack (Analyze still reads it).
-CAL_OTHER_COLORS.rpmhol = 'oklch(0.5 0.15 29)';
+CAL_OTHER_COLORS.rpmhol = CAL_OTHER_COLORS.holidays;   // same grey as the old Google holidays strips (user, 2026-11-20)
 function _calRpmHol(mon) {
   if (typeof HOL_GROUPS === 'undefined') return [];
   var out = [], seen = {}, derinOff = {};
