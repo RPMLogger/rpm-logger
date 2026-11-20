@@ -297,9 +297,9 @@ function _tsStudentRow(s, readOnly) {
       }
     });
   };
-  // Enter sends; Shift+Enter for a new line.
+  // Enter = new line, ⌘Enter sends, like the Comms reply (user, 2026-11-20; was Enter sends, Shift+Enter new line).
   input.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.onclick(); }
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); sendBtn.onclick(); }
   });
 
   var confirmBtn = document.createElement('button');

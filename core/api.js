@@ -234,6 +234,10 @@ function collectDroppedFiles(dataTransfer, done) {
     var en = items[i].webkitGetAsEntry && items[i].webkitGetAsEntry();
     if (en) entries.push(en);
   }
+  if (!entries.length) {   // no entries to walk (e.g. some pastes): the plain file list
+    done(Array.prototype.slice.call(dataTransfer.files || []).filter(function (f) { return f.name.charAt(0) !== "."; }));
+    return;
+  }
   var out = [], pending = 0;
   function finish() { if (pending === 0) done(out); }
   function walk(entry, prefix) {
@@ -277,14 +281,18 @@ function collectDroppedFiles(dataTransfer, done) {
   window._dbxPasteGuard = true;
   document.addEventListener("paste", function (e) {
     var cd = e.clipboardData, t = e.target;
-    var files = Array.prototype.slice.call((cd && cd.files) || []);
-    if (!files.length) return;
+    if (!cd || !(cd.files || []).length) return;
     if (t && t.closest && t.closest("input, textarea, [contenteditable=''], [contenteditable='true']")) return;
     var zone = ["logHwFiles", "stDropZone", "tlDrop"].map(function (id) { return document.getElementById(id); })
       .filter(function (el) { return el && el.offsetParent && typeof el.ondrop === "function"; })[0];
     if (!zone) return;
     e.preventDefault();
-    zone.ondrop({ preventDefault: function () {}, stopPropagation: function () {}, target: zone, dataTransfer: { files: files } });
+    // Folders open up like a drop, where the browser allows it (user, 2026-11-19: pasted folders didn't come in).
+    collectDroppedFiles(cd, function (files) {
+      files = files.filter(function (f) { return f.size || f.type || /\.[^.\/]+$/.test(f.name); });   // a folder that didn't open comes as an empty "file": skip it
+      if (!files.length) return;
+      zone.ondrop({ preventDefault: function () {}, stopPropagation: function () {}, target: zone, dataTransfer: { files: files } });
+    });
   });
 })();
 

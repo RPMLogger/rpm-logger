@@ -31,7 +31,7 @@
   --radius-pill: 6px;
   --pad-card:    14px 16px;
   --warn:        var(--accent2);   /* one amber now: warn was amber's twin at matched lightness; was #d9a441 (user, 2026-10-27: colours matched to the red in OKLCH) */
-  --focus:       var(--muted);   /* focus ring: grey, the composer's (was dimmed amber #7a5a18; standardised 2026-09-23) */
+  --focus:       oklch(0.5 0.006 81);   /* focus ring: one step dimmer than --muted (user, 2026-11-20; was var(--muted), before that dimmed amber #7a5a18) */
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -6257,3 +6257,143 @@ html body #imLogWin #imMatBox:has(#logHwFiles:not(.lh-empty)) .im-files-none :is
    before the scale shrinks them. Divided back out, a window can again reach 90% of the screen, so the Log window fits without
    scrolling at 175% (user, 2026-11-19). */
 html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) > :is(.st-win, .fx-modal, .td-student.cm-win, #_a#_b) { max-height: calc(var(--vh) * 90 / var(--content-scale)); }
+/* Yes zoom / Yes phone a bit lower, more space under None; a gap between them (user, 2026-11-19; phone's 10px gap was lost to the button margin) */
+html body #imLogWin .im-pills.im-words :is(#imRecZoom, #imRecPhone, #_a#_b#_c#_d#_e) { margin-top: 8px; }
+html body #imLogWin .im-pills.im-words :is(#imRecPhone, #_a#_b#_c#_d#_e) { margin-left: 10px; }
+/* Log window page 1: the four boxes numbered 1.–4., so it reads as four things to finish (user, 2026-11-19) */
+html body #imLogWin .im-log-left { counter-reset: imLogBox; }
+html body #imLogWin .im-log-left > .im-sub-head .im-sub-t::before { counter-increment: imLogBox; content: counter(imLogBox) ". "; color: var(--t-faint); }   /* numbers dimmer than the words (user, 2026-11-19) */
+/* Mark no show on the hint line, right aligned; the band stays where it was (user, 2026-11-19) */
+html body #imLogWin :is(.im-ns-slot, #_a#_b#_c#_d) { display: flex; justify-content: flex-end; margin-top: -22px; padding-bottom: 24px; padding-right: 265px; }   /* band raised to balance (user, 2026-11-19) */
+/* Log window: the bottom part as tall as the top part, Save & next in its middle; pages 1 and 2 still line up (user, 2026-11-19) */
+html body #imLogWin :is(.im-log-foot-all, #_a#_b#_c#_d#_e) { padding-bottom: 37px; }
+html body #imLogWin .im-page:has(> #imNsSlot) :is(.im-log-foot-all, #_a#_b#_c#_d#_e) { margin-top: 69px; }
+html body #imLogWin :is(.im-mat-split > .im-log-foot-all, #_a#_b#_c#_d#_e) { margin-top: 78px; }
+html body #imLogWin .im-mat-split::before { bottom: 102px; }
+/* Practice materials hint line: same place as page 1's, band at the same height (user, 2026-11-19) */
+html body #imLogWin .im-page[data-pg="6"] > :is(.im-mat-hint, #_a#_b#_c#_d) { margin: -85px 0 0; padding-bottom: 0; border-bottom: 0; }
+html body #imLogWin .im-page[data-pg="6"] > :is(.im-mat-split, #_a#_b#_c#_d#_e) { margin-top: 26px; }
+/* Window descriptions start with a bullet: Log pages 1 and 2 now, later pages as we get to them (user, 2026-11-20) */
+html body #imLogWin .im-case-list::before { content: "•"; margin-right: 8px; }
+/* Empty Dropbox box: "Drag files or folders or browse" in the middle (user, 2026-11-20) */
+html body #imLogWin :is(#logHwFiles.lh-empty, #_a#_b#_c#_d) { display: flex; align-items: center; justify-content: center; padding-top: 0; padding-bottom: 0; }
+html body #imLogWin #logHwFiles.lh-empty > span { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; }   /* Arial, like the other text in boxes (user, 2026-11-20) */
+/* Did they record? like Web link: Yes zoom / Yes phone on the box's line, None under them (user, 2026-11-20) */
+html body #imLogWin :is(#imRecNo, #_a#_b#_c#_d) { order: 2; }
+html body #imLogWin .im-pills.im-words :is(#imRecZoom, #imRecPhone, #_a#_b#_c#_d#_e#_f) { margin-top: 3px; }
+html body #imLogWin :is(#imRecNo, #_a#_b#_c#_d#_e) { margin-top: 4px; }   /* None as far under the buttons as Web link's None is under its box */
+html body #imLogWin :is(#logHwFiles, #_a#_b#_c#_d#_e#_f) { height: 265px; max-height: 265px; }   /* its bottom row level with the record None */
+/* Did they record?: a box like the link boxes with the pick written in it, None / Yes zoom / Yes phone in one row under it (user, 2026-11-20) */
+html body #imLogWin :is(.im-rec-box, #_a#_b#_c) { align-self: stretch; box-sizing: border-box; height: 32px; padding: 0 12px; display: flex; align-items: center; background: #121212; border: 1px solid #0a0a0a; border-radius: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.05); font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--t-normal); }
+html body #imLogWin .im-mat-qbox:has(#imRecNo.done) .im-rec-box::before { content: "None"; }
+html body #imLogWin .im-mat-qbox:has(#imRecZoom.done) .im-rec-box::before { content: "Zoom"; }
+html body #imLogWin .im-mat-qbox:has(#imRecPhone.done) .im-rec-box::before { content: "Phone"; }
+html body #imLogWin :is(#imRecNo, #_a#_b#_c#_d#_e#_f) { order: 0; margin-top: 0; margin-right: 14px; }
+html body #imLogWin .im-pills.im-words :is(#imRecZoom, #imRecPhone, #_a#_b#_c#_d#_e#_f#_g) { margin-top: 0; }
+html body #imLogWin .im-word-grp:has(> #imRecNo) { align-items: center; }
+html body #imLogWin .im-mat-qbox > :is(.im-rec-box, #_a#_b#_c#_d) { margin-top: -3px; }
+html body #imLogWin .im-mat-qbox > :is(.im-rec-none, #_a#_b#_c#_d) { margin-top: -5px; }
+/* Yes zoom / Yes phone as pills like None, in their own grey; picking lights nothing, the box above says it (user, 2026-11-20) */
+html body #imLogWin .im-pills.im-words :is(#imRecZoom, #imRecPhone, #_a#_b#_c#_d#_e#_f#_g) { padding: 3px 10px; font-size: 9px; letter-spacing: 1px; line-height: 9px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); background: transparent; box-shadow: none; color: var(--muted); }
+html body #imLogWin .im-pills.im-words :is(#imRecZoom, #imRecPhone, #_a#_b#_c#_d#_e#_f#_g):hover:where(:not(:disabled)) { color: var(--t-bright); border-color: var(--muted); }
+html body #imLogWin .im-pills.im-words :is(#imRecNo, #_a#_b#_c#_d#_e#_f#_g).done:not(:hover) { color: oklch(0.52 0.006 81); border-color: oklch(0.52 0.006 81); background: transparent; }
+/* Practice materials: its four answers numbered 1.–4. like page 1, numbers dim (user, 2026-11-20) */
+html body #imLogWin .im-page[data-pg="6"] { counter-reset: imMatBox; }
+html body #imLogWin .im-page[data-pg="6"] :is(.im-sub-t, .im-mat-q)::before { counter-increment: imMatBox; content: counter(imMatBox) ". "; color: var(--t-faint); }
+/* Change appointment: the question at the top as the hint line (bullet); No change · or · Change appointment side by side (user, 2026-11-20) */
+html body #imLogWin .im-page[data-pg="3"] > :is(.im-sched-q, #_a#_b#_c#_d) { margin: -10px 0 0; padding-bottom: 0; border-bottom: 0; }
+html body #imLogWin .im-page[data-pg="3"] > :is(.im-main-box, #_a#_b#_c#_d) { margin-top: 26px; }
+html body #imLogWin :is(#imSchedRs, #_a#_b#_c#_d) { display: flex; flex-direction: row; align-items: center; gap: 14px; }
+/* Change appointment: the same band and window size as pages 1 and 2, the two buttons in the band's middle (user, 2026-11-20) */
+html body #imLogWin .im-page[data-pg="3"] :is(.im-sched-box, #_a#_b#_c#_d#_e) { box-sizing: border-box; height: 408px; margin: 0 -17px 0 -25px; padding: 0 40px 0 50px; display: flex; flex-direction: row; align-items: center; background: #1c1c1c; border-top: 1px solid #2c2c2c; border-bottom: 1px solid #2c2c2c; border-radius: 0; box-shadow: none; }
+html body #imLogWin .im-page[data-pg="3"] :is(.im-log-foot-all, #_a#_b#_c#_d#_e#_f) { border-top: 0; padding-top: 0; margin-top: 71px; }
+html body #imLogWin .im-page[data-pg="3"] :is(#imSchedRs, #_a#_b#_c#_d#_e) { margin: 0; }
+/* Change appointment: No change / Change appointment as two big tiles filling the band, "or" between (user, 2026-11-20) */
+html body #imLogWin .im-page[data-pg="3"] :is(.im-sched-box, #_a#_b#_c#_d#_e#_f) { align-items: stretch; padding: 50px 40px 50px 50px; }
+html body #imLogWin .im-page[data-pg="3"] :is(#imSchedRs, #_a#_b#_c#_d#_e#_f) { flex: 1 1 auto; align-items: stretch; gap: 22px; }
+html body #imLogWin .im-page[data-pg="3"] #imSchedRs > .sn-row { flex: 1 1 0; display: flex; align-items: stretch; }
+html body #imLogWin .im-page[data-pg="3"] #imSchedRs > .sn-row:has(.sn-or) { flex: 0 0 auto; align-items: center; }
+html body #imLogWin .im-page[data-pg="3"] #imSchedRs :is(.im-rs-btn, #_a#_b#_c#_d#_e#_f) { flex: 1 1 auto; height: auto; width: 100%; display: flex; align-items: center; justify-content: center; padding: 0 16px; font-size: 12px; letter-spacing: 2px; border-radius: 10px; background: #161616; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
+html body #imLogWin .im-page[data-pg="3"] #imSchedRs :is(.im-rs-btn, #_a#_b#_c#_d#_e#_f):hover:where(:not(:disabled)) { border-color: rgba(255,255,255,0.22); background: #191919; }
+html body #imLogWin .im-page[data-pg="3"] { display: flow-root; }   /* the hint's margin stays inside the page, so the Steps column doesn't move (hidden pages keep their inline display: none) */
+html body #imLogWin .im-page[data-pg="3"] :is(.im-sched-box, #_a#_b#_c#_d#_e#_f#_g) { align-items: center; }   /* tiles a third of the band's height, in its middle (user, 2026-11-20) */
+html body #imLogWin .im-page[data-pg="3"] :is(#imSchedRs, #_a#_b#_c#_d#_e#_f#_g) { height: 136px; }
+/* Change appointment: a pick dims the other tile, like the Nones (user, 2026-11-20) */
+html body #imLogWin .im-page[data-pg="3"] #imSchedRs:has(#imSchedNo.done) .im-rs-btn:not(#imSchedNo) { opacity: 0.35; }
+html body #imLogWin .im-page[data-pg="3"]:has(#imSchedDoneBtn:not(:disabled)) #imSchedRs:not(:has(#imSchedNo.done)) #imSchedNo { opacity: 0.35; }
+/* Lesson recap email: same size and band as pages 1–3 (user, 2026-11-20). To/Sbj where the hint line is,
+   the email in the band (scrolls inside it when long), Start over + Send bottom right where Save & next is. */
+html body #imLogWin .im-page[data-pg="4"] { display: flow-root; }
+html body #imLogWin .im-page[data-pg="4"] :is(.im-mail-to, #_a#_b#_c#_d) { margin-top: -11px; }
+html body #imLogWin .im-page[data-pg="4"] :is(#imMailDark, #_a#_b#_c#_d) { box-sizing: border-box; height: 408px; max-height: 408px; overflow-y: auto; margin: 17px -17px 0 -25px; padding: 40px 40px 40px 50px; background: #1c1c1c; border-top: 1px solid #2c2c2c; border-bottom: 1px solid #2c2c2c; border-radius: 0; }
+html body #imLogWin .im-page[data-pg="4"] :is(.im-mail-foot, #_a#_b#_c#_d) { margin-top: 71px; justify-content: flex-end; align-items: center; gap: 10px; }
+html body #imLogWin .im-page[data-pg="4"] :is(#imMailSend, #imMailRedo, #_a#_b#_c#_d) { position: static; }
+html body #imLogWin .im-page[data-pg="4"] :is(#imMailStatus, #_a#_b#_c#_d) { flex: 1 1 auto; }
+html body #imLogWin :is(#imMailRedo, #_a#_b#_c#_d#_e) { display: none; }   /* no Start over (user, 2026-11-20); the button stays in the code, hidden */
+/* No icons in windows (user, 2026-11-20): the title says what it is. Tab titles keep theirs.
+   A row that held only the icon goes too; a row with buttons on it (Undo) stays. */
+html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) :is(.win-icon, .rpm-dlg-ticon, #_a#_b#_c#_d#_e#_f#_g):not(button *, .link-btn *, .db-finder *) { display: none; }
+html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) :is(div, #_a#_b#_c#_d):has(> .win-icon:only-child) { display: none; }
+/* Log window without its icon: the bottom part as short as the top part again, all four pages */
+html body #imLogWin :is(.im-log-foot-all, #_a#_b#_c#_d#_e#_f#_g) { padding-bottom: 19px; }
+html body #imLogWin .im-page:has(> #imNsSlot) :is(.im-log-foot-all, #_a#_b#_c#_d#_e#_f#_g) { margin-top: 44px; }
+html body #imLogWin :is(.im-mat-split > .im-log-foot-all, #_a#_b#_c#_d#_e#_f#_g) { margin-top: 53px; }
+html body #imLogWin .st-win .im-mat-split::before { bottom: 67px; }
+html body #imLogWin .im-page[data-pg="3"] :is(.im-log-foot-all, #_a#_b#_c#_d#_e#_f#_g) { margin-top: 46px; }
+html body #imLogWin .im-page[data-pg="4"] :is(.im-mail-foot, #_a#_b#_c#_d#_e) { margin-top: 46px; }
+html body #imLogWin .st-win.im-log-wide :is(#imSideCol, #_a#_b#_c#_d#_e) { top: -93px; }   /* the icon row is gone: the Steps column starts at the window top again */
+/* With the icon gone, Undo moves up onto the title line, left of the ✕; its old row takes no space (user, 2026-11-20) */
+html body :is(.im-rs-iconrow, .slc-iconrow, #_a#_b#_c) { position: relative; height: 0; margin: 0 !important; display: block; }
+html body :is(.im-rs-iconrow > .im-rs-undo, #slcUndoSlot, #_a#_b#_c#_d) { position: absolute; right: 34px; top: -39px; }
+/* New note: the 8 weeks more compact, they're only to look at (user, 2026-11-20). The cells carry inline styles, hence !important. */
+html body #snWin .sn-strips { gap: 3px; }
+html body #snWin .sn-strips > div { padding: 3px 6px !important; }
+html body #snWin .sn-strips button { padding: 2px 4px !important; }
+html body #snWin .sn-strips button > div:nth-child(1) { font-size: 8px !important; }
+html body #snWin .sn-strips button > div:nth-child(2) { font-size: 11px !important; }
+html body #snWin .sn-strips button > div:nth-child(3) { font-size: 8px !important; }
+/* The 8-week strips (New note, Change appointment, Slot change): day names and dates engraved, like the header (user, 2026-11-20) */
+html body .im-rs-strips button > div { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07) !important; }
+/* Calendar Schedule window: its layout stays as it was (user, 2026-11-20: "only the engraving"); the icon is hidden
+   but its row keeps its space, so Reschedule / Slot change stay where they were */
+html body #calSvWin .st-win > :is(div, #_a#_b#_c#_d#_e):has(> .win-icon:only-child) { display: block; visibility: hidden; }
+html body #calSvWin .st-win > div > :is(.win-icon, #_a#_b#_c#_d#_e#_f#_g#_h) { display: inline-block; }
+/* Review text templates (Templates / Nudge windows): the message in Arial, like the Comms bubbles (user, 2026-11-20; was DM Mono 11px) */
+html body .rv-bub { font-family: Arial, Helvetica, sans-serif !important; font-size: 12px !important; line-height: 1.5 !important; }
+/* Thin scrollbars everywhere (user, 2026-11-20: "I use the scroll wheel"). The portal-wide scrollbar-color made Chrome ignore
+   the ::-webkit-scrollbar sizes and draw its normal-width bar; with it off, the 5px rules below apply in every box. */
+html, html * { scrollbar-color: auto !important; scrollbar-width: auto !important; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-thumb { border-radius: 3px; }
+/* Text template windows (Reviews Templates / Nudge, Today No show / Zoom lesson, Optional schedule; user, 2026-11-20): no dark box around each bubble, and the bubble gets the Comms tail at the bottom right (user, 2026-11-20) */
+html body :is(#rvTplWin, #tdNsWin, #tdZmWin, #ttOsWin) .rv-thread { background: transparent !important; border: 0 !important; padding: 8px 0 22px !important; }
+html body :is(#rvTplWin, #tdNsWin, #tdZmWin, #ttOsWin) .rv-bub { position: relative; border-radius: 16px !important; overflow: visible !important; }
+html body :is(#rvTplWin, #tdNsWin, #tdZmWin, #ttOsWin) .rv-bub::after { content: ""; position: absolute; bottom: -1px; right: -7px; width: 12px; height: 16px; background: inherit; pointer-events: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M0 0 Q0.5 11 12 16 Q4 16.5 0 13.5 Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M0 0 Q0.5 11 12 16 Q4 16.5 0 13.5 Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; }
+html body :is(#rvTextWin, #rvMailWin) .td-mini-row { gap: 5px; }   /* "To:" right next to the number, a normal word space (user, 2026-11-20; was 14px) */
+html body :is(#rvTextWin, #rvMailWin) .td-mini-row .td-mini-t { color: var(--t-faint); }   /* the To line one step dimmer (user, 2026-11-20) */
+html body :is(#rvTextTo, #rvMailWin span#rvMailTo) { color: var(--muted); }
+html body :is(#rvTextWin, #rvMailWin) .td-mini-row .td-mini-t { min-width: 0; width: auto; }   /* "To: (347)…" with a plain space; the 64px column is for To/Sbj in the recap email (user, 2026-11-20) */
+html body :is(#rvTextWin, #rvMailWin) .td-mini-row { margin-bottom: 28px !important; }   /* the Email window too (user, 2026-11-20) */   /* more room between the To line and MESSAGE (user, 2026-11-20; was 16px) */
+/* No drag handles on text boxes anywhere (user, 2026-11-20). Boxes that didn't grow by themselves now
+   fit their text as you type (field-sizing), like the Log rows and recap email boxes; never smaller than 3 lines. */
+html body textarea { resize: none !important; }
+html body textarea.rpm-field:not(.ll-row):not(.im-ml-box):not(.gl-field) { field-sizing: content; min-height: calc(3lh + 14px); }
+/* Trip confirmation window: the thread like Comms (user, 2026-11-20). Bubbles Arial 12px, round, with the tail on
+   the last of a run; time lines like Comms; the box fits the thread up to a limit (was fixed 132px, cut the first text);
+   Text back in Arial like every typing box. The phone-in-hand over THREAD stays: it says "text thread". */
+html body #tsStuWin .ts-thread { height: auto !important; max-height: 320px; padding: 12px 16px !important; gap: 8px !important; }
+html body #tsStuWin .ts-bub { position: relative; font-family: Arial, Helvetica, sans-serif !important; font-size: 12px !important; line-height: 1.45 !important; padding: 9px 12px !important; border-radius: 16px !important; }
+html body #tsStuWin .ts-bub::after { content: ""; position: absolute; bottom: -1px; right: -7px; width: 12px; height: 16px; background: inherit; pointer-events: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M0 0 Q0.5 11 12 16 Q4 16.5 0 13.5 Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M0 0 Q0.5 11 12 16 Q4 16.5 0 13.5 Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; }
+html body #tsStuWin .ts-bub.ts-bub-in::after { right: auto; left: -7px; transform: scaleX(-1); }
+html body #tsStuWin .ts-bub:not(.ts-bub-in):has(+ .ts-bub:not(.ts-bub-in))::after,
+html body #tsStuWin .ts-bub.ts-bub-in:has(+ .ts-bub.ts-bub-in)::after { display: none; }   /* tail only on the last of a run */
+html body #tsStuWin .ts-stamp { font-family: "DM Mono", monospace; font-size: 10px; color: var(--t-faint); margin: 8px 0 2px; }
+html body #tsStuWin textarea { font-family: Arial, Helvetica, sans-serif !important; font-size: 12px !important; }
+html body #tsStuWin .ts-lbl-icon { color: var(--muted); fill: var(--muted); }   /* the phone-in-hand at the icons' grey, not the text's (user, 2026-11-20) */
+/* The template windows' own To: picker is gone: the student is picked in the Text window (user, 2026-11-20) */
+html body :is(#tdNsWin, #tdZmWin, #ttOsWin) [id^="ttPk_"] { display: none; }
+html body #ttTextWin .tt-msg-l { margin-top: 28px; }

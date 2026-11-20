@@ -98,8 +98,8 @@ function _rvBuildNudges(name) {
 function _rvTemplatesHtml(tpl, p, kind, phone) {
   // Open Messages (user, 2026-10-26): the student's chat, from the
   // Phone Numbers tab. It doesn't fill in the text; Copy first, then paste.
-  var digits = String(phone || '').replace(/\D/g, '');
-  var msgs = digits ? '<div class="inq-acts en-rv-acts rv-tpl-foot"><a class="link-btn blue" href="sms:' + digits + '" data-tip="Opens elsewhere.\nThe Messages chat with ' + _rvEscAttr(phone) + '.\nPaste the copied text there."><span>iMessage</span>' + OPEN_OUT_ICON + '</a></div>' : '';
+  // No iMessage button any more (user, 2026-11-20): Text sends from the portal.
+  var msgs = '';
   // The number it goes to, under the icon, like the Travel Plan's (2026-10-26).
   var num = phone ? '<div class="rv-tpl-phone">' + _rvEscHtml(phone) + '</div>' : '';
   return num + tpl.map(function (t, i) {
@@ -113,8 +113,9 @@ function _rvTemplatesHtml(tpl, p, kind, phone) {
         // sending, so no names on them. t.label stays in the code as a note.
         '<span class="field-label">Text template ' + (i + 1) + '</span>' +
         '<span class="en-tpl-btns">' +
-        '<button class="link-btn" id="' + p + 'CopyBtn-' + i + '" onclick="_rvCopyTemplate(\'' + p + '\', ' + i + ')" ' +
-          'data-tip="Instant.\nCopies the text for iMessage.\n' + (nudge ? 'Saves today as the nudged date.' : 'Saves nothing: the email send records the ask.') + '">' + COPY_ICON + '<span>Copy</span></button>' +
+        // Text, not Copy (user, 2026-11-20): opens the Text window, sends from the portal like Comms.
+        (phone ? '<button class="link-btn" id="' + p + 'TextBtn-' + i + '" onclick="_rvOpenText(\'' + p + '\', ' + i + ')" ' +
+          'data-tip="Opens a window.\nThe text, sent from the portal like Comms.\nSending it saves today as the ' + (nudge ? 'nudged' : 'asked') + ' date.">' + SEND_ICON + '<span>Text</span></button>' : '') +
         mail + '</span>' +
       '</div>' +
       // The Travel Plan's text message look (user, 2026-10-26): your blue bubble
@@ -151,7 +152,10 @@ function _rvOpenMail(p, i) {
   var lbl = function (t, id) { return '<label class="field-label" for="' + id + '">' + t + '</label>'; };
   // The Email button's envelope (om-31) under the title (user, 2026-10-26; was EMAIL_WIN_ICON).
   var w = _stWin('rvMailWin', _rvEscHtml(who.name || ''), 'Email', ENVELOPE_ICON.replace('<svg ', '<svg style="height:26px;width:auto" '),
-    '<div style="margin-bottom:16px">' + lbl('To', 'rvMailTo') + '<input id="rvMailTo" class="rpm-field" value="' + _rvEscAttr(who.email || '') + '"></div>' +
+    // To as a plain line like the Text window (user, 2026-11-20); a box only when no email is on file, to type one in
+    (who.email
+      ? '<div class="td-mini-row rv-to-line"><span class="td-mini-t">To:</span> <span class="td-wk-name" id="rvMailTo">' + _rvEscHtml(who.email) + '</span></div>'
+      : '<div style="margin-bottom:16px">' + lbl('To', 'rvMailTo') + '<input id="rvMailTo" class="rpm-field" value=""></div>') +
     '<div style="margin-bottom:16px">' + lbl('Subject', 'rvMailSubj') + '<input id="rvMailSubj" class="rpm-field" value="A Quick Favor"></div>' +
     lbl('Message', 'rvMailBody') +
     '<textarea id="rvMailBody" rows="14" class="rpm-field en-tpl-ta">' + _rvEscHtml(_rvWithoutAlso(ta.innerText)) + '</textarea>' +
@@ -166,13 +170,64 @@ function _rvOpenMail(p, i) {
 function _rvSendMail(p) {
   var w = document.getElementById('rvMailWin'), btn = document.getElementById('rvMailSend');
   if (!w || !btn) return;
-  var to = document.getElementById('rvMailTo').value.trim();
+  var toEl = document.getElementById('rvMailTo');
+  var to = (toEl.tagName === 'INPUT' ? toEl.value : toEl.textContent).trim();
   var subj = document.getElementById('rvMailSubj').value.trim();
   var body = document.getElementById('rvMailBody').value.trim();
   if (!to) { rpmAlert({ title: 'No email address', message: 'Type the student\'s email in To.' }); return; }
   var panel = w.querySelector('.log-panel');
   rpmBusy(panel, btn, true, 'Sending');
   fetch(getScriptUrl() + '?action=reviewEmail&to=' + encodeURIComponent(to) + '&subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(body))
+    .then(function (x) { return x.json(); })
+    .then(function (res) {
+      if (!res || !res.success) throw new Error(res && res.message || 'Not sent');
+      w.remove();
+      _rvCopied(p, (_rvTplWho && _rvTplWho.kind) || 'ask');   // saves the asked / nudged date
+    })
+    .catch(function (e) {
+      rpmBusy(panel, btn, false);
+      rpmAlert({ title: 'Not sent', message: String(e && e.message || e) });
+    });
+}
+
+// Text window (user, 2026-11-20; replaces Copy + iMessage): the template as edited,
+// in plain characters, to their number from the portal (sendCommsReply, like a
+// Comms reply, so it shows in their thread). Sent = the asked / nudged date,
+// like the Email window. Enter = new line, ⌘Enter sends.
+function _rvOpenText(p, i) {
+  var ta = document.getElementById(p + 'TA-' + i), who = _rvTplWho || {};
+  var ph = document.querySelector('#rvTplWin .rv-tpl-phone');
+  if (!ta) return;
+  var lbl = function (t, id) { return '<label class="field-label" for="' + id + '">' + t + '</label>'; };
+  var plain = typeof _trSmsPlain === 'function' ? _trSmsPlain : function (x) { return x; };
+  var w = _stWin('rvTextWin', _rvEscHtml(who.name || ''), 'Text', '',
+    // To as a plain line, not a box (user, 2026-11-20: "I will never change it"), like the recap email's To:
+    '<div class="td-mini-row rv-to-line"><span class="td-mini-t">To:</span> <span class="td-wk-name" id="rvTextTo">' + _rvEscHtml(ph ? ph.textContent.replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g, '').trim() : '') + '</span></div>' +   // without the hidden direction marks the number carries
+    lbl('Message', 'rvTextBody') +
+    '<textarea id="rvTextBody" rows="14" class="rpm-field en-tpl-ta">' + _rvEscHtml(plain(ta.innerText.replace(/\n+$/, ''))) + '</textarea>' +
+    '<div class="inq-acts en-rv-acts rv-tpl-foot">' +
+      '<button class="link-btn bright" id="rvTextSend" onclick="_rvSendText(\'' + p + '\')" data-tip="Instant.\nTexts them this, from the portal.\nShows in their Comms thread." data-tip-left>' + SEND_ICON + '<span>Send</span></button></div>');
+  w.style.zIndex = 10001;
+  var body = document.getElementById('rvTextBody');
+  body.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); _rvSendText(p); }
+  });
+  setTimeout(function () { body.focus(); body.setSelectionRange(0, 0); body.scrollTop = 0; }, 30);
+}
+
+function _rvSendText(p) {
+  var w = document.getElementById('rvTextWin'), btn = document.getElementById('rvTextSend');
+  if (!w || !btn || btn.disabled) return;
+  // (347) 867-8391 → +13478678391, the form the texting line wants
+  var dg = document.getElementById('rvTextTo').textContent.replace(/\D/g, '');
+  var to = dg.length === 10 ? '+1' + dg : dg.length === 11 && dg.charAt(0) === '1' ? '+' + dg : dg ? '+' + dg : '';
+  var plain = typeof _trSmsPlain === 'function' ? _trSmsPlain : function (x) { return x; };
+  var body = plain(document.getElementById('rvTextBody').value).trim();
+  if (!to) { rpmAlert({ title: 'No phone number', message: 'There is no number for them on file.' }); return; }
+  if (!body) { rpmAlert({ title: 'Nothing to send', message: 'The message is empty.' }); return; }
+  var panel = w.querySelector('.log-panel');
+  rpmBusy(panel, btn, true, 'Sending');
+  fetch(getScriptUrl() + '?action=sendCommsReply&to=' + encodeURIComponent(to) + '&body=' + encodeURIComponent(body))
     .then(function (x) { return x.json(); })
     .then(function (res) {
       if (!res || !res.success) throw new Error(res && res.message || 'Not sent');

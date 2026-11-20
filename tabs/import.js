@@ -556,6 +556,8 @@ function _imPillsWire() {
 function _imPillPut(box, t) {
   var rows = llRows(box), inp = rows[rows.length - 1];
   if (!inp || box.classList.contains('locked') || inp.readOnly || inp.disabled) return;
+  // One None per box: a second press does nothing (user, 2026-11-19: two None rows got in).
+  if (/^none$/i.test(t.trim()) && rows.some(function (r) { return /^none$/i.test(r.value.trim()); })) return;
   if (inp.value.trim()) { llAddRow(box); rows = llRows(box); inp = rows[rows.length - 1]; }
   inp.value = t.charAt(0).toUpperCase() + t.slice(1) + ' ';
   inp.focus();
@@ -1381,7 +1383,7 @@ function _imPagesRender(w, done, hasHw) {
   if (next) { next.style.visibility = at < list.length - 1 ? '' : 'hidden'; next.disabled = busy || !!w.logEdit || !done[w.page] || at >= w.pgMax; }
 }
 // The steps at the top of the right panel (user, 2026-11-08), in the Shortcuts look:
-// the page you're on bright, done ones with a ✓, the rest grey. Not buttons: ← → move.
+// the page you're on bright, done ones dimmer (no ✓, 2026-11-19), the rest grey. Not buttons: ← → move.
 function _imStepsSide(w, list, done) {
   var el = _imQ('imStepsCol');
   if (!el) return;
@@ -1390,7 +1392,7 @@ function _imStepsSide(w, list, done) {
     list.map(function (p, i) {
       var cls = p === w.page ? ' on' : done[p] ? ' done' : '';
       var star = w.starMissing && !done[p] ? '<span class="im-step-star">★ </span>' : '';   // missing, from Missing sections (2026-11-15)
-      return '<div class="im-step-side' + cls + '"><span>' + star + (i + 1) + '. ' + names[p] + '</span><span class="im-step-side-m">' + (done[p] ? '✓' : '') + '</span></div>';
+      return '<div class="im-step-side' + cls + '"><span>' + star + (i + 1) + '. ' + names[p] + '</span></div>';   // no ✓: the colour says done (user, 2026-11-19)
     }).join('');
 }
 function _imPageTo(p) {
@@ -2185,6 +2187,7 @@ function _imDoHtml(name, day) {
     // One Practice materials page (user, 2026-11-08; were three pages, Recorded / Links / Files, a
     // Yes / No question each): everything open, what's put in is sent, one Done finishes it.
     _imMainHead('Practice materials', '', '', 'im-main-mat') +
+    '<div class="im-mail-opt im-case-list im-mat-hint">Send files, video or web link</div>' +   // a hint line like page 1's (user, 2026-11-19)
     '<div class="im-main-box im-mat-split">' +
       '<div class="im-mat-box" id="imMatBox">' +
       // The Log window's HW part (#logHw) is split over these (_imHwOut).
@@ -2201,6 +2204,7 @@ function _imDoHtml(name, day) {
       // Recorded on their side: Phone or Zoom, or neither (not recorded).
       // Phone / Zoom / No recording as words under the question, like None (user, 2026-11-15; were buttons beside it)
       '<div class="im-mat-qbox"><div class="im-mat-row"><span class="im-mat-q">Did they record?</span></div>' +
+      '<div class="im-rec-box" id="imRecBox"></div>' +   // a box like the link boxes, the pick written in it (user, 2026-11-20)
       '<div class="im-pills im-words im-rec-none"><span class="im-word-grp">' +
         // No first (user, 2026-11-15; was "No recording", last)
         '<button type="button" class="im-pill im-pill-none" id="imRecNo" onmousedown="event.preventDefault()" onclick="_imRecPick(\'no\')">None</button>' +
@@ -2217,14 +2221,14 @@ function _imDoHtml(name, day) {
     // Not needed is the answer; Needed opens Reschedule, and the section is done
     // only once a skip or move is saved.
     _imMainHead('3. Change appointment') +   // all red, no grey subtitle (2026-10-18); was Schedule adjustments (user, 2026-10-27: it skips or moves)
+    // The question as the page's hint line, with its bullet, where pages 1 and 2 have theirs (user, 2026-11-20)
+    '<div class="im-mail-opt im-case-list im-sched-q">Does the next appt need adjustment?</div>' +
     '<div class="im-main-box">' +
     '<div class="db-panel im-list im-sched-box">' +
-      // No question (user, 2026-11-09): like Practice materials, change it if needed, then Done.
-      // The question under the icon (user, 2026-11-09)
-      '<div class="im-mail-opt im-sched-q">Does the next appt need adjustment?</div>' +
       // (user, 2026-11-09) No change on top (grey), then "or" Change appointment (red), centred
       '<div id="imSchedRs" class="im-sched-rs">' +
-        '<div class="sn-row"><button class="link-btn im-rs-btn sn-nochange" onclick="_imSchedDone(' + n + ')" data-tip="Instant.\nNothing to change: ticks Schedule\nand goes to the next page.">No change</button></div>' +
+        // No change only picks; Save & next goes on, like the other pages (user, 2026-11-20; it went to the next page itself)
+        '<div class="sn-row"><button class="link-btn im-rs-btn sn-nochange" id="imSchedNo" onclick="_imNoChangeToggle(' + n + ')" data-tip="Instant.\nNothing to change.\nThen Save &amp; next. Again undoes it.">No change</button></div>' +
         '<div class="sn-row"><span class="sn-or">or</span></div>' +   // "or" on its own line (user, 2026-11-09)
         // Take a note left here (user, 2026-11-09): notes get taken during the lesson, on the lesson page
         '<div class="sn-row">' +
@@ -2254,7 +2258,7 @@ function _imDoHtml(name, day) {
       '<div class="im-log-foot im-log-foot-all im-mail-foot"><span class="ll-state" id="imMailStatus"></span>' +
         '<button type="button" class="link-btn" id="imMailRedo" data-tip="Instant.&#10;Throws away your edits:&#10;the email is written from the log again." data-tip-left>Start over</button>' +
         '<button type="button" class="link-btn" id="imMailPrev" data-tip="Instant.\nShows the email here, as it will go.&#10;Press again to hide it." data-tip-left>' + DETAILS_ICON + '<span>Preview</span></button>' +
-        '<button type="button" class="link-btn amber" id="imMailSend" disabled>Send</button></div>' +
+        '<button type="button" class="link-btn amber" id="imMailSend" disabled>Save &amp; finish</button></div>' +   // was Send (user, 2026-11-20: like Save & next); it still sends the email
       '<iframe class="im-msg-frame" id="imMailFrame" title="The email" hidden></iframe>' +
     '</div>' +
     '</div>' +

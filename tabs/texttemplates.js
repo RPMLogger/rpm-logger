@@ -101,26 +101,58 @@ function _ttOtherKey(e, key) {
 }
 function _ttOtherPick(key, name) { _ttOtherClose(key); _ttPicked(key, name, 'other'); }
 
+// Text, not Use (user, 2026-11-20): opens a Text window over the templates. Pick the
+// student there (the name, and the time for Zoom, fill in), edit, Send / ⌘Enter. It goes
+// from the portal like a Comms reply (sendCommsReply), so it shows in their thread.
+// The template windows no longer have their own picker (hidden in CSS); their bubbles
+// say "Hi Student!" until a pick in the Text window fills them too.
 function _ttUseBtn(id, key) {
-  return '<button class="link-btn" onclick="_ttUse(\'' + id + '\',\'' + key + '\')" data-tip="Instant.\nOpens the student\'s conversation\nwith the text in the text box.">Use</button>';
+  return '<button class="link-btn" onclick="_ttTextOpen(\'' + id + '\',\'' + key + '\')" data-tip="Opens a window.\nPick the student, edit, send.\nIt goes from the portal like Comms." data-tip-left>' + SEND_ICON + '<span>Text</span></button>';
 }
-function _ttUse(id, key) {
-  var el = document.getElementById(id), name = _ttPk[key] && _ttPk[key].name;
+var TT_TITLES = { ns: 'No show', zm: 'Zoom lesson', os: 'Optional schedule' };
+function _ttTextOpen(id, key) {
+  var el = document.getElementById(id);
   if (!el) return;
+  var plain = typeof _trSmsPlain === 'function' ? _trSmsPlain : function (x) { return x; };
+  var w = _stWin('ttTextWin', TT_TITLES[key] || 'Text', 'Text', '',
+    _ttPickHtml('tx', function (name, time) {
+      // The template window's own pick: its bubbles (and Zoom's time) fill in, then the box takes the new text.
+      var o = _ttPk[key];
+      if (o) { o.name = name; if (o.cb) o.cb(name, time); }
+      var src = document.getElementById(id), ta = document.getElementById('ttTextBody');
+      if (src && ta) ta.value = plain(src.innerText.replace(/\n+$/, ''));
+    }) +
+    '<label class="field-label tt-msg-l" for="ttTextBody">Message</label>' +
+    '<textarea id="ttTextBody" class="rpm-field en-tpl-ta">' + inqEsc(plain(el.innerText.replace(/\n+$/, ''))) + '</textarea>' +
+    '<div class="inq-acts en-rv-acts rv-tpl-foot">' +
+      '<button class="link-btn bright" id="ttTextSend" onclick="_ttTextSend()" data-tip="Instant.\nTexts them this, from the portal.\nShows in their Comms thread." data-tip-left>' + SEND_ICON + '<span>Send</span></button></div>');
+  w.style.zIndex = 10001;
+  document.getElementById('ttTextBody').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); _ttTextSend(); }
+  });
+}
+function _ttTextSend() {
+  var w = document.getElementById('ttTextWin'), btn = document.getElementById('ttTextSend');
+  if (!w || !btn || btn.disabled) return;
+  var name = _ttPk.tx && _ttPk.tx.name;
   if (!name) { rpmAlert({ title: 'Pick a student', message: 'Pick who the text is for first.' }); return; }
-  var s = (commsStudents || []).filter(function (x) { return x.name === name; })[0];
-  if (!s) { rpmAlert({ title: 'No phone number', message: name + ' has no number on the Comms line.' }); return; }
-  var text = el.innerText.replace(/\n+$/, ''), k = commsKey(s.number);
-  var last = commsMessages.filter(function (m) { return commsKey(m.fromNumber) === k; })
-    .sort(function (a, b) { return new Date(b.timestamp) - new Date(a.timestamp); })[0];
-  var win = el.closest('.im-notes-back'); if (win) win.remove();
-  if (typeof switchTab === 'function' && !document.getElementById('tab-comms').classList.contains('active')) switchTab('comms');
-  commsPaneOpen(last || { row: 0, source: 'sms', fromNumber: s.number, fromName: s.name, student: s.name, responded: true, blank: true });   // the New text pick's way in
-  var box = document.getElementById('cmPaneReply');
-  if (!box) return;
-  box.value = text;
-  box.focus();
-  box.setSelectionRange(text.length, text.length);
+  var s = (typeof commsStudents !== 'undefined' ? commsStudents : []).filter(function (x) { return x.name === name; })[0];
+  if (!s || !s.number) { rpmAlert({ title: 'No phone number', message: name + ' has no number on the Comms line.' }); return; }
+  var plain = typeof _trSmsPlain === 'function' ? _trSmsPlain : function (x) { return x; };
+  var body = plain(document.getElementById('ttTextBody').value).trim();
+  if (!body) { rpmAlert({ title: 'Nothing to send', message: 'The message is empty.' }); return; }
+  var panel = w.querySelector('.log-panel');
+  rpmBusy(panel, btn, true, 'Sending');
+  fetch(getScriptUrl() + '?action=sendCommsReply&to=' + encodeURIComponent(s.number) + '&body=' + encodeURIComponent(body))
+    .then(function (x) { return x.json(); })
+    .then(function (res) {
+      if (!res || !res.success) throw new Error(res && res.message || 'Not sent');
+      w.remove();
+    })
+    .catch(function (e) {
+      rpmBusy(panel, btn, false);
+      rpmAlert({ title: 'Not sent', message: String(e && e.message || e) });
+    });
 }
 
 var _ttOs = { name: '', time: '' };

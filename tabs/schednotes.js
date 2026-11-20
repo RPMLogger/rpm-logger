@@ -56,17 +56,22 @@ function _snNewWin(name, from) {
     : "<input class='rpm-field sn-who' id='snWho' list='snRoster' autocomplete='off'>" +   // no hint text in the boxes (user, 2026-11-19)
       "<datalist id='snRoster'>" + (_imRoster || []).map(function (n) { return "<option value='" + _snEsc(n) + "'>"; }).join('') + "</datalist>";
   var win = _stWin('snWin', name ? _snEsc(name) : 'Notes', 'New note', typeof PEN_ICON === 'string' ? PEN_ICON : '',   // every window: its icon under the title (Day 5, 2026-11-19)
-    "<div id='snGrid'></div>" +
+    // The note first, the 8 weeks under it (user, 2026-11-20; the weeks were on top)
     "<div class='sn-form'>" +
       (name ? "" : "<div class='field-label'>Student</div>" + who) +   // labels above the box (Day 4 rule, 2026-11-19)
       "<div class='field-label'>Note</div><textarea class='rpm-field sn-text' id='snText' rows='3'></textarea>" +
     "</div>" +
+    "<div id='snGrid'></div>" +
     "<div class='im-log-foot im-log-foot-all'><span id='snStatus' class='sn-status'></span>" +
       "<button type='button' class='link-btn bright' id='snSaveBtn' data-tip='Instant.\nAdds it to the Notes list.' data-tip-left>Save note</button></div>");
   win.querySelector('.st-win').classList.add('sn-win');
   win.dataset.from = from || '';
   win.dataset.name = name || '';
   win.querySelector('#snSaveBtn').onclick = function () { _snSave(win, this); };
+  // Enter = new line, ⌘Enter saves, like the Comms reply (user, 2026-11-20)
+  win.querySelector('#snText').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); win.querySelector('#snSaveBtn').click(); }
+  });
   var wi = win.querySelector('#snWho');
   if (wi) wi.addEventListener('change', function () { _snGridLoad(win, wi.value.trim()); });
   _snGridLoad(win, name || '');
