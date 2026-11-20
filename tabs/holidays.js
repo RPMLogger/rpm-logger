@@ -1,7 +1,7 @@
 // ─── TABS / HOLIDAYS.JS ──────────────────────────────────────────────────────
 // Holidays Alerts: one list, two views (static, no backend calls).
 //   By type       — three boxes: General (by impact), Personal, Derin's school
-//                   calendar (by season); each group a sub-heading inside its box.
+//                   2026–27 (real dates, by season); each group a sub-heading inside its box.
 //   Chronological — the next 12 months from today, one box per month, each row
 //                   its real date (school items without one sit at a rough "~").
 // The view picked is remembered in this browser only.
@@ -19,6 +19,9 @@ function _holLast(wd, m) {     // last weekday of the month
   return function (y) { var x = new Date(y, m, 0); x.setDate(x.getDate() - (x.getDay() - wd + 7) % 7); return x; };
 }
 var _holThanks = _holNth(4, 4, 11);
+function _holOnce(y0, m, d) {   // one exact date: only in year y0, nothing in other years
+  return function (y) { return y === y0 ? new Date(y0, m - 1, d) : null; };
+}
 
 // box = the By type box a group sits in, sub = its heading there (none = no heading).
 // n name · w when (By type) · s note after it · at date rule.
@@ -49,23 +52,35 @@ var HOL_GROUPS = [
     { n: 'My birthday',         w: 'Sep 22', at: _holFixed(9, 22) },
     { n: 'Halloween',           w: 'Oct 31', at: _holFixed(10, 31) }
   ]},
-  { box: 'Derin · School calendar', sub: 'Fall', tag: 'Derin', items: [
-    { n: 'Labor Day',                  w: 'Early Sep', s: 'closed', same: 'Labor Day' },
-    { n: 'PD / In-Service Days',       w: 'Sep &amp; Oct', s: 'a couple of Friday closures', at: _holFixed(9, 15), approx: '~ Sep–Oct' },
-    { n: 'Parent-Teacher Conferences', w: 'Late Oct or early Nov', s: 'two-day closure', at: _holFixed(10, 29), approx: '~ Late Oct', note: '2 days' },
-    { n: 'Thanksgiving Break',         w: 'Week of Thanksgiving', s: 'closed a full week',
-      at: function (y) { var t = _holThanks(y); t.setDate(t.getDate() - 3); return t; }, days: 5, note: 'closed all week' }
+  // Derin's school: the real Hudson Montessori 2026–27 calendar (user, 2026-11-20; replaces the ~ guesses).
+  // One-off dates (_holOnce) only show in their own year, so this needs the new school calendar each summer.
+  { box: 'Derin · School 2026–27', sub: 'Fall', tag: 'Derin', items: [
+    { n: 'Labor Day',                  w: 'Mon Sep 7',              s: 'closed', same: 'Labor Day' },
+    { n: "Indigenous Peoples' Day",    w: 'Mon Oct 12',             s: 'closed', same: "Columbus / Indigenous Peoples' Day" },
+    { n: 'Staff Development Day',      w: 'Fri Nov 6',              s: 'closed', at: _holOnce(2026, 11, 6), note: 'closed' },
+    { n: 'Parent-Teacher Conferences', w: 'Thu Nov 12 – Fri Nov 13', s: '12:00 dismissal Thu, closed Fri', at: _holOnce(2026, 11, 12), days: 2, note: 'half day, then closed' },
+    { n: 'Thanksgiving Break',         w: 'Wed Nov 25 – Fri Nov 27', s: 'closed · back Mon Nov 30', at: _holOnce(2026, 11, 25), days: 3, note: 'closed' }
   ]},
-  { box: 'Derin · School calendar', sub: 'Winter', tag: 'Derin', items: [
-    { n: 'Winter Holiday Break',       w: "Christmas to New Year's", s: 'closed ~2 weeks', at: _holFixed(12, 21), approx: '~ Late Dec', note: '~2 weeks' },
-    { n: 'Martin Luther King Jr. Day', w: '3rd Monday in Jan', s: 'closed', same: 'Martin Luther King Jr. Day' },
-    { n: "Presidents' Day",            w: 'Mid-Feb', s: 'closed', same: "Presidents' Day" },
-    { n: 'Parent-Teacher Conferences', w: 'Late Feb', s: 'two-day closure', at: _holFixed(2, 22), approx: '~ Late Feb', note: '2 days' }
+  { box: 'Derin · School 2026–27', sub: 'Winter', tag: 'Derin', items: [
+    { n: '3 PM dismissal',             w: 'Fri Dec 11',             s: 'no aftercare', at: _holOnce(2026, 12, 11) },
+    { n: 'Holiday Cheer Day',          w: 'Fri Dec 18',             s: '12:00 dismissal · no aftercare', at: _holOnce(2026, 12, 18), note: 'half day' },
+    { n: 'Winter Break',               w: 'Mon Dec 21 – Fri Jan 1', s: 'closed · back Mon Jan 4', at: _holOnce(2026, 12, 21), days: 12, note: 'closed' },
+    { n: 'Martin Luther King Jr. Day', w: 'Mon Jan 18',             s: 'closed', same: 'Martin Luther King Jr. Day' },
+    { n: 'Half day',                   w: 'Fri Jan 22',             s: '12:00 dismissal · no aftercare', at: _holOnce(2027, 1, 22), note: 'half day' },
+    { n: "Presidents' Day",            w: 'Mon Feb 15',             s: 'closed', same: "Presidents' Day" }
   ]},
-  { box: 'Derin · School calendar', sub: 'Spring', tag: 'Derin', items: [
-    { n: 'Spring Break', w: 'Late Mar', s: 'closed ~1 week', at: _holFixed(3, 23), approx: '~ Late Mar', note: '~1 week' },
-    { n: 'PD Days',      w: 'Apr &amp; May', s: 'a couple of scattered days', at: _holFixed(4, 15), approx: '~ Apr–May' },
-    { n: 'Memorial Day', w: 'Late May', s: 'closed · end of the school year', same: 'Memorial Day' }
+  { box: 'Derin · School 2026–27', sub: 'Spring', tag: 'Derin', items: [
+    { n: 'Parent-Teacher Conferences', w: 'Thu Mar 18 – Fri Mar 19', s: '12:00 dismissal Thu, closed Fri', at: _holOnce(2027, 3, 18), days: 2, note: 'half day, then closed' },
+    { n: 'Spring Break',               w: 'Fri Mar 26 – Fri Apr 2', s: 'closed · back Mon Apr 5', at: _holOnce(2027, 3, 26), days: 8, note: 'closed' },
+    { n: 'Half day',                   w: 'Fri Apr 30',             s: '12:00 dismissal · no aftercare', at: _holOnce(2027, 4, 30), note: 'half day' },
+    { n: 'Memorial Day',               w: 'Mon May 31',             s: 'closed', same: 'Memorial Day' },
+    { n: 'Last day of school',         w: 'Tue Jun 15',             s: '12:00 dismissal', at: _holOnce(2027, 6, 15), note: 'half day' },
+    { n: 'Juneteenth',                 w: 'Fri Jun 18',             s: 'closed', at: _holOnce(2027, 6, 18), note: 'closed' }
+  ]},
+  { box: 'Derin · School 2026–27', sub: 'Summer camp', tag: 'Derin', items: [
+    { n: 'Summer camp starts',         w: 'Tue Jun 22',             s: 'session 1', at: _holOnce(2027, 6, 22) },
+    { n: 'Independence Day observed',  w: 'Mon Jul 5',              s: 'camp closed', at: _holOnce(2027, 7, 5), note: 'camp closed' },
+    { n: 'Summer camp ends',           w: 'Fri Aug 13',             s: '', at: _holOnce(2027, 8, 13) }
   ]}
 ];
 
@@ -116,6 +131,7 @@ function _holUpcoming() {
       if (!i.at) return;
       [start.getFullYear(), start.getFullYear() + 1].forEach(function (y) {
         var d = i.at(y);
+        if (!d) return;   // a one-off date from another year
         var last = new Date(d); if (i.days) last.setDate(d.getDate() + i.days - 1);
         if (last < start || d >= end) return;
         var tag = g.tag + (i.note ? ' · ' + i.note : '') + (derinOff[i.n] && g.tag !== 'Derin' ? ' · Derin closed' : '');

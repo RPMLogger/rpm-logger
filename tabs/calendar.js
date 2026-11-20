@@ -26,6 +26,7 @@ var CAL_FULL = 20;
 var CAL_KNOB = "<span class='cr-knob'><span class='cr-ticks'></span><span class='cr-kn'></span></span>";
 
 var _calWeekOffset = 0;    // 0 = this week
+var _calSwPos = 1;         // the selector knob: where it points (0 G. Calendar, 1 Analyze, 2 F. Schedule, 3 S. Notes)
 var _calEvents     = [];
 var _calSample     = false;
 var _calLoadToken  = 0;    // ignore responses for a week we already left
@@ -452,14 +453,43 @@ function _calAzPaint() {
 // ── The other calendars (user, 2026-11-04) ─────────────────────────────────
 // Lessons (weekly / biweekly / trial) come with the week; the rest are fetched
 // only when their button is lit, read only (no drag, no click).
-var CAL_OTHER = ['birthdays', 'doctors', 'personal', 'gigs', 'holidays'];
+var CAL_OTHER = ['birthdays', 'doctors', 'personal', 'gigs'];   // 'holidays' (Google) left the rack 2026-11-20, Holid. = RPM holidays now
 var CAL_OTHER_COLORS = { birthdays: 'oklch(0.5 0.032 80)', doctors: 'oklch(0.5 0.15 220)', personal: 'oklch(0.5 0.047 70)', gigs: 'oklch(0.5 0.15 300)', holidays: 'oklch(0.5 0.04 80)' };
 var _calOther = [];   // events of the lit other calendars, this week
+
+// RPM holidays (user, 2026-11-20): the Holid. button shows the Holidays tab's own list (tabs/holidays.js
+// HOL_GROUPS: General, Personal, Derin's school) as all-day strips, worked out here, no Google calendar.
+// Google's Holidays calendar is no longer on the rack (Analyze still reads it).
+CAL_OTHER_COLORS.rpmhol = 'oklch(0.5 0.15 29)';
+function _calRpmHol(mon) {
+  if (typeof HOL_GROUPS === 'undefined') return [];
+  var out = [], seen = {}, derinOff = {};
+  HOL_GROUPS.forEach(function(g) { g.items.forEach(function(i) { if (i.same) derinOff[i.same] = 1; }); });
+  var sun = _calAddDays(mon, 6);
+  HOL_GROUPS.forEach(function(g) {
+    g.items.forEach(function(i) {
+      if (!i.at) return;
+      for (var y = mon.getFullYear() - 1; y <= sun.getFullYear(); y++) {
+        var d = i.at(y); if (!d) continue;
+        for (var k = 0; k < (i.days || 1); k++) {
+          var day = new Date(d.getFullYear(), d.getMonth(), d.getDate() + k);
+          var idx = Math.round((day - mon) / 86400000);
+          if (idx < 0 || idx > 6) continue;
+          var title = (g.tag === 'Derin' ? 'Derin: ' : '') + i.n + (derinOff[i.n] && g.tag !== 'Derin' ? ' · Derin closed' : '') + (g.tag === 'Derin' && i.note ? ' · ' + i.note : '');
+          if (seen[idx + title]) continue; seen[idx + title] = 1;
+          out.push({ calType: 'rpmhol', allDay: true, dayIdx: idx, title: title });
+        }
+      }
+    });
+  });
+  return out;
+}
 var _calShowState = null;
 function _calShowMap() {
   if (!_calShowState) {
     try { _calShowState = JSON.parse(localStorage.getItem('rpmCalShow') || 'null'); } catch (e) {}
     if (!_calShowState) _calShowState = { weekly: true, biweekly: true, trial: true };
+    if (_calShowState.rpmhol === undefined) _calShowState.rpmhol = !!_calShowState.holidays;   // Holid. was Google's holidays until 2026-11-20
   }
   return _calShowState;
 }
@@ -499,7 +529,7 @@ function _calCalMenu(e, k) {
   var menu = document.createElement('div');
   menu.className = 'cm-new-list cm-ctx'; menu.id = 'cmCtx';
   menu.innerHTML = "<button type='button' class='cm-new-opt'" + (ok ? '' : ' disabled') + ">New event</button>" +
-    (ok ? '' : "<div class='cal-ctx-note'>" + (k === 'birthdays' || k === 'holidays' ? 'Google fills this one' : 'Lessons use Book / Slot change') + "</div>");
+    (ok ? '' : "<div class='cal-ctx-note'>" + (k === 'rpmhol' ? 'Edit on the Holidays tab' : k === 'birthdays' || k === 'holidays' ? 'Google fills this one' : 'Lessons use Book / Slot change') + "</div>");
   menu.style.left = e.clientX + 'px'; menu.style.top = e.clientY + 'px';
   document.body.appendChild(menu);
   menu.onclick = function(ev) { if (ok && ev.target.closest('.cm-new-opt')) { menu.remove(); _calNewEvent(k); } };
@@ -711,12 +741,26 @@ function _calRenderShell(mon) {
   // The old two-rack markup is in git (before 2026-11-18) if this is undone.
   var html =
     "<div class='cal-bar cr cal-long'>" +
-      // its two screws over the rails (user, 2026-11-18): the rails' hole column = the Home rack's edge + 12.5px, about 365.5px either side of the middle (measured)
-      "<span class='cr-bolt' style='left:calc(50% - 371px);top:calc(50% - 5.5px)'></span><span class='cr-bolt' style='right:calc(50% - 371px);top:calc(50% - 5.5px)'></span>" +
       // three parts with a slot over each rail between them, where its two screws sit (user, 2026-11-18)
       "<div class='cr-row cal-cals cal-3'>" +
         "<span class='cl-seg'>" +
-        // search at the very left (user, 2026-11-18)
+        // The old Fixed schedule rotary selector, used here for G. Calendar / Analyze / S. Notes (user, 2026-11-20; was a slide switch,
+        // the very left thing on the rack). Click a label, or the knob to step round; the knob turns to it, then that one runs.
+        "<span class='cl-knobs'>" + _calKnobHtml() +
+        "</span>" +
+        "</span>" +
+        "<span class='cl-seg'>" +
+        "<span class='cl-week'>" +
+        // up / down stacked on the right of the display, one side only (user, 2026-11-20: saves space; was ‹ display ›)
+        "<div class='cr-lcd" + (_calWeekOffset ? " back" : "") + "'" + (_calWeekOffset ? " onclick='_calShift(0)' data-tip='Instant.\nBack to this week.'" : "") + ">" + _calWeekLabel(mon, sun) + "</div>" +
+        "<span class='cal-updn'>" +
+        "<button class='cr-btn' onclick='_calShift(-1)' aria-label='Previous week'><svg viewBox='0 0 8 5' aria-hidden='true'><path d='M1 4 4 1 7 4'/></svg></button>" +
+        "<button class='cr-btn' onclick='_calShift(1)' aria-label='Next week'><svg viewBox='0 0 8 5' aria-hidden='true'><path d='M1 1 4 4 7 1'/></svg></button>" +
+        "</span>" +
+        "</span>" +
+        // LESSONS counter before the W / B meter (user, 2026-11-18: swapped)
+        // LESSONS as tall as the week display, the student search on its second line (user, 2026-11-20; the search was its own box)
+        "<span class='cr-count cal-lsn'><span class='cal-lsn-top'><small>Lessons</small><b id='calCount'>–</b></span>" +
         "<span class='cr-dd' id='calPick'>" +
           // a search box on the rack, like Home's, with a magnifier (user, 2026-11-09; was the "Students ▾" label + a box inside the list)
           "<span class='cal-search'><svg viewBox='0 0 16 16' aria-hidden='true'><circle cx='7' cy='7' r='4.5'/><path d='M10.4 10.4 14 14'/></svg>" +
@@ -724,44 +768,32 @@ function _calRenderShell(mon) {
           "<span class='cr-ddpanel'>" +
           "<span class='cash-dd-list' id='calPickList' hidden></span></span>" +
         "</span>" +
-        "<span class='cl-knobs'>" +
-        // G Cal (user, 2026-11-18): opens the real Google Calendar in a new browser tab; the read-only embed under the grid is gone
-        "<span class='hr-col'><button class='hr-knob' id='calGoogleBtn' onclick='window.open(\"https://calendar.google.com/calendar/r/week\",\"_blank\",\"noopener\")' data-tip='Opens a new tab.\nGoogle Calendar, this week.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>G-Cal</span></span>" +
-        "<span class='hr-col'><button class='hr-knob' id='calAnalyzeBtn' onclick='_calAnalyze()' data-tip='Opens a window.\nNext week&#39;s warnings, suggestions only.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Analyze</span></span>" +
-        // Notes (user, 2026-11-19): goes to the Student Notes page
-        "<span class='hr-col'><button class='hr-knob' id='calNotesBtn' onclick='switchTab(\"studentnotes\")' data-tip='Instant.\nGoes to Student Notes.'><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class='hr-cap'>Notes</span></span>" +
         "</span>" +
-        "</span><span></span>" +
-        "<span class='cl-seg'>" +
-        "<span class='cl-week'>" +
-        "<button class='cr-btn' onclick='_calShift(-1)' aria-label='Previous week'>‹</button>" +
-        "<div class='cr-lcd" + (_calWeekOffset ? " back" : "") + "'" + (_calWeekOffset ? " onclick='_calShift(0)' data-tip='Instant.\nBack to this week.'" : "") + ">" + _calWeekLabel(mon, sun) + "</div>" +
-        "<button class='cr-btn' onclick='_calShift(1)' aria-label='Next week'>›</button>" +
-        "</span>" +
-        // LESSONS counter before the W / B meter (user, 2026-11-18: swapped)
-        "<span class='cr-count'><small>Lessons</small><b id='calCount'>–</b></span>" +
         "<span class='cr-lr' data-tip='W = weekly, B = biweekly this week.'><b>W</b><i id='calMeterL'></i><b>B</b><i id='calMeterR'></i></span>" +
+        "</span>" +
+        // both ON-toggle groups together on the right, one divider between them (user, 2026-11-20: the screws moved up, so the gap is free)
+        "<span class='cl-seg cal-obs'>" +
         "<span class='cr-ob-grp'>" +
+        // three in a column (user, 2026-11-20): Birth. / Doct. / Pers., then Holid. / Gigs
         "<span class='cr-ob-colm'>" +
-        "<span class='cr-ob-cell'><span class='cr-cap'>Birth.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' data-tip='Instant.\nShows or hides the Birthdays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"birthdays\")'>ON</button><i class='cr-led'></i></span></span>" +
-        "<span class='cr-ob-cell'><span class='cr-cap'>Doct.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('doctors') ? " lit" : "") + "' data-cal='doctors' data-tip='Instant.\nShows or hides the Doctors calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"doctors\")'>ON</button><i class='cr-led'></i></span></span>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Birthdays</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('birthdays') ? " lit" : "") + "' data-cal='birthdays' data-tip='Instant.\nShows or hides the Birthdays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"birthdays\")'>ON</button><i class='cr-led'></i></span></span>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Doctors</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('doctors') ? " lit" : "") + "' data-cal='doctors' data-tip='Instant.\nShows or hides the Doctors calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"doctors\")'>ON</button><i class='cr-led'></i></span></span>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Personal</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('personal') ? " lit" : "") + "' data-cal='personal' data-tip='Instant.\nShows or hides the Personal calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"personal\")'>ON</button><i class='cr-led'></i></span></span>" +
         "</span>" +
+        // Holid. + Gigs together (user, 2026-11-20)
         "<span class='cr-ob-colm'>" +
-        "<span class='cr-ob-cell'><span class='cr-cap'>Pers.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('personal') ? " lit" : "") + "' data-cal='personal' data-tip='Instant.\nShows or hides the Personal calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"personal\")'>ON</button><i class='cr-led'></i></span></span>" +
-        "<span class='cr-ob-cell'><span class='cr-cap'>Holid.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('holidays') ? " lit" : "") + "' data-cal='holidays' data-tip='Instant.\nShows or hides the Holidays calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"holidays\")'>ON</button><i class='cr-led'></i></span></span>" +
-        "</span>" +
-        "</span>" +
-        "</span><span></span>" +
-        "<span class='cl-seg'>" +
-        // the lesson calendars in the same cream ON + red LED look as Birth. / Doct. (user, 2026-11-18; were red push buttons)
-        "<span class='cr-ob-grp cal-ob-lessons'>" +
-        "<span class='cr-ob-colm'>" +
-        "<span class='cr-ob-cell'><span class='cr-cap'>Biweek.</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('biweekly') ? " lit" : "") + "' data-cal='biweekly' data-tip='Instant.\nShows or hides the Biweekly calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"biweekly\")'>ON</button><i class='cr-led'></i></span></span>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Holidays</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('rpmhol') ? " lit" : "") + "' data-cal='rpmhol' data-tip='Instant.\nShows or hides RPM holidays (the Holidays tab list).' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"rpmhol\")'>ON</button><i class='cr-led'></i></span></span>" +
         "<span class='cr-ob-cell'><span class='cr-cap'>Gigs</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('gigs') ? " lit" : "") + "' data-cal='gigs' data-tip='Instant.\nShows or hides the Gigs calendar.\nRight-click: New event.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"gigs\")'>ON</button><i class='cr-led'></i></span></span>" +
         "</span>" +
+        "</span>" +
+        "<i class='cal-obs-div'></i>" +
+        // the lesson calendars in the same cream ON + red LED look as Birth. / Doct. (user, 2026-11-18; were red push buttons)
+        "<span class='cr-ob-grp cal-ob-lessons'>" +
+        // the three lesson calendars in one column (user, 2026-11-20)
         "<span class='cr-ob-colm'>" +
-        "<span class='cr-ob-cell'><span class='cr-cap'>Trial</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('trial') ? " lit" : "") + "' data-cal='trial' data-tip='Instant.\nShows or hides the Trial calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"trial\")'>ON</button><i class='cr-led'></i></span></span>" +
         "<span class='cr-ob-cell'><span class='cr-cap'>Weekly</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('weekly') ? " lit" : "") + "' data-cal='weekly' data-tip='Instant.\nShows or hides the Weekly calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"weekly\")'>ON</button><i class='cr-led'></i></span></span>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Biweekly</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('biweekly') ? " lit" : "") + "' data-cal='biweekly' data-tip='Instant.\nShows or hides the Biweekly calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"biweekly\")'>ON</button><i class='cr-led'></i></span></span>" +
+        "<span class='cr-ob-cell'><span class='cr-cap'>Trial</span><span class='cr-ob-row'><button class='cr-ob" + (_calShown('trial') ? " lit" : "") + "' data-cal='trial' data-tip='Instant.\nShows or hides the Trial calendar.' oncontextmenu='_calCalMenu(event,this.dataset.cal)' onclick='_calToggleCal(\"trial\")'>ON</button><i class='cr-led'></i></span></span>" +
         "</span>" +
         "</span>" +
         "</span>" +
@@ -776,7 +808,8 @@ function _calRenderShell(mon) {
 
   for (var d = 0; d < 7; d++) {
     var day = _calAddDays(mon, d);
-    html += "<div class='" + (_calYmd(day) === today ? 'today' : '') + "'>" + CAL_DAYS[d].toUpperCase() + "<b>" + day.getDate() + "</b></div>";
+    // the rack's two screws: top of the days row, on the Mon | Tue and Sat | Sun lines (user, 2026-11-20)
+    html += "<div class='" + (_calYmd(day) === today ? 'today' : '') + "'>" + CAL_DAYS[d].toUpperCase() + "<b>" + day.getDate() + "</b>" + (d === 0 || d === 5 ? "<span class='cr-bolt cal-hb'></span>" : "") + "</div>";
   }
   html += "</div><div class='cal-body' id='calGridBody' style='height:" + totalPx + "px'><div class='cal-gutter'>";
 
@@ -835,7 +868,7 @@ function _calRenderEvents() {
 
   // The other calendars: all-day ones as slim strips at the top of the day, timed ones as read-only cards
   var stack = {};
-  _calOther.forEach(function(ev) {
+  _calRpmHol(mon).concat(_calOther).forEach(function(ev) {
     var col = cols[ev.dayIdx];
     if (!col || !_calShown(ev.calType)) return;
     var color = CAL_OTHER_COLORS[ev.calType] || '#777';
@@ -1020,6 +1053,53 @@ function _calGoogleOpen() {
   return g && g.style.display !== 'none';
 }
 
+// The selector knob (user, 2026-11-20): the old Fixed schedule knob, four spots in an X: G. Calendar down-left, Analyze up-left,
+// F. Schedule up-right, S. Notes down-right; laid out like the original pedal photo: every name on top of a full-length line,
+// left names flush left, right names flush right, the lines all the same length, angling into the knob (user, 2026-11-20).
+var CAL_KNOB_DEG = [-135, -45, 45, 135];
+var _calScallop = (function() {
+  var p = [], n = 7, i, a, r;
+  for (i = 0; i <= 140; i++) {
+    a = i / 140 * Math.PI * 2; r = 12.2 + 1.2 * Math.cos(n * a);
+    p.push((i ? 'L' : 'M') + (r * Math.sin(a)).toFixed(2) + ' ' + (-r * Math.cos(a)).toFixed(2));
+  }
+  return p.join('') + 'Z';
+})();
+function _calKnobHtml() {
+  var lab = function(i, cls, txt, tip) {
+    return "<span class='cal-kl " + cls + (_calSwPos === i ? " lit" : "") + "' onclick='_calSw(" + i + ")' data-tip='" + tip + "'>" + txt + "</span>";
+  };
+  return "<span class='cal-knob'>" +
+    "<svg class='cal-klines' viewBox='0 0 130 54' aria-hidden='true'><path d='M0 11H44L55 22'/><path d='M130 11H86L75 22'/><path d='M0 53H44L55 42'/><path d='M130 53H86L75 42'/></svg>" +
+    lab(0, 'cal-kl-a', 'G. Cal.', 'Opens a new tab.\nGoogle Calendar, this week.') +
+    lab(1, 'cal-kl-t1', 'Analyze', 'Opens a window.\nNext week&#39;s warnings, suggestions only.') +
+    lab(2, 'cal-kl-t2', 'Fixed S.', 'Instant.\nThe Fixed schedule view.') +
+    lab(3, 'cal-kl-b', 'S. Notes', 'Instant.\nGoes to Student Notes.') +
+    "<button type='button' class='cal-kbtn' onclick='_calSw((_calSwPos + 1) % 4)' aria-label='Calendar tools knob'>" +
+      "<svg viewBox='-19 -19 38 38'>" +
+        "<defs><radialGradient id='calKnobG' cx='35%' cy='28%' r='80%'><stop offset='0' stop-color='#353535'/><stop offset='.45' stop-color='#1a1a1a'/><stop offset='1' stop-color='#0a0a0a'/></radialGradient></defs>" +
+        "<circle r='17.5' fill='#0d0d0d' stroke='#2e2e2e' stroke-width='.8'/>" +
+        "<g id='calKnobRot' style='transform:rotate(" + CAL_KNOB_DEG[_calSwPos] + "deg);transition:transform .16s ease'>" +
+          "<path d='" + _calScallop + "' fill='url(#calKnobG)' stroke='#000' stroke-width='.6'/>" +
+          "<line class='cal-kptr' x1='0' y1='-2' x2='0' y2='-15.5' stroke-width='1.6' stroke-linecap='round'/>" +
+        "</g>" +
+      "</svg></button>" +
+  "</span>";
+}
+// Turn the knob to i, then do that position's job.
+function _calSw(i) {
+  _calSwPos = i;
+  var g = document.getElementById('calKnobRot');
+  if (g) g.style.transform = 'rotate(' + CAL_KNOB_DEG[i] + 'deg)';
+  document.querySelectorAll('.cal-knob .cal-kl').forEach(function(l, j) { l.classList.toggle('lit', j === i); });
+  setTimeout(function() {
+    if (i === 0) window.open("https://calendar.google.com/calendar/r/week", "_blank", "noopener");
+    else if (i === 1) _calAnalyze();
+    else if (i === 2) _calSetView('fixed');
+    else switchTab('studentnotes');
+  }, 180);
+}
+
 function _calToggleGoogle() {
   var g  = document.getElementById('calGoogle');
   var ce = document.getElementById('calEmbed');
@@ -1178,12 +1258,12 @@ function _calInjectStyle() {
     "#calBody .cal-bar.cal-long>.cr-row{padding:8.5px 24px;gap:0}#calBody .cal-long>.cr-row>*{flex:none}#calBody .cal-long>.cr-row>.cr-sp{flex:1 1 0;min-width:8px}" +   // only the spacers make the gaps, all equal
     "body.rk-lessons #tab-calendar{--rpm-box-ring:0 0 0 2px #1e1e1e,0 0 0 3px #2c2c2c}" +   // the rack tabs' thick ring off here: the long rack + grid keep their plate ring (user, 2026-11-18)
     // the row in three parts round the rail slots: the middle part sits exactly between the rails (their hole columns ±365.5px from the middle)
-    "#calBody .cal-bar.cal-long>.cr-row.cal-3{display:grid;grid-template-columns:minmax(0,1fr) 24px 707px 24px minmax(0,1fr);padding-left:2px;padding-right:2px}" +
+    "#calBody .cal-bar.cal-long>.cr-row.cal-3{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:24px;padding-left:18px!important;padding-right:18px!important;padding-left:2px;padding-right:2px}" +
     "#calBody .cal-3>.cl-seg{display:flex;align-items:center;justify-content:space-evenly;min-width:0}#calBody .cal-3 .cl-knobs,#calBody .cal-3 .cl-week{display:flex;align-items:center}" +
     "#calBody .cal-ob-lessons .cr-ob-cell .cr-cap{width:58px}" +   // room for BIWEEKLY
     "#calBody .cal-long .hr-col+.hr-col{margin-left:10px}#calBody .cal-long .cr-lcd{margin:0 8px}#calBody .cal-long .cal-search{width:90px}#calBody .cal-long .cal-search .rpm-field{height:26px}" +   // the search = the LESSONS counter's size, 90 × 26 (user, 2026-11-18; was 110 × 36)
     "html body #tab-calendar #calBody>.cal-bar.cr.cal-long,html body #tab-calendar #calBody .cal-inner{border-color:#5e4d2a}" +   // inner edges in the plates' gold piping, outer dark ring kept (user, 2026-11-18)
-    "html body #tab-calendar #calBody>.cal-bar.cr.cal-long{border-bottom:1.5px solid #5e4d2a;height:85px}html body #tab-calendar #calBody .cal-bar.cal-long>.cr-row.cal-3{height:83px;align-items:center}" +   // taller rack (user, 2026-11-18; was 75.5px)
+    "html body #tab-calendar #calBody>.cal-bar.cr.cal-long{border-bottom:1.5px solid #5e4d2a;height:85px}html body #tab-calendar #calBody .cal-bar.cal-long>.cr-row.cal-3{height:82.5px;padding-top:0;padding-bottom:0;box-sizing:border-box;align-items:center}" +   // taller rack (user, 2026-11-18; was 75.5px); no top/bottom padding so everything sits dead centre (user, 2026-11-20: it sat 8.5px low)
     "html body #tab-calendar #calBody>.cal-bar.cr.cal-long{box-shadow:0 1px 0 #2c2c2c!important}" +   // the seam like the amp's: gold 1.5px on top, grey 1px under it (user, 2026-11-19)
     "html body #tab-calendar #calBody>.cal-bar.cr.cal-long::before{bottom:-4px}" +   // the seam onto the grid: ONE amber line, not the double (user, 2026-11-18)
     "html body #tab-calendar #calBody>.cal-long~.cal-wrap>.cal-inner{border-top:1px solid #5e4d2a}" +   // the line under the rack back, now amber (user, 2026-11-18; was grey #2c2c2c)   // inner edges in the plates' gold piping, outer dark ring kept (user, 2026-11-18)
@@ -1199,6 +1279,29 @@ function _calInjectStyle() {
     "#calBody .cr-ob.lit{color:#111;background:linear-gradient(to bottom,transparent 55%,rgba(0,0,0,.3)),radial-gradient(90% 140% at 50% 100%,oklch(.86 .06 88),oklch(.74 .06 82) 60%,oklch(.55 .05 75));box-shadow:0 1px 0 #000,inset 0 0 2px rgba(0,0,0,.4),0 0 5px oklch(.8 .08 85 / .35)}" +   // on: lit like the VU meter, a soft glow
     "#calBody .cr-led{display:block;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#5a2420,#2a0d0b);box-shadow:inset 0 1px 1px rgba(0,0,0,.7),0 0 0 1px #0a0a0a}" +
     "#calBody .cr-ob.lit+.cr-led{background:radial-gradient(circle at 35% 35%,oklch(.78 .14 29),oklch(.6 .2 29));box-shadow:0 0 0 1px #0a0a0a,0 0 5px oklch(.63 .2 29 / .7)}" +
+    // toggle names in full, in the Home rack's STUDENT / OTHERS lettering (user, 2026-11-20; were Birth. / Doct. / …)
+    "html body #calBody .cal-obs .cr-ob-colm{align-items:flex-end}html body #calBody .cal-obs .cr-ob-cell .cr-cap{width:auto;text-align:right}" +   // names end flush at their ON buttons (the fixed 38 / 58px boxes were too narrow for full names)
+    "html body #calBody .cal-obs .cr-cap{font:500 6.5px 'DM Mono',monospace;letter-spacing:.8px;color:#6e6e6e;text-shadow:0 -1px 0 rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.09)}" +
+    "html body #calBody .cal-long .cal-lsn{height:36px;width:150px;box-sizing:border-box;padding:0 10px;flex-direction:column;align-items:stretch;justify-content:center;gap:3px}" +
+    "html body #calBody .cal-lsn-top small,html body #calBody .cal-lsn-top b{font:400 10px 'DM Mono',monospace;letter-spacing:2px;opacity:1}" +   // same sizes as the week display: line 1 = 10px, line 2 = 8.5px (user, 2026-11-20)
+    "#calBody .cal-lsn-top{display:flex;align-items:center;justify-content:space-between;line-height:12px}#calBody .cal-lsn .cr-dd{display:block}" +
+    "html body #calBody .cal-long .cal-lsn .cal-search{width:auto;border-top:1px solid rgba(0,0,0,.55);box-shadow:0 1px 0 rgba(255,255,255,.03) inset}" +
+    "html body #calBody .cal-long .cal-lsn .cal-search .rpm-field{height:14px;padding:0 0 0 15px;border:0;border-radius:0;background:transparent;box-shadow:none;font:400 8.5px 'DM Mono',monospace;letter-spacing:1.5px;color:oklch(.72 .09 70);text-shadow:none}" +
+    "html body #calBody .cal-lsn .cal-search svg{left:0;top:calc(50% - 4.5px);width:9px;height:9px;stroke:oklch(.58 .09 70 / .55)}html body #calBody .cal-lsn .cal-search:focus-within svg{stroke:oklch(.72 .09 70)}" +
+    "html body #calBody .cal-long .cr-lr{width:72px}" +   // the W / B meter a touch shorter (user, 2026-11-20; was 80)
+    // ONE amber line between the rack and the grid (user, 2026-11-20): the rack's 1.5px bottom line only; the grid frame's top line + rings and the rack's grey under-line go
+    "html body #tab-calendar #calBody>.cal-bar.cr.cal-long{box-shadow:none!important}html body #tab-calendar #calBody .cal-inner{border-top:0!important;clip-path:inset(0 -4px -4px -4px)}" +
+    "#calBody .cal-3>.cl-seg:first-child{gap:16px}#calBody .cal-3>.cal-obs{gap:20px}#calBody .cal-obs-div{flex:none;width:1px;height:46px;background:#050505;box-shadow:1px 0 0 rgba(255,255,255,.06)}" +
+    "#calBody .cal-updn{display:flex;flex-direction:column;gap:2px;margin-left:6px}html body #calBody .cal-bar .cal-updn .cr-btn{width:23px;height:17px;border-radius:3px;border-color:#070707;background:linear-gradient(#202020,#141414);box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 1px 2px rgba(0,0,0,.85)}html body #calBody .cal-bar .cal-updn .cr-btn{color:oklch(.55 .05 145)}html body #calBody .cal-bar .cal-updn .cr-btn:hover{color:oklch(.72 .08 145)}html body #calBody .cal-bar .cal-updn .cr-btn:active{background:#121212;box-shadow:inset 0 1px 2px #000}#calBody .cal-updn .cr-btn{padding:0}#calBody .cal-updn svg{display:block;width:8px;height:5px;fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}" +
+    // the week display + W / B meter + student search engraved into the panel like LESSONS (user, 2026-11-20): black edge, deep inner shadow, dark line above, light line below; green glass kept
+    "html body #calBody .cal-long .cr-lcd,html body #calBody .cal-long .cr-lr,html body #calBody .cal-long .cal-search .rpm-field{border:1px solid #000;box-shadow:inset 0 4px 8px #000,inset 0 -1px 0 rgba(255,255,255,.04),0 -1px 0 rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.11)}" +
+    "#calBody .cal-head>div{position:relative}#calBody .cal-head .cal-hb{position:absolute;right:-8px;top:6px;left:auto}" +
+    // the selector knob (user, 2026-11-20): the Fixed schedule knob's look, labels in the STUDENT / OTHERS lettering, a red light on the one it points at
+    "#calBody .cal-knob{position:relative;display:block;width:130px;height:54px;flex:none}" +
+    "#calBody .cal-klines{position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:#363636;stroke-width:1;pointer-events:none}" +
+    "#calBody .cal-kl{position:absolute;font:500 6.5px/9px 'DM Mono',monospace;letter-spacing:.8px;text-transform:uppercase;color:#6e6e6e;text-shadow:0 -1px 0 rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.09);cursor:pointer;white-space:nowrap}#calBody .cal-kl:hover{color:#9a9a9a}" +
+    "#calBody .cal-kl-a{left:0;top:42px}#calBody .cal-kl-b{right:0;top:42px}#calBody .cal-kl-t1{left:0;top:0}#calBody .cal-kl-t2{right:0;top:0}" +
+    "#calBody .cal-kbtn{position:absolute;left:50px;top:17px;width:30px;height:30px;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 2px 3px #000)}#calBody .cal-kbtn svg{display:block;width:100%;height:100%;overflow:visible}#calBody .cal-kptr{stroke:#5a5a5a}" +
     "#calGoogleBtn.lit .hr-kn::after{transform:rotate(90deg)}#calGoogleBtn.lit+.hr-cap{color:#9a9a9a}" +   // GOOGLE open = knob turned up, like an open TO-DO
     "#tab-calendar>.tab-refresh{top:22.5px;right:-44px}" +   // ↻ just outside the top rack's right side, not on its legend
 
