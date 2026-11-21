@@ -754,8 +754,9 @@ function _calRenderShell(mon) {
         // up / down stacked on the right of the display, one side only (user, 2026-11-20: saves space; was ‹ display ›)
         "<div class='cr-lcd" + (_calWeekOffset ? " back" : "") + "'" + (_calWeekOffset ? " onclick='_calShift(0)' data-tip='Instant.\nBack to this week.'" : "") + ">" + _calWeekLabel(mon, sun) + "</div>" +
         "<span class='cal-updn'>" +
-        "<button class='cr-btn' onclick='_calShift(-1)' aria-label='Previous week'><svg viewBox='0 0 8 5' aria-hidden='true'><path d='M1 4 4 1 7 4'/></svg></button>" +
-        "<button class='cr-btn' onclick='_calShift(1)' aria-label='Next week'><svg viewBox='0 0 8 5' aria-hidden='true'><path d='M1 1 4 4 7 1'/></svg></button>" +
+        // up = future, down = past (user, 2026-11-20; were the other way round)
+        "<button class='cr-btn' onclick='_calShift(1)' aria-label='Next week'><svg viewBox='0 0 8 5' aria-hidden='true'><path d='M1 4 4 1 7 4'/></svg></button>" +
+        "<button class='cr-btn' onclick='_calShift(-1)' aria-label='Previous week'><svg viewBox='0 0 8 5' aria-hidden='true'><path d='M1 1 4 4 7 1'/></svg></button>" +
         "</span>" +
         "</span>" +
         // LESSONS counter before the W / B meter (user, 2026-11-18: swapped)
@@ -1043,9 +1044,19 @@ function _calOpenActions(ev, to) {
   });
 }
 
+// Up / down only move the display at once; the week loads once the clicks stop (user, 2026-11-20:
+// 3 weeks away was 3 full loads). Back to this week (the display) loads straight away.
+var _calShiftTimer = null;
 function _calShift(dir) {
   _calWeekOffset = dir === 0 ? 0 : _calWeekOffset + dir;
-  _calLoad();
+  clearTimeout(_calShiftTimer);
+  if (dir === 0) { _calLoad(); return; }
+  var lcd = document.querySelector('#calBody .cl-week .cr-lcd');
+  if (lcd) {
+    var mon = _calMonday(_calWeekOffset), sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
+    lcd.innerHTML = _calWeekLabel(mon, sun);
+  }
+  _calShiftTimer = setTimeout(_calLoad, 450);
 }
 
 function _calGoogleOpen() {
@@ -1056,11 +1067,12 @@ function _calGoogleOpen() {
 // The selector knob (user, 2026-11-20): the old Fixed schedule knob, four spots in an X: G. Calendar down-left, Analyze up-left,
 // F. Schedule up-right, S. Notes down-right; laid out like the original pedal photo: every name on top of a full-length line,
 // left names flush left, right names flush right, the lines all the same length, angling into the knob (user, 2026-11-20).
-var CAL_KNOB_DEG = [-135, -45, 45, 135];
+var CAL_KNOB_DEG = [-135, -45, 45, 135, 0];   // 4 = Slot change, straight up (user, 2026-11-20)
+var CAL_KNOB_ORDER = [0, 1, 4, 2, 3];          // clicking the knob steps round clockwise
 var _calScallop = (function() {
   var p = [], n = 7, i, a, r;
   for (i = 0; i <= 140; i++) {
-    a = i / 140 * Math.PI * 2; r = 12.2 + 1.2 * Math.cos(n * a);
+    a = i / 140 * Math.PI * 2; r = 13.4 + 1.3 * Math.cos(n * a);
     p.push((i ? 'L' : 'M') + (r * Math.sin(a)).toFixed(2) + ' ' + (-r * Math.cos(a)).toFixed(2));
   }
   return p.join('') + 'Z';
@@ -1070,19 +1082,24 @@ function _calKnobHtml() {
     return "<span class='cal-kl " + cls + (_calSwPos === i ? " lit" : "") + "' onclick='_calSw(" + i + ")' data-tip='" + tip + "'>" + txt + "</span>";
   };
   return "<span class='cal-knob'>" +
-    "<svg class='cal-klines' viewBox='0 0 130 54' aria-hidden='true'><path d='M0 11H44L55 22'/><path d='M130 11H86L75 22'/><path d='M0 53H44L55 42'/><path d='M130 53H86L75 42'/></svg>" +
+    "<svg class='cal-klines' viewBox='0 0 160 66' aria-hidden='true'><path d='M0 11H52L66 25'/><path d='M160 11H108L94 25'/><path d='M0 65H52L66 51'/><path d='M160 65H108L94 51'/><path d='M80 12V17'/></svg>" +
     lab(0, 'cal-kl-a', 'G. Cal.', 'Opens a new tab.\nGoogle Calendar, this week.') +
     lab(1, 'cal-kl-t1', 'Analyze', 'Opens a window.\nNext week&#39;s warnings, suggestions only.') +
     lab(2, 'cal-kl-t2', 'Fixed S.', 'Instant.\nThe Fixed schedule view.') +
     lab(3, 'cal-kl-b', 'S. Notes', 'Instant.\nGoes to Student Notes.') +
-    "<button type='button' class='cal-kbtn' onclick='_calSw((_calSwPos + 1) % 4)' aria-label='Calendar tools knob'>" +
+    lab(4, 'cal-kl-top', 'Slot ch.', 'Instant.\nGoes to Slot change.') +
+    "<button type='button' class='cal-kbtn' onclick='_calSw(CAL_KNOB_ORDER[(CAL_KNOB_ORDER.indexOf(_calSwPos) + 1) % 5])' aria-label='Calendar tools knob'>" +
+      // pedal-photo knob (user, 2026-11-20): black recess ring, glossy scalloped cap, pointer in caption grey
       "<svg viewBox='-19 -19 38 38'>" +
-        "<defs><radialGradient id='calKnobG' cx='35%' cy='28%' r='80%'><stop offset='0' stop-color='#353535'/><stop offset='.45' stop-color='#1a1a1a'/><stop offset='1' stop-color='#0a0a0a'/></radialGradient></defs>" +
-        "<circle r='17.5' fill='#0d0d0d' stroke='#2e2e2e' stroke-width='.8'/>" +
+        "<defs><radialGradient id='calKnobG' cx='34%' cy='26%' r='85%'><stop offset='0' stop-color='#5a5a5a'/><stop offset='.28' stop-color='#262626'/><stop offset='.7' stop-color='#0e0e0e'/><stop offset='1' stop-color='#050505'/></radialGradient>" +
+        "<radialGradient id='calKnobR' r='50%'><stop offset='.82' stop-color='#000'/><stop offset='1' stop-color='#1b1d21'/></radialGradient></defs>" +
+        "<circle r='18.4' fill='url(#calKnobR)' stroke='rgba(255,255,255,.14)' stroke-width='.5'/>" +
         "<g id='calKnobRot' style='transform:rotate(" + CAL_KNOB_DEG[_calSwPos] + "deg);transition:transform .16s ease'>" +
           "<path d='" + _calScallop + "' fill='url(#calKnobG)' stroke='#000' stroke-width='.6'/>" +
-          "<line class='cal-kptr' x1='0' y1='-2' x2='0' y2='-15.5' stroke-width='1.6' stroke-linecap='round'/>" +
+          "<line x1='.5' y1='-2.5' x2='.5' y2='-12.5' stroke='#000' stroke-opacity='.7' stroke-width='2' stroke-linecap='round'/>" +
+          "<line class='cal-kptr' x1='0' y1='-3' x2='0' y2='-13' stroke-width='1.5' stroke-linecap='round'/>" +
         "</g>" +
+        "<ellipse cx='-4.5' cy='-6' rx='6' ry='3.4' transform='rotate(-35 -4.5 -6)' fill='#fff' opacity='.07'/>" +
       "</svg></button>" +
   "</span>";
 }
@@ -1096,6 +1113,7 @@ function _calSw(i) {
     if (i === 0) window.open("https://calendar.google.com/calendar/r/week", "_blank", "noopener");
     else if (i === 1) _calAnalyze();
     else if (i === 2) _calSetView('fixed');
+    else if (i === 4) switchTab('slotchange');
     else switchTab('studentnotes');
   }, 180);
 }
@@ -1297,11 +1315,13 @@ function _calInjectStyle() {
     "html body #calBody .cal-long .cr-lcd,html body #calBody .cal-long .cr-lr,html body #calBody .cal-long .cal-search .rpm-field{border:1px solid #000;box-shadow:inset 0 4px 8px #000,inset 0 -1px 0 rgba(255,255,255,.04),0 -1px 0 rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.11)}" +
     "#calBody .cal-head>div{position:relative}#calBody .cal-head .cal-hb{position:absolute;right:-8px;top:6px;left:auto}" +
     // the selector knob (user, 2026-11-20): the Fixed schedule knob's look, labels in the STUDENT / OTHERS lettering, a red light on the one it points at
-    "#calBody .cal-knob{position:relative;display:block;width:130px;height:54px;flex:none}" +
-    "#calBody .cal-klines{position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:#363636;stroke-width:1;pointer-events:none}" +
+    // knob at 80%, no box behind it; lines, names + pointer in the rack's caption grey (BIRTHDAYS etc.) (user, 2026-11-20: slate box tried, didn't fit the rack)
+    "#calBody .cal-3 .cl-knobs{zoom:.8;padding:6px 10px}" +
+    "#calBody .cal-knob{position:relative;display:block;width:160px;height:66px;flex:none}" +
+    "#calBody .cal-klines{position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:#6e6e6e;stroke-width:1;pointer-events:none}" +
     "#calBody .cal-kl{position:absolute;font:500 6.5px/9px 'DM Mono',monospace;letter-spacing:.8px;text-transform:uppercase;color:#6e6e6e;text-shadow:0 -1px 0 rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.09);cursor:pointer;white-space:nowrap}#calBody .cal-kl:hover{color:#9a9a9a}" +
-    "#calBody .cal-kl-a{left:0;top:42px}#calBody .cal-kl-b{right:0;top:42px}#calBody .cal-kl-t1{left:0;top:0}#calBody .cal-kl-t2{right:0;top:0}" +
-    "#calBody .cal-kbtn{position:absolute;left:50px;top:17px;width:30px;height:30px;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 2px 3px #000)}#calBody .cal-kbtn svg{display:block;width:100%;height:100%;overflow:visible}#calBody .cal-kptr{stroke:#5a5a5a}" +
+    "#calBody .cal-kl-a{left:0;top:54px}#calBody .cal-kl-b{right:0;top:54px}#calBody .cal-kl-t1{left:0;top:0}#calBody .cal-kl-t2{right:0;top:0}#calBody .cal-kl-top{left:50%;top:0;transform:translateX(-50%)}" +
+    "#calBody .cal-kbtn{position:absolute;left:61px;top:18px;width:38px;height:38px;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 2px 3px rgba(0,0,0,.7))}#calBody .cal-kbtn svg{display:block;width:100%;height:100%;overflow:visible}#calBody .cal-kptr{stroke:#6e6e6e}" +
     "#calGoogleBtn.lit .hr-kn::after{transform:rotate(90deg)}#calGoogleBtn.lit+.hr-cap{color:#9a9a9a}" +   // GOOGLE open = knob turned up, like an open TO-DO
     "#tab-calendar>.tab-refresh{top:22.5px;right:-44px}" +   // ↻ just outside the top rack's right side, not on its legend
 
