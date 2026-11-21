@@ -171,16 +171,17 @@ function _calSchedView(name, o) {
     // The Log window's wide look (user, 2026-11-02): left the main column, Calendar view;
     // right a darker 210px column, Reschedule / Slot change at its top and List view,
     // with one line between them running the whole window.
+    // Skip · Reschedule · Slot change as three tiles at the top: the choice first (user, 2026-11-20; were two buttons)
+    (o.note ? "" : "<div class='cal-sv-tiles'>" +
+      "<button class='link-btn opens-window' onclick='_calSvGo(\"skip\")' data-tip='Opens a window.\nSkip one lesson.'>Skip</button>" +
+      "<button class='link-btn opens-window' onclick='_calSvGo(\"move\")' data-tip='Opens a window.\nMove one lesson to another day or time.'>Reschedule</button>" +
+      "<button class='link-btn opens-window' onclick='_calSvGo(\"slot\")' data-tip='Opens a window.\nChange their regular slot for good.'>Slot change</button></div>") +
     "<div class='cal-sv-cols'>" + (typeof _snBandHtml === 'function' ? _snBandHtml(o.from) : '') +
       (o.note ? "<div class='sv-show-row'><button type='button' class='link-btn' onclick='_calSvToggle(this)' data-tip='Instant.\nShows or hides their next 12 weeks.'>Show schedule</button></div>" : "") +   // Take note: the schedule starts closed (user, 2026-11-10)
       "<div class='cal-sv-main'>" +   // Notes across the top (user, 2026-11-10)
       "<div class='cal-sv-t'>Calendar view</div><div id='calSvBody'></div>" +
     "</div><div class='cal-sv-side'>" +
       // Reschedule / Slot change at the top of the right column (user, 2026-11-02; were over Calendar view)
-      (o.note ? "" : "<div class='cal-sv-acts'>" +   // Take note: no Reschedule / Slot change (user, 2026-11-10)
-        "<button class='link-btn opens-window' onclick='_calSvGo(\"rs\")' data-tip='Opens a window.\nSkip or move one lesson.' data-tip-left>Reschedule</button>" +
-        "<button class='link-btn opens-window' onclick='_calSvGo(\"slot\")' data-tip='Opens a window.\nChange their regular slot for good.' data-tip-left>Slot change</button>" +
-      "</div>") +
       "<div class='cal-sv-t'>List view</div><div class='cal-sv-dates' id='calSvDates'></div>" +
     "</div></div>");
   w.querySelector('.st-win').classList.add('im-rs-win', 'cal-sv-win');
@@ -211,7 +212,7 @@ function _calSvGo(what) {
   var name = _calSvName;
   var w = document.getElementById('calSvWin');
   if (w) w.remove();
-  if (what === 'rs') { _imReschedule(name, { onDone: function() { _calLoad(); } }); return; }
+  if (what === 'rs' || what === 'skip' || what === 'move') { _imReschedule(name, { mode: what === 'rs' ? '' : what, onDone: function() { _calLoad(); } }); return; }
   _slcInjectStyle();
   _rpmTpStyle();
   var pick = function() {

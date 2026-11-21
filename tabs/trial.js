@@ -397,31 +397,19 @@ function _trIsFormEmail(m) {
 }
 
 function _trMsgRow(m, them) {
-  if (_trIsFormEmail(m)) {
-    return '<div class="tr-msg"><div style="border-left:2px solid var(--border);padding:0 0 0 9px;margin-bottom:20px">' +
-        '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:var(--muted);margin:6px 0">' +
-          'Form submitted' +
-          '<span style="font-size:10px"> · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) + '</span>' +
-        '</div>' +
-      '</div></div>';
-  }
+  // Messages-style bubbles (user, 2026-11-20; were left-edged blocks): yours blue on the right, theirs grey on
+  // the left, the time centred over each, "Email" or "Text" after it. Long emails show their first lines; Show all opens them.
+  if (_trIsFormEmail(m)) return '<div class="cm-stamp tr-stamp">Form submitted · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) + '</div>';
   var mine = !!m.fromMe;
-  var who  = mine ? 'You' : (them || 'Them');
-  // Blue mine, grey theirs (the portal's texting colours, emails too since 2026-11-17), so
-  // who said what reads down the edge without reading the headers.
-  // Texts (RPM line, 2026-11-14): blue mine, grey theirs, the portal's texting colours.
-  var edge = mine ? 'var(--blue)' : 'var(--muted)';   // blue mine, grey theirs, emails too (user, 2026-11-17; emails were amber / green)
-  var tag  = m.sms ? ' · Text' + (mine && /^(undelivered|failed)$/.test(m.status || '') ? ' · Not delivered' : '') : '';
-  return '<div class="tr-msg"><div style="border-left:2px solid ' + edge + ';padding:0 0 0 9px;margin-bottom:20px">' +
-      // The name dimmed to the text's level (2026-09-27): the edge carries the colour.
-      '<div style="font-family:\'DM Mono\',monospace;font-size:12px;color:color-mix(in srgb, ' + edge + ' 65%, transparent);margin:6px 0 16px">' +
-        inqEsc(who) +
-        '<span style="font-size:10px;color:var(--muted)"> · ' + inqEsc(m.date) + ' ' + inqEsc(m.time) + inqEsc(tag) + '</span>' +
-      '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;line-height:1.5;color:var(--t-normal);margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere">' +
-        inqEsc(m.text) +
-      '</div>' +
-    '</div></div>';
+  var kind = m.sms ? 'Text' + (mine && /^(undelivered|failed)$/.test(m.status || '') ? ' · Not delivered' : '') : 'Email';
+  var text = String(m.text || '');
+  var long = !m.sms && (text.length > 420 || text.split('\n').length > 12);
+  return '<div class="cm-stamp tr-stamp">' + inqEsc(m.date) + ' ' + inqEsc(m.time) + (m.sms ? '' : '') + (kind !== 'Email' && kind !== 'Text' ? ' · ' + kind.replace(/^Text · /, '') : '') + '</div>' +
+    // Emails: an outlined bubble with the Email tag inside (user, 2026-11-20); texts stay solid with the tail
+    '<div class="cm-msg ' + (mine ? 'out' : 'in') + ' tr-bub' + (long ? ' tr-long' : '') + '">' +   // emails and texts look alike: the section title says which
+      '<div class="tr-bub-txt">' + inqEsc(text) + '</div>' +
+      (long ? '<button type="button" class="link-btn tr-more" onclick="var b=this.closest(\'.tr-bub\');b.classList.toggle(\'tr-open\');this.textContent=b.classList.contains(\'tr-open\')?\'Show less\':\'Show all\'">Show all</button>' : '') +
+    '</div>';
 }
 
 function _trPhonePretty(raw) {
@@ -522,7 +510,8 @@ function _trOpenEmail(email) {
         "<button class='settings-close' onclick='_trCloseEmail()'>✕</button>" +
       "</div>" +
       "<div style='margin:4px 0 18px'>" + EMAIL_WIN_ICON + "</div>" +
-      "<div style='margin-bottom:16px'>" + lbl("To") + ro(email) + "</div>" +
+      // To as a plain line like the Reviews Email window (user, 2026-11-20; was a read-only box)
+      "<div class='td-mini-row rv-to-line'><span class='td-mini-t'>To:</span> <span class='td-wk-name'>" + inqEsc(email) + "</span></div>" +
       "<div style='margin-bottom:16px'>" + lbl("Subject", "trFcSubject") +
         "<input id='trFcSubject' value='About Your Trial Lesson Request' class='rpm-field'></div>" +
       lbl("Message", "trFcBody") +
@@ -891,12 +880,13 @@ function _trOpenText(email) {
         "<button class='settings-close' onclick='_trCloseText()'>✕</button>" +
       "</div>" +
       "<div style='margin:4px 0 18px'>" + TEXT_WIN_ICON + "</div>" +
-      lbl("Phone") + ro(phonePretty || "No phone number on file") +
+      // To as a plain line like the other Text windows (user, 2026-11-20; was a read-only Phone box)
+      "<div class='td-mini-row rv-to-line'><span class='td-mini-t'>To:</span> <span class='td-wk-name'>" + inqEsc(phonePretty || "No phone number on file") + "</span></div>" +
       (phoneDigits
-        ? "<div style='margin-top:24px'>" + lbl("Message", "trFcSms") + "</div>" +
+        ? "<div>" + lbl("Message", "trFcSms") + "</div>" +
           "<textarea id='trFcSms' rows='4' class='rpm-field'>" + inqEsc(texted ? "" : _trSmsText(first)) + "</textarea>" +
           "<div id='trTxStatus' style='margin-top:12px'></div>" +
-          _tlActs("<button class='link-btn blue' id='trTxBtn' onclick='_trSendText()'>" + TEXT_ICON + "<span>Send</span></button>")
+          _tlActs("<button class='link-btn bright' id='trTxBtn' onclick='_trSendText()'>" + SEND_ICON + "<span>Send</span></button>")   // the other Text windows' Send (user, 2026-11-20; was blue with the text icon)
         : "") +
     "</div>";
   overlay.addEventListener("click", function (ev) { if (ev.target === overlay && !overlay._busy) _trCloseText(); });
@@ -2795,19 +2785,24 @@ function _trThreadWin(id) {
       '<button class="settings-close" onclick="_trThreadWinClose()">✕</button></div>' +
     '<div style="margin:4px 0 18px">' + THREAD_WIN_ICON + '</div>' +
     _trBounceRow(t) +
-    t.messages.map(function (m) { return _trMsgRow(m, first); }).join('') +
-    // One box, two ways out (2026-11-14): Reply answers in the Gmail thread,
-    // Text sends it from the RPM line. Each shows only when it can work.
-    ((t.threadId || t.phone)
-      ? '<label class="field-label" for="thBody" style="margin-top:6px">Reply</label>' +
-        '<textarea id="thBody" rows="5" class="rpm-field" style="font-size:11px"></textarea>' +
-        '<div id="thStatus" style="margin-top:12px"></div>' +
-        _tlActs(
-          (t.phone ? '<button class="link-btn blue" id="thTxBtn" onclick="_trThreadWinText()">' +
-            TEXT_ICON + '<span>Text</span></button>' : '') +
-          (t.threadId ? '<button class="link-btn bright" id="thBtn" onclick="_trThreadWinSend(\'' + t.threadId + '\')">' +
-            REPLY_ICON + '<span>Reply</span></button>' : ''))
-      : '');
+    // Emails and texts apart, each in its own time order (user, 2026-11-20: one mixed thread was confusing).
+    // A wide window in four parts (user, 2026-11-20): emails left, texts right, each with its own reply under it;
+    // a line under the title, one down the middle, one between the messages and the replies.
+    (function () {
+      var tx = t.messages.filter(function (m) { return m.sms; }), em = t.messages.filter(function (m) { return !m.sms; });
+      var msgs = function (label, list, none) { return '<div class="tr-cell tr-msgs' + (label === 'Emails' ? ' tr-emails' : '') + '"><label class="field-label tr-sec-l">' + label + '</label>' + (list.length ? '<div class="tr-bubs">' + list.map(function (m) { return _trMsgRow(m, first); }).join('') + '</div>' : '<div class="tr-none">' + none + '</div>') + '</div>'; };
+      var emReply = t.threadId
+        ? '<div class="tr-cell tr-reply"><label class="field-label" for="thBody">Email reply</label>' +
+            '<textarea id="thBody" rows="4" class="rpm-field"></textarea><div id="thStatus" style="margin-top:12px"></div>' +
+            _tlActs('<button class="link-btn bright" id="thBtn" onclick="_trThreadWinSend(\'' + t.threadId + '\')">' + REPLY_ICON + '<span>Reply</span></button>') + '</div>'
+        : '<div class="tr-cell tr-reply"></div>';
+      var txReply = t.phone
+        ? '<div class="tr-cell tr-reply"><label class="field-label" for="thTxBody">Text</label>' +
+            '<textarea id="thTxBody" rows="4" class="rpm-field"></textarea><div id="thTxStatus" style="margin-top:12px"></div>' +
+            _tlActs('<button class="link-btn bright" id="thTxBtn" onclick="_trThreadWinText()">' + SEND_ICON + '<span>Send</span></button>') + '</div>'
+        : '<div class="tr-cell tr-reply"></div>';
+      return '<div class="tr-cols">' + msgs('Emails', em, 'No emails yet') + msgs('Texts', tx, 'No texts yet') + emReply + txReply + '</div>';
+    })();
   ov.classList.add('open');
 }
 
@@ -2854,8 +2849,8 @@ function _trThreadWinSend(threadId) {
 function _trThreadWinText() {
   var t = (_trThreadCache || {})[_trThreadWinEmail];
   if (!t || !t.phone) return;
-  _trTextSend(t.phone, (document.getElementById('thBody') || {}).value || '',
-    document.getElementById('thTxBtn'), document.getElementById('thStatus'),
+  _trTextSend(t.phone, (document.getElementById('thTxBody') || document.getElementById('thBody') || {}).value || '',   // the texts side's own box (2026-11-20)
+    document.getElementById('thTxBtn'), document.getElementById('thTxStatus') || document.getElementById('thStatus'),
     document.getElementById('thModal'), document.getElementById('thOverlay'),
     function () {
       var id = emailToId(_trThreadWinEmail || '');

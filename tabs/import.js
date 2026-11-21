@@ -2444,9 +2444,10 @@ function _imRedraw() {
 // o (the Calendar tab, 2026-10-27): pre = the clicked lesson's day, picked already;
 // onDone replaces the Log window's Schedule tick.
 function _imReschedule(name, o) {
-  var w = _stWin('imRsWin', inqEsc(name), 'Change appointment', CALENDAR_ICON,   // skip or move (user, 2026-10-27; was Reschedule)
+  _stHowMode = (o && o.mode) || '';   // Skip / Reschedule tile from the Calendar: only that one's steps (user, 2026-11-20)
+  var w = _stWin('imRsWin', inqEsc(name), _stHowMode === 'skip' ? 'Skip' : _stHowMode === 'move' ? 'Reschedule' : 'Change appointment', CALENDAR_ICON,   // skip or move (user, 2026-10-27; was Reschedule)
     // The steps first, the weeks under them (user, 2026-10-29; were under the weeks).
-    "<div class='im-rs-hint im-rs-hint-top'>" + (o && o.pre ? ST_HOW_PICKED : ST_HOW_PICK) + "</div>" +   // the steps (student.js, 2026-10-28)
+    "<div class='im-rs-hint im-rs-hint-top'>" + _stHowPick(!!(o && o.pre)) + "</div>" +   // the steps (student.js, 2026-10-28)
     "<label class='field-label im-rs-weeks-l'>Next 8 weeks</label><div id='imRsBody'><div class='empty-state rpm-loading'>Loading</div></div>" +
     // What the ✓ set (user, 2026-10-29): a bordered box under the weeks, blank until then; _rpmTpStyle() styles it.
     // No "No change" button here (2026-10-08): close it and press Not needed instead.
@@ -2467,7 +2468,9 @@ function _imReschedule(name, o) {
   var ic = w.querySelector('.win-icon');
   if (ic) { ic.parentNode.classList.add('im-rs-iconrow'); ic.parentNode.insertAdjacentHTML('beforeend', "<button class='link-btn im-rs-undo' id='imRsUndo' disabled onclick='_stPickUndo()' data-tip='Instant.\nTakes back the last step on the weeks.' data-tip-left>Undo</button>"); }
   w.querySelector('.st-win').classList.add('im-rs-win');
-  _stPickSel = null;   // a fresh pick each time (student.js)
+  _stPickSel = null; _stSkipSet = [];   // a fresh pick each time (student.js)
+  if (o && 'mode' in o) w.querySelector('.st-win').classList.add('im-rs-cal');   // from the Calendar's tiles: the four windows' one size (CSS)
+  if (_stHowMode === 'skip') { w.querySelector('.st-win').classList.add('im-rs-skipmode'); var mh = w.querySelector('.im-rs-moved-h'); if (mh) mh.textContent = 'Skipping'; var cb = document.getElementById('imRsConfirmBtn'); if (cb) cb.textContent = 'Confirm skip'; }
   _imRsLoad(name, o || {});
 }
 

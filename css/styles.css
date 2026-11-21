@@ -6354,10 +6354,14 @@ html body #snWin .sn-strips button > div:nth-child(2) { font-size: 11px !importa
 html body #snWin .sn-strips button > div:nth-child(3) { font-size: 8px !important; }
 /* The 8-week strips (New note, Change appointment, Slot change): day names and dates engraved, like the header (user, 2026-11-20) */
 html body .im-rs-strips button > div { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07) !important; }
-/* Calendar Schedule window: its layout stays as it was (user, 2026-11-20: "only the engraving"); the icon is hidden
-   but its row keeps its space, so Reschedule / Slot change stay where they were */
-html body #calSvWin .st-win > :is(div, #_a#_b#_c#_d#_e):has(> .win-icon:only-child) { display: block; visibility: hidden; }
-html body #calSvWin .st-win > div > :is(.win-icon, #_a#_b#_c#_d#_e#_f#_g#_h) { display: inline-block; }
+/* Calendar Schedule window, tidied (user, 2026-11-20: "this window looks f'ed up"): the title across the whole window with
+   the ✕ at the far right; Reschedule / Slot change side by side on the title line, left of the ✕; no empty icon row;
+   List view a column beside Calendar view, starting level with it (was floating halfway down). */
+html body #calSvWin .st-win { position: relative; }
+html body #calSvWin :is(.settings-title, #_a#_b#_c#_d) { margin-right: 0; }
+html body #calSvWin :is(.cal-sv-cols, #_a#_b#_c) { position: static; }
+html body #calSvWin :is(.cal-sv-acts, #_a#_b#_c#_d) { position: absolute; top: 24px; right: 64px; flex-direction: row; gap: 10px; }
+html body #calSvWin :is(.cal-sv-side, #_a#_b#_c#_d) { position: static; top: auto; bottom: auto; width: auto; grid-column: 2; grid-row: 2; justify-content: flex-start; align-self: start; margin-top: 6px; }
 /* Review text templates (Templates / Nudge windows): the message in Arial, like the Comms bubbles (user, 2026-11-20; was DM Mono 11px) */
 html body .rv-bub { font-family: Arial, Helvetica, sans-serif !important; font-size: 12px !important; line-height: 1.5 !important; }
 /* Thin scrollbars everywhere (user, 2026-11-20: "I use the scroll wheel"). The portal-wide scrollbar-color made Chrome ignore
@@ -6371,11 +6375,11 @@ html body :is(#rvTplWin, #tdNsWin, #tdZmWin, #ttOsWin) .rv-bub { position: relat
 html body :is(#rvTplWin, #tdNsWin, #tdZmWin, #ttOsWin) .rv-bub::after { content: ""; position: absolute; bottom: -1px; right: -7px; width: 12px; height: 16px; background: inherit; pointer-events: none;
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M0 0 Q0.5 11 12 16 Q4 16.5 0 13.5 Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%;
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M0 0 Q0.5 11 12 16 Q4 16.5 0 13.5 Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; }
-html body :is(#rvTextWin, #rvMailWin) .td-mini-row { gap: 5px; }   /* "To:" right next to the number, a normal word space (user, 2026-11-20; was 14px) */
-html body :is(#rvTextWin, #rvMailWin) .td-mini-row .td-mini-t { color: var(--t-faint); }   /* the To line one step dimmer (user, 2026-11-20) */
+html body :is(#rvTextWin, #rvMailWin, #trTxModal, #trFcModal) .td-mini-row { gap: 5px; }   /* "To:" right next to the number, a normal word space (user, 2026-11-20; was 14px) */
+html body :is(#rvTextWin, #rvMailWin, #trTxModal, #trFcModal) .td-mini-row .td-mini-t { color: var(--t-faint); }   /* the To line one step dimmer (user, 2026-11-20) */
 html body :is(#rvTextTo, #rvMailWin span#rvMailTo) { color: var(--muted); }
-html body :is(#rvTextWin, #rvMailWin) .td-mini-row .td-mini-t { min-width: 0; width: auto; }   /* "To: (347)…" with a plain space; the 64px column is for To/Sbj in the recap email (user, 2026-11-20) */
-html body :is(#rvTextWin, #rvMailWin) .td-mini-row { margin-bottom: 28px !important; }   /* the Email window too (user, 2026-11-20) */   /* more room between the To line and MESSAGE (user, 2026-11-20; was 16px) */
+html body :is(#rvTextWin, #rvMailWin, #trTxModal, #trFcModal) .td-mini-row .td-mini-t { min-width: 0; width: auto; }   /* "To: (347)…" with a plain space; the 64px column is for To/Sbj in the recap email (user, 2026-11-20) */
+html body :is(#rvTextWin, #rvMailWin, #trTxModal, #trFcModal) .td-mini-row { margin-bottom: 28px !important; }   /* the Email window too (user, 2026-11-20) */   /* more room between the To line and MESSAGE (user, 2026-11-20; was 16px) */
 /* No drag handles on text boxes anywhere (user, 2026-11-20). Boxes that didn't grow by themselves now
    fit their text as you type (field-sizing), like the Log rows and recap email boxes; never smaller than 3 lines. */
 html body textarea { resize: none !important; }
@@ -6397,3 +6401,97 @@ html body #tsStuWin .ts-lbl-icon { color: var(--muted); fill: var(--muted); }   
 /* The template windows' own To: picker is gone: the student is picked in the Text window (user, 2026-11-20) */
 html body :is(#tdNsWin, #tdZmWin, #ttOsWin) [id^="ttPk_"] { display: none; }
 html body #ttTextWin .tt-msg-l { margin-top: 28px; }
+/* Travel Plan: the student cards narrower (user, 2026-11-20: "the cards are too big") */
+html body #tab-travel :is(.tv-rv-card, #_a#_b#_c) { max-width: 560px; }   /* about two thirds of the box */
+/* Schedule window: Skip · Reschedule · Slot change as three equal tiles under the title, the Log window page 3 tile look (user, 2026-11-20) */
+html body #calSvWin .cal-sv-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 4px 0 26px; }
+html body #calSvWin .cal-sv-tiles :is(.link-btn, #_a#_b#_c) { height: 72px; display: flex; align-items: center; justify-content: center; padding: 0 12px; font-size: 12px; letter-spacing: 2px; border-radius: 10px; background: #161616; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 3px 10px rgba(0,0,0,0.25); }
+html body #calSvWin .cal-sv-tiles :is(.link-btn, #_a#_b#_c):hover:where(:not(:disabled)) { border-color: rgba(255,255,255,0.22); background: #191919; }
+/* Skip, Reschedule and Slot change: one size (user, 2026-11-20), Reschedule's (the tallest); on a smaller screen all three stop
+   at the usual 90% of the screen and scroll inside. */
+html body :is(#calSvWin > .st-win, #imRsWin > .st-win.im-rs-cal, #slcModal > .st-win, #_a#_b#_c) { width: 702px; max-width: calc(100vw / var(--content-scale) - 40px); height: 1275px; box-sizing: border-box; }   /* the Schedule window too: all four one size, its width (user, 2026-11-20) */
+/* Skip window: the marked lessons listed under SKIPPING, one per line */
+html body #imRsWin .im-rs-skipmode .im-rs-moved { display: grid; grid-template-columns: max-content max-content max-content; justify-content: start; column-gap: 8px; row-gap: 4px; }   /* date · time in columns: the dots line up */
+/* Reschedule (from the Calendar), balanced top to bottom (user, 2026-11-20): 40px between every part, the same 25px
+   above the title and below Confirm move */
+/* Skip / Reschedule from the Calendar fill their one-size window evenly whatever they hold (user, 2026-11-20): the parts share the
+   free space equally (auto margins in a column), never less than 28px apart; 25px above the title and below the button. */
+html body #imRsWin :is(.st-win.im-rs-cal, #_a#_b#_c) { display: flex; flex-direction: column; }
+html body #imRsWin .st-win.im-rs-cal > :is(.im-rs-hint, #_a#_b#_c#_d) { flex: 0 0 auto; }
+html body #imRsWin .st-win.im-rs-cal :is(#imRsConfirm, #_a#_b#_c#_d) { display: contents; }
+html body #imRsWin .st-win.im-rs-cal #imRsConfirm.st-off > * { opacity: .35; pointer-events: none; }   /* the dim, now that the wrapper draws nothing */
+html body #imRsWin .st-win.im-rs-cal :is(.im-rs-weeks-l, .im-rs-moved-h, #imRsConfirm .field-label.st-gap, #imRsConfirm .st-foot, #_a#_b#_c#_d) { margin-top: auto !important; padding-top: 28px; }
+/* Moving to / Skipping box: the sunken entry-box look (like "Did they record?"), not a thin outline (user, 2026-11-20) */
+html body #imRsWin :is(#imRsMoved, #_a#_b#_c#_d) { box-sizing: border-box; min-height: 34px; padding: 8px 12px; background: #121212; border: 1px solid #0a0a0a; border-radius: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.05); }
+html body #imRsWin .st-win:not(.im-rs-skipmode) :is(#imRsMoved, #_a#_b#_c#_d#_e) { display: flex; align-items: center; }
+html body #imRsWin :is(#imRsMoved, #_a#_b#_c#_d#_e#_f) { width: 260px; max-width: 100%; }   /* only as wide as "Fri, Dec 4 · 6:30 PM" needs (user, 2026-11-20; was the full width) */
+html body #imRsWin #imRsMoved :is(span, #_a#_b#_c) { text-transform: none; letter-spacing: 0.5px; }   /* DM Mono in normal case, like the Schedule window's List view (user, 2026-11-20; was all caps) */
+/* Slot change, like Skip / Reschedule (user, 2026-11-20): its parts spread evenly over the one-size window (never under 28px apart),
+   and Switching to / Starting from in the same sunken 260px boxes as Moving to, DM Mono in normal case */
+html body #slcModal > :is(.st-win, #_a#_b#_c) { display: flex; flex-direction: column; }
+html body #slcModal :is(#slcWin, #_a#_b#_c) { flex: 1 1 auto; display: flex; flex-direction: column; }
+html body #slcModal #slcWin > :is(.slc-weeks-l, .im-rs-moved-h, .st-foot, #_a#_b#_c#_d) { margin-top: auto !important; padding-top: 28px; }
+html body #slcModal #slcWin > :is(.im-rs-moved-h + .im-rs-moved, #_a#_b#_c#_d) { margin-top: 10px; }
+html body #slcModal :is(#slcSwitch, #slcStart, #_a#_b#_c) { box-sizing: border-box; width: 260px; max-width: 100%; min-height: 34px; padding: 8px 12px; display: flex; align-items: center; background: #121212; border: 1px solid #0a0a0a; border-radius: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.05); }
+html body #slcModal :is(#slcSwitch, #slcStart) :is(span, div, #_a#_b#_c) { text-transform: none; letter-spacing: 0.5px; }
+html body #slcModal :is(#slcSwitch, #slcStart, #_a#_b#_c#_d) { flex-direction: row; justify-content: flex-start; text-align: left; }   /* an older rule made it a column, which centred the text */
+html body #slcModal :is(#slcSwitch, #slcStart) > * { text-align: left; margin: 0; }
+/* Every message bubble in the portal gets the Messages tail (user, 2026-11-20): yours blue with the tail bottom right,
+   theirs grey with it bottom left, only on the last bubble of a run. Covers the text-message bubbles (.ts-bub: templates,
+   Text windows, Travel Plan, Trip confirmation, Announcements) and the Comms bubbles (.cm-msg) wherever they appear. */
+html body :is(.ts-bub, .cm-msg, #_a#_b#_c) { position: relative; border-radius: 16px !important; overflow: visible !important; }
+html body :is(.ts-bub, .cm-msg)::after { content: ""; position: absolute; bottom: -1px; right: -7px; width: 12px; height: 16px; background: inherit; pointer-events: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M0 0 Q0.5 11 12 16 Q4 16.5 0 13.5 Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M0 0 Q0.5 11 12 16 Q4 16.5 0 13.5 Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; }
+html body :is(.ts-bub.ts-bub-in, .cm-msg.in)::after { right: auto; left: -7px; transform: scaleX(-1); }
+html body .ts-bub:not(.ts-bub-in):has(+ .ts-bub:not(.ts-bub-in))::after, html body .ts-bub.ts-bub-in:has(+ .ts-bub.ts-bub-in)::after,
+html body .cm-msg.out:has(+ .cm-msg.out)::after, html body .cm-msg.in:has(+ .cm-msg.in)::after, html body .cm-msg.cm-has-img::after { display: none; }
+html body .cm-msg.out { border-bottom-right-radius: 16px; } html body .cm-msg.in { border-bottom-left-radius: 16px; }
+/* Announcements · Confirmations, the sent text's facts in the portal's look (user, 2026-11-20: "looks like out of this portal"):
+   no raised card, the labels in the DM Mono label style of every window, the values in Arial like other read-only text */
+html body #annOverlay :is(.ann-facts-box, #_a#_b#_c) { background: transparent; border: 0; box-shadow: none; padding: 0; }
+html body #annOverlay :is(.ann-fact-k, #_a#_b#_c) { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--t-faint); align-self: center; }
+html body #annOverlay :is(.ann-fact-v, #_a#_b#_c) { font-size: 12px; color: var(--t-normal); }
+html body #annOverlay :is(.ann-facts, #_a#_b#_c) { grid-template-columns: max-content 1fr; column-gap: 24px; row-gap: 10px; }
+/* No icons in the windows that aren't built on the shared window (Trial, Inquiries, Dropbox, Audit, Report…), like the rest (user, 2026-11-20) */
+html body :is(#trTxModal, #trFcModal, #thModal, #thOverlay, #tlOverlay, #tbOverlay, #msOverlay, #trAvModal, #trDismissWin, #inqModal, #dbAllModal, #dbFixModal, #auPayOverlay, #rpRecapOv, #tsOverlay) :is(.win-icon, #_a#_b#_c#_d#_e#_f#_g):not(button *, .link-btn *, .db-finder *) { display: none; }
+html body :is(#trTxModal, #trFcModal, #thModal, #thOverlay, #tlOverlay, #tbOverlay, #msOverlay, #trAvModal, #trDismissWin, #inqModal, #dbAllModal, #dbFixModal, #auPayOverlay, #rpRecapOv, #tsOverlay) :is(div, #_a#_b#_c#_d):has(> .win-icon:only-child) { display: none; }
+html body :is(#trTxModal, #trFcModal) .td-mini-row .td-wk-name { color: var(--muted); }
+/* Trial Thread as a text conversation (user, 2026-11-20): bubbles (the Comms look and tail), times centred */
+html body .tr-bubs { display: flex; flex-direction: column; gap: 6px; margin: 0 0 22px; }
+html body .tr-bubs .tr-stamp { align-self: center; margin: 12px 0 2px; }
+html body .tr-bubs .tr-bub { max-width: 80%; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.45; color: var(--t-normal); }
+html body .tr-bubs .tr-bub-txt { white-space: pre-wrap; overflow-wrap: anywhere; }
+html body .tr-bubs .tr-long:not(.tr-open) .tr-bub-txt { max-height: 10.2em; overflow: hidden; -webkit-mask: linear-gradient(#000 70%, transparent); mask: linear-gradient(#000 70%, transparent); }
+html body .tr-bubs .tr-more { margin-top: 8px; font-size: 10px; padding: 3px 9px; }
+html body #thModal { max-width: 620px !important; }   /* wider for the bubbles (user, 2026-11-20; was 460px) */
+/* Thread: emails outlined (blue yours / grey theirs border, dark inside), no tail, the Email tag inside at the top (user, 2026-11-20) */
+html body .tr-bubs .tr-bub.tr-email { background: #141414 !important; border: 1px solid color-mix(in srgb, var(--blue) 70%, transparent) !important; }
+html body .tr-bubs .tr-bub.tr-email.in { border-color: color-mix(in srgb, var(--muted) 70%, transparent) !important; }
+html body .tr-bubs .tr-bub.tr-email::after { display: none; }
+html body .tr-email-tag { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--t-faint); }
+html body .tr-email-tag svg { width: 12px; height: auto; }
+html body #thModal .tr-sec-l { display: block; margin: 6px 0 2px; }   /* TEXTS / EMAILS over each part of the thread */
+/* Trial Thread, wide: Emails left, Texts right, each its own column (user, 2026-11-20) */
+html body #thModal { max-width: 1000px !important; }
+html body #thModal .tr-cols { display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; align-items: start; }
+html body #thModal .tr-col + .tr-col { border-left: 1px solid rgba(255,255,255,0.06); padding-left: 32px; }
+html body #thModal .tr-bubs .tr-bub { max-width: 88%; }
+html body #thModal .tr-none { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); margin: 12px 0 22px; }
+/* Trial Thread in four parts (user, 2026-11-20): a line under the title, one down the middle, one between the messages
+   and the replies; emails + email reply on the left, texts + text box on the right */
+html body #thModal > .settings-title { border-bottom: 1px solid rgba(255,255,255,0.07); padding-bottom: 16px; margin-bottom: 0; }
+html body #thModal .tr-cols { grid-template-columns: 1fr 1fr; column-gap: 0; align-items: stretch; margin: 0 -24px -24px; }
+html body #thModal .tr-cell { padding: 20px 24px; min-width: 0; }
+html body #thModal .tr-cell:nth-child(even) { border-left: 1px solid rgba(255,255,255,0.07); }
+html body #thModal .tr-cell.tr-reply { border-top: 1px solid rgba(255,255,255,0.07); }
+html body #thModal .tr-col + .tr-col { border-left: 0; padding-left: 0; }
+/* Thread: the two sides on different backgrounds (user, 2026-11-20): emails darker, texts the window's own */
+html body #thModal .tr-cols > .tr-cell.tr-msgs:nth-child(odd) { background: rgba(0,0,0,0.28); }
+html body #thModal .tr-cols > .tr-cell.tr-reply { background: rgba(255,255,255,0.035); }   /* the reply row, a third background (user, 2026-11-20) */
+html body #thModal .tr-cols > .tr-cell.tr-msgs:nth-child(even) { background: rgba(255,255,255,0.025); }   /* texts side a bit lighter, so the two sides differ more (user, 2026-11-20) */
+html body #thModal .tr-cols > .tr-cell.tr-reply { background: rgba(255,255,255,0.05); }
+html body #thModal > .settings-title { margin-left: -24px; margin-right: -24px; padding-left: 24px; padding-right: 24px; }   /* the line under the title edge to edge */
+/* Thread, emails side (user, 2026-11-20): yours a soft red, theirs a lighter grey than the texts' */
+html body #thModal .tr-emails .tr-bub.out { background: oklch(0.47 0.11 20) !important; border-color: oklch(0.47 0.11 20) !important; color: oklch(0.92 0.01 20) !important; }   /* a light red, not brown (user, 2026-11-20) */
+html body #thModal .tr-emails .tr-bub.in { background: color-mix(in srgb, var(--muted) 52%, #131313) !important; border-color: color-mix(in srgb, var(--muted) 52%, #131313) !important; }

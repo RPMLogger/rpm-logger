@@ -917,12 +917,48 @@ function _stHhmm(label) {   // "6:30 PM" -> "18:30"
 var _stPickSel = null;   // { cell, lesson, name, opts, to }
 // The steps under the weeks (user, 2026-10-28). From the Calendar tab the lesson is
 // picked already, so it starts at Skip; from the Log window step 1 is picking it.
+// _stHowMode (user, 2026-11-20): 'skip' / 'move' from the Calendar's Skip / Reschedule tiles
+// shows only that one's steps; '' (the Log window) shows both.
+var _stHowMode = '';
 function _stHowSteps(from) {
-  return "<div class='im-rs-sec'><div class='im-rs-h'>SKIP</div><ol start='" + from + "'><li>Tap ✕ on the day</li><li>Who asked, then Confirm skip</li></ol></div>" +
-    "<div class='im-rs-sec'><div class='im-rs-h'>RESCHEDULE</div><ol start='" + from + "'><li>Click the day you want to move it to (same day: the lesson's own clock)</li><li>Pick the time on its clock (bottom left corner)</li><li>Tap ✓ when it's right</li><li>Who asked, then Confirm move</li></ol></div>";
+  var skip = "<div class='im-rs-sec'><div class='im-rs-h'>SKIP</div><ol start='" + from + "'><li>Tap ✕ on the day</li><li>Who asked, then Confirm skip</li></ol></div>";
+  var move = "<div class='im-rs-sec'><div class='im-rs-h'>RESCHEDULE</div><ol start='" + from + "'><li>Click the day you want to move it to (same day: the lesson's own clock)</li><li>Pick the time on its clock (bottom left corner)</li><li>Tap ✓ when it's right</li><li>Who asked, then Confirm move</li></ol></div>";
+  return _stHowMode === 'skip' ? skip : _stHowMode === 'move' ? move : skip + move;
+}
+function _stHowPick(picked) {
+  // Skip (user, 2026-11-20): several lessons at once, each click marks one; Confirm skip does them all.
+  if (_stHowMode === 'skip') return "<div class='im-rs-sec'><div class='im-rs-cap'>To skip</div><ol><li>Click each lesson (red) to skip; click again to keep it</li><li>Who asked, then Confirm skip</li></ol></div>";
+  return picked ? _stHowSteps(1) : "<div class='im-rs-sec'><div class='im-rs-cap'>To make a change</div><ol><li>Click on a lesson (red) to change</li></ol></div>" + _stHowSteps(2);
+}
+// The Skip window's picks (user, 2026-11-20): [{ cell, lesson, name, opts }], in click order.
+var _stSkipSet = [];
+function _stSkipMode() { return _stHowMode === 'skip' && !!document.getElementById('imRsMoved'); }
+function _stSkipToggle(cell, name, lesson, opts) {
+  var i = -1;
+  _stSkipSet.forEach(function (x, j) { if (x.cell === cell) i = j; });
+  if (i >= 0) { _stSkipUnmark(_stSkipSet[i]); _stSkipSet.splice(i, 1); }
+  else {
+    _stSkipSet.push({ cell: cell, lesson: lesson, name: name, opts: opts });
+    cell.classList.add('st-pick-skip');
+    cell.insertAdjacentHTML('beforeend', ST_SKIP_MARK);
+  }
+  _stSkipPaint();
+}
+function _stSkipUnmark(x) {
+  x.cell.classList.remove('st-pick-skip');
+  var mk = x.cell.querySelector('.st-skip-mark'); if (mk) mk.remove();
+}
+function _stSkipPaint() {
+  var mv = document.getElementById('imRsMoved');
+  _stPickHead('Skipping');
+  if (mv) mv.innerHTML = _stSkipSet.slice().sort(function (a, b) { return a.lesson.date < b.lesson.date ? -1 : 1; })
+    .map(function (x) { return "<span>" + _dtpDateLabel(x.lesson.date) + "</span><span>·</span><span>" + x.lesson.time + "</span>"; }).join('');   // three columns, so the dots line up (user, 2026-11-20)
+  var b = document.getElementById('imRsConfirmBtn');
+  if (b) { b.textContent = 'Confirm skip'; b.dataset.tip = 'Instant.\nRemoves these lessons from the calendar\nand logs them to Skip Logs.'; }
+  _stPickButtons();
 }
 var ST_HOW_PICKED = _stHowSteps(1);
-var ST_HOW_PICK   = "<div class='im-rs-sec'><div class='im-rs-cap'>To make a change</div><ol><li>Click on a lesson (red) to change</li></ol></div>" + _stHowSteps(2);
+var ST_HOW_PICK   = _stHowPick(false);
 function _stPickHint(html) { var h = document.querySelector('#imRsWin .im-rs-hint'); if (h) h.innerHTML = html; }
 // The skip mark laid over a skipped day (om-138.svg, user, 2026-10-29): a red
 // brush ✕ across the whole day.
@@ -1038,11 +1074,13 @@ function _stPickTimeShown() {
 var _stPickWho = 'Student';
 function _stPickButtons() {
   var s = _stPickSel, u = document.getElementById('imRsUndo'), c = document.getElementById('imRsConfirm');
+  if (_stSkipMode()) { if (u) u.disabled = !_stSkipSet.length; if (c) c.classList.toggle('st-off', !_stSkipSet.length); return; }
   if (u) u.disabled = !s;
   if (c) c.classList.toggle('st-off', !(s && s.done));
 }
 // Undo: the ✓, then the day moved to, then the lesson, one at a time.
 function _stPickUndo() {
+  if (_stSkipMode()) { var last = _stSkipSet.pop(); if (last) _stSkipUnmark(last); _stSkipPaint(); return; }   // the last lesson marked
   var s = _stPickSel;
   if (!s) return;
   if (s.done) _stPickMovedClear();
@@ -1052,6 +1090,7 @@ function _stPickUndo() {
 }
 // Confirm move, under the weeks: the Reschedule window's call, the day and time as decided.
 function _stPickConfirm(btn) {
+  if (_stSkipMode()) { _stSkipConfirm(btn); return; }
   var s = _stPickSel, url = getScriptUrl();
   if (!s || !s.done || !url) return;
   var panel = btn.closest('.st-win'), opts = s.opts || {};
@@ -1080,6 +1119,28 @@ function _stPickConfirm(btn) {
     rpmFail('imRsState', msg);
     if (opts.onFail) opts.onFail(msg);
   });
+}
+
+// Confirm skip for every marked lesson, one after another (markSkip each); done once all are in.
+function _stSkipConfirm(btn) {
+  var url = getScriptUrl(), list = _stSkipSet.slice().sort(function (a, b) { return a.lesson.date < b.lesson.date ? -1 : 1; });
+  if (!list.length || !url) return;
+  var panel = btn.closest('.st-win'), opts = list[0].opts || {};
+  var note = (document.getElementById('imRsNote') || {}).value ? document.getElementById('imRsNote').value.trim() : '';
+  btn.textContent = 'Skipping…'; btn.disabled = true; rpmBusy(panel, btn, true);
+  var i = 0, last = null;
+  (function next() {
+    if (i >= list.length) { rpmBusy(panel, btn, false); _stSkipSet = []; if (opts.onDone) opts.onDone(last, list.length > 1 ? 'Skipped ' + list.length : 'Skipped'); return; }
+    var x = list[i];
+    _stCall(url, 'markSkip', { name: x.name, date: x.lesson.date, id: x.lesson.id || '', start: x.lesson.stamp || '', who: _stPickWho, note: note },
+      function (data) { last = data; _stSkipUnmark(x); _stSkipSet = _stSkipSet.filter(function (y) { return y !== x; }); i++; next(); },
+      function (msg) {
+        rpmBusy(panel, btn, false); btn.textContent = 'Confirm skip'; btn.disabled = false;
+        _stSkipPaint();
+        rpmFail('imRsState', (i ? i + ' skipped, then: ' : '') + msg);
+        if (opts.onFail) opts.onFail(msg);
+      });
+  })();
 }
 
 // The ✕ in Change appointment (user, 2026-10-29): the lesson is crossed out,
@@ -1147,9 +1208,10 @@ function _stPickClear() {
   _stPickButtons();
 }
 function _stPickLesson(cell, name, lesson, opts) {
+  if (_stSkipMode()) { _stSkipToggle(cell, name, lesson, opts); return; }   // Skip: each click marks / unmarks one lesson
   var same = _stPickSel && _stPickSel.cell === cell;
   _stPickClear();
-  if (same) { _stPickHint(ST_HOW_PICK); return; }   // let go: picking a lesson is step 1 again
+  if (same) { _stPickHint(_stHowPick(false)); return; }   // let go: picking a lesson is step 1 again
   _stPickSel = { cell: cell, lesson: lesson, name: name, opts: opts, to: null, time: _stHhmm(lesson.time) };
   _stPickButtons();
   cell.classList.add('st-pick-sel');
@@ -1203,6 +1265,7 @@ function _stPickSameDay() {
   _stPickButtons();
 }
 function _stPickDay(cell, ymd) {
+  if (_stSkipMode()) return;   // Skip: only lessons are clicked
   var s = _stPickSel;
   if (!s || cell === s.cell || s.skip) return;   // skipping: Undo first to move it instead
   // Try as many days as you like (user, 2026-10-26): the last one tapped is green with a ✓; the ✓ opens Reschedule.
