@@ -6501,7 +6501,8 @@ html body #thModal .tr-emails .tr-bub::after { display: none; }
 html body #thModal > .settings-title { border-bottom: 0; padding-bottom: 18px; }
 html body #thModal .tr-cols > .tr-cell.tr-head { padding: 4px 24px 10px; background: none !important; border-left: 0 !important; border-bottom: 1px solid rgba(255,255,255,0.07); }
 html body #thModal .tr-cols > .tr-cell.tr-head .tr-sec-l { margin: 0; }
-html body #thModal .tr-emails .tr-bub.out { background: oklch(0.52 0.13 55) !important; border-color: oklch(0.52 0.13 55) !important; color: #fff !important; }   /* full header red (user, 2026-11-20) */
+html body #thModal .tr-emails .tr-bub.out { background: oklch(0.42 0.08 22) !important; border-color: oklch(0.42 0.08 22) !important; color: oklch(0.92 0.01 20) !important; }   /* muted red D (user, 2026-11-21; was tangerine, before that brownish orange) */
+html body #thModal .tr-emails .tr-bub.out .tr-more { color: #fff; border-color: rgba(255,255,255,0.45); background: rgba(0,0,0,0.12); }   /* Show all readable on the orange (was grey on orange) */
 html body #thModal .tr-emails .tr-bub.in { background: color-mix(in srgb, var(--muted) 22%, #131313) !important; border-color: color-mix(in srgb, var(--muted) 22%, #131313) !important; }   /* their emails darker, to sit with the deeper red (user, 2026-11-20) */
 html body #thModal .tr-emails .tr-bub { max-width: none; width: 100%; box-sizing: border-box; align-self: stretch; }   /* emails full width, unlike texts (user, 2026-11-20) */
 html body #thModal .tr-cols > .tr-cell.tr-reply { background: none; }   /* reply row = the title's background, top and bottom match (user, 2026-11-20) */
@@ -6512,13 +6513,54 @@ html body #msModal #msPreview > div { margin: 20px -24px 0 !important; padding: 
 /* Date/time picker DAY / TIME tabs = the small-title standard (user, 2026-11-21; were 10px, 1px, --t-faint). Travel's dates keep their own. */
 html body :is(.dtp-lab, #_a#_b#_c):not(.tv-dates .dtp-lab) { font-size: 11px; letter-spacing: 2px; color: #7c7c7c; }
 /* Trial Lesson step windows spaced out (user, 2026-11-21): label → box 10px (was 7), sections 24px apart (in trial.js, was 16) */
-html body #tlModal .field-label { margin-bottom: 10px; }
-html body #tlModal > .settings-title { margin-bottom: 26px; }   /* more room under the title (user, 2026-11-21; was 16) */
+html body :is(#tlModal, #tsModal, #trFcModal, #trTxModal, #tbModal) .field-label { margin-bottom: 10px; }
+html body :is(#tlModal, #tsModal, #tbModal) > .settings-title { margin-bottom: 26px; }   /* more room under the title (user, 2026-11-21; was 16) */
 /* TRIAL LESSON WINDOWS - one spacing protocol (user, 2026-11-21):
    title → first item 26 · small title → its value 10 · item → item 24 · last item → buttons 32 · buttons → preview 20 (trial.js) */
-html body :is(#tlModal, #msModal) .tl-f + .tl-f, html body #msModal .ms-gap { margin-top: 24px !important; }
-html body :is(#tlModal, #msModal) .tl-msg:empty { display: none; }
-html body :is(#tlModal, #msModal) .tl-acts { margin-top: 32px !important; }
+html body :is(#tlModal, #msModal, #tsModal, #trFcModal, #trTxModal) .tl-f + .tl-f, html body #msModal .ms-gap { margin-top: 24px !important; }
+html body :is(#tlModal, #msModal, #tsModal, #trFcModal, #trTxModal, #tbModal) .tl-msg:empty { display: none; }
+html body :is(#tlModal, #msModal, #tsModal, #trFcModal, #trTxModal, #tbModal) .tl-acts { margin-top: 32px !important; }
 /* Make student follows the Trial window protocol too (user, 2026-11-21) */
 html body #msModal > .settings-title { margin-bottom: 26px; }
 html body #msModal .field-label { margin-bottom: 10px; }
+html body #trTop #trialPayBody > .empty-state { padding-left: 12px; }   /* NONE lines up with the Documents names below (user, 2026-11-21) */
+html body #trDismissWin .tl-msg:empty { display: none; }   /* empty status line takes no space (user, 2026-11-21) */
+/* Contact windows (Email, Text, Available times) are built on their own overlay, so they missed the
+   80% content scale and read ~25% bigger than every other window (user, 2026-11-21) */
+html body :is(#trFcModal, #trTxModal, #trAvModal) > * { zoom: var(--content-scale); max-height: calc(92vh / var(--content-scale)) !important; }
+html body :is(#trFcModal, #trTxModal, #trAvModal) > * > .settings-title { margin-bottom: 26px; }
+html body :is(#trFcModal, #trTxModal) .tl-f > .rv-to-line { margin-bottom: 0 !important; }   /* the To line follows the 24 rhythm (was its own 28) */
+html body #thModal .th-to { margin: 0 0 24px !important; }   /* compose window: To line, 24 above the first label (user, 2026-11-21) */
+/* Compose window: Available times, full width under the email + text (user, 2026-11-21) */
+html body #thModal .tr-cols > .tr-cell.th-times { grid-column: 1 / -1; border-left: 0 !important; border-top: 1px solid rgba(255,255,255,0.07); }
+html body #thModal .th-t { display: flex; align-items: center; gap: 8px; cursor: pointer; font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); }
+html body #thModal .th-t input { appearance: none; -webkit-appearance: none; width: 12px; height: 12px; margin: 0; border-radius: 50%; border: 1px solid var(--muted); background: transparent; cursor: pointer; flex: none; }
+html body #thModal .th-t input:checked { border-color: var(--t-bright); background: radial-gradient(circle, var(--t-bright) 0 3px, transparent 3.5px); }
+html body #thModal .th-t:hover:where(:not(.pen)) { color: var(--t-bright); }
+html body #thModal .th-t.pen { opacity: .45; }
+html body #thModal .th-tag { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }
+html body #thModal .th-cols { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 32px; }
+html body #thModal .th-col { display: flex; flex-direction: column; gap: 8px; }
+html body #thModal .th-col-l { font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--t-faint); margin-bottom: 2px; }
+html body #thModal .th-none { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); }
+html body #thModal .th-wkline { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); margin-bottom: 20px; }   /* This week: Week B · Next week: Week A (user, 2026-11-21) */
+html body #thModal .th-to { gap: 5px; } html body #thModal .th-to .td-mini-t { min-width: 0; }   /* "To:" right next to the address, like the other Text windows (user, 2026-11-21) */
+html body #thModal .th-to-v { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); }   /* plain value under TO, like Folder name */
+html body #thModal .th-compose .field-label { margin-bottom: 10px; }   /* Compose window: small title to its value 10, the Trial window rule (user, 2026-11-21) */
+html body #thModal .th-t input { width: 10px; height: 10px; border: 1.5px solid var(--t-normal); background: rgba(255,255,255,0.08); } html body #thModal .th-t input:checked { border-color: var(--t-bright); background: var(--t-bright); box-shadow: inset 0 0 0 2px #1a1a1a; }   /* smaller, more solid circles (user, 2026-11-21; were 12px thin outlines) */
+html body #thModal .th-t input:checked { box-shadow: none; background: var(--t-bright); border-color: var(--t-bright); }   /* ticked = one solid filled circle (user, 2026-11-21) */
+html body #thModal .th-t input, html body #thModal .th-t input:checked { -webkit-mask: none; mask: none; }   /* no global tick-mask: a plain circle, filled when ticked (user, 2026-11-21) */
+html body #thModal .tr-cols > .tr-cell.th-times { background: rgba(0,0,0,0.28); }   /* the times part on its own background, like the message panels (user, 2026-11-21) */
+html body #thModal .tr-cols > .tr-cell.th-times { padding: 32px 24px 28px; }   /* more room in the times part (user, 2026-11-21) */
+html body #thModal .th-foot { margin-top: 32px; }   /* the email's Preview + Send, bottom right of the window */
+/* Compose window: the text as the editable blue bubble with the Comms tail (user, 2026-11-21) */
+html body #thModal .th-compose .rv-thread { background: transparent !important; border: 0 !important; padding: 0 8px 4px 0 !important; display: flex; flex-direction: column; }
+html body #thModal .th-compose .rv-bub { position: relative; border-radius: 16px !important; overflow: visible !important; min-height: 44px; max-width: 100%; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.5; }
+html body #thModal .th-compose .rv-bub::after { content: ""; position: absolute; bottom: -1px; right: -7px; width: 12px; height: 16px; background: inherit; pointer-events: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M0 0 Q0.5 11 12 16 Q4 16.5 0 13.5 Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M0 0 Q0.5 11 12 16 Q4 16.5 0 13.5 Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; }
+html body #thModal .th-compose #thBody { background: oklch(0.42 0.08 22) !important; border-color: oklch(0.42 0.08 22) !important; color: oklch(0.92 0.01 20) !important; caret-color: #fff; box-shadow: none !important; border-radius: 16px !important; padding: 12px 16px; }   /* the email in the Thread's muted red, so Compose matches the Thread (user, 2026-11-21) */
+html body #tbModal #tbOfferedSlots { margin-bottom: 0 !important; } html body #tbModal #tbOfferedSlots:not(:empty) { margin-bottom: 24px !important; }   /* offered times, 24 above Trial (user, 2026-11-21) */
+/* Yes/no confirm dialogs: the question as plain white text, not a red Bebas title (user, 2026-11-21).
+   Warning! dialogs (they have a sub-heading, .rpm-dlg-body) keep their red title. */
+html body .rpm-dlg-confirm:not(:has(.rpm-dlg-body)) .rpm-dlg-title { font-family: Arial, Helvetica, sans-serif !important; font-size: 14px !important; font-weight: 400 !important; letter-spacing: 0 !important; text-transform: none !important; color: var(--t-bright) !important; text-shadow: none !important; }

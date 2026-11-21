@@ -96,11 +96,12 @@ function _trAcceptedCard(a) {
         // the inquiry counts and loses their history. Someone who went quiet
         // goes Move to Inquiries, then No reply. Test inquiries: delete the column
         // in the sheet by hand.
-        '<button class="link-btn amber opens-window" onclick="_trOpenEmail(\'' + em + '\')" ' +
+        // Email and Text both open the one Thread window, cursor in that side (user, 2026-11-21).
+        '<button class="link-btn amber opens-window" onclick="_trThreadWin(emailToId(\'' + em + '\'),\'email\')" ' +
           'data-tip="Opens a window.\nFirst-contact email draft.\nNothing sends until you press Send.\n(Not in Email list.)" data-tip-wrap>' + ENVELOPE_ICON + '<span>Email</span></button>' +
         // Text sits between Email and Book, the order you do them in. Blue: a
         // contact method, same weight as Email (2026-09-27).
-        '<button class="link-btn blue opens-window" onclick="_trOpenText(\'' + em + '\')" ' +
+        '<button class="link-btn blue opens-window" onclick="_trThreadWin(emailToId(\'' + em + '\'),\'text\')" ' +
           'data-tip="Opens a window.\nA text from the RPM line, ready to edit.\nNothing sends until you press Send." data-tip-wrap>' + TEXT_ICON + '<span>Text</span></button>' +
         '<button class="link-btn bright opens-window" onclick="_trBookAccepted(\'' + _trEsc(a.name || "") + '\',\'' + em + '\')" ' +
           'data-tip="Opens a window.\nBooking with their name and email.\nYou pick the date and time.\nCard moves to Trial Lesson once booked.\n(Not in Email list.)" data-tip-wrap data-tip-left>' + CALENDAR_ICON + '<span>Book</span></button>' +
@@ -480,16 +481,23 @@ function _trDraftTail() {
          "Looking forward to meeting you!";
 }
 
+// The first-contact email draft, shared by the old Compose window and the
+// Thread window's first email (user, 2026-11-21).
+function _trFirstDraft(email, first) {
+  var body = _trDraftHead(first) + _trDraftTail();
+  // The times picked for them in Available times go on the blank line under
+  // the question, in date order (user, 2026-10-28).
+  var offered = _trOffersFor(email).map(function (o) { return _trOfferLabel(o); });
+  if (offered.length) body = body.replace(_TR_OFFER_Q + "\n\n\n", _TR_OFFER_Q + "\n\n" + offered.join("\n") + "\n");
+  return body;
+}
+
 function _trOpenEmail(email) {
   var a = _trFindAccepted(email);
   if (!a) return;
   var first = (a.name || "").split(" ")[0];
   var head  = _trDraftHead(first);
-  var body  = head + _trDraftTail();
-  // The times picked for them in Available times go on the blank line under
-  // the question, in date order (user, 2026-10-28).
-  var offered = _trOffersFor(email).map(function (o) { return _trOfferLabel(o); });
-  if (offered.length) body = body.replace(_TR_OFFER_Q + "\n\n\n", _TR_OFFER_Q + "\n\n" + offered.join("\n") + "\n");
+  var body  = _trFirstDraft(email, first);
 
   var overlay = document.createElement("div");
   overlay.id = "trFcModal";
@@ -511,12 +519,13 @@ function _trOpenEmail(email) {
       "</div>" +
       "<div style='margin:4px 0 18px'>" + EMAIL_WIN_ICON + "</div>" +
       // To as a plain line like the Reviews Email window (user, 2026-11-20; was a read-only box)
-      "<div class='td-mini-row rv-to-line'><span class='td-mini-t'>To:</span> <span class='td-wk-name'>" + inqEsc(email) + "</span></div>" +
-      "<div style='margin-bottom:16px'>" + lbl("Subject", "trFcSubject") +
+      // Trial window spacing (user, 2026-11-21): .tl-f sections 24 apart, label 10 to its box, buttons 32 below.
+      "<div class='tl-f'><div class='td-mini-row rv-to-line'><span class='td-mini-t'>To:</span> <span class='td-wk-name'>" + inqEsc(email) + "</span></div></div>" +
+      "<div class='tl-f'>" + lbl("Subject", "trFcSubject") +
         "<input id='trFcSubject' value='About Your Trial Lesson Request' class='rpm-field'></div>" +
-      lbl("Message", "trFcBody") +
-      "<textarea id='trFcBody' rows='16' class='rpm-field'>" + inqEsc(body) + "</textarea>" +
-      "<div id='trFcStatus' style='margin-top:12px'></div>" +
+      "<div class='tl-f'>" + lbl("Message", "trFcBody") +
+      "<textarea id='trFcBody' rows='16' class='rpm-field'>" + inqEsc(body) + "</textarea></div>" +
+      "<div id='trFcStatus' class='tl-msg' style='margin-top:12px'></div>" +
       // Preview dim, Send bright: the action is the one that stands out.
       // Not green: green in this portal means done. The span holds the words:
       // _trSetLabel writes it for Sending and Sent, so the plane survives.
@@ -881,11 +890,12 @@ function _trOpenText(email) {
       "</div>" +
       "<div style='margin:4px 0 18px'>" + TEXT_WIN_ICON + "</div>" +
       // To as a plain line like the other Text windows (user, 2026-11-20; was a read-only Phone box)
-      "<div class='td-mini-row rv-to-line'><span class='td-mini-t'>To:</span> <span class='td-wk-name'>" + inqEsc(phonePretty || "No phone number on file") + "</span></div>" +
+      // Trial window spacing (user, 2026-11-21)
+      "<div class='tl-f'><div class='td-mini-row rv-to-line'><span class='td-mini-t'>To:</span> <span class='td-wk-name'>" + inqEsc(phonePretty || "No phone number on file") + "</span></div></div>" +
       (phoneDigits
-        ? "<div>" + lbl("Message", "trFcSms") + "</div>" +
-          "<textarea id='trFcSms' rows='4' class='rpm-field'>" + inqEsc(texted ? "" : _trSmsText(first)) + "</textarea>" +
-          "<div id='trTxStatus' style='margin-top:12px'></div>" +
+        ? "<div class='tl-f'>" + lbl("Message", "trFcSms") +
+          "<textarea id='trFcSms' rows='4' class='rpm-field'>" + inqEsc(texted ? "" : _trSmsText(first)) + "</textarea></div>" +
+          "<div id='trTxStatus' class='tl-msg' style='margin-top:12px'></div>" +
           _tlActs("<button class='link-btn bright' id='trTxBtn' onclick='_trSendText()'>" + SEND_ICON + "<span>Send</span></button>")   // the other Text windows' Send (user, 2026-11-20; was blue with the text icon)
         : "") +
     "</div>";
@@ -1105,8 +1115,8 @@ function _trBookAccepted(name, email) {
     // Left, like Pick a time (2026-09-25, was centered).
     // Titled like Book a trial manually (2026-09-27).
     '<div class="field-label">Trial</div>' +
-    '<div style="margin:0 0 6px">' + _trDtHtml('tb') + '</div>' +
-    '<div id="tbStatus" style="margin-top:12px"></div>' +
+    '<div>' + _trDtHtml('tb') + '</div>' +   // Trial window spacing (user, 2026-11-21)
+    '<div id="tbStatus" class="tl-msg" style="margin-top:12px"></div>' +
     // Bottom right, where every other window in the portal puts the button
     // that ends it. Just "Book": the title says a trial, the line above says
     // when, so the verb is the only word left to add.
@@ -1116,7 +1126,7 @@ function _trBookAccepted(name, email) {
     // and this one creates a calendar event and mails the student.
     // The ✕ in the corner is the way out (2026-09-25, was a Cancel here):
     // the footer holds only the action.
-    '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:24px">' +
+    '<div class="tl-acts" style="display:flex;justify-content:flex-end;gap:8px">' +
       // Trying (2026-09-24): the card's Book face (bright grey + calendar)
       // instead of green, and keyboard-only: Enter on the date/time lands
       // here, Enter again books.
@@ -1310,6 +1320,17 @@ function initTrialStageTab() {
   if (top && typeof TD_BOLTS === 'string' && !top.querySelector(':scope > .td-bolt')) top.insertAdjacentHTML('afterbegin', TD_BOLTS);
   var ic = document.getElementById('trIcon');
   if (ic && !ic.innerHTML) ic.innerHTML = CHECKLIST_ICON.replace(/class="[^"]*"/, 'class="win-icon"');
+  // Documents: the same link rows as the step windows. Terms + Dropbox open the
+  // Drive PDF; the form opens in the pop-up (_tlFormOpen) like Send Terms' Form.
+  var docs = document.getElementById('trDocs');
+  if (docs && !docs.innerHTML) {
+    var row = function (label, attrs) { return '<a class="tl-doc" ' + attrs + '><span>' + label + '</span>' + OPEN_OUT_ICON + '</a>'; };
+    docs.innerHTML = '<div class="tl-docs">' +
+      row('Terms & Conditions', 'href="' + _TL_LINKS.terms + '" target="_blank" rel="noopener"') +
+      row('Dropbox Instructions', 'href="' + DB_PDF_LINK + '" target="_blank" rel="noopener"') +
+      row('Acknowledgment Form', 'href="#" onclick="_tlFormOpen();return false"') +   // order: Terms, Dropbox, Form (user, 2026-11-21)
+    '</div>';
+  }
   if (!url) { body.innerHTML = _trPlate('<div class="empty-state">Set your Apps Script URL in settings first.</div>'); return; }
   body.innerHTML = _trPlate('<div class="section-label">Booked</div><div class="empty-state rpm-loading">Loading</div>');
 
@@ -2520,13 +2541,13 @@ function _trNotContinuing(id, email, name) {
   ov.id = 'trDismissWin';
   ov.innerHTML =
     '<div class="rpm-dlg" role="dialog" aria-modal="true">' +
-      '<div class="settings-title" style="margin-bottom:10px">' +
+      '<div class="settings-title" style="margin-bottom:26px">' +   // Trial window spacing (user, 2026-11-21; was 10)
         '<span>' + inqEsc(name || email) + '<span style="color:var(--muted)"> \u00b7 Dismiss</span></span>' +
         '<button class="settings-close" onclick="_trDismissClose()">\u2715</button>' +
       '</div>' +
       '<div class="rpm-dlg-msg">How did the Trial end?</div>' +
-      '<div id="trDzMsg" style="margin-top:8px"></div>' +
-      '<div class="rpm-dlg-acts" style="justify-content:flex-start">' +
+      '<div id="trDzMsg" class="tl-msg" style="margin-top:8px"></div>' +
+      '<div class="rpm-dlg-acts" style="justify-content:flex-start;margin-top:32px">' +
         '<button class="inq-db no" id="trDzNC" onclick="_trNotContinuingGo(\'' + id + '\',\'' + _trEsc(email) + '\',\'Unsuccessful\')">Not Continued</button>' +
         '<button class="inq-db maybe" id="trDzNS" onclick="_trNotContinuingGo(\'' + id + '\',\'' + _trEsc(email) + '\',\'No Show\')">No Show</button>' +
       '</div>' +
@@ -2651,7 +2672,7 @@ function _tsShowBook() {
   _tsBusy = false;
   // Title above each box, as in every other Trial window (2026-09-26).
   function inp(id, label, type) {
-    return '<div style="flex:1;margin-bottom:16px"><label class="field-label" for="' + id + '">' + label + '</label>' +
+    return '<div style="flex:1;margin-bottom:24px"><label class="field-label" for="' + id + '">' + label + '</label>' +   // Trial window protocol (user, 2026-11-21; was 16)
       '<input class="rpm-field" id="' + id + '" type="' + (type || 'text') + '"></div>';
   }
   document.getElementById('tsModal').innerHTML =
@@ -2663,11 +2684,11 @@ function _tsShowBook() {
     inp('tsEmail', 'Email', 'email') +
     inp('tsPhone', 'Phone', 'tel') +
     '<div class="field-label">Trial</div>' +
-    '<div style="margin:0 0 6px">' + _trDtHtml('ts') + '</div>' +
-    '<div id="tsStatus" style="margin-top:12px"></div>' +
+    '<div>' + _trDtHtml('ts') + '</div>' +
+    '<div id="tsStatus" class="tl-msg" style="margin-top:12px"></div>' +
     // Same footer as the Book window on an inquiry card: green, bottom right,
     // because it creates a calendar event and mails the student.
-    '<div style="display:flex;justify-content:flex-end;margin-top:24px">' +
+    '<div class="tl-acts" style="display:flex;justify-content:flex-end">' +
       '<button class="db-mini-btn go" id="tsBookBtn" ' +
         'onclick="_trBook(\'ts\')" data-tip="Instant.\nCreates the calendar event.\nEmails them the confirmation." data-tip-wrap data-tip-left>Book</button>' +
     '</div>';
@@ -2812,18 +2833,36 @@ function _trThreadEmail(id) {
   var c = _trThreadCache || {};
   var keys = Object.keys(c);
   for (var i = 0; i < keys.length; i++) if (emailToId(keys[i]) === id) return keys[i];
+  // No thread yet (Contact, nothing written): find the card instead (2026-11-21).
+  var cards = (_trAcceptedCache || []).concat(_trStageCache || []);
+  for (var j = 0; j < cards.length; j++) if (cards[j].email && emailToId(cards[j].email) === id) return cards[j].email;
   return '';
 }
 
 var _trThreadWinEmail = '';
 
-function _trThreadWin(id) {
+var _trThreadWinT = null, _trThreadWinCompose = false;
+
+// focus: 'email' | 'text' (Contact's Email / Text buttons) puts the cursor in that side.
+function _trThreadWin(id, focus) {
   var email = _trThreadEmail(id);
-  var t = (_trThreadCache || {})[email];
-  if (!t) return;
-  _trThreadWinEmail = email;
+  if (!email) return;
   var a = _trFindAccepted(email) ||
           _trStageCache.filter(function (c) { return (c.email || '') === email; })[0] || {};
+  // Contact uses this window too (user, 2026-11-21): with nothing written yet there is
+  // no thread, so the window starts empty and the compose boxes hold the first-contact drafts.
+  var t = (_trThreadCache || {})[email];
+  if (!t) {
+    var dg = (a.phone || '').toString().replace(/\D/g, '');
+    if (dg.length > 10) dg = dg.slice(-10);
+    t = { messages: [], phone: dg ? '+1' + dg : '' };
+  }
+  _trThreadWinEmail = email;
+  _trThreadWinT = t;
+  // From Contact's Email / Text buttons (a focus given) it is a COMPOSE window: the email and
+  // the text side by side, no history; Show on the card is the Thread (user, 2026-11-21).
+  var compose = !!focus;
+  _trThreadWinCompose = compose;
   var first = (a.name || '').split(' ')[0];
   var ov = document.getElementById('thOverlay');
   if (!ov) {
@@ -2836,7 +2875,7 @@ function _trThreadWin(id) {
   }
   document.getElementById('thModal').innerHTML =
     '<div class="settings-title"><span>' + inqEsc(a.name || email) +
-      '<span class="win-sub"> · Thread</span></span>' +
+      '<span class="win-sub"> · ' + (compose ? 'Compose' : 'Thread') + '</span></span>' +
       '<button class="settings-close" onclick="_trThreadWinClose()">✕</button></div>' +
     '<div style="margin:4px 0 18px">' + THREAD_WIN_ICON + '</div>' +
     _trBounceRow(t) +
@@ -2848,19 +2887,212 @@ function _trThreadWin(id) {
       // EMAILS / TEXTS sit above the panels, outside their border (user, 2026-11-20).
       var head = function (label) { return '<div class="tr-cell tr-head"><label class="field-label tr-sec-l">' + label + '</label></div>'; };
       var msgs = function (label, list, none) { return '<div class="tr-cell tr-msgs' + (label === 'Emails' ? ' tr-emails' : '') + '">' + (list.length ? '<div class="tr-bubs">' + list.map(function (m) { return _trMsgRow(m, first); }).join('') + '</div>' : '<div class="tr-none">' + none + '</div>') + '</div>'; };
+      // The first-contact templates only when nothing has gone either way yet; once you are
+      // talking (texts or emails), the boxes start empty (user, 2026-11-21: template under Mario's texts was weird).
+      var fresh = !t.messages.length && !!_trFindAccepted(email);
+      // TO as a small title like SUBJECT, the address under it as plain text (user, 2026-11-21).
+      var toLine = function (v) { return compose ? '<div class="th-to"><label class="field-label">To</label><div class="th-to-v">' + inqEsc(v) + '</div></div>' : ''; };
+      // The email's buttons, status and preview. In the Compose window they sit at the bottom right
+      // of the whole window, under the times (user, 2026-11-21); in the Thread under the email box.
+      var emFirst = !t.threadId && !!_trFindAccepted(email);
+      var emTail = (t.threadId || emFirst)
+        ? '<div id="thStatus" style="margin-top:12px"></div>' +
+          _tlActs((emFirst ? '<button class="link-btn" onclick="_trRenderPreview((document.getElementById(\'thBody\')||{}).value||\'\',\'thPrev\')">' + DETAILS_ICON + '<span>Preview</span></button>' : '') +
+            '<button class="link-btn bright" id="thBtn" onclick="' + (emFirst ? '_trThreadWinFirst()' : '_trThreadWinSend(\'' + t.threadId + '\')') + '">' + SEND_ICON + '<span>Send</span></button>') +
+          (emFirst ? '<div id="thPrev"></div>' : '')
+        : '';
+      var emDown = compose && emFirst;   // buttons go to the bottom of the window
       var emReply = t.threadId
-        ? '<div class="tr-cell tr-reply"><label class="field-label" for="thBody">Compose email</label>' +
-            '<textarea id="thBody" rows="4" class="rpm-field"></textarea><div id="thStatus" style="margin-top:12px"></div>' +
-            _tlActs('<button class="link-btn bright" id="thBtn" onclick="_trThreadWinSend(\'' + t.threadId + '\')">' + SEND_ICON + '<span>Send</span></button>') + '</div>'
-        : '<div class="tr-cell tr-reply"></div>';
+        ? '<div class="tr-cell tr-reply">' + toLine(email) + '<label class="field-label" for="thBody">Compose email</label>' +
+            '<textarea id="thBody" rows="4" class="rpm-field"></textarea>' + (emDown ? '' : emTail) + '</div>'
+        // No email thread yet: the first-contact email, with its subject and Preview (2026-11-21).
+        : (emFirst
+          ? '<div class="tr-cell tr-reply">' + toLine(email) + '<label class="field-label" for="thSubject">Subject</label>' +
+              '<input id="thSubject" class="rpm-field" value="About Your Trial Lesson Request" style="margin-bottom:24px">' +
+              '<label class="field-label" for="thBody">Compose email</label>' +
+              '<textarea id="thBody" rows="' + (fresh ? 14 : 4) + '" class="rpm-field">' + (fresh ? inqEsc(_trFirstDraft(email, first)) : '') + '</textarea>' +
+              (emDown ? '' : emTail) + '</div>'
+          : '<div class="tr-cell tr-reply"></div>');
+      // Nothing texted yet: the box starts with the first-contact text, and the button says Send (nothing to reply to).
       var txReply = t.phone
-        ? '<div class="tr-cell tr-reply"><label class="field-label" for="thTxBody">Compose text</label>' +
-            '<textarea id="thTxBody" rows="4" class="rpm-field"></textarea><div id="thTxStatus" style="margin-top:12px"></div>' +
-            _tlActs('<button class="link-btn bright" id="thTxBtn" onclick="_trThreadWinText()">' + REPLY_ICON + '<span>Reply</span></button>') + '</div>'   // emails Send, texts Reply (user, 2026-11-20)
+        ? '<div class="tr-cell tr-reply">' + toLine(_trPhonePretty(t.phone) || t.phone) + '<label class="field-label" for="thTxBody">Compose text</label>' +
+            // Compose window: the text as an editable blue bubble, like the other text windows (user, 2026-11-21).
+            (compose
+              ? '<div class="ts-thread tv-rv-thread rv-thread"><div id="thTxBody" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only">' + (fresh ? inqEsc(_trSmsText(first)) : '') + '</div></div>'
+              : '<textarea id="thTxBody" rows="4" class="rpm-field"></textarea>') +
+            '<div id="thTxStatus" style="margin-top:12px"></div>' +
+            _tlActs('<button class="link-btn bright" id="thTxBtn" onclick="_trThreadWinText()">' +
+              (t.messages.some(function (m) { return m.sms; }) ? REPLY_ICON + '<span>Reply</span>' : SEND_ICON + '<span>Send</span>') + '</button>') + '</div>'   // emails Send, texts Reply (user, 2026-11-20)
         : '<div class="tr-cell tr-reply"></div>';
+      // Third part, full width: the open times to offer, ticked ones written into the email (user, 2026-11-21).
+      var times = _trFindAccepted(email)
+        ? '<div class="tr-cell th-times"><label class="field-label">Available times</label><div id="thTimes"><div class="empty-state rpm-loading">Loading</div></div>' +
+            (emDown ? '<div class="th-foot">' + emTail + '</div>' : '') + '</div>'
+        : '';
+      if (compose) return '<div class="tr-cols th-compose">' + head('Email') + head('Text') + emReply + txReply + times + '</div>';
       return '<div class="tr-cols">' + head('Emails') + head('Texts') + msgs('Emails', em, 'No emails yet') + msgs('Texts', tx, 'No texts yet') + emReply + txReply + '</div>';
     })();
   ov.classList.add('open');
+  if (compose && _trFindAccepted(email)) _trCmpLoadTimes(email);
+  var fe = focus && document.getElementById(focus === 'text' ? 'thTxBody' : 'thBody');
+  if (fe) {
+    fe.focus();
+    if (focus === 'text') {
+      if (fe.setSelectionRange) fe.setSelectionRange(fe.value.length, fe.value.length);
+      else { var rg = document.createRange(); rg.selectNodeContents(fe); rg.collapse(false); var sl = window.getSelection(); sl.removeAllRanges(); sl.addRange(rg); }
+    }
+  }
+}
+
+// ── Compose window: Available times (user, 2026-11-21) ───────────────────────
+// The next two weeks of teaching-grid times, by day: open, half (the free half of
+// a biweekly slot: biweekly only) and pencilled (held for someone's trial, shown
+// dim). A tick writes the time into the email under the times question, in date
+// order; the ticks are saved as offers (3-day holds, card chips) only when the
+// email goes out. Same rules as the Available times window (_trAvSquare).
+var _trCmp = null;   // { email, picks: [{date, time}], orig: [{date, time}] }
+var _TR_LABEL_RE = /^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{1,2}, \d{1,2}:\d{2} (am|pm)$/;
+
+function _trCmpLoadTimes(email) {
+  var url = getScriptUrl();
+  var box = document.getElementById('thTimes');
+  if (!url || !box) return;
+  var mine = _trOffersFor(email).map(function (o) { return { date: o.date, time: o.time }; });
+  _trCmp = { email: email, picks: mine.slice(), orig: mine.slice(), cells: null };
+  var fixed  = fetch(url + '?action=getFixedCalendar').then(function (r) { return r.json(); });
+  var events = new Promise(function (res) { _trLoadAvEvents(res); });
+  Promise.all([fixed, events]).then(function (r) {
+    if (!_trCmp || _trCmp.email !== email) return;
+    if (!r[0] || !r[0].success || !r[1]) { rpmFail(box, 'Could not read the calendar', 'left'); return; }
+    _trCmp.cells = _fcCells(r[0].students || [], r[0].pencilled || []);
+    _trCmpPaint();
+  }).catch(function () { rpmFail(box, 'Could not read the calendar', 'left'); });
+}
+
+function _trCmpPaint() {
+  var box = document.getElementById('thTimes');
+  if (!box || !_trCmp || !_trCmp.cells) return;
+  // Three columns (user, 2026-11-21): Weekly spots once each, at their next free date
+  // (Week A or B doesn't matter for them); Biweekly spots tagged with their free week;
+  // Pencilled, held for someone's trial, dim.
+  var w = _trAvWeeks(), anchorA = new Date(2026, 8, 14);
+  var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var cols = { open: [], half: [], pencilled: [] }, seen = {};
+  for (var k = 0; k < 14; k++) {
+    var day = new Date(w.mon.getFullYear(), w.mon.getMonth(), w.mon.getDate() + k);
+    if (day <= w.today) continue;
+    var dIdx = k % 7, date = _trYmd(day);
+    var monK = new Date(w.mon.getFullYear(), w.mon.getMonth(), w.mon.getDate() + (k < 7 ? 0 : 7));
+    var wk = (Math.round((monK - anchorA) / 604800000) % 2 + 2) % 2 === 0 ? 'A' : 'B';
+    (FC_GRID[dIdx] || []).forEach(function (m) {
+      if (_trAvBusy(date, m)) return;
+      var c = _trCmp.cells[dIdx + '|' + m];
+      var holder = c && (c.weekly[0] || c[wk][0]);
+      if (holder && !holder.pencil) return;
+      var kind = holder ? 'pencilled' : (c ? 'half' : 'open');
+      if (kind === 'open') { if (seen[dIdx + '|' + m]) return; seen[dIdx + '|' + m] = true; }
+      var time = _trHhmm(m), h = Math.floor(m / 60);
+      var on = _trCmp.picks.some(function (p) { return p.date === date && p.time === time; });
+      var tip = kind === 'pencilled' ? 'Pencilled for ' + holder.name + '\'s trial.' : kind === 'half' ? 'Biweekly only, opposite ' + (c.A[0] || c.B[0]).name + '.' : 'Open, weekly or biweekly.';
+      cols[kind].push('<label class="th-t' + (kind === 'pencilled' ? ' pen' : '') + '" data-tip="' + _msAttr(tip) + '" data-tip-left>' +
+          '<input type="checkbox"' + (on ? ' checked' : '') + ' onchange="_trCmpPick(\'' + date + '\',\'' + time + '\',this.checked)">' +
+          '<span class="th-tt">' + DAYS[day.getDay()] + ', ' + MON[day.getMonth()] + ' ' + day.getDate() + ' \u00b7 ' + _trShortTime(m) + (h < 12 ? ' am' : ' pm') + '</span>' +
+          (kind === 'half' ? '<span class="th-tag">Week ' + wk + '</span>' : '') +
+        '</label>');
+    });
+  }
+  var col = function (title, list) {
+    return '<div class="th-col"><div class="th-col-l">' + title + '</div>' + (list.length ? list.join('') : '<div class="th-none">None</div>') + '</div>';
+  };
+  // Which week is which, first (user, 2026-11-21): the Biweekly tags read against it.
+  var wkOf = function (n) { var mm = new Date(w.mon.getFullYear(), w.mon.getMonth(), w.mon.getDate() + n * 7); return (Math.round((mm - anchorA) / 604800000) % 2 + 2) % 2 === 0 ? 'A' : 'B'; };
+  box.innerHTML = '<div class="th-wkline">This week: Week ' + wkOf(0) + '</div>' +   // next week is the other one (user, 2026-11-21)
+    '<div class="th-cols">' + col('Weekly spots', cols.open) + col('Biweekly spots', cols.half) + col('Pencilled', cols.pencilled) + '</div>';
+}
+
+// A tick adds or takes out the time, then the email's times block is rewritten.
+function _trCmpPick(date, time, on) {
+  if (!_trCmp) return;
+  _trCmp.picks = _trCmp.picks.filter(function (p) { return !(p.date === date && p.time === time); });
+  if (on) _trCmp.picks.push({ date: date, time: time });
+  _trCmp.picks.sort(function (x, y) { return (x.date + x.time) < (y.date + y.time) ? -1 : 1; });
+  var ta = document.getElementById('thBody');
+  if (!ta) return;
+  var labels = _trCmp.picks.map(function (p) { return _trOfferLabel(p); });
+  var val = ta.value, i = val.indexOf(_TR_OFFER_Q);
+  if (i !== -1) {
+    // Under the question: Q, a blank line, the times, a blank line, the rest.
+    var rest = val.slice(i + _TR_OFFER_Q.length).replace(/^\n\n/, '');
+    var lines = rest.split('\n');
+    while (lines.length && _TR_LABEL_RE.test(lines[0])) lines.shift();
+    rest = lines.join('\n').replace(/^\n+/, '');
+    ta.value = val.slice(0, i) + _TR_OFFER_Q + '\n\n' + (labels.length ? labels.join('\n') + '\n\n' : '\n\n\n') + rest;
+  } else {
+    // A reply with no question: the times sit at the end.
+    var ls = val.replace(/\n+$/, '').split('\n');
+    while (ls.length && _TR_LABEL_RE.test(ls[ls.length - 1])) ls.pop();
+    var base = ls.join('\n').replace(/\n+$/, '');
+    ta.value = base + (labels.length ? (base ? '\n\n' : '') + labels.join('\n') : '');
+  }
+}
+
+// After the email went out: what was ticked becomes the offers (setOffer, same as Available times).
+function _trCmpSaveOffers(email) {
+  var url = getScriptUrl();
+  if (!url || !_trCmp || _trCmp.email !== email) return;
+  var a = _trFindAccepted(email) || {}, key = function (p) { return p.date + ' ' + p.time; };
+  var was = _trCmp.orig.map(key), now = _trCmp.picks.map(key);
+  var add = _trCmp.picks.filter(function (p) { return was.indexOf(key(p)) === -1; });
+  var drop = _trCmp.orig.filter(function (p) { return now.indexOf(key(p)) === -1; });
+  var u = new Date(); u.setDate(u.getDate() + 3);
+  add.forEach(function (p) { _trOffers.push({ email: email, name: a.name || email, date: p.date, time: p.time, until: _trYmd(u) }); });
+  _trOffers = _trOffers.filter(function (o) { return !(o.email === email && drop.some(function (p) { return p.date === o.date && p.time === o.time; })); });
+  _trCmp.orig = _trCmp.picks.slice();
+  _trPaintOfferLines();
+  add.map(function (p) { return [p, 1]; }).concat(drop.map(function (p) { return [p, 0]; })).forEach(function (x) {
+    fetch(url + '?action=setOffer&email=' + encodeURIComponent(email) + '&name=' + encodeURIComponent(a.name || '') +
+          '&date=' + x[0].date + '&time=' + x[0].time + '&on=' + x[1])
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (!d.success) throw d.message || ''; })
+      .catch(function () { rpmToast('fail', 'Unsuccessful', 'The email went out, but an offered time was not saved'); });
+  });
+}
+
+// The first email to someone in Contact, sent from the Thread window (2026-11-21).
+// Same call as the old Compose window (sendFirstContact, the inquiry's col).
+function _trThreadWinFirst() {
+  var url = getScriptUrl(), email = _trThreadWinEmail;
+  var st = document.getElementById('thStatus'), btn = document.getElementById('thBtn');
+  var win = document.getElementById('thModal'), ov = document.getElementById('thOverlay');
+  var body = (document.getElementById('thBody') || {}).value || '';
+  var subject = (document.getElementById('thSubject') || {}).value || '';
+  if (!url || !email) return;
+  if (!body.trim()) { rpmHalf(st, 'Write something first'); return; }
+  st.innerHTML = '';
+  btn.disabled = true; _trSetLabel(btn, 'Sending…');
+  rpmBusy(win, btn, true); ov._busy = true;
+  var card = _trFindAccepted(email);
+  fetch(url + '?action=sendFirstContact&email=' + encodeURIComponent(email) +
+        '&col=' + encodeURIComponent((card && card.col) || '') +
+        '&subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      rpmBusy(win, btn, false); ov._busy = false;
+      if (!d.success) { btn.disabled = false; _trSetLabel(btn, 'Send'); rpmFail(st, d.message || ''); return; }
+      _trSetLabel(btn, 'Sent ✓');
+      _trCmpSaveOffers(email);
+      _trLoadAccepted();
+      var id = emailToId(email);
+      _trRefreshThreads(function () {
+        var o = document.getElementById('thOverlay');
+        if (o && o.classList.contains('open')) _trThreadWin(id);   // after a send the window is the Thread (user, 2026-11-21)
+      });
+    })
+    .catch(function () {
+      rpmBusy(win, btn, false); ov._busy = false;
+      btn.disabled = false; _trSetLabel(btn, 'Send');
+      rpmFail(st, 'No answer from Google. It may have gone out: check Sent mail before sending again.');
+    });
 }
 
 function _trThreadWinClose() {
@@ -2887,10 +3119,11 @@ function _trThreadWinSend(threadId) {
       // Success says nothing: the button reads Sent ✓, then the window redraws
       // with the reply in the thread and the cards behind it catch up.
       _trSetLabel(btn, 'Sent ✓');
+      _trCmpSaveOffers(_trThreadWinEmail);
       var id = emailToId(_trThreadWinEmail || '');
       _trRefreshThreads(function () {
         var o = document.getElementById('thOverlay');
-        if (o && o.classList.contains('open')) _trThreadWin(id);
+        if (o && o.classList.contains('open')) _trThreadWin(id);   // after a send the window is the Thread (user, 2026-11-21)
       });
       // From a Trial card, still repaint Initiate so its New message flag clears.
       var trial = document.getElementById('tab-trial');
@@ -2904,16 +3137,17 @@ function _trThreadWinSend(threadId) {
 }
 
 function _trThreadWinText() {
-  var t = (_trThreadCache || {})[_trThreadWinEmail];
+  var t = (_trThreadCache || {})[_trThreadWinEmail] || _trThreadWinT;   // no thread yet: the phone from the card
   if (!t || !t.phone) return;
-  _trTextSend(t.phone, (document.getElementById('thTxBody') || document.getElementById('thBody') || {}).value || '',   // the texts side's own box (2026-11-20)
+  var tb = document.getElementById('thTxBody') || document.getElementById('thBody') || {};
+  _trTextSend(t.phone, (tb.tagName === 'DIV' ? tb.innerText : tb.value) || '',   // the bubble is a contenteditable div   // the texts side's own box (2026-11-20)
     document.getElementById('thTxBtn'), document.getElementById('thTxStatus') || document.getElementById('thStatus'),
     document.getElementById('thModal'), document.getElementById('thOverlay'),
     function () {
       var id = emailToId(_trThreadWinEmail || '');
       _trRefreshThreads(function () {
         var o = document.getElementById('thOverlay');
-        if (o && o.classList.contains('open')) _trThreadWin(id);
+        if (o && o.classList.contains('open')) _trThreadWin(id);   // after a send the window is the Thread (user, 2026-11-21)
       });
       var trial = document.getElementById('tab-trial');
       if (trial && trial.classList.contains('active')) _trLoadThreads();
