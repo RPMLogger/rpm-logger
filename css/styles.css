@@ -994,7 +994,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 .tr-step   { display: flex; align-items: center; gap: 9px; }
 /* The gutter reads the same whether or not the step is done: the list is one
    checklist, and fading the finished half made the card look half broken. */
-.tr-step-n { font-family: "DM Mono", monospace; font-size: 9px; color: var(--t-normal); width: 13px; text-align: right; flex: none; }
+.tr-step-n { font-family: "DM Mono", monospace; font-size: 9px; color: var(--t-faint); width: 13px; text-align: right; flex: none; }   /* numbers dim, the step names carry it (user, 2026-11-21; was --t-normal) */
 /* Every step wears the same face: full white on a lit border, done or not. A
    done step says so with its tick, nothing else. The greyed-out done state
    made a nearly finished card look disabled, which is the opposite of true.
@@ -6370,9 +6370,9 @@ html, html * { scrollbar-color: auto !important; scrollbar-width: auto !importan
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-thumb { border-radius: 3px; }
 /* Text template windows (Reviews Templates / Nudge, Today No show / Zoom lesson, Optional schedule; user, 2026-11-20): no dark box around each bubble, and the bubble gets the Comms tail at the bottom right (user, 2026-11-20) */
-html body :is(#rvTplWin, #tdNsWin, #tdZmWin, #ttOsWin) .rv-thread { background: transparent !important; border: 0 !important; padding: 8px 0 22px !important; }
-html body :is(#rvTplWin, #tdNsWin, #tdZmWin, #ttOsWin) .rv-bub { position: relative; border-radius: 16px !important; overflow: visible !important; }
-html body :is(#rvTplWin, #tdNsWin, #tdZmWin, #ttOsWin) .rv-bub::after { content: ""; position: absolute; bottom: -1px; right: -7px; width: 12px; height: 16px; background: inherit; pointer-events: none;
+html body :is(#rvTplWin, #tdNsWin, #tdZmWin, #ttOsWin, #msModal) .rv-thread { background: transparent !important; border: 0 !important; padding: 8px 0 22px !important; }
+html body :is(#rvTplWin, #tdNsWin, #tdZmWin, #ttOsWin, #msModal) .rv-bub { position: relative; border-radius: 16px !important; overflow: visible !important; }
+html body :is(#rvTplWin, #tdNsWin, #tdZmWin, #ttOsWin, #msModal) .rv-bub::after { content: ""; position: absolute; bottom: -1px; right: -7px; width: 12px; height: 16px; background: inherit; pointer-events: none;
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M0 0 Q0.5 11 12 16 Q4 16.5 0 13.5 Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%;
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M0 0 Q0.5 11 12 16 Q4 16.5 0 13.5 Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; }
 html body :is(#rvTextWin, #rvMailWin, #trTxModal, #trFcModal) .td-mini-row { gap: 5px; }   /* "To:" right next to the number, a normal word space (user, 2026-11-20; was 14px) */
@@ -6495,3 +6495,30 @@ html body #thModal > .settings-title { margin-left: -24px; margin-right: -24px; 
 /* Thread, emails side (user, 2026-11-20): yours a soft red, theirs a lighter grey than the texts' */
 html body #thModal .tr-emails .tr-bub.out { background: oklch(0.47 0.11 20) !important; border-color: oklch(0.47 0.11 20) !important; color: oklch(0.92 0.01 20) !important; }   /* a light red, not brown (user, 2026-11-20) */
 html body #thModal .tr-emails .tr-bub.in { background: color-mix(in srgb, var(--muted) 52%, #131313) !important; border-color: color-mix(in srgb, var(--muted) 52%, #131313) !important; }
+/* Emails side: no bubble tails, texts keep theirs (user, 2026-11-20) */
+html body #thModal .tr-emails .tr-bub::after { display: none; }
+/* Thread: EMAILS / TEXTS labels above the panels, outside the border (user, 2026-11-20) */
+html body #thModal > .settings-title { border-bottom: 0; padding-bottom: 18px; }
+html body #thModal .tr-cols > .tr-cell.tr-head { padding: 4px 24px 10px; background: none !important; border-left: 0 !important; border-bottom: 1px solid rgba(255,255,255,0.07); }
+html body #thModal .tr-cols > .tr-cell.tr-head .tr-sec-l { margin: 0; }
+html body #thModal .tr-emails .tr-bub.out { background: oklch(0.52 0.13 55) !important; border-color: oklch(0.52 0.13 55) !important; color: #fff !important; }   /* full header red (user, 2026-11-20) */
+html body #thModal .tr-emails .tr-bub.in { background: color-mix(in srgb, var(--muted) 22%, #131313) !important; border-color: color-mix(in srgb, var(--muted) 22%, #131313) !important; }   /* their emails darker, to sit with the deeper red (user, 2026-11-20) */
+html body #thModal .tr-emails .tr-bub { max-width: none; width: 100%; box-sizing: border-box; align-self: stretch; }   /* emails full width, unlike texts (user, 2026-11-20) */
+html body #thModal .tr-cols > .tr-cell.tr-reply { background: none; }   /* reply row = the title's background, top and bottom match (user, 2026-11-20) */
+/* Make student: decided values as plain text, not entry boxes (user, 2026-11-21) */
+html body :is(#msModal, #tlModal) .ms-val { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); margin-top: 6px; }   /* same colour and size as typed text in the boxes */
+/* Make student: a line edge to edge between the form and the welcome text (user, 2026-11-21) */
+html body #msModal #msPreview > div { margin: 20px -24px 0 !important; padding: 20px 24px 0; border-top: 1px solid rgba(255,255,255,0.07); }
+/* Date/time picker DAY / TIME tabs = the small-title standard (user, 2026-11-21; were 10px, 1px, --t-faint). Travel's dates keep their own. */
+html body :is(.dtp-lab, #_a#_b#_c):not(.tv-dates .dtp-lab) { font-size: 11px; letter-spacing: 2px; color: #7c7c7c; }
+/* Trial Lesson step windows spaced out (user, 2026-11-21): label → box 10px (was 7), sections 24px apart (in trial.js, was 16) */
+html body #tlModal .field-label { margin-bottom: 10px; }
+html body #tlModal > .settings-title { margin-bottom: 26px; }   /* more room under the title (user, 2026-11-21; was 16) */
+/* TRIAL LESSON WINDOWS - one spacing protocol (user, 2026-11-21):
+   title → first item 26 · small title → its value 10 · item → item 24 · last item → buttons 32 · buttons → preview 20 (trial.js) */
+html body :is(#tlModal, #msModal) .tl-f + .tl-f, html body #msModal .ms-gap { margin-top: 24px !important; }
+html body :is(#tlModal, #msModal) .tl-msg:empty { display: none; }
+html body :is(#tlModal, #msModal) .tl-acts { margin-top: 32px !important; }
+/* Make student follows the Trial window protocol too (user, 2026-11-21) */
+html body #msModal > .settings-title { margin-bottom: 26px; }
+html body #msModal .field-label { margin-bottom: 10px; }

@@ -293,7 +293,7 @@ function _tdNsSave(i) {
 // Pick a student, get the Zoom instructions text (PDF link, big screen, audio,
 // the lesson room link, see you, wait up to 5 minutes) to copy into Messages.
 // Opened from Comms ▸ Templates; pick the student in the window (2026-11-05). Edit freely; nothing is saved.
-var ZM_PDF = 'https://github.com/RPMLogger/rpm-logger/blob/main/Zoom%20Instructions%20-%202026.pdf';
+var ZM_PDF = 'https://drive.google.com/file/d/1mPU8jM5O71GV7GBV4_Li97KkFRxefDgX/view?usp=sharing';   // the Drive copy (user, 2026-11-21; was GitHub)
 var ZM_LINK = 'https://us02web.zoom.us/j/3404335872';
 var _zmName = '', _zmTime = '';
 function _tdZmOpen() {

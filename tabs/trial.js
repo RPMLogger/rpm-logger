@@ -1662,14 +1662,14 @@ function _tlSection(title) {
 }
 
 function _tlMsg(id) {
-  return '<div id="' + id + '" style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:6px;min-height:14px"></div>';
+  return '<div class="tl-msg" id="' + id + '" style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--muted);margin-top:6px;min-height:14px"></div>';
 }
 
 // The row a step's buttons sit in: bottom right, where Save and Book sit.
 // One face for all of them (.link-btn): the action bright grey, anything
 // beside it dim, green only once it has worked (2026-09-25).
 function _tlActs(html) {
-  return '<div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:16px">' + html + '</div>';
+  return '<div class="tl-acts" style="display:flex;justify-content:flex-end;align-items:center;gap:8px">' + html + '</div>';
 }
 
 function _tlRender() {
@@ -1685,7 +1685,7 @@ function _tlRender() {
     // action, bottom right, bright grey (green is for done, and an unpressed
     // Save isn't). Steps with nothing to save have no footer at all.
     (_tl.step === 'info' || _tl.step === 'freq'
-      ? '<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">' +
+      ? '<div class="tl-acts" style="display:flex;justify-content:flex-end;gap:8px">' +
           (_tl.step === 'info'
             ? '<button class="link-btn bright" id="tlInfoSave" onclick="_tlSaveInfo()">Save</button>'
             : '<button class="link-btn bright" id="tlFreqSave" onclick="_tlSaveFreq()">Save</button>') +
@@ -1712,7 +1712,7 @@ function _tlInfoHtml(a, s) {
   return '<div style="margin:4px 0 18px">' + INFO_ICON + '</div>' +
   _TR_INFO.map(function (f) {
     var v = inqEsc(val(f.key));
-    return '<div style="margin-bottom:16px">' +
+    return '<div class="tl-f">' +
         '<div class="field-label">' + f.label + '</div>' +
         (f.multi
           ? '<textarea id="tli-' + f.key + '" rows="3" class="rpm-field">' + v + '</textarea>'
@@ -1745,21 +1745,44 @@ function _tlDbxHtml(a, s) {
   // expect the folder to be exactly the student's full name.
   return '<div style="margin:4px 0 18px">' + DBX_ICON + '</div>' +
     // Same rhythm as Info: label on its box, 16px to the next label.
-    '<div style="margin-bottom:16px">' +
+    '<div class="tl-f">' +
       '<div class="field-label">Folder name</div>' +
       // A box like the email's so the two values line up, but read-only:
       // Send HW and Make Student find the folder by the student's full name.
-      '<input class="rpm-field" id="tlDbxFolder" readonly tabindex="-1" style="cursor:default" value="' + _msAttr(a.name || '') + '">' +
+      '<div class="ms-val" id="tlDbxFolder">' + inqEsc(a.name || '') + '</div>' +   // plain text, not a box (user, 2026-11-21)
     '</div>' +
-    '<label class="field-label" for="tlDbxEmail">Account email</label>' +
-    '<input class="rpm-field" id="tlDbxEmail" value="' + _msAttr(dbxEmail) + '"' + (made ? ' disabled' : '') + '>' +
+    '<div class="tl-f"><label class="field-label" for="tlDbxEmail">Account email</label>' +
+    '<input class="rpm-field" id="tlDbxEmail" value="' + _msAttr(dbxEmail) + '"' + (made ? ' disabled' : '') + '></div>' +
     // Create & share also emails the Dropbox Instructions (2026-11-12).
-    '<div class="field-label" style="margin-top:16px">Email \u00b7 Dropbox Instructions</div>' +
-    '<div class="tl-docs"><a class="tl-doc" href="' + DB_PDF_LINK + '" target="_blank" rel="noopener"><span>Dropbox Instructions - 2026.pdf</span>' + OPEN_OUT_ICON + '</a></div>' +
+    '<div class="tl-f"><div class="field-label">Email \u00b7 Dropbox Instructions</div>' +
+    '<div class="tl-docs"><a class="tl-doc" href="' + DB_PDF_LINK + '" target="_blank" rel="noopener"><span>Dropbox Instructions - 2026.pdf</span>' + OPEN_OUT_ICON + '</a></div></div>' +
     _tlMsg('tlDbxMsg') +
-    _tlActs('<button class="link-btn ' + (made ? 'green' : 'bright') + '" id="tlDbxBtn"' +
+    _tlActs('<button class="link-btn" id="tlDbxPrevBtn" onclick="_tlDbxPreview()">' + DETAILS_ICON + '<span>Preview</span></button>' +
+      '<button class="link-btn ' + (made ? 'green' : 'bright') + '" id="tlDbxBtn"' +
       (made ? ' disabled' : '') + ' onclick="_tlDropbox()">' +
-      (made ? 'Folder made ✓' : 'Create & share') + '</button>');
+      (made ? 'Folder made ✓' : 'Create & share') + '</button>') +
+    '<div id="tlDbxPrev"></div>';
+}
+
+// Preview the Dropbox Instructions email the way every other Preview does:
+// the real house email on dimmed paper, from the read-only previewFirstContact
+// (same wrapper rpmSendHouseEmail_ uses). Body copied from RPM_Dropbox.js
+// _dbSendInstructions_ fallback: change it there too (user, 2026-11-21).
+var TL_DBX_BODY = 'Here are the instructions on how to manage OUR SHARED Dropbox folder.';
+// Shown like Send Terms' preview: subject on the paper, no ✕ / Hide (user, 2026-11-21).
+// Subject copied from _dbSendInstructions_ too.
+function _tlDbxPreview() {
+  var url = getScriptUrl(), box = document.getElementById('tlDbxPrev');
+  if (!url || !box || !_tl) return;
+  box.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  fetch(url + '?action=previewFirstContact&body=' + encodeURIComponent(TL_DBX_BODY))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!_tl) return;
+      if (!d.success) { rpmFail(box, d.message || 'No preview'); return; }
+      box.innerHTML = _tlPreviewHtml('Dropbox Instructions', d.html, _tl.card.email);
+    })
+    .catch(function () { rpmFail(box, 'could not reach Google'); });
 }
 
 // ── Log lesson ──
@@ -1780,7 +1803,7 @@ function _tlLogHtml(a, s) {
       '<button class="link-btn tl-mic" id="tlMicBtn" data-tip="Instant.\nStarts or stops dictation." data-tip-left onclick="_tlMic()">' + MIC_ICON + '</button>' +
     '</div>' +
     llAddHtml() +
-    '<div class="ll-acts" style="margin-top:16px">' +
+    '<div class="ll-acts tl-acts">' +
       '<span class="ll-state" id="tlWhatMsg" style="flex:1"></span>' +
       '<button class="link-btn bright" id="tlLogBtn" data-tip="' + LL_LOG_TIP + '" data-tip-left onclick="_tlLogWhat()" disabled>＋ Log</button>' +
     '</div>';
@@ -2072,11 +2095,17 @@ function _tlPayHtml(a, s) {
     return '<div style="margin:4px 0 18px">' + PAY_ICON + '</div>' +
       '<div class="pt-sum" style="margin-top:0">' + html + '</div>';
   };
+  // Paid = small title PAID on top, the details under it in plain small text,
+  // like Dropbox's Folder name (user, 2026-11-21; was one caps line).
+  var paid = function (detail) {
+    return '<div style="margin:4px 0 18px">' + PAY_ICON + '</div>' +
+      '<div class="field-label">Paid</div><div class="ms-val">' + detail + '</div>';
+  };
   if (p) {
     var date = String(p.date || '').replace(/,?\s*\d{4}$/, '');
-    return line('Paid · ' + inqEsc(p.method || '') + ' ' + inqEsc(p.amount || '') + ' · ' + inqEsc(date));
+    return paid(inqEsc(p.method || '') + ' ' + inqEsc(p.amount || '') + ' · ' + inqEsc(date));
   }
-  if (s.paid === true || String(s.paid || '').toUpperCase() === 'TRUE') return line('Paid · ticked on the Trial row');
+  if (s.paid === true || String(s.paid || '').toUpperCase() === 'TRUE') return paid('Ticked on the Trial row');
   return line('<span class="pt-freq">Not paid</span>');
 }
 
@@ -2087,7 +2116,6 @@ function _tlPayHtml(a, s) {
 // Same links as TL_LINK_* in RPM_TrialLesson.gs - change them in both places.
 var _TL_LINKS = {
   dropbox: 'https://drive.google.com/file/d/1OnCnnQi9AuEqz9oZs0Dru3iF98SKxFjJ/view?usp=sharing',
-  phone:   'https://drive.google.com/file/d/1iZRyYgyU5hLDMDOiUugqNgcVVQkr89gn/view?usp=sharing',
   terms:   'https://drive.google.com/file/d/1u-gC8TH6lFhCdR4VMuHXviZG8MbTWU6g/view?usp=sharing',
   form:    'https://docs.google.com/forms/d/e/1FAIpQLSeBKLJUKPqf6ExNsfvD5pdt9UqR1nNt6Flu_VJv6LMsCFCfug/viewform'
 };
@@ -2103,12 +2131,39 @@ function _tlEmailHtml(which, list, sent, lockNote) {
     }).join('') + '</div>' +
     _tlMsg('tlMsg-' + which) +
     // A locked Send says why in its tooltip, not in a line beside it.
-    _tlActs('<button class="link-btn" onclick="_tlPreview(\'' + which + '\')">' + DETAILS_ICON + '<span>Preview</span></button>' +
+    _tlActs((which === 'terms' ? '<button class="link-btn" onclick="_tlFormOpen()"><span>Form</span></button>' : '') +   // the real form in a pop-up (user, 2026-11-21)
+      '<button class="link-btn" onclick="_tlPreview(\'' + which + '\')">' + DETAILS_ICON + '<span>Preview</span></button>' +
       '<button class="link-btn ' + (sent ? 'green' : 'bright') + '" id="tlSendBtn-' + which + '"' +
         (lockNote && !sent ? ' data-tip="' + lockNote + '" data-tip-wrap data-tip-left' : '') +
         (sent || lockNote ? ' disabled' : ' onclick="_tlSend(\'' + which + '\')"') + '>' +
         (sent ? '<span>Sent ✓</span>' : SEND_ICON + '<span>Send</span>') + '</button>') +
     '<div id="tlPreview-' + which + '"></div>';
+}
+
+// The Acknowledgment Form itself in a pop-up over Send Terms, Google's own
+// embedded view. It is the live form: submitting here is a real answer, so
+// look, don't fill (user, 2026-11-21).
+function _tlFormOpen() {
+  var ov = document.getElementById('tlFormOverlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.className = 'settings-overlay';
+    ov.id = 'tlFormOverlay';
+    ov.innerHTML = '<div class="settings-modal" id="tlFormModal" style="max-width:760px;width:94vw">' +
+      '<div class="settings-title"><span>Acknowledgment Form<span class="win-sub"> · What the student fills out</span></span>' +
+        '<button class="settings-close" onclick="_tlFormClose()">✕</button></div>' +
+      '<iframe id="tlFormFrame" title="Acknowledgment Form" style="display:block;width:100%;height:70vh;border:0;border-radius:8px;background:#fff"></iframe>' +
+    '</div>';
+    ov.addEventListener('click', function (e) { if (e.target === ov) _tlFormClose(); });
+    document.body.appendChild(ov);
+  }
+  var f = document.getElementById('tlFormFrame');
+  if (!f.getAttribute('src')) f.src = _TL_LINKS.form.replace(/\?.*$/, '') + '?embedded=true';
+  ov.classList.add('open');
+}
+function _tlFormClose() {
+  var ov = document.getElementById('tlFormOverlay');
+  if (ov) ov.classList.remove('open');
 }
 
 function _tlTermsHtml(a, s) {
@@ -2129,8 +2184,8 @@ function _tlStatusHtml(a, s) {
   var sent = s.termsSent ? (rec.sentDate || s.sentDate || 'Sent') : 'Not sent';
   var back = s.termsBack ? (rec.returnDate || s.returnDate || 'Back') : (s.termsSent ? 'Waiting' : 'Not sent yet');
   function box(label, v) {
-    return '<div style="margin-bottom:16px"><div class="field-label">' + label + '</div>' +
-      '<input class="rpm-field" readonly tabindex="-1" style="cursor:default" value="' + _msAttr(v) + '"></div>';
+    return '<div class="tl-f"><div class="field-label">' + label + '</div>' +
+      '<div class="ms-val">' + inqEsc(v) + '</div></div>';   // plain text, not a box (user, 2026-11-21)
   }
   return '<div style="margin:4px 0 18px">' + STATUS_ICON + '</div>' +
     box('Terms sent on', sent) + box('Terms back on', back);
@@ -2357,7 +2412,7 @@ function _tlPreviewHtml(subject, html, to) {
   var body = String(html || '').replace(/cid:logo/g, new URL('img/email-logo.png', location.href).href);
   // No To line (the window already says who). The subject sits inside the
   // white card, above the body, set apart by a rule (2026-09-26).
-  return '<div style="margin-top:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden">' +
+  return '<div style="margin-top:20px;border:1px solid var(--border);border-radius:10px;overflow:hidden">' +
       '<div class="fc-preview" style="background:#d9d5ce;color:#1b1b1b;padding:16px 18px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6">' +
         '<div style="padding-bottom:10px;margin-bottom:14px;border-bottom:1px solid #b9b5ad">SBJ: ' + inqEsc(subject || '') + '</div>' +
         body + '</div>' +
@@ -2790,18 +2845,20 @@ function _trThreadWin(id) {
     // a line under the title, one down the middle, one between the messages and the replies.
     (function () {
       var tx = t.messages.filter(function (m) { return m.sms; }), em = t.messages.filter(function (m) { return !m.sms; });
-      var msgs = function (label, list, none) { return '<div class="tr-cell tr-msgs' + (label === 'Emails' ? ' tr-emails' : '') + '"><label class="field-label tr-sec-l">' + label + '</label>' + (list.length ? '<div class="tr-bubs">' + list.map(function (m) { return _trMsgRow(m, first); }).join('') + '</div>' : '<div class="tr-none">' + none + '</div>') + '</div>'; };
+      // EMAILS / TEXTS sit above the panels, outside their border (user, 2026-11-20).
+      var head = function (label) { return '<div class="tr-cell tr-head"><label class="field-label tr-sec-l">' + label + '</label></div>'; };
+      var msgs = function (label, list, none) { return '<div class="tr-cell tr-msgs' + (label === 'Emails' ? ' tr-emails' : '') + '">' + (list.length ? '<div class="tr-bubs">' + list.map(function (m) { return _trMsgRow(m, first); }).join('') + '</div>' : '<div class="tr-none">' + none + '</div>') + '</div>'; };
       var emReply = t.threadId
-        ? '<div class="tr-cell tr-reply"><label class="field-label" for="thBody">Email reply</label>' +
+        ? '<div class="tr-cell tr-reply"><label class="field-label" for="thBody">Compose email</label>' +
             '<textarea id="thBody" rows="4" class="rpm-field"></textarea><div id="thStatus" style="margin-top:12px"></div>' +
-            _tlActs('<button class="link-btn bright" id="thBtn" onclick="_trThreadWinSend(\'' + t.threadId + '\')">' + REPLY_ICON + '<span>Reply</span></button>') + '</div>'
+            _tlActs('<button class="link-btn bright" id="thBtn" onclick="_trThreadWinSend(\'' + t.threadId + '\')">' + SEND_ICON + '<span>Send</span></button>') + '</div>'
         : '<div class="tr-cell tr-reply"></div>';
       var txReply = t.phone
-        ? '<div class="tr-cell tr-reply"><label class="field-label" for="thTxBody">Text</label>' +
+        ? '<div class="tr-cell tr-reply"><label class="field-label" for="thTxBody">Compose text</label>' +
             '<textarea id="thTxBody" rows="4" class="rpm-field"></textarea><div id="thTxStatus" style="margin-top:12px"></div>' +
-            _tlActs('<button class="link-btn bright" id="thTxBtn" onclick="_trThreadWinText()">' + SEND_ICON + '<span>Send</span></button>') + '</div>'
+            _tlActs('<button class="link-btn bright" id="thTxBtn" onclick="_trThreadWinText()">' + REPLY_ICON + '<span>Reply</span></button>') + '</div>'   // emails Send, texts Reply (user, 2026-11-20)
         : '<div class="tr-cell tr-reply"></div>';
-      return '<div class="tr-cols">' + msgs('Emails', em, 'No emails yet') + msgs('Texts', tx, 'No texts yet') + emReply + txReply + '</div>';
+      return '<div class="tr-cols">' + head('Emails') + head('Texts') + msgs('Emails', em, 'No emails yet') + msgs('Texts', tx, 'No texts yet') + emReply + txReply + '</div>';
     })();
   ov.classList.add('open');
 }
@@ -2826,7 +2883,7 @@ function _trThreadWinSend(threadId) {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       rpmBusy(win, btn, false); ov._busy = false;
-      if (!d.success) { btn.disabled = false; _trSetLabel(btn, 'Reply'); rpmFail(st, d.message || ''); return; }
+      if (!d.success) { btn.disabled = false; _trSetLabel(btn, 'Send'); rpmFail(st, d.message || ''); return; }
       // Success says nothing: the button reads Sent ✓, then the window redraws
       // with the reply in the thread and the cards behind it catch up.
       _trSetLabel(btn, 'Sent ✓');
@@ -2841,7 +2898,7 @@ function _trThreadWinSend(threadId) {
     })
     .catch(function () {
       rpmBusy(win, btn, false); ov._busy = false;
-      btn.disabled = false; _trSetLabel(btn, 'Reply');
+      btn.disabled = false; _trSetLabel(btn, 'Send');
       rpmFail(st, 'No answer from Google. It may have gone out: check Sent mail before sending again.');
     });
 }
@@ -2920,8 +2977,9 @@ function _msOpen(email) {
       '<div class="settings-title"><span>' + inqEsc(a.name || '') +
         '<span class="win-sub"> · Not ready yet</span></span>' +
         '<button class="settings-close" onclick="_msClose()">✕</button></div>' +
-      (rows ? '<div class="pt-sum" style="margin:0 0 10px"><span class="pt-freq">Missing steps</span></div>' +
-              '<div class="tr-col" style="margin-bottom:16px">' + rows + '</div>' : '') +
+      // Trial window protocol (user, 2026-11-21): small title, 10 to the list, 24 to the next line.
+      (rows ? '<div class="field-label">Missing steps</div>' +
+              '<div class="tr-col" style="margin-bottom:24px">' + rows + '</div>' : '') +
       (st.termsBack ? '' :
         '<div class="pt-sum" style="margin-top:0;cursor:pointer" onclick="_msClose();_tlOpen(\'' + _trEsc(email) + '\',\'status\')">' +
           '<span class="pt-freq">Terms not back yet</span></div>');
@@ -3006,8 +3064,8 @@ function _msRenderForm() {
   // like portal windows"): icon, labelled boxes, link-btn actions bottom
   // right, the welcome text below in a plain box.
   function ro(id, label, v) {
-    return '<div style="margin-bottom:16px"><div class="field-label">' + label + '</div>' +
-      '<input class="rpm-field" id="' + id + '" readonly tabindex="-1" style="cursor:default" value="' + _msAttr(v) + '"></div>';
+    return '<div class="tl-f"><div class="field-label">' + label + '</div>' +
+      '<div class="ms-val" id="' + id + '">' + inqEsc(v == null ? '' : String(v)) + '</div></div>';   // decided already: plain text, not a box (user, 2026-11-21)
   }
   // Only what is missing gets a line, in the amber summary caps.
   var miss = [];
@@ -3018,14 +3076,12 @@ function _msRenderForm() {
     '<div class="settings-title"><span>' + inqEsc(_ms.name) +
       '<span class="win-sub"> · Confirm student</span></span>' +
       '<button class="settings-close" id="msX" onclick="_msClose()">✕</button></div>' +
-    '<div style="margin:4px 0 18px">' + CONTACT_ADD_ICON + '</div>' +
     ro('msFreq', 'Frequency', _ms.cadence === 'biweekly' ? 'Biweekly' : 'Weekly') +
     ro('msWhen', 'First lesson', _msWhenLabel()) +
-    '<label class="field-label" for="msRate">Rate ($ per lesson)</label>' +
-    '<input class="rpm-field" id="msRate" inputmode="decimal" value="' + _msAttr(rate) + '" oninput="_ms.rateEdited=true">' +
-    '<div id="msRateHint" style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);margin:6px 0 16px"></div>' +
-    (miss.length ? '<div class="pt-sum" style="margin:0 0 14px"><span class="pt-freq">' + miss.join(' · ') + '</span></div>' : '') +
-    '<label style="display:flex;align-items:center;gap:8px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--t-bright)">' +
+    ro('msRateTxt', 'Rate', rate ? '$' + rate + ' per lesson' : 'Loading…') +
+    '<input type="hidden" id="msRate" value="' + _msAttr(rate) + '">' +
+    (miss.length ? '<div class="pt-sum ms-gap" style="margin:0"><span class="pt-freq">' + miss.join(' · ') + '</span></div>' : '') +
+    '<label class="ms-gap" style="display:flex;align-items:center;gap:8px;font-family:\'DM Mono\',monospace;font-size:12px;color:var(--t-normal)">' +   // was --t-bright, too bright (user, 2026-11-21)
       '<input type="checkbox" id="msText" checked onchange="_msTextToggle()"> Send welcome text</label>' +
     _tlActs('<button class="link-btn bright" id="msGoBtn" onclick="_msMake()"><span>Confirm as student</span></button>') +
     '<div id="msResult"></div>' +
@@ -3049,11 +3105,9 @@ function _msPreviewText() {
     .then(function (d) {
       if (!_ms) return;
       if (!d || !d.success) { rpmFail(box, (d && d.message) || 'No preview'); return; }
-      box.innerHTML = '<div style="margin-top:16px">' +
-        // Plain text in Announcements' Show-text box look, not a bubble (user, 2026-11-12).
-        '<div style="background:var(--surface2);color:var(--t-normal);border:1px solid var(--border);border-radius:10px;' +
-          'padding:12px 14px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.55;white-space:pre-wrap">' +
-          inqEsc(d.smsText || '') + '</div></div>';
+      // A blue text bubble, like the other text-template windows (user, 2026-11-21; was a plain box).
+      box.innerHTML = '<div style="margin-top:16px"><div class="ts-thread tv-rv-thread rv-thread">' +
+        '<div class="ts-bub tv-rv-bub rv-bub" style="white-space:pre-wrap">' + inqEsc(d.smsText || '') + '</div></div></div>';
     })
     .catch(function () { rpmFail(box, 'could not reach Google'); });
 }
@@ -3085,7 +3139,12 @@ function _msLoadRates() {
       });
       if (!_ms) return;
       var el = document.getElementById('msRate');
-      if (el && !_ms.rateEdited && _msRates[_ms.cadence]) el.value = _msRates[_ms.cadence];
+      if (el && !_ms.rateEdited && _msRates[_ms.cadence] && String(el.value) !== String(_msRates[_ms.cadence])) {
+        el.value = _msRates[_ms.cadence];
+        var tx = document.getElementById('msRateTxt');
+        if (tx) tx.textContent = '$' + el.value + ' per lesson';
+        _msPreviewText();   // the welcome text was built before the rate arrived (showed "$4 / 4 lessons")
+      }
       _msRateHint();
     })
     .catch(function () {});

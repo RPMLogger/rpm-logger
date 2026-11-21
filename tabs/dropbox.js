@@ -9,7 +9,7 @@ var DB_INVITE_MSG = "IMPORTANT: Please read the [Dropbox Instructions] sent via 
 // Default body of the "Dropbox Instructions" email that follows the invite
 // (house email: signature + logo, the PDF attached). Editable per student.
 var DB_EMAIL_MSG = "Here are the instructions on how to manage OUR SHARED Dropbox folder.";
-var DB_PDF_LINK = "https://github.com/RPMLogger/rpm-logger/blob/main/Dropbox%20Instructions%20-%202026.pdf";
+var DB_PDF_LINK = "https://drive.google.com/file/d/1OnCnnQi9AuEqz9oZs0Dru3iF98SKxFjJ/view?usp=sharing";   // the Drive copy (user, 2026-11-21; was GitHub). Same file the email attaches (DBX_PDF_DRIVE_ID, RPM_Dropbox.gs)
 
 // Student folder list, kept so the Students section can redraw without a fetch.
 var _dbFolders = [];
