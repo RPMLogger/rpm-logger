@@ -806,9 +806,43 @@ function _dxEdit(which, k) {
       line.innerHTML = '<span class="fx-hint">Log the earlier date first. Import fills its rows in order.</span>';
     }
   } else if (which === "cal" || which === "extra") {
+    // In the portal, not Google Calendar (user, 2026-11-22). A past lesson with its Counter date:
+    // the Counter cell's delete (Student / Teacher / Vacation / Not a skip). A past one with no
+    // Counter date: taken out here, as Not a skip. Ahead: the Change appointment window.
     var ev = which === "cal" ? sl.cal : _dx.extras[k];
-    title.textContent = "Google Calendar · " + ev.date;
-    line.innerHTML = '<span class="fx-hint">Change this lesson in Google Calendar.</span>';
+    title.textContent = "Calendar · " + ev.date;
+    var evDay = new Date((ev.ymd || "") + "T23:59:59"), past = evDay < new Date();
+    var counted = which === "cal" && sl.counter && !sl.counter.empty && _dxN(sl.counter.value) === _dxN(ev.date);
+    if (!past) {
+      var chg = _fxBtn("Change appointment");
+      chg.onclick = function() {
+        var nm = _fixCurrentName;
+        _dx.editing = null; ed.innerHTML = "";
+        document.getElementById("auditFixOverlay").style.display = "none";
+        _fixCurrentName = null;
+        _imReschedule(nm, { pre: ev.ymd, onDone: function() {} });
+      };
+      line.appendChild(chg);
+    } else if (counted) {
+      line.innerHTML = '<span class="fx-hint">Counted in the Counter: take it out there (the trash on the Counter date).</span>';
+      var go = _fxBtn("Open Counter date"); line.appendChild(go);
+      go.onclick = function() { _dxEdit("counter", k); };
+    } else {
+      line.innerHTML = '<span class="fx-hint">Not counted. Taking it out writes it as Not a skip.</span>';
+      line.appendChild(st);
+      var rm = _fxBtn("Remove lesson"); rm._fxState = st; line.appendChild(rm);
+      rm.onclick = function() {
+        rm.disabled = true; _trSetLabel(rm, "Removing…"); _fxBusy(rm, true);
+        _fxCall("logSkipManual", { name: _fixCurrentName, date: ev.ymd, who: "Removed", note: "Removed from the audit" }).then(function(r) {
+          if (!r.ok) return r;
+          return _fxCall("deleteCalendarEvent", { calId: ev.calId, eventId: ev.id, date: ev.ymd });
+        }).then(function(r) {
+          _fxBusy(rm, false);
+          if (r.ok) { _trSetLabel(rm, "Removed ✓"); setTimeout(function() { if (_fixCurrentName) _loadFixData(_fixCurrentName); }, 500); }
+          else { rm.disabled = false; _trSetLabel(rm, "Remove lesson"); rpmFail(st, r.why || "Remove failed"); }
+        });
+      };
+    }
   }
   ed.appendChild(box);
 }
@@ -854,10 +888,13 @@ function _dxSkipRow(disp) {
   lab.textContent = "Skip · " + _dxShort(disp) + " · who skipped?";
   el.appendChild(lab);
   var row = document.createElement("div"); row.className = "dx-line";
-  var btns = ["Student", "Teacher", "Vacation"].map(function(w) {
+  // Not a skip (user, 2026-11-22): a past lesson that's simply taken out, e.g. a free pass. It writes a
+  // "Removed" line to Skip Logs: counted as a skip nowhere, and Density doesn't hold the slot against them.
+  var btns = ["Student", "Teacher", "Vacation", "Not a skip"].map(function(w) {
     var b = document.createElement("button"); b.type = "button";
     b.className = "link-btn"; b.setAttribute("data-toggle", ""); b.textContent = w;
-    b.onclick = function() { who = w; btns.forEach(function(x) { x.classList.toggle("pressed", x === b); }); };
+    if (w === "Not a skip") b.setAttribute("data-tip", "Instant.\nThe lesson is just taken out: no skip counted for anyone,\nand Density doesn't count the slot.");
+    b.onclick = function() { who = w === "Not a skip" ? "Removed" : w; btns.forEach(function(x) { x.classList.toggle("pressed", x === b); }); };
     row.appendChild(b); return b;
   });
   var note = document.createElement("input"); note.type = "text";

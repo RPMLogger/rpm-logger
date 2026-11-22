@@ -54,14 +54,14 @@ function _skRender() {
     // One line (user 2026-10-22): Total skips, the counts, Since Jun 2026,
     // all in Financial 2's number font.
     // No line above it now; right-aligned, sitting on the line just over the cards, like the Dashboard's Load line (user 2026-10-23).
-    "<div class='f2-cur' style='margin-bottom:8px;font-size:12px;text-align:right'>Total skips · " +   // smaller than Financial 2's 15px (user 2026-10-23)
+    "<div class='f2-cur sk-totals' style='margin-bottom:8px;font-size:12px'>Total skips · " +   // smaller than Financial 2's 15px (user 2026-10-23)
       "<span class='f2-hi sk-hi'>" + (totals.student || 0) + " student</span> · " +
       "<span class='f2-hi sk-hi'>" + (totals.teacher || 0) + " teacher</span> · " +
       // Reschedules on the same line (user, 2026-10-31).
       "Reschedules · <span class='f2-hi sk-hi'>" + (totals.reschedStudent || 0) + " student</span> · " +
       "<span class='f2-hi sk-hi'>" + (totals.reschedTeacher || 0) + " teacher</span> · " +
       "Since Jun 2026</div>" +
-    "<div style='border-top:1px solid var(--border);margin-bottom:12px'></div>";   // the line under Total skips, the cards close under it (user 2026-10-23; was 24px)
+    "<div class='sk-totals-line' style='border-top:1px solid var(--border);margin-bottom:12px'></div>";   // the line under Total skips, the cards close under it (user 2026-10-23; was 24px)
   var btns = document.createElement('span');
   btns.style.cssText = 'display:flex;gap:6px';
   var logBtn = document.createElement('button');
@@ -233,12 +233,14 @@ function _skStudentCard(s) {
   hdr.className = 'en-card-head' + (hasSkips ? '' : ' sk-none');
   // Density beside the name, a bare percentage (user 2026-10-24); it fills in
   // once getDensityAll answers.
+  // The counts on their own line under the name (user, 2026-11-22; were beside it and cut long names' Density),
+  // like the Dropbox cards' size line.
   hdr.innerHTML =
-    "<span class='en-card-n'>" + _skEsc(s.name) + _skDensitySpan(s.name) + "</span>" +
-    "<span class='en-card-r'>" +
+    "<span class='sk-n'>" +
+      "<span class='en-card-n'>" + _skEsc(s.name) + _skDensitySpan(s.name) + "</span>" +
       "<span class='sk-counts" + (s.totalStudent || s.totalTeacher || (s.resched || []).length ? "" : " av-never") + "'>" + _skCounts(s) + "</span>" +
-      "<span class='en-card-a sk-caret'>▾</span>" +
-    "</span>";
+    "</span>" +
+    "<span class='en-card-r'><span class='en-card-a sk-caret'>▾</span></span>";
   card.appendChild(hdr);
 
   if (!hasSkips) return card;

@@ -6654,3 +6654,8 @@ html body #dbFixModal #dbFixStatus:empty { display: none; }
 html body #tab-ending .en-ask-grid .inq-flabel { margin: 24px 0 10px; }
 html body #tab-ending .en-ask-grid .inq-flabel:first-child { margin-top: 0; }
 html body #tab-ending .en-foot.en-card-foot { row-gap: 32px; }
+/* Skips (user, 2026-11-22): totals line left at the card width, not out at the plate's right edge;
+   each card = name + Density, the counts on their own line under it (the Dropbox card's size line) */
+html body #tab-skips .sk-totals { text-align: left; white-space: nowrap; }   /* one line, starting where the cards start */
+html body #tab-skips .sk-card .sk-n { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+html body #tab-skips .sk-card .sk-n .sk-counts { font-size: 12px; line-height: 16px; color: var(--muted); }
