@@ -313,7 +313,7 @@ function _skStudentCard(s) {
     var grp = document.createElement('div');
     grp.className = 'sk-group';
     grp.innerHTML = "<div class='sk-group-h sk-hi'>" + list.length + (list.length === 1 ? " reschedule" : " reschedules") + " · " + w + "</div>";
-    list.forEach(function(r) { grp.appendChild(_skReschRow(r)); });
+    list.forEach(function(r) { grp.appendChild(_skReschRow(s, r)); });
     body.appendChild(grp);
   });
   card.appendChild(body);
@@ -425,8 +425,9 @@ function _skRow(s, k, note) {
   return row;
 }
 
-// One reschedule (2026-10-31): the lesson's date, day + time, → where it went, the reason. Read only.
-function _skReschRow(r) {
+// One reschedule (2026-10-31): the lesson's date, day + time, → where it went, the reason.
+// × (shown on hover, like a skip's) deletes the row, for moves made by mistake (user, 2026-11-21).
+function _skReschRow(s, r) {
   var year = String(new Date().getFullYear()), strip = new RegExp('\\s' + year + '$');
   var row = document.createElement('div');
   row.className = 'sk-row';
@@ -434,7 +435,35 @@ function _skReschRow(r) {
     "<span class='sk-date'>" + _skEsc(String(r.date || '').replace(strip, '')) + "</span>" +
     "<span class='sk-when'>" + _skEsc(r.day || '') + "</span>" +
     "<span class='sk-note'>→ " + _skEsc(String(r.toDate || '').replace(strip, '')) + (r.toDay ? ' · ' + _skEsc(r.toDay) : '') +
-      (r.note ? ' · ' + _skEsc(toSentenceCase(String(r.note))) : '') + "</span>";
+      (r.note ? ' · ' + _skEsc(toSentenceCase(String(r.note))) : '') + "</span>" +
+    "<button class='sk-del' data-tip='Asks first.\nDeletes this reschedule.'>×</button>";
+  row.querySelector('.sk-del').onclick = function(e) {
+    e.stopPropagation();
+    var btn = e.currentTarget;
+    rpmConfirm({
+      title: 'Delete this reschedule?',
+      confirmLabel: 'Delete',
+      icon: TRASH_ICON,
+      danger: true
+    }).then(function (ok) { if (ok) go(); });
+    function go() {
+      btn.disabled = true; btn.textContent = '…';
+      fetch(getScriptUrl() + '?action=deleteReschedLog&row=' + encodeURIComponent(r.row) +
+            '&name=' + encodeURIComponent(s.name) + '&date=' + encodeURIComponent(r.date))
+        .then(function(x) { return x.json(); })
+        .then(function(d) {
+          if (!d.success) {
+            rpmAlert({ title: 'Delete failed', message: d.message || 'The portal did not delete that reschedule.' });
+            btn.disabled = false; btn.textContent = '×'; return;
+          }
+          initSkipsTab();
+        })
+        .catch(function() {
+          rpmAlert({ title: 'Connection failed', message: 'Could not reach the portal. Check your connection and try again.' });
+          btn.disabled = false; btn.textContent = '×';
+        });
+    }
+  };
   return row;
 }
 

@@ -1068,8 +1068,8 @@ function _calGoogleOpen() {
 // The selector knob (user, 2026-11-20): the old Fixed schedule knob, four spots in an X: G. Calendar down-left, Analyze up-left,
 // F. Schedule up-right, S. Notes down-right; laid out like the original pedal photo: every name on top of a full-length line,
 // left names flush left, right names flush right, the lines all the same length, angling into the knob (user, 2026-11-20).
-var CAL_KNOB_DEG = [-135, -45, 45, 135, 0];   // 4 = Slot change, straight up (user, 2026-11-20)
-var CAL_KNOB_ORDER = [0, 1, 4, 2, 3];          // clicking the knob steps round clockwise
+var CAL_KNOB_DEG = [-135, -45, 45, 135, 0, 180];   // 4 = Slot change, straight up (user, 2026-11-20); 5 = Skips, straight down (user, 2026-11-21)
+var CAL_KNOB_ORDER = [0, 1, 4, 2, 3, 5];          // clicking the knob steps round clockwise
 var _calScallop = (function() {
   var p = [], n = 7, i, a, r;
   for (i = 0; i <= 140; i++) {
@@ -1083,13 +1083,14 @@ function _calKnobHtml() {
     return "<span class='cal-kl " + cls + (_calSwPos === i ? " lit" : "") + "' onclick='_calSw(" + i + ")' data-tip='" + tip + "'>" + txt + "</span>";
   };
   return "<span class='cal-knob'>" +
-    "<svg class='cal-klines' viewBox='0 0 160 66' aria-hidden='true'><path d='M0 11H52L66 25'/><path d='M160 11H108L94 25'/><path d='M0 65H52L66 51'/><path d='M160 65H108L94 51'/><path d='M80 12V17'/></svg>" +
+    "<svg class='cal-klines' viewBox='0 0 160 72' aria-hidden='true'><path d='M0 11H52L66 25'/><path d='M160 11H108L94 25'/><path d='M0 65H52L66 51'/><path d='M160 65H108L94 51'/><path d='M80 12V17'/><path d='M80 57V62'/></svg>" +
     lab(0, 'cal-kl-a', 'G. Cal.', 'Opens a new tab.\nGoogle Calendar, this week.') +
     lab(1, 'cal-kl-t1', 'Analyze', 'Opens a window.\nNext week&#39;s warnings, suggestions only.') +
     lab(2, 'cal-kl-t2', 'Fixed S.', 'Instant.\nThe Fixed schedule view.') +
     lab(3, 'cal-kl-b', 'S. Notes', 'Instant.\nGoes to Student Notes.') +
     lab(4, 'cal-kl-top', 'Slot ch.', 'Instant.\nGoes to Slot change.') +
-    "<button type='button' class='cal-kbtn' onclick='_calSw(CAL_KNOB_ORDER[(CAL_KNOB_ORDER.indexOf(_calSwPos) + 1) % 5])' aria-label='Calendar tools knob'>" +
+    lab(5, 'cal-kl-bot', 'Skips', 'Instant.\nGoes to Skips: skips and reschedules, × deletes a mistake.') +
+    "<button type='button' class='cal-kbtn' onclick='_calSw(CAL_KNOB_ORDER[(CAL_KNOB_ORDER.indexOf(_calSwPos) + 1) % 6])' aria-label='Calendar tools knob'>" +
       // pedal-photo knob (user, 2026-11-20): black recess ring, glossy scalloped cap, pointer in caption grey
       "<svg viewBox='-19 -19 38 38'>" +
         "<defs><radialGradient id='calKnobG' cx='34%' cy='26%' r='85%'><stop offset='0' stop-color='#5a5a5a'/><stop offset='.28' stop-color='#262626'/><stop offset='.7' stop-color='#0e0e0e'/><stop offset='1' stop-color='#050505'/></radialGradient>" +
@@ -1115,6 +1116,7 @@ function _calSw(i) {
     else if (i === 1) _calAnalyze();
     else if (i === 2) _calSetView('fixed');
     else if (i === 4) switchTab('slotchange');
+    else if (i === 5) switchTab('skips');
     else switchTab('studentnotes');
   }, 180);
 }
@@ -1318,10 +1320,10 @@ function _calInjectStyle() {
     // the selector knob (user, 2026-11-20): the Fixed schedule knob's look, labels in the STUDENT / OTHERS lettering, a red light on the one it points at
     // knob at 80%, no box behind it; lines, names + pointer in the rack's caption grey (BIRTHDAYS etc.) (user, 2026-11-20: slate box tried, didn't fit the rack)
     "#calBody .cal-3 .cl-knobs{zoom:.8;padding:6px 10px}" +
-    "#calBody .cal-knob{position:relative;display:block;width:160px;height:66px;flex:none}" +
+    "#calBody .cal-knob{position:relative;display:block;width:160px;height:72px;flex:none}" +
     "#calBody .cal-klines{position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:#6e6e6e;stroke-width:1;pointer-events:none}" +
     "#calBody .cal-kl{position:absolute;font:500 6.5px/9px 'DM Mono',monospace;letter-spacing:.8px;text-transform:uppercase;color:#6e6e6e;text-shadow:0 -1px 0 rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.09);cursor:pointer;white-space:nowrap}#calBody .cal-kl:hover{color:#9a9a9a}" +
-    "#calBody .cal-kl-a{left:0;top:54px}#calBody .cal-kl-b{right:0;top:54px}#calBody .cal-kl-t1{left:0;top:0}#calBody .cal-kl-t2{right:0;top:0}#calBody .cal-kl-top{left:50%;top:0;transform:translateX(-50%)}" +
+    "#calBody .cal-kl-a{left:0;top:54px}#calBody .cal-kl-b{right:0;top:54px}#calBody .cal-kl-t1{left:0;top:0}#calBody .cal-kl-t2{right:0;top:0}#calBody .cal-kl-top{left:50%;top:0;transform:translateX(-50%)}#calBody .cal-kl-bot{left:50%;top:63px;transform:translateX(-50%)}" +
     "#calBody .cal-kbtn{position:absolute;left:61px;top:18px;width:38px;height:38px;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 2px 3px rgba(0,0,0,.7))}#calBody .cal-kbtn svg{display:block;width:100%;height:100%;overflow:visible}#calBody .cal-kptr{stroke:#6e6e6e}" +
     "#calGoogleBtn.lit .hr-kn::after{transform:rotate(90deg)}#calGoogleBtn.lit+.hr-cap{color:#9a9a9a}" +   // GOOGLE open = knob turned up, like an open TO-DO
     "#tab-calendar>.tab-refresh{top:22.5px;right:-44px}" +   // ↻ just outside the top rack's right side, not on its legend
