@@ -6649,3 +6649,8 @@ html body #dbFixModal .ms-val { font-family: Arial, Helvetica, sans-serif; font-
 html body #dbFixModal .tl-acts { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 32px; }
 html body #dbFixModal .db-fix-item + .db-fix-item { margin-top: 32px; }
 html body #dbFixModal #dbFixStatus:empty { display: none; }
+/* Terminate card, Before archiving = the window spacing protocol (user, 2026-11-22):
+   small title → box 10 · box → next small title 24 · warning line → Terminate button 32 */
+html body #tab-ending .en-ask-grid .inq-flabel { margin: 24px 0 10px; }
+html body #tab-ending .en-ask-grid .inq-flabel:first-child { margin-top: 0; }
+html body #tab-ending .en-foot.en-card-foot { row-gap: 32px; }
