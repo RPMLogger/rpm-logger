@@ -197,7 +197,7 @@ function closeCashLogPanel(silent) {
   activeCashStudent = null;
   document.getElementById("cashLogPanel").classList.remove("active");
   document.getElementById("cashActs").classList.remove("active");
-  document.getElementById("cashDdLabel").textContent = "Pick student";
+  document.getElementById("cashDdLabel").textContent = "";   // no hint text in boxes (user, 2026-11-21)
   document.getElementById("cashDdBtn").classList.remove("picked");
   [].forEach.call(document.getElementById("cashDdList").children, function(o) { o.classList.remove("on"); });
   rpmBusy(document.getElementById("cashModal"), null, false);
@@ -577,9 +577,13 @@ function loadPayers() {
       }
       payersData = data.students;
       list.innerHTML = "";
+      // Only the added contacts (user, 2026-11-21): a student shows only when someone else's
+      // name pays for them (Jordan S for Jordan Stern); their own name is not listed.
+      var withAdded = data.students.filter(function(s) { return (s.payers || []).some(function(p) { return !p.own; }); });
+      if (!withAdded.length) { list.innerHTML = "<div class='rpm-none' style='color:var(--muted);font-size:11px'>No added contacts</div>"; return; }
       var grid = document.createElement("div");
       grid.className = "payer-grid";
-      data.students.forEach(function(s) { grid.appendChild(payerCard(s)); });
+      withAdded.forEach(function(s) { grid.appendChild(payerCard(s)); });
       list.appendChild(grid);
     })
     .catch(function() { list.innerHTML = "<div style='color:var(--muted);font-size:11px'>Could not load</div>"; });
@@ -590,8 +594,7 @@ function loadPayers() {
 function payerCard(s) {
   var card = document.createElement("div");
   card.className = "payer-card";
-  var names = s.payers.map(function(p) {
-    if (p.own) return "<div class='payer-row'><span class='payer-name'>" + inqEsc(p.name) + "</span></div>";
+  var names = s.payers.filter(function(p) { return !p.own; }).map(function(p) {   // added names only (user, 2026-11-21)
     return "<div class='payer-row'><span class='payer-name added'>" + inqEsc(p.name) + "</span>" +
       "<button class='payer-del' data-name='" + inqEsc(p.name) +
       "' data-tip='Forgets this name.&#10;Their payments go back to manual.'>✕</button></div>";
@@ -635,21 +638,17 @@ function openAddContact(payment, done, gone) {
   payAddPick = null;
   document.getElementById("payAddIcon").innerHTML = PAY_ICON;
   // The name alone: pressing Confirm means you have already read the card.
+  // The window standard (user, 2026-11-21): PAYMENT FROM + the name as plain text, then
+  // STUDENT + the same empty dropdown as Log cash (no "—" in it).
   document.getElementById("payAddWho").innerHTML =
-    "<span class='pa-name'>" + inqEsc(payment.name) + "</span>";
+    "<div class='field-label'>Payment from</div><div class='pa-name'>" + inqEsc(payment.name) + "</div>";
   document.getElementById("payAddPick").innerHTML =
-    "<div class='dtp'><div class='dtp-box'><div class='dtp-cell'>" +
-      "<span class='dtp-lab'>Student</span>" +
-      "<button type='button' class='dtp-val pa-val' id='payAddVal'>—</button>" +
-      "<span class='dtp-chevs dtp-dropchev'><button type='button' class='dtp-drop' id='payAddDrop' aria-label='Pick a student'>" +
-        dtArrow(-1) + "</button></span>" +
-    "</div></div></div>";
+    "<button type='button' class='rpm-field cash-dd-btn' id='payAddVal' aria-label='Pick a student'><span id='payAddValTxt'></span><span class='cash-dd-caret'>" + TRI_ICON + "</span></button>";
   document.getElementById("payAddState").innerHTML = "";
   payAddSetBtns();
 
   var open = function() { payAddDropOpen(); };
   document.getElementById("payAddVal").onclick = open;
-  document.getElementById("payAddDrop").onclick = open;
 
   var save = document.getElementById("payAddSave");
   save.textContent = "Add contact + Log"; save.classList.remove("logged");
@@ -680,7 +679,7 @@ function payAddDropClose() {
 
 function payAddDropOpen() {
   payAddDropClose();
-  var cell = document.getElementById("payAddVal").closest(".dtp-cell");
+  var cell = document.getElementById("payAddVal");
   var list = document.createElement("div");
   list.id = "payAddList";
   list.innerHTML = payerStudentList().map(function(s) {
@@ -699,7 +698,7 @@ function payAddDropOpen() {
     var o = e.target.closest("button");
     if (!o) return;
     payAddPick = { tab: o.getAttribute("data-tab"), name: o.getAttribute("data-name") };
-    document.getElementById("payAddVal").textContent = payAddPick.name;
+    document.getElementById("payAddValTxt").textContent = payAddPick.name;
     payAddDropClose();
     payAddSetBtns();
   });

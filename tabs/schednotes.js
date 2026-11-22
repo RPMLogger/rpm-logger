@@ -48,7 +48,35 @@ function _snLoad(cb) {
 // change, "bring your capo"… No organizing, no weeks to pick. With a student,
 // their next 8 weeks show above the note, to look at only (so I understand what
 // they're talking about). name given (student page) = locked; Calendar = pick or leave empty.
+// ONE student-note window everywhere (user, 2026-11-21): every ＋ Note / ＋ New opens the
+// Calendar's note window (_calSchedView note mode, "Name · Student note"). From the Calendar or
+// the Student Notes page there is no student yet, so a small step asks who first. Notes with no
+// student belong in the Notes section, not here. (The old "New note" window with its own
+// 8-week grid is retired; _snNewWinOld keeps it in the file for now.)
 function _snNewWin(name, from) {
+  if (name) { _calSchedView(name, { from: from || 'Lessons', note: true }); return; }
+  _snInjectStyle();
+  if (typeof _calLoadRoster === 'function') _calLoadRoster();
+  var win = _stWin('snPickWin', 'Student note', 'Who is it for', typeof PEN_ICON === 'string' ? PEN_ICON : '',
+    "<label class='field-label' for='snWho'>Student</label>" +
+    "<input class='rpm-field sn-who' id='snWho' list='snRoster' autocomplete='off'>" +
+    "<datalist id='snRoster'>" + (_imRoster || []).map(function (n) { return "<option value='" + _snEsc(n) + "'>"; }).join('') + "</datalist>" +
+    "<div class='im-log-foot im-log-foot-all'><span id='snPickStatus' class='sn-status'></span>" +
+      "<button type='button' class='link-btn bright' id='snPickBtn' data-tip='Opens the student note window.' data-tip-left>Next</button></div>");
+  win.querySelector('.st-win').classList.add('sn-win');
+  var go = function () {
+    var v = (win.querySelector('#snWho').value || '').trim();
+    var hit = (_imRoster || []).filter(function (n) { return n.toLowerCase() === v.toLowerCase(); })[0];
+    if (!hit) { rpmHalf(win.querySelector('#snPickStatus'), v ? 'Not a student' : 'Pick a student'); return; }
+    win.remove();
+    _calSchedView(hit, { from: from || 'Student Notes', note: true });
+  };
+  win.querySelector('#snPickBtn').onclick = go;
+  win.querySelector('#snWho').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+  setTimeout(function () { var t = win.querySelector('#snWho'); if (t) t.focus(); }, 30);
+}
+
+function _snNewWinOld(name, from) {
   _snInjectStyle();
   if (typeof _calLoadRoster === 'function') _calLoadRoster();
   var who = name
@@ -239,7 +267,7 @@ function _snRender(host) {
   var closed = all.filter(function (n) { return n.closed; });
   open.sort(function (a, b) { return b.row - a.row; });   // newest on top, no week groups (user, 2026-11-10: just notes)
   var html = "<div class='sn-wrap'><div class='sn-head'><span class='sn-title'>Notes</span><span class='sn-count'>" + open.length + " open</span>" +
-    "<button class='link-btn red opens-window' onclick='_snNewWin(\"\",\"Calendar\")' data-tip='Opens a window.\nAnything to remember for later.' data-tip-left>＋ New note</button></div>";
+    "<button class='link-btn red opens-window' onclick='_snNewWin(\"\",\"Calendar\")' data-tip='Opens a window.\nA note about a student, for later.' data-tip-left>＋ Student note</button></div>";
   if (_snErr) html += "<div class='sn-err'>Couldn't read the list: " + _snEsc(_snErr) + "</div>";
   if (!open.length) html += "<div class='empty-state'>No open notes.</div>";
   open.forEach(function (n) { html += _snItem(n, false); });

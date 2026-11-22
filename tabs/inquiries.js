@@ -465,26 +465,29 @@ function _inqOpenTemplate(decision, inq) {
   overlay.id = "inqModal";
   overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;" +
                           "align-items:center;justify-content:center;padding:18px;overflow:auto";
+  // The Compose look (user, 2026-11-21): TO / SUBJECT / MESSAGE small titles, the email in
+  // the muted red email box, Preview + Send bottom right, the Trial window spacing (CSS #inqModal).
   overlay.innerHTML =
     "<div role='dialog' aria-modal='true' style='background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:600px;width:100%;padding:28px;box-sizing:border-box;max-height:92vh;overflow:auto'>" +
-      "<div class='settings-title' style='margin-bottom:8px'>" +
+      "<div class='settings-title'>" +
         "<span>" + inqEsc(inq.name || "This inquiry") +
-          "<span style='color:var(--muted)'> \u00b7 " + which + "</span></span>" +
+          "<span class='win-sub'> \u00b7 " + which + "</span></span>" +
         "<button class='settings-close' onclick='_inqCloseModal()'>✕</button>" +
       "</div>" +
-      "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:" + (hasEmail ? "var(--muted)" : "var(--warn)") + ";margin-bottom:20px'>" +
-        (hasEmail ? inqEsc(inq.email) : "No email on file. This only records the decision.") + "</div>" +
+      "<div class='tl-f'><label class='field-label'>To</label>" +
+        "<div class='inq-to" + (hasEmail ? "" : " none") + "'>" + (hasEmail ? inqEsc(inq.email) : "No email on file. This only records the decision.") + "</div></div>" +
       (hasEmail
-        ? "<input id='inqTplSubject' class='rpm-field' style='margin-bottom:14px' value='" + inqEsc(tpl.subject) + "'>" +
-          "<textarea id='inqTplBody' rows='12' class='rpm-field'>" + inqEsc(tpl.body) + "</textarea>"
+        ? "<div class='tl-f'><label class='field-label' for='inqTplSubject'>Subject</label>" +
+            "<input id='inqTplSubject' class='rpm-field' value='" + inqEsc(tpl.subject) + "'></div>" +
+          "<div class='tl-f'><label class='field-label' for='inqTplBody'>Message</label>" +
+            "<textarea id='inqTplBody' rows='12' class='rpm-field'>" + inqEsc(tpl.body) + "</textarea></div>"
         : "") +
-      "<div id='inqModalStatus'></div>" +
-      "<div style='display:flex;gap:8px;margin-top:20px'>" +
+      "<div id='inqModalStatus' class='tl-msg' style='margin-top:12px'></div>" +
+      "<div class='tl-acts' style='display:flex;justify-content:flex-end;gap:8px'>" +
         (hasEmail
-          ? "<button class='db-mini-btn' onclick='_inqPreviewEmail()' style='display:inline-flex;align-items:center;gap:7px'>" + DETAILS_ICON + "<span>Preview</span></button>" +
-            "<button class='db-mini-btn strong' id='inqSendBtn' onclick='_inqSubmitTemplate(\"" + decision + "\",true)' " +
-              "style='display:inline-flex;align-items:center;gap:7px'>" + SEND_ICON + "<span>Send</span></button>"
-          : "<button class='db-mini-btn strong' id='inqSendBtn' onclick='_inqSubmitTemplate(\"" + decision + "\",false)'>" +
+          ? "<button class='link-btn' onclick='_inqPreviewEmail()'>" + DETAILS_ICON + "<span>Preview</span></button>" +
+            "<button class='link-btn bright' id='inqSendBtn' onclick='_inqSubmitTemplate(\"" + decision + "\",true)'>" + SEND_ICON + "<span>Send</span></button>"
+          : "<button class='link-btn bright' id='inqSendBtn' onclick='_inqSubmitTemplate(\"" + decision + "\",false)'>" +
               "<span>Record decision</span></button>") +
       "</div>" +
       "<div id='inqTplPreview'></div>" +

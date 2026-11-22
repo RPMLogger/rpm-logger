@@ -36,7 +36,8 @@ function _ttPickHtml(key, cb) {
     return '<button class="link-btn" data-pk="' + i + '" onclick="_ttPickToday(\'' + key + '\',' + i + ')">' + inqEsc(s.name) + '</button>';
   }).join('');
   return '<div id="ttPk_' + key + '">' +
-    '<div class="td-all-lbl" id="ttTo_' + key + '">To: Student</div>' +
+    // TO as a small title, the picked name under it (user, 2026-11-21; was "To: Student").
+    '<label class="field-label">To</label><div class="tt-to-v" id="ttTo_' + key + '"></div>' +
     '<div class="tt-pick">' + chips +
       '<span class="tt-other"><button class="link-btn" data-pk="other" onclick="_ttOtherOpen(\'' + key + '\')">Other student ▾</button>' +
       '<span class="tt-other-panel" hidden><input class="rpm-field" placeholder="Type to find…" autocomplete="off" oninput="_ttPk[\'' + key + '\'].hi=0;_ttOtherRender(\'' + key + '\')" onkeydown="_ttOtherKey(event,\'' + key + '\')">' +
@@ -47,7 +48,7 @@ function _ttPicked(key, name, which) {
   var box = document.getElementById('ttPk_' + key); if (!box) return;
   box.querySelectorAll('[data-pk]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-pk') == which); });
   var ob = box.querySelector('[data-pk="other"]'); if (ob) ob.textContent = which === 'other' ? name + ' ▾' : 'Other student ▾';
-  var to = document.getElementById('ttTo_' + key); if (to) to.textContent = 'To: ' + name;
+  var to = document.getElementById('ttTo_' + key); if (to) { to.textContent = name; to.classList.add('on'); }
   var t = (todayStudents || []).filter(function (s) { return s.name === name; })[0];
   _ttPk[key].name = name;
   _ttPk[key].cb(name, t ? _tdTime(t.eventDate) : '');
@@ -106,9 +107,42 @@ function _ttOtherPick(key, name) { _ttOtherClose(key); _ttPicked(key, name, 'oth
 // from the portal like a Comms reply (sendCommsReply), so it shows in their thread.
 // The template windows no longer have their own picker (hidden in CSS); their bubbles
 // say "Hi Student!" until a pick in the Text window fills them too.
+// One window (user, 2026-11-21): the template window has the picker (TO) and Send itself;
+// the second Text window is gone from here. Send texts the bubble as it is now.
 function _ttUseBtn(id, key) {
-  return '<button class="link-btn" onclick="_ttTextOpen(\'' + id + '\',\'' + key + '\')" data-tip="Opens a window.\nPick the student, edit, send.\nIt goes from the portal like Comms." data-tip-left>' + SEND_ICON + '<span>Text</span></button>';
+  return '<button class="link-btn bright" onclick="_ttSendBubble(\'' + id + '\',\'' + key + '\',this)" data-tip="Instant.\nTexts them this, from the portal.\nShows in their Comms thread." data-tip-left>' + SEND_ICON + '<span>Send</span></button>';
 }
+function _ttSendBubble(id, key, btn) {
+  var el = document.getElementById(id);
+  if (!el || !btn || btn.disabled) return;
+  var name = _ttPk[key] && _ttPk[key].name;
+  if (!name) { rpmAlert({ title: 'Pick a student', message: 'Pick who the text is for first.' }); return; }
+  var s = (typeof commsStudents !== 'undefined' ? commsStudents : []).filter(function (x) { return x.name === name; })[0];
+  if (!s || !s.number) { rpmAlert({ title: 'No phone number', message: name + ' has no number on the Comms line.' }); return; }
+  var plain = typeof _trSmsPlain === 'function' ? _trSmsPlain : function (x) { return x; };
+  var body = plain(el.innerText.replace(/\n+$/, '')).trim();
+  if (!body) { rpmAlert({ title: 'Nothing to send', message: 'The message is empty.' }); return; }
+  var win = btn.closest('.im-notes-back'), panel = btn.closest('.st-win') || btn.closest('.log-panel');
+  rpmBusy(panel, btn, true, 'Sending');
+  fetch(getScriptUrl() + '?action=sendCommsReply&to=' + encodeURIComponent(s.number) + '&body=' + encodeURIComponent(body))
+    .then(function (x) { return x.json(); })
+    .then(function (res) {
+      if (!res || !res.success) throw new Error(res && res.message || 'Not sent');
+      if (win) win.remove();
+    })
+    .catch(function (e) {
+      rpmBusy(panel, btn, false);
+      rpmAlert({ title: 'Not sent', message: String(e && e.message || e) });
+    });
+}
+// Cmd/Ctrl+Enter in a template bubble sends it, like the Text window did.
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter' || !(e.metaKey || e.ctrlKey)) return;
+  var b = e.target && e.target.closest && e.target.closest('#tdZmWin .rv-bub, #tdNsWin .rv-bub, #ttOsWin .rv-bub');
+  if (!b) return;
+  var tpl = b.closest('.en-tpl'), send = (tpl && tpl.querySelector('.en-tpl-btns .link-btn.bright')) || b.closest('.im-notes-back').querySelector('.en-tpl-btns .link-btn.bright');
+  if (send) { e.preventDefault(); send.click(); }
+});
 var TT_TITLES = { ns: 'No show', zm: 'Zoom lesson', os: 'Optional schedule' };
 function _ttTextOpen(id, key) {
   var el = document.getElementById(id);
@@ -161,7 +195,8 @@ function _ttOsOpen() {
   _stWin('ttOsWin', 'Optional schedule', 'Text templates', COMMS_TEXT_ICON,
     _ttPickHtml('os', function (n, t) { _ttOs.name = n; _ttOs.time = t; _ttOsShow(); }) +
     '<div id="ttOsOut"></div>' +
-    '<div class="tt-bottom"><div class="td-all-lbl">Openings</div><div id="ttOsOpen" class="tt-open"></div></div>');   // openings at the bottom (user, 2026-11-05)
+    '<div class="tt-bottom"><div class="td-all-lbl">Openings</div><div id="ttOsOpen" class="tt-open"></div></div>' +   // openings at the bottom (user, 2026-11-05)
+    '<div class="en-tpl-foot tt-os-foot"><span class="en-tpl-btns">' + _ttUseBtn('ttOsText', 'os') + '</span></div>');   // Send under the openings, bottom right (user, 2026-11-21)
   _ttOsOpenPaint();
   _ttOsShow();
 }
@@ -224,6 +259,6 @@ function _ttOsShow() {
   var out = document.getElementById('ttOsOut'); if (!out) return;
   out.innerHTML = '<div class="en-tpl">' +
     '<div class="ts-thread tv-rv-thread rv-thread"><div id="ttOsText" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only" spellcheck="false" style="white-space:pre-wrap">' + inqEsc(_ttOsText()) + '</div></div>' +
-    '<div class="en-tpl-foot"><span class="en-tpl-btns">' + _ttUseBtn('ttOsText', 'os') + '</span></div></div>';
+    '</div>';
 }
 

@@ -14,3 +14,29 @@
 .gl-a-empty { color: var(--muted); }
 .gl-field { width: 100%; box-sizing: border-box; margin-top: 4px; resize: none; overflow: hidden; min-height: 38px; }
 .gl-acts { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+
+/* ─── Window standard (user, 2026-11-21) ───
+   Trial window spacing (26 under the title, small title 10 above its value, 24 between sections, 32 to the buttons),
+   the questions as standard small titles (DM Mono 11, caps, 2px, grey), and due in AMBER = needs your eye (Day 3), not red. */
+html body #glWin .settings-title { margin-bottom: 26px; }
+html body #glWin .field-label { margin-bottom: 10px; }
+html body .gl-win .gl-head { margin-top: 24px; }
+html body .gl-next-due, html body .gl-btn.gl-due { color: var(--warn); border-color: var(--warn); }
+html body .gl-next-due { border: 0; }
+html body .gl-q { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #7c7c7c; margin: 24px 0 10px; }
+html body .gl-card-head + .gl-q { margin-top: 12px; }
+html body .gl-a { margin-top: 0; }
+html body .gl-field { margin-top: 0; }
+html body .gl-acts { margin-top: 32px; }
+html body .gl-win .gl-start { background: none !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; }   /* Starting point: plain values, no box (user, 2026-11-21) */
+html body #glWin .im-sub-head { margin-bottom: 10px !important; }   /* small title 10 above its value */
+/* Goal + Update at the top (user, 2026-11-21): the goal now, and when it is up for an update */
+html body .gl-win .gl-top { display: grid; grid-template-columns: 1fr auto; column-gap: 32px; align-items: start; }
+html body .gl-win .gl-goal { font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; color: var(--t-normal); white-space: pre-wrap; }
+html body .gl-win .gl-upd { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: var(--t-normal); white-space: nowrap; }
+html body .gl-win .gl-upd.gl-next-due { color: var(--warn); }
+html body .gl-win .gl-top .gl-none { text-transform: none; letter-spacing: 0; font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: var(--t-faint); }   /* "No goal yet" as a quiet value, not caps */
+/* One check-in window (user, 2026-11-21): Last update / Next update side by side, then the five questions */
+html body .gl-win .gl-top { display: flex; gap: 48px; grid-template-columns: none; }
+html body .gl-win .gl-one .gl-q:first-child { margin-top: 24px; }
+html body .gl-win .gl-top .field-label { display: block; margin-bottom: 10px; } html body .gl-win .gl-top .gl-upd { display: block; line-height: 1.2; }   /* small title 10 above its value */

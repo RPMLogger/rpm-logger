@@ -167,7 +167,7 @@ function _calSchedView(name, o) {
   o = o || {};
   _calInjectStyle();   // opened from the Lessons tab too (＋ Note), before the Calendar ever drew
   _calSvName = name; _calSvWeeks = 12;
-  var w = _stWin('calSvWin', inqEsc(name), o.note ? 'Take note' : 'Schedule', o.note && typeof PEN_ICON === 'string' ? PEN_ICON : CALENDAR_ICON,   // ＋ Note: the pen instead of the calendar (user, 2026-11-10)
+  var w = _stWin('calSvWin', inqEsc(name), o.note ? 'Student note' : 'Schedule', o.note && typeof PEN_ICON === 'string' ? PEN_ICON : CALENDAR_ICON,   // ＋ Note: the pen instead of the calendar (user, 2026-11-10)
     // The Log window's wide look (user, 2026-11-02): left the main column, Calendar view;
     // right a darker 210px column, Reschedule / Slot change at its top and List view,
     // with one line between them running the whole window.

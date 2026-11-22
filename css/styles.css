@@ -4840,7 +4840,7 @@ html body .container :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-c
 html body .container :is(.im-card, .incoming-card, .slc-scard, .en-card, .db-card, #_a#_b) { max-width: var(--rpm-card-w-small); margin-left: 0; margin-right: auto; }   /* LEFT-aligned under their section heading (user, 2026-11-13; was centred) */
 html body .container :is(.inq-dcard, .en-scard, #_a#_b) { max-width: none; }
 html body :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-card, .en-scard, .db-card, #_a#_b) { border-left-width: 1px; border-left-color: #353535; --rpm-card-lift: 0 3px 8px rgba(0,0,0,0.55); position: relative; }   /* inner cards: ONE border, no rack ring (user, 2026-11-16: "inner plates should not have double border"; the ring was added 2026-11-15) */   /* EVERY card (user, 2026-11-13: "2 rivets all cards"; was Payments + Lessons only). Trip Summary rows (.ts-row) keep their status edges: no bevel — even 1px edge all round, no light line on top (user, 2026-11-12) */
-html body :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-card, .en-scard, .db-card, #_a#_b)::after { content: ""; position: absolute; top: 8px; left: 8px; right: 8px; height: 7px; pointer-events: none; background: radial-gradient(circle 1.6px at 2.6px 2.3px, rgba(160,160,160,0.55), transparent) left top / 7px 7px no-repeat, radial-gradient(circle 3.5px at 3.5px 3.5px, #4a4a4a, #2b2b2b 1.9px, #141414 2.9px, #0a0a0a 3.3px, transparent 3.6px) left top / 7px 7px no-repeat, radial-gradient(circle 1.6px at 2.6px 2.3px, rgba(160,160,160,0.55), transparent) right top / 7px 7px no-repeat, radial-gradient(circle 3.5px at 3.5px 3.5px, #4a4a4a, #2b2b2b 1.9px, #141414 2.9px, #0a0a0a 3.3px, transparent 3.6px) right top / 7px 7px no-repeat; filter: drop-shadow(0 1px 1px #000); }   /* two rivets, top corners = "student card" mark, in place of the bevel (user, 2026-11-12). ::after only: ::before is the [data-tip] tooltip */
+html body :is(.im-card, .incoming-card, .slc-scard, .inq-dcard, .en-card, .en-scard, .db-card, .payer-card, #_a#_b)::after { content: ""; position: absolute; top: 8px; left: 8px; right: 8px; height: 7px; pointer-events: none; background: radial-gradient(circle 1.6px at 2.6px 2.3px, rgba(160,160,160,0.55), transparent) left top / 7px 7px no-repeat, radial-gradient(circle 3.5px at 3.5px 3.5px, #4a4a4a, #2b2b2b 1.9px, #141414 2.9px, #0a0a0a 3.3px, transparent 3.6px) left top / 7px 7px no-repeat, radial-gradient(circle 1.6px at 2.6px 2.3px, rgba(160,160,160,0.55), transparent) right top / 7px 7px no-repeat, radial-gradient(circle 3.5px at 3.5px 3.5px, #4a4a4a, #2b2b2b 1.9px, #141414 2.9px, #0a0a0a 3.3px, transparent 3.6px) right top / 7px 7px no-repeat; filter: drop-shadow(0 1px 1px #000); }   /* two rivets, top corners = "student card" mark, in place of the bevel (user, 2026-11-12). ::after only: ::before is the [data-tip] tooltip */
 html body .en-card > .en-card-head { padding-left: 26px; padding-right: 26px; }   /* Terminate / Skips / Availability rows: name and ▾ clear the rivets (8px in + 7px rivet; was 14px) */
 html body :is(.db-card, #_a#_b) { padding-left: 26px; padding-right: 26px; }   /* Dropbox cards: name + buttons clear the rivets (was 14px) */
 html body :is(.inq-dcard.ld-card, #_a#_b) { padding-left: 26px; padding-right: 26px; }   /* analytics cards (General, Trial Analysis, Holidays…): rows clear the rivets */
@@ -6399,7 +6399,7 @@ html body #tsStuWin .ts-stamp { font-family: "DM Mono", monospace; font-size: 10
 html body #tsStuWin textarea { font-family: Arial, Helvetica, sans-serif !important; font-size: 12px !important; }
 html body #tsStuWin .ts-lbl-icon { color: var(--muted); fill: var(--muted); }   /* the phone-in-hand at the icons' grey, not the text's (user, 2026-11-20) */
 /* The template windows' own To: picker is gone: the student is picked in the Text window (user, 2026-11-20) */
-html body :is(#tdNsWin, #tdZmWin, #ttOsWin) [id^="ttPk_"] { display: none; }
+/* the template windows show their own picker again: one window, TO + Send (user, 2026-11-21) */
 html body #ttTextWin .tt-msg-l { margin-top: 28px; }
 /* Travel Plan: the student cards narrower (user, 2026-11-20: "the cards are too big") */
 html body #tab-travel :is(.tv-rv-card, #_a#_b#_c) { max-width: 560px; }   /* about two thirds of the box */
@@ -6501,7 +6501,7 @@ html body #thModal .tr-emails .tr-bub::after { display: none; }
 html body #thModal > .settings-title { border-bottom: 0; padding-bottom: 18px; }
 html body #thModal .tr-cols > .tr-cell.tr-head { padding: 4px 24px 10px; background: none !important; border-left: 0 !important; border-bottom: 1px solid rgba(255,255,255,0.07); }
 html body #thModal .tr-cols > .tr-cell.tr-head .tr-sec-l { margin: 0; }
-html body #thModal .tr-emails .tr-bub.out { background: oklch(0.42 0.08 22) !important; border-color: oklch(0.42 0.08 22) !important; color: oklch(0.92 0.01 20) !important; }   /* muted red D (user, 2026-11-21; was tangerine, before that brownish orange) */
+html body #thModal .tr-emails .tr-bub.out { background: oklch(0.42 0.08 22) !important; border-color: oklch(0.42 0.08 22) !important; color: oklch(0.80 0.012 20) !important; }   /* muted red D (user, 2026-11-21; was tangerine, before that brownish orange) */
 html body #thModal .tr-emails .tr-bub.out .tr-more { color: #fff; border-color: rgba(255,255,255,0.45); background: rgba(0,0,0,0.12); }   /* Show all readable on the orange (was grey on orange) */
 html body #thModal .tr-emails .tr-bub.in { background: color-mix(in srgb, var(--muted) 22%, #131313) !important; border-color: color-mix(in srgb, var(--muted) 22%, #131313) !important; }   /* their emails darker, to sit with the deeper red (user, 2026-11-20) */
 html body #thModal .tr-emails .tr-bub { max-width: none; width: 100%; box-sizing: border-box; align-self: stretch; }   /* emails full width, unlike texts (user, 2026-11-20) */
@@ -6559,8 +6559,64 @@ html body #thModal .th-compose .rv-bub { position: relative; border-radius: 16px
 html body #thModal .th-compose .rv-bub::after { content: ""; position: absolute; bottom: -1px; right: -7px; width: 12px; height: 16px; background: inherit; pointer-events: none;
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M0 0 Q0.5 11 12 16 Q4 16.5 0 13.5 Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%;
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 16'%3E%3Cpath d='M0 0 Q0.5 11 12 16 Q4 16.5 0 13.5 Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; }
-html body #thModal .th-compose #thBody { background: oklch(0.42 0.08 22) !important; border-color: oklch(0.42 0.08 22) !important; color: oklch(0.92 0.01 20) !important; caret-color: #fff; box-shadow: none !important; border-radius: 16px !important; padding: 12px 16px; }   /* the email in the Thread's muted red, so Compose matches the Thread (user, 2026-11-21) */
+html body #thModal .th-compose #thBody { background: oklch(0.42 0.08 22) !important; border-color: oklch(0.42 0.08 22) !important; color: oklch(0.80 0.012 20) !important; caret-color: #fff; box-shadow: none !important; border-radius: 16px !important; padding: 12px 16px; }   /* the email in the Thread's muted red, so Compose matches the Thread (user, 2026-11-21) */
 html body #tbModal #tbOfferedSlots { margin-bottom: 0 !important; } html body #tbModal #tbOfferedSlots:not(:empty) { margin-bottom: 24px !important; }   /* offered times, 24 above Trial (user, 2026-11-21) */
 /* Yes/no confirm dialogs: the question as plain white text, not a red Bebas title (user, 2026-11-21).
    Warning! dialogs (they have a sub-heading, .rpm-dlg-body) keep their red title. */
 html body .rpm-dlg-confirm:not(:has(.rpm-dlg-body)) .rpm-dlg-title { font-family: Arial, Helvetica, sans-serif !important; font-size: 14px !important; font-weight: 400 !important; letter-spacing: 0 !important; text-transform: none !important; color: var(--t-bright) !important; text-shadow: none !important; }
+/* Applications Maybe / No: the Compose look (user, 2026-11-21) - 80% scale, Trial window spacing, muted red email box */
+html body #inqModal > * { zoom: var(--content-scale); max-height: calc(92vh / var(--content-scale)) !important; }
+html body #inqModal > * > .settings-title { margin-bottom: 26px; }
+html body #inqModal .field-label { margin-bottom: 10px; }
+html body #inqModal .tl-f + .tl-f { margin-top: 24px; }
+html body #inqModal .tl-msg:empty { display: none; }
+html body #inqModal .tl-acts { margin-top: 32px; }
+html body #inqModal .inq-to { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); }
+html body #inqModal .inq-to.none { color: var(--warn); }
+html body #inqModal #inqTplBody { background: oklch(0.42 0.08 22) !important; border-color: oklch(0.42 0.08 22) !important; color: oklch(0.80 0.012 20) !important; caret-color: #fff; box-shadow: none !important; border-radius: 16px !important; padding: 12px 16px; }
+html body #thModal .tr-bub { color: oklch(0.80 0.006 81) !important; }   /* Thread text bubbles (blue mine, grey theirs) read like the emails: 0.80 (user, 2026-11-21; were 0.63). The muted red email rule is more specific and keeps its own. */
+/* Template windows (Zoom lesson, No show, Optional schedule): TO small title + the picked name, then the chips (user, 2026-11-21) */
+html body :is(#tdNsWin, #tdZmWin, #ttOsWin) .field-label { margin-bottom: 10px; }
+html body :is(#tdNsWin, #tdZmWin, #ttOsWin) .tt-to-v { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-faint); }
+html body :is(#tdNsWin, #tdZmWin, #ttOsWin) .tt-to-v.on { color: var(--t-normal); }
+html body :is(#tdNsWin, #tdZmWin, #ttOsWin) .tt-pick { margin: 12px 0 24px; }
+html body :is(#tdNsWin, #tdZmWin, #ttOsWin) .en-tpl-foot { display: flex; justify-content: flex-end; } html body :is(#tdNsWin, #tdZmWin, #ttOsWin) .en-tpl-btns { display: flex; gap: 8px; margin-left: auto; }   /* Save / Send bottom right (user, 2026-11-21) */
+html body #ttOsWin .tt-os-foot { margin-top: 32px; }
+html body #calSvWin > .st-win:has(.sv-show-row) { height: auto !important; }   /* Student note: as tall as its contents, not the Schedule window's fixed size (user, 2026-11-21) */
+/* Log cash on the Trial window spacing (user, 2026-11-21): 26 under the title, small title 10 above its box, 24 between, 32 to ＋ Log */
+html body #cashModal > .settings-title { margin-bottom: 26px; }
+html body #cashModal .field-label { margin-bottom: 10px !important; }
+html body #cashModal #cashLogPanel .field-label { margin-top: 24px !important; }
+html body #cashModal #cashActs { margin-top: 32px !important; }
+html body :is(#tdNsWin, #tdZmWin, #ttOsWin) .tt-to-v:empty { display: none; }   /* nothing picked: no line under TO */
+html body #cashDdLabel:empty::before { content: "\200b"; }   /* empty picker keeps its height (no hint text, user 2026-11-21) */
+html body #payersModal .payers-intro { margin-bottom: 24px; }
+/* Payments · Contacts cards in THE CARD look (user, 2026-11-21: the old payer card looked ugly): lifted #1c1c1c card,
+   #353535 edge, two rivets, the student in Syne 16 like every student card, the added names in the reading font under it */
+html body #payersModal .payer-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+html body #payersModal .payer-card { position: relative; background: #1c1c1c !important; border: 1px solid #353535 !important; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.55); padding: 22px 26px 18px; }
+html body #payersModal .payer-card-head { font-family: "Syne", sans-serif; font-size: 16px; letter-spacing: 0; text-transform: none; color: oklch(0.8 0.006 81); margin-bottom: 10px; }
+html body #payersModal .payer-name { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; color: var(--t-normal); }
+/* Payments · History (user, 2026-11-21): names in the reading font so the eye lands on who first; 4px more room per row */
+html body #payHistoryModal .ph-name { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; color: var(--t-normal); }
+html body #payHistoryModal .pay-history-table td { padding-top: 10px; padding-bottom: 10px; }
+html body #payHistoryModal .pay-history-intro { margin-bottom: 24px; }
+/* Payments · Add contact on the window standard (user, 2026-11-21): PAYMENT FROM / STUDENT small titles,
+   the name as plain text, Log cash's student dropdown, Trial window spacing */
+html body #payAddModal .settings-modal > .settings-title { margin-bottom: 26px; }
+html body #payAddModal .field-label { margin-bottom: 10px; }
+html body #payAddModal .pa-who { margin: 0 0 24px; }
+html body #payAddModal .pa-name { font-family: Arial, Helvetica, sans-serif; font-size: 13px; letter-spacing: 0; color: var(--t-normal); }
+html body #payAddModal #payAddVal { width: 260px; max-width: 100%; display: flex; align-items: center; justify-content: space-between; }
+html body #payAddModal #payAddValTxt:empty::before { content: "\200b"; }
+html body #payAddModal .pa-acts { margin-top: 32px; }
+/* Reviews templates (user, 2026-11-21): Email + Send under each bubble, bottom right */
+html body #rvTplWin .rv-tpl-foot2 { display: flex; justify-content: flex-end; margin-top: 16px; }
+html body #rvTplWin .rv-tpl-foot2 .en-tpl-btns { display: flex; gap: 8px; }
+/* Reviews · Email in the Compose look: Trial window spacing, plain TO value, muted red message, buttons bottom right */
+html body #rvMailWin .settings-title { margin-bottom: 26px !important; }
+html body #rvMailWin .field-label { margin-bottom: 10px; display: block; }
+html body #rvMailWin .tl-f + .tl-f { margin-top: 24px; }
+html body #rvMailWin .rv-to-v { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); }
+html body #rvMailWin #rvMailBody { background: oklch(0.42 0.08 22) !important; border-color: oklch(0.42 0.08 22) !important; color: oklch(0.80 0.012 20) !important; caret-color: #fff; box-shadow: none !important; border-radius: 16px !important; padding: 12px 16px; }
+html body #rvMailWin .rv-tpl-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 32px !important; }

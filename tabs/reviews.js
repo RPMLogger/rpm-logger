@@ -107,21 +107,22 @@ function _rvTemplatesHtml(tpl, p, kind, phone) {
     var nudge = kind === 'nudge';
     var mail = nudge ? '' : '<button class="link-btn" onclick="_rvOpenMail(\'' + p + '\', ' + i + ')" data-tip="Opens a window.\nThe email.\nSending it saves today as the ' + (kind === 'ask' ? 'asked' : 'nudged') + ' date.">' +
       ENVELOPE_ICON + '<span>Email</span></button>';
+    // One window (user, 2026-11-21): Send texts the bubble straight from here (no second
+    // Text window); Email still opens its own window (subject + preview), in the Compose look.
     return '<div class="en-tpl">' +
       '<div class="en-tpl-top">' +
         // Text template 1, 2, 3 (user, 2026-10-26): starting points edited before
         // sending, so no names on them. t.label stays in the code as a note.
         '<span class="field-label">Text template ' + (i + 1) + '</span>' +
-        '<span class="en-tpl-btns">' +
-        // Text, not Copy (user, 2026-11-20): opens the Text window, sends from the portal like Comms.
-        (phone ? '<button class="link-btn" id="' + p + 'TextBtn-' + i + '" onclick="_rvOpenText(\'' + p + '\', ' + i + ')" ' +
-          'data-tip="Opens a window.\nThe text, sent from the portal like Comms.\nSending it saves today as the ' + (nudge ? 'nudged' : 'asked') + ' date.">' + SEND_ICON + '<span>Text</span></button>' : '') +
-        mail + '</span>' +
       '</div>' +
       // The Travel Plan's text message look (user, 2026-10-26): your blue bubble
       // on the right in a framed box; you can still edit it in place.
       '<div class="ts-thread tv-rv-thread rv-thread"><div id="' + p + 'TA-' + i + '" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only" spellcheck="false">' +
         _rvEscHtml(nudge ? t.text : _rvWithAlso(t.text)) + '</div></div>' +
+      '<div class="en-tpl-foot rv-tpl-foot2"><span class="en-tpl-btns">' + mail +
+        (phone ? '<button class="link-btn bright" id="' + p + 'TextBtn-' + i + '" onclick="_rvSendBubble(\'' + p + '\', ' + i + ', this)" ' +
+          'data-tip="Instant.\nTexts them this, from the portal like Comms.\nSending it saves today as the ' + (nudge ? 'nudged' : 'asked') + ' date." data-tip-left>' + SEND_ICON + '<span>Send</span></button>' : '') +
+      '</span></div>' +
     '</div>';
   }).join('') + msgs;   // one blue Open Messages at the foot (user, 2026-10-26)
 }
@@ -153,12 +154,14 @@ function _rvOpenMail(p, i) {
   // The Email button's envelope (om-31) under the title (user, 2026-10-26; was EMAIL_WIN_ICON).
   var w = _stWin('rvMailWin', _rvEscHtml(who.name || ''), 'Email', ENVELOPE_ICON.replace('<svg ', '<svg style="height:26px;width:auto" '),
     // To as a plain line like the Text window (user, 2026-11-20); a box only when no email is on file, to type one in
+    // The Compose look (user, 2026-11-21): TO / SUBJECT / MESSAGE small titles, the message in
+    // the muted red email box, Preview + Send bottom right (CSS #rvMailWin).
     (who.email
-      ? '<div class="td-mini-row rv-to-line"><span class="td-mini-t">To:</span> <span class="td-wk-name" id="rvMailTo">' + _rvEscHtml(who.email) + '</span></div>'
-      : '<div style="margin-bottom:16px">' + lbl('To', 'rvMailTo') + '<input id="rvMailTo" class="rpm-field" value=""></div>') +
-    '<div style="margin-bottom:16px">' + lbl('Subject', 'rvMailSubj') + '<input id="rvMailSubj" class="rpm-field" value="A Quick Favor"></div>' +
-    lbl('Message', 'rvMailBody') +
-    '<textarea id="rvMailBody" rows="14" class="rpm-field en-tpl-ta">' + _rvEscHtml(_rvWithoutAlso(ta.innerText)) + '</textarea>' +
+      ? '<div class="tl-f">' + lbl('To', 'rvMailTo') + '<div class="rv-to-v" id="rvMailTo">' + _rvEscHtml(who.email) + '</div></div>'
+      : '<div class="tl-f">' + lbl('To', 'rvMailTo') + '<input id="rvMailTo" class="rpm-field" value=""></div>') +
+    '<div class="tl-f">' + lbl('Subject', 'rvMailSubj') + '<input id="rvMailSubj" class="rpm-field" value="A Quick Favor"></div>' +
+    '<div class="tl-f">' + lbl('Message', 'rvMailBody') +
+    '<textarea id="rvMailBody" rows="14" class="rpm-field en-tpl-ta">' + _rvEscHtml(_rvWithoutAlso(ta.innerText)) + '</textarea></div>' +
     // Preview dim, Send bright, the house email shown under them (Trial's Compose).
     '<div class="inq-acts en-rv-acts rv-tpl-foot">' +
       '<button class="link-btn" onclick="_trRenderPreview(document.getElementById(\'rvMailBody\').value, \'rvMailPreview\')">' + DETAILS_ICON + '<span>Preview</span></button>' +
@@ -214,6 +217,41 @@ function _rvOpenText(p, i) {
   });
   setTimeout(function () { body.focus(); body.setSelectionRange(0, 0); body.scrollTop = 0; }, 30);
 }
+
+// Send from the bubble (user, 2026-11-21): the same send as the Text window had.
+function _rvSendBubble(p, i, btn) {
+  var ta = document.getElementById(p + 'TA-' + i);
+  var ph = document.querySelector('#rvTplWin .rv-tpl-phone');
+  if (!ta || !btn || btn.disabled) return;
+  var dg = (ph ? ph.textContent : '').replace(/\D/g, '');
+  var to = dg.length === 10 ? '+1' + dg : dg.length === 11 && dg.charAt(0) === '1' ? '+' + dg : dg ? '+' + dg : '';
+  var plain = typeof _trSmsPlain === 'function' ? _trSmsPlain : function (x) { return x; };
+  var body = plain(ta.innerText.replace(/\n+$/, '')).trim();
+  if (!to) { rpmAlert({ title: 'No phone number', message: 'There is no number for them on file.' }); return; }
+  if (!body) { rpmAlert({ title: 'Nothing to send', message: 'The message is empty.' }); return; }
+  var w = document.getElementById('rvTplWin'), panel = w && w.querySelector('.log-panel');
+  rpmBusy(panel, btn, true, 'Sending');
+  fetch(getScriptUrl() + '?action=sendCommsReply&to=' + encodeURIComponent(to) + '&body=' + encodeURIComponent(body))
+    .then(function (x) { return x.json(); })
+    .then(function (res) {
+      if (!res || !res.success) throw new Error(res && res.message || 'Not sent');
+      rpmBusy(panel, btn, false);
+      if (w) w.remove();
+      _rvCopied(p, (_rvTplWho && _rvTplWho.kind) || 'ask');   // saves the asked / nudged date
+    })
+    .catch(function (e) {
+      rpmBusy(panel, btn, false);
+      rpmAlert({ title: 'Not sent', message: String(e && e.message || e) });
+    });
+}
+// Cmd/Ctrl+Enter in a Reviews template bubble sends it.
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter' || !(e.metaKey || e.ctrlKey)) return;
+  var b = e.target && e.target.closest && e.target.closest('#rvTplWin .rv-bub');
+  if (!b) return;
+  var send = b.closest('.en-tpl').querySelector('.rv-tpl-foot2 .link-btn.bright');
+  if (send) { e.preventDefault(); send.click(); }
+});
 
 function _rvSendText(p) {
   var w = document.getElementById('rvTextWin'), btn = document.getElementById('rvTextSend');

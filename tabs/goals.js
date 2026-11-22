@@ -109,12 +109,24 @@ function _glRender(editRow) {
     return editRow === c.row ? _glFormHtml(c) : _glCheckinHtml(c);
   }).join('');
 
+  // The window IS the check-in (user, 2026-11-21): the last version's answers already in the
+  // boxes, change what changed, Save keeps it as the new version (a new dated row, so the
+  // sheet keeps the history). No starting point, no list: the last version is enough.
+  var latest = (d.checkins || [])[0];
+  var last = latest ? _glDay(latest.date) : 'Never';
+  var upd = !d.from ? '' : d.due ? '<span class="gl-upd gl-next-due">Due now</span>'
+    : (function () { var p = d.from.split('-'), nx = new Date(+p[0], +p[1] - 1, +p[2] + 90);
+        return '<span class="gl-upd">' + MONTHS[nx.getMonth()] + ' ' + nx.getDate() + ', ' + nx.getFullYear() + '</span>'; })();
   _glBody(
-    _imSub('Starting point', '', ' gl-start', startHtml) +
-    '<div class="db-cx-head im-sub-head gl-head"><label class="field-label db-cx-t im-sub-t">Check-ins</label>' + next +
-      (adding || editRow ? '' : '<button class="link-btn gl-add" onclick="_glRender(0)" data-tip="Instant.\nThe five questions, dated today." data-tip-left>＋ New check-in</button>') + '</div>' +
-    (adding ? _glFormHtml(null) : '') +
-    (list || (adding ? '' : '<div class="db-panel im-list gl-none">No check-ins yet</div>'))
+    '<div class="gl-top"><div><label class="field-label">Last update</label><span class="gl-upd">' + last + '</span></div>' +
+      (upd ? '<div><label class="field-label">Next update</label>' + upd + '</div>' : '') + '</div>' +
+    '<div class="gl-form gl-one" data-row="">' +
+      GL_QS.map(function (q) {
+        return '<label class="gl-q" for="glF_' + q[0] + '">' + q[1] + '</label>' +
+          '<textarea id="glF_' + q[0] + '" rows="2" class="rpm-field gl-field" oninput="_glGrow(this)">' + (latest ? inqEsc(latest[q[0]] || '') : '') + '</textarea>';
+      }).join('') +
+      '<div class="gl-acts"><button class="link-btn bright gl-save" onclick="_glSave(this)" data-tip="Instant.\nSaves this as the new version, dated today.">Save</button></div>' +
+    '</div>'
   );
   var first = _glPanel().querySelector('.gl-form textarea');
   if (first) { first.focus(); _glPanel().querySelectorAll('.gl-form textarea').forEach(_glGrow); }

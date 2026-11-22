@@ -127,7 +127,7 @@ function _skLogForm(students) {
   function paintSel() {
     // Gray placeholder like the unselected Teacher/Vacation buttons; picked name a bit brighter.
     selBtn.style.color = sel.value ? 'rgba(255,255,255,0.62)' : 'var(--muted)';
-    selBtn.innerHTML = "<span style='overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" + _skEsc(sel.value || 'Pick student…') + "</span>" +
+    selBtn.innerHTML = "<span style='overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>" + _skEsc(sel.value || '') + "</span>" +
                        "<span style='color:var(--muted);font-size:9px;flex:0 0 auto'>▾</span>";
     selList.innerHTML = '';
     students.forEach(function(s) {

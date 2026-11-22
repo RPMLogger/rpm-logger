@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=1499">
-  <link rel="stylesheet" href="css/goals.css?v=1499">
-  <link rel="stylesheet" href="css/lessontimer.css?v=1499">
-  <link rel="stylesheet" href="css/rack.css?v=1499">   <!-- THE RACK: trial on Lessons only (user, 2026-11-14), drawn by core/rack.js -->
-  <link rel="stylesheet" href="css/msgrack.css?v=1499">
+  <link rel="stylesheet" href="css/styles.css?v=1500">
+  <link rel="stylesheet" href="css/goals.css?v=1500">
+  <link rel="stylesheet" href="css/lessontimer.css?v=1500">
+  <link rel="stylesheet" href="css/rack.css?v=1500">   <!-- THE RACK: trial on Lessons only (user, 2026-11-14), drawn by core/rack.js -->
+  <link rel="stylesheet" href="css/msgrack.css?v=1500">
 </head>
 <body>
 <div class="container">
@@ -20,7 +20,7 @@
     <img src="img/portal-logo-grey.png" alt="Red Pick Music">   <!-- badge lettering grey, the portal text grey (user, 2026-11-08; white original = img/portal-logo.png) -->
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1499</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1500</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -357,6 +357,8 @@
       </div>
       <div style="margin:4px 0 18px" data-icon="pay"></div>   <!-- every window: its icon under the title (Day 5, 2026-11-19) -->
       <div id="payHistoryIcon" style="margin:4px 0 18px"></div>
+      <!-- what the dot means (user, 2026-11-21) -->
+      <div class="payers-intro pay-history-intro"><div>• A dot after a name means the payment has a note. Hover the name to read it.</div></div>
       <div id="payHistoryList"></div>
     </div>
   </div>
@@ -371,7 +373,8 @@
         <button class="settings-close" onclick="closePayers()">✕</button>
       </div>
       <div id="payersIcon" style="margin:4px 0 10px"></div>
-      <div class="payers-intro">Anyone on a student’s card can pay for them and the payment confirms itself. A new name is added from the payment it came in on.</div>
+      <!-- two lines, bulleted (user, 2026-11-21) -->
+      <div class="payers-intro"><div>• Anyone on a student’s card can pay for them, and the payment confirms itself.</div><div>• A new name is added from the payment it came in on.</div></div>
       <div id="payersList"></div>
     </div>
   </div>
@@ -387,7 +390,7 @@
       <div style="margin:4px 0 18px" data-icon="pay"></div>   <!-- every window: its icon under the title (Day 5, 2026-11-19) -->
       <div id="payAddIcon" style="margin:4px 0 10px"></div>   <!-- the $ icon, like Payers / Payment history (user, 2026-10-30) -->
       <div class="pa-who" id="payAddWho"></div>
-      <div class="pa-label">Add contact to</div>
+      <div class="field-label">Student</div>
       <div id="payAddPick"></div>
       <div class="pa-acts">
         <span class="pa-state" id="payAddState"></span>
@@ -409,7 +412,7 @@
       <div id="cashIcon" style="margin:4px 0 18px"></div>
       <div class="field-label">Student</div>
       <div class="cash-dd" id="cashDd">
-        <button type="button" class="rpm-field cash-dd-btn" id="cashDdBtn" onclick="cashDdToggle()"><span id="cashDdLabel">Pick student</span><span class="cash-dd-caret"></span></button>
+        <button type="button" class="rpm-field cash-dd-btn" id="cashDdBtn" onclick="cashDdToggle()"><span id="cashDdLabel"></span><span class="cash-dd-caret"></span></button>
         <div class="cash-dd-list" id="cashDdList" hidden></div>
       </div>
       <div id="cashLogPanel">
@@ -907,63 +910,63 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=1499"></script>
-<script src="core/storage.js?v=1499"></script>
-<script src="core/utils.js?v=1499"></script>
-<script src="core/dialog.js?v=1499"></script>
-<script src="core/api.js?v=1499"></script>
-<script src="core/secalert.js?v=1499"></script>
-<script src="core/magnifier.js?v=1499"></script>
-<script src="core/nav.js?v=1499"></script>
-<script src="core/rackscreen.js?v=1499"></script>
-<script src="core/msgrack.js?v=1499"></script>
+<script src="core/state.js?v=1500"></script>
+<script src="core/storage.js?v=1500"></script>
+<script src="core/utils.js?v=1500"></script>
+<script src="core/dialog.js?v=1500"></script>
+<script src="core/api.js?v=1500"></script>
+<script src="core/secalert.js?v=1500"></script>
+<script src="core/magnifier.js?v=1500"></script>
+<script src="core/nav.js?v=1500"></script>
+<script src="core/rackscreen.js?v=1500"></script>
+<script src="core/msgrack.js?v=1500"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=1499"></script>
-<script src="tabs/lessons.js?v=1499"></script>
-<script src="tabs/payments.js?v=1499"></script>
-<script src="tabs/general.js?v=1499"></script>
-<script src="tabs/financial.js?v=1499"></script>
-<script src="tabs/inquiries.js?v=1499"></script>
-<script src="tabs/inqarchive.js?v=1499"></script>
-<script src="tabs/comms.js?v=1499"></script>
-<script src="tabs/announce.js?v=1499"></script>
-<script src="tabs/notes.js?v=1499"></script>
-<script src="tabs/todo.js?v=1499"></script>
-<script src="tabs/availability.js?v=1499"></script>
-<script src="tabs/travel.js?v=1499"></script>
-<script src="tabs/tripsummary.js?v=1499"></script>
-<script src="tabs/triphistory.js?v=1499"></script>
-<script src="tabs/skips.js?v=1499"></script>
-<script src="tabs/student.js?v=1499"></script>
-<script src="tabs/ctrl.js?v=1499"></script>
-<script src="tabs/emails.js?v=1499"></script>
-<script src="tabs/dropbox.js?v=1499"></script>
-<script src="tabs/import.js?v=1499"></script>
-<script src="tabs/today.js?v=1499"></script>
-<script src="tabs/home.js?v=1499"></script>
-<script src="tabs/trial.js?v=1499"></script>
-<script src="tabs/ending.js?v=1499"></script>
-<script src="tabs/reviews.js?v=1499"></script>
-<script src="tabs/financial2.js?v=1499"></script>
-<script src="tabs/studentline.js?v=1499"></script>
-<script src="tabs/calendar.js?v=1499"></script>
-<script src="tabs/fixedcal.js?v=1499"></script>
-<script src="tabs/slotchange.js?v=1499"></script>
-<script src="tabs/help.js?v=1499"></script>
-<script src="tabs/holidays.js?v=1499"></script>
-<script src="tabs/archive.js?v=1499"></script>
-<script src="tabs/texttemplates.js?v=1499"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
-<script src="tabs/goals.js?v=1499"></script>
-<script src="tabs/schednotes.js?v=1499"></script>
-<script src="tabs/logtimer.js?v=1499"></script>
-<script src="core/usage.js?v=1499"></script>
-<script src="core/rack.js?v=1499"></script>
-<script src="tabs/usage.js?v=1499"></script>
-<script src="tabs/guitartypes.js?v=1499"></script>
-<script src="tabs/lessontimer.js?v=1499"></script>
-<script src="tabs/dayclock.js?v=1499"></script>
-<script src="tabs/report.js?v=1499"></script>
+<script src="tabs/icons.js?v=1500"></script>
+<script src="tabs/lessons.js?v=1500"></script>
+<script src="tabs/payments.js?v=1500"></script>
+<script src="tabs/general.js?v=1500"></script>
+<script src="tabs/financial.js?v=1500"></script>
+<script src="tabs/inquiries.js?v=1500"></script>
+<script src="tabs/inqarchive.js?v=1500"></script>
+<script src="tabs/comms.js?v=1500"></script>
+<script src="tabs/announce.js?v=1500"></script>
+<script src="tabs/notes.js?v=1500"></script>
+<script src="tabs/todo.js?v=1500"></script>
+<script src="tabs/availability.js?v=1500"></script>
+<script src="tabs/travel.js?v=1500"></script>
+<script src="tabs/tripsummary.js?v=1500"></script>
+<script src="tabs/triphistory.js?v=1500"></script>
+<script src="tabs/skips.js?v=1500"></script>
+<script src="tabs/student.js?v=1500"></script>
+<script src="tabs/ctrl.js?v=1500"></script>
+<script src="tabs/emails.js?v=1500"></script>
+<script src="tabs/dropbox.js?v=1500"></script>
+<script src="tabs/import.js?v=1500"></script>
+<script src="tabs/today.js?v=1500"></script>
+<script src="tabs/home.js?v=1500"></script>
+<script src="tabs/trial.js?v=1500"></script>
+<script src="tabs/ending.js?v=1500"></script>
+<script src="tabs/reviews.js?v=1500"></script>
+<script src="tabs/financial2.js?v=1500"></script>
+<script src="tabs/studentline.js?v=1500"></script>
+<script src="tabs/calendar.js?v=1500"></script>
+<script src="tabs/fixedcal.js?v=1500"></script>
+<script src="tabs/slotchange.js?v=1500"></script>
+<script src="tabs/help.js?v=1500"></script>
+<script src="tabs/holidays.js?v=1500"></script>
+<script src="tabs/archive.js?v=1500"></script>
+<script src="tabs/texttemplates.js?v=1500"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
+<script src="tabs/goals.js?v=1500"></script>
+<script src="tabs/schednotes.js?v=1500"></script>
+<script src="tabs/logtimer.js?v=1500"></script>
+<script src="core/usage.js?v=1500"></script>
+<script src="core/rack.js?v=1500"></script>
+<script src="tabs/usage.js?v=1500"></script>
+<script src="tabs/guitartypes.js?v=1500"></script>
+<script src="tabs/lessontimer.js?v=1500"></script>
+<script src="tabs/dayclock.js?v=1500"></script>
+<script src="tabs/report.js?v=1500"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
