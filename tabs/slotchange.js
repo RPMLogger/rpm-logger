@@ -9,7 +9,7 @@
 //   2 Set the time under the weeks, Confirm: the Warning! box, then the
 //     change (applySlotChange: mute till the midnight relabel, new series, old
 //     one ended from the picked lesson's week on); the weeks reload after
-//   3 Email: "Your Recurring Slot Has Changed" goes on its own with the change
+//   3 Email: "IMPORTANT: Your Regular Lesson Spot Has Changed" goes on its own with the change
 //     (2026-10-30, the Secretary's format; keeps a Counter "Slot Changes" row)
 // One lesson a week: no start day in a week they already had their lesson.
 // Backend RPM_SlotChange.gs: getSlotChange, applySlotChange, checkSlotChange;
@@ -228,7 +228,7 @@ function _slcConfirmAsk() {
     message: '→ ' + first + ' is muted for the rest of today: no Secretary activity until the midnight relabel.\n\n' +
       '→ New ' + (_slc.type === 'biweekly' ? 'biweekly' : 'weekly') + ' series from ' + _slcDateLbl(_slc.date) + ' at ' + _slcTimeLbl(n.startMin) + '.\n\n' +
       '→ The old series ends' + (lastOld ? ': ' + first + "'s last lesson on it is " + _slcDateLbl(lastOld) : '') + '.\n\n' +
-      '→ ' + first + ' gets the "Your Recurring Slot Has Changed" email.\n\n' +
+      '→ ' + first + ' gets the "IMPORTANT: Your Regular Lesson Spot Has Changed" email.\n\n' +
       '→ This cannot be undone.',
     confirmLabel: 'Change slot',
     icon: WARN_ICON,
