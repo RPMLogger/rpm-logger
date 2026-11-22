@@ -1035,6 +1035,13 @@ function _calOpenActions(ev, to) {
     _imReschedule(ev.title, { pre: ev.date, time: lesson.time, onDone: function() { _calLoad(); } });
     return;
   }
+  // A drag goes straight to Reschedule (user, 2026-11-21; was the Skip / Reschedule chooser):
+  // the lesson picked, the dropped day and time already decided, so only Who asked → Confirm move.
+  var tp = to && to.ymd.split('-'), d1 = tp && new Date(+tp[0], +tp[1] - 1, +tp[2]);
+  if (to && d0 >= today && d0 < last && d1 >= today && d1 < last && typeof _imReschedule === 'function') {
+    _imReschedule(ev.title, { mode: 'move', pre: ev.date, time: lesson.time, drop: to, onDone: function() { _calLoad(); } });
+    return;
+  }
   _stOpenLessonActions(ev.title, lesson, {
     fromCalendar: true,
     to: to,

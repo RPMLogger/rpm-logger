@@ -2491,6 +2491,13 @@ function _imRsLoad(name, o) {
     // From the Calendar tab: the clicked lesson comes up picked (2026-10-27).
     var pre = o.pre && strips.querySelector('button[data-ymd="' + o.pre + '"][data-has="1"]');
     if (pre) pre.click();
+    // A Calendar drag (2026-11-21): the dropped day and time come up decided too.
+    var dr = pre && o.drop && strips.querySelector('button[data-ymd="' + o.drop.ymd + '"]');
+    if (dr && _stPickSel) {
+      if (dr === pre) { _stPickSel.time = _stHhmm(o.drop.time); _stPickSameDay(); }
+      else { dr.click(); if (_stPickSel.to === dr) { _stPickSel.time = _stHhmm(o.drop.time); _stPickTimeShown(); } }
+      if (_stPickSel.to) _stPickDecide();
+    }
   }
   // From the Calendar tab the weeks show at once with the clicked lesson picked,
   // dimmed with LOADING until the other lessons come in (user, 2026-10-28).
