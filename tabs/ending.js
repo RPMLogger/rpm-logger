@@ -107,6 +107,7 @@ function _enRenderCard(i, d) {
   // Blank values show as a dash.
   var rateNum = String(s.finalRate == null ? '' : s.finalRate).replace(/[^0-9.]/g, '');
   var dn = s.density;
+  var pk = sk.planned || {}, pl = { 'Skips (S)': pk.student || 0, 'Skips (T)': pk.teacher || 0, 'Skips (V)': pk.vacation || 0 };
   var rows = [
     ['Start Date', s.startDate], ['End Date', s.endDate], ['Lifetime', s.lifetime],
     ['# of Lessons', s.totalLessons],
@@ -127,12 +128,13 @@ function _enRenderCard(i, d) {
     // The Inquiries card's field grid: dim label, value beside it.
     if (GAP.indexOf(row[0]) !== -1) html += '<span class="en-fgap"></span>';
     var tip = row[0] === 'Density'
-      ? ' data-tip="' + (dn ? dn.had + ' of ' + dn.owed + ' lessons since Jul 8, 2026.\n' : 'Nothing to measure yet.\n') +
+      ? ' data-tip="' + (dn ? dn.had + ' of ' + dn.owed + ' lessons since ' + (dn.from || 'Jul 8, 2026') + '.\n' : 'Nothing to measure yet.\n') +
         'Teacher and vacation skips don\'t count against them."'
       : '';
     html += '<span class="inq-flabel">' + row[0] + '</span><span class="inq-fval' +
       (AMBER.indexOf(row[0]) !== -1 ? ' en-amber' : '') + '"' + tip + '>' + _enEscHtml(String(row[1])) +
-      (row[0] === 'Density' && dn ? '<span class="en-since">(since Jul 8, 2026)</span>' : '') + '</span>';
+      (row[0] === 'Density' && dn ? '<span class="en-since">(since ' + (dn.from || 'Jul 8, 2026') + ')</span>' : '') +   // their first lesson counted (2026-11-22)
+      (pl[row[0]] ? '<span class="en-since">(+' + pl[row[0]] + ' planned)</span>' : '') + '</span>';   // skips still ahead, apart
   });
   html += '</div>';
   html += _enAskHtml(i);

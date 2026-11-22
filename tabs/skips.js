@@ -366,7 +366,7 @@ function _skLoadDensity() {
 function _skDensitySpan(name) {
   var k = String(name).toLowerCase(), dn = _skDensity && _skDensity[k];
   return "<span class='sk-dn' data-sk-dn='" + _skEsc(k) + "'" +
-    (dn ? " data-tip='" + dn.had + " of " + dn.owed + " lessons since Jul 8, 2026.\nTeacher and vacation skips don&#39;t count against them.'>" + dn.pct + "%" : ">") +
+    (dn ? " data-tip='" + dn.had + " of " + dn.owed + " lessons since " + (dn.from || 'Jul 8, 2026') + ".\nTeacher and vacation skips don&#39;t count against them.'>" + dn.pct + "%" : ">") +
     "</span>";
 }
 
