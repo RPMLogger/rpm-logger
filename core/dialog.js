@@ -87,6 +87,13 @@ function _rpmDialog(opts) {
       msg.textContent = opts.message;
       bodyBox.appendChild(msg);
     }
+    // html: optional block under the message (an email preview; Dropbox Recover, 2026-11-21).
+    if (opts.html) {
+      var extra = document.createElement("div");
+      extra.className = "rpm-dlg-extra";
+      extra.innerHTML = opts.html;
+      box.appendChild(extra);
+    }
 
     // ── input (prompt only) ──
     var input = null;

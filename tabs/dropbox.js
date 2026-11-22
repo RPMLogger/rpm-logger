@@ -18,21 +18,21 @@ function initDropboxTab() {
   var url = getScriptUrl();
   var body = document.getElementById('dropboxBody');
   if (!url) {
-    body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>';
+    body.innerHTML = _dbPlate('<div class="empty-state">Set your Apps Script URL in settings first.</div>');
     return;
   }
-  body.innerHTML = '<div class="empty-state rpm-loading">Checking Dropbox</div>';   // the portal's spinning ring (user, 2026-10-21)
+  body.innerHTML = _dbPlate('<div class="empty-state rpm-loading">Checking Dropbox</div>');   // the portal's spinning ring (user, 2026-10-21)
   fetch(url + '?action=getDropboxFolders')
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d.success) {
-        body.innerHTML = '<div class="empty-state">⚠ ' + (d.message || 'Could not load Dropbox') + '</div>';
+        body.innerHTML = _dbPlate('<div class="empty-state">⚠ ' + (d.message || 'Could not load Dropbox') + '</div>');
         return;
       }
       renderDropbox(d);
     })
     .catch(function () {
-      body.innerHTML = '<div class="empty-state">❌ Could not connect to Dropbox.</div>';
+      body.innerHTML = _dbPlate('<div class="empty-state">❌ Could not connect to Dropbox.</div>');
     });
 }
 
@@ -57,7 +57,11 @@ function _dbAgeText(age) {
 function _dbTitle(part, right, first) {
   return '<div class="settings-title"><span>' + (first || 'Dropbox') + '<span class="win-sub"> · ' + part + '</span></span>' + (right || '') + '</div>';
 }
+// Plates (user, 2026-11-21, like Report): Overview · Student folders · Lesson folders. Loading / errors sit in one.
+function _dbPlate(html, cls) { return '<div class="td-wk-box db-plate' + (cls ? ' ' + cls : '') + '">' + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') + html + '</div>'; }
 function _dbLbl(t) { return '<label class="field-label">' + t + '</label>'; }
+// The buttons under a Fix window's item: right-aligned, 32 below the last item (css: #dbFixModal .tl-acts).
+function _dbFixActs(html) { return '<div class="tl-acts">' + html + '</div>'; }
 function _dbActs(html) {
   return '<div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:16px">' + html + '</div>';
 }
@@ -81,22 +85,20 @@ function _dbAuditHtml(audit) {
   var duplicates = audit.duplicates || [];
   // What each line checks lives in its tooltip (2026-10-02), not in the
   // Fix window.
-  function check(label, ok, tip) {
-    // The tip sits on the checkbox (2026-10-02).
-    return '<div class="db-check' + (ok ? ' on' : '') + '"><span class="db-tip" data-tip="' + tip + '"><i class="db-box"></i></span>' + label + '</div>';
+  function check(label, ok, tip, kind) {
+    // The tip sits on the checkbox (2026-10-02). An unticked line carries its own Fix,
+    // which opens a window for that problem only (user, 2026-11-21; was one Fix under the list).
+    return '<div class="db-check' + (ok ? ' on' : '') + '"><span class="db-tip" data-tip="' + tip + '"><i class="db-box"></i></span>' + label +
+      (ok ? '' : '<button class="link-btn db-check-fix opens-window" onclick="_dbOpenFix(\'' + kind + '\')" data-tip="Opens a window.\nThis problem and its fix." data-tip-left>' + REPAIR_ICON + '<span>Fix</span></button>') + '</div>';
   }
   var html = '<div class="win-gap">' + _dbLbl('Folder audit') +
     '<div class="db-audit">' +
-      check('Every student has a folder', !missing.length, 'Every student in the RPM-Counter has a Dropbox folder.') +
-      check('No leftover folders from old students', !orphans.length, 'No folder belongs to someone who is no longer in the RPM-Counter.') +
-      check('Folder names match the RPM-Counter', !mismatches.length, 'Each folder is spelled exactly like the student’s name in the RPM-Counter.') +
-      check('Every folder is shared', !notShared.length, 'Each student’s folder is shared with them, so they can see their homework.') +
-      check('No duplicate folders', !duplicates.length, 'No two folders with nearly the same name, like Huda Ayaz and Huda Ayaz 2.') +
+      check('Every student has a folder', !missing.length, 'Every student in the RPM-Counter has a Dropbox folder.', 'missing') +
+      check('No leftover folders from old students', !orphans.length, 'No folder belongs to someone who is no longer in the RPM-Counter.', 'orphans') +
+      check('Folder names match the RPM-Counter', !mismatches.length, 'Each folder is spelled exactly like the student’s name in the RPM-Counter.', 'mismatches') +
+      check('Every folder is shared', !notShared.length, 'Each student’s folder is shared with them, so they can see their homework.', 'notShared') +
+      check('No duplicate folders', !duplicates.length, 'No two folders with nearly the same name, like Huda Ayaz and Huda Ayaz 2.', 'duplicates') +
     '</div>';
-  // Anything unticked: one Fix button under the list opens the Fix window.
-  if (missing.length || orphans.length || mismatches.length || notShared.length || duplicates.length) {
-    html += _dbActs('<button class="link-btn" onclick="_dbOpenFix()" data-tip="Opens a window.\nEach unticked line with its fix.">' + REPAIR_ICON + '<span>Fix</span></button>');
-  }
   return html + '</div>';
 }
 
@@ -122,10 +124,15 @@ function _dbSpaceHtml(d) {
 // Same frame as the Text window. One section per unticked audit line, in the
 // list's order, each with its fix. A fix that works closes the window and
 // re-reads the tab; one that fails says so on the window's last line.
-function _dbOpenFix() {
+function _dbOpenFix(only) {
   var a = _dbAudit || {};
   var missing = a.missing || [], orphans = a.orphans || [], mismatches = a.mismatches || [],
       notShared = a.notShared || [], duplicates = a.duplicates || [];
+  // only: the one audit line's own window (user, 2026-11-21); the others stay out.
+  if (only) {
+    if (only !== 'missing') missing = []; if (only !== 'orphans') orphans = []; if (only !== 'mismatches') mismatches = [];
+    if (only !== 'notShared') notShared = []; if (only !== 'duplicates') duplicates = [];
+  }
   // Title names the problem (2026-10-02): "Fix · Student missing folder".
   // One kind of problem → its name is the title and the section skips its
   // label; several → "Fix · Folder audit" and each section keeps its label.
@@ -143,18 +150,15 @@ function _dbOpenFix() {
         // Create & share: makes the folder, shares it, Dropbox emails the
         // student an invite carrying the invite message, then the house email
         // (this body + the Dropbox Instructions PDF) follows from you.
-        return '<div style="margin-bottom:14px">' +
-          _dbLbl('Folder name') + _dbRow(m.name) +   // field grey, like the boxes under it
-          '<div style="margin-top:20px">' + _dbLbl('Share with') + '</div>' +
-          '<input id="dbCreateEmail-' + i + '" class="rpm-field" type="text" value="' + _dbEsc(m.email || '') + '" placeholder="student email">' +
-          '<div style="margin-top:20px">' + _dbLbl('Dropbox invite message') + '</div>' +
-          '<textarea id="dbCreateMsg-' + i + '" class="rpm-field" rows="3">' + _dbEsc(DB_INVITE_MSG) + '</textarea>' +
-          '<div style="margin-top:20px">' + _dbLbl('Email · Dropbox Instructions') + '</div>' +
-          '<textarea id="dbCreateBody-' + i + '" class="rpm-field" rows="3">' + _dbEsc(DB_EMAIL_MSG) + '</textarea>' +
-          '<div style="margin-top:20px">' + _dbLbl('Attachments') + '</div>' +
-          '<div class="tl-docs"><a class="tl-doc" href="' + DB_PDF_LINK + '" target="_blank" rel="noopener"><span>Dropbox Instructions - 2026.pdf</span>' + OPEN_OUT_ICON + '</a></div>' +
-          _dbActs('<button class="link-btn" onclick="_dbPreviewEmail(\'dbCreateBody-' + i + '\',\'dbPreview-' + i + '\')">' + DETAILS_ICON + '<span>Preview</span></button>' +
-            '<button class="link-btn bright" onclick="_dbCreateFolder(\'' + _dbEsc(m.name) + '\',' + i + ',this)">' + ROW_ADD_ICON + '<span>Create &amp; share</span></button>') +
+        return '<div class="db-fix-item">' +   // Folder not shared's form (user, 2026-11-21): name plain, no Email box, the email shown below
+          '<div class="tl-f">' + _dbLbl('Folder name') + '<div class="ms-val">' + inqEsc(m.name) + '</div></div>' +
+          '<div class="tl-f">' + _dbLbl('Share with') +
+          '<input id="dbCreateEmail-' + i + '" class="rpm-field" type="text" value="' + _dbEsc(m.email || '') + '"></div>' +
+          '<div class="tl-f">' + _dbLbl('Dropbox invite message') +
+          '<textarea id="dbCreateMsg-' + i + '" class="rpm-field" rows="3">' + _dbEsc(DB_INVITE_MSG) + '</textarea></div>' +
+          '<div class="tl-f">' + _dbLbl('Attachments') +
+          '<div class="tl-docs"><a class="tl-doc" href="' + DB_PDF_LINK + '" target="_blank" rel="noopener"><span>Dropbox Instructions - 2026.pdf</span>' + OPEN_OUT_ICON + '</a></div></div>' +
+          _dbFixActs('<button class="link-btn bright" onclick="_dbCreateFolder(\'' + _dbEsc(m.name) + '\',' + i + ',this)">' + ROW_ADD_ICON + '<span>Create &amp; share</span></button>') +
           '<div id="dbPreview-' + i + '"></div>' +
         '</div>';
       }).join(''));
@@ -166,10 +170,10 @@ function _dbOpenFix() {
         // what you're deleting before you delete it.
         var f = (_dbFolders || []).filter(function (x) { return x.name === n; })[0];
         var inside = !f || f.empty ? 'Empty' : _dbSize(f.bytes);
-        return '<div style="margin-bottom:14px">' +
-          _dbLbl('Folder name') + _dbRow(n) +
-          '<div style="margin-top:20px">' + _dbLbl('Inside') + '</div>' + _dbRow(inside) +
-          _dbActs('<button class="link-btn" onclick="openDropboxLocalFolder(\'' + _dbEsc(n) + '\')"><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
+        return '<div class="db-fix-item">' +   // plain text, the protocol spacing (user, 2026-11-21)
+          '<div class="tl-f">' + _dbLbl('Folder name') + '<div class="ms-val">' + inqEsc(n) + '</div></div>' +
+          '<div class="tl-f">' + _dbLbl('Inside') + '<div class="ms-val">' + inqEsc(inside) + '</div></div>' +
+          _dbFixActs('<button class="link-btn" onclick="openDropboxLocalFolder(\'' + _dbEsc(n) + '\')"><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
             '<button class="link-btn bright" onclick="_dbDeleteFolder(\'' + _dbEsc(n) + '\',this)" ' +
               'data-tip="Instant.\nUnshares the folder and moves it to Dropbox trash.\nRecoverable from Dropbox for about 30 days." data-tip-wrap data-tip-left>' + TRASH_ICON + '<span>Delete</span></button>') +
         '</div>';
@@ -178,10 +182,11 @@ function _dbOpenFix() {
   if (mismatches.length) {
     html += sec('Name mismatch', '',
       mismatches.map(function (mm) {
-        return '<div style="margin-bottom:14px">' +
-          _dbLbl('Dropbox folder') + _dbRow(mm.folder) +
-          '<div style="margin-top:20px">' + _dbLbl('RPM-Counter') + '</div>' + _dbRow(mm.roster) +
-          _dbActs('<button class="link-btn" onclick="openDropboxLocalFolder(\'' + _dbEsc(mm.folder) + '\')"><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
+        // Both names as plain text: nothing to type here (user, 2026-11-21; were entry boxes).
+        return '<div class="db-fix-item">' +
+          '<div class="tl-f">' + _dbLbl('Dropbox folder') + '<div class="ms-val">' + inqEsc(mm.folder) + '</div></div>' +
+          '<div class="tl-f">' + _dbLbl('RPM-Counter') + '<div class="ms-val">' + inqEsc(mm.roster) + '</div></div>' +
+          _dbFixActs('<button class="link-btn" onclick="openDropboxLocalFolder(\'' + _dbEsc(mm.folder) + '\')"><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
             '<button class="link-btn bright" onclick="_dbCorrectFolder(\'' + _dbEsc(mm.folder) + '\',\'' + _dbEsc(mm.roster) + '\',this)" ' +
               'data-tip="Instant.\nRenames the Dropbox folder to the RPM-Counter spelling.\nIts files and sharing stay as they are." data-tip-wrap data-tip-left><span>Rename</span></button>') +
         '</div>';
@@ -191,18 +196,16 @@ function _dbOpenFix() {
     html += sec('Folder not shared', '',
       notShared.map(function (n, k) {
         var em = (a.notSharedEmails || {})[n] || '';
-        return '<div style="margin-bottom:14px">' +
-          _dbLbl('Folder name') + _dbRow(n) +
-          '<div style="margin-top:20px">' + _dbLbl('Share with') + '</div>' +
-          '<input id="dbShareEmail-' + k + '" class="rpm-field" type="text" value="' + _dbEsc(em) + '" placeholder="student email">' +
-          '<div style="margin-top:20px">' + _dbLbl('Dropbox invite message') + '</div>' +
-          '<textarea id="dbShareMsg-' + k + '" class="rpm-field" rows="3">' + _dbEsc(DB_INVITE_MSG) + '</textarea>' +
-          '<div style="margin-top:20px">' + _dbLbl('Email · Dropbox Instructions') + '</div>' +
-          '<textarea id="dbShareBody-' + k + '" class="rpm-field" rows="3">' + _dbEsc(DB_EMAIL_MSG) + '</textarea>' +
-          '<div style="margin-top:20px">' + _dbLbl('Attachments') + '</div>' +
-          '<div class="tl-docs"><a class="tl-doc" href="' + DB_PDF_LINK + '" target="_blank" rel="noopener"><span>Dropbox Instructions - 2026.pdf</span>' + OPEN_OUT_ICON + '</a></div>' +
-          _dbActs('<button class="link-btn" onclick="openDropboxLocalFolder(\'' + _dbEsc(n) + '\')"><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
-            '<button class="link-btn" onclick="_dbPreviewEmail(\'dbShareBody-' + k + '\',\'dbSharePreview-' + k + '\')">' + DETAILS_ICON + '<span>Preview</span></button>' +
+        return '<div class="db-fix-item">' +   // the protocol (user, 2026-11-21): folder name plain text, the rest editable
+          '<div class="tl-f">' + _dbLbl('Folder name') + '<div class="ms-val">' + inqEsc(n) + '</div></div>' +
+          '<div class="tl-f">' + _dbLbl('Share with') +
+          '<input id="dbShareEmail-' + k + '" class="rpm-field" type="text" value="' + _dbEsc(em) + '"></div>' +   // no hint text (user, 2026-11-21)
+          '<div class="tl-f">' + _dbLbl('Dropbox invite message') +
+          '<textarea id="dbShareMsg-' + k + '" class="rpm-field" rows="3">' + _dbEsc(DB_INVITE_MSG) + '</textarea></div>' +
+          // No Email box: the email shows as it goes out, under the buttons (user, 2026-11-21).
+          '<div class="tl-f">' + _dbLbl('Attachments') +
+          '<div class="tl-docs"><a class="tl-doc" href="' + DB_PDF_LINK + '" target="_blank" rel="noopener"><span>Dropbox Instructions - 2026.pdf</span>' + OPEN_OUT_ICON + '</a></div></div>' +
+          _dbFixActs('<button class="link-btn" onclick="openDropboxLocalFolder(\'' + _dbEsc(n) + '\')"><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
             '<button class="link-btn bright" onclick="_dbShareFolder(\'' + _dbEsc(n) + '\',' + k + ',this)" ' +
               'data-tip="Instant.\nShares the folder with this email.\nDropbox emails them the invite, then the Instructions email follows." data-tip-wrap data-tip-left><span>Share</span></button>') +
           '<div id="dbSharePreview-' + k + '"></div>' +
@@ -215,34 +218,27 @@ function _dbOpenFix() {
     // the window opens (_dbFillDupEmails).
     html += sec('Duplicate folders', '',
       duplicates.map(function (dp, k) {
-        function one(n, slot) {
-          return _dbLbl('Folder ' + slot) +
-            '<div class="win-row"><span class="win-row-main">' + n + '</span>' +
-              '<span class="win-row-side" data-dup-email="' + n.replace(/"/g, '&quot;') + '">checking…</span></div>' +
-            _dbActs('<button class="link-btn" onclick="openDropboxLocalFolder(\'' + _dbEsc(n) + '\')"><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
+        function one(n, slot) {   // the protocol (user, 2026-11-21): name + who it's shared with, plain text
+          return '<div class="db-fix-item">' +
+            '<div class="tl-f">' + _dbLbl('Folder ' + slot) + '<div class="ms-val">' + inqEsc(n) + '</div></div>' +
+            '<div class="tl-f">' + _dbLbl('Shared with') + '<div class="ms-val" data-dup-email="' + n.replace(/"/g, '&quot;') + '">checking…</div></div>' +
+            _dbFixActs('<button class="link-btn" onclick="openDropboxLocalFolder(\'' + _dbEsc(n) + '\')"><span>Open in Finder</span>' + OPEN_OUT_ICON + '</button>' +
               '<button class="link-btn" onclick="_dbDeleteFolder(\'' + _dbEsc(n) + '\',this)" ' +
-                'data-tip="Instant.\nUnshares the folder and moves it to Dropbox trash.\nRecoverable from Dropbox for about 30 days." data-tip-wrap data-tip-left>' + TRASH_ICON + '<span>Delete</span></button>');
+                'data-tip="Instant.\nUnshares the folder and moves it to Dropbox trash.\nRecoverable from Dropbox for about 30 days." data-tip-wrap data-tip-left>' + TRASH_ICON + '<span>Delete</span></button>') +
+          '</div>';
         }
-        return '<div style="margin-bottom:14px">' + one(dp.a, 1) + '<div style="margin-top:20px">' + one(dp.b, 2) + '</div></div>';
+        return one(dp.a, 1) + one(dp.b, 2);
       }).join(''));
   }
   if (!html) return;
 
   _dbCloseFix();
-  var overlay = document.createElement('div');
-  overlay.id = 'dbFixModal';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;' +
-                          'align-items:center;justify-content:center;padding:18px;overflow:auto';
-  overlay.innerHTML =
-    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:460px;width:100%;padding:28px;box-sizing:border-box;max-height:92vh;overflow:auto">' +
-      '<div class="settings-title"><span>Fix<span class="win-sub"> · ' + title + '</span></span>' +
-        '<button class="settings-close" onclick="_dbCloseFix()">✕</button></div>' +
-      '<div class="win-icon-row">' + FIX_WIN_ICON + '</div>' +
-      html +
-      '<div id="dbFixStatus"></div>' +
-    '</div>';
-  overlay.addEventListener('click', function (ev) { if (ev.target === overlay) _dbCloseFix(); });
-  document.body.appendChild(overlay);
+  // The shared window (user, 2026-11-21; was its own flat overlay): its look, the content scale,
+  // no icon, and the Trial window spacing protocol (css: #dbFixModal).
+  _stWin('dbFixModal', 'Fix', title, null, html + '<div id="dbFixStatus"></div>');
+  // The email always shows, under the buttons (user, 2026-11-21; was behind a Preview button, like Recover's).
+  notShared.forEach(function (n, k) { _dbPreviewEmail(null, 'dbSharePreview-' + k, DB_EMAIL_MSG); });
+  missing.forEach(function (m, i) { _dbPreviewEmail(null, 'dbPreview-' + i, DB_EMAIL_MSG); });
   if (duplicates.length) _dbFillDupEmails();
 }
 
@@ -269,18 +265,17 @@ function _dbFillDupEmails() {
 // The "Dropbox Instructions" email as it will look: the house shell around
 // whatever is in the box now (previewFirstContact wraps any body), on the
 // same white card the Trial windows use (_tlPreviewHtml, trial.js).
-function _dbPreviewEmail(bodyId, boxId) {
+function _dbPreviewEmail(bodyId, boxId, text) {   // text: a fixed body, no box to read (2026-11-21)
   var url = getScriptUrl();
   var box = document.getElementById(boxId);
-  var bodyEl = document.getElementById(bodyId);
-  if (!url || !box || !bodyEl) return;
+  var bodyEl = bodyId && document.getElementById(bodyId);
+  if (!url || !box || (!bodyEl && text == null)) return;
   box.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
-  fetch(url + '?action=previewFirstContact&body=' + encodeURIComponent(bodyEl.value))
+  fetch(url + '?action=previewFirstContact&body=' + encodeURIComponent(bodyEl ? bodyEl.value : text))
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d.success) { box.innerHTML = _dbRow('⚠ ' + (d.message || 'No preview')); return; }
-      box.innerHTML = _tlPreviewHtml('Dropbox Instructions', d.html) +
-        '<div class="win-note" style="margin:6px 0 0">+ Dropbox Instructions - 2026.pdf attached</div>';
+      box.innerHTML = _tlPreviewHtml('Dropbox Instructions', d.html);   // no "+ PDF attached" line: Attachments says it (user, 2026-11-21)
     })
     .catch(function () { box.innerHTML = _dbRow('❌ Could not reach Google'); });
 }
@@ -342,16 +337,17 @@ function renderDropbox(d) {
     _dbAuditHtml(d.audit) +
     '<div id="dbActionStatus"></div>' +
   '</div>';
+  html = _dbPlate(html);
 
   // ── Students window: one card each (people), A–Z ──
-  html += '<div id="dbStudentsSection">' + _dbStudentsHtml() + '</div>';
+  html += _dbPlate('<div id="dbStudentsSection">' + _dbStudentsHtml() + '</div>');
 
   // ── Lesson folders, last on the page (2026-10-03): non-student folders.
   // 2026-10-06: the students' card exactly (blue edge, logo, age, Files, Recover) ──
+  // Its own plate, the third (user, 2026-11-21).
   if (d.categories && d.categories.length) {
-    html += '<div class="db-section" id="dbLessonSection">' + _dbLessonHtml() + '</div>';
+    html += _dbPlate('<div class="db-section" id="dbLessonSection">' + _dbLessonHtml() + '</div>');
   }
-
 
   body.innerHTML = html;
   // Sent here from another tab to open one student (Import's Dropbox button).
@@ -510,7 +506,7 @@ function _dbDetailsFilesHtml(f) {
   if (!items.length) return 'Empty';
   function line(it, indent) {
     var age = it.modified ? Math.floor((Date.now() - new Date(it.modified).getTime()) / 86400000) : null;
-    return '<span class="db-file"' + (indent ? ' style="padding-left:' + (20 * indent) + 'px"' : '') + '>' + DB_BULLET_PAGE +
+    return '<span class="db-file" data-d="' + ((indent || 0) + 1) + '"' + (indent ? ' style="padding-left:' + (20 * indent) + 'px"' : '') + '>' + DB_BULLET_PAGE +   // data-d: depth, each level a step darker (user, 2026-11-21)
       '<span>' + inqEsc(it.name) + '</span>' +
       (it.bytes == null ? '' :   // HW log lines: names only (the file may be gone)
         '<span style="color:var(--t-faint)">' + _dbSize(it.bytes) + (age == null ? '' : ' · ' + _dbAgeText(age)) + '</span>') +
@@ -524,7 +520,7 @@ function _dbDetailsFilesHtml(f) {
   // get their own heading, one step further in (2026-10-04).
   function dirOf(it) { var p = it.path || it.name, cut = p.lastIndexOf('/'); return cut > 0 ? p.slice(0, cut) : ''; }
   function head(name, indent, gap) {   // gap: a little room above a subfolder that follows another
-    return '<span class="db-file db-dir' + (gap ? ' db-subgap' : '') + '"' + (indent ? ' style="padding-left:20px"' : '') + '>' + DB_FOLDER_GLYPH +
+    return '<span class="db-file db-dir' + (gap ? ' db-subgap' : '') + '" data-d="' + (indent ? 2 : 1) + '"' + (indent ? ' style="padding-left:20px"' : '') + '>' + DB_FOLDER_GLYPH +
       '<span style="text-transform:uppercase">' + inqEsc(name) + '</span></span>';   // folder names in caps
   }
   var groups = [], byTop = {};
@@ -644,11 +640,30 @@ function _dbCorrectFolder(folderName, counterName, btn) {
 function _dbRecoverFolder(name, btn) {
   var url = getScriptUrl();
   if (!url) return;
+  // Says what happens, the email included, with the email as it goes out (user, 2026-11-21).
   rpmConfirm({
-    title: 'Recover files?',
+    title: 'Recover ' + name + '’s files?',   // whose files, in the title (user, 2026-11-21)
+    subtitle: 'Upon activation',
+    message: '→ Puts back the files deleted from their folder in the last 30 days.\n\n' +
+      '→ Gives them a fresh 14 days before the daily clean.\n\n' +
+      '→ Emails ' + name + ' that the files are back (only if any come back).',
+    html: '<div id="dbRecPrev"><div class="empty-state rpm-loading">Loading</div></div>',
     confirmLabel: 'Recover',
-    icon: REDO_ICON
+    icon: REDO_ICON,
+    className: 'tv-golive-dlg db-recover-dlg'
   }).then(function (ok) { if (ok) _dbRecoverGo(name, btn, url); });
+  // The same house shell the send uses (previewFirstContact wraps any body). Keep this text
+  // in step with restoreDropboxFolder in apps-script/lesson-portal/RPM_Dropbox.js.
+  var subj = 'I\'ve Put Your Dropbox Files Back — Please Copy Them Within 14 Days';
+  var body = 'Hi ' + name + ',\n\nI\'ve put your homework files back in our shared Dropbox folder this time. ' +
+    'Please make sure you copy them to your device within 14 days — after that they\'ll be cleared out again automatically.\n\nThanks!';
+  fetch(url + '?action=previewFirstContact&body=' + encodeURIComponent(body))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var box = document.getElementById('dbRecPrev'); if (!box) return;
+      box.innerHTML = d.success ? _tlPreviewHtml(subj, d.html) : _dbRow('⚠ ' + (d.message || 'No preview'));
+    })
+    .catch(function () { var box = document.getElementById('dbRecPrev'); if (box) box.innerHTML = _dbRow('❌ Could not reach Google'); });
 }
 
 function _dbRecoverGo(name, btn, url) {
@@ -686,20 +701,18 @@ function _dbShareFolder(name, k, btn) {
   var email = input ? input.value.trim() : '';
   if (!email || email.indexOf('@') === -1) { _dbStatus('Enter a valid email to share the folder with.', 'var(--accent)'); return; }
   _dbBusy(btn, 'Sharing…');
-  var bodyEl = document.getElementById('dbShareBody-' + k);
   _dbAction({ action: 'shareDropboxFolder', name: name, email: email, message: msgEl ? msgEl.value.trim() : '',
-              emailBody: bodyEl ? bodyEl.value.trim() : '' }, btn);
+              emailBody: DB_EMAIL_MSG }, btn);   // the standard text, as previewed (no Email box, 2026-11-21)
 }
 
 // Missing: create the folder and share it with the entered email (no popup).
 function _dbCreateFolder(name, i, btn) {
   var input = document.getElementById('dbCreateEmail-' + i);
   var msgEl = document.getElementById('dbCreateMsg-' + i);
-  var bodyEl = document.getElementById('dbCreateBody-' + i);
   var email = input ? input.value.trim() : '';
   var message = msgEl ? msgEl.value.trim() : '';
   if (!email || email.indexOf('@') === -1) { _dbStatus('Enter a valid email to share the folder with.', 'var(--accent)'); return; }
   _dbBusy(btn, 'Creating…');
   _dbAction({ action: 'createDropboxFolder', name: name, email: email, message: message,
-              emailBody: bodyEl ? bodyEl.value.trim() : '' }, btn);
+              emailBody: DB_EMAIL_MSG }, btn);   // the standard text, as previewed (no Email box, 2026-11-21)
 }

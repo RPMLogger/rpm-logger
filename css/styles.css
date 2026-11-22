@@ -334,7 +334,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Every tab in one bordered box like Today's (user, 2026-10-26; Home too).
    Today, Students, To-Do, Notes and Comms make their own boxes; Calendar and Fixed schedule
    are wider than the column, so they stay open. Financial makes its own three boxes (user, 2026-11-15). */
-.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report) {
+.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox) {
   box-sizing: border-box;   /* background, border, corners, padding, grain, screws: THE BOX at the end of this file (2026-11-06) */   /* was: every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
 
@@ -4799,7 +4799,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
   --rpm-box-ring: 0 0 0 2px #1e1e1e, 0 0 0 3px #2c2c2c;   /* screwed metal plates: the amp's double line, half as thick (user, 2026-11-06) */
   --rpm-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox),
 html body .td-wk-box,
 html body .cr.rpm-rack,
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
@@ -4809,7 +4809,7 @@ html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
   box-shadow: var(--rpm-box-ring);   /* Home's double border: dark amp-body ring + outer line (user, 2026-11-06) */
 }
 /* the ring sits 5px outside: every box 4px in from the column, like Home and the header */
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox),
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) { margin-left: 4px; margin-right: 4px; }
 html body .td-wk-box { width: calc(100% - 8px); }
 html body .cr.rpm-rack { margin-left: 4px !important; margin-right: 4px !important; }
@@ -6620,3 +6620,32 @@ html body #rvMailWin .tl-f + .tl-f { margin-top: 24px; }
 html body #rvMailWin .rv-to-v { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); }
 html body #rvMailWin #rvMailBody { background: oklch(0.42 0.08 22) !important; border-color: oklch(0.42 0.08 22) !important; color: oklch(0.80 0.012 20) !important; caret-color: #fff; box-shadow: none !important; border-radius: 16px !important; padding: 12px 16px; }
 html body #rvMailWin .rv-tpl-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 32px !important; }
+/* Dropbox Folder audit box (user, 2026-11-21): the student cards' border, no lines between rows, roomier inside */
+html body .db-audit { border: 1px solid #353535; padding: 8px 0; }
+html body .db-audit .db-check { padding: 5px 20px; }
+html body .db-audit .db-check + .db-check { border-top: 0; }
+/* Dropbox as plates (user, 2026-11-21, Report's way): Overview · Student folders · Lesson folders. Audit box = the small card width. */
+html body #dropboxBody > .td-wk-box:first-child { margin-top: 0; }
+html body #tab-dropbox .db-plate > .db-section, html body #tab-dropbox .db-plate > #dbStudentsSection > .db-section { margin-top: 0; }
+html body .db-audit { width: var(--rpm-card-w-small); max-width: 100%; }
+/* Dropbox Recover (user, 2026-11-21): the Warning box look, wide enough for the email preview under the → lines */
+html body .rpm-dlg.db-recover-dlg { max-width: 560px; width: 560px; }
+html body .rpm-dlg.db-recover-dlg .rpm-dlg-extra { margin-top: 32px; max-height: 50vh; overflow: auto; }
+html body .rpm-dlg.db-recover-dlg .rpm-dlg-extra > div > div:first-child { margin-top: 0 !important; }
+/* Dropbox file trees (user, 2026-11-21): every subfolder a step darker than its folder.
+   Student name (All files) --text → top folder → subfolder → files in it. */
+html body :is(#dbAllModal, #tab-dropbox) .db-files .db-file[data-d="1"] { color: oklch(0.72 0.006 81); }
+html body :is(#dbAllModal, #tab-dropbox) .db-files .db-file[data-d="2"] { color: oklch(0.62 0.006 81); }
+html body :is(#dbAllModal, #tab-dropbox) .db-files .db-file[data-d="3"] { color: oklch(0.52 0.006 81); }
+/* Folder audit: an unticked line's own Fix, at the line's right end (user, 2026-11-21) */
+html body .db-audit .db-check-fix { margin-left: auto; height: 22px; gap: 6px; }
+html body .db-audit .db-check-fix svg { width: 12px; height: 12px; }
+/* Dropbox Fix windows = the Trial window spacing protocol (user, 2026-11-21):
+   title → first item 26 · small title → value 10 · item → item 24 · last item → buttons 32. Values plain text. */
+html body #dbFixModal .st-win > .settings-title { margin-bottom: 26px; }
+html body #dbFixModal .field-label { margin-bottom: 10px; }
+html body #dbFixModal .tl-f + .tl-f { margin-top: 24px; }
+html body #dbFixModal .ms-val { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); margin: 0; }
+html body #dbFixModal .tl-acts { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 32px; }
+html body #dbFixModal .db-fix-item + .db-fix-item { margin-top: 32px; }
+html body #dbFixModal #dbFixStatus:empty { display: none; }
