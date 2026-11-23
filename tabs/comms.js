@@ -1138,6 +1138,7 @@ function commsEnsureExtras() {
       head.className = "td-wk-box cm-headbox";
       head.innerHTML = '<span class="hr-bolt" style="left:10px"></span><span class="hr-bolt" style="right:10px"></span>';   // the rack's screws: one each side, centred (user, 2026-11-10)
       [box.querySelector(".td-wk-title"), document.getElementById("cmLineNo"), rack, box.querySelector(".cm-scope")].forEach(function (n) { if (n) head.appendChild(n); });
+      if (typeof rpmMsgSwitchHtml === "function") head.insertAdjacentHTML("beforeend", rpmMsgSwitchHtml("texts"));   // Texts / Emails switch (user, 2026-11-22)
       box.parentNode.insertBefore(head, box);
       if (typeof _snLoad === "function" && typeof _snNotes !== "undefined" && !_snNotes) _snLoad(function () { commsMarkNoted(); });   // Student Notes, so a text already noted is not saved twice
       // A ⋯ button where EDIT was (user, 2026-11-10): press it for a menu (Edit, Others). EDIT shows again only as Done while editing.

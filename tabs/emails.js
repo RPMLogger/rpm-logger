@@ -22,6 +22,8 @@ var _emCur = null;         // the email open on the right: { key, e }
 var _emCounts = { students: 0, gbusiness: 0, names: [] };
 
 function initEmailsTab() {
+  var hb = document.querySelector("#tab-emails .em-headbox");
+  if (hb && !hb.querySelector(".ms-switch")) hb.insertAdjacentHTML("beforeend", rpmMsgSwitchHtml("emails"));   // Texts / Emails (2026-11-22)
   _emPlates();
   emShow(_emKey);
 }
@@ -70,6 +72,16 @@ function _emRender() {
   list.innerHTML = order.map(function (i) { return _emRowHtml(key, i, rows[i]); }).join("");
 }
 
+// The list's date, the same in both mailboxes (user, 2026-11-22): "Nov 5", the year only when
+// it isn't this year. Was the weekday + time for Students ("Thu 2:56 PM"), which made a
+// 17-day-old email look like this week's. The time stays in the open email's header.
+function _emWhen(e) {
+  var d = e.ts ? new Date(e.ts) : null;
+  if (!d || isNaN(d)) return e.date || '';
+  var s = MONTHS[d.getMonth()] + ' ' + d.getDate();
+  return d.getFullYear() === new Date().getFullYear() ? s : s + ', ' + d.getFullYear();
+}
+
 function _emHot(e) { return e.isNew || e.unread ? 1 : 0; }
 
 function _emRowHtml(key, i, e) {
@@ -79,7 +91,7 @@ function _emRowHtml(key, i, e) {
     '<span class="cm-dot"></span>' +
     '<span class="cm-conv-main">' +
       '<span class="cm-conv-top"><span class="cm-conv-name">' + inqEsc(who) + '</span>' +
-        '<span class="cm-conv-when">' + inqEsc(key === "students" ? (e.time || e.date) : e.date) + '</span></span>' +
+        '<span class="cm-conv-when">' + inqEsc(_emWhen(e)) + '</span></span>' +
       '<span class="em-subj">' + inqEsc(e.subject) + '</span>' +
       (e.snippet ? '<span class="cm-conv-prev">' + inqEsc(e.snippet) + '</span>' : '') +
     '</span></div>';
@@ -241,3 +253,31 @@ function _emPlates() {
 }
 
 setInterval(function () { if (!document.hidden) fetchEmailsUnread(); }, 10 * 60 * 1000);
+
+// ─── TEXTS / EMAILS SWITCH (user, 2026-11-22) ───────────────────────────────
+// Two lit amber buttons like Fixed schedule's Full / Half, in both head boxes
+// (Comms' TWILIO box and Emails'). The page you're on is lit; the other one is
+// dark and jumps there. Same-size boxes, so it reads as one box flipping.
+function rpmMsgSwitchHtml(on) {
+  _rpmMsgSwitchCss();
+  var b = function (key, label, tab) {
+    var lit = key === on;
+    return "<span class='ms-amp'><button type='button'" + (lit ? " class='lit' aria-pressed='true'" : " onclick=\"switchTab('" + tab + "')\"") +
+      " data-tip='" + (lit ? "You're here." : "Instant.\nShows " + label + ".") + "'>" + label + "</button></span>";
+  };
+  return "<span class='ms-switch'>" + b("texts", "Texts", "comms") + b("emails", "Emails", "emails") + "</span>";
+}
+function _rpmMsgSwitchCss() {
+  if (document.getElementById("msSwitchCss")) return;
+  var st = document.createElement("style");
+  st.id = "msSwitchCss";
+  st.textContent =
+    "html body .ms-switch{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;gap:6px;z-index:1}" +
+    "html body .ms-amp{display:block;padding:2px;background:#0b0b0b;border-radius:3px;box-shadow:inset 0 1px 1px rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.05)}" +
+    "html body .ms-amp>button{display:block;width:48px;height:14px;padding:0 0 0 1.5px;border:0;border-radius:2px;cursor:pointer;font:700 7px/14px 'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;" +
+      "color:#5e4d2a;background:#17140c;box-shadow:inset 0 1px 0 rgba(255,230,150,.05),inset 0 -2px 3px rgba(0,0,0,.4)}" +   // unlit
+    "html body .ms-amp>button:hover{color:#8a7038}" +
+    "html body .ms-amp>button.lit{cursor:default;color:#1c1504;text-shadow:0 1px 0 rgba(255,225,140,.18);background:radial-gradient(ellipse 70% 85% at 50% 45%,#c09e34 0%,#a07b1e 45%,#6e5310 85%,#523e0c 100%);" +
+      "box-shadow:inset 0 1px 0 rgba(255,230,150,.25),inset 0 -2px 3px rgba(0,0,0,.4),inset 0 0 4px rgba(0,0,0,.35),0 0 4px rgba(220,170,40,.12)}";   // lit = Full / Half's amber
+  document.head.appendChild(st);
+}

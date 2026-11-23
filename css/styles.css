@@ -6659,3 +6659,23 @@ html body #tab-ending .en-foot.en-card-foot { row-gap: 32px; }
 html body #tab-skips .sk-totals { text-align: left; white-space: nowrap; }   /* one line, starting where the cards start */
 html body #tab-skips .sk-card .sk-n { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 html body #tab-skips .sk-card .sk-n .sk-counts { font-size: 12px; line-height: 16px; color: var(--muted); }
+html body #tab-emails .em-gmail-btns { display: inline-flex; gap: 6px; }   /* Gmail · Inbox / Students / G Business shortcuts, top right (user, 2026-11-22) */
+/* Emails in two boxes like Comms (user, 2026-11-22): the head box = Comms' (75 tall, title centred, a screw each side,
+   18 gap with the feet), Gmail shortcuts on the right; the panes in their own box under it. */
+html body #tab-emails .em-headbox { position: relative; box-sizing: border-box; height: 75px; padding-top: 24.5px; padding-bottom: 0; margin: 0 0 18px; }
+html body #tab-emails .em-headbox .td-wk-title { margin-bottom: 0; }
+html body #tab-emails .em-headbox .td-wk-title, html body #tab-emails .em-headbox .td-wk-title * { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
+html body #tab-emails .em-head-icon { margin-left: 10px; vertical-align: -3px; }
+html body #tab-emails .em-headbox .em-gmail-btns { position: absolute; right: 44px; top: 50%; transform: translateY(-50%); }
+html body #tab-emails .em-headbox::after { content: ""; position: absolute; left: 46px; right: 46px; bottom: -18px; height: 14px; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2714%27%3E%3Cpath d=%27M0 0H34L31.5 11.5Q30.8 14 28 14H6Q3.2 14 2.5 11.5Z%27 fill=%27%23101010%27 stroke=%27%231e1e1e%27/%3E%3C/svg%3E") left center / 34px 14px no-repeat, url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2714%27%3E%3Cpath d=%27M0 0H34L31.5 11.5Q30.8 14 28 14H6Q3.2 14 2.5 11.5Z%27 fill=%27%23101010%27 stroke=%27%231e1e1e%27/%3E%3C/svg%3E") right center / 34px 14px no-repeat; }
+html body #tab-emails .em-panes > .em-msgr { margin-top: 0; }
+/* The panes' top row as tall as the head box above (75, the TWILIO box) in Comms and Emails (user, 2026-11-22; were 48 / 80). */
+html body #commsBody .cm-box .cm-list-top, html body #commsBody .cm-box .cm-msgr-head { height: 75px; min-height: 75px; }
+html body #tab-emails { --em-top: 75px; }
+/* The line under the panes' top row: thin gold, the box border's colour (user, 2026-11-22; was grey #2a2a2a). Comms the same. */
+html body #tab-emails :is(.em-top, #emHead), html body #commsBody .cm-box :is(.cm-list-top, .cm-msgr-head) { border-bottom: 1px solid #5e4d2a; }
+/* The ⋯ and compose circles bigger, for the taller top row (user, 2026-11-22; were 22 / icon 11). */
+html body #commsBody .cm-more-btn, html body #commsBody .cm-list-top .cm-compose { width: 30px; height: 30px; }
+html body #commsBody .cm-more-btn { font-size: 16px; }
+html body #commsBody .cm-list-top .cm-compose svg { width: 15px; height: 15px; }

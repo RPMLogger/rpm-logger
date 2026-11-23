@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=1510">
-  <link rel="stylesheet" href="css/goals.css?v=1510">
-  <link rel="stylesheet" href="css/lessontimer.css?v=1510">
-  <link rel="stylesheet" href="css/rack.css?v=1510">   <!-- THE RACK: trial on Lessons only (user, 2026-11-14), drawn by core/rack.js -->
-  <link rel="stylesheet" href="css/msgrack.css?v=1510">
+  <link rel="stylesheet" href="css/styles.css?v=1511">
+  <link rel="stylesheet" href="css/goals.css?v=1511">
+  <link rel="stylesheet" href="css/lessontimer.css?v=1511">
+  <link rel="stylesheet" href="css/rack.css?v=1511">   <!-- THE RACK: trial on Lessons only (user, 2026-11-14), drawn by core/rack.js -->
+  <link rel="stylesheet" href="css/msgrack.css?v=1511">
 </head>
 <body>
 <div class="container">
@@ -20,7 +20,7 @@
     <img src="img/portal-logo-grey.png" alt="Red Pick Music">   <!-- badge lettering grey, the portal text grey (user, 2026-11-08; white original = img/portal-logo.png) -->
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1510</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1511</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -784,13 +784,13 @@
        the list, the open email on the right as plain text — a glance only,
        replies happen in Gmail (Open in Gmail). Students = the 7 newest, G Business = all 2026. -->
   <div class="tab-panel" id="tab-emails">
-    <!-- One plate (user, 2026-11-16): title on top, a line, then the mail panes; was a slim title box + a second box -->
+    <!-- Two boxes like Comms (user, 2026-11-22; one plate since 2026-11-16): a slim head box (title + envelope left,
+         Gmail shortcuts right), then the mail panes in their own box. -->
+    <div class="td-wk-box em-headbox"><span class="hr-bolt" style="left:10px"></span><span class="hr-bolt" style="right:10px"></span><div class="settings-title td-wk-title"><span>Emails<span class="win-sub"> · redpickmusic@gmail.com</span><span class="cm-title-icon em-head-icon" data-icon="emailwin"></span></span></div><span class="em-gmail-btns"><a class="link-btn em-gmail-link" href="https://mail.google.com/mail/u/0/#inbox" target="_blank" rel="noopener" data-tip="Opens elsewhere.&#10;The Gmail inbox." data-tip-left><img class="em-gmail-m" src="img/gmail.svg" alt=""><span>Inbox</span><span data-icon="out"></span></a><a class="link-btn em-gmail-link" href="https://mail.google.com/mail/u/0/#label/Students" target="_blank" rel="noopener" data-tip="Opens elsewhere.&#10;Gmail: the Students label (your Gmail filter puts it on mail from students)." data-tip-left><img class="em-gmail-m" src="img/gmail.svg" alt=""><span>Students</span><span data-icon="out"></span></a><a class="link-btn em-gmail-link" href="https://mail.google.com/mail/u/0/#label/G-Business" target="_blank" rel="noopener" data-tip="Opens elsewhere.&#10;Gmail: the G-Business label." data-tip-left><img class="em-gmail-m" src="img/gmail.svg" alt=""><span>G Business</span><span data-icon="out"></span></a></span></div>
     <div class="td-wk-box em-panes">
-    <div class="em-titlebar"><div class="settings-title td-wk-title"><span>Emails<span class="win-sub"> · redpickmusic@gmail.com</span></span></div><div class="td-wk-icon em-title-icon" data-icon="emailwin"></div></div>
-    <hr class="divider em-title-rule">
     <div class="cm-msgr em-msgr">
       <!-- One top cell over the sidebar + list: just the address (user, 2026-11-16: was two cells, address | mailbox name + note). -->
-      <div class="em-top"><a class="link-btn em-gmail-link" href="https://mail.google.com/mail/u/0/#inbox" target="_blank" rel="noopener" data-tip="Opens elsewhere.&#10;The Gmail inbox." data-tip-left><img class="em-gmail-m" src="img/gmail.svg" alt=""><span>Gmail</span><span data-icon="out"></span></a></div>   <!-- a link out (user, 2026-11-16: the M moved up to the title) -->
+      <div class="em-top"></div>   <!-- the top cell over the sidebar + list (the Gmail links moved up to the title, 2026-11-22) -->
       <!-- Mail's sidebar (user, 2026-11-12): the two mailboxes, each with its new count. -->
       <div class="em-side">
         <button class="em-box" data-em="students" onclick="emShow('students')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 13l2.5-7.5h13L21 13v6H3z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/></svg><span class="em-box-name">Students</span><span class="em-box-n" id="emStuN"></span></button>
@@ -902,62 +902,62 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=1510"></script>
-<script src="core/storage.js?v=1510"></script>
-<script src="core/utils.js?v=1510"></script>
-<script src="core/dialog.js?v=1510"></script>
-<script src="core/api.js?v=1510"></script>
-<script src="core/secalert.js?v=1510"></script>
-<script src="core/magnifier.js?v=1510"></script>
-<script src="core/nav.js?v=1510"></script>
-<script src="core/rackscreen.js?v=1510"></script>
-<script src="core/msgrack.js?v=1510"></script>
+<script src="core/state.js?v=1511"></script>
+<script src="core/storage.js?v=1511"></script>
+<script src="core/utils.js?v=1511"></script>
+<script src="core/dialog.js?v=1511"></script>
+<script src="core/api.js?v=1511"></script>
+<script src="core/secalert.js?v=1511"></script>
+<script src="core/magnifier.js?v=1511"></script>
+<script src="core/nav.js?v=1511"></script>
+<script src="core/rackscreen.js?v=1511"></script>
+<script src="core/msgrack.js?v=1511"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=1510"></script>
-<script src="tabs/lessons.js?v=1510"></script>
-<script src="tabs/payments.js?v=1510"></script>
-<script src="tabs/general.js?v=1510"></script>
-<script src="tabs/financial.js?v=1510"></script>
-<script src="tabs/inquiries.js?v=1510"></script>
-<script src="tabs/inqarchive.js?v=1510"></script>
-<script src="tabs/comms.js?v=1510"></script>
-<script src="tabs/announce.js?v=1510"></script>
-<script src="tabs/notes.js?v=1510"></script>
-<script src="tabs/todo.js?v=1510"></script>
-<script src="tabs/availability.js?v=1510"></script>
-<script src="tabs/travel.js?v=1510"></script>
-<script src="tabs/tripsummary.js?v=1510"></script>
-<script src="tabs/triphistory.js?v=1510"></script>
-<script src="tabs/skips.js?v=1510"></script>
-<script src="tabs/student.js?v=1510"></script>
-<script src="tabs/ctrl.js?v=1510"></script>
-<script src="tabs/emails.js?v=1510"></script>
-<script src="tabs/dropbox.js?v=1510"></script>
-<script src="tabs/import.js?v=1510"></script>
-<script src="tabs/today.js?v=1510"></script>
-<script src="tabs/home.js?v=1510"></script>
-<script src="tabs/trial.js?v=1510"></script>
-<script src="tabs/ending.js?v=1510"></script>
-<script src="tabs/reviews.js?v=1510"></script>
-<script src="tabs/financial2.js?v=1510"></script>
-<script src="tabs/calendar.js?v=1510"></script>
-<script src="tabs/fixedcal.js?v=1510"></script>
-<script src="tabs/slotchange.js?v=1510"></script>
-<script src="tabs/help.js?v=1510"></script>
-<script src="tabs/holidays.js?v=1510"></script>
-<script src="tabs/archive.js?v=1510"></script>
-<script src="tabs/texttemplates.js?v=1510"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
-<script src="tabs/goals.js?v=1510"></script>
-<script src="tabs/schednotes.js?v=1510"></script>
-<script src="tabs/logtimer.js?v=1510"></script>
-<script src="core/usage.js?v=1510"></script>
-<script src="core/rack.js?v=1510"></script>
-<script src="tabs/usage.js?v=1510"></script>
-<script src="tabs/guitartypes.js?v=1510"></script>
-<script src="tabs/lessontimer.js?v=1510"></script>
-<script src="tabs/dayclock.js?v=1510"></script>
-<script src="tabs/report.js?v=1510"></script>
+<script src="tabs/icons.js?v=1511"></script>
+<script src="tabs/lessons.js?v=1511"></script>
+<script src="tabs/payments.js?v=1511"></script>
+<script src="tabs/general.js?v=1511"></script>
+<script src="tabs/financial.js?v=1511"></script>
+<script src="tabs/inquiries.js?v=1511"></script>
+<script src="tabs/inqarchive.js?v=1511"></script>
+<script src="tabs/comms.js?v=1511"></script>
+<script src="tabs/announce.js?v=1511"></script>
+<script src="tabs/notes.js?v=1511"></script>
+<script src="tabs/todo.js?v=1511"></script>
+<script src="tabs/availability.js?v=1511"></script>
+<script src="tabs/travel.js?v=1511"></script>
+<script src="tabs/tripsummary.js?v=1511"></script>
+<script src="tabs/triphistory.js?v=1511"></script>
+<script src="tabs/skips.js?v=1511"></script>
+<script src="tabs/student.js?v=1511"></script>
+<script src="tabs/ctrl.js?v=1511"></script>
+<script src="tabs/emails.js?v=1511"></script>
+<script src="tabs/dropbox.js?v=1511"></script>
+<script src="tabs/import.js?v=1511"></script>
+<script src="tabs/today.js?v=1511"></script>
+<script src="tabs/home.js?v=1511"></script>
+<script src="tabs/trial.js?v=1511"></script>
+<script src="tabs/ending.js?v=1511"></script>
+<script src="tabs/reviews.js?v=1511"></script>
+<script src="tabs/financial2.js?v=1511"></script>
+<script src="tabs/calendar.js?v=1511"></script>
+<script src="tabs/fixedcal.js?v=1511"></script>
+<script src="tabs/slotchange.js?v=1511"></script>
+<script src="tabs/help.js?v=1511"></script>
+<script src="tabs/holidays.js?v=1511"></script>
+<script src="tabs/archive.js?v=1511"></script>
+<script src="tabs/texttemplates.js?v=1511"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
+<script src="tabs/goals.js?v=1511"></script>
+<script src="tabs/schednotes.js?v=1511"></script>
+<script src="tabs/logtimer.js?v=1511"></script>
+<script src="core/usage.js?v=1511"></script>
+<script src="core/rack.js?v=1511"></script>
+<script src="tabs/usage.js?v=1511"></script>
+<script src="tabs/guitartypes.js?v=1511"></script>
+<script src="tabs/lessontimer.js?v=1511"></script>
+<script src="tabs/dayclock.js?v=1511"></script>
+<script src="tabs/report.js?v=1511"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
