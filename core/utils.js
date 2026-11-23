@@ -683,3 +683,19 @@ function llLock(box) {
   box.classList.add('locked');
   llRows(box).forEach(function (el) { el.readOnly = true; });
 }
+
+// ─── MULTI-STOP SLIDE SWITCH (user, 2026-11-23) ─────────────────────────────
+// Holidays' slide switch with one stop per option: the words in equal cells (each
+// in its white frame with the amber light, css .slide-lbl), one dark slot under
+// them, the ridged slider under the picked word. A word slides there; the slot
+// steps to the next. opts = [[key, label], …], on = the picked key, fn = the
+// global function name called with the key.
+function rpmStopSwitch(opts, on, fn, cls) {
+  var i = Math.max(0, opts.map(function (o) { return o[0]; }).indexOf(on));
+  var next = opts[(i + 1) % opts.length][0];
+  return '<div class="ms-sw' + (cls ? ' ' + cls : '') + '" style="--n:' + opts.length + ';--i:' + i + '">' +
+    '<div class="ms-lbls">' + opts.map(function (o) {
+      return '<span class="slide-lbl' + (o[0] === on ? ' lit' : '') + '" onclick="' + fn + '(\'' + o[0] + '\')">' + o[1] + '</span>';
+    }).join('') + '</div>' +
+    '<button type="button" class="ms-slot" aria-label="Next" onclick="' + fn + '(\'' + next + '\')"><i class="ms-knob"></i></button></div>';
+}

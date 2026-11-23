@@ -334,7 +334,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Every tab in one bordered box like Today's (user, 2026-10-26; Home too).
    Today, Students, To-Do, Notes and Comms make their own boxes; Calendar and Fixed schedule
    are wider than the column, so they stay open. Financial makes its own three boxes (user, 2026-11-15). */
-.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays) {
+.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews) {
   box-sizing: border-box;   /* background, border, corners, padding, grain, screws: THE BOX at the end of this file (2026-11-06) */   /* was: every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
 
@@ -4799,7 +4799,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
   --rpm-box-ring: 0 0 0 2px #1e1e1e, 0 0 0 3px #2c2c2c;   /* screwed metal plates: the amp's double line, half as thick (user, 2026-11-06) */
   --rpm-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews),
 html body .td-wk-box,
 html body .cr.rpm-rack,
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
@@ -4809,7 +4809,7 @@ html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
   box-shadow: var(--rpm-box-ring);   /* Home's double border: dark amp-body ring + outer line (user, 2026-11-06) */
 }
 /* the ring sits 5px outside: every box 4px in from the column, like Home and the header */
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews),
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) { margin-left: 4px; margin-right: 4px; }
 html body .td-wk-box { width: calc(100% - 8px); }
 html body .cr.rpm-rack { margin-left: 4px !important; margin-right: 4px !important; }
@@ -6697,3 +6697,54 @@ html body .slide-knob { position: absolute; top: 1px; bottom: 1px; left: 1px; wi
   background: repeating-linear-gradient(to right, #5e5e5e 0 1px, #262626 1px 2.5px), #3a3a3a;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 1px 2px rgba(0,0,0,.8); transition: left .12s ease; }   /* darker + a tad smaller (user, 2026-11-22) */
 html body .slide-sw:has(.slide-lbl:last-child.lit) .slide-knob { left: 8px; }
+/* Reviews box titles spaced like Archive's (user, 2026-11-23): title → icon 8, icon → what follows 25 on screen (10 / 31 here, the tab draws at 0.8). */
+html body #tab-reviews > .rv-box > .settings-title { margin-bottom: 10px; }
+html body #tab-reviews > .rv-box > .ld-icon { margin: 0 0 31px; line-height: 0; }
+/* Card rows on Archive's rhythm (user, 2026-11-23: "the rows are kinda big"): 4px above + below, no divider lines; Reviews Dashboard + Holidays alike. */
+html body :is(#rvSummaryBody, #rvCurSum) .rv-card .ld-row, html body #holBody .hol-card .ld-row { padding-top: 4px; padding-bottom: 4px; min-height: 0; border-bottom: 0; }
+html body :is(#rvSummaryBody, #rvCurSum) .rv-card .rpm-none { font-size: 12px; letter-spacing: 1px; padding: 4px 0; }   /* NO OPEN ASKS smaller (user, 2026-11-23; was 16px) */
+html body #tab-reviews > .rv-box > .settings-title.rv-g-title { margin-top: 0; }   /* the 48px gap was for the old line between sections; each box starts at its top now (user, 2026-11-23) */
+/* Multi-stop slide switch (core/utils.js rpmStopSwitch, user, 2026-11-23): equal cells for the words (.slide-lbl:
+   frame + amber light), one dark slot under them, the slider under the picked one. */
+html body .ms-sw { display: inline-grid; gap: 6px; }
+html body .ms-lbls { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 0; }   /* no gap: the slot's stops line up with the cells */
+html body .ms-lbls .slide-lbl { justify-content: center; justify-self: center; margin-right: 7px; margin-left: 17px; }   /* light on the left, the word centred in its cell */
+html body .ms-slot { position: relative; display: block; width: 100%; height: 10px; padding: 0; border-radius: 2.5px; cursor: pointer; border: 1px solid #000;
+  background: #070707; box-shadow: inset 0 2px 3px rgba(0,0,0,.95), 0 1px 0 rgba(255,255,255,.04); }
+html body .ms-knob { position: absolute; top: 1px; bottom: 1px; width: 22px; border-radius: 1.5px;
+  left: calc((var(--i) + .5) * (100% / var(--n)) - 6px);   /* +5: the word sits 5px right of its cell centre (its light takes the left) */
+  background: repeating-linear-gradient(to right, #5e5e5e 0 1px, #262626 1px 2.5px), #3a3a3a;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 1px 2px rgba(0,0,0,.8); transition: left .15s ease; }
+html body #curReviewsBody .ms-sw.rv-sorts { display: grid; width: max-content; margin: 0 0 24px auto; }   /* right, where the sort buttons were */
+/* The stop switch standing up (.ms-vert, user, 2026-11-23): the slot on the left, the words stacked right of it,
+   the slider moving up and down to the picked word. */
+html body .ms-sw.ms-vert { grid-template-columns: auto auto; grid-template-rows: auto; align-items: stretch; gap: 0 10px; }
+html body .ms-sw.ms-vert .ms-lbls { grid-column: 2; grid-row: 1; grid-template-columns: auto; grid-template-rows: repeat(var(--n), auto); row-gap: 6px; }
+html body .ms-sw.ms-vert .ms-lbls .slide-lbl { justify-self: start; margin: 0 0 0 10px; }
+html body .ms-sw.ms-vert .ms-slot { grid-column: 1; grid-row: 1; width: 10px; height: auto; }
+html body .ms-sw.ms-vert .ms-knob { left: 1px; right: 1px; width: auto; height: 14px; top: calc((var(--i) + .5) * (100% / var(--n)) - 7px); bottom: auto;
+  background: repeating-linear-gradient(to bottom, #5e5e5e 0 1px, #262626 1px 2.5px), #3a3a3a; transition: top .15s ease; }
+/* The sort switch up in the box's top-right corner, level with the title + icon (user, 2026-11-23: "higher placement"). */
+html body #tab-reviews > .rv-box { position: relative; }
+html body #curReviewsBody .ms-sw.rv-sorts { position: absolute; top: 34px; right: 40px; margin: 0; }
+html body #tab-reviews #curReviewsBody { padding-top: 16px; }   /* room under the corner switch before the first card */
+html body .ms-sw.ms-vert .ms-lbls .slide-lbl { justify-self: stretch; justify-content: flex-start; }   /* every frame as long as the longest word, the words left-aligned in them (user, 2026-11-23) */
+/* Thinner slit (user, 2026-11-23): the slot a 4px slit, the slider wider than it, riding on top like a real slide switch. */
+html body .ms-sw.ms-vert .ms-slot { width: 4px; overflow: visible; justify-self: center; margin: 0 3px; }
+html body .ms-sw.ms-vert .ms-knob { left: -4px; right: -4px; }
+/* The stop switch without its slider (.ms-flat, user, 2026-11-23): the words side by side, each frame with its amber
+   light INSIDE, on the left of the word; the picked one's light on. */
+html body .ms-sw.ms-flat .ms-slot { display: none; }
+html body .ms-sw.ms-flat .ms-lbls { grid-template-columns: repeat(var(--n), auto); gap: 0 8px; }
+html body .ms-sw.ms-flat .ms-lbls .slide-lbl { justify-self: start; margin: 0; padding: 2px 7px 2px 6px; gap: 6px; }
+html body .ms-sw.ms-flat .slide-lbl::before { position: static; margin: 0; }
+/* Reviews student cards (user, 2026-11-23): labels in caps (the Log label face), Momentum / Progress as the light frames
+   (.slide-lbl, the picked one lit), Recent win a slim one-line box; Already left a review = dimmed cards with a tag. */
+html body :is(#curReviewsBody, #rvLeftBody, #endReviewsBody) .inq-flabel { text-transform: uppercase; letter-spacing: 1.5px; font-size: 10px; }
+html body #curReviewsBody .rv-chips { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+html body #curReviewsBody .rv-chips .slide-lbl { margin: 0; padding: 2px 7px 2px 6px; gap: 6px; }
+html body #curReviewsBody .rv-chips .slide-lbl::before { position: static; margin: 0; }
+html body #curReviewsBody .rv-win-in { height: 32px; min-height: 0; padding: 0 12px; box-sizing: border-box; }
+html body #rvLeftBody .rv-left-card { opacity: .5; }
+html body #rvLeftBody .rv-left-tag { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: color-mix(in srgb, var(--green) 70%, var(--muted)); }
+html body #curReviewsBody .rv-notes { row-gap: 8px; align-items: center; }   /* room between the Momentum / Progress light rows */

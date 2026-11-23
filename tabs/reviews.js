@@ -319,6 +319,10 @@ function _rvCopyFallback(text, flash) {
 }
 
 function initReviewsTab() {
+  // Screws on each of the three boxes (user, 2026-11-23: split onto the rack like Archive / Holidays)
+  if (typeof TD_BOLTS === 'string') document.querySelectorAll('#tab-reviews > .rv-box').forEach(function (b) {
+    if (!b.querySelector(':scope > .td-bolt')) b.insertAdjacentHTML('afterbegin', TD_BOLTS);
+  });
   var url = getScriptUrl();
   var body = document.getElementById('endReviewsBody');
   if (!url) { body.innerHTML = '<div class="empty-state">Set your Apps Script URL in settings first.</div>'; return; }
@@ -381,6 +385,42 @@ function _rvCount(x, fallback) {
   return _rvEscHtml(String(x.count)) + (x.rating ? ' · ' + Number(x.rating).toFixed(1) + ' ★' : '');
 }
 
+// Archive's look for the Dashboard cards (user, 2026-11-23): the card's title band becomes a grey engraved
+// heading ABOVE the card (Log window label face), its right-hand note after it in brackets; the card keeps
+// only its rows, indented, no screws or band.
+function _rvArchiveLook(box) {
+  if (!box) return;
+  _rvArchiveCss();
+  box.querySelectorAll('.ld-card.inq-dcard').forEach(function (card) {
+    var t = card.querySelector(':scope > .ld-title');
+    if (!t) return;
+    var name = t.querySelector('span'), sum = t.querySelector('.ld-sum');
+    var head = document.createElement('div');
+    head.className = 'rv-yhead';
+    head.innerHTML = (name ? name.innerHTML : t.innerHTML) + (sum ? '<span class="rv-ysum">' + sum.innerHTML + '</span>' : '');
+    var g = document.createElement('div');
+    g.className = 'rv-group';
+    card.parentNode.insertBefore(g, card);
+    g.appendChild(head); g.appendChild(card);
+    t.remove();
+    card.classList.remove('inq-dcard');
+    card.classList.add('rv-card');
+  });
+}
+function _rvArchiveCss() {
+  if (document.getElementById('rvArcCss')) return;
+  var st = document.createElement('style');
+  st.id = 'rvArcCss';
+  st.textContent =
+    ':is(#rvSummaryBody, #rvCurSum) .ld-cards { margin-bottom: 0; }' +
+    '#rvSummaryBody .rv-group + .rv-group, #rvCurSum .rv-group { margin-top: 30px; }' +
+    ':is(#rvSummaryBody, #rvCurSum) .rv-yhead { display: flex; align-items: baseline; gap: 14px; margin: 0 0 16px 2px; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; line-height: 1.2; text-transform: uppercase; color: var(--t-normal); text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }' +
+    ':is(#rvSummaryBody, #rvCurSum) .rv-ysum { color: var(--t-faint); letter-spacing: 1px; }' +
+    ':is(#rvSummaryBody, #rvCurSum) .rv-card { margin: 0 64px 0 28px; padding: 17px 18px; max-width: none; }' +   // full width like Archive's cards (a Dashboard rule capped them at 480)
+    ':is(#rvSummaryBody, #rvCurSum) .rv-card .ld-l { color: var(--t-normal); }';
+  document.head.appendChild(st);
+}
+
 function _rvRenderSummary() {
   var o = _rvState.ov || {}, c = o.counts || {};
   // The Dashboard's box (user, 2026-10-25): washed title band, label / value rows.
@@ -389,7 +429,6 @@ function _rvRenderSummary() {
     '<div class="ld-cards">' +
       // Payments' "Incoming Venmo & Zelle" label over the first box, top left
       // (user, 2026-10-29): grey word, blue word.
-      '<div class="section-label rv-sec">Analytics <span style="color:var(--blue)">General</span></div>' +
       // Review count (user, 2026-10-26): Google + Yelp from SerpApi every
       // Monday (counts); until its first check, the email count and Yelp's 11.
       '<div class="inq-dcard ld-card"><div class="ld-title ld-title-sum"><span>Review count</span>' +
@@ -419,6 +458,7 @@ function _rvRenderSummary() {
           }).join('')
         : '<div class="rpm-none">No open asks</div>') +
     '</div>' + _rvPlanHtml() + '</div>';
+  _rvArchiveLook(document.getElementById('rvSummaryBody'));
 }
 
 // The circle on an At the moment row: Left a review + Left When = today, on
@@ -586,7 +626,7 @@ var RV_NOTES = {
   momentum: { label: 'Momentum', opts: [['Excited', 'yes'], ['Cruising', 'maybe'], ['Fading', 'no']] },
   progress: { label: 'Progress', opts: [['Improving', 'yes'], ['Steady', 'maybe'], ['Stuck', 'no']] }
 };
-var RV_SORTS = [['best', 'Best to ask'], ['long', 'Longest first'], ['momentum', 'Momentum'], ['progress', 'Progress']];
+var RV_SORTS = [['best', 'Best to ask'], ['long', 'Longest'], ['momentum', 'Momentum'], ['progress', 'Progress']];
 var RV_WIN_DAYS = 14;   // a win counts toward Best to ask for two weeks
 
 function _rvSortKey() {
@@ -628,7 +668,8 @@ function _rvNotesHtml(r) {
     return '<span class="inq-flabel">' + RV_NOTES[f].label + '</span><span class="inq-fval rv-chips">' +
       RV_NOTES[f].opts.map(function (o) {
         var on = r[f] === o[0];
-        return '<button class="inq-db' + (on ? ' ' + o[1] : '') + '" onclick="_rvSetNote(' + r.row + ', \'' + f + '\', \'' + o[0] + '\', this)">' + o[0] + '</button>';
+        // The sort's light frames (user, 2026-11-23): the picked one's amber light on; tap it again to clear.
+        return '<span class="slide-lbl' + (on ? ' lit' : '') + '" role="button" tabindex="0" onclick="_rvSetNote(' + r.row + ', \'' + f + '\', \'' + o[0] + '\', this)">' + o[0] + '</span>';
       }).join('') + '</span>';
   };
   return '<div class="inq-fields en-fields rv-notes">' +
@@ -674,6 +715,24 @@ function _rvSaveNote(r, field, value, undo, done) {
     .catch(function (e) { undo(); rpmAlert({ title: 'Not saved', message: String(e && e.message || e) }); });
 }
 
+// Already left a review (user, 2026-11-23): the current students whose review came, dimmed, in their own box at the bottom.
+function _rvRenderLeft() {
+  var el = document.getElementById('rvLeftBody');
+  if (!el) return;
+  var list = ((_rvState.ov || {}).reviewedList || []).slice().sort(function (a, b) { return String(b.leftWhen || '').localeCompare(String(a.leftWhen || '')); });
+  if (!list.length) { el.innerHTML = '<div class="inq-empty">None</div>'; return; }
+  el.innerHTML = list.map(function (r) {
+    return '<div class="en-scard en-rv rv-left-card">' +
+      '<div class="en-rv-top"><div class="inq-name">' + _rvEscHtml(r.name) + '</div><span class="rv-left-tag">Left a review</span></div>' +
+      '<div class="inq-fields en-fields">' +
+        '<span class="inq-flabel">Start Date</span><span class="inq-fval">' + _rvEscHtml(r.start || '-') + '</span>' +
+        '<span class="inq-flabel">Lifetime</span><span class="inq-fval">' + _rvEscHtml(r.lifetime || '-') + '</span>' +
+        '<span class="inq-flabel">Rate</span><span class="inq-fval">' + _rvEscHtml(r.rate || '-') + '</span>' +
+        '<span class="inq-flabel">Left</span><span class="inq-fval">' + _rvEscHtml(r.leftWhen || '-') + '</span>' +
+      '</div></div>';
+  }).join('');
+}
+
 function _rvRenderCurrent() {
   var o = _rvState.ov || {}, list = _rvSorted(o.current || []), locked = _rvLocked(), sk = _rvSortKey();
   _rvState.order = {};
@@ -687,10 +746,10 @@ function _rvRenderCurrent() {
       row('Already left a review', o.reviewed || 0) +
       row('Plan', 'Ask one a week') +
     '</div></div>';
+  _rvArchiveLook(document.getElementById('rvCurSum'));
   var html =
-    '<div class="hol-views rv-sorts">' + RV_SORTS.map(function (s) {
-      return '<button class="link-btn' + (s[0] === sk ? ' lit' : '') + '" onclick="_rvSetSort(\'' + s[0] + '\')">' + s[1] + '</button>';
-    }).join('') + '</div>';
+    // The sort as a 4-stop slide switch (user, 2026-11-23): Holidays' switch, one stop per sort.
+    rpmStopSwitch(RV_SORTS, sk, '_rvSetSort', 'rv-sorts ms-flat');   // side by side, light inside each frame, no slider (user, 2026-11-23)
   if (!list.length) html += '<div class="inq-empty">None</div>';
   list.forEach(function (r) {
     var p = 'rc' + r.row;
@@ -721,6 +780,7 @@ function _rvRenderCurrent() {
     '</div>';
   });
   document.getElementById('curReviewsBody').innerHTML = html;
+  _rvRenderLeft();
 }
 
 function _rvFindCur(row) {
