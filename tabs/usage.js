@@ -60,7 +60,7 @@ function _usNone(t) { return '<div class="ld-note">' + t + '</div>'; }
 function _usRender() {
   var body = document.getElementById('usageBody'), d = _usData;
   if (!body || !d) return;
-  document.querySelectorAll('#usageViews .link-btn').forEach(function (b) { b.classList.toggle('lit', b.dataset.view === _usView); });
+  document.querySelectorAll('#usageViews [data-view]').forEach(function (b) { b.classList.toggle('lit', b.dataset.view === _usView); });
   var cut = _usView === 'month' ? Date.now() - 30 * 864e5 : 0;
   var html = '';
 

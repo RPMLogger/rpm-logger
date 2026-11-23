@@ -60,8 +60,8 @@ html body.rk-lessons #importBody .im-box ~ .im-box { margin-top: 62.5px; }   /* 
 html body.rk-lessons .header .hdr-amp-screws i:nth-child(odd)  { left: var(--rk-amp-x) !important; right: auto !important; }
 html body.rk-lessons .header .hdr-amp-screws i:nth-child(even) { right: var(--rk-amp-x) !important; left: auto !important; }
 html body.rk-lessons .container > :is(.home-rack, .alarm-rack) .hr-bolt { width: 11px; height: 11px; }
-html body.rk-lessons .container > :is(.home-rack, .alarm-rack) .hr-bolt:first-of-type { left: var(--rk-rack-x) !important; right: auto !important; }
-html body.rk-lessons .container > :is(.home-rack, .alarm-rack) .hr-bolt ~ .hr-bolt { right: var(--rk-rack-x) !important; left: auto !important; }
+html body.rk-lessons .container > :is(.home-rack, .alarm-rack) .hr-bolt[style*="left"] { left: var(--rk-rack-x) !important; right: auto !important; }
+html body.rk-lessons .container > :is(.home-rack, .alarm-rack) .hr-bolt[style*="right"] { right: var(--rk-rack-x) !important; left: auto !important; }   /* by side, not order: the home rack has two screws a side now (user, 2026-11-22) */
 html body.rk-lessons #importBody .im-box > .td-bolt { width: 13.75px; height: 13.75px; }   /* this area is scaled 0.8: 13.75 → 11 on screen */
 html body.rk-lessons #importBody .im-box > .td-bolt[style*="left"]  { left: var(--rk-box-x) !important; }
 html body.rk-lessons #importBody .im-box > .td-bolt[style*="right"] { right: var(--rk-box-x) !important; }
@@ -92,3 +92,4 @@ html body.rk-lessons .tab-panel.active .td-wk-box.td-wk-box ~ .td-wk-box.td-wk-b
 html body.rk-lessons .tab-panel.active .td-wk-box:has(~ .td-wk-box) { margin-bottom: 0 !important; }
 html body.rk-lessons .tab-panel.active .td-wk-box.td-wk-box { box-shadow: var(--rpm-box-ring) !important; }   /* every box keeps the double border (Comms/Emails main box had it off) */
 html body.rk-lessons .tab-panel.active .td-wk-box.tdo-done { margin-top: 62.5px !important; }   /* To-do + Notes: the Done box sits in its own wrapper */
+html body.rk-lessons :is(#holBody, #arcBody) > .td-wk-box:first-child { margin-top: 62.5px !important; }   /* Holidays + Archive: the first group box sits in its own wrapper; two screw spots under the title box like between the others (user, 2026-11-22) */

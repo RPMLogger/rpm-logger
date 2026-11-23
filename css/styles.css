@@ -334,7 +334,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Every tab in one bordered box like Today's (user, 2026-10-26; Home too).
    Today, Students, To-Do, Notes and Comms make their own boxes; Calendar and Fixed schedule
    are wider than the column, so they stay open. Financial makes its own three boxes (user, 2026-11-15). */
-.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox) {
+.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays) {
   box-sizing: border-box;   /* background, border, corners, padding, grain, screws: THE BOX at the end of this file (2026-11-06) */   /* was: every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
 
@@ -4799,7 +4799,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
   --rpm-box-ring: 0 0 0 2px #1e1e1e, 0 0 0 3px #2c2c2c;   /* screwed metal plates: the amp's double line, half as thick (user, 2026-11-06) */
   --rpm-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays),
 html body .td-wk-box,
 html body .cr.rpm-rack,
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
@@ -4809,7 +4809,7 @@ html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
   box-shadow: var(--rpm-box-ring);   /* Home's double border: dark amp-body ring + outer line (user, 2026-11-06) */
 }
 /* the ring sits 5px outside: every box 4px in from the column, like Home and the header */
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays),
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) { margin-left: 4px; margin-right: 4px; }
 html body .td-wk-box { width: calc(100% - 8px); }
 html body .cr.rpm-rack { margin-left: 4px !important; margin-right: 4px !important; }
@@ -6679,3 +6679,21 @@ html body #tab-emails :is(.em-top, #emHead), html body #commsBody .cm-box :is(.c
 html body #commsBody .cm-more-btn, html body #commsBody .cm-list-top .cm-compose { width: 30px; height: 30px; }
 html body #commsBody .cm-more-btn { font-size: 16px; }
 html body #commsBody .cm-list-top .cm-compose svg { width: 15px; height: 15px; }
+/* View switches (Holidays, Portal Usage): a small dark sideways slide switch (user, 2026-11-22), each word in a white
+   rectangle in the rack's STUDENT caption font (6.5px on screen: these tabs draw at 0.8, so 8.125px), a dim amber
+   light left of each word. Nothing changes colour: the picked word's light goes on and the slider moves to it. */
+html body .slide-sw { display: inline-flex; flex-direction: row; align-items: center; gap: 7px; }
+html body .flip-wrap { display: flex; justify-content: flex-end; }
+html body .slide-lbl { position: relative; margin-left: 10px; display: inline-flex; align-items: center; gap: 5px; font: 500 8.125px/10px "DM Mono", monospace; letter-spacing: 1px; text-transform: uppercase; color: #6e6e6e; white-space: nowrap; cursor: pointer;
+  text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.09);
+  padding: 2px 6px 2px 7px; border: 1px solid rgba(255,255,255,.22); border-radius: 3px; }
+html body .slide-lbl.lit { cursor: default; }
+html body .slide-lbl::before { content: ""; position: absolute; left: -10px; top: 50%; margin-top: -2.5px; width: 5px; height: 5px; border-radius: 50%;   /* the light outside the frame, on its left (user, 2026-11-22) */
+  background: radial-gradient(circle at 35% 35%, #3a2c12, #1a1307); box-shadow: inset 0 1px 1px rgba(0,0,0,.7), 0 0 0 1px #0a0a0a; }   /* the light, off */
+html body .slide-lbl.lit::before { background: radial-gradient(circle at 35% 35%, oklch(.78 .12 75), oklch(.58 .12 65)); box-shadow: 0 0 0 1px #0a0a0a, 0 0 4px oklch(.7 .13 70 / .45); }   /* on: dim amber */
+html body .slide { position: relative; width: 19px; height: 10px; padding: 0; border-radius: 2.5px; cursor: pointer; border: 1px solid #000;
+  background: #070707; box-shadow: inset 0 2px 3px rgba(0,0,0,.95), 0 1px 0 rgba(255,255,255,.04); }
+html body .slide-knob { position: absolute; top: 1px; bottom: 1px; left: 1px; width: 8px; border-radius: 1.5px;
+  background: repeating-linear-gradient(to right, #5e5e5e 0 1px, #262626 1px 2.5px), #3a3a3a;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 1px 2px rgba(0,0,0,.8); transition: left .12s ease; }   /* darker + a tad smaller (user, 2026-11-22) */
+html body .slide-sw:has(.slide-lbl:last-child.lit) .slide-knob { left: 8px; }
