@@ -10,28 +10,14 @@
 var ARC_STUDENTS = [
   {"n": "Nick Allred", "f": "2025-03-01", "l": "2026-04-15"},
   {"n": "Zhao Chenyu", "f": "2021-09-11", "l": "2026-03-10"},
-  {"n": "Stefanie Carapezza", "f": "2021-11-29", "l": "2025-12-26"},
   {"n": "Samantha Dwan", "f": "2024-06-19", "l": "2025-12-26"},
-  {"n": "Gail Greenwald", "f": "2008-01-21", "l": "2025-12-26"},
   {"n": "Dan Bo", "f": "2023-07-05", "l": "2025-12-26"},
-  {"n": "Terry Cao", "f": "2023-12-13", "l": "2025-12-23"},
-  {"n": "Jean Francisco", "f": "2022-01-10", "l": "2025-12-23"},
   {"n": "Yuxin Chen", "f": "2023-07-23", "l": "2025-12-21"},
-  {"n": "Antonio Moreno", "f": "2018-03-17", "l": "2025-12-21"},
   {"n": "Nara Lee", "f": "2021-06-27", "l": "2025-12-20"},
   {"n": "Steve Heinzl", "f": "2014-04-30", "l": "2025-12-19"},
-  {"n": "Siena Stanislaus", "f": "2024-04-25", "l": "2025-12-19"},
-  {"n": "Ed Sheehan", "f": "2020-01-08", "l": "2025-12-18"},
-  {"n": "Glen Paulin", "f": "2018-08-30", "l": "2025-12-10"},
-  {"n": "Jiayi He", "f": "2021-09-18", "l": "2025-11-13"},
-  {"n": "Charlotte Kang", "f": "2022-02-08", "l": "2025-11-05"},
   {"n": "Shihui", "f": "2021-07-07", "l": "2025-11-04"},
-  {"n": "Jordan Stern", "f": "2023-05-24", "l": "2025-10-30"},
   {"n": "Bianca Exciana", "f": "2025-07-02", "l": "2025-10-10"},
-  {"n": "Surbhi Singal", "f": "2019-12-07", "l": "2025-08-16"},
-  {"n": "Gulya Shigabutinova", "f": "2025-02-02", "l": "2025-08-16"},
   {"n": "Flora Tsai", "f": "2018-08-08", "l": "2025-08-09"},
-  {"n": "Jose Nieto", "f": "2025-03-06", "l": "2025-08-07"},
   {"n": "Robert La Rocca", "f": "2025-06-16", "l": "2025-06-16"},
   {"n": "Gregory Loiseau", "f": "2014-03-09", "l": "2025-05-30"},
   {"n": "Coco Sheng", "f": "2025-02-02", "l": "2025-05-21"},
@@ -375,7 +361,6 @@ var ARC_STUDENTS = [
   {"n": "Nicholas Stewart"},
   {"n": "Michael Vitagliano"},
   {"n": "Melissa Cybulski"},
-  {"n": "Mark McGoldric"},
   {"n": "Mark Gafur"},
   {"n": "Marco Velasquez"},
   {"n": "Maja Currier"},
@@ -387,14 +372,13 @@ var ARC_STUDENTS = [
   {"n": "Kristina Hawley"},
   {"n": "Kerry Howell"},
   {"n": "Katy Lucid"},
-  {"n": "Kadriye", "x": "Before 1998"},
+  {"n": "Zekiye", "x": "Before 1998"},
   {"n": "Justin Ochiogross"},
   {"n": "Jun Chen"},
   {"n": "Jorge Bravo", "x": "3 lesson"},
   {"n": "Jonathan Pohl"},
   {"n": "Jon Gilman"},
   {"n": "John Debenedicts"},
-  {"n": "Jin Wook Lee", "x": "2 months; maybe same as Jin Lee"},
   {"n": "Jessica Hoppe", "x": "short"},
   {"n": "Jeffrey Neiger"},
   {"n": "Jason Domina"},
@@ -412,9 +396,11 @@ var ARC_STUDENTS = [
   {"n": "Eugene Geis"},
   {"n": "Emre Kayhan"},
   {"n": "Emrah Baban", "x": "Before 1998"},
+  {"n": "Indonesian Kid", "x": "Before 1998"},
+  {"n": "Komsu Banu", "x": "Before 1998"},
   {"n": "Derek Seto"},
   {"n": "Dennis Muniz"},
-  {"n": "David Groltz", "x": "maybe same as Dave Gorovitz"},
+  {"n": "David Groltz"},
   {"n": "David Bielak"},
   {"n": "David Berman", "x": "1 lesson"},
   {"n": "Daniel Ryan", "x": "short"},
@@ -422,7 +408,7 @@ var ARC_STUDENTS = [
   {"n": "Craig Magnum"},
   {"n": "Coleman Donaldson"},
   {"n": "Christian Kozowyk"},
-  {"n": "Christi Karhal", "x": "maybe same as Christi Gorelli"},
+  {"n": "Christi Karhal"},
   {"n": "Chris McCall"},
   {"n": "Chris Lafargue"},
   {"n": "Chris Ellis"},
@@ -456,7 +442,7 @@ var ARC_STUDENTS = [
   {"n": "Ryan Maharaj", "f": "2015-07-25", "l": "2015-10-17"},
   {"n": "Sara Kim"},
   {"n": "Patrick Kane"},
-  {"n": "Misha", "f": "2001", "l": "2001", "x": "No last name"},
+  {"n": "Misha Koshelev", "f": "2001", "l": "2001"},
   {"n": "Misha", "x": "No last name; 2010s, a different Misha"},
   {"n": "Don", "f": "2001", "l": "2001", "x": "No last name; Harvard"},
   {"n": "Jim", "f": "2001", "l": "2001", "x": "No last name; not Jim LaMarche"},
@@ -471,20 +457,44 @@ var ARC_STUDENTS = [
 ];
 
 var _arcQuery = '';
-var _arcNoneOpen = false;
+var _arcRecent = [];   // terminated from 2026-11-22 on: Lifetime & Review rows with Y Terminated (years only)
+
+// The old list plus the terminated ones. A name in both keeps only the newer
+// record (Lifetime & Review), e.g. Dan Bo / Flora Tsai: 2025 in the old list,
+// really ended 2026 (2026-11-22).
+function _arcAll() {
+  var recent = {};
+  _arcRecent.forEach(function (s) { recent[s.n.toLowerCase()] = 1; });
+  return ARC_STUDENTS.filter(function (s) { return !recent[s.n.toLowerCase()]; }).concat(_arcRecent);
+}
+
+function _arcLoadRecent() {
+  if (typeof getScriptUrl !== 'function' || !getScriptUrl()) return;
+  fetch(getScriptUrl() + '?action=getArchiveRecent')
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (!res || !res.success || !Array.isArray(res.students)) return;
+      _arcRecent = res.students;
+      var cnt = document.getElementById('arcCount');
+      if (cnt) cnt.textContent = _arcAll().length;
+      _arcRender();
+    })
+    .catch(function () {});   // offline: the old list still shows
+}
 
 function initArchiveTab() {
   _arcStyle();
   var top = document.getElementById('arcTop');   // the title box's screws (five boxes, user 2026-11-15)
   if (top && typeof TD_BOLTS === 'string' && !top.querySelector(':scope > .td-bolt')) top.insertAdjacentHTML('afterbegin', TD_BOLTS);
   var cnt = document.getElementById('arcCount');
-  if (cnt) cnt.textContent = ARC_STUDENTS.length;
+  if (cnt) cnt.textContent = _arcAll().length;
   var q = document.getElementById('arcSearch');
   if (q && !q._arcBound) {
     q._arcBound = true;
     q.addEventListener('input', function () { _arcQuery = q.value; _arcRender(); });
   }
   _arcRender();
+  _arcLoadRecent();
 }
 
 function _arcKey(s) {
@@ -500,8 +510,8 @@ function _arcRender() {
   var body = document.getElementById('arcBody');
   if (!body) return;
   var needle = _arcQuery.trim().toLowerCase();
-  var groups = {}, shown = 0;
-  ARC_STUDENTS.forEach(function (s) {
+  var groups = {}, shown = 0, all = _arcAll();
+  all.forEach(function (s) {
     if (needle && s.n.toLowerCase().indexOf(needle) < 0) return;
     var k = _arcKey(s);
     (groups[k] = groups[k] || []).push(s);
@@ -510,9 +520,9 @@ function _arcRender() {
   var rank = function (k) { return k === 'none' ? 2 : k === 'pre' ? 1 : 0; };
   var keys = Object.keys(groups).sort(function (a, b) { return rank(a) - rank(b) || (a < b ? 1 : a > b ? -1 : 0); });
   var shownEl = document.getElementById('arcShown');
-  if (shownEl) shownEl.textContent = needle ? shown + ' of ' + ARC_STUDENTS.length : '';
+  if (shownEl) shownEl.textContent = '';
   var bolts = typeof TD_BOLTS === 'string' ? TD_BOLTS : '';
-  if (!keys.length) { body.innerHTML = '<div class="td-wk-box arc-box">' + bolts + '<div class="empty-state">No one by that name</div></div>'; return; }
+  if (!keys.length) { var t0 = document.getElementById('arcCounts'); if (t0) t0.innerHTML = '<div class="rpm-count lead"><div class="rpm-count-n">0</div><div class="rpm-count-l">Found</div></div>'; body.innerHTML = '<div class="td-wk-box arc-box">' + bolts + '<div class="empty-state">No one by that name</div></div>'; return; }
   var card = function (k) {
     var list = groups[k].slice().sort(function (a, b) { return a.n.localeCompare(b.n); });
     var title = k === 'none' ? 'No dates' : k === 'pre' ? 'Before 1998' : k;
@@ -521,13 +531,10 @@ function _arcRender() {
       var since = s.f && s.f.slice(0, 4) !== k && k !== 'pre' && k !== 'none' ? '<i>' + s.f.slice(0, 4) + '</i>' : '';
       return '<span class="arc-name"' + (tip ? ' title="' + _arcEsc(tip) + '"' : '') + '><b>' + _arcEsc(s.n) + '</b>' + since + '</span>';
     }).join('');
-    // "No dates" stays shut until clicked; a search opens it (2026-11-08).
-    var shut = k === 'none' && !needle && !_arcNoneOpen;
-    var head = k === 'none'
-      ? '<button type="button" class="ld-title arc-toggle" onclick="_arcNoneOpen=!_arcNoneOpen;_arcRender()">' + title + '<span class="arc-n">' + list.length + '</span><span class="arc-chev">' + (shut ? 'Show' : 'Hide') + '</span></button>'
-      : '<div class="ld-title">' + title + '<span class="arc-n">' + list.length + '</span></div>';
-    return '<div class="ld-card' + (shut ? ' arc-shut' : '') + '">' + head +
-           (shut ? '' : '<div class="arc-names">' + names + '</div>') + '</div>';
+    // "No dates" is always open, like every other year (user, 2026-11-22: no Show toggle).
+    // Year heading sits ABOVE the card, wide-spaced title face (user, 2026-11-22: "2 0 2 6").
+    return '<div class="arc-year"><div class="arc-yhead">' + title + '<span class="arc-n">(' + list.length + (list.length === 1 ? ' student' : ' students') + ')</span></div>' +
+           '<div class="ld-card arc-ycard"><div class="arc-names">' + names + '</div></div></div>';
   };
   // Four boxes of five-year spans, ~80–97 names each (user, 2026-11-15); a box with no match hides.
   var eras = [
@@ -536,12 +543,24 @@ function _arcRender() {
     { t: '2010 – 2014', has: function (k) { return k >= '2010' && k < '2015'; } },
     { t: '2009 and earlier', has: function (k) { return k < '2010' || k === 'pre' || k === 'none'; } }
   ];
+  // Count tiles under the search (2026-11-22): Total first (lead), then one per era.
+  var tiles = document.getElementById('arcCounts');
+  if (!tiles) {
+    var find = document.querySelector('#arcTop .arc-find');
+    if (find) { tiles = document.createElement('div'); tiles.id = 'arcCounts'; tiles.className = 'rpm-counts'; find.insertAdjacentElement('afterend', tiles); }
+  }
+  if (tiles) {
+    var tile = function (n, l, cls) { return '<div class="rpm-count' + (cls ? ' ' + cls : '') + '"><div class="rpm-count-n">' + n + '</div><div class="rpm-count-l">' + l + '</div></div>'; };
+    tiles.innerHTML = tile(shown, needle ? 'Found' : 'Total', 'lead') + eras.map(function (e) {
+      var n = keys.filter(e.has).reduce(function (t, k) { return t + groups[k].length; }, 0);
+      return tile(n, e.t, 'sub');
+    }).join('');
+  }
   body.innerHTML = eras.map(function (e) {
     var ks = keys.filter(e.has);
     if (!ks.length) return '';
-    var all = ks.reduce(function (t, k) { return t + groups[k].length; }, 0);
     return '<div class="td-wk-box arc-box">' + bolts +
-      '<div class="settings-title td-wk-title arc-era"><span>' + e.t + '<span class="win-sub"> · ' + all + ' students</span></span></div>' +
+      '<div class="settings-title td-wk-title arc-era"><span>Past students<span class="win-sub"> · ' + e.t + '</span></span></div>' +
       '<div class="ld-cards">' + ks.map(card).join('') + '</div></div>';
   }).join('');
 }
@@ -557,22 +576,29 @@ function _arcStyle() {
     '#tab-archive #arcTop > .ld-icon .win-icon { width: 36px; height: auto; margin-left: 0; }' +
     '#tab-archive > #arcTop { margin-top: 0; }' +
     '#tab-archive #arcTop .arc-find { margin: 0; }' +
-    '#tab-archive .arc-era { margin-bottom: 24px; }' +
+    '#tab-archive .arc-era { margin-bottom: 36px; }' +
     '#tab-archive .arc-box .ld-cards { margin-bottom: 0; }' +
     '#tab-archive .arc-find { display: flex; align-items: center; gap: 12px; margin: 0 0 24px; }' +
     '#tab-archive .arc-find input { flex: 1; min-width: 0; max-width: 340px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--t-text); font-family: "DM Mono", monospace; font-size: 12px; padding: 9px 12px; outline: none; }' +
     '#tab-archive .arc-find input:focus { border-color: var(--focus); }' +
-    '#tab-archive .arc-find span { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; color: var(--t-faint); }' +
+    // Magnifying glass inside the box, same as the Comms search (2026-11-22).
+    '#tab-archive .arc-search-wrap { position: relative; display: block; flex: 1; min-width: 0; max-width: 340px; color: var(--t-faint); }' +
+    '#tab-archive .arc-search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); pointer-events: none; }' +
+    '#tab-archive .arc-search-wrap input { width: 100%; max-width: none; box-sizing: border-box; padding-left: 31px; }' +
+    '#tab-archive #arcCounts { margin: 26px 0 0; }' +   // the portal's count tiles (.rpm-count), Total = .lead (2026-11-22)
+    '#tab-archive .arc-year { display: flex; flex-direction: column; min-width: 0; }' +
+    '#tab-archive .arc-yhead { display: flex; align-items: baseline; gap: 14px; margin: 0 0 16px 2px; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 2px; line-height: 1.2; color: var(--t-normal); text-transform: uppercase; text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }' +   // Log window section-label face (Log lesson / Log homework), engraved (user, 2026-11-22)
+    '#tab-archive .arc-yhead .arc-n { color: var(--t-faint); text-transform: none; letter-spacing: 1px; }' +   // "2026 (2 students)" (user, 2026-11-22)
+    '#tab-archive .arc-ycard { flex: 1; padding: 17px 18px; }' +   // even padding now the title band is outside (2026-11-22)
+    '#tab-archive .arc-ycard { margin: 0 64px 0 28px; }' +   // indented under the year heading (user, 2026-11-22)
+    '#tab-archive .arc-ycard .arc-names { padding: 0; row-gap: 4px; }' +
+    '#tab-archive .arc-year + .arc-year { margin-top: 30px; }' +
     '#tab-archive .ld-title { display: flex; align-items: baseline; gap: 10px; }' +
     '#tab-archive .ld-title .arc-n { color: var(--t-faint); }' +
-    '#tab-archive .arc-shut .ld-title { border-bottom: 0; }' +
-    '#tab-archive .arc-toggle { width: calc(100% + 28px); border-top: 0; border-left: 0; border-right: 0; cursor: pointer; text-align: left; }' +
-    '#tab-archive .arc-chev { margin-left: auto; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; color: var(--t-faint); }' +
-    '#tab-archive .arc-toggle:hover .arc-chev { color: var(--t-text); }' +
     '#tab-archive .arc-names { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0 20px; padding: 8px 0 6px; }' +
     '#tab-archive .arc-name { display: flex; align-items: baseline; gap: 8px; min-width: 0; padding: 4px 0; font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); }' +
     '#tab-archive .arc-name b { font-weight: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }' +
-    '#tab-archive .arc-name i { font-style: normal; color: var(--t-faint); flex: none; }';
+    '#tab-archive .arc-name i { font-style: normal; color: var(--t-faint); flex: none; margin-left: auto; padding-left: 8px; }';   // years line up in a column at the cell's right (user, 2026-11-22)
   var st = document.createElement('style');
   st.id = 'arcStyle';
   st.textContent = css;
