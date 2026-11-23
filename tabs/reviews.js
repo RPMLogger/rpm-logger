@@ -449,14 +449,14 @@ function _rvRenderSummary() {
       // At the moment (user, 2026-10-26): everyone asked who hasn't left a
       // review yet, newest first, one "date - name" row each. Google names
       // don't match students, so the circle marks Left a review by hand.
-      '<div class="ld-title"><span>Asked at the moment</span></div>' +
+      '<div class="ld-title"><span>As of now</span></div>' +   // was Asked at the moment (user, 2026-11-23)
       ((o.asks || []).length
         ? o.asks.map(function (a, i) {
             return '<div class="ld-row rv-askrow"><span class="ld-v">' +
               '<button class="rv-tick" data-tip="Instant.\nTicks Left a review.\nCard disappears from Reviews." onclick="_rvAskLeft(' + i + ', this)"></button>' +
               _rvEscHtml(a.date) + ' - ' + _rvEscHtml(a.name) + _rvAskTag(a) + '</span></div>';
           }).join('')
-        : '<div class="rpm-none">No open asks</div>') +
+        : row('Any student asked?', 'None')) +   // a row like the others (user, 2026-11-23; was a big NO OPEN ASKS)
     '</div>' + _rvPlanHtml() + '</div>';
   _rvArchiveLook(document.getElementById('rvSummaryBody'));
 }
@@ -742,8 +742,8 @@ function _rvRenderCurrent() {
   var row = function (l, v) { return '<div class="ld-row"><span class="ld-l">' + l + '</span><span class="ld-v">' + v + '</span></div>'; };
   document.getElementById('rvCurSum').innerHTML =
     '<div class="ld-cards"><div class="inq-dcard ld-card"><div class="ld-title"><span>Current students</span></div>' +
-      row('Without a review', list.length) +
-      row('Already left a review', o.reviewed || 0) +
+      row('No review', list.length) +   // shorter labels (user, 2026-11-23)
+      row('Reviewed', o.reviewed || 0) +
       row('Plan', 'Ask one a week') +
     '</div></div>';
   _rvArchiveLook(document.getElementById('rvCurSum'));
