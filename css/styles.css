@@ -6753,3 +6753,10 @@ html body #tab-reviews > .rv-box > .settings-title.rv-g-title { margin-bottom: 3
 html body #tab-today .td-day-cal { border-color: #5e4d2a; }
 html body #tab-today .td-day-cal .td-hol-mo { color: #5e4d2a; border-bottom-color: #5e4d2a; }
 html body #tab-today .td-day-cal .td-hol-dd { color: #5e4d2a; }
+html body #curReviewsBody .rv-notes { border-top: 0; padding-top: 0; margin-top: 30px; }   /* no line between the facts and Momentum / Progress, more room instead (user, 2026-11-23) */
+html body #curReviewsBody .rv-chips .slide-lbl { border-radius: 999px; padding: 2px 9px 2px 7px; }   /* Momentum / Progress as pills (user, 2026-11-23) */
+html body #curReviewsBody .rv-chips .slide-lbl { padding: 2px 7px 2px 9px; }
+html body #curReviewsBody .rv-chips .slide-lbl::before { order: 2; }   /* the light at the end of the pill (user, 2026-11-23) */
+html body #curReviewsBody .rv-chips .slide-lbl { color: #5e5e5e; border-color: rgba(255,255,255,0.09); }   /* darker, like the Log window's keyword chips (user, 2026-11-23) */
+html body #curReviewsBody .rv-chips .slide-lbl:hover { color: #ddd; border-color: rgba(255,255,255,0.4); }
+html body :is(#curReviewsBody, #endReviewsBody, #rvLeftBody) .en-scard { margin-left: 28px; margin-right: 64px; }   /* student cards as wide as the Dashboard's cards (user, 2026-11-23) */
