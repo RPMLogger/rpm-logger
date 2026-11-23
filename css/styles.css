@@ -5795,7 +5795,7 @@ body:has(#tab-import.active) .container > .dc-rack { display: block; }   /* and 
 .dc-rack .dc-big { height: 26px; }   /* clock screen slimmer (user, 2026-11-16; was 36) */
 .dc-rack .dc-body { height: 26px; }   /* keeps bulb + button + COUNT on the clock's middle */
 /* Day Clock in the Calendar rack's green (user, 2026-11-16): the week screen's glass + green text; the bulb lights green */
-.dc-rack .dc-lcd { background: #070807; border: 1px solid #222; box-shadow: inset 0 2px 6px rgba(0,0,0,.8); }
+.dc-rack .dc-lcd { background: #070807; border: 1px solid #000; box-shadow: inset 0 2px 5px rgba(0,0,0,.9); }   /* engraved like the Home amber screen (user, 2026-11-23; was #222 border, .8) */
 .dc-rack .dc-big, .dc-rack .dc-sec.on .dc-lcd { background: #0a0c0a; color: oklch(.72 .08 145); text-shadow: 0 0 5px oklch(.63 .19 145 / .35); }
 .dc-rack .dc-led { background: radial-gradient(circle at 35% 35%, #1f3320, #0b140b); }
 .dc-rack .dc-sec.on .dc-led { background: radial-gradient(circle at 35% 35%, oklch(.82 .12 145), oklch(.6 .14 145)); box-shadow: 0 0 0 1px #0a0a0a, 0 0 4px oklch(.7 .15 145 / .45); }
