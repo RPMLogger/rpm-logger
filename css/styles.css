@@ -6563,7 +6563,7 @@ html body #thModal .th-compose #thBody { background: oklch(0.42 0.08 22) !import
 html body #tbModal #tbOfferedSlots { margin-bottom: 0 !important; } html body #tbModal #tbOfferedSlots:not(:empty) { margin-bottom: 24px !important; }   /* offered times, 24 above Trial (user, 2026-11-21) */
 /* Yes/no confirm dialogs: the question as plain white text, not a red Bebas title (user, 2026-11-21).
    Warning! dialogs (they have a sub-heading, .rpm-dlg-body) keep their red title. */
-html body .rpm-dlg-confirm:not(:has(.rpm-dlg-body)) .rpm-dlg-title { font-family: Arial, Helvetica, sans-serif !important; font-size: 14px !important; font-weight: 400 !important; letter-spacing: 0 !important; text-transform: none !important; color: var(--t-bright) !important; text-shadow: none !important; }
+html body .rpm-dlg-confirm:not(:has(.rpm-dlg-body)) .rpm-dlg-title { font-family: Arial, Helvetica, sans-serif !important; font-size: 14px !important; font-weight: 400 !important; letter-spacing: 0 !important; text-transform: none !important; color: var(--t-normal) !important; text-shadow: none !important; }   /* dimmed to the normal text grey (user, 2026-11-22; was --t-bright) */
 /* Applications Maybe / No: the Compose look (user, 2026-11-21) - 80% scale, Trial window spacing, muted red email box */
 html body #inqModal > * { zoom: var(--content-scale); max-height: calc(92vh / var(--content-scale)) !important; }
 html body #inqModal > * > .settings-title { margin-bottom: 26px; }

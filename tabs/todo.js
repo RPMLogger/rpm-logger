@@ -51,6 +51,8 @@ function _tdoEntryOpen(o) {
       '<div class="settings-title"><span>' + o.title + '</span>' +
         '<button class="settings-close" onclick="_tdoEntryClose()">✕</button></div>' +
       '<div style="margin:4px 0 18px">' + o.icon + '</div>' +
+      // The Log lesson window's place (user, 2026-11-22): caps label above, no outline, plain mic, ＋ on the right.
+      '<div class="db-cx-head im-sub-head tdo-entry-head"><label class="field-label im-sub-t">' + (o.key === 'task' ? 'Task' : 'Note') + '</label></div>' +
       '<div class="ll-wrap">' +
         '<div class="ll-rows" id="tdoEntryRows"><textarea rows="1" class="rpm-field ll-row active"></textarea></div>' +
         '<button class="link-btn tl-mic" id="tdoEntryMic" data-tip="Instant.\nStarts or stops dictation." data-tip-left onclick="_tdoToggleMic()">' + MIC_ICON + '</button>' +
@@ -62,6 +64,20 @@ function _tdoEntryOpen(o) {
       '</div>' +
     '</div>';
   document.body.appendChild(back);
+  if (!document.getElementById("tdoEntryStyle")) {
+    var st = document.createElement("style");
+    st.id = "tdoEntryStyle";
+    st.textContent =
+      "#tdoEntryWin .tdo-entry-head { margin: 0 0 16px; }" +
+      "#tdoEntryWin .ll-rows .ll-row.active { outline: none; }" +
+      "#tdoEntryWin .link-btn.tl-mic { padding: 4px 2px; border-color: transparent; background: transparent; color: var(--muted); }" +
+      "#tdoEntryWin .link-btn.tl-mic:hover:where(:not(:disabled)) { color: var(--text); }" +
+      "#tdoEntryWin .link-btn.tl-mic svg { width: 14px; height: 14px; }" +
+      "#tdoEntryWin .link-btn.tl-mic.rec { color: var(--accent); }" +
+      "#tdoEntryWin .ll-add { display: flex; width: fit-content; margin-left: auto; }" +
+      "#tdoEntryWin .ll-add svg { width: 16px; height: 17px; }";
+    document.head.appendChild(st);
+  }
   var box = _tdoBox(), btn = document.getElementById("tdoEntryLog");
   btn.onclick = function() { _tdoEntrySubmit(o); };
   llWire(box, function(i) { llRows(box).forEach(function(el, j) { el.classList.toggle("active", j === i); }); },
