@@ -973,7 +973,7 @@ function _trRenderPreview(body, boxId) {
   var url = getScriptUrl();
   var box = document.getElementById(boxId);
   if (!url || !box) return;
-  box.innerHTML = "<div style='font-family:\"DM Mono\",monospace;font-size:11px;color:var(--muted);margin-top:12px'>Rendering…</div>";
+  box.innerHTML = "<div class='empty-state rpm-loading'>Loading</div>";   // the portal's rolling LOADING (user, 2026-11-23; was a plain "Rendering…")
   fetch(url + "?action=previewFirstContact&body=" + encodeURIComponent(body))
     .then(function (r) { return r.json(); })
     .then(function (d) {

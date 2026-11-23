@@ -96,35 +96,67 @@ function _rvBuildNudges(name) {
 // p = id prefix: 'rv<row>' an Ended card, 'rc<row>' a Current card; kind
 // 'ask' | 'nudge' names the date a copy saves.
 function _rvTemplatesHtml(tpl, p, kind, phone) {
-  // Open Messages (user, 2026-10-26): the student's chat, from the
-  // Phone Numbers tab. It doesn't fill in the text; Copy first, then paste.
-  // No iMessage button any more (user, 2026-11-20): Text sends from the portal.
-  var msgs = '';
-  // The number it goes to, under the icon, like the Travel Plan's (2026-10-26).
-  var num = phone ? '<div class="rv-tpl-phone">' + _rvEscHtml(phone) + '</div>' : '';
-  return num + tpl.map(function (t, i) {
-    // Nudges are text only (user, 2026-10-26): no Email, no "also sent" line.
-    var nudge = kind === 'nudge';
-    var mail = nudge ? '' : '<button class="link-btn" onclick="_rvOpenMail(\'' + p + '\', ' + i + ')" data-tip="Opens a window.\nThe email.\nSending it saves today as the ' + (kind === 'ask' ? 'asked' : 'nudged') + ' date.">' +
-      ENVELOPE_ICON + '<span>Email</span></button>';
-    // One window (user, 2026-11-21): Send texts the bubble straight from here (no second
-    // Text window); Email still opens its own window (subject + preview), in the Compose look.
-    return '<div class="en-tpl">' +
-      '<div class="en-tpl-top">' +
-        // Text template 1, 2, 3 (user, 2026-10-26): starting points edited before
-        // sending, so no names on them. t.label stays in the code as a note.
-        '<span class="field-label">Text template ' + (i + 1) + '</span>' +
-      '</div>' +
-      // The Travel Plan's text message look (user, 2026-10-26): your blue bubble
-      // on the right in a framed box; you can still edit it in place.
-      '<div class="ts-thread tv-rv-thread rv-thread"><div id="' + p + 'TA-' + i + '" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only" spellcheck="false">' +
-        _rvEscHtml(nudge ? t.text : _rvWithAlso(t.text)) + '</div></div>' +
-      '<div class="en-tpl-foot rv-tpl-foot2"><span class="en-tpl-btns">' + mail +
-        (phone ? '<button class="link-btn bright" id="' + p + 'TextBtn-' + i + '" onclick="_rvSendBubble(\'' + p + '\', ' + i + ', this)" ' +
-          'data-tip="Instant.\nTexts them this, from the portal like Comms.\nSending it saves today as the ' + (nudge ? 'nudged' : 'asked') + ' date." data-tip-left>' + SEND_ICON + '<span>Send</span></button>' : '') +
-      '</span></div>' +
-    '</div>';
-  }).join('') + msgs;   // one blue Open Messages at the foot (user, 2026-10-26)
+  // Side by side (user, 2026-11-23, like the Thread window): each template one row, the text
+  // (blue bubble, Send text) on the left, the email version (muted red box + subject, Send
+  // email) on the right; the email stays optional. Nudges are text only: one column.
+  var nudge = kind === 'nudge', who = _rvTplWho || {};
+  // "To: …" like Compose / Text / the Log email (td-mini-row), each over its own column (user, 2026-11-23).
+  var toLine = function (v) { return '<div class="td-mini-row rv-to-line"><span class="td-mini-t">To:</span> <span class="td-wk-name">' + v + '</span></div>'; };
+  var to = '<div class="rv-tpl-to' + (nudge ? ' rv-tpl-one' : '') + '">' +
+    (!nudge ? toLine(who.email ? _rvEscHtml(who.email) : 'No email on file') : '') +
+    toLine(phone ? _rvEscHtml(phone) : 'No phone number on file') +
+  '</div>';
+  // The steps first, in the Change appointment look (user, 2026-11-23).
+  var how = '<div class="im-rs-hint rv-tpl-how"><div class="im-rs-sec"><div class="im-rs-cap">To send</div><ol><li>Edit the content</li><li>Send it</li></ol></div></div>';
+  return how + to + tpl.map(function (t, i) {
+    var text =
+      '<div class="rv-col">' +
+        '<span class="field-label">Text ' + (i + 1) + '</span>' +
+        '<div class="ts-thread tv-rv-thread rv-thread"><div id="' + p + 'TA-' + i + '" class="ts-bub tv-rv-bub rv-bub" contenteditable="plaintext-only" spellcheck="false">' +
+          _rvEscHtml(nudge ? t.text : _rvWithAlso(t.text)) + '</div></div>' +
+        '<div class="en-tpl-foot rv-tpl-foot2"><span class="en-tpl-btns">' +
+          (phone ? '<button class="link-btn bright" id="' + p + 'TextBtn-' + i + '" onclick="_rvSendBubble(\'' + p + '\', ' + i + ', this)" ' +
+            'data-tip="Instant.\nTexts them this, from the portal like Comms.\nSending it saves today as the ' + (nudge ? 'nudged' : 'asked') + ' date." data-tip-left>' + SEND_ICON + '<span>Send text</span></button>' : '') +
+        '</span></div>' +
+      '</div>';
+    var mail = nudge ? '' :
+      '<div class="rv-col rv-col-mail">' +
+        '<span class="field-label">Email ' + (i + 1) + '</span>' +
+        '<label class="rv-mail-subj"><span class="rv-sbj-k">Sbj:</span><input id="' + p + 'MS-' + i + '" class="rv-mail-subj-in" value="A Quick Favor" aria-label="Subject"></label>' +
+        '<textarea id="' + p + 'MB-' + i + '" rows="12" class="rpm-field rv-mail-body">' + _rvEscHtml(_rvWithoutAlso(t.text)) + '</textarea>' +
+        '<div class="en-tpl-foot rv-tpl-foot2"><span class="en-tpl-btns">' +
+          '<button class="link-btn" onclick="_trRenderPreview(document.getElementById(\'' + p + 'MB-' + i + '\').value, \'' + p + 'MP-' + i + '\')">' + DETAILS_ICON + '<span>Preview</span></button>' +
+          (who.email ? '<button class="link-btn bright" id="' + p + 'MailBtn-' + i + '" onclick="_rvSendMailRow(\'' + p + '\', ' + i + ', this)" ' +
+            'data-tip="Instant.\nEmails them this, from the portal\'s Gmail.\nSending it saves today as the asked date." data-tip-left>' + SEND_ICON + '<span>Send email</span></button>' : '') +
+        '</span></div>' +
+        '<div id="' + p + 'MP-' + i + '"></div>' +
+      '</div>';
+    return '<div class="en-tpl rv-tpl-row' + (nudge ? ' rv-tpl-one' : '') + '">' + mail + text + '</div>';   // Email left, Text right, like the Thread window (user, 2026-11-23)
+  }).join('');
+}
+
+// Send the email from a template row (user, 2026-11-23): the row's subject + email box, to the
+// student's address; sent = the asked date, the same as the old Email window.
+function _rvSendMailRow(p, i, btn) {
+  var who = _rvTplWho || {}, to = (who.email || '').trim();
+  var subj = (document.getElementById(p + 'MS-' + i) || {}).value || '';
+  var body = ((document.getElementById(p + 'MB-' + i) || {}).value || '').trim();
+  if (!to) { rpmAlert({ title: 'No email address', message: 'There is no email for them on file.' }); return; }
+  if (!body) { rpmAlert({ title: 'Nothing to send', message: 'The email is empty.' }); return; }
+  var panel = btn.closest('.log-panel');
+  rpmBusy(panel, btn, true, 'Sending');
+  fetch(getScriptUrl() + '?action=reviewEmail&to=' + encodeURIComponent(to) + '&subject=' + encodeURIComponent(subj.trim()) + '&body=' + encodeURIComponent(body))
+    .then(function (x) { return x.json(); })
+    .then(function (res) {
+      if (!res || !res.success) throw new Error(res && res.message || 'Not sent');
+      rpmBusy(panel, btn, false);
+      btn.disabled = true; btn.innerHTML = SEND_ICON + '<span>Sent</span>';
+      _rvCopied(p, who.kind || 'ask');   // saves the asked date
+    })
+    .catch(function (e) {
+      rpmBusy(panel, btn, false);
+      rpmAlert({ title: 'Not sent', message: String(e && e.message || e) });
+    });
 }
 
 // The text version says the email went too (user, 2026-10-26): the line goes
@@ -380,6 +412,86 @@ var RV_YELP_COUNT = 11;
 var RV_NEXT_RAISE = 'Feb 2027';   // short month, like the other dates (user, 2026-10-26)
 
 // "30 · 5.0 ★" from a SerpApi count, else the fallback number.
+// New review (user, 2026-11-23): the first box. Google's email says a review came; here: Read review
+// (Google's link from the email), then "This is ▾" picks the student (review names often differ). That marks
+// them Left a review on the review's date (reviewMatch), New review goes back to None, Last review shows them.
+function _rvNewCard(recent, row) {
+  var head = '<div class="inq-dcard ld-card"><div class="ld-title"><span>New review</span></div>';
+  if (!recent.length) return head + row('Any new review?', 'None') + '</div>';
+  return head + recent.map(function (r, i) {
+    return '<div class="rv-new" id="rvNew' + i + '">' +
+      row(_rvEscHtml(r.name || 'Someone'), (r.stars ? r.stars + ' ★ · ' : '') + _rvEscHtml(r.date)) +
+      '<div class="rv-new-btns">' +
+        (r.link ? '<a class="link-btn" href="' + _rvEscHtml(r.link) + '" target="_blank" rel="noopener">Read review</a>' : '') +
+        '<span class="rv-pick"><button class="link-btn" onclick="_rvPickOpen(' + i + ')">Who reviewed ▾</button>' +
+          '<span class="tt-other-panel" hidden><input class="rpm-field" placeholder="Type to find…" autocomplete="off" oninput="_rvPickRender(' + i + ')" onkeydown="if(event.key===\'Escape\')_rvPickClose(' + i + ')">' +
+          '<span class="cash-dd-list"></span></span></span>' +
+      '</div></div>';
+  }).join('') + '</div>';
+}
+function _rvPickWho() {   // current students not yet Reviewed, then terminated ones still on the list
+  var out = (_rvState.ov.current || []).map(function (x) { return { kind: 'current', row: x.row, name: x.name }; });
+  ((_rvState.list || {}).reviews || []).forEach(function (x) { out.push({ kind: 'ended', row: x.row, name: x.name }); });
+  return out.sort(function (a, b) { return a.name.localeCompare(b.name); });
+}
+var _rvPickOut = null;
+function _rvPickOpen(i) {
+  var box = document.getElementById('rvNew' + i); if (!box) return;
+  var pan = box.querySelector('.tt-other-panel');
+  if (!pan.hidden) { _rvPickClose(i); return; }
+  pan.hidden = false;
+  var inp = pan.querySelector('input'); inp.value = ''; inp.focus();
+  _rvPickRender(i);
+  _rvPickOut = function (e) { if (!box.querySelector('.rv-pick').contains(e.target)) _rvPickClose(i); };
+  setTimeout(function () { document.addEventListener('mousedown', _rvPickOut); }, 0);
+}
+function _rvPickClose(i) {
+  var box = document.getElementById('rvNew' + i); if (box) box.querySelector('.tt-other-panel').hidden = true;
+  if (_rvPickOut) document.removeEventListener('mousedown', _rvPickOut);
+}
+function _rvPickRender(i) {
+  var box = document.getElementById('rvNew' + i); if (!box) return;
+  var q = box.querySelector('.tt-other-panel input').value.trim().toLowerCase();
+  var m = _rvPickWho().filter(function (x) { return !q || x.name.toLowerCase().indexOf(q) >= 0; });
+  box.querySelector('.cash-dd-list').innerHTML = m.map(function (x) {
+    return "<button type='button' class='cash-dd-opt' onclick='_rvMatch(" + i + "," + _auEsc(JSON.stringify(x)) + ")'>" + _rvEscHtml(x.name) + (x.kind === 'ended' ? ' <span class=\"rv-pick-k\">Terminated</span>' : '') + "</button>";
+  }).join('') + "<button type='button' class='cash-dd-opt rv-pick-none' onclick='_rvMatch(" + i + ",{\"kind\":\"none\",\"name\":\"\"})'>Not a student</button>";
+}
+function _rvMatch(i, who) {
+  var o = _rvState.ov, r = (o.recent || [])[i], box = document.getElementById('rvNew' + i);
+  if (!r || !box) return;
+  _rvPickClose(i);
+  var card = box.closest('.ld-card');
+  rpmBusy(card, null, true, 'Saving');
+  fetch(getScriptUrl() + '?action=reviewMatch&ts=' + r.ts + '&kind=' + who.kind + '&row=' + (who.row || '') +
+    '&name=' + encodeURIComponent(who.name) + '&reviewer=' + encodeURIComponent(r.name || ''))
+    .then(function (x) { return x.json(); })
+    .then(function (res) {
+      if (!res || !res.success) throw new Error(res && res.message || 'Not saved');
+      o.recent = o.recent.filter(function (x) { return x !== r; });
+      if (who.kind === 'current') {
+        var cur = (o.current || []).filter(function (x) { return x.row === who.row; })[0];
+        o.current = (o.current || []).filter(function (x) { return x.row !== who.row; });
+        o.reviewed = (o.reviewed || 0) + 1;
+        if (cur) (o.reviewedList = o.reviewedList || []).push({ name: cur.name, start: cur.start, lifetime: cur.lifetime, rate: cur.rate, leftWhen: r.date });
+      } else if (who.kind === 'ended' && _rvState.list) {
+        _rvState.list.reviews = (_rvState.list.reviews || []).filter(function (x) { return x.row !== who.row; });
+      }
+      o.asks = (o.asks || []).filter(function (a) { return !(a.row === who.row && a.kind === who.kind); });
+      if (!(o.recent || []).some(function (x) { return x.ts > r.ts; })) {   // the newest review is Last review
+        o.last = { name: who.kind === 'none' ? r.name : who.name, date: r.date, daysAgo: Math.floor((Date.now() - r.ts) / 86400000) };
+      }
+      _rvRenderSummary();
+      if (typeof _rvRenderCurrent === 'function') _rvRenderCurrent();
+      if (typeof _rvRenderLeft === 'function') _rvRenderLeft();
+      if (who.kind === 'ended') _rvRender();
+    })
+    .catch(function (e) {
+      rpmBusy(card, null, false);
+      rpmAlert({ title: 'Not saved', message: String(e && e.message || e) });
+    });
+}
+
 function _rvCount(x, fallback) {
   if (!x) return String(fallback);
   return _rvEscHtml(String(x.count)) + (x.rating ? ' · ' + Number(x.rating).toFixed(1) + ' ★' : '');
@@ -426,7 +538,7 @@ function _rvRenderSummary() {
   // The Dashboard's box (user, 2026-10-25): washed title band, label / value rows.
   var row = function (l, v, cls) { return '<div class="ld-row' + (cls || '') + '"><span class="ld-l">' + l + '</span><span class="ld-v">' + v + '</span></div>'; };
   document.getElementById('rvSummaryBody').innerHTML =
-    '<div class="ld-cards">' +
+    '<div class="ld-cards">' + _rvNewCard(o.recent || [], row) +
       // Payments' "Incoming Venmo & Zelle" label over the first box, top left
       // (user, 2026-10-29): grey word, blue word.
       // Review count (user, 2026-10-26): Google + Yelp from SerpApi every
@@ -789,6 +901,20 @@ function _rvFindCur(row) {
   return null;
 }
 
+// The email box as tall as the text bubble beside it (user, 2026-11-23), the subject not counted.
+function _rvMatchTplHeights() {
+  document.querySelectorAll('#rvTplWin .rv-tpl-row').forEach(function (r) {
+    var bub = r.querySelector('.rv-bub'), mb = r.querySelector('.rv-mail-body'), subj = r.querySelector('.rv-mail-subj'), th = r.querySelector('.rv-thread');
+    if (!bub || !mb || !bub.offsetHeight) return;
+    mb.style.height = bub.offsetHeight + 'px';
+    // The bubble starts level with the email box, so tops, bottoms and the buttons line up (user, 2026-11-23).
+    if (subj && th) th.style.marginTop = (subj.offsetHeight + parseFloat(getComputedStyle(subj).marginBottom || 0)) + 'px';
+    // Then nudge by what's left (the bubble's tail, rounding), measured, so the two sides match exactly.
+    var sc = bub.offsetHeight ? bub.getBoundingClientRect().height / bub.offsetHeight : 1;
+    var dTop = (mb.getBoundingClientRect().top - bub.getBoundingClientRect().top) / sc;
+    if (th && Math.abs(dTop) >= 1) th.style.marginTop = (parseFloat(th.style.marginTop || 0) + dTop) + 'px';
+  });
+}
 function _rvOpenCurTpl(row) {
   var r = _rvFindCur(row);
   if (!r || _rvLocked()) return;
@@ -796,6 +922,7 @@ function _rvOpenCurTpl(row) {
   _rvTplWho = { p: 'rc' + row, name: r.name, email: r.email || '', kind: 'ask' };
   _stWin('rvTplWin', _rvEscHtml(r.name), 'Templates', RV_TEXT_ICON,
     _rvTemplatesHtml(_rvBuildCurrentTemplates(r.name.split(' ')[0], r.win || ''), 'rc' + row, 'ask', r.phone));
+  _rvMatchTplHeights();
 }
 
 // The nudge window for a current student who said yes (2026-10-26).
@@ -935,6 +1062,7 @@ function _rvOpenTpl(row) {
   _rvTplWho = { p: 'rv' + row, name: r.name, email: r.email || '', kind: kind };
   _stWin('rvTplWin', _rvEscHtml(r.name), kind === 'ask' ? 'Templates' : 'Nudge', RV_TEXT_ICON,
     _rvTemplatesHtml(kind === 'ask' ? _rvBuildTemplates(r.name.split(' ')[0]) : _rvBuildNudges(r.name.split(' ')[0]), 'rv' + row, kind, r.phone));
+  _rvMatchTplHeights();
 }
 
 // An email went out (2026-10-26: Copy saves nothing). An ask saves Asked =
