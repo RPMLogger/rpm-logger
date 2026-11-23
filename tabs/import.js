@@ -2560,14 +2560,6 @@ function _imLoadDetail(name) {
 function _imNotes(d, name) {
   var out = [];
   if (!d) return out;
-  if (d.wrongNumberFlag) {
-    out.push({ kind: 'wrong', html:
-      '<div class="im-note-h">Texted the RPM line by mistake</div>' +
-      '<div class="im-note-t">“' + inqEsc(d.wrongNumberFlag.text || '') + '”</div>' +
-      '<div class="im-note-d">' + inqEsc(d.wrongNumberFlag.flaggedAt || '') + '</div>' +
-      '<div class="im-note-a"><span class="im-note-d">Remind them: RPM number vs personal, keep chat on personal.</span>' +
-        '<button class="link-btn" onclick="_imClearWrong(this, ' + _auEsc(JSON.stringify(name)) + ')" data-tip="Instant.\nClears the warning.\nPress once you\'ve reminded them.">Reminded ✓</button></div>' });
-  }
   if (d.paymentStatus && d.paymentStatus !== 'Paid' && d.paymentStatus !== '—') {
     // Owes 2 blocks = a quiet warning, 3+ = red alert (2026-10-12; 3 is where
     // the Secretary stops reminding and leaves it to you).
@@ -2586,16 +2578,3 @@ function _imNotesBoxHtml(d, name) {
                       : '<div class="im-none">None</div>';   // the lesson rows' font (2026-10-06)
 }
 
-function _imClearWrong(btn, name) {
-  if (!name || !btn) return;
-  btn.disabled = true; btn.textContent = 'Saving…';
-  fetch(getScriptUrl() + '?action=clearWrongNumberFlag&student=' + encodeURIComponent(name))
-    .then(function (r) { return r.json(); })
-    .then(function () {
-      // The detail this page drew from: Import's open student, or the Today tab's copy.
-      var d = _imDetail;   // the Today card's own read is gone with the card (user, 2026-11-10)
-      if (d) d.wrongNumberFlag = null;
-      _imRedraw();
-    })
-    .catch(function () { btn.disabled = false; btn.textContent = 'Reminded ✓'; });
-}

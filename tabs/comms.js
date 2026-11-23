@@ -1,7 +1,6 @@
 // ─── TABS / COMMS.JS ─────────────────────────────────────────────────────────
-// Comms tab: everything that arrives on the Twilio line and is NOT a known
-// student — inbound texts + voicemails (known students route to Student Line
-// at intake). Its own tab since 2026-09-22; it used to be a hidden view inside
+// Comms tab: everything that arrives on the Twilio line — inbound texts +
+// voicemails; a known student's text carries their name. Its own tab since 2026-09-22; it used to be a hidden view inside
 // Inquiries, which left it invisible once the counts bar was removed there.
 
 var commsMessages = [];

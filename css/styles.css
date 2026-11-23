@@ -291,7 +291,7 @@ body.sb-open .tabs { transform: none; }
 .tabs > .sb-cal                { order: 10; }
 .tabs > .sb-intake             { order: 20; }
 .tabs > [data-tab=comms]       { order: 30; }
-.tabs > [data-tab=studentline] { order: 31; }
+
 .tabs > [data-tab=gbusiness]   { order: 32; }
 .tabs > [data-tab=reviews]     { order: 33; }
 .tabs > [data-tab=financial2]  { order: 40; }

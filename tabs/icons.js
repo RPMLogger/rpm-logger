@@ -267,7 +267,7 @@ function _rpmFillDataIcons() {
     send:     function () { return SEND_ICON.replace(/class="[^"]*"/, 'class="win-icon"'); },      // Initiate title (2026-11-16)
     archivebox: function () { return ARCHIVE_ICON.replace(/class="[^"]*"/, 'class="win-icon"'); },  // Terminate title (2026-11-16)
     planeup:  function () { return PLANE_UP_ICON.replace(/class="[^"]*"/, 'class="win-icon"'); },   // Active Trips title (2026-11-16)
-    phone:    function () { return PHONE_ICON; },   // Student Line title (2026-11-16)
+    phone:    function () { return PHONE_ICON; },
     emailwin: function () { return ENVELOPE_ICON.replace(/class="[^"]*"/, 'class="win-icon"'); }   // Emails title: the outline envelope (user, 2026-11-16; @ envelope tried first)
   };
   document.querySelectorAll("[data-icon]").forEach(function (el) {
