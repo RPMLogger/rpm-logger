@@ -756,7 +756,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 }
 .link-btn:hover:where(:not(:disabled))  { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }
 .link-btn:active { transform: translateY(1px); }
-.link-btn:where(:not(:disabled, .pressed, .win-mag)) { box-shadow: 0 3px 10px rgba(0,0,0,0.25); }   /* every button casts the Today name buttons' shadow; dimmed ones and lit ones stay flat (user, 2026-11-04) */
+.link-btn:where(:not(:disabled, .pressed, .win-mag)) { box-shadow: none; }   /* every button flat, like the windows' (user, 2026-11-23; was 0 3px 10px rgba(0,0,0,.25) lifted since 2026-11-04) */
 /* After a click the button stays lit for a moment (core/dialog.js), so it is
    clear the press landed while a sheet opens in a new tab or a tab loads.
    Lit = its own hover look. */
@@ -6748,3 +6748,8 @@ html body #curReviewsBody .rv-win-in { height: 32px; min-height: 0; padding: 0 1
 html body #rvLeftBody .rv-left-card { opacity: .5; }
 html body #rvLeftBody .rv-left-tag { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: color-mix(in srgb, var(--green) 70%, var(--muted)); }
 html body #curReviewsBody .rv-notes { row-gap: 8px; align-items: center; }   /* room between the Momentum / Progress light rows */
+html body #tab-reviews > .rv-box > .settings-title.rv-g-title { margin-bottom: 36px; }   /* no icon on the smaller boxes: only the main title has one (user, 2026-11-23); the gap = Holidays' box titles */
+/* Glance's title icon (the date page) in the title icons' brass, not grey (user, 2026-11-23). */
+html body #tab-today .td-day-cal { border-color: #5e4d2a; }
+html body #tab-today .td-day-cal .td-hol-mo { color: #5e4d2a; border-bottom-color: #5e4d2a; }
+html body #tab-today .td-day-cal .td-hol-dd { color: #5e4d2a; }

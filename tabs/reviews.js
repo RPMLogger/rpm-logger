@@ -757,8 +757,8 @@ function _rvRenderCurrent() {
       '<div class="en-rv-top">' +
         '<div class="inq-name">' + _rvEscHtml(r.name) + '</div>' +
         '<div class="inq-acts en-rv-pick">' +
-          '<button class="inq-db yes" onclick="_rvCurLeft(' + r.row + ', this)" ' +
-            'data-tip="Instant.\nTicks Left a review in the Raise & Review chart.\nCard disappears from Reviews.">Left a review</button>' +
+          '<button class="link-btn rv-mark" onclick="_rvCurLeft(' + r.row + ', this)" ' +
+            'data-tip="Instant.\nTicks Left a review in the Raise & Review chart.\nCard disappears from Reviews.">Mark as reviewed</button>' +
         '</div>' +
       '</div>' +
       '<div class="inq-fields en-fields">' +
@@ -888,8 +888,8 @@ function _rvRender() {
       '<div class="en-rv-top">' +
         '<div class="inq-name">' + _rvEscHtml(r.name) + '</div>' +
         '<div class="inq-acts en-rv-pick">' +
-          '<button class="inq-db yes" onclick="_rvClose(' + r.row + ', \'left\', this)" ' +
-            'data-tip="Instant.\nTicks Left a review in Lifetime & Review.\nCard disappears from Reviews.">Left a review</button>' +
+          '<button class="link-btn rv-mark" onclick="_rvClose(' + r.row + ', \'left\', this)" ' +
+            'data-tip="Instant.\nTicks Left a review in Lifetime & Review.\nCard disappears from Reviews.">Mark as reviewed</button>' +
           '<button class="inq-db no" onclick="_rvClose(' + r.row + ', \'none\', this)" ' +
             'data-tip="Instant.\nRecords No review in Lifetime & Review.\nCard disappears from Reviews.\n(The row stays.)">Remove</button>' +
         '</div>' +
