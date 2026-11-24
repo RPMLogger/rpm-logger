@@ -37,7 +37,7 @@ function initTodayTab() {
 
 // fetchWeekStudents (core/api.js) calls this once today's students are in.
 function _tdWeekReady() {
-  var p = document.getElementById('tab-today');
+  var p = document.getElementById('tab-home');   // Glance lives in Home (2026-11-24)
   if (p && p.classList.contains('active')) initTodayTab();
   // Import's card list puts today's students first: redraw it once the week is read.
   var ip = document.getElementById('tab-import');
@@ -61,7 +61,7 @@ function _tdPlate(today) {
   // The tab is "Glance" now (user, 2026-11-16): GLANCE the red title, today's date page its icon; Today and
   // This Week are subtitles in the columns, no icons.
   var now = new Date();
-  return '<div class="td-wk-box td-plate">' + TD_BOLTS + '<div class="settings-title td-wk-title"><span>Glance<span class="win-sub"> · ' + _tdWeekHtml().sub + '</span></span></div>' +
+  return '<div class="td-wk-box td-plate">' + TD_BOLTS + '' +   // no title line: the dates sit beside Today and This Week (user, 2026-11-24)
     '<div class="td-day-cal"><div class="td-hol-mo">' + MONTHS[now.getMonth()] + '</div><div class="td-hol-dd">' + now.getDate() + '</div></div>' +
     '<hr class="divider td-glance-rule">' +   // full-length line under the icon, over both columns (user, 2026-11-16)
     '<div class="td-cols">' + today + '<div class="td-col-div"></div>' + _tdWeekSection() + '</div></div>';
@@ -350,11 +350,11 @@ function _tdWeekHtml() {
     if (!list.length) return;
     var d = new Date(mon); d.setDate(mon.getDate() + i);
     body += '<div class="td-wk-day"><label class="field-label"><span class="td-wk-dn">' + day.slice(0, 3) + '</span>' +   // short day (MON), the date in the names' column
-      // A day off is one short line: a dash in the date's place, small and grey (2026-10-09).
-      (rows.length ? '<span class="td-wk-date">' + md(d) + '</span>' : '<span class="td-wk-none">—</span>') + '</label>' +
-      rows.map(function (s) {
+      // A day off keeps its date; the dash sits in a lesson row, where a student would be (user, 2026-11-24; was in the date's place).
+      '<span class="td-wk-date">' + md(d) + '</span></label>' +
+      (rows.length ? rows.map(function (s) {
         return '<div class="td-mini-row"><span class="td-mini-t">' + _tdTime(s.eventDate) + '</span><span class="td-wk-name">' + inqEsc(s.name) + '</span></div>';
-      }).join('') + '</div>';
+      }).join('') : '<div class="td-mini-row"><span class="td-mini-t"></span><span class="td-wk-name td-wk-none">—</span></div>') + '</div>';
   });
   return { body: body, sub: md(mon) + ' – ' + md(sun) };
 }
@@ -455,16 +455,18 @@ function _tdHolOpen(items) {
   }).join('');
   // One calendar icon at the top, TODAY's date (it reads as "today" right after the Today tab's own); the
   // holidays' dates go in their lines only (user, 2026-11-10; each holiday had its own icon before).
-  html = '<div class="td-hol-cal td-hol-today"><div class="td-hol-mo">' + MONTHS[today.getMonth()] + '</div><div class="td-hol-dd">' + today.getDate() + '</div></div>' + html;
+  // no date icon (user, 2026-11-24): the header is one line, TODAY · Nov 17, like the portal's warning headers
   // A plain pop-up (the portal's alert box): no title, icon or colour; ✕, Escape or a click outside closes it
   // until tomorrow; the button silences these holidays for good (user, 2026-10-24).
   // "Today is Oct 27" centred on the ✕'s line (user, 2026-10-27; there was no title before)
   // Each alert has its own "Don't warn about it again" (user, 2026-11-08; was one button for all at the bottom):
   // it silences just that holiday and takes it out; the last one out closes the pop-up.
-  rpmAlert({ title: 'Today', message: ' ', confirmLabel: 'OK', className: 'td-hol-dlg' });
+  rpmAlert({ title: 'Today', message: ' ', confirmLabel: 'OK', className: 'td-hol-dlg' });   // TODAY · Nov 17: red word, grey date (user, 2026-11-24)
   var box = document.querySelector('.rpm-dlg.td-hol-dlg');
   if (!box) return;
   box.querySelector('.rpm-dlg-msg').innerHTML = html;   // the alert only takes text; the calendar pages go in after
+  var ttl = box.querySelector('.rpm-dlg-title');
+  if (ttl) ttl.innerHTML = 'Today<span class="td-hol-ttl-d"> · ' + MONTHS[today.getMonth()] + ' ' + today.getDate() + '</span>';
   // Every alert section as tall as the tallest, its button at the bottom (user, 2026-11-10)
   var ones = box.querySelectorAll('.td-hol-one'), tall = 0;
   ones.forEach(function (o) { tall = Math.max(tall, o.getBoundingClientRect().height - (parseFloat(getComputedStyle(o).paddingTop) || 0)); });

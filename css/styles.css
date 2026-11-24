@@ -6896,3 +6896,52 @@ html body .rpm-dlg.f2-how-dlg { max-width: 640px; width: 640px; }
 .f2-how-dlg .rv-card { margin: 8px 0 4px !important; max-width: none !important; }
 .f2-how-dlg .rv-card .ld-row { grid-template-columns: 170px minmax(0, 1fr); padding: 6px 0; }
 #fin2Body .f2-howto span { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; }   /* steps in Arial like the windows' (user, 2026-11-24); the rest of the portal's page steps follow in the last round (portal-todo End #5) */
+
+/* GLANCE IN HOME (user, 2026-11-24): Home's 4x12 cab holds Glance (today + this week). No frame of its own: the
+   cab's border is the frame. The cab grows with the week (was a fixed square); the speakers sit behind, at 0.6
+   ("the one before was awesome"), screws too. The Glance knob is a spare now, for later. */
+html body #tab-home.tab-panel.active { aspect-ratio: auto; height: auto; min-height: 0 !important; justify-content: flex-start; padding-top: 0; padding-bottom: 36px; }
+#tab-home .hm-au { position: absolute; inset: 0; margin: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 0; }
+#tab-home > #todayBody { position: relative; z-index: 1; width: 100%; }
+#tab-home #todayBody .td-wk-box { border: 0 !important; background: none !important; box-shadow: none !important; margin: 0 !important; max-width: none !important; width: 100% !important; border-radius: 0 !important; }
+#tab-home #todayBody .td-wk-box::before, #tab-home #todayBody .td-wk-box::after { display: none !important; }
+#tab-home #todayBody .hr-bolt, #tab-home #todayBody .td-bolt { display: none !important; }
+#tab-home .hm-au .au-spk::before { opacity: 0.6; }
+#tab-home .hm-au .au-sb { opacity: 0.6; }
+html body #tab-home .td-day-cal { border-color: #5e4d2a; }
+html body #tab-home .td-day-cal .td-hol-mo { color: #5e4d2a; border-bottom-color: #5e4d2a; }
+html body #tab-home .td-day-cal .td-hol-dd { color: #5e4d2a; }
+#tab-home #todayBody :is(.td-glance-rule, .td-col-div) { visibility: hidden !important; }   /* no line under the title, none down the middle (user, 2026-11-24); day lines stay */
+#tab-home #todayBody :is(.td-rule-top, .td-wk-rule, .td-wk-day + .td-wk-day) { border-top-style: dashed !important; border-top-color: #2a2a2a !important; }   /* the lines that stay, dashed, dim (user, 2026-11-24) */
+#tab-home #todayBody .td-wk-title, #tab-home #todayBody .td-wk-title .win-sub { color: var(--muted) !important; }   /* Home is special: title all grey, no red/gold (user, 2026-11-24) */
+#tab-home #todayBody .td-day-cal { display: none !important; }   /* no date icon on Home */
+html body #tab-home.tab-panel.active { padding-top: 0 !important; }   /* the week sits higher in the cab (user, 2026-11-24) */
+#tab-home #todayBody .td-plate { padding-top: 24px !important; }
+#tab-home #todayBody .td-sub > span:first-child { font-family: "Bebas Neue", sans-serif; font-size: 17px; letter-spacing: 1.5px; font-weight: 400; }   /* Today / This Week in the title's Bebas (user, 2026-11-24) */
+#tab-home #todayBody .td-sub { margin-bottom: 0 !important; }   /* "3 students" tight under Today / This Week (user, 2026-11-24) */
+#tab-home #todayBody :is(.td-count, .td-wk-head) .db-cx-t { color: var(--t-faint, #555) !important; }   /* and dimmer */
+#tab-home #todayBody :is(.db-cx-t, .td-wk-date, .td-wk-dn, .td-wk-none) { text-shadow: none !important; }   /* no engraved text over the speakers (user, 2026-11-24) */
+#tab-home #todayBody .td-mini-tag { border-radius: 999px !important; padding-left: 14px !important; padding-right: 14px !important; }   /* today's names as pills (user, 2026-11-24) */
+#tab-home #todayBody .td-wk-name { color: oklch(0.5 0.006 81); font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }   /* this week's names as dim as Today's pills (user, 2026-11-24) */
+#tab-home #todayBody .td-week-col .td-mini-t { color: oklch(0.36 0.006 81); }   /* this week's times dimmer, names stay (user, 2026-11-24) */
+#tab-home #todayBody .td-wk-day { border-top: 0 !important; }   /* no lines between days: the header bands do it (user, 2026-11-24) */
+
+#tab-home #todayBody .td-wk-day > .field-label { padding-bottom: 6px; border-bottom: 1px dashed #3a3a3a; margin-bottom: 4px; }   /* a dashed line under each day header, no band (user, 2026-11-24) */
+#tab-home #todayBody :is(.td-rule-top, .td-wk-rule) { visibility: hidden !important; }   /* no lines under "3 students" / "16 students" (user, 2026-11-24) */
+#tab-home #todayBody :is(.td-count, .td-wk-head) .db-cx-t { font-size: 10px !important; letter-spacing: 1px !important; }   /* "3 students" in the name pills' type, no pill, dim stays (user, 2026-11-24) */
+.td-all-name { border-radius: 999px !important; padding-left: 14px !important; padding-right: 14px !important; }   /* Last lesson & HW window: names as pills, like Home's (user, 2026-11-24) */
+html body #calAzWin > .st-win { width: min(900px, 94vw) !important; max-width: none !important; }   /* Next week window wider, so each warning fits on one line (user, 2026-11-24; was 640) */
+html body #calAzWin .cal-az-row > span, html body #calAzWin .cal-az-row > span i { color: oklch(0.43 0.006 81); }   /* Next week warnings: all the words as dim as "usually" (user, 2026-11-24) */
+html body #calAzWin .cal-az-row .cal-az-who { font-style: normal; color: oklch(0.5 0.006 81); }   /* only the names a touch brighter */
+html body #calAzWin .cal-az-row > span, html body #calAzWin .cal-az-row > span * { font-family: Arial, Helvetica, sans-serif !important; letter-spacing: 0.2px; }   /* Next week warnings in Arial (user, 2026-11-24; was DM Mono) */
+.td-hol-dlg .td-hol-line, .td-hol-dlg .td-hol-line *:not(.td-hol-date) { font-family: Arial, Helvetica, sans-serif !important; letter-spacing: 0.2px; }   /* holiday sentences in Arial, easier to read (user, 2026-11-24) */
+.td-hol-dlg .td-hol-ttl-d { color: var(--muted); }   /* TODAY red · NOV 17 grey (user, 2026-11-24) */
+/* HOLIDAY HEADS-UP, tidied (user, 2026-11-24): TODAY · Nov 17 header, no icon; each holiday a compact block, divider close
+   above, room below; date in small grey DM Mono caps, the sentence (Arial) indented under it, Don't warn anymore on the left. */
+.rpm-dlg.td-hol-dlg { width: min(560px, 94vw) !important; max-width: none !important; }
+.td-hol-dlg .rpm-dlg-msg { margin-top: 10px !important; }
+.td-hol-dlg .td-hol-one { display: flex !important; flex-direction: column; align-items: flex-start !important; min-height: 0 !important; margin: 0 !important; padding: 26px 0 10px !important; border-top: 0 !important; }   /* no dividers (user, 2026-11-24) */
+.td-hol-dlg .td-hol-one > :nth-last-child(2) { margin-bottom: 0 !important; }
+.td-hol-dlg .td-hol-line { padding-left: 18px; }
+.td-hol-dlg .td-hol-line .td-hol-date { display: inline-block; margin: 0 0 8px -18px !important; color: var(--muted) !important; font-family: "DM Mono", monospace !important; font-size: 12px !important; letter-spacing: 2px !important; text-transform: uppercase !important; text-shadow: none !important; }
+.td-hol-dlg .td-hol-mute { margin: 12px 0 0 0 !important; }
