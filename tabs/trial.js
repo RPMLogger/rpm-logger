@@ -71,7 +71,7 @@ function _trLoadAccepted() {
     .catch(function () { box.innerHTML = '<div class="empty-state">❌ Could not load.</div>'; });
 }
 
-var _TR_BACK_LABEL = 'Move to Applications';
+var _TR_BACK_LABEL = 'Move to Inquiries';
 
 function _trAcceptedCard(a) {
   // Identical markup to an Inquiries card (same classes, same field renderer),
@@ -91,7 +91,7 @@ function _trAcceptedCard(a) {
         // Inquiry Archive): Email amber (your move), Book in the
         // composer Send button's brighter grey (.bright).
         '<button class="link-btn tr-back-btn opens-window" onclick="_trReopenAsk(\'' + em + '\',' + (a.col || 0) + ', this)" ' +
-          'data-tip="Asks first.\nCard goes back to Applications undecided.\nNothing is sent.\n(Not in Email list.)" data-tip-wrap>' + _TR_BACK_LABEL + '</button>' +
+          'data-tip="Asks first.\nCard goes back to Inquiries undecided.\nNothing is sent.\n(Not in Email list.)" data-tip-wrap>' + _TR_BACK_LABEL + '</button>' +
         // No Delete here (removed 2026-09-24): deleting a real person shrinks
         // the inquiry counts and loses their history. Someone who went quiet
         // goes Move to Inquiries, then No reply. Test inquiries: delete the column
@@ -113,7 +113,7 @@ function _trAcceptedCard(a) {
 // on its action, then the real send-back.
 function _trReopenAsk(email, col, btn) {
   rpmConfirm({
-    title: "Move to Applications?",
+    title: "Move to Inquiries?",
     confirmLabel: "Move",
     icon: REDO_ICON
   }).then(function (ok) { if (ok) _trReopen(email, col, btn); });
@@ -1561,10 +1561,10 @@ function _trActionsHtml(a) {
       '<div class="inq-acts" style="margin-top:0">' +
         _trStatusHtml(a) +
         '<button class="inq-db yes opens-window" onclick="_msOpen(\'' + em + '\')" ' +
-          'data-tip="Opens a window.\nChecks the steps and makes them a student.\nCard disappears from Trial Lesson.\nStays in Application Archive.\n(Not in Email list.)" data-tip-wrap data-tip-left>Confirm Student</button>' +
+          'data-tip="Opens a window.\nChecks the steps and makes them a student.\nCard disappears from Trial Lesson.\nStays in Inquiry Archive.\n(Not in Email list.)" data-tip-wrap data-tip-left>Confirm Student</button>' +
         '<button class="inq-db no opens-window" id="trnobtn-' + id + '" ' +
           'onclick="_trNotContinuing(\'' + id + '\',\'' + em + '\',\'' + _trEsc(a.name || '') + '\')" ' +
-          'data-tip="Opens a window.\nPick Not Continued or No Show.\nCard disappears from Trial Lesson.\nStays in Application Archive.\n(Not in Email list.)" data-tip-wrap data-tip-left>Dismiss</button>' +
+          'data-tip="Opens a window.\nPick Not Continued or No Show.\nCard disappears from Trial Lesson.\nStays in Inquiry Archive.\n(Not in Email list.)" data-tip-wrap data-tip-left>Dismiss</button>' +
       '</div>' +
     '</div>';
 }

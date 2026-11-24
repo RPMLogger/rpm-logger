@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=1523">
-  <link rel="stylesheet" href="css/goals.css?v=1523">
-  <link rel="stylesheet" href="css/lessontimer.css?v=1523">
-  <link rel="stylesheet" href="css/rack.css?v=1523">   <!-- THE RACK: trial on Lessons only (user, 2026-11-14), drawn by core/rack.js -->
-  <link rel="stylesheet" href="css/msgrack.css?v=1523">
+  <link rel="stylesheet" href="css/styles.css?v=1524">
+  <link rel="stylesheet" href="css/goals.css?v=1524">
+  <link rel="stylesheet" href="css/lessontimer.css?v=1524">
+  <link rel="stylesheet" href="css/rack.css?v=1524">   <!-- THE RACK: trial on Lessons only (user, 2026-11-14), drawn by core/rack.js -->
+  <link rel="stylesheet" href="css/msgrack.css?v=1524">
 </head>
 <body>
 <div class="container">
@@ -20,7 +20,7 @@
     <img src="img/portal-logo-grey.png" alt="Red Pick Music">   <!-- badge lettering grey, the portal text grey (user, 2026-11-08; white original = img/portal-logo.png) -->
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1523</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1524</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -113,7 +113,7 @@
     <div class="nav-drop sb-intake">
       <button class="tab-btn nav-toggle" onclick="toggleNavMenu(event, this)">Intake</button>
       <div class="nav-menu">
-        <button class="tab-btn nav-item" data-tab="inquiries" onclick="switchTab('inquiries')">Applications<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
+        <button class="tab-btn nav-item" data-tab="inquiries" onclick="switchTab('inquiries')">Inquiries<span class="inq-badge" id="inqBadge" style="display:none"></span></button>
         <button class="tab-btn nav-item" data-tab="initiate" onclick="switchTab('initiate')">Contact<span class="inq-badge" id="initNavBadge" style="display:none"></span></button>
         <button class="tab-btn nav-item" data-tab="trial" onclick="switchTab('trial')">Trial Lesson</button>
       </div>
@@ -149,7 +149,7 @@
   <!-- Alarm rack (user, 2026-11-14): slim patch-bay unit, now ABOVE the Home rack (user, 2026-11-18; was under it), a socket glows red when something broke (core/msgrack.js) -->
   <div class="alarm-rack" id="alarmRack"></div>
   <!-- Home's rack (user, 2026-11-07): the Calendar's rack unit under the amp head: one small screw each side, the grille, then the Comms rack's buttons to the business tabs (lit while that tab's badge shows); shown only on Home -->
-  <div class="home-rack"><span class="hr-bolt" style="left:10px;top:calc(25% - 7.5px)"></span><span class="hr-bolt" style="left:10px;top:calc(75% - 7.5px)"></span><span class="hr-bolt" style="right:10px;top:calc(25% - 7.5px)"></span><span class="hr-bolt" style="right:10px;top:calc(75% - 7.5px)"></span><div class="hr-row"><span class="hr-col"><button class="hr-knob" data-k="todo" onclick="switchTab('todo')" aria-label="To-Do"><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class="hr-cap">To-Do</span></span><span class="hr-col"><button class="hr-knob" data-k="notes" onclick="switchTab('notes')" aria-label="Notes"><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class="hr-cap">Notes</span></span><span class="hr-col"><button class="hr-knob" data-k="dropbox" onclick="switchTab('dropbox')" aria-label="Dropbox" data-tip="Instant.&#10;Opens Dropbox."><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class="hr-cap">Dropbox</span></span><span class="hr-screen"><button class="hr-arw" onclick="rackScreenStep(-1)" aria-label="Previous warning">‹</button><span class="hr-lcd" id="hrLcd" onclick="rackScreenOpen()"></span><button class="hr-arw" onclick="rackScreenStep(1)" aria-label="Next warning">›</button></span><span class="hr-vu" id="hrVu"></span><span class="hr-sp"></span><span class="hr-pair"><span class="hr-col"><button class="hr-pb" data-k="emails" onclick="switchTab('emails')" data-tip="Instant.&#10;Opens Emails. Glows gold while one is unread."></button><span class="hr-cap">Emails</span></span><span class="hr-col"><button class="hr-pb" data-k="inquiries" onclick="switchTab('inquiries')" data-tip="Instant.&#10;Opens Applications."></button><span class="hr-cap">Applications</span></span></span></div><div class="msg-rack" id="msgRack"></div></div>
+  <div class="home-rack"><span class="hr-bolt" style="left:10px;top:calc(25% - 7.5px)"></span><span class="hr-bolt" style="left:10px;top:calc(75% - 7.5px)"></span><span class="hr-bolt" style="right:10px;top:calc(25% - 7.5px)"></span><span class="hr-bolt" style="right:10px;top:calc(75% - 7.5px)"></span><div class="hr-row"><span class="hr-col"><button class="hr-knob" data-k="todo" onclick="switchTab('todo')" aria-label="To-Do"><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class="hr-cap">To-Do</span></span><span class="hr-col"><button class="hr-knob" data-k="notes" onclick="switchTab('notes')" aria-label="Notes"><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class="hr-cap">Notes</span></span><span class="hr-col"><button class="hr-knob" data-k="dropbox" onclick="switchTab('dropbox')" aria-label="Dropbox" data-tip="Instant.&#10;Opens Dropbox."><span class='hr-ticks'></span><span class='hr-kn'></span></button><span class="hr-cap">Dropbox</span></span><span class="hr-screen"><button class="hr-arw" onclick="rackScreenStep(-1)" aria-label="Previous warning">‹</button><span class="hr-lcd" id="hrLcd" onclick="rackScreenOpen()"></span><button class="hr-arw" onclick="rackScreenStep(1)" aria-label="Next warning">›</button></span><span class="hr-vu" id="hrVu"></span><span class="hr-sp"></span><span class="hr-pair"><span class="hr-col"><button class="hr-pb" data-k="reviews" onclick="switchTab('reviews')" data-tip="Instant.&#10;Opens Reviews."></button><span class="hr-cap">Reviews</span></span><span class="hr-col"><button class="hr-pb" data-k="financial2" onclick="switchTab('financial2')" data-tip="Instant.&#10;Opens Financial."></button><span class="hr-cap">Financial</span></span></span></div><div class="msg-rack" id="msgRack"></div></div>
   <!-- DAY CLOCK rack unit (user's sketch, 2026-11-16): clock + one section per lesson, filled by tabs/dayclock.js; shown over Lessons (user, 2026-11-16; css; its own tab removed same day) -->
   <div class="alarm-rack dc-rack" id="dcRack"><span class="hr-bolt" style="left:10px"></span><span class="hr-bolt" style="right:10px"></span></div>
   <div class="tab-panel" id="tab-home">
@@ -492,7 +492,7 @@
       </div>
       <!-- Since 2026: inquiries -> students, split at each rate raise (getRaiseStats). -->
       <div class="inq-dcard ld-card" id="loadYearCard">
-        <div class="ld-title">Applications</div>
+        <div class="ld-title">Inquiries</div>
         <div id="loadYearBody"><div class="empty-state rpm-loading">Loading</div></div>
       </div>
       <!-- Trial (2026-10-10): this year's trials offered / accepted, from the same getRaiseStats read. -->
@@ -517,9 +517,9 @@
       <span class="td-bolt" style="left:8px;top:10px"></span><span class="td-bolt" style="left:8px;bottom:10px"></span><span class="td-bolt" style="right:8px;top:10px"></span><span class="td-bolt" style="right:8px;bottom:10px"></span>
       <!-- Title like Trial Lesson's (user, 2026-11-16); Inquiry Archive + Replies on the title line, right -->
       <div class="rpm-title-row">
-        <div class="settings-title td-wk-title"><span>Applications<span class="win-sub"> · Trial Lessons</span></span></div>
+        <div class="settings-title td-wk-title"><span>Inquiries<span class="win-sub"> · Trial Lessons</span></span></div>
         <div class="rpm-title-btns">
-        <button class="link-btn" id="inqArchiveBtn" onclick="switchTab('inqarchive')" data-tip="Opens a tab.&#10;Application Archive: a copy of the Inquiries sheet." data-tip-wrap data-tip-left><span data-icon="archive"></span><span>Application Archive</span></button>
+        <button class="link-btn" id="inqArchiveBtn" onclick="switchTab('inqarchive')" data-tip="Opens a tab.&#10;Inquiry Archive: a copy of the Inquiries sheet." data-tip-wrap data-tip-left><span data-icon="archive"></span><span>Inquiry Archive</span></button>
         <!-- Always there, so the process is never forgotten: dim grey with no
              replies, amber when someone answered a Maybe or a No. -->
         <button class="link-btn" id="inqRespBtn" onclick="_inqToggleReplies()"
@@ -541,9 +541,9 @@
   <div class="tab-panel" id="tab-inqarchive">
     <!-- THE TITLE BLOCK, like Inquiries (user, 2026-11-16): title left, its two links right, archive box under, a line -->
     <div class="rpm-title-row">
-      <div class="settings-title td-wk-title"><span>Application Archive<span class="win-sub"> · All years</span></span></div>
+      <div class="settings-title td-wk-title"><span>Inquiry Archive<span class="win-sub"> · All years</span></span></div>
       <div class="rpm-title-btns">
-        <button class="link-btn" onclick="switchTab('inquiries')" data-tip="Instant.&#10;Back to Applications."><span data-icon="back"></span><span>Applications Tab</span></button>
+        <button class="link-btn" onclick="switchTab('inquiries')" data-tip="Instant.&#10;Back to Inquiries."><span data-icon="back"></span><span>Inquiries Tab</span></button>
         <a class="link-btn" href="https://docs.google.com/spreadsheets/d/1JE0KugItYkWF19Pp8zqw6xCyLxjS-ryZMplC6XijOSM/edit"
            target="_blank" rel="noopener" data-tip="Opens elsewhere.&#10;Opens the Google spreadsheet." data-tip-left><span>Inquiries sheet</span><span data-icon="out"></span></a>
       </div>
@@ -909,62 +909,62 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=1523"></script>
-<script src="core/storage.js?v=1523"></script>
-<script src="core/utils.js?v=1523"></script>
-<script src="core/dialog.js?v=1523"></script>
-<script src="core/api.js?v=1523"></script>
-<script src="core/secalert.js?v=1523"></script>
-<script src="core/magnifier.js?v=1523"></script>
-<script src="core/nav.js?v=1523"></script>
-<script src="core/rackscreen.js?v=1523"></script>
-<script src="core/msgrack.js?v=1523"></script>
+<script src="core/state.js?v=1524"></script>
+<script src="core/storage.js?v=1524"></script>
+<script src="core/utils.js?v=1524"></script>
+<script src="core/dialog.js?v=1524"></script>
+<script src="core/api.js?v=1524"></script>
+<script src="core/secalert.js?v=1524"></script>
+<script src="core/magnifier.js?v=1524"></script>
+<script src="core/nav.js?v=1524"></script>
+<script src="core/rackscreen.js?v=1524"></script>
+<script src="core/msgrack.js?v=1524"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=1523"></script>
-<script src="tabs/lessons.js?v=1523"></script>
-<script src="tabs/payments.js?v=1523"></script>
-<script src="tabs/general.js?v=1523"></script>
-<script src="tabs/financial.js?v=1523"></script>
-<script src="tabs/inquiries.js?v=1523"></script>
-<script src="tabs/inqarchive.js?v=1523"></script>
-<script src="tabs/comms.js?v=1523"></script>
-<script src="tabs/announce.js?v=1523"></script>
-<script src="tabs/notes.js?v=1523"></script>
-<script src="tabs/todo.js?v=1523"></script>
-<script src="tabs/availability.js?v=1523"></script>
-<script src="tabs/travel.js?v=1523"></script>
-<script src="tabs/tripsummary.js?v=1523"></script>
-<script src="tabs/triphistory.js?v=1523"></script>
-<script src="tabs/skips.js?v=1523"></script>
-<script src="tabs/student.js?v=1523"></script>
-<script src="tabs/ctrl.js?v=1523"></script>
-<script src="tabs/emails.js?v=1523"></script>
-<script src="tabs/dropbox.js?v=1523"></script>
-<script src="tabs/import.js?v=1523"></script>
-<script src="tabs/today.js?v=1523"></script>
-<script src="tabs/home.js?v=1523"></script>
-<script src="tabs/trial.js?v=1523"></script>
-<script src="tabs/ending.js?v=1523"></script>
-<script src="tabs/reviews.js?v=1523"></script>
-<script src="tabs/financial2.js?v=1523"></script>
-<script src="tabs/calendar.js?v=1523"></script>
-<script src="tabs/fixedcal.js?v=1523"></script>
-<script src="tabs/slotchange.js?v=1523"></script>
-<script src="tabs/help.js?v=1523"></script>
-<script src="tabs/holidays.js?v=1523"></script>
-<script src="tabs/archive.js?v=1523"></script>
-<script src="tabs/texttemplates.js?v=1523"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
-<script src="tabs/goals.js?v=1523"></script>
-<script src="tabs/schednotes.js?v=1523"></script>
-<script src="tabs/logtimer.js?v=1523"></script>
-<script src="core/usage.js?v=1523"></script>
-<script src="core/rack.js?v=1523"></script>
-<script src="tabs/usage.js?v=1523"></script>
-<script src="tabs/guitartypes.js?v=1523"></script>
-<script src="tabs/lessontimer.js?v=1523"></script>
-<script src="tabs/dayclock.js?v=1523"></script>
-<script src="tabs/report.js?v=1523"></script>
+<script src="tabs/icons.js?v=1524"></script>
+<script src="tabs/lessons.js?v=1524"></script>
+<script src="tabs/payments.js?v=1524"></script>
+<script src="tabs/general.js?v=1524"></script>
+<script src="tabs/financial.js?v=1524"></script>
+<script src="tabs/inquiries.js?v=1524"></script>
+<script src="tabs/inqarchive.js?v=1524"></script>
+<script src="tabs/comms.js?v=1524"></script>
+<script src="tabs/announce.js?v=1524"></script>
+<script src="tabs/notes.js?v=1524"></script>
+<script src="tabs/todo.js?v=1524"></script>
+<script src="tabs/availability.js?v=1524"></script>
+<script src="tabs/travel.js?v=1524"></script>
+<script src="tabs/tripsummary.js?v=1524"></script>
+<script src="tabs/triphistory.js?v=1524"></script>
+<script src="tabs/skips.js?v=1524"></script>
+<script src="tabs/student.js?v=1524"></script>
+<script src="tabs/ctrl.js?v=1524"></script>
+<script src="tabs/emails.js?v=1524"></script>
+<script src="tabs/dropbox.js?v=1524"></script>
+<script src="tabs/import.js?v=1524"></script>
+<script src="tabs/today.js?v=1524"></script>
+<script src="tabs/home.js?v=1524"></script>
+<script src="tabs/trial.js?v=1524"></script>
+<script src="tabs/ending.js?v=1524"></script>
+<script src="tabs/reviews.js?v=1524"></script>
+<script src="tabs/financial2.js?v=1524"></script>
+<script src="tabs/calendar.js?v=1524"></script>
+<script src="tabs/fixedcal.js?v=1524"></script>
+<script src="tabs/slotchange.js?v=1524"></script>
+<script src="tabs/help.js?v=1524"></script>
+<script src="tabs/holidays.js?v=1524"></script>
+<script src="tabs/archive.js?v=1524"></script>
+<script src="tabs/texttemplates.js?v=1524"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
+<script src="tabs/goals.js?v=1524"></script>
+<script src="tabs/schednotes.js?v=1524"></script>
+<script src="tabs/logtimer.js?v=1524"></script>
+<script src="core/usage.js?v=1524"></script>
+<script src="core/rack.js?v=1524"></script>
+<script src="tabs/usage.js?v=1524"></script>
+<script src="tabs/guitartypes.js?v=1524"></script>
+<script src="tabs/lessontimer.js?v=1524"></script>
+<script src="tabs/dayclock.js?v=1524"></script>
+<script src="tabs/report.js?v=1524"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>

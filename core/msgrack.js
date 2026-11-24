@@ -16,7 +16,7 @@
 var MR_LIGHTS = [
   // Inq. first, Texts last (user, 2026-11-15)
   { grp: 'Intake', items: [
-    { k: 'inq', cap: 'Applications', tip: 'Opens Applications.\nLit while a new application came in.' },
+    { k: 'inq', cap: 'Inquiries', tip: 'Opens Inquiries.\nLit while a new application came in.' },
     { k: 'initiate', cap: 'Contact', tip: 'Opens Contact.\nLit while someone wrote back.' },
     { k: 'trial', cap: 'Trial Lesson', tip: 'Opens Trial Lesson.\nLit while someone wrote back.' } ] },
   { grp: 'Emails', items: [

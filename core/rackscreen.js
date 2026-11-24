@@ -5,7 +5,7 @@
 // ONCE in the background ~10s after it opens (_rsAuditRun), one after another, never on a timer.
 // Until that run is back the screen reads LOADING / CHECKING AUDITS (no old saved counts).
 // ‹ › step through them, clicking the screen opens that tab. Nothing waiting = the day + date.
-// No auto-cycling: it stays on what it shows until you press an arrow or that warning clears.
+// Cycles itself every 4 seconds (2026-11-24; was no auto-cycling).
 // The 3-second redraw reads only what the portal already has (badges, commsAlertList, saved audits, _tdHolNear); it fetches nothing.
 // Trial forms: no "new" signal exists yet, so they're not here.
 var _rsKey = null;   // the warning on screen, kept across refreshes
@@ -19,7 +19,12 @@ function _rsBadge(id) {
   return parseInt(b.textContent, 10) || 0;
 }
 
-function _rsItems() {
+// 2026-11-24 (user): the screen shows only texts, emails, inquiries and Contact replies, and cycles itself.
+// The audits + holidays still count on the VU meter (_rsAllItems), they just don't show on the screen.
+var RS_SCREEN_KEYS = { texts: 1, 'em-stu': 1, 'em-gb': 1, emails: 1, inq: 1, init: 1 };
+function _rsItems() { return _rsAllItems().filter(function (it) { return RS_SCREEN_KEYS[it.k]; }); }
+
+function _rsAllItems() {
   var out = [], add = function (k, n, one, many, tab) {
     if (n > 0) out.push({ k: k, n: n, top: n + ' ' + (n === 1 ? one : many), tab: tab });
   };
@@ -86,7 +91,7 @@ function _hrVuRender() {
   var el = document.getElementById('hrVu');
   if (!el || typeof _calVuSvg !== 'function') return;
   // waits for the audits like the screen does: the needle stays at rest until the real total is in (user, 2026-11-09: "show reality")
-  var total = _rsReady ? _rsItems().reduce(function (a, it) { return a + (it.n || 0); }, 0) : null;
+  var total = _rsReady ? _rsAllItems().reduce(function (a, it) { return a + (it.n || 0); }, 0) : null;
   if (total === _hrVuLast && el.firstChild) return;
   _hrVuLast = total;
   el.innerHTML = _calVuSvg(total == null ? null : total / HR_VU_FULL);
@@ -210,6 +215,12 @@ function rackScreenOpen() {
 (function () {
   function start() {
     _rsRender(); setInterval(_rsRender, 3000); setTimeout(_rsAuditRun, 10000);
+    // Cycles itself (user, 2026-11-24): the next warning every 4 seconds; not while loading or on the Comms tab.
+    setInterval(function () {
+      if (document.hidden || !_rsReady || (typeof rpmBusyNow === 'function' && rpmBusyNow())) return;
+      if (typeof commsOnTab === 'function' && commsOnTab()) return;
+      rackScreenStep(1);
+    }, 4000);
     setTimeout(function () { if (!_rsReady) { _rsReady = true; _rsRender(); } }, 120000);   // Google never answered: stop waiting after 2 min (2026-11-13)
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();

@@ -115,7 +115,7 @@ function _inqReplyRow(r) {
         "<button class='inq-db' onclick='_inqDismissReply(\"" + inqEsc(r.threadId) + "\", this)' " +
           "data-tip='Instant.\nRemoves this reply from the list.\nNothing is sent.\nComes back if they write again.' data-tip-wrap>Dismiss</button>" +
         "<button class='inq-db yes' onclick='_inqReopen(\"" + inqEsc(r.email) + "\", this)' " +
-          "data-tip='Instant.\nCard comes back to Applications undecided.\nNothing is sent.' data-tip-wrap data-tip-left>" +
+          "data-tip='Instant.\nCard comes back to Inquiries undecided.\nNothing is sent.' data-tip-wrap data-tip-left>" +
           "Reopen</button>" +
       "</div>" +
     "</div>";
@@ -339,11 +339,11 @@ function renderInquiries(inquiries) {
       "<div class='inq-acts'>" +
         // What it does, then where it leaves the person: Email List, and
         // whether the inquiry stays in the Inquiries sheet (the archive).
-        btn("yes",   "yes",     "Yes",      "Instant.\nCard moves from Applications to Contact.\nNot saved in a future use Email list.\nStays in Application Archive.") +
-        btn("maybe opens-window", "maybe", "Maybe", "Opens a window.\n\"Try later\" email template.\nCard disappears on send.\nSaved in Email list.\nStays in Application Archive.") +
-        btn("no opens-window",    "no",    "No",    "Opens a window.\n\"No room\" email template.\nCard disappears on send.\nNot saved in Email list.\nStays in Application Archive.", true) +
-        btn("",      "noreply", "No reply", "Instant.\nCard disappears right away.\nSaved in Email list.\nStays in Application Archive.", true) +
-        btn("opens-window", "scam", "Scam", "Asks first.\nTrashes the email.\nCard disappears right away.\nDeleted from Application Archive.\nBlocks future messages from them.", true) +
+        btn("yes",   "yes",     "Yes",      "Instant.\nCard moves from Inquiries to Contact.\nNot saved in a future use Email list.\nStays in Inquiry Archive.") +
+        btn("maybe opens-window", "maybe", "Maybe", "Opens a window.\n\"Try later\" email template.\nCard disappears on send.\nSaved in Email list.\nStays in Inquiry Archive.") +
+        btn("no opens-window",    "no",    "No",    "Opens a window.\n\"No room\" email template.\nCard disappears on send.\nNot saved in Email list.\nStays in Inquiry Archive.", true) +
+        btn("",      "noreply", "No reply", "Instant.\nCard disappears right away.\nSaved in Email list.\nStays in Inquiry Archive.", true) +
+        btn("opens-window", "scam", "Scam", "Asks first.\nTrashes the email.\nCard disappears right away.\nDeleted from Inquiry Archive.\nBlocks future messages from them.", true) +
       "</div>";
 
     card._inq = inq;

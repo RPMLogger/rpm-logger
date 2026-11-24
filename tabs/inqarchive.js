@@ -91,7 +91,7 @@ function _iaAnalysisHtml() {
   // Section 2, Trial Outcome: every booked trial by how it ended, counts only.
   return "<div class='ld-cards'>" +
     "<div class='inq-dcard ld-card'><div class='ld-title'>Analysis</div>" +
-      row("Applications",       inq,        "",                       "lead") +
+      row("Inquiries",          inq,        "",                       "lead") +
       row("Trials Booked",    t.booked,   pct(t.booked, inq),       "lead") +
       row("From Website",     t.website,  pct(t.website, t.booked)) +
       row("Manual Booking",   t.manual,   pct(t.manual, t.booked)) +
@@ -153,7 +153,7 @@ function _iaRender(inquiries) {
 
   // The page head: its label and the all-time count as one wide tile. No rule
   // under it: the year heading's own underline does that job (2026-09-24).
-  var html = "<div class='rpm-counts'>" + _inqCount("Applications", all.length) + "</div>";
+  var html = "<div class='rpm-counts'>" + _inqCount("Inquiries", all.length) + "</div>";
 
   years.forEach(function (y) {
     var rows = byYear[y];
