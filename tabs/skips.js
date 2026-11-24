@@ -12,6 +12,13 @@
 var _skData = null;      // last payload, so expand/collapse needs no refetch
 var _skFormOpen = false; // "Log skip" form visible
 var _skDensity = null;   // name lower → { pct, had, owed } | null, from getDensityAll (RPM_Density.js)
+// Four sorts (user 2026-11-24), Reviews' 4-stop switch: A–Z, Density (lowest first),
+// Skips, Reschedules (most in the last 3 months first, like the pills).
+// Three letters each, all A–Z's length (user 2026-11-24); the full name on hover (SK_SORT_TIPS).
+var SK_SORTS = [['alpha', 'A–Z'], ['density', 'DEN'], ['skips', 'SKP'], ['resched', 'RES']];
+var SK_SORT_TIPS = ['Sort by name.', 'Sort by Density.\nLowest first.', 'Sort by skips.\nMost in the last 3 months first.', 'Sort by reschedules.\nMost in the last 3 months first.'];
+function _skSortKey() { try { return localStorage.getItem('skSort') || 'skips'; } catch (e) { return 'skips'; } }
+function _skSetSort(k) { try { localStorage.setItem('skSort', k); } catch (e) {} _skRender(); }
 
 function initSkipsTab() {
   var section = document.getElementById('skipsBody');
@@ -42,7 +49,6 @@ function _skRender() {
   section.innerHTML = '';
 
   var all     = _skData.students || [];
-  var totals  = _skData.totals || { student: 0, teacher: 0, vacation: 0 };
   var year    = _skData.year || '';
 
   // ── Header: Total skips with the actions on its right, the counts under it; then the
@@ -51,16 +57,8 @@ function _skRender() {
   bar.innerHTML =
     // Financial 2's Average expenses look (user 2026-10-22; was an amber box).
     "<div class='f2-icon sk-icon' style='margin-bottom:40px'>" + SKIPS_ICON + "</div>" +   // calendar + person icon under the title (user 2026-10-22)
-    // One line (user 2026-10-22): Total skips, the counts, Since Jun 2026,
-    // all in Financial 2's number font.
-    // No line above it now; right-aligned, sitting on the line just over the cards, like the Dashboard's Load line (user 2026-10-23).
-    "<div class='f2-cur sk-totals' style='margin-bottom:8px;font-size:12px'>Total skips · " +   // smaller than Financial 2's 15px (user 2026-10-23)
-      "<span class='f2-hi sk-hi'>" + (totals.student || 0) + " student</span> · " +
-      "<span class='f2-hi sk-hi'>" + (totals.teacher || 0) + " teacher</span> · " +
-      // Reschedules on the same line (user, 2026-10-31).
-      "Reschedules · <span class='f2-hi sk-hi'>" + (totals.reschedStudent || 0) + " student</span> · " +
-      "<span class='f2-hi sk-hi'>" + (totals.reschedTeacher || 0) + " teacher</span> · " +
-      "Since Jun 2026</div>" +
+    // Total skips / Reschedules line deleted (user 2026-11-24: all-time totals don't mean anything).
+    rpmStopSwitch(SK_SORTS, _skSortKey(), '_skSetSort', 'sk-sorts ms-flat') +
     "<div class='sk-totals-line' style='border-top:1px solid var(--border);margin-bottom:12px'></div>";   // the line under Total skips, the cards close under it (user 2026-10-23; was 24px)
   var btns = document.createElement('span');
   btns.style.cssText = 'display:flex;gap:6px';
@@ -78,6 +76,8 @@ function _skRender() {
   btns.className = 'sk-acts';
   if (title) title.appendChild(btns); else section.appendChild(btns);
   section.appendChild(bar);
+  // The tip on the word, not the button: the portal's tooltip uses ::before, which is the button's bulb.
+  bar.querySelectorAll('.sk-sorts .slide-lbl').forEach(function(l, i) { l.innerHTML = "<span data-tip='" + SK_SORT_TIPS[i].replace(/'/g, '&#39;') + "'>" + l.innerHTML + "</span>"; });
 
   if (_skFormOpen) section.appendChild(_skLogForm(_skData.students || []));
 
@@ -93,10 +93,16 @@ function _skRender() {
     return;
   }
 
-  // Every student: most Student skips first, ties by Teacher skips, then
-  // alphabetical. Vacation doesn't move anyone up (user 2026-10-22).
+  // The picked sort; ties alphabetical. Density lowest first (the ones skipping most);
+  // a name with no Density yet goes last.
+  var key = _skSortKey();
+  var dn = function(s) { var d = _skDensity && _skDensity[String(s.name).toLowerCase()]; return d ? d.pct : 999; };
   all.slice().sort(function(a, b) {
-    return (b.totalStudent - a.totalStudent) || (b.totalTeacher - a.totalTeacher) || a.name.localeCompare(b.name);
+    var c = 0;
+    if (key === 'density') c = dn(a) - dn(b);
+    else if (key === 'skips') c = _skRecent(b).skips - _skRecent(a).skips;
+    else if (key === 'resched') c = _skRecent(b).resched - _skRecent(a).resched;
+    return c || a.name.localeCompare(b.name);
   }).forEach(function(s) {
     section.appendChild(_skStudentCard(s));
   });
@@ -238,7 +244,7 @@ function _skStudentCard(s) {
   hdr.innerHTML =
     "<span class='sk-n'>" +
       "<span class='en-card-n'>" + _skEsc(s.name) + _skDensitySpan(s.name) + "</span>" +
-      "<span class='sk-counts" + (s.totalStudent || s.totalTeacher || (s.resched || []).length ? "" : " av-never") + "'>" + _skCounts(s) + "</span>" +
+      "<span class='sk-counts" + (s.totalStudent || s.totalTeacher || (s.resched || []).length ? "" : " av-never") + "' data-tip='Last 3 months.\nOpen the card for all.'>" + _skCounts(s) + "</span>" +
     "</span>" +
     "<span class='en-card-r'><span class='en-card-a sk-caret'>▾</span></span>";
   card.appendChild(hdr);
@@ -358,6 +364,7 @@ function _skLoadDensity() {
     .then(function(d) {
       if (!d || !d.success) return;
       _skDensity = d.density || {};
+      if (_skSortKey() === 'density') { _skRender(); return; }   // the order needs it
       document.querySelectorAll('#skipsBody [data-sk-dn]').forEach(function(el) {
         el.outerHTML = _skDensitySpan(el.getAttribute('data-sk-dn'));
       });
@@ -372,17 +379,26 @@ function _skDensitySpan(name) {
     "</span>";
 }
 
-// Head counts as plain text in Travel Plan's "Skipping 5 lessons" font (user 2026-10-22): "5 student · 1 teacher".
+// The last 3 months, by lesson date, upcoming logged ones included (user 2026-11-24: a long
+// count loses the sense; Density is the long view). Vacation skips don't count.
+function _skRecent(s) {
+  var from = new Date(); from.setHours(0, 0, 0, 0); from.setMonth(from.getMonth() - 3);
+  var recent = function(d) { var t = Date.parse(d); return !isNaN(t) && t >= from.getTime(); };
+  return {
+    skips:   (s.skips || []).filter(function(k) { return k.who !== 'Vacation' && recent(k.date); }).length,
+    resched: (s.resched || []).filter(function(r) { return recent(r.date); }).length
+  };
+}
+
+// The student's two counts, each named, each its own pill (user 2026-11-24: "student/teacher"
+// beside "reschedules" read as one kind). The Student/Teacher split stays inside the card.
+// Last 3 months only (_skRecent); the open card still lists everything.
 function _skCounts(s) {
-  var parts = [];
-  if (s.totalStudent)  parts.push(s.totalStudent + ' student');
-  if (s.totalTeacher)  parts.push(s.totalTeacher + ' teacher');
-  var rn = (s.resched || []).length;
-  if (rn) parts.push(rn + (rn === 1 ? ' reschedule' : ' reschedules'));
-  // Vacation skips only show inside the card (user 2026-10-22: least important).
-  // No student/teacher skips: just a dash (user 2026-10-22). Vacation-only
-  // cards still open.
-  return parts.length ? parts.join(' · ') : '—';
+  var r = _skRecent(s), parts = [];
+  if (r.skips) parts.push(r.skips + (r.skips === 1 ? ' skip' : ' skips'));
+  if (r.resched) parts.push(r.resched + (r.resched === 1 ? ' reschedule' : ' reschedules'));
+  // Neither: just a dash (user 2026-10-22). Vacation-only cards still open.
+  return parts.length ? parts.map(function(t) { return "<span class='sk-pill'>" + t + "</span>"; }).join('') : '—';
 }
 
 // One skip: date, day + time, note, and × (shown on hover) to delete it.

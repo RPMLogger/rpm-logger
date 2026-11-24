@@ -6675,9 +6675,21 @@ html body #tab-ending .en-ask-grid .inq-flabel:first-child { margin-top: 0; }
 html body #tab-ending .en-foot.en-card-foot { row-gap: 32px; }
 /* Skips (user, 2026-11-22): totals line left at the card width, not out at the plate's right edge;
    each card = name + Density, the counts on their own line under it (the Dropbox card's size line) */
-html body #tab-skips .sk-totals { text-align: left; white-space: nowrap; }   /* one line, starting where the cards start */
 html body #tab-skips .sk-card .sk-n { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-html body #tab-skips .sk-card .sk-n .sk-counts { font-size: 12px; line-height: 16px; color: var(--muted); }
+html body #tab-skips .sk-card .sk-n .sk-counts { font-size: 10.5px; line-height: 14px; color: var(--muted); }
+/* Count pills on the Skips cards (user 2026-11-24): the Skip/Reschedule reason-pill look, not clickable. */
+html body #tab-skips .sk-card .sk-n .sk-counts { display: inline-flex; flex-wrap: wrap; gap: 5px; }
+#tab-skips .sk-pill { font-family: "DM Mono", monospace; font-size: 10px; line-height: 1; letter-spacing: 0.5px; color: #8a8a8a; border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; padding: 4px 8px; }
+/* Skips sort switch (user 2026-11-24): Reviews' flat 4-stop switch, right, on the divider. */
+html body #tab-skips .ms-sw.sk-sorts { display: grid; width: max-content; margin: 0 0 12px auto; }
+html body #tab-skips .ms-sw.sk-sorts .ms-lbls .slide-lbl { font-size: 9px; line-height: 11px; padding: 3px 8px 3px 7px; gap: 7px; } html body #tab-skips .ms-sw.sk-sorts .ms-lbls { gap: 0 9px; }
+html body #tab-skips .ms-sw.sk-sorts .ms-lbls { grid-template-columns: repeat(var(--n), 1fr); }   /* every button A–Z's length (user 2026-11-24) */
+html body :is(#tab-skips .ms-sw.sk-sorts, #curReviewsBody .ms-sw.rv-sorts) .ms-lbls .slide-lbl { border-radius: 6px; }   /* rounder, Skips + Reviews sorts (user 2026-11-24; was 3px) */
+html body :is(#tab-skips .ms-sw.sk-sorts, #curReviewsBody .ms-sw.rv-sorts) .ms-lbls .slide-lbl { position: relative; justify-content: center; }
+html body :is(#tab-skips .ms-sw.sk-sorts, #curReviewsBody .ms-sw.rv-sorts) .slide-lbl::before { position: absolute; left: 50%; top: -10px; margin: 0 0 0 -2.5px; }   /* the bulb above the button, outside its border, centred; Skips + Reviews (user 2026-11-24) */
+/* Lit bulb = the portal's amber (70% --accent2), not the green LED, on the Skips + Reviews sorts (user 2026-11-24). */
+html body :is(#tab-skips .ms-sw.sk-sorts, #curReviewsBody .ms-sw.rv-sorts) .slide-lbl.lit::before { background: color-mix(in srgb, var(--accent2) 70%, transparent); box-shadow: 0 0 0 1px #0a0a0a, 0 0 4px color-mix(in srgb, var(--accent2) 45%, transparent); }
+html body #tab-skips .ms-sw.sk-sorts { margin-top: 10px; }   /* room for the bulbs */
 html body #tab-emails .em-gmail-btns { display: inline-flex; gap: 6px; }   /* Gmail · Inbox / Students / G Business shortcuts, top right (user, 2026-11-22) */
 /* Emails in two boxes like Comms (user, 2026-11-22): the head box = Comms' (75 tall, title centred, a screw each side,
    18 gap with the feet), Gmail shortcuts on the right; the panes in their own box under it. */
@@ -6956,3 +6968,9 @@ html body #tab-home.tab-panel.active { aspect-ratio: 1 !important; min-height: 0
 #tab-home .hm-au { overflow: hidden; }   /* the speakers clipped to the cab */
 #tab-home #todayBody .td-sub > span:first-child { color: oklch(0.36 0.006 81); }   /* TODAY / THIS WEEK dimmer (user, 2026-11-24; was #7a7a7a) */
 html body #tab-home #todayBody .td-top-btns .link-btn { color: oklch(0.52 0.006 81) !important; }   /* Combined / Next week as dim as TODAY (user, 2026-11-24) */
+/* Dashboard: every row label the same grey, Weekly's (user 2026-11-24: the headline rows' labels were dimmer).
+   The headline rows still stand out by their bright numbers. Beats the "headline labels muted" sweep rule. */
+html body :is(#tab-general .ld-row .ld-l, #_a#_b#_c#_d) { color: var(--t-normal); }
+/* Dashboard rows evened up (user 2026-11-24): every row one height, the steppers' rows included,
+   and no extra gap after Raised on / Year. */
+html body :is(#tab-general .rv-card .ld-row, #_a#_b#_c#_d) { box-sizing: border-box; min-height: 25px; padding: 0; margin: 0; }
