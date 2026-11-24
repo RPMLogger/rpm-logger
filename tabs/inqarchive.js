@@ -87,22 +87,29 @@ function _iaAnalysisHtml() {
       "<span class='ld-v'>" + num(n) + (share ? "<span class='ld-vmo'>" + share + "</span>" : "") + "</span></div>";
   }
 
+  // Reviews Dashboard look (user, 2026-11-24): a grey engraved heading above each
+  // card, its note after it, then a screwed card with only the rows.
+  function group(head, sum, rows) {
+    return "<div class='rv-group'><div class='rv-yhead'>" + head +
+      (sum ? "<span class='rv-ysum'>" + sum + "</span>" : "") + "</div>" +
+      "<div class='ld-card rv-card'>" + rows + "</div></div>";
+  }
+
   // Section 1: who wrote in, and who got a trial (and how it was booked).
   // Section 2, Trial Outcome: every booked trial by how it ended, counts only.
   return "<div class='ld-cards'>" +
-    "<div class='inq-dcard ld-card'><div class='ld-title'>Analysis</div>" +
+    group("Analysis", "All time",
       row("Inquiries",          inq,        "",                       "lead") +
       row("Trials Booked",    t.booked,   pct(t.booked, inq),       "lead") +
       row("From Website",     t.website,  pct(t.website, t.booked)) +
-      row("Manual Booking",   t.manual,   pct(t.manual, t.booked)) +
-    "</div>" +
+      row("Manual Booking",   t.manual,   pct(t.manual, t.booked))) +
     // Every booked trial, best ending first: these four add up to Trials Booked.
-    "<div class='inq-dcard ld-card'><div class='ld-title'>Trial Outcome</div>" +
+    group("Trial Outcome", t.booked ? t.booked + " trials" : "",
       row("Turned Students", t.students) +
       row("Not Continued",   t.didntContinue) +
       row("In Progress",     t.inProgress) +
-      row("No Shows",        t.noShow) +
-    "</div></div>";
+      row("No Shows",        t.noShow)) +
+    "</div>";
 }
 
 function _iaPaintAnalysis() {
