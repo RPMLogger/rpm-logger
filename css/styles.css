@@ -2043,7 +2043,7 @@ a:focus-visible,
 .rpm-dlg-confirm .rpm-dlg-btn.danger { border-color: var(--muted); color: var(--text); }
 .rpm-dlg-confirm .rpm-dlg-btn:hover:where(:not(:disabled)),
 .rpm-dlg-confirm .rpm-dlg-btn.go:hover:where(:not(:disabled)),
-.rpm-dlg-confirm .rpm-dlg-btn.danger:hover:where(:not(:disabled)) { background: transparent; border-color: var(--accent2); color: var(--accent2); }
+.rpm-dlg-confirm .rpm-dlg-btn.danger:hover:where(:not(:disabled)) { color: var(--t-bright); border-color: color-mix(in srgb, var(--muted) 55%, transparent); background: var(--surface2); }   /* the standard white hover (was amber — missed by the D3 "all hovers white" sweep; user, 2026-11-23); danger still hovers red (DAY 6 rule) */
 .rpm-dlg-btn.has-icon { display: inline-flex; align-items: center; gap: 7px; }
 .rpm-dlg-btn.has-icon svg { flex: 0 0 auto; }
 /* Notes: trash icon at the end of each row, amber under the cursor. */
@@ -2854,6 +2854,14 @@ html body :is(.settings-overlay, .im-notes-back) > div {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -3px 8px rgba(0,0,0,0.45), 0 18px 50px rgba(0,0,0,0.5);
   background: var(--rpm-win-screws), var(--rpm-grain), linear-gradient(#0e0e0e, #070707) #151515;
 }
+/* EVERY DIALOG like the windows (user, 2026-11-23: "should be like window with screws"): one #353535 border,
+   four screws, no amp ring; 24px in so the top screws don't crowd the title. Delete this rule to undo. */
+.rpm-dlg.rpm-dlg {   /* plain specificity: the Go-live dialog keeps its own padding */
+  border: 1px solid #353535; padding: 24px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -3px 8px rgba(0,0,0,0.45), 0 18px 50px rgba(0,0,0,0.5);
+  background: var(--rpm-win-screws), var(--rpm-grain), linear-gradient(#0e0e0e, #070707) #151515;
+}
+.rpm-dlg.rpm-dlg:has(.rpm-dlg-btn.danger) { border-color: oklch(0.42 0.08 22); }   /* danger dialogs (Remove / Delete / Terminate / Scam): a dim red edge (user, 2026-11-23) */
 /* the two windows with their own background keep it, screws on top */
 html body .td-student.cm-win { background: var(--rpm-win-screws), var(--box); }
 html body .st-win.im-log-win.im-log-wide { background: var(--rpm-win-screws), linear-gradient(to right, transparent calc(100% - 250px), color-mix(in srgb, #ffffff 11%, transparent) calc(100% - 250px), color-mix(in srgb, #ffffff 11%, transparent) calc(100% - 249px), rgba(0,0,0,.22) calc(100% - 249px)) local #151515; }
@@ -3696,11 +3704,22 @@ th.f2-blk { background:none; }
   color:var(--blue); background:color-mix(in srgb, var(--blue) 15%, transparent); }   /* Payments' Venmo / Zelle badge shape */
 .f2-badge.bad { color:var(--accent); background:color-mix(in srgb, var(--accent) 15%, transparent); }   /* under the Expenses icon, over the table */
 .f2-ex-btns { display:flex; justify-content:space-between; align-items:center; margin-top:16px; }
-#f2ExModal.rpm-busy > *:not(.rpm-keep) { opacity:0; }   /* dimmer than .4 so the centre text reads */
 /* 2026-11-12: Financial 2 busy word now uses the shared dark box (user) */
 .f2-bill { display:flex; gap:22px; margin:2px 0 14px; }   /* Billed: Monthly / Yearly radios */
+/* Expense window: fields in rows (2 · 2 · 2 · 1), even gaps, boxes only as long as needed (user, 2026-11-23) */
+.f2-ex-grid { display:flex; flex-direction:column; gap:22px; margin-top:24px; }   /* title → first label ≈ the room other windows get from their icon (user, 2026-11-23) */
+.f2-ex-row { display:grid; gap:14px; align-items:start; }
+.f2-ex-row.f2-r2 { grid-template-columns:1fr 1fr; }
+.f2-ex-row.f2-r3 { grid-template-columns:1fr 1fr 1fr; }
+.f2-fld { min-width:0; }
+.f2-fld .settings-label { margin-bottom:8px; }
+.f2-fld .settings-input { width:100%; margin:0; box-sizing:border-box; }
+.f2-fld .f2-bill { margin:0; height:38px; align-items:center; padding-left:14px; }   /* the radios sit on the boxes' line, starting where the boxes' text does (user, 2026-11-23) */
+#f2ExModal .f2-ex-btns { margin-top:28px; }
+.link-btn.f2-del:hover:where(:not(:disabled)) { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }   /* Remove: grey, red on hover like the other deletes (user, 2026-11-23) */
+#f2ExModal .f2-radio { font-family: Arial, Helvetica, sans-serif; font-size:12px; }   /* choice words in the boxes' font (user, 2026-11-23: "much better"; rest of the portal in the last run) */
 .f2-radio { display:flex; align-items:center; gap:8px; font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); cursor:pointer; }
-.f2-radio input { appearance:none; -webkit-appearance:none; margin:0; width:13px; height:13px; border:none; color:var(--muted); background:currentColor; cursor:pointer;
+.f2-radio input { appearance:none; -webkit-appearance:none; margin:0; width:11px; height:11px; border:none; color:var(--muted); background:currentColor; cursor:pointer;
   -webkit-mask:var(--ck-ring) center / contain no-repeat; mask:var(--ck-ring) center / contain no-repeat; }
 .f2-radio input:checked { color:var(--t-normal); -webkit-mask-image:var(--ck-on); mask-image:var(--ck-on); }   /* grey circle → soft white circled check when picked (user 2026-10-24) */
 .f2-radio:has(input:checked) { color:var(--t-normal); }
@@ -6797,3 +6816,15 @@ html body #rvSummaryBody .rv-new .ld-row :is(.ld-l, .ld-v) { color: var(--accent
 html body #curReviewsBody .ms-sw.rv-sorts .ms-lbls .slide-lbl { font-size: 9px; line-height: 11px; padding: 3px 8px 3px 7px; gap: 7px; } html body #curReviewsBody .ms-sw.rv-sorts .ms-lbls { gap: 0 9px; }   /* the sort frames a tiny bit bigger (user, 2026-11-23; were 8.125px) */
 html body #rvTplWin .rv-tpl-how { margin: 0 0 24px; }   /* the steps at the top, then the To line */
 html body #tab-reviews .rv-box { position: relative; } html body #tab-reviews .rv-biz-btns { position: absolute; top: 37px; right: 64px; display: inline-flex; gap: 6px; }   /* Google Business / Yelp Business, top right of the Dashboard (user, 2026-11-23) */
+
+/* ─── FINANCIAL: Income table as its own rack unit, info in the title box (user, 2026-11-23) ───
+   Like the Calendar grid: the table is the unit, edge to edge, no box padding or inner frame.
+   The title box carries the Accountant line, last run, the sheet links (top right) and the two totals. */
+html body #fin2Body > .td-wk-box.f2-inc-unit { padding: 0; overflow: hidden; }
+#fin2Body > .f2-inc-unit .f2-wrap { border: none; border-radius: 0; background: transparent; }
+#fin2Body > .f2-inc-unit .f2-foot { margin: 0; padding: 14px 20px 16px; border-top: 1px solid #2a2a2a; }
+#fin2Top .f2-top-links { position: absolute; top: 37px; right: 64px; }   /* like Reviews' business buttons */
+#fin2TopInfo .f2-note { margin-top: 4px; }
+#fin2TopInfo .f2-lastrun { margin-bottom: 0; }
+#fin2TopInfo .f2-totals { display: flex; gap: 72px; margin-top: 34px; }
+#fin2TopInfo .f2-totals .f2-head { margin-bottom: 10px; }

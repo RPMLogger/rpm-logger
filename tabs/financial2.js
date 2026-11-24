@@ -13,17 +13,21 @@ function initFinancial2Tab() {
   var top = document.getElementById('fin2Top');
   if (top && !top.querySelector(':scope > .td-bolt')) top.insertAdjacentHTML('afterbegin', TD_BOLTS);
   var ic = document.getElementById('fin2Icon');
-  if (ic && !ic.innerHTML) ic.innerHTML = COST_ICON.replace(/class="[^"]*"/, 'class="win-icon"');   // om-98 calculator + coin under the title (user 2026-10-22)
+  if (ic && !ic.innerHTML) ic.innerHTML = MONEY_OUT_ICON;   // the coin + arrow under the title; the boxes below carry no icons (user 2026-11-23; was the om-98 calculator)
+  if (top && !document.getElementById('fin2TopInfo')) top.insertAdjacentHTML('beforeend', '<div id="fin2TopInfo"></div>');   // Accountant line, last run, sheet links, the two totals (user, 2026-11-23)
   body.innerHTML = '<div class="td-wk-box f2-box"><div class="empty-state rpm-loading">Loading</div></div>';
   fetch(url + '?action=getFinanceSheet')
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (!d || !d.success) { body.innerHTML = '<div class="td-wk-box f2-box"><div class="empty-state">⚠ ' + _f2Esc((d && d.message) || 'Failed') + '</div></div>'; return; }
       body.innerHTML = _f2Render(d);
+      var ti = document.getElementById('fin2TopInfo');
+      if (ti) ti.innerHTML = _f2TopInfo;
     })
     .catch(function () { body.innerHTML = '<div class="td-wk-box f2-box"><div class="empty-state">❌ Could not load.</div></div>'; });
 }
 
+var _f2TopInfo = '';
 var F2_ACC_SHEET = 'https://docs.google.com/spreadsheets/d/1pHKWO9j2DrVWrGRYT3bEdvXKHkEIqQZq-Gib27bC_CA/edit?gid=';
 function _f2SheetLink(label, gid, tab) {
   return '<a class="link-btn" target="_blank" rel="noopener" href="' + F2_ACC_SHEET + gid + '#gid=' + gid + '" ' +
@@ -42,6 +46,15 @@ function _f2Money(n) {
   return n < 0 ? '-' + s : s;
 }
 function _f2Num(n) { return n == null ? '' : String(Math.round(n)); }
+// The sheet's Renewal / Length are typed by hand in mixed styles; the table shows them one way
+// ("Jun 9, 2027", "1 year") and leaves the sheet alone (user, 2026-11-23). Not a date ("Monthly (20th)") → as typed.
+function _f2Date(s) {
+  s = String(s == null ? '' : s).trim();
+  if (!/\d{4}/.test(s)) return s;
+  var d = new Date(s);
+  return isNaN(d) ? s : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function _f2Length(s) { return String(s == null ? '' : s).trim().toLowerCase(); }
 // Income table cells: past/current 0 or blank = a dim 0; future = empty.
 function _f2Cell(n, fmt, future) {
   if (future) return '';
@@ -78,9 +91,17 @@ function _f2Render(d) {
   var weeksSoFar = 0, expSoFar = 0;
   blocks.forEach(function (b, bi) { if (curBlock >= 0 && bi <= curBlock && b.expense != null) expSoFar += b.expense; });
   blocks.forEach(function (b) { b.weeks.forEach(function (w) { if (d.curWeek >= 0 && w.idx <= d.curWeek) weeksSoFar++; }); });
-  var season =
-    '<div class="f2-head" style="margin-top:48px">Current total income</div>' +   // no divider above it (user 2026-10-22)   // divider + heading like Income (user 2026-10-22)
-    '<div class="f2-cur"><span class="f2-hi">' + _f2Money(lessons + gigs) + '</span> · ' + weeksSoFar + ' weeks</div>';   // plain text, not a table (user 2026-10-22); its own box ends here (2026-11-15)
+  // The title box (user, 2026-11-23): the Accountant line + last run on the left, the sheet links top right,
+  // then the season's two headline numbers side by side. The Income table below is its own rack unit.
+  _f2TopInfo =
+    '<span class="f2-sheet-links f2-top-links">' + _f2SheetLink('Income sheet', '671214587', 'Income') + _f2SheetLink('Expenses sheet', '0', 'Expenses') + '</span>' +
+    '<div class="tv-sec-note f2-note">Filled by the Accountant every morning at 6am</div>' + status +
+    '<div class="f2-totals">' +
+      '<div><div class="f2-head">Current total income</div>' +
+        '<div class="f2-cur"><span class="f2-hi">' + _f2Money(lessons + gigs) + '</span> · ' + weeksSoFar + ' weeks</div></div>' +
+      '<div><div class="f2-head">Current total expense</div>' +
+        '<div class="f2-cur"><span class="f2-hi">' + _f2Money(expSoFar) + '</span> · ' + weeksSoFar + ' weeks</div></div>' +
+    '</div>';
 
   // Income grid — same columns as the sheet; H..L span their 4-week block.
   // Two header rows: "Income" spans Lessons/Gigs/Weekly/Monthly; widths live on the <col>s.
@@ -117,20 +138,11 @@ function _f2Render(d) {
       '</tr>';
     });
   });
+  // The Income table IS its rack unit, like the Calendar grid (user, 2026-11-23): no box around it, edge to edge.
   var income =
-    // INCOME left, the Accountant's last run right, above the table (user 2026-10-22)
-    // INCOME left; the Accountant sheet's own Income + Expenses tabs on its line, right (user 2026-10-22)
-    '<div class="f2-head-row"><div class="f2-head f2-red">Income</div><span class="f2-sheet-links">' +
-      _f2SheetLink('Income sheet', '671214587', 'Income') + _f2SheetLink('Expenses sheet', '0', 'Expenses') + '</span></div>' +
-    '<div class="tv-sec-note f2-note">Filled by the Accountant every morning at 6am</div>' +   // like Travel Plan's how-to lines (user 2026-10-22)
-    status +   // its last run, right under that line (user 2026-10-22)   // the title's gray half, Bebas (user 2026-10-22; was a section-label)
     '<div class="f2-wrap"><table class="f2-table f2-inc">' + head + body + '</table></div>' +
-    // Under the table: Accountant note on the left, Show more on the right.
-    '<div class="f2-foot">' +   // Show more, right
     (curBlock >= 0 && blocks.length > curBlock + 2
-      ? '<button class="link-btn" onclick="_f2ToggleLater(this)">Show more</button>' : '') +
-    '</div>' +
-    season;
+      ? '<div class="f2-foot"><button class="link-btn" onclick="_f2ToggleLater(this)">Show more</button></div>' : '');
 
   // Expenses — app, who, card, price, renewal. Login columns are never sent.
   var ex = d.expenses || [];
@@ -142,8 +154,8 @@ function _f2Render(d) {
       '<td>' + _f2Esc(e.on) + '</td>' +
       '<td>' + _f2Money(e.yearly) + '</td>' +
       '<td>' + _f2Money(e.monthly) + '</td>' +
-      '<td>' + _f2Esc(e.length) + '</td>' +
-      '<td>' + _f2Esc(e.renewal) + '</td>' +
+      '<td>' + _f2Esc(_f2Length(e.length)) + '</td>' +
+      '<td>' + _f2Esc(_f2Date(e.renewal)) + '</td>' +
     '</tr>';
   }).join('');
   var expenses =
@@ -151,7 +163,6 @@ function _f2Render(d) {
     '<div class="f2-head-row"><div class="f2-head f2-red">Expenses</div>' +
       '<a class="link-btn" href="https://mail.google.com/mail/u/0/#label/Subscriptions+-+RPM" target="_blank" rel="noopener" ' +
         'data-tip="Opens elsewhere.\nYour subscription receipts in Gmail." data-tip-left><span>Receipts in Gmail</span><span data-icon="out">' + OPEN_OUT_ICON + '</span></a></div>' +
-    '<div class="f2-icon">' + MONEY_OUT_ICON + '</div>' +   // om-105 under the heading (user 2026-10-22)
     // how-to under the icon, as numbered steps like Travel Plan's (user 2026-10-22)
     '<div class="tv-sec-note tv-steps f2-howto"><span><i>1.</i>Press Add expense to add one</span>' +
       '<span><i>2.</i>Click a row, then Edit or Remove</span></div>' +
@@ -162,21 +173,18 @@ function _f2Render(d) {
     // The asterisk's footnote, as far under this table as the Accountant line is under Income (user 2026-10-22)
     // Edit / Remove / ＋ Add expense, right — like Show more under Income (plain ＋ like Log skip, user 2026-10-23)
     '<div class="f2-foot">' +
-      '<span class="f2-ex-acts"><button class="link-btn" id="f2ExEditPicked" disabled onclick="_f2EditPicked()">Edit</button>' +
-      '<button class="link-btn" id="f2ExRemovePicked" disabled onclick="_f2RemovePicked()">Remove</button>' +
-      '<button class="link-btn" onclick="_f2OpenExpense(-1)">＋ Add expense</button></span></div>' +
+      '<span class="f2-ex-acts"><button class="link-btn opens-window" id="f2ExEditPicked" disabled onclick="_f2EditPicked()" data-tip="Opens a window.\nEdits the picked row." data-tip-left>Edit</button>' +
+      '<button class="link-btn opens-window f2-del" id="f2ExRemovePicked" disabled onclick="_f2RemovePicked()" data-tip="Asks first.\nClears the picked row in the Expenses sheet." data-tip-left>Remove</button>' +
+      '<button class="link-btn opens-window" onclick="_f2OpenExpense(-1)" data-tip="Opens a window.\nNew expense." data-tip-left>＋ Add expense</button></span></div>' +
     // Average expenses: the old three boxes as one line of text, like Current total (user 2026-10-22)
     '<div class="f2-head" style="margin-top:48px">Average expenses</div>' +
     '<div class="f2-cur"><span class="f2-hi">' + (_f2Money(d.totalMonthly) || '—') + '</span> monthly · ' +
       '<span class="f2-hi">' + (_f2Money(d.perFourWeeks) || '—') + '</span> normalized · ' +
       '<span class="f2-hi">' + ex.length + '</span> subscriptions</div>' +
-    '<div class="f2-status" style="margin-top:10px">Normalized for 4 week length months</div>' +   // under Average expenses, no asterisk (user 2026-10-22)
-    // Current total expense: the Exp. column summed over this season's months so far (user 2026-10-22)
-    '<div class="f2-head" style="margin-top:48px">Current total expense</div>' +
-    '<div class="f2-cur"><span class="f2-hi">' + _f2Money(expSoFar) + '</span> · ' + weeksSoFar + ' weeks</div>';   // footnote at the bottom (user 2026-10-22)
+    '<div class="f2-status" style="margin-top:10px">Normalized for 4 week length months</div>';   // under Average expenses, no asterisk (user 2026-10-22); Current total expense moved to the title box (2026-11-23)
 
   // three boxes (user, 2026-11-15): the title box is in index.html; Income and Expenses each get their own
-  return '<div class="td-wk-box f2-box">' + TD_BOLTS + income + '</div>' +
+  return '<div class="td-wk-box f2-box f2-inc-unit">' + income + '</div>' +
          '<div class="td-wk-box f2-box">' + TD_BOLTS + expenses + '</div>';
 }
 
@@ -208,30 +216,41 @@ function _f2OpenExpense(i) {
   var monthlyBill = !!(e && /month/i.test(e.length || ''));
   var price = e ? (monthlyBill ? e.monthly : e.yearly) : null;
   price = price != null ? String(price) : '';
+  // one field = label above its box; fields sit side by side in rows, so the boxes are only as long as they need (user, 2026-11-23)
   var f = function (id, label, val, ph) {
-    return '<label class="settings-label" for="' + id + '">' + label + '</label>' +
+    return '<div class="f2-fld"><label class="settings-label" for="' + id + '">' + label + '</label>' +
       '<input class="settings-input" id="' + id + '" type="text" autocomplete="off" value="' + _f2Esc(val) + '"' +
-        (ph ? ' placeholder="' + _f2Esc(ph) + '"' : '') + '>';
+        (ph ? ' placeholder="' + _f2Esc(ph) + '"' : '') + '></div>';
   };
   document.getElementById('f2ExModal').innerHTML =
     '<div class="settings-title"><span>Expenses<span class="win-sub"> · ' + (e ? 'Edit' : 'Add') + '</span></span>' +
       '<button class="settings-close" onclick="_f2CloseExpense()">✕</button></div>' +
-    f('f2ExApp', 'Application', e ? e.app : '', 'Zoom') +
-    f('f2ExVendor', 'Company', e ? e.vendor : '', 'Zoom Communications Inc.') +
-    f('f2ExOn', 'Paid on', e ? e.on : '', 'PayPal') +
-    // Billed monthly or yearly (user 2026-10-22): one price box, the other is worked out.
-    '<label class="settings-label">Billed</label>' +
-    // Radio circles (user 2026-10-22): grey ring, white when picked
-    '<div class="f2-bill">' +
-      '<label class="f2-radio"><input type="radio" name="f2Bill" value="m"' + (monthlyBill ? ' checked' : '') + ' onchange="_f2PickBill(this)">Monthly</label>' +
-      '<label class="f2-radio"><input type="radio" name="f2Bill" value="y"' + (monthlyBill ? '' : ' checked') + ' onchange="_f2PickBill(this)">Yearly</label>' +
+    '<div class="f2-ex-grid">' +
+      '<div class="f2-ex-row f2-r2">' +
+        f('f2ExApp', 'Application', e ? e.app : '', 'Zoom') +
+        f('f2ExVendor', 'Company', e ? e.vendor : '', 'Zoom Communications Inc.') +
+      '</div>' +
+      '<div class="f2-ex-row f2-r2">' +
+        f('f2ExOn', 'Paid on', e ? e.on : '', 'PayPal') +
+        // Billed monthly or yearly (user 2026-10-22): one price box, the other is worked out.
+        // Radio circles (user 2026-10-22): grey ring, white when picked
+        '<div class="f2-fld"><label class="settings-label">Billed</label>' +
+        '<div class="f2-bill">' +
+          '<label class="f2-radio"><input type="radio" name="f2Bill" value="m"' + (monthlyBill ? ' checked' : '') + ' onchange="_f2PickBill(this)">Monthly</label>' +
+          '<label class="f2-radio"><input type="radio" name="f2Bill" value="y"' + (monthlyBill ? '' : ' checked') + ' onchange="_f2PickBill(this)">Yearly</label>' +
+        '</div></div>' +
+      '</div>' +
+      '<div class="f2-ex-row f2-r2">' +   // Price · Renewal, Length on its own line under (user, 2026-11-23)
+        f('f2ExPrice', 'Price $', price, monthlyBill ? '10' : '179') +
+        f('f2ExRenewal', 'Renewal', e ? _f2Date(e.renewal) : '', 'Jun 9, 2027') +
+      '</div>' +
+      '<div class="f2-ex-row f2-r2">' +
+        f('f2ExLength', 'Length', e ? _f2Length(e.length) : '', '1 year') +
+      '</div>' +
     '</div>' +
-    f('f2ExPrice', 'Price $', price, monthlyBill ? '10' : '179') +
-    f('f2ExLength', 'Length', e ? e.length : '', '1 Year') +
-    f('f2ExRenewal', 'Renewal', e ? e.renewal : '', 'June 9, 2027') +
     '<div class="f2-ex-btns">' +
-      (e ? '<button class="link-btn" onclick="_f2RemoveExpense(this)">Remove</button>' : '<span></span>') +
-      '<button class="link-btn" onclick="_f2SaveExpense(this)">Save</button>' +
+      (e ? '<button class="link-btn opens-window f2-del" onclick="_f2RemoveExpense(this)" data-tip="Asks first.\nClears this row in the Expenses sheet.">Remove</button>' : '<span></span>') +
+      '<button class="link-btn bright" onclick="_f2SaveExpense(this)">Save</button>' +
     '</div>' +
     '<div id="f2ExStatus"></div>';
   ov.classList.add('open');
@@ -257,7 +276,7 @@ function _f2SaveExpense(btn) {
     '&app=' + encodeURIComponent(v('f2ExApp')) + '&vendor=' + encodeURIComponent(v('f2ExVendor')) +
     '&on=' + encodeURIComponent(v('f2ExOn')) + '&yearly=' + encodeURIComponent(yearly) +
     '&length=' + encodeURIComponent(v('f2ExLength')) + '&renewal=' + encodeURIComponent(v('f2ExRenewal'));
-  _f2ExCall('saveExpense', q, btn, 'Saving', 'Saved');
+  _f2ExCall('saveExpense', q, btn, 'Saving');
 }
 
 function _f2RemoveExpense(btn) {
@@ -266,11 +285,11 @@ function _f2RemoveExpense(btn) {
   if (!e.row) { rpmFail(document.getElementById('f2ExStatus'), 'This row has no sheet row number yet. Reload the tab.'); return; }
   rpmConfirm({
     title: 'Remove ' + e.app + '?',
-    message: 'Clears this row in the Expenses sheet. A saved login in the sheet stays.',
+    message: '• Takes ' + e.app + ' off your expenses.\n• Its login in the sheet is kept.',   // two bullets, plain words (user, 2026-11-23)
     confirmLabel: 'Remove', danger: true
   }).then(function (ok) {
     if (!ok) return;
-    _f2ExCall('removeExpense', '&row=' + encodeURIComponent(e.row || '') + '&was=' + encodeURIComponent(e.app), btn, 'Removing', 'Removed');
+    _f2ExCall('removeExpense', '&row=' + encodeURIComponent(e.row || '') + '&was=' + encodeURIComponent(e.app), btn, 'Removing');
   });
 }
 
@@ -302,41 +321,33 @@ function _f2RemovePicked() {
   if (!e.row) { rpmToast('fail', 'Unsuccessful', 'This row has no sheet row number yet. Reload the tab.'); return; }
   rpmConfirm({
     title: 'Remove ' + e.app + '?',
-    message: 'Clears this row in the Expenses sheet. A saved login in the sheet stays.',
+    message: '• Takes ' + e.app + ' off your expenses.\n• Its login in the sheet is kept.',   // two bullets, plain words (user, 2026-11-23)
     confirmLabel: 'Remove', danger: true
   }).then(function (ok) {
     if (!ok) return;
-    _f2ExCall('removeExpense', '&row=' + encodeURIComponent(e.row) + '&was=' + encodeURIComponent(e.app), null, 'Removing', 'Removed', true);
+    _f2ExCall('removeExpense', '&row=' + encodeURIComponent(e.row) + '&was=' + encodeURIComponent(e.app), null, 'Removing', true);
   });
 }
 
-// While Google works the whole window dims, every button included, and a
-// separate "Saving…" / "Removing…" with the rolling ring sits mid-window
-// (user rule 2026-10-22). When it's done the centre text turns "Saved ✓" for a
-// moment, then the window closes and the whole tab reloads (its Loading) with
-// the new numbers.
-function _f2ExCall(action, q, btn, word, doneWord, onTab) {
+// While Google works: the portal's one busy rule (rpmBusy, user 2026-11-23) — the window
+// (or, from the table, the tab's boxes) hides its content behind SAVING / REMOVING with the
+// rolling ring, and the rack screen shows it too. Success says nothing: the window closes
+// and the tab reloads with the new numbers. Failure = the red "Unsuccessful" badge / toast.
+function _f2ExCall(action, q, btn, word, onTab) {
   // onTab: the action came from the tab itself (Remove under the table), not the window —
-  // the whole tab dims instead, and a failure shows as a toast.
-  var modal = onTab ? document.getElementById('fin2Body') : document.getElementById('f2ExModal');
+  // the tab's boxes go busy instead, and a failure shows as a toast.
+  var root = onTab ? document.getElementById('fin2Body') : document.getElementById('f2ExModal');
   var st = onTab ? null : document.getElementById('f2ExStatus');
   var fail = function (why) { if (st) rpmFail(st, why); else rpmToast('fail', 'Unsuccessful', why); };
-  var busy = function (on) {
-    if (on && document.activeElement) document.activeElement.blur();   // a focused button would glow through the dim
-    modal.classList.toggle('rpm-busy', on);
-    var msg = modal.querySelector('.rpm-load-center');   // the portal's own mid-screen loading box
-    if (on && !msg) modal.insertAdjacentHTML('beforeend', '<div class="rpm-load-center rpm-keep"><span class="rpm-loading">' + word + '</span></div>');
-    else if (!on && msg) msg.remove();
-  };
   if (st) st.innerHTML = '';
-  busy(true);
+  rpmBusy(root, btn, true, word);
   fetch(getScriptUrl() + '?action=' + action + q)
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      if (!d || !d.success) { busy(false); fail((d && d.message) || 'No answer'); return; }
-      var msg = modal.querySelector('.rpm-load-center');
-      if (msg) msg.innerHTML = '<span class="f2-done">' + doneWord + ' ✓</span>';
-      setTimeout(function () { busy(false); if (!onTab) _f2CloseExpense(); initFinancial2Tab(); }, 900);
+      rpmBusy(root, btn, false);
+      if (!d || !d.success) { fail((d && d.message) || 'No answer'); return; }
+      if (!onTab) _f2CloseExpense();
+      initFinancial2Tab();
     })
-    .catch(function (err) { busy(false); fail(err.message); });
+    .catch(function (err) { rpmBusy(root, btn, false); fail(err.message); });
 }
