@@ -334,7 +334,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Every tab in one bordered box like Today's (user, 2026-10-26; Home too).
    Today, Students, To-Do, Notes and Comms make their own boxes; Calendar and Fixed schedule
    are wider than the column, so they stay open. Financial makes its own three boxes (user, 2026-11-15). */
-.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-usage):not(#tab-guitartypes) {
+.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability) {
   box-sizing: border-box;   /* background, border, corners, padding, grain, screws: THE BOX at the end of this file (2026-11-06) */   /* was: every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
 
@@ -4818,7 +4818,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
   --rpm-box-ring: 0 0 0 2px #1e1e1e, 0 0 0 3px #2c2c2c;   /* screwed metal plates: the amp's double line, half as thick (user, 2026-11-06) */
   --rpm-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-usage):not(#tab-guitartypes),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability),
 html body .td-wk-box,
 html body .cr.rpm-rack,
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
@@ -4828,7 +4828,7 @@ html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
   box-shadow: var(--rpm-box-ring);   /* Home's double border: dark amp-body ring + outer line (user, 2026-11-06) */
 }
 /* the ring sits 5px outside: every box 4px in from the column, like Home and the header */
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-usage):not(#tab-guitartypes),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability),
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) { margin-left: 4px; margin-right: 4px; }
 html body .td-wk-box { width: calc(100% - 8px); }
 html body .cr.rpm-rack { margin-left: 4px !important; margin-right: 4px !important; }
@@ -6975,17 +6975,25 @@ html body :is(#tab-general .ld-row .ld-l, #tab-trialanalysis .ld-row .ld-l, #tab
    and no extra gap after Raised on / Year. */
 html body :is(#tab-general .rv-card .ld-row, #tab-trialanalysis .rv-card .ld-row, #_a#_b#_c#_d) { box-sizing: border-box; min-height: 25px; padding: 0; margin: 0; }
 html body :is(#tab-usage, #tab-guitartypes) .rv-card .ld-row.ld-row { grid-template-columns: 340px minmax(0, 1fr); }   /* Portal Usage in the Reviews Dashboard look (user, 2026-11-24): button names are long, a wider label column (long ones end in …) */
-html body :is(#tab-usage, #tab-guitartypes) > .us-head { position: relative; } html body #tab-usage > .us-head > .hol-views.flip-wrap { position: absolute; top: 37px; right: 64px; margin: 0; }   /* 30 days / All time top right of the title plate, where Reviews has its business buttons */
-html body :is(#tab-usage, #tab-guitartypes) > .us-head > .ld-icon { margin-bottom: 0; }   /* the title plate ends under the icon */
-html body :is(#tab-usage, #tab-guitartypes) .us-box > .settings-title { margin: 0 0 24px; }
+html body :is(#tab-usage, #tab-guitartypes, #tab-availability) > .us-head { position: relative; } html body #tab-usage > .us-head > .hol-views.flip-wrap { position: absolute; top: 37px; right: 64px; margin: 0; }   /* 30 days / All time top right of the title plate, where Reviews has its business buttons */
+html body :is(#tab-usage, #tab-guitartypes, #tab-availability) > .us-head > .ld-icon { margin-bottom: 0; }   /* the title plate ends under the icon */
+html body :is(#tab-usage, #tab-guitartypes, #tab-availability) .us-box > .settings-title { margin: 0 0 24px; }
 html body :is(#tab-usage, #tab-guitartypes) .us-box > :is(.rv-card, #_a#_b#_c#_d) { margin: 0; max-width: none; padding: 0 0 4px; border: 0; background: none; box-shadow: none; }   /* no card inside the box: the box is the frame (user, 2026-11-24) */
 html body :is(#tab-usage, #tab-guitartypes) .us-box > .rv-card.rv-card::after { content: none; }   /* nor its corner screws */
 html body #tab-usage .rv-card .us-num { display: inline-block; min-width: 12ch; }   /* the numbers one column wide, so the · notes after them line up (user, 2026-11-24) */
 html body #tab-guitartypes .us-box { overflow: visible; } html body #tab-guitartypes .us-box > .rv-card { overflow: visible; }   /* Guitar Types on the rack (user, 2026-11-24): the type menus hang out of the box */
 html body #tab-guitartypes .gt-btn:not(.unset) { color: var(--t-normal); }   /* the types as dim as the names (user, 2026-11-24: "dim") */
 html body #tab-guitartypes .rv-card .ld-row.ld-row { grid-template-columns: 220px minmax(0, 1fr); }   /* the types closer to the names (user, 2026-11-24); the longest name fits */
-html body #guitarTypesBody .gt-cards > .gt-card { padding: 22px 16px; margin: 0 0 10px; display: flex; align-items: center; }   /* Guitar Types students as the Lessons page cards (user, 2026-11-24) */
-html body #guitarTypesBody .gt-cards > .gt-card > .gt-drop { margin-left: auto; }
-html body #guitarTypesBody .gt-card :is(.gt-btn, .gt-menu) { font-size: 11px; } html body #guitarTypesBody .gt-card:has(.gt-menu) { z-index: 5; }   /* the card's name size had carried into it */
-html body #guitarTypesBody .gt-card :is(.gt-btn, #_a#_b#_c) { padding: 8px 14px; min-width: 140px; font-size: 12px; border: 1px solid #0e0e0e; border-radius: 7px; background: linear-gradient(#101010, #171717); box-shadow: inset 0 2px 5px rgba(0,0,0,.75), 0 1px 0 rgba(255,255,255,.06); }   /* the type box bigger and sunk into the card (user, 2026-11-24: "or the opposite" of raised) */
-html body #guitarTypesBody .gt-card :is(.gt-btn:hover, #_a#_b#_c#_d) { border-color: #000; background: linear-gradient(#141414, #1b1b1b); }
+html body :is(#guitarTypesBody, #availabilityList) .gt-cards > .gt-card { padding: 22px 16px; margin: 0 0 10px; display: flex; align-items: center; }   /* Guitar Types students as the Lessons page cards (user, 2026-11-24) */
+html body :is(#guitarTypesBody, #availabilityList) .gt-cards > .gt-card > .gt-drop { margin-left: auto; }
+html body :is(#guitarTypesBody, #availabilityList) .gt-card :is(.gt-btn, .gt-menu) { font-size: 11px; } html body :is(#guitarTypesBody, #availabilityList) .gt-card:has(.gt-menu) { z-index: 5; }   /* the card's name size had carried into it */
+html body :is(#guitarTypesBody, #availabilityList) .gt-card :is(.gt-btn, #_a#_b#_c) { padding: 8px 14px; min-width: 140px; font-size: 12px; border: 1px solid #0e0e0e; border-radius: 7px; background: linear-gradient(#101010, #171717); box-shadow: inset 0 2px 5px rgba(0,0,0,.75), 0 1px 0 rgba(255,255,255,.06); }   /* the type box bigger and sunk into the card (user, 2026-11-24: "or the opposite" of raised) */
+html body :is(#guitarTypesBody, #availabilityList) .gt-card :is(.gt-btn:hover, #_a#_b#_c#_d) { border-color: #000; background: linear-gradient(#141414, #1b1b1b); }
+/* Availability on the rack like Guitar Types (user, 2026-11-24): title plate, a Students box of Lessons cards,
+   the last-updated date in the sunk button on the right; the card opens in place with the box and Save under it. */
+html body #availabilityList .gt-btn { display: inline-flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; font-family: "DM Mono", monospace; letter-spacing: 1px; text-transform: uppercase; color: var(--t-normal); }
+html body #availabilityList .gt-btn .av-never { color: var(--t-faint); }
+html body #availabilityList .gt-caret { color: var(--muted); font-size: 9px; }
+html body #availabilityList .gt-cards > .av-card { flex-wrap: wrap; row-gap: 0; }
+html body #availabilityList .av-card > .db-card-l { cursor: pointer; flex: 1 1 auto; }
+html body #availabilityList .av-card > :is(.av-body, #_a#_b) { flex: 0 0 100%; margin-top: 18px; padding: 0; font-size: 13px; }   /* the box lines up with the name */

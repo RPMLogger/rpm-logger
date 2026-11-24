@@ -5,6 +5,8 @@
 var _availStudents = [];
 
 function initAvailabilityTab() {
+  var head = document.querySelector("#tab-availability > .us-head");   // the title plate's screws
+  if (head && typeof TD_BOLTS === "string" && !head.querySelector(":scope > .td-bolt")) head.insertAdjacentHTML("afterbegin", TD_BOLTS);
   var icon = document.getElementById("availIcon");   // the calendar under the title, General's window-style icon
   if (icon && !icon.querySelector("svg")) icon.innerHTML = CALENDAR_ICON.replace('class="calendar-icon"', 'class="win-icon"');
   var section = document.getElementById("availabilityList");
@@ -38,16 +40,19 @@ function _renderAvailabilityList() {
     section.innerHTML = '<div class="empty-state">None</div>';
     return;
   }
-  section.innerHTML = _availStudents.map(function(s) {
-    return '<div class="en-card" id="avC-' + s.row + '">' +
-      '<div class="en-card-head" onclick="_toggleAvailRow(' + s.row + ')">' +
-        '<span class="en-card-n">' + s.name + '</span>' +
-        '<span class="en-card-r"><span class="en-card-a' + (s.dateTaken ? '' : ' av-never') + '">' + (s.dateTaken || "Never") + '</span>' +
-        '<span class="en-card-a" id="avA-' + s.row + '">▾</span></span>' +
-      '</div>' +
-      '<div class="en-card-body" id="avB-' + s.row + '" style="display:none"></div>' +
-    '</div>';
-  }).join('');
+  // On the rack like Guitar Types (user, 2026-11-24): a Students box of the Lessons page's
+  // cards; the last-updated date sits in the sunk button on the right, which opens the card.
+  section.innerHTML = '<div class="td-wk-box rv-box us-box gt-cards">' + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') +
+    '<div class="settings-title rv-g-title"><span>Students</span></div>' +
+    _availStudents.map(function(s) {
+      return '<div class="db-card im-card gt-card av-card" id="avC-' + s.row + '">' +
+        '<div class="db-card-l" onclick="_toggleAvailRow(' + s.row + ')"><span class="db-card-n">' + s.name + '</span></div>' +
+        '<span class="gt-drop"><button type="button" class="gt-btn" onclick="_toggleAvailRow(' + s.row + ')">' +
+          '<span' + (s.dateTaken ? '' : ' class="av-never"') + '>' + (s.dateTaken || "Never") + '</span>' +
+          '<span class="gt-caret" id="avA-' + s.row + '">▾</span></button></span>' +
+        '<div class="en-card-body av-body" id="avB-' + s.row + '" style="display:none"></div>' +
+      '</div>';
+    }).join('') + '</div>';
 }
 
 function _toggleAvailRow(row) {
@@ -55,7 +60,7 @@ function _toggleAvailRow(row) {
   if (!card || !box) return;
   var open = box.style.display === "none";
   // Opening one closes whichever other card is open.
-  if (open) document.querySelectorAll("#availabilityList .en-card.open").forEach(function(c) {
+  if (open) document.querySelectorAll("#availabilityList .av-card.open").forEach(function(c) {
     if (c !== card) _toggleAvailRow(+c.id.slice(4));
   });
   box.style.display = open ? "block" : "none";
