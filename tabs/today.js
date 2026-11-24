@@ -74,7 +74,7 @@ function _tdRender() {
   var now = new Date();
   // Today's top part in a box like This Week's under it (user, 2026-10-24): title, calendar, count, list.
   var head = '<div class="td-col td-today-box"><div class="td-sub"><span>Today</span>' +   // a subtitle, no date page: that's Glance's icon now (user, 2026-11-16)
-    '<span class="td-top-btns"><button class="link-btn opens-window" onclick="_tdAllOpen()" data-tip="Opens a window.\nToday\'s students: last lesson,\nlast HW and its folders.">All</button>' +   // All, left of No show (user, 2026-11-01)
+    '<span class="td-top-btns"><button class="link-btn opens-window" onclick="_tdAllOpen()" data-tip="Opens a window.\nToday\'s students: last lesson,\nlast HW and its folders.">Combined</button>' +   // All, left of No show (user, 2026-11-01)
     '</span></div>';   // Zoom + No show moved to the Text templates tab (user, 2026-11-05)
   // A day off (2026-10-08): the resting figure over the line (om-82).
   // A day off: just "0 students", like an empty week (user, 2026-11-24; was the resting figure + "No lessons today!").

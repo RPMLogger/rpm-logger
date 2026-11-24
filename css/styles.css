@@ -6917,7 +6917,7 @@ html body #tab-home .td-day-cal .td-hol-dd { color: #5e4d2a; }
 #tab-home #todayBody .td-day-cal { display: none !important; }   /* no date icon on Home */
 html body #tab-home.tab-panel.active { padding-top: 0 !important; }   /* the week sits higher in the cab (user, 2026-11-24) */
 #tab-home #todayBody .td-plate { padding-top: 24px !important; }
-#tab-home #todayBody .td-sub > span:first-child { font-family: "Bebas Neue", sans-serif; font-size: 17px; letter-spacing: 1.5px; font-weight: 400; }   /* Today / This Week in the title's Bebas (user, 2026-11-24) */
+#tab-home #todayBody .td-sub > span:first-child { font-family: "Bebas Neue", sans-serif; font-size: 17px; letter-spacing: 1.7px; font-weight: 400; }   /* Today / This Week in the title's Bebas (user, 2026-11-24) */
 #tab-home #todayBody .td-sub { margin-bottom: 0 !important; }   /* "3 students" tight under Today / This Week (user, 2026-11-24) */
 #tab-home #todayBody :is(.td-count, .td-wk-head) .db-cx-t { color: var(--t-faint, #555) !important; }   /* and dimmer */
 #tab-home #todayBody :is(.db-cx-t, .td-wk-date, .td-wk-dn, .td-wk-none) { text-shadow: none !important; }   /* no engraved text over the speakers (user, 2026-11-24) */
@@ -6951,3 +6951,4 @@ html body #tab-home.tab-panel.active { aspect-ratio: 1 !important; min-height: 0
 #tab-home > #todayBody::-webkit-scrollbar { display: none; }
 #tab-home .hm-au { overflow: hidden; }   /* the speakers clipped to the cab */
 #tab-home #todayBody .td-sub > span:first-child { color: oklch(0.36 0.006 81); }   /* TODAY / THIS WEEK dimmer (user, 2026-11-24; was #7a7a7a) */
+html body #tab-home #todayBody .td-top-btns .link-btn { color: oklch(0.52 0.006 81) !important; }   /* Combined / Next week as dim as TODAY (user, 2026-11-24) */
