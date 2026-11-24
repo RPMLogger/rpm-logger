@@ -10,6 +10,8 @@
 var _usData = null, _usView = 'month';
 
 function initUsageTab() {
+  var head = document.querySelector('#tab-usage > .us-head');   // the title plate's screws, like Reviews' boxes
+  if (head && typeof TD_BOLTS === 'string' && !head.querySelector(':scope > .td-bolt')) head.insertAdjacentHTML('afterbegin', TD_BOLTS);
   try { _usView = localStorage.getItem('usageView') || 'month'; } catch (e) {}
   var body = document.getElementById('usageBody');
   if (!_usData) body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
@@ -50,10 +52,16 @@ function _usTabName(t) {
 
 function _usRow(l, v, sub, lead) {
   return '<div class="ld-row' + (lead ? ' lead' : '') + '"><span class="ld-l">' + l + '</span>' +
-         '<span class="ld-v">' + v + (sub ? '<span class="us-note"> · ' + sub + '</span>' : '') + '</span></div>';
+         '<span class="ld-v"><span class="us-num">' + v + '</span>' + (sub ? '<span class="us-note">· ' + sub + '</span>' : '') + '</span></div>';   // number in its own column so the notes line up (user, 2026-11-24)
 }
+// Each section its own box screwed to the rack, like Reviews (user, 2026-11-24):
+// "Tabs · time spent" → title Tabs, sub Time spent; the card inside, full width.
 function _usCard(title, rows) {
-  return '<div class="inq-dcard ld-card"><div class="ld-title">' + title + '</div>' + rows + '</div>';
+  var parts = title.split(' · ');
+  var sub = parts[1] ? parts[1].charAt(0).toUpperCase() + parts[1].slice(1) : '';
+  return '<div class="td-wk-box rv-box us-box">' + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') +
+         '<div class="settings-title rv-g-title"><span>' + parts[0] + (sub ? '<span class="win-sub"> · ' + sub + '</span>' : '') + '</span></div>' +
+         '<div class="ld-card rv-card">' + rows + '</div></div>';
 }
 function _usNone(t) { return '<div class="ld-note">' + t + '</div>'; }
 
@@ -129,5 +137,5 @@ function _usRender() {
     return _usRow(_usEsc(x[1]), x[0] ? _usEsc(_usTabName(x[0])) : '—');
   }).join('') + (once.length > 40 ? _usNone('+ ' + (once.length - 40) + ' more') : ''));
 
-  body.innerHTML = '<div class="ld-cards">' + html + '</div>';
+  body.innerHTML = html;
 }
