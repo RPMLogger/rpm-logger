@@ -13,6 +13,8 @@ function _gtUrl() {
 function _gtEsc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
 function initGuitarTypesTab() {
+  var head = document.querySelector('#tab-guitartypes > .us-head');   // the title plate's screws
+  if (head && typeof TD_BOLTS === 'string' && !head.querySelector(':scope > .td-bolt')) head.insertAdjacentHTML('afterbegin', TD_BOLTS);
   var body = document.getElementById('guitarTypesBody');
   if (!_gtData) body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
   else _gtRender();
@@ -35,7 +37,7 @@ function _gtRender() {
   if (!body || !_gtData) return;
   var n = { Acoustic: 0, Electric: 0, Both: 0, '': 0 };
   _gtData.forEach(function (s) { n[s.type in n ? s.type : '']++; });
-  var count = GT_TYPES.map(function (t) { return _gtRow(t, n[t], true); }).join('') + _gtRow('Not set', n['']);
+  var count = GT_TYPES.map(function (t) { return _gtRow(t, n[t]); }).join('') + _gtRow('Not set', n['']);   // no bright numbers: all as dim as the labels (user, 2026-11-24)
 
   var list = _gtData.slice().sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (s, i) {
     return '<div class="ld-row"><span class="ld-l">' + _gtEsc(s.name) + '</span><span class="ld-v">' +
@@ -45,9 +47,13 @@ function _gtRender() {
       '</span></span></div>';
   }).join('');
 
-  body.innerHTML =
-    '<div class="inq-dcard ld-card"><div class="ld-title">Count</div>' + count + '</div>' +
-    '<div class="inq-dcard ld-card"><div class="ld-title">Students</div>' + (list || '<div class="ld-note">No students on the roster</div>') + '</div>';
+  // On the rack like Portal Usage (user, 2026-11-24): one screwed box per section, rows straight on the box.
+  function box(title, rows) {
+    return '<div class="td-wk-box rv-box us-box">' + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') +
+      '<div class="settings-title rv-g-title"><span>' + title + '</span></div>' +
+      '<div class="ld-card rv-card">' + rows + '</div></div>';
+  }
+  body.innerHTML = box('Count', count) + box('Students', list || '<div class="ld-note">No students on the roster</div>');
 }
 
 function _gtClose() {
