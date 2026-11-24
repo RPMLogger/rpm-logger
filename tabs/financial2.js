@@ -55,10 +55,9 @@ function _f2Date(s) {
   return isNaN(d) ? s : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 function _f2Length(s) { return String(s == null ? '' : s).trim().toLowerCase(); }
-// Income table cells: past/current 0 or blank = a dim 0; future = empty.
+// Income table cells: 0, blank and future all = a dim dash, the table's default (user, 2026-11-23; was a dim 0, future empty).
 function _f2Cell(n, fmt, future) {
-  if (future) return '';
-  return n == null || Math.round(n) === 0 ? '<span class="f2-dash">0</span>' : fmt(n);
+  return future || n == null || Math.round(n) === 0 ? '<span class="f2-dash">–</span>' : fmt(n);
 }
 
 // Income shows this month + one empty month; Show more reveals the rest of the season.
@@ -80,28 +79,34 @@ function _f2Render(d) {
   });
 
   var st = d.status;
+  // The Accountant's last run as a Dashboard row (user, 2026-11-24; was a blue badge); red when the run didn't go through.
+  var runBad = st && st.result !== 'OK';
   var status = st
-    // A blue badge like Payments' Venmo / Zelle tags; red when the run didn't go through (user 2026-10-22)
-    ? '<div class="f2-lastrun"><span class="f2-badge' + (st.result === 'OK' ? '' : ' bad') + '">Last run ' + _f2Esc(st.lastRun || '—') +
-        (st.result === 'OK' ? '' : ' · ' + _f2Esc(st.result || '?') + (st.message ? ' — ' + _f2Esc(st.message) : '')) +
-      '</span></div>'
-    : '';
+    ? '<div class="ld-row' + (runBad ? ' f2-run-bad' : '') + '"><span class="ld-l">Last run</span><span class="ld-v">' + _f2Esc(st.lastRun || '—') +
+        (runBad ? ' · ' + _f2Esc(st.result || '?') + (st.message ? ' — ' + _f2Esc(st.message) : '') : '') + '</span></div>'
+    : '<div class="ld-row"><span class="ld-l">Last run</span><span class="ld-v">—</span></div>';
 
   // Current total: one row — season income so far (lessons + gigs) and how many weeks that covers.
   var weeksSoFar = 0, expSoFar = 0;
-  blocks.forEach(function (b, bi) { if (curBlock >= 0 && bi <= curBlock && b.expense != null) expSoFar += b.expense; });
+  // A month's expense counts once its weeks have income, like the table (user, 2026-11-23). Weeks count through the
+  // current one: the Accountant writes it from day 1 with every booked lesson (user, 2026-11-24; briefly finished weeks only).
+  blocks.forEach(function (b, bi) { if (curBlock >= 0 && bi <= curBlock && b.monthly && b.expense != null) expSoFar += b.expense; });
   blocks.forEach(function (b) { b.weeks.forEach(function (w) { if (d.curWeek >= 0 && w.idx <= d.curWeek) weeksSoFar++; }); });
-  // The title box (user, 2026-11-23): the Accountant line + last run on the left, the sheet links top right,
-  // then the season's two headline numbers side by side. The Income table below is its own rack unit.
+  // The title box in the Reviews Dashboard look (user, 2026-11-24): a heading + note over a screwed card per group.
+  // Sheet links stay top right. The Income table below is its own rack unit.
   _f2TopInfo =
-    '<span class="f2-sheet-links f2-top-links">' + _f2SheetLink('Income sheet', '671214587', 'Income') + _f2SheetLink('Expenses sheet', '0', 'Expenses') + '</span>' +
-    '<div class="tv-sec-note f2-note">Filled by the Accountant every morning at 6am</div>' + status +
-    '<div class="f2-totals">' +
-      '<div><div class="f2-head">Current total income</div>' +
-        '<div class="f2-cur"><span class="f2-hi">' + _f2Money(lessons + gigs) + '</span> · ' + weeksSoFar + ' weeks</div></div>' +
-      '<div><div class="f2-head">Current total expense</div>' +
-        '<div class="f2-cur"><span class="f2-hi">' + _f2Money(expSoFar) + '</span> · ' + weeksSoFar + ' weeks</div></div>' +
-    '</div>';
+    '<div class="f2-top-links"><span class="f2-sheet-links">' + _f2SheetLink('Income sheet', '671214587', 'Income') + _f2SheetLink('Expenses sheet', '0', 'Expenses') + '</span></div>' +
+    // How it works above the Accountant heading, lined up with it (user, 2026-11-24)
+    '<div class="f2-how-row"><button class="link-btn opens-window f2-how-btn" onclick="_f2HowWrites()" data-tip="Opens a window.\nHow the Accountant writes the sheet." data-tip-left>How it works</button></div>' +
+    '<div class="rv-group"><div class="rv-yhead">Accountant<span class="rv-ysum">Fills the Income sheet every morning at 6am</span></div>' +
+      // How the Accountant writes: behind a button, in a window (user, 2026-11-24; was rows in the card).
+      '<div class="rv-card">' + status + '</div>' +
+    '</div>' +
+    '<div class="rv-group"><div class="rv-yhead">Current total<span class="rv-ysum">' + weeksSoFar + ' weeks recorded</span></div>' +
+      '<div class="rv-card">' +
+        '<div class="ld-row"><span class="ld-l">Income</span><span class="ld-v">' + _f2Money(lessons + gigs) + '</span></div>' +
+        '<div class="ld-row"><span class="ld-l">Expense</span><span class="ld-v">' + _f2Money(expSoFar) + '</span></div>' +
+      '</div></div>';
 
   // Income grid — same columns as the sheet; H..L span their 4-week block.
   // Two header rows: "Income" spans Lessons/Gigs/Weekly/Monthly; widths live on the <col>s.
@@ -120,6 +125,7 @@ function _f2Render(d) {
       if (wi === 0) cls.push('f2-first');
       if (future) cls.push('f2-future');
       if (curBlock >= 0 && bi > curBlock + 1) cls.push('f2-later');
+      if (curBlock >= 0 && bi === curBlock + 1 && wi === b.weeks.length - 1) cls.push('f2-cut');   // next month's last week = a half-height empty stub, the Calendar's end (user, 2026-11-23)
       if (w.weekly === 0) cls.push('f2-zero');
       body += '<tr class="' + cls.join(' ') + '">' +
         (wi === 0 ? '<td rowspan="4" class="f2-month">' + b.n + '</td>' : '') +
@@ -130,10 +136,11 @@ function _f2Render(d) {
         '<td>' + _f2Cell(w.weekly, _f2Money, wFuture) + '</td>' +
         (wi === 0
           ? '<td rowspan="4" class="f2-mid f2-tot">' + _f2Cell(b.monthly, _f2Money, future) + '</td>' +
-            '<td rowspan="4" class="f2-blk f2-tot">' + _f2Cell(b.expense, _f2Money, future) + '</td>' +
+            '<td rowspan="4" class="f2-blk f2-tot">' + _f2Cell(b.expense, _f2Money, future || !b.monthly) + '</td>' +   // Exp. waits too (user, 2026-11-23)
             '<td rowspan="4" class="f2-blk f2-hi f2-sep">' + _f2Cell(b.avgStudents, _f2Num, future) + '</td>' +
-            '<td rowspan="4" class="f2-blk f2-net">' + _f2Cell(b.net, _f2Money, future) + '</td>' +
-            '<td rowspan="4" class="f2-blk">' + _f2Cell(b.gregorian, _f2Money, future) + '</td>'
+            // Net / Gre. Inc. (and Exp. above) wait for the month's first recorded week: before that they're only minus the expense (user, 2026-11-23)
+            '<td rowspan="4" class="f2-blk f2-net">' + _f2Cell(b.net, _f2Money, future || !b.monthly) + '</td>' +
+            '<td rowspan="4" class="f2-blk">' + _f2Cell(b.gregorian, _f2Money, future || !b.monthly) + '</td>'
           : '') +
       '</tr>';
     });
@@ -166,6 +173,16 @@ function _f2Render(d) {
     // how-to under the icon, as numbered steps like Travel Plan's (user 2026-10-22)
     '<div class="tv-sec-note tv-steps f2-howto"><span><i>1.</i>Press Add expense to add one</span>' +
       '<span><i>2.</i>Click a row, then Edit or Remove</span></div>' +
+    // Average expenses in the Reviews Dashboard look (user, 2026-11-24; was one big line + a note): heading + note, a screwed card.
+    '<div class="f2-dashboard"><div class="rv-group"><div class="rv-yhead">Average expenses<span class="rv-ysum">Normalized for 4-week months</span></div>' +
+      '<div class="rv-card">' +
+        '<div class="ld-row"><span class="ld-l">Monthly</span><span class="ld-v">' + (_f2Money(d.totalMonthly) || '—') + '</span></div>' +
+        '<div class="ld-row"><span class="ld-l">Normalized</span><span class="ld-v">' + (_f2Money(d.perFourWeeks) || '—') + '</span></div>' +
+        '<div class="ld-row"><span class="ld-l">Subscriptions</span><span class="ld-v">' + ex.length + '</span></div>' +
+      '</div></div></div>';
+
+  // The Expenses table as its own rack unit, like Income's (user, 2026-11-24): edge to edge, the buttons in its footer.
+  var exTable =
     '<div class="f2-wrap"><table class="f2-table f2-ex">' +
       '<tr><th>Application</th><th>Paid on</th><th>Yearly</th><th>Monthly</th><th>Length</th><th>Renewal</th></tr>' +
       exRows +
@@ -175,17 +192,32 @@ function _f2Render(d) {
     '<div class="f2-foot">' +
       '<span class="f2-ex-acts"><button class="link-btn opens-window" id="f2ExEditPicked" disabled onclick="_f2EditPicked()" data-tip="Opens a window.\nEdits the picked row." data-tip-left>Edit</button>' +
       '<button class="link-btn opens-window f2-del" id="f2ExRemovePicked" disabled onclick="_f2RemovePicked()" data-tip="Asks first.\nClears the picked row in the Expenses sheet." data-tip-left>Remove</button>' +
-      '<button class="link-btn opens-window" onclick="_f2OpenExpense(-1)" data-tip="Opens a window.\nNew expense." data-tip-left>＋ Add expense</button></span></div>' +
-    // Average expenses: the old three boxes as one line of text, like Current total (user 2026-10-22)
-    '<div class="f2-head" style="margin-top:48px">Average expenses</div>' +
-    '<div class="f2-cur"><span class="f2-hi">' + (_f2Money(d.totalMonthly) || '—') + '</span> monthly · ' +
-      '<span class="f2-hi">' + (_f2Money(d.perFourWeeks) || '—') + '</span> normalized · ' +
-      '<span class="f2-hi">' + ex.length + '</span> subscriptions</div>' +
-    '<div class="f2-status" style="margin-top:10px">Normalized for 4 week length months</div>';   // under Average expenses, no asterisk (user 2026-10-22); Current total expense moved to the title box (2026-11-23)
+      '<button class="link-btn opens-window" onclick="_f2OpenExpense(-1)" data-tip="Opens a window.\nNew expense." data-tip-left>＋ Add expense</button></span></div>';
 
   // three boxes (user, 2026-11-15): the title box is in index.html; Income and Expenses each get their own
-  return '<div class="td-wk-box f2-box f2-inc-unit">' + income + '</div>' +
-         '<div class="td-wk-box f2-box">' + TD_BOLTS + expenses + '</div>';
+  return '<div class="td-wk-box f2-box f2-inc-unit">' + TD_BOLTS + income + '</div>' +   // screws like the other units (user, 2026-11-24)
+         '<div class="td-wk-box f2-box">' + TD_BOLTS + expenses + '</div>' +
+         '<div class="td-wk-box f2-box f2-ex-unit">' + TD_BOLTS + exTable + '</div>';
+}
+
+// How the Accountant writes the Income sheet — a reminder window (user, 2026-11-24).
+// Source: RPM Accountant.js (ACC_LIVE_WEEKS = 3, the expense snapshot, the missing-rate stop). Change the code → change this.
+function _f2HowWrites() {
+  var rows = [
+    ['This week', 'Every booked lesson, from day 1'],
+    ['2 weeks before', 'Redone each morning, so moves and skips fix themselves'],
+    ['Older weeks', 'Frozen. Fix by hand in the sheet'],
+    ['Expense', 'This month only, then frozen'],
+    ['Missing rate', 'Run stops, nothing written']
+  ];
+  rpmAlert({
+    title: 'How it works',
+    className: 'f2-how-dlg',   // wide, the rules in the Dashboard card (user, 2026-11-24: the narrow first try looked terrible)
+    html: '<div class="rv-card">' + rows.map(function (r) {
+      return '<div class="ld-row"><span class="ld-l">' + r[0] + '</span><span class="ld-v">' + r[1] + '</span></div>';
+    }).join('') + '</div>',
+    confirmLabel: 'Close'
+  });
 }
 
 // ── Expenses window: add / edit / remove one row (user, 2026-10-22) ─────────
