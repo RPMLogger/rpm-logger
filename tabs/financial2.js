@@ -112,10 +112,10 @@ function _f2Render(d) {
   // Two header rows: "Income" spans Lessons/Gigs/Weekly/Monthly; widths live on the <col>s.
   var head =
     '<colgroup><col class="f2-nar"><col class="f2-eq"><col class="f2-avs"><col class="f2-eq"><col class="f2-eq"><col class="f2-eq">' +
-    '<col class="f2-eq2"><col class="f2-eq2"><col class="f2-avs"><col class="f2-eq2"><col class="f2-eq2"></colgroup>' +
-    '<tr><th rowspan="2" title="Month">Mo.</th><th rowspan="2">Week</th><th rowspan="2" title="Students">St.</th><th colspan="4">Income</th><th class="f2-blk" title="Expense">Exp.</th><th rowspan="2" class="f2-blk f2-sep" title="Avg students">Av.<br>St.</th>' +
-    '<th colspan="2" class="f2-blk">Income</th></tr>' +
-    '<tr class="f2-sub"><th title="Lessons">Les.</th><th title="Gigs">Gig.</th><th title="Weekly total">We. Tot.</th><th title="Monthly total">Mo. Tot.</th><th class="f2-blk" title="Average per 4 weeks">Ave.</th><th class="f2-blk">Net</th><th class="f2-blk" title="Gregorian income">Gre. Inc.</th></tr>';
+    '<col class="f2-eq2"><col class="f2-eq2"><col class="f2-eq2"><col class="f2-eq2"><col class="f2-avs"></colgroup>' +   // Av.St. last (user, 2026-11-24)
+    '<tr><th rowspan="2" title="Month">Mo.</th><th rowspan="2">Week</th><th rowspan="2" title="Students">St.</th><th colspan="4">Income</th><th class="f2-blk" title="Expense">Exp.</th>' +
+    '<th colspan="2" class="f2-blk f2-sep">Income</th><th rowspan="2" class="f2-blk" title="Avg students">Av.<br>St.</th></tr>' +   // Income (Net, Gre.) before Av.St.; the gold divider before Net (user, 2026-11-24)
+    '<tr class="f2-sub"><th title="Lessons">Les.</th><th title="Gigs">Gig.</th><th title="Weekly total">We. Tot.</th><th title="Monthly total">Mo. Tot.</th><th class="f2-blk" title="Average per 4 weeks">Ave.</th><th class="f2-blk f2-sep">Net</th><th class="f2-blk" title="Gregorian income">Gre. Inc.</th></tr>';
   var body = '';
   blocks.forEach(function (b, bi) {
     var future = curBlock >= 0 && bi > curBlock;
@@ -137,10 +137,10 @@ function _f2Render(d) {
         (wi === 0
           ? '<td rowspan="4" class="f2-mid f2-tot">' + _f2Cell(b.monthly, _f2Money, future) + '</td>' +
             '<td rowspan="4" class="f2-blk f2-tot">' + _f2Cell(b.expense, _f2Money, future || !b.monthly) + '</td>' +   // Exp. waits too (user, 2026-11-23)
-            '<td rowspan="4" class="f2-blk f2-hi f2-sep">' + _f2Cell(b.avgStudents, _f2Num, future) + '</td>' +
             // Net / Gre. Inc. (and Exp. above) wait for the month's first recorded week: before that they're only minus the expense (user, 2026-11-23)
-            '<td rowspan="4" class="f2-blk f2-net">' + _f2Cell(b.net, _f2Money, future || !b.monthly) + '</td>' +
-            '<td rowspan="4" class="f2-blk">' + _f2Cell(b.gregorian, _f2Money, future || !b.monthly) + '</td>'
+            '<td rowspan="4" class="f2-blk f2-net f2-sep">' + _f2Cell(b.net, _f2Money, future || !b.monthly) + '</td>' +
+            '<td rowspan="4" class="f2-blk">' + _f2Cell(b.gregorian, _f2Money, future || !b.monthly) + '</td>' +
+            '<td rowspan="4" class="f2-blk f2-hi">' + _f2Cell(b.avgStudents, _f2Num, future) + '</td>'
           : '') +
       '</tr>';
     });
