@@ -77,7 +77,9 @@ function _tdRender() {
     '<span class="td-top-btns"><button class="link-btn opens-window" onclick="_tdAllOpen()" data-tip="Opens a window.\nToday\'s students: last lesson,\nlast HW and its folders.">All</button>' +   // All, left of No show (user, 2026-11-01)
     '</span></div>';   // Zoom + No show moved to the Text templates tab (user, 2026-11-05)
   // A day off (2026-10-08): the resting figure over the line (om-82).
-  if (!list.length) { body.innerHTML = _tdPlate(head + '<div class="empty-state td-rest">' + REST_ICON + '<div>No lessons today!</div></div></div>'); return; }
+  // A day off: just "0 students", like an empty week (user, 2026-11-24; was the resting figure + "No lessons today!").
+  if (!list.length) { body.innerHTML = _tdPlate(head + '<div class="db-cx-head im-sec-head td-count"><label class="field-label db-cx-t">0 students</label></div>' +
+    '<hr class="divider td-rule td-rule-top"></div>'); return; }   // "0 students" is enough, no line under it (user, 2026-11-24)
   // At the top (2026-10-06): how many, and a mini list of times + names; a
   // name jumps to its card.
   var mini = '<div class="db-cx-head im-sec-head td-count"><label class="field-label db-cx-t">' + list.length + (list.length === 1 ? ' student' : ' students') + '</label></div>' +
@@ -344,7 +346,7 @@ function _tdWeekHtml() {
     '<hr class="divider td-wk-rule">';
   // The calendar read isn't in yet: say so, don't claim an empty week.
   if (!window._weekFetchedDay) body = '<div class="empty-state rpm-loading">Loading</div>';
-  else if (!list.length) body += '<div class="empty-state">No lessons this week</div>';
+  // an empty week: "0 students" is enough (user, 2026-11-24; was "No lessons this week")
   DAYS.forEach(function (day, i) {
     var rows = list.filter(function (s) { return s.dayOfWeek === day; });
     if (!list.length) return;

@@ -6945,3 +6945,9 @@ html body #calAzWin .cal-az-row > span, html body #calAzWin .cal-az-row > span *
 .td-hol-dlg .td-hol-line { padding-left: 18px; }
 .td-hol-dlg .td-hol-line .td-hol-date { display: inline-block; margin: 0 0 8px -18px !important; color: var(--muted) !important; font-family: "DM Mono", monospace !important; font-size: 12px !important; letter-spacing: 2px !important; text-transform: uppercase !important; text-shadow: none !important; }
 .td-hol-dlg .td-hol-mute { margin: 12px 0 0 0 !important; }
+/* Home cab a fixed square (user, 2026-11-24: on an empty week the speakers spilled up over the rack; "this box is fixed always square"). */
+html body #tab-home.tab-panel.active { aspect-ratio: 1 !important; min-height: 0 !important; height: auto !important; overflow: hidden; }   /* always a square (user, 2026-11-24) */
+#tab-home > #todayBody { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: none; }   /* a long week scrolls inside the square */
+#tab-home > #todayBody::-webkit-scrollbar { display: none; }
+#tab-home .hm-au { overflow: hidden; }   /* the speakers clipped to the cab */
+#tab-home #todayBody .td-sub > span:first-child { color: oklch(0.36 0.006 81); }   /* TODAY / THIS WEEK dimmer (user, 2026-11-24; was #7a7a7a) */
