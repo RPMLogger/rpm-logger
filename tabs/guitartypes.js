@@ -39,12 +39,13 @@ function _gtRender() {
   _gtData.forEach(function (s) { n[s.type in n ? s.type : '']++; });
   var count = GT_TYPES.map(function (t) { return _gtRow(t, n[t]); }).join('') + _gtRow('Not set', n['']);   // no bright numbers: all as dim as the labels (user, 2026-11-24)
 
+  // One student card per student, the Lessons page's cards (user, 2026-11-24): name left, the type on the right.
   var list = _gtData.slice().sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (s, i) {
-    return '<div class="ld-row"><span class="ld-l">' + _gtEsc(s.name) + '</span><span class="ld-v">' +
+    return '<div class="db-card im-card gt-card"><div class="db-card-l"><span class="db-card-n">' + _gtEsc(s.name) + '</span></div>' +
       '<span class="gt-drop" data-i="' + _gtData.indexOf(s) + '">' +
         '<button type="button" class="gt-btn' + (s.type ? '' : ' unset') + '" onclick="_gtOpen(event, this)">' +
           '<span>' + (s.type || 'Not set') + '</span><span class="gt-caret">▾</span></button>' +
-      '</span></span></div>';
+      '</span></div>';
   }).join('');
 
   // On the rack like Portal Usage (user, 2026-11-24): one screwed box per section, rows straight on the box.
@@ -53,7 +54,10 @@ function _gtRender() {
       '<div class="settings-title rv-g-title"><span>' + title + '</span></div>' +
       '<div class="ld-card rv-card">' + rows + '</div></div>';
   }
-  body.innerHTML = box('Count', count) + box('Students', list || '<div class="ld-note">No students on the roster</div>');
+  body.innerHTML = box('Count', count) +
+    '<div class="td-wk-box rv-box us-box gt-cards">' + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') +
+      '<div class="settings-title rv-g-title"><span>Students</span></div>' +
+      (list || '<div class="ld-note">No students on the roster</div>') + '</div>';
 }
 
 function _gtClose() {
