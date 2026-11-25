@@ -43,7 +43,7 @@ function _renderAvailabilityList() {
   // On the rack like Guitar Types (user, 2026-11-24): a Students box of the Lessons page's
   // cards; the last-updated date sits in the sunk button on the right, which opens the card.
   section.innerHTML = '<div class="td-wk-box rv-box us-box gt-cards">' + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') +
-    '<div class="settings-title rv-g-title"><span>Students</span></div>' +
+    '<div class="av-head-slot"></div>' +   // the Availability title + icon move in here: one box, no Students title (user 2026-11-25)
     _availStudents.map(function(s) {
       return '<div class="db-card im-card gt-card av-card" id="avC-' + s.row + '">' +
         '<div class="db-card-l" onclick="_toggleAvailRow(' + s.row + ')"><span class="db-card-n">' + s.name + '</span></div>' +
@@ -53,6 +53,10 @@ function _renderAvailabilityList() {
         '<div class="en-card-body av-body" id="avB-' + s.row + '" style="display:none"></div>' +
       '</div>';
     }).join('') + '</div>';
+  var avHead = document.querySelector('#tab-availability > .us-head'), avSlot = section.querySelector('.av-head-slot');
+  var avT = document.querySelector('#tab-availability .ld-head'), avI = document.getElementById('availIcon');
+  if (avSlot) { if (avT) avSlot.appendChild(avT); if (avI) avSlot.appendChild(avI); }
+  if (avHead) avHead.style.display = 'none';   // one box (user 2026-11-25)
 }
 
 function _toggleAvailRow(row) {
