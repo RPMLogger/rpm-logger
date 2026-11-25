@@ -7232,3 +7232,52 @@ html body #travelBody .tv-date-ico2 { color: var(--t-normal); }   /* the planes 
 html body #travelBody .tv-date-ico2 svg { filter: drop-shadow(0 -1px 0 rgba(0,0,0,.85)) drop-shadow(0 1px 0 rgba(255,255,255,.07)); }   /* engraved like the plate headings (user, 2026-11-25) */
 /* calendar + Cost table text engraved like the plate headings (user, 2026-11-25) */
 html body #tab-travel.tv-split :is(#travelCalMonths, .tv-cal-plate .tv-buf-key, #travelSumTable) :is(*, *::before) { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
+/* RESUMING · SUN, JAN 10 · 11:30 AM on one line, like SKIPPING · 2 (user, 2026-11-25) */
+html body #travelBody .tv-rv-resume-d { display: inline; margin-top: 0; }
+html body #travelBody .tv-rv-resume-d::before { content: " · "; }
+/* the schedule sits straight on the card like the plan screen's plates: no box of its own; text engraved (user, 2026-11-25) */
+html body #travelBody .tv-rv-dates { background: none; border: 0; padding-left: 0; padding-right: 0; }
+html body #travelBody .tv-rv-dates :is(*, *::before) { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
+html body #travelBody .tv-rv-dates { padding-left: 28px; }   /* indented under SCHEDULE like the plates under their titles (user, 2026-11-25) */
+html body #travelBody .tv-rv-facts { padding-left: 28px; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; line-height: 1.9; }   /* under DATES, indented like the schedule (user, 2026-11-25) */
+html body #travelBody .tv-rv-facts .tv-rv-resume { text-align: left; margin-top: 0; }
+/* Review cards in the regular windows' greys (user, 2026-11-25: no amber): headings + lines --t-normal, headings engraved like Reviews' */
+html body #travelBody .tv-rv-card > label.field-label { color: var(--t-normal) !important; text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
+html body #travelBody :is(.tv-rv-skip, .tv-rv-resume, .tv-rv-resume-d) { color: var(--t-normal); }
+html body #travelBody .tv-rv-facts .tv-rv-resume-d { text-transform: none; }   /* Sun, Jan 10 · 11:30 AM in normal case (user, 2026-11-25) */
+html body #travelBody .tv-rv-thread { border: 0 !important; }   /* no frame round the text (user, 2026-11-25) */
+/* the text bubble = Intake's thread bubble (user, 2026-11-25): 88% wide, Arial 12px, 1.45 lines, 0.80 text; cards 580 = the plan screen's plates */
+html body #travelBody .tv-rv-bub { max-width: 88%; font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.45; color: oklch(0.80 0.006 81); }
+html body #travelBody .tv-rv-thread { background: none !important; }   /* no box behind the bubble, like the Intake thread (user, 2026-11-25) */
+html body #travelBody .tv-rv-thread { padding: 6px 0 4px 28px !important; } html body #travelBody .tv-rv-bub { max-width: none; align-self: stretch; box-sizing: border-box; }   /* bubble starts with the dates (28px in) and runs the full width (user, 2026-11-25) */
+/* Review screen = racks like Inquiries (user, 2026-11-25): a title rack, then one rack per student, 30px apart */
+html body #tab-travel :is(.tv-rv-card, #_a#_b#_c#_d) { max-width: none; margin: 0; }
+html body #tab-travel.tv-split .tv-rv-list { margin-top: 30px; }
+html body #tab-travel.tv-split .tv-rv-list > .tv-rack + .tv-rack { margin-top: 30px; }
+html body #tab-travel.tv-split .tv-rv-card .tv-rv-dates, html body #tab-travel.tv-split .tv-rv-card .tv-rv-facts, html body #tab-travel.tv-split .tv-rv-card .tv-rv-thread { max-width: 580px; }
+html body #tab-travel .tv-rv-card .inq-name { font-family: "Syne", sans-serif; font-size: 16px; letter-spacing: normal; line-height: 26px; }   /* the portal card-name font, now the card is a rack */
+html body #travelBody .tv-rv-facts.inq-fields { text-transform: none; letter-spacing: 0; line-height: 1.5; margin-top: 0; grid-template-columns: 110px 1fr; }   /* Inquiries label / value lines (user, 2026-11-25) */
+html body #travelBody .tv-rv-facts .tv-rv-dates { padding: 4px 0 0 !important; margin: 0; } html body #travelBody .tv-rv-facts .tv-rv-sched-l { padding-top: 22px; }   /* Schedule row: the dates beside the label, label level with the boxes (user, 2026-11-25) */
+/* Schedule row: no SKIP / RESUME words; red = skip, green = resume (user, 2026-11-25) */
+html body #travelBody .tv-rv-facts .tv-rv-dcell > span { display: none; }
+html body #travelBody .tv-rv-facts .tv-rv-sched-l { padding-top: 0; align-self: center; }
+html body #travelBody .tv-rv-facts .tv-rv-dates { padding-top: 0 !important; }
+html body #travelBody :is(.tv-rv-dcell > b.tv-c-resume, .tv-rv-key i.tv-c-resume) { color: var(--green); background: color-mix(in srgb, var(--green) 10%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--green) 70%, transparent); border-color: transparent; }
+/* Text message row: label top-left, the bubble in the value column at Intake's 88% (user, 2026-11-25) */
+html body #travelBody .tv-rv-facts .tv-rv-text-l { margin-top: 18px; align-self: start; padding-top: 10px; }
+html body #travelBody .tv-rv-facts .tv-rv-text-v { margin-top: 18px; min-width: 0; }
+html body #travelBody .tv-rv-facts .tv-rv-thread { padding: 0 !important; max-width: none; display: flex; flex-direction: column; }
+html body #travelBody .tv-rv-facts .tv-rv-bub { max-width: 88%; align-self: flex-start; }
+/* every row the same distance apart (user, 2026-11-25) */
+html body #travelBody .tv-rv-facts.inq-fields { row-gap: 16px; align-items: center; }
+html body #travelBody .tv-rv-facts :is(.tv-rv-text-l, .tv-rv-text-v) { margin-top: 0; }
+html body #travelBody .tv-rv-facts .tv-rv-text-l { align-self: start; padding-top: 10px; }
+html body #travelBody :is(.tv-rv-dcell > b.tv-c-resume, .tv-rv-key i.tv-c-resume) { background: none !important; }   /* outline only, like the skip dates (user, 2026-11-25) */
+html body #travelBody :is(.tv-rv-dcell > b.tv-c-before, .tv-rv-key i.tv-c-before) { background: none !important; }   /* grey lesson dates outline only too (user, 2026-11-25) */
+html body #travelBody :is(.tv-rv-dcell > b.tv-c-before, .tv-rv-key i.tv-c-before) { color: var(--t-normal) !important; box-shadow: inset 0 0 0 1px var(--muted) !important; }   /* the portal greys, not loose whites (user, 2026-11-25) */
+html body #travelBody .tv-rv-key-row { display: flex !important; flex-direction: row !important; gap: 22px; margin: 0 !important; }   /* Lesson · Skip · Resume side by side (user, 2026-11-25) */
+html body #travelBody .tv-rv-head > div:last-of-type:has(.tv-golive-btn) { justify-content: flex-end; margin-top: 8px !important; }   /* Go live bottom right of the title rack, like Review on the plan screen (user, 2026-11-25) */
+html body #travelBody .tv-rv-key-row span { text-transform: none !important; letter-spacing: 0 !important; font-size: 11px !important; color: var(--t-normal) !important; }   /* Lesson · Skip · Resume in the rows' normal case (user, 2026-11-25) */
+html body #travelBody .tv-rv-counts { margin-top: 22px !important; }   /* same 28px indent + columns as the student rows (user, 2026-11-25) */
+html body #travelBody .tv-rv-counts { margin-left: -5px; }
+html body #travelBody .tv-rv-num { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); letter-spacing: 1px; }   /* 3 / 23, top right (user, 2026-11-25) */

@@ -65,7 +65,7 @@ function _travelRenderPlan() {
 
   cal.innerHTML =
     // The page title red with Reset on its line, one icon under it, like Today and Dropbox (user, 2026-10-23; was a grey label).
-    "<div class='td-wk-box tv-rack'>" + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') + "<div class='settings-title tv-page-title'><span>Travel Plan</span><span id='travelResetSlot'></span></div>" +
+    "<div class='td-wk-box tv-rack'>" + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') + "<div class='settings-title tv-page-title'><span>Trip Plan</span><span id='travelResetSlot'></span></div>" +
     "<div class='tv-sec-icon tv-page-icon'>" + SUITCASE_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + "</div>" +   // Where to sits in this rack, no Set place rack (user, 2026-11-25)
     // Where the trip goes, first; required for Review. Saved with the trip (Travel sheet col Q),
     // shown in Trip History (user, 2026-10-20; was optional, on the review screen).
@@ -76,13 +76,13 @@ function _travelRenderPlan() {
       _escapeHtml(_travelState.location || '') + "' oninput='_travelPlaceInput(this.value)'></div></div></div></div>" +
     "<div class='td-wk-box tv-rack'>" + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') + rackTitle('Set dates') + "<div class='tv-rack-body tv-dash'>" +   // boxed like Set vacation place (user, 2026-10-23)
     // The steps as a list like the legend's: the number where its circle sits (user, 2026-10-19).
-    "<div class='tv-sec-note tv-steps'><span><i>1.</i>Adjust vacation dates on the date picker or by clicking on the calendar</span><span><i>2.</i>Press Set</span></div>" +
+    "<div class='tv-sec-note tv-steps'><span><i>•</i>Adjust vacation dates on the date picker or by clicking on the calendar</span><span><i>•</i>Press Set</span></div>" +
     pair('travelLeavingSlot', 'travelArrivingSlot') +
     "<div class='tv-dates-foot'><button class='link-btn red' id='travelSetBtn' onclick='_travelSetDates()' data-tip='Instant.\nSets the dates and counts the lessons.\nNothing is sent.' data-tip-left data-tip-wrap></button></div>" +
     "</div></div>" +
     "<div class='td-wk-box tv-rack'>" + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') + rackTitle('Set buffer') + "<div class='tv-rack-body tv-dash'>" +   // boxed with its calendar (user, 2026-10-23)
     "<div class='tv-buf-top'>" +   // steps left, the calendar's key on the right (user, 2026-10-19)
-    "<div class='tv-sec-note tv-steps'><span><i>1.</i>Click on the dates to activate buffer</span><span><i>2.</i>Use keyboard arrows to add buffer days</span></div>" +
+    "<div class='tv-sec-note tv-steps'><span><i>•</i>Click on the dates to activate buffer</span><span><i>•</i>Use keyboard arrows to add buffer days</span></div>" +
     // The calendar's key lives here: first day off, first day teaching and buffer are all set in this section (user, 2026-10-19).
     "</div>" +
     // The calendar under it still follows the dates above.
@@ -575,7 +575,7 @@ function _travelRenderReview() {
 
   var section = document.getElementById('travelBody');
   section.innerHTML = '';
-  var tvTab = document.getElementById('tab-travel'); if (tvTab) tvTab.classList.toggle('tv-split', false);
+  var tvTab = document.getElementById('tab-travel'); if (tvTab) tvTab.classList.toggle('tv-split', true);   // racks here too (user, 2026-11-25)
 
   var hdr = document.createElement('div');
   hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px';
@@ -583,11 +583,11 @@ function _travelRenderReview() {
   // A red title like the plan screen's sections, the phone (om-99) under it (user, 2026-10-20).
   hdr.innerHTML =
     "<div class='tv-cal' style='background:none;border:0;padding:0;margin:0;flex:1'>" +
-      "<div class='db-cx-head im-sec-head im-main-head tv-sec-head'><label class='field-label db-cx-t im-main-t'>Dates & texts</label></div>" +
+      "<div class='settings-title tv-page-title'><span>Trip Plan<span class='win-sub'> · Dates & text messages</span></span></div>" +   // red title like Reviews · Dashboard (user, 2026-11-25; was a grey DATES & TEXTS)
       "<div class='tv-sec-icon tv-icon-top'>" + PHONE_ICON.replace('class="win-icon"', 'class="win-icon" style="height:42px;width:auto"') + "</div>" +
       // Steps left, the date cells' key right, like Set buffer's (user, 2026-10-20; the cells had labels on top).
       "<div class='tv-buf-top tv-rv-top'>" +   // key under the steps (user, 2026-10-21; was on the right)
-        "<div class='tv-sec-note tv-steps'><span><i>1.</i>Check each student's lessons, dates and text</span><span><i>2.</i>Press Go live to send</span></div>" +
+        "<div class='tv-sec-note tv-steps'><span><i>•</i>Check each student's lessons, dates and text</span><span><i>•</i>Press Go live to send</span></div>" +
         "<div class='tv-rv-key'>" +
           "<span><i class='tv-c-before'></i>Lesson</span>" +   // green = a lesson, red = none; Before and Resume both green (user, 2026-10-20)
           "<span><i class='tv-c-skip'></i>Skip</span>" +
@@ -611,54 +611,45 @@ function _travelRenderReview() {
 
   // One card per student, the Inquiries / Initiate card (user, 2026-10-20; was rows in one box).
   var list = document.createElement('div');
-  list.style.cssText = 'margin-bottom:14px';
+  list.className = 'tv-rv-list';
 
-  data.students.forEach(function(s) {
+  data.students.forEach(function(s, si) {
     var f = function (k, v, style) { return "<span class='inq-flabel'>" + k + "</span><span class='inq-fval'" + (style ? " style='" + style + "'" : '') + ">" + v + "</span>"; };
     var card = document.createElement('div');
-    card.className = 'inq-dcard accepted tv-rv-card';   // dimmed red edge, like Trip Summary's (user, 2026-10-21)
+    card.className = 'td-wk-box tv-rack tv-rv-card';   // each student its own rack, like Inquiries (user, 2026-11-25; was a card in one box)
     card.style.marginBottom = '20px';   // more room between cards (user, 2026-10-20)
     card.innerHTML =
       // The money on the right, the lesson count under it (user, 2026-10-20; was "1 × $110 = $110" top left).
       "<div style='display:flex;justify-content:space-between;align-items:baseline;gap:12px'>" +   // name and SKIPPING on one baseline (user, 2026-10-24; was flex-start, 2px off)
         "<div class='inq-name-line' style='margin-top:0'><span class='inq-name'>" + _escapeHtml(s.name) + "</span></div>" +
-        "<div style='text-align:right;font-family:\"DM Mono\",monospace;line-height:1.4'>" +
-          // Just the count, no money, in the old first line's font (user, 2026-10-20; was "2 × $95 = $190" over "2 LESSONS").
-          "<div style='font-size:11px;color:var(--t-normal);text-transform:uppercase;letter-spacing:1px'>Skipping<br>" + s.lessonCount + " lesson" + (s.lessonCount === 1 ? '' : 's') + "</div>" +   // SKIPPING: over the count (user, 2026-10-24)
-        "</div>" +
+        "<span class='tv-rv-num'>" + (si + 1) + " / " + data.students.length + "</span>" +   // where you are in the list (user, 2026-11-25)
       "</div>" +
       // Two sections per card, 1. Dates then 2. Text message: Bebas like the red title, in grey (user, 2026-10-20).
       // Today's calendar icon over Schedule (user, 2026-10-24; was the om-102 grid, under the title).
-      "<div class='ts-th-icon' style='margin:22px 0 10px'>" + CALENDAR_ICON.replace(/class="[^"]*"/, 'class="ts-lbl-icon tv-rv-cal-icon"') + "</div>" +
-      "<label class='field-label' style='color:var(--t-text);margin:0 0 18px'>Schedule</label>" +   // no number (user, 2026-10-24); (user, 2026-10-21; was Dates)
-      // One row of date cells, left to right, like the Counter grid on Payments Audit (user, 2026-10-20; was Before / Skip / Resume lines).
-      "<div class='tv-rv-dates'>" +
-        // Each group stays together, so a wrap moves the whole group (user, 2026-10-21).
-        // The group's word over its first box, → over the ones after it (user, 2026-10-21).
-        [(s.beforeDates || []).map(function (d, i) { return _travelDateCell(i ? '→' : 'Before', d, 'tv-c-before'); }).join(''),
-         s.skipDates.map(function (d, i) { return _travelDateCell(i ? '→' : 'Skip', d, 'tv-c-skip'); }).join(''),
-         _travelDateCell('Resume', String(s.firstBack || '').replace(/,\s*\d{1,2}:\d{2}\s*[AP]M\s*$/i, ''), 'tv-c-resume')]   // date only; the time is in the line under the box (user, 2026-10-21)
-          .filter(Boolean)
-          .map(function (g) { return "<span class='tv-rv-group'>" + g + "</span>"; })   // no › between groups (user, 2026-10-21)
-          .join('') +
-      "</div>" +
-      // Under the box, right, in the SKIPPING N LESSONS style: when they're back, with the time (user, 2026-10-21).
-      // RESUMING / SUN, NOV 15 / 11:30 AM, the day in caps and the time a line down (user, 2026-10-24; was "Sun, Nov 15 at 11:30 AM" on one line)
-      "<div class='tv-rv-resume'>Resuming" + _escapeHtml(_travelResumeLine(s.firstBack)).split(' at ').map(function (p, i) {
-        return "<span class='tv-rv-resume-d" + (i ? " tv-rv-resume-t" : "") + "'>" + p + "</span>"; }).join('') + "</div>" +
-      // Read-only, so the card's own colour, not the black of a box you type in; dashed blue like the Dropbox drop zone (user, 2026-10-20).
-      // The header above the box, not inside it (user, 2026-10-20).
-      // The hand-and-phone over 2. Text message (user, 2026-10-24; was under it).
-      "<div class='ts-th-icon' style='margin:40px 0 10px'>" + PHONE_ICON.replace('class="win-icon"', 'class="ts-lbl-icon"') + "</div>" +
-      "<label class='field-label' style='color:var(--t-text);margin:0 0 6px'>Text message</label>" +   // no number; 72% like the Dashboard's titles (user, 2026-10-24)
-      // The number it goes to, under the title, then the text (user, 2026-10-21; taken out and put back 2026-10-24).
-      "<div style='margin-bottom:18px;font-family:\"DM Mono\",monospace;font-size:11px;color:" + (s.phone ? "rgba(255,255,255,.5)" : "#ff6b6b") + "'>" +
-        (s.phone ? _escapeHtml(s.phone) : '⚠ No number on file — will NOT be texted') + "</div>" +
-      // The text as it will look in Trip Summary's thread: a blue bubble on the right in the
-      // dashed box; no time, it isn't sent yet (user, 2026-10-21; was plain text in the box).
-      "<div class='ts-thread tv-rv-thread'>" +
-        "<div class='ts-bub tv-rv-bub'>" + _escapeHtml(s.smsText || '') + "</div>" +
+      "<div style='height:16px'></div>" +   // no DATES header (user, 2026-11-25)
+      // Label / value lines in DM Mono like the Inquiries cards; Schedule is one of them, its dates beside it (user, 2026-11-25)
+      "<div class='inq-fields tv-rv-facts'>" +
+        "<span class='inq-flabel'>Skipping</span><span class='inq-fval'>" + _travelPlural(s.lessonCount, 'Lesson') + "</span>" +
+        "<span class='inq-flabel'>Resuming</span><span class='inq-fval'>" + _escapeHtml(_travelResumeLine(s.firstBack)).replace(' at ', ' · ') + "</span>" +
+        "<span class='inq-flabel tv-rv-sched-l'>Schedule</span><span class='inq-fval'><div class='tv-rv-dates'>" +
+          [(s.beforeDates || []).map(function (d) { return _travelDateCell('Before', d, 'tv-c-before'); }).join(''),
+           s.skipDates.map(function (d) { return _travelDateCell('Skip', d, 'tv-c-skip'); }).join(''),
+           _travelDateCell('Resume', String(s.firstBack || '').replace(/,\s*\d{1,2}:\d{2}\s*[AP]M\s*$/i, ''), 'tv-c-resume')]
+            .filter(Boolean)
+            .map(function (g) { return "<span class='tv-rv-group'>" + g + "</span>"; })
+            .join('') +
+        "</div></span>" +
+        // Text message is a row too: the bubble in the second column, Intake's width (user, 2026-11-25)
+        "<span class='inq-flabel tv-rv-text-l'>Text message</span><span class='inq-fval tv-rv-text-v'>" +
+          (s.phone ? "" : "<div style='margin-bottom:10px;color:#ff6b6b'>⚠ No number on file — will NOT be texted</div>") +
+          "<div class='ts-thread tv-rv-thread'><div class='ts-bub tv-rv-bub'>" + _escapeHtml(s.smsText || '') + "</div></div>" +
+        "</span>" +
+        // The key as the last row, side by side, in every rack (user, 2026-11-25; was one key in the title rack)
+        "<span class='inq-flabel'>Legend</span><span class='inq-fval'><div class='tv-rv-key tv-rv-key-row'>" +
+          "<span><i class='tv-c-before'></i>Lesson</span><span><i class='tv-c-skip'></i>Skip</span><span><i class='tv-c-resume'></i>Resume</span>" +
+        "</div></span>" +
       "</div>";
+    if (typeof TD_BOLTS === 'string') card.insertAdjacentHTML('afterbegin', TD_BOLTS);
     list.appendChild(card);
   });
   section.appendChild(list);
@@ -711,7 +702,22 @@ function _travelRenderReview() {
   key.style.margin = '32px 0 0';   // more room under Go live (user, 2026-10-24; was 20px)
   section.insertBefore(key, list);
   // No divider lines before / after the cards, just the gap (user, 2026-10-24; were lines since 2026-10-20).
-  key.style.marginBottom = '32px';
+  key.style.marginBottom = '0';
+  // The title, warning, Go live and key in one rack of their own over the student racks (user, 2026-11-25).
+  var headRack = document.createElement('div');
+  headRack.className = 'td-wk-box tv-rack tv-rv-head';
+  if (typeof TD_BOLTS === 'string') headRack.innerHTML = TD_BOLTS;
+  if (key) key.remove();   // the key lives in each student's rack now (user, 2026-11-25)
+  // How many get a text, and how many lessons go, in the student racks' label / value rows (user, 2026-11-25)
+  var texted = data.students.filter(function (x) { return x.phone; }).length;
+  var counts = document.createElement('div');
+  counts.className = 'inq-fields tv-rv-facts tv-rv-counts';
+  counts.innerHTML =
+    "<span class='inq-flabel'>Texting</span><span class='inq-fval'>" + _travelPlural(texted, 'Student') + (texted < data.students.length ? " · " + (data.students.length - texted) + " with no number" : "") + "</span>" +
+    "<span class='inq-flabel'>Deleting</span><span class='inq-fval'>" + _travelPlural(data.totalLessons || 0, 'Lesson') + " from the calendar</span>";
+  hdr.querySelector('.tv-rv-top').appendChild(counts);
+  [hdr, section.querySelector(':scope > div[style*="255,107,107"]'), actions].forEach(function (el) { if (el) headRack.appendChild(el); });
+  section.insertBefore(headRack, list);
 }
 
 // "Mon Dec 8, 5:00 PM" -> "Mon, Dec 8 at 5:00 PM".
@@ -792,10 +798,10 @@ function _travelRenderDone(data, snap) {
   card.innerHTML =
     "<div class='db-cx-head im-sec-head im-main-head tv-sec-head'><label class='field-label db-cx-t im-main-t'>Trip is live</label></div>" +
     "<div class='tv-sec-icon tv-icon-top'>" + LIVE_ICON + "</div>" +
-    "<div class='tv-sec-note tv-steps'><span><i>1.</i>Check replies and confirmations in Trip Summary</span></div>" +   // step 2 (Secretary's email) dropped (user, 2026-10-20)
+    "<div class='tv-sec-note tv-steps'><span><i>•</i>Check replies and confirmations in Active Trips</span></div>" +   // step 2 (Secretary's email) dropped (user, 2026-10-20)
     "<div class='tv-live-table'><div class='tv-sum-card'>" + rows + "</div></div>" +
     "<div class='tv-dates-foot'>" +
-      "<button class='link-btn' id='travelToSummary' data-tip='Opens Trip Summary.\nReplies and confirmations come in there.' data-tip-left data-tip-wrap>Trip Summary →</button>" +
+      "<button class='link-btn' id='travelToSummary' data-tip='Opens Active Trips.\nReplies and confirmations come in there.' data-tip-left data-tip-wrap>Active Trips →</button>" +
     "</div>";
   section.appendChild(card);
   document.getElementById('travelToSummary').onclick = function () { if (typeof switchTab === 'function') switchTab('tripsummary'); };
