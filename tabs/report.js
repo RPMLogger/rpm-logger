@@ -188,21 +188,28 @@ function _rpSummary(days) {
     '</div>';
 }
 
-function _rpTilesHide() { var tb = document.getElementById('reportTilesBox'); if (tb) tb.hidden = true; }
+// Both plates are always on screen (user, 2026-11-25: "both open regardless, then sizes change"), like
+// Inquiries: while loading / empty / error the message sits in the tiles plate and the top keeps just its title.
+function _rpTilesMsg(body, msg, cls) {
+  body.innerHTML = '';
+  var tt = document.getElementById('reportTiles');
+  if (tt) tt.innerHTML = '<div class="empty-state' + (cls ? ' ' + cls : '') + '">' + msg + '</div>';
+}
 function _rpRender() {
   var body = document.getElementById('reportBody');
   if (!body) return;
   var d = _rpData[_rpView];
-  if (!d) { _rpTilesHide(); body.innerHTML = '<div class="empty-state rpm-loading">Loading</div>'; return; }
-  if (d === 'error') { _rpTilesHide(); body.innerHTML = '<div class="empty-state">Couldn\'t load the report.</div>'; return; }
+  if (!d) return _rpTilesMsg(body, 'Loading', 'rpm-loading');
+  if (d === 'error') return _rpTilesMsg(body, 'Couldn\'t load the report.');
   var days = d.filter(function (D) { return D.lessons.length; });
-  if (!days.length) { _rpTilesHide(); body.innerHTML = '<div class="empty-state">No lessons this week.</div>'; return; }
+  if (!days.length) return _rpTilesMsg(body, 'No lessons this week.');
   // Student tiles + the range's line (user, 2026-11-17), in the Day Recap's plate look: the wrapper
   // borrows .rp-recap-win so the tiles share that window's card rules. (Day tables: _rpDay / _rpSummary, unused now.)
   var parts = _rpTiles(days).split('<hr class="divider rp-div">');   // the tiles go in their own plate below (user, 2026-11-19)
+  if (!parts[1]) return _rpTilesMsg(body, 'Nothing logged this week yet.');
   body.innerHTML = '<div class="rp-recap-win rp-in-tab">' + parts[0] + '</div>';
-  var tb = document.getElementById('reportTilesBox'), tt = document.getElementById('reportTiles');
-  if (tb && tt) { tt.innerHTML = parts[1] || ''; tb.hidden = !parts[1]; if (typeof _imFixTips === 'function') _imFixTips(tt); }
+  var tt = document.getElementById('reportTiles');
+  if (tt) { tt.innerHTML = parts[1]; if (typeof _imFixTips === 'function') _imFixTips(tt); }
   if (typeof _imFixTips === 'function') _imFixTips(body);
 }
 
