@@ -6588,6 +6588,7 @@ html body #inqModal .tl-acts { margin-top: 32px; }
 html body #inqModal .inq-to { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); }
 html body #inqModal .inq-to.none { color: var(--warn); }
 html body #inqModal #inqTplBody { background: oklch(0.42 0.08 22) !important; border-color: oklch(0.42 0.08 22) !important; color: oklch(0.80 0.012 20) !important; caret-color: #fff; box-shadow: none !important; border-radius: 16px !important; padding: 12px 16px; }
+html body #inqModal #inqTplSubject { width: auto; field-sizing: content; min-width: 120px; max-width: 100%; background: oklch(0.33 0.06 22) !important; border-color: oklch(0.33 0.06 22) !important; color: oklch(0.68 0.012 20) !important; caret-color: #fff; box-shadow: none !important; border-radius: 16px !important; padding: 9px 16px; }   /* the subject = a small one-line email bubble, as wide as its text, dimmed below the message (user, 2026-11-25) */
 html body #thModal .tr-bub { color: oklch(0.80 0.006 81) !important; }   /* Thread text bubbles (blue mine, grey theirs) read like the emails: 0.80 (user, 2026-11-21; were 0.63). The muted red email rule is more specific and keeps its own. */
 /* Template windows (Zoom lesson, No show, Optional schedule): TO small title + the picked name, then the chips (user, 2026-11-21) */
 html body :is(#tdNsWin, #tdZmWin, #ttOsWin) .field-label { margin-bottom: 10px; }
