@@ -46,7 +46,7 @@ function _thRender(years) {
   // One box for every year (user, 2026-11-25: no year in the title, it goes on): "TRIP" over each card;
   // in the card Where / Dates (with the year) / Days off / Lost; Show's rows all dimmed.
   var html = '<div class="td-wk-box rv-box th-box">' +
-    '<div class="settings-title"><span>Trip History</span></div>' +
+    '<div class="settings-title"><span>Past trips<span class="win-sub"> · Archive</span></span></div>' +   // like Past students · Archive (user, 2026-11-25; was Trip History)
     '<div class="ld-icon" data-icon="trip"></div>' +
     '<div class="ld-cards">';
   years.forEach(function(yr) {

@@ -303,7 +303,7 @@ body.sb-open .tabs { transform: none; }
 .tabs > [data-tab=notes]       { order: 71; }
 .tabs > [data-tab=sheets]      { order: 72; }
 .tabs > .sb-soon               { order: 99; }
-.tabs > [data-tab=archive]     { order: 72; }    /* in OTHER, after Notes (user, 2026-11-15; was order 100 under its own ARCHIVE heading) */
+.tabs > .sb-arch               { order: 80; }    /* Archive ▾ after OTHER: Past Students + Past Trips (user, 2026-11-25; Archive was a loose tab at 72, Trip History had no order and sat at the top) */
 
 /* ☰ and the dimmed page behind the open drawer. ☰ sits on the content's left
    edge (user, 2026-10-24; was fixed in the screen corner): three bars, no box or

@@ -80,14 +80,14 @@ function _tsActiveCard(trip) {
   var tally = document.createElement('span');
   tally.className = 'ts-tally';
   tally.innerHTML = "<button class='link-btn ts-archive-btn opens-window'" +   // ▸: asks first
-    (_archReady ? " data-tip='Asks first.\nMoves this trip to Trip History.'" : " disabled data-tip='Locked.\nUntil every student is confirmed.'") + " data-tip-wrap" +
+    (_archReady ? " data-tip='Asks first.\nMoves this trip to Past Trips.'" : " disabled data-tip='Locked.\nUntil every student is confirmed.'") + " data-tip-wrap" +
     ">" + archLabel + "</button>";
   var _arch = tally.querySelector('.ts-archive-btn');
   if (_arch && _archReady) _arch.onclick = function() {
     rpmConfirm({
       title: 'Archive this trip?',
       subtitle: 'Upon activation',   // says what happens, like Recover (2026-11-24)
-      message: '→ Moves this trip to Trip History.\n\n→ Nothing is sent to anyone.',
+      message: '→ Moves this trip to Past Trips.\n\n→ Nothing is sent to anyone.',
       confirmLabel: 'Archive',
       icon: TRAY_IN_ICON,
       className: 'tv-golive-dlg'
@@ -97,7 +97,7 @@ function _tsActiveCard(trip) {
     _arch.disabled = true; _arch.querySelector('span').textContent = '…';
     callScript(url, 'archiveTrip', { tripStart: trip.tripStart, tripEnd: trip.tripEnd }, function(data) {
       if (data && data.success) {
-        addLog('tripsummaryFeed', '✓ Archived ' + trip.tripStart + ' → ' + trip.tripEnd + ' → Trip History', 'success');
+        addLog('tripsummaryFeed', '✓ Archived ' + trip.tripStart + ' → ' + trip.tripEnd + ' → Past Trips', 'success');
         initTripSummaryTab();
       } else {
         addLog('tripsummaryFeed', '❌ ' + (data && data.message ? data.message : 'Archive failed'), 'error');
