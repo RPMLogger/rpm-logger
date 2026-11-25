@@ -334,7 +334,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Every tab in one bordered box like Today's (user, 2026-10-26; Home too).
    Today, Students, To-Do, Notes and Comms make their own boxes; Calendar and Fixed schedule
    are wider than the column, so they stay open. Financial makes its own three boxes (user, 2026-11-15). */
-.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-tripsummary):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability) {
+.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability) {
   box-sizing: border-box;   /* background, border, corners, padding, grain, screws: THE BOX at the end of this file (2026-11-06) */   /* was: every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
 
@@ -1886,7 +1886,6 @@ a:focus-visible,
 /* A trip's line (user 2026-10-29): place · dates · days · loss · Show, the Dashboard's row look. */
 #tab-triphistory .th-line { display: grid; grid-template-columns: minmax(0, 1fr) 130px 130px 100px; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-normal); }
 #tab-triphistory .th-line.th-head { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); padding: 10px 0 8px; }   /* the column names, the first row in the box: Slot change's "To change the slot" font (.im-rs-cap), user 2026-10-29 */
-#tab-triphistory .ld-card > .ld-title { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-align: left; color: var(--green); }   /* green (user 2026-10-29; blue tried); the band: the header row's earlier font, left (user 2026-10-29; was centred) */
 #tab-triphistory .ld-card > .th-line:last-child, #tab-triphistory .th-trip:has(+ .th-det[hidden]) { border-bottom: 0; }
 /* Show's rows (user 2026-10-29; was a table inside the box): the same columns, a thicker line under the trip's row as their header. */
 #tab-triphistory .th-det[hidden] { display: none; }
@@ -1898,10 +1897,6 @@ a:focus-visible,
 #tab-triphistory .th-show { justify-self: end; padding: 2px 10px; }
 #tab-triphistory .th-line > :nth-child(n+2) { text-align: right; justify-self: end; }   /* days off, lost, Show / tag to the right (user 2026-10-29; centred tried) */
 #tab-triphistory .th-tag { justify-self: end; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); }   /* Vacation / Pre buffer / Post buffer at the right end of Show's rows */
-#tab-triphistory .th-year { font-family: "Bebas Neue", sans-serif; font-size: 14px; letter-spacing: 1.5px; line-height: 1.2; text-transform: uppercase; color: var(--t-text); margin: 0 0 32px; }   /* 2026 TRIPS over the year's boxes */
-#tab-triphistory .ld-card + .th-year { margin-top: 40px; }   /* a bigger gap before the next year */
-#tab-triphistory .ld-cards > .ld-card + .ld-card { margin-top: 56px; }   /* more room between the trip boxes (user 2026-10-29) */
-#tab-triphistory .ld-cards { padding-bottom: 32px; }   /* and after the last one */
 
 /* ─── TOOLTIP ─────────────────────────────────────────────────────────────── */
 /* data-tip instead of title: the native title tooltip is drawn by the browser
@@ -4818,7 +4813,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
   --rpm-box-ring: 0 0 0 2px #1e1e1e, 0 0 0 3px #2c2c2c;   /* screwed metal plates: the amp's double line, half as thick (user, 2026-11-06) */
   --rpm-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-tripsummary):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability),
 html body .td-wk-box,
 html body .cr.rpm-rack,
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
@@ -4828,7 +4823,7 @@ html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
   box-shadow: var(--rpm-box-ring);   /* Home's double border: dark amp-body ring + outer line (user, 2026-11-06) */
 }
 /* the ring sits 5px outside: every box 4px in from the column, like Home and the header */
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-tripsummary):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability),
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) { margin-left: 4px; margin-right: 4px; }
 html body .td-wk-box { width: calc(100% - 8px); }
 html body .cr.rpm-rack { margin-left: 4px !important; margin-right: 4px !important; }
@@ -6040,7 +6035,6 @@ html body :is(#tab-payments .log-cash-btn, .incoming-card .incoming-confirm:not(
 /* 2: Lessons TODAY sign → amber (today = needs your eye, not done) */
 html body :is(.im-step.im-today-tag, #_a#_b#_c) { color: color-mix(in srgb, var(--accent2) 70%, transparent); border-color: color-mix(in srgb, var(--accent2) 55%, transparent); background: color-mix(in srgb, var(--accent2) 7%, transparent); }
 /* 3: Trip History card titles → grey like every other card title */
-html body :is(#tab-triphistory .ld-card > .ld-title, #_a#_b#_c) { color: var(--muted); }
 /* 4: Reschedule picker: the target day + its controls amber (a thing to pick); the ✓ that confirms stays green */
 html body :is(.im-rs-strips .st-pick-to, #_a#_b#_c) { background: color-mix(in srgb, var(--accent2) 22%, transparent) !important; border-color: var(--accent2) !important; color: color-mix(in srgb, var(--accent2) 70%, transparent) !important; }
 html body :is(.im-rs-strips .st-pick-to div, #_a#_b#_c) { color: color-mix(in srgb, var(--accent2) 70%, transparent) !important; }
@@ -7147,3 +7141,13 @@ html body :is(#tab-skips .sk-pill, #_a#_b#_c#_d) { padding: 5px 10px; font-size:
 /* Skips rows box sunk into the card like the Availability date box (user 2026-11-25). */
 html body :is(#tab-skips .sk-card .sk-main-box, #_a#_b#_c#_d) { border: 1px solid #0e0e0e; background: linear-gradient(#101010, #171717); box-shadow: inset 0 2px 6px rgba(0,0,0,.75), 0 1px 0 rgba(255,255,255,.06); }
 #tab-availability .av-head-slot { padding-bottom: 29px; }   /* room under the icon before the first card, one box (user 2026-11-25) */
+
+/* Trip History in the Reviews Dashboard look (user, 2026-11-25) */
+html body #tab-triphistory > #triphistoryBody > .th-box { position: relative; }
+html body #tab-triphistory .th-box > .settings-title { margin-bottom: 10px; }
+html body #tab-triphistory .th-box > .ld-icon { margin: 0 0 31px; line-height: 0; }
+html body #tab-triphistory .th-box > .settings-title.th-g-title { margin-bottom: 36px; }
+html body #tab-triphistory .th-box .ld-foot { display: flex; }
+/* Home screen (warnings, Loading, Auditing...) in the Calendar screen's green, not amber (user, 2026-11-25). Delete to undo. */
+html body .home-rack .hr-lcd { background: #0a0c0a; border-color: #000; color: oklch(.72 .08 145); text-shadow: 0 0 5px oklch(.63 .19 145 / .35);
+  box-shadow: inset 0 4px 8px #000, inset 0 -1px 0 rgba(255,255,255,.04), 0 -1px 0 rgba(0,0,0,.8), 0 1px 0 rgba(255,255,255,.11); }
