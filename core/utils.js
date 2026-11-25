@@ -699,3 +699,60 @@ function rpmStopSwitch(opts, on, fn, cls) {
     }).join('') + '</div>' +
     '<button type="button" class="ms-slot" aria-label="Next" onclick="' + fn + '(\'' + next + '\')"><i class="ms-knob"></i></button></div>';
 }
+
+// ─── TOOLTIP LAYER (user, 2026-11-25) ─────────────────────────────────────────
+// Every data-tip shows in one tip on top of the page (css .rpm-tip), never inside its
+// element: a box that scrolls or hides its overflow cut the old ::before tips at its edge.
+// Above the element, centred (data-tip-left: right edges lined up; .ts-nudge and
+// .pay-history-noted: left edges); below when there's no room above; slid in from the
+// screen's sides. Waits 1.7s on arrival, none on a disabled element.
+var rpmTip = { el: null, on: null, t: null };
+function _rpmTipEl() {
+  if (!rpmTip.el || !rpmTip.el.isConnected) {
+    rpmTip.el = document.createElement('div');
+    rpmTip.el.className = 'rpm-tip';
+    rpmTip.el.setAttribute('role', 'tooltip');
+    document.body.appendChild(rpmTip.el);
+  }
+  return rpmTip.el;
+}
+function _rpmTipHide() {
+  clearTimeout(rpmTip.t); rpmTip.t = null; rpmTip.on = null;
+  if (rpmTip.el) rpmTip.el.classList.remove('on');
+}
+function _rpmTipShow(el) {
+  var text = el.getAttribute('data-tip');
+  if (!text || el.disabled || !el.isConnected) return;
+  var tip = _rpmTipEl(), r = el.getBoundingClientRect();
+  if (!r.width && !r.height) return;
+  var z = el.currentCSSZoom || 1;   // tips stay the size of the page they're on (windows are at 80%)
+  tip.style.zoom = z;
+  tip.textContent = text;
+  tip.style.left = '0px'; tip.style.top = '0px';
+  var tr = tip.getBoundingClientRect(), gap = 7 * z, pad = 6, vw = window.innerWidth, vh = window.innerHeight;
+  var x = el.hasAttribute('data-tip-left') ? r.right - tr.width
+    : el.matches('.ts-nudge, .pay-history-noted') ? r.left
+    : r.left + r.width / 2 - tr.width / 2;
+  x = Math.max(pad, Math.min(x, vw - tr.width - pad));
+  var y = r.top - gap - tr.height;
+  if (y < pad) y = r.bottom + gap;   // no room above: under it
+  if (y + tr.height > vh - pad) y = Math.max(pad, vh - tr.height - pad);
+  tip.style.left = x / z + 'px'; tip.style.top = y / z + 'px';   // a zoomed fixed box counts its left/top in its own zoom
+  tip.classList.add('on');
+}
+document.addEventListener('mouseover', function (e) {
+  var el = e.target.closest && e.target.closest('[data-tip]');
+  if (el === rpmTip.on) return;
+  _rpmTipHide();
+  if (!el) return;
+  rpmTip.on = el;
+  rpmTip.t = setTimeout(function () { if (rpmTip.on === el && el.matches(':hover')) _rpmTipShow(el); }, el.matches('.pay-history-noted') ? 250 : 1700);
+});
+document.addEventListener('focusin', function (e) {
+  var el = e.target.closest && e.target.closest('[data-tip]');
+  if (el && el === e.target && el.matches(':focus-visible')) { _rpmTipHide(); rpmTip.on = el; rpmTip.t = setTimeout(function () { if (rpmTip.on === el) _rpmTipShow(el); }, 1700); }
+});
+document.addEventListener('focusout', function (e) { if (e.target === rpmTip.on && !e.target.matches(':hover')) _rpmTipHide(); });
+['mousedown', 'scroll', 'wheel', 'keydown'].forEach(function (k) { document.addEventListener(k, _rpmTipHide, true); });
+window.addEventListener('blur', _rpmTipHide);
+document.addEventListener('mouseleave', _rpmTipHide);

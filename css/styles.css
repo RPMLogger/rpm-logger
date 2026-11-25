@@ -1908,9 +1908,11 @@ a:focus-visible,
    an element only has one of each, and both have to survive on the same
    button (Maybe, No and Scam all open a window AND explain themselves). */
 [data-tip] { position: relative; }
-[data-tip]::before {
-  content: attr(data-tip);
-  position: absolute; bottom: calc(100% + 7px); left: 50%; transform: translateX(-50%);
+/* One tip layer over the whole page (user, 2026-11-25): it was each element's own ::before, so any box
+   that scrolls or hides its overflow cut it at its edge. core/utils.js (rpmTip) places it: above the
+   element, below when there's no room, slid in from the screen's sides; the element's own size (zoom). */
+.rpm-tip {
+  position: fixed; left: 0; top: 0;
   /* The browser's own tooltip look, portal-wide (user, 2026-10-28; was a dark
      card with a coloured left edge and shadow): light grey, dark text, the
      system font, rounded corners, no edge or shadow. */
@@ -1922,31 +1924,17 @@ a:focus-visible,
   border: none; border-radius: 6px;
   padding: 4px 8px;
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; font-size: 12px; letter-spacing: 0;
-  /* Its own case: a caps button (.inq-db, .link-btn) must not turn its tip
-     into shouting. */
   text-transform: none; font-weight: 400;
   line-height: 1.5; text-align: left;
-  /* One format for every tip: its own width up to 190px, then it wraps.
-     Short tips stay one line, long ones become the same narrow box. */
   /* One sentence per line: tips are written "Instant.\nCard moves…" and the
-     line breaks are kept (2026-09-24). */
+     line breaks are kept (2026-09-24); its own width up to 220px, then it wraps. */
   white-space: pre-line; width: max-content; max-width: 220px;
-  opacity: 0; pointer-events: none; z-index: 9990;
-  /* Leaving: fades right away. */
+  opacity: 0; pointer-events: none; z-index: 2147483000;
+  /* Leaving: fades right away. Arriving waits 1.7s (rpmTip), so sweeping across buttons doesn't pop tips. */
   transition: opacity .12s ease 0s;
 }
-/* Arriving: waits 2.2s (was 0.35s), so sweeping the mouse across buttons
-   doesn't pop tips; resting on one does (2026-09-24). */
-[data-tip]:hover:where(:not(:disabled))::before,
-[data-tip]:focus-visible::before { opacity: 1; transition-delay: 1.7s; }   /* 2.2s -> 1.7s (2026-09-28) */
-
-/* A button at the right edge would push its tooltip off the card. */
-[data-tip-left]::before { left: auto; right: 0; transform: none; }
-
-/* data-tip-wrap is now the default for every tip (see above); the attribute
-   is kept on old markup but does nothing extra. */
-
-@media (prefers-reduced-motion: reduce) { [data-tip]::before { transition: none; } }
+.rpm-tip.on { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .rpm-tip { transition: none; } }
 
 /* ─── PORTAL DIALOG (core/dialog.js) ──────────────────────────────────────── */
 /* Replaces the native confirm/alert/prompt box. Every dialog in the portal
