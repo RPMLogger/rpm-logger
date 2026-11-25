@@ -90,6 +90,14 @@ var PAGE_ICON =
 
 // Pick a time window icon from the user's design (om-48.svg, 2026-09-26;
 // replaced om-43): a clock, filled currentColor.
+// Page with a folded corner and three lines (user's picture, 2026-11-25): the Audit · Lessons title.
+// Drawn as strokes so it takes currentColor like every title icon.
+var DOC_ICON =
+  '<svg class="win-icon" viewBox="0 0 450 562" width="24" height="30" fill="none" stroke="currentColor" stroke-width="40" aria-hidden="true">' +
+  '<path d="M 302 20 L 80 20 Q 20 20 20 80 L 20 482 Q 20 542 80 542 L 370 542 Q 430 542 430 482 L 430 160 Z"/>' +
+  '<path d="M 302 20 L 302 163 L 430 163"/>' +
+  '<path d="M 82 248 H 367 M 82 334 H 367 M 82 420 H 367"/>' +
+  '</svg>';
 var TIME_ICON =
   '<svg class="win-icon" viewBox="0 0 907.5 907.499977" width="30" height="30" aria-hidden="true">' +
   '<defs><clipPath id="time48-2745280a88"><path d="M 0 0 L 907 0 L 907 907 L 0 907 Z M 0 0 " clip-rule="nonzero"/></clipPath></defs><g clip-path="url(#time48-2745280a88)"><path fill="currentColor" d="M 453.5 0 C 203.433594 0 0 203.433594 0 453.503906 C 0 703.570312 203.433594 907.003906 453.5 907.003906 C 703.566406 907.003906 907 703.570312 907 453.503906 C 907 203.4375 703.566406 0.00390625 453.5 0.00390625 Z M 453.5 66.367188 C 667.699219 66.367188 840.632812 239.300781 840.632812 453.503906 C 840.632812 667.703125 667.699219 840.636719 453.5 840.636719 C 239.300781 840.636719 66.367188 667.703125 66.367188 453.503906 C 66.367188 239.304688 239.300781 66.367188 453.5 66.367188 Z M 453.5 121.671875 C 435.175781 121.671875 420.316406 136.53125 420.316406 154.855469 L 420.316406 453.503906 C 420.316406 465.773438 427.003906 476.449219 436.910156 482.191406 L 676.449219 620.453125 C 692.316406 629.617188 712.566406 624.226562 721.730469 608.355469 C 730.890625 592.484375 725.503906 572.238281 709.628906 563.074219 L 486.683594 434.492188 L 486.683594 154.855469 C 486.683594 136.53125 471.828125 121.671875 453.5 121.671875 Z M 453.5 121.671875 " fill-opacity="1" fill-rule="nonzero"/></g></svg>';
@@ -271,6 +279,7 @@ function _rpmFillDataIcons() {
     calendar: function () { return CALENDAR_ICON.replace('class="calendar-icon"', 'class="win-icon"'); },
     trip:     function () { return TRIP_ICON; },
     time:     function () { return TIME_ICON; },
+    doc:      function () { return DOC_ICON; },   // Audit · Lessons title (user, 2026-11-25)
     students: function () { return STUDENTS_ICON.replace('class="students-icon"', 'class="win-icon"'); },
     analysis: function () { return ANALYSIS_ICON; },
     trayin:   function () { return TRAY_IN_ICON.replace(/class="[^"]*"/, 'class="win-icon"'); },   // Inquiries title (2026-11-16)

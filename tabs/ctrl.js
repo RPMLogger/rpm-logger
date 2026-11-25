@@ -9,6 +9,7 @@ function openLessonAudit() {
   if (!document.getElementById("tab-audit").classList.contains("active")) switchTab("audit");
   document.getElementById("auMenuView").style.display = "none";
   document.getElementById("imAuditView").style.display = "";
+  document.getElementById("tab-audit").classList.add("au-plates");   // one plate like Audit · Payments (2026-11-25)
   var back = document.getElementById("btnLessonAuditBack");
   if (back && !back.querySelector("svg")) back.insertAdjacentHTML("afterbegin", ARROW_ICON);
   window.scrollTo(0, 0);
@@ -16,6 +17,7 @@ function openLessonAudit() {
 }
 function closeLessonAudit() {
   document.getElementById("imAuditView").style.display = "none";
+  document.getElementById("tab-audit").classList.remove("au-plates");
   document.getElementById("auMenuView").style.display = "";
 }
 
@@ -135,17 +137,17 @@ function _runCkAudit(url, cached, fresh) {
 
 function _auCkCard(a) {
   var n = a.lessons.length, nm = _auEsc(a.name);
-  return '<div class="inq-dcard au-card">' +
-      '<div class="inq-name-line"><span class="inq-name">' + nm + '</span></div>' +
-      '<div class="au-sub due">' + n + (n === 1 ? ' lesson open' : ' lessons open') + '</div>' +
+  // Active Trips' card (design pass, 2026-11-25): name | N LESSONS OPEN tag, the lessons, then Open bottom left.
+  return '<div class="en-card ts-row pa-row">' +
+      '<div class="ts-c-top"><span class="ts-row-name">' + nm + '</span>' +
+        '<span class="ts-tag au-sub due">' + n + (n === 1 ? ' lesson open' : ' lessons open') + '</span></div>' +
       '<div class="au-ck-list">' + a.lessons.map(function(l) {
         return '<div class="au-ck-line"><span class="au-ck-d">' + _ckDay(l.date) + '</span>' +
           '<span class="au-ck-m">' + l.missing.map(function(m) { return '<span class="au-ck-tag">' + m + '</span>'; }).join("") + '</span></div>';
       }).join("") + '</div>' +
-      '<hr class="divider" style="margin:24px 0 27px">' +
-      '<div class="au-acts"><span class="au-state"></span>' +
-        '<button class="link-btn bright opens-window" onclick="_auCkOpen(' + _auEsc(JSON.stringify(a.name)) + ')" ' +
-          'data-tip="Opens a window.\n' + _ckDay(a.lessons[0].date) + (n > 1 ? ' first, then the next.' : '.') + '" data-tip-wrap data-tip-left>Open</button>' +
+      '<div class="au-acts"><button class="link-btn opens-window" onclick="_auCkOpen(' + _auEsc(JSON.stringify(a.name)) + ')" ' +
+          'data-tip="Opens a window.\n' + _ckDay(a.lessons[0].date) + (n > 1 ? ' first, then the next.' : '.') + '" data-tip-wrap>Open</button>' +
+        '<span class="au-state"></span>' +
       '</div>' +
     '</div>';
 }
@@ -1324,7 +1326,7 @@ function _auSyncCard(st) {
     // The grid says it all: Counter's last two blocks over Import's.
     // No rules around the grid: 37px + the numbers' ~3px line-height and
     // the table's 3px spacing = 40px above; 52px down to the button.
-    rows = '<div style="margin-top:37px">' +
+    rows = '<div class="au-grid-wrap">' +
       _auGridHtml(st.grid, st.missing, nmArg, mismatch, calBad ? st.cal.counterOnly : null) + '</div>';
   } else if (s) {
     rows = '<hr class="divider" style="margin:18px 0">' +
@@ -1355,36 +1357,29 @@ function _auSyncCard(st) {
       }).join("") + '</div>';
   }
 
-  return '<div class="inq-dcard au-card" data-audit-student="' + nm + '">' +
-      '<div class="inq-name-line"><span class="inq-name">' + nm + '</span></div>' +
-      // Lessons to log: amber, however many (the red grid cells show them).
-      // Anything else wrong (sheets disagree, count off): red.
-      '<div class="au-sub ' + (st.missing.length && !mismatch ? 'due' : 'over') + '">' + _auEsc(bits.join(" · ")) + '</div>' +
-      // UNLOGGED tag under it (2026-10-08): the Venmo / Zelle badge look, in the blue cells' blue.
-      (st.missing.length ? '<div class="au-unlog-row"><span class="au-unlog-tag">Unlogged</span></div>' : '') +
+  // Active Trips' card (design pass, 2026-11-25): name | status tag (amber to log, red when something is off),
+  // the grid, then the buttons bottom left. The blue UNLOGGED tag is gone: the tag and the blue cells say it.
+  return '<div class="en-card ts-row pa-row" data-audit-student="' + nm + '">' +
+      '<div class="ts-c-top"><span class="ts-row-name">' + nm + '</span>' +
+        '<span class="ts-tag au-sub ' + (st.missing.length && !mismatch ? 'due' : 'over') + '">' + _auEsc(bits.join(" · ")) + '</span></div>' +
       rows + chips +
-      // Same foot as the Unpaid cards: rule, dim action left, Fix right.
-      (gridNoRule && !st.warnings.length
-        ? '<div style="height:49px"></div>' : '<hr class="divider" style="margin:24px 0 27px">') +
-      // Every missing lesson, amber, right over the button; Log lesson logs
-      // the top (oldest) one.
-      (st.missing.length && !st.grid ? '<div class="au-next" style="margin:0 0 12px">' + _auMissingHtml(st.missing, s) + '</div>' : '') +
-      // The grid's outlined cell logs the oldest. Only when the oldest missing
-      // date is older than the grid's two blocks (too many behind) does the
-      // card need a note and the Log lesson button to reach it.
-      (offGrid ? '<div class="au-sub due au-offgrid" style="margin:0 0 12px">Oldest first: ' + _auEsc(_auDate(st.missing[0])) + ', before these blocks</div>' : '') +
+      // Every missing lesson, amber, right over the button; Log lesson logs the top (oldest) one.
+      (st.missing.length && !st.grid ? '<div class="au-next">' + _auMissingHtml(st.missing, s) + '</div>' : '') +
+      // The grid's outlined cell logs the oldest. Only when the oldest missing date is older than the
+      // grid's two blocks does the card need a note and the Log lesson button to reach it.
+      (offGrid ? '<div class="au-sub due au-offgrid">Oldest first: ' + _auEsc(_auDate(st.missing[0])) + ', before these blocks</div>' : '') +
       '<div class="au-acts">' +
+        // Mismatch: dim when Calendar and Counter agree, red when they don't.
+        '<button class="link-btn opens-window' + (mismatch ? ' red' : '') + '" onclick="openAuditFixModal(' + nmArg + ',\'' + (mismatch ? 'Repair' : 'Details') + '\')" ' +
+          'data-tip="' + (mismatch
+            ? 'Opens a window.\nCalendar and Counter disagree: fix that first.\nLogging is locked until then.'
+            : 'Opens a window.\nShows Calendar, Counter and Import side by side.\nNothing mismatched right now.') + '" data-tip-wrap>' + (mismatch ? 'Repair' : 'Details') + '</button>' +
         (st.missing.length && !mismatch && (!st.grid || offGrid)
-          ? '<button class="link-btn bright opens-window au-logbtn" onclick="_auLogNext(this)" ' +
+          ? '<button class="link-btn opens-window au-logbtn" onclick="_auLogNext(this)" ' +
               'data-tip="Opens a window.\nLogs ' + _auEsc(_auDate(st.missing[0])) + ' into Students Import.' + (st.missing.length > 1 ? '\n(Oldest first.)' : '') + '" data-tip-wrap>＋ Log lesson</button>'
           : '') +
         calOnlyNote +
         '<span class="au-state"></span>' +
-        // Mismatch: dim when Calendar and Counter agree, red when they don't.
-        '<button class="link-btn opens-window' + (mismatch ? ' red' : ' au-details') + '" onclick="openAuditFixModal(' + nmArg + ',\'' + (mismatch ? 'Repair' : 'Details') + '\')" ' +
-          'data-tip="' + (mismatch
-            ? 'Opens a window.\nCalendar and Counter disagree: fix that first.\nLogging is locked until then.'
-            : 'Opens a window.\nShows Calendar, Counter and Import side by side.\nNothing mismatched right now.') + '" data-tip-wrap data-tip-left>' + (mismatch ? REPAIR_ICON + 'Repair' : DETAILS_ICON + 'Details') + '</button>' +
       '</div>' +
     '</div>';
 }

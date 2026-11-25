@@ -7290,28 +7290,28 @@ html body #travelBody .tv-rv-counts { margin-left: -5px; }
 html body #travelBody .tv-rv-num { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); letter-spacing: 1px; }   /* 3 / 23, top right (user, 2026-11-25) */
 html body .cm-msgr-head .cm-trip-confirm { margin-left: auto; flex: none; }   /* right end of the To line (user, 2026-11-25) */
 
-/* PAYMENTS AUDIT walk-through (2026-11-25): one plate (title, Payment history + Back top right, $, then the cards),
+/* AUDIT PAGES walk-through (2026-11-25; Lessons too, same look): one plate (title, Payment history + Back top right, $, then the cards),
    Active Trips' cards: name | status tag, Details | FINISHED · Lesson n; red first, no gap, one card format */
-html body #payAuditView > .pa-box { position: relative; }
+html body :is(#payAuditView, #imAuditView) > .pa-box { position: relative; }
 #payAuditView .pa-box-head > .pay-page-icon + #auditUnpaidSection { margin-top: 36px; }   /* cards under the $, no STATUS (user, 2026-11-25) */
-#payAuditView .pa-box-head > .settings-title { margin-bottom: 10px; }
-#payAuditView .pa-box-head > .pay-page-icon { margin: 0 0 26px; line-height: 0; }
-#payAuditView .pa-box-head > .settings-title { display: flex; justify-content: space-between; align-items: center; }
-#payAuditView .pa-box-head > .pay-page-icon { margin-bottom: 0; }   /* Back went up beside the title (user, 2026-11-25) */
-#payAuditView .pa-title-btns { display: flex; gap: 8px; }
-#payAuditView .pa-back { font-size: 10px; letter-spacing: 1px; padding: 4px 10px; border-radius: 7px; height: 23px; display: inline-flex; align-items: center; box-sizing: border-box; min-width: 0; }
-html body :is(#payAuditView .en-card.ts-row, #_a#_b#_c#_d#_e#_f#_g) { width: 560px; max-width: 100%; box-sizing: border-box; cursor: default; margin: 0 0 10px; padding: 28px 26px;
+:is(#payAuditView, #imAuditView) .pa-box-head > .settings-title { margin-bottom: 10px; }
+:is(#payAuditView, #imAuditView) .pa-box-head > .pay-page-icon { margin: 0 0 26px; line-height: 0; }
+:is(#payAuditView, #imAuditView) .pa-box-head > .settings-title { display: flex; justify-content: space-between; align-items: center; }
+:is(#payAuditView, #imAuditView) .pa-box-head > .pay-page-icon { margin-bottom: 0; }   /* Back went up beside the title (user, 2026-11-25) */
+:is(#payAuditView, #imAuditView) .pa-title-btns { display: flex; gap: 8px; }
+:is(#payAuditView, #imAuditView) .pa-back { font-size: 10px; letter-spacing: 1px; padding: 4px 10px; border-radius: 7px; height: 23px; display: inline-flex; align-items: center; box-sizing: border-box; min-width: 0; }
+html body :is(:is(#payAuditView, #imAuditView) .en-card.ts-row, #_a#_b#_c#_d#_e#_f#_g) { width: 560px; max-width: 100%; box-sizing: border-box; cursor: default; margin: 0 0 10px; padding: 28px 26px;
   display: flex; flex-direction: column; align-items: stretch; gap: 18px; border: 1px solid #353535; }
-#payAuditView .ts-c-top, #payAuditView .ts-c-bot { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
-#payAuditView .ts-c-top { align-items: center; }
-#payAuditView .ts-c-btns { display: flex; gap: 6px; }
-#payAuditView .ts-c-btns .link-btn { font-size: 10px; letter-spacing: 1px; padding: 4px 10px; border-radius: 7px; height: 23px; display: inline-flex; align-items: center; box-sizing: border-box; min-width: 0; }
-#payAuditView .ts-facts { display: grid; grid-template-columns: auto auto; column-gap: 10px; align-items: baseline; }
-#payAuditView .ts-facts > div { display: contents; }
-#payAuditView .ts-facts .ts-lbl { margin: 0; text-align: right; }
-#payAuditView .ts-facts .ts-lbl::after { content: '·'; margin-left: 10px; }
-#payAuditView .ts-fact { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); white-space: nowrap; }
-html body :is(#payAuditView .ts-row .ts-tag, #_a#_b#_c#_d#_e) { font-size: 9px; padding: 5px 9px; border-radius: 3px; background: color-mix(in srgb, currentColor 9%, transparent) !important; border: 1px solid color-mix(in srgb, currentColor 35%, transparent) !important; }
+:is(#payAuditView, #imAuditView) .ts-c-top, :is(#payAuditView, #imAuditView) .ts-c-bot { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+:is(#payAuditView, #imAuditView) .ts-c-top { align-items: center; }
+:is(#payAuditView, #imAuditView) .ts-c-btns { display: flex; gap: 6px; }
+:is(#payAuditView, #imAuditView) .ts-c-btns .link-btn { font-size: 10px; letter-spacing: 1px; padding: 4px 10px; border-radius: 7px; height: 23px; display: inline-flex; align-items: center; box-sizing: border-box; min-width: 0; }
+:is(#payAuditView, #imAuditView) .ts-facts { display: grid; grid-template-columns: auto auto; column-gap: 10px; align-items: baseline; }
+:is(#payAuditView, #imAuditView) .ts-facts > div { display: contents; }
+:is(#payAuditView, #imAuditView) .ts-facts .ts-lbl { margin: 0; text-align: right; }
+:is(#payAuditView, #imAuditView) .ts-facts .ts-lbl::after { content: '·'; margin-left: 10px; }
+:is(#payAuditView, #imAuditView) .ts-fact { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); white-space: nowrap; }
+html body :is(:is(#payAuditView, #imAuditView) .ts-row .ts-tag, #_a#_b#_c#_d#_e) { font-size: 9px; padding: 5px 9px; border-radius: 3px; background: color-mix(in srgb, currentColor 9%, transparent) !important; border: 1px solid color-mix(in srgb, currentColor 35%, transparent) !important; }
 /* Steps move the pages (user, 2026-11-25): a step you can go back to lights on hover; the ← → arrows are gone. */
 html body #imLogWin :is(.im-step-side.go, #_a#_b#_c) { cursor: pointer; }
 html body #imLogWin :is(.im-step-side.go:hover, #_a#_b#_c) { color: var(--t-text); }
@@ -7319,5 +7319,15 @@ html body #imLogWin :is(#imSideNav, #_a#_b#_c) { display: none; }
 /* LOGGING (and Done) in the middle of the left side, not of the whole window (user, 2026-11-25):
    the Steps column takes the card's right 227px. */
 html body #imLogWin .im-do-card > :is(.rpm-busy-msg, .im-done-msg, #_a#_b#_c) { left: calc((100% - 227px) / 2); }
+/* Audit · Lessons (2026-11-25): the page icon under the title, the Lesson Checklist label, the cards' insides on Active Trips' rhythm */
+html body #imAuditView .section-label.pa-sec { padding-left: 0; margin: 40px 0 16px !important; }
+#imAuditView .pa-box-head > .pay-page-icon ~ #auditLessonSection { margin-top: 36px; }   /* cards under the icon, no label (user, 2026-11-25) */
+html body #imAuditView .ts-tag.au-sub { margin: 0; }
+#imAuditView .pa-row .au-ck-list { margin-top: 0; }
+#imAuditView .pa-row .au-grid-wrap { margin: 0; }
+#imAuditView .pa-row .au-acts { justify-content: flex-start; gap: 6px; }
+#imAuditView .pa-row .au-acts .link-btn { font-size: 10px; letter-spacing: 1px; padding: 4px 10px; border-radius: 7px; height: 23px; display: inline-flex; align-items: center; box-sizing: border-box; min-width: 0; }
+#imAuditView .pa-row :is(.au-next, .au-offgrid) { margin: 0; }
 /* Mark all none on Practice materials, where Mark no show sits on page 1: right end of the left side (this page has no Shortcuts under it). */
 html body #imLogWin :is(#imAllNoneSlot, #_a#_b#_c#_d#_e) { padding-right: 23px; }
+html body :is(#imAuditView .en-card.ts-row, #_a#_b#_c#_d#_e#_f#_g#_h) { width: 100%; }   /* Lessons Audit cards stay wide, like its Details window's grid (user, 2026-11-25) */
