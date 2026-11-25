@@ -334,7 +334,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Every tab in one bordered box like Today's (user, 2026-10-26; Home too).
    Today, Students, To-Do, Notes and Comms make their own boxes; Calendar and Fixed schedule
    are wider than the column, so they stay open. Financial makes its own three boxes (user, 2026-11-15). */
-.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-payments):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability):not(#tab-travel.tv-split) {
+.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-payments):not(#tab-audit.au-plates):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability):not(#tab-travel.tv-split) {
   box-sizing: border-box;   /* background, border, corners, padding, grain, screws: THE BOX at the end of this file (2026-11-06) */   /* was: every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
 
@@ -4079,7 +4079,7 @@ html body .sb-burger, html body .header .hdr-home, html body .header .hdr-mag { 
 html body .sb-burger:hover, html body .header .hdr-home:hover, html body .header .hdr-mag:hover { background: linear-gradient(#444, #2a2a2a); border-color: #111; }
 html body .header .hdr-mag.on { background: var(--muted); }
 /* Home and Audit get the amp's border under the head: dark body ring around a dark rounded line; every other tab keeps its plain box (user, 2026-10-30) */
-html body #tab-home.active, html body #tab-audit.active {
+html body #tab-home.active, html body #tab-audit.active:not(.au-plates) {
   margin-left: 4px; margin-right: 4px; border-color: #2c2c2c; box-shadow: 0 0 0 4px #1e1e1e, 0 0 0 5px #2c2c2c;   /* amp body ring: lighter grey between the lines (user, 2026-11-06: dark #0b0b0b tried, reverted) */ }
 /* Page 1 has no heading: the window title says Log Lesson and HW (user, 2026-10-30); the case hint stays */
 #imLogWin .im-main-log .im-main-t { display: none; }
@@ -4815,7 +4815,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
   --rpm-box-ring: 0 0 0 2px #1e1e1e, 0 0 0 3px #2c2c2c;   /* screwed metal plates: the amp's double line, half as thick (user, 2026-11-06) */
   --rpm-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-payments):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability):not(#tab-travel.tv-split),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-payments):not(#tab-audit.au-plates):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability):not(#tab-travel.tv-split),
 html body .td-wk-box,
 html body .cr.rpm-rack,
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
@@ -4825,7 +4825,7 @@ html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
   box-shadow: var(--rpm-box-ring);   /* Home's double border: dark amp-body ring + outer line (user, 2026-11-06) */
 }
 /* the ring sits 5px outside: every box 4px in from the column, like Home and the header */
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-payments):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability):not(#tab-travel.tv-split),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-payments):not(#tab-audit.au-plates):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability):not(#tab-travel.tv-split),
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) { margin-left: 4px; margin-right: 4px; }
 html body .td-wk-box { width: calc(100% - 8px); }
 html body .cr.rpm-rack { margin-left: 4px !important; margin-right: 4px !important; }
@@ -7299,3 +7299,26 @@ html body #travelBody .tv-rv-counts { margin-top: 22px !important; }   /* same 2
 html body #travelBody .tv-rv-counts { margin-left: -5px; }
 html body #travelBody .tv-rv-num { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); letter-spacing: 1px; }   /* 3 / 23, top right (user, 2026-11-25) */
 html body .cm-msgr-head .cm-trip-confirm { margin-left: auto; flex: none; }   /* right end of the To line (user, 2026-11-25) */
+
+/* PAYMENTS AUDIT walk-through (2026-11-25): one plate (title, Payment history + Back top right, $, then the cards),
+   Active Trips' cards: name | status tag, Details | FINISHED · Lesson n; red first, no gap, one card format */
+html body #payAuditView > .pa-box { position: relative; }
+#payAuditView .pa-box-head > .pay-page-icon + #auditUnpaidSection { margin-top: 36px; }   /* cards under the $, no STATUS (user, 2026-11-25) */
+#payAuditView .pa-box-head > .settings-title { margin-bottom: 10px; }
+#payAuditView .pa-box-head > .pay-page-icon { margin: 0 0 26px; line-height: 0; }
+#payAuditView .pa-box-head > .settings-title { display: flex; justify-content: space-between; align-items: center; }
+#payAuditView .pa-box-head > .pay-page-icon { margin-bottom: 0; }   /* Back went up beside the title (user, 2026-11-25) */
+#payAuditView .pa-title-btns { display: flex; gap: 8px; }
+#payAuditView .pa-back { font-size: 10px; letter-spacing: 1px; padding: 4px 10px; border-radius: 7px; height: 23px; display: inline-flex; align-items: center; box-sizing: border-box; min-width: 0; }
+html body :is(#payAuditView .en-card.ts-row, #_a#_b#_c#_d#_e#_f#_g) { width: 560px; max-width: 100%; box-sizing: border-box; cursor: default; margin: 0 0 10px; padding: 28px 26px;
+  display: flex; flex-direction: column; align-items: stretch; gap: 18px; border: 1px solid #353535; }
+#payAuditView .ts-c-top, #payAuditView .ts-c-bot { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+#payAuditView .ts-c-top { align-items: center; }
+#payAuditView .ts-c-btns { display: flex; gap: 6px; }
+#payAuditView .ts-c-btns .link-btn { font-size: 10px; letter-spacing: 1px; padding: 4px 10px; border-radius: 7px; height: 23px; display: inline-flex; align-items: center; box-sizing: border-box; min-width: 0; }
+#payAuditView .ts-facts { display: grid; grid-template-columns: auto auto; column-gap: 10px; align-items: baseline; }
+#payAuditView .ts-facts > div { display: contents; }
+#payAuditView .ts-facts .ts-lbl { margin: 0; text-align: right; }
+#payAuditView .ts-facts .ts-lbl::after { content: '·'; margin-left: 10px; }
+#payAuditView .ts-fact { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); white-space: nowrap; }
+html body :is(#payAuditView .ts-row .ts-tag, #_a#_b#_c#_d#_e) { font-size: 9px; padding: 5px 9px; border-radius: 3px; background: color-mix(in srgb, currentColor 9%, transparent) !important; border: 1px solid color-mix(in srgb, currentColor 35%, transparent) !important; }

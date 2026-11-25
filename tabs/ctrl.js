@@ -205,10 +205,8 @@ function renderUnpaidCards(audit) {
   var amber = audit.filter(function (s) { return _auStatusLine(s).cls !== "over"; }).sort(az);
   audit = red.concat(amber);
   window._auUnpaid = audit;
-  var cards = audit.map(_auUnpaidCard);
-  section.innerHTML = cards.slice(0, red.length).join("") +
-    (red.length && amber.length ? '<div class="au-unpaid-split"></div>' : "") +
-    cards.slice(red.length).join("");
+  // Active Trips' Status plate (design pass, 2026-11-25): the cards, red first, no gap; no tally line (user).
+  section.innerHTML = audit.map(_auUnpaidCard).join("");
 }
 
 // Every payment reminder for a student, oldest first: [{ at: Date, kind:
@@ -232,18 +230,17 @@ function _auRemWhen(d) {
 
 function _auUnpaidCard(s, i) {
   var line = _auStatusLine(s);
-  // Block −1 / −2 / Last paid and the reminder dates all live in the Details
-  // window now (2026-09-29); the card is name, status and Details.
-  // Details sits on the right beside name + status (2026-09-29): a shorter card.
-  // The left edge wears the status colour: amber Unpaid, red Overdue (2026-10-14).
-  return '<div class="inq-dcard au-card au-unpaid ' + line.cls + '" id="auCard-' + i + '">' +
-      '<div class="au-unpaid-left">' +
-        '<div class="inq-name-line"><span class="inq-name">' + _auEsc(s.name) + '</span></div>' +
-        '<div class="au-sub ' + line.cls + '">' + _auEsc(line.text) + '</div>' +
-        '<div class="au-sub au-detail">' + _auEsc(line.detail) + '</div>' +
+  // Active Trips' card (design pass, 2026-11-25): name | status tag on top; Details | FINISHED · Lesson n under.
+  var c = line.cls === "over" ? "var(--accent)" : "var(--warn)";
+  var fin = String(line.detail).replace(/^Finished · /, "");
+  return '<div class="en-card ts-row pa-row ' + line.cls + '" id="auCard-' + i + '">' +
+      '<div class="ts-c-top"><span class="ts-row-name">' + _auEsc(s.name) + '</span>' +
+        '<span class="ts-tag" style="color:' + c + '">' + _auEsc(line.text) + '</span></div>' +
+      '<div class="ts-c-bot"><div class="ts-c-btns">' +
+        '<button class="link-btn opens-window" onclick="_auPayDetails(' + i + ')" ' +
+          'data-tip="Opens a window.\nShows where each payment landed among the lessons." data-tip-wrap>Details</button></div>' +
+        '<div class="ts-facts"><div><label class="field-label ts-lbl">Finished</label><div class="ts-fact">' + _auEsc(fin) + '</div></div></div>' +
       '</div>' +
-      '<button class="link-btn opens-window au-details" onclick="_auPayDetails(' + i + ')" ' +
-        'data-tip="Opens a window.\nShows where each payment landed among the lessons." data-tip-wrap data-tip-left>' + DETAILS_ICON + 'Details</button>' +
     '</div>';
 }
 

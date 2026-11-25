@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=1555">
-  <link rel="stylesheet" href="css/goals.css?v=1555">
-  <link rel="stylesheet" href="css/lessontimer.css?v=1555">
-  <link rel="stylesheet" href="css/rack.css?v=1555">   <!-- THE RACK: trial on Lessons only (user, 2026-11-14), drawn by core/rack.js -->
-  <link rel="stylesheet" href="css/msgrack.css?v=1555">
+  <link rel="stylesheet" href="css/styles.css?v=1556">
+  <link rel="stylesheet" href="css/goals.css?v=1556">
+  <link rel="stylesheet" href="css/lessontimer.css?v=1556">
+  <link rel="stylesheet" href="css/rack.css?v=1556">   <!-- THE RACK: trial on Lessons only (user, 2026-11-14), drawn by core/rack.js -->
+  <link rel="stylesheet" href="css/msgrack.css?v=1556">
 </head>
 <body>
 <div class="container">
@@ -20,7 +20,7 @@
     <img src="img/portal-logo-grey.png" alt="Red Pick Music">   <!-- badge lettering grey, the portal text grey (user, 2026-11-08; white original = img/portal-logo.png) -->
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1555</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1556</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -227,11 +227,21 @@
          payments opens it, Back returns. Cards drawn by ctrl.js renderUnpaidCards;
          confirming happens only in Incoming. -->
     <div id="payAuditView" style="display:none">
-      <button class="link-btn" onclick="closePayAudit()" data-tip="Instant.&#10;Back to audit." id="btnPayAuditBack"><span>Back to audit</span></button>
-      <!-- Today's title look (2026-10-14): red "Payments Audit · Unpaid" with
-           the grey part after the dot (AUDIT stamp removed 2026-11-15). -->
-      <div class="settings-title pay-audit-title"><span>Payments Audit<span class="win-sub"> · Unpaid</span></span></div>
-      <div id="auditUnpaidSection"><div class="empty-state rpm-loading">Loading</div></div>
+      <!-- One plate (design pass, 2026-11-25): title, Payment history + Back top right, $, then the cards,
+           Active Trips' card: name | status, Details | Finished · Lesson n. -->
+      <div class="td-wk-box pa-box pa-box-head">
+        <span class="td-bolt" style="left:8px;top:10px"></span><span class="td-bolt" style="left:8px;bottom:10px"></span><span class="td-bolt" style="right:8px;top:10px"></span><span class="td-bolt" style="right:8px;bottom:10px"></span>
+        <div class="settings-title"><span>Audit<span class="win-sub"> · Payments</span></span>
+          <!-- Back top right, where Payments has Log cash (user, 2026-11-25) -->
+          <span class="pa-title-btns">
+            <!-- Payment history here too, Payments' button (user, 2026-11-25) -->
+            <button class="link-btn opens-window pa-back" onclick="openPaymentHistory()" data-tip="Opens a window.&#10;Every logged payment, by month." data-tip-wrap>Payment history</button>
+            <button class="link-btn pa-back" onclick="closePayAudit()" data-tip="Instant.&#10;Back to audit." data-tip-left id="btnPayAuditBack"><span>Back to audit</span></button>
+          </span></div>
+        <div class="pay-page-icon" data-icon="pay"></div>
+        <!-- one plate, the cards right under the $ (user, 2026-11-25: "connect two racks", then no STATUS) -->
+        <div id="auditUnpaidSection"><div class="empty-state rpm-loading">Loading</div></div>
+      </div>
     </div>
   </div>
 
@@ -942,61 +952,61 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=1555"></script>
-<script src="core/storage.js?v=1555"></script>
-<script src="core/utils.js?v=1555"></script>
-<script src="core/dialog.js?v=1555"></script>
-<script src="core/api.js?v=1555"></script>
-<script src="core/secalert.js?v=1555"></script>
-<script src="core/magnifier.js?v=1555"></script>
-<script src="core/nav.js?v=1555"></script>
-<script src="core/rackscreen.js?v=1555"></script>
-<script src="core/msgrack.js?v=1555"></script>
+<script src="core/state.js?v=1556"></script>
+<script src="core/storage.js?v=1556"></script>
+<script src="core/utils.js?v=1556"></script>
+<script src="core/dialog.js?v=1556"></script>
+<script src="core/api.js?v=1556"></script>
+<script src="core/secalert.js?v=1556"></script>
+<script src="core/magnifier.js?v=1556"></script>
+<script src="core/nav.js?v=1556"></script>
+<script src="core/rackscreen.js?v=1556"></script>
+<script src="core/msgrack.js?v=1556"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=1555"></script>
-<script src="tabs/lessons.js?v=1555"></script>
-<script src="tabs/payments.js?v=1555"></script>
-<script src="tabs/general.js?v=1555"></script>
-<script src="tabs/financial.js?v=1555"></script>
-<script src="tabs/inquiries.js?v=1555"></script>
-<script src="tabs/inqarchive.js?v=1555"></script>
-<script src="tabs/comms.js?v=1555"></script>
-<script src="tabs/announce.js?v=1555"></script>
-<script src="tabs/notes.js?v=1555"></script>
-<script src="tabs/todo.js?v=1555"></script>
-<script src="tabs/availability.js?v=1555"></script>
-<script src="tabs/travel.js?v=1555"></script>
-<script src="tabs/tripsummary.js?v=1555"></script>
-<script src="tabs/triphistory.js?v=1555"></script>
-<script src="tabs/skips.js?v=1555"></script>
-<script src="tabs/student.js?v=1555"></script>
-<script src="tabs/ctrl.js?v=1555"></script>
-<script src="tabs/emails.js?v=1555"></script>
-<script src="tabs/dropbox.js?v=1555"></script>
-<script src="tabs/import.js?v=1555"></script>
-<script src="tabs/today.js?v=1555"></script>
-<script src="tabs/home.js?v=1555"></script>
-<script src="tabs/trial.js?v=1555"></script>
-<script src="tabs/ending.js?v=1555"></script>
-<script src="tabs/reviews.js?v=1555"></script>
-<script src="tabs/financial2.js?v=1555"></script>
-<script src="tabs/calendar.js?v=1555"></script>
-<script src="tabs/fixedcal.js?v=1555"></script>
-<script src="tabs/slotchange.js?v=1555"></script>
-<script src="tabs/holidays.js?v=1555"></script>
-<script src="tabs/archive.js?v=1555"></script>
-<script src="tabs/texttemplates.js?v=1555"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
-<script src="tabs/goals.js?v=1555"></script>
-<script src="tabs/schednotes.js?v=1555"></script>
-<script src="tabs/logtimer.js?v=1555"></script>
-<script src="core/usage.js?v=1555"></script>
-<script src="core/rack.js?v=1555"></script>
-<script src="tabs/usage.js?v=1555"></script>
-<script src="tabs/guitartypes.js?v=1555"></script>
-<script src="tabs/lessontimer.js?v=1555"></script>
-<script src="tabs/dayclock.js?v=1555"></script>
-<script src="tabs/report.js?v=1555"></script>
+<script src="tabs/icons.js?v=1556"></script>
+<script src="tabs/lessons.js?v=1556"></script>
+<script src="tabs/payments.js?v=1556"></script>
+<script src="tabs/general.js?v=1556"></script>
+<script src="tabs/financial.js?v=1556"></script>
+<script src="tabs/inquiries.js?v=1556"></script>
+<script src="tabs/inqarchive.js?v=1556"></script>
+<script src="tabs/comms.js?v=1556"></script>
+<script src="tabs/announce.js?v=1556"></script>
+<script src="tabs/notes.js?v=1556"></script>
+<script src="tabs/todo.js?v=1556"></script>
+<script src="tabs/availability.js?v=1556"></script>
+<script src="tabs/travel.js?v=1556"></script>
+<script src="tabs/tripsummary.js?v=1556"></script>
+<script src="tabs/triphistory.js?v=1556"></script>
+<script src="tabs/skips.js?v=1556"></script>
+<script src="tabs/student.js?v=1556"></script>
+<script src="tabs/ctrl.js?v=1556"></script>
+<script src="tabs/emails.js?v=1556"></script>
+<script src="tabs/dropbox.js?v=1556"></script>
+<script src="tabs/import.js?v=1556"></script>
+<script src="tabs/today.js?v=1556"></script>
+<script src="tabs/home.js?v=1556"></script>
+<script src="tabs/trial.js?v=1556"></script>
+<script src="tabs/ending.js?v=1556"></script>
+<script src="tabs/reviews.js?v=1556"></script>
+<script src="tabs/financial2.js?v=1556"></script>
+<script src="tabs/calendar.js?v=1556"></script>
+<script src="tabs/fixedcal.js?v=1556"></script>
+<script src="tabs/slotchange.js?v=1556"></script>
+<script src="tabs/holidays.js?v=1556"></script>
+<script src="tabs/archive.js?v=1556"></script>
+<script src="tabs/texttemplates.js?v=1556"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
+<script src="tabs/goals.js?v=1556"></script>
+<script src="tabs/schednotes.js?v=1556"></script>
+<script src="tabs/logtimer.js?v=1556"></script>
+<script src="core/usage.js?v=1556"></script>
+<script src="core/rack.js?v=1556"></script>
+<script src="tabs/usage.js?v=1556"></script>
+<script src="tabs/guitartypes.js?v=1556"></script>
+<script src="tabs/lessontimer.js?v=1556"></script>
+<script src="tabs/dayclock.js?v=1556"></script>
+<script src="tabs/report.js?v=1556"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>

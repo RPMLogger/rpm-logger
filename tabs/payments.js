@@ -346,6 +346,7 @@ function logIncomingPayment(payment, ui) {
 function openPayAudit() {
   document.getElementById("auMenuView").style.display = "none";
   document.getElementById("payAuditView").style.display = "";
+  document.getElementById("tab-audit").classList.add("au-plates");   // Payments' plates instead of the one box (2026-11-25)
   var back = document.getElementById("btnPayAuditBack");
   if (back && !back.querySelector("svg")) back.insertAdjacentHTML("afterbegin", ARROW_ICON);  window.scrollTo(0, 0);
   var url = getScriptUrl();
@@ -362,6 +363,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 function closePayAudit() {
   document.getElementById("payAuditView").style.display = "none";
+  document.getElementById("tab-audit").classList.remove("au-plates");
   document.getElementById("auMenuView").style.display = "";
 }
 
