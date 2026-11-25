@@ -334,7 +334,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Every tab in one bordered box like Today's (user, 2026-10-26; Home too).
    Today, Students, To-Do, Notes and Comms make their own boxes; Calendar and Fixed schedule
    are wider than the column, so they stay open. Financial makes its own three boxes (user, 2026-11-15). */
-.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability) {
+.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-tripsummary):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability) {
   box-sizing: border-box;   /* background, border, corners, padding, grain, screws: THE BOX at the end of this file (2026-11-06) */   /* was: every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
 
@@ -4818,7 +4818,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
   --rpm-box-ring: 0 0 0 2px #1e1e1e, 0 0 0 3px #2c2c2c;   /* screwed metal plates: the amp's double line, half as thick (user, 2026-11-06) */
   --rpm-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-tripsummary):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability),
 html body .td-wk-box,
 html body .cr.rpm-rack,
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
@@ -4828,7 +4828,7 @@ html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
   box-shadow: var(--rpm-box-ring);   /* Home's double border: dark amp-body ring + outer line (user, 2026-11-06) */
 }
 /* the ring sits 5px outside: every box 4px in from the column, like Home and the header */
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-tripsummary):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability),
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) { margin-left: 4px; margin-right: 4px; }
 html body .td-wk-box { width: calc(100% - 8px); }
 html body .cr.rpm-rack { margin-left: 4px !important; margin-right: 4px !important; }
@@ -7072,3 +7072,61 @@ html body :is(#tab-skips .en-card.sk-card, #_a#_b#_c#_d) { width: var(--sk-card-
 #tab-skips .sk-card .sk-group-h .sk-gn.sk-gn-on { color: color-mix(in srgb, var(--accent2) 70%, transparent); }
 /* Skips: hover / open lights only the left edge; the other three sides stay the card's own (user 2026-11-24). */
 html body :is(#tab-skips .en-card.sk-card, #_a#_b#_c#_d):is(:hover, .open) { border-top-color: var(--border); border-right-color: var(--border); border-bottom-color: var(--border); }
+
+/* ACTIVE TRIPS walk-through (2026-11-24): Arial steps, Skips-size cards keeping status edges, labels above, bubble composer */
+html body #tab-tripsummary .ts-steps span { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; }
+/* rows = the portal card at Skips' size: flush with the steps, Skips' gap, the one border all round, no status edge; the status word keeps the colour (user, 2026-11-24) */
+html body :is(#tab-tripsummary .en-card.ts-row, #_a#_b#_c#_d#_e#_f) { width: 560px; cursor: default; align-items: stretch; max-width: 100%; box-sizing: border-box; margin: 0 0 10px; padding: 28px 26px; border: 1px solid #353535; border-left-width: 1px; border-left-color: #353535; }
+#tsStuWin .ts-facts { display: flex; gap: 40px; }
+#tsStuWin .ts-facts .ts-lbl { margin: 0 0 6px; }
+#tsStuWin .ts-fact { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); }
+#tsStuWin .ts-facts + .ts-lbl { margin-top: 22px; }
+#tsStuWin .ts-compose .rv-bub { min-width: 60%; min-height: 18px; }
+#tsStuWin .ts-compose .rv-bub:empty::before { content: attr(data-ph); color: var(--t-faint); }
+#tab-tripsummary .ts-row-ok-ico { color: var(--green); line-height: 0; }
+#tab-tripsummary .ts-row-ok-ico .st-check-ico { width: 16px; height: 16px; display: block; }
+/* Active Trips window = Initiate's Thread bands (user, 2026-11-24): title row with a line, bubbles on a lighter band, compose band */
+#tsStuWin .ts-band-head { margin: 26px -24px 0; padding: 4px 24px 10px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+#tsStuWin .ts-band-head .ts-lbl { margin: 0; }
+#tsStuWin .ts-msgs { margin: 0 -24px; padding: 20px 24px; background: rgba(255,255,255,0.025); max-height: 340px; overflow-y: auto; }
+#tsStuWin .ts-msgs .tr-bubs { margin: 0; }
+#tsStuWin .ts-msgs .tr-bubs .tr-bub { max-width: 88%; }
+#tsStuWin .ts-band-reply { margin: 0 -24px -24px; padding: 20px 24px 24px; border-top: 1px solid rgba(255,255,255,0.07); }
+#tsStuWin .ts-band-reply .ts-lbl { margin: 0 0 4px; }
+#tsStuWin .ts-band-reply textarea { width: 100%; box-sizing: border-box; }
+/* Active Trips card = the whole thing (2026-11-24): name + Skip/Resume left, status + Nudge / Manual confirm right */
+#tab-tripsummary .ts-c-l { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+#tab-tripsummary .ts-facts { display: flex; gap: 32px; }
+#tab-tripsummary .ts-facts .ts-lbl { margin: 0 0 4px; }
+#tab-tripsummary .ts-fact { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); white-space: nowrap; }
+#tab-tripsummary .ts-c-r { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+#tab-tripsummary .ts-row .ts-tag { font-size: 9px; }
+#tab-tripsummary .ts-c-btns { display: flex; gap: 6px; }
+#tab-tripsummary .ts-c-btns:empty { display: none; }
+#tab-tripsummary .ts-facts > div:first-child { min-width: 90px; }   /* Resume lines up on every card */
+#tab-tripsummary .ts-c-r { justify-content: space-between; }   /* status top, buttons bottom: on the dates' line (user, 2026-11-24) */
+#tab-tripsummary .ts-c-btns { margin-bottom: -4px; }
+#tab-tripsummary .ts-c-l { gap: 18px; }
+/* two lines: top name | status, bottom buttons | dates (user, 2026-11-24) */
+html body :is(#tab-tripsummary .en-card.ts-row, #_a#_b#_c#_d#_e#_f#_g) { flex-direction: column; align-items: stretch; gap: 18px; }
+#tab-tripsummary .ts-c-top, #tab-tripsummary .ts-c-bot { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+#tab-tripsummary .ts-c-top { align-items: center; }
+#tab-tripsummary .ts-c-bot .ts-c-btns { margin: 0; }
+#tab-tripsummary .ts-c-btns:empty { display: block; }
+#tab-tripsummary .ts-c-bot .ts-facts { text-align: right; }
+#tab-tripsummary .ts-c-bot .ts-facts > div:first-child { min-width: 0; }
+#tab-tripsummary .ts-c-bot .ts-facts > div:last-child { min-width: 150px; }
+/* Skip over Resume, label + date on one line each (user, 2026-11-24) */
+#tab-tripsummary .ts-c-bot .ts-facts { display: grid; grid-template-columns: auto auto; column-gap: 14px; row-gap: 6px; align-items: baseline; }
+#tab-tripsummary .ts-c-bot .ts-facts > div { display: contents; }
+#tab-tripsummary .ts-c-bot .ts-facts .ts-lbl { margin: 0; text-align: right; }
+#tab-tripsummary .ts-c-bot .ts-fact { text-align: left; }
+#tab-tripsummary .ts-c-bot .ts-facts .ts-lbl::after { content: '·'; margin-left: 10px; }   /* SKIP · Mon Nov 23 (user, 2026-11-24) */
+#tab-tripsummary .ts-c-bot .ts-facts { column-gap: 10px; }
+/* status tags in a tinted box: NEEDS REPLY amber, AWAITING red (user, 2026-11-24) */
+html body :is(#tab-tripsummary .ts-row .ts-tag, #_a#_b#_c#_d) { background: color-mix(in srgb, currentColor 9%, transparent) !important; padding: 5px 9px; border-radius: 3px; }
+html body :is(#tab-tripsummary .ts-row .ts-tag, #_a#_b#_c#_d#_e) { border: 1px solid color-mix(in srgb, currentColor 35%, transparent) !important; }   /* thin border in the word colour (user, 2026-11-24) */
+/* Active Trips in two boxes (user, 2026-11-24), like Reviews: second box title, no icon */
+html body #tab-tripsummary > .ts-box { position: relative; }
+html body #tab-tripsummary > .ts-box > .settings-title.ts-g-title { margin: 0 0 36px; }
+html body #tab-tripsummary #tripsummaryHead .ts-arch-row { margin-bottom: 0; }

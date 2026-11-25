@@ -30,6 +30,10 @@ function initTripSummaryTab() {
 function _tsRender(active, past) {
   var section = document.getElementById('tripsummaryBody');
   section.innerHTML = '';
+  var hd = document.getElementById('tripsummaryHead'); if (hd) hd.innerHTML = '';
+  if (typeof TD_BOLTS === 'string') document.querySelectorAll('#tab-tripsummary > .ts-box').forEach(function (b) {
+    if (!b.querySelector(':scope > .td-bolt')) b.insertAdjacentHTML('afterbegin', TD_BOLTS);   // four screws, like Reviews' boxes
+  });
 
   // No Refresh button: the tab re-fetches every time it is opened.
   if (!active.length) {
@@ -75,15 +79,18 @@ function _tsActiveCard(trip) {
   var archLabel = TRAY_IN_ICON + '<span>Archive</span>';
   var tally = document.createElement('span');
   tally.className = 'ts-tally';
-  tally.innerHTML = "<button class='link-btn red ts-archive-btn opens-window'" +   // ▸: asks first
+  tally.innerHTML = "<button class='link-btn ts-archive-btn opens-window'" +   // ▸: asks first
     (_archReady ? " data-tip='Asks first.\nMoves this trip to Trip History.'" : " disabled data-tip='Locked.\nUntil every student is confirmed.'") + " data-tip-wrap" +
     ">" + archLabel + "</button>";
   var _arch = tally.querySelector('.ts-archive-btn');
   if (_arch && _archReady) _arch.onclick = function() {
     rpmConfirm({
       title: 'Archive this trip?',
+      subtitle: 'Upon activation',   // says what happens, like Recover (2026-11-24)
+      message: '→ Moves this trip to Trip History.\n\n→ Nothing is sent to anyone.',
       confirmLabel: 'Archive',
-      icon: TRAY_IN_ICON
+      icon: TRAY_IN_ICON,
+      className: 'tv-golive-dlg'
     }).then(function (ok) {
     if (!ok) return;
     var url = getScriptUrl(); if (!url) return;
@@ -110,8 +117,11 @@ function _tsActiveCard(trip) {
     return h;
   };
   var wrap = document.createElement('div');
+  // Title box (user, 2026-11-24): CONFIRMATIONS, the steps and Archive go up into the first box.
+  var top = document.getElementById('tripsummaryHead') || wrap;
+  top.innerHTML = '';
   var th = head('Confirmations');
-  wrap.appendChild(th);
+  top.appendChild(th);
   // How-to steps under the title, Travel Plan's numbered list (user, 2026-10-20).
   var steps = document.createElement('div');
   steps.className = 'tv-sec-note tv-steps ts-steps';
@@ -119,15 +129,12 @@ function _tsActiveCard(trip) {
     // Two steps, the first with dashed sub-lines (user, 2026-10-20).
     "<span><i>1.</i>Check confirmations</span>" +
     "<span class='ts-sub'><i>-</i>Auto, manual & awaiting</span>" +
-    "<span class='ts-sub'><i>-</i>Needs reply: answer in the Text back box</span>" +
-    "<span class='ts-sub'><i>-</i>No answer yet: Nudge to text them again</span>" +
+    "<span class='ts-sub'><i>-</i>Needs reply: answer them in Comms, then Manual confirm</span>" +
+    "<span class='ts-sub'><i>-</i>No answer yet: Nudge sends a short reminder</span>" +
     "<span><i>2.</i>When all are confirmed, archive the trip</span>";
-  wrap.appendChild(steps);
+  top.appendChild(steps);
   tally.classList.add('ts-arch-row');   // Archive under step 2, over the divider (user, 2026-10-20; was on the title line)
-  wrap.appendChild(tally);
-  var rule = document.createElement('hr');
-  rule.className = 'divider ts-rule';   // between the steps and the list (user, 2026-10-20)
-  wrap.appendChild(rule);
+  top.appendChild(tally);   // the divider is gone: STATUS is its own box now
   var dates = document.createElement('div');
   dates.className = 'ts-trip-dates';
   dates.innerHTML = trip.confirmed + ' / ' + trip.students.length + ' confirmed' + testBadge;   // the tally under the title; the trip dates dropped (user, 2026-10-20)
@@ -138,21 +145,67 @@ function _tsActiveCard(trip) {
   var list = document.createElement('div');
   ordered.forEach(function(s) {
     var r = document.createElement('div');
-    r.className = 'ts-row ' + (_tsNeedsReply(s) ? 'ts-row-reply' : (s.confirmedAt ? 'ts-row-ok' : 'ts-row-wait'));   // edge in the status colour (user, 2026-10-20)
-    r.innerHTML = "<span class='ts-row-name'>" + _tsEsc(s.name) + "</span>" + _tsStatusPill(s);
-    r.setAttribute('data-tip', 'Opens a window.\nTheir dates, texts and reply box.');
-    r.setAttribute('data-tip-wrap', '');
-    r.onclick = function () { _tsOpenStudent(s); };
-    list.appendChild(r);
+    r.className = 'en-card ts-row ' + (_tsNeedsReply(s) ? 'ts-row-reply' : (s.confirmedAt ? 'ts-row-ok' : 'ts-row-wait'));
+    list.appendChild(_tsCardFill(r, s));
   });
   wrap.appendChild(list);
   return wrap;
 }
 
-// A student's card in the portal window (_stWin, the Log window's look) (user, 2026-10-20).
+// The card IS the whole thing now (user, 2026-11-24): every trip text lives in Comms, so no window,
+// no thread. Name + Skip / Resume left; status right (check mark, or a small AWAITING / NEEDS REPLY),
+// with Nudge (Awaiting only, sends at once) and Manual confirm under it.
+function _tsCardFill(r, s) {
+  var resume = String(s.firstBack || '—').replace(/,\s*(\d{1,2}:\d{2}\s*[AP]M)\s*$/i, ' - $1').replace(/^([A-Z][a-z]{2}) /, '$1, ');
+  // Two lines (user, 2026-11-24): name left, status right; then Nudge / Manual confirm left, Skip / Resume right.
+  r.innerHTML =
+    "<div class='ts-c-top'><span class='ts-row-name'>" + _tsEsc(s.name) + "</span>" +
+      (s.confirmedAt ? "<span class='ts-row-ok-ico' data-tip='Confirmed'>" + PAID_CHECK_ICON.replace('width="13" height="13"', 'width="15" height="15"') + "</span>" : _tsStatusPill(s)) + "</div>" +
+    "<div class='ts-c-bot'><div class='ts-c-btns'></div>" +
+      "<div class='ts-facts'><div><label class='field-label ts-lbl'>Skip</label><div class='ts-fact'>" + _tsEsc(s.skipDates || '—') + "</div></div>" +
+      "<div><label class='field-label ts-lbl'>Resume</label><div class='ts-fact'>" + _tsEsc(resume) + "</div></div></div></div>";
+  if (s.confirmedAt) return r;
+  var btns = r.querySelector('.ts-c-btns');
+  var url = getScriptUrl();
+  if (!_tsNeedsReply(s) && s.phone) {
+    var nm = String(s.notes || '').match(/Nudged (\d{4})-(\d{2})-(\d{2})/);
+    var nb = document.createElement('button');
+    nb.className = 'link-btn';
+    nb.textContent = nm ? 'Nudged ' + new Date(+nm[1], nm[2] - 1, +nm[3]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Nudge';
+    nb.setAttribute('data-tip', 'Asks first.\nTexts them a short reminder to read the trip text and reply Y.\nShows in Comms.');
+    nb.setAttribute('data-tip-wrap', '');
+    nb.onclick = function () {
+      if (!url) return;
+      // Asks first, the Skips delete window's plain look (user, 2026-11-24)
+      rpmConfirm({ title: 'Nudge ' + _tsFirst(s.name) + '?', confirmLabel: 'Nudge', className: 'tv-golive-dlg' })   /* red edge like the Skips delete window (user, 2026-11-24) */.then(function (ok) { if (ok) go(); });
+    };
+    function go() {
+      nb.disabled = true; nb.textContent = '…';
+      callScript(url, 'nudgeTravel', { row: s.row }, function (d) {
+        if (d && d.success) initTripSummaryTab();
+        else { addLog('tripsummaryFeed', '❌ ' + (d && d.message ? d.message : 'Nudge failed'), 'error'); nb.disabled = false; nb.textContent = 'Nudge'; }
+      });
+    }
+    btns.appendChild(nb);
+  }
+  var mb = document.createElement('button');
+  mb.className = 'link-btn';
+  mb.textContent = 'Manual confirm';
+  mb.setAttribute('data-tip', 'Instant.\nMarks them confirmed.\nNothing is sent.');
+  mb.setAttribute('data-tip-wrap', '');
+  mb.onclick = function () {
+    if (!url) return;
+    mb.disabled = true; mb.textContent = '…';
+    callScript(url, 'markTravelConfirmed', { row: s.row }, function () { initTripSummaryTab(); });
+  };
+  btns.appendChild(mb);
+  return r;
+}
+
+// (2026-11-24: no longer opened; trip texts live in Comms.) A student's card in the portal window (_stWin, the Log window's look) (user, 2026-10-20).
 var _tsReopenRow = null;   // after Send / Manual confirm the list reloads, then this card opens again
 function _tsOpenStudent(s) {
-  var w = _stWin('tsStuWin', _tsEsc(s.name), 'Trip confirmation', null, '');
+  var w = _stWin('tsStuWin', _tsEsc(s.name), 'Trip confirmation', null, '');   // no icons in windows (user, 2026-11-20); the phone over THREAD is gone too
   var panel = w.querySelector('.st-win');
   var c = _tsStudentRow(s, false);
   c.className = 'ts-card ts-win-card';
@@ -164,7 +217,7 @@ function _tsOpenStudent(s) {
   hd.insertBefore(meta, hd.firstChild);
   hd.style.alignItems = 'flex-start';
   panel.appendChild(c);
-  var t = c.querySelector('.ts-thread'); if (t) t.scrollTop = t.scrollHeight;
+  var t = c.querySelector('.ts-msgs'); if (t) t.scrollTop = t.scrollHeight;
 }
 
 // Reload the list; reopen this student's window once it's drawn.
@@ -177,9 +230,7 @@ function _tsRefresh(row) {
 // Needs reply = they sent something that isn't a Y and it's still the last text: once
 // you text back it's Awaiting again (user, 2026-10-20; the sheet flag stays until a Y).
 function _tsNeedsReply(s) {
-  if (!s.needsReview || s.confirmedAt) return false;
-  var t = s.thread || [];
-  return !t.length || t[t.length - 1].dir === 'in';
+  return !!s.needsReview && !s.confirmedAt;   // a reply that isn't Y: Needs reply until Manual confirm (user, 2026-11-24)
 }
 
 function _tsStatusPill(s) {
@@ -188,7 +239,7 @@ function _tsStatusPill(s) {
   var tag = function (c, t, bg) { return "<span class='ts-tag' style='color:" + c + ";background:" + (bg || "color-mix(in srgb, " + c + " 15%, transparent)") + "'>" + t + "</span>"; };
   if (s.confirmedAt)   return tag('var(--green)', 'Confirmed');
   if (_tsNeedsReply(s)) return tag('var(--warn)', 'Needs reply');   // (user, 2026-10-20; was Needs you)
-  if (s.messageSentAt) return tag('var(--muted)', 'Awaiting', 'rgba(240,237,232,0.07)');   // the grey key badge on Travel Plan
+  if (s.messageSentAt) return tag('var(--accent)', 'Awaiting');   // red (user, 2026-11-24; was the grey key badge)
   return tag('var(--accent)', 'Not sent');
 }
 
@@ -205,24 +256,29 @@ function _tsStudentRow(s, readOnly) {
   row.appendChild(head);
 
   var meta = document.createElement('div');
-  meta.style.cssText = 'font-size:10px;color:var(--muted);margin-top:6px';   // a little off the name (user, 2026-10-20; was 2px)
-  meta.innerHTML = 'SKIP: ' + _tsEsc(s.skipDates || '—') + '<br>RESUME: ' + _tsEsc(String(s.firstBack || '—').replace(/,\s*(\d{1,2}:\d{2}\s*[AP]M)\s*$/i, ' - $1').replace(/^([A-Z][a-z]{2}) /, '$1, '));   // "Sun, Dec 13 - 11:30 AM": a dash before the time (user, 2026-10-20)   // labels in caps (user, 2026-10-20)   // Resume on its own line (user, 2026-10-20)
-  meta.style.lineHeight = '1.7';
+  meta.className = 'ts-facts';   // labels above, no colons (2026-11-24; was "SKIP: …<br>RESUME: …")
+  meta.innerHTML = "<div><label class='field-label ts-lbl'>Skip</label><div class='ts-fact'>" + _tsEsc(s.skipDates || '—') + "</div></div>" +
+    "<div><label class='field-label ts-lbl'>Resume</label><div class='ts-fact'>" + _tsEsc(String(s.firstBack || '—').replace(/,\s*(\d{1,2}:\d{2}\s*[AP]M)\s*$/i, ' - $1').replace(/^([A-Z][a-z]{2}) /, '$1, ')) + "</div></div>";   // "Sun, Dec 13 - 11:30 AM": a dash before the time (user, 2026-10-20)   // labels in caps (user, 2026-10-20)   // Resume on its own line (user, 2026-10-20)
   row.appendChild(meta);
 
   // Thread (inbound + outbound texts) in a fixed-height dark box, so every card is the
   // same size; it scrolls, opened at the newest (user, 2026-10-20; grew with the thread).
+  // The Initiate Thread look (user, 2026-11-24): full-width bands, a TEXTS title row, the bubbles on
+  // a lighter band, then COMPOSE TEXT with the plain entry box and Reply.
   var thread = document.createElement('div');
-  thread.className = 'ts-thread';
+  thread.className = 'ts-msgs';
+  var bubs = document.createElement('div');
+  bubs.className = 'tr-bubs';
+  thread.appendChild(bubs);
   var msgs = (s.thread && s.thread.length) ? s.thread
     : (s.replyText ? [{ dir: 'in', body: s.replyText, ts: s.replyAt }] : []);   // older rows: only the latest reply stored
-  if (!msgs.length) thread.innerHTML = "<div class='ts-thread-none'>No reply yet</div>";
+  if (!msgs.length) thread.innerHTML = "<div class='tr-none'>No texts yet</div>";
   // A centred time line like Messages, before the first text and after any hour-long gap;
   // no you / them line in the bubbles (user, 2026-10-20). ts is "yyyy-MM-dd HH:mm".
-  var tsDate = function (t) { var x = String(t || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/); return x ? new Date(+x[1], x[2] - 1, +x[3], +x[4], +x[5]) : null; };
+  var tsDate = function (t) { var x = String(t || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/); return x ? new Date(+x[1], x[2] - 1, +x[3], +x[4], +x[5]) : null; };
   var tsShow = function (d, raw) {
     if (!d) return _tsEsc(raw || '');
-    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + ' at ' +
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' +   // "Nov 13 5:32 PM", Initiate's stamp
       d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   };
   var prevAt = null;
@@ -231,27 +287,23 @@ function _tsStudentRow(s, readOnly) {
     var at = tsDate(m.ts);
     if (m.ts && (!prevAt || !at || at - prevAt > 60 * 60 * 1000)) {
       var stamp = document.createElement('div');
-      stamp.className = 'ts-stamp';
+      stamp.className = 'cm-stamp tr-stamp';
       stamp.innerHTML = tsShow(at, m.ts);
-      thread.appendChild(stamp);
+      bubs.appendChild(stamp);
     }
     prevAt = at || prevAt;
     var bubble = document.createElement('div');
-    bubble.style.cssText =
-      'max-width:85%;font-size:11px;line-height:1.4;padding:6px 9px;border-radius:8px;white-space:pre-wrap;' +
-      (out ? 'align-self:flex-end;' : 'align-self:flex-start;');   // blue, both sides (user, 2026-10-20; was neutral)
-    bubble.className = 'ts-bub' + (out ? '' : ' ts-bub-in');   // yours blue, theirs grey, like Messages (user, 2026-10-20)
-    bubble.innerHTML = _tsEsc(m.body);
-    thread.appendChild(bubble);
+    bubble.className = 'cm-msg ' + (out ? 'out' : 'in') + ' tr-bub';   // Initiate's bubbles: yours blue right, theirs grey left
+    bubble.innerHTML = "<div class='tr-bub-txt'>" + _tsEsc(m.body) + "</div>";
+    bubs.appendChild(bubble);
   });
   // Small grey titles over the thread and the text box, like the review cards' (user, 2026-10-20).
   var lbl = function (t) { var l = document.createElement('label'); l.className = 'field-label ts-lbl'; l.textContent = t; return l; };
   // The hand-and-phone (om-100) on its own line over THREAD, bigger (user, 2026-10-20).
-  var thIcon = document.createElement('div');
-  thIcon.className = 'ts-th-icon';
-  thIcon.innerHTML = PHONE_ICON.replace('class="win-icon"', 'class="ts-lbl-icon"');
-  row.appendChild(thIcon);
-  row.appendChild(lbl('Thread'));
+  var thHead = document.createElement('div');
+  thHead.className = 'ts-band-head';
+  thHead.appendChild(lbl('Texts'));
+  row.appendChild(thHead);
   row.appendChild(thread);
   setTimeout(function () { thread.scrollTop = thread.scrollHeight; }, 0);
 
@@ -259,31 +311,30 @@ function _tsStudentRow(s, readOnly) {
 
   // Actions: reply box (multi-line, auto-growing) on top, buttons below.
   var actions = document.createElement('div');
-  actions.style.cssText = 'display:flex;flex-direction:column;gap:6px;margin-top:8px';
+  actions.style.cssText = 'display:flex;flex-direction:column;gap:6px';
 
+  // The editable blue bubble, like every other text composer (2026-11-24; was a dashed blue textarea).
+  // Initiate's COMPOSE TEXT: the plain entry box (user, 2026-11-24; the bubble composer tried first).
   var input = document.createElement('textarea');
-  input.rows = 1;
-  input.placeholder = s.phone ? 'Text ' + _tsFirst(s.name) + '…' : 'No phone on file';
+  input.rows = 4;
+  input.className = 'rpm-field';
   input.disabled = !s.phone;
-  input.style.cssText = 'width:100%;box-sizing:border-box;resize:none;overflow:hidden;min-height:36px;' +
-    'padding:8px 9px;font-size:12px;line-height:1.5;font-family:inherit;background:var(--bg);' +
-    'border:1.5px dashed color-mix(in srgb, var(--blue) 28%, transparent);border-radius:8px;color:var(--text)';   // dashed dim blue like the thread box (user, 2026-10-20; kept 2026-10-21)
-  function _tsAutoGrow() { input.style.height = 'auto'; input.style.height = input.scrollHeight + 'px'; }
-  input.addEventListener('input', _tsAutoGrow);
+  var box = input;
+  function _tsAutoGrow() {}
 
   var btnRow = document.createElement('div');
   btnRow.className = 'inq-acts';   // portal buttons on the right, like Trial's (user, 2026-10-20)
   btnRow.style.marginTop = '6px';
 
   var sendBtn = document.createElement('button');
-  sendBtn.innerHTML = SEND_ICON + '<span>Send</span>';
+  sendBtn.innerHTML = REPLY_ICON + '<span>Reply</span>';   // texts Reply, like Trial's threads; the plane is emails only (2026-11-24)
   sendBtn.disabled = !s.phone;
   sendBtn.setAttribute('data-tip', 'Instant.\nTexts them what is in the box.\nShows in the thread.');
   sendBtn.setAttribute('data-tip-left', ''); sendBtn.setAttribute('data-tip-wrap', '');
   sendBtn.className = 'link-btn bright';
   sendBtn.style.cssText = 'display:inline-flex;align-items:center;gap:7px';
   sendBtn.onclick = function() {
-    var body = input.value.trim();
+    var body = (input.value || '').trim();
     if (!body) return;
     var url = getScriptUrl(); if (!url) return;
     sendBtn.disabled = true; sendBtn.textContent = '…';
@@ -293,7 +344,7 @@ function _tsStudentRow(s, readOnly) {
         _tsRefresh(s.row);
       } else {
         addLog('tripsummaryFeed', '❌ ' + (data && data.message ? data.message : 'Send failed'), 'error');
-        sendBtn.disabled = false; sendBtn.innerHTML = SEND_ICON + '<span>Send</span>';
+        sendBtn.disabled = false; sendBtn.innerHTML = REPLY_ICON + '<span>Reply</span>';
       }
     });
   };
@@ -322,7 +373,7 @@ function _tsStudentRow(s, readOnly) {
     var nudgeBtn = document.createElement('button');
     nudgeBtn.textContent = 'Nudge';
     nudgeBtn.setAttribute('data-tip', _tsNeedsReply(s) ? 'Locked.\nAnswer their reply first.'
-      : 'Instant.\nFills the box with a follow-up asking them to confirm.\nNothing sends until you press Send.');
+      : 'Instant.\nFills the box with a follow-up asking them to confirm.\nNothing sends until you press Reply.');
     nudgeBtn.setAttribute('data-tip-wrap', '');
     nudgeBtn.disabled = !s.phone || _tsNeedsReply(s);   // a reply waiting on you: no nudge (user, 2026-10-20)
     nudgeBtn.className = 'link-btn amber ts-nudge';
@@ -348,10 +399,11 @@ function _tsStudentRow(s, readOnly) {
     if (_tsNeedsReply(s)) { confirmBtn.disabled = true; confirmBtn.setAttribute('data-tip', 'Locked.\nAnswer their reply first.'); }
     head.querySelector('.ts-tag-wrap').appendChild(confirmBtn);
   }
-  actions.appendChild(lbl('Text back'));   // (user, 2026-10-20; was Text)
+  actions.className = 'ts-band-reply';
+  actions.appendChild(lbl('Compose text'));   // (user, 2026-10-20; was Text)
   // Send back under the box, the portal's paper-plane Send (user, 2026-10-20; was briefly inside the box).
   btnRow.insertBefore(sendBtn, btnRow.firstChild);
-  actions.appendChild(input);
+  actions.appendChild(box);
   actions.appendChild(btnRow);   // kept even when empty (confirmed), so every card is the same size
   row.appendChild(actions);
   return row;
