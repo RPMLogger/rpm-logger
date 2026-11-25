@@ -86,7 +86,7 @@
     // the bottom closes like the top (user, 2026-11-15): flush with the last box's outer ring, rounded rails + back;
     // open (unboxed) content below the last box still carries the rack down to it
     var boxBot = Math.max.apply(null, bs.map(function (b) { return b.b; })), tabBot = ap ? ap.getBoundingClientRect().bottom + scrollY : 0;
-    var bot = (tabBot > boxBot + 40 ? tabBot : boxBot) + 5;
+    var bot = (tabBot > boxBot + 40 ? tabBot : boxBot) + 5 + OVER;   // runs past the last box as far as the rails stick out at the sides (user, 2026-11-25)
     // Calendar + Fixed schedule: a short strip of rail always shows under the grid, with two holes (user, 2026-11-18)
     var gis = [].filter.call(document.querySelectorAll('#tab-calendar.active .cal-inner'), function (e) { return e.offsetHeight; }), gb = 0;
     if (gis.length) { gb = Math.max.apply(null, gis.map(function (e) { return e.getBoundingClientRect().bottom + scrollY + ring(e); })); bot = Math.max(bot, gb + 34); }

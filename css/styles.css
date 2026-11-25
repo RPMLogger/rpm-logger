@@ -5194,7 +5194,8 @@ html body .sb-burger { top: 226px; }
 /* Magnifier + Home 2px up too, level with ☰ / Back / the knob faces (user, 2026-11-08). Delete to undo. */
 html body .header .hdr-mag, html body .header .hdr-home:not(.hdr-mag):not(.hdr-back) { top: 105.5px; }
 /* Rack's Emails / Inquiries / Dropbox buttons 4px down, closer to their captions; captions stay (user, 2026-11-08). Delete to undo. */
-.home-rack .hr-pair .hr-pb { position: relative; top: 4px; }
+.home-rack .hr-pair .hr-pb { position: relative; top: 7px; }   /* square centred on the screen line, captions stay put (user, 2026-11-25) */
+.home-rack .hr-knob { top: 7px; }   /* knobs centred on the screen line with the buttons; captions stay put (user, 2026-11-25) */
 /* Rack as tall as the amp's control strip under the gold line (73px inside; was 56), contents centred (user, 2026-11-08: the rack read smaller than the strip above). Delete to undo. */
 .home-rack { padding: 8.5px 0; }
 /* Home speaker a bit dimmer (user, 2026-11-08; cone was 0.04, dust cap 0.12). Delete to undo. */
