@@ -6983,6 +6983,7 @@ html body :is(#guitarTypesBody, #availabilityList) .gt-cards > .gt-card { paddin
 html body :is(#guitarTypesBody, #availabilityList) .gt-cards > .gt-card > .gt-drop { margin-left: auto; }
 html body :is(#guitarTypesBody, #availabilityList) .gt-card :is(.gt-btn, .gt-menu) { font-size: 11px; } html body :is(#guitarTypesBody, #availabilityList) .gt-card:has(.gt-menu) { z-index: 5; }   /* the card's name size had carried into it */
 html body :is(#guitarTypesBody, #availabilityList) .gt-card :is(.gt-btn, #_a#_b#_c) { padding: 8px 14px; min-width: 140px; font-size: 12px; border: 1px solid #0e0e0e; border-radius: 7px; background: linear-gradient(#101010, #171717); box-shadow: inset 0 2px 5px rgba(0,0,0,.75), 0 1px 0 rgba(255,255,255,.06); }   /* the type box bigger and sunk into the card (user, 2026-11-24: "or the opposite" of raised) */
+html body #guitarTypesBody .gt-card :is(.gt-btn, #_a#_b#_c) { font-size: 11px; }   /* the same size as Count's labels (user, 2026-11-25; was 12px); Availability keeps 12 */
 html body :is(#guitarTypesBody, #availabilityList) .gt-card :is(.gt-btn:hover, #_a#_b#_c#_d) { border-color: #000; background: linear-gradient(#141414, #1b1b1b); }
 /* Availability on the rack like Guitar Types (user, 2026-11-24): title plate, a Students box of Lessons cards,
    the last-updated date in the sunk button on the right; the card opens in place with the box and Save under it. */
