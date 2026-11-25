@@ -6997,3 +6997,78 @@ html body #availabilityList .gt-caret { color: var(--muted); font-size: 9px; }
 html body #availabilityList .gt-cards > .av-card { flex-wrap: wrap; row-gap: 0; }
 html body #availabilityList .av-card > .db-card-l { cursor: pointer; flex: 1 1 auto; }
 html body #availabilityList .av-card > :is(.av-body, #_a#_b) { flex: 0 0 100%; margin-top: 18px; padding: 0; font-size: 13px; }   /* the box lines up with the name */
+/* Skips title icon back to 34px, Availability's size (user 2026-11-24: too small to see at the portal-wide 24px;
+   the calendar + person has fine detail). Only Skips. */
+html body #tab-skips :is(.sk-icon .win-icon, #_a#_b#_c) { height: 34px; width: auto; }
+/* Skips: Density beside each name in the portal's amber (user 2026-11-24; the headline sweep had made it bright). */
+html body :is(#tab-skips .sk-dn, #_a#_b#_c#_d) { color: color-mix(in srgb, var(--accent2) 70%, transparent); }
+html body :is(#tab-skips .sk-dn, #_a#_b#_c#_d) { font-size: 14px; }   /* larger beside the 16px names (user 2026-11-24; was 11px, then 13px) */
+/* SKP / RES pills engraved like the rack's labels (user 2026-11-24): cut-in letters, a pill pressed into the card. */
+#tab-skips .sk-pill { text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.09); box-shadow: inset 0 1px 1px rgba(0,0,0,.55), 0 1px 0 rgba(255,255,255,.05); background: rgba(0,0,0,.12); }
+/* Skips sort right above the first card's top-right corner (user 2026-11-24). */
+html body #tab-skips .ms-sw.sk-sorts { position: static; margin: 0 0 6px var(--sk-card-w, 460px); transform: translateX(-100%); }   /* right edge on the cards' right edge, just above the first card (user 2026-11-24) */
+/* Skips: ＋ Log on every card (user 2026-11-24), left of the caret; its form opens inside the card. */
+#tab-skips .sk-card .en-card-r { display: inline-flex; align-items: center; gap: 12px; }
+#tab-skips .sk-card .sk-log { padding: 3px 8px; font-size: 9px; }
+#tab-skips .sk-card .sk-card-form { margin: 10px 0 4px !important; }
+#tab-skips .sk-howto { margin: -24px 0 22px; }   /* room for the sort switch's bulbs under it */
+/* Skips Log form, current look (user 2026-11-24: same layout, the old design was bad). In a card: no box of its own. */
+#tab-skips .sk-card-form { border: none !important; background: transparent !important; padding: 12px 20px 16px !important; margin: 0 !important; }
+#tab-skips .sk-card-form .sk-save { flex: 0 0 auto; }
+/* Skips: ＋ Log at the top of an open card, opens the Log skip window (user 2026-11-24). */
+#tab-skips .sk-log-row { display: flex; justify-content: flex-end; margin: 4px 0 6px; }
+#tab-skips .sk-none-yet { font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--t-faint); padding: 4px 0 8px; }
+#skLogWin .sk-win-form { border: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important; }
+/* Log skip window: Student / Teacher / Vacation as the Log lesson keyword pills, on their own line (user 2026-11-24). */
+#skLogWin .sk-who-row { flex: 1 1 100%; margin: 16px 0 18px; }   /* more room above and below (user 2026-11-24) */
+/* Log skip window: the picked pill turns inverse, light fill + dark text, like a picked None in Log lesson (user 2026-11-24). */
+html body #skLogWin :is(.st-reasons .im-pill.sk-who.on, #_a#_b#_c), html body #skLogWin :is(.st-reasons .im-pill.sk-who.on, #_a#_b#_c):hover { color: #111; background: var(--t-normal); border-color: var(--t-normal); }
+html body #skLogWin :is(.st-reasons .im-pill.sk-who:not(.on), #_a#_b#_c) { opacity: 0.45; }   /* the unpicked ones dim (user 2026-11-24) */
+html body #skLogWin :is(.st-reasons .im-pill.sk-who:not(.on), #_a#_b#_c):hover { opacity: 1; }
+/* Log skip window in the window style (user 2026-11-24): headers, one part per line, Save at the bottom. */
+#skLogWin .sk-win-form { display: flex !important; flex-direction: column; align-items: stretch !important; gap: 0 !important; }
+#skLogWin .sk-win-lab { margin: 18px 0 8px; }
+#skLogWin .sk-win-lab:first-child { margin-top: 0; }
+#skLogWin .sk-who-row { margin: 0 !important; }
+#skLogWin .sk-win-form input.rpm-field { width: 100%; flex: none !important; }
+#skLogWin .sk-win-foot { margin-top: 26px; display: flex; justify-content: flex-end; }
+#skLogWin .sk-who-row, #skLogWin .sk-win-form input.rpm-field { margin-left: 16px !important; width: calc(100% - 16px); }   /* indented under their headers (user 2026-11-24) */
+/* Log skip window spaced out evenly (user 2026-11-24): 28px between sections, 12px header to control, 34px before Save. */
+html body #skLogWin .sk-win-lab { margin: 28px 0 12px; }
+html body #skLogWin .sk-win-lab:first-child { margin-top: 6px; }
+html body #skLogWin .sk-win-foot { margin-top: 34px; }
+/* Skips: an open card grows to its longest line, no "…" cut, every divider that wide (user 2026-11-24: there's room). */
+html body :is(#tab-skips .en-card.sk-card.open, #_a#_b#_c#_d) { width: var(--sk-card-w); max-width: none; min-width: 0; }
+html body :is(#tab-skips .sk-card.open .sk-note, #_a#_b#_c#_d) { overflow: visible; text-overflow: clip; white-space: normal; flex: 1 1 auto; min-width: 0; }   /* a longer line wraps inside the card */
+#tab-skips .sk-group-empty .sk-group-h { opacity: 0.4; }   /* an empty section: header only, dimmed (user 2026-11-24: always five) */
+#tab-skips .sk-group-h { display: flex; align-items: center; }
+#tab-skips .sk-group-h .sk-more { margin-left: auto; }   /* Show / Hide on the right (user 2026-11-24) */
+#tab-skips .sk-card:not(.open) .sk-log { display: none; }   /* ＋ Log only on the open card, level with the name (user 2026-11-24) */
+#tab-skips .sk-card .sk-n .sk-log { align-self: flex-start; }   /* ＋ Log under the name, left (user 2026-11-24) */
+html body :is(#tab-skips .sk-card .en-card-body, #_a#_b#_c#_d) { padding-left: 26px; padding-right: 26px; }   /* sections line up with the name (user 2026-11-24) */
+#tab-skips .sk-card .en-card-body > .sk-group:first-child { margin-top: 18px; }   /* more room under ＋ Log before the first section (user 2026-11-24) */
+/* Open card: dates and the header's who (Student / Teacher / Vacation) a step dimmer (user 2026-11-24; were 0.8). */
+#tab-skips .sk-card .sk-date, #tab-skips .sk-card .sk-group-h .sk-gw { color: oklch(0.7 0.006 81); }
+#tab-skips .sk-card .sk-group-h { font-size: 12px; }   /* section titles a bit bigger (user 2026-11-24; were 10px) */
+#tab-skips .sk-card .sk-group-h .sk-gw { margin-left: 0.6em; }   /* the space after the dot (the flex row collapsed it) */
+#tab-skips .sk-card .sk-group-h .sk-gn { color: color-mix(in srgb, var(--accent2) 70%, transparent); margin-right: 0.6em; }   /* the section count in the portal amber (user 2026-11-24) */
+/* Skips · Student, the main section, in a bordered box of its own (user 2026-11-24). */
+#tab-skips .sk-card .sk-group-main .sk-row { border-bottom: none; }   /* no divider lines between the rows; the title keeps its line (user 2026-11-24) */
+/* Student skips in the Reviews Dashboard look (user 2026-11-24): engraved caps title above, the rows in a lifted box, no screws. */
+#tab-skips .sk-card .sk-group.sk-group-main { border: none; padding: 0; margin-bottom: 22px; }
+#tab-skips .sk-card .sk-group-main > .sk-group-h { border-bottom: none; margin: 0 0 12px 2px; padding: 0; letter-spacing: 2px; text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
+#tab-skips .sk-card .sk-main-box { background: #1c1c1c; border: 1px solid #353535; border-radius: 10px; padding: 10px 18px; box-shadow: 0 3px 8px rgba(0,0,0,.55); }
+#tab-skips .sk-card .sk-group-h .sk-gn { margin: 0 0 0 0.6em; }   /* the count after the colon (user 2026-11-24: "STUDENT SKIPS: 4") */
+/* Every section like Student skips (user 2026-11-24): title above with no line, rows in the box with no lines. */
+#tab-skips .sk-card .sk-group { margin-bottom: 22px; }
+#tab-skips .sk-card .sk-group > .sk-group-h { border-bottom: none; margin: 0 0 12px 2px; padding: 0; letter-spacing: 2px; text-shadow: 0 -1px 0 rgba(0,0,0,.85), 0 1px 0 rgba(255,255,255,.07); }
+#tab-skips .sk-card .sk-main-box .sk-row, #tab-skips .sk-card .sk-main-box .sk-trip-h { border-bottom: none; }
+/* Every Skips card one width, open or closed: the open card with all five sections (user 2026-11-24; was 460 closed, growing when open). */
+#tab-skips { --sk-card-w: 584px; }
+html body :is(#tab-skips .en-card.sk-card, #_a#_b#_c#_d) { width: var(--sk-card-w); max-width: 100%; }
+#tab-skips .sk-card .sk-trip-h { font-size: 11px; }   /* trip titles a bit bigger (user 2026-11-24; were 10px) */
+/* Only the student counts amber (Student skips, Student reschedules); the rest the title's own colour (user 2026-11-24). */
+#tab-skips .sk-card .sk-group-h .sk-gn { color: inherit; }
+#tab-skips .sk-card .sk-group-h .sk-gn.sk-gn-on { color: color-mix(in srgb, var(--accent2) 70%, transparent); }
+/* Skips: hover / open lights only the left edge; the other three sides stay the card's own (user 2026-11-24). */
+html body :is(#tab-skips .en-card.sk-card, #_a#_b#_c#_d):is(:hover, .open) { border-top-color: var(--border); border-right-color: var(--border); border-bottom-color: var(--border); }
