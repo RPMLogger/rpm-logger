@@ -37,6 +37,7 @@ function _travelRenderPlan() {
   var section = document.getElementById('travelBody');
   if (!section) return;
   section.innerHTML = '';
+  var tvTab = document.getElementById('tab-travel'); if (tvTab) tvTab.classList.toggle('tv-split', true);
   if (!_travelState.leaving) _travelStartToday();   // the pickers start on today
 
   // The pickers sit outside the redrawn parts, so stepping them keeps their keys.
@@ -47,54 +48,57 @@ function _travelRenderPlan() {
     return "<div class='db-cx-head tv-sec-head tv-sub-head'><label class='field-label db-cx-t'>" +
       t + "</label>" + (right || '') + "</div>";
   };
+  // a rack's title: the page title's red caps (user, 2026-11-25: gold racks, Set place / Set dates / Set buffer as titles)
+  var rackTitle = function (t) { return "<div class='settings-title tv-page-title'><span>" + t + "</span></div>"; };
   // Two dates in one full-width frame: the first half washed red, the second green.
+  // Leaving on / Back on in a Reviews dashboard card like Where to (user, 2026-11-25): label, picker, plane per row.
   var pair = function (a, b) {
-    return "<div class='tv-dates'>" +
-      // a plane over each box: taking off over Leaving on, landing over Back on (user, 2026-10-24)
-      "<div class='tv-date-ico'>" + PLANE_UP_ICON + "</div>" +
-      "<div id='" + a + "' class='tv-date tv-date-off'></div>" +
-      "<div class='tv-date-ico'>" + PLANE_DOWN_ICON + "</div>" +
-      // nothing between the boxes (user, 2026-10-19; the < > chevron tips came off, ⟷ before that)
-      "<div id='" + b + "' class='tv-date tv-date-back'></div>" +
+    var row = function (lab, id, cls, ico) {
+      return "<div class='tv-place-row tv-date-row'><span class='tv-place-l'>" + lab + "</span>" +
+        "<div id='" + id + "' class='tv-date2 " + cls + "'></div><div class='tv-date-ico2'>" + ico + "</div></div>";
+    };
+    return "<div class='rv-card tv-place-card tv-dates-card'>" +
+      row('Leaving on', a, 'tv-date-off', PLANE_UP_ICON) +
+      row('Back on', b, 'tv-date-back', "<span class='tv-ico-back'>" + PLANE_UP_ICON + "</span>") +
     "</div>";
   };
+
   cal.innerHTML =
     // The page title red with Reset on its line, one icon under it, like Today and Dropbox (user, 2026-10-23; was a grey label).
-    "<div class='settings-title tv-page-title'><span>Travel Plan</span><span id='travelResetSlot'></span></div>" +
-    "<div class='tv-sec-icon tv-page-icon'>" + SUITCASE_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + "</div>" +
+    "<div class='td-wk-box tv-rack'>" + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') + "<div class='settings-title tv-page-title'><span>Travel Plan</span><span id='travelResetSlot'></span></div>" +
+    "<div class='tv-sec-icon tv-page-icon'>" + SUITCASE_ICON.replace(/class="[^"]*"/, 'class="win-icon"') + "</div>" +   // Where to sits in this rack, no Set place rack (user, 2026-11-25)
     // Where the trip goes, first; required for Review. Saved with the trip (Travel sheet col Q),
     // shown in Trip History (user, 2026-10-20; was optional, on the review screen).
     // In a box of its own like a Dashboard section: title on the washed band, the field under it (user, 2026-10-23).
-    "<div class='tv-box'>" + head('Set vacation place') +
     // A WHERE TO tab before the field, like Leaving on / Back on (user, 2026-10-23; was the placeholder).
-    "<div class='tv-box-body'><div class='tv-place-box'><span class='tv-in-label'>Where to</span>" +
-    "<input class='tv-place' id='travelPlace' type='text' autocomplete='off' value='" +
-      _escapeHtml(_travelState.location || '') + "' oninput='_travelPlaceInput(this.value)'></div></div></div>" +
-    "<div class='tv-box'>" + head('Set vacation dates') + "<div class='tv-box-body'>" +   // boxed like Set vacation place (user, 2026-10-23)
+    "<div class='tv-rack-body tv-dash'><div class='rv-card tv-place-card'><div class='tv-place-row'><span class='tv-place-l'>Where to</span>" +
+    "<input class='rpm-field tv-place-in' id='travelPlace' type='text' autocomplete='off' value='" +
+      _escapeHtml(_travelState.location || '') + "' oninput='_travelPlaceInput(this.value)'></div></div></div></div>" +
+    "<div class='td-wk-box tv-rack'>" + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') + rackTitle('Set dates') + "<div class='tv-rack-body tv-dash'>" +   // boxed like Set vacation place (user, 2026-10-23)
     // The steps as a list like the legend's: the number where its circle sits (user, 2026-10-19).
     "<div class='tv-sec-note tv-steps'><span><i>1.</i>Adjust vacation dates on the date picker or by clicking on the calendar</span><span><i>2.</i>Press Set</span></div>" +
     pair('travelLeavingSlot', 'travelArrivingSlot') +
     "<div class='tv-dates-foot'><button class='link-btn red' id='travelSetBtn' onclick='_travelSetDates()' data-tip='Instant.\nSets the dates and counts the lessons.\nNothing is sent.' data-tip-left data-tip-wrap></button></div>" +
     "</div></div>" +
-    "<div class='tv-box'>" + head('Set buffer') + "<div class='tv-box-body'>" +   // boxed with its calendar (user, 2026-10-23)
+    "<div class='td-wk-box tv-rack'>" + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') + rackTitle('Set buffer') + "<div class='tv-rack-body tv-dash'>" +   // boxed with its calendar (user, 2026-10-23)
     "<div class='tv-buf-top'>" +   // steps left, the calendar's key on the right (user, 2026-10-19)
     "<div class='tv-sec-note tv-steps'><span><i>1.</i>Click on the dates to activate buffer</span><span><i>2.</i>Use keyboard arrows to add buffer days</span></div>" +
     // The calendar's key lives here: first day off, first day teaching and buffer are all set in this section (user, 2026-10-19).
+    "</div>" +
+    // The calendar under it still follows the dates above.
+    "<div class='rv-card tv-place-card tv-cal-plate'><div class='tv-cal-cols' id='travelCalMonths'></div>" +
     "<div class='tv-cal-legend tv-buf-key'>" +
       "<span class='lg-t-trip'><i class='lg-trip'></i><b>Vacation dates</b></span>" +   // the grey Leave / Return ring (user, 2026-10-19)
       "<span class='lg-t-off'><i class='lg-off'></i><b>First day off</b></span>" +
       "<span class='lg-t-back'><i class='lg-back'></i><b>First teaching day</b></span>" +   // (user, 2026-10-23; was First day teaching)
-    "</div>" +
-    "</div>" +
-    // The calendar under it still follows the dates above.
-    "<div class='tv-cal-cols' id='travelCalMonths'></div>" +
+    "</div>" + "</div>" +   // the calendar on a screwed plate (user, 2026-11-25)
     "</div></div>" +
-    "<div class='tv-box'>" + head('Cost analysis') + "<div class='tv-box-body'>" +   // boxed like the rest (user, 2026-10-23)
+    "<div class='td-wk-box tv-rack'>" + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') + rackTitle('Cost analysis') + "<div class='tv-rack-body tv-dash'>" +   // boxed like the rest (user, 2026-10-23)
     // the calculator + coin on the table's left, like the planes by the dates (user, 2026-10-24)
-    "<div class='tv-cost-row'><div class='tv-date-ico'>" + COST_ICON + "</div>" +
-    "<div id='travelSumTable'></div></div>" +   // one table: Vacation / Pre buffer / Post buffer / Total (user, 2026-10-19)
-    "</div></div>" +
-    "<div class='tv-cal-head' id='travelCalHead'></div>";   // Review → last, under the table
+    "<div class='rv-card tv-place-card tv-cost-plate'><div class='tv-cost-row'>" +   // on a screwed plate like the calendar (user, 2026-11-25)   // no calculator icon (user, 2026-11-25)
+    "<div id='travelSumTable'></div></div></div>" +   // one table: Vacation / Pre buffer / Post buffer / Total (user, 2026-10-19)
+    "<div class='tv-cal-head' id='travelCalHead'></div>" +   // Review inside the Cost rack (user, 2026-11-25)
+    "</div></div>";   // Review → last, under the table
   section.appendChild(cal);
 
   _travelRenderDateSpinner('travelLeavingSlot',  'Leaving on', 'leaving');   // user, 2026-10-19 (was Leave / Return)
@@ -122,7 +126,7 @@ function _travelRenderDateSpinner(slotId, label, stateKey) {
   if (!wrap) return;
   var id = 'tv' + stateKey;
   wrap.innerHTML =
-    rpmDtpHtml(id, { date: _travelState[stateKey], noTime: true, year: true, min: 'today', group: 'travel', label: label, labCls: 'tv-in-label', onChange: function() {
+    rpmDtpHtml(id, { date: _travelState[stateKey], noTime: true, year: true, min: 'today', group: 'travel', label: '', onChange: function() {
       var s = _travelState, ymd = rpmDtpGet(id).date;
       s[stateKey] = ymd;
       // Leave pushed onto or past Return: Return goes along, a day after it (user, 2026-10-19; it stayed on today).
@@ -270,7 +274,7 @@ function _travelSetBtn() {
     b.disabled = !ok || on;
     b.classList.toggle('is-done', on);
     var lv = document.getElementById('travelLeavingSlot');
-    if (lv) lv.parentNode.classList.toggle('is-locked', on);   // Leave / Return dim with Lock; still there to change (user, 2026-10-19)
+    if (lv && lv.closest('.tv-dates-card')) lv.closest('.tv-dates-card').classList.toggle('is-locked', on);   // Leave / Return dim with Lock; still there to change (user, 2026-10-19)
     b.innerHTML = LOCK_ICON + (on ? 'Dates set' : 'Set');   // Set with the lock (user, 2026-10-24; was Lock the dates); red (user, 2026-10-23; was amber Calculate / Calculated, Lock and Set the dates before that)
   }
 }
@@ -571,6 +575,7 @@ function _travelRenderReview() {
 
   var section = document.getElementById('travelBody');
   section.innerHTML = '';
+  var tvTab = document.getElementById('tab-travel'); if (tvTab) tvTab.classList.toggle('tv-split', false);
 
   var hdr = document.createElement('div');
   hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px';
@@ -760,6 +765,7 @@ function _travelRenderDone(data, snap) {
   snap = snap || {};
   var section = document.getElementById('travelBody');
   section.innerHTML = '';
+  var tvTab = document.getElementById('tab-travel'); if (tvTab) tvTab.classList.toggle('tv-split', false);
 
   var day = function (ymd) {   // TUE, OCT 20, the date boxes' style; the year only if the trip crosses one
     var d = _ymdToDate(ymd); if (!d) return '–';
