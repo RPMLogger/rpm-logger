@@ -247,12 +247,7 @@ function _todoListRow(t, num, list, i) {
   numEl.textContent = (num || "") + ".";
   row.appendChild(numEl);
 
-  var cb = document.createElement("input");
-  cb.type = "checkbox";
-  cb.className = "tdo-cb";
-  cb.checked = !!t.done;
-  cb.onchange = function() { _todoToggle(t.row, cb.checked, cb); };
-  row.appendChild(cb);
+  // no circle (user, 2026-11-25): complete from the magnifier's Completed button
 
   var text = document.createElement("div");
   text.className = "tdo-text";

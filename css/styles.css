@@ -3938,7 +3938,7 @@ th.f2-blk { background:none; }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-cb:checked::after { content: "✓"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--green); }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-text { flex: 1; font-size: 12px; line-height: 1.45; color: var(--t-normal); white-space: pre-wrap; word-break: break-word; }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-date { font-family: "DM Mono", monospace; font-size: 10px; color: var(--muted); flex-shrink: 0; padding-top: 2px; white-space: nowrap; }
-:is(#todoContent, #notesContent, #snotesContent) .tdo-del { padding: 0 2px 0 6px; font-size: 22px; line-height: 1;   /* bigger × (user, 2026-10-28; was 15px) */ background: none; border: none; color: var(--muted); cursor: pointer; opacity: 0; }
+:is(#todoContent, #notesContent, #snotesContent) .tdo-del { order: -1; margin-right: -6px;   /* × on the left (user, 2026-11-25) */ padding: 0 2px; font-size: 22px; line-height: 1;   /* bigger × (user, 2026-10-28; was 15px) */ background: none; border: none; color: var(--muted); cursor: pointer; opacity: 0; }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-row:hover .tdo-del { opacity: 1; }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-del:hover { color: var(--accent); }
 :is(#todoContent, #notesContent, #snotesContent) .tdo-done .tdo-text { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.2); }
