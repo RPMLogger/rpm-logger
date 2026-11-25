@@ -136,10 +136,10 @@ function _stRenderSearch() {
 
 // Result-button styles, shared so hover/keyboard highlight stay identical.
 var _ST_RESULT_BASE =
-  'width:100%;padding:4px 9px;background:var(--panel);color:var(--accent2);' +
+  'width:100%;padding:4px 9px;background:var(--panel);color:color-mix(in srgb, var(--accent2) 70%, transparent);' +
   'border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:inherit;font-size:9px;text-align:left';
 var _ST_RESULT_HI =
-  'width:100%;padding:4px 9px;background:color-mix(in srgb, var(--accent2) 12%, transparent);color:var(--accent2);' +
+  'width:100%;padding:4px 9px;background:color-mix(in srgb, var(--accent2) 12%, transparent);color:color-mix(in srgb, var(--accent2) 70%, transparent);' +
   'border:1px solid var(--accent2);border-radius:4px;cursor:pointer;font-family:inherit;font-size:9px;text-align:left';
 
 // Paint the highlight onto whichever result index is currently selected.
@@ -230,7 +230,7 @@ function _stRenderDetail() {
   var lastLessonDate = d.counterLastDate ||
     ((d.pastLessons && d.pastLessons.length) ? d.pastLessons[0].date : '');
   var subLine = d.isLessonToday
-    ? "<div style='font-size:11px;color:var(--accent2);margin-top:4px;letter-spacing:0.5px'>" +
+    ? "<div style='font-size:11px;color:color-mix(in srgb, var(--accent2) 70%, transparent);margin-top:4px;letter-spacing:0.5px'>" +
         "Today · Lesson " + d.lessonInBlock +
         // Today's lesson already in Import → mark it done right on the header line.
         (d.loggedToday ? " <span style='color:var(--green)'>· logged ✓</span>" : "") +
@@ -356,7 +356,7 @@ function _stRenderDetail() {
     var logBtn = document.createElement('button');
     logBtn.textContent = "📊 Log Today's Lesson";
     logBtn.style.cssText = 'width:100%;padding:10px;font-size:12px;background:color-mix(in srgb, var(--accent2) 14%, transparent);' +
-      'color:var(--accent2);border:1px solid color-mix(in srgb, var(--accent2) 50%, transparent);border-radius:6px;cursor:pointer;' +
+      'color:color-mix(in srgb, var(--accent2) 70%, transparent);border:1px solid color-mix(in srgb, var(--accent2) 50%, transparent);border-radius:6px;cursor:pointer;' +
       'letter-spacing:0.3px;margin-bottom:18px';
     logBtn.onclick = function() { _stLogLessonFor(d.name, _stToday()); };
     section.appendChild(logBtn);
@@ -836,12 +836,12 @@ function _rpmTpStyle() {
     ".im-rs-strips .st-pick-sel{background:rgba(255,255,255,0.04) !important;border-color:rgba(255,255,255,0.3) !important}" +
     ".im-rs-strips .st-pick-sel div{color:rgba(255,255,255,0.4) !important}" +
     ".im-rs-strips .st-pick-x{color:rgba(255,255,255,0.85)}" +
-    ".im-rs-strips .st-pick-sel.st-pick-same div:nth-child(3){color:var(--accent2) !important}" +   // same day: the new time green till the ✓ (2026-10-31)
+    ".im-rs-strips .st-pick-sel.st-pick-same div:nth-child(3){color:color-mix(in srgb, var(--accent2) 70%, transparent) !important}" +   // same day: the new time green till the ✓ (2026-10-31)
     ".st-pick-ok .st-check-ico{width:16px;height:16px;display:block}" +
     ".im-rs-strips .st-pick-ok{color:rgba(255,255,255,0.85)}" +   // white (user, 2026-10-29; the clock stays green)
     ".im-rs-strips .st-pick-ok:hover{background:#1a1a1a;color:var(--green)}" +
     // Change appointment: the clock on the day moved to, bottom left (user, 2026-10-29; the ✓ is top right), green like the day.
-    ".st-pick-clock{position:absolute;bottom:-7px;left:-7px;width:16px;height:16px;border-radius:50%;background:#1a1a1a;color:var(--accent2);cursor:pointer;display:flex;align-items:center;justify-content:center}" +
+    ".st-pick-clock{position:absolute;bottom:-7px;left:-7px;width:16px;height:16px;border-radius:50%;background:#1a1a1a;color:color-mix(in srgb, var(--accent2) 70%, transparent);cursor:pointer;display:flex;align-items:center;justify-content:center}" +
     ".st-pick-clock .st-clock-ico{width:16px;height:16px;display:block}" +
     ".st-pick-clock:hover{color:#fff}" +
     ".st-tpop{position:absolute;z-index:20;max-height:220px;overflow:auto;padding:4px;box-sizing:border-box;background:var(--surface);border:1px solid var(--accent2);" +

@@ -513,7 +513,7 @@ function _slcInjectStyle() {
     // The lesson picked to change: border and text one dim grey (user, 2026-10-29), Change appointment's picked lesson.
     "#slcWeeks .slc-cut{opacity:1;background:rgba(255,255,255,0.04) !important;border-color:rgba(255,255,255,0.3) !important}" +
     "#slcWeeks .slc-cut div{color:rgba(255,255,255,0.3) !important}" +
-    ".slc-wb{position:absolute;bottom:-7px;width:16px;height:16px;border-radius:50%;background:#1a1a1a;border:1px solid var(--accent2);color:var(--accent2);" +
+    ".slc-wb{position:absolute;bottom:-7px;width:16px;height:16px;border-radius:50%;background:#1a1a1a;border:1px solid var(--accent2);color:color-mix(in srgb, var(--accent2) 70%, transparent);" +
       "font-family:'DM Mono',monospace;font-size:9px;line-height:14px;text-align:center;cursor:pointer;box-sizing:border-box}" +
     ".slc-wb:hover{background:var(--accent2);color:#111}" +
     ".slc-wb-W{left:-7px}.slc-wb-B{right:-7px}" +
@@ -528,7 +528,7 @@ function _slcInjectStyle() {
     "#slcSwitch,#slcSwitch span,#slcStart,#slcStart span{color:rgba(215,215,215,0.75) !important}" +
     "#slcSwitch .slc-wk{font-weight:inherit;color:#7a7a7a}" +   // Week A darker, the steps' grey (user, 2026-10-31)
     "#slcSwitch,#slcStart{border:none;background:none;padding:0 0 0 14px;min-height:0;align-items:flex-start}" +   // plain text, left, no box (user, 2026-10-31)   // Sat 31's grey, not white (user, 2026-10-31)   // the time list's border grey, like the time tab (user, 2026-10-31)   // room for the icons in the steps (user, 2026-10-31)
-    ".slc-wb-chip{display:inline-block;width:16px;height:16px;border-radius:50%;border:1px solid var(--accent2);color:var(--accent2);box-sizing:border-box;" +
+    ".slc-wb-chip{display:inline-block;width:16px;height:16px;border-radius:50%;border:1px solid var(--accent2);color:color-mix(in srgb, var(--accent2) 70%, transparent);box-sizing:border-box;" +
       "font-family:'DM Mono',monospace;font-size:9px;line-height:14px;text-align:center;vertical-align:1px;opacity:.5}" +   // dim in the steps (user, 2026-10-31)
     ".slc-time-chip{display:inline-block;padding:0 6px;border-radius:4px;border:1px solid #8a8a8a;background:#8a8a8a;color:#1a1a1a;" +
       "font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.04em;line-height:13px;vertical-align:1px}" +

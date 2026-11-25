@@ -1387,7 +1387,7 @@ function _calInjectStyle() {
     ".cal-modal-row{font-size:12px;margin:5px 0;display:flex;gap:10px}" +
     ".cal-modal-row span{color:var(--muted);width:40px}" +
     ".cal-modal-note{font-size:11px;color:var(--muted);margin-top:10px}" +
-    ".cal-modal-warn{font-size:11px;color:var(--accent2);margin-top:8px}" +
+    ".cal-modal-warn{font-size:11px;color:color-mix(in srgb, var(--accent2) 70%, transparent);margin-top:8px}" +
     ".cal-modal-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}";
   document.head.appendChild(st);
 }

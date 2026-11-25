@@ -280,7 +280,7 @@ function _skStudentCard(s) {
       "<span class='en-card-n'>" + _skEsc(s.name) + _skDensitySpan(s.name) + "</span>" +
       "<span class='sk-counts" + (s.totalStudent || s.totalTeacher || (s.resched || []).length ? "" : " av-never") + "' data-tip='SKP = skips, RES = reschedules.\nLast 3 months.\nOpen the card for all.'>" + _skCounts(s) + "</span>" +
     "</span>" +
-    "<span class='en-card-r'><span class='en-card-a sk-caret'>▾</span></span>";
+    "<span class='en-card-r'><span class='en-card-a sk-caret'>Show</span></span>";
   card.appendChild(hdr);
   // Every card opens now (user 2026-11-24): the ＋ Log button sits at the top of the open card.
 
@@ -389,13 +389,19 @@ function _skStudentCard(s) {
     main.querySelectorAll(':scope > .sk-row').forEach(function(r) { box.appendChild(r); });
     if (box.children.length) main.appendChild(box);
   }
+  var closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'link-btn sk-close';
+  closeBtn.textContent = 'Close';
+  closeBtn.onclick = function(e) { e.stopPropagation(); card._skToggle(false); };
+  body.appendChild(closeBtn);   // Close at the foot of an open card (user 2026-11-25)
   card.appendChild(body);
 
   card._skToggle = function(open) {
     if (open) _skOpenName = s.name; else if (_skOpenName === s.name) _skOpenName = null;
     body.style.display = open ? 'block' : 'none';
     card.classList.toggle('open', open);
-    hdr.querySelector('.sk-caret').textContent = open ? '▴' : '▾';
+    hdr.querySelector('.sk-caret').textContent = open ? 'Hide' : 'Show';
     // Open card: the counts go, the group headings already show them (user 2026-10-23).
     hdr.querySelector('.sk-counts').style.display = open ? 'none' : '';   // ＋ Log takes their place
   };

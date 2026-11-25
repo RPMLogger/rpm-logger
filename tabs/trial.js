@@ -723,7 +723,7 @@ function _trAvStyle() {
       "background:transparent;color:var(--muted);border:1px solid var(--border)}" +
     ".tr-av-name:hover:where(:not(.on)){color:var(--text)}" +
     ".tr-av-name.on{color:var(--t-bright,#fff);border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.08)}" +
-    ".tr-av-name .n{margin-left:6px;color:var(--accent2)}" +
+    ".tr-av-name .n{margin-left:6px;color:color-mix(in srgb, var(--accent2) 70%, transparent)}" +
     ".tr-av-key{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}" +
     ".tr-av-key .k{display:inline-block;width:12px;height:10px;border-radius:2px;margin-left:8px}" +
     ".tr-av-key .k:first-child{margin-left:0}" +
@@ -745,14 +745,14 @@ function _trAvStyle() {
     ".tr-av-sq.open{background:transparent;border-color:rgba(180,180,180,.45);color:var(--text);cursor:pointer}" +
     ".tr-av-sq.open.bi{border-style:dashed;border-color:rgba(180,180,180,.6)}" +
     ".tr-av-sq.open:hover{border-color:var(--text)}" +
-    ".tr-av-sq.offered{border-color:var(--accent2);color:var(--accent2);background:color-mix(in srgb,var(--accent2) 18%,transparent)}" +
+    ".tr-av-sq.offered{border-color:var(--accent2);color:color-mix(in srgb, var(--accent2) 70%, transparent);background:color-mix(in srgb,var(--accent2) 18%,transparent)}" +
     ".tr-av-sq.mine{border-color:rgba(255,255,255,.75);color:#fff;background:rgba(255,255,255,.14)}" +
     ".tr-offer:empty{display:none}" +
     ".tr-offer{margin:12px 0 2px}" +
     ".tr-offer-h{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}" +
     ".tr-offer-row{display:flex;flex-wrap:wrap;gap:6px}" +
     ".tr-offer-chip{font-family:'DM Mono',monospace;font-size:11px;padding:4px 9px;border-radius:5px;background:transparent;" +
-      "color:var(--accent2);border:1px solid color-mix(in srgb,var(--accent2) 60%,transparent);cursor:pointer}" +
+      "color:color-mix(in srgb, var(--accent2) 70%, transparent);border:1px solid color-mix(in srgb,var(--accent2) 60%,transparent);cursor:pointer}" +
     ".tr-offer-chip:hover:where(:not(.taken)){background:color-mix(in srgb,var(--accent2) 15%,transparent)}" +
     ".tr-offer-chip.taken{color:var(--muted);border-color:var(--border);text-decoration:line-through;cursor:default}";
   document.head.appendChild(el);
@@ -1371,7 +1371,7 @@ function _trStageCard(a) {
       '<div class="inq-name-line"><span class="inq-name">' + inqEsc(a.name || '—') + '</span></div>' +
       // "TRIAL - Sun, Sep 13 - 11:15 AM" on its own line, then a divider.
       (when
-        ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:0.3px;margin-top:4px;color:var(--accent2)">' +   // amber: coming up = needs your eye; green means done (user, 2026-11-17)
+        ? '<div style="font-family:\'DM Mono\',monospace;font-size:11px;letter-spacing:0.3px;margin-top:4px;color:color-mix(in srgb, var(--accent2) 70%, transparent)">' +   // amber: coming up = needs your eye; green means done (user, 2026-11-17)
             'TRIAL ON - ' + inqEsc(when.replace(/^(\w{3})\s+/, '$1, ').replace(/\s+·\s+/, ', ')) +
           '</div>'
         : '') +

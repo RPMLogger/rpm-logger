@@ -433,7 +433,7 @@ function loadIncomingPayments() {
                 "<span class='incoming-date'>" + shortDate(p.date) + "</span>" +
               "</div>" +
               (isTrial
-                ? "<div class='incoming-nomatch' style='color:var(--accent2)'>Trial payment \u00b7 " + p.trial.name + " (recorded from the Trial Lesson tab)</div>"
+                ? "<div class='incoming-nomatch' style='color:color-mix(in srgb, var(--accent2) 70%, transparent)'>Trial payment \u00b7 " + p.trial.name + " (recorded from the Trial Lesson tab)</div>"
                 : (p.matched ? "" : "<div class='incoming-nomatch'>\u26a0 Name not matched in student sheets</div>")) +
             "</div>" +
             "<div style='display:flex;gap:6px;flex-shrink:0'>" +
