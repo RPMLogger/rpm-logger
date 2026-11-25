@@ -7281,3 +7281,4 @@ html body #travelBody .tv-rv-key-row span { text-transform: none !important; let
 html body #travelBody .tv-rv-counts { margin-top: 22px !important; }   /* same 28px indent + columns as the student rows (user, 2026-11-25) */
 html body #travelBody .tv-rv-counts { margin-left: -5px; }
 html body #travelBody .tv-rv-num { font-family: "DM Mono", monospace; font-size: 11px; color: var(--t-faint); letter-spacing: 1px; }   /* 3 / 23, top right (user, 2026-11-25) */
+html body .cm-msgr-head .cm-trip-confirm { margin-left: auto; flex: none; }   /* right end of the To line (user, 2026-11-25) */

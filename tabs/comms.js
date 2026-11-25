@@ -29,6 +29,7 @@ function initCommsTab() {
 }
 
 function loadCommsInbox() {
+  commsLoadTrips();
   var url = getScriptUrl();
   if (!url) return;
 
@@ -420,6 +421,7 @@ function commsPaintPane(jump) {
   if (mark) mark.style.display = d && !d.archived && commsOpenInThread(d).length ? "" : "none";
   if (d && d.archived) to.textContent += " · Archived";
   if (head) head.style.visibility = d ? "" : "hidden";   // clean right side until a click (user, 2026-11-09)
+  commsPaintTripConfirm(d);
   if (!d) { th.innerHTML = ""; return; }
   var atBottom = th.scrollHeight - th.scrollTop - th.clientHeight < 40;
   th.innerHTML = commsThreadHtml(d);
@@ -1083,7 +1085,9 @@ function commsEnsureExtras() {
             '<div class="cm-msgr-head"><span class="cm-to">To: <span id="cmPaneTo"></span></span>' +
               '<button type="button" class="cm-to-chip" id="cmToChip" hidden onclick="commsToChange()"><span></span>' + COMMS_CHEVRON_ICON + '</button>' +
               '<input class="cm-to-input" id="cmToInput" hidden autocomplete="off" spellcheck="false" oninput="commsToType(event)" onkeydown="commsToKey(event)">' +
-              '<span class="cm-to-sugg" id="cmToSugg" hidden></span></div>' +   // Mark answered button removed: Edit → Mark read + right-click cover it (user, 2026-11-09)
+              '<span class="cm-to-sugg" id="cmToSugg" hidden></span>' +
+              // A student on an active trip, not yet confirmed: confirm here after sorting it out (user, 2026-11-25)
+              '<button type="button" class="link-btn cm-trip-confirm" id="cmTripConfirm" hidden onclick="commsTripConfirm()" data-tip="Instant.\nMarks their trip dates confirmed.\nNothing is sent." data-tip-left data-tip-wrap>Manual confirm</button></div>' +   // Mark answered button removed: Edit → Mark read + right-click cover it (user, 2026-11-09)
             '<div class="cm-pane-thread" id="cmPaneThread"></div>' +
             '<div class="cm-attach-chip" id="cmPaneChip" hidden></div>' +
             '<div class="cm-msgr-input">' +
@@ -1569,3 +1573,54 @@ function commsWatchTick() {
   commsWatchTimer = setInterval(commsWatchTick, COMMS_WATCH_INTERVAL);
   document.addEventListener("visibilitychange", function () { if (!document.hidden) commsWatchTick(); });
 })();
+
+
+// ─── TRIP CONFIRM IN COMMS (user, 2026-11-25) ────────────────────────────────
+// Trip texts and replies live in Comms; a student on an active trip who isn't
+// confirmed yet gets Manual confirm in the conversation header, so a reply that
+// needed an answer can be settled and confirmed without leaving Comms.
+// Active Trips keeps its own Manual confirm; both mark the same row.
+var commsTrips = {};   // last 10 digits of the phone → { row, name, confirmedAt }
+function commsPhoneKey(n) { var d = String(n || "").replace(/\D/g, ""); return d.slice(-10); }
+function commsLoadTrips() {
+  var url = getScriptUrl();
+  if (!url) return;
+  fetch(url + "?action=getTripSummary")
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (!data || !data.success) return;
+      var m = {};
+      (data.active || []).forEach(function (t) {
+        (t.students || []).forEach(function (x) { var k = commsPhoneKey(x.phone); if (k) m[k] = { row: x.row, name: x.name, confirmedAt: x.confirmedAt }; });
+      });
+      commsTrips = m;
+      commsPaintTripConfirm(commsPaneDetail);
+    })
+    .catch(function () {});
+}
+function commsTripOf(d) {
+  if (!d || d.archived) return null;
+  var t = commsTrips[commsPhoneKey(d.fromNumber)];
+  return t && !t.confirmedAt ? t : null;
+}
+function commsPaintTripConfirm(d) {
+  var b = document.getElementById("cmTripConfirm");
+  if (!b) return;
+  var t = commsOnDraft ? null : commsTripOf(d);
+  b.hidden = !t;
+  if (t) { b.disabled = false; b.textContent = "Manual confirm"; }
+}
+function commsTripConfirm() {
+  var url = getScriptUrl(), t = commsTripOf(commsPaneDetail), b = document.getElementById("cmTripConfirm");
+  if (!url || !t || !b) return;
+  b.disabled = true; b.textContent = "Saving";
+  callScript(url, "markTravelConfirmed", { row: t.row }, function (res) {
+    if (res && res.success === false) {
+      b.disabled = false; b.textContent = "Manual confirm";
+      if (typeof rpmAlert === "function") rpmAlert({ title: "Not saved", message: String(res.message || "Try again") });
+      return;
+    }
+    t.confirmedAt = new Date().toISOString();
+    b.hidden = true;
+  });
+}
