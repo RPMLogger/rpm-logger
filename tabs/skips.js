@@ -330,13 +330,13 @@ function _skStudentCard(s) {
   };
   order.forEach(function(w) {
     var list = groups[w];
-    if (!list) { emptyGrp(_skEsc(w) + " skips: <span class='sk-gn" + (w === 'Student' ? " sk-gn-on" : "") + "'>0</span>"); if (w === 'Student') body.lastChild.classList.add('sk-group-main'); return; }
+    if (!list) { emptyGrp(_skEsc(w) + " skips · <span class='sk-gn" + (w === 'Student' ? " sk-gn-on" : "") + "'>0</span>"); if (w === 'Student') body.lastChild.classList.add('sk-group-main'); return; }
     list.sort(function(x, y) { return (Date.parse(y.date) || 0) - (Date.parse(x.date) || 0); });
     var grp = document.createElement('div');
     grp.className = 'sk-group';
     // Every group heading amber, the totals' colour (user 2026-10-22).
     // Count first: "1 skip · Student", "5 skips · Vacation" (user 2026-10-23).
-    grp.innerHTML = "<div class='sk-group-h sk-hi'>" + _skEsc(w) + " skips: <span class='sk-gn" + (w === 'Student' ? " sk-gn-on" : "") + "'>" + list.length + "</span></div>";   // "STUDENT SKIPS: 4" (user 2026-11-24)
+    grp.innerHTML = "<div class='sk-group-h sk-hi'>" + _skEsc(w) + " skips · <span class='sk-gn" + (w === 'Student' ? " sk-gn-on" : "") + "'>" + list.length + "</span></div>";   // "STUDENT SKIPS · 4", the portal's middle dot (user 2026-11-24)
     // Vacation (my trips, never against them) folds away behind Show (user 2026-10-24).
     if (w === 'Student') grp.classList.add('sk-group-main');   // its own bordered box (user 2026-11-24)
     var rows = w === 'Student' ? grp : fold(grp);
@@ -373,10 +373,10 @@ function _skStudentCard(s) {
   // "2 reschedules · Student", each row the lesson it moved and where to, with the reason.
   ['Student', 'Teacher'].forEach(function(w) {
     var list = (s.resched || []).filter(function(r) { return r.who === w; });
-    if (!list.length) { emptyGrp(w + " reschedules: <span class='sk-gn" + (w === 'Student' ? " sk-gn-on" : "") + "'>0</span>"); return; }
+    if (!list.length) { emptyGrp(w + " reschedules · <span class='sk-gn" + (w === 'Student' ? " sk-gn-on" : "") + "'>0</span>"); return; }
     var grp = document.createElement('div');
     grp.className = 'sk-group';
-    grp.innerHTML = "<div class='sk-group-h sk-hi'>" + w + " reschedules: <span class='sk-gn" + (w === 'Student' ? " sk-gn-on" : "") + "'>" + list.length + "</span></div>";
+    grp.innerHTML = "<div class='sk-group-h sk-hi'>" + w + " reschedules · <span class='sk-gn" + (w === 'Student' ? " sk-gn-on" : "") + "'>" + list.length + "</span></div>";
     var rrows = fold(grp);
     list.forEach(function(r) { rrows.appendChild(_skReschRow(s, r)); });
     body.appendChild(grp);
