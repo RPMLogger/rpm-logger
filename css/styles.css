@@ -7145,4 +7145,4 @@ html body :is(.link-btn.amber.rv-ask, #_a#_b#_c#_d) { color: color-mix(in srgb, 
 html body :is(#tab-skips .sk-pill, #_a#_b#_c#_d) { padding: 5px 10px; font-size: 11px; letter-spacing: 1px; color: #8a8a8a; border: 1px solid #0e0e0e; border-radius: 7px; background: linear-gradient(#101010, #171717); box-shadow: inset 0 2px 5px rgba(0,0,0,.75), 0 1px 0 rgba(255,255,255,.06); text-shadow: none; }
 /* Skips rows box sunk into the card like the Availability date box (user 2026-11-25). */
 html body :is(#tab-skips .sk-card .sk-main-box, #_a#_b#_c#_d) { border: 1px solid #0e0e0e; background: linear-gradient(#101010, #171717); box-shadow: inset 0 2px 6px rgba(0,0,0,.75), 0 1px 0 rgba(255,255,255,.06); }
-#tab-availability .av-head-slot #availIcon { margin-bottom: 28px; }   /* room under the icon before the first card, one box (user 2026-11-25) */
+#tab-availability .av-head-slot { padding-bottom: 29px; }   /* room under the icon before the first card, one box (user 2026-11-25) */

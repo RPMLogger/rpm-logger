@@ -6,12 +6,18 @@ var _availStudents = [];
 
 function initAvailabilityTab() {
   var head = document.querySelector("#tab-availability > .us-head");   // the title plate's screws
+  var hT = document.querySelector("#tab-availability .ld-head"), hI = document.getElementById("availIcon");   // held, then moved into the one box (2026-11-25)
   if (head && typeof TD_BOLTS === "string" && !head.querySelector(":scope > .td-bolt")) head.insertAdjacentHTML("afterbegin", TD_BOLTS);
   var icon = document.getElementById("availIcon");   // the calendar under the title, General's window-style icon
   if (icon && !icon.querySelector("svg")) icon.innerHTML = CALENDAR_ICON.replace('class="calendar-icon"', 'class="win-icon"');
   var section = document.getElementById("availabilityList");
   if (!section) return;
-  section.innerHTML = '<div class="empty-state rpm-loading">Loading</div>';
+  // One box from the first frame: title + icon, then LOADING inside it (user 2026-11-25: the plate then the box looked odd).
+  section.innerHTML = '<div class="td-wk-box rv-box us-box gt-cards">' + (typeof TD_BOLTS === "string" ? TD_BOLTS : "") + '<div class="av-head-slot"></div><div class="empty-state rpm-loading">Loading</div></div>';
+  var lSlot = section.querySelector(".av-head-slot");
+  if (hT) lSlot.appendChild(hT); if (hI) lSlot.appendChild(hI);
+  if (head) head.style.display = "none";
+  if (typeof rpmFillLast === "function") rpmFillLast();   // the box reaches the bottom while loading, no rails showing (user 2026-11-25)
   var url = getScriptUrl();
   if (!url) { section.innerHTML = '<div class="empty-state">No script URL set</div>'; return; }
 
@@ -42,6 +48,7 @@ function _renderAvailabilityList() {
   }
   // On the rack like Guitar Types (user, 2026-11-24): a Students box of the Lessons page's
   // cards; the last-updated date sits in the sunk button on the right, which opens the card.
+  var avT = document.querySelector('#tab-availability .ld-head'), avI = document.getElementById('availIcon');   // held before the re-render wipes them
   section.innerHTML = '<div class="td-wk-box rv-box us-box gt-cards">' + (typeof TD_BOLTS === 'string' ? TD_BOLTS : '') +
     '<div class="av-head-slot"></div>' +   // the Availability title + icon move in here: one box, no Students title (user 2026-11-25)
     _availStudents.map(function(s) {
@@ -54,9 +61,9 @@ function _renderAvailabilityList() {
       '</div>';
     }).join('') + '</div>';
   var avHead = document.querySelector('#tab-availability > .us-head'), avSlot = section.querySelector('.av-head-slot');
-  var avT = document.querySelector('#tab-availability .ld-head'), avI = document.getElementById('availIcon');
   if (avSlot) { if (avT) avSlot.appendChild(avT); if (avI) avSlot.appendChild(avI); }
   if (avHead) avHead.style.display = 'none';   // one box (user 2026-11-25)
+  if (typeof rpmFillLast === "function") rpmFillLast();
 }
 
 function _toggleAvailRow(row) {
