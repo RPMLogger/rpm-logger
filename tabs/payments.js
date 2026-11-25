@@ -171,7 +171,7 @@ document.addEventListener("keydown", function(e) {
       e.preventDefault();
       if (opts[cashDdHi]) opts[cashDdHi].click();
     } else if (e.key === "Escape") {
-      e.preventDefault(); cashDdClose();
+      e.preventDefault(); e.stopImmediatePropagation(); cashDdClose();   // this Esc only shuts the list, not the window
     }
     return;
   }
@@ -468,6 +468,8 @@ function loadIncomingPayments() {
       });
     }).catch(function() {
       container.innerHTML = "<div style='color:var(--muted);font-size:11px'>Could not load</div>";
+      var ac = document.getElementById("autoConfirmed");
+      if (ac) ac.innerHTML = "<div class='rpm-none' style='color:var(--muted);font-size:11px'>Could not load</div>";
     });
 }
 
@@ -486,10 +488,9 @@ function renderAutoConfirmed(rows) {
     box.id = "autoConfirmed";
     inc.parentNode.insertBefore(box, inc.nextSibling);
   }
-  if (!rows || !rows.length) { box.innerHTML = ""; return; }
+  // Its own plate with the title (user, 2026-11-25): None when the last 14 days have none.
+  if (!rows || !rows.length) { box.innerHTML = "<div class='rpm-none' style='color:var(--muted);font-size:11px'>None</div>"; return; }
   box.innerHTML =
-    "<div class='section-label' style='margin-top:56px;margin-bottom:26px' " +
-      "data-tip='Recorded without a Confirm press when all 4 hold:\n1. Venmo or Zelle, not a trial payment.\n2. Name exactly matches one student.\n3. Amount is exactly 4x their rate.\n4. Not already recorded.\nLast 14 days.'>Auto-confirmed</div>" +
     rows.map(function(r) {
       // The Payments log keeps amounts as plain numbers ("440"); show them like Incoming ("$440.00").
       var amt = /^\$/.test(r.amount) ? r.amount : "$" + (parseFloat(r.amount) || 0).toFixed(2);
@@ -581,40 +582,36 @@ function loadPayers() {
       // name pays for them (Jordan S for Jordan Stern); their own name is not listed.
       var withAdded = data.students.filter(function(s) { return (s.payers || []).some(function(p) { return !p.own; }); });
       if (!withAdded.length) { list.innerHTML = "<div class='rpm-none' style='color:var(--muted);font-size:11px'>No added contacts</div>"; return; }
-      var grid = document.createElement("div");
-      grid.className = "payer-grid";
-      withAdded.forEach(function(s) { grid.appendChild(payerCard(s)); });
-      list.appendChild(grid);
+      // A simple list, no cards (user, 2026-11-25): student, then the name that pays for them.
+      var rows = document.createElement("div");
+      rows.className = "payer-list";
+      withAdded.forEach(function(s) { payerRows(s, rows); });
+      list.appendChild(rows);
+      list.insertAdjacentHTML("beforeend", "<div class='payer-state'></div>");
     })
     .catch(function() { list.innerHTML = "<div style='color:var(--muted);font-size:11px'>Could not load</div>"; });
 }
 
-// One small card per student: their own name, then everyone else who pays for
-// them. ✕ forgets an added name; the own name has none.
-function payerCard(s) {
-  var card = document.createElement("div");
-  card.className = "payer-card";
-  var names = s.payers.filter(function(p) { return !p.own; }).map(function(p) {   // added names only (user, 2026-11-21)
-    return "<div class='payer-row'><span class='payer-name added'>" + inqEsc(p.name) + "</span>" +
-      "<button class='payer-del' data-name='" + inqEsc(p.name) +
-      "' data-tip='Forgets this name.&#10;Their payments go back to manual.'>✕</button></div>";
-  }).join("");
-
-  card.innerHTML = "<div class='payer-card-head'>" + inqEsc(s.name) + "</div>" +
-    "<div class='payer-names'>" + names + "</div><div class='payer-state'></div>";
-
-  var state = card.querySelector(".payer-state");
-  card.querySelectorAll(".payer-del").forEach(function(btn) {
-    btn.addEventListener("click", function() {
-      rpmBusy(card, btn, true);
-      payerCall("removePayer", { tab: s.tab, name: btn.getAttribute("data-name") }, function(res) {
-        rpmBusy(card, btn, false);
-        if (!res.ok) { rpmFail(state, res.why); return; }
+// One row per added name: the student, the name that pays for them, and a ✕
+// (on hover) that forgets the name. The student's own name is never listed.
+function payerRows(s, rows) {
+  s.payers.filter(function(p) { return !p.own; }).forEach(function(p) {
+    var row = document.createElement("div");
+    row.className = "payer-li";
+    row.innerHTML = "<span class='payer-li-s'><span class='payer-li-i'>\u2022</span> " + inqEsc(s.name) + "</span>" +   // a bullet, one space after (user, 2026-11-25)
+      "<span class='payer-li-n'>" + inqEsc(p.name) + "</span>" +
+      "<button class='payer-del' data-tip='Forgets this name.&#10;Their payments go back to manual.'>✕</button>";
+    row.querySelector(".payer-del").addEventListener("click", function() {
+      var list = document.getElementById("payersList"), btn = this;
+      rpmBusy(list, btn, true);
+      payerCall("removePayer", { tab: s.tab, name: p.name }, function(res) {
+        rpmBusy(list, btn, false);
+        if (!res.ok) { rpmFail(list.querySelector(".payer-state"), res.why); return; }
         loadPayers();
       });
     });
+    rows.appendChild(row);
   });
-  return card;
 }
 
 // ─── ADD CONTACT POPUP (2026-10-29) ──────────────────────────────────────────
@@ -839,3 +836,24 @@ function extractMonthKey(dateStr) {
   }
   return dateStr.split(/[\s,/]/)[0] || dateStr;
 }
+
+// Esc closes the open Payments window (walk-through, 2026-11-25): Log cash,
+// Add contact, Contacts, Payment history. An open student list shuts first
+// (its own Esc above); a window that is logging, or a dialog on top, stays.
+document.addEventListener("keydown", function(e) {
+  if (e.key !== "Escape" || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (document.querySelector(".rpm-dlg-overlay")) return;
+  var shown = function(id) { var m = document.getElementById(id); return m && m.style.display === "flex"; };
+  var cash = document.getElementById("manualEntryModal");
+  if (cash && cash.classList.contains("active")) {
+    if (!document.querySelector("#cashModal.rpm-busy")) closeManualEntryModal();
+    return;
+  }
+  if (shown("payAddModal")) {
+    if (document.getElementById("payAddList")) payAddDropClose();
+    else if (!document.querySelector("#payAddModal .rpm-busy, #payAddModal.rpm-busy")) closeAddContact();
+    return;
+  }
+  if (shown("payersModal")) { closePayers(); return; }
+  if (shown("payHistoryModal")) closePaymentHistory();
+});

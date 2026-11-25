@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Red Pick Music — Lesson Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400;500&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=1554">
-  <link rel="stylesheet" href="css/goals.css?v=1554">
-  <link rel="stylesheet" href="css/lessontimer.css?v=1554">
-  <link rel="stylesheet" href="css/rack.css?v=1554">   <!-- THE RACK: trial on Lessons only (user, 2026-11-14), drawn by core/rack.js -->
-  <link rel="stylesheet" href="css/msgrack.css?v=1554">
+  <link rel="stylesheet" href="css/styles.css?v=1555">
+  <link rel="stylesheet" href="css/goals.css?v=1555">
+  <link rel="stylesheet" href="css/lessontimer.css?v=1555">
+  <link rel="stylesheet" href="css/rack.css?v=1555">   <!-- THE RACK: trial on Lessons only (user, 2026-11-14), drawn by core/rack.js -->
+  <link rel="stylesheet" href="css/msgrack.css?v=1555">
 </head>
 <body>
 <div class="container">
@@ -20,7 +20,7 @@
     <img src="img/portal-logo-grey.png" alt="Red Pick Music">   <!-- badge lettering grey, the portal text grey (user, 2026-11-08; white original = img/portal-logo.png) -->
     <div class="hdr-name">
       <!-- build number + gear above MUSIC, right-aligned with it (user, 2026-10-26) -->
-      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1554</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
+      <div class="hdr-top"><span class="hdr-build">Build <span id="buildNo">1555</span></span><button class="gear-btn hdr-gear" onclick="openSettings()" data-tip="Opens a window.&#10;Settings."><span class="hdr-gear-i"></span></button></div>
       <div class="header-title">RED PICK MUSIC</div>
       <div class="header-sub">Guitar Lessons Portal</div>
     </div>
@@ -321,25 +321,17 @@
 
   <!-- PAYMENTS -->
   <div class="tab-panel" id="tab-payments">
-    <!-- four screws like the Today tab's (user, 2026-11-05) -->
-    <span class="td-bolt" style="left:8px;top:10px"></span><span class="td-bolt" style="left:8px;bottom:10px"></span><span class="td-bolt" style="right:8px;top:10px"></span><span class="td-bolt" style="right:8px;bottom:10px"></span>
     <div id="payMainView">
-    <!-- Payment history + Audit payments on the title line, right (2026-10-24; were a row under the icon). -->
-    <div class="settings-title"><span>Payments<span class="win-sub"> · Tracking</span></span>   <!-- the Terminate tab title look (2026-10-21) -->
+    <!-- Two plates on the rail like Active Trips (user, 2026-11-25): title + Audit / Contacts / Payment history,
+         then the cards. The cards' plate stretches to the bottom, so the page never has a gap under its buttons. -->
+    <div class="td-wk-box pay-box pay-box-head">
+    <span class="td-bolt" style="left:8px;top:10px"></span><span class="td-bolt" style="left:8px;bottom:10px"></span><span class="td-bolt" style="right:8px;top:10px"></span><span class="td-bolt" style="right:8px;bottom:10px"></span>
+    <div class="settings-title"><span>Payments</span>   <!-- the Terminate tab title look (2026-10-21) -->
       <span class="pay-title-btns">
-        <!-- Log cash top right, Audit red down at the bottom left, no header (user, 2026-10-30; swapped) -->
+        <!-- Log cash top right (user, 2026-10-30) -->
         <button class="incoming-confirm log-cash-btn" onclick="openManualEntryModal()" data-tip="Opens a window.&#10;Logs a cash payment." data-tip-wrap>＋ Log cash →</button>
       </span></div>
-    <div class="pay-page-icon" data-icon="pay"></div>   <!-- the $ in a ring under the title (user, 2026-10-30; was the om-98 calculator + coin from 2026-10-24) -->
-    <div class="section-label" style="margin-top:28px;margin-bottom:26px">
-      Incoming <span style="color:var(--blue)">Venmo &amp; Zelle</span>
-    </div>
-    <div id="incomingPayments"><div class="rpm-loading" style="color:var(--muted)">Loading</div></div>
-    <div class="log-feed" id="paymentFeed"></div>
-    <!-- Cash payment: a Log cash button under Incoming, amber like the cards'
-         Confirm, no icon (2026-09-29), in place of the full-width bar. -->
-    <!-- A Log cash header like Auto-confirmed, the button under it from the cards' left edge;
-         Contacts (was Payers) + Payment history bottom right on its line (user, 2026-10-30; were top right beside Audit). -->
+    <div class="pay-page-icon" data-icon="pay"></div>   <!-- the $ in a ring under the title (user, 2026-10-30) -->
     <div class="pay-foot">
     <button class="link-btn red" id="btnPayAudit" onclick="switchTab('audit')" data-tip="Opens a tab.&#10;Audit lessons and Audit payments." data-tip-wrap><span>Audit</span></button>
       <span class="pay-foot-btns">
@@ -347,6 +339,19 @@
         <button id="btnPayHistory" class="link-btn opens-window" onclick="openPaymentHistory()" data-tip="Opens a window.&#10;Every logged payment, by month." data-tip-wrap>Payment history</button>
       </span>
     </div>
+    </div>
+    <!-- Incoming and Auto-confirmed each a plate with its own title (user, 2026-11-25) -->
+    <div class="td-wk-box pay-box pay-box-cards">
+    <span class="td-bolt" style="left:8px;top:10px"></span><span class="td-bolt" style="left:8px;bottom:10px"></span><span class="td-bolt" style="right:8px;top:10px"></span><span class="td-bolt" style="right:8px;bottom:10px"></span>
+    <div class="settings-title pay-g-title"><span>Incoming<span class="win-sub"> · Venmo &amp; Zelle</span></span></div>
+    <div id="incomingPayments"><div class="rpm-loading" style="color:var(--muted)">Loading</div></div>
+    </div>
+    <div class="td-wk-box pay-box pay-box-cards">
+    <span class="td-bolt" style="left:8px;top:10px"></span><span class="td-bolt" style="left:8px;bottom:10px"></span><span class="td-bolt" style="right:8px;top:10px"></span><span class="td-bolt" style="right:8px;bottom:10px"></span>
+    <div class="settings-title pay-g-title" data-tip="Recorded without a Confirm press when all 4 hold:&#10;1. Venmo or Zelle, not a trial payment.&#10;2. Name exactly matches one student.&#10;3. Amount is exactly 4x their rate.&#10;4. Not already recorded.&#10;Last 14 days." data-tip-wrap><span>Auto-confirmed</span></div>
+    <div id="autoConfirmed"><div class="rpm-loading" style="color:var(--muted)">Loading</div></div>
+    </div>
+    <div class="log-feed" id="paymentFeed"></div>
     </div>
   </div>
 
@@ -377,7 +382,7 @@
       </div>
       <div id="payersIcon" style="margin:4px 0 10px"></div>
       <!-- two lines, bulleted (user, 2026-11-21) -->
-      <div class="payers-intro"><div>• Anyone on a student’s card can pay for them, and the payment confirms itself.</div><div>• A new name is added from the payment it came in on.</div></div>
+      <div class="payers-intro"><div>Students Who Pay Under a Different Name</div></div>
       <div id="payersList"></div>
     </div>
   </div>
@@ -937,61 +942,61 @@
 </div>
 
 <!-- ─── CORE (load first) ─────────────────────────────────────────────────── -->
-<script src="core/state.js?v=1554"></script>
-<script src="core/storage.js?v=1554"></script>
-<script src="core/utils.js?v=1554"></script>
-<script src="core/dialog.js?v=1554"></script>
-<script src="core/api.js?v=1554"></script>
-<script src="core/secalert.js?v=1554"></script>
-<script src="core/magnifier.js?v=1554"></script>
-<script src="core/nav.js?v=1554"></script>
-<script src="core/rackscreen.js?v=1554"></script>
-<script src="core/msgrack.js?v=1554"></script>
+<script src="core/state.js?v=1555"></script>
+<script src="core/storage.js?v=1555"></script>
+<script src="core/utils.js?v=1555"></script>
+<script src="core/dialog.js?v=1555"></script>
+<script src="core/api.js?v=1555"></script>
+<script src="core/secalert.js?v=1555"></script>
+<script src="core/magnifier.js?v=1555"></script>
+<script src="core/nav.js?v=1555"></script>
+<script src="core/rackscreen.js?v=1555"></script>
+<script src="core/msgrack.js?v=1555"></script>
 
 <!-- ─── TABS ─────────────────────────────────────────────────────────────── -->
-<script src="tabs/icons.js?v=1554"></script>
-<script src="tabs/lessons.js?v=1554"></script>
-<script src="tabs/payments.js?v=1554"></script>
-<script src="tabs/general.js?v=1554"></script>
-<script src="tabs/financial.js?v=1554"></script>
-<script src="tabs/inquiries.js?v=1554"></script>
-<script src="tabs/inqarchive.js?v=1554"></script>
-<script src="tabs/comms.js?v=1554"></script>
-<script src="tabs/announce.js?v=1554"></script>
-<script src="tabs/notes.js?v=1554"></script>
-<script src="tabs/todo.js?v=1554"></script>
-<script src="tabs/availability.js?v=1554"></script>
-<script src="tabs/travel.js?v=1554"></script>
-<script src="tabs/tripsummary.js?v=1554"></script>
-<script src="tabs/triphistory.js?v=1554"></script>
-<script src="tabs/skips.js?v=1554"></script>
-<script src="tabs/student.js?v=1554"></script>
-<script src="tabs/ctrl.js?v=1554"></script>
-<script src="tabs/emails.js?v=1554"></script>
-<script src="tabs/dropbox.js?v=1554"></script>
-<script src="tabs/import.js?v=1554"></script>
-<script src="tabs/today.js?v=1554"></script>
-<script src="tabs/home.js?v=1554"></script>
-<script src="tabs/trial.js?v=1554"></script>
-<script src="tabs/ending.js?v=1554"></script>
-<script src="tabs/reviews.js?v=1554"></script>
-<script src="tabs/financial2.js?v=1554"></script>
-<script src="tabs/calendar.js?v=1554"></script>
-<script src="tabs/fixedcal.js?v=1554"></script>
-<script src="tabs/slotchange.js?v=1554"></script>
-<script src="tabs/holidays.js?v=1554"></script>
-<script src="tabs/archive.js?v=1554"></script>
-<script src="tabs/texttemplates.js?v=1554"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
-<script src="tabs/goals.js?v=1554"></script>
-<script src="tabs/schednotes.js?v=1554"></script>
-<script src="tabs/logtimer.js?v=1554"></script>
-<script src="core/usage.js?v=1554"></script>
-<script src="core/rack.js?v=1554"></script>
-<script src="tabs/usage.js?v=1554"></script>
-<script src="tabs/guitartypes.js?v=1554"></script>
-<script src="tabs/lessontimer.js?v=1554"></script>
-<script src="tabs/dayclock.js?v=1554"></script>
-<script src="tabs/report.js?v=1554"></script>
+<script src="tabs/icons.js?v=1555"></script>
+<script src="tabs/lessons.js?v=1555"></script>
+<script src="tabs/payments.js?v=1555"></script>
+<script src="tabs/general.js?v=1555"></script>
+<script src="tabs/financial.js?v=1555"></script>
+<script src="tabs/inquiries.js?v=1555"></script>
+<script src="tabs/inqarchive.js?v=1555"></script>
+<script src="tabs/comms.js?v=1555"></script>
+<script src="tabs/announce.js?v=1555"></script>
+<script src="tabs/notes.js?v=1555"></script>
+<script src="tabs/todo.js?v=1555"></script>
+<script src="tabs/availability.js?v=1555"></script>
+<script src="tabs/travel.js?v=1555"></script>
+<script src="tabs/tripsummary.js?v=1555"></script>
+<script src="tabs/triphistory.js?v=1555"></script>
+<script src="tabs/skips.js?v=1555"></script>
+<script src="tabs/student.js?v=1555"></script>
+<script src="tabs/ctrl.js?v=1555"></script>
+<script src="tabs/emails.js?v=1555"></script>
+<script src="tabs/dropbox.js?v=1555"></script>
+<script src="tabs/import.js?v=1555"></script>
+<script src="tabs/today.js?v=1555"></script>
+<script src="tabs/home.js?v=1555"></script>
+<script src="tabs/trial.js?v=1555"></script>
+<script src="tabs/ending.js?v=1555"></script>
+<script src="tabs/reviews.js?v=1555"></script>
+<script src="tabs/financial2.js?v=1555"></script>
+<script src="tabs/calendar.js?v=1555"></script>
+<script src="tabs/fixedcal.js?v=1555"></script>
+<script src="tabs/slotchange.js?v=1555"></script>
+<script src="tabs/holidays.js?v=1555"></script>
+<script src="tabs/archive.js?v=1555"></script>
+<script src="tabs/texttemplates.js?v=1555"></script>   <!-- text templates, opened from Comms ▸ Templates ▾ (2026-11-05) -->
+<script src="tabs/goals.js?v=1555"></script>
+<script src="tabs/schednotes.js?v=1555"></script>
+<script src="tabs/logtimer.js?v=1555"></script>
+<script src="core/usage.js?v=1555"></script>
+<script src="core/rack.js?v=1555"></script>
+<script src="tabs/usage.js?v=1555"></script>
+<script src="tabs/guitartypes.js?v=1555"></script>
+<script src="tabs/lessontimer.js?v=1555"></script>
+<script src="tabs/dayclock.js?v=1555"></script>
+<script src="tabs/report.js?v=1555"></script>
 
 <!-- ─── INIT ─────────────────────────────────────────────────────────────── -->
 <script>
@@ -1197,7 +1202,7 @@
 <script>
 // Stacked boxes fill to Home's height (user, 2026-11-03): the last top-level bordered box
 // stretches, and every element between it and the tab becomes a flex column so it can.
-var RPM_OWN_BOXES = ['today', 'import', 'todo', 'notes', 'studentnotes', 'comms', 'financial2', 'archive', 'emails', 'trial', 'inquiries', 'report', 'dropbox', 'holidays', 'reviews', 'usage', 'guitartypes', 'availability', 'tripsummary'];   // Portal Usage: title plate + one box per section (user, 2026-11-24)   // Holidays: title box + one box per group, screwed to the rack like Archive (user, 2026-11-22)   // Trial + Inquiries: title plate · one plate per trial / applicant (user, 2026-11-16)   // Financial: three boxes, Archive: five (user, 2026-11-15); Emails: panes fill to the rack's bottom (user, 2026-11-16)
+var RPM_OWN_BOXES = ['today', 'import', 'todo', 'notes', 'studentnotes', 'comms', 'financial2', 'archive', 'emails', 'trial', 'inquiries', 'report', 'dropbox', 'holidays', 'reviews', 'usage', 'guitartypes', 'availability', 'tripsummary', 'payments'];   // Portal Usage: title plate + one box per section (user, 2026-11-24)   // Holidays: title box + one box per group, screwed to the rack like Archive (user, 2026-11-22)   // Trial + Inquiries: title plate · one plate per trial / applicant (user, 2026-11-16)   // Financial: three boxes, Archive: five (user, 2026-11-15); Emails: panes fill to the rack's bottom (user, 2026-11-16)
 // THE BOX (css/styles.css, end): four screws on every tab's own box (user, 2026-11-06).
 // Tabs that draw their own boxes already carry them (TD_BOLTS); Calendar, Fixed schedule stay open.
 function rpmBoxBolts(p) {

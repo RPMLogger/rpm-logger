@@ -334,7 +334,7 @@ body.sb-open .sb-scrim { opacity: 1; pointer-events: auto; }
 /* Every tab in one bordered box like Today's (user, 2026-10-26; Home too).
    Today, Students, To-Do, Notes and Comms make their own boxes; Calendar and Fixed schedule
    are wider than the column, so they stay open. Financial makes its own three boxes (user, 2026-11-15). */
-.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability):not(#tab-travel.tv-split) {
+.tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-payments):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability):not(#tab-travel.tv-split) {
   box-sizing: border-box;   /* background, border, corners, padding, grain, screws: THE BOX at the end of this file (2026-11-06) */   /* was: every tab in Payments' darker shade (user, 2026-10-29); the page's Canva texture inside, same faint (user, 2026-10-29) */
 }
 
@@ -1216,9 +1216,9 @@ input[type="checkbox"]:checked {
   border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; background: #141414; }   /* 10px corners, one even border all round (coloured left edge removed, user 2026-10-30); darker, closer to the page (2026-10-30) */
 /* Payments cards + indent in the Students tab look (user, 2026-10-30): 600px centred, 22px 16px, #121212 under the
    paper grain, #353535 frame with a 3px #424242 left edge, 10px apart; section labels 22px in. */
-#tab-payments .incoming-card { max-width: 600px; padding: 22px 16px; margin-bottom: 10px; background-color: #121212;
+#tab-payments .incoming-card { max-width: 600px; padding: 12px 26px; margin-bottom: 10px; background-color: #121212;
   border: 1px solid #353535; border-left: 3px solid #424242; }
-#tab-payments .section-label { padding-left: 22px; }
+#tab-payments .section-label { padding-left: 0; }   /* flush with the title, cards and None: the one card format (walk-through, 2026-11-25; was 22px in) */
 #tab-payments .incoming-name { font-family: "Bebas Neue", sans-serif; font-size: 20px; letter-spacing: 1.5px; line-height: 1.05; }   /* names like the Students cards (user, 2026-10-30) */
 #tab-payments .section-label { margin-top:36px !important; margin-bottom:16px !important; }   /* tighter (user, 2026-10-30; were 56 / 26 inline) */
 #tab-payments .pay-page-icon + .section-label { margin-top:28px !important; }   /* the first one keeps its gap under the icon */
@@ -1258,9 +1258,11 @@ input[type="checkbox"]:checked {
 #tab-payments :is(.link-btn, .log-cash-btn, .incoming-confirm, .incoming-dismiss) { font-size:10px; letter-spacing:1px; line-height:normal;
   padding:4px 10px; border-radius:7px; border-width:1px; min-width:0; box-sizing:border-box; height:23px; display:inline-flex; align-items:center; }
 #tab-payments .pay-foot-btns { display:flex; gap:8px; margin-top:0; }   /* level with Audit (user, 2026-11-05; was 44px lower) */
-#tab-payments.active { display:flex; flex-direction:column; }   /* button row pinned to the panel's bottom edge, same spot while loading and after (user, 2026-11-18) */
-#tab-payments .pay-foot { margin-top:auto; padding-top:36px; }   /* Audit row under the cards, no header (user, 2026-10-30) */
+#tab-payments .pay-foot { margin-top:0; padding-top:0; }   /* Audit row in the title plate, under the $ (user, 2026-11-25: two plates; was under the cards) */
+#tab-payments .pay-box-cards > .settings-title.pay-g-title { margin: 0 0 36px; }   /* plate titles like Active Trips' Status (user, 2026-11-25) */
+#tab-payments #autoConfirmed > .rpm-loading, #tab-payments #autoConfirmed > .rpm-none { justify-content: flex-start; text-align: left; padding: 0; }   /* Loading / None left, like Incoming's */
 #tab-payments .pay-foot { align-items:center !important; }   /* Audit, Contacts, Payment history on one line (user, 2026-11-05; was flex-start) */
+#tab-payments #incomingPayments > .rpm-loading { justify-content: flex-start; }   /* Loading left like None (.rpm-loading is flex-centred, 2026-11-25) */
 #tab-payments #incomingPayments > div:not(.incoming-card) { padding: 0 !important; text-align: left !important; }   /* None / Loading left-aligned like the other None lines (user, 2026-11-18; was centered 2026-11-06) */
 .incoming-confirm { min-width: 124px; justify-content: center; }   /* Confirm and Log cash one size */
 .log-cash-btn { color: var(--muted); border-color: rgba(255,255,255,0.10); background: color-mix(in srgb, #fff 4%, transparent); }   /* grey like Payment history (2026-09-29) */
@@ -1276,7 +1278,7 @@ input[type="checkbox"]:checked {
   background: color-mix(in srgb, var(--green) 12%, transparent); opacity: 1; }
 
 /* ─── PAYMENT CONTACTS WINDOW (2026-10-29) ────────────────────────────────── */
-.payers-intro { font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: var(--muted);
+.payers-intro { font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: var(--muted);   /* Arial (user, 2026-11-25: back from DM Mono) */
   line-height: 1.6; margin-bottom: 18px; max-width: 520px; }
 .payer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
 .payer-card {
@@ -3830,10 +3832,10 @@ th.f2-blk { background:none; }
 #importBody .st-page-icon { color:var(--muted); line-height:0; }
 #importBody .st-page-icon .win-icon { height:24px; width:auto; }
 /* Payments: om-98 calculator + coin under the title, like Today / Dashboard (user 2026-10-24). */
-#payMainView > .settings-title:has(+ .pay-page-icon) { margin-bottom:10px; }
-#payMainView > .pay-page-icon { margin:0 0 26px; color:var(--muted); line-height:0; }
-#payMainView > .pay-page-icon .win-icon { height:24px; width:auto; }
-#payMainView > .settings-title .pay-title-btns { display:flex; gap:8px; }   /* Payment history + Audit payments top right (user 2026-10-24) */
+#payMainView .pay-box > .settings-title:has(+ .pay-page-icon) { margin-bottom:10px; }
+#payMainView .pay-box > .pay-page-icon { margin:0 0 26px; color:var(--muted); line-height:0; }
+#payMainView .pay-box > .pay-page-icon .win-icon { height:24px; width:auto; }
+#payMainView .pay-box > .settings-title .pay-title-btns { display:flex; gap:8px; }   /* Payment history + Audit payments top right (user 2026-10-24) */
 /* A plane beside Leaving on (taking off) and Back on (landing), on the box's right (user 2026-10-24; was over it, then left). */
 #travelBody .tv-dates { display:grid; grid-template-columns:calc(50% - 8px) auto; justify-content:start; align-items:center; column-gap:14px; row-gap:16px; }
 #travelBody .tv-dates > .tv-date { width:auto; grid-column:1; }
@@ -4813,7 +4815,7 @@ textarea.cm-reply.ann-text:focus-visible { outline: none; }
   --rpm-box-ring: 0 0 0 2px #1e1e1e, 0 0 0 3px #2c2c2c;   /* screwed metal plates: the amp's double line, half as thick (user, 2026-11-06) */
   --rpm-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.8 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)'/%3E%3C/svg%3E");
 }
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability):not(#tab-travel.tv-split),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-payments):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability):not(#tab-travel.tv-split),
 html body .td-wk-box,
 html body .cr.rpm-rack,
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
@@ -4823,7 +4825,7 @@ html body #importBody .im-split > :is(.im-sec-box, .im-head-card) {
   box-shadow: var(--rpm-box-ring);   /* Home's double border: dark amp-body ring + outer line (user, 2026-11-06) */
 }
 /* the ring sits 5px outside: every box 4px in from the column, like Home and the header */
-html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability):not(#tab-travel.tv-split),
+html body .tab-panel.active:not(#tab-today):not(#tab-import):not(#tab-todo):not(#tab-notes):not(#tab-studentnotes):not(#tab-calendar):not(#tab-fixedcal):not(#tab-financial2):not(#tab-archive):not(#tab-comms):not(#tab-emails):not(#tab-trial):not(#tab-inquiries):not(#tab-report):not(#tab-dropbox):not(#tab-holidays):not(#tab-reviews):not(#tab-triphistory):not(#tab-tripsummary):not(#tab-payments):not(#tab-usage):not(#tab-guitartypes):not(#tab-availability):not(#tab-travel.tv-split),
 html body #importBody .im-split > :is(.im-sec-box, .im-head-card) { margin-left: 4px; margin-right: 4px; }
 html body .td-wk-box { width: calc(100% - 8px); }
 html body .cr.rpm-rack { margin-left: 4px !important; margin-right: 4px !important; }
@@ -6115,6 +6117,7 @@ html body :is(.rpm-dlg-confirm.tv-golive-dlg, #_a#_b#_c) { max-width: 520px; }
 html body :is(.settings-overlay > .settings-modal, #_a#_b):not(.fx-modal):not(.rp-recap-win) { max-width: 460px; }
 html body :is(.st-win.gl-win, .td-student.cm-win, .st-win.im-log-win:not(.im-log-wide), .st-win.td-all-win, #_a#_b#_c) { width: min(640px, 94vw); }
 html body :is(.settings-modal.fx-modal, #_a#_b#_c) { max-width: 760px; }
+html body :is(#payersModal > .settings-modal.fx-modal, #_a#_b#_c#_d) { max-width: 420px; }   /* Contacts at the dialog width (user, 2026-11-25; was large 760, then 460) */
 /* ONE LABEL above every box (user, 2026-11-19: "S T U D E N T, like in Lesson log"): the Lesson log's
    label - typewriter caps, 2px tracking, quiet grey #7c7c7c. Windows (.field-label, was Bebas 14 bright),
    dialogs, Settings/Financial (.settings-label) and Terminate's "Before archiving" all wear it. */
@@ -6606,12 +6609,22 @@ html body #cashModal #cashActs { margin-top: 32px !important; }
 html body :is(#tdNsWin, #tdZmWin, #ttOsWin) .tt-to-v:empty { display: none; }   /* nothing picked: no line under TO */
 html body #cashDdLabel:empty::before { content: "\200b"; }   /* empty picker keeps its height (no hint text, user 2026-11-21) */
 html body #payersModal .payers-intro { margin-bottom: 24px; }
+html body #payersModal .payers-intro { font-family: "DM Mono", monospace; font-size: 11px; }   /* Contacts' one line in DM Mono (user, 2026-11-25) */
 /* Payments · Contacts cards in THE CARD look (user, 2026-11-21: the old payer card looked ugly): lifted #1c1c1c card,
    #353535 edge, two rivets, the student in Syne 16 like every student card, the added names in the reading font under it */
 html body #payersModal .payer-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
 html body #payersModal .payer-card { position: relative; background: #1c1c1c !important; border: 1px solid #353535 !important; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.55); padding: 22px 26px 18px; }
 html body #payersModal .payer-card-head { font-family: "Syne", sans-serif; font-size: 16px; letter-spacing: 0; text-transform: none; color: oklch(0.8 0.006 81); margin-bottom: 10px; }
 html body #payersModal .payer-name { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; color: var(--t-normal); }
+/* Contacts = a simple list, no cards (user, 2026-11-25): student, the name that pays for them, ✕ on hover; row lines like Payment history */
+#payersModal .payer-li { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid rgba(255,255,255,0.04); font-family: "DM Mono", monospace; font-size: 11px; }   /* DM Mono at the intro line's size, bulleted (user, 2026-11-25) */
+#payersModal .payer-li-i { color: var(--muted); }
+#payersModal .payer-li:first-child { border-top: none; }
+#payersModal .payer-li-s { color: var(--t-normal); }
+#payersModal .payer-li-n { justify-self: start; color: var(--t-normal); padding: 3px 8px; border: 1px solid var(--border); border-radius: var(--radius-pill); background: rgba(255,255,255,0.03); }   /* the paying name as a pill, the portal's chip (user, 2026-11-25) */
+#payersModal .payer-li .payer-del { color: transparent; padding: 0; font-size: 11px; margin-left: auto; }   /* pill right after the name, ✕ far right (user, 2026-11-25) */
+#payersModal .payer-li:hover .payer-del { color: var(--muted); }
+#payersModal .payer-li .payer-del:hover:where(:not(:disabled)) { color: var(--accent); }
 /* Payments · History (user, 2026-11-21): names in the reading font so the eye lands on who first; 4px more room per row */
 html body #payHistoryModal .ph-name { font-family: Arial, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0; color: var(--t-normal); }
 html body #payHistoryModal .pay-history-table td { padding-top: 10px; padding-bottom: 10px; }
