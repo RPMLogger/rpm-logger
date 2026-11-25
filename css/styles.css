@@ -7063,6 +7063,8 @@ html body :is(#tab-skips .sk-card .en-card-body, #_a#_b#_c#_d) { padding-left: 2
 #tab-skips { --sk-card-w: 584px; }
 html body :is(#tab-skips .en-card.sk-card, #_a#_b#_c#_d) { width: var(--sk-card-w); max-width: 100%; }
 #tab-skips .sk-card .sk-trip-h { font-size: 11px; }   /* trip titles a bit bigger (user 2026-11-24; were 10px) */
+#tab-skips .sk-card .sk-main-box .sk-trip-h { padding-bottom: 8px; margin-bottom: 6px; border-bottom: 1px solid #353535; }   /* a line under each trip title, in the box's own border grey (user 2026-11-25) */
+#tab-skips .sk-card .sk-trip-h ~ .sk-trip-h { margin-top: 22px; }   /* space between trips (user 2026-11-25) */
 /* Only the student counts amber (Student skips, Student reschedules); the rest the title's own colour (user 2026-11-24). */
 #tab-skips .sk-card .sk-group-h .sk-gn { color: inherit; }
 #tab-skips .sk-card .sk-group-h .sk-gn.sk-gn-on { color: color-mix(in srgb, var(--accent2) 70%, transparent); }
