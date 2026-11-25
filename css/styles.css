@@ -4474,13 +4474,13 @@ html body .header > img, html body .header .hdr-name { filter: drop-shadow(0 3px
 #imLogWin .st-win.im-log-wide #imTermsCol > .im-terms-col { flex: none; }
 /* No show under the hint, above LOG LESSON, dim grey (user, 2026-11-02; was blue, bottom left) */
 #imLogWin .im-ns-slot { margin: -36px 0 26px; }
-#imLogWin .im-ns-slot > #btnNoShow:not([hidden]) { display: inline-flex; color: #6e6e6e; border-color: color-mix(in srgb, #ffffff 15%, transparent); background: none; }
-#imLogWin .im-ns-slot > #btnNoShow:not(:disabled):hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 40%, transparent); }
-#imLogWin .im-ns-slot > #btnNoShow:disabled { opacity: .45; }
+#imLogWin .im-ns-slot > :is(#btnNoShow, #imAllNone):not([hidden]) { display: inline-flex; color: #6e6e6e; border-color: color-mix(in srgb, #ffffff 15%, transparent); background: none; }
+#imLogWin .im-ns-slot > :is(#btnNoShow, #imAllNone):not(:disabled):hover:where(:not(:disabled)) { color: #ffffff; border-color: color-mix(in srgb, #ffffff 40%, transparent); }
+#imLogWin .im-ns-slot > :is(#btnNoShow, #imAllNone):disabled { opacity: .45; }
 /* No show first, then the typing rules as four bullets (user, 2026-11-09) */
 #imLogWin .im-ns-slot { position: absolute; top: -9px; right: 242px; margin: 0; }   /* No show on the right, level with the first bullet (user, 2026-11-09; LOG LESSON line tried, "higher") */
-#imLogWin .im-ns-slot > #btnNoShow:not([hidden]) { background: color-mix(in srgb, var(--muted) 7%, transparent); color: var(--muted); border-color: color-mix(in srgb, #ffffff 15%, transparent); font-weight: 400; letter-spacing: 1px; border-radius: 7px; box-shadow: none; }   /* back to the grey portal button with a wash, like No change on page 3 (user, 2026-11-09; the red pedal is saved in design-names) */
-#imLogWin .im-ns-slot > #btnNoShow:not(:disabled):hover:where(:not(:disabled)) { background: color-mix(in srgb, var(--muted) 16%, transparent); color: var(--t-normal); border-color: color-mix(in srgb, #ffffff 30%, transparent); }
+#imLogWin .im-ns-slot > :is(#btnNoShow, #imAllNone):not([hidden]) { background: color-mix(in srgb, var(--muted) 7%, transparent); color: var(--muted); border-color: color-mix(in srgb, #ffffff 15%, transparent); font-weight: 400; letter-spacing: 1px; border-radius: 7px; box-shadow: none; }   /* back to the grey portal button with a wash, like No change on page 3 (user, 2026-11-09; the red pedal is saved in design-names) */
+#imLogWin .im-ns-slot > :is(#btnNoShow, #imAllNone):not(:disabled):hover:where(:not(:disabled)) { background: color-mix(in srgb, var(--muted) 16%, transparent); color: var(--t-normal); border-color: color-mix(in srgb, #ffffff 30%, transparent); }
 /* LOG in No show's shape: 7px corners, not a pill; its solid amber stays (user, 2026-11-09; the 70% amber + black border was tried, the old amber was better) */
 #imLogWin#imLogWin :is(#btnLog, #imMatDoneBtn, #imSchedDoneBtn, #imMailSend).amber { border-radius: 7px; line-height: 13px; letter-spacing: 1px; }   /* 1px letters like No show (user, 2026-11-09) */   /* the ＋ made it 1px taller than No show (user, 2026-11-09) */
 #imLogWin .im-case-list { display: block; margin: -59px 0 -16px;   /* the bullets 22px under the icon now No show has moved (user, 2026-11-09) */   /* 24px above and below, even (user, 2026-11-09) */ padding-left: 18px; font-size: 12px; line-height: 1.8; }
@@ -6165,10 +6165,10 @@ html body #imLogWin .im-sched-box + :is(.im-log-foot-all, #_a#_b#_c) { border-to
 html body #imLogWin :is(.settings-title ~ * .win-icon, .win-icon, #_a#_b#_c#_d#_e#_f):not(button *, .link-btn *) { height: 24px; width: auto; }
 /* Log window page 1 (user, 2026-11-19: "we have room"): Mark no show moves under the "One item per row…" line,
    on the left, ABOVE the divider, then LOG LESSON (was up on the right, level with that line). */
-html body #imLogWin .im-page:has(> #imNsSlot) { display: flex; flex-direction: column; }
-html body #imLogWin .im-page:has(> #imNsSlot) > :is(.im-case-list, #_a#_b#_c#_d) { order: 1; margin-top: -78px; margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+html body #imLogWin .im-page:has(> :is(#imNsSlot, #imAllNoneSlot)) { display: flex; flex-direction: column; }
+html body #imLogWin .im-page:has(> :is(#imNsSlot, #imAllNoneSlot)) > :is(.im-case-list, #_a#_b#_c#_d) { order: 1; margin-top: -78px; margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
 html body #imLogWin :is(.im-ns-slot, #_a#_b#_c) { order: 2; position: static; align-self: stretch; margin: 12px 0 3px; padding-bottom: 25px; }   /* no divider under it: the band below has its own edge (user, 2026-11-19) */
-html body #imLogWin .im-page:has(> #imNsSlot) > .im-main-box { order: 3; }
+html body #imLogWin .im-page:has(> :is(#imNsSlot, #imAllNoneSlot)) > .im-main-box { order: 3; }
 /* Log window page 1: the four boxes (Log lesson, Log homework, both notes) on a band (user, 2026-11-19): flat #1c1c1c, no card shadow,
    from the window's left edge to the steps column's line (drawn 250px in from the window's right), 40px all round inside. */
 html body #imLogWin .im-log-cols > :is(.im-log-left, #_a#_b#_c) { box-sizing: border-box; background: #1c1c1c; border-radius: 0; margin-left: -24px; margin-right: -16px; padding: 10px 40px 50px 50px; box-shadow: none; }   /* top 10 + the heads' own 40px margin = 50, like the bottom */
@@ -6274,7 +6274,7 @@ html body #imLogWin .im-log-left > .im-sub-head .im-sub-t::before { counter-incr
 html body #imLogWin :is(.im-ns-slot, #_a#_b#_c#_d) { display: flex; justify-content: flex-end; margin-top: -22px; padding-bottom: 24px; padding-right: 265px; }   /* band raised to balance (user, 2026-11-19) */
 /* Log window: the bottom part as tall as the top part, Save & next in its middle; pages 1 and 2 still line up (user, 2026-11-19) */
 html body #imLogWin :is(.im-log-foot-all, #_a#_b#_c#_d#_e) { padding-bottom: 37px; }
-html body #imLogWin .im-page:has(> #imNsSlot) :is(.im-log-foot-all, #_a#_b#_c#_d#_e) { margin-top: 69px; }
+html body #imLogWin .im-page:has(> :is(#imNsSlot, #imAllNoneSlot)) :is(.im-log-foot-all, #_a#_b#_c#_d#_e) { margin-top: 69px; }
 html body #imLogWin :is(.im-mat-split > .im-log-foot-all, #_a#_b#_c#_d#_e) { margin-top: 78px; }
 html body #imLogWin .im-mat-split::before { bottom: 102px; }
 /* Practice materials hint line: same place as page 1's, band at the same height (user, 2026-11-19) */
@@ -6343,7 +6343,7 @@ html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) :is(.win-icon
 html body :is(.settings-overlay, .im-notes-back, .rpm-dlg-overlay) :is(div, #_a#_b#_c#_d):has(> .win-icon:only-child) { display: none; }
 /* Log window without its icon: the bottom part as short as the top part again, all four pages */
 html body #imLogWin :is(.im-log-foot-all, #_a#_b#_c#_d#_e#_f#_g) { padding-bottom: 19px; }
-html body #imLogWin .im-page:has(> #imNsSlot) :is(.im-log-foot-all, #_a#_b#_c#_d#_e#_f#_g) { margin-top: 44px; }
+html body #imLogWin .im-page:has(> :is(#imNsSlot, #imAllNoneSlot)) :is(.im-log-foot-all, #_a#_b#_c#_d#_e#_f#_g) { margin-top: 44px; }
 html body #imLogWin :is(.im-mat-split > .im-log-foot-all, #_a#_b#_c#_d#_e#_f#_g) { margin-top: 53px; }
 html body #imLogWin .st-win .im-mat-split::before { bottom: 67px; }
 html body #imLogWin .im-page[data-pg="3"] :is(.im-log-foot-all, #_a#_b#_c#_d#_e#_f#_g) { margin-top: 46px; }
@@ -7319,3 +7319,5 @@ html body #imLogWin :is(#imSideNav, #_a#_b#_c) { display: none; }
 /* LOGGING (and Done) in the middle of the left side, not of the whole window (user, 2026-11-25):
    the Steps column takes the card's right 227px. */
 html body #imLogWin .im-do-card > :is(.rpm-busy-msg, .im-done-msg, #_a#_b#_c) { left: calc((100% - 227px) / 2); }
+/* Mark all none on Practice materials, where Mark no show sits on page 1: right end of the left side (this page has no Shortcuts under it). */
+html body #imLogWin :is(#imAllNoneSlot, #_a#_b#_c#_d#_e) { padding-right: 23px; }

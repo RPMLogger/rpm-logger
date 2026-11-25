@@ -1265,6 +1265,8 @@ function _imStepsRender() {
     var sec = document.getElementById(x[0]), inp = document.getElementById(x[1]), p = sec && sec.querySelector('.im-link-none .im-pill-none');
     if (p && inp) p.classList.toggle('im-none-used', /^none$/i.test(inp.value.trim()));
   });
+  var an = _imQ('imAllNone');
+  if (an) an.disabled = !hw || !!(hw.locked || hw.loading || hw.saving || hw.uploading || hw.gathering || hw.files.length || hw.links.length || (hw.found || []).length);
   var steps = [
     { label: 'Lesson log', cls: 'log', done: logged },
     { label: 'HW log', cls: 'hw', done: hwText },
@@ -1875,6 +1877,18 @@ function _imMatDone() {
   if (nx) _imPageTo(nx);
 }
 // Files None (user, 2026-11-15): no files this lesson; again = not answered. Waits while files are in.
+// Mark all none (user, 2026-11-25): Files, Video lesson link, Web link and Did they record? all None.
+// Not with files or links in (it would throw them away): dim then.
+function _imAllNone() {
+  var hw = logHw;
+  if (!hw || hw.loading || hw.saving || hw.locked || hw.uploading || hw.gathering || hw.files.length || hw.links.length || (hw.found || []).length) return;
+  hw.filesNone = true;
+  ['logHwVideoInput', 'logHwLinkInput'].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = 'None'; });
+  hw.videoOnly = false;
+  hw.rec = 'no'; hw.phone = false; hw.zoom = false;
+  hw.linksDone = false;
+  _imHwChanged();
+}
 function _imFilesNone() {
   var hw = logHw;
   if (!hw || hw.loading || hw.saving || hw.locked || hw.files.length) return;
@@ -2319,6 +2333,8 @@ function _imDoHtml(name, day) {
     // Yes / No question each): everything open, what's put in is sent, one Done finishes it.
     _imMainHead('Practice materials', '', '', 'im-main-mat') +
     '<div class="im-mail-opt im-case-list im-mat-hint">Send files, video or web link</div>' +   // a hint line like page 1's (user, 2026-11-19)
+    // Mark all none (user, 2026-11-25): the four Nones in one press, where page 1 has Mark no show. Save & next still saves.
+    '<div class="im-ns-slot" id="imAllNoneSlot"><button type="button" class="link-btn" id="imAllNone" onmousedown="event.preventDefault()" onclick="_imAllNone()" data-tip="Instant.&#10;Files, video lesson link, web link and recorded: all None.&#10;Then Save &amp; next." data-tip-left>Mark all none</button></div>' +
     '<div class="im-main-box im-mat-split">' +
       '<div class="im-mat-box" id="imMatBox">' +
       // The Log window's HW part (#logHw) is split over these (_imHwOut).
