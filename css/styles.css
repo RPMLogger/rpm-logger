@@ -7319,9 +7319,9 @@ html body #imLogWin :is(#imSideNav, #_a#_b#_c) { display: none; }
 /* LOGGING (and Done) in the middle of the left side, not of the whole window (user, 2026-11-25):
    the Steps column takes the card's right 227px. */
 html body #imLogWin .im-do-card > :is(.rpm-busy-msg, .im-done-msg, #_a#_b#_c) { left: calc((100% - 227px) / 2); }
-/* Audit · Lessons (2026-11-25): the page icon under the title, the Lesson Checklist label, the cards' insides on Active Trips' rhythm */
-html body #imAuditView .section-label.pa-sec { padding-left: 0; margin: 40px 0 16px !important; }
-#imAuditView .pa-box-head > .pay-page-icon ~ #auditLessonSection { margin-top: 36px; }   /* cards under the icon, no label (user, 2026-11-25) */
+/* Audit · Lessons (2026-11-25): the page icon under the title, red plate titles, the cards' insides on Active Trips' rhythm */
+html body #imAuditView .pa-box > .settings-title.pa-g-title { margin: 0 0 36px; }   /* red plate titles like Payments' Incoming (user, 2026-11-25) */
+html body #imAuditView .pay-page-icon + .settings-title.pa-g-title { margin-top: 44px; }   /* Unlogged Lessons under the icon */
 html body #imAuditView .ts-tag.au-sub { margin: 0; }
 #imAuditView .pa-row .au-ck-list { margin-top: 0; }
 #imAuditView .pa-row .au-grid-wrap { margin: 0; }
@@ -7331,3 +7331,5 @@ html body #imAuditView .ts-tag.au-sub { margin: 0; }
 /* Mark all none on Practice materials, where Mark no show sits on page 1: right end of the left side (this page has no Shortcuts under it). */
 html body #imLogWin :is(#imAllNoneSlot, #_a#_b#_c#_d#_e) { padding-right: 23px; }
 html body :is(#imAuditView .en-card.ts-row, #_a#_b#_c#_d#_e#_f#_g#_h) { width: 100%; }   /* Lessons Audit cards stay wide, like its Details window's grid (user, 2026-11-25) */
+#imAuditView .pa-row .au-ck-tag { border-radius: 999px; padding: 3px 9px; }   /* Lesson Checklist steps as pills (user, 2026-11-25) */
+html body :is(#auditCkSection .en-card.ts-row, #_a#_b#_c#_d#_e#_f#_g#_h#_i) { width: 560px; }   /* Lesson Checklist cards at the one card width; only Unlogged stays wide (user, 2026-11-25) */
