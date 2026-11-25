@@ -6260,6 +6260,8 @@ html body #imLogWin .im-word-grp:has(> #imRecNo.done) > :is(#imRecZoom, #imRecPh
 html body #imLogWin .im-word-grp:has(> :is(#imRecZoom, #imRecPhone).done) > :is(#imRecNo, #_a#_b#_c) { opacity: 0.35; }
 /* A link added to Video lesson link / Web link → that box's None dims (user, 2026-11-19). */
 html body #imLogWin .lh-link-sec:has(.lh-links > *) .im-link-none :is(.im-pill-none, #_a#_b#_c) { opacity: 0.35; }
+/* A pressed None dims too, like the Files None (user, 2026-11-25): link boxes + Did they record. */
+html body #imLogWin :is(.im-link-none .im-pill-none.im-none-used, #imRecNo.done, #imFilesNo.done, #_a#_b#_c) { opacity: 0.35; }
 /* An entered link shows inside its black box, × at the right end (user, 2026-11-19: "fit that into the black box"), cut with …
    when long, so you can see it's in; the boxes below don't shift. Click in the box to type another and it steps aside. */
 html body #imLogWin :is(#logHwVideo, #logHwLink, #_a#_b#_c) { position: relative; }
@@ -7322,3 +7324,10 @@ html body :is(#payAuditView .en-card.ts-row, #_a#_b#_c#_d#_e#_f#_g) { width: 560
 #payAuditView .ts-facts .ts-lbl::after { content: '·'; margin-left: 10px; }
 #payAuditView .ts-fact { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: var(--t-normal); white-space: nowrap; }
 html body :is(#payAuditView .ts-row .ts-tag, #_a#_b#_c#_d#_e) { font-size: 9px; padding: 5px 9px; border-radius: 3px; background: color-mix(in srgb, currentColor 9%, transparent) !important; border: 1px solid color-mix(in srgb, currentColor 35%, transparent) !important; }
+/* Steps move the pages (user, 2026-11-25): a step you can go back to lights on hover; the ← → arrows are gone. */
+html body #imLogWin :is(.im-step-side.go, #_a#_b#_c) { cursor: pointer; }
+html body #imLogWin :is(.im-step-side.go:hover, #_a#_b#_c) { color: var(--t-text); }
+html body #imLogWin :is(#imSideNav, #_a#_b#_c) { display: none; }
+/* LOGGING (and Done) in the middle of the left side, not of the whole window (user, 2026-11-25):
+   the Steps column takes the card's right 227px. */
+html body #imLogWin .im-do-card > :is(.rpm-busy-msg, .im-done-msg, #_a#_b#_c) { left: calc((100% - 227px) / 2); }

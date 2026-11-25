@@ -474,12 +474,17 @@ var IM_TERMS = [
   ['Sevenths',     ['maj7', '7', 'min7', 'min(maj7)', 'maj7#5', 'maj7b5', '7#5', '7b5', 'm7b5', 'dim7']],   // user, 2026-11-02
   ['Extensions',   ['m9', 'maj9', '9', '7b9', '7#9', '9b13', '13', '7sus4', 'm11']],   // user, 2026-11-02
   ['Intervals',    ['seconds', 'thirds', 'fourths', 'fifths', 'sixths', 'sevenths']],   // seconds to sevenths (user, 2026-11-02)
-  ['Modes',        ['Ionian', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian', 'Locrian']],   // user, 2026-11-02
+  ['Modes',        ['Ionian', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian', 'Locrian']],   // user, 2026-11-02 · enter their formula (IM_TERM_PUT)
   ['Strings',      ['1st string', '2nd string', '3rd string', '4th string', '5th string', '6th string']],   // user, 2026-11-02
   ['Fingers',      ['1st finger', '2nd finger', '3rd finger', '4th finger']],   // user, 2026-11-02
   ['Techniques',   ['hammer-on', 'pull-off', 'strumming']],
   ['Sequences',    ['12321', '123.1', '1.321', '1.3', '12345.3.1', '1.3.54321', '123454321', '1.3.5.3.1']]   // user, 2026-11-12
 ];
+// What a chip types when it isn't its own name (user, 2026-11-25: the modes enter their formula).
+var IM_TERM_PUT = {
+  Ionian: '1 2 3 4 5 6 7', Dorian: '1 2 b3 4 5 6 b7', Phrygian: '1 b2 b3 4 5 b6 b7', Lydian: '1 2 3 #4 5 6 7',
+  Mixolydian: '1 2 3 4 5 6 b7', Aeolian: '1 2 b3 4 5 b6 b7', Locrian: '1 b2 b3 4 b5 b6 b7'
+};
 var _imTermRow = null;   // the last row typed in on the Log page
 // Every row starts with a capital by itself (user, 2026-11-10), as it's typed or dictated.
 // Only real typing: a Shortcut put in first (ii–V–i) keeps its small letters.
@@ -535,7 +540,8 @@ function _imTermsWire() {
     }
     if (!e.target.classList.contains('im-term')) return;
     var row = _imTermRow && document.contains(_imTermRow) ? _imTermRow : null;
-    _imTermPut(row ? row.closest('.ll-rows') : _logBox(), e.target.textContent);
+    var t = e.target.textContent;
+    _imTermPut(row ? row.closest('.ll-rows') : _logBox(), IM_TERM_PUT[t] || t);
   };
 }
 function _imPillsWire() {
@@ -662,6 +668,7 @@ function _imLogEditStart() {
   updateLogButton();
   var r = box && llRows(box)[0];
   if (r) r.focus();
+  _imSaveBtns(w);
   return true;
 }
 
@@ -815,7 +822,7 @@ function _imSchedDone(name) {
   if (!w || w.sending) return;
   var cur = _imSchedGet(name, d);
   if (cur !== 'changed' && cur !== 'nochange') { w.schedNeed = false; _imSchedSet(name, 'nochange', d); }
-  var list = w.pgList || [], nx = list[list.indexOf(3) + 1];
+  var nx = _imSaveTarget(w);   // gone back to: Save & return, to the furthest page (user, 2026-11-25)
   if (nx) _imPageTo(nx); else if (_imPending(w, logHw)) _imSend(w, logHw);
   _imStepsRender();
 }
@@ -1253,6 +1260,11 @@ function _imStepsRender() {
     b.classList.toggle('done', !!x[1]);
     b.disabled = !hw || !!(hw.locked || hw.loading || hw.saving || (x[0] === 'imMatNo' || x[0] === 'imMatSend') && hw.uploading) || x[0] === 'imFilesNo' && !!(hw.files.length || hw.uploading);
   });
+  // A link box's None, once pressed (box says None), dims like the Files None (user, 2026-11-25).
+  [['logHwVideo', 'logHwVideoInput'], ['logHwLink', 'logHwLinkInput']].forEach(function (x) {
+    var sec = document.getElementById(x[0]), inp = document.getElementById(x[1]), p = sec && sec.querySelector('.im-link-none .im-pill-none');
+    if (p && inp) p.classList.toggle('im-none-used', /^none$/i.test(inp.value.trim()));
+  });
   var steps = [
     { label: 'Lesson log', cls: 'log', done: logged },
     { label: 'HW log', cls: 'hw', done: hwText },
@@ -1296,7 +1308,11 @@ function _imStepsRender() {
   var waitUp = !!(w && w.pendLog && hw && hw.uploading);
   if (fin) fin.innerHTML = (sending || waitUp) ? '<span class="rpm-loading">Logging</span>' : '';
   // All four ticked: they go to Google together.
-  if (all && pending && !sending) { _imSend(w, hw); return; }
+  // Not on Change appointment (user, 2026-11-25): No change was often the last tick, so clicking it saved
+  // the lesson by itself (and with no email left closed the window, opening the next one) instead of
+  // waiting for Save & next. Its Save & next (_imSchedDone) sends it.
+  // Nor on a page gone back to (user, 2026-11-25): its change saves on Save & return, or is lost.
+  if (all && pending && !sending && !(w && (w.page === 3 || _imRevisit(w)))) { _imSend(w, hw); return; }
   // 4. Email (2026-10-25): Send opens once the rest is saved; Send then does Done.
   var mailLeft = !!(w && w.mail && !w.mailSent);
   _imMailRender(w, finished);
@@ -1381,6 +1397,9 @@ function _imPagesRender(w, done, hasHw) {
     lb.setAttribute('data-tip', saved ? 'Instant.\nGoes to the next page.\nClick into a box to change the log first.' : 'Instant.\nSaves the lesson log.\n⌘ Enter does too.');
   }
   if (next) { next.style.visibility = at < list.length - 1 ? '' : 'hidden'; next.disabled = busy || !!w.logEdit || !done[w.page] || at >= w.pgMax; }
+  // A page gone back to keeps what it showed on arrival, to tell a change and to put it back (user, 2026-11-25).
+  if (!w.snap || w.snap.page !== w.page) w.snap = _imRevisit(w) ? _imPgSnapTake(w, w.page) : null;
+  _imSaveBtns(w);
 }
 // The steps at the top of the right panel (user, 2026-11-08), in the Shortcuts look:
 // the page you're on bright, done ones dimmer (no ✓, 2026-11-19), the rest grey. Not buttons: ← → move.
@@ -1392,7 +1411,9 @@ function _imStepsSide(w, list, done) {
     list.map(function (p, i) {
       var cls = p === w.page ? ' on' : done[p] ? ' done' : '';
       var star = w.starMissing && !done[p] ? '<span class="im-step-star">★ </span>' : '';   // missing, from Missing sections (2026-11-15)
-      return '<div class="im-step-side' + cls + '"><span>' + star + (i + 1) + '. ' + names[p] + '</span></div>';   // no ✓: the colour says done (user, 2026-11-19)
+      // Steps up to the furthest page reached are buttons (user, 2026-11-25): back, or back to where you were.
+      var go = p !== w.page && i <= (w.pgMax || 0) && !(w.sending || w.mailBusy);
+      return '<div class="im-step-side' + cls + (go ? ' go' : '') + '"' + (go ? ' role="button" onclick="_imStepGo(' + p + ')"' : '') + '><span>' + star + (i + 1) + '. ' + names[p] + '</span></div>';   // no ✓: the colour says done (user, 2026-11-19)
     }).join('');
 }
 function _imPageTo(p) {
@@ -1417,6 +1438,113 @@ function _imPageGo(step) {
   if (w.logEdit || i < 0 || i >= list.length || (step > 0 && (!(w.pgDone || {})[w.page] || list.indexOf(w.page) >= (w.pgMax || 0)))) return;
   _imPageTo(list[i]);
 }
+
+// ── Steps move the pages (user, 2026-11-25; the ← → arrows are gone) ──
+// A step up to the furthest page reached is a button: back only, or straight back to where you were.
+// Going back means fixing something: on a page behind the furthest, Save & return is dim till
+// something changes, then saves and goes back to the furthest page. Leaving it unsaved (a step)
+// throws the change away: the page goes back to what's saved. Files already in Dropbox stay.
+function _imRevisit(w) { w = w || window._imWin; return !!(w && w.pgList && w.pgList.indexOf(w.page) < (w.pgMax || 0)); }
+// Where a page's Save goes: the furthest page on a page gone back to, else the next one.
+function _imSaveTarget(w) {
+  var l = w.pgList || [];
+  return _imRevisit(w) ? l[w.pgMax] : l[l.indexOf(w.page) + 1];
+}
+function _imPgSnapTake(w, p) {
+  var hw = logHw, s = { page: p };
+  if (p === 1) s.boxes = [_logBox(), _imTeachBox(), _hwRowsBox(), _imStuBox()].map(function (b) { return b ? llValues(b) : null; });
+  if (p === 6 && hw) s.hw = JSON.parse(JSON.stringify({ rec: hw.rec, phone: hw.phone, zoom: hw.zoom, links: hw.links, videoOnly: hw.videoOnly,
+    linksQ: hw.linksQ, linksDone: hw.linksDone, pick: hw.pick, matDone: hw.matDone, filesNone: hw.filesNone, filesOn: hw.filesOn,
+    choice: hw.choice, dirty: hw.dirty, linkYes: hw.linkYes || null }));
+  if (p === 6) s.inputs = ['logHwVideoInput', 'logHwLinkInput'].map(function (id) { var el = document.getElementById(id); return el ? el.value : ''; });
+  if (p === 3) s.sched = _imSchedGet(w.name, w.day);
+  s.sig = _imPgSig(w, p);
+  return s;
+}
+// What a page shows, as one string: changed = not what it was when the page opened.
+function _imPgSig(w, p) {
+  var hw = logHw;
+  if (p === 1) return JSON.stringify([_logBox(), _imTeachBox(), _hwRowsBox(), _imStuBox()].map(function (b) { return b ? llValues(b).filter(function (v) { return v; }) : null; }));
+  if (p === 6) return JSON.stringify(hw ? [hw.rec, hw.links, !!hw.videoOnly, !!hw.filesNone, hw.files.map(function (f) { return f.name || f.path || ''; }),
+    ['logHwVideoInput', 'logHwLinkInput'].map(function (id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; })] : null);
+  if (p === 3) return String(_imSchedGet(w.name, w.day));
+  return '';
+}
+function _imPgDirty(w) {
+  w = w || window._imWin;
+  return !!(w && w.snap && w.snap.page === w.page && _imRevisit(w) && _imPgSig(w, w.page) !== w.snap.sig);
+}
+function _imBoxSet(box, vals) {
+  if (!box || !vals) return;
+  var was = box.classList.contains('locked');
+  box.classList.remove('locked');
+  box.innerHTML = (vals.length ? vals : ['']).map(function () { return llRowHtml(); }).join('');
+  llRows(box).forEach(function (el, i) { el.value = vals[i] || ''; });
+  if (llRows(box)[0]) llRows(box)[0].classList.add('active');
+  if (typeof llPlaceMic === 'function') llPlaceMic(box);
+  if (was) llLock(box);
+  if (typeof llFit === 'function') llFit(box);
+}
+// Back to what's saved (a step pressed with the page changed and not saved).
+function _imPgRevert(w) {
+  var s = w.snap, hw = logHw;
+  if (!s || s.page !== w.page) return;
+  if (s.page === 1) {
+    if (w.logEdit) {
+      w.logEdit = false; w.logReplace = false;
+      if (activeStudent) activeStudent.logged = true;
+    }
+    [_logBox(), _imTeachBox(), _hwRowsBox(), _imStuBox()].forEach(function (b, i) { _imBoxSet(b, s.boxes[i]); });
+    llLock(_logBox());
+    _imTeachLock(true);
+    var mic = document.getElementById('logMicBtn');
+    if (mic) mic.disabled = true;
+    if (hw) {
+      hw.textLocked = true;
+      llLock(_hwRowsBox());
+      var hm = document.getElementById('logHwMic');
+      if (hm) hm.disabled = true;
+      if (typeof logHwTextInput === 'function') logHwTextInput();
+    }
+  }
+  if (s.page === 6 && hw && s.hw) {
+    for (var k in s.hw) hw[k] = s.hw[k];
+    ['logHwVideoInput', 'logHwLinkInput'].forEach(function (id, i) { var el = document.getElementById(id); if (el) el.value = s.inputs[i]; });
+    _logHwRender();
+  }
+  if (s.page === 3) {
+    delete w.pendSched;
+    w.schedNeed = false;
+    _imSchedPut(w.name, w.day, s.sched);
+  }
+  updateLogButton();
+}
+function _imStepGo(p) {
+  var w = window._imWin, list = w && w.pgList;
+  if (!list || w.sending || w.mailBusy || p === w.page) return;
+  var i = list.indexOf(p);
+  if (i < 0 || i > (w.pgMax || 0)) return;   // back only, or to where you were
+  if (_imRevisit(w)) _imPgRevert(w);   // left unsaved: lost (user, 2026-11-25)
+  _imPageTo(p);
+}
+// The page's own Save: dim on a page gone back to till something changes, then Save & return.
+function _imSaveBtns(w) {
+  w = w || window._imWin;
+  if (!w || !w.pgList) return;
+  var rv = _imRevisit(w), dirty = _imPgDirty(w), busy = !!(w.sending || w.mailBusy);
+  var b = w.page === 1 ? document.getElementById('btnLog') : w.page === 6 ? _imQ('imMatDoneBtn') : w.page === 3 ? _imQ('imSchedDoneBtn') : null;
+  if (!b) return;
+  if (!rv) { if (b.textContent === 'Save & return') b.textContent = 'Save & next'; return; }
+  b.textContent = 'Save & return';
+  b.className = 'link-btn amber';
+  b.removeAttribute('data-tip');
+  if (!dirty || busy) b.disabled = true;
+  else if (w.page !== 1) b.disabled = false;
+  else b.disabled = !llValues(_logBox()).some(function (v) { return v; });   // an emptied log can't save
+}
+document.addEventListener('input', function (e) {
+  if (e.target.closest && e.target.closest('#imLogWin')) setTimeout(function () { _imSaveBtns(); }, 0);
+});
 
 // ── One save at the end (2026-10-09) ──
 // In the Log lesson window Log, HW and Schedule tick and dim the moment
@@ -1452,7 +1580,7 @@ function _imPendLog(student, params, action) {
   }
   _imStepsRender();
   // An edit saves over the log, then goes forward like the first save (user, 2026-11-15; it stayed on page 1).
-  if (edited) { var pl = w.pgList || [], nx = pl[pl.indexOf(w.page) + 1]; if (nx) w.turnTo = nx; _imSend(w, logHw); }
+  if (edited) { var nx = _imSaveTarget(w); if (nx) w.turnTo = nx; _imSend(w, logHw); }   // gone back to: Save & return (user, 2026-11-25)
 }
 // HW to save: answered here, or files picked up here, and not in the sheet yet.
 function _imHwNeeds(hw) { return !!(hw && hw.choice && (hw.dirty || !hw.saved) && !hw.loading && !hw.uploading); }
@@ -1742,6 +1870,9 @@ function _imMatDone() {
   hw.zoom = hw.rec === 'zoom';
   hw.choice = null;
   _imHwChanged();
+  // Then on (user, 2026-11-25): gone back to, it saved and stayed put; the first time it waited on the page turning by itself.
+  var w = window._imWin, nx = w && w.page === 6 ? _imSaveTarget(w) : null;
+  if (nx) _imPageTo(nx);
 }
 // Files None (user, 2026-11-15): no files this lesson; again = not answered. Waits while files are in.
 function _imFilesNone() {

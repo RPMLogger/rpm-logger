@@ -257,7 +257,7 @@ function submitLog(noShow) {
   if (window._imDocked && window._imWin && activeStudent && activeStudent.logged && !window._imWin.logEdit && !window._imWin.pendLog && !window._imWin.sending) {
     var lbx = _logBox(), hwNow = typeof _hwRowsJoin === "function" ? _hwRowsJoin() : "";
     var hwWas = logHw ? (logHw.textStored || logHw.textSaved || logHw.text || "") : hwNow;
-    var changed = (lbx && !lbx.classList.contains("locked")) || hwNow !== hwWas;
+    var changed = (lbx && !lbx.classList.contains("locked")) || hwNow !== hwWas || (typeof _imPgDirty === "function" && _imPgDirty());   // any change on a page gone back to (2026-11-25)
     if (!changed) {
       var pl = window._imWin.pgList || [], nx = pl[pl.indexOf(window._imWin.page) + 1];
       if (nx && typeof _imPageTo === "function") _imPageTo(nx);
