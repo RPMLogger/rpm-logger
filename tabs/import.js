@@ -1263,7 +1263,9 @@ function _imStepsRender() {
   // A link box's None, once pressed (box says None), dims like the Files None (user, 2026-11-25).
   [['logHwVideo', 'logHwVideoInput'], ['logHwLink', 'logHwLinkInput']].forEach(function (x) {
     var sec = document.getElementById(x[0]), inp = document.getElementById(x[1]), p = sec && sec.querySelector('.im-link-none .im-pill-none');
-    if (p && inp) p.classList.toggle('im-none-used', /^none$/i.test(inp.value.trim()));
+    var isNone = !!inp && /^none$/i.test(inp.value.trim());
+    if (p && inp) p.classList.toggle('im-none-used', isNone);
+    if (inp) inp.classList.toggle('im-val-none', isNone);   // the None written in the box dims too (user, 2026-11-25)
   });
   var an = _imQ('imAllNone');
   if (an) an.disabled = !hw || !!(hw.locked || hw.loading || hw.saving || hw.uploading || hw.gathering || hw.files.length || hw.links.length || (hw.found || []).length);
@@ -1737,20 +1739,14 @@ function _imFlushOnClose() {
 function _imDone(name) {
   var c = _imCtx(), card = c.root && c.root.querySelector('.im-do-card');
   if (!card) return;
-  card.classList.add('im-done');
-  var msg = document.createElement('div');
-  // The SAVING look (user, 2026-11-15): page hidden, a centred pill, DONE with a thin check in place of the ring.
-  msg.className = 'im-done-msg rpm-load-center rpm-keep';
-  msg.innerHTML = '<span class="im-done-t"><svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>Done</span>';
-  card.appendChild(msg);
-  setTimeout(function () {
-    var w = window._imWin;
-    if (!w || w.name !== name) return;
-    var next = w.next, fromImport = w.fromImport;
-    closeLogPanel();   // the window closes
-    if (next) next();  // the student's next open lesson (2026-10-08)
-    else if (fromImport && _imOpen && _imKey(_imOpen) === _imKey(name)) _imClose();   // the last one: back to the list, their card green
-  }, 1400);
+  // No DONE ✓ at the end (user, 2026-11-25): the window just closes. Only a problem says something
+  // (Unsuccessful + why, which never gets here). Was the SAVING look with DONE for 1.4s (2026-11-15).
+  var w = window._imWin;
+  if (!w || w.name !== name) return;
+  var next = w.next, fromImport = w.fromImport;
+  closeLogPanel();   // the window closes
+  if (next) next();  // the student's next open lesson (2026-10-08)
+  else if (fromImport && _imOpen && _imKey(_imOpen) === _imKey(name)) _imClose();   // the last one: back to the list, their card green
 }
 
 // Finish (2026-10-18): the files / links / phone are all in; till then Materials stays open.

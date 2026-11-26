@@ -7333,3 +7333,8 @@ html body #imLogWin :is(#imAllNoneSlot, #_a#_b#_c#_d#_e) { padding-right: 23px; 
 html body :is(#imAuditView .en-card.ts-row, #_a#_b#_c#_d#_e#_f#_g#_h) { width: 100%; }   /* Lessons Audit cards stay wide, like its Details window's grid (user, 2026-11-25) */
 #imAuditView .pa-row .au-ck-tag { border-radius: 999px; padding: 3px 9px; }   /* Lesson Checklist steps as pills (user, 2026-11-25) */
 html body :is(#auditCkSection .en-card.ts-row, #_a#_b#_c#_d#_e#_f#_g#_h#_i) { width: 560px; }   /* Lesson Checklist cards at the one card width; only Unlogged stays wide (user, 2026-11-25) */
+/* None written in a Practice materials box dims too: it's there, but it's nothing (user, 2026-11-25). */
+html body #imLogWin :is(#logHwVideoInput.im-val-none, #logHwLinkInput.im-val-none, #_a#_b#_c#_d) { color: var(--t-faint); }
+html body #imLogWin .im-mat-qbox:has(#imRecNo.done) :is(.im-rec-box, #_a#_b#_c#_d) { color: var(--t-faint); }
+/* No change picked keeps its hover look, so it reads as picked (user, 2026-11-25). */
+html body #imLogWin .im-page[data-pg="3"] #imSchedRs :is(#imSchedNo.done, #_a#_b#_c#_d#_e#_f#_g) { color: var(--t-normal); border-color: rgba(255,255,255,0.22); background: #191919; }
