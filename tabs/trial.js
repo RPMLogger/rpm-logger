@@ -785,7 +785,7 @@ function _trAvPaint() {
 
   var html =
     "<label class='field-label'>Offer to</label>" +
-    "<div class='tr-av-names'>" + (names || "<span style='color:var(--muted)'>Nobody in Contact</span>") + "</div>" +
+    "<div class='tr-av-names'>" + (names || "<span style='color:var(--muted)'>Nobody in Initiate</span>") + "</div>" +
     "<div class='tr-av-key'><i class='k open'></i>Open <i class='k bi'></i>Biweekly only <i class='k off'></i>Offered " +
       "<i class='k me'></i>" + (whoName ? inqEsc(whoName) + "’s" : "Picked") + "</div>";
 

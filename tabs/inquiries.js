@@ -339,7 +339,7 @@ function renderInquiries(inquiries) {
       "<div class='inq-acts'>" +
         // What it does, then where it leaves the person: Email List, and
         // whether the inquiry stays in the Inquiries sheet (the archive).
-        btn("yes",   "yes",     "Yes",      "Instant.\nCard moves from Inquiries to Contact.\nNot saved in a future use Email list.\nStays in Inquiry Archive.") +
+        btn("yes",   "yes",     "Yes",      "Instant.\nCard moves from Inquiries to Initiate.\nNot saved in a future use Email list.\nStays in Inquiry Archive.") +
         btn("maybe opens-window", "maybe", "Maybe", "Opens a window.\n\"Try later\" email template.\nCard disappears on send.\nSaved in a future use Email list.\nStays in Inquiry Archive.") +
         btn("no opens-window",    "no",    "No",    "Opens a window.\n\"No room\" email template.\nCard disappears on send.\nNot saved in a future use Email list.\nStays in Inquiry Archive.", true) +
         btn("",      "noreply", "No reply", "Instant.\nCard disappears right away.\nSaved in a future use Email list.\nStays in Inquiry Archive.", true) +

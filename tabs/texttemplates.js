@@ -39,7 +39,7 @@ function _ttPickHtml(key, cb) {
     // TO as a small title, the picked name under it (user, 2026-11-21; was "To: Student").
     '<label class="field-label">To</label><div class="tt-to-v" id="ttTo_' + key + '"></div>' +
     '<div class="tt-pick">' + chips +
-      '<span class="tt-other"><button class="link-btn" data-pk="other" onclick="_ttOtherOpen(\'' + key + '\')">Other student ▾</button>' +
+      '<span class="tt-other"><button class="link-btn" data-pk="other" onclick="_ttOtherOpen(\'' + key + '\')"><span>Other student</span><span class="gt-caret">▾</span></button>' +
       '<span class="tt-other-panel" hidden><input class="rpm-field" placeholder="Type to find…" autocomplete="off" oninput="_ttPk[\'' + key + '\'].hi=0;_ttOtherRender(\'' + key + '\')" onkeydown="_ttOtherKey(event,\'' + key + '\')">' +
       '<span class="cash-dd-list"></span></span></span>' +
     '</div></div>';
@@ -47,7 +47,7 @@ function _ttPickHtml(key, cb) {
 function _ttPicked(key, name, which) {
   var box = document.getElementById('ttPk_' + key); if (!box) return;
   box.querySelectorAll('[data-pk]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-pk') == which); });
-  var ob = box.querySelector('[data-pk="other"]'); if (ob) ob.textContent = which === 'other' ? name + ' ▾' : 'Other student ▾';
+  var ob = box.querySelector('[data-pk="other"]'); if (ob) ob.firstChild.textContent = which === 'other' ? name : 'Other student';   // the caret span stays
   var to = document.getElementById('ttTo_' + key); if (to) { to.textContent = name; to.classList.add('on'); }
   var t = (todayStudents || []).filter(function (s) { return s.name === name; })[0];
   _ttPk[key].name = name;

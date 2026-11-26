@@ -38,7 +38,7 @@ function _rsAllItems() {
     if (em.gbusiness) out[out.length - 1].fn = 'em-gbusiness';
   } else add('emails', _rsBadge('emNavBadge'), 'new email', 'new emails', 'emails');
   add('inq', _rsBadge('inqBadge'), 'new inquiry', 'new inquiries', 'inquiries');
-  add('init', _rsBadge('initNavBadge'), 'Contact reply', 'Contact replies', 'initiate');
+  add('init', _rsBadge('initNavBadge'), 'Initiate reply', 'Initiate replies', 'initiate');
   var lessons = _rsLessonsAudit();
   if (lessons) out.push({ k: 'au-lessons', n: lessons, top: lessons + ' in Lessons audit', fn: 'lessons' });
   var owe = (typeof _auCache !== 'undefined' && _auCache.unpaid && _auCache.unpaid.list) ? _auCache.unpaid.list.length : 0;
